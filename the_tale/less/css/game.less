@@ -1,0 +1,98 @@
+
+.game-tabs {
+    width: 300px; 
+    height: 600px; 
+    border: black 2px solid; 
+    display: inline-block;
+
+    position: absolute;
+    left: 5px;
+    top: 5px;
+
+    .cards-tab {
+
+        .card-record {
+            height: 30px; 
+            border: black 1px solid;
+
+            &.cooldown {
+                color: red;
+            }
+        }
+    }
+}
+
+.heroes-widget {
+    width: 300px; 
+    height: 600px; 
+    border: black 2px solid; 
+    display: inline-block;
+
+    position: absolute;
+    left: 310px;
+    top: 5px;
+}
+
+.enemy-widget {
+    width: 300px; 
+    height: 100px; 
+    border: black 2px solid; 
+    display: inline-block;
+
+    position: absolute;
+    left: 310px;
+    top: 610px;
+}
+
+.date-widget {
+    width: 100px; 
+    border: black 2px solid; 
+    display: inline-block;
+
+    position: absolute;
+    left: 650px;
+    top: 5px;
+}
+
+.game-map-widget {
+    position: absolute;
+    left: 650px;
+    top: 25px;
+
+    .game-map {
+        width: 800px; 
+        height: 600px; 
+        background: green;
+    }
+
+    .navigation-panel {
+        position: absolute; 
+        left: 820px; 
+        top: 30px;
+
+        input {
+            position: relative;
+        }
+    }
+
+    .info-panel {
+        position: absolute; 
+        left: 820px; 
+        top: 90px;
+    }
+}
+
+
+.card-tooltip {
+    max-width: 300px;
+
+    .card-description {
+        font-style:oblique; 
+        font-size: 0.85em;
+    }
+
+    .card-artistic {
+        font-style:italic; 
+        font-size: 0.75em;
+    }
+}

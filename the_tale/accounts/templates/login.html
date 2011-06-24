@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var loginForm = new pgf.forms.Form(jQuery('#js-login-form'),
+                                               {OnSuccess: function(e){location.href = "{{ url('index') }}";}});
+});
+
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<form id="js-login-form" method="post" action="{{ url('accounts:login') }}">
+
+  {{ login_form.errors_container }}
+
+  <div>{{ login_form.email.widget}}</div>
+  <div>{{ login_form.password.widget }}</div>
+  <div><input type="submit" value="Ok"/></div>
+
+</form>
+
+</div>
+
+{% endblock %}

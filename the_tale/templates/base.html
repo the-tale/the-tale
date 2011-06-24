@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <title>{% block title%}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{{ LESS_URL }}css/main.css" />
+    <link rel="stylesheet" type="text/css" href="{{ LESS_URL }}css/javascript.css" />
+
+    <script src="{{ STATIC_URL }}plugins/jquery/jquery-1.5.js" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}plugins/jquery/jquery-ui-1.8.9/js/jquery-ui-1.8.9.custom.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="{{ STATIC_URL }}plugins/jquery/jquery.url.js" type="text/javascript"></script>
+
+    <script src="{{ STATIC_URL }}common/base.js" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}common/dialog.js" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}common/forms.js" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}common/tooltips.js" type="text/javascript"></script> 
+
+    {% if settings.DEBUG %}
+    <script src="{{ STATIC_URL }}common/debug.js" type="text/javascript"></script>
+    {% endif %}
+
+    <script type="text/javascript">
+
+jQuery.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken') );
+        }
+    }
+});
+
+    </script>
+
+    {% block head %}{% endblock%}
+  </head>
+  <body>
+    {% block body %}
+    <div class="header">
+      <div class="main-menu" style="display: inline;">
+        <a href="">main page</a>
+        <a href="{{ url('game:') }}">game</a>
+        <a href="{{ url('game:journal_messages:admin') }}">edit messages</a>
+        <a href="{{ url('game:map:roads:admin') }}">edit roads</a>
+        <a href="{{ url('game:turns:next_turn') }}">next_turn</a>
+      </div>
+      |
+      <div class="profile-menu" style="display: inline;">
+        {% if request.user.is_authenticated() %}
+        <span>{{ request.user.username }}</span> | <a href="{{ url('accounts:logout') }}">logout</a>
+        {% else %}
+        <a href="{{ url('accounts:login') }}">login</a> | <a href="{{ url('accounts:registration') }}">register</a>
+        {% endif %}
+      </div>
+
+    </div>
+    <div class="content">
+      {% block content %}
+      {% endblock %}
+    </div>
+    <div class="footer">
+    </div>
+    {% endblock %}
+  </body>
+</html>

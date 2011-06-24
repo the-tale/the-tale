@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var registrationForm = new pgf.forms.Form(jQuery('#js-registration-form'),
+                                              {OnSuccess: function(e){location.href = "{{ url('index') }}";}});
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+<form id="js-registration-form" method="post" action="{{ url('accounts:registration') }}">
+
+  {{ registration_form.errors_container }}
+
+  <div>{{ registration_form.nick.widget}}</div>
+  <div>{{ registration_form.email.widget }}</div>
+  <div>{{ registration_form.password.widget }}</div>
+  <div>{{ registration_form.password_repeated.widget }}</div>
+  <div><input type="submit" value="Ok"/></div>
+
+</form>
+
+</div>
+
+{% endblock %}
