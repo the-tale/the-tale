@@ -6,8 +6,7 @@ from django_next import jinja2 as jinja2_next
 from django_next.views.views import template_renderer
 
 admin.autodiscover()
-
-jinja2_next.init()
+jinja2_next.autodiscover()
 
 urlpatterns = patterns('',
                        url(r'^less/', include('django_next.less.urls') ), #TODO: replace with settings.LESS_URL

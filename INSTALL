@@ -1,0 +1,5 @@
+
+- install djano-next from https://github.com/Tiendil/django-next
+  Do not foget add import path, for example, like in that command:
+
+  export PYTHONPATH=$PYTHONPATH:"<path to django-next>"

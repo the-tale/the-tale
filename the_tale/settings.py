@@ -44,8 +44,9 @@ STATICFILES_DIRS = ( os.path.join(PROJECT_DIR, 'static'), )
 ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 
-LESS_URL = '/less/'
+LESS_CSS_URL = '/less/'
 LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
+LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
 
 
 STATICFILES_FINDERS = (
