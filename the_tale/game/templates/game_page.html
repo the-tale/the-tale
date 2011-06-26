@@ -70,121 +70,268 @@ jQuery(document).ready(function(e){
 
 {% block content %}
 
-<div id="pgf-game-tabs" class="game-tabs">
+<div id="game-page">
 
-  <div id="pgf-game-tabs-head">
-    <a href="" id="pgf-cards-link" class="pgf-tab-link">Deck</a>
-    <a href="" id="pgf-tmp-link" class="pgf-tab-link">Tmp</a>
-  </div>
+  <div id="left-column" class="column">
 
-  <div id="pgf-game-tabs-body">
-    
-    <div id="pgf-cards-tab" class="pgf-tab cards-tab">
-
-      <div id="pgf-cards-widget">
-        <div class="pgf-cards-widget-content"> 
-
-          <ul class="pgf-cards-list">
-            <li class="pgf-template card-record pgf-card-record">
-              <span class="pgf-card-name"></span>
-              <a href="#" class="pgf-card-form-link">activate</a>
-            </li>
-          </ul>
-
+    <div id="hero-base-block" class="info-block">
+      <strong class="name">(19) Hero Name</strong> 
+      <div class="health-bar">
+        <div class="stats-bar">
+          <div class="layer layer-1"></div>
+          <div class="layer layer-2"></div>
         </div>
+        130/999 + 53
       </div>
-
+      <table class="stats"> 
+        <tr>
+          <td class="stat-record">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/intellect-icon.png"/>
+            <span class="stat-value">5 (+1)</span>
+          </td>
+          <td class="stat-record">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/armor-icon.gif"/>
+            <span class="stat-value">12 (+3)<span>
+          </td>
+        </tr>
+        <tr>
+          <td class="stat-record">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/constitution-icon.png"/>
+            <span class="stat-value">3 (-1)</span>
+          </td>
+          <td class="stat-record">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/gold-icon.png"/>
+            <span class="stat-value">1568<span>
+          </td>
+        </tr>
+        <tr>
+          <td class="stat-record">
+            <img class="stat-icon" class="stat-icon" src="{{ STATIC_URL }}tmp/reflexes-icon.jpg"/>
+            <span class="stat-value">5</span>
+          </td>
+          <td class="stat-record">
+            <img class="stat-icon" class="stat-icon" src="{{ STATIC_URL }}tmp/quests-icon.png"/>
+            <span class="stat-value">133</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="stat-record">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/chaoticity-icon.png"/> 
+            <span class="stat-value">2 (-1)</span>
+          </td>
+          <td class="stat-record">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/death-icon.gif"/>
+            <span class="stat-value">29</span>
+          </td>
+        </tr>
+      </table>
     </div>
 
-    <div id="pgf-tmp-tab" class="pgf-tab">
+    <div id="hero-effects-block" class="info-block active-effects-block">
+      <img class="effect-icon" src="{{ STATIC_URL }}tmp/effect-1.jpg">
+      <img class="effect-icon" src="{{ STATIC_URL }}tmp/effect-2.png">
+      <img class="effect-icon" src="{{ STATIC_URL }}tmp/effect-3.jpg">
+      <img class="effect-icon" src="{{ STATIC_URL }}tmp/effect-4.gif">
     </div>
 
+    <div id="hero-equipment-block" class="info-block">
+      <div class="equipment-record">
+        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <span class="item-name first">оружие</span>
+      </div>
+      <div class="equipment-record">
+        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <span class="item-name first">шлем</span>
+      </div>
+      <div class="equipment-record">
+        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <span class="item-name first">амулет 1</span>
+        <span class="item-name">амулет 2</span>
+      </div>
+      <div class="equipment-record">
+        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <span class="item-name first">плечи</span>
+      </div>
+      <div class="equipment-record">
+        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <span class="item-name first">грудь</span>
+      </div>
+      <div class="equipment-record">
+        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <span class="item-name first">перчатки</span>
+      </div>
+      <div class="equipment-record">
+        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <span class="item-name first">плащ</span>
+      </div>
+      <div class="equipment-record">
+        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <span class="item-name first">ноги</span>
+      </div>
+      <div class="equipment-record">
+        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <span class="item-name first">сапоги</span>
+      </div>
+      <div class="equipment-record">
+        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <span class="item-name first">кольцо 1</span>
+        <span class="item-name">кольцо 2</span>
+        <span class="item-name">кольцо 3</span>
+        <span class="item-name">кольцо 4</span>
+      </div>
+    </div>
+
+    <div id="hero-bag-block" class="info-block">
+      <table>
+        <tr><td>добыча 1</td><td>1 * 130 г.</td><tr>
+        <tr><td>лут 1</td><td>3 * 30 г.</td><tr>
+        <tr><td>добыча 1</td><td>4 * 10 г.</td><tr>
+        <tr><td>лут 1</td><td>1 * 13 г.</td><tr>
+        <tr><td>добыча 1</td><td>4 * 130 г.</td><tr>
+        <tr><td>лут 1</td><td>5 * 1120 г.</td><tr>
+        <tr><td>добыча 1</td><td>12 *230 г.</td><tr>
+        <tr><td>лут 1</td><td>1 * 230 г.</td><tr>
+        <tr><td>добыча 1</td><td>1 * 30 г.</td><tr>
+        <tr><td>лут 1</td><td>1 * 10 г.</td><tr>
+      </table>
+    </div>
+  </div>
+
+  <div id="center-column" class="column">
+    <div id="world-place-time-block" class="info-block"></div>    
+    <div id="quests-line-block" class="info-block"></div>    
+    <div id="current-action-block" class="info-block"></div>    
+    <div id="log-block" class="info-block"></div>    
+    <div id="journal-block" class="info-block"></div>    
+  </div>
+
+  <div id="right-column" class="column">
+    <div id="angel-base-block" class="info-block"></div>
+    <div id="angel-effects-block" class="info-block active-effects-block">
+      <img class="effect-icon" src="{{ STATIC_URL }}tmp/effect-2.png">
+      <img class="effect-icon" src="{{ STATIC_URL }}tmp/effect-3.jpg">
+      <img class="effect-icon" src="{{ STATIC_URL }}tmp/effect-4.gif">
+    </div>
+    <div id="angel-actions-block" class="info-block"></div>
   </div>
 
 </div>
 
-{% macro hero_base_panel() %}
-<div>
-  (<span class="pgf-wisdom"></span>) <span class="pgf-name"></span>
-  <div class="pgf-attr-primary">
-    I <span class="pgf-intellect"></span>
-    CO <span class="pgf-constitution"></span>
-    R <span class="pgf-reflexes"></span>
-    CH <span class="pgf-chaoticity"></span>
-  </div>
-  health: <span class="pgf-health"></span> [<span class="pgf-max-health"></span>]
-  <br/>
-  Action: <span class="pgf-short-description"></span> (<span class="pgf-percents"></span>%) 
-  [<span class="pgf-entropy"></span>/<span class="pgf-entropy-barier"></span>]
-  <br/>
-  Position: (<span class="pgf-position-type"></span>) <span class="pgf-position-name"></span>
-  <br/>
-</div>
-{% endmacro %}
+<!-- <div id="pgf-game-tabs" class="game-tabs"> -->
 
-<div id="pgf-heroes-widget" class="heroes-widget">
-  <div class="pgf-heroes-widget-content">
-    <ul class="pgf-heroes-list">
+<!--   <div id="pgf-game-tabs-head"> -->
+<!--     <a href="" id="pgf-cards-link" class="pgf-tab-link">Deck</a> -->
+<!--     <a href="" id="pgf-tmp-link" class="pgf-tab-link">Tmp</a> -->
+<!--   </div> -->
 
-      <li class="pgf-template">
-        {{ hero_base_panel() }}
-        <h2>Journal</h2>
-        <div class="pgf-messages-log">
-          <ul>
+<!--   <div id="pgf-game-tabs-body"> -->
+    
+<!--     <div id="pgf-cards-tab" class="pgf-tab cards-tab"> -->
 
-            <li class="pgf-template">
-              id(<span class="pgf-message-pattern-id"></span>)
-              <br/>
-              <span class="pgf-message"></span>
-            </li>
+<!--       <div id="pgf-cards-widget"> -->
+<!--         <div class="pgf-cards-widget-content">  -->
 
-          </ul>
-        </div>
-      </li>
+<!--           <ul class="pgf-cards-list"> -->
+<!--             <li class="pgf-template card-record pgf-card-record"> -->
+<!--               <span class="pgf-card-name"></span> -->
+<!--               <a href="#" class="pgf-card-form-link">activate</a> -->
+<!--             </li> -->
+<!--           </ul> -->
 
-    </ul>
-  </div>
-</div>
+<!--         </div> -->
+<!--       </div> -->
 
-<div id="pgf-enemy-widget" class="enemy-widget">
-  {{ hero_base_panel() }}
-</div>
+<!--     </div> -->
 
-<div id="pgf-date-widget" class="date-widget">
-  <div class="pgf-date-content">
-    turn: <span class="pgf-turn-number"></span>
-  </div>
-</div>
+<!--     <div id="pgf-tmp-tab" class="pgf-tab"> -->
+<!--     </div> -->
 
-<div id="pgf-map-widget" class="game-map-widget">
-  <div id="pgf-map" class="game-map"></div>
-  <div class="navigation-panel">
-    <input id="pgf-zoom-up" type="button" value="-"/>
-    <input id="pgf-zoom-down" type="button" value="+"/>
-  </div>
-  <div id="pgf-info" class="info-panel">
-    x:<span id="pgf-x-pos"></span>, y:<span id="pgf-y-pos"></span>
-    zoom-lvl:<span id="pgf-zoom-lvl"></span>, zoom-value:<span id="pgf-zoom-value"></span>
-  </div>
-</div>
+<!--   </div> -->
 
-<div id="pgf-card-tooltip-template" class="pgf-template card-tooltip">
-  <strong class="pgf-card-name"></strong>
-  <div class="pgf-card-description card-description"></div>
-  <div class="pgf-card-artistic card-artistic"></div>
-  <div class="pgf-card-available-after card-avaliable">
-    Available after <span class="pgf-card-available-after-value"></span> (turns)
-  </div>
-</div>
+<!-- </div> -->
 
-<div id="pgf-map-city-template" class="pgf-template">
-  <div style="width: 10px; height: 10px; background: green;"></div>
-  (<span class="pgf-place-size"></span>) <span class="pgf-place-name"></span>
-</div>
+<!-- {% macro hero_base_panel() %} -->
+<!-- <div> -->
+<!--   (<span class="pgf-wisdom"></span>) <span class="pgf-name"></span> -->
+<!--   <div class="pgf-attr-primary"> -->
+<!--     I <span class="pgf-intellect"></span> -->
+<!--     CO <span class="pgf-constitution"></span> -->
+<!--     R <span class="pgf-reflexes"></span> -->
+<!--     CH <span class="pgf-chaoticity"></span> -->
+<!--   </div> -->
+<!--   health: <span class="pgf-health"></span> [<span class="pgf-max-health"></span>] -->
+<!--   <br/> -->
+<!--   Action: <span class="pgf-short-description"></span> (<span class="pgf-percents"></span>%)  -->
+<!--   [<span class="pgf-entropy"></span>/<span class="pgf-entropy-barier"></span>] -->
+<!--   <br/> -->
+<!--   Position: (<span class="pgf-position-type"></span>) <span class="pgf-position-name"></span> -->
+<!--   <br/> -->
+<!-- </div> -->
+<!-- {% endmacro %} -->
 
-<div id="pgf-map-hero-template" class="pgf-template">
-  <div style="width: 6px; height: 6px; background: blue;"></div>
-  <span class="pgf-hero-name"></span>
-</div>
+<!-- <div id="pgf-heroes-widget" class="heroes-widget"> -->
+<!--   <div class="pgf-heroes-widget-content"> -->
+<!--     <ul class="pgf-heroes-list"> -->
+
+<!--       <li class="pgf-template"> -->
+<!--         {{ hero_base_panel() }} -->
+<!--         <h2>Journal</h2> -->
+<!--         <div class="pgf-messages-log"> -->
+<!--           <ul> -->
+
+<!--             <li class="pgf-template"> -->
+<!--               id(<span class="pgf-message-pattern-id"></span>) -->
+<!--               <br/> -->
+<!--               <span class="pgf-message"></span> -->
+<!--             </li> -->
+
+<!--           </ul> -->
+<!--         </div> -->
+<!--       </li> -->
+
+<!--     </ul> -->
+<!--   </div> -->
+<!-- </div> -->
+
+<!-- <div id="pgf-enemy-widget" class="enemy-widget"> -->
+<!--   {{ hero_base_panel() }} -->
+<!-- </div> -->
+
+<!-- <div id="pgf-date-widget" class="date-widget"> -->
+<!--   <div class="pgf-date-content"> -->
+<!--     turn: <span class="pgf-turn-number"></span> -->
+<!--   </div> -->
+<!-- </div> -->
+
+<!-- <div id="pgf-map-widget" class="game-map-widget"> -->
+<!--   <div id="pgf-map" class="game-map"></div> -->
+<!--   <div class="navigation-panel"> -->
+<!--     <input id="pgf-zoom-up" type="button" value="-"/> -->
+<!--     <input id="pgf-zoom-down" type="button" value="+"/> -->
+<!--   </div> -->
+<!--   <div id="pgf-info" class="info-panel"> -->
+<!--     x:<span id="pgf-x-pos"></span>, y:<span id="pgf-y-pos"></span> -->
+<!--     zoom-lvl:<span id="pgf-zoom-lvl"></span>, zoom-value:<span id="pgf-zoom-value"></span> -->
+<!--   </div> -->
+<!-- </div> -->
+
+<!-- <div id="pgf-card-tooltip-template" class="pgf-template card-tooltip"> -->
+<!--   <strong class="pgf-card-name"></strong> -->
+<!--   <div class="pgf-card-description card-description"></div> -->
+<!--   <div class="pgf-card-artistic card-artistic"></div> -->
+<!--   <div class="pgf-card-available-after card-avaliable"> -->
+<!--     Available after <span class="pgf-card-available-after-value"></span> (turns) -->
+<!--   </div> -->
+<!-- </div> -->
+
+<!-- <div id="pgf-map-city-template" class="pgf-template"> -->
+<!--   <div style="width: 10px; height: 10px; background: green;"></div> -->
+<!--   (<span class="pgf-place-size"></span>) <span class="pgf-place-name"></span> -->
+<!-- </div> -->
+
+<!-- <div id="pgf-map-hero-template" class="pgf-template"> -->
+<!--   <div style="width: 6px; height: 6px; background: blue;"></div> -->
+<!--   <span class="pgf-hero-name"></span> -->
+<!-- </div> -->
 
 {% endblock %}

@@ -1,98 +1,156 @@
 
-.game-tabs {
-    width: 300px; 
-    height: 600px; 
-    border: black 2px solid; 
-    display: inline-block;
+@common-icon-size: 16px;
 
-    position: absolute;
-    left: 5px;
-    top: 5px;
+@effect-icon-size: 24px;
+@effect-icon-margin: 2px;
 
-    .cards-tab {
+#game-page {
+    margin: 0;
+    padding: 0;
+    background: gray;
+    height: 500px;
 
-        .card-record {
-            height: 30px; 
-            border: black 1px solid;
+    .column {
+        margin: 5px;
+        height: 500px;
+        display: inline-block;
 
-            &.cooldown {
-                color: red;
+        .info-block {
+            margin-top: 5px;
+            margin-bottom: 5px;
+            background: #FFFF00;
+            width: 100%;
+            font-size: 9pt;
+        }
+    }
+
+    .active-effects-block {
+        .effect-icon {
+            margin: @effect-icon-margin;
+            width: @effect-icon-size;
+            height: @effect-icon-size;
+        }
+        height: @effect-icon-size + @effect-icon-margin * 2;
+    }
+
+    .stats-bar {
+        width: 100px;
+        height: 5px;
+        position: relative;
+        background: #F0F0F0;
+        border: 1px solid black;
+        display: inline-block;
+        
+        .layer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            height: 5px;
+        }
+        .layer-1 {
+            width: 100px;
+            background: #F0F0F0;
+        }
+        .layer-2 {
+            width: 30px;
+            background: #90FF90;
+        }
+    }
+}
+
+#left-column {
+    width: 200px;
+    background: red;
+    float: left;
+}
+
+#center-column {
+    margin: 0 auto;
+    width: 570px;
+    background: green;
+}
+
+#right-column {
+    width: 200px;
+    background: blue;
+    float: right;
+}
+
+
+#hero-base-block {
+    height: 110px;
+
+    .name {
+        font-size: 11pt;
+    }
+
+    .stat-record {
+        .stat-icon {
+            vertical-align: middle;
+            width: @common-icon-size;
+            height: @common-icon-size;
+        }
+    }
+}
+
+#hero-effects-block {
+}
+
+#hero-equipment-block {
+
+    .equipment-record {
+        
+        .item-type {
+            vertical-align: middle;
+            width: @common-icon-size;
+            height: @common-icon-size;
+        }
+
+        .item-name {
+            display: block;
+            margin-left: @common-icon-size + 4px;
+
+            &.first {
+                display: inline-block;
+                margin-left: 0;
             }
         }
     }
 }
 
-.heroes-widget {
-    width: 300px; 
-    height: 600px; 
-    border: black 2px solid; 
-    display: inline-block;
-
-    position: absolute;
-    left: 310px;
-    top: 5px;
-}
-
-.enemy-widget {
-    width: 300px; 
-    height: 100px; 
-    border: black 2px solid; 
-    display: inline-block;
-
-    position: absolute;
-    left: 310px;
-    top: 610px;
-}
-
-.date-widget {
-    width: 100px; 
-    border: black 2px solid; 
-    display: inline-block;
-
-    position: absolute;
-    left: 650px;
-    top: 5px;
-}
-
-.game-map-widget {
-    position: absolute;
-    left: 650px;
-    top: 25px;
-
-    .game-map {
-        width: 800px; 
-        height: 600px; 
-        background: green;
-    }
-
-    .navigation-panel {
-        position: absolute; 
-        left: 820px; 
-        top: 30px;
-
-        input {
-            position: relative;
-        }
-    }
-
-    .info-panel {
-        position: absolute; 
-        left: 820px; 
-        top: 90px;
-    }
+#hero-bag-block {
+    height: 300px;
 }
 
 
-.card-tooltip {
-    max-width: 300px;
+#angel-base-block {
+    height:  50px;
+}
 
-    .card-description {
-        font-style:oblique; 
-        font-size: 0.85em;
-    }
+#angel-effects-block {
+}
 
-    .card-artistic {
-        font-style:italic; 
-        font-size: 0.75em;
-    }
+#angel-actions-block {
+    height:  300px;
+}
+
+#world-place-time-block {
+    height: 50px;
+}
+
+#quests-line-block {
+    height: 50px;
+}
+
+#current-action-block {
+    height: 100px;
+}
+
+#log-block {
+    height: 90px;
+}
+
+#journal-block {
+    height: 300px;
 }

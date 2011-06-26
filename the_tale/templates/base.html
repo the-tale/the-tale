@@ -50,25 +50,27 @@ jQuery.ajaxSetup({
   </head>
   <body>
     {% block body %}
-    <div class="header">
-      <div class="main-menu" style="display: inline;">
-        <a href="">main page</a>
-        <a href="{{ url('game:') }}">game</a>
-        <a href="{{ url('game:journal_messages:admin') }}">edit messages</a>
-        <a href="{{ url('game:map:roads:admin') }}">edit roads</a>
-        <a href="{{ url('game:turns:next_turn') }}">next_turn</a>
-      </div>
-      |
-      <div class="profile-menu" style="display: inline;">
-        {% if request.user.is_authenticated() %}
-        <span>{{ request.user.username }}</span> | <a href="{{ url('accounts:logout') }}">logout</a>
-        {% else %}
-        <a href="{{ url('accounts:login') }}">login</a> | <a href="{{ url('accounts:registration') }}">register</a>
-        {% endif %}
-      </div>
-
-    </div>
-    <div class="content">
+    <div id="content">
+      <header>
+        <div id="top-line">
+          <div class="main-menu" style="display: inline;">
+            <a href="">main page</a>
+            <a href="{{ url('game:') }}">game</a>
+            <a href="{{ url('game:journal_messages:admin') }}">edit messages</a>
+            <a href="{{ url('game:map:roads:admin') }}">edit roads</a>
+            <a href="{{ url('game:turns:next_turn') }}">next_turn</a>
+          </div>
+          |
+          <div class="profile-menu" style="display: inline;">
+            {% if request.user.is_authenticated() %}
+            <span>{{ request.user.username }}</span> | <a href="{{ url('accounts:logout') }}">logout</a>
+            {% else %}
+            <a href="{{ url('accounts:login') }}">login</a> | <a href="{{ url('accounts:registration') }}">register</a>
+            {% endif %}
+          </div>
+          <h1>The-Tale</h1>
+        </div>
+      </header>
       {% block content %}
       {% endblock %}
     </div>
