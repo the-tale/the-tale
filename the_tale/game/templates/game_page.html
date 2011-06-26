@@ -140,40 +140,40 @@ jQuery(document).ready(function(e){
         <span class="item-name first">оружие</span>
       </div>
       <div class="equipment-record">
-        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <img class="item-type" src="{{ STATIC_URL }}tmp/helmet-icon.png"/>
         <span class="item-name first">шлем</span>
       </div>
       <div class="equipment-record">
-        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <img class="item-type" src="{{ STATIC_URL }}tmp/amulet-icon.png"/>
         <span class="item-name first">амулет 1</span>
         <span class="item-name">амулет 2</span>
       </div>
       <div class="equipment-record">
-        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <img class="item-type" src="{{ STATIC_URL }}tmp/shoulders-icon.png"/>
         <span class="item-name first">плечи</span>
       </div>
       <div class="equipment-record">
-        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <img class="item-type" src="{{ STATIC_URL }}tmp/plate-icon.png"/>
         <span class="item-name first">грудь</span>
       </div>
       <div class="equipment-record">
-        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <img class="item-type" src="{{ STATIC_URL }}tmp/gloves-icon.png"/>
         <span class="item-name first">перчатки</span>
       </div>
       <div class="equipment-record">
-        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <img class="item-type" src="{{ STATIC_URL }}tmp/cloak-icon.png"/>
         <span class="item-name first">плащ</span>
       </div>
       <div class="equipment-record">
-        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <img class="item-type" src="{{ STATIC_URL }}tmp/pants-icon.png"/>
         <span class="item-name first">ноги</span>
       </div>
       <div class="equipment-record">
-        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <img class="item-type" src="{{ STATIC_URL }}tmp/boots-icon.png"/>
         <span class="item-name first">сапоги</span>
       </div>
       <div class="equipment-record">
-        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <img class="item-type" src="{{ STATIC_URL }}tmp/rings-icon.png"/>
         <span class="item-name first">кольцо 1</span>
         <span class="item-name">кольцо 2</span>
         <span class="item-name">кольцо 3</span>
@@ -206,13 +206,39 @@ jQuery(document).ready(function(e){
   </div>
 
   <div id="right-column" class="column">
-    <div id="angel-base-block" class="info-block"></div>
+
+    <div id="angel-base-block" class="info-block">
+      <strong class="name">Angel Name</strong> 
+      <div class="energy-bar">
+        <div class="stats-bar">
+          <div class="layer layer-1"></div>
+          <div class="layer layer-2"></div>
+        </div>
+        130/999 + 3
+      </div>
+    </div>
+
     <div id="angel-effects-block" class="info-block active-effects-block">
       <img class="effect-icon" src="{{ STATIC_URL }}tmp/effect-2.png">
       <img class="effect-icon" src="{{ STATIC_URL }}tmp/effect-3.jpg">
       <img class="effect-icon" src="{{ STATIC_URL }}tmp/effect-4.gif">
     </div>
-    <div id="angel-actions-block" class="info-block"></div>
+
+    <div id="angel-actions-block" class="info-block">
+      <table>
+        <tr class="action-record">
+          <td><img class="icon" src="{{ STATIC_URL }}tmp/create-hero-card.png"/></td>
+          <td>Создать героя</td>
+          <td>0</td>
+        </tr>
+        <tr class="action-record">
+          <td><img class="icon" src="{{ STATIC_URL }}tmp/kick-card.png"/></td>
+          <td>Пнуть!</td>
+          <td>25</td>
+        </tr>
+      </table>
+    </div>
+
   </div>
 
 </div>
