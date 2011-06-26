@@ -198,9 +198,138 @@ jQuery(document).ready(function(e){
   </div>
 
   <div id="center-column" class="column">
-    <div id="world-place-time-block" class="info-block"></div>    
-    <div id="quests-line-block" class="info-block"></div>    
-    <div id="current-action-block" class="info-block"></div>    
+
+    <div id="world-place-time-block" class="info-block">
+
+      <div class="place">
+        <span class="name">Дорога между Лесом и Деревней</span><br/>
+        <span class="comment">пройдено больше половины</span>
+      </div>
+      
+      <div class="time">
+        <div class="time-value">
+          6 часов<br/>
+          10 Мая 1203
+        </div>
+        <img class="season-icon" src="{{ STATIC_URL }}tmp/moon-time-icon.gif"/>
+      </div>
+
+    </div>    
+
+    <div id="current-action-block" class="info-block">
+      
+      <table>
+        <tr>
+          <td class="quests-line">
+            <img class="quest-icon" src="{{ STATIC_URL }}tmp/kill-quest-icon.png"/>
+            <img class="quest-icon" src="{{ STATIC_URL }}tmp/delivery-quest-icon.png"/>
+            <img class="quest-icon" src="{{ STATIC_URL }}tmp/speak-quest-icon.png"/>
+            <img class="quest-icon" src="{{ STATIC_URL }}tmp/kill-quest-icon.png"/>
+            <img class="quest-icon" src="{{ STATIC_URL }}tmp/kill-quest-icon.png"/>
+          </td>
+          <td class="action-info" rowspan="2">
+            <strong class="name">(XX) NPC Name</strong> 
+            <div class="health-bar">
+              <div class="stats-bar">
+                <div class="layer layer-1"></div>
+                <div class="layer layer-2"></div>
+              </div>
+              30/99 + 3
+            </div>
+            <table class="stats"> 
+              <tr>
+                <td class="stat-record">
+                  <img class="stat-icon" src="{{ STATIC_URL }}tmp/intellect-icon.png"/>
+                  <span class="stat-value">4</span>
+                </td>
+                <td class="stat-record">
+                  <img class="stat-icon" src="{{ STATIC_URL }}tmp/armor-icon.gif"/>
+                  <span class="stat-value">1<span>
+                </td>
+              </tr>
+              <tr>
+                <td class="stat-record">
+                  <img class="stat-icon" src="{{ STATIC_URL }}tmp/constitution-icon.png"/>
+                  <span class="stat-value">3</span>
+                </td>
+                <td class="stat-record">
+                  <img class="stat-icon" src="{{ STATIC_URL }}tmp/gold-icon.png"/>
+                  <span class="stat-value">????<span>
+                </td>
+              </tr>
+              <tr>
+                <td class="stat-record">
+                  <img class="stat-icon" class="stat-icon" src="{{ STATIC_URL }}tmp/reflexes-icon.jpg"/>
+                  <span class="stat-value"> 2</span>
+                </td>
+                <td class="stat-record">
+                  <img class="stat-icon" class="stat-icon" src="{{ STATIC_URL }}tmp/quests-icon.png"/>
+                  <span class="stat-value"> - </span>
+                </td>
+              </tr>
+              <tr>
+                <td class="stat-record">
+                  <img class="stat-icon" src="{{ STATIC_URL }}tmp/chaoticity-icon.png"/> 
+                  <span class="stat-value">2</span>
+                </td>
+                <td class="stat-record">
+                  <img class="stat-icon" src="{{ STATIC_URL }}tmp/death-icon.gif"/>
+                  <span class="stat-value"> - </span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="action-progress">
+            <table class="actions">
+              <tr class="prev-previous">
+                <td>
+                  <span class="name">выполняет задание</span>
+                </td>
+                <td>
+                  <div class="progress-bar">
+                  <div class="stats-bar">
+                    <div class="layer layer-1"></div>
+                    <div class="layer layer-2"></div>
+                  </div>            
+                  (33%)
+                </td>
+              </tr>
+              <tr class="previous">
+                <td>
+                  <span class="name">путешетсвует</span>
+                </td>
+                <td>
+                  <div class="progress-bar">
+                    <div class="stats-bar">
+                      <div class="layer layer-1"></div>
+                      <div class="layer layer-2"></div>
+                    </div>            
+                    (33%)
+                </td>
+              </tr>
+              <tr class="current">
+                <td>
+                  <span class="name">сражается</span>
+                </td>
+                <td>
+                  <div class="progress-bar">
+                    <div class="stats-bar">
+                      <div class="layer layer-1"></div>
+                      <div class="layer layer-2"></div>
+                    </div>            
+                    (33%)
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+    </div>
+
     <div id="log-block" class="info-block"></div>    
     <div id="journal-block" class="info-block"></div>    
   </div>

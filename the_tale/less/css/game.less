@@ -4,6 +4,14 @@
 @effect-icon-size: 24px;
 @effect-icon-margin: 2px;
 
+@action-icon-size: 24px;
+
+@quest-icon-size: 32px;
+
+@left-column-width: 200px;
+@center-column-width: 570px;
+@right-column-width: 200px;
+
 #game-page {
     margin: 0;
     padding: 0;
@@ -60,19 +68,19 @@
 }
 
 #left-column {
-    width: 200px;
+    width: @left-column-width;
     background: red;
     float: left;
 }
 
 #center-column {
     margin: 0 auto;
-    width: 570px;
+    width: @center-column-width;
     background: green;
 }
 
 #right-column {
-    width: 200px;
+    width: @right-column-width;
     background: blue;
     float: right;
 }
@@ -139,23 +147,98 @@
 #angel-actions-block {
 
     .action-record {
+
+        td {
+            vertical-align: middle;
+        }
         
         .icon {
-            vertical-align: middle;
+            margin: 0 auto;
+            width: @action-icon-size;
+            height: @action-icon-size;
+            display: block;
         }
     }
 }
 
 #world-place-time-block {
-    height: 50px;
-}
+    height: 40px;
 
-#quests-line-block {
-    height: 50px;
+    font-size: 11pt;
+
+    .place {
+        float: left;
+        vertical-align: middle;
+
+        .name {
+            font-size: 13pt;
+        }
+        
+        .comment {
+
+        }
+    }
+
+    .time {
+        float: right;
+        text-align: center;
+
+        .time-value {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .season-icon {
+            vertical-align: middle;
+        }
+    }
 }
 
 #current-action-block {
     height: 100px;
+
+    .quests-line{
+        
+        height: 40px;
+
+        .quest-icon {
+            vertical-align: middle;
+            float: left;
+            width: @quest-icon-size;
+            height: @quest-icon-size;
+            margin: 2px;
+        }
+    }
+
+    .action-progress {
+
+        .actions {
+            list-style: none;
+            vertical-align: middle;
+
+            .current .name {
+                font-size: 13pt;
+            }
+
+            .previous .name {
+                font-size: 11pt;
+            }
+
+            .prev-previous .name {
+                font-size: 9pt;
+            }
+
+            .progress-bar {
+                display: inline-block;
+            }
+        }
+    }
+
+    .action-info {
+        width: 200px;
+        vertical-align: top;
+    }
+
 }
 
 #log-block {
