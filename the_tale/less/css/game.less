@@ -215,17 +215,18 @@
         .actions {
             list-style: none;
             vertical-align: middle;
+            font-size: 11pt;
 
             .current .name {
-                font-size: 13pt;
+                color: #000000
             }
 
             .previous .name {
-                font-size: 11pt;
+                color: #444444
             }
 
             .prev-previous .name {
-                font-size: 9pt;
+                color: #666666
             }
 
             .progress-bar {
@@ -242,9 +243,26 @@
 }
 
 #log-block {
-    height: 90px;
+    height: 4em;
+    font-size: 11pt;
+
+    .log {
+        list-style: none;
+
+        .message {
+            font-size: 11pt;
+        }
+    }
 }
 
 #journal-block {
-    height: 300px;
+
+    .journal {
+        list-style: none;
+
+        .message {
+            font-size: 11pt;
+            margin-bottom: 1em;
+        }
+    }
 }
