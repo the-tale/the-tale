@@ -27,7 +27,15 @@ def create_npc_for_hero(hero):
     return npc
 
 
-def next_turn_update_heroes(cur_turn, next_turn):
+def next_turn_pre_update_heroes(cur_turn, next_turn):
+    for hero_model in Hero.objects.all():
+        hero = get_hero_by_model(hero_model)
+
+        hero.next_turn_pre_update(next_turn)
+        hero.save()
+    
+
+def next_turn_post_update_heroes(cur_turn, next_turn):
     
     for hero_model in Hero.objects.all():
         hero = get_hero_by_model(hero_model)
@@ -37,5 +45,5 @@ def next_turn_update_heroes(cur_turn, next_turn):
             hero.remove()
             return
 
-        hero.next_turn_update(next_turn)
+        hero.next_turn_post_update(next_turn)
         hero.save()

@@ -54,11 +54,12 @@ jQuery.ajaxSetup({
       <header>
         <div id="top-line">
           <div class="main-menu" style="display: inline;">
+            {% block main_menu %}
             <a href="">main page</a>
             <a href="{{ url('game:') }}">game</a>
             <a href="{{ url('game:journal_messages:admin') }}">edit messages</a>
             <a href="{{ url('game:map:roads:admin') }}">edit roads</a>
-            <a href="{{ url('game:turns:next_turn') }}">next_turn</a>
+            {% endblock %}
           </div>
           |
           <div class="profile-menu" style="display: inline;">

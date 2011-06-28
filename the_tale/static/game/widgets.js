@@ -195,7 +195,50 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         instance.Refresh();
         instance.Render();
     });
-}
+};
+
+pgf.game.widgets.Log = function(selector, updater, widgets, params) {
+    var instance = this;
+
+    var content = jQuery(selector);
+
+    var messages = [];
+
+    var shortLogContainer = jQuery('.pgf-log-list', content);
+
+    function RenderMessage(index, data, element) {
+        jQuery('.pgf-turn-number', element).text(data.turn);
+        jQuery('.pgf-message', element).text(data.message);
+    }
+
+    function RenderLog(data, widget) {
+        var shortLog = [];
+        for (var i=messages.length-1; i>=0 && i>messages.length-4; --i) {
+            shortLog.push(messages[i]);
+        }
+
+        pgf.base.RenderTemplateList(shortLogContainer, shortLog, RenderMessage, {});
+    }
+
+    this.Refresh = function() {
+        var turnNumber = updater.data.data.turn.number;
+        var turnMessages = widgets.heroes.CurrentHero().messages;
+
+        for (var i=0; i<turnMessages.length; ++i) {
+            messages.push({turn: turnNumber, message: turnMessages[i].text});
+        }
+    };
+
+    this.Render = function() {
+        RenderLog();
+    };
+
+    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+        instance.Refresh();
+        instance.Render();
+    });
+};
+
 
 pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
 

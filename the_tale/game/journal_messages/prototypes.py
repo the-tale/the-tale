@@ -42,6 +42,7 @@ class MessagesLogPrototype(object):
 
     def push_message(self, pattern_id, rendered_text):
         messages = self.messages
+        print rendered_text
         messages.append({'pattern_id': pattern_id,
                          'text': rendered_text})
         if len(messages) > journal_settings.MESSAGES_NUMBER:
@@ -49,6 +50,9 @@ class MessagesLogPrototype(object):
 
         self.model.messages = json.dumps(messages)
         delattr(self, '_messages')
+
+    def clear_messages(self):
+        self.model.messages = '[]'
 
     ###########################################
     # Object operations

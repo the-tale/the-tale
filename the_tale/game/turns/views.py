@@ -11,10 +11,9 @@ class TurnsResource(Resource):
         super(TurnsResource, self).__init__(request, *args, **kwargs)
 
     #TODO: block for untrasted users
-    @handler('next_turn', method=['post', 'get'])
+    @handler('next_turn', method=['post'])
     def next_turn(self):
 
         next_turn(self.turn)
 
-        url = self.request.META.get('HTTP_REFERER','/')
-        return self.redirect(url)
+        return self.json(status='ok')

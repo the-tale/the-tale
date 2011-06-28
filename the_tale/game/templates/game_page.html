@@ -29,6 +29,19 @@ jQuery(document).ready(function(e){
                                                    updater, widgets,
                                                    {} );
 
+    widgets.actions = new pgf.game.widgets.Log('#log-block',
+                                               updater, widgets,
+                                               {} );
+
+    jQuery('.pgf-next-turn').click(function(e){
+        e.preventDefault();
+
+        pgf.forms.Post({ action: "{{ url('game:turns:next_turn') }}",
+                         OnSuccess: function(e){
+                             updater.Refresh();
+                         }
+                       });
+    });
 
     // widgets.date = new pgf.game.widgets.Date('#pgf-date-widget', 
     //                                          updater, widgets,
@@ -75,6 +88,11 @@ jQuery(document).ready(function(e){
 });
 
 </script>
+{% endblock %}
+
+{% block main_menu %}
+{{ super() }}
+<a href="#" class="pgf-next-turn">next_turn</a>
 {% endblock %}
 
 {% block content %}
@@ -337,10 +355,11 @@ jQuery(document).ready(function(e){
     </div>
 
     <div id="log-block" class="info-block">
-      <ul class="log">
-        <li class="message">Герой ударил НПЦ и нанёс 10 единиц повреждений</li>
-        <li class="message">Герой ударил НПЦ и промахнулся</li>
-        <li class="message">НПЦ опрокинул героя на землю</li>
+      <ul class="log pgf-log-list">
+        <li class="message pgf-template">
+          [<span class="pgf-turn-number"></span>]
+          <span class="pgf-message"></span>
+        </li>
       </ul>
     </div>    
 
