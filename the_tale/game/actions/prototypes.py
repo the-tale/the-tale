@@ -305,7 +305,7 @@ class ActionQuestMailDeliveryPrototype(ActionPrototype):
 class ActionMoveToPrototype(ActionPrototype):
 
     TYPE = 'MOVE_TO'
-    SHORT_DESCRIPTION = u'идёт'
+    SHORT_DESCRIPTION = u'путешествует'
 
     ENTROPY_BARRIER = 35
 

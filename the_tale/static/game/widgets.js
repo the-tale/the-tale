@@ -49,7 +49,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
     var data = {};
 
-    function RenderHero(data, widget) {
+    this.RenderHero = function(data, widget) {
         
         jQuery('.pgf-wisdom', widget).text(data.base.wisdom);
         jQuery('.pgf-name', widget).text(data.base.name);
@@ -62,7 +62,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-constitution', widget).text(data.primary.constitution);
         jQuery('.pgf-reflexes', widget).text(data.primary.reflexes);
         jQuery('.pgf-chaoticity', widget).text(data.primary.chaoticity);
-    }
+    };
 
     this.CurrentHero = function() {
         return data;
@@ -76,7 +76,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
     };
 
     this.Render = function() {
-        RenderHero(data, content);
+        this.RenderHero(data, content);
     };
 
     jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
@@ -145,14 +145,52 @@ pgf.game.widgets.PlaceAndTime = function(selector, updater, widgets, params) {
 pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     var instance = this;
 
-    var content = jQuery(selector);
+    var widget = jQuery(selector);
+    var actionInfoContainer = jQuery('.pgf-action-info-container', widget);
 
     var data = {};
 
-    function RenderQuests(data, widget) {
+    var ACTION_TYPES = {
+        BATTLE_PvE_1x1: 'BATTLE_PVE_1x1'
+    };
+
+    var instance = this;
+
+    function RenderQuests() {
     }
 
-    function RenderActions(data, widget) {
+    function RenderOtherAction(action) {
+        var otherAction = jQuery('.pgf-action-other', actionInfoContainer);
+        otherAction.toggleClass('pgf-hidden', false);
+        jQuery('.pgf-name', otherAction).text(action.short_description);
+    }
+
+    function RenderBattlePvE_1x1Action(action) {
+        battleAction = jQuery('.pgf-action-battle-pve-1x1', actionInfoContainer);
+        battleAction.toggleClass('pgf-hidden', false);
+        widgets.heroes.RenderHero(action.data.npc, battleAction);
+    }
+
+    function RenderActionInfo() {
+        
+        var action = instance.CurrentAction();
+
+        jQuery('.pgf-action-info', actionInfoContainer).toggleClass('pgf-hidden', true);
+
+        switch (action.type) {
+        case ACTION_TYPES.BATTLE_PvE_1x1: {
+            RenderBattlePvE_1x1Action(action);
+            break;
+        }
+        default: {
+            RenderOtherAction(action);
+            break;
+        }
+        }
+        
+    }
+
+    function RenderActions() {
 
         var rowClasses = ['pgf-current', 'pgf-previouse', 'pgf-prev-previouse']
         var rowNumber = 0;
@@ -164,10 +202,8 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
                 jQuery('.pgf-name', recordElement).text('');
                 jQuery('.pgf-percents', recordElement).text('');
                 pgf.base.UpdateStatsBar(jQuery('.pgf-progress-bar', recordElement), 1, 0);
-                
             }
             else {
-
                 jQuery('.pgf-name', recordElement).text(data.actions[i].short_description);
                 jQuery('.pgf-percents', recordElement).text( parseInt(data.actions[i].percents * 100));
                 pgf.base.UpdateStatsBar(jQuery('.pgf-progress-bar', recordElement), 1, data.actions[i].percents);
@@ -177,18 +213,19 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         }
     }
 
-    function RenderActionDetails(data, widget) {
-    }
-
     this.Refresh = function() {
         data.quest = {};
         data.actions = widgets.heroes.CurrentHero().actions;
     };
 
     this.Render = function() {
-        RenderQuests(data, content);
-        RenderActions(data, content);
-        RenderActionDetails(data, content);
+        RenderQuests();
+        RenderActions();
+        RenderActionInfo();
+    };
+
+    this.CurrentAction = function() {
+        return data.actions[data.actions.length-1];
     };
 
     jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
@@ -216,6 +253,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
         for (var i=messages.length-1; i>=0 && i>messages.length-4; --i) {
             shortLog.push(messages[i]);
         }
+        shortLog.reverse();
 
         pgf.base.RenderTemplateList(shortLogContainer, shortLog, RenderMessage, {});
     }
