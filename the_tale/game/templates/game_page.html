@@ -11,56 +11,65 @@ var widgets = {};
 jQuery(document).ready(function(e){
     updater = new pgf.game.Updater({url: "{{ url('game:info') }}"});
 
-    widgets.tabs = new pgf.game.widgets.GameTabs('#pgf-game-tabs', {});
+    // widgets.tabs = new pgf.game.widgets.GameTabs('#pgf-game-tabs', {});
 
-    widgets.cards = new pgf.game.widgets.Cards('#pgf-cards-widget', 
+    // widgets.cards = new pgf.game.widgets.Cards('#pgf-cards-widget', 
+    //                                            updater, widgets,
+    //                                            {tooltipTemplate: '#pgf-card-tooltip-template'});
+
+    widgets.heroes = new pgf.game.widgets.Hero('#hero-base-block', 
                                                updater, widgets,
-                                               {tooltipTemplate: '#pgf-card-tooltip-template'});
+                                               {});
 
-    widgets.heroes = new pgf.game.widgets.Heroes('#pgf-heroes-widget', 
-                                                 updater, widgets,
-                                                 {});
+    widgets.placeAndTime = new pgf.game.widgets.PlaceAndTime('#world-place-time-block',
+                                                             updater, widgets,
+                                                             {} );
 
-    widgets.date = new pgf.game.widgets.Date('#pgf-date-widget', 
-                                             updater, widgets,
-                                             {});
+    widgets.actions = new pgf.game.widgets.Actions('#current-action-block',
+                                                   updater, widgets,
+                                                   {} );
 
-    var mapObjectsLayer = new pgf.game.map.ObjectsLayer({idPrefix: 'map-object'});
 
-    widgets.map = new pgf.game.map.Map({
-        root: '#pgf-map',
-        zIndexBegin: 1,
-        layers: [ 
-            new pgf.game.map.BackgroundLayer({
-                tileSize: 256,
-                tileSrc: '{{ STATIC_URL }}game/map/img/bg.png'
-            }),
-            mapObjectsLayer,
-            new pgf.game.map.NavigationLayer({})
-        ],
-        zooms: [1, 2, 3, 4, 6, 8, 12, 24],
-        curZoom: 0,
-        wndPos: {x: 0, y: 0},
-        mapPos: {x: -100, y: -100},
-        mapSize: {w: 1000, h: 1000},
-        OnChange: function(m) {
-            jQuery("#pgf-x-pos").text(m.GetPos().x);
-            jQuery("#pgf-y-pos").text(m.GetPos().y);
-            jQuery("#pgf-zoom-lvl").text(m.GetZoom().lvl);
-            jQuery("#pgf-zoom-value").text(m.GetZoom().value);
-        }
-    });
+    // widgets.date = new pgf.game.widgets.Date('#pgf-date-widget', 
+    //                                          updater, widgets,
+    //                                          {});
 
-    widgets.mapManager = new pgf.game.widgets.MapManager(updater, widgets, 
-                                                         {infoSrc: "{{ url('game:map:') }}",
-                                                          mapObjectsLayer: mapObjectsLayer,
-                                                          cellSize: {{ map_settings.CELL_SIZE }},
-                                                          templates: {cityTemplate: jQuery('#pgf-map-city-template'),
-                                                                      heroTemplate: jQuery('#pgf-map-hero-template')}
-                                                         });
+    // var mapObjectsLayer = new pgf.game.map.ObjectsLayer({idPrefix: 'map-object'});
+
+    // widgets.map = new pgf.game.map.Map({
+    //     root: '#pgf-map',
+    //     zIndexBegin: 1,
+    //     layers: [ 
+    //         new pgf.game.map.BackgroundLayer({
+    //             tileSize: 256,
+    //             tileSrc: '{{ STATIC_URL }}game/map/img/bg.png'
+    //         }),
+    //         mapObjectsLayer,
+    //         new pgf.game.map.NavigationLayer({})
+    //     ],
+    //     zooms: [1, 2, 3, 4, 6, 8, 12, 24],
+    //     curZoom: 0,
+    //     wndPos: {x: 0, y: 0},
+    //     mapPos: {x: -100, y: -100},
+    //     mapSize: {w: 1000, h: 1000},
+    //     OnChange: function(m) {
+    //         jQuery("#pgf-x-pos").text(m.GetPos().x);
+    //         jQuery("#pgf-y-pos").text(m.GetPos().y);
+    //         jQuery("#pgf-zoom-lvl").text(m.GetZoom().lvl);
+    //         jQuery("#pgf-zoom-value").text(m.GetZoom().value);
+    //     }
+    // });
+
+    // widgets.mapManager = new pgf.game.widgets.MapManager(updater, widgets, 
+    //                                                      {infoSrc: "{{ url('game:map:') }}",
+    //                                                       mapObjectsLayer: mapObjectsLayer,
+    //                                                       cellSize: {{ map_settings.CELL_SIZE }},
+    //                                                       templates: {cityTemplate: jQuery('#pgf-map-city-template'),
+    //                                                                   heroTemplate: jQuery('#pgf-map-hero-template')}
+    //                                                      });
         
-    jQuery("#pgf-zoom-up").click(function(e){widgets.map.ZoomOut(); e.preventDefault();});
-    jQuery("#pgf-zoom-down").click(function(e){widgets.map.ZoomIn(); e.preventDefault();});
+    // jQuery("#pgf-zoom-up").click(function(e){widgets.map.ZoomOut(); e.preventDefault();});
+    // jQuery("#pgf-zoom-down").click(function(e){widgets.map.ZoomIn(); e.preventDefault();});
 
     updater.Refresh();
 });
@@ -75,19 +84,19 @@ jQuery(document).ready(function(e){
   <div id="left-column" class="column">
 
     <div id="hero-base-block" class="info-block">
-      <strong class="name">(19) Hero Name</strong> 
+      <strong class="name">(<span class="pgf-wisdom"></span>) <span class="pgf-name"></span></strong> 
       <div class="health-bar">
-        <div class="stats-bar">
-          <div class="layer layer-1"></div>
-          <div class="layer layer-2"></div>
+        <div class="stats-bar pgf-health-bar">
+          <div class="layer layer-0 pgf-layer-0"></div>
+          <div class="layer layer-1 pgf-layer-1"></div>
         </div>
-        130/999 + 53
+        <span class="pgf-health"></span>/<span class="pgf-max-health"></span> + 53
       </div>
       <table class="stats"> 
         <tr>
           <td class="stat-record">
             <img class="stat-icon" src="{{ STATIC_URL }}tmp/intellect-icon.png"/>
-            <span class="stat-value">5 (+1)</span>
+            <span class="stat-value pgf-intellect"></span>
           </td>
           <td class="stat-record">
             <img class="stat-icon" src="{{ STATIC_URL }}tmp/armor-icon.gif"/>
@@ -97,7 +106,7 @@ jQuery(document).ready(function(e){
         <tr>
           <td class="stat-record">
             <img class="stat-icon" src="{{ STATIC_URL }}tmp/constitution-icon.png"/>
-            <span class="stat-value">3 (-1)</span>
+            <span class="stat-value pgf-constitution"></span>
           </td>
           <td class="stat-record">
             <img class="stat-icon" src="{{ STATIC_URL }}tmp/gold-icon.png"/>
@@ -107,7 +116,7 @@ jQuery(document).ready(function(e){
         <tr>
           <td class="stat-record">
             <img class="stat-icon" class="stat-icon" src="{{ STATIC_URL }}tmp/reflexes-icon.jpg"/>
-            <span class="stat-value">5</span>
+            <span class="stat-value pgf-reflexes">5</span>
           </td>
           <td class="stat-record">
             <img class="stat-icon" class="stat-icon" src="{{ STATIC_URL }}tmp/quests-icon.png"/>
@@ -117,7 +126,7 @@ jQuery(document).ready(function(e){
         <tr>
           <td class="stat-record">
             <img class="stat-icon" src="{{ STATIC_URL }}tmp/chaoticity-icon.png"/> 
-            <span class="stat-value">2 (-1)</span>
+            <span class="stat-value pgf-chaoticity">2 (-1)</span>
           </td>
           <td class="stat-record">
             <img class="stat-icon" src="{{ STATIC_URL }}tmp/death-icon.gif"/>
@@ -201,15 +210,15 @@ jQuery(document).ready(function(e){
 
     <div id="world-place-time-block" class="info-block">
 
-      <div class="place">
-        <span class="name">Дорога между Лесом и Деревней</span><br/>
-        <span class="comment">пройдено больше половины</span>
+      <div class="place pgf-place">
+        <span class="name pgf-name"></span><br/>
+        <span class="comment pgf-comment"></span>
       </div>
       
-      <div class="time">
+      <div class="time pgf-time">
         <div class="time-value">
-          6 часов<br/>
-          10 Мая 1203
+          <span class="pgf-hours"></span> часов<br/>
+          <span class="pgf-day"></span> <span class="pgf-month"></span> <span class="pgf-year"></span>
         </div>
         <img class="season-icon" src="{{ STATIC_URL }}tmp/moon-time-icon.gif"/>
       </div>
@@ -220,19 +229,19 @@ jQuery(document).ready(function(e){
       
       <table>
         <tr>
-          <td class="quests-line">
+          <td class="quests-line pgf-quests-line">
             <img class="quest-icon" src="{{ STATIC_URL }}tmp/kill-quest-icon.png"/>
             <img class="quest-icon" src="{{ STATIC_URL }}tmp/delivery-quest-icon.png"/>
             <img class="quest-icon" src="{{ STATIC_URL }}tmp/speak-quest-icon.png"/>
             <img class="quest-icon" src="{{ STATIC_URL }}tmp/kill-quest-icon.png"/>
             <img class="quest-icon" src="{{ STATIC_URL }}tmp/kill-quest-icon.png"/>
           </td>
-          <td class="action-info" rowspan="2">
+          <td class="action-info pgf-action-info" rowspan="2">
             <strong class="name">(XX) NPC Name</strong> 
             <div class="health-bar">
               <div class="stats-bar">
+                <div class="layer layer-0"></div>
                 <div class="layer layer-1"></div>
-                <div class="layer layer-2"></div>
               </div>
               30/99 + 3
             </div>
@@ -282,45 +291,42 @@ jQuery(document).ready(function(e){
         </tr>
 
         <tr>
-          <td class="action-progress">
+          <td class="action-progress pgf-actions-progress">
             <table class="actions">
-              <tr class="prev-previous">
+              <tr class="prev-previous pgf-prev-previouse">
                 <td>
-                  <span class="name">выполняет задание</span>
+                  <span class="name pgf-name">выполняет задание</span>
                 </td>
-                <td>
-                  <div class="progress-bar">
-                  <div class="stats-bar">
-                    <div class="layer layer-1"></div>
-                    <div class="layer layer-2"></div>
+                <td class="progress-bar">
+                  <div class="stats-bar pgf-progress-bar">
+                    <div class="layer layer-0 pgf-layer-0"></div>
+                    <div class="layer layer-1 pgf-layer-1"></div>
                   </div>            
-                  (33%)
+                  <span class="pgf-percents"></span>%
                 </td>
               </tr>
-              <tr class="previous">
+              <tr class="previous pgf-previouse">
                 <td>
-                  <span class="name">путешетсвует</span>
+                  <span class="name pgf-name"></span>
                 </td>
-                <td>
-                  <div class="progress-bar">
-                    <div class="stats-bar">
-                      <div class="layer layer-1"></div>
-                      <div class="layer layer-2"></div>
-                    </div>            
-                    (33%)
+                <td class="progress-bar">
+                  <div class="stats-bar pgf-progress-bar">
+                    <div class="layer layer-0 pgf-layer-0"></div>
+                    <div class="layer layer-1 pgf-layer-1"></div>
+                  </div>            
+                  <span class="pgf-percents"></span>%
                 </td>
               </tr>
-              <tr class="current">
+              <tr class="current pgf-current">
                 <td>
-                  <span class="name">сражается</span>
+                  <span class="name pgf-name"></span>
                 </td>
-                <td>
-                  <div class="progress-bar">
-                    <div class="stats-bar">
-                      <div class="layer layer-1"></div>
-                      <div class="layer layer-2"></div>
-                    </div>            
-                    (33%)
+                <td class="progress-bar">
+                  <div class="stats-bar pgf-progress-bar">
+                    <div class="layer layer-0 pgf-layer-0"></div>
+                    <div class="layer layer-1 pgf-layer-1"></div>
+                  </div>            
+                  <span class="pgf-percents"></span>%
                 </td>
               </tr>
             </table>
@@ -377,8 +383,8 @@ jQuery(document).ready(function(e){
       <strong class="name">Angel Name</strong> 
       <div class="energy-bar">
         <div class="stats-bar">
+          <div class="layer layer-0"></div>
           <div class="layer layer-1"></div>
-          <div class="layer layer-2"></div>
         </div>
         130/999 + 3
       </div>

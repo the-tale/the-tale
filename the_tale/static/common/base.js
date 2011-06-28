@@ -32,6 +32,20 @@ pgf.base.RenderTemplateList = function(selector, data, newElementCallback, param
 
 };
 
+pgf.base.UpdateStatsBar = function(selector) {
+    
+    var widget = jQuery(selector);
+    var width = widget.width();
+
+    var base = arguments[1];
+
+    for (var i=1; i<arguments.length; ++i)
+    {
+        var bar = jQuery('.pgf-layer-'+(i-1), widget);
+        bar.width( Math.ceil(arguments[i] / (base + 0.0) * width) );
+    }
+};
+
 
 jQuery('.pgf-link-load-on-success').live('click', function(e){
     e.preventDefault();

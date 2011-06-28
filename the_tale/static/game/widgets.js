@@ -42,98 +42,41 @@ pgf.game.Updater = function(params) {
     };
 };
 
-pgf.game.widgets.Heroes = function(selector, updater, widgets, params) {
+pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
     var instance = this;
 
     var content = jQuery(selector);
-    var heroesContainer = jQuery('.pgf-heroes-list', content);
-    var enemyContainer = jQuery('#pgf-enemy-widget');
 
     var data = {};
 
-    function RenderMessagesLog(index, data, element) {
-        jQuery('.pgf-message', element).text(data.text);
-        jQuery('.pgf-message-pattern-id', element).text(data.pattern_id);
-    }
-
-    function RenderHero(index, data, element) {
+    function RenderHero(data, widget) {
         
-        jQuery('.pgf-wisdom', element).text(data.base.wisdom);
-        jQuery('.pgf-name', element).text(data.base.name);
-        jQuery('.pgf-health', element).text(data.base.health);
-        jQuery('.pgf-max-health', element).text(data.base.max_health);
+        jQuery('.pgf-wisdom', widget).text(data.base.wisdom);
+        jQuery('.pgf-name', widget).text(data.base.name);
+        jQuery('.pgf-health', widget).text(data.base.health);
+        jQuery('.pgf-max-health', widget).text(data.base.max_health);
 
-        jQuery('.pgf-intellect', element).text(data.primary.intellect);
-        jQuery('.pgf-constitution', element).text(data.primary.constitution);
-        jQuery('.pgf-reflexes', element).text(data.primary.reflexes);
-        jQuery('.pgf-chaoticity', element).text(data.primary.chaoticity);
+        pgf.base.UpdateStatsBar(jQuery('.pgf-health-bar', widget), data.base.max_health, data.base.health);
 
-        var lastAction = data.actions[data.actions.length-1];
-        
-        jQuery('.pgf-short-description', element).text(lastAction.short_description);
-
-        var percents = lastAction.percents * 100;
-        jQuery('.pgf-percents', element).text(percents.toFixed());
-
-        jQuery('.pgf-entropy', element).text(lastAction.entropy);
-        jQuery('.pgf-entropy-barier', element).text(lastAction.entropy_barier);
-
-        var position = data.position;
-        if (position.place) {
-            jQuery('.pgf-position-type', element).text(position.place.type);
-            jQuery('.pgf-position-name', element).text(position.place.name);
-        }
-        if (position.road) {
-            jQuery('.pgf-position-type', element).text('road');
-            jQuery('.pgf-position-name', element).text(position.road.point_1.name + ' - ' + position.road.point_2.name);
-        }
-
-        pgf.base.RenderTemplateList(jQuery('.pgf-messages-log', element), data.messages, RenderMessagesLog, {});
-
-        // fill enemy window
-        // TODO: move types into enume generated from python sources
-        if (lastAction.type == 'BATTLE_PVE_1x1') {
-            jQuery('.pgf-wisdom', enemyContainer).text(lastAction.data.npc.base.wisdom);
-            jQuery('.pgf-name', enemyContainer).text(lastAction.data.npc.base.name);
-            jQuery('.pgf-health', enemyContainer).text(lastAction.data.npc.base.health);
-            jQuery('.pgf-max-health', enemyContainer).text(lastAction.data.npc.base.max_health);
-            
-            jQuery('.pgf-intellect', enemyContainer).text(lastAction.data.npc.primary.intellect);
-            jQuery('.pgf-constitution', enemyContainer).text(lastAction.data.npc.primary.constitution);
-            jQuery('.pgf-reflexes', enemyContainer).text(lastAction.data.npc.primary.reflexes);
-            jQuery('.pgf-chaoticity', enemyContainer).text(lastAction.data.npc.primary.chaoticity);
-        }
-        else {
-            jQuery('.pgf-wisdom', enemyContainer).text(0);
-            jQuery('.pgf-name', enemyContainer).text('--------');
-            jQuery('.pgf-health', enemyContainer).text(0);
-            jQuery('.pgf-max-health', enemyContainer).text(0);
-            
-            jQuery('.pgf-intellect', enemyContainer).text(0);
-            jQuery('.pgf-constitution', enemyContainer).text(0);
-            jQuery('.pgf-reflexes', enemyContainer).text(0);
-            jQuery('.pgf-chaoticity', enemyContainer).text(0);
-
-        }
+        jQuery('.pgf-intellect', widget).text(data.primary.intellect);
+        jQuery('.pgf-constitution', widget).text(data.primary.constitution);
+        jQuery('.pgf-reflexes', widget).text(data.primary.reflexes);
+        jQuery('.pgf-chaoticity', widget).text(data.primary.chaoticity);
     }
 
     this.CurrentHero = function() {
-        for (var hero_id in data) {
-            return data[hero_id];
-        }
-        return null;
+        return data;
     };
 
     this.Refresh = function() {
-        data = updater.data.data.heroes;
+        for (var hero_id in updater.data.data.heroes) {
+            data = updater.data.data.heroes[hero_id];
+            return;
+        }
     };
 
     this.Render = function() {
-        var heroes_list = [];
-        for (var hero_id in data) {
-            heroes_list.push(data[hero_id]);
-        }
-        pgf.base.RenderTemplateList(heroesContainer, heroes_list, RenderHero, {});
+        RenderHero(data, content);
     };
 
     jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
@@ -142,22 +85,55 @@ pgf.game.widgets.Heroes = function(selector, updater, widgets, params) {
     });
 };
 
-pgf.game.widgets.Date = function(selector, updater, widgets, params) {
+pgf.game.widgets.PlaceAndTime = function(selector, updater, widgets, params) {
     var instance = this;
 
     var content = jQuery(selector);
-    var dateContainer = jQuery('.pgf-date-content', content);
-
-    var turnNumber = jQuery('.pgf-turn-number', dateContainer);
 
     var data = {};
 
+    function RenderPosition(data, widget) {
+        
+        if (data.position.place) {
+            jQuery('.pgf-place .pgf-name', widget).text(data.position.place.name);
+            jQuery('.pgf-place .pgf-comment', widget).text('TODO: add description for places here');
+        }
+    }
+
+    function RenderTime(data, widget) {
+        // 1 turn ~ 1 hour
+        // 24 hours ~ 1 day
+        // 30 days ~ month
+        // 4 month ~ 1 year
+        var months = ['Сухой месяц', 'Холодный месяц', 'Жаркий месяц', 'Сырой месяц']
+
+        var turn = data.date.number;
+
+        var year = Math.floor(turn / 24 /30 / 4);
+        turn -= year * 24 * 30 * 4;
+
+        var month = Math.floor( turn / 24 / 30);
+        turn -= month * 24 * 30;
+
+        var days = Math.floor( turn / 24);
+        turn -= days * 24;
+
+        var hours = turn;
+
+        jQuery('.pgf-time .pgf-year', widget).text(1000 + year);
+        jQuery('.pgf-time .pgf-month', widget).text(months[month]);
+        jQuery('.pgf-time .pgf-day', widget).text(days);
+        jQuery('.pgf-time .pgf-hours', widget).text(hours);
+    }
+
     this.Refresh = function() {
-        data = updater.data.data.turn;
+        data.date = updater.data.data.turn;
+        data.position = widgets.heroes.CurrentHero().position;
     };
 
     this.Render = function() {
-        turnNumber.text(data.number);
+        RenderPosition(data, content);
+        RenderTime(data, content);
     };
 
     jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
@@ -165,6 +141,61 @@ pgf.game.widgets.Date = function(selector, updater, widgets, params) {
         instance.Render();
     });
 };
+
+pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
+    var instance = this;
+
+    var content = jQuery(selector);
+
+    var data = {};
+
+    function RenderQuests(data, widget) {
+    }
+
+    function RenderActions(data, widget) {
+
+        var rowClasses = ['pgf-current', 'pgf-previouse', 'pgf-prev-previouse']
+        var rowNumber = 0;
+        for (var i=data.actions.length-1; i >= data.actions.length - 4; --i) {
+
+            var recordElement = jQuery('.pgf-actions-progress .'+rowClasses[rowNumber], widget);
+
+            if (i < 0) {
+                jQuery('.pgf-name', recordElement).text('');
+                jQuery('.pgf-percents', recordElement).text('');
+                pgf.base.UpdateStatsBar(jQuery('.pgf-progress-bar', recordElement), 1, 0);
+                
+            }
+            else {
+
+                jQuery('.pgf-name', recordElement).text(data.actions[i].short_description);
+                jQuery('.pgf-percents', recordElement).text( parseInt(data.actions[i].percents * 100));
+                pgf.base.UpdateStatsBar(jQuery('.pgf-progress-bar', recordElement), 1, data.actions[i].percents);
+            }
+
+            ++rowNumber;
+        }
+    }
+
+    function RenderActionDetails(data, widget) {
+    }
+
+    this.Refresh = function() {
+        data.quest = {};
+        data.actions = widgets.heroes.CurrentHero().actions;
+    };
+
+    this.Render = function() {
+        RenderQuests(data, content);
+        RenderActions(data, content);
+        RenderActionDetails(data, content);
+    };
+
+    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+        instance.Refresh();
+        instance.Render();
+    });
+}
 
 pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
 
