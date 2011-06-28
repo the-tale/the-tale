@@ -546,6 +546,8 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
             self.hero.create_tmp_log_message('NPC was killed')
             self.state = self.STATE.PROCESSED
 
+        self.percents = max(0, float(self.npc.max_health - self.npc.health) / self.npc.max_health)
+
         self.hero.save()
         self.npc.save()
 
