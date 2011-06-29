@@ -92,6 +92,7 @@ class CardPrototype(object):
     name = u'нет имени'
     description = u'нет описания'
     artistic = u'нет художественного описания'
+    use_form = False
 
     form = None
     template = None
@@ -133,7 +134,7 @@ class CardPrototype(object):
                 'activation_type': self.activation_type,
                 'name': self.name,
                 'description': self.description,
-                'use_form': self.form is not None,
+                'use_form': self.use_form,
                 'cooldown_end': self.cooldown_end,
                 'artistic': self.artistic}
 
@@ -155,6 +156,7 @@ class FirstHeroCard(CardPrototype):
     artistic = u'У него не было памяти, не было вещей; обладал он только именем, которое получил от Ангела и верой в то, что покровителем для него уготована великая судьба.'
 
     form = forms.FirstHeroCardForm
+    use_form = True
     template = 'cards/prototypes/first_hero_card.html'
 
     @nested_commit_on_success

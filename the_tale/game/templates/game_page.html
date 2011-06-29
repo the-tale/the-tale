@@ -11,11 +11,11 @@ var widgets = {};
 jQuery(document).ready(function(e){
     updater = new pgf.game.Updater({url: "{{ url('game:info') }}"});
 
-    // widgets.tabs = new pgf.game.widgets.GameTabs('#pgf-game-tabs', {});
+    widgets.switcher = new pgf.game.widgets.WidgetSwitcher();
 
-    // widgets.cards = new pgf.game.widgets.Cards('#pgf-cards-widget', 
-    //                                            updater, widgets,
-    //                                            {tooltipTemplate: '#pgf-card-tooltip-template'});
+    widgets.cards = new pgf.game.widgets.Cards('#angel-cards-block', 
+                                               updater, widgets,
+                                               {tooltipTemplate: '#pgf-card-tooltip-template'});
 
     widgets.heroes = new pgf.game.widgets.Hero('#hero-base-block', 
                                                updater, widgets,
@@ -42,10 +42,6 @@ jQuery(document).ready(function(e){
                          }
                        });
     });
-
-    // widgets.date = new pgf.game.widgets.Date('#pgf-date-widget', 
-    //                                          updater, widgets,
-    //                                          {});
 
     // var mapObjectsLayer = new pgf.game.map.ObjectsLayer({idPrefix: 'map-object'});
 
@@ -111,6 +107,7 @@ jQuery(document).ready(function(e){
         <span class="pgf-health"></span>/<span class="pgf-max-health"></span> + 53
       </div>
       <table class="stats"> 
+        <tbody>
         <tr>
           <td class="stat-record">
             <img class="stat-icon" src="{{ STATIC_URL }}tmp/intellect-icon.png"/>
@@ -151,6 +148,7 @@ jQuery(document).ready(function(e){
             <span class="stat-value">29</span>
           </td>
         </tr>
+        </tbody>
       </table>
     </div>
 
@@ -210,6 +208,7 @@ jQuery(document).ready(function(e){
 
     <div id="hero-bag-block" class="info-block">
       <table>
+        <tbody>
         <tr><td>добыча 1</td><td>1 * 130 г.</td><tr>
         <tr><td>лут 1</td><td>3 * 30 г.</td><tr>
         <tr><td>добыча 1</td><td>4 * 10 г.</td><tr>
@@ -220,6 +219,7 @@ jQuery(document).ready(function(e){
         <tr><td>лут 1</td><td>1 * 230 г.</td><tr>
         <tr><td>добыча 1</td><td>1 * 30 г.</td><tr>
         <tr><td>лут 1</td><td>1 * 10 г.</td><tr>
+            </tbody>
       </table>
     </div>
   </div>
@@ -246,6 +246,7 @@ jQuery(document).ready(function(e){
     <div id="current-action-block" class="info-block">
       
       <table>
+        <tbody>
         <tr>
           <td class="quests-line pgf-quests-line">
             <img class="quest-icon" src="{{ STATIC_URL }}tmp/kill-quest-icon.png"/>
@@ -268,6 +269,7 @@ jQuery(document).ready(function(e){
         <span class="pgf-health"></span>/<span class="pgf-max-health"></span> + 53
       </div>
       <table class="stats"> 
+        <tbody>
         <tr>
           <td class="stat-record">
             <img class="stat-icon" src="{{ STATIC_URL }}tmp/intellect-icon.png"/>
@@ -308,6 +310,7 @@ jQuery(document).ready(function(e){
             <span class="stat-value">29</span>
           </td>
         </tr>
+        </tbody>
       </table>
 
             </div>
@@ -317,6 +320,7 @@ jQuery(document).ready(function(e){
         <tr>
           <td class="action-progress pgf-actions-progress">
             <table class="actions">
+              <tbody>
               <tr class="prev-previous pgf-prev-previouse">
                 <td>
                   <span class="name pgf-name">выполняет задание</span>
@@ -353,9 +357,11 @@ jQuery(document).ready(function(e){
                   <span class="pgf-percents"></span>%
                 </td>
               </tr>
+              </tbody>
             </table>
           </td>
         </tr>
+        <tbody>
       </table>
 
     </div>
@@ -369,7 +375,7 @@ jQuery(document).ready(function(e){
       </ul>
     </div>    
 
-    <div id="journal-block" class="info-block">
+   <div id="journal-block" class="info-block">
       <ul class="journal">
         <li class="message">
           <span>[5 часов, 10 мая]</span><br/>
@@ -399,7 +405,13 @@ jQuery(document).ready(function(e){
           </span>
         </li>
       </ul>
-    </div>    
+   </div>    
+
+   <div id="activate-card-block" class="info-block pgf-hidden"> 
+     <a href="#" class="pgf-cancel">Отменить</a>
+     <div class="pgf-activate-form">
+     </div>
+   </div>
   </div>
 
   <div id="right-column" class="column">
@@ -421,18 +433,15 @@ jQuery(document).ready(function(e){
       <img class="effect-icon" src="{{ STATIC_URL }}tmp/effect-4.gif">
     </div>
 
-    <div id="angel-actions-block" class="info-block">
+    <div id="angel-cards-block" class="info-block">
       <table>
-        <tr class="action-record">
-          <td><img class="icon" src="{{ STATIC_URL }}tmp/create-hero-card.png"/></td>
-          <td>Создать героя</td>
-          <td>0</td>
-        </tr>
-        <tr class="action-record">
-          <td><img class="icon" src="{{ STATIC_URL }}tmp/kick-card.png"/></td>
-          <td>Пнуть!</td>
-          <td>25</td>
-        </tr>
+        <tbody class="pgf-cards-list">
+          <tr class="card-record pgf-template">
+            <td><i class="icon"></i></td>
+            <td><span class="pgf-name"></span></td>
+            <td>0</td>
+          </tr>
+        </tbody>
       </table>
     </div>
 

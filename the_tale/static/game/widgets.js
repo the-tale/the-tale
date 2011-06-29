@@ -310,8 +310,152 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
     });
 };
 
-
 pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
+    var instance = this;
+
+    var widget = jQuery(selector);
+    var deckContainer = jQuery('.pgf-cards-list', widget);
+    var activateCardWidget = jQuery('#activate-card-block');
+    var activateCardFormBlock = jQuery('.pgf-activate-form', activateCardWidget);
+
+    jQuery('.pgf-cancel', activateCardWidget).click(function(e){
+        e.preventDefault();
+        widgets.switcher.HideActivateCardWidget();
+    });
+
+    var deck = {};
+    var turn = {};
+
+    function SetCooldown(cardId) {
+        jQuery('.card-'+cardId, widget).toggleClass('cooldown', true);
+    }
+
+    function ActivateCard(card) {
+
+        if (card.cooldown_end > turn.number) {
+            return;
+        }
+
+        var currentHero = widgets.heroes.CurrentHero();
+
+        var heroId = undefined;
+        if (currentHero) {
+            heroId = currentHero.id;
+        }
+
+        if (card.use_form) {
+
+            widgets.switcher.ShowActivateCardWidget();
+
+            function OnSuccessActivation(form, data) {
+                card.cooldown_end = data.data.cooldown_end;
+                if (card.cooldown_end) SetCooldown(card.id);
+
+                widgets.switcher.HideActivateCardWidget();
+
+                updater.Refresh();
+            }
+
+            jQuery.ajax({
+                type: 'get',
+                url: card.form_link,
+                success: function(data, request, status) {
+                    activateCardFormBlock.html(data);
+
+                    if (heroId !== undefined) {
+                        jQuery('#hero_id', tab).val(heroId);
+                    }
+
+                    var activationForm = new pgf.forms.Form(jQuery('form', activateCardFormBlock),
+                                                            {action: card.activation_link,
+                                                             OnSuccess: OnSuccessActivation});
+                },
+                error: function(request, status, error) {
+                },
+                complete: function(request, status) {
+                }
+            });
+        }
+        else {
+            var ajax_data = {};
+            if (heroId !== undefined) {
+                ajax_data.hero = heroId;
+            }
+            pgf.forms.Post({action: card.activation_link,
+                            data: ajax_data,
+                            OnSuccess: function(data) {
+                                card.cooldown_end = data.data.cooldown_end;
+                                if (card.cooldown_end) SetCooldown(card.id);
+                            }
+                           });
+        }
+        
+    }
+
+    function RenderCard(index, data, element) {
+        jQuery('.pgf-name', element).text(data.name);
+        element.addClass( 'card-' + data.id + ' ' +data.type.toLowerCase() );
+
+        if (data.cooldown_end > turn.number) SetCooldown(card.id);
+
+        element.click(function(e){
+            e.preventDefault();
+            ActivateCard(data);
+        });
+    }
+
+    function RenderDeck() {
+
+        var cards = [];
+
+        for (var cardIndex in deck) {
+            cards.push(deck[cardIndex]);
+        }
+        
+        pgf.base.RenderTemplateList(deckContainer, cards, RenderCard, {});
+    };
+
+    this.Refresh = function() {
+        deck = updater.data.data.deck;
+        turn = updater.data.data.turn;
+    };
+
+    this.Render = function() {
+        RenderDeck();
+    };
+
+    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+        instance.Refresh();
+        instance.Render();
+    });
+};
+
+pgf.game.widgets.WidgetSwitcher = function() {
+
+    var logWidget = jQuery('#log-block');
+    var journalWidget = jQuery('#journal-block');
+
+    var activateCardWidget = jQuery('#activate-card-block');
+    var activateCardWidgetFormBlock = jQuery('#activate-card-block .pgf-activate-form');
+
+
+    this.ShowActivateCardWidget = function() { 
+        logWidget.toggleClass('pgf-hidden', true);
+        journalWidget.toggleClass('pgf-hidden', true);
+
+        activateCardWidget.toggleClass('pgf-hidden', false);
+    };
+
+    this.HideActivateCardWidget = function() { 
+        logWidget.toggleClass('pgf-hidden', false);
+        journalWidget.toggleClass('pgf-hidden', false);
+        activateCardWidget.toggleClass('pgf-hidden', true);
+
+        activateCardWidgetFormBlock.html('');
+    };
+};
+
+pgf.game.widgets.CardsOld = function(selector, updater, widgets, params) {
 
     var instance = this;
 
@@ -337,7 +481,6 @@ pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
         }
 
         var formUrl = info.form_link;
-        var activationUrl = info.activation_link;
         var useForm = info.use_form;
 
         var currentHero = widgets.heroes.CurrentHero();
@@ -369,7 +512,7 @@ pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
                     }
 
                     var activationForm = new pgf.forms.Form(jQuery('form', tab),
-                                                            {action: activationUrl,
+                                                            {action: card.activation_link,
                                                              OnSuccess: OnSuccessActivation});
                 },
                 error: function(request, status, error) {
@@ -383,7 +526,7 @@ pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
             if (heroId !== undefined) {
                 ajax_data.hero_id = heroId;
             }
-            pgf.forms.Post({action: activationUrl,
+            pgf.forms.Post({action: card.activation_link,
                             data: ajax_data,
                             OnSuccess: function(data) {
                                 info.cooldown_end = data.data.cooldown_end;
@@ -444,43 +587,6 @@ pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
     });
 };
 
-
-pgf.game.widgets.GameTabs = function(selector, params) {
-
-    var container = jQuery(selector);
-    var head = jQuery('#pgf-game-tabs-head', selector);
-    var body = jQuery('#pgf-game-tabs-body', selector);
-
-    var instance = this;
-
-    this.OpenTab = function(tabName) {
-        pgf.tooltip.Hide();
-
-        jQuery('.pgf-tab', body).toggleClass('pgf-hidden', true);
-        jQuery('.pgf-tab-link', head).toggleClass('active', false);
-
-        var tabId = '#pgf-' + tabName + '-tab';
-        var linkId = '#pgf-' + tabName + '-link';
-
-        var currentTab = jQuery(tabId, body);
-
-        currentTab.toggleClass('pgf-hidden', false); 
-        jQuery(linkId, head).toggleClass('active', true); 
-
-        return currentTab;
-    };
-
-    jQuery('.pgf-tab-link', head).each(function(i, v) {
-        var el = jQuery(v);
-        var id = el.attr('id');
-        var name = id.substr(4, id.length-4-5);
-        
-        el.click(function(e){
-            e.preventDefault();
-            instance.OpenTab(name);
-        });
-    });
-};
 
 pgf.game.widgets.MapManager = function(updater, widgets, params) {
     

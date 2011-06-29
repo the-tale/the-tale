@@ -142,9 +142,18 @@
 
 }
 
-#angel-actions-block {
+#angel-cards-block {
 
-    .action-record {
+    .card-record {
+
+        &:hover {
+            color: red;
+            cursor: pointer;
+        }
+
+        &.cooldown {
+            background: gray;
+        }
 
         td {
             vertical-align: middle;
@@ -155,6 +164,14 @@
             width: @action-icon-size;
             height: @action-icon-size;
             display: block;
+        }
+
+        &.firstherocard .icon {
+            background: url("/static/tmp/create-hero-card.png") no-repeat scroll 0 0 transparent;
+        }
+
+        &.pushtoquestcard .icon {
+            background: url("/static/tmp/kick-card.png") no-repeat scroll 0 0 transparent;
         }
     }
 }

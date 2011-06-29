@@ -189,16 +189,17 @@ pgf.forms.Post = function(params) {
         return;
     }
 
-    var strData = '';
-    if (params.data) {
-        strData = JSON.stringify(params.data)
-    }
+    // var strData = '';
+    // if (params.data) {
+    //     strData = JSON.stringify(params.data)
+    // }
 
     jQuery.ajax({
         dataType: 'json',
         type: 'post',
         url: params.action,
-        data: {data: strData},
+        // data: {data: strData},
+        data: params.data,
         success: function(data, request, status) {
             if (data.status === 'ok') {
                 if (params.OnSuccess) {
