@@ -47,10 +47,14 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
     var content = jQuery(selector);
 
-    var data = {};
+    var data = undefined;
 
     this.RenderHero = function(data, widget) {
-        
+
+        if (!data) {
+            return;
+        }
+
         jQuery('.pgf-wisdom', widget).text(data.base.wisdom);
         jQuery('.pgf-name', widget).text(data.base.name);
         jQuery('.pgf-health', widget).text(data.base.health);
@@ -93,6 +97,10 @@ pgf.game.widgets.PlaceAndTime = function(selector, updater, widgets, params) {
     var data = {};
 
     function RenderPosition(data, widget) {
+
+        if (!data.position) {
+            return;
+        }
         
         if (data.position.place) {
             jQuery('.pgf-place .pgf-name', widget).text(data.position.place.name);
@@ -128,7 +136,14 @@ pgf.game.widgets.PlaceAndTime = function(selector, updater, widgets, params) {
 
     this.Refresh = function() {
         data.date = updater.data.data.turn;
-        data.position = widgets.heroes.CurrentHero().position;
+
+        var hero = widgets.heroes.CurrentHero();
+        if (hero) {
+            data.position = hero.position;
+        }
+        else {
+            data.position = undefined;
+        }
     };
 
     this.Render = function() {
@@ -175,6 +190,10 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         
         var action = instance.CurrentAction();
 
+        if (!action) {
+            return;
+        }
+
         jQuery('.pgf-action-info', actionInfoContainer).toggleClass('pgf-hidden', true);
 
         switch (action.type) {
@@ -215,7 +234,15 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
 
     this.Refresh = function() {
         data.quest = {};
-        data.actions = widgets.heroes.CurrentHero().actions;
+
+        var hero = widgets.heroes.CurrentHero();
+
+        if (hero) {
+            data.actions = hero.actions;
+        }
+        else {
+            data.actions = [];
+        }
     };
 
     this.Render = function() {
@@ -260,7 +287,13 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     this.Refresh = function() {
         var turnNumber = updater.data.data.turn.number;
-        var turnMessages = widgets.heroes.CurrentHero().messages;
+
+        var hero = widgets.heroes.CurrentHero();
+
+        var turnMessages = [];
+        if (hero) {
+            turnMessages = hero.messages;
+        }
 
         for (var i=0; i<turnMessages.length; ++i) {
             messages.push({turn: turnNumber, message: turnMessages[i].text});
