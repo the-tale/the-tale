@@ -11,7 +11,7 @@ var widgets = {};
 jQuery(document).ready(function(e){
     updater = new pgf.game.Updater({url: "{{ url('game:info') }}"});
 
-    widgets.switcher = new pgf.game.widgets.WidgetSwitcher();
+    widgets.switcher = new pgf.game.widgets.WidgetSwitcher('#switcher-block');
 
     widgets.cards = new pgf.game.widgets.Cards('#angel-cards-block', 
                                                updater, widgets,
@@ -43,42 +43,42 @@ jQuery(document).ready(function(e){
                        });
     });
 
-    // var mapObjectsLayer = new pgf.game.map.ObjectsLayer({idPrefix: 'map-object'});
+    var mapObjectsLayer = new pgf.game.map.ObjectsLayer({idPrefix: 'map-object'});
 
-    // widgets.map = new pgf.game.map.Map({
-    //     root: '#pgf-map',
-    //     zIndexBegin: 1,
-    //     layers: [ 
-    //         new pgf.game.map.BackgroundLayer({
-    //             tileSize: 256,
-    //             tileSrc: '{{ STATIC_URL }}game/map/img/bg.png'
-    //         }),
-    //         mapObjectsLayer,
-    //         new pgf.game.map.NavigationLayer({})
-    //     ],
-    //     zooms: [1, 2, 3, 4, 6, 8, 12, 24],
-    //     curZoom: 0,
-    //     wndPos: {x: 0, y: 0},
-    //     mapPos: {x: -100, y: -100},
-    //     mapSize: {w: 1000, h: 1000},
-    //     OnChange: function(m) {
-    //         jQuery("#pgf-x-pos").text(m.GetPos().x);
-    //         jQuery("#pgf-y-pos").text(m.GetPos().y);
-    //         jQuery("#pgf-zoom-lvl").text(m.GetZoom().lvl);
-    //         jQuery("#pgf-zoom-value").text(m.GetZoom().value);
-    //     }
-    // });
+    widgets.map = new pgf.game.map.Map({
+        root: '#pgf-map',
+        zIndexBegin: 1,
+        layers: [ 
+            new pgf.game.map.BackgroundLayer({
+                tileSize: 256,
+                tileSrc: '{{ STATIC_URL }}game/map/img/bg.png'
+            }),
+            mapObjectsLayer,
+            new pgf.game.map.NavigationLayer({})
+        ],
+        zooms: [1, 2, 3, 4, 6, 8, 12, 24],
+        curZoom: 0,
+        wndPos: {x: 0, y: 0},
+        mapPos: {x: -100, y: -100},
+        mapSize: {w: 1000, h: 1000},
+        OnChange: function(m) {
+            jQuery("#pgf-x-pos").text(m.GetPos().x);
+            jQuery("#pgf-y-pos").text(m.GetPos().y);
+            jQuery("#pgf-zoom-lvl").text(m.GetZoom().lvl);
+            jQuery("#pgf-zoom-value").text(m.GetZoom().value);
+        }
+    });
 
-    // widgets.mapManager = new pgf.game.widgets.MapManager(updater, widgets, 
-    //                                                      {infoSrc: "{{ url('game:map:') }}",
-    //                                                       mapObjectsLayer: mapObjectsLayer,
-    //                                                       cellSize: {{ map_settings.CELL_SIZE }},
-    //                                                       templates: {cityTemplate: jQuery('#pgf-map-city-template'),
-    //                                                                   heroTemplate: jQuery('#pgf-map-hero-template')}
-    //                                                      });
+    widgets.mapManager = new pgf.game.widgets.MapManager(updater, widgets, 
+                                                         {infoSrc: "{{ url('game:map:') }}",
+                                                          mapObjectsLayer: mapObjectsLayer,
+                                                          cellSize: {{ map_settings.CELL_SIZE }},
+                                                          templates: {cityTemplate: jQuery('#pgf-map-city-template'),
+                                                                      heroTemplate: jQuery('#pgf-map-hero-template')}
+                                                         });
         
-    // jQuery("#pgf-zoom-up").click(function(e){widgets.map.ZoomOut(); e.preventDefault();});
-    // jQuery("#pgf-zoom-down").click(function(e){widgets.map.ZoomIn(); e.preventDefault();});
+    jQuery("#pgf-zoom-up").click(function(e){widgets.map.ZoomOut(); e.preventDefault();});
+    jQuery("#pgf-zoom-down").click(function(e){widgets.map.ZoomIn(); e.preventDefault();});
 
     updater.Refresh();
 });
@@ -366,6 +366,11 @@ jQuery(document).ready(function(e){
 
     </div>
 
+    <div id="switcher-block" class="info-block">
+      <a href="#" class="pgf-show-journal">журнал</a>
+      <a href="#" class="pgf-show-map">карта</a>
+    </div>   
+
     <div id="log-block" class="info-block">
       <ul class="log pgf-log-list">
         <li class="message pgf-template">
@@ -375,7 +380,7 @@ jQuery(document).ready(function(e){
       </ul>
     </div>    
 
-   <div id="journal-block" class="info-block">
+   <div id="journal-block" class="info-block pgf-hidden">
       <ul class="journal">
         <li class="message">
           <span>[5 часов, 10 мая]</span><br/>
@@ -412,6 +417,19 @@ jQuery(document).ready(function(e){
      <div class="pgf-activate-form">
      </div>
    </div>
+
+   <div id="map-block" class="info-block">
+     <div class="navigation-panel">
+       <input id="pgf-zoom-up" type="button" value="-"/>
+       <input id="pgf-zoom-down" type="button" value="+"/>
+     </div>
+     <div id="pgf-info" class="info-panel">
+       x:<span id="pgf-x-pos"></span>, y:<span id="pgf-y-pos"></span>
+       zoom-lvl:<span id="pgf-zoom-lvl"></span>, zoom-value:<span id="pgf-zoom-value"></span>
+     </div>
+     <div id="pgf-map" class="game-map"></div>
+   </div>
+
   </div>
 
   <div id="right-column" class="column">
@@ -449,103 +467,15 @@ jQuery(document).ready(function(e){
 
 </div>
 
-<!-- <div id="pgf-game-tabs" class="game-tabs"> -->
+<div id="pgf-map-city-template" class="pgf-template">
+  <div style="width: 10px; height: 10px; background: green;"></div>
+  (<span class="pgf-place-size"></span>) <span class="pgf-place-name"></span>
+</div>
 
-<!--   <div id="pgf-game-tabs-head"> -->
-<!--     <a href="" id="pgf-cards-link" class="pgf-tab-link">Deck</a> -->
-<!--     <a href="" id="pgf-tmp-link" class="pgf-tab-link">Tmp</a> -->
-<!--   </div> -->
-
-<!--   <div id="pgf-game-tabs-body"> -->
-    
-<!--     <div id="pgf-cards-tab" class="pgf-tab cards-tab"> -->
-
-<!--       <div id="pgf-cards-widget"> -->
-<!--         <div class="pgf-cards-widget-content">  -->
-
-<!--           <ul class="pgf-cards-list"> -->
-<!--             <li class="pgf-template card-record pgf-card-record"> -->
-<!--               <span class="pgf-card-name"></span> -->
-<!--               <a href="#" class="pgf-card-form-link">activate</a> -->
-<!--             </li> -->
-<!--           </ul> -->
-
-<!--         </div> -->
-<!--       </div> -->
-
-<!--     </div> -->
-
-<!--     <div id="pgf-tmp-tab" class="pgf-tab"> -->
-<!--     </div> -->
-
-<!--   </div> -->
-
-<!-- </div> -->
-
-<!-- {% macro hero_base_panel() %} -->
-<!-- <div> -->
-<!--   (<span class="pgf-wisdom"></span>) <span class="pgf-name"></span> -->
-<!--   <div class="pgf-attr-primary"> -->
-<!--     I <span class="pgf-intellect"></span> -->
-<!--     CO <span class="pgf-constitution"></span> -->
-<!--     R <span class="pgf-reflexes"></span> -->
-<!--     CH <span class="pgf-chaoticity"></span> -->
-<!--   </div> -->
-<!--   health: <span class="pgf-health"></span> [<span class="pgf-max-health"></span>] -->
-<!--   <br/> -->
-<!--   Action: <span class="pgf-short-description"></span> (<span class="pgf-percents"></span>%)  -->
-<!--   [<span class="pgf-entropy"></span>/<span class="pgf-entropy-barier"></span>] -->
-<!--   <br/> -->
-<!--   Position: (<span class="pgf-position-type"></span>) <span class="pgf-position-name"></span> -->
-<!--   <br/> -->
-<!-- </div> -->
-<!-- {% endmacro %} -->
-
-<!-- <div id="pgf-heroes-widget" class="heroes-widget"> -->
-<!--   <div class="pgf-heroes-widget-content"> -->
-<!--     <ul class="pgf-heroes-list"> -->
-
-<!--       <li class="pgf-template"> -->
-<!--         {{ hero_base_panel() }} -->
-<!--         <h2>Journal</h2> -->
-<!--         <div class="pgf-messages-log"> -->
-<!--           <ul> -->
-
-<!--             <li class="pgf-template"> -->
-<!--               id(<span class="pgf-message-pattern-id"></span>) -->
-<!--               <br/> -->
-<!--               <span class="pgf-message"></span> -->
-<!--             </li> -->
-
-<!--           </ul> -->
-<!--         </div> -->
-<!--       </li> -->
-
-<!--     </ul> -->
-<!--   </div> -->
-<!-- </div> -->
-
-<!-- <div id="pgf-enemy-widget" class="enemy-widget"> -->
-<!--   {{ hero_base_panel() }} -->
-<!-- </div> -->
-
-<!-- <div id="pgf-date-widget" class="date-widget"> -->
-<!--   <div class="pgf-date-content"> -->
-<!--     turn: <span class="pgf-turn-number"></span> -->
-<!--   </div> -->
-<!-- </div> -->
-
-<!-- <div id="pgf-map-widget" class="game-map-widget"> -->
-<!--   <div id="pgf-map" class="game-map"></div> -->
-<!--   <div class="navigation-panel"> -->
-<!--     <input id="pgf-zoom-up" type="button" value="-"/> -->
-<!--     <input id="pgf-zoom-down" type="button" value="+"/> -->
-<!--   </div> -->
-<!--   <div id="pgf-info" class="info-panel"> -->
-<!--     x:<span id="pgf-x-pos"></span>, y:<span id="pgf-y-pos"></span> -->
-<!--     zoom-lvl:<span id="pgf-zoom-lvl"></span>, zoom-value:<span id="pgf-zoom-value"></span> -->
-<!--   </div> -->
-<!-- </div> -->
+<div id="pgf-map-hero-template" class="pgf-template">
+  <div style="width: 6px; height: 6px; background: blue;"></div>
+  <span class="pgf-hero-name"></span>
+</div>
 
 <!-- <div id="pgf-card-tooltip-template" class="pgf-template card-tooltip"> -->
 <!--   <strong class="pgf-card-name"></strong> -->
@@ -554,16 +484,6 @@ jQuery(document).ready(function(e){
 <!--   <div class="pgf-card-available-after card-avaliable"> -->
 <!--     Available after <span class="pgf-card-available-after-value"></span> (turns) -->
 <!--   </div> -->
-<!-- </div> -->
-
-<!-- <div id="pgf-map-city-template" class="pgf-template"> -->
-<!--   <div style="width: 10px; height: 10px; background: green;"></div> -->
-<!--   (<span class="pgf-place-size"></span>) <span class="pgf-place-name"></span> -->
-<!-- </div> -->
-
-<!-- <div id="pgf-map-hero-template" class="pgf-template"> -->
-<!--   <div style="width: 6px; height: 6px; background: blue;"></div> -->
-<!--   <span class="pgf-hero-name"></span> -->
 <!-- </div> -->
 
 {% endblock %}
