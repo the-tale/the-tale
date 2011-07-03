@@ -30,18 +30,30 @@ class ActionIdleness(models.Model):
     entropy_action = models.ForeignKey(Action, related_name='+', default=None, null=True, on_delete=models.SET_NULL)
 
 
-class ActionQuestMailDelivery(models.Model):
+class ActionQuest(models.Model):
 
     class STATE(Action.STATE):
-        MOVE_TO_DELIVERY_FROM_POINT = 'move_to_delivery_from_point'
-        MOVE_TO_DELIVERY_TO_POINT = 'move_to_delivery_to_point'
+        PROCESSING = 'processing'
     
     base_action = models.OneToOneField(Action, related_name='action_quest')
 
     quest = models.ForeignKey('quests.Quest', related_name='+', default=None, null=True)
 
-    action_move_to_delivery_from = models.ForeignKey('actions.action', related_name='+', null=True, default=None, on_delete=models.SET_NULL)
-    action_move_to_delivery_to = models.ForeignKey('actions.action', related_name='+', null=True, default=None, on_delete=models.SET_NULL)
+    quest_action = models.OneToOneField(Action, related_name='+', null=True, default=None, on_delete=models.SET_NULL)
+
+
+# class ActionQuestMailDelivery(models.Model):
+
+#     class STATE(Action.STATE):
+#         MOVE_TO_DELIVERY_FROM_POINT = 'move_to_delivery_from_point'
+#         MOVE_TO_DELIVERY_TO_POINT = 'move_to_delivery_to_point'
+    
+#     base_action = models.OneToOneField(Action, related_name='action_quest')
+
+#     quest = models.ForeignKey('quests.Quest', related_name='+', default=None, null=True)
+
+#     action_move_to_delivery_from = models.ForeignKey('actions.action', related_name='+', null=True, default=None, on_delete=models.SET_NULL)
+#     action_move_to_delivery_to = models.ForeignKey('actions.action', related_name='+', null=True, default=None, on_delete=models.SET_NULL)
 
 
 class ActionMoveTo(models.Model):

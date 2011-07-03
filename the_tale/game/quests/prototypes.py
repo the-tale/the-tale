@@ -5,7 +5,6 @@ from django_next.utils.decorators import nested_commit_on_success
 from ..heroes.prototypes import get_hero_by_model
 from ..map.places.models import Place
 from ..map.places.prototypes import PlacePrototype
-#from ..actions.models import ActionQuest
 
 from .models import Quest, QuestMailDelivery
 
@@ -45,6 +44,14 @@ class QuestPrototype(object):
     @property
     def heroes(self): return []
 
+    @nested_commit_on_success
+    def create_action(self):
+        from ..actions.prototypes import ActionQuestPrototype
+        return ActionQuestPrototype.create(quest=self)
+
+    @property
+    def STATE(self): return self.model.STATE
+
     # @property
     # def base_action(self): 
     #     from ..actions.prototypes import get_action_by_model
@@ -69,11 +76,6 @@ class QuestPrototype(object):
 class QuestMailDeliveryPrototype(QuestPrototype):
 
     TYPE = 'MAIL_DELIVERY'
-
-    class STATE:
-        INITIAL = 'INITIAL'
-        DELIVERY = 'DELIVERY'
-        DELIVERED = 'DELIVERED'
 
     def __init__(self, base_model, model=None, *argv, **kwargs):
         super(QuestMailDeliveryPrototype, self).__init__(base_model, *argv, **kwargs)
@@ -112,16 +114,10 @@ class QuestMailDeliveryPrototype(QuestPrototype):
     @property
     def heroes(self): return [self.hero]
 
-    @nested_commit_on_success
-    def create_action(self):
-        from ..actions.prototypes import ActionQuestMailDeliveryPrototype
-        return ActionQuestMailDeliveryPrototype.create(quest=self)
-
     @classmethod
     @nested_commit_on_success
     def create(cls, hero):
-        base_model = Quest.objects.create( type=cls.TYPE, 
-                                           state=cls.STATE.INITIAL)
+        base_model = Quest.objects.create( type=cls.TYPE)
 
         # TODO: check situation when hero moved between places (i.e. hero.position.place is None)
 
@@ -137,6 +133,58 @@ class QuestMailDeliveryPrototype(QuestPrototype):
         quest = cls(base_model=base_model, model=model)
 
         return quest
+
+    def process(self, action):
+
+        from ..actions.prototypes import ActionMoveToPrototype
+
+        finish = False
+        percents = 0.0
+
+        if self.state == self.STATE.UNINITIALIZED:
+            if self.hero.position.place.id != self.delivery_from.id:
+                action_move_to_delivery_from = ActionMoveToPrototype.create(hero=self.hero, 
+                                                                            destination=self.quest.delivery_from)
+                action_move_to_delivery_from.process()
+                action.quest_action = action_move_to_delivery_from
+                self.hero.create_tmp_log_message('go for mail')
+
+            self.state = self.STATE.MOVE_TO_DELIVERY_FROM_POINT
+        
+        if self.state == self.STATE.MOVE_TO_DELIVERY_FROM_POINT:
+            
+            if not action.quest_action or action.quest_action.state == action.quest_action.STATE.PROCESSED:
+                
+                if action.quest_action:
+                    action.quest_action.remove()
+                    action.quest_action = None
+
+                self.hero.create_tmp_log_message('take mail and go to destination')
+
+                if self.hero.position.place.id != self.delivery_to.id:
+                    action.quest_action = ActionMoveToPrototype.create(hero=self.hero, 
+                                                                       destination=self.delivery_to)
+                    action.quest_action.process()
+
+                self.state = self.STATE.MOVE_TO_DELIVERY_TO_POINT
+                percents = 0.5
+                
+        if self.state == self.STATE.MOVE_TO_DELIVERY_TO_POINT:
+            
+            if not action.quest_action or action.quest_action.state == action.quest_action.STATE.PROCESSED:
+                
+                if action.quest_action:
+                    action.quest_action.remove()
+                    action.quest_action = None
+
+                self.hero.create_tmp_log_message('mail delivered')
+                self.state = self.STATE.COMPLETED
+                percents = 1.0
+                finish = True
+
+        return finish, percents
+
+        
 
         
 QUESTS_TYPES = get_quests_types()

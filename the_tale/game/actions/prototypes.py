@@ -7,10 +7,8 @@ from ..heroes.prototypes import get_hero_by_model
 from ..heroes.logic import create_npc_for_hero, strike
 from ..map.places.prototypes import PlacePrototype
 from ..map.roads.prototypes import RoadPrototype, get_road_between
-from ..quests.prototypes import get_quest_by_model
-from ..quests.logic import create_random_quest_for_hero
 
-from .models import Action, ActionIdleness, ActionQuestMailDelivery, ActionMoveTo, ActionBattlePvE_1x1, ActionResurrect
+from .models import Action, ActionIdleness, ActionMoveTo, ActionBattlePvE_1x1, ActionResurrect, ActionQuest
 
 #TODO: change relations between action from "parent control children" to "parent respond to children messages"
 #      in this case parent actions should not store link to child, and should not be processed,  
@@ -151,6 +149,8 @@ class ActionIdlenessPrototype(ActionPrototype):
 
 
         if self.entropy >= self.ENTROPY_BARRIER:
+            from ..quests.logic import create_random_quest_for_hero
+
             self.entropy = 0
             hero.create_tmp_log_message('Entropy filled, receiving new quest')
             quest = create_random_quest_for_hero(hero)
@@ -167,61 +167,47 @@ class ActionIdlenessPrototype(ActionPrototype):
         self.save()
 
 
-class ActionQuestMailDeliveryPrototype(ActionPrototype):
+class ActionQuestPrototype(ActionPrototype):
 
-    TYPE = 'QUEST_MAIL_DELIVERY'
-    SHORT_DESCRIPTION = u'доставляет посылку'
+    TYPE = 'QUEST'
+    SHORT_DESCRIPTION = u'выполняет задание'
 
     def __init__(self, base_model, model=None, *argv, **kwargs):
-        super(ActionQuestMailDeliveryPrototype, self).__init__(base_model, *argv, **kwargs)
+        super(ActionQuestPrototype, self).__init__(base_model, *argv, **kwargs)
         self.model = model if model else base_model.action_quest
-
-    def get_action_move_to_delivery_from(self): 
-        if not hasattr(self, '_action_move_to_delivery_from'):
-            self._action_move_to_delivery_from = None
-            if self.model.action_move_to_delivery_from:
-                self._action_move_to_delivery_from = get_action_by_model(base_model=self.model.action_move_to_delivery_from)
-        return self._action_move_to_delivery_from
-    def set_action_move_to_delivery_from(self, value): 
-        if hasattr(self, '_action_move_to_delivery_from'):
-            delattr(self, '_action_move_to_delivery_from')
-        self.model.action_move_to_delivery_from = value.base_model if value else None
-    action_move_to_delivery_from = property(get_action_move_to_delivery_from, set_action_move_to_delivery_from)
-
-    def get_action_move_to_delivery_to(self): 
-        if not hasattr(self, '_action_move_to_delivery_to'):
-            self._action_move_to_delivery_to = None
-            if self.model.action_move_to_delivery_to:
-                self._action_move_to_delivery_to = get_action_by_model(base_model=self.model.action_move_to_delivery_to)
-        return self._action_move_to_delivery_to
-    def set_action_move_to_delivery_to(self, value): 
-        if hasattr(self, '_action_move_to_delivery_to'):
-            delattr(self, '_action_move_to_delivery_to')
-        self.model.action_move_to_delivery_to = value.base_model  if value else None
-    action_move_to_delivery_to = property(get_action_move_to_delivery_to, set_action_move_to_delivery_to)
 
     @property
     def quest(self):
+        from ..quests.prototypes import get_quest_by_model
         if not hasattr(self, '_quest'):
             self._quest = get_quest_by_model(base_model=self.model.quest)
         return self._quest
 
+    def get_quest_action(self): 
+        if not hasattr(self, '_quest_action'):
+            self._quest_action = None
+            if self.model.quest_action:
+                self._quest_action = get_action_by_model(base_model=self.model.quest_action)
+        return self._quest_action
+    def set_quest_action(self, value): 
+        if hasattr(self, '_quest_action'):
+            delattr(self, '_quest_action')
+        self.model.quest_action = value.base_model if value else None
+    quest_action = property(get_quest_action, set_quest_action)
 
     ###########################################
     # Object operations
     ###########################################
 
     def remove(self): 
-        # self.model.delete()
-        super(ActionQuestMailDeliveryPrototype, self).remove()
-        pass
+        super(ActionQuestPrototype, self).remove()
 
     def save(self):
         self.model.save()
-        super(ActionQuestMailDeliveryPrototype, self).save()
+        super(ActionQuestPrototype, self).save()
 
     def ui_info(self):
-        info = super(ActionQuestMailDeliveryPrototype, self).ui_info()
+        info = super(ActionQuestPrototype, self).ui_info()
         return info
 
     @classmethod
@@ -229,8 +215,8 @@ class ActionQuestMailDeliveryPrototype(ActionPrototype):
     def create(cls, quest):
         base_model = Action.objects.create( type=cls.TYPE, percents=0.0)
         
-        model = ActionQuestMailDelivery.objects.create( base_action=base_model, 
-                                                        quest=quest.base_model)
+        model = ActionQuest.objects.create( base_action=base_model, 
+                                            quest=quest.base_model)
 
         action = cls(base_model=base_model, model=model)
 
@@ -243,63 +229,27 @@ class ActionQuestMailDeliveryPrototype(ActionPrototype):
     def process(self):
 
         if not self.quest.hero.is_alive:
-            if self.action_move_to_delivery_to:
-                self.action_move_to_delivery_to.remove()
-                self.action_move_to_delivery_to = None
-            if self.action_move_to_delivery_from:
-                self.action_move_to_delivery_from.remove()
-                self.action_move_to_delivery_from = None
             self.quest.remove()
             self.state = self.STATE.PROCESSED
+            if self.quest_action:
+                self.quest_action.remove()
             self.save()
             return
 
         if self.state == self.STATE.UNINITIALIZED:
-            if self.quest.hero.position.place.id != self.quest.delivery_from.id:
-                self.action_move_to_delivery_from = ActionMoveToPrototype.create(hero=self.hero, 
-                                                                                 destination=self.quest.delivery_from)
-                self.action_move_to_delivery_from.process()
-                self.quest.hero.create_tmp_log_message('go for mail')
-
-            self.state = self.STATE.MOVE_TO_DELIVERY_FROM_POINT
+            self.state = self.STATE.PROCESSING
         
-        if self.state == self.STATE.MOVE_TO_DELIVERY_FROM_POINT:
-            
-            if (not self.action_move_to_delivery_from or 
-                self.action_move_to_delivery_from.state == self.action_move_to_delivery_from.STATE.PROCESSED):
-                
-                if self.action_move_to_delivery_from:
-                    self.action_move_to_delivery_from.remove()
-                    self.action_move_to_delivery_from = None
-
-                self.quest.hero.create_tmp_log_message('take mail and go to destination')
-
-                if self.quest.hero.position.place.id != self.quest.delivery_to.id:
-                    self.action_move_to_delivery_to = ActionMoveToPrototype.create(hero=self.quest.hero, 
-                                                                                   destination=self.quest.delivery_to)
-                    self.action_move_to_delivery_to.process()
-
-                self.state = self.STATE.MOVE_TO_DELIVERY_TO_POINT
-                
-        if self.state == self.STATE.MOVE_TO_DELIVERY_TO_POINT:
-            
-            if (not self.action_move_to_delivery_to or 
-                self.action_move_to_delivery_to.state == self.action_move_to_delivery_to.STATE.PROCESSED):
-                
-                if self.action_move_to_delivery_to:
-                    self.action_move_to_delivery_to.remove()
-                    self.action_move_to_delivery_to = None
-
-                self.quest.hero.create_tmp_log_message('mail delivered')
-                self.quest.remove()
+        if self.state == self.STATE.PROCESSING:
+            finish, percents = self.quest.process(self)
+            self.percents = percents
+            if finish:
                 self.state = self.STATE.PROCESSED
-                self.save()
-                return
-
-        # QUEST: percents
+                self.quest.remove()
 
         self.save()
-        self.quest.save()
+
+        if self.state != self.STATE.PROCESSED:
+            self.quest.save()
 
 
 class ActionMoveToPrototype(ActionPrototype):
