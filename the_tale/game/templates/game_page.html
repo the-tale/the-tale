@@ -248,12 +248,15 @@ jQuery(document).ready(function(e){
       <table>
         <tbody>
         <tr>
-          <td class="quests-line pgf-quests-line">
-            <img class="quest-icon" src="{{ STATIC_URL }}tmp/kill-quest-icon.png"/>
-            <img class="quest-icon" src="{{ STATIC_URL }}tmp/delivery-quest-icon.png"/>
-            <img class="quest-icon" src="{{ STATIC_URL }}tmp/speak-quest-icon.png"/>
-            <img class="quest-icon" src="{{ STATIC_URL }}tmp/kill-quest-icon.png"/>
-            <img class="quest-icon" src="{{ STATIC_URL }}tmp/kill-quest-icon.png"/>
+          <td class="quests-line-container" >
+            <div class="quests-line pgf-quests-line">
+              <img class="quest-icon pgf-template" src="{{ STATIC_URL }}tmp/delivery-quest-icon.png"/>
+              <!-- <img class="quest-icon" src="{{ STATIC_URL }}tmp/speak-quest-icon.png"/> -->
+              <!-- <img class="quest-icon" src="{{ STATIC_URL }}tmp/kill-quest-icon.png"/> -->
+            </div>
+            <div class="pgf-no-quests-message">
+              Герой бьёт баклуши
+            </div>
           </td>
           <td class="action-info pgf-action-info-container" rowspan="2">
             <div class="pgf-action-info pgf-action-other pgf-hidden">

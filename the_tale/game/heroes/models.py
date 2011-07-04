@@ -2,6 +2,7 @@ from django.db import models
 
 from game.angels.models import Angel
 from game.actions.models import Action
+from game.quests.models import Quest
 
 class Hero(models.Model):
 
@@ -16,6 +17,7 @@ class Hero(models.Model):
     first = models.BooleanField()
 
     name = models.CharField(max_length=150, null=False)
+
 
     wisdom = models.IntegerField()
 
@@ -38,3 +40,11 @@ class HeroAction(models.Model):
     action = models.ForeignKey(Action)
 
     order = models.IntegerField()
+
+
+class HeroQuest(models.Model):
+    
+    hero = models.ForeignKey(Hero)
+    quest = models.ForeignKey(Quest)
+
+    created_at = models.DateTimeField(auto_now_add=True)

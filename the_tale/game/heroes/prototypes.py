@@ -5,7 +5,7 @@ from game.journal_messages.prototypes import MessagesLogPrototype, get_messages_
 
 from game.map.places.prototypes import HeroPositionPrototype, PlacePrototype
 
-from .models import Hero, HeroAction
+from .models import Hero, HeroAction, HeroQuest
 from . import game_info
 
 attrs = game_info.attributes
@@ -93,8 +93,25 @@ class HeroPrototype(object):
     def max_damage(self): return game_info.attributes.secondary.max_damage.get(self)
 
     ###########################################
-    # actions
+    # quests
     ###########################################
+
+    @property
+    def quests(self):
+        from game.quests.prototypes import QUESTS_TYPES
+        if not hasattr(self, '_quests'):
+            self._quests = []
+            hero_quests = HeroQuest.objects.select_related('quest').filter(hero=self.model).order_by('created_at')
+            quests = [hero_quest.quest for hero_quest in hero_quests]
+            for quest in quests:
+                quest_objects = QUESTS_TYPES[quest.type](base_model=quest)
+                self._quests.append(quest_objects)
+        return self._quests
+    
+
+    ###########################################
+    # actions
+    ###########################################p
 
     @property
     def actions(self):
@@ -142,11 +159,12 @@ class HeroPrototype(object):
     def get_messages_log(self):
         return get_messages_log_by_model(model=self.model.messages_log)
 
-    def ui_info(self, ignore_actions=False):
+    def ui_info(self, ignore_actions=False, ignore_quests=False):
         return {'id': self.id,
                 'npc': self.is_npc,
                 'angel': self.angel_id,
                 'actions': [ action.ui_info() for action in self.actions ] if not ignore_actions else [],
+                'quests': [quest.ui_info() for quest in self.quests] if not ignore_quests else [], 
                 'messages': self.get_messages_log().messages,
                 'position': self.position.ui_info(),
                 'alive': self.is_alive,

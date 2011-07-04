@@ -2,6 +2,7 @@
 
 from django_next.utils.decorators import nested_commit_on_success
 
+from ..heroes.models import HeroQuest
 from ..heroes.prototypes import get_hero_by_model
 from ..map.places.models import Place
 from ..map.places.prototypes import PlacePrototype
@@ -129,6 +130,9 @@ class QuestMailDeliveryPrototype(QuestPrototype):
                                                   hero=hero.model,
                                                   delivery_from=place_from.model,
                                                   delivery_to=place_to)
+
+        HeroQuest.objects.create(hero=hero.model, quest=base_model)
+        
 
         quest = cls(base_model=base_model, model=model)
 

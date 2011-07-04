@@ -162,6 +162,8 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
 
     var widget = jQuery(selector);
     var actionInfoContainer = jQuery('.pgf-action-info-container', widget);
+    var questsLine = jQuery('.pgf-quests-line', widget);
+    var noQuestsMsg = jQuery('.pgf-no-quests-message', widget);
 
     var data = {};
 
@@ -171,7 +173,15 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
 
     var instance = this;
 
+    function RenderQuest(index, data, element) {
+    }
+
     function RenderQuests() {
+        questsLine.toggleClass('pgf-hidden', !(data.quests.length > 0) )
+        noQuestsMsg.toggleClass('pgf-hidden', data.quests.length > 0 )
+        if (data.quests.length > 0) {
+            pgf.base.RenderTemplateList(questsLine, data.quests, RenderQuest, {});
+        }
     }
 
     function RenderOtherAction(action) {
@@ -233,15 +243,16 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     }
 
     this.Refresh = function() {
-        data.quest = {};
 
         var hero = widgets.heroes.CurrentHero();
 
         if (hero) {
             data.actions = hero.actions;
+            data.quests = hero.quests;
         }
         else {
             data.actions = [];
+            data.quests = [];
         }
     };
 
