@@ -3,3 +3,6 @@
   Do not foget add import path, for example, like in that command:
 
   export PYTHONPATH=$PYTHONPATH:"<path to django-next>"
+
+- near settings.py create settings_local.py, where you can redefine
+  all needed variables (for example see settings_local_example.py)
