@@ -4,5 +4,26 @@
 
   export PYTHONPATH=$PYTHONPATH:"<path to django-next>"
 
+- configure postgre
+
+see: http://wiki.postgresql.org/wiki/Detailed_installation_guides
+
 - near settings.py create settings_local.py, where you can redefine
   all needed variables (for example see settings_local_example.py)
+
+  specify databese credentials
+
+- ./manage.py syncdb
+- ./manage.py migrate
+
+  if migrate raise error, try migrate by application, like './manage.py migrate turns'
+  
+  migrations will be recreated after code will be stabilized
+
+- prepair database:
+
+  - from admin create first turn
+  - from admin create some places
+  - go to /game/map/roads/admin and generate roads
+
+- THE END

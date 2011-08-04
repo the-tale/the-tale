@@ -403,15 +403,15 @@ pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
         
     }
 
-    function RenderCard(index, data, element) {
-        jQuery('.pgf-name', element).text(data.name);
-        element.addClass( 'card-' + data.id + ' ' +data.type.toLowerCase() );
+    function RenderCard(index, card, element) {
+        jQuery('.pgf-name', element).text(card.name);
+        element.addClass( 'card-' + card.id + ' ' +card.type.toLowerCase() );
 
-        if (data.cooldown_end > turn.number) SetCooldown(card.id);
+        if (card.cooldown_end > turn.number) SetCooldown(card.id);
 
         element.click(function(e){
             e.preventDefault();
-            ActivateCard(data);
+            ActivateCard(card);
         });
     }
 

@@ -9,7 +9,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'the_tale',
-        'USER': 'root',
+        'USER': '',
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
