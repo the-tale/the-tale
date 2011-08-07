@@ -7,13 +7,18 @@ from django.core.management.base import BaseCommand
 
 from .map import Map
 from . import places
-from . import constants
 
 from .... import settings as map_settings
+from ....places.models import TERRAIN
+
+class ConfigConstants:
+    TERRAIN = TERRAIN
 
 class Command(BaseCommand):
 
-    help = 'generate css from less sources'
+    help = 'generate map on base on specified config file'
+
+    requires_model_validation = False
 
     option_list = BaseCommand.option_list + ( make_option('--config',
                                                           action='store',
@@ -28,7 +33,7 @@ class Command(BaseCommand):
         CONFIG = options['config']
 
         local_vars = {'places': places,
-                      'constants': constants}
+                      'constants': ConfigConstants}
         global_vars = {}
 
         execfile(CONFIG, local_vars, global_vars) 

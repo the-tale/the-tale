@@ -36,6 +36,9 @@ class PlacePrototype(object):
     def y(self): return self.model.y
 
     @property
+    def terrain(self): return self.model.terrain
+
+    @property
     def name(self): return self.model.name
 
     @property

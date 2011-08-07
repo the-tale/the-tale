@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import math
-from .constants import TERRAIN
+from ....places.models import TERRAIN
 
 class MapGeneratorException(Exception): pass
 
