@@ -11,8 +11,10 @@ class Place(object):
         self.terrain = terrain
 
     def get_json_data(self):
-        return {'x': self.x,
-                'y': self.y}
+        return {'id': self.id,
+                'x': self.x,
+                'y': self.y,
+                'name': self.name}
 
 
 class City(Place):

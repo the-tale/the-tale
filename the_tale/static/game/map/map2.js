@@ -96,7 +96,8 @@ pgf.game.resources.ImageManager =  function(spritesSettins, params) {
 pgf.game.map.MapManager = function(params) {
 
     var mapData = {};
-
+    var dynamicData = { heroes: {} };
+    var updater = params.updater;
     var instance = this;
 
     jQuery.ajax({
@@ -118,15 +119,32 @@ pgf.game.map.MapManager = function(params) {
         complete: function() {
         }
     });
-    
-    function GetMapCommandsForRect(x, y, w, h) {
-        return mapData;
+
+    function RefreshHero(hero) {
+        dynamicData.heroes[hero.id] = hero;
     }
+    
+    function GetMapDataForRect(x, y, w, h) {
+        return { mapData: mapData, 
+                 dynamicData: dynamicData };
+    }
+
+    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+
+        for (var hero_id in updater.data.data.heroes) {
+            RefreshHero(updater.data.data.heroes[hero_id]);
+        }
+
+        if (params.OnDataUpdated) {
+            params.OnDataUpdated();
+        }
+
+    });
 
     this.mapWidth = 0;
     this.mapHeight = 0;
 
-    this.GetMapCommandsForRect = GetMapCommandsForRect;
+    this.GetMapDataForRect = GetMapDataForRect;
 }; 
 
 pgf.game.map.Map = function(selector, params) {
@@ -144,6 +162,7 @@ pgf.game.map.Map = function(selector, params) {
 
     var spritesManager = params.spritesManager;
     var mapManager = new pgf.game.map.MapManager({regionUrl:  mapUrl + 'region.js',
+                                                  updater: updater,
                                                   OnDataUpdated: function() {
                                                       Refresh();
                                                   }
@@ -173,13 +192,16 @@ pgf.game.map.Map = function(selector, params) {
         if (mapManager.mapWidth * TILE_SIZE + pos.x < canvasWidth) pos.x = canvasWidth - mapManager.mapWidth * TILE_SIZE;
         if (mapManager.mapHeight * TILE_SIZE + pos.y < canvasHeight) pos.y = canvasHeight - mapManager.mapHeight * TILE_SIZE;
 
-        var data = mapManager.GetMapCommandsForRect(pos.x, pos.y, canvasWidth, canvasHeight);
+        var data = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
         Draw(data);
     }
 
-    function Draw(data) {
+    function Draw(fullData) {
         
         if (!subsytemsReady) return;
+
+        data = fullData.mapData;
+        dynamicData = fullData.dynamicData;
 
         var context = canvas.get(0).getContext("2d");
         
@@ -198,12 +220,46 @@ pgf.game.map.Map = function(selector, params) {
             }
         }
         
-        for (var i=0; i<data.places.length; ++i) {
-            var place = data.places[i];
+        for (var place_id in data.places) {
+            var place = data.places[place_id];
             var image = spritesManager.GetImage('place');
             image.Draw(context, 
                        pos.x + place.x * TILE_SIZE, 
                        pos.y + place.y * TILE_SIZE)
+        }
+
+        for (var hero_id in dynamicData.heroes) {
+            var hero = dynamicData.heroes[hero_id];
+            var image = spritesManager.GetImage('hero');
+
+            var x = 0;
+            var y = 0;
+
+            if (hero.position.place) {
+                var place = data.places[hero.position.place.id];
+                x = place.x * TILE_SIZE;
+                y = place.y * TILE_SIZE;
+                image.Draw(context, pos.x + x, pos.y + y);
+            }
+            if (hero.position.road) {
+                var road = data.roads[hero.position.road.id];
+                var point_1 = data.places[road.point_1_id];
+                var point_2 = data.places[road.point_2_id];
+
+                var percents = hero.position.percents;
+
+                if (hero.position.invert_direction) {
+                    x = TILE_SIZE * (point_2.x + (point_1.x - point_2.x) * percents + 0.5);
+                    y = TILE_SIZE * (point_2.y + (point_1.y - point_2.y) * percents + 0.5);
+                }
+                else {
+                    x = TILE_SIZE * (point_1.x + (point_2.x - point_1.x) * percents + 0.5);
+                    y = TILE_SIZE * (point_1.y + (point_2.y - point_1.y) * percents + 0.5);
+                }
+                image.Draw(context, 
+                           pos.x + x - TILE_SIZE / 2 , 
+                           pos.y + y - TILE_SIZE / 2)
+            }
         }
 
         context.restore();

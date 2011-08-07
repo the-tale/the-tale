@@ -354,7 +354,7 @@ class ActionMoveToPrototype(ActionPrototype):
         if self.state == self.STATE.UNINITIALIZED:
             if self.hero.position.place.id != self.destination.id:
                 self.road = get_road_between(self.hero.position.place, self.destination)
-                position.set_road(self.road)
+                position.set_road(self.road, invert=self.hero.position.place.id != self.road.point_1_id)
                 self.state = self.STATE.MOVING
             else:
                 self.percents = 1

@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand
 
 from .map import Map
 from . import places
+from . import roads
 
 from .... import settings as map_settings
 from ....places.models import TERRAIN
@@ -33,6 +34,7 @@ class Command(BaseCommand):
         CONFIG = options['config']
 
         local_vars = {'places': places,
+                      'roads': roads,
                       'constants': ConfigConstants}
         global_vars = {}
 
@@ -44,6 +46,9 @@ class Command(BaseCommand):
 
         for map_place in config['places_list']:
             game_map.add_place(map_place)
+
+        for map_road in config['roads_list']:
+            game_map.add_road(map_road)
 
         game_map.prepair_terrain()
 

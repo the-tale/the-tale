@@ -35,6 +35,7 @@ class Map(object):
         self.map = [ [Cell(x, y) for x in xrange(w)] for y in xrange(h)]
 
         self.places = {}
+        self.roads = {}
 
     def add_place(self, place):
         if place.id in self.places:
@@ -44,6 +45,10 @@ class Map(object):
 
         self.update_terrain(place.x, place.y, place.significance, place.terrain)
 
+    def add_road(self, road):
+        if road.key in self.roads:
+            raise MapGeneratorException('road "%r" has already exists' % road.key)
+        self.roads[road.key] = road
 
     def update_terrain(self, center_x, center_y, significance, terrain):
         
@@ -69,7 +74,8 @@ class Map(object):
         data['width'] = self.w
         data['height'] = self.h
         data['terrain'] = [ ''.join(row) for row in self.get_terrain_map() ]
-        data['places'] = [ place.get_json_data() for place in self.places.values() ] 
+        data['places'] = dict( (place.id, place.get_json_data() ) for place in self.places.values() )
+        data['roads'] = dict( (road.id, road.get_json_data() ) for road in self.roads.values() )
 
         return data
 

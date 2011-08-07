@@ -8,12 +8,16 @@ from optparse import make_option
 
 # some strange import for command work correctly
 
+from ....map.roads.models import Road # just to awoid django error on startup
+
 from ...logic import next_turn
 from ...prototypes import get_latest_turn
 
 class Command(BaseCommand):
 
     help = 'make next turn'
+
+    # requires_model_validation = False
 
     option_list = BaseCommand.option_list + (
         make_option('-n', '--number',

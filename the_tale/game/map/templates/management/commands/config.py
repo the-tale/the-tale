@@ -13,6 +13,15 @@ places_list = (
     {% endfor %}
 )
 
+roads_list = (
+    {% for r in roads_list %}
+
+    roads.Road(road_id={{ r.id }}, point_1={{ r.point_1_id }}, point_2={{ r.point_2_id }}, length={{ r.length }}),
+
+    {% endfor %}
+)
+
+
 # places.City(x=1,  y=1,  significance=1,  terrain=constants.TERRAIN.DESERT),
 # places.City(x=14, y=1,  significance=1,  terrain=constants.TERRAIN.FOREST),
 # places.City(x=27, y=1,  significance=6,  terrain=constants.TERRAIN.SWAMP),

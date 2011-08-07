@@ -2,14 +2,70 @@
 
 {% block head %}
 <script src="{{ STATIC_URL }}game/widgets.js" type="text/javascript"></script>
-<script src="{{ STATIC_URL }}game/map/map.js" type="text/javascript"></script>
+<script src="{{ STATIC_URL }}game/map/map2.js" type="text/javascript"></script>
 <script type="text/javascript">
 
 var updater = undefined;
 var widgets = {};
 
 jQuery(document).ready(function(e){
+
+    var TILE_SIZE = 48; // TODO: replace
+
+    var sprites = {
+        'f': { src: "{{ STATIC_URL }}/tmp/map.png",
+               x: 3 * TILE_SIZE,
+               y: 0 * TILE_SIZE,
+               w: TILE_SIZE,
+               h: TILE_SIZE
+             },
+        '.': { src: "{{ STATIC_URL }}/tmp/map.png",
+               x: 0 * TILE_SIZE,
+               y: 0 * TILE_SIZE,
+               w: TILE_SIZE,
+               h: TILE_SIZE
+             },
+        '_': { src: "{{ STATIC_URL }}/tmp/map.png",
+               x: 0 * TILE_SIZE,
+               y: 3 * TILE_SIZE,
+               w: TILE_SIZE,
+               h: TILE_SIZE
+             },
+        'w': { src: "{{ STATIC_URL }}/tmp/map.png",
+               x: 14 * TILE_SIZE,
+               y: 2 * TILE_SIZE,
+               w: TILE_SIZE,
+               h: TILE_SIZE
+             },
+        'place': { src: "{{ STATIC_URL }}/tmp/map.png",
+                   x: 4 * TILE_SIZE,
+                   y: 4 * TILE_SIZE,
+                   w: TILE_SIZE,
+                   h: TILE_SIZE
+                 },
+        'hero': { src: "{{ STATIC_URL }}/tmp/map.png",
+                  x: 5 * TILE_SIZE,
+                  y: 11 * TILE_SIZE,
+                  w: TILE_SIZE,
+                  h: TILE_SIZE
+                },
+    };
+
+    var spritesManager = new pgf.game.resources.ImageManager(sprites, 
+                                                             { OnSpritesInitialized : function() {
+                                                                 widgets.map.CheckReadyState();
+                                                             } 
+                                                             });
+
     updater = new pgf.game.Updater({url: "{{ url('game:info') }}"});
+
+    widgets.map = new pgf.game.map.Map('#pgf-game-map', 
+                                       {spritesManager: spritesManager,
+                                        mapUrl: '{{ STATIC_URL }}game/map/data/',
+                                        tileSize: TILE_SIZE,
+                                        updater: updater,
+                                        widgets: widgets});
+
 
     widgets.switcher = new pgf.game.widgets.WidgetSwitcher('#switcher-block');
 
@@ -43,40 +99,6 @@ jQuery(document).ready(function(e){
                        });
     });
 
-    var mapObjectsLayer = new pgf.game.map.ObjectsLayer({idPrefix: 'map-object'});
-
-    widgets.map = new pgf.game.map.Map({
-        root: '#pgf-map',
-        zIndexBegin: 1,
-        layers: [ 
-            new pgf.game.map.BackgroundLayer({
-                tileSize: 256,
-                tileSrc: '{{ STATIC_URL }}game/map/img/bg.png'
-            }),
-            mapObjectsLayer,
-            new pgf.game.map.NavigationLayer({})
-        ],
-        zooms: [1, 2, 3, 4, 6, 8, 12, 24],
-        curZoom: 0,
-        wndPos: {x: 0, y: 0},
-        mapPos: {x: -100, y: -100},
-        mapSize: {w: 1000, h: 1000},
-        OnChange: function(m) {
-            jQuery("#pgf-x-pos").text(m.GetPos().x);
-            jQuery("#pgf-y-pos").text(m.GetPos().y);
-            jQuery("#pgf-zoom-lvl").text(m.GetZoom().lvl);
-            jQuery("#pgf-zoom-value").text(m.GetZoom().value);
-        }
-    });
-
-    widgets.mapManager = new pgf.game.widgets.MapManager(updater, widgets, 
-                                                         {infoSrc: "{{ url('game:map:') }}",
-                                                          mapObjectsLayer: mapObjectsLayer,
-                                                          cellSize: {{ map_settings.CELL_SIZE }},
-                                                          templates: {cityTemplate: jQuery('#pgf-map-city-template'),
-                                                                      heroTemplate: jQuery('#pgf-map-hero-template')}
-                                                         });
-        
     jQuery("#pgf-zoom-up").click(function(e){widgets.map.ZoomOut(); e.preventDefault();});
     jQuery("#pgf-zoom-down").click(function(e){widgets.map.ZoomIn(); e.preventDefault();});
 
@@ -422,15 +444,10 @@ jQuery(document).ready(function(e){
    </div>
 
    <div id="map-block" class="info-block">
-     <div class="navigation-panel">
-       <input id="pgf-zoom-up" type="button" value="-"/>
-       <input id="pgf-zoom-down" type="button" value="+"/>
+     <div id="pgf-game-map">
+       <div class="pgf-navigation-layer"></div>
+       <canvas class="pgf-map-canvas" width="550" height="300"></canvas>
      </div>
-     <div id="pgf-info" class="info-panel">
-       x:<span id="pgf-x-pos"></span>, y:<span id="pgf-y-pos"></span>
-       zoom-lvl:<span id="pgf-zoom-lvl"></span>, zoom-value:<span id="pgf-zoom-value"></span>
-     </div>
-     <div id="pgf-map" class="game-map"></div>
    </div>
 
   </div>
@@ -469,24 +486,5 @@ jQuery(document).ready(function(e){
   </div>
 
 </div>
-
-<div id="pgf-map-city-template" class="pgf-template">
-  <div style="width: 10px; height: 10px; background: green;"></div>
-  (<span class="pgf-place-size"></span>) <span class="pgf-place-name"></span>
-</div>
-
-<div id="pgf-map-hero-template" class="pgf-template">
-  <div style="width: 6px; height: 6px; background: blue;"></div>
-  <span class="pgf-hero-name"></span>
-</div>
-
-<!-- <div id="pgf-card-tooltip-template" class="pgf-template card-tooltip"> -->
-<!--   <strong class="pgf-card-name"></strong> -->
-<!--   <div class="pgf-card-description card-description"></div> -->
-<!--   <div class="pgf-card-artistic card-artistic"></div> -->
-<!--   <div class="pgf-card-available-after card-avaliable"> -->
-<!--     Available after <span class="pgf-card-available-after-value"></span> (turns) -->
-<!--   </div> -->
-<!-- </div> -->
 
 {% endblock %}
