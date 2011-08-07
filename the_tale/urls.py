@@ -1,6 +1,7 @@
 from django.conf.urls.defaults import patterns, url, include
 
 from django.contrib import admin
+from django.conf import settings as project_settings
 
 from django_next import jinja2 as jinja2_next
 from django_next.views.views import template_renderer
@@ -14,4 +15,8 @@ urlpatterns = patterns('',
                        url(r'^$', template_renderer('index.html'), name='index'),
                        (r'^accounts/', include('accounts.urls', namespace='accounts') ),
                        (r'^game/', include('game.urls', namespace='game') ),
+
 )
+
+if project_settings.DEBUG:
+    urlpatterns += patterns('', url(r'^tmp/?$', template_renderer('tmp.html'), name='tmp') )

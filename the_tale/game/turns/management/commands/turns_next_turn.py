@@ -7,7 +7,6 @@ from optparse import make_option
 # from ...prototypes import get_latest_turn
 
 # some strange import for command work correctly
-from ....map.roads.models import Road
 
 from ...logic import next_turn
 from ...prototypes import get_latest_turn
