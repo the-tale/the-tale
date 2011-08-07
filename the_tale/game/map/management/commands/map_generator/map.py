@@ -69,6 +69,7 @@ class Map(object):
         data['width'] = self.w
         data['height'] = self.h
         data['terrain'] = [ ''.join(row) for row in self.get_terrain_map() ]
+        data['places'] = [ place.get_json_data() for place in self.places.values() ] 
 
         return data
 

@@ -197,6 +197,14 @@ pgf.game.map.Map = function(selector, params) {
                            pos.y + i * TILE_SIZE);
             }
         }
+        
+        for (var i=0; i<data.places.length; ++i) {
+            var place = data.places[i];
+            var image = spritesManager.GetImage('place');
+            image.Draw(context, 
+                       pos.x + place.x * TILE_SIZE, 
+                       pos.y + place.y * TILE_SIZE)
+        }
 
         context.restore();
     }

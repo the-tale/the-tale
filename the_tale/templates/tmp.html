@@ -36,6 +36,12 @@
                    w: TILE_SIZE,
                    h: TILE_SIZE
             },
+            'place': { src: "{{ STATIC_URL }}/tmp/map.png",
+                       x: 4 * TILE_SIZE,
+                       y: 4 * TILE_SIZE,
+                       w: TILE_SIZE,
+                       h: TILE_SIZE
+            },
         };
 
         var spritesManager = new pgf.game.resources.ImageManager(sprites, 

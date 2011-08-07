@@ -10,6 +10,10 @@ class Place(object):
         self.significance = significance
         self.terrain = terrain
 
+    def get_json_data(self):
+        return {'x': self.x,
+                'y': self.y}
+
 
 class City(Place):
 
