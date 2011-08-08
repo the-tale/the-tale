@@ -82,7 +82,7 @@ pgf.game.resources.ImageManager =  function(spritesSettins, params) {
                 InitializeSourceSprites(sourceProperties);
             };
             
-            image.src = data.src;
+            image.src = params.staticUrl + data.src;
         }
     }
 
