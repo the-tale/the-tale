@@ -51,6 +51,8 @@ class Command(BaseCommand):
             game_map.add_road(map_road)
 
         game_map.prepair_terrain()
+        
+        game_map.pave_ways()
 
         with open(map_settings.GEN_REGION_OUTPUT, 'w') as region_json_file:
             text = json.dumps(game_map.get_json_region_data(), indent=2)

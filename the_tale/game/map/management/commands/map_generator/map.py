@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import math
 from ....places.models import TERRAIN
+from .road_roller import roll_road
 
 class MapGeneratorException(Exception): pass
 
@@ -67,6 +68,14 @@ class Map(object):
 
     def get_terrain_map(self):
         return [ [cell.terrain for cell in row] for row in self.map]
+
+    def pave_ways(self):
+        for road in self.roads.values():
+            roll_road(road, 
+                      self.places[road.point_1].x,
+                      self.places[road.point_1].y,
+                      self.places[road.point_2].x,
+                      self.places[road.point_2].y)
 
     def get_json_region_data(self):
         data = {}

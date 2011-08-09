@@ -19,10 +19,10 @@ def create_npc_for_hero(hero):
     npc = HeroPrototype.create(angel=None, 
                                name='NPC', 
                                first=False, 
-                               intellect=random.randint(1, min(1, hero.intellect-1) ),
-                               constitution=random.randint(1, min(1, hero.constitution-1) ),
-                               reflexes=random.randint(1, min(1, hero.reflexes-1) ),
-                               chaoticity=random.randint(1, min(1, hero.chaoticity-1) ), 
+                               intellect=random.randint(1, max(1, hero.intellect-1) ),
+                               constitution=random.randint(1, max(1, hero.constitution-1) ),
+                               reflexes=random.randint(1, max(1, hero.reflexes-1) ),
+                               chaoticity=random.randint(1, max(1, hero.chaoticity-1) ), 
                                npc=True)
     return npc
 

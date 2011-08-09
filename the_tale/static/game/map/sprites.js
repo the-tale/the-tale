@@ -42,6 +42,12 @@ pgf.tilesets = {
                       w: 32,
                       h: 32
                     },
+            'r': { src: "/tmp/map_road.png",
+                   x: 0 * 32,
+                   y: 0 * 32,
+                   w: 32,
+                   h: 32
+                 },
         },
     },
 
@@ -86,6 +92,30 @@ pgf.tilesets = {
                       w: 32,
                       h: 32
                     },
+            'r4': { src: "/tmp/map_road.png",
+                   x: 0 * 32,
+                   y: 0 * 32,
+                   w: 32,
+                   h: 32
+                 },
+            'r3': { src: "/tmp/map_road.png",
+                   x: 1 * 32,
+                   y: 0 * 32,
+                   w: 32,
+                   h: 32
+                 },
+            'r_line': { src: "/tmp/map_road.png",
+                        x: 2 * 32,
+                        y: 0 * 32,
+                        w: 32,
+                        h: 32
+                      },
+            'r_angle': { src: "/tmp/map_road.png",
+                         x: 3 * 32,
+                         y: 0 * 32,
+                         w: 32,
+                         h: 32
+                       },
         },
     },
 
