@@ -4,7 +4,7 @@ from django_next.views.resources import handler
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
 
-from .logic import update_roads, regenerate_roads
+from .logic import update_roads, update_waymarks
 
 class RoadsResource(Resource):
 
@@ -23,9 +23,9 @@ class RoadsResource(Resource):
         update_roads()
         return self.json(status='ok')
 
-    @handler('regenerate_all', method='post')
+    @handler('refresh_waymarks', method='post')
     @login_required
-    def regenerate_all(self):
-        regenerate_roads()
+    def refresh_waymarks(self):
+        update_waymarks()
         return self.json(status='ok')
 

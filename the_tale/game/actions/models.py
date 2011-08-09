@@ -59,6 +59,7 @@ class ActionQuest(models.Model):
 class ActionMoveTo(models.Model):
 
     class STATE(Action.STATE):
+        CHOOSE_ROAD = 'choose_road'
         MOVING = 'moving'
     
     base_action = models.OneToOneField(Action, related_name='action_move_to')

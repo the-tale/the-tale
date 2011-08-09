@@ -24,6 +24,7 @@ see: http://wiki.postgresql.org/wiki/Detailed_installation_guides
 
   - from admin create first turn
   - from admin create some places
-  - go to /game/map/roads/admin and generate roads
+  - from admin create some roads, to get fullconnected graph
+  - go to /game/map/roads/admin and generate waymarks
 
 - THE END

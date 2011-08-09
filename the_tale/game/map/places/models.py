@@ -38,6 +38,15 @@ class Place(models.Model):
 
     size = models.IntegerField(null=False) # specify size of the place
 
+    class Meta:
+        ordering = ('name', )
+
+    def __unicode__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.__unicode__()
+
 
 class HeroPosition(models.Model):
 

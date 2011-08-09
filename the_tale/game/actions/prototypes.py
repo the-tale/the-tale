@@ -6,7 +6,7 @@ from django_next.utils.decorators import nested_commit_on_success
 from ..heroes.prototypes import get_hero_by_model
 from ..heroes.logic import create_npc_for_hero, strike
 from ..map.places.prototypes import PlacePrototype
-from ..map.roads.prototypes import RoadPrototype, get_road_between
+from ..map.roads.prototypes import RoadPrototype, WaymarkPrototype
 
 from .models import Action, ActionIdleness, ActionMoveTo, ActionBattlePvE_1x1, ActionResurrect, ActionQuest
 
@@ -352,15 +352,28 @@ class ActionMoveToPrototype(ActionPrototype):
                     self.state = self.STATE.PROCESSED
 
         if self.state == self.STATE.UNINITIALIZED:
+            self.state = self.STATE.CHOOSE_ROAD
+
+        if self.state == self.STATE.CHOOSE_ROAD:
             if self.hero.position.place.id != self.destination.id:
-                self.road = get_road_between(self.hero.position.place, self.destination)
+                self.road = WaymarkPrototype.look_for_road(point_from=self.hero.position.place, point_to=self.destination)
+                # print 'destination: %s' % self.destination
+                # print 'hero pos: %s' % self.hero.position.place
+                # print 'hero road %s' % self.road
                 position.set_road(self.road, invert=self.hero.position.place.id != self.road.point_1_id)
+                # print 'invert: %s' % position.invert_direction
                 self.state = self.STATE.MOVING
             else:
                 self.percents = 1
                 self.state = self.STATE.PROCESSED
 
         if self.state == self.STATE.MOVING:
+
+            current_destination = self.road.point_2 if not position.invert_direction else self.road.point_1
+
+            # print 'hero road %s' % self.road
+            # print 'invert: %s' % position.invert_direction
+            # print 'current_destination: %s' % current_destination
 
             self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
 
@@ -369,7 +382,7 @@ class ActionMoveToPrototype(ActionPrototype):
                 npc = create_npc_for_hero(self.hero)
                 self.entropy_action = ActionBattlePvE_1x1Prototype.create(hero=self.hero, npc=npc)
             else:
-                self.hero.create_tmp_log_message('I go, I go, I go to %s' % self.destination.name)
+                self.hero.create_tmp_log_message('I go, I go, I go to %s' % current_destination.name)
             
                 delta = self.hero.move_speed / self.road.length
 
@@ -378,8 +391,11 @@ class ActionMoveToPrototype(ActionPrototype):
                 self.percents = position.percents
 
                 if position.percents > 1:
-                    position.set_place(self.destination)
-                    self.state = self.STATE.PROCESSED
+                    position.set_place(current_destination)
+                    if position.place.id == self.destination.id:
+                        self.state = self.STATE.PROCESSED
+                    else:
+                        self.state = self.STATE.CHOOSE_ROAD
 
         position.save()
         self.save()

@@ -50,6 +50,12 @@ class PlacePrototype(object):
     @property
     def size(self): return self.model.size
 
+    def __unicode__(self):
+        return self.model.__unicode__()
+
+    def __repr__(self):
+        return self.model.__repr__()
+
     ###########################################
     # Object operations
     ###########################################

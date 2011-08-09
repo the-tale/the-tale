@@ -8,13 +8,13 @@ jQuery(document).ready(function(e){
 
     jQuery('.js-update-roads').click(function(){
         pgf.forms.Post({ action: "{{ url('game:map:roads:update_all') }}",
-                         OnSuccess: function(){ location = '/game';}
+                         OnSuccess: function(){ alert('roads updated');}
                        });
     });
 
-    jQuery('.js-regenerate-roads').click( function() {
-        pgf.forms.Post({ action: "{{ url('game:map:roads:regenerate_all') }}",
-                         OnSuccess: function(){ location = '/game';}
+    jQuery('.js-refresh-waymarks').click( function() {
+        pgf.forms.Post({ action: "{{ url('game:map:roads:refresh_waymarks') }}",
+                         OnSuccess: function(){ alert('waymarks updated');}
                        });
     });
 
@@ -26,6 +26,6 @@ jQuery(document).ready(function(e){
 {% block content %}
 
 <a class="js-update-roads" href="#">update roads</a>
-<a class="js-regenerate-roads" href="#">regenerate roads</a>
+<a class="js-refresh-waymarks" href="#">regenerate waymarks</a>
 
 {% endblock %}
