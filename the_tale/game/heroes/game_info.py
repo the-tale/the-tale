@@ -100,7 +100,15 @@ class attributes:
             @classmethod
             def get(cls, hero):
                 return int((hero.constitution * 2 + hero.reflexes * 2 + hero.intellect) / 3.0 + hero.chaoticity)
-            
+
+        class bag_size(Attribute):
+
+            name = u'bag size'
+            description = u'Максимальная вместимость рюкзака'
+
+            @classmethod
+            def get(cls, hero):
+                return int(5 + hero.constitution + hero.wisdom/10) 
 
     class accumulated(AttributeContainer):
         pass

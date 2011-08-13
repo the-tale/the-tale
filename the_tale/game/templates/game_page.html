@@ -41,6 +41,10 @@ jQuery(document).ready(function(e){
                                                updater, widgets,
                                                {});
 
+    widgets.bag = new pgf.game.widgets.Bag('#hero-bag-block', 
+                                           updater, widgets,
+                                           {});
+
     widgets.placeAndTime = new pgf.game.widgets.PlaceAndTime('#world-place-time-block',
                                                              updater, widgets,
                                                              {} );
@@ -193,19 +197,14 @@ jQuery(document).ready(function(e){
     </div>
 
     <div id="hero-bag-block" class="info-block">
+      <h2>Рюкзак героя</h2>
       <table>
-        <tbody>
-        <tr><td>добыча 1</td><td>1 * 130 г.</td><tr>
-        <tr><td>лут 1</td><td>3 * 30 г.</td><tr>
-        <tr><td>добыча 1</td><td>4 * 10 г.</td><tr>
-        <tr><td>лут 1</td><td>1 * 13 г.</td><tr>
-        <tr><td>добыча 1</td><td>4 * 130 г.</td><tr>
-        <tr><td>лут 1</td><td>5 * 1120 г.</td><tr>
-        <tr><td>добыча 1</td><td>12 *230 г.</td><tr>
-        <tr><td>лут 1</td><td>1 * 230 г.</td><tr>
-        <tr><td>добыча 1</td><td>1 * 30 г.</td><tr>
-        <tr><td>лут 1</td><td>1 * 10 г.</td><tr>
-            </tbody>
+        <tbody class="pgf-bag-container">
+          <tr class="pgf-template">
+            <td class="pgf-name"></td>
+            <td><span class="pgf-cost"></span> г.</td>
+          <tr>
+        </tbody>
       </table>
     </div>
   </div>

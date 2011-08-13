@@ -272,6 +272,52 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     });
 };
 
+
+pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
+    var instance = this;
+
+    var widget = jQuery(selector);
+    var bagContainer = jQuery('.pgf-bag-container', widget);
+
+    var data = {};
+
+    var instance = this;
+
+    function RenderItem(index, data, element) {
+        jQuery('.pgf-name', element).text(data.name);
+        jQuery('.pgf-cost', element).text(data.cost);
+    }
+
+    function RenderItems() {
+        var items = [];
+        for (var uuid in data) {
+            items.push(data[uuid]);
+        }
+        pgf.base.RenderTemplateList(bagContainer, items, RenderItem, {});
+    }
+
+    this.Refresh = function() {
+
+        var hero = widgets.heroes.CurrentHero();
+
+        if (hero) {
+            data = hero.bag;
+        }
+        else {
+            data = {};
+        }
+    };
+
+    this.Render = function() {
+        RenderItems();
+    };
+
+    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+        instance.Refresh();
+        instance.Render();
+    });
+};
+
 pgf.game.widgets.Log = function(selector, updater, widgets, params) {
     var instance = this;
 

@@ -510,6 +510,12 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
         if self.npc.health <= 0:
             self.npc.kill()
             self.hero.create_tmp_log_message('NPC was killed')
+
+            #generate loot
+            from ..artifacts.constructors import generate_loot, TEST_LOOT_LIST
+            loot = generate_loot(TEST_LOOT_LIST, 1, 4.5, 1.5, self.hero.chaoticity)
+            self.hero.put_loot(loot)
+
             self.state = self.STATE.PROCESSED
 
         self.percents = max(0, float(self.npc.max_health - self.npc.health) / self.npc.max_health)

@@ -23,6 +23,8 @@ class Hero(models.Model):
 
     health = models.FloatField(null=False, default=0.0)
 
+    bag = models.TextField(null=False, default='{}')
+
     #primary
     intellect = models.IntegerField()
     constitution = models.IntegerField()

@@ -117,6 +117,7 @@ INSTALLED_APPS = (
     'game.map',
     'game.map.roads',
     'game.map.places',
+    'game.artifacts',
 
     'south'
 )

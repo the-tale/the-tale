@@ -56,6 +56,23 @@ class HeroPrototype(object):
     def set_health(self, value): self.model.health = value
     health = property(get_health, set_health)
 
+    @property
+    def bag(self):
+        if not hasattr(self, '_bag'):
+            from .bag import Bag
+            self._bag = Bag()
+            self._bag.load_from_json(self.model.bag)
+        return self._bag
+
+    def put_loot(self, artifact):
+        max_bag_size = self.bag_size
+        quest_items_count, loot_items_count = self.bag.occupation
+        if artifact.quest or loot_items_count < max_bag_size:
+            self.bag.put_artifact(artifact)
+            self.create_tmp_log_message('hero received "%s"' % artifact.name)
+        else:
+            self.create_tmp_log_message('hero can not put "%s" - the bag is full' % artifact.name)
+
     ###########################################
     # Primary attributes
     ###########################################
@@ -91,6 +108,9 @@ class HeroPrototype(object):
 
     @property
     def max_damage(self): return game_info.attributes.secondary.max_damage.get(self)
+
+    @property
+    def bag_size(self): return game_info.attributes.secondary.bag_size.get(self)
 
     ###########################################
     # quests
@@ -154,7 +174,9 @@ class HeroPrototype(object):
     ###########################################
 
     def remove(self): return self.model.delete()
-    def save(self): self.model.save()
+    def save(self): 
+        self.model.bag = self.bag.save_to_json()
+        self.model.save()
 
     def get_messages_log(self):
         return get_messages_log_by_model(model=self.model.messages_log)
@@ -168,6 +190,7 @@ class HeroPrototype(object):
                 'messages': self.get_messages_log().messages,
                 'position': self.position.ui_info(),
                 'alive': self.is_alive,
+                'bag': self.bag.ui_info(),
                 'base': { 'name': self.name,
                           'first': self.first,
                           'wisdom': self.wisdom,
