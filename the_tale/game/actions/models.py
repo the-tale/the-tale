@@ -42,25 +42,12 @@ class ActionQuest(models.Model):
     quest_action = models.OneToOneField(Action, related_name='+', null=True, default=None, on_delete=models.SET_NULL)
 
 
-# class ActionQuestMailDelivery(models.Model):
-
-#     class STATE(Action.STATE):
-#         MOVE_TO_DELIVERY_FROM_POINT = 'move_to_delivery_from_point'
-#         MOVE_TO_DELIVERY_TO_POINT = 'move_to_delivery_to_point'
-    
-#     base_action = models.OneToOneField(Action, related_name='action_quest')
-
-#     quest = models.ForeignKey('quests.Quest', related_name='+', default=None, null=True)
-
-#     action_move_to_delivery_from = models.ForeignKey('actions.action', related_name='+', null=True, default=None, on_delete=models.SET_NULL)
-#     action_move_to_delivery_to = models.ForeignKey('actions.action', related_name='+', null=True, default=None, on_delete=models.SET_NULL)
-
-
 class ActionMoveTo(models.Model):
 
     class STATE(Action.STATE):
         CHOOSE_ROAD = 'choose_road'
         MOVING = 'moving'
+        WALKING_IN_CITY = 'walking_in_city'
     
     base_action = models.OneToOneField(Action, related_name='action_move_to')
 
@@ -95,5 +82,19 @@ class ActionResurrect(models.Model):
     base_action = models.OneToOneField(Action, related_name='action_resurrect')
 
     hero = models.ForeignKey('heroes.Hero', related_name='+')
+
+
+class ActionInCity(models.Model):
+
+    class STATE(Action.STATE):
+        WALKING = 'walking'
+        TRADING = 'trading'
+        REST = 'rest'
+
+    base_action = models.OneToOneField(Action, related_name='action_in_city')
+
+    hero = models.ForeignKey('heroes.Hero', related_name='+')
+
+    city = models.ForeignKey('places.Place', related_name='+')
     
 

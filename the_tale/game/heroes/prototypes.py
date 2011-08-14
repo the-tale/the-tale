@@ -56,6 +56,10 @@ class HeroPrototype(object):
     def set_health(self, value): self.model.health = value
     health = property(get_health, set_health)
 
+    def get_money(self): return self.model.money
+    def set_money(self, value): self.model.money = value
+    money = property(get_money, set_money)
+
     @property
     def bag(self):
         if not hasattr(self, '_bag'):
@@ -111,6 +115,16 @@ class HeroPrototype(object):
 
     @property
     def bag_size(self): return game_info.attributes.secondary.bag_size.get(self)
+
+    ###########################################
+    # Needs attributes
+    ###########################################
+
+    @property
+    def need_rest_in_town(self): return game_info.needs.InTown.rest.check(self)
+
+    @property
+    def need_trade_in_town(self): return game_info.needs.InTown.trade.check(self)
 
     ###########################################
     # quests
@@ -191,6 +205,7 @@ class HeroPrototype(object):
                 'position': self.position.ui_info(),
                 'alive': self.is_alive,
                 'bag': self.bag.ui_info(),
+                'money': self.money, 
                 'base': { 'name': self.name,
                           'first': self.first,
                           'wisdom': self.wisdom,

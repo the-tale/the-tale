@@ -4,11 +4,11 @@ import random
 from django_next.utils.decorators import nested_commit_on_success
 
 from ..heroes.prototypes import get_hero_by_model
-from ..heroes.logic import create_npc_for_hero, strike
+from ..heroes.logic import create_npc_for_hero, strike, heal_in_town, sell_in_city
 from ..map.places.prototypes import PlacePrototype
 from ..map.roads.prototypes import RoadPrototype, WaymarkPrototype
 
-from .models import Action, ActionIdleness, ActionMoveTo, ActionBattlePvE_1x1, ActionResurrect, ActionQuest
+from .models import Action, ActionIdleness, ActionMoveTo, ActionBattlePvE_1x1, ActionResurrect, ActionQuest, ActionInCity
 
 #TODO: change relations between action from "parent control children" to "parent respond to children messages"
 #      in this case parent actions should not store link to child, and should not be processed,  
@@ -157,6 +157,8 @@ class ActionIdlenessPrototype(ActionPrototype):
             action = quest.create_action()
             self.entropy_action = action
 
+        if self.entropy >= self.ENTROPY_BARRIER / 2 and (hero.need_trade_in_town or hero.need_rest_in_town) and hero.position.is_settlement:
+            self.entropy_action = ActionInCityPrototype.create(hero=hero, settlement=hero.position.place)
         else:
             self.entropy = self.entropy + random.randint(1, hero.chaoticity)
 
@@ -351,6 +353,12 @@ class ActionMoveToPrototype(ActionPrototype):
                 if not self.hero.is_alive:
                     self.state = self.STATE.PROCESSED
 
+                if self.hero.position.place:
+                    if self.hero.position.place.id == self.destination.id:
+                        self.state = self.STATE.PROCESSED
+                    else:
+                        self.state = self.STATE.CHOOSE_ROAD
+
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.CHOOSE_ROAD
 
@@ -390,12 +398,17 @@ class ActionMoveToPrototype(ActionPrototype):
 
                 self.percents = position.percents
 
-                if position.percents > 1:
+                if position.percents >= 1:
+                    position.percents = 1
                     position.set_place(current_destination)
-                    if position.place.id == self.destination.id:
-                        self.state = self.STATE.PROCESSED
+                    
+                    if current_destination.is_settlement:
+                        self.entropy_action = ActionInCityPrototype.create(hero=self.hero, settlement=current_destination)
                     else:
-                        self.state = self.STATE.CHOOSE_ROAD
+                        if position.place.id == self.destination.id:
+                            self.state = self.STATE.PROCESSED
+                        else:
+                            self.state = self.STATE.CHOOSE_ROAD
 
         position.save()
         self.save()
@@ -596,6 +609,136 @@ class ActionResurrectPrototype(ActionPrototype):
                 self.state = self.STATE.PROCESSED
             else:
                 self.percents = float(self.entropy) / self.ENTROPY_BARRIER
+
+        self.hero.save()
+        self.save()
+
+class ActionInCityPrototype(ActionPrototype):
+
+    TYPE = 'IN_CITY'
+    SHORT_DESCRIPTION = u'шляется по городу'
+
+    ENTROPY_BARRIER = 35
+
+    def __init__(self, base_model, model=None, *argv, **kwargs):
+        super(ActionInCityPrototype, self).__init__(base_model, *argv, **kwargs)
+        self.model = model if model else base_model.action_in_city
+
+    @property
+    def hero_id(self): return self.model.hero_id
+
+    @property
+    def hero(self):
+        if not hasattr(self, '_hero'):
+            self._hero = get_hero_by_model(self.model.hero)
+        return self._hero
+
+    ###########################################
+    # Object operations
+    ###########################################
+
+    def remove(self): 
+        self.model.delete()
+        super(ActionInCityPrototype, self).remove()
+
+    def save(self):
+        self.model.save()
+        super(ActionInCityPrototype, self).save()
+
+    def ui_info(self):
+        info = super(ActionInCityPrototype, self).ui_info()
+        info['data'] = {'hero_id': self.hero_id}
+        return info
+
+    @classmethod
+    @nested_commit_on_success
+    def create(cls, hero, settlement):
+
+        base_model = Action.objects.create( type=cls.TYPE, 
+                                            percents=0.0)
+        
+        model = ActionInCity.objects.create( base_action=base_model, 
+                                             hero=hero.model,
+                                             city=settlement.model)
+
+        action = cls(base_model=base_model, model=model)
+
+        hero.push_action(action)
+        hero.save()
+
+        return action
+
+    @nested_commit_on_success
+    def process(self):
+
+        if self.state == self.STATE.UNINITIALIZED:
+            self.state = self.STATE.WALKING
+
+        if self.state in [self.STATE.WALKING, self.STATE.REST, self.STATE.TRADING]:
+
+            self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
+
+            if self.state == self.STATE.WALKING:
+
+                # TODO: if entropy, hero can find some loot on the street
+                #       implement after fool loot&mobs implementation
+
+                if self.hero.need_rest_in_town:
+                    self.state = self.STATE.REST
+                    self.hero.create_tmp_log_message('hero decided to have a rest')
+                elif self.hero.need_trade_in_town:
+                    self.state = self.STATE.TRADING
+                    self.hero.create_tmp_log_message('hero decided to sell all loot')
+                else:
+                    self.hero.create_tmp_log_message('hero live the city')
+                    self.state = self.STATE.PROCESSED
+
+            if self.state == self.STATE.REST:
+
+                if self.entropy >= self.ENTROPY_BARRIER:
+                    self.entropy = 0
+                    crit_case = random.choice([-1, 1])#TODO: move to game_info
+                    if crit_case == 1:
+                        self.hero.create_tmp_log_message('a miracle happened and the hero is completely healed')
+                        self.hero.health = self.hero.max_health
+                    elif crit_case == -1:
+                        self.hero.create_tmp_log_message('a medical error happened and ther hero loast health')
+                        self.hero.health = 1
+                else:
+                    heal_amount = heal_in_town(self.hero)
+                    self.hero.create_tmp_log_message('hero healed for %d HP' % heal_amount)
+
+                self.percents = float(self.hero.health/self.hero.max_health) * 0.5
+                if self.hero.health == self.hero.max_health:
+                    self.hero.create_tmp_log_message('hero is completly healthty')
+                    self.state = self.STATE.WALKING
+
+            if self.state == self.STATE.TRADING:
+                quest_items_count, loot_items_count = self.hero.bag.occupation
+                if loot_items_count:
+
+                    selling_crit = None
+                    if self.entropy >= self.ENTROPY_BARRIER:
+                        selling_crit = random.choice([-1, 1]) #TODO: move to game_info
+                        self.entropy = 0
+
+                    items = self.hero.bag.items()
+                    artifact_uuid, artifact = items[0]
+                    
+
+                    sell_price = sell_in_city(self.hero, artifact_uuid, selling_crit)
+
+                    if selling_crit == 1:
+                        self.hero.create_tmp_log_message('hero merchant cheated and sold at exorbitant prices %s (%d g.)' % 
+                                                         (artifact.name, sell_price) )
+                    elif selling_crit == -1:
+                        self.hero.create_tmp_log_message('merchant hero cheated and sold at exorbitant prices %s (%d g.)' % 
+                                                         (artifact.name, sell_price) )
+                    else:
+                        self.hero.create_tmp_log_message('hero solled %s for %d g.' % (artifact.name, sell_price) )
+                else:
+                    self.hero.create_tmp_log_message('hero has solled all what he wants')
+                    self.state = self.STATE.WALKING
 
         self.hero.save()
         self.save()

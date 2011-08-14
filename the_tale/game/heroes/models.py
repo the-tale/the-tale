@@ -23,6 +23,8 @@ class Hero(models.Model):
 
     health = models.FloatField(null=False, default=0.0)
 
+    money = models.BigIntegerField(null=False, default=0)
+
     bag = models.TextField(null=False, default='{}')
 
     #primary

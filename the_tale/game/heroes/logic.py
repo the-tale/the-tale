@@ -15,6 +15,17 @@ def strike(attaker, defender):
     result.defender.health = result.defender.health - result.damage
     return result
 
+def heal_in_town(pacient):
+    heal_amount = game_info.actions.healing.heal_in_town.amount(pacient)
+    pacient.health = min(pacient.max_health, pacient.health + heal_amount)
+    return heal_amount
+
+def sell_in_city(seller, artifact_uuid, selling_crit):
+    sell_price = game_info.actions.trading.trade_in_town.sell_price(seller, artifact_uuid, selling_crit)
+    seller.money = seller.money + sell_price
+    seller.bag.pop_artifact(artifact_uuid)
+    return sell_price
+
 def create_npc_for_hero(hero):
     npc = HeroPrototype.create(angel=None, 
                                name='NPC', 

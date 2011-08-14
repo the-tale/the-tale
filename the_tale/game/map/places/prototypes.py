@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .models import Place, HeroPosition
+from .models import Place, HeroPosition, PLACE_TYPE
 from ..roads.prototypes import RoadPrototype
 
 def get_place_by_id(model_id):
@@ -55,6 +55,13 @@ class PlacePrototype(object):
 
     def __repr__(self):
         return self.model.__repr__()
+
+    ###########################################
+    # Checks
+    ###########################################
+
+    @property
+    def is_settlement(self): return self.type in [PLACE_TYPE.CITY]
 
     ###########################################
     # Object operations
@@ -133,6 +140,12 @@ class HeroPositionPrototype(object):
         from game.heroes.prototypes import HeroPrototype
         return HeroPrototype(model=self.model.hero)
 
+    ###########################################
+    # Checks
+    ###########################################
+
+    @property
+    def is_settlement(self): return self.place and self.place.is_settlement
 
     ###########################################
     # Object operations

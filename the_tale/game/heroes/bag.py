@@ -27,11 +27,19 @@ class Bag(object):
         return dict( (uuid, artifact.ui_info()) for uuid, artifact in self.bag.items() )
 
     def put_artifact(self, artifact):
-        self.bag[self.next_uuid] = artifact
+        uuid = self.next_uuid
+        self.bag[uuid] = artifact
         self.next_uuid += 1
+        return uuid
 
     def pop_artifact(self, artifact_id):
         del self.bag[artifact_id]
+
+    def get(self, artifact_id):
+        return self.bag.get(artifact_id, None)
+
+    def items(self):
+        return self.bag.items()
         
     @property
     def occupation(self):

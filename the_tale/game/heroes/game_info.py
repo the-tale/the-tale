@@ -3,6 +3,8 @@ import random
 
 MAIN_DESCRIPTION = u''' Герои - основная движущая сила этого мира. Люди, эльфы, орки, троли, гоблины и прочие - каждая расса имеет своих достойных сынов и дочерей, тех, кто выделяется из серой массы как своими возможностями, так и желаниями. Эти единицы формируют сословье героев - тех, кто стоит над мелкими склоками, в которых погрязли остальные обиталели, тех, кто видит дальше и делает больше, тех, кто на равне со своими ангелами творит историю этого мира.  '''
 
+class GameInfoException(Exception): pass
+
 class Attribute(object): pass
 
 class AttributeContainer(object):
@@ -110,9 +112,9 @@ class attributes:
             def get(cls, hero):
                 return int(5 + hero.constitution + hero.wisdom/10) 
 
+
     class accumulated(AttributeContainer):
         pass
-
 
 
 class actions:
@@ -138,3 +140,64 @@ class actions:
                                         defender=defender,
                                         damage=random.randint(attaker.min_damage, attaker.max_damage))
                 return result
+
+    class healing(AttributeContainer):
+
+        class heal_in_town(Attribute):
+
+            name = u'heal in town'
+            description = u'лечение героя в городе'
+
+            @classmethod
+            def amount(cls, pacient):
+                return random.randint(1, int(pacient.constitution + pacient.chaoticity + pacient.wisdom / 10) )
+
+    class trading(AttributeContainer):
+
+        class trade_in_town(Attribute):
+            
+            name = u'trade in town'
+            description = u'торговля в городе'
+
+            @classmethod
+            def sell_price(cls, seller, artifact_uuid, selling_crit):
+                artifact = seller.bag.get(artifact_uuid)
+                if artifact is None:
+                    raise GameInfoException('artifacts with uuid %d does not found in bag of hero %d' % (artifact_uuid, seller.id))
+                left_delta = int(artifact.cost * (1 - (10 + seller.chaoticity - seller.intellect) / 100.0))
+                right_delta = int(artifact.cost * (1 + (10 + seller.chaoticity + seller.intellect) / 100.0))
+                price = random.randint(left_delta, right_delta)
+                if selling_crit == 1:
+                    price = int(price * 1.5)
+                elif selling_crit == -1:
+                    price = max(1, int(price * 0.75))
+                return price
+
+
+class needs:
+
+    class InTown(AttributeContainer):
+
+        class rest(Attribute):
+
+            name = u'rest required'
+            description = u'необходим ли герою отдых'
+
+            @classmethod
+            def check(cls, hero):
+                return float(hero.health) / hero.max_health < 0.33
+
+        class trade(Attribute):
+
+            name = u'trade required'
+            description = u'необходимо ли герою избавиться от лута'
+
+            @classmethod
+            def check(cls, hero):
+                quest_items_count, loot_items_count = hero.bag.occupation
+                return float(loot_items_count) / hero.bag_size > 0.33
+
+
+
+
+
