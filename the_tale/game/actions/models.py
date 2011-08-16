@@ -89,7 +89,12 @@ class ActionInCity(models.Model):
     class STATE(Action.STATE):
         WALKING = 'walking'
         TRADING = 'trading'
-        REST = 'rest'
+        RESTING = 'resting'
+        EQUIPPING = 'equipping'
+
+    traded = models.BooleanField(null=False, default=False)
+    rested = models.BooleanField(null=False, default=False)
+    equipped = models.BooleanField(null=False, default=False)
 
     base_action = models.OneToOneField(Action, related_name='action_in_city')
 

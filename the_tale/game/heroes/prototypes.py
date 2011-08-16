@@ -77,6 +77,15 @@ class HeroPrototype(object):
         else:
             self.create_tmp_log_message('hero can not put "%s" - the bag is full' % artifact.name)
 
+    @property
+    def equipment(self):
+        if not hasattr(self, '_equipment'):
+            from .bag import Equipment
+            self._equipment = Equipment()
+            self._equipment.load_from_json(self.model.equipment)
+        return self._equipment
+
+
     ###########################################
     # Primary attributes
     ###########################################
@@ -125,6 +134,9 @@ class HeroPrototype(object):
 
     @property
     def need_trade_in_town(self): return game_info.needs.InTown.trade.check(self)
+
+    @property
+    def need_equipping_in_town(self): return game_info.needs.InTown.equipping.check(self)
 
     ###########################################
     # quests
@@ -190,6 +202,7 @@ class HeroPrototype(object):
     def remove(self): return self.model.delete()
     def save(self): 
         self.model.bag = self.bag.save_to_json()
+        self.model.equipment = self.equipment.save_to_json()
         self.model.save()
 
     def get_messages_log(self):
@@ -205,6 +218,7 @@ class HeroPrototype(object):
                 'position': self.position.ui_info(),
                 'alive': self.is_alive,
                 'bag': self.bag.ui_info(),
+                'equipment': self.equipment.ui_info(),
                 'money': self.money, 
                 'base': { 'name': self.name,
                           'first': self.first,
@@ -242,13 +256,13 @@ class HeroPrototype(object):
 
         hero = cls(model=hero)
 
-        action = ActionIdlenessPrototype.create(hero=hero)
+        ActionIdlenessPrototype.create(hero=hero)
 
-        messages = MessagesLogPrototype.create(hero)
+        MessagesLogPrototype.create(hero)
 
         start_place = PlacePrototype.random_place()
 
-        position = HeroPositionPrototype.create(hero=hero, place=start_place)
+        HeroPositionPrototype.create(hero=hero, place=start_place)
 
         return hero
 
@@ -262,11 +276,6 @@ class HeroPrototype(object):
         self.health = 1
         self.position.set_place(PlacePrototype.random_place())
         self.position.save()
-        
-        # if not self.is_npc:
-        #     raise Exception('killed')
-        #     for action in reversed(self.actions[1:]):
-        #         action.remove()
 
     def resurrent(self):
         self.health = self.max_health

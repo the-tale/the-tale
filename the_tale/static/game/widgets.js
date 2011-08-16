@@ -320,6 +320,47 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     });
 };
 
+pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
+    var instance = this;
+
+    var widget = jQuery(selector);
+
+    var data = {};
+
+    var instance = this;
+
+    function RenderArtifact(element, data) {
+        element.text(data.name);
+    }
+
+    function RenderEquipment() {
+        for (var slot in data) {
+            RenderArtifact(jQuery('.pgf-'+slot, selector), data[slot]);
+        }
+    }
+
+    this.Refresh = function() {
+
+        var hero = widgets.heroes.CurrentHero();
+
+        if (hero) {
+            data = hero.equipment;
+        }
+        else {
+            data = {};
+        }
+    };
+
+    this.Render = function() {
+        RenderEquipment();
+    };
+
+    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+        instance.Refresh();
+        instance.Render();
+    });
+};
+
 pgf.game.widgets.Log = function(selector, updater, widgets, params) {
     var instance = this;
 

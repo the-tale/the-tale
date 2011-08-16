@@ -4,7 +4,7 @@ import random
 from django_next.utils.decorators import nested_commit_on_success
 
 from ..heroes.prototypes import get_hero_by_model
-from ..heroes.logic import create_npc_for_hero, strike, heal_in_town, sell_in_city
+from ..heroes.logic import create_npc_for_hero, strike, heal_in_town, sell_in_city, equip_in_city
 from ..map.places.prototypes import PlacePrototype
 from ..map.roads.prototypes import RoadPrototype, WaymarkPrototype
 
@@ -633,6 +633,18 @@ class ActionInCityPrototype(ActionPrototype):
             self._hero = get_hero_by_model(self.model.hero)
         return self._hero
 
+    def get_rested(self): return self.model.rested
+    def set_rested(self, value): self.model.rested = value
+    rested = property(get_rested, set_rested)
+
+    def get_traded(self): return self.model.traded
+    def set_traded(self, value): self.model.traded = value
+    traded = property(get_traded, set_traded)
+
+    def get_equipped(self): return self.model.equipped
+    def set_equipped(self, value): self.model.equipped = value
+    equipped = property(get_equipped, set_equipped)
+
     ###########################################
     # Object operations
     ###########################################
@@ -674,7 +686,7 @@ class ActionInCityPrototype(ActionPrototype):
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.WALKING
 
-        if self.state in [self.STATE.WALKING, self.STATE.REST, self.STATE.TRADING]:
+        if self.state in [self.STATE.WALKING, self.STATE.RESTING, self.STATE.TRADING, self.STATE.EQUIPPING]:
 
             self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
 
@@ -683,17 +695,20 @@ class ActionInCityPrototype(ActionPrototype):
                 # TODO: if entropy, hero can find some loot on the street
                 #       implement after fool loot&mobs implementation
 
-                if self.hero.need_rest_in_town:
-                    self.state = self.STATE.REST
+                if not self.rested and self.hero.need_rest_in_town:
+                    self.state = self.STATE.RESTING
                     self.hero.create_tmp_log_message('hero decided to have a rest')
-                elif self.hero.need_trade_in_town:
+                elif not self.equipped and self.hero.need_equipping_in_town:
+                    self.state = self.STATE.EQUIPPING
+                    self.hero.create_tmp_log_message('hero looking for new equipment in his bag')
+                elif not self.traded and self.hero.need_trade_in_town:
                     self.state = self.STATE.TRADING
                     self.hero.create_tmp_log_message('hero decided to sell all loot')
                 else:
                     self.hero.create_tmp_log_message('hero live the city')
                     self.state = self.STATE.PROCESSED
 
-            if self.state == self.STATE.REST:
+            if self.state == self.STATE.RESTING:
 
                 if self.entropy >= self.ENTROPY_BARRIER:
                     self.entropy = 0
@@ -711,6 +726,7 @@ class ActionInCityPrototype(ActionPrototype):
                 self.percents = float(self.hero.health/self.hero.max_health) * 0.5
                 if self.hero.health == self.hero.max_health:
                     self.hero.create_tmp_log_message('hero is completly healthty')
+                    self.rested = True
                     self.state = self.STATE.WALKING
 
             if self.state == self.STATE.TRADING:
@@ -738,6 +754,18 @@ class ActionInCityPrototype(ActionPrototype):
                         self.hero.create_tmp_log_message('hero solled %s for %d g.' % (artifact.name, sell_price) )
                 else:
                     self.hero.create_tmp_log_message('hero has solled all what he wants')
+                    self.rested = True
+                    self.state = self.STATE.WALKING
+
+            if self.state == self.STATE.EQUIPPING:
+                unequipped, equipped = equip_in_city(self.hero)
+                if equipped:
+                    if unequipped:
+                        self.hero.create_tmp_log_message('hero change "%s" to "%s"' % (unequipped.name, equipped.name))
+                    else:
+                        self.hero.create_tmp_log_message('hero equip "%s"' % equipped.name)
+                else:
+                    self.equipped = True
                     self.state = self.STATE.WALKING
 
         self.hero.save()

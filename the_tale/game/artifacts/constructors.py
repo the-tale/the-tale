@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import random
 
-from .prototypes import ArtifactPrototype
 
 from . import ArtifactException
+from .prototypes import ArtifactPrototype
+from .effects import SwordBase
 
 class ArtifactConstructor(object):
 
@@ -20,8 +21,13 @@ class ArtifactConstructor(object):
         self.effect_points = effect_points
         self.effect_points_spent = 0
 
-        self.total_points = basic_points + effect_points
-        self.total_points_spent = 0
+    @property
+    def total_points_spent(self):
+        return self.basic_points_spent + self.effect_points_spent
+
+    @property
+    def total_points(self):
+        return self.basic_points + self.effect_points
 
     def generate_name(self):
         if self.NAME:
@@ -45,6 +51,9 @@ class ArtifactConstructor(object):
         artifact.add_effects(self.generate_basic_effects())
         artifact.add_effects(self.generate_effects())
 
+        artifact.basic_points_spent = self.basic_points_spent
+        artifact.effect_points_spent = self.effect_points_spent
+
         return artifact
         
 
@@ -54,6 +63,28 @@ class UselessThingConstructor(ArtifactConstructor):
 
     def generate_cost(self):
         return (self.total_points + self.total_points_spent) / 2 + 1
+
+class WEAPON_SUBTYPE:
+    SWORD = 'sword'
+
+class WeaponConstructor(ArtifactConstructor):
+    TYPE = 'WEAPON'
+    SUBTYPE = None
+    EFFECTS_LIST = ArtifactConstructor.EFFECTS_LIST + []
+
+    def generate_cost(self):
+        return (self.total_points + self.total_points_spent) + 1
+
+    def generate_basic_effects(self):
+        weapon_effect = SwordBase()
+        lvls = self.basic_points / weapon_effect.COST
+        self.basic_points_spent = lvls * weapon_effect.COST
+        weapon_effect.lvl_up(lvls)
+        weapon_effect.update()
+        return [weapon_effect]
+
+    def generate_name(self):
+        return 'weapon %s' % self.SUBTYPE
 
 
 def generate_loot(loot_list, monster_power, basic_modificator, effects_modificator, chaoticity):
@@ -75,7 +106,7 @@ def generate_loot(loot_list, monster_power, basic_modificator, effects_modificat
     basic_points = monster_power * basic_modificator
     basic_points += int(percent_modifier * basic_points)
 
-    percent_modifier = random.choice([-1, 1]) * (BASE_RANDOMIZING_PERCENT + chaoticity * CHAOTICITY_MODIFIER) / 100.
+    percent_modifier = random.choice([-1, 1]) * (BASE_RANDOMIZING_PERCENT + chaoticity * CHAOTICITY_MODIFIER) / 100.0
     effect_points = monster_power * effects_modificator
     effect_points += int(percent_modifier * effect_points)
     
@@ -83,7 +114,6 @@ def generate_loot(loot_list, monster_power, basic_modificator, effects_modificat
     artifact = constructor.generate_artifact()
 
     return artifact
-
 
 ##########################################
 # some test resulted constructors
@@ -95,9 +125,14 @@ class FakeAmuletConstructor(UselessThingConstructor):
 class PieceOfCheeseConstructor(UselessThingConstructor):
     NAME = u'кусок сыра'
 
+class BrokenSword(WeaponConstructor):
+    NAME = u'сломанный меч'
+    SUBTYPE = WEAPON_SUBTYPE.SWORD
+
 ##########################################
 # some resulted constructors
 ##########################################
 
-TEST_LOOT_LIST = [ (1, FakeAmuletConstructor),
-                   (2, PieceOfCheeseConstructor)]
+TEST_LOOT_LIST = [ (2, FakeAmuletConstructor),
+                   (3, PieceOfCheeseConstructor),
+                   (1, BrokenSword)]

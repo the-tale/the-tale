@@ -26,6 +26,10 @@ def sell_in_city(seller, artifact_uuid, selling_crit):
     seller.bag.pop_artifact(artifact_uuid)
     return sell_price
 
+def equip_in_city(hero):
+    return game_info.actions.equipping.equip_in_town.equip(hero)
+
+
 def create_npc_for_hero(hero):
     npc = HeroPrototype.create(angel=None, 
                                name='NPC', 

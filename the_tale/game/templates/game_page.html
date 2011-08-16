@@ -45,6 +45,10 @@ jQuery(document).ready(function(e){
                                            updater, widgets,
                                            {});
 
+    widgets.bag = new pgf.game.widgets.Equipment('#hero-equipment-block', 
+                                                 updater, widgets,
+                                                 {});
+
     widgets.placeAndTime = new pgf.game.widgets.PlaceAndTime('#world-place-time-block',
                                                              updater, widgets,
                                                              {} );
@@ -152,47 +156,43 @@ jQuery(document).ready(function(e){
     <div id="hero-equipment-block" class="info-block">
       <div class="equipment-record">
         <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
-        <span class="item-name first">оружие</span>
+        <span class="item-name first pgf-hand_primary"></span>
+      </div>
+      <div class="equipment-record">
+        <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+        <span class="item-name first pgf-hand_secondary"></span>
       </div>
       <div class="equipment-record">
         <img class="item-type" src="{{ STATIC_URL }}tmp/helmet-icon.png"/>
-        <span class="item-name first">шлем</span>
+        <span class="item-name first pgf-helmet"></span>
       </div>
       <div class="equipment-record">
         <img class="item-type" src="{{ STATIC_URL }}tmp/amulet-icon.png"/>
-        <span class="item-name first">амулет 1</span>
-        <span class="item-name">амулет 2</span>
+        <span class="item-name first pgf-amulet"></span>
       </div>
       <div class="equipment-record">
         <img class="item-type" src="{{ STATIC_URL }}tmp/shoulders-icon.png"/>
-        <span class="item-name first">плечи</span>
+        <span class="item-name first pgf-shoulders"></span>
       </div>
       <div class="equipment-record">
         <img class="item-type" src="{{ STATIC_URL }}tmp/plate-icon.png"/>
-        <span class="item-name first">грудь</span>
+        <span class="item-name first pgf-plate"></span>
       </div>
       <div class="equipment-record">
         <img class="item-type" src="{{ STATIC_URL }}tmp/gloves-icon.png"/>
-        <span class="item-name first">перчатки</span>
+        <span class="item-name first pgf-gloves"></span>
       </div>
       <div class="equipment-record">
         <img class="item-type" src="{{ STATIC_URL }}tmp/cloak-icon.png"/>
-        <span class="item-name first">плащ</span>
+        <span class="item-name first pgf-cloak"></span>
       </div>
       <div class="equipment-record">
         <img class="item-type" src="{{ STATIC_URL }}tmp/pants-icon.png"/>
-        <span class="item-name first">ноги</span>
+        <span class="item-name first pgf-pants"></span>
       </div>
       <div class="equipment-record">
         <img class="item-type" src="{{ STATIC_URL }}tmp/boots-icon.png"/>
-        <span class="item-name first">сапоги</span>
-      </div>
-      <div class="equipment-record">
-        <img class="item-type" src="{{ STATIC_URL }}tmp/rings-icon.png"/>
-        <span class="item-name first">кольцо 1</span>
-        <span class="item-name">кольцо 2</span>
-        <span class="item-name">кольцо 3</span>
-        <span class="item-name">кольцо 4</span>
+        <span class="item-name first pgf-boots"></span>
       </div>
     </div>
 

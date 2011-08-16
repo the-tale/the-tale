@@ -173,6 +173,50 @@ class actions:
                     price = max(1, int(price * 0.75))
                 return price
 
+    class equipping(AttributeContainer):
+
+        class equip_in_town(Attribute):
+            name = u'equip in town'
+            description = u'управление обмундированием в городе'
+
+            @classmethod
+            def equip(cls, hero):
+                from .bag import can_equip, ARTIFACT_TYPES_TO_SLOTS
+                equipped = None
+                unequipped = None
+                for uuid, artifact in hero.bag.items():
+                    if not can_equip(artifact):
+                        continue
+                   
+                    for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.type]:
+                        equipped_artifact = hero.equipment.get(slot)
+                        if equipped_artifact is None:
+                            equipped = True
+                            hero.bag.pop_artifact(uuid)
+                            hero.equipment.equip(slot, artifact)
+                            equipped = artifact
+                            break
+
+                    if equipped:
+                        break
+
+                    for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.type]:
+                        equipped_artifact = hero.equipment.get(slot)
+                        if equipped_artifact.total_points_spent < artifact.total_points_spent:
+                            equipped = True
+                            hero.bag.pop_artifact(uuid)
+                            hero.equipment.unequip(slot)
+                            hero.bag.put_artifact(equipped_artifact)
+                            hero.equipment.equip(slot, artifact)
+                            equipped = artifact
+                            unequipped = equipped_artifact
+                            break
+
+                    if equipped:
+                        break
+
+                return unequipped, equipped
+
 
 class needs:
 
@@ -197,6 +241,15 @@ class needs:
                 quest_items_count, loot_items_count = hero.bag.occupation
                 return float(loot_items_count) / hero.bag_size > 0.33
 
+        class equipping(Attribute):
+
+            name = u'equipping required'
+            description = u'необходимо ли герою поменять снаряжение'
+
+            @classmethod
+            def check(cls, hero):
+                from .bag import can_equip
+                return any( can_equip(artifact) for uuid, artifact in hero.bag.items() )
 
 
 
