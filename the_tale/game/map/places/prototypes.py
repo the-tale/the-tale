@@ -105,6 +105,8 @@ class HeroPositionPrototype(object):
     def set_place(self, place):
         if hasattr(self, '_place'):
             delattr(self, '_place')
+        if hasattr(self, '_road'):
+            delattr(self, '_road')
         self.model.place = place.model
         self.model.road = None
         self.model.invert_direction = None
@@ -117,6 +119,8 @@ class HeroPositionPrototype(object):
         return self._road
 
     def set_road(self, road, percents=0, invert=False):
+        if hasattr(self, '_place'):
+            delattr(self, '_place')
         if hasattr(self, '_road'):
             delattr(self, '_road')
         self.model.place = None

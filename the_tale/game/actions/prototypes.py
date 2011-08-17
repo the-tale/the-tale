@@ -352,8 +352,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
                 if not self.hero.is_alive:
                     self.state = self.STATE.PROCESSED
-
-                if self.hero.position.place:
+                elif self.hero.position.place:
                     if self.hero.position.place.id == self.destination.id:
                         self.state = self.STATE.PROCESSED
                     else:

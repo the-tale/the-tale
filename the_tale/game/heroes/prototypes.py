@@ -271,7 +271,6 @@ class HeroPrototype(object):
     ###########################################
 
     def kill(self):
-
         self.is_alive = False
         self.health = 1
         self.position.set_place(PlacePrototype.random_place())

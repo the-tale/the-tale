@@ -13,12 +13,12 @@ def next_turn(cur_turn):
 
     new_turn = TurnPrototype.create();
 
-    next_turn_pre_update_heroes(cur_turn, next_turn)
+    next_turn_pre_update_heroes(cur_turn, new_turn)
 
-    next_turn_process_cards(cur_turn, next_turn)
+    next_turn_process_cards(cur_turn, new_turn)
 
-    next_turn_update_actions(cur_turn, next_turn)
+    next_turn_update_actions(cur_turn, new_turn)
 
-    next_turn_post_update_heroes(cur_turn, next_turn)
+    next_turn_post_update_heroes(cur_turn, new_turn)
 
     # raise Exception('SUCCESS')
