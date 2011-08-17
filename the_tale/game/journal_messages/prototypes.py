@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-import json
 import datetime
 
 from .models import MessagesLog, MessagePattern
 from . import settings as journal_settings
 
 from django_next.utils.decorators import nested_commit_on_success
+from django_next.utils import s11n
 
 class JournalMessageException(Exception): pass
 
@@ -37,7 +37,7 @@ class MessagesLogPrototype(object):
     @property
     def messages(self): 
         if not hasattr(self, '_messages'):
-            self._messages = json.loads(self.model.messages)            
+            self._messages = s11n.from_json(self.model.messages)            
         return self._messages
 
     def push_message(self, pattern_id, rendered_text):
@@ -48,7 +48,7 @@ class MessagesLogPrototype(object):
         if len(messages) > journal_settings.MESSAGES_NUMBER:
             messages = messages[-journal_settings.MESSAGES_NUMBER:]
 
-        self.model.messages = json.dumps(messages)
+        self.model.messages = s11n.to_json(messages)
         delattr(self, '_messages')
 
     def clear_messages(self):

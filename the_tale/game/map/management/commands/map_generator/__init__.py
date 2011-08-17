@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import json
+from django_next.utils import s11n
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
@@ -55,5 +55,5 @@ class Command(BaseCommand):
         game_map.pave_ways()
 
         with open(map_settings.GEN_REGION_OUTPUT, 'w') as region_json_file:
-            text = json.dumps(game_map.get_json_region_data(), indent=2)
+            text = s11n.to_json(game_map.get_json_region_data())
             region_json_file.write(text)

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import json
+from django_next.utils import s11n
 
 from ..artifacts.prototypes import ArtifactPrototype
 from ..artifacts import constructors
@@ -13,7 +13,7 @@ class Bag(object):
         self.bag = {}
 
     def load_from_json(self, data):
-        data = json.loads(data)
+        data = s11n.from_json(data)
         self.next_uuid = data.get('next_uuid', 0)
         self.bag = {}
         for uuid, artifact_data in data.get('bag', {}).items():
@@ -22,9 +22,9 @@ class Bag(object):
             self.bag[uuid] = artifact
     
     def save_to_json(self):
-        return json.dumps({'next_uuid': self.next_uuid,
-                           'bag': dict( (uuid, artifact.save_to_dict()) for uuid, artifact in self.bag.items() )
-                           })
+        return s11n.to_json({'next_uuid': self.next_uuid,
+                             'bag': dict( (uuid, artifact.save_to_dict()) for uuid, artifact in self.bag.items() )
+                             })
 
     def ui_info(self):
         return dict( (uuid, artifact.ui_info()) for uuid, artifact in self.bag.items() )
@@ -116,10 +116,10 @@ class Equipment(object):
         return dict( (slot, artifact.ui_info()) for slot, artifact in self.equipment.items() if artifact )
 
     def save_to_json(self):
-        return json.dumps(dict( (slot, artifact.save_to_dict()) for slot, artifact in self.equipment.items() if artifact ))
+        return s11n.to_json(dict( (slot, artifact.save_to_dict()) for slot, artifact in self.equipment.items() if artifact ))
 
     def load_from_json(self, data):
-        data = json.loads(data)
+        data = s11n.from_json(data)
         self.equipment = dict( (slot, ArtifactPrototype(data=artifact_data)) for slot, artifact_data in data.items() if  artifact_data)
 
     def unequip(self, slot):

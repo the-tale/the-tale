@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import json
 import inspect
 
 from django.core.urlresolvers import reverse
 
 from django_next.utils.decorators import nested_commit_on_success
+from django_next.utils import s11n
 
 from ..heroes.prototypes import HeroPrototype, get_heroes_by_query, get_hero_by_id
 
@@ -64,7 +64,7 @@ class CardsQueueItemPrototype(object):
     @property
     def data(self): 
         if not hasattr(self, '_data'):
-            self._data = json.loads(self.model.data)            
+            self._data = s11n.from_json(self.model.data)            
         return self._data
 
     @nested_commit_on_success
@@ -77,7 +77,7 @@ class CardsQueueItemPrototype(object):
     def create(cls, turn, card, data={}):
         query_item = CardsQueueItem.objects.create(turn=turn.model,
                                                    card=card.model,
-                                                   data=json.dumps(data))
+                                                   data=s11n.to_json(data))
         return query_item
 
 
