@@ -32,6 +32,7 @@ class Hero(models.Model):
     intellect = models.IntegerField()
     constitution = models.IntegerField()
     reflexes = models.IntegerField()
+    charisma = models.IntegerField(default=3)
     chaoticity = models.IntegerField()
 
     #secondary

@@ -97,6 +97,8 @@ class HeroPrototype(object):
     @property
     def reflexes(self): return self.model.reflexes
     @property
+    def charisma(self): return self.model.charisma
+    @property
     def chaoticity(self): return self.model.chaoticity
 
     ###########################################
@@ -228,7 +230,10 @@ class HeroPrototype(object):
                 'primary': { 'intellect': self.intellect,
                              'constitution': self.constitution,
                              'reflexes': self.reflexes,
+                             'charisma': self.charisma,
                              'chaoticity': self.chaoticity },
+                'secondary': { 'min_damage': self.min_damage,
+                               'max_damage': self.max_damage },
                 'accumulated': { }
                 }
 

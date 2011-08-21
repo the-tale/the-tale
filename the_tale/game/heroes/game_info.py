@@ -30,8 +30,8 @@ class attributes:
 
     class primary(AttributeContainer):
 
-        TOTAL_POINTS = 5+4+3+2 
-        FREE_POINTS = 5+4+3+2 - 4
+        TOTAL_POINTS = 5+4+3+2+2
+        FREE_POINTS  = 5+4+3+2+2 - 5
 
         class intellect(Attribute): 
             initial = (1, 5) 
@@ -47,6 +47,11 @@ class attributes:
             initial = (1, 5) 
             name = u'reflexes'
             description = u'Рефлексы, скорость реакции, влияет на очередность действий в бою, успешность комбо приёмов, уклонение и прочую защиту'
+
+        class charisma(Attribute): 
+            initial = (1, 5) 
+            name = u'charisma'
+            description = u'Харазма влияет на отношение к герою других персонажей, в том числе на награды получаемые им за выполнение заданий, цены купли/продажи и влияние героя на места, которые он посещает'
 
         class chaoticity(Attribute): 
             initial = (1, 5) 
@@ -164,8 +169,8 @@ class actions:
                 artifact = seller.bag.get(artifact_uuid)
                 if artifact is None:
                     raise GameInfoException('artifacts with uuid %d does not found in bag of hero %d' % (artifact_uuid, seller.id))
-                left_delta = int(artifact.cost * (1 - (10 + seller.chaoticity - seller.intellect) / 100.0))
-                right_delta = int(artifact.cost * (1 + (10 + seller.chaoticity + seller.intellect) / 100.0))
+                left_delta = int(artifact.cost * (1 - (10 + seller.chaoticity - seller.intellect - seller.charisma) / 100.0))
+                right_delta = int(artifact.cost * (1 + (10 + seller.chaoticity + seller.intellect + seller.charisma) / 100.0))
                 price = random.randint(left_delta, right_delta)
                 if selling_crit == 1:
                     price = int(price * 1.5)

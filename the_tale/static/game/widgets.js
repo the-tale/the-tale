@@ -65,7 +65,11 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-intellect', widget).text(data.primary.intellect);
         jQuery('.pgf-constitution', widget).text(data.primary.constitution);
         jQuery('.pgf-reflexes', widget).text(data.primary.reflexes);
+        jQuery('.pgf-charisma', widget).text(data.primary.charisma);
         jQuery('.pgf-chaoticity', widget).text(data.primary.chaoticity);
+
+        jQuery('.pgf-min-damage', widget).text(data.secondary.min_damage);
+        jQuery('.pgf-max-damage', widget).text(data.secondary.max_damage);
 
         jQuery('.pgf-money', widget).text(data.money);
     };
