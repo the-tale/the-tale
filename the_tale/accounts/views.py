@@ -5,10 +5,10 @@ from django.contrib.auth import login as django_login, authenticate as django_au
 from django_next.views.resources import BaseResource, handler
 from django_next.utils.decorators import nested_commit_on_success
 
-from game.angels.models import Angel
+from game.angels.prototypes import AngelPrototype
 from game.cards.prototypes import FirstHeroCard, PushToQuestCard
 
-from .models import Account
+from .prototypes import AccountPrototype, get_account_by_id
 from . import forms
 
 class AccountsResource(BaseResource):
@@ -20,11 +20,7 @@ class AccountsResource(BaseResource):
     @property
     def account(self):
         if not hasattr(self, '_account'):
-            self._account = None
-            try:
-                self._account = Account.objects.get(id=int(self.account_id))
-            except Account.DoesNotExist:
-                pass
+            self._account = get_account_by_id(int(self.account_id))
                 
         return self._account
 
@@ -52,8 +48,8 @@ class AccountsResource(BaseResource):
                                             registration_form.c.email,
                                             registration_form.c.password)
 
-            account = Account.objects.create(user=user)
-            angel = Angel.objects.create(account=account, name=user.username)
+            account = AccountPrototype.create(user=user)
+            angel = AngelPrototype.create(account=account, name=user.username)
             first_card = FirstHeroCard.create(angel)
             push_card = PushToQuestCard.create(angel)
 

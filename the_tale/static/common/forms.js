@@ -207,7 +207,17 @@ pgf.forms.Post = function(params) {
                 }
             }
             else {
-                alert(data.error);
+                if (data.error) {
+                    alert(data.error);
+                }
+                else {
+                    if (data.errors && data.errors.length > 0) {
+                        alert(data.errors[0]);
+                    }
+                    else {
+                        alert('unknown error occured!');
+                    }
+                } 
                 if (params.OnError) {
                     params.OnError(data);
                 }

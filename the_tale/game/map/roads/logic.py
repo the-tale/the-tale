@@ -72,7 +72,6 @@ def update_waymarks():
         res = []
         for el in row:
             res.append(el.road_id)
-        print res
 
     for i in xrange(places_len):
         for j in xrange(places_len):

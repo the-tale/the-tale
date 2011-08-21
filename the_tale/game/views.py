@@ -10,6 +10,7 @@ from .turns.models import Turn
 from .turns.prototypes import get_latest_turn
 
 from .map import settings as map_settings
+from .angels.prototypes import get_angel_by_id
 
 class GameResource(Resource):
 
@@ -17,12 +18,15 @@ class GameResource(Resource):
         super(GameResource, self).__init__(request, *args, **kwargs)
 
     @handler('', method='get')
-    def game_page(self):
+    def game_page(self, angel=None):
+        if angel is None:
+            angel = self.angel.id
         return self.template('game/game_page.html',
-                             {'map_settings': map_settings} )
+                             {'map_settings': map_settings,
+                              'angel_id': angel} )
 
     @handler('info', method='get')
-    def info(self):
+    def info(self, angel=None):
         data = {}
 
         data['turn'] = {'number': -1}
@@ -32,10 +36,15 @@ class GameResource(Resource):
         except Turn.DoesNotExist:
             pass
 
-        data['deck'] = dict( (card.id, card.ui_info()) for card in get_angel_deck(self.angel.id) )
-        data['heroes'] = dict( (hero.id, hero.ui_info()) for hero in get_angel_heroes(self.angel.id) )
+        if self.angel:
+            data['deck'] = dict( (card.id, card.ui_info()) for card in get_angel_deck(self.angel.id) )
+
+        if angel:
+            foreign_angel = get_angel_by_id(int(angel))
+            if foreign_angel:
+                data['heroes'] = dict( (hero.id, hero.ui_info()) for hero in get_angel_heroes(foreign_angel.id) )
+
         return self.json(status='ok', 
-                         turn_number=1,
                          data=data);
 
 

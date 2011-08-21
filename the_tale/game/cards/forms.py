@@ -67,5 +67,5 @@ class ApplyToHeroForm(forms.Form):
     def __init__(self, heroes, *argv, **kwargs):
         super(ApplyToHeroForm, self).__init__(*argv, **kwargs) 
         self.fields['hero'].choices = [(hero.id, hero.name) for hero in heroes] 
-    
+
     hero = fields.ChoiceField()

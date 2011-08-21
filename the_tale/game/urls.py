@@ -8,8 +8,7 @@ urlpatterns = patterns('',
                        (r'^cards/', include('game.cards.urls', namespace='cards') ),
                        (r'^turns/', include('game.turns.urls', namespace='turns') ),
                        (r'^journal_messages/', include('game.journal_messages.urls', namespace='journal_messages') ),
-                       (r'^map/', include('game.map.urls', namespace='map') ),
-                       # (r'^heroes/', include('heroes.urls', namespace='heroes') )
+                       (r'^map/', include('game.map.urls', namespace='map') )
 )
 
 urlpatterns += resource_patterns(GameResource)

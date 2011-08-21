@@ -21,7 +21,7 @@ jQuery(document).ready(function(e){
                                                                  staticUrl: "{{ STATIC_URL }}",
                                                              });
 
-    updater = new pgf.game.Updater({url: "{{ url('game:info') }}"});
+    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?angel={{ angel_id }}"});
 
     widgets.mapManager = new pgf.game.map.MapManager({regionUrl:  '{{ STATIC_URL }}game/map/data/region.js',
                                                       updater: updater,
@@ -65,6 +65,8 @@ jQuery(document).ready(function(e){
                                                updater, widgets,
                                                {} );
 
+    widgets.switcher = new pgf.game.widgets.WidgetSwitcher();
+
     jQuery('.pgf-next-turn').click(function(e){
         e.preventDefault();
 
@@ -86,7 +88,9 @@ jQuery(document).ready(function(e){
 
 {% block main_menu %}
 {{ super() }}
+{% if settings.DEBUG %}
 <a href="#" class="pgf-next-turn">next_turn</a>
+{% endif %}
 {% endblock %}
 
 {% block content %}

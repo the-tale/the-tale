@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django_next.utils.decorators import nested_commit_on_success
 from django_next.utils import s11n
 
-from ..heroes.prototypes import HeroPrototype, get_heroes_by_query, get_hero_by_id
+from ..heroes.prototypes import HeroPrototype, get_hero_by_id
 
 from .models import Card, CardsQueueItem
 from . import forms
@@ -122,8 +122,8 @@ class CardPrototype(object):
     @classmethod
     def create_form(cls, resource):
         if resource.request.POST:
-            return cls.form(resource.request.POST)
-        return cls.form()
+            return True, cls.form(resource.request.POST)
+        return True, cls.form()
 
     def ui_info(self):
         return {'id': self.id,
@@ -142,7 +142,7 @@ class CardPrototype(object):
     @nested_commit_on_success
     def create(cls, angel):
         card = Card()
-        card.angel = angel
+        card.angel = angel.model
         card.type = cls.__name__
         card.save()
         return card
@@ -183,12 +183,16 @@ class PushToQuestCard(CardPrototype):
 
     @classmethod
     def create_form(cls, resource):
-        heroes = get_heroes_by_query(resource.angel.heroes.all())
+        heroes = resource.angel.heroes
+
+        if len(heroes) == 0:
+            # TODO: move to configuration?
+            return False, u'У Вас нет героя, к которому можно применить данный эффект'
 
         if resource.request.POST:
-            return cls.form(heroes, resource.request.POST)
+            return True, cls.form(heroes, resource.request.POST)
         
-        return cls.form(heroes)
+        return True, cls.form(heroes)
 
 
     @nested_commit_on_success

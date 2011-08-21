@@ -4,7 +4,7 @@ from django_next.views.resources import handler
 from django_next.utils.decorators import  nested_commit_on_success
 
 from common.utils.resources import Resource
-from common.utils.decorators import login_required
+from accounts.decorators import login_required
 
 from . import forms
 from .models import MessagePattern

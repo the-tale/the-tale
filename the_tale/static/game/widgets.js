@@ -496,7 +496,7 @@ pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
 
     jQuery('.pgf-cancel', activateCardWidget).click(function(e){
         e.preventDefault();
-        widgets.switcher.ShowJournalWidget();
+        widgets.switcher.ShowMapWidget();
     });
 
     var deck = {};
@@ -527,7 +527,7 @@ pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
                 card.cooldown_end = data.data.cooldown_end;
                 if (card.cooldown_end) SetCooldown(card.id);
 
-                widgets.switcher.ShowJournalWidget();
+                widgets.switcher.ShowMapWidget();
 
                 updater.Refresh();
             }
@@ -736,4 +736,31 @@ pgf.game.widgets.CardsOld = function(selector, updater, widgets, params) {
         instance.Refresh();
         instance.Render();
     });
+};
+
+pgf.game.widgets.WidgetSwitcher = function() {
+
+    var logWidget = jQuery('#log-block');
+
+    var activateCardWidget = jQuery('#activate-card-block');
+    var activateCardWidgetFormBlock = jQuery('#activate-card-block .pgf-activate-form');
+    var mapWidget = jQuery('#map-block');
+
+    var instance = this;
+
+    this.ShowActivateCardWidget = function() { 
+        logWidget.toggleClass('pgf-hidden', true);
+        mapWidget.toggleClass('pgf-hidden', true);
+
+        activateCardWidget.toggleClass('pgf-hidden', false);
+
+        activateCardWidgetFormBlock.html('');
+    };
+
+    this.ShowMapWidget = function() { 
+        logWidget.toggleClass('pgf-hidden', false);
+        mapWidget.toggleClass('pgf-hidden', false);
+
+        activateCardWidget.toggleClass('pgf-hidden', true);
+    };
 };

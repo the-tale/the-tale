@@ -238,7 +238,7 @@ class HeroPrototype(object):
     def create(cls, angel, name, first, intellect, constitution, reflexes, chaoticity, npc=False):
         from game.actions.prototypes import ActionIdlenessPrototype
 
-        hero = Hero.objects.create(angel=angel,
+        hero = Hero.objects.create(angel=angel.model if not npc else None,
                                    npc=npc,
 
                                    name=name,

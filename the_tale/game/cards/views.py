@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django_next.views.resources import handler
+
 from common.utils.resources import Resource
-from common.utils.decorators import login_required
+
+from accounts.decorators import login_required
 
 from .models import Card
 from .prototypes import get_card_by_id
@@ -33,7 +35,14 @@ class CardsResource(Resource):
         if self.card.cooldown_end > self.turn.number:
             return self.template('cards/error.html',  {'error': u'this card on cooldown'} )
 
-        form = self.card.create_form(self)
+        result, data = self.card.create_form(self)
+
+        if not result:
+            return self.template('error.html',
+                                 {'error_msg': data})
+
+        form = data
+
         return self.template(self.card.template,
                              {'form': form,
                               'card': self.card} )
@@ -49,14 +58,21 @@ class CardsResource(Resource):
             return self.json(status='error', error=u'this card on cooldown')
 
         if self.card.form:
-            form = self.card.create_form(self)
+            result, data = self.card.create_form(self)
+            
+            if not result:
+                return self.json(status='error', error=data)
+
+            form = data
 
             if form.is_valid():
                 self.card.activate(self, form)
                 return self.json(status='ok', data={'cooldown_end': self.turn.number+1})
-        else:
-            self.card.activate(self, form=None)
-            return self.json(status='ok', data={'cooldown_end': self.card.cooldown_end})
 
-        return self.json(status='error', errors=form.errors)
+            return self.json(status='error', errors=form.errors)
+
+        self.card.activate(self, form=None)
+        return self.json(status='ok', data={'cooldown_end': self.card.cooldown_end})
+
+
 

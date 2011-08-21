@@ -10,7 +10,6 @@ admin.autodiscover()
 jinja2_next.autodiscover()
 
 urlpatterns = patterns('',
-                       url(r'^less/', include('django_next.less.urls') ), #TODO: replace with settings.LESS_URL
                        (r'^admin/', include(admin.site.urls)),
                        url(r'^$', template_renderer('index.html'), name='index'),
                        (r'^accounts/', include('accounts.urls', namespace='accounts') ),
@@ -19,4 +18,7 @@ urlpatterns = patterns('',
 )
 
 if project_settings.DEBUG:
-    urlpatterns += patterns('', url(r'^tmp/?$', template_renderer('tmp.html'), name='tmp') )
+    urlpatterns += patterns('', 
+                            url(r'^tmp/?$', template_renderer('tmp.html'), name='tmp'),
+                            url(r'^less/', include('django_next.less.urls') ) #TODO: replace with settings.LESS_URL)
+                            )
