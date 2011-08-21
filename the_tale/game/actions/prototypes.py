@@ -632,6 +632,9 @@ class ActionInCityPrototype(ActionPrototype):
             self._hero = get_hero_by_model(self.model.hero)
         return self._hero
 
+    @property
+    def city_id(self): return self.model.city_id
+
     def get_rested(self): return self.model.rested
     def set_rested(self, value): self.model.rested = value
     rested = property(get_rested, set_rested)
@@ -658,7 +661,9 @@ class ActionInCityPrototype(ActionPrototype):
 
     def ui_info(self):
         info = super(ActionInCityPrototype, self).ui_info()
-        info['data'] = {'hero_id': self.hero_id}
+        info['data'] = {'hero_id': self.hero_id,
+                        'city': self.city_id }
+        return info
         return info
 
     @classmethod

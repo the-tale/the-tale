@@ -169,6 +169,10 @@ pgf.game.map.MapManager = function(params) {
                  calculatedData: calculatedData};
     }
 
+    function GetPlaceData(placeId) {
+        return mapData.places[placeId];
+    }
+
     jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
 
         for (var hero_id in updater.data.data.heroes) {
@@ -185,6 +189,7 @@ pgf.game.map.MapManager = function(params) {
     this.mapHeight = 0;
 
     this.GetMapDataForRect = GetMapDataForRect;
+    this.GetPlaceData = GetPlaceData;
 }; 
 
 pgf.game.map.Map = function(selector, params) {
@@ -198,15 +203,8 @@ pgf.game.map.Map = function(selector, params) {
     map.css({width: canvasWidth,
              height: canvasHeight });
 
-    var mapUrl = params.mapUrl;
-
     var spritesManager = params.spritesManager;
-    var mapManager = new pgf.game.map.MapManager({regionUrl:  mapUrl + 'region.js',
-                                                  updater: updater,
-                                                  OnDataUpdated: function() {
-                                                      Refresh();
-                                                  }
-                                                 });
+    var mapManager = widgets.mapManager;
 
     var pos = {x: 0, y: 0};
 
@@ -392,8 +390,8 @@ pgf.game.map.Map = function(selector, params) {
     }
 
     this.Draw = Draw;
+    this.Refresh = Refresh;
     this.CheckReadyState = CheckReadyState;
-
 };
 
 

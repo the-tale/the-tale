@@ -23,15 +23,19 @@ jQuery(document).ready(function(e){
 
     updater = new pgf.game.Updater({url: "{{ url('game:info') }}"});
 
+    widgets.mapManager = new pgf.game.map.MapManager({regionUrl:  '{{ STATIC_URL }}game/map/data/region.js',
+                                                      updater: updater,
+                                                      OnDataUpdated: function() {
+                                                          //TODO: rewrite to events
+                                                          widgets.map.Refresh();
+                                                      }
+                                                     });
+
     widgets.map = new pgf.game.map.Map('#pgf-game-map', 
                                        {spritesManager: spritesManager,
-                                        mapUrl: '{{ STATIC_URL }}game/map/data/',
                                         tileSize: tileset.TILE_SIZE,
                                         updater: updater,
                                         widgets: widgets});
-
-
-    widgets.switcher = new pgf.game.widgets.WidgetSwitcher('#switcher-block');
 
     widgets.cards = new pgf.game.widgets.Cards('#angel-cards-block', 
                                                updater, widgets,
@@ -92,58 +96,7 @@ jQuery(document).ready(function(e){
   <div id="left-column" class="column">
 
     <div id="hero-base-block" class="info-block">
-      <strong class="name">(<span class="pgf-wisdom"></span>) <span class="pgf-name"></span></strong> 
-      <div class="health-bar">
-        <div class="stats-bar pgf-health-bar">
-          <div class="layer layer-0 pgf-layer-0"></div>
-          <div class="layer layer-1 pgf-layer-1"></div>
-        </div>
-        <span class="pgf-health"></span>/<span class="pgf-max-health"></span> + 53
-      </div>
-      <table class="stats"> 
-        <tbody>
-        <tr>
-          <td class="stat-record">
-            <img class="stat-icon" src="{{ STATIC_URL }}tmp/intellect-icon.png"/>
-            <span class="stat-value pgf-intellect"></span>
-          </td>
-          <td class="stat-record">
-            <img class="stat-icon" src="{{ STATIC_URL }}tmp/armor-icon.gif"/>
-            <span class="stat-value">12 (+3)<span>
-          </td>
-        </tr>
-        <tr>
-          <td class="stat-record">
-            <img class="stat-icon" src="{{ STATIC_URL }}tmp/constitution-icon.png"/>
-            <span class="stat-value pgf-constitution"></span>
-          </td>
-          <td class="stat-record">
-            <img class="stat-icon" src="{{ STATIC_URL }}tmp/gold-icon.png"/>
-            <span class="stat-value pgf-money"><span>
-          </td>
-        </tr>
-        <tr>
-          <td class="stat-record">
-            <img class="stat-icon" class="stat-icon" src="{{ STATIC_URL }}tmp/reflexes-icon.jpg"/>
-            <span class="stat-value pgf-reflexes">5</span>
-          </td>
-          <td class="stat-record">
-            <img class="stat-icon" class="stat-icon" src="{{ STATIC_URL }}tmp/quests-icon.png"/>
-            <span class="stat-value">133</span>
-          </td>
-        </tr>
-        <tr>
-          <td class="stat-record">
-            <img class="stat-icon" src="{{ STATIC_URL }}tmp/chaoticity-icon.png"/> 
-            <span class="stat-value pgf-chaoticity">2 (-1)</span>
-          </td>
-          <td class="stat-record">
-            <img class="stat-icon" src="{{ STATIC_URL }}tmp/death-icon.gif"/>
-            <span class="stat-value">29</span>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+      {% include 'heroes/short_info.html' %}
     </div>
 
     <div id="hero-effects-block" class="info-block active-effects-block">
@@ -247,60 +200,23 @@ jQuery(document).ready(function(e){
             <div class="pgf-action-info pgf-action-other pgf-hidden">
               <span class="pgf-name"></span>
             </div>
+            <div class="pgf-action-info pgf-action-idleness pgf-hidden">
+              Нет для героя ничего постыднее, чем безделье. Это безобразие надо немедленно прекратить!
+            </div>
+            <div class="pgf-action-info pgf-action-quest pgf-hidden">
+              Герой прилагает максимальные усилия, что бы выполнить задание.
+            </div>
+            <div class="pgf-action-info pgf-action-move-to pgf-hidden">
+              Герой путешествует в сторону города "<span class="pgf-place-name"></span>"
+            </div>
             <div class="pgf-action-info pgf-action-battle-pve-1x1 pgf-hidden">
-      <strong class="name">(<span class="pgf-wisdom"></span>) <span class="pgf-name"></span></strong> 
-      <div class="health-bar">
-        <div class="stats-bar pgf-health-bar">
-          <div class="layer layer-0 pgf-layer-0"></div>
-          <div class="layer layer-1 pgf-layer-1"></div>
-        </div>
-        <span class="pgf-health"></span>/<span class="pgf-max-health"></span> + 53
-      </div>
-      <table class="stats"> 
-        <tbody>
-        <tr>
-          <td class="stat-record">
-            <img class="stat-icon" src="{{ STATIC_URL }}tmp/intellect-icon.png"/>
-            <span class="stat-value pgf-intellect"></span>
-          </td>
-          <td class="stat-record">
-            <img class="stat-icon" src="{{ STATIC_URL }}tmp/armor-icon.gif"/>
-            <span class="stat-value">12 (+3)<span>
-          </td>
-        </tr>
-        <tr>
-          <td class="stat-record">
-            <img class="stat-icon" src="{{ STATIC_URL }}tmp/constitution-icon.png"/>
-            <span class="stat-value pgf-constitution"></span>
-          </td>
-          <td class="stat-record">
-            <img class="stat-icon" src="{{ STATIC_URL }}tmp/gold-icon.png"/>
-            <span class="stat-value pgf-money"><span>
-          </td>
-        </tr>
-        <tr>
-          <td class="stat-record">
-            <img class="stat-icon" class="stat-icon" src="{{ STATIC_URL }}tmp/reflexes-icon.jpg"/>
-            <span class="stat-value pgf-reflexes">5</span>
-          </td>
-          <td class="stat-record">
-            <img class="stat-icon" class="stat-icon" src="{{ STATIC_URL }}tmp/quests-icon.png"/>
-            <span class="stat-value">133</span>
-          </td>
-        </tr>
-        <tr>
-          <td class="stat-record">
-            <img class="stat-icon" src="{{ STATIC_URL }}tmp/chaoticity-icon.png"/> 
-            <span class="stat-value pgf-chaoticity">2 (-1)</span>
-          </td>
-          <td class="stat-record">
-            <img class="stat-icon" src="{{ STATIC_URL }}tmp/death-icon.gif"/>
-            <span class="stat-value">29</span>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-
+              {% include 'heroes/short_info.html' %}
+            </div>
+            <div class="pgf-action-info pgf-action-resurrect pgf-hidden">
+              Герой проходит курс усиленного восстановления
+            </div>
+            <div class="pgf-action-info pgf-action-in-city pgf-hidden">
+              Герой изучает витрины города "<span class="pgf-place-name"></span>"
             </div>
           </td>
         </tr>
@@ -311,7 +227,7 @@ jQuery(document).ready(function(e){
               <tbody>
               <tr class="prev-previous pgf-prev-previouse">
                 <td>
-                  <span class="name pgf-name">выполняет задание</span>
+                  <span class="name pgf-name"></span>
                 </td>
                 <td class="progress-bar">
                   <div class="stats-bar pgf-progress-bar">
@@ -354,11 +270,6 @@ jQuery(document).ready(function(e){
 
     </div>
 
-    <div id="switcher-block" class="info-block">
-      <a href="#" class="pgf-show-journal">журнал</a>
-      <a href="#" class="pgf-show-map">карта</a>
-    </div>   
-
     <div id="log-block" class="info-block">
       <ul class="log pgf-log-list">
         <li class="message pgf-template">
@@ -367,38 +278,6 @@ jQuery(document).ready(function(e){
         </li>
       </ul>
     </div>    
-
-   <div id="journal-block" class="info-block pgf-hidden">
-      <ul class="journal">
-        <li class="message">
-          <span>[5 часов, 10 мая]</span><br/>
-          <span> 
-            Очень длинная запись в журнале о каком-то важном событии, буть то выполнение квеста, убийство СИЛЬНОГО моба или нахождение клада. Мелочь сюда писать НЕЛЬЗЯ! Здесь должна находиться только важная для истории информация.
-          </span>
-        </li>
-
-        <li class="message">
-          <span>[3 часа, 10 мая]</span><br/>
-          <span> 
-            Очень длинная запись в журнале о каком-то важном событии, буть то выполнение квеста, убийство СИЛЬНОГО моба или нахождение клада. Мелочь сюда писать НЕЛЬЗЯ! Здесь должна находиться только важная для истории информация.
-          </span>
-        </li>
-
-        <li class="message">
-          <span>[1 час, 10 мая]</span><br/>
-          <span> 
-            Очень длинная запись в журнале о каком-то важном событии, буть то выполнение квеста, убийство СИЛЬНОГО моба или нахождение клада. Мелочь сюда писать НЕЛЬЗЯ! Здесь должна находиться только важная для истории информация.
-          </span>
-        </li>
-
-        <li class="message">
-          <span>[18 часов, 9 мая]</span><br/>
-          <span> 
-            Очень длинная запись в журнале о каком-то важном событии, буть то выполнение квеста, убийство СИЛЬНОГО моба или нахождение клада. Мелочь сюда писать НЕЛЬЗЯ! Здесь должна находиться только важная для истории информация.
-          </span>
-        </li>
-      </ul>
-   </div>    
 
    <div id="activate-card-block" class="info-block pgf-hidden"> 
      <a href="#" class="pgf-cancel">Отменить</a>

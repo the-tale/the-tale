@@ -167,10 +167,17 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     var questsLine = jQuery('.pgf-quests-line', widget);
     var noQuestsMsg = jQuery('.pgf-no-quests-message', widget);
 
+    var actionElements = jQuery('.pgf-action-info', actionInfoContainer);
+
     var data = {};
 
     var ACTION_TYPES = {
-        BATTLE_PvE_1x1: 'BATTLE_PVE_1x1'
+        IDLENESS: 'IDLENESS',
+        BATTLE_PvE_1x1: 'BATTLE_PVE_1x1',
+        QUEST: 'QUEST',
+        MOVE_TO: 'MOVE_TO',
+        RESURRECT: 'RESURRECT',
+        IN_CITY: 'IN_CITY'
     };
 
     var instance = this;
@@ -192,25 +199,74 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         jQuery('.pgf-name', otherAction).text(action.short_description);
     }
 
+    function RenderIdlenessAction(action) {
+        var idlenessAction = jQuery('.pgf-action-idleness', actionInfoContainer);
+        idlenessAction.toggleClass('pgf-hidden', false);
+    }
+
+    function RenderQuestAction(action) {
+        var questAction = jQuery('.pgf-action-quest', actionInfoContainer);
+        questAction.toggleClass('pgf-hidden', false);
+    }
+
+    function RenderMoveToAction(action) { 
+        var moveToAction = jQuery('.pgf-action-move-to', actionInfoContainer);
+        var destinationId = action.data.destination;
+        var placeName = widgets.mapManager.GetPlaceData(destinationId).name;
+        jQuery('.pgf-place-name', moveToAction).text(placeName);
+        moveToAction.toggleClass('pgf-hidden', false);
+    }
+
     function RenderBattlePvE_1x1Action(action) {
-        battleAction = jQuery('.pgf-action-battle-pve-1x1', actionInfoContainer);
+        var battleAction = jQuery('.pgf-action-battle-pve-1x1', actionInfoContainer);
         battleAction.toggleClass('pgf-hidden', false);
         widgets.heroes.RenderHero(action.data.npc, battleAction);
     }
+    
+    function RenderResurrectAction(action) {
+        var resurrectAction = jQuery('.pgf-action-resurrect', actionInfoContainer);
+        resurrectAction.toggleClass('pgf-hidden', false);
+    }
 
-    function RenderActionInfo() {
+    function RenderInCityAction(action) {
+        var inCityAction = jQuery('.pgf-action-in-city', actionInfoContainer);
+        var cityId = action.data.city;
+        var placeName = widgets.mapManager.GetPlaceData(cityId).name;
+        jQuery('.pgf-place-name', inCityAction).text(placeName);
+        inCityAction.toggleClass('pgf-hidden', false);
+    }
+
+    function RenderActionInfo(action) {
         
-        var action = instance.CurrentAction();
-
         if (!action) {
             return;
         }
 
-        jQuery('.pgf-action-info', actionInfoContainer).toggleClass('pgf-hidden', true);
+        actionElements.toggleClass('pgf-hidden', true);
 
         switch (action.type) {
+        case ACTION_TYPES.IDLENESS: {
+            RenderIdlenessAction(action);
+            break;
+        }
+        case ACTION_TYPES.QUEST: {
+            RenderQuestAction(action);
+            break;
+        }
+        case ACTION_TYPES.MOVE_TO: {
+            RenderMoveToAction(action);
+            break;
+        }
         case ACTION_TYPES.BATTLE_PvE_1x1: {
             RenderBattlePvE_1x1Action(action);
+            break;
+        }
+        case ACTION_TYPES.RESURRECT: {
+            RenderResurrectAction(action);
+            break;
+        }
+        case ACTION_TYPES.IN_CITY: {
+            RenderInCityAction(action);
             break;
         }
         default: {
@@ -221,13 +277,14 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         
     }
 
+    var actionProgressClasses = ['pgf-current', 'pgf-previouse', 'pgf-prev-previouse']
+
     function RenderActions() {
 
-        var rowClasses = ['pgf-current', 'pgf-previouse', 'pgf-prev-previouse']
         var rowNumber = 0;
         for (var i=data.actions.length-1; i >= data.actions.length - 4; --i) {
 
-            var recordElement = jQuery('.pgf-actions-progress .'+rowClasses[rowNumber], widget);
+            var recordElement = jQuery('.pgf-actions-progress .'+actionProgressClasses[rowNumber], widget);
 
             if (i < 0) {
                 jQuery('.pgf-name', recordElement).text('');
@@ -261,12 +318,31 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     this.Render = function() {
         RenderQuests();
         RenderActions();
-        RenderActionInfo();
+        RenderActionInfo(instance.GetCurrentAction());
     };
 
-    this.CurrentAction = function() {
+    this.GetCurrentAction = function() {
         return data.actions[data.actions.length-1];
     };
+
+    this.GetAction = function(id) {
+        if (id<0 || id>data.actions.length-1) return undefined;
+        return data.actions[id];
+    };
+
+    for (var i=0; i<actionProgressClasses.length; ++i) {
+        var progressElement = jQuery('.pgf-actions-progress .'+actionProgressClasses[i], widget);        
+
+        ( function(N) {
+            progressElement.hover(
+                function(e) {
+                    RenderActionInfo(instance.GetAction(data.actions.length-N-1));
+                },
+                function(e) {
+                    RenderActionInfo(instance.GetCurrentAction());
+                }
+            );})(i);
+    }
 
     jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
         instance.Refresh();
@@ -528,57 +604,6 @@ pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
         instance.Refresh();
         instance.Render();
     });
-};
-
-pgf.game.widgets.WidgetSwitcher = function(selector) {
-
-    var widget = jQuery(selector);
-
-    var logWidget = jQuery('#log-block');
-    var journalWidget = jQuery('#journal-block');
-
-    var activateCardWidget = jQuery('#activate-card-block');
-    var activateCardWidgetFormBlock = jQuery('#activate-card-block .pgf-activate-form');
-    var mapWidget = jQuery('#map-block');
-
-    var instance = this;
-
-    this.ShowActivateCardWidget = function() { 
-        logWidget.toggleClass('pgf-hidden', true);
-        journalWidget.toggleClass('pgf-hidden', true);
-        mapWidget.toggleClass('pgf-hidden', true);
-
-        activateCardWidget.toggleClass('pgf-hidden', false);
-
-        activateCardWidgetFormBlock.html('');
-    };
-
-    this.ShowJournalWidget = function() { 
-        logWidget.toggleClass('pgf-hidden', false);
-        journalWidget.toggleClass('pgf-hidden', false);
-
-        activateCardWidget.toggleClass('pgf-hidden', true);
-        mapWidget.toggleClass('pgf-hidden', true);
-    };
-
-    this.ShowMapWidget = function() { 
-        logWidget.toggleClass('pgf-hidden', false);
-        mapWidget.toggleClass('pgf-hidden', false);
-
-        journalWidget.toggleClass('pgf-hidden', true);
-        activateCardWidget.toggleClass('pgf-hidden', true);
-    };
-
-    jQuery('.pgf-show-journal').click(function(e){
-        e.preventDefault();
-        instance.ShowJournalWidget();
-    });
-
-    jQuery('.pgf-show-map').click(function(e){
-        e.preventDefault();
-        instance.ShowMapWidget();
-    });
-
 };
 
 pgf.game.widgets.CardsOld = function(selector, updater, widgets, params) {
