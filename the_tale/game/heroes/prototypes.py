@@ -5,6 +5,8 @@ from game.journal_messages.prototypes import MessagesLogPrototype, get_messages_
 
 from game.map.places.prototypes import HeroPositionPrototype, PlacePrototype
 
+from ..artifacts.effects import RAW_EFFECT_TYPE
+
 from .models import Hero, HeroAction, HeroQuest
 from . import game_info
 
@@ -69,7 +71,7 @@ class HeroPrototype(object):
         return self._bag
 
     def put_loot(self, artifact):
-        max_bag_size = self.bag_size
+        max_bag_size = self.max_bag_size
         quest_items_count, loot_items_count = self.bag.occupation
         if artifact.quest or loot_items_count < max_bag_size:
             self.bag.put_artifact(artifact)
@@ -113,19 +115,28 @@ class HeroPrototype(object):
     def move_speed(self): return game_info.attributes.secondary.move_speed.get(self)
 
     @property
-    def battle_speed(self): return game_info.attributes.secondary.battle_speed.get(self)
+    def battle_speed(self): 
+        speed = game_info.attributes.secondary.battle_speed.get(self)
+        speed += self.equipment.get_raw_effect(RAW_EFFECT_TYPE.BATTLE_SPEED)        
+        return speed
 
     @property
     def max_health(self): return game_info.attributes.secondary.max_health.get(self)
 
     @property
-    def min_damage(self): return game_info.attributes.secondary.min_damage.get(self)
+    def min_damage(self): 
+        damage = game_info.attributes.secondary.min_damage.get(self)
+        damage += self.equipment.get_raw_effect(RAW_EFFECT_TYPE.MIN_DAMAGE)
+        return damage
 
     @property
-    def max_damage(self): return game_info.attributes.secondary.max_damage.get(self)
+    def max_damage(self): 
+        damage = game_info.attributes.secondary.max_damage.get(self)
+        damage += self.equipment.get_raw_effect(RAW_EFFECT_TYPE.MAX_DAMAGE)
+        return damage
 
     @property
-    def bag_size(self): return game_info.attributes.secondary.bag_size.get(self)
+    def max_bag_size(self): return game_info.attributes.secondary.max_bag_size.get(self)
 
     ###########################################
     # Needs attributes
@@ -211,6 +222,9 @@ class HeroPrototype(object):
         return get_messages_log_by_model(model=self.model.messages_log)
 
     def ui_info(self, ignore_actions=False, ignore_quests=False):
+
+        quest_items_count, loot_items_count = self.bag.occupation
+
         return {'id': self.id,
                 'npc': self.is_npc,
                 'angel': self.angel_id,
@@ -233,7 +247,11 @@ class HeroPrototype(object):
                              'charisma': self.charisma,
                              'chaoticity': self.chaoticity },
                 'secondary': { 'min_damage': self.min_damage,
-                               'max_damage': self.max_damage },
+                               'max_damage': self.max_damage,
+                               'move_speed': self.move_speed,
+                               'battle_speed': self.battle_speed,
+                               'max_bag_size': self.max_bag_size,
+                               'loot_items_count': loot_items_count},
                 'accumulated': { }
                 }
 

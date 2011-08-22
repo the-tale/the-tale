@@ -70,6 +70,8 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
         jQuery('.pgf-min-damage', widget).text(data.secondary.min_damage);
         jQuery('.pgf-max-damage', widget).text(data.secondary.max_damage);
+        jQuery('.pgf-move-speed', widget).text(data.secondary.move_speed);
+        jQuery('.pgf-battle-speed', widget).text(data.secondary.battle_speed);
 
         jQuery('.pgf-money', widget).text(data.money);
     };
@@ -372,8 +374,8 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
 
     function RenderItems() {
         var items = [];
-        for (var uuid in data) {
-            items.push(data[uuid]);
+        for (var uuid in data.bag) {
+            items.push(data.bag[uuid]);
         }
         pgf.base.RenderTemplateList(bagContainer, items, RenderItem, {});
     }
@@ -383,14 +385,20 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
         var hero = widgets.heroes.CurrentHero();
 
         if (hero) {
-            data = hero.bag;
+            data.bag = hero.bag;
+            data.loot_items_count = hero.secondary.loot_items_count;
+            data.max_bag_size = hero.secondary.max_bag_size;
         }
         else {
-            data = {};
+            data = { bag: {},
+                     loot_items_count: 0,
+                     max_bag_size: 0};
         }
     };
 
     this.Render = function() {
+        jQuery('.pgf-loot-items-count', widget).text(data.loot_items_count);
+        jQuery('.pgf-max-bag-size', widget).text(data.max_bag_size);
         RenderItems();
     };
 

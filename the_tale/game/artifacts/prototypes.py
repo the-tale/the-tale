@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .effects import load_effect_from_dict
+from .effects import load_effect_from_dict, ACCUMULATED_EFFECTS
 
 class ArtifactPrototype(object):
 
@@ -19,6 +19,13 @@ class ArtifactPrototype(object):
     @property
     def total_points_spent(self):
         return self.basic_points_spent + self.effect_points_spent
+
+    def get_raw_effect(self, effect_name):
+        if effect_name in ACCUMULATED_EFFECTS:
+            value = 0
+            for effect in self.effects:
+                value += effect.raw_effects.get(effect_name, 0)
+            return value
 
     def set_name(self, name):
         self.name = name

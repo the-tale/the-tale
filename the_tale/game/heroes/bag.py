@@ -3,6 +3,7 @@ from django_next.utils import s11n
 
 from ..artifacts.prototypes import ArtifactPrototype
 from ..artifacts import constructors
+from ..artifacts.effects import ACCUMULATED_EFFECTS
 
 class EquipmentException(Exception): pass
 
@@ -111,6 +112,15 @@ class Equipment(object):
 
     def __init__(self):
         self.equipment = {}
+
+    def get_raw_effect(self, effect_name):
+        if effect_name in ACCUMULATED_EFFECTS:
+            value = 0
+            for slot in SLOTS_LIST:
+                artifact = self.get(slot)
+                if artifact:
+                    value += artifact.get_raw_effect(effect_name)
+            return value
 
     def ui_info(self):
         return dict( (slot, artifact.ui_info()) for slot, artifact in self.equipment.items() if artifact )

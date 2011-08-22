@@ -11,6 +11,10 @@ class RAW_EFFECT_TYPE:
     MAX_DAMAGE = 'max_damage'
     BATTLE_SPEED = 'battle_speed'
 
+ACCUMULATED_EFFECTS = [RAW_EFFECT_TYPE.MIN_DAMAGE, 
+                       RAW_EFFECT_TYPE.MAX_DAMAGE,
+                       RAW_EFFECT_TYPE.BATTLE_SPEED]
+
 class Effect(object):
     TYPE = None
     COST = 0

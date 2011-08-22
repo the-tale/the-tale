@@ -108,7 +108,7 @@ class attributes:
             def get(cls, hero):
                 return int((hero.constitution * 2 + hero.reflexes * 2 + hero.intellect) / 3.0 + hero.chaoticity)
 
-        class bag_size(Attribute):
+        class max_bag_size(Attribute):
 
             name = u'bag size'
             description = u'Максимальная вместимость рюкзака'
@@ -244,7 +244,7 @@ class needs:
             @classmethod
             def check(cls, hero):
                 quest_items_count, loot_items_count = hero.bag.occupation
-                return float(loot_items_count) / hero.bag_size > 0.33
+                return float(loot_items_count) / hero.max_bag_size > 0.33
 
         class equipping(Attribute):
 
