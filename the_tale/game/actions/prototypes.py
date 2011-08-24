@@ -29,14 +29,16 @@ def get_action_by_model(base_model, model=None):
 
 
 class ActionPrototype(object):
-
+    
     TYPE = 'BASE'
     SHORT_DESCRIPTION = 'undefined'
+    MODEL_RELATION_NAME = 'undefined'
     ENTROPY_BARRIER = 100
 
-    def __init__(self, base_model, *argv, **kwargs):
+    def __init__(self, base_model, model=None, *argv, **kwargs):
         super(ActionPrototype, self).__init__(*argv, **kwargs)
         self.base_model = base_model
+        self.model = model if model else getattr(base_model, self.MODEL_RELATION_NAME)
 
     @property
     def id(self): return self.base_model.id
@@ -79,12 +81,8 @@ class ActionIdlenessPrototype(ActionPrototype):
 
     TYPE = 'IDLENESS'
     SHORT_DESCRIPTION = u'бездельничает'
-
+    MODEL_RELATION_NAME = 'action_idleness'
     ENTROPY_BARRIER = 100
-
-    def __init__(self, base_model, model=None, *argv, **kwargs):
-        super(ActionIdlenessPrototype, self).__init__(base_model, *argv, **kwargs)
-        self.model = model if model else base_model.action_idleness
 
     def get_entropy_action(self):
         if not hasattr(self, '_entropy_action'):
@@ -173,10 +171,7 @@ class ActionQuestPrototype(ActionPrototype):
 
     TYPE = 'QUEST'
     SHORT_DESCRIPTION = u'выполняет задание'
-
-    def __init__(self, base_model, model=None, *argv, **kwargs):
-        super(ActionQuestPrototype, self).__init__(base_model, *argv, **kwargs)
-        self.model = model if model else base_model.action_quest
+    MODEL_RELATION_NAME = 'action_quest'
 
     @property
     def quest(self):
@@ -258,12 +253,8 @@ class ActionMoveToPrototype(ActionPrototype):
 
     TYPE = 'MOVE_TO'
     SHORT_DESCRIPTION = u'путешествует'
-
+    MODEL_RELATION_NAME = 'action_move_to'
     ENTROPY_BARRIER = 35
-
-    def __init__(self, base_model, model=None, *argv, **kwargs):
-        super(ActionMoveToPrototype, self).__init__(base_model, *argv, **kwargs)
-        self.model = model if model else base_model.action_move_to
 
     @property
     def road_id(self): return self.model.road_id
@@ -417,12 +408,8 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
     TYPE = 'BATTLE_PVE_1x1'
     SHORT_DESCRIPTION = u'сражается'
-
+    MODEL_RELATION_NAME = 'action_battle_pve_1x1'
     ENTROPY_BARRIER = 35
-
-    def __init__(self, base_model, model=None, *argv, **kwargs):
-        super(ActionBattlePvE_1x1Prototype, self).__init__(base_model, *argv, **kwargs)
-        self.model = model if model else base_model.action_battle_pve_1x1
 
     @property
     def hero_id(self): return self.model.hero_id
@@ -542,12 +529,8 @@ class ActionResurrectPrototype(ActionPrototype):
 
     TYPE = 'RESURRECT'
     SHORT_DESCRIPTION = u'воскресает'
-
+    MODEL_RELATION_NAME = 'action_resurrect'
     ENTROPY_BARRIER = 35
-
-    def __init__(self, base_model, model=None, *argv, **kwargs):
-        super(ActionResurrectPrototype, self).__init__(base_model, *argv, **kwargs)
-        self.model = model if model else base_model.action_resurrect
 
     @property
     def hero_id(self): return self.model.hero_id
@@ -616,12 +599,8 @@ class ActionInCityPrototype(ActionPrototype):
 
     TYPE = 'IN_CITY'
     SHORT_DESCRIPTION = u'шляется по городу'
-
+    MODEL_RELATION_NAME = 'action_in_city'
     ENTROPY_BARRIER = 35
-
-    def __init__(self, base_model, model=None, *argv, **kwargs):
-        super(ActionInCityPrototype, self).__init__(base_model, *argv, **kwargs)
-        self.model = model if model else base_model.action_in_city
 
     @property
     def hero_id(self): return self.model.hero_id

@@ -37,6 +37,7 @@ def create_npc_for_hero(hero):
                                intellect=random.randint(1, max(1, hero.intellect-1) ),
                                constitution=random.randint(1, max(1, hero.constitution-1) ),
                                reflexes=random.randint(1, max(1, hero.reflexes-1) ),
+                               charisma=random.randint(1, max(1, hero.charisma-1) ), 
                                chaoticity=random.randint(1, max(1, hero.chaoticity-1) ), 
                                npc=True)
     return npc
