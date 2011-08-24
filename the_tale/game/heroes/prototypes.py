@@ -7,7 +7,7 @@ from game.map.places.prototypes import HeroPositionPrototype, PlacePrototype
 
 from ..artifacts.effects import RAW_EFFECT_TYPE
 
-from .models import Hero, HeroAction, HeroQuest
+from .models import Hero, HeroQuest
 from . import game_info
 
 attrs = game_info.attributes
@@ -174,26 +174,17 @@ class HeroPrototype(object):
 
     @property
     def actions(self):
+        from game.actions.models import Action
         from game.actions.prototypes import ACTION_TYPES
 
         if not hasattr(self, '_actions'):
             self._actions = []
-            hero_actions = HeroAction.objects.select_related('action').filter(hero=self.model).order_by('order')
-            actions = [ hero_action.action for hero_action in hero_actions]
+            actions = list(Action.objects.filter(hero=self.model).order_by('order'))
             for action in actions:
                 action_object = ACTION_TYPES[action.type](base_model=action)
                 self._actions.append(action_object)
 
         return self._actions
-
-    def push_action(self, action):
-        HeroAction.objects.create(hero=self.model,
-                                  action=action.base_model,
-                                  order=len(self.actions) )
-        if hasattr(self, '_actions'):
-            delattr(self, '_actions')
-
-    def get_current_action(self): return self.actions[-1]
 
     @property
     def position(self):
@@ -279,7 +270,7 @@ class HeroPrototype(object):
 
         hero = cls(model=hero)
 
-        ActionIdlenessPrototype.create(hero=hero)
+        ActionIdlenessPrototype.create(parent_order=0, hero=hero)
 
         MessagesLogPrototype.create(hero)
 

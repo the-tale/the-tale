@@ -1,7 +1,6 @@
 from django.db import models
 
 from game.angels.models import Angel
-from game.actions.models import Action
 from game.quests.models import Quest
 
 class Hero(models.Model):
@@ -10,8 +9,6 @@ class Hero(models.Model):
 
     npc = models.BooleanField(default=False)
     alive = models.BooleanField(default=True)
-
-    actions = models.ManyToManyField(Action, related_name='heroes', through='HeroAction')
 
     #base
     first = models.BooleanField()
@@ -38,14 +35,6 @@ class Hero(models.Model):
     #secondary
 
     #accumulated
-
-
-class HeroAction(models.Model):
-    
-    hero = models.ForeignKey(Hero)
-    action = models.ForeignKey(Action)
-
-    order = models.IntegerField()
 
 
 class HeroQuest(models.Model):

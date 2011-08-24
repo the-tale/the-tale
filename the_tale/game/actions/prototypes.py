@@ -10,10 +10,6 @@ from ..map.roads.prototypes import RoadPrototype, WaymarkPrototype
 
 from .models import Action, ActionIdleness, ActionMoveTo, ActionBattlePvE_1x1, ActionResurrect, ActionQuest, ActionInCity
 
-#TODO: change relations between action from "parent control children" to "parent respond to children messages"
-#      in this case parent actions should not store link to child, and should not be processed,  
-#      until child send to parent message
-
 def get_actions_types():
     actions = {}
     for key, cls in globals().items():
@@ -46,6 +42,9 @@ class ActionPrototype(object):
     @property
     def type(self): return self.base_model.type
 
+    @property
+    def order(self): return self.base_model.order
+
     def get_percents(self): return self.base_model.percents
     def set_percents(self, value): self.base_model.percents = value
     percents = property(get_percents, set_percents)
@@ -61,12 +60,27 @@ class ActionPrototype(object):
     @property
     def STATE(self): return self.model.STATE
 
+    @property
+    def hero_id(self): return self.base_model.hero_id
+
+    @property
+    def hero(self):
+        if not hasattr(self, '_hero'):
+            self._hero = get_hero_by_model(self.base_model.hero)
+        return self._hero
+
     ###########################################
     # Object operations
     ###########################################
 
-    def remove(self): self.base_model.delete()
-    def save(self): self.base_model.save()
+    def remove(self): 
+        if self.model:
+            self.model.delete()
+        self.base_model.delete()
+    def save(self): 
+        if self.model:
+            self.model.save()
+        self.base_model.save()
 
     def ui_info(self):
         return {'id': self.id,
@@ -98,35 +112,19 @@ class ActionIdlenessPrototype(ActionPrototype):
     # Object operations
     ###########################################
 
-    def remove(self): 
-        self.model.delete()
-        super(ActionIdlenessPrototype, self).remove()
-
-    def save(self):
-        self.model.save()
-        super(ActionIdlenessPrototype, self).save()
-
     def ui_info(self):
         info = super(ActionIdlenessPrototype, self).ui_info()
         return info
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, hero):
-        base_model = Action.objects.create( type=cls.TYPE, percents=0.0)
-        
-        model = ActionIdleness.objects.create( base_action=base_model, hero=hero.model)
-
+    def create(cls, parent_order, hero):
+        base_model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=hero.model, order=parent_order+1)
+        model = ActionIdleness.objects.create( base_action=base_model)
         action = cls(base_model=base_model, model=model)
-
-        hero.push_action(action)
-        hero.save()
-
         return action
 
     def process(self):
-
-        hero = get_hero_by_model(self.model.hero)
 
         if self.entropy_action:
             if self.entropy_action.state == self.entropy_action.STATE.PROCESSED:
@@ -135,13 +133,13 @@ class ActionIdlenessPrototype(ActionPrototype):
             else:
                 return
 
-        if not self.entropy_action and not hero.is_alive:         
+        if not self.entropy_action and not self.hero.is_alive:         
             
-            if hero.is_npc:
+            if self.hero.is_npc:
                 return
 
             self.entropy = 0
-            self.entropy_action = ActionResurrectPrototype.create(hero=hero)
+            self.entropy_action = ActionResurrectPrototype.create(hero=self.hero, parent_order=self.order)
             self.save()
             return
 
@@ -150,19 +148,19 @@ class ActionIdlenessPrototype(ActionPrototype):
             from ..quests.logic import create_random_quest_for_hero
 
             self.entropy = 0
-            hero.create_tmp_log_message('Entropy filled, receiving new quest')
-            quest = create_random_quest_for_hero(hero)
-            action = quest.create_action()
+            self.hero.create_tmp_log_message('Entropy filled, receiving new quest')
+            quest = create_random_quest_for_hero(self.hero)
+            action = quest.create_action(self)
             self.entropy_action = action
 
-        if self.entropy >= self.ENTROPY_BARRIER / 2 and (hero.need_trade_in_town or hero.need_rest_in_town) and hero.position.is_settlement:
-            self.entropy_action = ActionInCityPrototype.create(hero=hero, settlement=hero.position.place)
+        if self.entropy >= self.ENTROPY_BARRIER / 2 and (self.hero.need_trade_in_town or self.hero.need_rest_in_town) and self.hero.position.is_settlement:
+            self.entropy_action = ActionInCityPrototype.create(hero=self.hero, settlement=self.hero.position.place, parent_order=self.order)
         else:
-            self.entropy = self.entropy + random.randint(1, hero.chaoticity)
+            self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
 
             self.percents = float(self.entropy) / self.ENTROPY_BARRIER
 
-            hero.create_tmp_log_message('do nothing')
+            self.hero.create_tmp_log_message('do nothing')
 
         self.save()
 
@@ -196,36 +194,22 @@ class ActionQuestPrototype(ActionPrototype):
     # Object operations
     ###########################################
 
-    def remove(self): 
-        super(ActionQuestPrototype, self).remove()
-
-    def save(self):
-        self.model.save()
-        super(ActionQuestPrototype, self).save()
-
     def ui_info(self):
         info = super(ActionQuestPrototype, self).ui_info()
         return info
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, quest):
-        base_model = Action.objects.create( type=cls.TYPE, percents=0.0)
-        
+    def create(cls, parent_order, hero, quest):
+        base_model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=hero.model, order=parent_order+1)
         model = ActionQuest.objects.create( base_action=base_model, 
                                             quest=quest.base_model)
-
         action = cls(base_model=base_model, model=model)
-
-        for hero in quest.heroes:
-            hero.push_action(action)
-            hero.save()
-
         return action
 
     def process(self):
 
-        if not self.quest.hero.is_alive:
+        if not self.hero.is_alive:
             self.quest.remove()
             self.state = self.STATE.PROCESSED
             if self.quest_action:
@@ -288,23 +272,9 @@ class ActionMoveToPrototype(ActionPrototype):
         self.model.entropy_action = value.base_model if value else None
     entropy_action = property(get_entropy_action, set_entropy_action)
 
-    @property
-    def hero(self):
-        if not hasattr(self, '_hero'):
-            self._hero = get_hero_by_model(self.model.hero)
-        return self._hero
-
     ###########################################
     # Object operations
     ###########################################
-
-    def remove(self): 
-        self.model.delete()
-        super(ActionMoveToPrototype, self).remove()
-
-    def save(self):
-        self.model.save()
-        super(ActionMoveToPrototype, self).save()
 
     def ui_info(self):
         info = super(ActionMoveToPrototype, self).ui_info()
@@ -314,19 +284,11 @@ class ActionMoveToPrototype(ActionPrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, hero, destination):
-        base_model = Action.objects.create( type=cls.TYPE, 
-                                            percents=0.0)
-        
+    def create(cls, parent_order, hero, destination):
+        base_model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=hero.model, order=parent_order+1)
         model = ActionMoveTo.objects.create( base_action=base_model, 
-                                             hero=hero.model,
                                              destination=destination.model)
-
         action = cls(base_model=base_model, model=model)
-
-        hero.push_action(action)
-        hero.save()
-
         return action
 
     @nested_commit_on_success
@@ -355,11 +317,7 @@ class ActionMoveToPrototype(ActionPrototype):
         if self.state == self.STATE.CHOOSE_ROAD:
             if self.hero.position.place.id != self.destination.id:
                 self.road = WaymarkPrototype.look_for_road(point_from=self.hero.position.place, point_to=self.destination)
-                # print 'destination: %s' % self.destination
-                # print 'hero pos: %s' % self.hero.position.place
-                # print 'hero road %s' % self.road
                 position.set_road(self.road, invert=self.hero.position.place.id != self.road.point_1_id)
-                # print 'invert: %s' % position.invert_direction
                 self.state = self.STATE.MOVING
             else:
                 self.percents = 1
@@ -369,16 +327,12 @@ class ActionMoveToPrototype(ActionPrototype):
 
             current_destination = self.road.point_2 if not position.invert_direction else self.road.point_1
 
-            # print 'hero road %s' % self.road
-            # print 'invert: %s' % position.invert_direction
-            # print 'current_destination: %s' % current_destination
-
             self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
 
             if self.entropy >= self.ENTROPY_BARRIER:
                 self.entropy = 0
                 npc = create_npc_for_hero(self.hero)
-                self.entropy_action = ActionBattlePvE_1x1Prototype.create(hero=self.hero, npc=npc)
+                self.entropy_action = ActionBattlePvE_1x1Prototype.create(parent_order=self.order, hero=self.hero, npc=npc)
             else:
                 self.hero.create_tmp_log_message('I go, I go, I go to %s' % current_destination.name)
             
@@ -393,7 +347,7 @@ class ActionMoveToPrototype(ActionPrototype):
                     position.set_place(current_destination)
                     
                     if current_destination.is_settlement:
-                        self.entropy_action = ActionInCityPrototype.create(hero=self.hero, settlement=current_destination)
+                        self.entropy_action = ActionInCityPrototype.create(parent_order=self.order, hero=self.hero, settlement=current_destination)
                     else:
                         if position.place.id == self.destination.id:
                             self.state = self.STATE.PROCESSED
@@ -412,15 +366,6 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
     ENTROPY_BARRIER = 35
 
     @property
-    def hero_id(self): return self.model.hero_id
-
-    @property
-    def hero(self):
-        if not hasattr(self, '_hero'):
-            self._hero = get_hero_by_model(self.model.hero)
-        return self._hero
-
-    @property
     def npc(self):
         if not hasattr(self, '_npc'):
             self._npc = get_hero_by_model(self.model.npc)
@@ -434,19 +379,9 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
     def set_npc_initiative(self, value): self.model.npc_initiative = value
     npc_initiative = property(get_npc_initiative, set_npc_initiative)
 
-
-
     ###########################################
     # Object operations
     ###########################################
-
-    def remove(self): 
-        self.model.delete()
-        super(ActionBattlePvE_1x1Prototype, self).remove()
-
-    def save(self):
-        self.model.save()
-        super(ActionBattlePvE_1x1Prototype, self).save()
 
     def ui_info(self):
         info = super(ActionBattlePvE_1x1Prototype, self).ui_info()
@@ -456,22 +391,11 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, hero, npc):
-        base_model = Action.objects.create( type=cls.TYPE, 
-                                            percents=0.0)
-        
+    def create(cls, parent_order, hero, npc):
+        base_model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=hero.model, order=parent_order+1)
         model = ActionBattlePvE_1x1.objects.create( base_action=base_model, 
-                                                    hero=hero.model,
                                                     npc=npc.model)
-
         action = cls(base_model=base_model, model=model)
-
-        hero.push_action(action)
-        hero.save()
-
-        npc.push_action(action)
-        npc.save()
-
         return action
 
     @nested_commit_on_success
@@ -532,27 +456,6 @@ class ActionResurrectPrototype(ActionPrototype):
     MODEL_RELATION_NAME = 'action_resurrect'
     ENTROPY_BARRIER = 35
 
-    @property
-    def hero_id(self): return self.model.hero_id
-
-    @property
-    def hero(self):
-        if not hasattr(self, '_hero'):
-            self._hero = get_hero_by_model(self.model.hero)
-        return self._hero
-
-    ###########################################
-    # Object operations
-    ###########################################
-
-    def remove(self): 
-        self.model.delete()
-        super(ActionResurrectPrototype, self).remove()
-
-    def save(self):
-        self.model.save()
-        super(ActionResurrectPrototype, self).save()
-
     def ui_info(self):
         info = super(ActionResurrectPrototype, self).ui_info()
         info['data'] = {'hero_id': self.hero_id}
@@ -560,19 +463,10 @@ class ActionResurrectPrototype(ActionPrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, hero):
-
-        base_model = Action.objects.create( type=cls.TYPE, 
-                                            percents=0.0)
-        
-        model = ActionResurrect.objects.create( base_action=base_model, 
-                                                hero=hero.model)
-
+    def create(cls, parent_order, hero):
+        base_model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=hero.model, order=parent_order)
+        model = ActionResurrect.objects.create(base_action=base_model)
         action = cls(base_model=base_model, model=model)
-
-        hero.push_action(action)
-        hero.save()
-
         return action
 
     @nested_commit_on_success
@@ -603,15 +497,6 @@ class ActionInCityPrototype(ActionPrototype):
     ENTROPY_BARRIER = 35
 
     @property
-    def hero_id(self): return self.model.hero_id
-
-    @property
-    def hero(self):
-        if not hasattr(self, '_hero'):
-            self._hero = get_hero_by_model(self.model.hero)
-        return self._hero
-
-    @property
     def city_id(self): return self.model.city_id
 
     def get_rested(self): return self.model.rested
@@ -630,14 +515,6 @@ class ActionInCityPrototype(ActionPrototype):
     # Object operations
     ###########################################
 
-    def remove(self): 
-        self.model.delete()
-        super(ActionInCityPrototype, self).remove()
-
-    def save(self):
-        self.model.save()
-        super(ActionInCityPrototype, self).save()
-
     def ui_info(self):
         info = super(ActionInCityPrototype, self).ui_info()
         info['data'] = {'hero_id': self.hero_id,
@@ -647,20 +524,11 @@ class ActionInCityPrototype(ActionPrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, hero, settlement):
-
-        base_model = Action.objects.create( type=cls.TYPE, 
-                                            percents=0.0)
-        
+    def create(cls, parent_order, hero, settlement):
+        base_model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=hero.model, order=parent_order+1)
         model = ActionInCity.objects.create( base_action=base_model, 
-                                             hero=hero.model,
                                              city=settlement.model)
-
         action = cls(base_model=base_model, model=model)
-
-        hero.push_action(action)
-        hero.save()
-
         return action
 
     @nested_commit_on_success

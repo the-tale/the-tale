@@ -46,9 +46,9 @@ class QuestPrototype(object):
     def heroes(self): return []
 
     @nested_commit_on_success
-    def create_action(self):
+    def create_action(self, parent_action):
         from ..actions.prototypes import ActionQuestPrototype
-        return ActionQuestPrototype.create(quest=self)
+        return ActionQuestPrototype.create(parent_action.order, parent_action.hero, quest=self)
 
     @property
     def STATE(self): return self.model.STATE
@@ -166,7 +166,8 @@ class QuestMailDeliveryPrototype(QuestPrototype):
                 self.hero.create_tmp_log_message('take mail and go to destination')
 
                 if self.hero.position.place.id != self.delivery_to.id:
-                    action.quest_action = ActionMoveToPrototype.create(hero=self.hero, 
+                    action.quest_action = ActionMoveToPrototype.create(parent_order=action.order,
+                                                                       hero=self.hero, 
                                                                        destination=self.delivery_to)
                     action.quest_action.process()
 

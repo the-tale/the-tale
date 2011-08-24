@@ -1,0 +1,84 @@
+# -*- coding: utf-8 -*-
+import subprocess
+from django.core.management.base import BaseCommand
+
+from django_next.utils.decorators import nested_commit_on_success
+
+from ...roads.models import Road
+from ...places.models import Place, TERRAIN, PLACE_TYPE
+
+class Command(BaseCommand):
+
+    help = 'create test map'
+
+    def handle(self, *args, **options):
+
+        self.create_map()
+
+        subprocess.call(['./manage.py', 'map_update_map'])
+
+
+
+    def create_place(self, x, y, terrain, size):
+        return Place.objects.create( x=x,
+                                     y=y,
+                                     name='%dx%d' % (x, y),
+                                     terrain=terrain, 
+                                     type=PLACE_TYPE.CITY,
+                                     subtype='UNDEFINED',
+                                     size=size)
+
+    def create_road(self, p1, p2):
+        return Road.objects.create(point_1=p1, point_2=p2)
+
+
+    @nested_commit_on_success
+    def create_map(self):
+
+        Place.objects.all().delete()
+        Road.objects.all().delete()
+
+        p1x1   = self.create_place(1,  1,  TERRAIN.DESERT, size=1)
+        p14x1  = self.create_place(14, 1,  TERRAIN.FOREST, size=1)
+        p27x1  = self.create_place(27, 1,  TERRAIN.SWAMP,  size=6)
+        p5x3   = self.create_place(5,  3,  TERRAIN.DESERT, size=5)
+        p1x9   = self.create_place(1,  9,  TERRAIN.FOREST, size=6)
+        p5x12  = self.create_place(5,  12, TERRAIN.GRASS,  size=1)
+        p3x17  = self.create_place(3,  17, TERRAIN.GRASS,  size=10)
+        p10x18 = self.create_place(10, 18, TERRAIN.FOREST, size=3)
+        p11x11 = self.create_place(11, 11, TERRAIN.SWAMP,  size=4)
+        p11x6  = self.create_place(11, 6,  TERRAIN.DESERT, size=4)
+        p19x5  = self.create_place(19, 5,  TERRAIN.FOREST, size=3)
+        p20x8  = self.create_place(20, 8,  TERRAIN.GRASS,  size=9)
+        p24x8  = self.create_place(24, 8,  TERRAIN.FOREST, size=12)
+        p17x12 = self.create_place(17, 12, TERRAIN.GRASS,  size=2)
+        p19x17 = self.create_place(19, 17, TERRAIN.FOREST, size=8)
+        p24x13 = self.create_place(24, 13, TERRAIN.FOREST, size=1)
+        p27x13 = self.create_place(27, 13, TERRAIN.GRASS,  size=1)
+        p28x19 = self.create_place(28, 19, TERRAIN.SWAMP,  size=3)
+
+        self.create_road(p1x1,   p5x3)
+        self.create_road(p5x3,   p1x9)
+        self.create_road(p5x3,   p11x6)
+        self.create_road(p1x9,   p5x12)
+        self.create_road(p5x12,  p3x17)
+        self.create_road(p5x12,  p11x11)
+        self.create_road(p3x17,  p10x18)
+        self.create_road(p11x11, p10x18)
+        self.create_road(p11x11, p11x6)
+        self.create_road(p11x11, p19x17)
+        self.create_road(p11x11, p17x12)
+        self.create_road(p11x11, p20x8)
+        self.create_road(p11x6,  p14x1)
+        self.create_road(p14x1,  p27x1)
+        self.create_road(p27x1,  p24x8)
+        self.create_road(p24x8,  p20x8)
+        self.create_road(p24x8,  p24x13)
+        self.create_road(p24x8,  p27x13)
+        self.create_road(p20x8,  p19x5)
+        self.create_road(p20x8,  p17x12)
+        self.create_road(p19x17, p24x13)
+        self.create_road(p28x19, p24x13)
+        self.create_road(p28x19, p27x13)        
+
+        

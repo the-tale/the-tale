@@ -18,3 +18,7 @@ class Command(BaseCommand):
 
         subprocess.call(['./manage.py', 'map_generate_map',
                          '--config', config_file.name])
+
+        subprocess.call(['./manage.py', 'roads_update_roads'])
+
+        subprocess.call(['./manage.py', 'roads_update_waymarks'])
