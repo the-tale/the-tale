@@ -38,6 +38,13 @@ class FirstHeroCardForm(forms.Form):
                                    min_value=attrs.primary.reflexes.initial[0],
                                    max_value=attrs.primary.reflexes.initial[1])
 
+    charisma = fields.IntegerField(label='charisma',
+                                   pgf={'type': 'integer-interval',
+                                        'limited-by': 'free_points'},
+                                   initial=attrs.primary.charisma.initial[0],
+                                   min_value=attrs.primary.charisma.initial[0],
+                                   max_value=attrs.primary.charisma.initial[1])
+
     chaoticity = fields.IntegerField(label='chaoticity',
                                      pgf={'type': 'integer-interval',
                                           'limited-by': 'free_points'},
@@ -55,7 +62,11 @@ class FirstHeroCardForm(forms.Form):
             except Hero.DoesNotExist:
                 pass
 
-        points_sum = cleaned_data['intellect'] + cleaned_data['constitution'] + cleaned_data['reflexes'] + cleaned_data['chaoticity']
+        points_sum = ( cleaned_data['intellect'] + 
+                       cleaned_data['constitution'] + 
+                       cleaned_data['reflexes'] + 
+                       cleaned_data['charisma'] + 
+                       cleaned_data['chaoticity'] )
         if attrs.primary.TOTAL_POINTS != points_sum:
             raise forms.forms.ValidationError(u'Вы не распределили все очки')
 

@@ -248,8 +248,8 @@ class HeroPrototype(object):
                              'chaoticity': self.chaoticity },
                 'secondary': { 'min_damage': self.min_damage,
                                'max_damage': self.max_damage,
-                               'move_speed': self.move_speed,
-                               'battle_speed': self.battle_speed,
+                               'move_speed': round(self.move_speed, 2),
+                               'battle_speed': round(self.battle_speed, 2),
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': loot_items_count},
                 'accumulated': { }
@@ -258,7 +258,7 @@ class HeroPrototype(object):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, angel, name, first, intellect, constitution, reflexes, chaoticity, npc=False):
+    def create(cls, angel, name, first, intellect, constitution, reflexes, chaoticity, charisma, npc=False):
         from game.actions.prototypes import ActionIdlenessPrototype
 
         hero = Hero.objects.create(angel=angel.model if not npc else None,

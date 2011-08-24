@@ -44,7 +44,7 @@ class ArtifactConstructor(object):
         return 0
 
     def generate_artifact(self):
-        artifact = ArtifactPrototype(tp=self.TYPE)
+        artifact = ArtifactPrototype(tp=self.TYPE, subtype=self.SUBTYPE)
 
         artifact.set_name(self.generate_name())
         artifact.set_cost(self.generate_cost())

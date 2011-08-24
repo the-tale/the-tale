@@ -161,13 +161,14 @@ class FirstHeroCard(CardPrototype):
 
     @nested_commit_on_success
     def activate(self, resource, form):
-        hero = HeroPrototype.create(angel=resource.angel,
-                                    name=form.c.name,
-                                    first=True,
-                                    intellect=form.c.intellect,
-                                    constitution=form.c.constitution,
-                                    reflexes=form.c.reflexes,
-                                    chaoticity=form.c.chaoticity)
+        HeroPrototype.create(angel=resource.angel,
+                             name=form.c.name,
+                             first=True,
+                             intellect=form.c.intellect,
+                             constitution=form.c.constitution,
+                             reflexes=form.c.reflexes,
+                             charisma=form.c.charisma,
+                             chaoticity=form.c.chaoticity)
         self.remove()
 
 

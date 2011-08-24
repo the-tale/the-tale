@@ -44,6 +44,7 @@ class Effect(object):
 
 
 class WeaponBase(Effect):
+    TYPE = 'WEAPON_BASE'
 
     BATTLE_SPEED_BASE = None
     DAMAGE_BASE = None
@@ -63,11 +64,10 @@ class WeaponBase(Effect):
 
         self.raw_effects[RAW_EFFECT_TYPE.MIN_DAMAGE] = int(round(min_damage))
         self.raw_effects[RAW_EFFECT_TYPE.MAX_DAMAGE] = int(round(max_damage))
-        self.raw_effects[RAW_EFFECT_TYPE.BATTLE_SPEED] = battle_speed
+        self.raw_effects[RAW_EFFECT_TYPE.BATTLE_SPEED] = round(battle_speed, 2)
 
 
 class SwordBase(WeaponBase):
-    TYPE = 'SWORD_BASE'
     COST = 2
 
     BATTLE_SPEED_BASE = 0.1

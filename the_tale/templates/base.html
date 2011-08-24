@@ -10,6 +10,9 @@
     <script src="{{ STATIC_URL }}plugins/jquery/jquery-ui-1.8.9/js/jquery-ui-1.8.9.custom.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="{{ STATIC_URL }}plugins/jquery/jquery.url.js" type="text/javascript"></script>
 
+    <script src="{{ STATIC_URL }}plugins/jquery/tipsy/jquery.tipsy.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}plugins/jquery/tipsy/tipsy.css" />
+
     <script src="{{ STATIC_URL }}common/base.js" type="text/javascript"></script>
     <script src="{{ STATIC_URL }}common/dialog.js" type="text/javascript"></script>
     <script src="{{ STATIC_URL }}common/forms.js" type="text/javascript"></script>
@@ -21,29 +24,33 @@
 
     <script type="text/javascript">
 
-jQuery.ajaxSetup({
-    beforeSend: function(xhr, settings) {
+jQuery(document).ready(function() {
 
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie != '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
-                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
+    jQuery.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
                     }
                 }
+                return cookieValue;
             }
-            return cookieValue;
+            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken') );
+            }
         }
-        if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken') );
-        }
-    }
-});
+    });
 
+    pgf.tooltips.Init();
+});
     </script>
 
     {% block head %}{% endblock%}

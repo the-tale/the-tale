@@ -24,7 +24,7 @@ class attributes:
     class base(AttributeContainer):
         class wisdom(Attribute): 
             initial = 1
-            name = u'wisdom'
+            name = u'мудрость'
             description = u'Мера мудрости героя, изначально для всех героев равна 1, растёт со временем (по мере выполнения квестов), влияет на точность действий, открывает новые ходы в заданиях, так же влияет на влияние, оказываемое героем на окружающую среду.'
 
 
@@ -35,27 +35,27 @@ class attributes:
 
         class intellect(Attribute): 
             initial = (1, 5) 
-            name = u'intellect' 
+            name = u'интеллект' 
             description = u'Характеризует скорость обучения героя, скорость решения загадок и принятия прочих решений, открывает ходы в квестах, влияет на критический урон, скрость прочтения заклинаний'
 
         class constitution(Attribute): 
             initial = (1, 5) 
-            name = u'constitution' 
+            name = u'телосложение' 
             description = u'Телосложение героя, влияет на его здоровье и физическую силу и, соответственно, повреждения в бою'
 
         class reflexes(Attribute): 
             initial = (1, 5) 
-            name = u'reflexes'
+            name = u'рефлексы'
             description = u'Рефлексы, скорость реакции, влияет на очередность действий в бою, успешность комбо приёмов, уклонение и прочую защиту'
 
         class charisma(Attribute): 
             initial = (1, 5) 
-            name = u'charisma'
+            name = u'харизма'
             description = u'Харазма влияет на отношение к герою других персонажей, в том числе на награды получаемые им за выполнение заданий, цены купли/продажи и влияние героя на места, которые он посещает'
 
         class chaoticity(Attribute): 
             initial = (1, 5) 
-            name = u'chaoticity' 
+            name = u'хаотичность' 
             description = u'Мера хаотичности героя, чем больше, тем чаще с ним будут происходить экстроардинарные события: критически попадая по нему/им, промахи, встречи, особый лут'
 
     
@@ -63,7 +63,7 @@ class attributes:
 
         class move_speed(Attribute):
 
-            name = u'move speed'
+            name = u'скорость путешествия'
             description = u'Скорость передвижения героя по карте (км/ход)'
 
             @classmethod
@@ -72,7 +72,7 @@ class attributes:
 
         class battle_speed(Attribute):
 
-            name = u'move speed'
+            name = u'скорость в бою'
             description = u'Скорость действий героя в бою, чем больше - тем лучше'
 
             @classmethod
@@ -81,7 +81,7 @@ class attributes:
 
         class max_health(Attribute):
 
-            name = u'max_health'
+            name = u'максимальный запас здорвья'
             description = u'Максимальный запас здоровья героя'
 
             @classmethod
@@ -93,7 +93,7 @@ class attributes:
                 return 25 + constitution * 10 + wisdom
 
         class min_damage(Attribute):
-            name = u'min_damage'
+            name = u'минимальный урон'
             description = u'Минимальный урон, наносимый героем'
 
             @classmethod
@@ -101,7 +101,7 @@ class attributes:
                 return max(1, int((hero.constitution * 2 + hero.reflexes * 2 + hero.intellect) / 3.0 - hero.chaoticity) )
 
         class max_damage(Attribute):
-            name = u'max_damage'
+            name = u'максимальный урон'
             description = u'Максимальный урон, наносимый героем'
 
             @classmethod
@@ -110,7 +110,7 @@ class attributes:
 
         class max_bag_size(Attribute):
 
-            name = u'bag size'
+            name = u'размер рюкзака'
             description = u'Максимальная вместимость рюкзака'
 
             @classmethod
@@ -128,7 +128,7 @@ class actions:
 
         class strike(Attribute):
 
-            name = u'strike'
+            name = u'удар'
             description = u'Атакующий герой бьёт защищающегося'
 
             class StrikeInfo(object):
@@ -150,7 +150,7 @@ class actions:
 
         class heal_in_town(Attribute):
 
-            name = u'heal in town'
+            name = u'лечение в городе'
             description = u'лечение героя в городе'
 
             @classmethod
@@ -161,7 +161,7 @@ class actions:
 
         class trade_in_town(Attribute):
             
-            name = u'trade in town'
+            name = u'торговля в городе'
             description = u'торговля в городе'
 
             @classmethod
@@ -181,7 +181,7 @@ class actions:
     class equipping(AttributeContainer):
 
         class equip_in_town(Attribute):
-            name = u'equip in town'
+            name = u'экипировка в городе'
             description = u'управление обмундированием в городе'
 
             @classmethod
@@ -229,7 +229,7 @@ class needs:
 
         class rest(Attribute):
 
-            name = u'rest required'
+            name = u'необходимость отдыха'
             description = u'необходим ли герою отдых'
 
             @classmethod
@@ -238,7 +238,7 @@ class needs:
 
         class trade(Attribute):
 
-            name = u'trade required'
+            name = u'необходимость торговли'
             description = u'необходимо ли герою избавиться от лута'
 
             @classmethod
@@ -248,7 +248,7 @@ class needs:
 
         class equipping(Attribute):
 
-            name = u'equipping required'
+            name = u'необходимость смены экипировки'
             description = u'необходимо ли герою поменять снаряжение'
 
             @classmethod

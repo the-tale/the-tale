@@ -155,15 +155,12 @@
             background: gray;
         }
 
-        td {
-            vertical-align: middle;
-        }
-        
         .icon {
             margin: 0 auto;
             width: @action-icon-size;
             height: @action-icon-size;
-            display: block;
+            display: inline-block;
+            vertical-align: middle;
         }
 
         &.firstherocard .icon {
@@ -173,6 +170,7 @@
         &.pushtoquestcard .icon {
             background: url("/static/tmp/kick-card.png") no-repeat scroll 0 0 transparent;
         }
+
     }
 }
 

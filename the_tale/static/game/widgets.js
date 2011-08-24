@@ -356,12 +356,42 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     });
 };
 
+pgf.game.widgets.RenderItemTootltip = function(tooltip, data) {
+
+    jQuery('.pgf-name', tooltip).text(data.name);
+    jQuery('.pgf-type', tooltip).text(data.type);
+
+    if (data.subtype) {
+        jQuery('.pgf-subtype-enabled', tooltip).removeClass('pgf-hidden');
+        jQuery('.pgf-subtype', tooltip).text(data.subtype);
+    }
+
+    for (var i in data.effects) {
+        var effect = data.effects[i];
+
+        for (var raw_effect in effect.raw_effects) {
+            jQuery('.pgf-raw-effect-'+raw_effect, tooltip).text(effect.raw_effects[raw_effect]);
+        }
+
+        switch(effect.type) {
+        case 'WEAPON_BASE': {
+            jQuery('.pgf-effect-weapon-base', tooltip).removeClass('pgf-hidden');
+            break;
+        }
+        }
+    }
+
+    return tooltip;
+};
+
 
 pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     var instance = this;
 
     var widget = jQuery(selector);
     var bagContainer = jQuery('.pgf-bag-container', widget);
+
+    var tooltipTemplate = jQuery(params.tooltipTemplate);
 
     var data = {};
 
@@ -370,6 +400,10 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     function RenderItem(index, data, element) {
         jQuery('.pgf-name', element).text(data.name);
         jQuery('.pgf-cost', element).text(data.cost);
+
+        var tooltipContainer = jQuery('.pgf-tooltip-container', element);
+        var tooltip = tooltipTemplate.clone().removeClass('pgf-hidden');
+        tooltipContainer.html(pgf.game.widgets.RenderItemTootltip(tooltip, data));
     }
 
     function RenderItems() {
@@ -415,10 +449,15 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
 
     var data = {};
 
-    var instance = this;
+    var instance = this;   
+    
+    var tooltipTemplate = jQuery(params.tooltipTemplate);
 
     function RenderArtifact(element, data) {
         element.text(data.name);
+        var tooltipContainer = element.siblings('.pgf-tooltip-container');
+        var tooltip = tooltipTemplate.clone().removeClass('pgf-hidden');
+        tooltipContainer.html(pgf.game.widgets.RenderItemTootltip(tooltip, data));
     }
 
     function RenderEquipment() {
@@ -505,6 +544,7 @@ pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
     var deckContainer = jQuery('.pgf-cards-list', widget);
     var activateCardWidget = jQuery('#activate-card-block');
     var activateCardFormBlock = jQuery('.pgf-activate-form', activateCardWidget);
+    var tooltipTemplate = jQuery(params.tooltipTemplate);
 
     jQuery('.pgf-cancel', activateCardWidget).click(function(e){
         e.preventDefault();
@@ -580,6 +620,15 @@ pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
         
     }
 
+    function RenderCardTootltip(tooltip, card) {
+
+        jQuery('.pgf-name', tooltip).text(card.name);
+        jQuery('.pgf-description', tooltip).text(card.description);
+        jQuery('.pgf-artistic', tooltip).text(card.artistic);
+
+        return tooltip;
+    };
+
     function RenderCard(index, card, element) {
         jQuery('.pgf-name', element).text(card.name);
         element.addClass( 'card-' + card.id + ' ' +card.type.toLowerCase() );
@@ -590,6 +639,10 @@ pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
             e.preventDefault();
             ActivateCard(card);
         });
+
+        var tooltipContainer = jQuery('.pgf-tooltip-container', element);
+        var tooltip = tooltipTemplate.clone().removeClass('pgf-hidden');
+        tooltipContainer.html(RenderCardTootltip(tooltip, card));
     }
 
     function RenderDeck() {
@@ -610,138 +663,6 @@ pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
 
     this.Render = function() {
         RenderDeck();
-    };
-
-    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
-        instance.Refresh();
-        instance.Render();
-    });
-};
-
-pgf.game.widgets.CardsOld = function(selector, updater, widgets, params) {
-
-    var instance = this;
-
-    var content = jQuery(selector);
-    var deckContainer = jQuery('.pgf-cards-list', content);
-    var tooltipTemplate = jQuery(params.tooltipTemplate);
-
-    var deck = {};
-    var turn = {};
-
-    function ActivateCard(e) {
-
-        e.preventDefault();
-
-        var link = jQuery(e.target);
-
-        var cardEl = link.closest('.pgf-card-record');
-
-        var info = deck[link.data('id')];
-
-        if (info.cooldown_end > turn.number) {
-            return;
-        }
-
-        var formUrl = info.form_link;
-        var useForm = info.use_form;
-
-        var currentHero = widgets.heroes.CurrentHero();
-        var heroId = undefined;
-        if (currentHero) {
-            heroId = currentHero.id;
-        }
-
-        if (useForm) {
-
-            var tab = widgets.tabs.OpenTab('tmp');
-
-            function OnSuccessActivation(form, data) {
-                info.cooldown_end = data.data.cooldown_end;
-                if (info.cooldown_end) cardEl.toggleClass('cooldown', true);
-
-                widgets.tabs.OpenTab('cards');
-                updater.Refresh();
-            }
-
-            jQuery.ajax({
-                type: 'get',
-                url: formUrl,
-                success: function(data, request, status) {
-                    tab.html(data);
-
-                    if (heroId !== undefined) {
-                        jQuery('#hero_id', tab).val(heroId);
-                    }
-
-                    var activationForm = new pgf.forms.Form(jQuery('form', tab),
-                                                            {action: card.activation_link,
-                                                             OnSuccess: OnSuccessActivation});
-                },
-                error: function(request, status, error) {
-                },
-                complete: function(request, status) {
-                }
-            });
-        }
-        else {
-            var ajax_data = {};
-            if (heroId !== undefined) {
-                ajax_data.hero_id = heroId;
-            }
-            pgf.forms.Post({action: card.activation_link,
-                            data: ajax_data,
-                            OnSuccess: function(data) {
-                                info.cooldown_end = data.data.cooldown_end;
-                                if (info.cooldown_end) cardEl.toggleClass('cooldown', true);
-                            }
-                           });
-        }
-
-    };
-
-    function RenderCard(index, data, element) {
-        jQuery('.pgf-card-name', element).text(data.name);
-        jQuery('.pgf-card-form-link', element)
-            .data('id', data.id)
-            .click(ActivateCard);
-
-        element.toggleClass('pgf-tooltip-target');
-
-        if (data.cooldown_end > turn.number) {
-            element.toggleClass('cooldown', true);
-        }
-
-        function ShowTooltip() {
-            var tooltip = tooltipTemplate.clone().removeClass('pgf-template');
-
-            jQuery('.pgf-card-name', tooltip).text(data.name);
-            jQuery('.pgf-card-description', tooltip).text(data.description);
-            jQuery('.pgf-card-artistic', tooltip).text(data.artistic);
-            jQuery('.pgf-card-available-after-value', tooltip).text(data.cooldown_end - turn.number);
-
-            jQuery('.pgf-card-available-after', tooltip).toggleClass('pgf-hidden', data.cooldown_end - turn.number <= 0);
-
-            return tooltip;
-        }
-
-        pgf.tooltip.Set(element, 'function', ShowTooltip);
-    }
-
-    this.Refresh = function() {
-        deck = updater.data.data.deck;
-        turn = updater.data.data.turn;
-    };
-
-    this.Render = function() {
-
-        var cards = [];
-        
-        for (var cardIndex in deck) {
-            cards.push(deck[cardIndex]);
-        }
-        
-        pgf.base.RenderTemplateList(deckContainer, cards, RenderCard, {});
     };
 
     jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){

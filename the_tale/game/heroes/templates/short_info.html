@@ -1,67 +1,94 @@
 
 <div>
-  <strong class="name">(<span class="pgf-wisdom"></span>) <span class="pgf-name"></span></strong> 
+  <strong class="name" data-tooltip="имя и мудрость героя">
+    (<span class="pgf-wisdom"></span>) <span class="pgf-name"></span>
+  </strong> 
+
   <div class="health-bar">
-    <div class="stats-bar pgf-health-bar">
-      <div class="layer layer-0 pgf-layer-0"></div>
-      <div class="layer layer-1 pgf-layer-1"></div>
+    <div class="tooltip-wrapper" data-tooltip="здоровье героя: текущее/максимальное">
+      <div class="stats-bar pgf-health-bar">
+        <div class="layer layer-0 pgf-layer-0"></div>
+        <div class="layer layer-1 pgf-layer-1"></div>
+      </div>
+      <span class="pgf-health"></span>/<span class="pgf-max-health"></span>
     </div>
-    <span class="pgf-health"></span>/<span class="pgf-max-health"></span> + 53
   </div>
+
   <table class="stats"> 
     <tbody>
+
       <tr>
-        <td class="stat-record">
-          <img class="stat-icon" src="{{ STATIC_URL }}tmp/intellect-icon.png"/>
-          <span class="stat-value pgf-intellect"></span>
+        <td class="stat-record pgf-tooltip">
+          <div class="tooltip-wrapper" data-tooltip="интеллект">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/intellect-icon.png"/>
+            <span class="stat-value pgf-intellect"></span>
+          </div>
         </td>
         <td class="stat-record">
-          <img class="stat-icon" src="{{ STATIC_URL }}tmp/armor-icon.gif"/>
-          <span class="stat-value"></span>
+          <div class="tooltip-wrapper" data-tooltip="броня">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/armor-icon.gif"/>
+            <span class="stat-value"></span>
+          </div>
         </td>
       </tr>
 
       <tr>
         <td class="stat-record">
-          <img class="stat-icon" src="{{ STATIC_URL }}tmp/constitution-icon.png"/>
-          <span class="stat-value pgf-constitution"></span>
+          <div class="tooltip-wrapper" data-tooltip="телосложение">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/constitution-icon.png"/>
+            <span class="stat-value pgf-constitution"></span>
+          </div>
         </td>
         <td class="stat-record">
-          <img class="stat-icon" src="{{ STATIC_URL }}tmp/gold-icon.png"/>
-          <span class="stat-value pgf-money"></span>
-        </td>
-      </tr>
-
-      <tr>
-        <td class="stat-record">
-          <img class="stat-icon" src="{{ STATIC_URL }}tmp/reflexes-icon.jpg"/>
-          <span class="stat-value pgf-reflexes"></span>
-        </td>
-        <td class="stat-record">
-          <img class="stat-icon" src="{{ STATIC_URL }}tmp/damage-icon.png"/>
-          <span class="pgf-min-damage"></span> - <span class="pgf-max-damage"></span>
+          <div class="tooltip-wrapper" data-tooltip="золото">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/gold-icon.png"/>
+            <span class="stat-value pgf-money"></span>
+          </div>
         </td>
       </tr>
 
       <tr>
         <td class="stat-record">
-          <img class="stat-icon" src="{{ STATIC_URL }}tmp/charisma-icon.png"/> 
-          <span class="stat-value pgf-charisma"></span>
+          <div class="tooltip-wrapper" data-tooltip="рефлексы">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/reflexes-icon.jpg"/>
+            <span class="stat-value pgf-reflexes"></span>
+          </div>
         </td>
         <td class="stat-record">
-          <img class="stat-icon" src="{{ STATIC_URL }}tmp/move_speed.gif"/>
-          <span class="stat-value pgf-move-speed"></span>
+          <div class="tooltip-wrapper" data-tooltip="урон">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/damage-icon.png"/>
+            <span class="pgf-min-damage"></span> - <span class="pgf-max-damage"></span>
+          </div>
         </td>
       </tr>
 
       <tr>
         <td class="stat-record">
-          <img class="stat-icon" src="{{ STATIC_URL }}tmp/chaoticity-icon.png"/> 
-          <span class="stat-value pgf-chaoticity"></span>
+          <div class="tooltip-wrapper" data-tooltip="харизма">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/charisma-icon.png"/> 
+            <span class="stat-value pgf-charisma"></span>
+          </div>
         </td>
         <td class="stat-record">
-          <img class="stat-icon" src="{{ STATIC_URL }}tmp/battle_speed.gif"/>
-          <span class="stat-value pgf-battle-speed"></span>
+          <div class="tooltip-wrapper" data-tooltip="скорость путешествия">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/move_speed.gif"/>
+            <span class="stat-value pgf-move-speed"></span>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td class="stat-record">
+          <div class="tooltip-wrapper" data-tooltip="хаотичность">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/chaoticity-icon.png"/> 
+            <span class="stat-value pgf-chaoticity"></span>
+          </div>
+        </td>
+        <td class="stat-record">
+          <div class="tooltip-wrapper" data-tooltip="скорость в бою">
+            <img class="stat-icon" src="{{ STATIC_URL }}tmp/battle_speed.gif"/>
+            <span class="stat-value pgf-battle-speed"></span>
+          </div>
         </td>
       </tr>
 

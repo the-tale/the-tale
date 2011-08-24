@@ -3,8 +3,9 @@ from .effects import load_effect_from_dict, ACCUMULATED_EFFECTS
 
 class ArtifactPrototype(object):
 
-    def __init__(self, tp=None, quest=False, data=None):
+    def __init__(self, tp=None, subtype=None, quest=False, data=None):
         self.type = tp
+        self.subtype = subtype
         self.name = None
         self.effects = []
         self.cost = 0
@@ -38,6 +39,7 @@ class ArtifactPrototype(object):
 
     def load_from_dict(self, data):
         self.type = data.get('type', None)
+        self.subtype = data.get('subtype', None)
         self.name = data.get('name', '')
         self.cost = data.get('cost', 0)
         self.quest = data.get('quest', False)
@@ -50,6 +52,7 @@ class ArtifactPrototype(object):
 
     def save_to_dict(self):
         return {'type': self.type,
+                'subtype': self.subtype,
                 'name': self.name,
                 'cost': self.cost,
                 'quest': self.quest,
@@ -59,6 +62,7 @@ class ArtifactPrototype(object):
 
     def ui_info(self):
         return {'type': self.type,
+                'subtype': self.subtype,
                 'name': self.name,
                 'cost': self.cost,
                 'quest': self.quest,
