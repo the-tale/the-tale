@@ -6,28 +6,50 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ("quests", "0001_initial"),
+    )
+
     def forwards(self, orm):
         
-        # Adding model 'HeroModel'
-        db.create_table('heroes_heromodel', (
+        # Adding model 'Hero'
+        db.create_table('heroes_hero', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('angel', self.gf('django.db.models.fields.related.ForeignKey')(related_name='heroes', to=orm['angels.Angel'])),
+            ('angel', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='heroes', null=True, blank=True, to=orm['angels.Angel'])),
+            ('npc', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('alive', self.gf('django.db.models.fields.BooleanField')(default=True)),
             ('first', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=150)),
             ('wisdom', self.gf('django.db.models.fields.IntegerField')()),
+            ('health', self.gf('django.db.models.fields.FloatField')(default=0.0)),
+            ('money', self.gf('django.db.models.fields.BigIntegerField')(default=0)),
+            ('equipment', self.gf('django.db.models.fields.TextField')(default='{}')),
+            ('bag', self.gf('django.db.models.fields.TextField')(default='{}')),
             ('intellect', self.gf('django.db.models.fields.IntegerField')()),
             ('constitution', self.gf('django.db.models.fields.IntegerField')()),
             ('reflexes', self.gf('django.db.models.fields.IntegerField')()),
+            ('charisma', self.gf('django.db.models.fields.IntegerField')(default=3)),
             ('chaoticity', self.gf('django.db.models.fields.IntegerField')()),
-            ('folly_energy', self.gf('django.db.models.fields.IntegerField')()),
         ))
-        db.send_create_signal('heroes', ['HeroModel'])
+        db.send_create_signal('heroes', ['Hero'])
+
+        # Adding model 'HeroQuest'
+        db.create_table('heroes_heroquest', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('hero', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['heroes.Hero'])),
+            ('quest', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['quests.Quest'])),
+            ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+        ))
+        db.send_create_signal('heroes', ['HeroQuest'])
 
 
     def backwards(self, orm):
         
-        # Deleting model 'HeroModel'
-        db.delete_table('heroes_heromodel')
+        # Deleting model 'Hero'
+        db.delete_table('heroes_hero')
+
+        # Deleting model 'HeroQuest'
+        db.delete_table('heroes_heroquest')
 
 
     models = {
@@ -78,18 +100,39 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        'heroes.heromodel': {
-            'Meta': {'object_name': 'HeroModel'},
-            'angel': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'heroes'", 'to': "orm['angels.Angel']"}),
+        'heroes.hero': {
+            'Meta': {'object_name': 'Hero'},
+            'alive': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'angel': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'heroes'", 'null': 'True', 'blank': 'True', 'to': "orm['angels.Angel']"}),
+            'bag': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'chaoticity': ('django.db.models.fields.IntegerField', [], {}),
+            'charisma': ('django.db.models.fields.IntegerField', [], {'default': '3'}),
             'constitution': ('django.db.models.fields.IntegerField', [], {}),
+            'equipment': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'first': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'folly_energy': ('django.db.models.fields.IntegerField', [], {}),
+            'health': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'intellect': ('django.db.models.fields.IntegerField', [], {}),
+            'money': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
+            'npc': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'reflexes': ('django.db.models.fields.IntegerField', [], {}),
             'wisdom': ('django.db.models.fields.IntegerField', [], {})
+        },
+        'heroes.heroquest': {
+            'Meta': {'object_name': 'HeroQuest'},
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'hero': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['heroes.Hero']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'quest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['quests.Quest']"})
+        },
+        'quests.quest': {
+            'Meta': {'object_name': 'Quest'},
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'percents': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'state': ('django.db.models.fields.CharField', [], {'default': "'uninitialized'", 'max_length': '50'}),
+            'type': ('django.db.models.fields.CharField', [], {'max_length': '150'})
         }
     }
 

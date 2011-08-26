@@ -8,14 +8,26 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding field 'HeroPosition.invert_direction'
-        db.add_column('places_heroposition', 'invert_direction', self.gf('django.db.models.fields.NullBooleanField')(default=False, null=True, blank=True), keep_default=False)
+        # Adding field 'QuestMailDelivery.hero'
+        db.add_column('quests_questmaildelivery', 'hero', self.gf('django.db.models.fields.related.ForeignKey')(default=0, related_name='+', to=orm['heroes.Hero']), keep_default=False)
+
+        # Adding field 'QuestMailDelivery.delivery_from'
+        db.add_column('quests_questmaildelivery', 'delivery_from', self.gf('django.db.models.fields.related.ForeignKey')(default=0, related_name='quests_mail_delivery_from', to=orm['places.Place']), keep_default=False)
+
+        # Adding field 'QuestMailDelivery.delivery_to'
+        db.add_column('quests_questmaildelivery', 'delivery_to', self.gf('django.db.models.fields.related.ForeignKey')(default=0, related_name='quests_mail_delivery_to', to=orm['places.Place']), keep_default=False)
 
 
     def backwards(self, orm):
         
-        # Deleting field 'HeroPosition.invert_direction'
-        db.delete_column('places_heroposition', 'invert_direction')
+        # Deleting field 'QuestMailDelivery.hero'
+        db.delete_column('quests_questmaildelivery', 'hero_id')
+
+        # Deleting field 'QuestMailDelivery.delivery_from'
+        db.delete_column('quests_questmaildelivery', 'delivery_from_id')
+
+        # Deleting field 'QuestMailDelivery.delivery_to'
+        db.delete_column('quests_questmaildelivery', 'delivery_to_id')
 
 
     models = {
@@ -23,14 +35,6 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Account'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True'})
-        },
-        'actions.action': {
-            'Meta': {'object_name': 'Action'},
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'percents': ('django.db.models.fields.FloatField', [], {}),
-            'state': ('django.db.models.fields.CharField', [], {'default': "'uninitialized'", 'max_length': '50'}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '150'})
         },
         'angels.angel': {
             'Meta': {'object_name': 'Angel'},
@@ -76,51 +80,50 @@ class Migration(SchemaMigration):
         },
         'heroes.hero': {
             'Meta': {'object_name': 'Hero'},
-            'actions': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'heroes'", 'symmetrical': 'False', 'through': "orm['heroes.HeroAction']", 'to': "orm['actions.Action']"}),
-            'angel': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'heroes'", 'to': "orm['angels.Angel']"}),
+            'alive': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'angel': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'heroes'", 'null': 'True', 'blank': 'True', 'to': "orm['angels.Angel']"}),
+            'bag': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'chaoticity': ('django.db.models.fields.IntegerField', [], {}),
+            'charisma': ('django.db.models.fields.IntegerField', [], {'default': '3'}),
             'constitution': ('django.db.models.fields.IntegerField', [], {}),
+            'equipment': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'first': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'folly_energy': ('django.db.models.fields.IntegerField', [], {}),
+            'health': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'intellect': ('django.db.models.fields.IntegerField', [], {}),
+            'money': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
+            'npc': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'reflexes': ('django.db.models.fields.IntegerField', [], {}),
             'wisdom': ('django.db.models.fields.IntegerField', [], {})
         },
-        'heroes.heroaction': {
-            'Meta': {'object_name': 'HeroAction'},
-            'action': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['actions.Action']"}),
-            'hero': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['heroes.Hero']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'order': ('django.db.models.fields.IntegerField', [], {})
-        },
-        'places.heroposition': {
-            'Meta': {'object_name': 'HeroPosition'},
-            'hero': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'position'", 'unique': 'True', 'to': "orm['heroes.Hero']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'invert_direction': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
-            'percents': ('django.db.models.fields.FloatField', [], {'default': 'None', 'null': 'True'}),
-            'place': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'positions'", 'null': 'True', 'to': "orm['places.Place']"}),
-            'road': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'positions'", 'null': 'True', 'to': "orm['roads.Road']"})
-        },
         'places.place': {
-            'Meta': {'object_name': 'Place'},
+            'Meta': {'ordering': "('name',)", 'object_name': 'Place'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
             'size': ('django.db.models.fields.IntegerField', [], {}),
             'subtype': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'terrain': ('django.db.models.fields.CharField', [], {'default': "'.'", 'max_length': '1'}),
             'type': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'x': ('django.db.models.fields.BigIntegerField', [], {}),
             'y': ('django.db.models.fields.BigIntegerField', [], {})
         },
-        'roads.road': {
-            'Meta': {'unique_together': "(('point_1', 'point_2'),)", 'object_name': 'Road'},
+        'quests.quest': {
+            'Meta': {'object_name': 'Quest'},
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'length': ('django.db.models.fields.FloatField', [], {}),
-            'point_1': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"}),
-            'point_2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"})
+            'percents': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'state': ('django.db.models.fields.CharField', [], {'default': "'uninitialized'", 'max_length': '50'}),
+            'type': ('django.db.models.fields.CharField', [], {'max_length': '150'})
+        },
+        'quests.questmaildelivery': {
+            'Meta': {'object_name': 'QuestMailDelivery'},
+            'base_quest': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'mail_delivery'", 'unique': 'True', 'to': "orm['quests.Quest']"}),
+            'delivery_from': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'quests_mail_delivery_from'", 'to': "orm['places.Place']"}),
+            'delivery_to': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'quests_mail_delivery_to'", 'to': "orm['places.Place']"}),
+            'hero': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['heroes.Hero']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         }
     }
 
-    complete_apps = ['places']
+    complete_apps = ['quests']

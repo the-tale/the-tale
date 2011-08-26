@@ -289,6 +289,10 @@ class HeroPrototype(object):
         self.health = 1
         self.position.set_place(PlacePrototype.random_place())
         self.position.save()
+        
+        for action in reversed(self.actions()):
+            if action.on_die():
+                action.save()
 
     def resurrent(self):
         self.health = self.max_health

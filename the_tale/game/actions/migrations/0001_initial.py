@@ -6,6 +6,11 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ("places", "0001_initial"),
+        ("roads", "0001_initial"),
+    )
+
     def forwards(self, orm):
         
         # Adding model 'Action'
@@ -13,80 +18,26 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('type', self.gf('django.db.models.fields.CharField')(max_length=150)),
+            ('hero', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['heroes.Hero'])),
+            ('order', self.gf('django.db.models.fields.IntegerField')()),
             ('percents', self.gf('django.db.models.fields.FloatField')()),
-            ('state', self.gf('django.db.models.fields.CharField')(default='uninitialized', max_length=50)),
+            ('state', self.gf('django.db.models.fields.CharField')(max_length=50)),
             ('entropy', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('leader', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('child_action', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', null=True, to=orm['actions.Action'])),
+            ('quest', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', null=True, to=orm['quests.Quest'])),
+            ('place', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', null=True, to=orm['places.Place'])),
+            ('road', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', null=True, to=orm['roads.Road'])),
+            ('npc', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['heroes.Hero'])),
+            ('data', self.gf('django.db.models.fields.TextField')(default='{}')),
         ))
         db.send_create_signal('actions', ['Action'])
-
-        # Adding model 'ActionIdleness'
-        db.create_table('actions_actionidleness', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('base_action', self.gf('django.db.models.fields.related.OneToOneField')(related_name='action_idleness', unique=True, to=orm['actions.Action'])),
-            ('hero', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['heroes.Hero'])),
-            ('entropy_action', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='+', null=True, to=orm['actions.Action'])),
-        ))
-        db.send_create_signal('actions', ['ActionIdleness'])
-
-        # Adding model 'ActionQuestMailDelivery'
-        db.create_table('actions_actionquestmaildelivery', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('base_action', self.gf('django.db.models.fields.related.OneToOneField')(related_name='action_quest', unique=True, to=orm['actions.Action'])),
-            ('action_move_to_delivery_from', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='+', null=True, to=orm['actions.Action'])),
-            ('action_move_to_delivery_to', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='+', null=True, to=orm['actions.Action'])),
-        ))
-        db.send_create_signal('actions', ['ActionQuestMailDelivery'])
-
-        # Adding model 'ActionMoveTo'
-        db.create_table('actions_actionmoveto', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('base_action', self.gf('django.db.models.fields.related.OneToOneField')(related_name='action_move_to', unique=True, to=orm['actions.Action'])),
-            ('hero', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['heroes.Hero'])),
-            ('destination', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['places.Place'])),
-            ('road', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='+', null=True, to=orm['roads.Road'])),
-            ('entropy_action', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='+', null=True, to=orm['actions.Action'])),
-        ))
-        db.send_create_signal('actions', ['ActionMoveTo'])
-
-        # Adding model 'ActionBattlePvE_1x1'
-        db.create_table('actions_actionbattlepve_1x1', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('base_action', self.gf('django.db.models.fields.related.OneToOneField')(related_name='action_battle_pve_1x1', unique=True, to=orm['actions.Action'])),
-            ('hero', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['heroes.Hero'])),
-            ('npc', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['heroes.Hero'])),
-            ('hero_initiative', self.gf('django.db.models.fields.FloatField')(default=0.0)),
-            ('npc_initiative', self.gf('django.db.models.fields.FloatField')(default=0.0)),
-        ))
-        db.send_create_signal('actions', ['ActionBattlePvE_1x1'])
-
-        # Adding model 'ActionResurrect'
-        db.create_table('actions_actionresurrect', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('base_action', self.gf('django.db.models.fields.related.OneToOneField')(related_name='action_resurrect', unique=True, to=orm['actions.Action'])),
-            ('hero', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['heroes.Hero'])),
-        ))
-        db.send_create_signal('actions', ['ActionResurrect'])
 
 
     def backwards(self, orm):
         
         # Deleting model 'Action'
         db.delete_table('actions_action')
-
-        # Deleting model 'ActionIdleness'
-        db.delete_table('actions_actionidleness')
-
-        # Deleting model 'ActionQuestMailDelivery'
-        db.delete_table('actions_actionquestmaildelivery')
-
-        # Deleting model 'ActionMoveTo'
-        db.delete_table('actions_actionmoveto')
-
-        # Deleting model 'ActionBattlePvE_1x1'
-        db.delete_table('actions_actionbattlepve_1x1')
-
-        # Deleting model 'ActionResurrect'
-        db.delete_table('actions_actionresurrect')
 
 
     models = {
@@ -97,50 +48,21 @@ class Migration(SchemaMigration):
         },
         'actions.action': {
             'Meta': {'object_name': 'Action'},
+            'child_action': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': "orm['actions.Action']"}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'data': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'entropy': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'percents': ('django.db.models.fields.FloatField', [], {}),
-            'state': ('django.db.models.fields.CharField', [], {'default': "'uninitialized'", 'max_length': '50'}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '150'})
-        },
-        'actions.actionbattlepve_1x1': {
-            'Meta': {'object_name': 'ActionBattlePvE_1x1'},
-            'base_action': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'action_battle_pve_1x1'", 'unique': 'True', 'to': "orm['actions.Action']"}),
             'hero': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['heroes.Hero']"}),
-            'hero_initiative': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'leader': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'npc': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['heroes.Hero']"}),
-            'npc_initiative': ('django.db.models.fields.FloatField', [], {'default': '0.0'})
-        },
-        'actions.actionidleness': {
-            'Meta': {'object_name': 'ActionIdleness'},
-            'base_action': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'action_idleness'", 'unique': 'True', 'to': "orm['actions.Action']"}),
-            'entropy_action': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'+'", 'null': 'True', 'to': "orm['actions.Action']"}),
-            'hero': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['heroes.Hero']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
-        },
-        'actions.actionmoveto': {
-            'Meta': {'object_name': 'ActionMoveTo'},
-            'base_action': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'action_move_to'", 'unique': 'True', 'to': "orm['actions.Action']"}),
-            'destination': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"}),
-            'entropy_action': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'+'", 'null': 'True', 'to': "orm['actions.Action']"}),
-            'hero': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['heroes.Hero']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'road': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'+'", 'null': 'True', 'to': "orm['roads.Road']"})
-        },
-        'actions.actionquestmaildelivery': {
-            'Meta': {'object_name': 'ActionQuestMailDelivery'},
-            'action_move_to_delivery_from': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'+'", 'null': 'True', 'to': "orm['actions.Action']"}),
-            'action_move_to_delivery_to': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'+'", 'null': 'True', 'to': "orm['actions.Action']"}),
-            'base_action': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'action_quest'", 'unique': 'True', 'to': "orm['actions.Action']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
-        },
-        'actions.actionresurrect': {
-            'Meta': {'object_name': 'ActionResurrect'},
-            'base_action': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'action_resurrect'", 'unique': 'True', 'to': "orm['actions.Action']"}),
-            'hero': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['heroes.Hero']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+            'order': ('django.db.models.fields.IntegerField', [], {}),
+            'percents': ('django.db.models.fields.FloatField', [], {}),
+            'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': "orm['places.Place']"}),
+            'quest': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': "orm['quests.Quest']"}),
+            'road': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': "orm['roads.Road']"}),
+            'state': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'type': ('django.db.models.fields.CharField', [], {'max_length': '150'})
         },
         'angels.angel': {
             'Meta': {'object_name': 'Angel'},
@@ -186,41 +108,46 @@ class Migration(SchemaMigration):
         },
         'heroes.hero': {
             'Meta': {'object_name': 'Hero'},
-            'actions': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'heroes'", 'symmetrical': 'False', 'through': "orm['heroes.HeroAction']", 'to': "orm['actions.Action']"}),
             'alive': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'angel': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'heroes'", 'null': 'True', 'blank': 'True', 'to': "orm['angels.Angel']"}),
+            'bag': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'chaoticity': ('django.db.models.fields.IntegerField', [], {}),
+            'charisma': ('django.db.models.fields.IntegerField', [], {'default': '3'}),
             'constitution': ('django.db.models.fields.IntegerField', [], {}),
+            'equipment': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'first': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'health': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'intellect': ('django.db.models.fields.IntegerField', [], {}),
+            'money': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
             'npc': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'reflexes': ('django.db.models.fields.IntegerField', [], {}),
             'wisdom': ('django.db.models.fields.IntegerField', [], {})
         },
-        'heroes.heroaction': {
-            'Meta': {'object_name': 'HeroAction'},
-            'action': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['actions.Action']"}),
-            'hero': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['heroes.Hero']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'order': ('django.db.models.fields.IntegerField', [], {})
-        },
         'places.place': {
-            'Meta': {'object_name': 'Place'},
+            'Meta': {'ordering': "('name',)", 'object_name': 'Place'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
             'size': ('django.db.models.fields.IntegerField', [], {}),
             'subtype': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'terrain': ('django.db.models.fields.CharField', [], {'default': "'.'", 'max_length': '1'}),
             'type': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'x': ('django.db.models.fields.BigIntegerField', [], {}),
             'y': ('django.db.models.fields.BigIntegerField', [], {})
         },
+        'quests.quest': {
+            'Meta': {'object_name': 'Quest'},
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'percents': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'state': ('django.db.models.fields.CharField', [], {'default': "'uninitialized'", 'max_length': '50'}),
+            'type': ('django.db.models.fields.CharField', [], {'max_length': '150'})
+        },
         'roads.road': {
             'Meta': {'unique_together': "(('point_1', 'point_2'),)", 'object_name': 'Road'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'length': ('django.db.models.fields.FloatField', [], {}),
+            'length': ('django.db.models.fields.FloatField', [], {'default': '0.0', 'blank': 'True'}),
             'point_1': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"}),
             'point_2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"})
         }

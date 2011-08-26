@@ -10,9 +10,7 @@ def next_turn_update_actions(cur_turn, next_turn):
     for action_model in list(Action.objects.all().order_by('-created_at')):
         try:
             action = get_action_by_model(base_model=action_model)
-            action.process()
-            
-            #action.save()
+            action.process_action()
 
         except Exception, e:
             if e.__class__ in []:

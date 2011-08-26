@@ -25,8 +25,8 @@ class Migration(SchemaMigration):
             ('mask', self.gf('django.db.models.fields.BigIntegerField')(default=0)),
             ('text', self.gf('django.db.models.fields.TextField')()),
             ('comment', self.gf('django.db.models.fields.TextField')()),
-            ('author', self.gf('django.db.models.fields.related.ForeignKey')(related_name='proposed_journal_messages', to=orm['accounts.Account'])),
-            ('editor', self.gf('django.db.models.fields.related.ForeignKey')(related_name='edited_journal_messages', to=orm['accounts.Account'])),
+            ('author', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='proposed_journal_messages', null=True, to=orm['accounts.Account'])),
+            ('editor', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='edited_journal_messages', null=True, to=orm['accounts.Account'])),
             ('remove_after', self.gf('django.db.models.fields.DateTimeField')(null=True)),
         ))
         db.send_create_signal('journal_messages', ['MessagePattern'])
@@ -46,14 +46,6 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Account'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True'})
-        },
-        'actions.action': {
-            'Meta': {'object_name': 'Action'},
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'order': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'percents': ('django.db.models.fields.FloatField', [], {}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '150'})
         },
         'angels.angel': {
             'Meta': {'object_name': 'Angel'},
@@ -99,24 +91,29 @@ class Migration(SchemaMigration):
         },
         'heroes.hero': {
             'Meta': {'object_name': 'Hero'},
-            'actions': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'heroes'", 'symmetrical': 'False', 'to': "orm['actions.Action']"}),
-            'angel': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'heroes'", 'to': "orm['angels.Angel']"}),
+            'alive': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'angel': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'heroes'", 'null': 'True', 'blank': 'True', 'to': "orm['angels.Angel']"}),
+            'bag': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'chaoticity': ('django.db.models.fields.IntegerField', [], {}),
+            'charisma': ('django.db.models.fields.IntegerField', [], {'default': '3'}),
             'constitution': ('django.db.models.fields.IntegerField', [], {}),
+            'equipment': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'first': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'folly_energy': ('django.db.models.fields.IntegerField', [], {}),
+            'health': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'intellect': ('django.db.models.fields.IntegerField', [], {}),
+            'money': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
+            'npc': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'reflexes': ('django.db.models.fields.IntegerField', [], {}),
             'wisdom': ('django.db.models.fields.IntegerField', [], {})
         },
         'journal_messages.messagepattern': {
             'Meta': {'object_name': 'MessagePattern'},
-            'author': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'proposed_journal_messages'", 'to': "orm['accounts.Account']"}),
+            'author': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'proposed_journal_messages'", 'null': 'True', 'to': "orm['accounts.Account']"}),
             'comment': ('django.db.models.fields.TextField', [], {}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'editor': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'edited_journal_messages'", 'to': "orm['accounts.Account']"}),
+            'editor': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'edited_journal_messages'", 'null': 'True', 'to': "orm['accounts.Account']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'mask': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'remove_after': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
