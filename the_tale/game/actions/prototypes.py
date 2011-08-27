@@ -411,7 +411,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                                                                                                      'defender': strike_result.defender.name,
                                                                                                      'damage': strike_result.damage})
                 if self.hero.health <= 0:
-                    self.hero.kill()
+                    self.hero.kill(self)
                     self.npc.kill()
                     self.hero.create_tmp_log_message('Hero was killed')
                     self.state = self.STATE.PROCESSED

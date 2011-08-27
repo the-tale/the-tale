@@ -286,7 +286,7 @@ class HeroPrototype(object):
     # Game operations
     ###########################################
 
-    def kill(self):
+    def kill(self, current_action=None):
         self.is_alive = False
 
         if self.is_npc:
@@ -298,8 +298,12 @@ class HeroPrototype(object):
         self.position.save()
         
         for action in reversed(self.get_actions()):
-            if action.on_die():
+            if action.id == current_action.id:
+                if current_action.on_die():
+                    break
+            elif action.on_die():
                 action.save()
+                break
 
     def resurrent(self):
         self.health = self.max_health
