@@ -217,7 +217,7 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
 
     function RenderMoveToAction(action) { 
         var moveToAction = jQuery('.pgf-action-move-to', actionInfoContainer);
-        var destinationId = action.data.destination;
+        var destinationId = action.specific.place_id;
         var placeName = widgets.mapManager.GetPlaceData(destinationId).name;
         jQuery('.pgf-place-name', moveToAction).text(placeName);
         moveToAction.toggleClass('pgf-hidden', false);
@@ -226,7 +226,7 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     function RenderBattlePvE_1x1Action(action) {
         var battleAction = jQuery('.pgf-action-battle-pve-1x1', actionInfoContainer);
         battleAction.toggleClass('pgf-hidden', false);
-        widgets.heroes.RenderHero(action.data.npc, battleAction);
+        widgets.heroes.RenderHero(action.specific.npc, battleAction);
     }
     
     function RenderResurrectAction(action) {

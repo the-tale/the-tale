@@ -1,6 +1,8 @@
 
 from django.db import models
 
+UNINITIALIZED_STATE = 'uninitialized'
+
 class Action(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -11,19 +13,22 @@ class Action(models.Model):
 
     order = models.IntegerField()
 
-    percents = models.FloatField(null=False)
+    percents = models.FloatField(default=0.0, null=False)
 
-    state = models.CharField(max_length=50, null=False)
+    state = models.CharField(max_length=50, null=False, default=UNINITIALIZED_STATE)
 
     entropy = models.IntegerField(null=False, default=0)
 
-    leader = models.BooleanField(null=False, default=False)
+    leader = models.BooleanField(null=False, default=True) #since we create only LEAD actions, leader option MUST be TRUE by default
 
-    child_action = models.ForeignKey('self', related_name='+', null=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey('self', related_name='+', null=True, blank=True)
 
     # action specific fields
-    quest = models.ForeignKey('quests.Quest', related_name='+', null=True)
-    place = models.ForeignKey('places.Place', related_name='+', null=True)
-    road = models.ForeignKey('roads.Road', related_name='+', null=True)
-    npc = models.ForeignKey('heroes.Hero', related_name='+')
+    quest = models.ForeignKey('quests.Quest', related_name='+', null=True, blank=True)
+    place = models.ForeignKey('places.Place', related_name='+', null=True, blank=True)
+    road = models.ForeignKey('roads.Road', related_name='+', null=True, blank=True)
+    npc = models.ForeignKey('heroes.Hero', related_name='+', null=True, blank=True)
     data = models.TextField(null=False, default='{}')
+
+    def __unicode__(self):
+        return '%s(%d, %s)' % (self.type, self.id, self.state)

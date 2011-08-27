@@ -48,7 +48,7 @@ class QuestPrototype(object):
     @nested_commit_on_success
     def create_action(self, parent_action):
         from ..actions.prototypes import ActionQuestPrototype
-        return ActionQuestPrototype.create(parent_action.order, parent_action.hero, quest=self)
+        return ActionQuestPrototype.create(parent_action, quest=self)
 
     @property
     def STATE(self): return self.model.STATE
@@ -139,49 +139,28 @@ class QuestMailDeliveryPrototype(QuestPrototype):
 
         if self.state == self.STATE.UNINITIALIZED:
             if self.hero.position.place.id != self.delivery_from.id:
-                action_move_to_delivery_from = ActionMoveToPrototype.create(hero=self.hero, 
-                                                                            destination=self.quest.delivery_from)
-                action_move_to_delivery_from.process()
-                action.child_action = action_move_to_delivery_from
+                ActionMoveToPrototype.create(hero=self.hero, destination=self.quest.delivery_from)
                 self.hero.create_tmp_log_message('go for mail')
 
             self.state = self.STATE.MOVE_TO_DELIVERY_FROM_POINT
         
-        if self.state == self.STATE.MOVE_TO_DELIVERY_FROM_POINT:
+        elif self.state == self.STATE.MOVE_TO_DELIVERY_FROM_POINT:
             
-            if not action.child_action or action.child_action.state == action.child_action.STATE.PROCESSED:
-                
-                if action.child_action:
-                    action.child_action.remove()
-                    action.child_action = None
+            self.hero.create_tmp_log_message('take mail and go to destination')
 
-                self.hero.create_tmp_log_message('take mail and go to destination')
-
-                if self.hero.position.place.id != self.delivery_to.id:
-                    action.child_action = ActionMoveToPrototype.create(parent_order=action.order,
-                                                                       hero=self.hero, 
-                                                                       destination=self.delivery_to)
-                    action.child_action.process()
+            if self.hero.position.place.id != self.delivery_to.id:
+                ActionMoveToPrototype.create(parent=action, destination=self.delivery_to)
 
                 self.state = self.STATE.MOVE_TO_DELIVERY_TO_POINT
                 percents = 0.5
                 
-        if self.state == self.STATE.MOVE_TO_DELIVERY_TO_POINT:
+        elif self.state == self.STATE.MOVE_TO_DELIVERY_TO_POINT:
             
-            if not action.child_action or action.child_action.state == action.child_action.STATE.PROCESSED:
-                
-                if action.child_action:
-                    action.child_action.remove()
-                    action.child_action = None
-
-                self.hero.create_tmp_log_message('mail delivered')
-                self.state = self.STATE.COMPLETED
-                percents = 1.0
-                finish = True
+            self.hero.create_tmp_log_message('mail delivered')
+            self.state = self.STATE.COMPLETED
+            percents = 1.0
+            finish = True
 
         return finish, percents
 
-        
-
-        
 QUESTS_TYPES = get_quests_types()

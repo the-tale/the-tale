@@ -36,6 +36,9 @@ class Hero(models.Model):
 
     #accumulated
 
+    def __unicode__(self):
+        return u'hero[%d] - %s' % (self.id, self.name)
+
 
 class HeroQuest(models.Model):
     

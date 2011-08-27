@@ -9,7 +9,7 @@ from ..heroes.logic import create_npc_for_hero, strike, heal_in_town, sell_in_ci
 from ..map.places.prototypes import get_place_by_model
 from ..map.roads.prototypes import get_road_by_model, WaymarkPrototype
 
-from .models import Action
+from .models import Action, UNINITIALIZED_STATE
 from . import models as action_models
 
 def get_actions_types():
@@ -35,7 +35,7 @@ class ActionPrototype(object):
     ENTROPY_BARRIER = 100
 
     class STATE:
-        UNINITIALIZED = 'uninitialized'
+        UNINITIALIZED = UNINITIALIZED_STATE
         PROCESSED = 'processed'
 
     def __init__(self, model, *argv, **kwargs):
@@ -77,27 +77,23 @@ class ActionPrototype(object):
             self._hero = get_hero_by_model(self.model.hero)
         return self._hero
 
-    def get_child_action(self):
-        if not hasattr(self, '_child_action'):
-            self._child_action = get_action_by_model(model=self.model.child_action)
-        return self._child_action
-    def set_child_action(self, value):
-        if hasattr(self, '_child_action'):
-            delattr(self, '_child_action')
-        self.model.child_action = value.model if value else None
-    child_action = property(get_child_action, set_child_action)
+    @property
+    def parent(self):
+        if not hasattr(self, '_parent'):
+            self._parent = get_action_by_model(self.model.parent)
+        return self._parent
 
     @property
     def road_id(self): return self.model.road_id
 
     @property
-    def place_id(self): return self.model.destination_id
+    def place_id(self): return self.model.place_id
 
     @property
     def place(self):
         if not hasattr(self, '_place'):
             self._place = get_place_by_model(model=self.model.place)
-        return self._destination
+        return self._place
 
     def get_road(self):
         if not hasattr(self, '_road'):
@@ -110,9 +106,15 @@ class ActionPrototype(object):
     road = property(get_road, set_road)
 
     @property
+    def npc_id(self): return self.model.npc_id
+
+    @property
     def npc(self):
         if not hasattr(self, '_npc'):
-            self._npc = get_hero_by_model(self.model.npc)
+            if self.model.npc is None:
+                self._npc = None
+            else:
+                self._npc = get_hero_by_model(self.model.npc)
         return self._npc
 
     @property
@@ -147,24 +149,23 @@ class ActionPrototype(object):
                 'entropy_barier': self.ENTROPY_BARRIER,
                 'specific': {'place_id': self.place_id,
                              'road_id': self.road_id,
-                             'npc_id': self.npc_id},
+                             'npc': self.npc.ui_info() if self.npc else None},
                 'data': self.data #TODO: get json directly from self.model.data, without reloading it
                 }
 
     def process_action(self):
 
-        if self.child_action:
-            if self.child_action.state != self.child_action.STATE.PROCESSED:
-                raise ActionException("Action %d called before child action finish it's work")
-
-            self.child_action.remove()
-            self.child_action = None
-            self.leader = True
-
         self.process()
 
         if not self.removed:
-            self.save()
+
+            if self.state == self.STATE.PROCESSED:
+                self.parent.leader = True
+                self.parent.save()
+                self.remove()
+            else:
+                self.save()
+
 
 class ActionIdlenessPrototype(ActionPrototype):
 
@@ -172,39 +173,55 @@ class ActionIdlenessPrototype(ActionPrototype):
     SHORT_DESCRIPTION = u'бездельничает'
     ENTROPY_BARRIER = 100
 
+    class STATE(ActionPrototype.STATE):
+        WAITING = 'waiting'
+        ACTING = 'acting'
+
     ###########################################
     # Object operations
     ###########################################
 
     def on_die(self):
-        self.child_action = ActionResurrectPrototype.create(self)
+        ActionResurrectPrototype.create(self)
         return True
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, parent):
-        parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=parent.hero_id, order=parent.order+1, leader=True)
+    def create(cls, parent=None, hero=None):
+        if parent:
+            parent.leader = False
+            model = Action.objects.create( type=cls.TYPE, parent=parent.model, hero=parent.hero.model, order=parent.order+1)
+        else:
+            model = Action.objects.create( type=cls.TYPE, hero=hero.model, order=0)
         return cls(model=model)
 
     def process(self):
 
-        self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
-        self.percents = float(self.entropy) / self.ENTROPY_BARRIER
-        self.hero.create_tmp_log_message('do nothing')
-
-        if (self.entropy >= self.ENTROPY_BARRIER / 2 and 
-            (self.hero.need_trade_in_town or self.hero.need_rest_in_town) and 
-            self.hero.position.is_settlement):
-            self.child_action = action_models.ActionInPlacePrototype.create(self, self.hero.position.place)
-
-        elif self.entropy >= self.ENTROPY_BARRIER:
-            from ..quests.logic import create_random_quest_for_hero
-
+        if self.state in [self.STATE.UNINITIALIZED, self.STATE.ACTING]:
             self.entropy = 0
-            self.hero.create_tmp_log_message('Entropy filled, receiving new quest')
-            quest = create_random_quest_for_hero(self.hero)
-            self.child_action = quest.create_action(self)
+            self.percents = 0
+            self.state = self.STATE.WAITING
+
+        elif self.state == self.STATE.WAITING:
+
+            self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
+            self.percents = float(self.entropy) / self.ENTROPY_BARRIER
+            self.hero.create_tmp_log_message('do nothing')
+
+            if (self.entropy >= self.ENTROPY_BARRIER / 2 and 
+                (self.hero.need_trade_in_town or self.hero.need_rest_in_town) and 
+                self.hero.position.is_settlement):
+                action_models.ActionInPlacePrototype.create(self, self.hero.position.place)
+                self.state = self.STATE.ACTING
+
+            elif self.entropy >= self.ENTROPY_BARRIER:
+                from ..quests.logic import create_random_quest_for_hero
+
+                self.entropy = 0
+                self.hero.create_tmp_log_message('Entropy filled, receiving new quest')
+                quest = create_random_quest_for_hero(self.hero)
+                quest.create_action(self)
+                self.state = self.STATE.ACTING
 
 
 class ActionQuestPrototype(ActionPrototype):
@@ -219,7 +236,7 @@ class ActionQuestPrototype(ActionPrototype):
     def quest(self):
         from ..quests.prototypes import get_quest_by_model
         if not hasattr(self, '_quest'):
-            self._quest = get_quest_by_model(model=self.model.quest)
+            self._quest = get_quest_by_model(base_model=self.model.quest)
         return self._quest
 
     ###########################################
@@ -230,7 +247,11 @@ class ActionQuestPrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, quest):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=parent.hero_id, order=parent.parent_order+1, leader=True, quest=quest.model)
+        model = Action.objects.create( type=cls.TYPE, 
+                                       parent=parent.model, 
+                                       hero=parent.hero.model, 
+                                       order=parent.order+1, 
+                                       quest=quest.base_model)
         return cls(model=model)
 
     def process(self):
@@ -272,15 +293,15 @@ class ActionMoveToPrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, destination):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=parent.hero_id, order=parent.parent_order+1, leader=True, place=destination.model)
+        model = Action.objects.create( type=cls.TYPE, 
+                                       parent=parent.model,
+                                       hero=parent.hero.model, 
+                                       order=parent.order+1, 
+                                       place=destination.model)
         return cls(model=model)
 
     @nested_commit_on_success
     def process(self):
-
-        if self.child_action:
-            self.child_action.remove()
-            self.child_action = None
 
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.CHOOSE_ROAD
@@ -301,8 +322,8 @@ class ActionMoveToPrototype(ActionPrototype):
             if self.entropy >= self.ENTROPY_BARRIER:
                 self.entropy = 0
                 npc = create_npc_for_hero(self.hero)
+                ActionBattlePvE_1x1Prototype.create(parent=self, npc=npc)
                 self.state = self.STATE.BATTLE
-                self.child_action = ActionBattlePvE_1x1Prototype.create(parent=self, npc=npc)
             else:
                 self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
 
@@ -319,7 +340,7 @@ class ActionMoveToPrototype(ActionPrototype):
                     self.hero.position.set_place(current_destination)
                     
                     self.state = self.STATE.IN_CITY
-                    self.child_action = action_models.ActionInCityPrototype.create(parent=self, settlement=current_destination)
+                    ActionInPlacePrototype.create(parent=self, settlement=current_destination)
 
 
         elif self.state == self.STATE.BATTLE:
@@ -356,7 +377,11 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, npc):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=parent.hero_id, order=parent.order+1, leader=True, npc=npc.model)
+        model = Action.objects.create( type=cls.TYPE, 
+                                       parent=parent.model,
+                                       hero=parent.hero.model,
+                                       order=parent.order+1,
+                                       npc=npc.model)
         return cls(model=model)
 
     @nested_commit_on_success
@@ -405,7 +430,11 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                 self.percents = min(1, max(0, float(self.npc.max_health - self.npc.health) / self.npc.max_health))
 
                 self.hero.save()
-                self.npc.save()
+
+                if self.state == self.STATE.PROCESSED:
+                    self.npc.remove()
+                else:
+                    self.npc.save()
 
 class ActionResurrectPrototype(ActionPrototype):
 
@@ -420,7 +449,10 @@ class ActionResurrectPrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=parent.hero_id, order=parent.order+1, leader=True)
+        model = Action.objects.create( type=cls.TYPE, 
+                                       parent=parent.model,
+                                       hero=parent.hero.model, 
+                                       order=parent.order+1)
         return cls(model=model)
 
     @nested_commit_on_success
@@ -473,7 +505,11 @@ class ActionInPlacePrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, settlement):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=parent.hero_id, order=parent.order+1, leader=True, place=settlement.model)
+        model = Action.objects.create( type=cls.TYPE, 
+                                       parent=parent.model, 
+                                       hero=parent.hero.model, 
+                                       order=parent.order+1,
+                                       place=settlement.model)
         return cls(model=model)
 
     @nested_commit_on_success
@@ -486,17 +522,17 @@ class ActionInPlacePrototype(ActionPrototype):
 
         if self.can_rest_in_town and self.hero.need_rest_in_town:
             self.state = self.STATE.RESTING
-            self.child_action = ActionRestInSettlementPrototype.creat(self, self.place)
+            ActionRestInSettlementPrototype.create(self, self.place)
             self.hero.create_tmp_log_message('hero decided to have a rest')
 
         elif self.can_equip_in_town and self.hero.need_equipping_in_town:
             self.state = self.STATE.EQUIPPING
-            self.child_action = ActionEquipInSettlementPrototype.creat(self, self.place)
+            ActionEquipInSettlementPrototype.create(self, self.place)
             self.hero.create_tmp_log_message('hero looking for new equipment in his bag')
 
         elif self.can_trade_in_town and self.hero.need_trade_in_town:
             self.state = self.STATE.TRADING
-            self.child_action = ActionTradeInSettlementPrototype.creat(self, self.place)
+            ActionTradeInSettlementPrototype.create(self, self.place)
             self.hero.create_tmp_log_message('hero decided to sell all loot')        
             
         else:
@@ -523,7 +559,11 @@ class ActionRestInSettlementPrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, settlement):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=parent.hero_id, order=parent.order+1, leader=True, place=settlement.model)
+        model = Action.objects.create( type=cls.TYPE, 
+                                       parent=parent.model,
+                                       hero=parent.hero.model, 
+                                       order=parent.order+1, 
+                                       place=settlement.model)
         return cls(model=model)
 
     @nested_commit_on_success
@@ -540,10 +580,11 @@ class ActionRestInSettlementPrototype(ActionPrototype):
 
             self.percents = float(self.hero.health/self.hero.max_health)
 
+            self.hero.save()
+
             if self.hero.health == self.hero.max_health:
                 self.hero.create_tmp_log_message('hero is completly healthty')
                 self.state = self.STATE.PROCESSED
-                self.hero.save()
 
 
 class ActionEquipInSettlementPrototype(ActionPrototype):
@@ -566,27 +607,32 @@ class ActionEquipInSettlementPrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, settlement):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=parent.hero_id, order=parent.order+1, leader=True, place=settlement.model)
+        model = Action.objects.create( type=cls.TYPE, 
+                                       parent=parent.model,
+                                       hero=parent.hero.model, 
+                                       order=parent.order+1, 
+                                       place=settlement.model)
         return cls(model=model)
 
     @nested_commit_on_success
     def process(self):
 
         if self.state == self.STATE.UNINITIALIZED:
-            self.state = self.STATE.EQUIPING
+            self.state = self.STATE.EQUIPPING
             self.percents = 0
 
-        elif self.state == self.STATE.EQUIPING:
+        elif self.state == self.STATE.EQUIPPING:
             unequipped, equipped = equip_in_city(self.hero)
             if equipped:
                 if unequipped:
                     self.hero.create_tmp_log_message('hero change "%s" to "%s"' % (unequipped.name, equipped.name))
                 else:
                     self.hero.create_tmp_log_message('hero equip "%s"' % equipped.name)
+
+                self.hero.save()
             else:
                 self.equipped = True
                 self.state = self.STATE.PROCESSED
-                self.hero.save()
 
 
 class ActionTradeInSettlementPrototype(ActionPrototype):
@@ -615,7 +661,11 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, settlement):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, percents=0.0, hero=parent.hero_id, order=parent.order+1, leader=True, place=settlement.model)
+        model = Action.objects.create( type=cls.TYPE, 
+                                       parent=parent.model,
+                                       hero=parent.hero.model,
+                                       order=parent.order+1,
+                                       place=settlement.model)
         return cls(model=model)
 
     @nested_commit_on_success
@@ -635,11 +685,10 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
                 sell_price = sell_in_city(self.hero, artifact_uuid, False)
 
                 self.hero.create_tmp_log_message('hero solled %s for %d g.' % (artifact.name, sell_price) )
-
+                self.hero.save()
             else:
                 self.hero.create_tmp_log_message('hero has solled all what he wants')
                 self.state = self.STATE.PROCESSED
-                self.hero.save()
 
 
 ACTION_TYPES = get_actions_types()

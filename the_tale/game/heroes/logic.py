@@ -56,7 +56,7 @@ def next_turn_post_update_heroes(cur_turn, next_turn):
     for hero_model in Hero.objects.all():
         hero = get_hero_by_model(hero_model)
 
-        if hero.is_npc and not hero.is_alive and len(hero.actions) == 1:
+        if hero.is_npc and not hero.is_alive and len(hero.get_actions()) == 1:
             hero.actions[0].remove()
             hero.remove()
             return

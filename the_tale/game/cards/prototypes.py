@@ -213,6 +213,7 @@ class PushToQuestCard(CardPrototype):
 
         hero.create_tmp_log_message('Go and kill some monsters!!!')
 
-        hero.actions[-1].entropy = hero.actions[-1].ENTROPY_BARRIER + 1
-        hero.actions[-1].save()
+        lead_action = hero.get_actions()[-1]
+        lead_action.entropy = lead_action.ENTROPY_BARRIER + 1
+        lead_action.save()
         

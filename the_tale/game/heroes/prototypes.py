@@ -172,8 +172,7 @@ class HeroPrototype(object):
     # actions
     ###########################################p
 
-    @property
-    def actions(self):
+    def get_actions(self):
         from game.actions.models import Action
         from game.actions.prototypes import ACTION_TYPES
 
@@ -181,7 +180,7 @@ class HeroPrototype(object):
             self._actions = []
             actions = list(Action.objects.filter(hero=self.model).order_by('order'))
             for action in actions:
-                action_object = ACTION_TYPES[action.type](base_model=action)
+                action_object = ACTION_TYPES[action.type](model=action)
                 self._actions.append(action_object)
 
         return self._actions
@@ -219,10 +218,10 @@ class HeroPrototype(object):
         return {'id': self.id,
                 'npc': self.is_npc,
                 'angel': self.angel_id,
-                'actions': [ action.ui_info() for action in self.actions ] if not ignore_actions else [],
+                'actions': [ action.ui_info() for action in self.get_actions() ] if not ignore_actions else [],
                 'quests': [quest.ui_info() for quest in self.quests] if not ignore_quests else [], 
-                'messages': self.get_messages_log().messages,
-                'position': self.position.ui_info(),
+                'messages': self.get_messages_log().messages if not self.is_npc else None,
+                'position': self.position.ui_info() if not self.is_npc else None,
                 'alive': self.is_alive,
                 'bag': self.bag.ui_info(),
                 'equipment': self.equipment.ui_info(),
@@ -270,7 +269,10 @@ class HeroPrototype(object):
 
         hero = cls(model=hero)
 
-        ActionIdlenessPrototype.create(parent_order=0, hero=hero)
+        if npc:
+            return hero
+
+        ActionIdlenessPrototype.create(hero=hero)
 
         MessagesLogPrototype.create(hero)
 
@@ -286,11 +288,16 @@ class HeroPrototype(object):
 
     def kill(self):
         self.is_alive = False
+
+        if self.is_npc:
+            self.health = 0
+            return
+        
         self.health = 1
         self.position.set_place(PlacePrototype.random_place())
         self.position.save()
         
-        for action in reversed(self.actions()):
+        for action in reversed(self.get_actions()):
             if action.on_die():
                 action.save()
 
@@ -303,9 +310,10 @@ class HeroPrototype(object):
     ###########################################
 
     def next_turn_pre_update(self, turn):
-        messages_log = self.get_messages_log()        
-        messages_log.clear_messages()
-        messages_log.save()
+        if not self.is_npc:
+            messages_log = self.get_messages_log()        
+            messages_log.clear_messages()
+            messages_log.save()
 
     def next_turn_post_update(self, turn):
         pass
