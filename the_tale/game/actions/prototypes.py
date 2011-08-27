@@ -134,7 +134,7 @@ class ActionPrototype(object):
     def save(self): 
         if hasattr(self, '_data'):
             self.model.data = s11n.to_json(self._data)
-        self.model.save()
+        self.model.save(force_update=True)
 
     def on_die(self):
         self.remove()
@@ -211,7 +211,7 @@ class ActionIdlenessPrototype(ActionPrototype):
             if (self.entropy >= self.ENTROPY_BARRIER / 2 and 
                 (self.hero.need_trade_in_town or self.hero.need_rest_in_town) and 
                 self.hero.position.is_settlement):
-                action_models.ActionInPlacePrototype.create(self, self.hero.position.place)
+                ActionInPlacePrototype.create(self, self.hero.position.place)
                 self.state = self.STATE.ACTING
 
             elif self.entropy >= self.ENTROPY_BARRIER:

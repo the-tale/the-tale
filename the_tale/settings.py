@@ -4,6 +4,7 @@ import os
 PROJECT_DIR = os.path.dirname(__file__)
 
 DEBUG = False
+DEBUG_DB = False
 
 DATABASES = {
     'default': {
@@ -118,6 +119,8 @@ INSTALLED_APPS = (
     'game.map.roads',
     'game.map.places',
     'game.artifacts',
+
+    'stress_testing',
 
     'south'
 )

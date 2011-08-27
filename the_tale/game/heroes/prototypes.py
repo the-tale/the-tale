@@ -206,7 +206,7 @@ class HeroPrototype(object):
     def save(self): 
         self.model.bag = self.bag.save_to_json()
         self.model.equipment = self.equipment.save_to_json()
-        self.model.save()
+        self.model.save(force_update=True)
 
     def get_messages_log(self):
         return get_messages_log_by_model(model=self.model.messages_log)
@@ -318,6 +318,3 @@ class HeroPrototype(object):
             messages_log = self.get_messages_log()        
             messages_log.clear_messages()
             messages_log.save()
-
-    def next_turn_post_update(self, turn):
-        pass

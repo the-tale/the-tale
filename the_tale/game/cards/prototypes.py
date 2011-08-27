@@ -46,7 +46,7 @@ class CardsQueueItemPrototype(object):
         self.model = model
 
     def remove(self): return self.model.delete()
-    def save(self): self.model.save()
+    def save(self): self.model.save(force_update=True)
 
     @property
     def id(self): return self.model.id

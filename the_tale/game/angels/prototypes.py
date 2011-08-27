@@ -33,8 +33,7 @@ class AngelPrototype(object):
     ###########################################
 
     def remove(self): return self.model.delete()
-    def save(self): 
-        self.model.save()
+    def save(self): self.model.save(force_update=True)
 
     def ui_info(self, ignore_actions=False, ignore_quests=False):
         return {'id': self.id,

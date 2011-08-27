@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import sys
 from django.core.management.base import BaseCommand
+from django.db import connection
+from django.conf import settings as project_settings
 from optparse import make_option
 
 # from ...logic import next_turn
@@ -36,6 +38,9 @@ class Command(BaseCommand):
         sys.stdout.write('make %i turns\n' % number)
         sys.stdout.flush()
 
+        if project_settings.DEBUG_DB:
+            print 'queries before turns: %d' % len(connection.queries)
+
         while number > 0:
 
             sys.stdout.write('turns left %i\n' % number)
@@ -49,3 +54,6 @@ class Command(BaseCommand):
 
         sys.stdout.write('processed\n')
         sys.stdout.flush()
+
+        if project_settings.DEBUG_DB:
+            print 'queries after turns: %d' % len(connection.queries)

@@ -58,7 +58,7 @@ class QuestPrototype(object):
     ###########################################
 
     def remove(self): self.base_model.delete()
-    def save(self): self.base_model.save()
+    def save(self): self.base_model.save(force_update=True)
 
     def ui_info(self):
         return {'id': self.id,

@@ -67,7 +67,7 @@ class RoadPrototype(object):
     ###########################################
 
     def remove(self): self.model.delete()
-    def save(self): self.model.save()
+    def save(self): self.model.save(force_update=True)
 
     def map_info(self):
         return {'id': self.id,

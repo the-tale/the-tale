@@ -44,22 +44,8 @@ def create_npc_for_hero(hero):
 
 
 def next_turn_pre_update_heroes(cur_turn, next_turn):
-    for hero_model in Hero.objects.all():
+    for hero_model in list(Hero.objects.all()):
         hero = get_hero_by_model(hero_model)
 
         hero.next_turn_pre_update(next_turn)
-        hero.save()
-    
-
-def next_turn_post_update_heroes(cur_turn, next_turn):
-    
-    for hero_model in Hero.objects.all():
-        hero = get_hero_by_model(hero_model)
-
-        if hero.is_npc and not hero.is_alive and len(hero.get_actions()) == 1:
-            hero.actions[0].remove()
-            hero.remove()
-            return
-
-        hero.next_turn_post_update(next_turn)
-        hero.save()
+        hero.save()    

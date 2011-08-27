@@ -59,7 +59,7 @@ class MessagesLogPrototype(object):
     ###########################################
 
     def remove(self): return self.model.delete()
-    def save(self): self.model.save()
+    def save(self): self.model.save(force_update=True)
 
     @classmethod
     @nested_commit_on_success

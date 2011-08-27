@@ -28,7 +28,7 @@ class TurnPrototype(object):
     def number(self): return self.model.id
 
     def remove(self): return self.model.delete()
-    def save(self): self.model.save()
+    def save(self): self.model.save(force_update=True)
 
     def ui_info(self):
         return {'number': self.number}
