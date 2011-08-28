@@ -3,7 +3,8 @@ from django_next.utils.decorators import nested_commit_on_success
 
 from game.journal_messages.prototypes import MessagesLogPrototype, get_messages_log_by_model
 
-from game.map.places.prototypes import HeroPositionPrototype, PlacePrototype
+from game.map.places.prototypes import PlacePrototype
+from game.map.roads.prototypes import RoadPrototype
 
 from ..artifacts.effects import RAW_EFFECT_TYPE
 
@@ -188,7 +189,7 @@ class HeroPrototype(object):
     @property
     def position(self):
         if not hasattr(self, '_position'):
-            self._position = HeroPositionPrototype(model=self.model.position)
+            self._position = HeroPositionPrototype(hero_model=self.model)
         return self._position
 
 
@@ -251,6 +252,8 @@ class HeroPrototype(object):
     def create(cls, angel, name, first, intellect, constitution, reflexes, chaoticity, charisma, npc=False):
         from game.actions.prototypes import ActionIdlenessPrototype
 
+        start_place = PlacePrototype.random_place()
+
         hero = Hero.objects.create(angel=angel.model if not npc else None,
                                    npc=npc,
 
@@ -265,7 +268,9 @@ class HeroPrototype(object):
                                    intellect=intellect,
                                    constitution=constitution,
                                    reflexes=reflexes,
-                                   chaoticity=chaoticity)
+                                   chaoticity=chaoticity,
+
+                                   pos_place = start_place.model)
 
         hero = cls(model=hero)
 
@@ -275,10 +280,6 @@ class HeroPrototype(object):
         ActionIdlenessPrototype.create(hero=hero)
 
         MessagesLogPrototype.create(hero)
-
-        start_place = PlacePrototype.random_place()
-
-        HeroPositionPrototype.create(hero=hero, place=start_place)
 
         return hero
 
@@ -295,7 +296,6 @@ class HeroPrototype(object):
         
         self.health = 1
         self.position.set_place(PlacePrototype.random_place())
-        self.position.save()
         
         for action in reversed(self.get_actions()):
             if action.id == current_action.id:
@@ -318,3 +318,70 @@ class HeroPrototype(object):
             messages_log = self.get_messages_log()        
             messages_log.clear_messages()
             messages_log.save()
+
+
+
+class HeroPositionPrototype(object):
+
+    def __init__(self, hero_model, *argv, **kwargs):
+        self.hero_model = hero_model
+
+    @property
+    def place_id(self): return self.hero_model.pos_place_id
+
+    @property
+    def place(self): 
+        if not hasattr(self, '_place'):
+            self._place = PlacePrototype(model=self.hero_model.pos_place) if self.hero_model.pos_place else None
+        return self._place
+
+    def set_place(self, place):
+        if hasattr(self, '_place'):
+            delattr(self, '_place')
+        if hasattr(self, '_road'):
+            delattr(self, '_road')
+        self.hero_model.pos_place = place.model
+        self.hero_model.pos_road = None
+        self.hero_model.pos_invert_direction = None
+        self.hero_model.pos_percents = None
+
+    @property
+    def road(self): 
+        if not hasattr(self, '_road'):
+            self._road = RoadPrototype(model=self.hero_model.pos_road) if self.hero_model.pos_road else None
+        return self._road
+
+    def set_road(self, road, percents=0, invert=False):
+        if hasattr(self, '_place'):
+            delattr(self, '_place')
+        if hasattr(self, '_road'):
+            delattr(self, '_road')
+        self.hero_model.pos_place = None
+        self.hero_model.pos_road = road.model
+        self.hero_model.pos_invert_direction = invert
+        self.hero_model.pos_percents = percents
+
+    def get_percents(self): return self.hero_model.pos_percents
+    def set_percents(self, value): self.hero_model.pos_percents = value
+    percents = property(get_percents, set_percents)
+
+    def get_invert_direction(self): return self.hero_model.pos_invert_direction
+    def set_invert_direction(self, value): self.hero_model.pos_invert_direction = value
+    invert_direction = property(get_invert_direction, set_invert_direction)
+
+    ###########################################
+    # Checks
+    ###########################################
+
+    @property
+    def is_settlement(self): return self.place and self.place.is_settlement
+
+    ###########################################
+    # Object operations
+    ###########################################
+
+    def ui_info(self):
+        return {'place': self.place.map_info() if self.place else None,
+                'road': self.road.map_info() if self.road else None,
+                'invert_direction': self.invert_direction,
+                'percents': self.percents}

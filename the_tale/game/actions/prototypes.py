@@ -10,7 +10,6 @@ from ..map.places.prototypes import get_place_by_model
 from ..map.roads.prototypes import get_road_by_model, WaymarkPrototype
 
 from .models import Action, UNINITIALIZED_STATE
-from . import models as action_models
 
 def get_actions_types():
     actions = {}
@@ -349,7 +348,7 @@ class ActionMoveToPrototype(ActionPrototype):
         elif self.state == self.STATE.IN_CITY:
             self.state = self.STATE.CHOOSE_ROAD
 
-        self.hero.position.save()
+        self.hero.save()
 
 
 class ActionBattlePvE_1x1Prototype(ActionPrototype):

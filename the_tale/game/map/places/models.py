@@ -46,14 +46,3 @@ class Place(models.Model):
 
     def __repr__(self):
         return self.__unicode__()
-
-
-class HeroPosition(models.Model):
-
-    place = models.ForeignKey(Place, related_name='positions', null=True, default=None, blank=True)
-
-    road = models.ForeignKey('roads.road', related_name='positions', null=True, default=None, blank=True)
-    percents = models.FloatField(null=True, default=None, blank=True)
-    invert_direction = models.NullBooleanField(default=False, null=True, blank=True)
-
-    hero = models.OneToOneField('heroes.Hero', related_name='position')

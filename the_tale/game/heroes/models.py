@@ -32,9 +32,15 @@ class Hero(models.Model):
     charisma = models.IntegerField(default=3)
     chaoticity = models.IntegerField()
 
-    #secondary
+    #position
+    pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True)
+    pos_road = models.ForeignKey('roads.Road', related_name='+', null=True, default=None, blank=True)
+    pos_percents = models.FloatField(null=True, default=None, blank=True)
+    pos_invert_direction = models.NullBooleanField(default=False, null=True, blank=True)
 
-    #accumulated
+    @classmethod
+    def get_related_query(cls):
+        return cls.objects.select_related('pos_place', 'pos_road')
 
     def __unicode__(self):
         return u'hero[%d] - %s' % (self.id, self.name)

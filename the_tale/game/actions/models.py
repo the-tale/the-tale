@@ -32,7 +32,8 @@ class Action(models.Model):
 
     @classmethod
     def get_related_query(cls):
-        return cls.objects.select_related('hero', 'quest', 'place', 'road', 'npc')
+        # return cls.objects.select_related('hero', 'quest', 'place', 'road', 'npc')
+        return cls.objects.select_related('hero', 'hero__pos_place', 'hero__pos_road', 'quest', 'place', 'road', 'npc')
 
     def __unicode__(self):
         return '%s(%d, %s)' % (self.type, self.id, self.state)
