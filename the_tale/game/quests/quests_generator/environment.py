@@ -17,5 +17,16 @@ class Environment(object):
 
     def new_item(self):
         self.items_number += 1
-        return 'item_%d' % self.persons_number
-    
+        return 'item_%d' % self.items_number
+
+
+class LocalEnvironment(object):
+
+    def __init__(self):
+        self.storage = {}
+
+    def register(self, name, value):
+        self.storage[name] = value
+
+    def __getattr__(self, name):
+        return self.storage[name]

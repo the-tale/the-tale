@@ -1,19 +1,18 @@
 #!/usr/bin/python
 # coding: utf-8
 
-from game.quests.quests_generator.environment import Environment
-from game.quests.quests_generator.sequence import Sequence
+import random
+import pprint
 
-from game.quests.quests_generator import story_points as sp
+from game.quests.quests_generator.environment import Environment
+from game.quests.quests_generator.lines import QUESTS
 
 env = Environment()
 
-seq = Sequence(env, [sp.Quest()])
+quest = random.choice(QUESTS)(env=env)
 
-seq.mutate()
-seq.mutate()
-seq.mutate()
+quest.create_line(env)
 
-output = [el.__class__.__name__ for el in seq.seq]
+description = quest.get_description()
 
-print output
+pprint.pprint(description)
