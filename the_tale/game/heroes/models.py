@@ -44,11 +44,3 @@ class Hero(models.Model):
 
     def __unicode__(self):
         return u'hero[%d] - %s' % (self.id, self.name)
-
-
-class HeroQuest(models.Model):
-    
-    hero = models.ForeignKey(Hero)
-    quest = models.ForeignKey(Quest)
-
-    created_at = models.DateTimeField(auto_now_add=True)

@@ -117,6 +117,13 @@ class ActionPrototype(object):
         return self._npc
 
     @property
+    def quest(self):
+        from ..quests.prototypes import get_quest_by_model
+        if not hasattr(self, '_quest'):
+            self._quest = get_quest_by_model(model=self.model.quest)
+        return self._quest
+
+    @property
     def data(self):
         if not hasattr(self, '_data'):
             self._data = s11n.from_json(self.model.data)
@@ -219,7 +226,8 @@ class ActionIdlenessPrototype(ActionPrototype):
                 self.entropy = 0
                 self.hero.create_tmp_log_message('Entropy filled, receiving new quest')
                 quest = create_random_quest_for_hero(self.hero)
-                quest.create_action(self)
+
+                ActionQuestPrototype.create(parent=self, quest=quest)
                 self.state = self.STATE.ACTING
 
 
@@ -230,13 +238,6 @@ class ActionQuestPrototype(ActionPrototype):
 
     class STATE(ActionPrototype.STATE):
         PROCESSING = 'processing'
-
-    @property
-    def quest(self):
-        from ..quests.prototypes import get_quest_by_model
-        if not hasattr(self, '_quest'):
-            self._quest = get_quest_by_model(base_model=self.model.quest)
-        return self._quest
 
     ###########################################
     # Object operations
@@ -250,7 +251,7 @@ class ActionQuestPrototype(ActionPrototype):
                                        parent=parent.model, 
                                        hero=parent.hero.model, 
                                        order=parent.order+1, 
-                                       quest=quest.base_model)
+                                       quest=quest.model)
         return cls(model=model)
 
     def process(self):
@@ -303,6 +304,7 @@ class ActionMoveToPrototype(ActionPrototype):
     def process(self):
 
         if self.state == self.STATE.UNINITIALIZED:
+            self.hero.create_tmp_log_message('hero go to %s' % self.destination.name)
             self.state = self.STATE.CHOOSE_ROAD
 
         elif self.state == self.STATE.CHOOSE_ROAD:

@@ -6,43 +6,59 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
-    depends_on = (
-        ("heroes", "0001_initial"),
-    )
-
     def forwards(self, orm):
         
-        # Adding model 'Place'
-        db.create_table('places_place', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('x', self.gf('django.db.models.fields.BigIntegerField')()),
-            ('y', self.gf('django.db.models.fields.BigIntegerField')()),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=150)),
-            ('terrain', self.gf('django.db.models.fields.CharField')(default='.', max_length=1)),
-            ('type', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('subtype', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('size', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal('places', ['Place'])
+        # Deleting model 'QuestMailDelivery'
+        db.delete_table('quests_questmaildelivery')
 
-        # Adding model 'HeroPosition'
-        db.create_table('places_heroposition', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('place', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='positions', null=True, blank=True, to=orm['places.Place'])),
-            ('percents', self.gf('django.db.models.fields.FloatField')(default=None, null=True, blank=True)),
-            ('invert_direction', self.gf('django.db.models.fields.NullBooleanField')(default=False, null=True, blank=True)),
-            ('hero', self.gf('django.db.models.fields.related.OneToOneField')(related_name='position', unique=True, to=orm['heroes.Hero'])),
-        ))
-        db.send_create_signal('places', ['HeroPosition'])
+        # Deleting field 'Quest.state'
+        db.delete_column('quests_quest', 'state')
+
+        # Deleting field 'Quest.type'
+        db.delete_column('quests_quest', 'type')
+
+        # Adding field 'Quest.hero'
+        db.add_column('quests_quest', 'hero', self.gf('django.db.models.fields.related.ForeignKey')(default=0, related_name='+', to=orm['heroes.Hero']), keep_default=False)
+
+        # Adding field 'Quest.story'
+        db.add_column('quests_quest', 'story', self.gf('django.db.models.fields.TextField')(default='[]'), keep_default=False)
+
+        # Adding field 'Quest.data'
+        db.add_column('quests_quest', 'data', self.gf('django.db.models.fields.TextField')(default='{}'), keep_default=False)
+
+        # Adding field 'Quest.env'
+        db.add_column('quests_quest', 'env', self.gf('django.db.models.fields.TextField')(default='{}'), keep_default=False)
 
 
     def backwards(self, orm):
         
-        # Deleting model 'Place'
-        db.delete_table('places_place')
+        # Adding model 'QuestMailDelivery'
+        db.create_table('quests_questmaildelivery', (
+            ('hero', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['heroes.Hero'])),
+            ('base_quest', self.gf('django.db.models.fields.related.OneToOneField')(related_name='mail_delivery', unique=True, to=orm['quests.Quest'])),
+            ('delivery_to', self.gf('django.db.models.fields.related.ForeignKey')(related_name='quests_mail_delivery_to', to=orm['places.Place'])),
+            ('delivery_from', self.gf('django.db.models.fields.related.ForeignKey')(related_name='quests_mail_delivery_from', to=orm['places.Place'])),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        ))
+        db.send_create_signal('quests', ['QuestMailDelivery'])
 
-        # Deleting model 'HeroPosition'
-        db.delete_table('places_heroposition')
+        # Adding field 'Quest.state'
+        db.add_column('quests_quest', 'state', self.gf('django.db.models.fields.CharField')(default='uninitialized', max_length=50), keep_default=False)
+
+        # User chose to not deal with backwards NULL issues for 'Quest.type'
+        raise RuntimeError("Cannot reverse this migration. 'Quest.type' and its values cannot be restored.")
+
+        # Deleting field 'Quest.hero'
+        db.delete_column('quests_quest', 'hero_id')
+
+        # Deleting field 'Quest.story'
+        db.delete_column('quests_quest', 'story')
+
+        # Deleting field 'Quest.data'
+        db.delete_column('quests_quest', 'data')
+
+        # Deleting field 'Quest.env'
+        db.delete_column('quests_quest', 'env')
 
 
     models = {
@@ -109,16 +125,12 @@ class Migration(SchemaMigration):
             'money': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
             'npc': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'pos_invert_direction': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
+            'pos_percents': ('django.db.models.fields.FloatField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'pos_place': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'+'", 'null': 'True', 'blank': 'True', 'to': "orm['places.Place']"}),
+            'pos_road': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'+'", 'null': 'True', 'blank': 'True', 'to': "orm['roads.Road']"}),
             'reflexes': ('django.db.models.fields.IntegerField', [], {}),
             'wisdom': ('django.db.models.fields.IntegerField', [], {})
-        },
-        'places.heroposition': {
-            'Meta': {'object_name': 'HeroPosition'},
-            'hero': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'position'", 'unique': 'True', 'to': "orm['heroes.Hero']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'invert_direction': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
-            'percents': ('django.db.models.fields.FloatField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
-            'place': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'positions'", 'null': 'True', 'blank': 'True', 'to': "orm['places.Place']"})
         },
         'places.place': {
             'Meta': {'ordering': "('name',)", 'object_name': 'Place'},
@@ -130,7 +142,24 @@ class Migration(SchemaMigration):
             'type': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'x': ('django.db.models.fields.BigIntegerField', [], {}),
             'y': ('django.db.models.fields.BigIntegerField', [], {})
+        },
+        'quests.quest': {
+            'Meta': {'object_name': 'Quest'},
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'data': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
+            'env': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
+            'hero': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['heroes.Hero']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'percents': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'story': ('django.db.models.fields.TextField', [], {'default': "'[]'"})
+        },
+        'roads.road': {
+            'Meta': {'unique_together': "(('point_1', 'point_2'),)", 'object_name': 'Road'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'length': ('django.db.models.fields.FloatField', [], {'default': '0.0', 'blank': 'True'}),
+            'point_1': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"}),
+            'point_2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"})
         }
     }
 
-    complete_apps = ['places']
+    complete_apps = ['quests']

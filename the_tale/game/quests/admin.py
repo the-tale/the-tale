@@ -2,13 +2,10 @@
 
 from django.contrib import admin
 
-from .models import Quest, QuestMailDelivery
+from .models import Quest
 
 class QuestAdmin(admin.ModelAdmin):
-    list_display = ('id', 'type', 'state', 'created_at')
+    list_display = ('id', 'percents', 'created_at', 'hero')
 
-class QuestMailDeliveryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'base_quest', 'hero', 'delivery_from', 'delivery_to')
 
 admin.site.register(Quest, QuestAdmin)
-admin.site.register(QuestMailDelivery, QuestMailDeliveryAdmin)

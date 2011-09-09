@@ -19,3 +19,9 @@ class QuestLine(object):
         description = [self.__class__.__name__]
         description.extend( [cmd.get_description() for cmd in self.line] )
         return description
+
+    def get_json(self):
+
+        return { 'name': self.__class__.__name__,
+                 'line': [ cmd.get_json() for cmd in self.line]
+            }

@@ -8,7 +8,7 @@ from game.map.roads.prototypes import RoadPrototype
 
 from ..artifacts.effects import RAW_EFFECT_TYPE
 
-from .models import Hero, HeroQuest
+from .models import Hero
 from . import game_info
 
 attrs = game_info.attributes
@@ -74,11 +74,17 @@ class HeroPrototype(object):
     def put_loot(self, artifact):
         max_bag_size = self.max_bag_size
         quest_items_count, loot_items_count = self.bag.occupation
+        bag_item_uuid = None
         if artifact.quest or loot_items_count < max_bag_size:
             self.bag.put_artifact(artifact)
             self.create_tmp_log_message('hero received "%s"' % artifact.name)
         else:
             self.create_tmp_log_message('hero can not put "%s" - the bag is full' % artifact.name)
+        return bag_item_uuid
+
+    def pop_loot(self, artifact):
+        self.bag.pop_artifact(artifact)
+        self.create_tmp_log_message('hero droped "%s"' % artifact.name)
 
     @property
     def equipment(self):
@@ -158,16 +164,7 @@ class HeroPrototype(object):
 
     @property
     def quests(self):
-        from game.quests.prototypes import QUESTS_TYPES
-        if not hasattr(self, '_quests'):
-            self._quests = []
-            hero_quests = HeroQuest.objects.select_related('quest').filter(hero=self.model).order_by('created_at')
-            quests = [hero_quest.quest for hero_quest in hero_quests]
-            for quest in quests:
-                quest_objects = QUESTS_TYPES[quest.type](base_model=quest)
-                self._quests.append(quest_objects)
-        return self._quests
-    
+        return []    
 
     ###########################################
     # actions

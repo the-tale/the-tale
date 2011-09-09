@@ -33,11 +33,11 @@ class Bag(object):
     def put_artifact(self, artifact):
         uuid = self.next_uuid
         self.bag[uuid] = artifact
+        artifact.set_bag_uuid(uuid)
         self.next_uuid += 1
-        return uuid
 
-    def pop_artifact(self, artifact_id):
-        del self.bag[artifact_id]
+    def pop_artifact(self, artifact):
+        del self.bag[artifact.bag_uuid]
 
     def get(self, artifact_id):
         return self.bag.get(artifact_id, None)

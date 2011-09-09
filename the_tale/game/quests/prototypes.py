@@ -1,166 +1,159 @@
 # -*- coding: utf-8 -*-
+from django_next.utils import s11n
 
 from django_next.utils.decorators import nested_commit_on_success
 
-from ..heroes.models import HeroQuest
 from ..heroes.prototypes import get_hero_by_model
-from ..map.places.models import Place
-from ..map.places.prototypes import PlacePrototype
 
-from .models import Quest, QuestMailDelivery
+from .models import Quest
 
-def get_quests_types():
-    quests = {}
-    for key, cls in globals().items():
-        if isinstance(cls, type) and issubclass(cls, QuestPrototype) and cls != QuestPrototype:
-            quests[cls.TYPE] = cls
-    return quests
-
-def get_quest_by_model(base_model):
-    return QUESTS_TYPES[base_model.type](base_model=base_model)
-
+def get_quest_by_model(model):
+    return QuestPrototype(model=model)
 
 class QuestPrototype(object):
 
-    TYPE = 'BASE'
-
-    def __init__(self, base_model, *argv, **kwargs):
+    def __init__(self, model, *argv, **kwargs):
         super(QuestPrototype, self).__init__(*argv, **kwargs)
-        self.base_model = base_model
+        self.model = model
 
     @property
-    def id(self): return self.base_model.id
-
-    @property
-    def type(self): return self.base_model.type
-
-    def get_state(self): return self.base_model.state
-    def set_state(self, state): self.base_model.state = state
-    state = property(get_state, set_state)
+    def id(self): return self.model.id
 
     def get_percents(self): return self.base_model.percents
     def set_percents(self, value): self.base_model.percents = value
     percents = property(get_percents, set_percents)
 
     @property
-    def heroes(self): return []
-
-    @nested_commit_on_success
-    def create_action(self, parent_action):
-        from ..actions.prototypes import ActionQuestPrototype
-        return ActionQuestPrototype.create(parent_action, quest=self)
+    def hero(self): return get_hero_by_model(model=self.model.hero)
 
     @property
-    def STATE(self): return self.model.STATE
+    def data(self):
+        if not hasattr(self, '_data'):
+            self._data = s11n.from_json(self.model.data)
+        return self._data
+
+    @property
+    def story(self):
+        if not hasattr(self, '_story'):
+            self._story = s11n.from_json(self.model.story)
+        return self._story
+
+    @property
+    def env(self):
+        from .environment import Environment
+        if not hasattr(self, '_env'):
+            self._env = Environment(data=s11n.from_json(self.model.env))
+        return self._env
+
+    @property
+    def pos(self): return self.data['pos']
+
+    @property
+    def line(self): return self.data['line']
+
+    def get_current_cmd(self):
+        try:
+            cmd = self.line['line'][self.pos[0]]
+            
+            for pos in self.pos[1:]:
+                cmd = cmd['quest']['line'][pos]
+
+            return cmd
+        except Exception, e:
+            print e
+
+    @property
+    def is_processed(self):
+        return len(self.pos) == 0
 
     ###########################################
     # Object operations
     ###########################################
 
-    def remove(self): self.base_model.delete()
-    def save(self): self.base_model.save(force_update=True)
+    def remove(self): self.model.delete()
+    def save(self): 
+        self.model.data = s11n.to_json(self.data)
+        self.model.story = s11n.to_json(self.story)
+        self.model.env = s11n.to_json(self.env.save_to_dict())
+        self.model.save(force_update=True)
 
     def ui_info(self):
-        return {'id': self.id,
-                'type': self.type,
-                'state': self.state}
-
-
-class QuestMailDeliveryPrototype(QuestPrototype):
-
-    TYPE = 'MAIL_DELIVERY'
-
-    def __init__(self, base_model, model=None, *argv, **kwargs):
-        super(QuestMailDeliveryPrototype, self).__init__(base_model, *argv, **kwargs)
-        self.model = model if model else base_model.mail_delivery
-
-    def remove(self): 
-        self.model.delete()
-        super(QuestMailDeliveryPrototype, self).remove()
-
-    def save(self):
-        self.model.save()
-        super(QuestMailDeliveryPrototype, self).save()
-
-    def ui_info(self):
-        info = super(QuestMailDeliveryPrototype, self).ui_info()
-        return info
-
-    @property
-    def delivery_from(self): 
-        if not hasattr(self, '_delivery_from'):
-            self._delivery_from = PlacePrototype(model=self.model.delivery_from)
-        return self._delivery_from
-
-    @property
-    def delivery_to(self): 
-        if not hasattr(self, '_delivery_to'):
-            self._delivery_to = PlacePrototype(model=self.model.delivery_to)
-        return self._delivery_to
-
-    @property
-    def hero(self):
-        if not hasattr(self, '_hero'):
-            self._hero = get_hero_by_model(self.model.hero)
-        return self._hero
-
-    @property
-    def heroes(self): return [self.hero]
+        return {'id': self.id}
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, hero):
-        base_model = Quest.objects.create( type=cls.TYPE)
+    def create(cls, hero, env, quest_line):
 
-        # TODO: check situation when hero moved between places (i.e. hero.position.place is None)
+        env.sync()
 
-        place_from = hero.position.place
+        data = { 'pos': [0],
+                 'line': quest_line.get_json() }
 
-        place_to = Place.objects.exclude(id=place_from.id).order_by('?')[0]
+        model = Quest.objects.create(hero=hero.model,
+                                     env=s11n.to_json(env.save_to_dict()),
+                                     data=s11n.to_json(data))
+
+        return QuestPrototype(model=model)
+
+    def process(self, cur_action):
         
-        model = QuestMailDelivery.objects.create( base_quest=base_model, 
-                                                  hero=hero.model,
-                                                  delivery_from=place_from.model,
-                                                  delivery_to=place_to)
+        if self.do_step(cur_action):
+            return False, 0
 
-        HeroQuest.objects.create(hero=hero.model, quest=base_model)
+        return True, 1
+
+    def do_step(self, cur_action):
         
+        self.process_current_command(cur_action)
 
-        quest = cls(base_model=base_model, model=model)
+        if self.increment_pos():
+            return True
 
-        return quest
+        return False
+         
 
-    def process(self, action):
+    def increment_pos(self):
+        
+        while self.pos:
+            
+            self.pos[-1] = self.pos[-1] + 1
 
+            if self.get_current_cmd() is not None:
+                return
+
+            self.pos.pop()
+
+    def process_current_command(self, cur_action):
+
+        cmd = self.get_current_cmd()
+
+        {'description': self.cmd_description,
+         'move': self.cmd_move,
+         'getitem': self.cmd_get_item,
+         'giveitem': self.cmd_give_item,
+         'getrevard': self.cmd_get_reward,
+         'quest': self.cmd_quest
+         }[cmd['type']](cmd, cur_action)
+
+    def cmd_description(self, cmd, cur_action):
+        self.hero.create_tmp_log_message(cmd['msg'])
+
+    def cmd_move(self, cmd, cur_action):
         from ..actions.prototypes import ActionMoveToPrototype
+        destination = self.env.game_place(cmd['place'])
+        ActionMoveToPrototype.create(parent=cur_action, destination=destination)
 
-        finish = False
-        percents = 0.0
+    def cmd_get_item(self, cmd, cur_action):
+        item = self.env.get_game_item(cmd['item'])
+        self.hero.put_loot(item)
 
-        if self.state == self.STATE.UNINITIALIZED:
-            if self.hero.position.place.id != self.delivery_from.id:
-                ActionMoveToPrototype.create(hero=self.hero, destination=self.quest.delivery_from)
-                self.hero.create_tmp_log_message('go for mail')
+    def cmd_give_item(self, cmd, cur_action):
+        item = self.env.get_game_item(cmd['item'])
+        self.her.pop_loot(item)
 
-            self.state = self.STATE.MOVE_TO_DELIVERY_FROM_POINT
-        
-        elif self.state == self.STATE.MOVE_TO_DELIVERY_FROM_POINT:
-            
-            self.hero.create_tmp_log_message('take mail and go to destination')
+    def cmd_get_reward(self, cmd, cur_action):
+        #TODO: implement
+        self.hero.create_tmp_log_message('hero get some reward [TODO: IMPLEMENT]')
 
-            if self.hero.position.place.id != self.delivery_to.id:
-                ActionMoveToPrototype.create(parent=action, destination=self.delivery_to)
-
-                self.state = self.STATE.MOVE_TO_DELIVERY_TO_POINT
-                percents = 0.5
-                
-        elif self.state == self.STATE.MOVE_TO_DELIVERY_TO_POINT:
-            
-            self.hero.create_tmp_log_message('mail delivered')
-            self.state = self.STATE.COMPLETED
-            percents = 1.0
-            finish = True
-
-        return finish, percents
-
-QUESTS_TYPES = get_quests_types()
+    def cmd_quest(self, cmd, cur_action):
+        self.hero.create_tmp_log_message('do subquest')

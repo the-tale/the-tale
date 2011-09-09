@@ -43,8 +43,8 @@ class ArtifactConstructor(object):
     def generate_cost(self):
         return 0
 
-    def generate_artifact(self):
-        artifact = ArtifactPrototype(tp=self.TYPE, subtype=self.SUBTYPE)
+    def generate_artifact(self, quest=False):
+        artifact = ArtifactPrototype(tp=self.TYPE, subtype=self.SUBTYPE, quest=quest)
 
         artifact.set_name(self.generate_name())
         artifact.set_cost(self.generate_cost())
@@ -118,6 +118,9 @@ def generate_loot(loot_list, monster_power, basic_modificator, effects_modificat
 ##########################################
 # some test resulted constructors
 ##########################################
+
+class LetterConstructor(UselessThingConstructor):
+    NAME = u'письмо'
 
 class FakeAmuletConstructor(UselessThingConstructor):
     NAME = u'поддельный амулет'

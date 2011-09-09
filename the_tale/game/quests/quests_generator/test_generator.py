@@ -4,10 +4,10 @@
 import random
 import pprint
 
-from game.quests.quests_generator.environment import Environment
+from game.quests.quests_generator.environment import BaseEnvironment
 from game.quests.quests_generator.lines import QUESTS
 
-env = Environment()
+env = BaseEnvironment()
 
 quest = random.choice(QUESTS)(env=env)
 

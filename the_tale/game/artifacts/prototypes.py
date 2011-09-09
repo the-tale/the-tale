@@ -11,6 +11,8 @@ class ArtifactPrototype(object):
         self.cost = 0
         self.quest = quest
 
+        self.bag_uuid = None
+
         self.basic_points_spent = 0
         self.effect_points_spent = 0
 
@@ -33,6 +35,9 @@ class ArtifactPrototype(object):
 
     def set_cost(self, cost):
         self.cost = cost
+        
+    def set_bag_uuid(self, uuid):
+        self.bag_uuid = uuid
 
     def add_effects(self, effects_list):
         self.effects.extend(effects_list)
