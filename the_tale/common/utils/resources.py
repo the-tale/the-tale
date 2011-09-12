@@ -14,13 +14,13 @@ class Resource(BaseResource):
     @property
     def account(self):
         if not hasattr(self, '_account'):
-            self._account = self.user.get_profile()
+            self._account = None if self.user.is_anonymous() else self.user.get_profile()
         return self._account
 
     @property
     def angel(self):
         if not hasattr(self, '_angel'):
-            self._angetl = None
+            self._angel = None
             if self.account:
                 self._angel = get_angel_by_model(self.account.angel)
         return self._angel;

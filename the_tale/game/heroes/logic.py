@@ -20,10 +20,10 @@ def heal_in_town(pacient):
     pacient.health = min(pacient.max_health, pacient.health + heal_amount)
     return heal_amount
 
-def sell_in_city(seller, artifact_uuid, selling_crit):
-    sell_price = game_info.actions.trading.trade_in_town.sell_price(seller, artifact_uuid, selling_crit)
+def sell_in_city(seller, artifact, selling_crit):
+    sell_price = game_info.actions.trading.trade_in_town.sell_price(seller, artifact, selling_crit)
     seller.money = seller.money + sell_price
-    seller.bag.pop_artifact(artifact_uuid)
+    seller.bag.pop_artifact(artifact)
     return sell_price
 
 def equip_in_city(hero):

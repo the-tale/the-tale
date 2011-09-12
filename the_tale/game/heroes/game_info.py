@@ -165,10 +165,7 @@ class actions:
             description = u'торговля в городе'
 
             @classmethod
-            def sell_price(cls, seller, artifact_uuid, selling_crit):
-                artifact = seller.bag.get(artifact_uuid)
-                if artifact is None:
-                    raise GameInfoException('artifacts with uuid %d does not found in bag of hero %d' % (artifact_uuid, seller.id))
+            def sell_price(cls, seller, artifact, selling_crit):
                 left_delta = int(artifact.cost * (1 - (10 + seller.chaoticity - seller.intellect - seller.charisma) / 100.0))
                 right_delta = int(artifact.cost * (1 + (10 + seller.chaoticity + seller.intellect + seller.charisma) / 100.0))
                 price = random.randint(left_delta, right_delta)
@@ -197,7 +194,7 @@ class actions:
                         equipped_artifact = hero.equipment.get(slot)
                         if equipped_artifact is None:
                             equipped = True
-                            hero.bag.pop_artifact(uuid)
+                            hero.bag.pop_artifact(artifact)
                             hero.equipment.equip(slot, artifact)
                             equipped = artifact
                             break
@@ -209,7 +206,7 @@ class actions:
                         equipped_artifact = hero.equipment.get(slot)
                         if equipped_artifact.total_points_spent < artifact.total_points_spent:
                             equipped = True
-                            hero.bag.pop_artifact(uuid)
+                            hero.bag.pop_artifact(artifact)
                             hero.equipment.unequip(slot)
                             hero.bag.put_artifact(equipped_artifact)
                             hero.equipment.equip(slot, artifact)

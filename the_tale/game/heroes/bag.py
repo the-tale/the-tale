@@ -20,7 +20,7 @@ class Bag(object):
         for uuid, artifact_data in data.get('bag', {}).items():
             artifact = ArtifactPrototype()
             artifact.load_from_dict(artifact_data)
-            self.bag[uuid] = artifact
+            self.bag[int(uuid)] = artifact
     
     def save_to_json(self):
         return s11n.to_json({'next_uuid': self.next_uuid,
@@ -28,7 +28,7 @@ class Bag(object):
                              })
 
     def ui_info(self):
-        return dict( (uuid, artifact.ui_info()) for uuid, artifact in self.bag.items() )
+        return dict( (int(uuid), artifact.ui_info()) for uuid, artifact in self.bag.items() )
 
     def put_artifact(self, artifact):
         uuid = self.next_uuid
@@ -38,6 +38,12 @@ class Bag(object):
 
     def pop_artifact(self, artifact):
         del self.bag[artifact.bag_uuid]
+
+    def pop_quest_artifact(self, artifact):
+        for uuid, bag_artifact in self.bag.items():
+            if bag_artifact.quest_uuid == artifact.quest_uuid:
+                self.pop_artifact(bag_artifact)
+                break
 
     def get(self, artifact_id):
         return self.bag.get(artifact_id, None)

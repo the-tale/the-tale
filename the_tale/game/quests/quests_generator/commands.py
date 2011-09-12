@@ -65,6 +65,11 @@ class GiveItem(Command):
     def __init__(self, item):
         self.item = item
 
+    def get_json(self):
+        data = super(GiveItem, self).get_json()
+        data.update({'item': self.item})
+        return data
+
     def get_description(self):
         return '<give item> item: %s' % self.item
 

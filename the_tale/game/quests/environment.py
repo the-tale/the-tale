@@ -32,6 +32,7 @@ class Environment(BaseEnvironment):
         for item_id, item_data in self.items.items():
             constructor = LetterConstructor(basic_points=1, effect_points=1)
             artifact = constructor.generate_artifact(quest=True)
+            artifact.set_quest_uuid(item_id)
             item_data['game']['artifact'] = artifact.save_to_dict()
 
     def get_game_place(self, place_id):

@@ -389,7 +389,12 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     var instance = this;
 
     var widget = jQuery(selector);
-    var bagContainer = jQuery('.pgf-bag-container', widget);
+    
+    var bagQuestsBlock = jQuery('.pgf-bag-quests');
+    var bagBlock = jQuery('.pgf-bag');
+
+    var bagQuestsContainer = jQuery('.pgf-bag-container', bagQuestsBlock);
+    var bagContainer = jQuery('.pgf-bag-container', bagBlock);
 
     var tooltipTemplate = jQuery(params.tooltipTemplate);
 
@@ -407,11 +412,21 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     }
 
     function RenderItems() {
+        var quests = [];
         var items = [];
         for (var uuid in data.bag) {
-            items.push(data.bag[uuid]);
+            if (data.bag[uuid].quest) {
+                quests.push(data.bag[uuid]);
+            }
+            else {
+                items.push(data.bag[uuid]);
+            }
         }
+        bagQuestsBlock.toggleClass('pgf-hidden', quests.length==0)
+        bagBlock.toggleClass('pgf-hidden', quests.length==0)
+
         pgf.base.RenderTemplateList(bagContainer, items, RenderItem, {});
+        pgf.base.RenderTemplateList(bagQuestsContainer, quests, RenderItem, {});
     }
 
     this.Refresh = function() {

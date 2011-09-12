@@ -3,8 +3,6 @@ from django_next.utils import s11n
 
 from django_next.utils.decorators import nested_commit_on_success
 
-from ..heroes.prototypes import get_hero_by_model
-
 from .models import Quest
 
 def get_quest_by_model(model):
@@ -22,9 +20,6 @@ class QuestPrototype(object):
     def get_percents(self): return self.base_model.percents
     def set_percents(self, value): self.base_model.percents = value
     percents = property(get_percents, set_percents)
-
-    @property
-    def hero(self): return get_hero_by_model(model=self.model.hero)
 
     @property
     def data(self):
@@ -59,8 +54,8 @@ class QuestPrototype(object):
                 cmd = cmd['quest']['line'][pos]
 
             return cmd
-        except Exception, e:
-            print e
+        except IndexError:
+            return None
 
     @property
     def is_processed(self):
@@ -113,15 +108,20 @@ class QuestPrototype(object):
          
 
     def increment_pos(self):
-        
         while self.pos:
-            
-            self.pos[-1] = self.pos[-1] + 1
+
+            cmd = self.get_current_cmd()
+
+            if cmd['type'] == 'quest': 
+                self.pos.append(0)
+            else:
+                self.pos[-1] = self.pos[-1] + 1
 
             if self.get_current_cmd() is not None:
-                return
+                return True
 
             self.pos.pop()
+
 
     def process_current_command(self, cur_action):
 
@@ -131,29 +131,29 @@ class QuestPrototype(object):
          'move': self.cmd_move,
          'getitem': self.cmd_get_item,
          'giveitem': self.cmd_give_item,
-         'getrevard': self.cmd_get_reward,
+         'getreward': self.cmd_get_reward,
          'quest': self.cmd_quest
          }[cmd['type']](cmd, cur_action)
 
     def cmd_description(self, cmd, cur_action):
-        self.hero.create_tmp_log_message(cmd['msg'])
+        cur_action.hero.create_tmp_log_message(cmd['msg'])
 
     def cmd_move(self, cmd, cur_action):
         from ..actions.prototypes import ActionMoveToPrototype
-        destination = self.env.game_place(cmd['place'])
+        destination = self.env.get_game_place(cmd['place'])
         ActionMoveToPrototype.create(parent=cur_action, destination=destination)
 
     def cmd_get_item(self, cmd, cur_action):
         item = self.env.get_game_item(cmd['item'])
-        self.hero.put_loot(item)
+        cur_action.hero.put_loot(item)
 
     def cmd_give_item(self, cmd, cur_action):
         item = self.env.get_game_item(cmd['item'])
-        self.her.pop_loot(item)
+        cur_action.hero.pop_quest_loot(item)
 
     def cmd_get_reward(self, cmd, cur_action):
         #TODO: implement
-        self.hero.create_tmp_log_message('hero get some reward [TODO: IMPLEMENT]')
+        cur_action.hero.create_tmp_log_message('hero get some reward [TODO: IMPLEMENT]')
 
     def cmd_quest(self, cmd, cur_action):
-        self.hero.create_tmp_log_message('do subquest')
+        cur_action.hero.create_tmp_log_message('do subquest')

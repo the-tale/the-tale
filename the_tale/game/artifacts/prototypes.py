@@ -11,6 +11,7 @@ class ArtifactPrototype(object):
         self.cost = 0
         self.quest = quest
 
+        self.quest_uuid = None
         self.bag_uuid = None
 
         self.basic_points_spent = 0
@@ -39,6 +40,9 @@ class ArtifactPrototype(object):
     def set_bag_uuid(self, uuid):
         self.bag_uuid = uuid
 
+    def set_quest_uuid(self, uuid):
+        self.quest_uuid = uuid
+
     def add_effects(self, effects_list):
         self.effects.extend(effects_list)
 
@@ -48,6 +52,9 @@ class ArtifactPrototype(object):
         self.name = data.get('name', '')
         self.cost = data.get('cost', 0)
         self.quest = data.get('quest', False)
+
+        self.quest_uuid = data.get('quest_uuid', False)
+        self.bag_uuid = data.get('bag_uuid', False)
 
         self.basic_points_spent = data.get('basic_points_spent', 0)
         self.effect_points_spent = data.get('effect_points_spent', 0)
@@ -61,6 +68,8 @@ class ArtifactPrototype(object):
                 'name': self.name,
                 'cost': self.cost,
                 'quest': self.quest,
+                'quest_uuid': self.quest_uuid,
+                'bag_uuid': self.bag_uuid,
                 'basic_points_spent': self.basic_points_spent,
                 'effect_points_spent': self.effect_points_spent,
                 'effects': [ effect.save_to_dict() for effect in self.effects]}

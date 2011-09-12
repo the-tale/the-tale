@@ -268,6 +268,8 @@ class ActionQuestPrototype(ActionPrototype):
             else:
                 self.quest.save()
 
+            self.hero.save()
+
 
 class ActionMoveToPrototype(ActionPrototype):
 
@@ -680,10 +682,12 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
             quest_items_count, loot_items_count = self.hero.bag.occupation
             if loot_items_count:
 
-                items = self.hero.bag.items()
-                artifact_uuid, artifact = items[0]
+                for item in self.hero.bag.items():
+                    artifact_uuid, artifact = item
+                    if not artifact.quest:
+                        break
                     
-                sell_price = sell_in_city(self.hero, artifact_uuid, False)
+                sell_price = sell_in_city(self.hero, artifact, False)
 
                 self.hero.create_tmp_log_message('hero solled %s for %d g.' % (artifact.name, sell_price) )
                 self.hero.save()

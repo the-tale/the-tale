@@ -2,6 +2,7 @@
 
 from django_next.views.resources import handler
 from common.utils.resources import Resource
+from common.utils.decorators import login_required
 
 from .cards.logic import get_angel_deck
 from .heroes.logic import get_angel_heroes
@@ -17,6 +18,7 @@ class GameResource(Resource):
     def __init__(self, request, *args, **kwargs):
         super(GameResource, self).__init__(request, *args, **kwargs)
 
+    @login_required
     @handler('', method='get')
     def game_page(self, angel=None):
         if angel is None:

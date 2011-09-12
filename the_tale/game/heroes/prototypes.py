@@ -86,6 +86,10 @@ class HeroPrototype(object):
         self.bag.pop_artifact(artifact)
         self.create_tmp_log_message('hero droped "%s"' % artifact.name)
 
+    def pop_quest_loot(self, artifact):
+        self.bag.pop_quest_artifact(artifact)
+        self.create_tmp_log_message('hero droped "%s"' % artifact.name)
+
     @property
     def equipment(self):
         if not hasattr(self, '_equipment'):
@@ -204,6 +208,9 @@ class HeroPrototype(object):
     def save(self): 
         self.model.bag = self.bag.save_to_json()
         self.model.equipment = self.equipment.save_to_json()
+        # print 2
+        # print self.model.bag
+        # raise Exception('?')
         self.model.save(force_update=True)
 
     def get_messages_log(self):
