@@ -7,7 +7,7 @@ class Quest(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    percents = models.FloatField(null=False, default=0.0)
+    cmd_number = models.IntegerField(null=False, default=0)
 
     story = models.TextField(null=False, default='[]')
     data = models.TextField(null=False, default='{}')

@@ -423,7 +423,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
             }
         }
         bagQuestsBlock.toggleClass('pgf-hidden', quests.length==0)
-        bagBlock.toggleClass('pgf-hidden', quests.length==0)
+        bagBlock.toggleClass('pgf-hidden', items.length==0)
 
         pgf.base.RenderTemplateList(bagContainer, items, RenderItem, {});
         pgf.base.RenderTemplateList(bagQuestsContainer, quests, RenderItem, {});

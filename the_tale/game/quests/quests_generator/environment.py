@@ -1,4 +1,5 @@
 # coding: utf-8
+import copy
 
 class BaseEnvironment(object):
 
@@ -54,11 +55,21 @@ class BaseEnvironment(object):
 
 class LocalEnvironment(object):
 
-    def __init__(self):
+    def __init__(self, data=None):
         self.storage = {}
+
+        if data:
+            self.load_from_dict(data)
 
     def register(self, name, value):
         self.storage[name] = value
 
     def __getattr__(self, name):
         return self.storage[name]
+
+    def save_to_dict(self):
+        return self.storage
+
+    def load_from_dict(self, data):
+        self.storage = copy.deepcopy(data)
+

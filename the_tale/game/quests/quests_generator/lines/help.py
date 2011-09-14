@@ -4,9 +4,12 @@ import random
 from ..quest_line import QuestLine
 from .. import commands as cmd
 
-class HelpLine(QuestLine):
+class EVENT_ID:
+    QUEST_DESCRIPTION = 'quest_description'
+    MOVE_TO_QUEST = 'move_to_quest'
+    START_QUEST = 'start_quest'
 
-    DESCRIPTION = '<person_start> request help for <person_end> in <place_end>'
+class HelpLine(QuestLine):
 
     def __init__(self, env, **kwargs):
         from . import QUESTS
@@ -19,5 +22,5 @@ class HelpLine(QuestLine):
     def create_line(self, env):
         self.quest_help.create_line(env)
 
-        self.line =  [ cmd.Move(place=self.env.place_end),
-                       cmd.Quest(quest=self.quest_help) ]
+        self.line =  [ cmd.Move(place=self.env.place_end, event=EVENT_ID.MOVE_TO_QUEST),
+                       cmd.Quest(quest=self.quest_help, event=EVENT_ID.START_QUEST) ]

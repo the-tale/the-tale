@@ -3,6 +3,7 @@ from django_next.utils import s11n
 
 from django_next.utils.decorators import nested_commit_on_success
 
+from . import writers
 from .models import Quest
 
 def get_quest_by_model(model):
@@ -13,13 +14,18 @@ class QuestPrototype(object):
     def __init__(self, model, *argv, **kwargs):
         super(QuestPrototype, self).__init__(*argv, **kwargs)
         self.model = model
+        self.cmd_number = 0
 
     @property
     def id(self): return self.model.id
 
-    def get_percents(self): return self.base_model.percents
-    def set_percents(self, value): self.base_model.percents = value
-    percents = property(get_percents, set_percents)
+    def get_cmd_number(self): return self.model.cmd_number
+    def set_cmd_number(self, value): self.model.cmd_number = value
+    cmd_number = property(get_cmd_number, set_cmd_number)
+
+    @property
+    def percents(self):
+        return float(self.cmd_number) / self.data['line']['sequence_len']
 
     @property
     def data(self):
@@ -57,6 +63,21 @@ class QuestPrototype(object):
         except IndexError:
             return None
 
+    def get_current_writer(self):
+
+        try:
+            cmd = self.line['line'][self.pos[0]]
+
+            writer = writers.WRITERS[self.line['writer']](self.env, self.line['env'])
+            
+            for pos in self.pos[1:]:
+                writer = writers.WRITERS[cmd['quest']['writer']](self.env, cmd['quest']['env'])
+                cmd = cmd['quest']['line'][pos]
+
+            return writer
+        except IndexError:
+            return None
+
     @property
     def is_processed(self):
         return len(self.pos) == 0
@@ -81,8 +102,10 @@ class QuestPrototype(object):
 
         env.sync()
 
+        line_dict = quest_line.get_json()
+
         data = { 'pos': [0],
-                 'line': quest_line.get_json() }
+                 'line':  line_dict}
 
         model = Quest.objects.create(hero=hero.model,
                                      env=s11n.to_json(env.save_to_dict()),
@@ -93,7 +116,7 @@ class QuestPrototype(object):
     def process(self, cur_action):
         
         if self.do_step(cur_action):
-            return False, 0
+            return False, self.percents
 
         return True, 1
 
@@ -111,22 +134,33 @@ class QuestPrototype(object):
         while self.pos:
 
             cmd = self.get_current_cmd()
-
+            
             if cmd['type'] == 'quest': 
                 self.pos.append(0)
             else:
                 self.pos[-1] = self.pos[-1] + 1
 
-            if self.get_current_cmd() is not None:
-                return True
+            while self.pos and self.get_current_cmd() is None:
+                self.pos.pop()
 
-            self.pos.pop()
+                if len(self.pos):
+                    self.pos[-1] = self.pos[-1] + 1
+
+            if self.get_current_cmd() is not None:
+                self.cmd_number += 1
+                return True
 
 
     def process_current_command(self, cur_action):
 
         cmd = self.get_current_cmd()
 
+        writer = self.get_current_writer()
+        log_msg = writer.get_log_msg(cmd['event'])
+
+        if log_msg:
+            cur_action.hero.create_tmp_log_message(log_msg)
+        
         {'description': self.cmd_description,
          'move': self.cmd_move,
          'getitem': self.cmd_get_item,
@@ -156,4 +190,4 @@ class QuestPrototype(object):
         cur_action.hero.create_tmp_log_message('hero get some reward [TODO: IMPLEMENT]')
 
     def cmd_quest(self, cmd, cur_action):
-        cur_action.hero.create_tmp_log_message('do subquest')
+        pass

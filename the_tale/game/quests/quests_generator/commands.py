@@ -2,7 +2,13 @@
 
 class Command(object):
 
+    def __init__(self, event):
+        self.event = event
+
     def get_context_msg(self):
+        pass
+
+    def set_writer(self, writer):
         pass
 
     def on_create(self):
@@ -11,20 +17,21 @@ class Command(object):
     def get_description(self):
         return 'unknown command'
 
+    def get_sequence_len(self):
+        return 1
+
     def get_json(self):
-        return { 'type': self.__class__.__name__.lower() }
+        return { 'type': self.__class__.__name__.lower(),
+                 'event': self.event}
 
 
 class Description(Command):
 
-    def __init__(self, msg):
-        self.context_msg = msg
-
-    def get_context_msg(self):
-        return self.context_msg
+    def __init__(self, **kwargs):
+        super(Description, self).__init__(**kwargs)
 
     def get_description(self):
-        return '<description> msg: %s' % self.context_msg
+        return '<description> msg: %s' % self.event
 
     def get_json(self):
         data = super(Description, self).get_json()
@@ -34,7 +41,8 @@ class Description(Command):
 
 class Move(Command):
 
-    def __init__(self, place):
+    def __init__(self, place, **kwargs):
+        super(Move, self).__init__(**kwargs)
         self.place = place
 
     def get_description(self):
@@ -48,7 +56,8 @@ class Move(Command):
 
 class GetItem(Command):
 
-    def __init__(self, item):
+    def __init__(self, item, **kwargs):
+        super(GetItem, self).__init__(**kwargs)
         self.item = item
 
     def get_description(self):
@@ -62,7 +71,8 @@ class GetItem(Command):
 
 class GiveItem(Command):
 
-    def __init__(self, item):
+    def __init__(self, item, **kwargs):
+        super(GiveItem, self).__init__(**kwargs)
         self.item = item
 
     def get_json(self):
@@ -77,7 +87,8 @@ class GiveItem(Command):
 
 class GetReward(Command):
     
-    def __init__(self, person):
+    def __init__(self, person, **kwargs):
+        super(GetReward, self).__init__(**kwargs)
         self.person = person
 
     def get_description(self):
@@ -91,7 +102,8 @@ class GetReward(Command):
 
 class Quest(Command):
 
-    def __init__(self, quest):
+    def __init__(self, quest, **kwargs):
+        super(Quest, self).__init__(**kwargs)
         self.quest = quest
 
     def on_create(self):
@@ -100,9 +112,17 @@ class Quest(Command):
     def get_description(self):
         return self.quest.get_description()
 
+    def get_sequence_len(self):
+        return 1 + self.quest.get_sequence_len()
+
     def get_json(self):
         data = super(Quest, self).get_json()
         data.update({'quest': self.quest.get_json()})
         return data
+
+    def set_writer(self, writers):
+        self.quest.set_writer(writers)
+
+
 
 
