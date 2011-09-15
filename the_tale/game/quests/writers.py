@@ -46,10 +46,10 @@ class HelpWriter(Writer):
 
 class DeliveryWriter(Writer):
 
-    ACTIONS = { DELIVERY_EVENT_ID.QUEST_DESCRIPTION:'QUEST:%(person_start) ask hero to deliver %(item_to_deliver)s to %(person_end)s in %(place_end)s',
+    ACTIONS = { DELIVERY_EVENT_ID.QUEST_DESCRIPTION:'QUEST:%(person_start)s ask hero to deliver %(item_to_deliver)s to %(person_end)s in %(place_end)s',
                 DELIVERY_EVENT_ID.MOVE_TO_DESTINATION: 'QUEST: hero is delivering to %(place_end)s'}
 
-    LOG = { DELIVERY_EVENT_ID.QUEST_DESCRIPTION:'QUEST:%(person_start) ask hero to deliver %(item_to_deliver)s to %(person_end)s in %(place_end)s',
+    LOG = { DELIVERY_EVENT_ID.QUEST_DESCRIPTION:'QUEST:%(person_start)s ask hero to deliver %(item_to_deliver)s to %(person_end)s in %(place_end)s',
             DELIVERY_EVENT_ID.GET_ITEM: 'QUEST: hero get %(item_to_deliver)s',
             DELIVERY_EVENT_ID.MOVE_TO_DESTINATION: 'QUEST: hero is delivering to %(place_end)s',
             DELIVERY_EVENT_ID.GIVE_ITEM: 'QUEST: hero give %(item_to_deliver)s to %(person_end)s',

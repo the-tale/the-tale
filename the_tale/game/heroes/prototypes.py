@@ -7,6 +7,9 @@ from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
 from ..artifacts.effects import RAW_EFFECT_TYPE
+from ..quests.prototypes import get_quest_by_model
+from ..quests.models import Quest
+
 
 from .models import Hero
 from . import game_info
@@ -167,8 +170,11 @@ class HeroPrototype(object):
     ###########################################
 
     @property
-    def quests(self):
-        return []    
+    def quest(self):
+        try:
+            return get_quest_by_model(Quest.objects.get(hero=self.model))
+        except Quest.DoesNotExist:
+            return None
 
     ###########################################
     # actions
@@ -224,7 +230,7 @@ class HeroPrototype(object):
                 'npc': self.is_npc,
                 'angel': self.angel_id,
                 'actions': [ action.ui_info() for action in self.get_actions() ] if not ignore_actions else [],
-                'quests': [quest.ui_info() for quest in self.quests] if not ignore_quests else [], 
+                'quests': self.quest.ui_info if self.quest else [],
                 'messages': self.get_messages_log().messages if not self.is_npc else None,
                 'position': self.position.ui_info() if not self.is_npc else None,
                 'alive': self.is_alive,

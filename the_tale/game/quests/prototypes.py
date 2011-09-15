@@ -52,6 +52,12 @@ class QuestPrototype(object):
     @property
     def line(self): return self.data['line']
 
+    @property
+    def ui_info(self): 
+        if not 'ui_info' in self.data:
+            self.data['ui_info'] = []
+        return self.data['ui_info']
+
     def get_current_cmd(self):
         try:
             cmd = self.line['line'][self.pos[0]]
@@ -93,9 +99,6 @@ class QuestPrototype(object):
         self.model.env = s11n.to_json(self.env.save_to_dict())
         self.model.save(force_update=True)
 
-    def ui_info(self):
-        return {'id': self.id}
-
     @classmethod
     @nested_commit_on_success
     def create(cls, hero, env, quest_line):
@@ -105,6 +108,7 @@ class QuestPrototype(object):
         line_dict = quest_line.get_json()
 
         data = { 'pos': [0],
+                 'ui_info': [None],
                  'line':  line_dict}
 
         model = Quest.objects.create(hero=hero.model,
@@ -157,10 +161,21 @@ class QuestPrototype(object):
 
         writer = self.get_current_writer()
         log_msg = writer.get_log_msg(cmd['event'])
+        action_msg = writer.get_action_msg(cmd['event'])
+        quest_msg = writer.get_action_msg('quest_description')
 
         if log_msg:
             cur_action.hero.create_tmp_log_message(log_msg)
-        
+
+        if len(self.pos) > len(self.ui_info):
+            print self.ui_info.append({})
+
+        self.ui_info[-1] = {'quest_msg': quest_msg,
+                            'action_msg': action_msg}
+
+        while len(self.pos) < len(self.ui_info):
+            self.ui_info.pop()
+
         {'description': self.cmd_description,
          'move': self.cmd_move,
          'getitem': self.cmd_get_item,

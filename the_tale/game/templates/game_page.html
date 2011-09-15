@@ -59,7 +59,7 @@ jQuery(document).ready(function(e){
 
     widgets.actions = new pgf.game.widgets.Actions('#current-action-block',
                                                    updater, widgets,
-                                                   {} );
+                                                   { } );
 
     widgets.actions = new pgf.game.widgets.Log('#log-block',
                                                updater, widgets,
@@ -230,7 +230,9 @@ jQuery(document).ready(function(e){
         <tr>
           <td class="quests-line-container" >
             <div class="quests-line pgf-quests-line">
-              <img class="quest-icon pgf-template" src="{{ STATIC_URL }}tmp/delivery-quest-icon.png"/>
+              <div class="pgf-template">
+                <img class="quest-icon pgf-quest-icon pgf-hidden" src="{{ STATIC_URL }}tmp/quest-large.png" data-tooltip=""/>
+                <img class="action-icon pgf-action-icon pgf-hidden" src="{{ STATIC_URL }}tmp/quest-small.bmp" data-tooltip=""/>
             </div>
             <div class="pgf-no-quests-message">
               Герой бьёт баклуши
@@ -384,4 +386,6 @@ jQuery(document).ready(function(e){
   <p class="description pgf-description"></p>
   <p class="artistic pgf-artistic"></p>
 </div>
+
+
 {% endblock %}

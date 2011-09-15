@@ -189,6 +189,8 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     var instance = this;
 
     function RenderQuest(index, data, element) {
+        jQuery('.pgf-quest-icon', element).toggleClass('pgf-hidden', !data.quest_msg).data('tooltip', data.quest_msg);
+        jQuery('.pgf-action-icon', element).toggleClass('pgf-hidden', !data.action_msg).data('tooltip', data.action_msg);
     }
 
     function RenderQuests() {
