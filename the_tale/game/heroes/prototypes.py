@@ -230,7 +230,7 @@ class HeroPrototype(object):
                 'npc': self.is_npc,
                 'angel': self.angel_id,
                 'actions': [ action.ui_info() for action in self.get_actions() ] if not ignore_actions else [],
-                'quests': self.quest.ui_info if self.quest else [],
+                'quests': self.quest.ui_info() if self.quest else {},
                 'messages': self.get_messages_log().messages if not self.is_npc else None,
                 'position': self.position.ui_info() if not self.is_npc else None,
                 'alive': self.is_alive,

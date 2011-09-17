@@ -196,11 +196,15 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     }
 
     function RenderQuests() {
-        questsLine.toggleClass('pgf-hidden', !(data.quests.length > 0) )
-        noQuestsMsg.toggleClass('pgf-hidden', data.quests.length > 0 )
-        if (data.quests.length > 0) {
-            pgf.base.RenderTemplateList(questsLine, data.quests, RenderQuest, {});
+        questsLine.toggleClass('pgf-hidden', !(data.quests.line && data.quests.line.length > 0) )
+        noQuestsMsg.toggleClass('pgf-hidden', !!(data.quests.line && data.quests.line.length > 0) )
+
+        jQuery('.pgf-quests-progress', questsBlock).toggleClass('pgf-hidden', !(data.quests.line && data.quests.line.length > 0) )
+
+        if (data.quests.line && data.quests.line.length > 0) {
+            pgf.base.RenderTemplateList(questsLine, data.quests.line, RenderQuest, {});
         }
+        jQuery('.pgf-quests-progress .pgf-value', questsBlock).text(data.quests.percents);
     }
 
     function RenderOtherAction(action) {

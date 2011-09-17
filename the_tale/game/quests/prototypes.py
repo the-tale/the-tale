@@ -53,10 +53,10 @@ class QuestPrototype(object):
     def line(self): return self.data['line']
 
     @property
-    def ui_info(self): 
-        if not 'ui_info' in self.data:
-            self.data['ui_info'] = []
-        return self.data['ui_info']
+    def ui_line(self): 
+        if not 'ui_line' in self.data:
+            self.data['ui_line'] = []
+        return self.data['ui_line']
 
     def get_current_cmd(self):
         try:
@@ -108,14 +108,24 @@ class QuestPrototype(object):
         line_dict = quest_line.get_json()
 
         data = { 'pos': [0],
-                 'ui_info': [None],
+                 'ui_line': [None],
                  'line':  line_dict}
 
         model = Quest.objects.create(hero=hero.model,
                                      env=s11n.to_json(env.save_to_dict()),
                                      data=s11n.to_json(data))
 
-        return QuestPrototype(model=model)
+        quest = QuestPrototype(model=model)
+
+        #TODO: move to creation fase (remove save operation)
+        writer = quest.get_current_writer()
+        quest_msg = writer.get_action_msg('quest_description')
+
+        quest.ui_line[-1] = {'quest_msg': quest_msg,
+                             'action_msg': ''}
+        quest.save()
+        return quest
+
 
     def process(self, cur_action):
         
@@ -167,14 +177,14 @@ class QuestPrototype(object):
         if log_msg:
             cur_action.hero.create_tmp_log_message(log_msg)
 
-        if len(self.pos) > len(self.ui_info):
-            print self.ui_info.append({})
+        if len(self.pos) > len(self.ui_line):
+            print self.ui_line.append({})
 
-        self.ui_info[-1] = {'quest_msg': quest_msg,
+        self.ui_line[-1] = {'quest_msg': quest_msg,
                             'action_msg': action_msg}
 
-        while len(self.pos) < len(self.ui_info):
-            self.ui_info.pop()
+        while len(self.pos) < len(self.ui_line):
+            self.ui_line.pop()
 
         {'description': self.cmd_description,
          'move': self.cmd_move,
@@ -206,3 +216,7 @@ class QuestPrototype(object):
 
     def cmd_quest(self, cmd, cur_action):
         pass
+
+    def ui_info(self):
+        return {'percents': self.percents,
+                'line': self.ui_line}

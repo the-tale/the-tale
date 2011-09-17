@@ -265,8 +265,11 @@ jQuery(document).ready(function(e){
       </div>
 
       <div id="current-quests-block" class="pgf-current-quests-block">
+        <div class="quests-progress pgf-quests-progress">
+          <span class="pgf-value"></span>%
+        </div>
         <div class="quests-line pgf-quests-line">
-          <div class="pgf-template">
+          <div class="quest-line-element pgf-template">
             <img class="quest-icon pgf-quest-icon pgf-hidden" src="{{ STATIC_URL }}tmp/quest-large.png" data-tooltip=""/>
             <img class="action-icon pgf-action-icon pgf-hidden" src="{{ STATIC_URL }}tmp/quest-small.bmp" data-tooltip=""/>
           </div>
