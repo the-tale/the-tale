@@ -12,6 +12,8 @@
 @center-column-width: 560px;
 @right-column-width: 200px;
 
+@actions-info-height: 150px;
+
 #game-page {
     margin: 0;
     padding: 0;
@@ -207,15 +209,57 @@
     }
 }
 
-#current-action-block {
-    height: 100px;
+#current-actions-block {
+    height: @actions-info-height;
+    position: relative;
 
-    .quests-line-container {
+    #current-action-block {
 
-        height: 40px;
+        width: 200px;
+        height: 100%;
+        border: 1px black solid;
+        display: inline-block;
+
+        position: absolute;
+        left: 0px;
+        top: 0px;
+
+        .action-description {
+            border: 1px black solid;
+            .name {
+                font-size: 11pt;
+            }
+
+            .action-progress {
+
+                vertical-align: middle;
+            }
+        }
+
+        .action-info {
+            vertical-align: top;
+        }
+
+    }
+
+    #current-quests-block {
+
+        border: 1px black solid;
+        display: inline-block;
+
+        width: 350px;
+        height: 100%;
+
+        position: absolute;
+        right: 0px;
+        top: 0px;
+
 
         .quests-line{
-            
+
+            height: 40px;
+            border: 1px black solid;
+                
             .quest-icon {
                 vertical-align: middle;
                 float: left;
@@ -225,37 +269,6 @@
             }
         }
     }
-
-    .action-progress {
-
-        .actions {
-            list-style: none;
-            vertical-align: middle;
-            font-size: 11pt;
-
-            .current .name {
-                color: #000000
-            }
-
-            .previous .name {
-                color: #444444
-            }
-
-            .prev-previous .name {
-                color: #666666
-            }
-
-            .progress-bar {
-                /* display: inline-block; */
-            }
-        }
-    }
-
-    .action-info {
-        width: 200px;
-        vertical-align: top;
-    }
-
 }
 
 #switcher-block {

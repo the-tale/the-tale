@@ -169,11 +169,13 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     var instance = this;
 
     var widget = jQuery(selector);
-    var actionInfoContainer = jQuery('.pgf-action-info-container', widget);
+    
+    var actionBlock = jQuery('.pgf-current-action-block', widget);
+    var questsBlock = jQuery('.pgf-current-quests-block', widget)
+
+    var actionInfo = jQuery('.pgf-action-info', widget);
     var questsLine = jQuery('.pgf-quests-line', widget);
     var noQuestsMsg = jQuery('.pgf-no-quests-message', widget);
-
-    var actionElements = jQuery('.pgf-action-info', actionInfoContainer);
 
     var data = {};
 
@@ -202,23 +204,23 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     }
 
     function RenderOtherAction(action) {
-        var otherAction = jQuery('.pgf-action-other', actionInfoContainer);
+        var otherAction = jQuery('.pgf-action-other', actionInfo);
         otherAction.toggleClass('pgf-hidden', false);
         jQuery('.pgf-name', otherAction).text(action.short_description);
     }
 
     function RenderIdlenessAction(action) {
-        var idlenessAction = jQuery('.pgf-action-idleness', actionInfoContainer);
+        var idlenessAction = jQuery('.pgf-action-idleness', actionInfo);
         idlenessAction.toggleClass('pgf-hidden', false);
     }
 
     function RenderQuestAction(action) {
-        var questAction = jQuery('.pgf-action-quest', actionInfoContainer);
+        var questAction = jQuery('.pgf-action-quest', actionInfo);
         questAction.toggleClass('pgf-hidden', false);
     }
 
     function RenderMoveToAction(action) { 
-        var moveToAction = jQuery('.pgf-action-move-to', actionInfoContainer);
+        var moveToAction = jQuery('.pgf-action-move-to', actionInfo);
         var destinationId = action.specific.place_id;
         var placeName = widgets.mapManager.GetPlaceData(destinationId).name;
         jQuery('.pgf-place-name', moveToAction).text(placeName);
@@ -226,18 +228,18 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     }
 
     function RenderBattlePvE_1x1Action(action) {
-        var battleAction = jQuery('.pgf-action-battle-pve-1x1', actionInfoContainer);
+        var battleAction = jQuery('.pgf-action-battle-pve-1x1', actionInfo);
         battleAction.toggleClass('pgf-hidden', false);
         widgets.heroes.RenderHero(action.specific.npc, battleAction);
     }
     
     function RenderResurrectAction(action) {
-        var resurrectAction = jQuery('.pgf-action-resurrect', actionInfoContainer);
+        var resurrectAction = jQuery('.pgf-action-resurrect', actionInfo);
         resurrectAction.toggleClass('pgf-hidden', false);
     }
 
     function RenderInCityAction(action) {
-        var inCityAction = jQuery('.pgf-action-in-city', actionInfoContainer);
+        var inCityAction = jQuery('.pgf-action-in-city', actionInfo);
         var cityId = action.data.city;
         var placeName = widgets.mapManager.GetPlaceData(cityId).name;
         jQuery('.pgf-place-name', inCityAction).text(placeName);
@@ -245,12 +247,8 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     }
 
     function RenderActionInfo(action) {
-        
-        if (!action) {
-            return;
-        }
 
-        actionElements.toggleClass('pgf-hidden', true);
+        jQuery('.pgf-action-info', actionInfo).toggleClass('pgf-hidden', true);
 
         switch (action.type) {
         case ACTION_TYPES.IDLENESS: {
@@ -285,28 +283,15 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         
     }
 
-    var actionProgressClasses = ['pgf-current', 'pgf-previouse', 'pgf-prev-previouse']
+    function RenderAction() {
+        
+        var action = data.actions[data.actions.length-1];
 
-    function RenderActions() {
-
-        var rowNumber = 0;
-        for (var i=data.actions.length-1; i >= data.actions.length - 4; --i) {
-
-            var recordElement = jQuery('.pgf-actions-progress .'+actionProgressClasses[rowNumber], widget);
-
-            if (i < 0) {
-                jQuery('.pgf-name', recordElement).text('');
-                jQuery('.pgf-percents', recordElement).text('');
-                pgf.base.UpdateStatsBar(jQuery('.pgf-progress-bar', recordElement), 1, 0);
-            }
-            else {
-                jQuery('.pgf-name', recordElement).text(data.actions[i].short_description);
-                jQuery('.pgf-percents', recordElement).text( parseInt(data.actions[i].percents * 100));
-                pgf.base.UpdateStatsBar(jQuery('.pgf-progress-bar', recordElement), 1, data.actions[i].percents);
-            }
-
-            ++rowNumber;
-        }
+        jQuery('.pgf-name', actionBlock).text(action.short_description);
+        jQuery('.pgf-percents', actionBlock).text( parseInt(action.percents * 100));
+        pgf.base.UpdateStatsBar(jQuery('.pgf-progress-bar', actionBlock), 1, action.percents);
+        
+        RenderActionInfo(action);
     }
 
     this.Refresh = function() {
@@ -325,7 +310,7 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
 
     this.Render = function() {
         RenderQuests();
-        RenderActions();
+        RenderAction();
         RenderActionInfo(instance.GetCurrentAction());
     };
 
@@ -337,20 +322,6 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         if (id<0 || id>data.actions.length-1) return undefined;
         return data.actions[id];
     };
-
-    for (var i=0; i<actionProgressClasses.length; ++i) {
-        var progressElement = jQuery('.pgf-actions-progress .'+actionProgressClasses[i], widget);        
-
-        ( function(N) {
-            progressElement.hover(
-                function(e) {
-                    RenderActionInfo(instance.GetAction(data.actions.length-N-1));
-                },
-                function(e) {
-                    RenderActionInfo(instance.GetCurrentAction());
-                }
-            );})(i);
-    }
 
     jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
         instance.Refresh();

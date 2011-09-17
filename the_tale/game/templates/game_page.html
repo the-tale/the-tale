@@ -57,7 +57,7 @@ jQuery(document).ready(function(e){
                                                              updater, widgets,
                                                              {} );
 
-    widgets.actions = new pgf.game.widgets.Actions('#current-action-block',
+    widgets.actions = new pgf.game.widgets.Actions('#current-actions-block',
                                                    updater, widgets,
                                                    { } );
 
@@ -223,92 +223,59 @@ jQuery(document).ready(function(e){
 
     </div>    
 
-    <div id="current-action-block" class="info-block">
-      
-      <table>
-        <tbody>
-        <tr>
-          <td class="quests-line-container" >
-            <div class="quests-line pgf-quests-line">
-              <div class="pgf-template">
-                <img class="quest-icon pgf-quest-icon pgf-hidden" src="{{ STATIC_URL }}tmp/quest-large.png" data-tooltip=""/>
-                <img class="action-icon pgf-action-icon pgf-hidden" src="{{ STATIC_URL }}tmp/quest-small.bmp" data-tooltip=""/>
-            </div>
-            <div class="pgf-no-quests-message">
-              Герой бьёт баклуши
-            </div>
-          </td>
-          <td class="action-info pgf-action-info-container" rowspan="2">
-            <div class="pgf-action-info pgf-action-other pgf-hidden">
-              <span class="pgf-name"></span>
-            </div>
-            <div class="pgf-action-info pgf-action-idleness pgf-hidden">
-              Нет для героя ничего постыднее, чем безделье. Это безобразие надо немедленно прекратить!
-            </div>
-            <div class="pgf-action-info pgf-action-quest pgf-hidden">
-              Герой прилагает максимальные усилия, что бы выполнить задание.
-            </div>
-            <div class="pgf-action-info pgf-action-move-to pgf-hidden">
-              Герой путешествует в сторону города "<span class="pgf-place-name"></span>"
-            </div>
-            <div class="pgf-action-info pgf-action-battle-pve-1x1 pgf-hidden">
-              {% include 'heroes/short_npc_info.html' %}
-            </div>
-            <div class="pgf-action-info pgf-action-resurrect pgf-hidden">
-              Герой проходит курс усиленного восстановления
-            </div>
-            <div class="pgf-action-info pgf-action-in-city pgf-hidden">
-              Герой изучает витрины города "<span class="pgf-place-name"></span>"
-            </div>
-          </td>
-        </tr>
+    <div id="current-actions-block" class="info-block">
 
-        <tr>
-          <td class="action-progress pgf-actions-progress">
-            <table class="actions">
-              <tbody>
-              <tr class="prev-previous pgf-prev-previouse">
-                <td>
-                  <span class="name pgf-name"></span>
-                </td>
-                <td class="progress-bar">
-                  <div class="stats-bar pgf-progress-bar">
-                    <div class="layer layer-0 pgf-layer-0"></div>
-                    <div class="layer layer-1 pgf-layer-1"></div>
-                  </div>            
-                  <span class="pgf-percents"></span>%
-                </td>
-              </tr>
-              <tr class="previous pgf-previouse">
-                <td>
-                  <span class="name pgf-name"></span>
-                </td>
-                <td class="progress-bar">
-                  <div class="stats-bar pgf-progress-bar">
-                    <div class="layer layer-0 pgf-layer-0"></div>
-                    <div class="layer layer-1 pgf-layer-1"></div>
-                  </div>            
-                  <span class="pgf-percents"></span>%
-                </td>
-              </tr>
-              <tr class="current pgf-current">
-                <td>
-                  <span class="name pgf-name"></span>
-                </td>
-                <td class="progress-bar">
-                  <div class="stats-bar pgf-progress-bar">
-                    <div class="layer layer-0 pgf-layer-0"></div>
-                    <div class="layer layer-1 pgf-layer-1"></div>
-                  </div>            
-                  <span class="pgf-percents"></span>%
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </td>
-        </tr>
-        <tbody>
-      </table>
+      <div id="current-action-block" class="pgf-current-action-block">
+        
+        <div class="action-description">
+          <h3 class="name pgf-name"></h3>
+
+          <div class="action-progress pgf-action-progress">
+            <div class="stats-bar pgf-progress-bar">
+              <div class="layer layer-0 pgf-layer-0"></div>
+              <div class="layer layer-1 pgf-layer-1"></div>
+            </div>            
+          </div>
+        </div>
+
+        <div class="action-info pgf-action-info">
+          <div class="pgf-action-info pgf-action-other pgf-hidden">
+            <span class="pgf-name"></span>
+          </div>
+          <div class="pgf-action-info pgf-action-idleness pgf-hidden">
+            Нет для героя ничего постыднее, чем безделье. Это безобразие надо немедленно прекратить!
+          </div>
+          <div class="pgf-action-info pgf-action-quest pgf-hidden">
+            Герой прилагает максимальные усилия, что бы выполнить задание.
+          </div>
+          <div class="pgf-action-info pgf-action-move-to pgf-hidden">
+            Герой путешествует в сторону города "<span class="pgf-place-name"></span>"
+          </div>
+          <div class="pgf-action-info pgf-action-battle-pve-1x1 pgf-hidden">
+            {% include 'heroes/short_npc_info.html' %}
+          </div>
+          <div class="pgf-action-info pgf-action-resurrect pgf-hidden">
+            Герой проходит курс усиленного восстановления
+          </div>
+          <div class="pgf-action-info pgf-action-in-city pgf-hidden">
+            Герой изучает витрины города "<span class="pgf-place-name"></span>"
+          </div>
+          
+        </div>
+      </div>
+
+      <div id="current-quests-block" class="pgf-current-quests-block">
+        <div class="quests-line pgf-quests-line">
+          <div class="pgf-template">
+            <img class="quest-icon pgf-quest-icon pgf-hidden" src="{{ STATIC_URL }}tmp/quest-large.png" data-tooltip=""/>
+            <img class="action-icon pgf-action-icon pgf-hidden" src="{{ STATIC_URL }}tmp/quest-small.bmp" data-tooltip=""/>
+          </div>
+        </div>
+
+        <div class="pgf-no-quests-message">
+          Герой бьёт баклуши
+        </div>
+      </div>
 
     </div>
 
