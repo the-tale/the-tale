@@ -1,329 +1,381 @@
 
-@common-icon-size: 16px;
+@side-column-width: 200px;
 
-@effect-icon-size: 24px;
-@effect-icon-margin: 2px;
+.stats-bar {
+    width: 100px;
+    height: 5px;
+    position: relative;
+    background: #F0F0F0;
+    border: 1px solid black;
+    display: inline-block;
 
-@action-icon-size: 24px;
-
-@quest-icon-size: 32px;
-
-@left-column-width: 200px;
-@center-column-width: 560px;
-@right-column-width: 200px;
-
-@actions-info-height: 150px;
-
-#game-page {
-    margin: 0;
-    padding: 0;
-    background: gray;
-    height: 500px;
-
-    .column {
-        margin: 5px;
-        height: 500px;
-        display: inline-block;
-
-        .info-block {
-            margin-top: 5px;
-            margin-bottom: 5px;
-            background: #FFFF00;
-            width: 100%;
-            font-size: 9pt;
-        }
-    }
-
-    .active-effects-block {
-        .effect-icon {
-            margin: @effect-icon-margin;
-            width: @effect-icon-size;
-            height: @effect-icon-size;
-        }
-        height: @effect-icon-size + @effect-icon-margin * 2;
-    }
-
-    .stats-bar {
-        width: 100px;
+    .layer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
         height: 5px;
-        position: relative;
-        background: #F0F0F0;
-        border: 1px solid black;
-        display: inline-block;
-        
-        .layer {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            height: 5px;
-        }
-        .layer-0 {
-            background: #F0F0F0;
-        }
-        .layer-1 {
-            background: #90FF90;
-        }
     }
+    .layer-0 {
+        background: #F0F0F0;
+    }
+    .layer-1 {
+        background: #90FF90;
+    }
+}
+
+.column {
+
+    display: inline-block;
+    vertical-align: top;
 }
 
 #left-column {
-    width: @left-column-width;
-    background: red;
-    float: left;
-}
-
-#center-column {
-    margin: 0 auto;
-    width: @center-column-width;
-    background: green;
+    width: @side-column-width;
 }
 
 #right-column {
-    width: @right-column-width;
-    background: blue;
-    float: right;
+    width: @side-column-width;
 }
-
 
 #hero-base-block {
-    height: 110px;
 
-    .name {
-        font-size: 11pt;
-    }
-
-    .stat-record {
-        .stat-icon {
-            vertical-align: middle;
-            width: @common-icon-size;
-            height: @common-icon-size;
-        }
-    }
-}
-
-#hero-effects-block {
-}
-
-#hero-equipment-block {
-
-    .equipment-record {
-        
-        .item-type {
-            vertical-align: middle;
-            width: @common-icon-size;
-            height: @common-icon-size;
-        }
-
-        .item-name {
-            display: block;
-            margin-left: @common-icon-size + 4px;
-
-            &.first {
-                display: inline-block;
-                margin-left: 0;
-            }
-        }
-    }
-}
-
-#hero-bag-block {
-    height: 300px;
-}
-
-
-#angel-base-block {
-    height:  50px;
-
-    .name {
-        font-size: 11pt;
-    }
-}
-
-#angel-effects-block {
-
-}
-
-#angel-cards-block {
-
-    .card-record {
-
-        &:hover {
-            color: red;
-            cursor: pointer;
-        }
-
-        &.cooldown {
-            background: gray;
-        }
-
-        .icon {
-            margin: 0 auto;
-            width: @action-icon-size;
-            height: @action-icon-size;
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        &.firstherocard .icon {
-            background: url("/static/tmp/create-hero-card.png") no-repeat scroll 0 0 transparent;
-        }
-
-        &.pushtoquestcard .icon {
-            background: url("/static/tmp/kick-card.png") no-repeat scroll 0 0 transparent;
-        }
-
-    }
-}
-
-#world-place-time-block {
-    height: 40px;
-
-    font-size: 11pt;
-
-    .place {
-        float: left;
-        vertical-align: middle;
-
-        .name {
-            font-size: 13pt;
-        }
-        
-        .comment {
-
-        }
-    }
-
-    .time {
-        float: right;
-        text-align: center;
-
-        .time-value {
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        .season-icon {
-            vertical-align: middle;
-        }
-    }
-}
-
-#current-actions-block {
-    height: @actions-info-height;
-    position: relative;
-
-    #current-action-block {
-
-        width: 200px;
-        height: 100%;
-        border: 1px black solid;
-        display: inline-block;
-
-        position: absolute;
-        left: 0px;
-        top: 0px;
-
-        .action-description {
-            border: 1px black solid;
-            .name {
-                font-size: 11pt;
-            }
-
-            .action-progress {
-
-                vertical-align: middle;
-            }
-        }
-
-        .action-info {
-            vertical-align: top;
-        }
-
-    }
-
-    #current-quests-block {
-
-        border: 1px black solid;
-        display: inline-block;
-
-        width: 350px;
-        height: 100%;
-
-        position: absolute;
-        right: 0px;
-        top: 0px;
-
-        .quests-progress {
-            height: 40px;
-            width: 40px;
-            display: inline-block;
-            vertical-align: middle;
-            text-align: center;
-            font-size: 13pt;
-
-            position: absolute:
-            left: 0px;
-            top: 0px;
-        }
-
-        .quests-line{
-
-            height: 40px;
-            border: 1px black solid;
-            display: inline-block;
-
-            .quest-line-element  {
-
-                display: inline-block;
-                
-                .quest-icon {
-                    vertical-align: middle;
-                    float: left;
-                    width: @quest-icon-size;
-                    height: @quest-icon-size;
-                    margin: 2px;
+    .health-bar {
+        .stats-bar {
+                .layer-0 {
+                    background: #ff0000;
                 }
-            }
+                .layer-1 {
+                    background: #00ff00;
+                }
         }
     }
-}
 
-#switcher-block {
-    text-align: right;
-}
-
-#log-block {
-    height: 4em;
-    font-size: 11pt;
-
-    .log {
-        list-style: none;
-
-        .message {
-            font-size: 11pt;
-        }
+    .stats-left {
+        width: 80px;
+        display: inline-block;
     }
-}
 
-#journal-block {
-
-    .journal {
-        list-style: none;
-
-        .message {
-            font-size: 11pt;
-            margin-bottom: 1em;
-        }
-    }
-}
-
-#map-block {
-
-    #pgf-map {
-        width: 100%;
-        height: 400px;
-        border: 1px solid red;
+    .stats-right {
+        width: 80px;
+        display: inline-block;
     }
     
+    .record {
+        margin-top: 5px;
+        cursor: default;
+
+        .value {
+            margin-left: 0.25em;
+        }
+    }
 }
+
+
+
+/* @common-icon-size: 16px; */
+
+/* @effect-icon-size: 24px; */
+/* @effect-icon-margin: 2px; */
+
+/* @action-icon-size: 24px; */
+
+/* @quest-icon-size: 32px; */
+
+/* @left-column-width: 200px; */
+/* @center-column-width: 560px; */
+/* @right-column-width: 200px; */
+
+/* @actions-info-height: 150px; */
+
+/* #game-page { */
+/*     margin: 0; */
+/*     padding: 0; */
+/*     background: gray; */
+/*     height: 500px; */
+
+/*     .column { */
+/*         margin: 5px; */
+/*         height: 500px; */
+/*         display: inline-block; */
+
+/*         .info-block { */
+/*             margin-top: 5px; */
+/*             margin-bottom: 5px; */
+/*             background: #FFFF00; */
+/*             width: 100%; */
+/*             font-size: 9pt; */
+/*         } */
+/*     } */
+
+/*     .active-effects-block { */
+/*         .effect-icon { */
+/*             margin: @effect-icon-margin; */
+/*             width: @effect-icon-size; */
+/*             height: @effect-icon-size; */
+/*         } */
+/*         height: @effect-icon-size + @effect-icon-margin * 2; */
+/*     } */
+
+/* } */
+
+/* #left-column { */
+/*     width: @left-column-width; */
+/*     background: red; */
+/*     float: left; */
+/* } */
+
+/* #center-column { */
+/*     margin: 0 auto; */
+/*     width: @center-column-width; */
+/*     background: green; */
+/* } */
+
+/* #right-column { */
+/*     width: @right-column-width; */
+/*     background: blue; */
+/*     float: right; */
+/* } */
+
+
+/* #hero-base-block { */
+/*     height: 110px; */
+
+/*     .name { */
+/*         font-size: 11pt; */
+/*     } */
+
+/*     .stat-record { */
+/*         .stat-icon { */
+/*             vertical-align: middle; */
+/*             width: @common-icon-size; */
+/*             height: @common-icon-size; */
+/*         } */
+/*     } */
+/* } */
+
+/* #hero-effects-block { */
+/* } */
+
+/* #hero-equipment-block { */
+
+/*     .equipment-record { */
+        
+/*         .item-type { */
+/*             vertical-align: middle; */
+/*             width: @common-icon-size; */
+/*             height: @common-icon-size; */
+/*         } */
+
+/*         .item-name { */
+/*             display: block; */
+/*             margin-left: @common-icon-size + 4px; */
+
+/*             &.first { */
+/*                 display: inline-block; */
+/*                 margin-left: 0; */
+/*             } */
+/*         } */
+/*     } */
+/* } */
+
+/* #hero-bag-block { */
+/*     height: 300px; */
+/* } */
+
+
+/* #angel-base-block { */
+/*     height:  50px; */
+
+/*     .name { */
+/*         font-size: 11pt; */
+/*     } */
+/* } */
+
+/* #angel-effects-block { */
+
+/* } */
+
+/* #angel-cards-block { */
+
+/*     .card-record { */
+
+/*         &:hover { */
+/*             color: red; */
+/*             cursor: pointer; */
+/*         } */
+
+/*         &.cooldown { */
+/*             background: gray; */
+/*         } */
+
+/*         .icon { */
+/*             margin: 0 auto; */
+/*             width: @action-icon-size; */
+/*             height: @action-icon-size; */
+/*             display: inline-block; */
+/*             vertical-align: middle; */
+/*         } */
+
+/*         &.firstherocard .icon { */
+/*             background: url("/static/tmp/create-hero-card.png") no-repeat scroll 0 0 transparent; */
+/*         } */
+
+/*         &.pushtoquestcard .icon { */
+/*             background: url("/static/tmp/kick-card.png") no-repeat scroll 0 0 transparent; */
+/*         } */
+
+/*     } */
+/* } */
+
+/* #world-place-time-block { */
+/*     height: 40px; */
+
+/*     font-size: 11pt; */
+
+/*     .place { */
+/*         float: left; */
+/*         vertical-align: middle; */
+
+/*         .name { */
+/*             font-size: 13pt; */
+/*         } */
+        
+/*         .comment { */
+
+/*         } */
+/*     } */
+
+/*     .time { */
+/*         float: right; */
+/*         text-align: center; */
+
+/*         .time-value { */
+/*             display: inline-block; */
+/*             vertical-align: middle; */
+/*         } */
+
+/*         .season-icon { */
+/*             vertical-align: middle; */
+/*         } */
+/*     } */
+/* } */
+
+/* #current-actions-block { */
+/*     height: @actions-info-height; */
+/*     position: relative; */
+
+/*     #current-action-block { */
+
+/*         width: 200px; */
+/*         height: 100%; */
+/*         border: 1px black solid; */
+/*         display: inline-block; */
+
+/*         position: absolute; */
+/*         left: 0px; */
+/*         top: 0px; */
+
+/*         .action-description { */
+/*             border: 1px black solid; */
+/*             .name { */
+/*                 font-size: 11pt; */
+/*             } */
+
+/*             .action-progress { */
+
+/*                 vertical-align: middle; */
+/*             } */
+/*         } */
+
+/*         .action-info { */
+/*             vertical-align: top; */
+/*         } */
+
+/*     } */
+
+/*     #current-quests-block { */
+
+/*         border: 1px black solid; */
+/*         display: inline-block; */
+
+/*         width: 350px; */
+/*         height: 100%; */
+
+/*         position: absolute; */
+/*         right: 0px; */
+/*         top: 0px; */
+
+/*         .quests-progress { */
+/*             height: 40px; */
+/*             width: 40px; */
+/*             display: inline-block; */
+/*             vertical-align: middle; */
+/*             text-align: center; */
+/*             font-size: 13pt; */
+
+/*             position: absolute: */
+/*             left: 0px; */
+/*             top: 0px; */
+/*         } */
+
+/*         .quests-line{ */
+
+/*             height: 40px; */
+/*             border: 1px black solid; */
+/*             display: inline-block; */
+
+/*             .quest-line-element  { */
+
+/*                 display: inline-block; */
+                
+/*                 .quest-icon { */
+/*                     vertical-align: middle; */
+/*                     float: left; */
+/*                     width: @quest-icon-size; */
+/*                     height: @quest-icon-size; */
+/*                     margin: 2px; */
+/*                 } */
+/*             } */
+/*         } */
+/*     } */
+/* } */
+
+/* #switcher-block { */
+/*     text-align: right; */
+/* } */
+
+/* #log-block { */
+/*     height: 4em; */
+/*     font-size: 11pt; */
+
+/*     .log { */
+/*         list-style: none; */
+
+/*         .message { */
+/*             font-size: 11pt; */
+/*         } */
+/*     } */
+/* } */
+
+/* #journal-block { */
+
+/*     .journal { */
+/*         list-style: none; */
+
+/*         .message { */
+/*             font-size: 11pt; */
+/*             margin-bottom: 1em; */
+/*         } */
+/*     } */
+/* } */
+
+/* #map-block { */
+
+/*     #pgf-map { */
+/*         width: 100%; */
+/*         height: 400px; */
+/*         border: 1px solid red; */
+/*     } */
+    
+/* } */

@@ -1,0 +1,20 @@
+
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    widgets.log = new pgf.game.widgets.Log('#log-block',
+                                               updater, widgets,
+                                               {} );
+
+});
+</script>
+
+<div id="log-block" class="block">
+  <ul class="log pgf-log-list">
+    <li class="message pgf-template">
+      [<span class="pgf-turn-number"></span>]
+      <span class="pgf-message"></span>
+    </li>
+  </ul>
+</div>    
+

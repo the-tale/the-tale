@@ -3,12 +3,21 @@
 @import "game.css";
 @import "tooltips.css";
 
+@background-color: #559dcc;
+@border-color: @background-color - #202020;
+@content-width: 1000px;
+
+@font-face {
+	font-family: ObelixProB;
+	src: url('/static/fonts/ObelixProB-cyr.ttf');
+}
+
 ol {
-    list-style: decimal inside none;
+    /* list-style: decimal inside none; */
 }
 
 ul {
-    list-style: disc outside none;
+    /* list-style: disc outside none; */
 }
 
 table {
@@ -20,8 +29,65 @@ table {
     }
 }
 
-#content {
-    position: relative;
-    margin: 0 auto;
-    width: 1000px;
+html {
+
+    background-color: @background-color;
+    background-image: url(/static/images/background.svg);
+    background-repeat: no-repeat;
+    background-position: center 0;
+    background-attachment: fixed;
+    background-size: 100%;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+
+
+    #content {
+        /* background-color: @background-color + #101010; */
+        position: relative;
+        margin: 0 auto;
+        width: @content-width;
+    }
+}
+
+.block {
+    background: @background-color;
+    padding: 0.25em;
+    margin: 5px;
+    border: 3px @border-color solid;
+    border-radius: 8px;
+}
+
+.icon {
+    vertical-align: middle;
+}
+
+#main-navigation {
+    font-size: 26px;/* !important;*/
+    color: white;
+    font-family: ObelixProB;
+
+    margin-top: 10px;
+    padding-bottom: 0.1em;
+
+    height: 26px;
+
+    a {
+        color: #F0F0F0;
+        text-decoration: none;
+        margin-right: 0.25em;
+        /* text-shadow: black 0 -1px 0; */
+
+        &:hover {
+            color: #FFCC00;
+        }
+    }
+
+    .navigation-links {
+        float: left;
+    }
+
+    .user-links {
+        float: right;
+    }
 }

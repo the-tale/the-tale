@@ -23,7 +23,7 @@ class GameResource(Resource):
     def game_page(self, angel=None):
         if angel is None:
             angel = self.angel.id
-        return self.template('game/game_page.html',
+        return self.template('game/game_page_new.html',
                              {'map_settings': map_settings,
                               'angel_id': angel} )
 

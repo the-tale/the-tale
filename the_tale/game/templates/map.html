@@ -1,0 +1,36 @@
+
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    var tileset = pgf.tilesets.tileset2;
+
+    var spritesManager = new pgf.game.resources.ImageManager(tileset.sprites, 
+                                                             { 
+                                                                 OnSpritesInitialized : function() {
+                                                                     widgets.map.CheckReadyState();
+                                                                 } ,
+                                                                 staticUrl: "{{ STATIC_URL }}",
+                                                             });
+
+    widgets.mapManager = new pgf.game.map.MapManager({regionUrl:  '{{ STATIC_URL }}game/map/data/region.js',
+                                                      updater: updater,
+                                                      OnDataUpdated: function() {
+                                                          //TODO: rewrite to events
+                                                          widgets.map.Refresh();
+                                                      }
+                                                     });
+
+    widgets.map = new pgf.game.map.Map('#pgf-game-map', 
+                                       {spritesManager: spritesManager,
+                                        tileSize: tileset.TILE_SIZE,
+                                        updater: updater,
+                                        widgets: widgets});
+});
+</script>
+
+<div id="map-block" class="block">
+  <div id="pgf-game-map">
+    <div class="pgf-navigation-layer"></div>
+    <canvas class="pgf-map-canvas" width="550" height="550"></canvas>
+  </div>
+</div>

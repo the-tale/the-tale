@@ -56,32 +56,47 @@ jQuery(document).ready(function() {
     {% block head %}{% endblock%}
   </head>
   <body>
+
     {% block body %}
+
+    {% if settings.DEBUG %}
+    <ul style="position: absolute; right: 0; top: 0;">
+    {% block debug_menu%}
+    {% endblock %}
+    </ul>
+    {% endif %}
+
     <div id="content">
-      <header>
-        <div id="top-line">
-          <div class="main-menu" style="display: inline;">
-            {% block main_menu %}
-            <a href="">main page</a>
-            <a href="{{ url('game:') }}">game</a>
-            {% endblock %}
-          </div>
-          |
-          <div class="profile-menu" style="display: inline;">
-            {% if request.user.is_authenticated() %}
-            <span>{{ request.user.username }}</span> | <a href="{{ url('accounts:logout') }}">logout</a>
-            {% else %}
-            <a href="{{ url('accounts:login') }}">login</a> | <a href="{{ url('accounts:registration') }}">register</a>
-            {% endif %}
-          </div>
-          <h1>The-Tale</h1>
+
+      <nav id="main-navigation" class="block">
+        <div class="navigation-links">
+          <a href="">Главная</a>
+          <a href="">Новости</a>
+          <a href="{{ url('game:') }}">Игра</a>
+          <a href="">Руководство</a>
+          <a href="">Форум</a>
         </div>
-      </header>
+
+        <div class="user-links">
+          {% if request.user.is_authenticated() %}
+          <a href="">Профиль</a> 
+          <a href="{{ url('accounts:logout') }}">Выход</a>
+          {% else %}
+          <a href="{{ url('accounts:login') }}">Вход</a>
+          <a href="{{ url('accounts:registration') }}">Регистрация</a>
+          {% endif %}
+        </div>
+      </nav>
+
       {% block content %}
       {% endblock %}
+
     </div>
+
     <div class="footer">
     </div>
+
     {% endblock %}
+
   </body>
 </html>

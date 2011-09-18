@@ -1,0 +1,27 @@
+
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    widgets.placeAndTime = new pgf.game.widgets.PlaceAndTime('#world-place-time-block',
+                                                             updater, widgets,
+                                                             {} );
+
+});
+</script>
+
+<div id="world-place-time-block" class="block">
+
+  <div class="place pgf-place">
+    <span class="name pgf-name"></span><br/>
+    <span class="comment pgf-comment"></span>
+  </div>
+  
+  <div class="time pgf-time">
+    <div class="time-value">
+      <span class="pgf-hours"></span> часов<br/>
+      <span class="pgf-day"></span> <span class="pgf-month"></span> <span class="pgf-year"></span>
+    </div>
+    <img class="season-icon" src="{{ STATIC_URL }}tmp/moon-time-icon.gif"/>
+  </div>
+
+</div>    

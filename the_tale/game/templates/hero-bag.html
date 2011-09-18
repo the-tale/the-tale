@@ -1,0 +1,50 @@
+
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    widgets.bag = new pgf.game.widgets.Bag('#hero-bag-block', 
+                                           updater, widgets,
+                                           {tooltipTemplate: "#pgf-item-tooltip-template"});
+
+});
+</script>
+
+<div id="hero-bag-block" class="block">
+  
+  <h2>Рюкзак героя (<span class="pgf-loot-items-count"></span>/<span class="pgf-max-bag-size"></span>)</h2>
+
+  <div class="pgf-bag-quests pgf-hidden">
+    <h3>квестовые предметы:</h3>
+
+    <table>
+      <tbody class="pgf-bag-container">
+        <tr class="pgf-template">
+          <td>
+            <span class="pgf-name" data-tooltip=".pgf-tooltip-container"></span>
+            <div class="pgf-tooltip-container"></div>
+          </td>
+          <td><span class="pgf-cost"></span> г.</td>
+        <tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <div class="pgf-bag pgf-hidden">
+    <h3>содержимое:</h3>
+
+    <table>
+      <tbody class="pgf-bag-container">
+        <tr class="pgf-template">
+          <td>
+            <span class="pgf-name" data-tooltip=".pgf-tooltip-container"></span>
+            <div class="pgf-tooltip-container"></div>
+          </td>
+          <td><span class="pgf-cost"></span> г.</td>
+        <tr>
+      </tbody>
+    </table>
+
+  </div>
+
+</div>

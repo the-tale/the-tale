@@ -1,0 +1,26 @@
+
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    widgets.cards = new pgf.game.widgets.Cards('#angel-cards-block', 
+                                               updater, widgets,
+                                               {tooltipTemplate: '#pgf-card-tooltip-template'});
+
+});
+</script>
+
+<div id="angel-cards-block" class="block">
+  <ul class="pgf-cards-list">
+    <li class="card-record pgf-template" data-tooltip=">pgf-tooltip-container">
+      <div class="pgf-tooltip-container"></div>
+      <i class="icon"></i>
+      <span class="pgf-name"></span>
+    </li>
+  </ul>
+</div>
+
+<div class="pgf-hidden card-tooltip" id="pgf-card-tooltip-template">
+  <h6 class="name pgf-name"></h6>
+  <p class="description pgf-description"></p>
+  <p class="artistic pgf-artistic"></p>
+</div>

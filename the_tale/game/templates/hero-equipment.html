@@ -1,0 +1,63 @@
+
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    widgets.equipment = new pgf.game.widgets.Equipment('#hero-equipment-block', 
+                                                       updater, widgets,
+                                                       {tooltipTemplate: "#pgf-item-tooltip-template"});
+
+});
+</script>
+
+<div id="hero-equipment-block" class="block">
+  <div class="equipment-record">
+    <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+    <span class="item-name first pgf-hand_primary" data-tooltip=".pgf-tooltip-container"></span>
+    <div class="pgf-tooltip-container"></div>
+  </div>
+  <div class="equipment-record">
+    <img class="item-type" src="{{ STATIC_URL }}tmp/weapon-icon.png"/>
+    <span class="item-name first pgf-hand_secondary" data-tooltip=".pgf-tooltip-container"></span>
+    <div class="pgf-tooltip-container"></div>
+  </div>
+  <div class="equipment-record">
+    <img class="item-type" src="{{ STATIC_URL }}tmp/helmet-icon.png"/>
+    <span class="item-name first pgf-helmet" data-tooltip=".pgf-tooltip-container"></span>
+    <div class="pgf-tooltip-container"></div>
+  </div>
+  <div class="equipment-record">
+    <img class="item-type" src="{{ STATIC_URL }}tmp/amulet-icon.png"/>
+    <span class="item-name first pgf-amulet" data-tooltip=".pgf-tooltip-container"></span>
+    <div class="pgf-tooltip-container"></div>
+  </div>
+  <div class="equipment-record">
+    <img class="item-type" src="{{ STATIC_URL }}tmp/shoulders-icon.png"/>
+    <span class="item-name first pgf-shoulders" data-tooltip=".pgf-tooltip-container"></span>
+    <div class="pgf-tooltip-container"></div>
+  </div>
+  <div class="equipment-record">
+    <img class="item-type" src="{{ STATIC_URL }}tmp/plate-icon.png"/>
+    <span class="item-name first pgf-plate" data-tooltip=".pgf-tooltip-container"></span>
+    <div class="pgf-tooltip-container"></div>
+  </div>
+  <div class="equipment-record">
+    <img class="item-type" src="{{ STATIC_URL }}tmp/gloves-icon.png"/>
+    <span class="item-name first pgf-gloves" data-tooltip=".pgf-tooltip-container"></span>
+    <div class="pgf-tooltip-container"></div>
+  </div>
+  <div class="equipment-record">
+    <img class="item-type" src="{{ STATIC_URL }}tmp/cloak-icon.png"/>
+    <span class="item-name first pgf-cloak" data-tooltip=".pgf-tooltip-container"></span>
+    <div class="pgf-tooltip-container"></div>
+  </div>
+  <div class="equipment-record">
+    <img class="item-type" src="{{ STATIC_URL }}tmp/pants-icon.png"/>
+    <span class="item-name first pgf-pants" data-tooltip=".pgf-tooltip-container"></span>
+    <div class="pgf-tooltip-container"></div>
+  </div>
+  <div class="equipment-record">
+    <img class="item-type" src="{{ STATIC_URL }}tmp/boots-icon.png"/>
+    <span class="item-name first pgf-boots" data-tooltip=".pgf-tooltip-container"></span>
+    <div class="pgf-tooltip-container"></div>
+  </div>
+</div>
