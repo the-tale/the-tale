@@ -234,7 +234,7 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     function RenderBattlePvE_1x1Action(action) {
         var battleAction = jQuery('.pgf-action-battle-pve-1x1', actionInfo);
         battleAction.toggleClass('pgf-hidden', false);
-        widgets.heroes.RenderHero(action.specific.npc, battleAction);
+        jQuery('.pgf-mob-name', battleAction).text(action.specific.mob.name);
     }
     
     function RenderResurrectAction(action) {

@@ -125,6 +125,9 @@ class LetterConstructor(UselessThingConstructor):
 class FakeAmuletConstructor(UselessThingConstructor):
     NAME = u'поддельный амулет'
 
+class RatTailConstructor(UselessThingConstructor):
+    NAME = u'крысиный хвостик'
+
 class PieceOfCheeseConstructor(UselessThingConstructor):
     NAME = u'кусок сыра'
 

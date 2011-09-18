@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-import random
 from .models import Hero
-from .prototypes import get_hero_by_model, HeroPrototype
-
+from .prototypes import get_hero_by_model
 from . import game_info
 
 def get_angel_heroes(angel_id):
@@ -30,17 +28,9 @@ def equip_in_city(hero):
     return game_info.actions.equipping.equip_in_town.equip(hero)
 
 
-def create_npc_for_hero(hero):
-    npc = HeroPrototype.create(angel=None, 
-                               name='NPC', 
-                               first=False, 
-                               intellect=random.randint(1, max(1, hero.intellect-1) ),
-                               constitution=random.randint(1, max(1, hero.constitution-1) ),
-                               reflexes=random.randint(1, max(1, hero.reflexes-1) ),
-                               charisma=random.randint(1, max(1, hero.charisma-1) ), 
-                               chaoticity=random.randint(1, max(1, hero.chaoticity-1) ), 
-                               npc=True)
-    return npc
+def create_mob_for_hero(hero):
+    from ..mobs.prototypes import get_random_mob
+    return get_random_mob()
 
 
 def next_turn_pre_update_heroes(cur_turn, next_turn):

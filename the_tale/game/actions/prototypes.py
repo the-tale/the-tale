@@ -5,7 +5,7 @@ from django_next.utils.decorators import nested_commit_on_success
 from django_next.utils import s11n
 
 from ..heroes.prototypes import get_hero_by_model
-from ..heroes.logic import create_npc_for_hero, strike, heal_in_town, sell_in_city, equip_in_city
+from ..heroes.logic import create_mob_for_hero, heal_in_town, sell_in_city, equip_in_city
 from ..map.places.prototypes import get_place_by_model
 from ..map.roads.prototypes import get_road_by_model, WaymarkPrototype
 
@@ -105,16 +105,19 @@ class ActionPrototype(object):
     road = property(get_road, set_road)
 
     @property
-    def npc_id(self): return self.model.npc_id
-
-    @property
-    def npc(self):
-        if not hasattr(self, '_npc'):
-            if self.model.npc is None:
-                self._npc = None
+    def mob(self):
+        from ..mobs.prototypes import get_mob_by_data
+        if not hasattr(self, '_mob'):
+            data = s11n.from_json(self.model.mob)
+            if not data:
+                self._mob = None
             else:
-                self._npc = get_hero_by_model(self.model.npc)
-        return self._npc
+                self._mob = get_mob_by_data(data=data)
+        return self._mob
+
+    def remove_mob(self):
+        delattr(self, '_mob')
+        self.model.mob = '{}'
 
     @property
     def quest(self):
@@ -140,6 +143,8 @@ class ActionPrototype(object):
     def save(self): 
         if hasattr(self, '_data'):
             self.model.data = s11n.to_json(self._data)
+        if hasattr(self, '_mob'):
+            self.model.mob = s11n.to_json(self._mob.save_to_dict())
         self.model.save(force_update=True)
 
     def on_die(self):
@@ -155,7 +160,7 @@ class ActionPrototype(object):
                 'entropy_barier': self.ENTROPY_BARRIER,
                 'specific': {'place_id': self.place_id,
                              'road_id': self.road_id,
-                             'npc': self.npc.ui_info() if self.npc else None},
+                             'mob': self.mob.ui_info() if self.mob else None},
                 'data': self.data #TODO: get json directly from self.model.data, without reloading it
                 }
 
@@ -324,8 +329,8 @@ class ActionMoveToPrototype(ActionPrototype):
 
             if self.entropy >= self.ENTROPY_BARRIER:
                 self.entropy = 0
-                npc = create_npc_for_hero(self.hero)
-                ActionBattlePvE_1x1Prototype.create(parent=self, npc=npc)
+                mob = create_mob_for_hero(self.hero)
+                ActionBattlePvE_1x1Prototype.create(parent=self, mob=mob)
                 self.state = self.STATE.BATTLE
             else:
                 self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
@@ -364,36 +369,26 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
     class STATE(ActionPrototype.STATE):
         BATTLE_RUNNING = 'battle_running'
 
-    def get_hero_initiative(self): return self.data['hero_initiative']
-    def set_hero_initiative(self, value): self.data['hero_initiative'] = value
-    hero_initiative = property(get_hero_initiative, set_hero_initiative)
-
-    def get_npc_initiative(self): return self.data['npc_initiative']
-    def set_npc_initiative(self, value): self.data['npc_initiative'] = value
-    npc_initiative = property(get_npc_initiative, set_npc_initiative)
-
     ###########################################
     # Object operations
     ###########################################
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, parent, npc):
+    def create(cls, parent, mob):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE, 
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       npc=npc.model)
+                                       mob=s11n.to_json(mob.save_to_dict()))
         return cls(model=model)
 
     @nested_commit_on_success
     def process(self):
 
         if self.state == self.STATE.UNINITIALIZED:
-            self.hero.create_tmp_log_message('start battle with NPC')
-            self.hero_initiative = self.hero.battle_speed
-            self.npc_initiative = self.npc.battle_speed
+            self.hero.create_tmp_log_message('start battle with %s' % self.mob.name)
             self.state = self.STATE.BATTLE_RUNNING
 
         elif self.state == self.STATE.BATTLE_RUNNING:
@@ -401,43 +396,42 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
             if self.entropy >= self.ENTROPY_BARRIER:
                 self.entropy = 0
             else:
-                self.entropy = self.entropy + random.randint(1, self.hero.chaoticity + self.npc.chaoticity)
+                self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
 
-                if self.hero_initiative >= self.npc_initiative:
-                    self.npc_initiative += self.npc.battle_speed
-                    strike_result = strike(self.hero, self.npc)
+                hero_initiative = random.uniform(0, self.hero.battle_speed + self.mob.battle_speed)
+
+                if hero_initiative < self.hero.battle_speed:
+                    damage = self.mob.strike_by_hero(self.hero)
+                    self.hero.create_tmp_log_message('%(attaker)s bit %(defender)s for %(damage)s HP' % {'attaker': self.hero.name,
+                                                                                                         'defender': self.mob.name,
+                                                                                                         'damage': damage})
+
                 else:
-                    self.hero_initiative += self.hero.battle_speed
-                    strike_result = strike(self.npc, self.hero)
+                    damage = self.mob.strike_hero(self.hero)
+                    self.hero.create_tmp_log_message('%(attaker)s bit %(defender)s for %(damage)s HP' % {'attaker': self.mob.name,
+                                                                                                         'defender': self.hero.name,
+                                                                                                         'damage': damage})
 
-                self.hero.create_tmp_log_message('%(attaker)s bit %(defender)s for %(damage)s HP' % {'attaker': strike_result.attaker.name,
-                                                                                                     'defender': strike_result.defender.name,
-                                                                                                     'damage': strike_result.damage})
                 if self.hero.health <= 0:
                     self.hero.kill(self)
-                    self.npc.kill()
                     self.hero.create_tmp_log_message('Hero was killed')
                     self.state = self.STATE.PROCESSED
 
-                if self.npc.health <= 0:
-                    self.npc.kill()
-                    self.hero.create_tmp_log_message('NPC was killed')
+                if self.mob.health <= 0:
+                    self.mob.kill()
+                    self.hero.create_tmp_log_message('%s was killed' % self.mob.name)
 
-                    #generate loot
-                    from ..artifacts.constructors import generate_loot, TEST_LOOT_LIST
-                    loot = generate_loot(TEST_LOOT_LIST, 1, 4.5, 1.5, self.hero.chaoticity)
+                    loot = self.mob.get_loot(self.hero.chaoticity)
                     self.hero.put_loot(loot)
 
                     self.state = self.STATE.PROCESSED
 
-                self.percents = min(1, max(0, float(self.npc.max_health - self.npc.health) / self.npc.max_health))
+                self.percents = self.mob.health
 
                 self.hero.save()
 
                 if self.state == self.STATE.PROCESSED:
-                    self.npc.remove()
-                else:
-                    self.npc.save()
+                    self.remove_mob()
 
 class ActionResurrectPrototype(ActionPrototype):
 
