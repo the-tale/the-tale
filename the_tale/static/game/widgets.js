@@ -101,6 +101,7 @@ pgf.game.widgets.PlaceAndTime = function(selector, updater, widgets, params) {
     var instance = this;
 
     var content = jQuery(selector);
+    var timeIcon = jQuery('.pgf-time-icon', content);
 
     var data = {};
 
@@ -111,8 +112,18 @@ pgf.game.widgets.PlaceAndTime = function(selector, updater, widgets, params) {
         }
         
         if (data.position.place) {
+            jQuery('.pgf-place').removeClass('pgf-hidden');
+            jQuery('.pgf-road').addClass('pgf-hidden');
             jQuery('.pgf-place .pgf-name', widget).text(data.position.place.name);
             jQuery('.pgf-place .pgf-comment', widget).text('TODO: add description for places here');
+        }
+
+        if (data.position.road) {
+            jQuery('.pgf-road').removeClass('pgf-hidden');
+            jQuery('.pgf-place').addClass('pgf-hidden');
+            jQuery('.pgf-road .pgf-place-1', widget).text(data.position.road.point_1.name);
+            jQuery('.pgf-road .pgf-place-2', widget).text(data.position.road.point_2.name);
+            jQuery('.pgf-road .pgf-comment', widget).text('TODO: add description for road here');
         }
     }
 
@@ -140,6 +151,12 @@ pgf.game.widgets.PlaceAndTime = function(selector, updater, widgets, params) {
         jQuery('.pgf-time .pgf-month', widget).text(months[month]);
         jQuery('.pgf-time .pgf-day', widget).text(days);
         jQuery('.pgf-time .pgf-hours', widget).text(hours);
+
+        timeIcon.removeClass('sunrise sunset midnight noon');
+        if (4 < hours && hours <= 10) timeIcon.addClass('sunrise');
+        if (10 < hours && hours <= 16) timeIcon.addClass('noon');
+        if (16 < hours && hours <= 22) timeIcon.addClass('sunset');
+        if (22 < hours || hours <= 4) timeIcon.addClass('midnight');
     }
 
     this.Refresh = function() {

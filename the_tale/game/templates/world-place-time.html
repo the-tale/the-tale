@@ -11,17 +11,23 @@ jQuery(document).ready(function(e) {
 
 <div id="world-place-time-block" class="block">
 
-  <div class="place pgf-place">
-    <span class="name pgf-name"></span><br/>
-    <span class="comment pgf-comment"></span>
+  <div class="position pgf-position">
+    <div class="pgf-place pgf-hidden">
+      <span class="pgf-name"></span><br/>
+      <span class="pgf-comment"></span>
+    </div>
+    <div class="pgf-road pgf-hidden">
+      <span class="">дорога между <span class="pgf-place-1"></span> и <span class="pgf-place-2"></span> </span><br/>
+      <span class="pgf-comment"></span>
+    </div>    
   </div>
   
   <div class="time pgf-time">
-    <div class="time-value">
+    <div class="value">
       <span class="pgf-hours"></span> часов<br/>
       <span class="pgf-day"></span> <span class="pgf-month"></span> <span class="pgf-year"></span>
     </div>
-    <img class="season-icon" src="{{ STATIC_URL }}tmp/moon-time-icon.gif"/>
+    <div class="time-icon pgf-time-icon"></div>
   </div>
 
 </div>    

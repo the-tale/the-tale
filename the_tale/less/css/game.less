@@ -1,4 +1,6 @@
 
+@import "constants.less";
+
 @side-column-width: 200px;
 
 .stats-bar {
@@ -101,6 +103,103 @@
     .name {
         font-size: 9pt;
     }
+}
+
+#world-place-time-block {
+
+    font-size: 10pt;
+    height: 34px;
+
+    .position {
+        display: inline-block;
+        vertical-align: middle;
+        height: 32px;
+        padding-top: 4px;
+        text-align: left;
+        float: left;
+    }
+
+    .time {
+        display: inline-block;
+        float: right;
+
+        .value {
+            vertical-align: middle;
+            display: inline-block;
+            text-align: right;
+        }
+    
+        .time-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: url('/static/game/images/time.png') no-repeat;
+            vertical-align: middle;
+
+            &.sunrise {
+                background-position-x: 0px;
+                background-position-y: 0px;
+            }
+
+            &.sunset {
+                background-position-x: 0px;
+                background-position-y: -32px;
+            }
+
+            &.midnight {
+                background-position-x: -32px;
+                background-position-y: -32px;
+            }
+
+            &.noon {
+                background-position-x: -32px;
+                background-position-y: 0px;
+            }
+        }
+    }    
+}
+
+#current-actions-block {
+    
+    font-size: 10pt;
+
+    .current-action-block {
+
+        display: inline-block;
+        width: 200px;
+        border-right: 3px @border-color solid;
+
+        .action-description {
+
+            padding-bottom: 0.25em;
+            margin-bottom: 0.25em;
+
+            h3 {
+                font-size: 11pt;
+            }
+
+            .action-progress {
+                .stats-bar {
+                    width: 190px;
+                    .layer-0 {
+                        background: #ffffff;
+                    }
+                    .layer-1 {
+                        background: #00ff00;
+                    }
+                }
+            }
+        }
+
+        .action-info {
+            border-top: 3px @border-color solid;
+        }
+    }
+
+    .current-quests-block {
+        display: inline-block;
+    }
+
 }
 
 /* @common-icon-size: 16px; */
