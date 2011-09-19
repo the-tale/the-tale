@@ -12,7 +12,7 @@ jQuery(document).ready(function(e) {
   <h3 class="name pgf-name"></h3> 
 
   <div class="health-bar record">
-    <div class="tooltip-wrapper" data-tooltip="здоровье героя: текущее/максимальное">
+    <div class="" data-tooltip="здоровье героя: текущее/максимальное">
       <img src="{{ STATIC_URL }}game/images/attrs/hp.png" class="icon"/>
       <div class="stats-bar pgf-health-bar">
         <div class="layer layer-0 pgf-layer-0"></div>
@@ -24,78 +24,58 @@ jQuery(document).ready(function(e) {
 
   <div class="stats-left">
     
-    <div class="record">
-      <span class="tooltip-wrapper" data-tooltip="интеллект">
-        <img class="icon" src="{{ STATIC_URL }}game/images/attrs/intellect.png"/>
-        <span class="value pgf-intellect"></span>
-      </span>
+    <div class="record" data-tooltip="интеллект">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/intellect.png"/>
+      <span class="value pgf-intellect"></span>
     </div>
 
-    <div class="record">
-      <span class="tooltip-wrapper" data-tooltip="телосложение">
-        <img class="icon" src="{{ STATIC_URL }}game/images/attrs/constitution.png"/>
-        <span class="value pgf-constitution"></span>
-      </span>
+    <div class="record" data-tooltip="телосложение">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/constitution.png"/>
+      <span class="value pgf-constitution"></span>
     </div>
 
-    <div class="record">
-      <span class="tooltip-wrapper" data-tooltip="рефлексы">
-        <img class="icon" src="{{ STATIC_URL }}game/images/attrs/reflexes.gif"/>
-        <span class="value pgf-reflexes"></span>
-      </span>
+    <div class="record" data-tooltip="рефлексы">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/reflexes.gif"/>
+      <span class="value pgf-reflexes"></span>
     </div>
 
-    <div class="record">
-      <span class="tooltip-wrapper" data-tooltip="харизма">
-        <img class="icon" src="{{ STATIC_URL }}game/images/attrs/charisma.png"/> 
-        <span class="value pgf-charisma"></span>
-      </span>
+    <div class="record" data-tooltip="харизма">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/charisma.png"/> 
+      <span class="value pgf-charisma"></span>
     </div>
 
-    <div class="record">
-      <span class="tooltip-wrapper" data-tooltip="хаотичность">
-        <img class="icon" src="{{ STATIC_URL }}game/images/attrs/chaoticity.png"/> 
-        <span class="value pgf-chaoticity"></span>
-      </span>
+    <div class="record" data-tooltip="хаотичность">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/chaoticity.png"/> 
+      <span class="value pgf-chaoticity"></span>
     </div>
 
   </div>
 
   <div class="stats-right">
 
-    <div class="record">
-      <span class="tooltip-wrapper" data-tooltip="золото">
-        <img class="icon" src="{{ STATIC_URL }}game/images/attrs/gold.png"/>
-        <span class="value pgf-money"></span>
-      </span>
+    <div class="record" data-tooltip="золото">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/gold.png"/>
+      <span class="value pgf-money"></span>
     </div>
 
-    <div class="record">
-      <span class="tooltip-wrapper" data-tooltip="скорость путешествия">
-        <img class="icon" src="{{ STATIC_URL }}game/images/attrs/move_speed.gif"/>
-        <span class="value pgf-move-speed"></span>
-      </span>
+    <div class="record" data-tooltip="скорость путешествия">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/move_speed.gif"/>
+      <span class="value pgf-move-speed"></span>
     </div>
 
-    <div class="record">
-      <span class="tooltip-wrapper" data-tooltip="броня">
-        <img class="icon" src="{{ STATIC_URL }}game/images/attrs/armor.gif"/>
-        <span class="value">1</span>
-      </span>
+    <div class="record" data-tooltip="броня">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/armor.gif"/>
+      <span class="value">1</span>
     </div>
 
-    <div class="record">
-      <span class="tooltip-wrapper" data-tooltip="урон">
-        <img class="icon" src="{{ STATIC_URL }}game/images/attrs/damage.png"/>
-        <span class="value"><span class="pgf-min-damage"></span> - <span class="pgf-max-damage"></span></span>
-      </span>
+    <div class="record" data-tooltip="урон">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/damage.png"/>
+      <span class="value"><span class="pgf-min-damage"></span> - <span class="pgf-max-damage"></span></span>
     </div>
 
-    <div class="record">
-      <span class="tooltip-wrapper" data-tooltip="скорость в бою">
-        <img class="icon" src="{{ STATIC_URL }}game/images/attrs/battle_speed.gif"/>
-        <span class="value pgf-battle-speed"></span>
-      </span>
+    <div class="record" data-tooltip="скорость в бою">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/battle_speed.gif"/>
+      <span class="value pgf-battle-speed"></span>
     </div>
 
   </div>

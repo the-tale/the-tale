@@ -52,7 +52,8 @@
     }
 
     .stats-left {
-        width: 80px;
+        width: 40px;
+        margin-right: 40px;
         display: inline-block;
     }
 
@@ -64,14 +65,43 @@
     .record {
         margin-top: 5px;
         cursor: default;
+        position: relative;
 
         .value {
+            position: absolute;
+            right: 0;
+        }
+    }
+}
+
+#hero-equipment-block {
+
+    .record {
+        margin-top: 5px;
+        cursor: default;
+
+        .name {
             margin-left: 0.25em;
         }
     }
 }
 
+#hero-bag-block {
 
+    h4 {
+        font-size: 11pt;
+    }
+    
+    h5 {
+        font-size: 10pt;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+    }
+
+    .name {
+        font-size: 9pt;
+    }
+}
 
 /* @common-icon-size: 16px; */
 
