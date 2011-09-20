@@ -42,7 +42,7 @@ pgf.base.UpdateStatsBar = function(selector) {
     for (var i=1; i<arguments.length; ++i)
     {
         var bar = jQuery('.pgf-layer-'+(i-1), widget);
-        bar.width( Math.ceil(arguments[i] / (base + 0.0) * width) );
+        bar.width( Math.ceil( Math.min(arguments[i], base) / (base + 0.0) * width) );
     }
 };
 

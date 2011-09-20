@@ -32,9 +32,6 @@ class HeroPrototype(object):
     def __init__(self, model=None):
         self.model = model
 
-    @property
-    def is_npc(self): return self.model.npc
-
     def get_is_alive(self): return self.model.alive
     def set_is_alive(self, value): self.model.alive = value
     is_alive = property(get_is_alive, set_is_alive)
@@ -227,12 +224,11 @@ class HeroPrototype(object):
         quest_items_count, loot_items_count = self.bag.occupation
 
         return {'id': self.id,
-                'npc': self.is_npc,
                 'angel': self.angel_id,
                 'actions': [ action.ui_info() for action in self.get_actions() ] if not ignore_actions else [],
                 'quests': self.quest.ui_info() if self.quest else {},
-                'messages': self.get_messages_log().messages if not self.is_npc else None,
-                'position': self.position.ui_info() if not self.is_npc else None,
+                'messages': self.get_messages_log().messages,
+                'position': self.position.ui_info(),
                 'alive': self.is_alive,
                 'bag': self.bag.ui_info(),
                 'equipment': self.equipment.ui_info(),
@@ -259,13 +255,12 @@ class HeroPrototype(object):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, angel, name, first, intellect, constitution, reflexes, chaoticity, charisma, npc=False):
+    def create(cls, angel, name, first, intellect, constitution, reflexes, chaoticity, charisma):
         from game.actions.prototypes import ActionIdlenessPrototype
 
         start_place = PlacePrototype.random_place()
 
-        hero = Hero.objects.create(angel=angel.model if not npc else None,
-                                   npc=npc,
+        hero = Hero.objects.create(angel=angel.model,
 
                                    name=name,
                                    first=first,
@@ -284,9 +279,6 @@ class HeroPrototype(object):
 
         hero = cls(model=hero)
 
-        if npc:
-            return hero
-
         ActionIdlenessPrototype.create(hero=hero)
 
         MessagesLogPrototype.create(hero)
@@ -299,11 +291,7 @@ class HeroPrototype(object):
 
     def kill(self, current_action=None):
         self.is_alive = False
-
-        if self.is_npc:
-            self.health = 0
-            return
-        
+      
         self.health = 1
         self.position.set_place(PlacePrototype.random_place())
         
@@ -324,10 +312,9 @@ class HeroPrototype(object):
     ###########################################
 
     def next_turn_pre_update(self, turn):
-        if not self.is_npc:
-            messages_log = self.get_messages_log()        
-            messages_log.clear_messages()
-            messages_log.save()
+        messages_log = self.get_messages_log()        
+        messages_log.clear_messages()
+        messages_log.save()
 
 
 

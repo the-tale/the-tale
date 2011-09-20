@@ -180,7 +180,7 @@ class QuestPrototype(object):
             cur_action.hero.create_tmp_log_message(log_msg)
 
         if len(self.pos) > len(self.ui_line):
-            print self.ui_line.append({})
+            self.ui_line.append({})
 
         self.ui_line[-1] = {'quest_msg': quest_msg,
                             'quest_type': writer.QUEST_TYPE,

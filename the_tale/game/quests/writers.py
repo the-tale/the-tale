@@ -24,7 +24,6 @@ class Writer(object):
 
     def get_log_msg(self, event):
         msg = self.LOG.get(event)
-        print self.subst
         if msg:
             return msg % self.subst
 

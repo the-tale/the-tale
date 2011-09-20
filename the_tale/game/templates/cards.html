@@ -2,16 +2,16 @@
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
-    widgets.cards = new pgf.game.widgets.Cards('#angel-cards-block', 
+    widgets.cards = new pgf.game.widgets.Cards('#cards-block', 
                                                updater, widgets,
                                                {tooltipTemplate: '#pgf-card-tooltip-template'});
 
 });
 </script>
 
-<div id="angel-cards-block" class="block">
+<div id="cards-block" class="block">
   <ul class="pgf-cards-list">
-    <li class="card-record pgf-template" data-tooltip=">pgf-tooltip-container">
+    <li class="record pgf-template" data-tooltip=">pgf-tooltip-container">
       <div class="pgf-tooltip-container"></div>
       <i class="icon"></i>
       <span class="pgf-name"></span>

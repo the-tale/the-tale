@@ -42,6 +42,37 @@ pgf.game.Updater = function(params) {
     };
 };
 
+pgf.game.widgets.Angel = function(selector, updater, widgets, params) {
+
+    var instance = this;
+    var content = jQuery(selector);
+    var data = undefined;
+
+    this.RenderAngel = function(data, widgets) {
+        if (!data) return;
+
+        jQuery('.pgf-name', content).text(data.name);
+        jQuery('.pgf-energy-current', content).text(data.energy.value);
+        jQuery('.pgf-energy-maximum', content).text(data.energy.max);
+        jQuery('.pgf-energy-regeneration', content).text(data.energy.regen);
+
+        pgf.base.UpdateStatsBar(jQuery('.pgf-energy-bar', content), data.energy.max, data.energy.value);
+    };
+
+    this.Refresh = function() {
+        data = updater.data.data.angel;
+    };
+
+    this.Render = function() {
+        this.RenderAngel(data, content);
+    };
+
+    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+        instance.Refresh();
+        instance.Render();
+    });
+}
+
 pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
     var instance = this;
 
@@ -51,9 +82,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
     this.RenderHero = function(data, widget) {
 
-        if (!data) {
-            return;
-        }
+        if (!data) return;
 
         jQuery('.pgf-wisdom', widget).text(data.base.wisdom);
         jQuery('.pgf-name', widget).text(data.base.name);
