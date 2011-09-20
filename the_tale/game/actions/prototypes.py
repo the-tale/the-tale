@@ -426,7 +426,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
                     self.state = self.STATE.PROCESSED
 
-                self.percents = self.mob.health
+                self.percents = 1.0 - self.mob.health
 
                 self.hero.save()
 

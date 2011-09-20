@@ -52,19 +52,24 @@ jQuery(document).ready(function(e) {
   </div>
 
   <div class="current-quests-block pgf-current-quests-block">
-    <div class="quests-progress pgf-quests-progress">
-      <span class="pgf-value"></span>%
-    </div>
-    <div class="quests-line pgf-quests-line">
-      <div class="quest-line-element pgf-template">
-        <img class="quest-icon pgf-quest-icon pgf-hidden" src="{{ STATIC_URL }}tmp/quest-large.png" data-tooltip=""/>
-        <img class="action-icon pgf-action-icon pgf-hidden" src="{{ STATIC_URL }}tmp/quest-small.bmp" data-tooltip=""/>
+    
+    <div class="quests-line">
+      <div class="pgf-quests-line">
+        <div class="quest-line-element pgf-template">
+          <div class="quest-icon pgf-quest-icon pgf-hidden" data-tooltip=""></div>
+          <div class="action-icon pgf-action-icon pgf-hidden" data-tooltip=""></div>
+        </div>
+      </div>
+
+      <div class="pgf-no-quests-message">
+        Герой бьёт баклуши
       </div>
     </div>
 
-    <div class="pgf-no-quests-message">
-      Герой бьёт баклуши
+    <div class="quest-choices"> 
+      Сдесь будет элемент управления для влияние на поступки героя в квестах
     </div>
+
   </div>
 
 </div>

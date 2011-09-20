@@ -2,6 +2,7 @@
 @import "constants.less";
 
 @side-column-width: 200px;
+@center-column-width: @content-width - @side-column-width * 2 - 10;
 
 .stats-bar {
     width: 100px;
@@ -38,6 +39,10 @@
 
 #right-column {
     width: @side-column-width;
+}
+
+#center-column {
+    width: @center-column-width;
 }
 
 #hero-base-block {
@@ -198,8 +203,66 @@
 
     .current-quests-block {
         display: inline-block;
-    }
+        vertical-align: top;
+        width: @center-column-width - 200px - 30px;
 
+        .quests-progress {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            vertical-align: top;
+        }
+        
+        .quests-line {
+            display: inline-block;
+            vertical-align: top;
+
+            .quest-icon {
+                background: url('/static/game/images/quests.png') no-repeat;
+                display: inline-block;
+                width: 32px;
+                height: 32px;
+
+                &.help {
+                    background-position-x: 0px;
+                    background-position-y: 0px;
+                }
+
+                &.delivery {
+                    background-position-x: -32px;
+                    background-position-y: 0px;
+                }
+            }
+            
+            .action-icon {
+                background: url('/static/game/images/actions.png') no-repeat;
+                display: inline-block;
+                width: 24px;
+                height: 24px;
+
+                &.move_to_destination {
+                    background-position-x: 0px;
+                    background-position-y: 0px;
+                }
+            }
+        }
+
+        .quest-choices {
+
+            border-top: 3px @border-color solid;
+            
+        }
+    }
+}
+
+#log-block {
+    height: 3em;
+}
+
+#map-block {
+    
+    .map-canvas {
+    }
 }
 
 /* @common-icon-size: 16px; */

@@ -5,6 +5,8 @@ from .quests_generator.lines.delivery import DeliveryLine, EVENT_ID as DELIVERY_
 
 class Writer(object):
 
+    QUEST_TYPE = None
+
     ACTIONS = {}
     LOG = {}
 
@@ -37,6 +39,8 @@ class Default(object):
 
 class HelpWriter(Writer):
 
+    QUEST_TYPE = 'help'
+
     ACTIONS = { HELP_EVENT_ID.QUEST_DESCRIPTION: 'QUEST: %(person_start)s ask hero to help %(person_end)s from %(place_end)s',
                 HELP_EVENT_ID.MOVE_TO_QUEST: 'QUEST: hero is moving to %(place_end)s'}
 
@@ -45,6 +49,8 @@ class HelpWriter(Writer):
 
 
 class DeliveryWriter(Writer):
+
+    QUEST_TYPE = 'delivery'
 
     ACTIONS = { DELIVERY_EVENT_ID.QUEST_DESCRIPTION:'QUEST:%(person_start)s ask hero to deliver %(item_to_deliver)s to %(person_end)s in %(place_end)s',
                 DELIVERY_EVENT_ID.MOVE_TO_DESTINATION: 'QUEST: hero is delivering to %(place_end)s'}

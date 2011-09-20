@@ -122,7 +122,9 @@ class QuestPrototype(object):
         quest_msg = writer.get_action_msg('quest_description')
 
         quest.ui_line[-1] = {'quest_msg': quest_msg,
-                             'action_msg': ''}
+                             'quest_type': writer.QUEST_TYPE,
+                             'action_msg': '',
+                             'action_type': ''}
         quest.save()
         return quest
 
@@ -181,7 +183,9 @@ class QuestPrototype(object):
             print self.ui_line.append({})
 
         self.ui_line[-1] = {'quest_msg': quest_msg,
-                            'action_msg': action_msg}
+                            'quest_type': writer.QUEST_TYPE,
+                            'action_msg': action_msg,
+                            'action_type': cmd['event']}
 
         while len(self.pos) < len(self.ui_line):
             self.ui_line.pop()
