@@ -218,32 +218,37 @@
             display: inline-block;
             vertical-align: top;
 
-            .quest-icon {
-                background: url('/static/game/images/quests.png') no-repeat;
+            .quest-line-element {
                 display: inline-block;
-                width: 32px;
-                height: 32px;
+                margin-left: 3px;
 
-                &.help {
-                    background-position-x: 0px;
-                    background-position-y: 0px;
+                .quest-icon {
+                    background: url('/static/game/images/quests.png') no-repeat;
+                    display: inline-block;
+                    width: 32px;
+                    height: 32px;
+
+                    &.help {
+                        background-position-x: 0px;
+                        background-position-y: 0px;
+                    }
+
+                    &.delivery {
+                        background-position-x: -32px;
+                        background-position-y: 0px;
+                    }
                 }
+                
+                .action-icon {
+                    background: url('/static/game/images/actions.png') no-repeat;
+                    display: inline-block;
+                    width: 24px;
+                    height: 24px;
 
-                &.delivery {
-                    background-position-x: -32px;
-                    background-position-y: 0px;
-                }
-            }
-            
-            .action-icon {
-                background: url('/static/game/images/actions.png') no-repeat;
-                display: inline-block;
-                width: 24px;
-                height: 24px;
-
-                &.move_to_destination {
-                    background-position-x: 0px;
-                    background-position-y: 0px;
+                    &.move_to_destination {
+                        background-position-x: 0px;
+                        background-position-y: 0px;
+                    }
                 }
             }
         }
