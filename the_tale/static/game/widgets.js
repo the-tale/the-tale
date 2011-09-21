@@ -310,6 +310,8 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
 
     function RenderActionInfo(action) {
 
+        if (!action) return;
+
         jQuery('.pgf-action-info', actionInfo).toggleClass('pgf-hidden', true);
 
         switch (action.type) {
@@ -348,6 +350,8 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     function RenderAction() {
         
         var action = data.actions[data.actions.length-1];
+
+        if (!action) return;
 
         jQuery('.pgf-name', actionBlock).text(action.short_description);
         jQuery('.pgf-percents', actionBlock).text( parseInt(action.percents * 100));

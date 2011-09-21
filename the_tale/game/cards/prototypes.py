@@ -93,6 +93,7 @@ class CardPrototype(object):
     description = u'нет описания'
     artistic = u'нет художественного описания'
     use_form = False
+    cost = 0
 
     form = None
     template = None
@@ -154,6 +155,7 @@ class FirstHeroCard(CardPrototype):
     name = u'Первый'
     description = u'Первый и самый родной герой каждого ангела. Ангел сам выбирает, кто удостоится чести первым получить его покровительство.'
     artistic = u'У него не было памяти, не было вещей; обладал он только именем, которое получил от Ангела и верой в то, что покровителем для него уготована великая судьба.'
+    cost = 0
 
     form = forms.FirstHeroCardForm
     use_form = True
@@ -181,6 +183,7 @@ class PushToQuestCard(CardPrototype):
 
     form = forms.ApplyToHeroForm
     template = 'cards/prototypes/apply_to_hero.html'
+    cost = 30
 
     @classmethod
     def create_form(cls, resource):
@@ -198,12 +201,22 @@ class PushToQuestCard(CardPrototype):
 
     @nested_commit_on_success
     def activate(self, resource, form):
+
+        if resource.angel.energy < self.cost:
+            return False, 'not enough energy'
+
+        # TODO: possibly problems with angel save in another place
+        resource.angel.energy -= self.cost
+        resource.angel.save()
+        
         self.cooldown_end = resource.turn.number + self.COOLDOWN
         self.save()
 
         CardsQueueItemPrototype.create(turn=resource.turn, 
                                        card=self,
                                        data={'hero_id': form.c.hero})
+
+        return True, ''
 
     #TODO: do all needed checks befor push
     @nested_commit_on_success
@@ -217,3 +230,18 @@ class PushToQuestCard(CardPrototype):
         lead_action.entropy = lead_action.ENTROPY_BARRIER + 1
         lead_action.save()
         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

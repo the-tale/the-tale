@@ -79,6 +79,10 @@
             position: absolute;
             right: 0;
         }
+
+        &:hover {
+            background: @hover-color;
+        }
     }
 }
 
@@ -87,6 +91,10 @@
     .record {
         margin-top: 5px;
         cursor: default;
+
+        &:hover {
+            background: @hover-color;
+        }
 
         .name {
             margin-left: 0.25em;
@@ -106,8 +114,17 @@
         margin-bottom: 0.5em;
     }
 
-    .name {
-        font-size: 9pt;
+    .record {
+
+        cursor: default;
+
+        &:hover {
+            background: @hover-color;
+        }
+
+        .name {
+            font-size: 9pt;
+        }
     }
 }
 
@@ -294,17 +311,36 @@
 
     .record {
 
+        cursor: default;
+        margin-bottom: 2px;
+
+        &:hover {
+            background: @hover-color;
+        }
+
+        &.cooldown {
+            background: #A0C0E0;
+        }
+        &:hover.cooldown {
+            background: #90B0D0;
+        }
+
         .icon {
             display: inline-block;
             width: 32px;
             height: 32px;
 
             background: url('/static/game/images/cards.png') no-repeat;
+        }
 
-            &.pushtoquestcard {
-                background-position-x: 0px;
-                background-position-y: 0px;
-            }
+        &.firstherocard .icon{
+            background-position-x: 0px;
+            background-position-y: 0px;
+        }
+
+        &.pushtoquestcard .icon {
+            background-position-x: -32px;
+            background-position-y: 0px;
         }
         
     }

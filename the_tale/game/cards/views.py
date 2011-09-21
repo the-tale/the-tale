@@ -66,8 +66,10 @@ class CardsResource(Resource):
             form = data
 
             if form.is_valid():
-                self.card.activate(self, form)
-                return self.json(status='ok', data={'cooldown_end': self.turn.number+1})
+                result, error = self.card.activate(self, form)
+                if result:
+                    return self.json(status='ok', data={'cooldown_end': self.turn.number+1})
+                return self.json(status='ok', error=error)
 
             return self.json(status='error', errors=form.errors)
 

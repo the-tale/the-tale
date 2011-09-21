@@ -58,7 +58,7 @@ pgf.tooltips.Init = function() {
         html: true,     // is tooltip content HTML?
         live: true,     // use live event support?
         offset: 0,       // pixel offset of tooltip from element
-        opacity: 0.8,    // opacity of tooltip
+        opacity: 1,    // opacity of tooltip
         title: GetTooltipData,  // attribute/callback containing tooltip text
         trigger: 'hover' // how tooltip is triggered - hover | focus | manual
     };
