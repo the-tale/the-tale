@@ -5,8 +5,6 @@ from django_next.utils.decorators import staff_required, debug_required
 
 from common.utils.resources import Resource
 
-from .logic import next_turn
-
 class TurnsResource(Resource):
 
     def __init__(self, request, *args, **kwargs):
@@ -17,6 +15,7 @@ class TurnsResource(Resource):
     @handler('next_turn', method=['post'])
     def next_turn(self):
 
-        next_turn(self.turn)
+        from ..tasks import supervisor
+        supervisor.cmd.next_turn()
 
         return self.json(status='ok')

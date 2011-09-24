@@ -1,5 +1,7 @@
-
+# coding: utf-8
 import os
+
+import djcelery
 
 PROJECT_DIR = os.path.dirname(__file__)
 
@@ -122,8 +124,41 @@ INSTALLED_APPS = (
 
     'stress_testing',
 
-    'south'
+    'south',
+    'djcelery'
 )
+
+###############################
+# Celery
+###############################
+
+BROKER_HOST = 'localhost'
+BROKER_USER = 'the_tale'
+BROKER_PASSWORD = 'the_tale'
+BROKER_VHOST = '/the_tale_host'
+
+CELERY_CREATE_MISSING_QUEUES = True
+
+CELERY_ROUTES = [ { 'supervisor.cmd': {'queue': 'supervisor', 'routing_key': 'supervisor.cmd'}},
+                  { 'game.cmd': {'queue': 'game', 'routing_key': 'game.cmd'}} ]
+
+CELERY_QUEUES = {
+    'supervisor': {
+        'exchange': 'supervisor',
+        'exchange_type': 'direct',
+        'binding_key': 'supervisor.cmd'},
+    'game': {
+        'exchange': 'game',
+        'exchange_type': 'direct',
+        'binding_key': 'game.cmd'},
+    'default': {
+        'exchange': 'default',
+        'exchange_type': 'direct',
+        'routing_key': 'default',
+        'binding_key': 'default'}
+}
+
+CELERY_DEFAULT_QUEUE = 'default'
 
 try:
     from settings_local import *
@@ -131,3 +166,6 @@ except:
     pass
 
 TEMPLATE_DEBUG = DEBUG
+
+
+djcelery.setup_loader()

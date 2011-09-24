@@ -6,6 +6,8 @@
 
 - configure postgre
 
+- configure celery and rabbitmq
+
 see: http://wiki.postgresql.org/wiki/Detailed_installation_guides
 
 - near settings.py create settings_local.py, where you can redefine

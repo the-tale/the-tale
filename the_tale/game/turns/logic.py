@@ -8,10 +8,12 @@ from ..heroes.logic import next_turn_pre_update_heroes
 from ..actions.logic import next_turn_update_actions
 from ..cards.logic import next_turn_process_cards
 
-from .prototypes import TurnPrototype
+from .prototypes import TurnPrototype, get_latest_turn
 
 @nested_commit_on_success
-def next_turn(cur_turn):
+def next_turn():
+
+    cur_turn = get_latest_turn()
 
     new_turn = TurnPrototype.create();
 
