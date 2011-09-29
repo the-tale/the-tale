@@ -177,6 +177,10 @@ class ActionPrototype(object):
             else:
                 self.save()
 
+    def process_turn(self, turn_number):
+        self.process_action()
+        return turn_number + 1
+
 
 class ActionIdlenessPrototype(ActionPrototype):
 

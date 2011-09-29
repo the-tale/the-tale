@@ -2,8 +2,12 @@
 
 from django.contrib import admin
 
-from .models import Card, CardsQueueItem
+from .models import Card
 
-admin.site.register(Card)
+class CardAdmin(admin.ModelAdmin):
+    list_display = ('id', 'type', 'cooldown_end', 'angel')
 
-admin.site.register(CardsQueueItem)
+    def angel_id(self, obj): return obj.angel_id
+
+
+admin.site.register(Card, CardAdmin)

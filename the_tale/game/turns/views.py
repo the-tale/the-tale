@@ -16,6 +16,6 @@ class TurnsResource(Resource):
     def next_turn(self):
 
         from ..tasks import supervisor
-        supervisor.cmd.next_turn()
+        supervisor.cmd_next_turn(1)
 
         return self.json(status='ok')

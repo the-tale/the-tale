@@ -10,6 +10,9 @@ class Angel(models.Model):
 
      energy = models.FloatField(null=False, default=0.0)
 
+     def __unicode__(self):
+          return self.name
+
      @classmethod
      def get_related_query(cls):
           return cls.objects.all() #select_related('pos_place', 'pos_road')

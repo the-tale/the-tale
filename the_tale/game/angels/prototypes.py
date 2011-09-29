@@ -34,7 +34,6 @@ class AngelPrototype(object):
     def set_energy(self, value): self.model.energy = value
     energy = property(get_energy, set_energy)
 
-    @property
     def heroes(self): 
         if not hasattr(self, '_heroes'):
             self._heroes = get_heroes_by_query(self.model.heroes.all())
@@ -67,9 +66,11 @@ class AngelPrototype(object):
     # Next turn operations
     ###########################################
 
-    def next_turn_pre_update(self, turn):
+    def process_turn(self, turn_number):
         self.energy += self.energy_regeneration
         if self.energy > self.energy_maximum:
             self.energy = self.energy_maximum
+
+        return turn_number + 1
 
 

@@ -6,7 +6,6 @@ import djcelery
 PROJECT_DIR = os.path.dirname(__file__)
 
 DEBUG = False
-DEBUG_DB = False
 
 DATABASES = {
     'default': {
@@ -138,6 +137,7 @@ BROKER_PASSWORD = 'the_tale'
 BROKER_VHOST = '/the_tale_host'
 
 CELERY_CREATE_MISSING_QUEUES = True
+CELERY_DISABLE_RATE_LIMITS = True
 
 CELERY_ROUTES = [ { 'supervisor.cmd': {'queue': 'supervisor', 'routing_key': 'supervisor.cmd'}},
                   { 'game.cmd': {'queue': 'game', 'routing_key': 'game.cmd'}} ]

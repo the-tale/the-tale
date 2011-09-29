@@ -4,11 +4,11 @@ import inspect
 from django.core.urlresolvers import reverse
 
 from django_next.utils.decorators import nested_commit_on_success
-from django_next.utils import s11n
 
-from ..heroes.prototypes import HeroPrototype, get_hero_by_id
+from ..heroes.prototypes import HeroPrototype
+from ..tasks import supervisor
 
-from .models import Card, CardsQueueItem
+from .models import Card
 from . import forms
 
 MAIN_DESCRIPTION = u'''
@@ -34,51 +34,6 @@ def get_prototypes():
         if inspect.isclass(v) and issubclass(v, CardPrototype) and v != CardPrototype:
             result[k] = v
     return result
-
-def get_card_queue_item_by_model(model):
-    return CardsQueueItemPrototype(model=model)
-
-
-class CardsQueueItemPrototype(object):
-
-    def __init__(self, model, *argv, **kwargs):
-        super(CardsQueueItemPrototype, self).__init__(*argv, **kwargs)
-        self.model = model
-
-    def remove(self): return self.model.delete()
-    def save(self): self.model.save(force_update=True)
-
-    @property
-    def id(self): return self.model.id
-
-    def get_processed(self): return self.model.processed
-    def set_processed(self, value): self.model.processed = value
-    processed = property(get_processed, set_processed)
-
-    @property
-    def card(self): 
-        if not hasattr(self, '_card'):
-            self._card = get_card_by_id(self.model.card_id)
-        return self._card
-
-    @property
-    def data(self): 
-        if not hasattr(self, '_data'):
-            self._data = s11n.from_json(self.model.data)            
-        return self._data
-
-    @nested_commit_on_success
-    def process(self):
-        self.card.process_from_query(self.data)
-        self.processed = True
-        self.save()
-
-    @classmethod
-    def create(cls, turn, card, data={}):
-        query_item = CardsQueueItem.objects.create(turn=turn.model,
-                                                   card=card.model,
-                                                   data=s11n.to_json(data))
-        return query_item
 
 
 class ACTIVATION_TYPE(object):
@@ -172,7 +127,7 @@ class FirstHeroCard(CardPrototype):
                              charisma=form.c.charisma,
                              chaoticity=form.c.chaoticity)
         self.remove()
-
+        return True, ''
 
 class PushToQuestCard(CardPrototype):
 
@@ -187,7 +142,7 @@ class PushToQuestCard(CardPrototype):
 
     @classmethod
     def create_form(cls, resource):
-        heroes = resource.angel.heroes
+        heroes = resource.angel.heroes()
 
         if len(heroes) == 0:
             # TODO: move to configuration?
@@ -212,23 +167,22 @@ class PushToQuestCard(CardPrototype):
         self.cooldown_end = resource.turn.number + self.COOLDOWN
         self.save()
 
-        CardsQueueItemPrototype.create(turn=resource.turn, 
-                                       card=self,
-                                       data={'hero_id': form.c.hero})
+        supervisor.cmd_activate_card(self, data={'hero_id': form.c.hero})
 
         return True, ''
 
     #TODO: do all needed checks befor push
     @nested_commit_on_success
-    def process_from_query(self, data):
+    def process_from_query(self, worker, data):
 
-        hero = get_hero_by_id(data['hero_id'])
+        hero = worker.get_hero(int(data['hero_id']))
 
         hero.create_tmp_log_message('Go and kill some monsters!!!')
 
-        lead_action = hero.get_actions()[-1]
-        lead_action.entropy = lead_action.ENTROPY_BARRIER + 1
-        lead_action.save()
+        # TODO: do something
+        # lead_action = hero.get_actions()[-1]
+        # lead_action.entropy = lead_action.ENTROPY_BARRIER + 1
+        # lead_action.save()
         
 
 

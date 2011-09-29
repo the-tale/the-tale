@@ -311,10 +311,12 @@ class HeroPrototype(object):
     # Next turn operations
     ###########################################
 
-    def next_turn_pre_update(self, turn):
+    def process_turn(self, turn_number):
         messages_log = self.get_messages_log()        
         messages_log.clear_messages()
         messages_log.save()
+        
+        return turn_number + 1
 
 
 

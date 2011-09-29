@@ -31,12 +31,3 @@ def equip_in_city(hero):
 def create_mob_for_hero(hero):
     from ..mobs.prototypes import get_random_mob
     return get_random_mob()
-
-
-def next_turn_pre_update_heroes(cur_turn, next_turn):
-
-    for hero_model in list(Hero.get_related_query().all() ):
-        hero = get_hero_by_model(hero_model)
-
-        hero.next_turn_pre_update(next_turn)
-        hero.save()    

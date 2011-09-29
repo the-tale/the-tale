@@ -8,6 +8,9 @@ from django_next.utils.decorators import nested_commit_on_success
 from game.angels.prototypes import AngelPrototype
 from game.cards.prototypes import FirstHeroCard, PushToQuestCard
 
+from game.bundles import BundlePrototype
+from game.tasks import supervisor
+
 from .prototypes import AccountPrototype, get_account_by_id
 from . import forms
 
@@ -32,28 +35,33 @@ class AccountsResource(BaseResource):
 
 
     @handler('registration', method='post')
-    @nested_commit_on_success
     def register(self):
         registration_form = forms.RegistrationForm(self.request.POST)
 
         if registration_form.is_valid():
 
-            try:
-                User.objects.get(username=registration_form.c.nick)
-                return self.json(status='error', errors={'nick': [u'Пользователь с таким ником уже существует']})
-            except User.DoesNotExist:
-                pass
+            with nested_commit_on_success():
 
-            user = User.objects.create_user(registration_form.c.nick,
-                                            registration_form.c.email,
-                                            registration_form.c.password)
+                try:
+                    User.objects.get(username=registration_form.c.nick)
+                    return self.json(status='error', errors={'nick': [u'Пользователь с таким ником уже существует']})
+                except User.DoesNotExist:
+                    pass
 
-            account = AccountPrototype.create(user=user)
-            angel = AngelPrototype.create(account=account, name=user.username)
-            first_card = FirstHeroCard.create(angel)
-            push_card = PushToQuestCard.create(angel)
+                user = User.objects.create_user(registration_form.c.nick,
+                                                registration_form.c.email,
+                                                registration_form.c.password)
 
-            self.login_user(user.username, registration_form.c.password)
+                account = AccountPrototype.create(user=user)
+                angel = AngelPrototype.create(account=account, name=user.username)
+            
+                FirstHeroCard.create(angel)
+                PushToQuestCard.create(angel)
+
+                self.login_user(user.username, registration_form.c.password)
+
+            bundle = BundlePrototype.create(angel)
+            supervisor.cmd_new_bundle(bundle)
 
             return self.json(status='ok')
 
