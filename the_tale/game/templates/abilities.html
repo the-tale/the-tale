@@ -2,15 +2,15 @@
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
-    widgets.cards = new pgf.game.widgets.Cards('#cards-block', 
-                                               updater, widgets,
-                                               {tooltipTemplate: '#pgf-card-tooltip-template'});
+    widgets.abilities = new pgf.game.widgets.Abilities('#abilities-block', 
+                                                       widgets,
+                                                       {tooltipTemplate: '#pgf-ability-tooltip-template'});
 
 });
 </script>
 
-<div id="cards-block" class="block">
-  <ul class="pgf-cards-list">
+<div id="abilities-block" class="block">
+  <ul class="pgf-abilities-list">
     <li class="record pgf-template" data-tooltip=">pgf-tooltip-container">
       <div class="pgf-tooltip-container"></div>
       <i class="icon"></i>
@@ -19,7 +19,7 @@ jQuery(document).ready(function(e) {
   </ul>
 </div>
 
-<div class="pgf-hidden card-tooltip" id="pgf-card-tooltip-template">
+<div class="pgf-hidden ability-tooltip" id="pgf-ability-tooltip-template">
   <h6 class="name pgf-name"></h6>
   <p class="description pgf-description"></p>
   <p class="artistic pgf-artistic"></p>

@@ -47,9 +47,6 @@ class HeroPrototype(object):
     ###########################################
 
     @property
-    def first(self): return self.model.first
-
-    @property
     def name(self): return self.model.name
 
     @property
@@ -234,7 +231,6 @@ class HeroPrototype(object):
                 'equipment': self.equipment.ui_info(),
                 'money': self.money, 
                 'base': { 'name': self.name,
-                          'first': self.first,
                           'wisdom': self.wisdom,
                           'health': self.health,
                           'max_health': self.max_health},
@@ -255,7 +251,7 @@ class HeroPrototype(object):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, angel, name, first, intellect, constitution, reflexes, chaoticity, charisma):
+    def create(cls, angel, name, intellect, constitution, reflexes, chaoticity, charisma):
         from game.actions.prototypes import ActionIdlenessPrototype
 
         start_place = PlacePrototype.random_place()
@@ -263,7 +259,6 @@ class HeroPrototype(object):
         hero = Hero.objects.create(angel=angel.model,
 
                                    name=name,
-                                   first=first,
 
                                    health=attrs.secondary.max_health.from_attrs(constitution, 
                                                                                 attrs.base.wisdom.initial),

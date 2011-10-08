@@ -10,6 +10,8 @@ class Angel(models.Model):
 
      energy = models.FloatField(null=False, default=0.0)
 
+     abilities = models.TextField(null=False, default='{}')
+
      def __unicode__(self):
           return self.name
 

@@ -47,7 +47,7 @@ class BundlePrototype(object):
                 
                 for action in hero.get_actions():
                     self.actions[action.id] = action
-        
+      
     @nested_commit_on_success
     def save_data(self):
         
@@ -78,7 +78,6 @@ class BundlePrototype(object):
         self.model.save()
 
     def process_turn(self, turn_number):
-
         next_turn = None
 
         for angel in self.angels.values():
@@ -99,3 +98,5 @@ class BundlePrototype(object):
                 next_turn = next
 
         self.save_data()
+
+        return next_turn

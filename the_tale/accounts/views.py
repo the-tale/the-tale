@@ -6,7 +6,6 @@ from django_next.views.resources import BaseResource, handler
 from django_next.utils.decorators import nested_commit_on_success
 
 from game.angels.prototypes import AngelPrototype
-from game.cards.prototypes import FirstHeroCard, PushToQuestCard
 
 from game.bundles import BundlePrototype
 from game.tasks import supervisor
@@ -55,13 +54,10 @@ class AccountsResource(BaseResource):
                 account = AccountPrototype.create(user=user)
                 angel = AngelPrototype.create(account=account, name=user.username)
             
-                FirstHeroCard.create(angel)
-                PushToQuestCard.create(angel)
-
                 self.login_user(user.username, registration_form.c.password)
 
             bundle = BundlePrototype.create(angel)
-            supervisor.cmd_new_bundle(bundle)
+            supervisor.cmd_new_bundle(bundle.id)
 
             return self.json(status='ok')
 

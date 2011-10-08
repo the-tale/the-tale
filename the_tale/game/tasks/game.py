@@ -7,11 +7,13 @@ from celery.task import Task
 from ..heroes.prototypes import get_hero_by_id
 from ..bundles import get_bundle_by_id
 
+class GameException(Exception): pass
+
 class TASK_TYPE:
     INITIALIZE = 'initialize'
     NEXT_TURN = 'next_turn'
     PUSH_BUNDLE = 'push_bundle'
-    ACTIVATE_CARD = 'activate_card'
+    ACTIVATE_ABILITY = 'activate_ability'
     REGISTER_HERO = 'register_hero'
 
 class game(Task):
@@ -86,10 +88,12 @@ class game(Task):
             bundle = get_bundle_by_id(id=params['id'])
             self.register_bundle(bundle)
 
-        elif cmd == TASK_TYPE.ACTIVATE_CARD:
-            from ..cards.prototypes import get_card_by_id
-            card = get_card_by_id(params['id'])
-            card.process_from_query(self, params['data'])
+        elif cmd == TASK_TYPE.ACTIVATE_ABILITY:
+            from ..abilities.deck import ABILITIES
+            ability = ABILITIES[params['ability_type']]
+            bundle = self.bundles[self.angels2bundles[params['form']['angel_id']]] 
+            ability.process(bundle, params['form'])
+            bundle.save()
 
         elif cmd == TASK_TYPE.REGISTER_HERO:
             hero = get_hero_by_id(params['id'])
@@ -106,14 +110,19 @@ class game(Task):
             return 
 
         while True:
-            priority, bundle_id = self.queue[0]
+            turn_number, bundle_id = self.queue[0]
+
+            if turn_number > self.turn_number:
+                break
+
             bundle = self.bundles[bundle_id]
             next_turn_number = bundle.process_turn(self.turn_number)
-            if next_turn_number:
-                heapq.heappushpop(self.queue, (next_turn_number, bundle) )
-                bundle.save()
-            else:
-                break
+
+            if next_turn_number <= self.turn_number:
+                raise GameException('bundle try to process itself twice on one turn')
+
+            heapq.heappushpop(self.queue, (next_turn_number, bundle.id) )
+            bundle.save()
 
     @classmethod
     def cmd_initialize(cls, turn_number):
@@ -131,8 +140,8 @@ class game(Task):
         return t
 
     @classmethod
-    def cmd_activate_card(cls, card_id, data):
-        t = cls.apply_async(args=[TASK_TYPE.ACTIVATE_CARD, {'id': card_id, 'data': data}])
+    def cmd_activate_ability(cls, ability_type, form):
+        t = cls.apply_async(args=[TASK_TYPE.ACTIVATE_ABILITY, {'ability_type': ability_type, 'form': form}])
         return t
 
     @classmethod

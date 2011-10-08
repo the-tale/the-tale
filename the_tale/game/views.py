@@ -39,17 +39,13 @@ class GameResource(Resource):
             pass
 
         if self.angel:
-            data['deck'] = dict( (card.id, card.ui_info()) for card in get_angel_deck(self.angel.id) )
-
             if angel is None:
                 angel = self.angel.id
 
         if angel:
             foreign_angel = get_angel_by_id(int(angel))
             data['heroes'] = dict( (hero.id, hero.ui_info()) for hero in get_angel_heroes(foreign_angel.id) )
-            data['angel'] = foreign_angel.ui_info()            
 
-        return self.json(status='ok', 
-                         data=data);
+        return self.json(status='ok', data=data)
 
 

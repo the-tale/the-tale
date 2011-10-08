@@ -343,6 +343,7 @@ class ActionMoveToPrototype(ActionPrototype):
             
                 delta = self.hero.move_speed / self.road.length
 
+                print (self.hero.position.percents, delta)
                 self.hero.position.percents += delta
 
                 self.percents = self.hero.position.percents

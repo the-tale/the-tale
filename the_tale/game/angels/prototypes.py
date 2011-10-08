@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django_next.utils import s11n
 from django_next.utils.decorators import nested_commit_on_success
 
 from ..heroes.prototypes import get_heroes_by_query
@@ -39,27 +40,57 @@ class AngelPrototype(object):
             self._heroes = get_heroes_by_query(self.model.heroes.all())
         return self._heroes
 
+    def load_abilities(self):
+        from ..abilities.prototypes import AbilityPrototype
+        data = s11n.from_json(self.model.abilities)
+        abilities = {}
+        for ability_dict in data.values():
+            ability = AbilityPrototype.deserrialize(ability_dict)
+            abilities[ability.get_type()] = ability
+        self._abilities = abilities
+
+    def save_abilities(self):
+        data = {}
+        for ability in self.abilities.values():
+            data[ability.get_type()] = ability.serrialize()
+        self.model.abilities = s11n.to_json(data)
+
+    @property
+    def abilities(self):
+        if not hasattr(self, '_abilities'):
+            self.load_abilities()
+        return self._abilities
+
     ###########################################
     # Object operations
     ###########################################
 
     def remove(self): return self.model.delete()
-    def save(self): self.model.save(force_update=True)
+    def save(self): 
+        self.save_abilities()
+        self.model.save(force_update=True)
 
     def ui_info(self, ignore_actions=False, ignore_quests=False):
         return {'id': self.id,
                 'name': self.name,
                 'energy': { 'max': self.energy_maximum,
                             'regen': self.energy_regeneration,
-                            'value': self.energy }
+                            'value': self.energy },
+                'abilities': [ability.ui_info() for ability_type, ability in self.abilities.items()]
                 }
 
     @classmethod
     @nested_commit_on_success
     def create(cls, account, name):
+        from ..abilities import deck
+        # TODO: rewrite from create-change-save to save
         angel_model = Angel.objects.create(account=account.model,
                                            name=name)
-        return AngelPrototype(model=angel_model)
+        angel = AngelPrototype(model=angel_model)
+        angel.abilities.update({deck.CreateHero.get_type(): deck.CreateHero()})
+        angel.save()
+
+        return angel
 
 
     ###########################################

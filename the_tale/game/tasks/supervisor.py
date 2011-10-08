@@ -10,7 +10,7 @@ from ..models import Bundle
 class TASK_TYPE:
     NEXT_TURN = 'next_turn'
     NEW_BUNDLE = 'new_bundle'
-    ACTIVATE_CARD = 'activate_card'
+    ACTIVATE_ABILITY = 'activate_ability'
     REGISTER_HERO = 'register_hero'
 
 class supervisor(Task):
@@ -66,8 +66,8 @@ class supervisor(Task):
                 bundle = get_bundle_by_id(params['id'])
                 self.push_worker(bundle)
 
-        elif cmd == TASK_TYPE.ACTIVATE_CARD:
-            game.cmd_activate_card(params['id'], params['data'])
+        elif cmd == TASK_TYPE.ACTIVATE_ABILITY:
+            game.cmd_activate_ability(params['ability_type'], params['form'])
 
         return 0
 
@@ -77,18 +77,18 @@ class supervisor(Task):
         return t
 
     @classmethod
-    def cmd_new_bundle(cls, bundle):
-        t = cls.apply_async(args=[TASK_TYPE.NEW_BUNDLE, {'id': bundle.id}])
+    def cmd_new_bundle(cls, bundle_id):
+        t = cls.apply_async(args=[TASK_TYPE.NEW_BUNDLE, {'id': bundle_id}])
         return t
 
     @classmethod
-    def cmd_activate_card(cls, card, data):
-        t = cls.apply_async(args=[TASK_TYPE.ACTIVATE_CARD, {'id': card.id, 'data': data}])
+    def cmd_activate_ability(cls, ability_type, form):
+        t = cls.apply_async(args=[TASK_TYPE.ACTIVATE_ABILITY, {'ability_type': ability_type, 'form': form}])
         return t
 
     @classmethod
-    def cmd_register_hero(cls, hero):
-        t = cls.apply_async(args=[TASK_TYPE.REGISTER_HERO, {'id': hero.id}])
+    def cmd_register_hero(cls, hero_id):
+        t = cls.apply_async(args=[TASK_TYPE.REGISTER_HERO, {'id': hero_id}])
         return t
 
     

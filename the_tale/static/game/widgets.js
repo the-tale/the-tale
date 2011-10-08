@@ -42,37 +42,6 @@ pgf.game.Updater = function(params) {
     };
 };
 
-pgf.game.widgets.Angel = function(selector, updater, widgets, params) {
-
-    var instance = this;
-    var content = jQuery(selector);
-    var data = undefined;
-
-    this.RenderAngel = function(data, widgets) {
-        if (!data) return;
-
-        jQuery('.pgf-name', content).text(data.name);
-        jQuery('.pgf-energy-current', content).text(data.energy.value);
-        jQuery('.pgf-energy-maximum', content).text(data.energy.max);
-        jQuery('.pgf-energy-regeneration', content).text(data.energy.regen);
-
-        pgf.base.UpdateStatsBar(jQuery('.pgf-energy-bar', content), data.energy.max, data.energy.value);
-    };
-
-    this.Refresh = function() {
-        data = updater.data.data.angel;
-    };
-
-    this.Render = function() {
-        this.RenderAngel(data, content);
-    };
-
-    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
-        instance.Refresh();
-        instance.Render();
-    });
-}
-
 pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
     var instance = this;
 
@@ -591,163 +560,29 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
     });
 };
 
-pgf.game.widgets.Cards = function(selector, updater, widgets, params) {
-    var instance = this;
-
-    var widget = jQuery(selector);
-    var deckContainer = jQuery('.pgf-cards-list', widget);
-    var activateCardWidget = jQuery('#activate-card-block');
-    var activateCardFormBlock = jQuery('.pgf-activate-form', activateCardWidget);
-    var tooltipTemplate = jQuery(params.tooltipTemplate);
-
-    jQuery('.pgf-cancel', activateCardWidget).click(function(e){
-        e.preventDefault();
-        widgets.switcher.ShowMapWidget();
-    });
-
-    var deck = {};
-    var turn = {};
-
-    function SetCooldown(cardId) {
-        jQuery('.card-'+cardId, widget).toggleClass('cooldown', true);
-    }
-
-    function ActivateCard(card) {
-
-        if (card.cooldown_end > turn.number) {
-            return;
-        }
-
-        var currentHero = widgets.heroes.CurrentHero();
-
-        var heroId = undefined;
-        if (currentHero) {
-            heroId = currentHero.id;
-        }
-
-        if (card.use_form) {
-
-            widgets.switcher.ShowActivateCardWidget();
-
-            function OnSuccessActivation(form, data) {
-                card.cooldown_end = data.data.cooldown_end;
-                if (card.cooldown_end) SetCooldown(card.id);
-
-                widgets.switcher.ShowMapWidget();
-
-                updater.Refresh();
-            }
-
-            jQuery.ajax({
-                type: 'get',
-                url: card.form_link,
-                success: function(data, request, status) {
-                    activateCardFormBlock.html(data);
-
-                    if (heroId !== undefined) {
-                        jQuery('#hero_id', tab).val(heroId);
-                    }
-
-                    var activationForm = new pgf.forms.Form(jQuery('form', activateCardFormBlock),
-                                                            {action: card.activation_link,
-                                                             OnSuccess: OnSuccessActivation});
-                },
-                error: function(request, status, error) {
-                },
-                complete: function(request, status) {
-                }
-            });
-        }
-        else {
-            var ajax_data = {};
-            if (heroId !== undefined) {
-                ajax_data.hero = heroId;
-            }
-            pgf.forms.Post({action: card.activation_link,
-                            data: ajax_data,
-                            OnSuccess: function(data) {
-                                card.cooldown_end = data.data.cooldown_end;
-                                if (card.cooldown_end) SetCooldown(card.id);
-                            }
-                           });
-        }
-        
-    }
-
-    function RenderCardTootltip(tooltip, card) {
-
-        jQuery('.pgf-name', tooltip).text(card.name);
-        jQuery('.pgf-description', tooltip).text(card.description);
-        jQuery('.pgf-artistic', tooltip).text(card.artistic);
-
-        return tooltip;
-    };
-
-    function RenderCard(index, card, element) {
-        jQuery('.pgf-name', element).text(card.name);
-        element.addClass( 'card-' + card.id + ' ' +card.type.toLowerCase() );
-
-        if (card.cooldown_end > turn.number) SetCooldown(card.id);
-
-        element.click(function(e){
-            e.preventDefault();
-            ActivateCard(card);
-        });
-
-        var tooltipContainer = jQuery('.pgf-tooltip-container', element);
-        var tooltip = tooltipTemplate.clone().removeClass('pgf-hidden');
-        tooltipContainer.html(RenderCardTootltip(tooltip, card));
-    }
-
-    function RenderDeck() {
-
-        var cards = [];
-
-        for (var cardIndex in deck) {
-            cards.push(deck[cardIndex]);
-        }
-        
-        pgf.base.RenderTemplateList(deckContainer, cards, RenderCard, {});
-    };
-
-    this.Refresh = function() {
-        deck = updater.data.data.deck;
-        turn = updater.data.data.turn;
-    };
-
-    this.Render = function() {
-        RenderDeck();
-    };
-
-    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
-        instance.Refresh();
-        instance.Render();
-    });
-};
-
 pgf.game.widgets.WidgetSwitcher = function() {
 
     var logWidget = jQuery('#log-block');
 
-    var activateCardWidget = jQuery('#activate-card-block');
-    var activateCardWidgetFormBlock = jQuery('#activate-card-block .pgf-activate-form');
+    var activateAbilityWidget = jQuery('#activate-ability-block');
+    var activateAbilityWidgetFormBlock = jQuery('#activate-ability-block .pgf-activate-form');
     var mapWidget = jQuery('#map-block');
 
     var instance = this;
 
-    this.ShowActivateCardWidget = function() { 
+    this.ShowActivateAbilityWidget = function() { 
         logWidget.toggleClass('pgf-hidden', true);
         mapWidget.toggleClass('pgf-hidden', true);
 
-        activateCardWidget.toggleClass('pgf-hidden', false);
+        activateAbilityWidget.toggleClass('pgf-hidden', false);
 
-        activateCardWidgetFormBlock.html('');
+        activateAbilityWidgetFormBlock.html('');
     };
 
     this.ShowMapWidget = function() { 
         logWidget.toggleClass('pgf-hidden', false);
         mapWidget.toggleClass('pgf-hidden', false);
 
-        activateCardWidget.toggleClass('pgf-hidden', true);
+        activateAbilityWidget.toggleClass('pgf-hidden', true);
     };
 };

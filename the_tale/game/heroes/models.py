@@ -9,8 +9,6 @@ class Hero(models.Model):
     alive = models.BooleanField(default=True)
 
     #base
-    first = models.BooleanField()
-
     name = models.CharField(max_length=150, null=False)
 
 

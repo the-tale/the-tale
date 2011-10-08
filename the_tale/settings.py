@@ -90,6 +90,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django_next.utils.exceptions.ExceptionMiddleware'
 )
 
 ROOT_URLCONF = 'the_tale.urls'
@@ -110,7 +111,7 @@ INSTALLED_APPS = (
 
     'game',
     'game.angels',
-    'game.cards',
+    'game.abilities',
     'game.heroes',
     'game.turns',
     'game.actions',
