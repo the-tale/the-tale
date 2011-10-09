@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from django_next.views.resources import handler
+from django_next.utils.decorators import staff_required, debug_required
+
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
 
 from .heroes.logic import get_angel_heroes
 
-from .turns.models import Turn
-from .turns.prototypes import get_latest_turn
+from .prototypes import get_current_time
 
 from .map import settings as map_settings
 from .angels.prototypes import get_angel_by_id
@@ -30,12 +31,7 @@ class GameResource(Resource):
     def info(self, angel=None):
         data = {}
 
-        data['turn'] = {'number': -1}
-        try:
-            turn = get_latest_turn()
-            data['turn'] = turn.ui_info()
-        except Turn.DoesNotExist:
-            pass
+        data['turn'] = get_current_time().ui_info()
 
         if self.angel:
             if angel is None:
@@ -46,5 +42,16 @@ class GameResource(Resource):
             data['heroes'] = dict( (hero.id, hero.ui_info()) for hero in get_angel_heroes(foreign_angel.id) )
 
         return self.json(status='ok', data=data)
+
+    @debug_required
+    @staff_required()
+    @handler('next_turn', method=['post'])
+    def next_turn(self):
+
+        from .tasks import supervisor
+        supervisor.cmd_next_turn(1)
+
+        return self.json(status='ok')
+
 
 

@@ -5,7 +5,7 @@ from django_next.utils.exceptions import Error
 
 from common.utils.resources import Resource
 
-from ..turns.prototypes import get_latest_turn
+from ..prototypes import get_current_time
 
 class AngelsResource(Resource):
 
@@ -20,8 +20,7 @@ class AngelsResource(Resource):
 
         data = {}
 
-        turn = get_latest_turn()
-        data['turn'] = turn.ui_info()
+        data['turn'] = get_current_time().ui_info()
 
         data['angel'] = self.angel.ui_info()
         return self.json(status='ok', data=data)

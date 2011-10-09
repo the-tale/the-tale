@@ -2,7 +2,6 @@
 
 from django_next.views.resources import BaseResource
 
-from game.turns.prototypes import get_latest_turn
 from game.angels.prototypes import get_angel_by_model
 
 class Resource(BaseResource):
@@ -23,12 +22,5 @@ class Resource(BaseResource):
             self._angel = None
             if self.account:
                 self._angel = get_angel_by_model(self.account.angel)
-        return self._angel;
-
-    @property
-    def turn(self):
-        if not hasattr(self, '_turn'):
-            self._turn = get_latest_turn()
-        return self._turn
-            
+        return self._angel            
 

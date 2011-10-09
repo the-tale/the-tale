@@ -3,7 +3,7 @@ from celery.task import Task
 
 from django_next.utils.decorators import nested_commit_on_success
 
-from ..turns.prototypes import TurnPrototype
+from ..prototypes import get_current_time
 from ..bundles import get_bundle_by_id, get_bundle_by_model
 from ..models import Bundle
 
@@ -22,15 +22,14 @@ class supervisor(Task):
     def __init__(self):
         print 'CONSTRUCT SUPERVISOR'
         self.initialized = False
+        self.time = get_current_time()
 
     def initialize(self):
         self.initialized = True
 
         print 'INIT_SUPERVISOR'
         from .game import game
-        from ..turns.prototypes import get_latest_turn
-        turn = get_latest_turn()
-        game.cmd_initialize(turn_number=turn.id)
+        game.cmd_initialize(turn_number=self.time.turn_number)
 
         self.load_bundles()
 
@@ -59,7 +58,8 @@ class supervisor(Task):
 
         if cmd == TASK_TYPE.NEXT_TURN:
             game.cmd_next_turn(params['steps_delta'])
-            TurnPrototype.create()
+            self.time.increment_turn()
+            self.time.save()
 
         elif cmd == TASK_TYPE.NEW_BUNDLE:
             with nested_commit_on_success():
