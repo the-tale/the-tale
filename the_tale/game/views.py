@@ -4,7 +4,6 @@ from django_next.views.resources import handler
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
 
-from .cards.logic import get_angel_deck
 from .heroes.logic import get_angel_heroes
 
 from .turns.models import Turn

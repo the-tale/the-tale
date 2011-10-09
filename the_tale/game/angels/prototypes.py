@@ -36,6 +36,9 @@ class AngelPrototype(object):
     energy = property(get_energy, set_energy)
 
     def heroes(self): 
+        #TODO: now this code only works on bundle init phase
+        #      using it from another places is dangerouse becouse of 
+        #      desinchronization between workers and database
         if not hasattr(self, '_heroes'):
             self._heroes = get_heroes_by_query(self.model.heroes.all())
         return self._heroes

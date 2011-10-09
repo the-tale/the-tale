@@ -99,18 +99,17 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
     var deck = {};
     var turn = {};
 
-    function SetCooldown(abilityType) {
+    function LockAbility(abilityType) {
         jQuery('.ability-'+abilityType, widget).toggleClass('cooldown', true);
     }
 
     function ActivateAbility(ability) {
 
-        if (ability.cooldown_end > turn.number) {
-            return;
-        }
-        
         var abilityInfo = abilities[ability.type];
 
+        if (ability.cooldown_end > turn.number) return;
+        if (abilityInfo.limited && ability.limit == 0) return;
+        
         //TODO: replace with some kind of api not related to widgets
         var currentHero = widgets.heroes.CurrentHero();
 
@@ -126,7 +125,10 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
 
             function OnSuccessActivation(form, data) {
                 ability.cooldown_end = data.data.cooldown_end;
-                if (ability.cooldown_end) SetCooldown(ability.type);
+                ability.limit = data.data.limit;
+
+                if (ability.cooldown_end) LockAbility(ability.type);
+                if (abilityInfo.limited && ability.limit == 0) LockAbility(ability.type);
 
                 //TODO: replace with some kind of api not related to widgets
                 widgets.switcher.ShowMapWidget();
@@ -164,7 +166,10 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
                             data: ajax_data,
                             OnSuccess: function(data) {
                                 ability.cooldown_end = data.data.cooldown_end;
-                                if (ability.cooldown_end) SetCooldown(ability.cooldown_end);
+                                ability.limit = data.data.limit;
+
+                                if (ability.cooldown_end) LockAbility(ability.cooldown_end);
+                                if (abilityInfo.limited && ability.limit == 0) LockAbility(ability.type);
                             }
                            });
         }
@@ -177,6 +182,13 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         jQuery('.pgf-description', tooltip).text(abilityInfo.description);
         jQuery('.pgf-artistic', tooltip).text(abilityInfo.artistic);
 
+        if (abilityInfo.limited) {
+            jQuery('.pgf-limited', tooltip).toggleClass('pgf-hidden', false);
+            jQuery('.pgf-limited .pgf-limit-number', tooltip).text(ability.limit);
+            jQuery('.pgf-limited .pgf-can-use', tooltip).toggleClass('pgf-hidden', ability.limit==0);
+            jQuery('.pgf-limited .pgf-limit-exceeded', tooltip).toggleClass('pgf-hidden', ability.limit!=0);
+        }
+
         return tooltip;
     };
 
@@ -185,7 +197,8 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         jQuery('.pgf-name', element).text(abilityInfo.name);
         element.addClass( 'ability-'+abilityInfo.type.toLowerCase() );
 
-        if (ability.cooldown_end > turn.number) SetCooldown(ability.type);
+        if (ability.cooldown_end > turn.number) LockAbility(ability.type);
+        if (abilityInfo.limited && ability.limit == 0) LockAbility(ability.type);
 
         element.click(function(e){
             e.preventDefault();

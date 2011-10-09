@@ -4,7 +4,6 @@ import random
 from django_next.utils.decorators import nested_commit_on_success
 from django_next.utils import s11n
 
-from ..heroes.prototypes import get_hero_by_model
 from ..heroes.logic import create_mob_for_hero, heal_in_town, sell_in_city, equip_in_city
 from ..map.places.prototypes import get_place_by_model
 from ..map.roads.prototypes import get_road_by_model, WaymarkPrototype
@@ -41,6 +40,7 @@ class ActionPrototype(object):
         super(ActionPrototype, self).__init__(*argv, **kwargs)
         self.model = model
         self.removed = False
+        self.bundle = None
 
     @property
     def id(self): return self.model.id
@@ -50,6 +50,9 @@ class ActionPrototype(object):
 
     @property
     def order(self): return self.model.order
+
+    def set_bundle(self, bundle):
+        self.bundle = bundle
 
     def get_leader(self): return self.model.leader
     def set_leader(self, value): self.model.leader = value
@@ -72,15 +75,11 @@ class ActionPrototype(object):
 
     @property
     def hero(self):
-        if not hasattr(self, '_hero'):
-            self._hero = get_hero_by_model(self.model.hero)
-        return self._hero
+        return self.bundle.heroes[self.hero_id]
 
     @property
     def parent(self):
-        if not hasattr(self, '_parent'):
-            self._parent = get_action_by_model(self.model.parent)
-        return self._parent
+        return self.bundle.actions[self.model.parent_id]
 
     @property
     def road_id(self): return self.model.road_id
@@ -137,6 +136,9 @@ class ActionPrototype(object):
     ###########################################
 
     def remove(self): 
+        self.bundle.remove_action(self)
+        if hasattr(self, '_quest'):
+            self.quest.remove()
         self.model.delete()
         self.removed = True
 
@@ -145,6 +147,8 @@ class ActionPrototype(object):
             self.model.data = s11n.to_json(self._data)
         if hasattr(self, '_mob'):
             self.model.mob = s11n.to_json(self._mob.save_to_dict())
+        if hasattr(self, '_quest'):
+            self._quest.save()
         self.model.save(force_update=True)
 
     def on_die(self):
@@ -172,10 +176,11 @@ class ActionPrototype(object):
 
             if self.state == self.STATE.PROCESSED:
                 self.parent.leader = True
-                self.parent.save()
+                # self.parent.save()
                 self.remove()
             else:
-                self.save()
+                # self.save()
+                pass
 
     def process_turn(self, turn_number):
         self.process_action()
@@ -197,7 +202,7 @@ class ActionIdlenessPrototype(ActionPrototype):
     ###########################################
 
     def on_die(self):
-        ActionResurrectPrototype.create(self)
+        self.bundle.add_action(ActionResurrectPrototype.create(self))
         return True
 
     @classmethod
@@ -226,7 +231,9 @@ class ActionIdlenessPrototype(ActionPrototype):
             if (self.entropy >= self.ENTROPY_BARRIER / 2 and 
                 (self.hero.need_trade_in_town or self.hero.need_rest_in_town) and 
                 self.hero.position.is_settlement):
-                ActionInPlacePrototype.create(self, self.hero.position.place)
+
+                self.bundle.add_action(ActionInPlacePrototype.create(self, self.hero.position.place))
+
                 self.state = self.STATE.ACTING
 
             elif self.entropy >= self.ENTROPY_BARRIER:
@@ -236,7 +243,8 @@ class ActionIdlenessPrototype(ActionPrototype):
                 self.hero.create_tmp_log_message('Entropy filled, receiving new quest')
                 quest = create_random_quest_for_hero(self.hero)
 
-                ActionQuestPrototype.create(parent=self, quest=quest)
+                self.bundle.add_action(ActionQuestPrototype.create(parent=self, quest=quest))
+
                 self.state = self.STATE.ACTING
 
 
@@ -273,11 +281,12 @@ class ActionQuestPrototype(ActionPrototype):
             self.percents = percents
             if finish:
                 self.state = self.STATE.PROCESSED
-                self.quest.remove()
+                # self.quest.remove()
             else:
-                self.quest.save()
+                # self.quest.save()
+                pass
 
-            self.hero.save()
+            # self.hero.save()
 
 
 class ActionMoveToPrototype(ActionPrototype):
@@ -334,7 +343,9 @@ class ActionMoveToPrototype(ActionPrototype):
             if self.entropy >= self.ENTROPY_BARRIER:
                 self.entropy = 0
                 mob = create_mob_for_hero(self.hero)
-                ActionBattlePvE_1x1Prototype.create(parent=self, mob=mob)
+
+                self.bundle.add_action(ActionBattlePvE_1x1Prototype.create(parent=self, mob=mob))
+
                 self.state = self.STATE.BATTLE
             else:
                 self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
@@ -343,7 +354,6 @@ class ActionMoveToPrototype(ActionPrototype):
             
                 delta = self.hero.move_speed / self.road.length
 
-                print (self.hero.position.percents, delta)
                 self.hero.position.percents += delta
 
                 self.percents = self.hero.position.percents
@@ -353,8 +363,8 @@ class ActionMoveToPrototype(ActionPrototype):
                     self.hero.position.set_place(current_destination)
                     
                     self.state = self.STATE.IN_CITY
-                    ActionInPlacePrototype.create(parent=self, settlement=current_destination)
 
+                    self.bundle.add_action(ActionInPlacePrototype.create(parent=self, settlement=current_destination))
 
         elif self.state == self.STATE.BATTLE:
             self.state = self.STATE.MOVING
@@ -362,7 +372,7 @@ class ActionMoveToPrototype(ActionPrototype):
         elif self.state == self.STATE.IN_CITY:
             self.state = self.STATE.CHOOSE_ROAD
 
-        self.hero.save()
+        # self.hero.save()
 
 
 class ActionBattlePvE_1x1Prototype(ActionPrototype):
@@ -433,7 +443,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
                 self.percents = 1.0 - self.mob.health
 
-                self.hero.save()
+                # self.hero.save()
 
                 if self.state == self.STATE.PROCESSED:
                     self.remove_mob()
@@ -473,7 +483,7 @@ class ActionResurrectPrototype(ActionPrototype):
                 self.hero.resurrent()
                 self.state = self.STATE.PROCESSED
                 
-                self.hero.save()
+                # self.hero.save()
 
 
 class ActionInPlacePrototype(ActionPrototype):
@@ -524,17 +534,22 @@ class ActionInPlacePrototype(ActionPrototype):
 
         if self.can_rest_in_town and self.hero.need_rest_in_town:
             self.state = self.STATE.RESTING
-            ActionRestInSettlementPrototype.create(self, self.place)
+            self.bundle.add_action(ActionRestInSettlementPrototype.create(self, self.place))
+
             self.hero.create_tmp_log_message('hero decided to have a rest')
 
         elif self.can_equip_in_town and self.hero.need_equipping_in_town:
             self.state = self.STATE.EQUIPPING
-            ActionEquipInSettlementPrototype.create(self, self.place)
+
+            self.bundle.add_action(ActionEquipInSettlementPrototype.create(self, self.place))
+
             self.hero.create_tmp_log_message('hero looking for new equipment in his bag')
 
         elif self.can_trade_in_town and self.hero.need_trade_in_town:
             self.state = self.STATE.TRADING
-            ActionTradeInSettlementPrototype.create(self, self.place)
+
+            self.bundle.add_action(ActionTradeInSettlementPrototype.create(self, self.place))
+
             self.hero.create_tmp_log_message('hero decided to sell all loot')        
             
         else:
@@ -582,7 +597,7 @@ class ActionRestInSettlementPrototype(ActionPrototype):
 
             self.percents = float(self.hero.health/self.hero.max_health)
 
-            self.hero.save()
+            # self.hero.save()
 
             if self.hero.health == self.hero.max_health:
                 self.hero.create_tmp_log_message('hero is completly healthty')
@@ -631,7 +646,7 @@ class ActionEquipInSettlementPrototype(ActionPrototype):
                 else:
                     self.hero.create_tmp_log_message('hero equip "%s"' % equipped.name)
 
-                self.hero.save()
+                # self.hero.save()
             else:
                 self.equipped = True
                 self.state = self.STATE.PROCESSED
@@ -689,7 +704,7 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
                 sell_price = sell_in_city(self.hero, artifact, False)
 
                 self.hero.create_tmp_log_message('hero solled %s for %d g.' % (artifact.name, sell_price) )
-                self.hero.save()
+                # self.hero.save()
             else:
                 self.hero.create_tmp_log_message('hero has solled all what he wants')
                 self.state = self.STATE.PROCESSED

@@ -175,6 +175,9 @@ class HeroPrototype(object):
     ###########################################p
 
     def get_actions(self):
+        #TODO: now this code only works on bundle init phase
+        #      using it from another places is dangerouse becouse of 
+        #      desinchronization between workers and database
         from game.actions.models import Action
         from game.actions.prototypes import ACTION_TYPES
 

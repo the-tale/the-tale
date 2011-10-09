@@ -36,6 +36,14 @@ class BundlePrototype(object):
     def add_hero(self, hero):
         self.heroes[hero.id] = hero
 
+    def add_action(self, action):
+        action.set_bundle(self)
+        self.actions[action.id] = action
+
+    def remove_action(self, action):
+        del self.actions[action.id]
+        action.set_bundle(None)
+
     def load_data(self):
 
         for member in self.model.members.all():
@@ -46,6 +54,7 @@ class BundlePrototype(object):
                 self.heroes[hero.id] = hero
                 
                 for action in hero.get_actions():
+                    action.set_bundle(self)
                     self.actions[action.id] = action
       
     @nested_commit_on_success

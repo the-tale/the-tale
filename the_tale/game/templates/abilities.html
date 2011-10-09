@@ -21,6 +21,13 @@ jQuery(document).ready(function(e) {
 
 <div class="pgf-hidden ability-tooltip" id="pgf-ability-tooltip-template">
   <h6 class="name pgf-name"></h6>
+  <ul class="requirements pgf-requirements">
+    <li class="cooldown pgf-cooldown pgf-hidden"></li>
+    <li class="limited pgf-limited pgf-hidden">
+      <span class="pgf-can-use">Осталось <span class="limit-number pgf-limit-number"></span> исспользований</span>
+      <span class="pgf-limit-exceeded">Вы исспользовали все попытки</span>
+    </li>
+  </ul>
   <p class="description pgf-description"></p>
   <p class="artistic pgf-artistic"></p>
 </div>

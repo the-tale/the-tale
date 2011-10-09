@@ -204,7 +204,7 @@ class QuestPrototype(object):
     def cmd_move(self, cmd, cur_action):
         from ..actions.prototypes import ActionMoveToPrototype
         destination = self.env.get_game_place(cmd['place'])
-        ActionMoveToPrototype.create(parent=cur_action, destination=destination)
+        cur_action.bundle.add_action(ActionMoveToPrototype.create(parent=cur_action, destination=destination))
 
     def cmd_get_item(self, cmd, cur_action):
         item = self.env.get_game_item(cmd['item'])

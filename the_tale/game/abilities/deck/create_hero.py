@@ -5,7 +5,7 @@ from django_next.forms import forms, fields
 from game.heroes import game_info
 from game.heroes.models import Hero
 
-from ..prototypes import AbilityPrototype, ABILITY_TYPE
+from ..prototypes import AbilityPrototype
 from ..forms import AbilityForm
 
 attrs = game_info.attributes
@@ -78,7 +78,9 @@ class CreateHeroForm(AbilityForm):
 
 class CreateHero(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.INSTANT
+    LIMITED = True
+    INITIAL_LIMIT = 1
+
     COST = 0
     COOLDOWN = 0
 
@@ -88,9 +90,6 @@ class CreateHero(AbilityPrototype):
 
     FORM = CreateHeroForm
     TEMPLATE = 'abilities/deck/create_hero_form.html'
-
-    def __init__(self):
-        pass
       
     def use(self, angel, form):
         from ...heroes.prototypes import HeroPrototype

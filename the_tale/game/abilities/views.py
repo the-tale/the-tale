@@ -35,6 +35,9 @@ class AbilitiesResource(Resource):
     @handler('#ability_type', 'activate', method='post')
     def activate(self):
 
+        if self.ability.LIMITED and self.ability.limit == 0:
+            return self.json(status='error', errors='Вы больше не можете исспользовать эту способность')
+
         form = self.ability.create_form(self)
         
         if form.is_valid():
