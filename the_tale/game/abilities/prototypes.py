@@ -28,7 +28,7 @@ class AbilityPrototype(object):
         # TODO: implement cooldown processing
         return False
 
-    def serrialize(self):
+    def serialize(self):
         return {'type': self.__class__.__name__.lower(),
                 'limit': self.limit}
 
@@ -38,7 +38,7 @@ class AbilityPrototype(object):
                 'cooldown_end': 0}
 
     @staticmethod
-    def deserrialize(data):
+    def deserialize(data):
         from .deck import ABILITIES
         obj = ABILITIES[data['type']]()
         obj.limit = data.get('limit', obj.INITIAL_LIMIT)

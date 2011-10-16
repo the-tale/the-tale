@@ -27,6 +27,7 @@ jQuery(document).ready(function(e){
         if (number == 0) {
             setTimeout(function() { 
                 updater.Refresh();
+                angelUpdater.Refresh();
             }, 1000 );
             return;
         }
@@ -48,6 +49,11 @@ jQuery(document).ready(function(e){
         DoTurns(10);
     });
 
+    jQuery('.pgf-next-100-turns').click(function(e){
+        e.preventDefault();
+        DoTurns(100);
+    });
+
     setTimeout(function(){
         updater.Refresh();
         angelUpdater.Refresh();
@@ -61,6 +67,7 @@ jQuery(document).ready(function(e){
 {{ super() }}
 <li><a href="#" class="pgf-next-turn">next turn</a></li>
 <li><a href="#" class="pgf-next-10-turns">10 turns</a></li>
+<li><a href="#" class="pgf-next-100-turns">100 turns</a></li>
 {% endblock %}
 
 
@@ -91,9 +98,9 @@ jQuery(document).ready(function(e){
     
   <ul>
     <li class="pgf-effect-weapon-base pgf-hidden">
-      урон: <span class="pgf-raw-effect-min_damage"></span> - <span class="pgf-raw-effect-max_damage"></span>
+      урон: <span class="pgf-min-damage"></span> - <span class="pgf-max-damage"></span>
     </li>
-    <li class="pgf-effect-weapon-base pgf-hidden">скорость в бою: <span class="pgf-raw-effect-battle_speed"></li>
+    <li class="pgf-effect-weapon-base pgf-hidden">штраф к скорости: <span class="pgf-battle-speed"></li>
   </ul>
 </div>
 

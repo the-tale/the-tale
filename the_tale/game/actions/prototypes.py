@@ -146,7 +146,7 @@ class ActionPrototype(object):
         if hasattr(self, '_data'):
             self.model.data = s11n.to_json(self._data)
         if hasattr(self, '_mob'):
-            self.model.mob = s11n.to_json(self._mob.save_to_dict())
+            self.model.mob = s11n.to_json(self._mob.serialize())
         if hasattr(self, '_quest'):
             self._quest.save()
         self.model.save(force_update=True)
@@ -396,7 +396,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       mob=s11n.to_json(mob.save_to_dict()))
+                                       mob=s11n.to_json(mob.serialize()))
         return cls(model=model)
 
     @nested_commit_on_success

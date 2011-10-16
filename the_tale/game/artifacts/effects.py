@@ -1,19 +1,11 @@
 # -*- coding: utf-8 -*-
+import math
 import random
 
-def load_effect_from_dict(data):
+def deserialize_effect(data):
     effect = EFFECT_CLASSES[data['type']]()
-    effect.load_from_dict(data)
+    effect.deserialize(data)
     return effect
-
-class RAW_EFFECT_TYPE:
-    MIN_DAMAGE = 'min_damage'
-    MAX_DAMAGE = 'max_damage'
-    BATTLE_SPEED = 'battle_speed'
-
-ACCUMULATED_EFFECTS = [RAW_EFFECT_TYPE.MIN_DAMAGE, 
-                       RAW_EFFECT_TYPE.MAX_DAMAGE,
-                       RAW_EFFECT_TYPE.BATTLE_SPEED]
 
 class Effect(object):
     TYPE = None
@@ -30,17 +22,20 @@ class Effect(object):
         pass
 
     def ui_info(self):
-        return { 'type': self.TYPE,
-                 'raw_effects': self.raw_effects }
+        return { 'type': self.TYPE}
 
-    def save_to_dict(self):
+    def serialize(self):
         return { 'type': self.TYPE,
-                 'lvl': self.lvl,
-                 'raw_effects': self.raw_effects }
+                 'lvl': self.lvl}
 
-    def load_from_dict(self, data):
+    def deserialize(self, data):
         self.lvl = data['lvl']
-        self.raw_effects = data['raw_effects']
+
+    def get_attr_damage(self):
+        return (0, 0)
+
+    def get_attr_battle_speed_multiply(self):
+        return 1
 
 
 class WeaponBase(Effect):
@@ -50,21 +45,52 @@ class WeaponBase(Effect):
     DAMAGE_BASE = None
     MIN_MAX_DELTA = None
     DAMAGE_VARIANCE = None
-    SPEED_VARIANCE = None
+    SPEED_PENALTY = None
+
+    def __init__(self, *argv, **kwargs):
+        super(WeaponBase, self).__init__(*argv, **kwargs)
+        self.min_damage = 0
+        self.max_damage = 0
+        self.battle_speed = 0
     
     def update(self):
-        battle_speed = 1 + self.lvl * self.BATTLE_SPEED_BASE
         damage = 1 + self.lvl * self.DAMAGE_BASE
 
         min_damage = damage * (1-self.MIN_MAX_DELTA + random.uniform(-self.DAMAGE_VARIANCE, self.DAMAGE_VARIANCE) )
         max_damage = damage * (1+self.MIN_MAX_DELTA + random.uniform(-self.DAMAGE_VARIANCE, self.DAMAGE_VARIANCE) )
-        battle_speed = battle_speed * (1 + random.uniform(-self.SPEED_VARIANCE, self.SPEED_VARIANCE))
+        battle_speed = 1 - self.SPEED_PENALTY
 
         min_damage, max_damage = min(min_damage, max_damage), max(min_damage, max_damage)
 
-        self.raw_effects[RAW_EFFECT_TYPE.MIN_DAMAGE] = int(round(min_damage))
-        self.raw_effects[RAW_EFFECT_TYPE.MAX_DAMAGE] = int(round(max_damage))
-        self.raw_effects[RAW_EFFECT_TYPE.BATTLE_SPEED] = round(battle_speed, 2)
+        self.min_damage = min_damage
+        self.max_damage = max_damage
+        self.battle_speed = battle_speed
+
+    def get_attr_damage(self):
+        return (self.min_damage, self.max_damage)
+
+    def get_attr_battle_speed_multiply(self):
+        return self.battle_speed
+
+    def ui_info(self):
+        info = super(WeaponBase, self).ui_info()
+        info.update({'min_damage': math.floor(self.min_damage),
+                     'max_damage': math.ceil(self.max_damage),
+                     'battle_speed': self.battle_speed})
+        return info
+
+    def serialize(self):
+        data = super(WeaponBase, self).serialize()
+        data.update({'min_damage': self.min_damage,
+                     'max_damage': self.max_damage,
+                     'battle_speed': self.battle_speed})
+        return data
+
+    def deserialize(self, data):
+        self.lvl = data['lvl']
+        self.min_damage = data['min_damage']
+        self.max_damage = data['max_damage']
+        self.battle_speed = data['battle_speed']
 
 
 class SwordBase(WeaponBase):
@@ -74,7 +100,8 @@ class SwordBase(WeaponBase):
     DAMAGE_BASE = 2    
     MIN_MAX_DELTA = 0.15 
     DAMAGE_VARIANCE = 0.10
-    SPEED_VARIANCE = 0.10
+    SPEED_PENALTY = 0.20
+
 
 EFFECT_CLASSES = dict( (effect.TYPE, effect) 
                        for effect_name, effect in globals().items() 

@@ -69,6 +69,9 @@ class supervisor(Task):
         elif cmd == TASK_TYPE.ACTIVATE_ABILITY:
             game.cmd_activate_ability(params['ability_type'], params['form'])
 
+        elif cmd == TASK_TYPE.REGISTER_HERO:
+            game.cmd_register_hero(params['hero_id'])
+
         return 0
 
     @classmethod
@@ -88,7 +91,7 @@ class supervisor(Task):
 
     @classmethod
     def cmd_register_hero(cls, hero_id):
-        t = cls.apply_async(args=[TASK_TYPE.REGISTER_HERO, {'id': hero_id}])
+        t = cls.apply_async(args=[TASK_TYPE.REGISTER_HERO, {'hero_id': hero_id}])
         return t
 
     

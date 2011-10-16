@@ -35,6 +35,8 @@ class BundlePrototype(object):
 
     def add_hero(self, hero):
         self.heroes[hero.id] = hero
+        for action in hero.get_actions():
+            self.add_action(action)
 
     def add_action(self, action):
         action.set_bundle(self)
@@ -51,11 +53,7 @@ class BundlePrototype(object):
             self.angels[angel.id] = angel
 
             for hero in angel.heroes():
-                self.heroes[hero.id] = hero
-                
-                for action in hero.get_actions():
-                    action.set_bundle(self)
-                    self.actions[action.id] = action
+                self.add_hero(hero)
       
     @nested_commit_on_success
     def save_data(self):
@@ -67,8 +65,9 @@ class BundlePrototype(object):
             hero.save()
 
         for action in self.actions.values():
-            if not action.leader:
-                continue
+            # TODO: we should save non-leader actions after creating new action
+            # if not action.leader:
+            #     continue
             action.save()
 
 

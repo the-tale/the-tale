@@ -48,14 +48,14 @@ class AngelPrototype(object):
         data = s11n.from_json(self.model.abilities)
         abilities = {}
         for ability_dict in data.values():
-            ability = AbilityPrototype.deserrialize(ability_dict)
+            ability = AbilityPrototype.deserialize(ability_dict)
             abilities[ability.get_type()] = ability
         self._abilities = abilities
 
     def save_abilities(self):
         data = {}
         for ability in self.abilities.values():
-            data[ability.get_type()] = ability.serrialize()
+            data[ability.get_type()] = ability.serialize()
         self.model.abilities = s11n.to_json(data)
 
     @property

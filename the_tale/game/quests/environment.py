@@ -35,7 +35,7 @@ class Environment(BaseEnvironment):
             constructor = LetterConstructor(basic_points=1, effect_points=1)
             artifact = constructor.generate_artifact(quest=True)
             artifact.set_quest_uuid(item_id)
-            item_data['game']['artifact'] = artifact.save_to_dict()
+            item_data['game']['artifact'] = artifact.serialize()
 
     def get_game_place(self, place_id):
         from ..map.places.prototypes import get_place_by_id
@@ -49,7 +49,7 @@ class Environment(BaseEnvironment):
         return ArtifactPrototype(data=self.items[item_id]['game']['artifact'])
 
     def set_game_item(self, item_id, item):
-        self.items['game']['artifact'] = item.save_to_dict()
+        self.items['game']['artifact'] = item.serialize()
 
     def get_msg_substitutions(self, local_env):
         subst = copy.deepcopy(local_env)
@@ -65,10 +65,10 @@ class Environment(BaseEnvironment):
         return subst
         
 
-    def save_to_dict(self):
-        data = super(Environment, self).save_to_dict()
+    def serialize(self):
+        data = super(Environment, self).serialize()
         return data
 
-    def load_from_dict(self, data):
-        super(Environment, self).load_from_dict(data)        
+    def deserialize(self, data):
+        super(Environment, self).deserialize(data)        
 

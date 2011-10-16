@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import math
 from django_next.utils.decorators import nested_commit_on_success
 
 from game.journal_messages.prototypes import MessagesLogPrototype, get_messages_log_by_model
@@ -6,7 +7,6 @@ from game.journal_messages.prototypes import MessagesLogPrototype, get_messages_
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
-from ..artifacts.effects import RAW_EFFECT_TYPE
 from ..quests.prototypes import get_quest_by_model
 from ..quests.models import Quest
 
@@ -65,7 +65,7 @@ class HeroPrototype(object):
         if not hasattr(self, '_bag'):
             from .bag import Bag
             self._bag = Bag()
-            self._bag.load_from_json(self.model.bag)
+            self._bag.deserialize(self.model.bag)
         return self._bag
 
     def put_loot(self, artifact):
@@ -92,7 +92,7 @@ class HeroPrototype(object):
         if not hasattr(self, '_equipment'):
             from .bag import Equipment
             self._equipment = Equipment()
-            self._equipment.load_from_json(self.model.equipment)
+            self._equipment.deserialize(self.model.equipment)
         return self._equipment
 
 
@@ -125,7 +125,7 @@ class HeroPrototype(object):
     @property
     def battle_speed(self): 
         speed = game_info.attributes.secondary.battle_speed.get(self)
-        speed += self.equipment.get_raw_effect(RAW_EFFECT_TYPE.BATTLE_SPEED)        
+        speed *= self.equipment.get_attr_battle_speed_multiply()
         return speed
 
     @property
@@ -134,13 +134,13 @@ class HeroPrototype(object):
     @property
     def min_damage(self): 
         damage = game_info.attributes.secondary.min_damage.get(self)
-        damage += self.equipment.get_raw_effect(RAW_EFFECT_TYPE.MIN_DAMAGE)
+        damage += self.equipment.get_attr_damage()[0]
         return damage
 
     @property
     def max_damage(self): 
         damage = game_info.attributes.secondary.max_damage.get(self)
-        damage += self.equipment.get_raw_effect(RAW_EFFECT_TYPE.MAX_DAMAGE)
+        damage += self.equipment.get_attr_damage()[1]
         return damage
 
     @property
@@ -209,11 +209,8 @@ class HeroPrototype(object):
 
     def remove(self): return self.model.delete()
     def save(self): 
-        self.model.bag = self.bag.save_to_json()
-        self.model.equipment = self.equipment.save_to_json()
-        # print 2
-        # print self.model.bag
-        # raise Exception('?')
+        self.model.bag = self.bag.serialize()
+        self.model.equipment = self.equipment.serialize()
         self.model.save(force_update=True)
 
     def get_messages_log(self):
@@ -242,8 +239,8 @@ class HeroPrototype(object):
                              'reflexes': self.reflexes,
                              'charisma': self.charisma,
                              'chaoticity': self.chaoticity },
-                'secondary': { 'min_damage': self.min_damage,
-                               'max_damage': self.max_damage,
+                'secondary': { 'min_damage': math.floor(self.min_damage),
+                               'max_damage': math.ceil(self.max_damage),
                                'move_speed': round(self.move_speed, 2),
                                'battle_speed': round(self.battle_speed, 2),
                                'max_bag_size': self.max_bag_size,

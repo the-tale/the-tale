@@ -111,6 +111,9 @@ class QuestPrototype(object):
                  'ui_line': [None],
                  'line':  line_dict}
 
+        if Quest.objects.filter(hero=hero.model).exists():
+            raise Exception('Hero %s has already had quest' % hero.id)
+
         model = Quest.objects.create(hero=hero.model,
                                      env=s11n.to_json(env.save_to_dict()),
                                      data=s11n.to_json(data))

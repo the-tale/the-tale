@@ -1,8 +1,9 @@
 # coding: utf-8
 import heapq
-import random
 
 from celery.task import Task
+
+from django_next.utils.decorators import nested_commit_on_success
 
 from ..heroes.prototypes import get_hero_by_id
 from ..bundles import get_bundle_by_id
@@ -25,7 +26,8 @@ class game(Task):
     def __init__(self):
         print 'CONSTRUCT GAME'
         self.initialized = False
-        self.uuid = random.randint(0, 100)
+        # self.uuid = random.randint(0, 100)
+        self.exception_raised = False
 
     def initialize(self):
         print 'INIT GAME'
@@ -44,6 +46,11 @@ class game(Task):
         return self.bundles[self.heroes2bundles[hero_id]].heroes[hero_id]
 
     def register_bundle(self, bundle):
+
+        if bundle.id in self.bundles:
+            print 'bundle with id "%d" has already registerd in worker, probably on initialization step' % bundle.id
+            return 
+
         self.bundles[bundle.id] = bundle
         for angel_id in bundle.angels.keys():
             self.angels2bundles[angel_id] = bundle.id
@@ -70,36 +77,47 @@ class game(Task):
 
     def run(self, cmd, params):
 
-        if not self.initialized:
-            self.initialize()
+        try:
 
-        self.log_cmd(cmd, params)
+            if self.exception_raised:
+                print 'skip command becouse of exception'
+                return 0
+
+            if not self.initialized:
+                self.initialize()
+
+            self.log_cmd(cmd, params)
         
-        if cmd == TASK_TYPE.INITIALIZE:
-            self.turn_number = params['turn_number']
+            if cmd == TASK_TYPE.INITIALIZE:
+                self.turn_number = params['turn_number']
 
-        elif cmd == TASK_TYPE.NEXT_TURN:
-            steps_delta = params['steps_delta']
-            while steps_delta:
-                steps_delta -= 1
-                self.next_turn()
+            elif cmd == TASK_TYPE.NEXT_TURN:
+                steps_delta = params['steps_delta']
+                while steps_delta:
+                    steps_delta -= 1
+                    with nested_commit_on_success():
+                        self.next_turn()
 
-        elif cmd == TASK_TYPE.PUSH_BUNDLE:
-            bundle = get_bundle_by_id(id=params['id'])
-            self.register_bundle(bundle)
+            elif cmd == TASK_TYPE.PUSH_BUNDLE:
+                bundle = get_bundle_by_id(id=params['id'])
+                self.register_bundle(bundle)
 
-        elif cmd == TASK_TYPE.ACTIVATE_ABILITY:
-            from ..abilities.deck import ABILITIES
-            ability = ABILITIES[params['ability_type']]
-            bundle = self.bundles[self.angels2bundles[params['form']['angel_id']]] 
-            ability.process(bundle, params['form'])
-            bundle.save()
+            elif cmd == TASK_TYPE.ACTIVATE_ABILITY:
+                with nested_commit_on_success():
+                    from ..abilities.deck import ABILITIES
+                    ability = ABILITIES[params['ability_type']]
+                    bundle = self.bundles[self.angels2bundles[params['form']['angel_id']]] 
+                    ability.process(bundle, params['form'])
+                    bundle.save()
 
-        elif cmd == TASK_TYPE.REGISTER_HERO:
-            hero = get_hero_by_id(params['id'])
-            bundle = self.angels2bundles[hero.angel_id]
-            bundle.add_hero(hero)
-            self.heroes2bundles[hero.id] = bundle
+            elif cmd == TASK_TYPE.REGISTER_HERO:
+                hero = get_hero_by_id(params['hero_id'])
+                bundle = self.bundles[self.angels2bundles[hero.angel_id]] 
+                bundle.add_hero(hero)
+                self.heroes2bundles[hero.id] = bundle
+        except:
+            self.exception_raised = True
+            raise
 
         return 0
     
@@ -146,6 +164,6 @@ class game(Task):
 
     @classmethod
     def cmd_register_hero(cls, hero_id):
-        t = cls.apply_async(args=[TASK_TYPE.REGISTER_HERO, {'id': hero_id}])
+        t = cls.apply_async(args=[TASK_TYPE.REGISTER_HERO, {'hero_id': hero_id}])
         return t
 

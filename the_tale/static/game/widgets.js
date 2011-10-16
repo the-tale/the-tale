@@ -364,7 +364,7 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     });
 };
 
-pgf.game.widgets.RenderItemTootltip = function(tooltip, data) {
+pgf.game.widgets.RenderItemTooltip = function(tooltip, data) {
 
     jQuery('.pgf-name', tooltip).text(data.name);
     jQuery('.pgf-type', tooltip).text(data.type);
@@ -377,12 +377,11 @@ pgf.game.widgets.RenderItemTootltip = function(tooltip, data) {
     for (var i in data.effects) {
         var effect = data.effects[i];
 
-        for (var raw_effect in effect.raw_effects) {
-            jQuery('.pgf-raw-effect-'+raw_effect, tooltip).text(effect.raw_effects[raw_effect]);
-        }
-
         switch(effect.type) {
         case 'WEAPON_BASE': {
+            jQuery('.pgf-min-damage', tooltip).text(effect.min_damage);
+            jQuery('.pgf-max-damage', tooltip).text(effect.max_damage);
+            jQuery('.pgf-battle-speed', tooltip).text(effect.battle_speed);
             jQuery('.pgf-effect-weapon-base', tooltip).removeClass('pgf-hidden');
             break;
         }
@@ -416,7 +415,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
 
         var tooltipContainer = jQuery('.pgf-tooltip-container', element);
         var tooltip = tooltipTemplate.clone().removeClass('pgf-hidden');
-        tooltipContainer.html(pgf.game.widgets.RenderItemTootltip(tooltip, data));
+        tooltipContainer.html(pgf.game.widgets.RenderItemTooltip(tooltip, data));
     }
 
     function RenderItems() {
@@ -480,7 +479,7 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
         element.text(data.name);
         var tooltipContainer = element.siblings('.pgf-tooltip-container');
         var tooltip = tooltipTemplate.clone().removeClass('pgf-hidden');
-        tooltipContainer.html(pgf.game.widgets.RenderItemTootltip(tooltip, data));
+        tooltipContainer.html(pgf.game.widgets.RenderItemTooltip(tooltip, data));
     }
 
     function RenderEquipment() {

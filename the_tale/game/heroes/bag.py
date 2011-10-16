@@ -3,7 +3,6 @@ from django_next.utils import s11n
 
 from ..artifacts.prototypes import ArtifactPrototype
 from ..artifacts import constructors
-from ..artifacts.effects import ACCUMULATED_EFFECTS
 
 class EquipmentException(Exception): pass
 
@@ -13,18 +12,18 @@ class Bag(object):
         self.next_uuid = 0
         self.bag = {}
 
-    def load_from_json(self, data):
+    def deserialize(self, data):
         data = s11n.from_json(data)
         self.next_uuid = data.get('next_uuid', 0)
         self.bag = {}
         for uuid, artifact_data in data.get('bag', {}).items():
             artifact = ArtifactPrototype()
-            artifact.load_from_dict(artifact_data)
+            artifact.deserialize(artifact_data)
             self.bag[int(uuid)] = artifact
     
-    def save_to_json(self):
+    def serialize(self):
         return s11n.to_json({'next_uuid': self.next_uuid,
-                             'bag': dict( (uuid, artifact.save_to_dict()) for uuid, artifact in self.bag.items() )
+                             'bag': dict( (uuid, artifact.serialize()) for uuid, artifact in self.bag.items() )
                              })
 
     def ui_info(self):
@@ -119,22 +118,32 @@ class Equipment(object):
     def __init__(self):
         self.equipment = {}
 
-    def get_raw_effect(self, effect_name):
-        if effect_name in ACCUMULATED_EFFECTS:
-            value = 0
-            for slot in SLOTS_LIST:
-                artifact = self.get(slot)
-                if artifact:
-                    value += artifact.get_raw_effect(effect_name)
-            return value
+    def get_attr_damage(self):
+        damage = (0, 0)
+        for slot in SLOTS_LIST:
+            artifact = self.get(slot)
+            if artifact:
+                artifact_damage = artifact.get_attr_damage()
+                damage = (damage[0] + artifact_damage[0], damage[1] + artifact_damage[1])
+        return damage
+
+    def get_attr_battle_speed_multiply(self):
+        penalty = 1
+        for slot in SLOTS_LIST:
+            artifact = self.get(slot)
+            if artifact:
+                artifact_penalty = artifact.get_attr_battle_speed_multiply()
+                penalty *= artifact_penalty
+        return penalty
+        
 
     def ui_info(self):
         return dict( (slot, artifact.ui_info()) for slot, artifact in self.equipment.items() if artifact )
 
-    def save_to_json(self):
-        return s11n.to_json(dict( (slot, artifact.save_to_dict()) for slot, artifact in self.equipment.items() if artifact ))
+    def serialize(self):
+        return s11n.to_json(dict( (slot, artifact.serialize()) for slot, artifact in self.equipment.items() if artifact ))
 
-    def load_from_json(self, data):
+    def deserialize(self, data):
         data = s11n.from_json(data)
         self.equipment = dict( (slot, ArtifactPrototype(data=artifact_data)) for slot, artifact_data in data.items() if  artifact_data)
 

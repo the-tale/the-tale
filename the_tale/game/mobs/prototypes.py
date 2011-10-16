@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import math
 import random
 
 def get_mob_by_data(data):
@@ -46,18 +47,18 @@ class MobAttributes(object):
         return percents, int(percents * hero.health)
 
     def get_damage_from_hero(self, hero):
-        damage = random.randint(hero.min_damage, hero.max_damage)
+        damage = random.randint(math.floor(hero.min_damage), math.ceil(hero.max_damage))
         percents_cooficient = (self.damage_to_mob[1] - self.damage_to_mob[0]) / float(hero.max_damage - hero.min_damage)
         damage_percents = self.damage_to_mob[0] + (damage - hero.min_damage) * percents_cooficient
         return damage_percents, damage
 
-    def save_to_dict(self):
+    def serialize(self):
         return {'damage_to_hero': self.damage_to_hero,
                 'damage_to_mob': self.damage_to_mob,
                 'battle_speed': self.battle_speed}
 
     @classmethod
-    def load_from_dict(cls, data):
+    def deserialize(cls, data):
         return cls(damage_to_hero=data['damage_to_hero'],
                    damage_to_mob=data['damage_to_mob'],
                    battle_speed=data['battle_speed'])
@@ -87,7 +88,7 @@ class MobPrototype(object):
 
     def __init__(self, hero_power=None, difficulty=None, data=None):
         if data:
-            self.load_from_dict(data)
+            self.deserialize(data)
             return
             
         self.difficulty = difficulty
@@ -124,18 +125,18 @@ class MobPrototype(object):
         from ..artifacts.constructors import generate_loot
         return generate_loot(self.LOOT_LIST, self.power, self.LOOT_BASIC_MODIFICATOR, self.LOOT_EFFECTS_MODIFICATOR, hero_chaoticity)
 
-    def save_to_dict(self):
+    def serialize(self):
         return {'type': self.get_type_name(),
-                'attributes': self.attributes.save_to_dict(),
+                'attributes': self.attributes.serialize(),
                 'health': self.health,
                 'power': self.power,
                 'difficulty': self.difficulty}
 
-    def load_from_dict(self, data):
+    def deserialize(self, data):
         self.difficulty = data['difficulty']
         self.health = data['health']
         self.power = data['power']
-        self.attributes = MobAttributes.load_from_dict(data=data['attributes'])
+        self.attributes = MobAttributes.deserialize(data=data['attributes'])
 
     def ui_info(self):
         return { 'name': self.name,
@@ -160,8 +161,8 @@ class Rat(MobPrototype):
 class Bandit(MobPrototype):
 
     NAME = u'бандит'
-    LOOT_LIST = [ (10, loot.FakeAmuletConstructor),
-                  (1, loot.BrokenSword) ]
+    LOOT_LIST = [ (1, loot.FakeAmuletConstructor),
+                  (100, loot.BrokenSword) ]
                   
     ATTRIBUTES = MobAttributesConstructor(damage_to_hero=(0.1, 0.2), 
                                           damage_to_mob=(0.1, 0.2), 

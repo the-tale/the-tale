@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .effects import load_effect_from_dict, ACCUMULATED_EFFECTS
+from .effects import deserialize_effect
 
 class ArtifactPrototype(object):
 
@@ -18,18 +18,11 @@ class ArtifactPrototype(object):
         self.effect_points_spent = 0
 
         if data:
-            self.load_from_dict(data)
+            self.deserialize(data)
 
     @property
     def total_points_spent(self):
         return self.basic_points_spent + self.effect_points_spent
-
-    def get_raw_effect(self, effect_name):
-        if effect_name in ACCUMULATED_EFFECTS:
-            value = 0
-            for effect in self.effects:
-                value += effect.raw_effects.get(effect_name, 0)
-            return value
 
     def set_name(self, name):
         self.name = name
@@ -46,7 +39,21 @@ class ArtifactPrototype(object):
     def add_effects(self, effects_list):
         self.effects.extend(effects_list)
 
-    def load_from_dict(self, data):
+    def get_attr_damage(self):
+        damage = (0, 0)
+        for effect in self.effects: 
+            effect_damage = effect.get_attr_damage()
+            damage = (damage[0] + effect_damage[0], damage[1] + effect_damage[1])
+        return damage
+
+    def get_attr_battle_speed_multiply(self):
+        penalty = 1
+        for effect in self.effects:
+            effect_penalty = effect.get_attr_battle_speed_multiply()
+            penalty *= effect_penalty
+        return penalty
+
+    def deserialize(self, data):
         self.type = data.get('type', None)
         self.subtype = data.get('subtype', None)
         self.name = data.get('name', '')
@@ -60,9 +67,9 @@ class ArtifactPrototype(object):
         self.effect_points_spent = data.get('effect_points_spent', 0)
 
         for effect in data['effects']:
-            self.effects.append(load_effect_from_dict(effect))
+            self.effects.append(deserialize_effect(effect))
 
-    def save_to_dict(self):
+    def serialize(self):
         return {'type': self.type,
                 'subtype': self.subtype,
                 'name': self.name,
@@ -72,7 +79,7 @@ class ArtifactPrototype(object):
                 'bag_uuid': self.bag_uuid,
                 'basic_points_spent': self.basic_points_spent,
                 'effect_points_spent': self.effect_points_spent,
-                'effects': [ effect.save_to_dict() for effect in self.effects]}
+                'effects': [ effect.serialize() for effect in self.effects]}
 
     def ui_info(self):
         return {'type': self.type,
