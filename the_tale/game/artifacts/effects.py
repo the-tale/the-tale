@@ -34,6 +34,9 @@ class Effect(object):
     def get_attr_damage(self):
         return (0, 0)
 
+    def get_attr_armor(self):
+        return 0
+
     def get_attr_battle_speed_multiply(self):
         return 1
 
@@ -41,7 +44,6 @@ class Effect(object):
 class WeaponBase(Effect):
     TYPE = 'WEAPON_BASE'
 
-    BATTLE_SPEED_BASE = None
     DAMAGE_BASE = None
     MIN_MAX_DELTA = None
     DAMAGE_VARIANCE = None
@@ -87,19 +89,71 @@ class WeaponBase(Effect):
         return data
 
     def deserialize(self, data):
-        self.lvl = data['lvl']
+        super(WeaponBase, self).deserialize(data)
         self.min_damage = data['min_damage']
         self.max_damage = data['max_damage']
+        self.battle_speed = data['battle_speed']
+
+
+class ArmorBase(Effect):
+    TYPE = 'ARMOR_BASE'
+
+    ARMOR_BASE = None
+    MIN_MAX_DELTA = None
+    SPEED_PENALTY = None
+
+    def __init__(self, *argv, **kwargs):
+        super(ArmorBase, self).__init__(*argv, **kwargs)
+        self.armor = 0
+        self.battle_speed = 0
+    
+    def update(self):
+        armor = 0 + self.lvl * self.ARMOR_BASE
+
+        armor = armor * (1 - random.uniform(-self.MIN_MAX_DELTA, self.MIN_MAX_DELTA) )
+        battle_speed = 1 - self.SPEED_PENALTY
+
+        self.armor = armor
+        self.battle_speed = battle_speed
+
+    def get_attr_armor(self):
+        return self.armor
+
+    def get_attr_battle_speed_multiply(self):
+        return self.battle_speed
+
+    def ui_info(self):
+        info = super(ArmorBase, self).ui_info()
+        info.update({'armor': math.ceil(self.armor),
+                     'battle_speed': self.battle_speed})
+        return info
+
+    def serialize(self):
+        data = super(ArmorBase, self).serialize()
+        data.update({'armor': self.armor,
+                     'battle_speed': self.battle_speed})
+        return data
+
+    def deserialize(self, data):
+        super(ArmorBase, self).deserialize(data)
+        self.armor = data['armor']
         self.battle_speed = data['battle_speed']
 
 
 class SwordBase(WeaponBase):
     COST = 2
 
-    BATTLE_SPEED_BASE = 0.1
     DAMAGE_BASE = 2    
     MIN_MAX_DELTA = 0.15 
     DAMAGE_VARIANCE = 0.10
+    SPEED_PENALTY = 0.05
+
+
+class PlateBase(ArmorBase):
+    COST = 3
+
+    ARMOR_BASE = 1
+    MIN_MAX_DELTA = 0.3
     SPEED_PENALTY = 0.20
 
 

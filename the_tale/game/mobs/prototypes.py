@@ -162,7 +162,8 @@ class Bandit(MobPrototype):
 
     NAME = u'бандит'
     LOOT_LIST = [ (1, loot.FakeAmuletConstructor),
-                  (100, loot.BrokenSword) ]
+                  (1, loot.BrokenSword),
+                  (100, loot.DecrepitPlate)]
                   
     ATTRIBUTES = MobAttributesConstructor(damage_to_hero=(0.1, 0.2), 
                                           damage_to_mob=(0.1, 0.2), 

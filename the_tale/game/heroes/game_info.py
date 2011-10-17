@@ -183,14 +183,15 @@ class actions:
 
             @classmethod
             def equip(cls, hero):
+
                 from .bag import can_equip, ARTIFACT_TYPES_TO_SLOTS
                 equipped = None
                 unequipped = None
                 for uuid, artifact in hero.bag.items():
-                    if not can_equip(artifact):
+                    if not can_equip(artifact) or artifact.equip_type is None:
                         continue
                    
-                    for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.type]:
+                    for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
                         equipped_artifact = hero.equipment.get(slot)
                         if equipped_artifact is None:
                             equipped = True
@@ -202,7 +203,7 @@ class actions:
                     if equipped:
                         break
 
-                    for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.type]:
+                    for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
                         equipped_artifact = hero.equipment.get(slot)
                         if equipped_artifact.total_points_spent < artifact.total_points_spent:
                             equipped = True

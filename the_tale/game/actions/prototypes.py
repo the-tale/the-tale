@@ -645,8 +645,6 @@ class ActionEquipInSettlementPrototype(ActionPrototype):
                     self.hero.create_tmp_log_message('hero change "%s" to "%s"' % (unequipped.name, equipped.name))
                 else:
                     self.hero.create_tmp_log_message('hero equip "%s"' % equipped.name)
-
-                # self.hero.save()
             else:
                 self.equipped = True
                 self.state = self.STATE.PROCESSED

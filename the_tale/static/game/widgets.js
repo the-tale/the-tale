@@ -70,6 +70,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-max-damage', widget).text(data.secondary.max_damage);
         jQuery('.pgf-move-speed', widget).text(data.secondary.move_speed);
         jQuery('.pgf-battle-speed', widget).text(data.secondary.battle_speed);
+        jQuery('.pgf-armor', widget).text(data.secondary.armor);
 
         jQuery('.pgf-money', widget).text(data.money);
     };
@@ -383,6 +384,12 @@ pgf.game.widgets.RenderItemTooltip = function(tooltip, data) {
             jQuery('.pgf-max-damage', tooltip).text(effect.max_damage);
             jQuery('.pgf-battle-speed', tooltip).text(effect.battle_speed);
             jQuery('.pgf-effect-weapon-base', tooltip).removeClass('pgf-hidden');
+            break;
+        }
+        case 'ARMOR_BASE': {
+            jQuery('.pgf-armor', tooltip).text(effect.armor);
+            jQuery('.pgf-battle-speed', tooltip).text(effect.battle_speed);
+            jQuery('.pgf-effect-armor-base', tooltip).removeClass('pgf-hidden');
             break;
         }
         }

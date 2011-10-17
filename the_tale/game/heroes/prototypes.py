@@ -144,6 +144,10 @@ class HeroPrototype(object):
         return damage
 
     @property
+    def armor(self):
+        return self.equipment.get_attr_armor()
+
+    @property
     def max_bag_size(self): return game_info.attributes.secondary.max_bag_size.get(self)
 
     ###########################################
@@ -243,6 +247,7 @@ class HeroPrototype(object):
                                'max_damage': math.ceil(self.max_damage),
                                'move_speed': round(self.move_speed, 2),
                                'battle_speed': round(self.battle_speed, 2),
+                               'armor': round(self.armor),
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': loot_items_count},
                 'accumulated': { }

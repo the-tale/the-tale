@@ -4,14 +4,15 @@ import random
 
 from . import ArtifactException
 from .prototypes import ArtifactPrototype
-from .effects import SwordBase
+from .effects import SwordBase, PlateBase
 
 class ArtifactConstructor(object):
 
     TYPE = None
-    SUBTYPE = None
+    EQUIP_TYPE = None
     NAME = None
 
+    EFFECT_BASE = None
     EFFECTS_LIST = []
 
     def __init__(self, basic_points, effect_points):
@@ -37,14 +38,8 @@ class ArtifactConstructor(object):
     def generate_effects(self):
         return []
 
-    def generate_basic_effects(self):
-        return []
-
-    def generate_cost(self):
-        return 0
-
     def generate_artifact(self, quest=False):
-        artifact = ArtifactPrototype(tp=self.TYPE, subtype=self.SUBTYPE, quest=quest)
+        artifact = ArtifactPrototype(tp=self.TYPE, equip_type=self.EQUIP_TYPE, quest=quest)
 
         artifact.set_name(self.generate_name())
         artifact.set_cost(self.generate_cost())
@@ -55,37 +50,34 @@ class ArtifactConstructor(object):
         artifact.effect_points_spent = self.effect_points_spent
 
         return artifact
-        
-
-class UselessThingConstructor(ArtifactConstructor):
-    TYPE = 'USELESS_THING'
-    EFFECTS_LIST = ArtifactConstructor.EFFECTS_LIST + []
-
-    def generate_cost(self):
-        return (self.total_points + self.total_points_spent) / 2 + 1
-
-class WEAPON_SUBTYPE:
-    SWORD = 'sword'
-
-class WeaponConstructor(ArtifactConstructor):
-    TYPE = 'WEAPON'
-    SUBTYPE = None
-    EFFECTS_LIST = ArtifactConstructor.EFFECTS_LIST + []
 
     def generate_cost(self):
         return (self.total_points + self.total_points_spent) + 1
 
     def generate_basic_effects(self):
-        weapon_effect = SwordBase()
-        lvls = self.basic_points / weapon_effect.COST
-        self.basic_points_spent = lvls * weapon_effect.COST
-        weapon_effect.lvl_up(lvls)
-        weapon_effect.update()
-        return [weapon_effect]
+        if self.EFFECT_BASE is None:
+            return []
 
-    def generate_name(self):
-        return 'weapon %s' % self.SUBTYPE
+        base_effect = self.EFFECT_BASE()
+        lvls = self.basic_points / base_effect.COST
+        self.basic_points_spent = lvls * base_effect.COST
+        base_effect.lvl_up(lvls)
+        base_effect.update()
+        return [base_effect]
 
+class EQUIP_TYPES:
+    WEAPON = 'WEAPON'
+    PLATE = 'PLATE'
+
+class UselessThingConstructor(ArtifactConstructor):
+    TYPE = 'USELESS_THING'
+    EFFECTS_LIST = ArtifactConstructor.EFFECTS_LIST + []
+
+class WeaponConstructor(ArtifactConstructor):
+    TYPE = 'WEAPON'
+
+class ArmorConstructor(ArtifactConstructor):
+    TYPE = 'ARMOR'
 
 def generate_loot(loot_list, monster_power, basic_modificator, effects_modificator, chaoticity):
     probalities_sum = sum(x[0] for x in loot_list)
@@ -133,12 +125,10 @@ class PieceOfCheeseConstructor(UselessThingConstructor):
 
 class BrokenSword(WeaponConstructor):
     NAME = u'сломанный меч'
-    SUBTYPE = WEAPON_SUBTYPE.SWORD
+    EQUIP_TYPE = EQUIP_TYPES.WEAPON
+    EFFECT_BASE = SwordBase
 
-##########################################
-# some resulted constructors
-##########################################
-
-TEST_LOOT_LIST = [ (2, FakeAmuletConstructor),
-                   (3, PieceOfCheeseConstructor),
-                   (1, BrokenSword)]
+class DecrepitPlate(ArmorConstructor):
+    NAME = u'дряхлый доспех'
+    EQUIP_TYPE = EQUIP_TYPES.PLATE
+    EFFECT_BASE = PlateBase

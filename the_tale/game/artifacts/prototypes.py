@@ -3,9 +3,9 @@ from .effects import deserialize_effect
 
 class ArtifactPrototype(object):
 
-    def __init__(self, tp=None, subtype=None, quest=False, data=None):
+    def __init__(self, tp=None, equip_type=None, quest=False, data=None):
         self.type = tp
-        self.subtype = subtype
+        self.equip_type = equip_type
         self.name = None
         self.effects = []
         self.cost = 0
@@ -53,9 +53,17 @@ class ArtifactPrototype(object):
             penalty *= effect_penalty
         return penalty
 
+    def get_attr_armor(self):
+        armor = 0
+        for effect in self.effects: 
+            effect_armor = effect.get_attr_armor()
+            armor += effect_armor
+        return armor
+
+
     def deserialize(self, data):
         self.type = data.get('type', None)
-        self.subtype = data.get('subtype', None)
+        self.equip_type = data.get('equip_type', None)
         self.name = data.get('name', '')
         self.cost = data.get('cost', 0)
         self.quest = data.get('quest', False)
@@ -71,7 +79,7 @@ class ArtifactPrototype(object):
 
     def serialize(self):
         return {'type': self.type,
-                'subtype': self.subtype,
+                'equip_type': self.equip_type,
                 'name': self.name,
                 'cost': self.cost,
                 'quest': self.quest,
@@ -83,7 +91,7 @@ class ArtifactPrototype(object):
 
     def ui_info(self):
         return {'type': self.type,
-                'subtype': self.subtype,
+                'equip_type': self.equip_type,
                 'name': self.name,
                 'cost': self.cost,
                 'quest': self.quest,

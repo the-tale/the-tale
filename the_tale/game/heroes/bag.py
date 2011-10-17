@@ -84,12 +84,12 @@ class SLOTS:
 SLOTS_LIST = [ value for name, value in  SLOTS.__dict__.items() if name.isupper()]
 
 SLOTS_TO_ARTIFACT_TYPES = {
-    SLOTS.HAND_PRIMARY: [constructors.WeaponConstructor.TYPE],
-    SLOTS.HAND_SECONDARY: [constructors.WeaponConstructor.TYPE],
+    SLOTS.HAND_PRIMARY: [constructors.EQUIP_TYPES.WEAPON],
+    SLOTS.HAND_SECONDARY: [constructors.EQUIP_TYPES.WEAPON],
 
     SLOTS.HELMET: [],
     SLOTS.SHOULDERS: [],
-    SLOTS.PLATE: [],
+    SLOTS.PLATE: [constructors.EQUIP_TYPES.PLATE],
     SLOTS.GLOVES: [],
     SLOTS.CLOAK: [],
     SLOTS.PANTS: [],
@@ -109,7 +109,7 @@ for slot, types in SLOTS_TO_ARTIFACT_TYPES.items():
 
 
 def can_equip(artifact):
-    return artifact.type in ARTIFACT_TYPES_TO_SLOTS
+    return artifact.equip_type in ARTIFACT_TYPES_TO_SLOTS
 
 class Equipment(object):
 
@@ -135,7 +135,16 @@ class Equipment(object):
                 artifact_penalty = artifact.get_attr_battle_speed_multiply()
                 penalty *= artifact_penalty
         return penalty
-        
+
+    def get_attr_armor(self):
+        armor = 0
+        for slot in SLOTS_LIST:
+            artifact = self.get(slot)
+            if artifact:
+                armor += artifact.get_attr_armor()
+
+        return armor / len(SLOTS_LIST)
+
 
     def ui_info(self):
         return dict( (slot, artifact.ui_info()) for slot, artifact in self.equipment.items() if artifact )
