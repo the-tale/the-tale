@@ -1,13 +1,17 @@
 # coding: utf-8
-import random
-
+from . import QuestGeneratorException
 from .environment import LocalEnvironment
+from .commands import deserialize_command
 
 class QuestLine(object):
 
-    def __init__(self, env, place_start=None, person_start=None, place_end=None, person_end=None):
-        self.env = LocalEnvironment()
-        self.writer = None
+    def __init__(self):
+        self.env_local = None
+        self.id = None
+
+    def initialize(self, identifier, env, place_start=None, person_start=None, place_end=None, person_end=None):
+        self.id = identifier
+        self.env_local = LocalEnvironment()
 
         self.env.register('place_start', place_start if place_start else env.new_place())
         self.env.register('person_start', person_start if person_start else env.new_person())
@@ -15,30 +19,114 @@ class QuestLine(object):
         self.env.register('person_end', person_end if person_end else env.new_person())
 
     @classmethod
-    def type_name(cls): return cls.__name__.lower()
+    def type(cls): return cls.__name__.lower()
 
     def create_line(self, env):
         self.line = []
+
+    def get_pointer_data(self, env, pointer):
+
+        if pointer[0] >= len(self.line):
+            return { 'cmd': None,
+                     'quest': None }
+
+        cmd = self.line[pointer[0]]
+
+        if len(pointer) != 1:
+            if not hasattr(cmd, 'quest'):
+                raise QuestGeneratorException('command has no attribute "quest", cmd is: %r' % cmd.serialize())
+            quest_line = env.quests[cmd.quest]
+            return quest_line.get_command(env, pointer[1:])
+
+        return { 'cmd': cmd,
+                 'quest': self }
+
+    def get_command(self, env, pointer):
+        return self.get_pointer_data(env, pointer)['cmd']
+
+    def get_quest(self, env, pointer):
+        return self.get_pointer_data(env, pointer)['quest']
+
+    def get_commands_number(self, env, pointer=None):
+
+        if pointer is None:
+            cmd_number = len(self.line)
+            number = len(self.line)
+        else:
+            cmd_number = pointer[0]
+            number = pointer[0]
+        
+        for cmd in self.line[:cmd_number]:
+            if hasattr(cmd, 'quest'):
+                number += env.quests[cmd.quest].get_commands_number(env)
+                
+        if pointer and len(pointer) > 1:
+            cmd = self.line[cmd_number]
+            if not hasattr(cmd, 'quest'):
+                raise QuestGeneratorException('command has no attribute "quest", cmd is: %r' % cmd.serialize())
+            number += 1 + env.quests[cmd.quest].get_commands_number(env, pointer[1:])
+
+        return number
+
+    def get_percents(self, env, pointer):
+        return float(self.get_commands_number(env, pointer)) / self.get_commands_number(env)
+
+    def get_start_pointer(self):
+        return [0]
+
+    def increment_pointer(self, env, pointer):
+
+        if len(pointer) == 1:
+            if len(self.line) > pointer[0]+1:
+                return [pointer[0]+1]
+            return None
+
+        next_subpointer = env.quests[self.line[pointer[0]]].increment_pointer(env, pointer[1:])
+        
+        if next_subpointer is None:
+            return self.increment_pointer(env, [pointer[0]])
+
+        next_pointer = [pointer[0]]
+        next_pointer.extend(next_subpointer)
+
+        return next_pointer
+
+    def get_quest_action_chain(self, env, pointer):
+        cmd = self.line[pointer[0]]
+        chain = [ (self, cmd ) ]
+
+        if len(pointer) == 1:
+            return chain
+
+        if not hasattr(cmd, 'quest'):
+                raise QuestGeneratorException('command has no attribute "quest", cmd is: %r' % cmd.serialize())
+
+        quest_line = env.quests[cmd.quest]
+
+        chain.extend( quest_line.get_quest_action_chain(env, pointer[1:]) )
+
+        return chain
+
 
     def get_description(self):
         description = [self.__class__.__name__]
         description.extend( [cmd.get_description() for cmd in self.line] )
         return description
 
-    def set_writer(self, writers):
-        writer = random.choice(writers[self.type_name()])
-        self.writer = writer.get_type_name()
-        for cmd in self.line:
-            cmd.set_writer(writers)
+    def serialize(self):
 
-    def get_sequence_len(self):
-        return reduce(lambda s, el: s + el.get_sequence_len(), self.line, 0)
+        return { 'type': self.type(),
+                 'id': self.id,
+                 'line': [cmd.serialize() for cmd in self.line],
+                 'env_local': self.env_local.save_to_dict() }
 
-    def get_json(self):
+    def deserialize(self, data):
+        self.id = data['id']
 
-        return { 'name': self.__class__.__name__,
-                 'line': [ cmd.get_json() for cmd in self.line],
-                 'writer': self.writer,
-                 'env': self.env.save_to_dict(),
-                 'sequence_len': self.get_sequence_len()
-            }
+        self.line = []
+
+        for cmd_data in data['line']:
+            self.line.append(deserialize_command(cmd_data))
+
+        self.env_local = LocalEnvironment()
+        self.env_local.deserialize(data['env_local'])

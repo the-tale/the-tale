@@ -1,28 +1,28 @@
 # coding: utf-8
 
+def deserialize_command(data):
+    cmd = COMMAND_CLASSES[data['type']]()
+    cmd.deserialize(data)
+    return cmd
+
 class Command(object):
 
     def __init__(self, event):
         self.event = event
-
-    def get_context_msg(self):
-        pass
-
-    def set_writer(self, writer):
-        pass
-
-    def on_create(self):
-        pass
+        
+    @classmethod
+    def type(cls):
+        return cls.__name__.lower()
 
     def get_description(self):
         return 'unknown command'
 
-    def get_sequence_len(self):
-        return 1
-
-    def get_json(self):
-        return { 'type': self.__class__.__name__.lower(),
+    def serialize(self):
+        return { 'type': self.type(),
                  'event': self.event}
+
+    def deserialize(self, data):
+        self.event = data['event']
 
 
 class Description(Command):
@@ -33,10 +33,14 @@ class Description(Command):
     def get_description(self):
         return '<description> msg: %s' % self.event
 
-    def get_json(self):
-        data = super(Description, self).get_json()
+    def serialize(self):
+        data = super(Description, self).serialize()
         data.update({'msg': self.context_msg})
         return data
+
+    def deserialize(self, data):
+        super(Description, self).deserialize(data)
+        self.context_msg = data['msg']
 
 
 class Move(Command):
@@ -48,10 +52,14 @@ class Move(Command):
     def get_description(self):
         return '<move to> place: %s' % self.place
 
-    def get_json(self):
-        data = super(Move, self).get_json()
+    def serialize(self):
+        data = super(Move, self).serialize()
         data.update({'place': self.place})
         return data
+
+    def deserialize(self, data):
+        super(Move, self).deserialize(data)
+        self.place = data['place']
 
 
 class GetItem(Command):
@@ -63,10 +71,14 @@ class GetItem(Command):
     def get_description(self):
         return '<get item> item: %s' % self.item
 
-    def get_json(self):
-        data = super(GetItem, self).get_json()
+    def serialize(self):
+        data = super(GetItem, self).serialize()
         data.update({'item': self.item})
         return data
+
+    def deserialize(self, data):
+        super(GetItem, self).deserialize(data)
+        self.item = data['item']
 
 
 class GiveItem(Command):
@@ -75,15 +87,17 @@ class GiveItem(Command):
         super(GiveItem, self).__init__(**kwargs)
         self.item = item
 
-    def get_json(self):
-        data = super(GiveItem, self).get_json()
-        data.update({'item': self.item})
-        return data
-
     def get_description(self):
         return '<give item> item: %s' % self.item
 
+    def serialize(self):
+        data = super(GiveItem, self).serialize()
+        data.update({'item': self.item})
+        return data
 
+    def deserialize(self, data):
+        super(GiveItem, self).deserialize(data)
+        self.item = data['item']
 
 class GetReward(Command):
     
@@ -94,11 +108,14 @@ class GetReward(Command):
     def get_description(self):
         return '<get revard> person: %s' % self.person
 
-    def get_json(self):
-        data = super(GetReward, self).get_json()
+    def serialize(self):
+        data = super(GetReward, self).serialize()
         data.update({'person': self.person})
         return data
 
+    def deserialize(self, data):
+        super(GetReward, self).deserialize(data)
+        self.person = data['person']
 
 class Quest(Command):
 
@@ -106,23 +123,19 @@ class Quest(Command):
         super(Quest, self).__init__(**kwargs)
         self.quest = quest
 
-    def on_create(self):
-        self.quest.create_line()
-
     def get_description(self):
         return self.quest.get_description()
 
-    def get_sequence_len(self):
-        return 1 + self.quest.get_sequence_len()
-
-    def get_json(self):
-        data = super(Quest, self).get_json()
-        data.update({'quest': self.quest.get_json()})
+    def serialize(self):
+        data = super(Quest, self).serialize()
+        data.update({'quest': self.quest})
         return data
 
-    def set_writer(self, writers):
-        self.quest.set_writer(writers)
+    def deserialize(self, data):
+        super(Quest, self).deserialize(data)
+        self.quest = data['quest']
 
 
-
-
+COMMAND_CLASSES = dict( (cmd_class.type(), cmd_class) 
+                        for cmd_name, cmd_class in globals().items() 
+                        if isinstance(cmd_class, type) and issubclass(cmd_class, Command) and cmd_class is not Command)

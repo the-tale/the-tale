@@ -210,16 +210,16 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         jQuery('.pgf-quest-icon', element)
             .removeClass()
             .addClass('quest-icon pgf-quest-icon')
-            .toggleClass('pgf-hidden', !data.quest_msg)
+            .toggleClass('pgf-hidden', !data.quest_text)
             .addClass(data.quest_type)
-            .data('tooltip', data.quest_msg);
+            .data('tooltip', data.quest_text);
 
         jQuery('.pgf-action-icon', element)
             .removeClass()
             .addClass('action-icon pgf-action-icon')
-            .toggleClass('pgf-hidden', !data.action_msg)
+            .toggleClass('pgf-hidden', !data.action_text)
             .addClass(data.action_type)
-            .data('tooltip', data.action_msg);
+            .data('tooltip', data.action_text);
         
     }
 
@@ -232,7 +232,6 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         if (data.quests.line && data.quests.line.length > 0) {
             pgf.base.RenderTemplateList(questsLine, data.quests.line, RenderQuest, {});
         }
-        // jQuery('.pgf-quests-progress .pgf-value', questsBlock).text(data.quests.percents);
     }
 
     function RenderOtherAction(action) {

@@ -9,6 +9,5 @@ class Quest(models.Model):
 
     cmd_number = models.IntegerField(null=False, default=0)
 
-    story = models.TextField(null=False, default='[]')
     data = models.TextField(null=False, default='{}')
     env = models.TextField(null=False, default='{}')
