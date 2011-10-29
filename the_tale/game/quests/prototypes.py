@@ -19,7 +19,8 @@ class QuestPrototype(object):
     def id(self): return self.model.id
 
     @property
-    def percents(self): return self.env.percents
+    def percents(self): 
+        return self.env.percents(self.pointer)
 
     @property
     def data(self):
@@ -38,17 +39,16 @@ class QuestPrototype(object):
             self._env.deserialize(s11n.from_json(self.model.env))
         return self._env
 
-    @property
-    def pointer(self): return self.data['pointer']
+    def get_pointer(self): return self.data['pointer']
+    def set_pointer(self, value):  self.data['pointer'] = value
+    pointer = property(get_pointer, set_pointer)
+
+    def get_last_pointer(self): return self.data.get('last_pointer', self.pointer)
+    def set_last_pointer(self, value):  self.data['last_pointer'] = value
+    last_pointer = property(get_last_pointer, set_last_pointer)
 
     @property
     def line(self): return self.data['line']
-
-    @property
-    def ui_line(self): 
-        if not 'ui_line' in self.data:
-            self.data['ui_line'] = []
-        return self.data['ui_line']
 
     @property
     def is_processed(self):
@@ -70,7 +70,8 @@ class QuestPrototype(object):
 
         env.sync()
 
-        data = { 'pointer': env.get_start_pointer() }
+        data = { 'pointer': env.get_start_pointer(),
+                 'last_pointer': env.get_start_pointer()}
 
         if Quest.objects.filter(hero=hero.model).exists():
             raise Exception('Hero %s has already had quest' % hero.id)
@@ -97,7 +98,9 @@ class QuestPrototype(object):
         
         self.process_current_command(cur_action)
 
+        self.last_pointer = self.pointer
         self.pointer = self.env.increment_pointer(self.pointer)
+
         if self.pointer is not None:
             return True
 
@@ -106,6 +109,7 @@ class QuestPrototype(object):
     def process_current_command(self, cur_action):
 
         cmd = self.env.get_command(self.pointer)
+
         writer = self.env.get_writer(self.pointer)
 
         log_msg = writer.get_log_msg(cmd.event)
@@ -145,4 +149,4 @@ class QuestPrototype(object):
         pass
 
     def ui_info(self):
-        return {'line': self.env.get_writers_text_chain(self.pointer)}
+        return {'line': self.env.get_writers_text_chain(self.last_pointer)}

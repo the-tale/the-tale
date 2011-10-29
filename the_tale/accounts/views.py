@@ -56,8 +56,8 @@ class AccountsResource(BaseResource):
             
                 self.login_user(user.username, registration_form.c.password)
 
-            bundle = BundlePrototype.create(angel)
-            supervisor.cmd_new_bundle(bundle.id)
+                bundle = BundlePrototype.create(angel)
+                supervisor.cmd_new_bundle(bundle.id)
 
             return self.json(status='ok')
 

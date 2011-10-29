@@ -13,10 +13,10 @@ class QuestLine(object):
         self.id = identifier
         self.env_local = LocalEnvironment()
 
-        self.env.register('place_start', place_start if place_start else env.new_place())
-        self.env.register('person_start', person_start if person_start else env.new_person())
-        self.env.register('place_end', place_end if place_end else env.new_place())
-        self.env.register('person_end', person_end if person_end else env.new_person())
+        self.env_local.register('place_start', place_start if place_start else env.new_place())
+        self.env_local.register('person_start', person_start if person_start else env.new_person())
+        self.env_local.register('place_end', place_end if place_end else env.new_place())
+        self.env_local.register('person_end', person_end if person_end else env.new_person())
 
     @classmethod
     def type(cls): return cls.__name__.lower()
@@ -25,7 +25,6 @@ class QuestLine(object):
         self.line = []
 
     def get_pointer_data(self, env, pointer):
-
         if pointer[0] >= len(self.line):
             return { 'cmd': None,
                      'quest': None }
@@ -36,7 +35,7 @@ class QuestLine(object):
             if not hasattr(cmd, 'quest'):
                 raise QuestGeneratorException('command has no attribute "quest", cmd is: %r' % cmd.serialize())
             quest_line = env.quests[cmd.quest]
-            return quest_line.get_command(env, pointer[1:])
+            return quest_line.get_pointer_data(env, pointer[1:])
 
         return { 'cmd': cmd,
                  'quest': self }
@@ -76,15 +75,21 @@ class QuestLine(object):
 
     def increment_pointer(self, env, pointer):
 
+        cmd = self.line[pointer[0]]
+
         if len(pointer) == 1:
+            if hasattr(cmd, 'quest'):
+                return [pointer[0]] + self.get_start_pointer()
             if len(self.line) > pointer[0]+1:
                 return [pointer[0]+1]
             return None
 
-        next_subpointer = env.quests[self.line[pointer[0]]].increment_pointer(env, pointer[1:])
+        next_subpointer = env.quests[self.line[pointer[0]].quest].increment_pointer(env, pointer[1:])
         
         if next_subpointer is None:
-            return self.increment_pointer(env, [pointer[0]])
+            if len(self.line) > pointer[0]+1:
+                return [pointer[0]+1]
+            return None
 
         next_pointer = [pointer[0]]
         next_pointer.extend(next_subpointer)
@@ -99,7 +104,7 @@ class QuestLine(object):
             return chain
 
         if not hasattr(cmd, 'quest'):
-                raise QuestGeneratorException('command has no attribute "quest", cmd is: %r' % cmd.serialize())
+            raise QuestGeneratorException('command has no attribute "quest", cmd is: %r' % cmd.serialize())
 
         quest_line = env.quests[cmd.quest]
 
@@ -114,11 +119,10 @@ class QuestLine(object):
         return description
 
     def serialize(self):
-
         return { 'type': self.type(),
                  'id': self.id,
                  'line': [cmd.serialize() for cmd in self.line],
-                 'env_local': self.env_local.save_to_dict() }
+                 'env_local': self.env_local.serialize() }
 
     def deserialize(self, data):
         self.id = data['id']

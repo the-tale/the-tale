@@ -13,15 +13,15 @@ class EVENTS:
 
 class DeliveryLine(QuestLine):
 
-    def initialize(self, env, **kwargs):
-        super(DeliveryLine, self).__init__(env, **kwargs)
-        self.env.register('item_to_deliver', env.new_item())
+    def initialize(self, identifier, env, **kwargs):
+        super(DeliveryLine, self).initialize(identifier, env, **kwargs)
+        self.env_local.register('item_to_deliver', env.new_item())
 
     def create_line(self, env):
-        self.line = [ cmd.GetItem(self.env.item_to_deliver, event=EVENTS.GET_ITEM),
-                      cmd.Move(place=self.env.place_end, event=EVENTS.MOVE_TO_DESTINATION),
-                      cmd.GiveItem(self.env.item_to_deliver, event=EVENTS.GIVE_ITEM),
-                      cmd.GetReward(person=self.env.person_end, event=EVENTS.GET_REWARD)]
+        self.line = [ cmd.GetItem(self.env_local.item_to_deliver, event=EVENTS.GET_ITEM),
+                      cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_DESTINATION),
+                      cmd.GiveItem(self.env_local.item_to_deliver, event=EVENTS.GIVE_ITEM),
+                      cmd.GetReward(person=self.env_local.person_end, event=EVENTS.GET_REWARD)]
 
 
 class DeliveryWriter(Writer):

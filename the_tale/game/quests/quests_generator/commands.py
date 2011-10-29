@@ -7,7 +7,7 @@ def deserialize_command(data):
 
 class Command(object):
 
-    def __init__(self, event):
+    def __init__(self, event=None):
         self.event = event
         
     @classmethod
@@ -45,7 +45,7 @@ class Description(Command):
 
 class Move(Command):
 
-    def __init__(self, place, **kwargs):
+    def __init__(self, place=None, **kwargs):
         super(Move, self).__init__(**kwargs)
         self.place = place
 
@@ -64,7 +64,7 @@ class Move(Command):
 
 class GetItem(Command):
 
-    def __init__(self, item, **kwargs):
+    def __init__(self, item=None, **kwargs):
         super(GetItem, self).__init__(**kwargs)
         self.item = item
 
@@ -83,7 +83,7 @@ class GetItem(Command):
 
 class GiveItem(Command):
 
-    def __init__(self, item, **kwargs):
+    def __init__(self, item=None, **kwargs):
         super(GiveItem, self).__init__(**kwargs)
         self.item = item
 
@@ -101,7 +101,7 @@ class GiveItem(Command):
 
 class GetReward(Command):
     
-    def __init__(self, person, **kwargs):
+    def __init__(self, person=None, **kwargs):
         super(GetReward, self).__init__(**kwargs)
         self.person = person
 
@@ -119,7 +119,7 @@ class GetReward(Command):
 
 class Quest(Command):
 
-    def __init__(self, quest, **kwargs):
+    def __init__(self, quest=None, **kwargs):
         super(Quest, self).__init__(**kwargs)
         self.quest = quest
 

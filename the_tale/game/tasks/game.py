@@ -4,6 +4,7 @@ import heapq
 from celery.task import Task
 
 from django_next.utils.decorators import nested_commit_on_success
+from django.conf import settings as project_settings
 
 from ..heroes.prototypes import get_hero_by_id
 from ..bundles import get_bundle_by_id
@@ -128,42 +129,50 @@ class game(Task):
             return 
 
         while True:
-            turn_number, bundle_id = self.queue[0]
+            try:
+                turn_number, bundle_id = self.queue[0]
 
-            if turn_number > self.turn_number:
-                break
+                if turn_number > self.turn_number:
+                    break
 
-            bundle = self.bundles[bundle_id]
-            next_turn_number = bundle.process_turn(self.turn_number)
+                bundle = self.bundles[bundle_id]
+                next_turn_number = bundle.process_turn(self.turn_number)
 
-            if next_turn_number <= self.turn_number:
-                raise GameException('bundle try to process itself twice on one turn')
+                if next_turn_number <= self.turn_number:
+                    raise GameException('bundle try to process itself twice on one turn')
 
-            heapq.heappushpop(self.queue, (next_turn_number, bundle.id) )
-            bundle.save()
+                heapq.heappushpop(self.queue, (next_turn_number, bundle.id) )
+                bundle.save()
+            except Exception, e:
+                self.exception_raised
+                print '--- EXCEPTION ---'
+                print e
+                import traceback
+                traceback.print_exc()
+                exit(0)
+
+    @classmethod
+    def _do_task(cls, cmd, args):
+        return cls.apply_async(args=[cmd, args])
+
 
     @classmethod
     def cmd_initialize(cls, turn_number):
-        t = cls.apply_async(args=[TASK_TYPE.INITIALIZE, {'turn_number': turn_number}])
-        return t
+        return cls._do_task(TASK_TYPE.INITIALIZE, {'turn_number': turn_number})
 
     @classmethod
     def cmd_next_turn(cls, steps_delta):
-        t = cls.apply_async(args=[TASK_TYPE.NEXT_TURN, {'steps_delta': steps_delta}])
-        return t
+        return cls._do_task(TASK_TYPE.NEXT_TURN, {'steps_delta': steps_delta})
 
     @classmethod
     def cmd_push_bundle(cls, bundle):
-        t = cls.apply_async(args=[TASK_TYPE.PUSH_BUNDLE, {'id': bundle.id}])
-        return t
+        return cls._do_task(TASK_TYPE.PUSH_BUNDLE, {'id': bundle.id})
 
     @classmethod
     def cmd_activate_ability(cls, ability_type, form):
-        t = cls.apply_async(args=[TASK_TYPE.ACTIVATE_ABILITY, {'ability_type': ability_type, 'form': form}])
-        return t
+        return cls._do_task(TASK_TYPE.ACTIVATE_ABILITY, {'ability_type': ability_type, 'form': form})
 
     @classmethod
     def cmd_register_hero(cls, hero_id):
-        t = cls.apply_async(args=[TASK_TYPE.REGISTER_HERO, {'hero_id': hero_id}])
-        return t
+        return cls._do_task(TASK_TYPE.REGISTER_HERO, {'hero_id': hero_id})
 

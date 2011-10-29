@@ -2,6 +2,7 @@
 from celery.task import Task
 
 from django_next.utils.decorators import nested_commit_on_success
+from django.conf import settings as project_settings
 
 from ..prototypes import get_current_time
 from ..bundles import get_bundle_by_id, get_bundle_by_model
@@ -62,6 +63,7 @@ class supervisor(Task):
             self.time.save()
 
         elif cmd == TASK_TYPE.NEW_BUNDLE:
+            print nested_commit_on_success()
             with nested_commit_on_success():
                 bundle = get_bundle_by_id(params['id'])
                 self.push_worker(bundle)
@@ -75,24 +77,24 @@ class supervisor(Task):
         return 0
 
     @classmethod
+    def _do_task(cls, cmd, args):
+        return cls.apply_async(args=[cmd, args])
+
+    @classmethod
     def cmd_next_turn(cls, steps_delta):
-        t = cls.apply_async(args=[TASK_TYPE.NEXT_TURN, {'steps_delta': steps_delta}])
-        return t
+        return cls._do_task(TASK_TYPE.NEXT_TURN, {'steps_delta': steps_delta})
 
     @classmethod
     def cmd_new_bundle(cls, bundle_id):
-        t = cls.apply_async(args=[TASK_TYPE.NEW_BUNDLE, {'id': bundle_id}])
-        return t
+        return cls._do_task(TASK_TYPE.NEW_BUNDLE, {'id': bundle_id})
 
     @classmethod
     def cmd_activate_ability(cls, ability_type, form):
-        t = cls.apply_async(args=[TASK_TYPE.ACTIVATE_ABILITY, {'ability_type': ability_type, 'form': form}])
-        return t
+        return cls._do_task(TASK_TYPE.ACTIVATE_ABILITY, {'ability_type': ability_type, 'form': form})
 
     @classmethod
     def cmd_register_hero(cls, hero_id):
-        t = cls.apply_async(args=[TASK_TYPE.REGISTER_HERO, {'hero_id': hero_id}])
-        return t
+        return cls._do_task(TASK_TYPE.REGISTER_HERO, {'hero_id': hero_id})
 
     
 

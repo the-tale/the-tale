@@ -1,5 +1,6 @@
 # coding: utf-8
 import random
+import copy
 
 class BaseEnvironment(object):
 
@@ -18,7 +19,7 @@ class BaseEnvironment(object):
         self.quests = {}
         self.quests_to_writers = {}
 
-        self.root_quest = None
+        self._root_quest = None
         
     def new_place(self):
         self.places_number += 1
@@ -45,23 +46,26 @@ class BaseEnvironment(object):
         self.quests_number += 1
         quest_id = 'quest_%d' % self.quests_number
 
-        quest = random.choice(self.quests_source.quests_list)(self,
-                                                              quest_id,
-                                                              place_start=place_start, 
-                                                              person_start=person_start)
+        if self._root_quest is None:
+            self._root_quest = quest_id
 
-        quest.initialize()
+        quest = random.choice(self.quests_source.quests_list)()
+
+        quest.initialize(quest_id,
+                         self,
+                         place_start=place_start, 
+                         person_start=person_start)
 
         self.quests[quest_id] = quest
-        self.quests_to_writers[quest_id] = random.choice(self.writers_source.quest_writers[quest.type()])
+        self.quests_to_writers[quest_id] = random.choice(self.writers_source.quest_writers[quest.type()]).type()
         
-        if self.root_quest is None:
-            self.root_quest = quest
-
-        return quest
+        return quest_id
 
     @property
-    def root_quest(self): return self.quests[self.root_quest]
+    def root_quest(self): return self.quests[self._root_quest]
+
+    def create_lines(self):
+        self.root_quest.create_line(self)
 
     def get_start_pointer(self):
         return self.root_quest.get_start_pointer()
@@ -81,17 +85,17 @@ class BaseEnvironment(object):
         writers_chain = []
 
         for quest, command in chain:
-            writer = self.writers_source.writers[self.quests_to_writers[quest.id]](self, quest.env)
+            writer = self.writers_source.writers[self.quests_to_writers[quest.id]](self, quest.env_local)
             writers_chain.append({'quest_type': quest.type(),
                                   'quest_text': writer.get_action_msg('quest_description'),
-                                  'action_type': cmd.type(),
-                                  'action_text': writer.get_action_msg(cmd.event)})
+                                  'action_type': command.type(),
+                                  'action_text': writer.get_action_msg(command.event)})
         
         return writers_chain
 
     def get_writer(self, pointer):
         quest = self.get_quest(pointer)
-        writer = self.writers_source.writers[self.quests_to_writers[quest.id]](self, quest.env)
+        writer = self.writers_source.writers[self.quests_to_writers[quest.id]](self, quest.env_local)
         return writer
 
     def percents(self, pointer):
@@ -104,8 +108,10 @@ class BaseEnvironment(object):
                  'places': self.places,
                  'persons': self.persons,
                  'items': self.items,
-                 'quests': dict( (quest_id, quest.serrialize() ) for quest_id, quest in self.quest.items() ),
-                 'root_quest': self.root_quest}
+                 'quests': dict( (quest_id, quest.serialize() ) 
+                                 for quest_id, quest in self.quests.items() ),
+                 'root_quest': self._root_quest,
+                 'quests_to_writers': self.quests_to_writers }
 
     def deserialize(self, data):
         self.places_number = data['numbers']['places_number']
@@ -115,8 +121,12 @@ class BaseEnvironment(object):
         self.persons = data['persons']
         self.items = data['items']
 
-        self.quests = dict( (quest_id, self.quests_source.deserialize_quest(quest_data)) for quest_id, quest_data in data['quests'])
-        self.root_quest = data['root_quest']
+        self.quests = dict( (quest_id, self.quests_source.deserialize_quest(quest_data)) 
+                            for quest_id, quest_data in data['quests'].items())
+
+        self._root_quest = data['root_quest']
+
+        self.quests_to_writers = data['quests_to_writers']
 
 
 class LocalEnvironment(object):
@@ -124,14 +134,16 @@ class LocalEnvironment(object):
     def __init__(self, data=None):
         self.storage = {}
 
-        if data:
-            self.load_from_dict(data)
-
     def register(self, name, value):
         self.storage[name] = value
 
+    def get_data(self):
+        return copy.deepcopy(self.storage)
+
     def __getattr__(self, name):
-        return self.storage[name]
+        if name in self.storage:
+            return self.storage[name]
+        raise AttributeError('LocalEnvironment object does not contain value "%s"' % name)
 
     def serialize(self):
         return self.storage

@@ -1,6 +1,5 @@
 # coding: utf-8
 import random
-import copy
 
 from ..map.places.models import Place
 
@@ -52,7 +51,7 @@ class Environment(BaseEnvironment):
         self.items['game']['artifact'] = item.serialize()
 
     def get_msg_substitutions(self, local_env):
-        subst = copy.deepcopy(local_env)
+        subst = local_env.get_data()
 
         for key, value in list(subst.items()):
             if value in self.places:

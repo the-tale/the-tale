@@ -165,7 +165,11 @@ try:
 except:
     pass
 
-TEMPLATE_DEBUG = DEBUG
+if 'TEMPLATE_DEBUG' not in globals():
+    TEMPLATE_DEBUG = DEBUG
+
+if 'CELERY_EMULATE_TASKS' not in globals():
+    CELERY_EMULATE_TASKS = DEBUG
 
 
 djcelery.setup_loader()

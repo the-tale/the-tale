@@ -1,6 +1,7 @@
 # coding: utf-8
 
-from .writer import Writer
+from ..writer import Writer
+
 from .help import HelpLine, HelpWriter
 from .delivery import DeliveryLine, DeliveryWriter
 
@@ -21,10 +22,10 @@ class BaseQuestsSource:
         return None
 
 
-QUEST_WRITERS = {HelpLine.type_name(): [ HelpWriter ],
-                 DeliveryLine.type_name(): [DeliveryWriter] }
+QUEST_WRITERS = {HelpLine.type(): [ HelpWriter ],
+                 DeliveryLine.type(): [DeliveryWriter] }
 
-WRITERS = dict( (writer.get_type_name(), writer) 
+WRITERS = dict( (writer.type(), writer) 
                 for writer_name, writer in globals().items()
                 if isinstance(writer, type) and issubclass(writer, Writer))
 

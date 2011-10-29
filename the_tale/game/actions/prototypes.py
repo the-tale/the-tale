@@ -278,7 +278,9 @@ class ActionQuestPrototype(ActionPrototype):
         
         elif self.state == self.STATE.PROCESSING:
             finish, percents = self.quest.process(self)
+
             self.percents = percents
+
             if finish:
                 self.state = self.STATE.PROCESSED
                 # self.quest.remove()

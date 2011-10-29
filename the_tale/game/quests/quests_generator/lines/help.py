@@ -10,17 +10,16 @@ class EVENTS:
 
 class HelpLine(QuestLine):
 
-    def initialize(self, env, **kwargs):
-        super(HelpLine, self).__init__(env, **kwargs)
+    def initialize(self, identifier, env, **kwargs):
+        super(HelpLine, self).initialize(identifier, env, **kwargs)
 
-        self.env.register('quest_help', env.new_quest(place_start=self.env.place_end,
-                                                      person_start=self.env.person_end) )
+        self.env_local.register('quest_help', env.new_quest(place_start=self.env_local.place_end,
+                                                            person_start=self.env_local.person_end) )
 
     def create_line(self, env):
-        self.quest_help.create_line(env)
-
         self.line =  [ cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
-                       cmd.Quest(quest=self.quest_help, event=EVENTS.START_QUEST) ]
+                       cmd.Quest(quest=self.env_local.quest_help, event=EVENTS.START_QUEST) ]
+        env.quests[self.env_local.quest_help].create_line(env)
 
 class HelpWriter(Writer):
 
