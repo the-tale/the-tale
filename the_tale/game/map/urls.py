@@ -4,7 +4,8 @@ from django_next.views.dispatcher import resource_patterns
 from .views import MapResource
 
 urlpatterns = patterns('',
-                       (r'^roads/', include('game.map.roads.urls', namespace='roads') ),
+                       # (r'^roads/', include('game.map.roads.urls', namespace='roads') ),
+                       (r'^places/', include('game.map.places.urls', namespace='places') ),
 )
 
 urlpatterns += resource_patterns(MapResource)

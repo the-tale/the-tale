@@ -1,0 +1,115 @@
+
+@import "constants.less";
+
+.pgf-dialog-title {
+    display: none;
+}
+
+/*----------------------*/
+/* jQuery classes */
+
+.ui-widget-overlay { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    opacity: 0.4;
+    background: @background-color;
+}
+
+.ui-dialog {
+    background: @background-color;
+    padding: 0.25em;
+    margin: 5px;
+
+    display: block;
+    border: 3px @border-color solid;
+    border-radius: 8px;
+    
+    /* jQuery */
+    position: absolute; 
+    padding: .2em; 
+    width: 300px; 
+    overflow: visible !important;
+
+    .ui-dialog-titlebar { 
+        height: 2em;        
+        padding: .5em 1em;
+        padding-bottom: 0em;
+        padding-left: 0em;
+        position: relative;  
+
+        .ui-dialog-title {
+            position: absolute;
+            float: left; 
+            border: 3px @border-color solid;   
+            border-radius: 10px;
+            padding: 0.25em;
+            font-weight: bold;
+            position: relative;
+            top: -1.75em;
+            background: @background-color;
+        } 
+
+        .ui-dialog-titlebar-close { 
+            position: absolute; 
+            right: .3em; 
+            width: 19px; 
+            margin: -10px 0 0 0; 
+            height: 18px; 
+
+            span { 
+                display: block; 
+                position: absolute;
+                background: url(/static/images/dialog/close.png);
+                text-indent: -99999px;
+                width: 25px;
+                height: 26px;
+
+                right: -19px;
+                top: -14px;
+
+                z-index: 2000;
+
+                &:hover, &:focus { 
+                    opacity: 0.8;
+                }
+            }
+        }
+    }
+
+    .ui-dialog-content { 
+        position: relative; 
+        border: 0; 
+        margin: 0.25em;
+        margin-top: -1em;
+        background: none; 
+        overflow: visible !important;  /* overflow: auto; */
+        zoom: 1; 
+    }
+
+    .ui-dialog-buttonpane { 
+        text-align: left; 
+        border-width: 1px 0 0 0; 
+        background-image: none; 
+        margin: .5em 0 0 0; 
+        padding: .3em 1em .5em .4em; 
+
+        .ui-dialog-buttonset { 
+            float: right; 
+        }
+
+        button { 
+            margin: .5em .4em .5em 0; 
+            cursor: pointer; 
+        }
+    }
+
+    .ui-resizable-se { 
+        width: 14px; 
+        height: 14px; 
+        right: 3px; 
+        bottom: 3px; 
+    }
+}

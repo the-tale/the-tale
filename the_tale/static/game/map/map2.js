@@ -173,6 +173,21 @@ pgf.game.map.MapManager = function(params) {
         return mapData.places[placeId];
     }
 
+    function GetCellData(x, y) {
+        var data = { place: undefined };
+
+        for (var placeId in mapData.places) {
+            var place = mapData.places[placeId];
+
+            if (place.x == x && place.y == y) {
+                data.place = place;
+                break;
+            }
+        }
+        
+        return data;
+    }
+
     jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
 
         for (var hero_id in updater.data.data.heroes) {
@@ -190,6 +205,7 @@ pgf.game.map.MapManager = function(params) {
 
     this.GetMapDataForRect = GetMapDataForRect;
     this.GetPlaceData = GetPlaceData;
+    this.GetCellData = GetCellData;
 }; 
 
 pgf.game.map.Map = function(selector, params) {
@@ -210,13 +226,54 @@ pgf.game.map.Map = function(selector, params) {
 
     var TILE_SIZE = params.tileSize;
 
+    var selectedTile = undefined;
+
     var subsytemsReady = false;
 
     var navigationLayer = new pgf.game.map.NavigationLayer(jQuery('.pgf-navigation-layer'), 
-                                                           { OnMove: OnMove,
+                                                           { OnDrag: OnMove,
+                                                             OnMouseEnter: OnMouseEnter,
+                                                             OnMove: OnMouseMove,
+                                                             OnMouseLeave: OnMouseLeave,
+                                                             OnClick: OnClick,
                                                              w: canvasWidth,
                                                              h: canvasHeight
                                                            });
+
+    function OnClick(offsetX, offsetY) {
+        var x =  Math.floor(-(pos.x - offsetX) / TILE_SIZE);
+        var y = Math.floor(-(pos.y - offsetY) / TILE_SIZE);
+
+        var cellData = mapManager.GetCellData(x, y);
+
+        if (cellData.place) {
+            pgf.ui.dialog.Create({ fromUrl: pgf.urls['game:map:places:map_info'](cellData.place.id),
+                                 });
+        }
+        else {
+            pgf.ui.dialog.Alert({ message: 'nothing special on this cell' });
+        }
+    }
+
+    function OnMouseEnter() {
+    }
+
+    function OnMouseLeave() {
+        selectedTile = undefined;
+        OnMove(0, 0);
+    }
+
+    function OnMouseMove(offsetX, offsetY) {
+        var needRedraw = false;
+        var x =  Math.floor(-(pos.x - offsetX) / TILE_SIZE);
+        var y = Math.floor(-(pos.y - offsetY) / TILE_SIZE);
+        if (!selectedTile || selectedTile.x != x || selectedTile.y != y) {
+            needRedraw = true;
+        }
+        selectedTile = { x: x, y: y };
+
+        if (needRedraw) OnMove(0, 0);
+    }
 
     function OnMove(dx, dy) {
 
@@ -313,13 +370,19 @@ pgf.game.map.Map = function(selector, params) {
                 }
             }
         }
-        
+
+        context.fillStyle    = '#000';
+        context.font         = 'bold 14px sans-serif';
+        context.textBaseline = 'top';
         for (var place_id in data.places) {
             var place = data.places[place_id];
             var image = spritesManager.GetImage('place');
             image.Draw(context, 
                        pos.x + place.x * TILE_SIZE, 
                        pos.y + place.y * TILE_SIZE);
+            context.fillText(place.name, 
+                             pos.x + place.x * TILE_SIZE + TILE_SIZE / 2,
+                             pos.y + (place.y + 1) * TILE_SIZE);
         }
 
         for (var hero_id in dynamicData.heroes) {
@@ -371,6 +434,17 @@ pgf.game.map.Map = function(selector, params) {
             }
         }
 
+        if (selectedTile) {
+
+            var x = pos.x + selectedTile.x * TILE_SIZE;
+            var y = pos.y + selectedTile.y * TILE_SIZE;
+            
+            if (0 <= x && x < w * TILE_SIZE &&
+                0 <= y && y < h * TILE_SIZE) {
+                context.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
+            }
+        }
+
         context.restore();
     }
 
@@ -394,7 +468,6 @@ pgf.game.map.Map = function(selector, params) {
     this.CheckReadyState = CheckReadyState;
 };
 
-
 pgf.game.map.NavigationLayer = function(selector, params) {
 
     var container = jQuery(selector);
@@ -403,7 +476,11 @@ pgf.game.map.NavigationLayer = function(selector, params) {
 
     var pos = {x: 0, y: 0};
 
+    var OnDrag = params.OnDrag;
     var OnMove = params.OnMove;
+    var OnMouseEnter = params.OnMouseEnter;
+    var OnMouseLeave = params.OnMouseLeave;
+    var OnClick = params.OnClick;
 
     var layer = this;
 
@@ -412,7 +489,7 @@ pgf.game.map.NavigationLayer = function(selector, params) {
                y: ui.position.top};
     };
 
-    function OnDrag(e, ui) {
+    function OnLayerDrag(e, ui) {
         var newPos = {x: ui.position.left,
                       y: ui.position.top};
 
@@ -421,14 +498,15 @@ pgf.game.map.NavigationLayer = function(selector, params) {
 
         pos = newPos;
 
-        OnMove(delta.x, delta.y);
+        OnDrag(delta.x, delta.y);
     };
 
     function OnStopDragging(e, ui) {
+        pos = { x: 0, y: 0};
     };
 
     container.draggable({start: function(e, ui){OnStartDragging(e, ui);},
-                         drag: function(e, ui){OnDrag(e, ui);},
+                         drag: function(e, ui){OnLayerDrag(e, ui);},
                          stop: function(e, ui){OnStopDragging(e, ui);},
                          cursor: 'crosshair',
                          helper: 'original',
@@ -436,5 +514,9 @@ pgf.game.map.NavigationLayer = function(selector, params) {
                          revertDuration: 0,
                          scroll: false,
                         });
-};
 
+    container.mousemove(function(e) {OnMove(pos.x + e.offsetX, pos.y + e.offsetY);});
+    container.mouseenter(function(e){OnMouseEnter();})
+    container.mouseleave(function(e){OnMouseLeave();})
+    container.click(function(e){OnClick(pos.x + e.offsetX, pos.y + e.offsetY)})
+};

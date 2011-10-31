@@ -8,89 +8,99 @@ if (!pgf.ui) {
     pgf.ui = {};
 }
 
-pgf.ui.Dialog = function(params) {
+if (!pgf.ui.dialog) {
+    pgf.ui.dialog = {};
+}
 
-    this.Init = function(){
-    };
+// arguments
+// from_selector - jQuery dialog content selector
+// from_string - string with html data
+// from_url - url for ajax request
+pgf.ui.dialog.Create = function(params) {
+
+    if (!params) alert('dialog.Create - params MUST be specified');
+
+    if (!params.fromSelector && !params.fromString && !params.fromUrl) {
+        alert('one of the folowing parameters MUST be set: "fromSelector", "fromString", "fromUrl"');
+        return;
+    }
     
-    this.Open = function() {
+    var closeOnEscape = 'closeOnEscape' in params ? params.closeOnEscape : true;
+    var title = 'title' in params ? params.title : undefined;
 
-        if (params.url){
-            this.OpenUrl();
-        }
-    };
+    if (params.fromUrl) CreateFromAjax(params.fromUrl);
+    else if (params.fromString) CreateFromString(params.fromString);
+    else CreateFromSelector(params.fromSelector);
 
-    this.OpenUrl = function() {
-
-        var instance = this;
-        
+    function CreateFromAjax(url) {
         jQuery.ajax({
-            // dataType: 'text/html', TODO: set mime time on the server side
+            dataType: 'html', 
             type: 'get',
-            url: instance.params.url,
+            url: url,
             success: function(data, request, status) {
-
-                var scripts = jQuery(data).filter('script');
-                var content = jQuery('<div></div>').append(jQuery(data).not('script'));
-
-                var OnClose = function(e, ui) {
-                    $(this).dialog('destroy');
-                    $(this).remove();
-                    scripts.remove();
-
-                    if (params.OnClose) {
-                        params.OnClose( jQuery(e.target) );
-                    }
-                };
-                
-                var OnOpen = function(e, ui) {
-                    if (params.OnOpen) {
-                        params.OnOpen( jQuery(e.target) );
-                    }
-                };
-
-                scripts.appendTo('body');
-
-                jQuery(content).dialog({ 
-                    closeOnEscape: true,
-                    minWidth: 400,
-                    modal: true,
-                    width: 'auto',
-                    close: OnClose,
-                    open: OnOpen
-                });
+                CreateFromString(data);
             },
             error: function(request, status, error) {
-                alert('Error while getting: ' + instance.params.url);
+                pgf.ui.dialog.Error({ message: 'dialog.Create: error while getting: ' + url });
             },
             complete: function(request, status) {
             }
         });
-    };
+    }
 
-    this.Alert = function() {
-    };
+    function CreateFromSelector(selector) {
+        CreateFromString(jQuery(selector).text());
+    }
 
-    this.params = jQuery.extend(true, {}, params);
-    this.Init();    
-};
+    function CreateFromString(string) {
+        
+        var content = '<div><div class="pgf-dialog-content">'+string+'</div></div>';
+        
+        content = jQuery(content);
 
-pgf.ui.Alert = function(params) {
-
-    var content = "" +
-        "<div>"+
-        "<h2>"+params.message+"<h2>"
-        "</div>";
-
-    jQuery(content).dialog({ 
-        closeOnEscape: true,
-        minWidth: 400,
-        modal: true,
-        width: 500,
-        close: function(event, ui){
-            if (params.OnClose) {
-                params.OnClose();
+        var redifinedTitle = jQuery('.pgf-dialog-title', content)
+        if (redifinedTitle.length>0) {
+            if (redifinedTitle.length>1) {
+                pgf.ui.dialog.Error({message: 'dialog.Create: more then 1 title defined in dialog content'})
             }
+            title = redifinedTitle.html();
         }
-    });
+
+        var dialog = undefined;
+
+        dialog = jQuery(content).dialog({ 
+            closeOnEscape: closeOnEscape,
+            minWidth: 400,
+            minHeight: 50,
+            modal: true,
+            width: 'auto',
+            title: title,
+            autoOpen: true,
+            draggable: false,
+            position: 'center',
+            resizable: false,
+            close: function() {
+                dialog.dialog('destroy');
+            }
+        });
+    }
 };
+
+pgf.ui.dialog.Alert = function(params) {
+
+    var title = 'caption' in params ? params.title : 'Внимание!';
+    var message = params.message;
+
+    if (!message) {
+        pgf.ui.dialog.Error({message: 'dialog.Alert: mesage does not specified'});
+    }
+    
+    var content = '<p>'+message+'</p>';
+
+    pgf.ui.dialog.Create({fromString: content,
+                          title: title});
+};
+
+pgf.ui.dialog.Error = function(params) {
+    pgf.ui.dialog.Alert(params);
+}
