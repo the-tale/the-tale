@@ -2,7 +2,6 @@
 from celery.task import Task
 
 from django_next.utils.decorators import nested_commit_on_success
-from django.conf import settings as project_settings
 
 from ..prototypes import get_current_time
 from ..bundles import get_bundle_by_id, get_bundle_by_model
@@ -30,7 +29,9 @@ class supervisor(Task):
 
         print 'INIT_SUPERVISOR'
         from .game import game
+        from .highlevel import highlevel
         game.cmd_initialize(turn_number=self.time.turn_number)
+        highlevel.cmd_initialize(turn_number=self.time.turn_number)
 
         self.load_bundles()
 
@@ -54,11 +55,13 @@ class supervisor(Task):
             self.initialize()
 
         from .game import game
+        from .highlevel import highlevel
 
         self.log_cmd(cmd, params)
 
         if cmd == TASK_TYPE.NEXT_TURN:
             game.cmd_next_turn(params['steps_delta'])
+            highlevel.cmd_next_turn(params['steps_delta'])
             self.time.increment_turn()
             self.time.save()
 

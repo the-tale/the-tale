@@ -247,7 +247,7 @@ pgf.game.map.Map = function(selector, params) {
         var cellData = mapManager.GetCellData(x, y);
 
         if (cellData.place) {
-            pgf.ui.dialog.Create({ fromUrl: pgf.urls['game:map:places:map_info'](cellData.place.id),
+            pgf.ui.dialog.Create({ fromUrl: pgf.urls['game:map:places:map_info'](cellData.place.id)
                                  });
         }
         else {

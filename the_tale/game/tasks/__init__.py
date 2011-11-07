@@ -2,5 +2,6 @@
 
 from .supervisor import supervisor
 from .game import game
+from .highlevel import highlevel
 
-__ALL__ = ['supervisor', 'game']
+__ALL__ = ['supervisor', 'game', 'highlevel']

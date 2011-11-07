@@ -120,6 +120,7 @@ INSTALLED_APPS = (
     'game.map.roads',
     'game.map.places',
     'game.artifacts',
+    'game.persons',
 
     'stress_testing',
 
@@ -140,7 +141,8 @@ CELERY_CREATE_MISSING_QUEUES = True
 CELERY_DISABLE_RATE_LIMITS = True
 
 CELERY_ROUTES = [ { 'supervisor.cmd': {'queue': 'supervisor', 'routing_key': 'supervisor.cmd'}},
-                  { 'game.cmd': {'queue': 'game', 'routing_key': 'game.cmd'}} ]
+                  { 'game.cmd': {'queue': 'game', 'routing_key': 'game.cmd'}},
+                  { 'highlevel.cmd': {'queue': 'highlevel', 'routing_key': 'highlevel.cmd'}} ]
 
 CELERY_QUEUES = {
     'supervisor': {
@@ -151,6 +153,10 @@ CELERY_QUEUES = {
         'exchange': 'game',
         'exchange_type': 'direct',
         'binding_key': 'game.cmd'},
+    'highlevel': {
+        'exchange': 'highlevel',
+        'exchange_type': 'direct',
+        'binding_key': 'highlevel.cmd'},
     'default': {
         'exchange': 'default',
         'exchange_type': 'direct',

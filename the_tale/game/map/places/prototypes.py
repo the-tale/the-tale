@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import random
 from .models import Place, PLACE_TYPE
 
 def get_place_by_id(model_id):
@@ -40,6 +40,34 @@ class PlacePrototype(object):
 
     @property
     def size(self): return self.model.size
+
+    @property
+    def persons(self):
+        from ...persons.prototypes import get_person_by_model
+
+        if not hasattr(self, '_persons'):
+            self._persons = []
+            for person_model in self.model.persons.order_by('power'):
+                person = get_person_by_model(person_model)
+                self._persons.append(person)
+
+        return self._persons
+
+    @property
+    def total_persons_power(self): return sum([person.power for person in self.persons])
+
+    def sync_persons(self):
+        persons_count = len(self.persons)
+
+        from ...persons.prototypes import PersonPrototype
+        from ...persons.models import PERSON_CHOICES
+
+        while persons_count < 3:
+            PersonPrototype.create(self, 
+                                   random.choice(PERSON_CHOICES)[0],
+                                   'person_%s' % random.choice('QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm'))
+            persons_count += 1
+            
 
     def __unicode__(self):
         return self.model.__unicode__()

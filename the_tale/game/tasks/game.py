@@ -4,7 +4,6 @@ import heapq
 from celery.task import Task
 
 from django_next.utils.decorators import nested_commit_on_success
-from django.conf import settings as project_settings
 
 from ..heroes.prototypes import get_hero_by_id
 from ..bundles import get_bundle_by_id

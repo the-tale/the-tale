@@ -2,14 +2,15 @@
 import random
 import copy
 
+class RollBackException(Exception): pass
+
 class BaseEnvironment(object):
 
-    def __init__(self, quests_source, writers_source):
+    def __init__(self, quests_source, writers_source, knowlege_base):
         self.quests_source = quests_source
         self.writers_source = writers_source
+        self.knowlege_base = knowlege_base
 
-        self.places_number = 0
-        self.persons_number = 0
         self.items_number = 0
         self.quests_number = 0
 
@@ -21,25 +22,26 @@ class BaseEnvironment(object):
 
         self._root_quest = None
         
-    def new_place(self):
-        self.places_number += 1
-        place = 'place_%d' % self.places_number
-        self.places[place] = {'info': {},
-                              'game': {}}
-        return place
+    def new_place(self, place_uuid=None):
+        if not place_uuid:
+            place_uuid = self.knowlege_base.get_random_place(exclude=self.places.keys())
 
-    def new_person(self):
-        self.persons_number += 1
-        person = 'person_%d' % self.persons_number
-        self.persons[person] = {'info': {},
-                                'game': {}}
-        return person
+        place = self.knowlege_base.places[place_uuid]
+        self.places[place_uuid] = {'external_data': copy.deepcopy(place['external_data'])}
+        return place_uuid
+
+    def new_person(self, from_place, person_uuid=None):
+        if not person_uuid:
+            person_uuid = self.knowlege_base.get_random_person(place=from_place, exclude=self.persons.keys())
+
+        person = self.knowlege_base.persons[person_uuid]
+        self.persons[person_uuid] = {'external_data': copy.deepcopy(person['external_data'])}
+        return person_uuid
 
     def new_item(self):
         self.items_number += 1
         item = 'item_%d' % self.items_number
-        self.items[item] = {'info': {},
-                            'game': {}}
+        self.items[item] = {'external_data': {}}
         return item
 
     def new_quest(self, place_start=None, person_start=None):
@@ -102,9 +104,7 @@ class BaseEnvironment(object):
         return self.root_quest.get_percents(self, pointer)
 
     def serialize(self):
-        return { 'numbers': { 'places_number': self.places_number,
-                              'persons_number': self.persons_number,
-                              'items_number': self.items_number},
+        return { 'numbers': { 'items_number': self.items_number},
                  'places': self.places,
                  'persons': self.persons,
                  'items': self.items,
@@ -114,8 +114,6 @@ class BaseEnvironment(object):
                  'quests_to_writers': self.quests_to_writers }
 
     def deserialize(self, data):
-        self.places_number = data['numbers']['places_number']
-        self.persons_number = data['numbers']['persons_number']
         self.items_number = data['numbers']['items_number']
         self.places = data['places']
         self.persons = data['persons']

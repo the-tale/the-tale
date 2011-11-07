@@ -1,17 +1,50 @@
 # -*- coding: utf-8 -*-
 
-from .environment import Environment
-# from .quests_generator.lines import QUESTS
+from ..map.places.models import Place
+from ..map.places.prototypes import get_place_by_model
 
-from .prototypes import QuestPrototype
 from .quests_generator.lines import BaseQuestsSource, BaseWritersSouece
-# from .writers import QUEST_WRITERS
+from .quests_generator.knowlege_base import KnowlegeBase
+
+from .environment import Environment
+from .prototypes import QuestPrototype
+
+def get_knowlege_base():
+
+    base = KnowlegeBase()
+
+    # fill base
+    for place_model in Place.objects.all():
+        place = get_place_by_model(place_model)
+
+        place_uuid = 'place_%d' % place.id
+        
+        base.add_place(place_uuid, external_data={'id': place.id,
+                                                  'name': place.name})
+
+        for person in place.persons:
+            person_uuid = 'person_%d' % person.id
+            base.add_person(person_uuid, place=place_uuid, external_data={'id': person.id,
+                                                                          'name': person.name,
+                                                                          'type': person.type})
+
+    base.initialize()
+
+    return base
+    
 
 def create_random_quest_for_hero(hero):
 
+    base = get_knowlege_base()
+
     env = Environment(quests_source=BaseQuestsSource(),
-                      writers_source=BaseWritersSouece())
-    env.new_quest()
+                      writers_source=BaseWritersSouece(),
+                      knowlege_base=base)
+
+    hero_position_uuid = 'place_%d' % hero.position.place.id # expecting place, not road
+    env.new_place(place_uuid=hero_position_uuid) #register first place
+
+    env.new_quest(place_start=hero_position_uuid)
     env.create_lines()
 
     # quest_line.set_writer(QUEST_WRITERS)

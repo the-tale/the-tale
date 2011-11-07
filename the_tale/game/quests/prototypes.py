@@ -30,12 +30,14 @@ class QuestPrototype(object):
 
     @property
     def env(self):
+        from .logic import get_knowlege_base
         from .environment import Environment
         from .quests_generator.lines import BaseQuestsSource, BaseWritersSouece
 
         if not hasattr(self, '_env'):
             self._env = Environment(quests_source=BaseQuestsSource(),
-                                    writers_source=BaseWritersSouece())
+                                    writers_source=BaseWritersSouece(),
+                                    knowlege_base=get_knowlege_base())
             self._env.deserialize(s11n.from_json(self.model.env))
         return self._env
 

@@ -13,10 +13,22 @@ class QuestLine(object):
         self.id = identifier
         self.env_local = LocalEnvironment()
 
-        self.env_local.register('place_start', place_start if place_start else env.new_place())
-        self.env_local.register('person_start', person_start if person_start else env.new_person())
-        self.env_local.register('place_end', place_end if place_end else env.new_place())
-        self.env_local.register('person_end', person_end if person_end else env.new_person())
+        if not place_start:
+            place_start = env.new_place()
+
+        if not person_start:
+            person_start = env.new_person(from_place=place_start)
+
+        if not place_end:
+            place_end = env.new_place()
+
+        if not person_end:
+            person_end = env.new_person(from_place=place_end)
+
+        self.env_local.register('place_start', place_start)
+        self.env_local.register('person_start', person_start)
+        self.env_local.register('place_end', place_end)
+        self.env_local.register('person_end', person_end)
 
     @classmethod
     def type(cls): return cls.__name__.lower()
