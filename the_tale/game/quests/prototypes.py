@@ -5,6 +5,12 @@ from django_next.utils.decorators import nested_commit_on_success
 
 from .models import Quest
 
+def get_quest_by_id(id):
+    try:
+        return QuestPrototype(model=Quest.objects.get(id=id))
+    except Quest.DoesNotExist:
+        return None
+
 def get_quest_by_model(model):
     return QuestPrototype(model=model)
 
@@ -17,6 +23,9 @@ class QuestPrototype(object):
 
     @property
     def id(self): return self.model.id
+
+    @property
+    def hero_id(self): return self.model.hero_id
 
     @property
     def percents(self): 
@@ -55,6 +64,26 @@ class QuestPrototype(object):
     @property
     def is_processed(self):
         return len(self.pos) == 0
+
+    def get_choices(self):
+        # MUST be always actual
+        choices = {}
+        choices_list = list(self.model.choices.all())
+        for choice in choices_list:
+            choices[choice.choice_point] = choice.choice
+        return choices
+
+    def make_choice(self, choice_point, choice):
+        from .models import QuestChoice
+
+        if QuestChoice.objects.filter(quest=self.model, choice_point=choice_point).exists():
+            return False
+
+        QuestChoice.objects.create(quest=self.model,
+                                   choice_point=choice_point,
+                                   choice=choice)
+
+        return True
 
     ###########################################
     # Object operations
@@ -101,7 +130,7 @@ class QuestPrototype(object):
         self.process_current_command(cur_action)
 
         self.last_pointer = self.pointer
-        self.pointer = self.env.increment_pointer(self.pointer)
+        self.pointer = self.env.increment_pointer(self.pointer, self.get_choices())
 
         if self.pointer is not None:
             return True
@@ -124,7 +153,8 @@ class QuestPrototype(object):
          'getitem': self.cmd_get_item,
          'giveitem': self.cmd_give_item,
          'getreward': self.cmd_get_reward,
-         'quest': self.cmd_quest
+         'quest': self.cmd_quest,
+         'choose': self.cmd_choose
          }[cmd.type()](cmd, cur_action)
 
     def cmd_description(self, cmd, cur_action):
@@ -150,5 +180,28 @@ class QuestPrototype(object):
     def cmd_quest(self, cmd, cur_action):
         pass
 
+    def cmd_choose(self, cmd, cur_action):
+        pass
+
     def ui_info(self):
-        return {'line': self.env.get_writers_text_chain(self.last_pointer)}
+        choices = self.get_choices()
+
+        cmd = self.env.get_nearest_quest_choice(self.pointer)
+        quest = self.env.get_quest(self.pointer)
+        writer = self.env.get_writer(self.pointer)
+
+        if cmd:
+            cmd_id = cmd.id
+            if cmd.id in choices:
+                choice_msg = writer.get_choice_result_msg(cmd.choice, choices[cmd.id])
+            else:
+                choice_msg = writer.get_choice_msg(cmd.choice)
+        else:
+            choice_msg = None
+            cmd_id = None
+
+        return {'line': self.env.get_writers_text_chain(self.last_pointer),
+                'choice_id': cmd_id,
+                'choice_text': choice_msg,
+                'id': self.model.id,
+                'subquest_id': quest.id}

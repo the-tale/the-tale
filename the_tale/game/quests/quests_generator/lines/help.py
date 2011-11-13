@@ -1,5 +1,5 @@
 # coding: utf-8
-from ..quest_line import QuestLine
+from ..quest_line import Quest, Line
 from ..writer import Writer
 from .. import commands as cmd
 
@@ -8,7 +8,7 @@ class EVENTS:
     MOVE_TO_QUEST = 'move_to_quest'
     START_QUEST = 'start_quest'
 
-class HelpLine(QuestLine):
+class HelpLine(Quest):
 
     def initialize(self, identifier, env, **kwargs):
         super(HelpLine, self).initialize(identifier, env, **kwargs)
@@ -17,8 +17,8 @@ class HelpLine(QuestLine):
                                                             person_start=self.env_local.person_end) )
 
     def create_line(self, env):
-        self.line =  [ cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
-                       cmd.Quest(quest=self.env_local.quest_help, event=EVENTS.START_QUEST) ]
+        self.line =  Line(sequence= [ cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
+                                      cmd.Quest(quest=self.env_local.quest_help, event=EVENTS.START_QUEST) ])
         env.quests[self.env_local.quest_help].create_line(env)
 
 class HelpWriter(Writer):

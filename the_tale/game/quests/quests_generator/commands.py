@@ -14,7 +14,7 @@ class Command(object):
     def type(cls):
         return cls.__name__.lower()
 
-    def get_description(self):
+    def get_description(self, env):
         return 'unknown command'
 
     def serialize(self):
@@ -30,7 +30,7 @@ class Description(Command):
     def __init__(self, **kwargs):
         super(Description, self).__init__(**kwargs)
 
-    def get_description(self):
+    def get_description(self, env):
         return '<description> msg: %s' % self.event
 
     def serialize(self):
@@ -49,7 +49,7 @@ class Move(Command):
         super(Move, self).__init__(**kwargs)
         self.place = place
 
-    def get_description(self):
+    def get_description(self, env):
         return '<move to> place: %s' % self.place
 
     def serialize(self):
@@ -68,7 +68,7 @@ class GetItem(Command):
         super(GetItem, self).__init__(**kwargs)
         self.item = item
 
-    def get_description(self):
+    def get_description(self, env):
         return '<get item> item: %s' % self.item
 
     def serialize(self):
@@ -87,7 +87,7 @@ class GiveItem(Command):
         super(GiveItem, self).__init__(**kwargs)
         self.item = item
 
-    def get_description(self):
+    def get_description(self, env):
         return '<give item> item: %s' % self.item
 
     def serialize(self):
@@ -105,7 +105,7 @@ class GetReward(Command):
         super(GetReward, self).__init__(**kwargs)
         self.person = person
 
-    def get_description(self):
+    def get_description(self, env):
         return '<get revard> person: %s' % self.person
 
     def serialize(self):
@@ -117,14 +117,45 @@ class GetReward(Command):
         super(GetReward, self).deserialize(data)
         self.person = data['person']
 
+class Choose(Command):
+
+    def __init__(self, id=None, choices=None, default=None, choice=None, **kwargs):
+        super(Choose, self).__init__(**kwargs)
+        self.choices = choices
+        self.default = default
+        self.id = id
+        self.choice = choice
+
+    def get_description(self, env):
+        return { 'cmd': 'choose',
+                 'default': self.default,
+                 'choices': self.choices,
+                 'choice': self.choice}
+
+    def serialize(self):
+        data = super(Choose, self).serialize()
+        data.update({'choices': self.choices,
+                     'id': self.id,
+                     'default': self.default,
+                     'choice': self.choice})
+        return data
+
+    def deserialize(self, data):
+        super(Choose, self).deserialize(data)
+        self.id = data['id']
+        self.choices = data['choices']
+        self.default = data['default']
+        self.choice = data['choice']
+
+
 class Quest(Command):
 
     def __init__(self, quest=None, **kwargs):
         super(Quest, self).__init__(**kwargs)
         self.quest = quest
 
-    def get_description(self):
-        return self.quest.get_description()
+    def get_description(self, env):
+        return env.quests[self.quest].get_description(env)
 
     def serialize(self):
         data = super(Quest, self).serialize()

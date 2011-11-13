@@ -6,6 +6,7 @@ class Writer(object):
 
     ACTIONS = {}
     LOG = {}
+    CHOICES = {}
 
     def __init__(self, env, local_env):
         self.subst = env.get_msg_substitutions(local_env)
@@ -23,6 +24,17 @@ class Writer(object):
         msg = self.LOG.get(event)
         if msg:
             return msg % self.subst
+
+    def get_choice_msg(self, choice_id):
+        data = self.CHOICES.get(choice_id)
+        if data:
+            return data['question'] % self.subst
+
+    def get_choice_result_msg(self, choice_id, choice):
+        data = self.CHOICES.get(choice_id)
+        if data:
+            return data['results'][choice] % self.subst
+
 
 class Default(object):
 

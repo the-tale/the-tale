@@ -193,6 +193,10 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     var questsLine = jQuery('.pgf-quests-line', widget);
     var noQuestsMsg = jQuery('.pgf-no-quests-message', widget);
 
+    var choicesBlock = jQuery('.pgf-quest-choices', widget);
+    var noChoicesMsg = jQuery('.pgf-no-choices', choicesBlock);
+    var choicesMsg = jQuery('.pgf-choices', choicesBlock);
+
     var data = {};
 
     var ACTION_TYPES = {
@@ -329,6 +333,55 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         RenderActionInfo(action);
     }
 
+    function RenderChoices() {
+        
+        var questId = data.quests.id;
+        var subquestId = data.quests.subquest_id;
+        var choiceText = data.quests.choice_text;
+        var choiceId = data.quests.choice_id;
+
+        noChoicesMsg.toggleClass('pgf-hidden', !!choiceId);
+        choicesMsg.toggleClass('pgf-hidden', !choiceId);
+
+        if (choiceId) {
+            choicesMsg.html(choiceText);
+            jQuery('.pgf-choice', choicesMsg).each(function(i, v){
+                var el = jQuery(v);
+                
+                var choice = el.data('choice');
+                var url = pgf.urls['game:quests:choose'](questId, subquestId, choiceId, choice)
+                el.click(function(e){
+                    e.preventDefault();
+                    
+                    jQuery.ajax({
+                        dataType: 'json',
+                        type: 'post',
+                        url: url,
+                        success: function(data, request, status) {
+
+                            if (data.status == 'error') {
+                                pgf.ui.dialog.Error({ message: data.errors });
+                                return;
+                            }
+
+                            if (data.status == 'ok') {
+                                updater.Refresh();
+                                return;
+                            }
+
+                            pgf.ui.dialog.Error({ message: 'unknown error while making choice' });
+
+                        },
+                        error: function() {
+                        },
+                        complete: function() {
+                        }
+                    });
+                });
+            });
+        }
+    }
+
     this.Refresh = function() {
 
         var hero = widgets.heroes.CurrentHero();
@@ -347,6 +400,7 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         RenderQuests();
         RenderAction();
         RenderActionInfo(instance.GetCurrentAction());
+        RenderChoices();
     };
 
     this.GetCurrentAction = function() {
