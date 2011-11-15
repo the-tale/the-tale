@@ -4,6 +4,8 @@ from celery.task import Task
 
 from django_next.utils.decorators import nested_commit_on_success
 
+from ..persons.models import Person
+from ..persons.prototypes import get_person_by_model
 from ..map.places.models import Place
 from ..map.places.prototypes import get_place_by_model
 
@@ -33,11 +35,23 @@ class highlevel(Task):
         
         self.turn_number = 0
 
+        self.persons_power = {}
+
     def sync_data(self):
         
         for place_model in Place.objects.all():
             place = get_place_by_model(place_model)
             place.sync_persons()
+
+        for person_model in Person.objects.all():
+            person = get_person_by_model(person_model)
+            
+            if person.id in self.persons_power:
+                person.power = max(person.power + self.persons_power[person.id], 0)
+
+            person.save()
+
+        self.persons_power = {}
 
     def log_cmd(self, cmd, params):
         print 'highlevel: %s %r' % (cmd, params)
@@ -70,6 +84,13 @@ class highlevel(Task):
                         with nested_commit_on_success():
                             self.sync_data()
 
+            elif cmd == TASK_TYPE.CHANGE_PERSON_POWER:
+                person_id = int(params['person_id'])
+                power_delta = int(params['power_delta'])
+                
+                person_power = self.persons_power.get(person_id, 0)
+                self.persons_power[person_id] = max(person_power + power_delta, 0)
+
         except:
             self.exception_raised = True
             raise
@@ -80,7 +101,6 @@ class highlevel(Task):
     def _do_task(cls, cmd, args):
         return cls.apply_async(args=[cmd, args])
 
-
     @classmethod
     def cmd_initialize(cls, turn_number):
         return cls._do_task(TASK_TYPE.INITIALIZE, {'turn_number': turn_number})
@@ -90,8 +110,8 @@ class highlevel(Task):
         return cls._do_task(TASK_TYPE.NEXT_TURN, {'steps_delta': steps_delta})
 
     @classmethod
-    def cmd_change_person_power(cls, power_delta):
-        return cls._do_task(TASK_TYPE.CHANGE_PERSON_POWER, {'power_delta': power_delta})
+    def cmd_change_person_power(cls, person_id, power_delta):
+        return cls._do_task(TASK_TYPE.CHANGE_PERSON_POWER, {'person_id': person_id, 'power_delta': power_delta})
 
 
 

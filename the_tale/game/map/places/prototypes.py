@@ -67,6 +67,9 @@ class PlacePrototype(object):
                                    random.choice(PERSON_CHOICES)[0],
                                    'person_%s' % random.choice('QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm'))
             persons_count += 1
+
+        if hasattr(self, '_persons'):
+            delattr(self, '_persons')
             
 
     def __unicode__(self):

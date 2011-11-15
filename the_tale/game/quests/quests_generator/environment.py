@@ -23,6 +23,7 @@ class BaseEnvironment(object):
         self.lines = {}
         self.quests_to_writers = {}
         self.choices = {}
+        self.persons_power_points = {}
 
         self._root_quest = None
         
@@ -149,7 +150,8 @@ class BaseEnvironment(object):
                  'lines': dict( (line_id, line.serialize() ) 
                                  for line_id, line in self.lines.items() ),
                  'root_quest': self._root_quest,
-                 'quests_to_writers': self.quests_to_writers }
+                 'quests_to_writers': self.quests_to_writers,
+                 'persons_power_points': self.persons_power_points}
 
     def deserialize(self, data):
         from .quest_line import Line
@@ -172,6 +174,7 @@ class BaseEnvironment(object):
         self._root_quest = data['root_quest']
 
         self.quests_to_writers = data['quests_to_writers']
+        self.persons_power_points = data.get('persons_power_points', {})
 
 
 class LocalEnvironment(object):

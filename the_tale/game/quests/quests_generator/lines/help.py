@@ -7,6 +7,7 @@ class EVENTS:
     QUEST_DESCRIPTION = 'quest_description'
     MOVE_TO_QUEST = 'move_to_quest'
     START_QUEST = 'start_quest'
+    GIVE_POWER = 'give_power'
 
 class HelpLine(Quest):
 
@@ -18,7 +19,10 @@ class HelpLine(Quest):
 
     def create_line(self, env):
         self.line =  Line(sequence= [ cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
-                                      cmd.Quest(quest=self.env_local.quest_help, event=EVENTS.START_QUEST) ])
+                                      cmd.Quest(quest=self.env_local.quest_help, event=EVENTS.START_QUEST),
+                                      cmd.GivePower(person=self.env_local.person_start, 
+                                                    depends_on=self.env_local.person_end, multiply=0.25,
+                                                    event=EVENTS.GIVE_POWER)])
         env.quests[self.env_local.quest_help].create_line(env)
 
 class HelpWriter(Writer):

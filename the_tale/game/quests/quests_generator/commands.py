@@ -117,6 +117,33 @@ class GetReward(Command):
         super(GetReward, self).deserialize(data)
         self.person = data['person']
 
+class GivePower(Command):
+
+    def __init__(self, person=None, power=None, multiply=None, depends_on=None, **kwargs):
+        super(GivePower, self).__init__(**kwargs)
+        self.person = person
+        self.power = power
+        self.multiply = multiply
+        self.depends_on = depends_on
+
+    def get_description(self, env):
+        return '<give power> person: %s (power: %s, multiply: %s, depends_on: %s)' % (self.person, self.power, self.multiply, self.depends_on)
+
+    def serialize(self):
+        data = super(GivePower, self).serialize()
+        data.update({'power': self.power,
+                     'person': self.person,
+                     'depends_on': self.depends_on,
+                     'multiply': self.multiply})
+        return data
+
+    def deserialize(self, data):
+        super(GivePower, self).deserialize(data)
+        self.person = data['person']
+        self.depends_on = data['depends_on']
+        self.power = data['power']
+        self.multiply = data['multiply']
+
 class Choose(Command):
 
     def __init__(self, id=None, choices=None, default=None, choice=None, **kwargs):

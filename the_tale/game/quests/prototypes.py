@@ -135,7 +135,16 @@ class QuestPrototype(object):
         if self.pointer is not None:
             return True
 
+        self.end_quest()
+
         return False
+
+    def end_quest(self):
+
+        for person_id, power in self.env.persons_power_points.items():
+            person_data = self.env.persons[person_id]
+            from ..tasks.highlevel import highlevel
+            highlevel.cmd_change_person_power(person_data['external_data']['id'], power * 100)
          
     def process_current_command(self, cur_action):
 
@@ -154,7 +163,8 @@ class QuestPrototype(object):
          'giveitem': self.cmd_give_item,
          'getreward': self.cmd_get_reward,
          'quest': self.cmd_quest,
-         'choose': self.cmd_choose
+         'choose': self.cmd_choose,
+         'givepower': self.cmd_give_power
          }[cmd.type()](cmd, cur_action)
 
     def cmd_description(self, cmd, cur_action):
@@ -178,10 +188,19 @@ class QuestPrototype(object):
         cur_action.hero.create_tmp_log_message('hero get some reward [TODO: IMPLEMENT]')
 
     def cmd_quest(self, cmd, cur_action):
+        # TODO: move to quest generator environment
         pass
 
     def cmd_choose(self, cmd, cur_action):
+        # TODO: move to quest generator environment
         pass
+
+    def cmd_give_power(self, cmd, cur_action):
+        # TODO: move to quest generator environment
+        if cmd.depends_on:
+            self.env.persons_power_points[cmd.person] = self.env.persons_power_points[cmd.depends_on] * cmd.multiply
+        else:
+            self.env.persons_power_points[cmd.person] = cmd.power
 
     def ui_info(self):
         choices = self.get_choices()
