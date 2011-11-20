@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
-from .models import Place, PLACE_TYPE
+from .models import Place, PLACE_TYPE, RACE_TO_TERRAIN
 
 def get_place_by_id(model_id):
     model = Place.objects.get(id=model_id)
@@ -26,8 +26,9 @@ class PlacePrototype(object):
     @property
     def y(self): return self.model.y
 
-    @property
-    def terrain(self): return self.model.terrain
+    def get_terrain(self): return self.model.terrain
+    def set_terrain(self, value): self.model.terrain = value
+    terrain = property(get_terrain, set_terrain)
 
     @property
     def name(self): return self.model.name
@@ -60,17 +61,29 @@ class PlacePrototype(object):
         persons_count = len(self.persons)
 
         from ...persons.prototypes import PersonPrototype
-        from ...persons.models import PERSON_CHOICES
+        from ...persons.models import PERSON_TYPE_CHOICES
+        from ...game_info import RACE_CHOICES
 
         while persons_count < 3:
-            PersonPrototype.create(self, 
-                                   random.choice(PERSON_CHOICES)[0],
-                                   'person_%s' % random.choice('QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm'))
+            PersonPrototype.create(place=self, 
+                                   race=random.choice(RACE_CHOICES)[0],
+                                   tp=random.choice(PERSON_TYPE_CHOICES)[0],
+                                   name='person_%s' % random.choice('QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm'))
             persons_count += 1
 
         if hasattr(self, '_persons'):
             delattr(self, '_persons')
-            
+
+
+    def sync_terrain(self):
+        race_power = {}
+        
+        for person in self.persons:
+            race_power[person.race] = race_power.get(person.race, 0) + person.power
+
+        dominant_race = max(race_power.items(), key=lambda x: x[1])[0]
+
+        self.terrain = RACE_TO_TERRAIN[dominant_race]
 
     def __unicode__(self):
         return self.model.__unicode__()

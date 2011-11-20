@@ -60,13 +60,15 @@ class supervisor(Task):
         self.log_cmd(cmd, params)
 
         if cmd == TASK_TYPE.NEXT_TURN:
-            game.cmd_next_turn(params['steps_delta'])
+            turn_task = game.cmd_next_turn(params['steps_delta'])
+            
+            turn_task.get()
+
             highlevel.cmd_next_turn(params['steps_delta'])
             self.time.increment_turn()
             self.time.save()
 
         elif cmd == TASK_TYPE.NEW_BUNDLE:
-            print nested_commit_on_success()
             with nested_commit_on_success():
                 bundle = get_bundle_by_id(params['id'])
                 self.push_worker(bundle)

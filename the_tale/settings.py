@@ -1,8 +1,6 @@
 # coding: utf-8
 import os
 
-import djcelery
-
 PROJECT_DIR = os.path.dirname(__file__)
 
 DEBUG = False
@@ -124,47 +122,22 @@ INSTALLED_APPS = (
 
     'stress_testing',
 
-    'south',
-    'djcelery'
+    'south'
 )
 
 ###############################
-# Celery
+# AMQP
 ###############################
 
-BROKER_HOST = 'localhost'
-BROKER_USER = 'the_tale'
-BROKER_PASSWORD = 'the_tale'
-BROKER_VHOST = '/the_tale_host'
+AMQP_BROKER_HOST = 'localhost'
+AMQP_BROKER_USER = 'the_tale'
+AMQP_BROKER_PASSWORD = 'the_tale'
+AMQP_BROKER_VHOST = '/the_tale_host'
 
-CELERY_CREATE_MISSING_QUEUES = True
-CELERY_DISABLE_RATE_LIMITS = True
-
-CELERY_ROUTES = [ { 'supervisor.cmd': {'queue': 'supervisor', 'routing_key': 'supervisor.cmd'}},
-                  { 'game.cmd': {'queue': 'game', 'routing_key': 'game.cmd'}},
-                  { 'highlevel.cmd': {'queue': 'highlevel', 'routing_key': 'highlevel.cmd'}} ]
-
-CELERY_QUEUES = {
-    'supervisor': {
-        'exchange': 'supervisor',
-        'exchange_type': 'direct',
-        'binding_key': 'supervisor.cmd'},
-    'game': {
-        'exchange': 'game',
-        'exchange_type': 'direct',
-        'binding_key': 'game.cmd'},
-    'highlevel': {
-        'exchange': 'highlevel',
-        'exchange_type': 'direct',
-        'binding_key': 'highlevel.cmd'},
-    'default': {
-        'exchange': 'default',
-        'exchange_type': 'direct',
-        'routing_key': 'default',
-        'binding_key': 'default'}
-}
-
-CELERY_DEFAULT_QUEUE = 'default'
+AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,
+                                              AMQP_BROKER_PASSWORD,
+                                              AMQP_BROKER_HOST,
+                                              AMQP_BROKER_VHOST)
 
 try:
     from settings_local import *
@@ -176,6 +149,3 @@ if 'TEMPLATE_DEBUG' not in globals():
 
 if 'CELERY_EMULATE_TASKS' not in globals():
     CELERY_EMULATE_TASKS = DEBUG
-
-
-djcelery.setup_loader()

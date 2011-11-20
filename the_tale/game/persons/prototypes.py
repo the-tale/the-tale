@@ -15,14 +15,22 @@ class PersonPrototype(object):
 
     @property
     def name(self): return self.model.name
+
+    @property
+    def race(self): return self.model.race
+
+    @property
+    def race_verbose(self):
+        from ..game_info import RACE_DICT
+        return RACE_DICT[self.race]
     
     @property
     def type(self): return self.model.type
 
     @property
     def type_verbose(self):
-        from .models import PERSON_DICT
-        return PERSON_DICT[self.type]
+        from .models import PERSON_TYPE_DICT
+        return PERSON_TYPE_DICT[self.type]
 
     def get_power(self): return self.model.power
     def set_power(self, value): self.model.power = value
@@ -35,9 +43,10 @@ class PersonPrototype(object):
         self.model.remove()
 
     @classmethod
-    def create(cls, place, tp, name, power=0):
+    def create(cls, place, race, tp, name, power=0):
         
         instance = Person.objects.create(place=place.model,
+                                         race=race,
                                          type=tp,
                                          name=name,
                                          power=power)

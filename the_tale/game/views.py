@@ -48,8 +48,8 @@ class GameResource(Resource):
     @handler('next_turn', method=['post'])
     def next_turn(self):
 
-        from .tasks import supervisor
-        supervisor.cmd_next_turn(1)
+        from .workers.environment import workers_environment
+        workers_environment.supervisor.cmd_next_turn()
 
         return self.json(status='ok')
 

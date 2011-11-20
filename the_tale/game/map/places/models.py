@@ -1,4 +1,8 @@
+# coding: utf-8
+
 from django.db import models
+
+from ...game_info import RACE
 
 class TERRAIN:
     DESERT = '_'
@@ -6,10 +10,16 @@ class TERRAIN:
     GRASS = '.'
     SWAMP = 'w'
 
-TERRAIN_CHOICES = ( (TERRAIN.DESERT, 'desert' ),
-                    (TERRAIN.FOREST, 'forest'),
-                    (TERRAIN.GRASS, 'grass'),
-                    (TERRAIN.SWAMP, 'swamp') )
+TERRAIN_CHOICES = ( (TERRAIN.DESERT, 'пустыня' ),
+                    (TERRAIN.FOREST, 'лес'),
+                    (TERRAIN.GRASS, 'луга'),
+                    (TERRAIN.SWAMP, 'болото') )
+
+RACE_TO_TERRAIN = { RACE.HUMAN: TERRAIN.GRASS,
+                    RACE.ELF: TERRAIN.FOREST,
+                    RACE.ORC: TERRAIN.DESERT,
+                    RACE.GOBLIN: TERRAIN.SWAMP,
+                    RACE.DWARF: TERRAIN.GRASS }
 
 class PLACE_TYPE:
     CITY = 'city'

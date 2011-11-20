@@ -38,9 +38,7 @@ class Path(object):
             self.road_id = new_road_id
             self.length = new_length
 
-@nested_commit_on_success
 def update_waymarks():
-    Waymark.objects.all().delete()
     
     places = [ get_place_by_model(place) for place in list(Place.objects.all()) ]
 
@@ -73,10 +71,16 @@ def update_waymarks():
         for el in row:
             res.append(el.road_id)
 
-    for i in xrange(places_len):
-        for j in xrange(places_len):
-            if paths[i][j].road_id is not None:
-                WaymarkPrototype.create(point_from=places[i],
-                                        point_to=places[j],
-                                        road=get_road_by_id(paths[i][j].road_id) )
+    with nested_commit_on_success():
+        # Waymark.objects.all().delete()
+
+        for i in xrange(places_len):
+            for j in xrange(places_len):
+                if paths[i][j].road_id is not None:
+                    if Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).exists():
+                        Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).update(road=get_road_by_id(paths[i][j].road_id).model)
+                    else:
+                        WaymarkPrototype.create(point_from=places[i],
+                                                point_to=places[j],
+                                                road=get_road_by_id(paths[i][j].road_id) )
 

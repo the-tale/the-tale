@@ -175,3 +175,4 @@ class game(Task):
     def cmd_register_hero(cls, hero_id):
         return cls._do_task(TASK_TYPE.REGISTER_HERO, {'hero_id': hero_id})
 
+

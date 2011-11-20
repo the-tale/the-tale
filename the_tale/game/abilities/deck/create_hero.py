@@ -93,7 +93,7 @@ class CreateHero(AbilityPrototype):
       
     def use(self, angel, form):
         from ...heroes.prototypes import HeroPrototype
-        from ...tasks import supervisor
+        from .workers.environment import workers_environment
 
         hero = HeroPrototype.create(angel=angel,
                                     name=form['name'],
@@ -103,7 +103,7 @@ class CreateHero(AbilityPrototype):
                                     charisma=form['charisma'],
                                     chaoticity=form['chaoticity'])
 
-        supervisor.cmd_register_hero(hero.id)
+        workers_environment.supervisor.cmd_register_hero(hero.id)
 
 
 

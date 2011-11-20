@@ -1,4 +1,5 @@
 # coding: utf-8
+import subprocess
 
 from celery.task import Task
 
@@ -34,7 +35,6 @@ class highlevel(Task):
         self.initialized = True
         
         self.turn_number = 0
-
         self.persons_power = {}
 
     def sync_data(self):
@@ -42,6 +42,8 @@ class highlevel(Task):
         for place_model in Place.objects.all():
             place = get_place_by_model(place_model)
             place.sync_persons()
+            place.sync_terrain()
+            place.save()
 
         for person_model in Person.objects.all():
             person = get_person_by_model(person_model)
@@ -52,6 +54,8 @@ class highlevel(Task):
             person.save()
 
         self.persons_power = {}
+
+        subprocess.call(['./manage.py', 'map_update_map'])
 
     def log_cmd(self, cmd, params):
         print 'highlevel: %s %r' % (cmd, params)

@@ -8,7 +8,7 @@ from django_next.utils.decorators import nested_commit_on_success
 from game.angels.prototypes import AngelPrototype
 
 from game.bundles import BundlePrototype
-from game.tasks import supervisor
+from game.workers.environment import workers_environment
 
 from .prototypes import AccountPrototype, get_account_by_id
 from . import forms
@@ -57,7 +57,7 @@ class AccountsResource(BaseResource):
                 self.login_user(user.username, registration_form.c.password)
 
                 bundle = BundlePrototype.create(angel)
-                supervisor.cmd_new_bundle(bundle.id)
+                workers_environment.supervisor.cmd_register_bundle(bundle.id)
 
             return self.json(status='ok')
 

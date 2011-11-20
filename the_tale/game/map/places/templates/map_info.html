@@ -20,7 +20,7 @@
         {% else %}
         {% set power = 0 %}
         {% endif %}
-        <h3>{{ person.type_verbose }}: {{ person.name }}</h3>
+        <h3>{{ person.race_verbose }} {{ person.type_verbose }}: {{ person.name }}</h3>
         <span>влиятельность</span>
         <div class="stats-bar power-bar">
           <div class="layer layer-0" style="width: {{ power*100 }}%;"></div>

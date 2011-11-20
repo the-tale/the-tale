@@ -51,8 +51,8 @@ class AbilityPrototype(object):
         return self.FORM()
 
     def activate(self, form):
-        from ..tasks import supervisor
-        supervisor.cmd_activate_ability(self.get_type(), form.c.data)
+        from .workers.environment import workers_environment
+        workers_environment.supervisor.cmd_activate_ability(self.get_type(), form.c.data)
 
         return { 'available_after': 0,
                  'limit': max(0, self.limit-1)}
