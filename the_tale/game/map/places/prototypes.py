@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 import random
+
+from django_next.utils import s11n
+
 from .models import Place, PLACE_TYPE, RACE_TO_TERRAIN
+from . import settings as places_settings
 
 def get_place_by_id(model_id):
     model = Place.objects.get(id=model_id)
@@ -39,8 +43,9 @@ class PlacePrototype(object):
     @property
     def subtype(self): return self.model.subtype
 
-    @property
-    def size(self): return self.model.size
+    def get_size(self): return self.model.size
+    def set_size(self, value): self.model.size = value
+    size = property(get_size, set_size)
 
     @property
     def persons(self):
@@ -64,7 +69,7 @@ class PlacePrototype(object):
         from ...persons.models import PERSON_TYPE_CHOICES
         from ...game_info import RACE_CHOICES
 
-        while persons_count < 3:
+        while persons_count < self.size + places_settings.PERSON_ON_SIZE_1:
             PersonPrototype.create(place=self, 
                                    race=random.choice(RACE_CHOICES)[0],
                                    tp=random.choice(PERSON_TYPE_CHOICES)[0],
@@ -74,6 +79,38 @@ class PlacePrototype(object):
         if hasattr(self, '_persons'):
             delattr(self, '_persons')
 
+    @property
+    def data(self):
+        if not hasattr(self, '_data'):
+            self._data = s11n.from_json(self.model.data)
+        return self._data
+
+    @property
+    def power_points(self): 
+        if 'power_points' not in self.data:
+            self.data['power_points'] = []
+        return self.data['power_points']
+    
+    @property
+    def power(self): 
+        if self.power_points:
+            return max(sum(self.power_points), 0)
+        return 0
+
+    def push_power(self, value): 
+        self.power_points.append(value)
+
+        while len(self.power_points) > places_settings.POWER_HISTORY_LENGTH:
+            self.power_points.pop(0)
+
+    def sync_power(self, powers):
+        power = 0
+        for person in self.persons:
+            power += powers.get(person.id, 0)
+        self.push_power(power)
+
+    def sync_size(self, max_power):
+        self.size = int(places_settings.MAX_SIZE+1) * (float(self.power) / (max_power+1))
 
     def sync_terrain(self):
         race_power = {}
@@ -108,7 +145,9 @@ class PlacePrototype(object):
         return cls(model=model)
 
     def remove(self): self.model.delete()
-    def save(self): self.model.save(force_update=True)
+    def save(self): 
+        self.model.data = s11n.to_json(self.data)
+        self.model.save(force_update=True)
 
     def map_info(self):
         return {'id': self.id,

@@ -92,12 +92,6 @@ class Worker(object):
         self.supervisor_worker.cmd_answer('next_turn', self.worker_id)
 
     def sync_data(self):
-        
-        for place_model in Place.objects.all():
-            place = get_place_by_model(place_model)
-            place.sync_persons()
-            place.sync_terrain()
-            place.save()
 
         for person_model in Person.objects.all():
             person = get_person_by_model(person_model)
@@ -106,14 +100,33 @@ class Worker(object):
                 person.power = max(person.power + self.persons_power[person.id], 0)
 
             person.save()
+            
+        old_powers = self.persons_power
 
         self.persons_power = {}
+
+        places = []
+
+        max_place_power = 0
+
+        for place_model in Place.objects.all():
+            place = get_place_by_model(place_model)
+            place.sync_power(old_powers)
+            place.sync_terrain()
+            places.append(place)
+
+            max_place_power = max(max_place_power, place.power)
+
+        for place in places:
+            place.sync_size(max_place_power)
+            place.sync_persons()
+            place.save()
 
         subprocess.call(['./manage.py', 'map_update_map'])
 
 
     def cmd_change_person_power(self, person_id, power_delta):
-        self.send_cmd(CMD_TYPE.INITIALIZE, {'person_id': person_id, 'power_delta': power_delta})
+        self.send_cmd(CMD_TYPE.CHANGE_PERSON_POWER, {'person_id': person_id, 'power_delta': power_delta})
 
     def process_change_person_power(self, person_id, power_delta):
         person_power = self.persons_power.get(person_id, 0)

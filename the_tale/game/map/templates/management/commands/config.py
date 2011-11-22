@@ -7,7 +7,7 @@ places_list = (
     {% for p in places_list %}
    
     {%- if p.type == PLACE_TYPE.CITY -%}
-    places.City(x={{p.x}}, y={{p.y}}, significance={{p.size}}, terrain='{{p.terrain}}', name='{{p.name}}', place_id={{p.id}}),
+    places.City(x={{p.x}}, y={{p.y}}, significance={{p.size}}, terrain='{{p.terrain}}', name='{{p.name}}', place_id={{p.id}}, size={{p.size}}),
     {% endif -%}
 
     {% endfor %}

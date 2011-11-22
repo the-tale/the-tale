@@ -143,8 +143,8 @@ class QuestPrototype(object):
 
         for person_id, power in self.env.persons_power_points.items():
             person_data = self.env.persons[person_id]
-            from ..tasks.highlevel import highlevel
-            highlevel.cmd_change_person_power(person_data['external_data']['id'], power * 100)
+            from ..workers.environment import workers_environment
+            workers_environment.highlevel.cmd_change_person_power(person_data['external_data']['id'], power * 100)
          
     def process_current_command(self, cur_action):
 

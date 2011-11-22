@@ -380,7 +380,7 @@ pgf.game.map.Map = function(selector, params) {
             image.Draw(context, 
                        pos.x + place.x * TILE_SIZE, 
                        pos.y + place.y * TILE_SIZE);
-            context.fillText(place.name, 
+            context.fillText('('+place.size+') '+place.name, 
                              pos.x + place.x * TILE_SIZE + TILE_SIZE / 2,
                              pos.y + (place.y + 1) * TILE_SIZE);
         }

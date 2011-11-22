@@ -48,6 +48,8 @@ class Place(models.Model):
 
     size = models.IntegerField(null=False) # specify size of the place
 
+    data = models.TextField(null=False, default={})
+
     class Meta:
         ordering = ('name', )
 
