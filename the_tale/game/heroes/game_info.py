@@ -18,110 +18,6 @@ class AttributeContainer(object):
                 result.append(attr)
         return result
 
-
-class attributes:
-
-    class base(AttributeContainer):
-        class wisdom(Attribute): 
-            initial = 1
-            name = u'мудрость'
-            description = u'Мера мудрости героя, изначально для всех героев равна 1, растёт со временем (по мере выполнения квестов), влияет на точность действий, открывает новые ходы в заданиях, так же влияет на влияние, оказываемое героем на окружающую среду.'
-
-
-    class primary(AttributeContainer):
-
-        TOTAL_POINTS = 5+4+3+2+2
-        FREE_POINTS  = 5+4+3+2+2 - 5
-
-        class intellect(Attribute): 
-            initial = (1, 5) 
-            name = u'интеллект' 
-            description = u'Характеризует скорость обучения героя, скорость решения загадок и принятия прочих решений, открывает ходы в квестах, влияет на критический урон, скрость прочтения заклинаний'
-
-        class constitution(Attribute): 
-            initial = (1, 5) 
-            name = u'телосложение' 
-            description = u'Телосложение героя, влияет на его здоровье и физическую силу и, соответственно, повреждения в бою'
-
-        class reflexes(Attribute): 
-            initial = (1, 5) 
-            name = u'рефлексы'
-            description = u'Рефлексы, скорость реакции, влияет на очередность действий в бою, успешность комбо приёмов, уклонение и прочую защиту'
-
-        class charisma(Attribute): 
-            initial = (1, 5) 
-            name = u'харизма'
-            description = u'Харазма влияет на отношение к герою других персонажей, в том числе на награды получаемые им за выполнение заданий, цены купли/продажи и влияние героя на места, которые он посещает'
-
-        class chaoticity(Attribute): 
-            initial = (1, 5) 
-            name = u'хаотичность' 
-            description = u'Мера хаотичности героя, чем больше, тем чаще с ним будут происходить экстроардинарные события: критически попадая по нему/им, промахи, встречи, особый лут'
-
-    
-    class secondary(AttributeContainer): 
-
-        class move_speed(Attribute):
-
-            name = u'скорость путешествия'
-            description = u'Скорость передвижения героя по карте (км/ход)'
-
-            @classmethod
-            def get(cls, hero):
-                return (0.5 + hero.constitution * 0.2) / 5
-
-        class battle_speed(Attribute):
-
-            name = u'скорость в бою'
-            description = u'Скорость действий героя в бою, чем больше - тем лучше'
-
-            @classmethod
-            def get(cls, hero):
-                return hero.reflexes + hero.constitution / 2 + hero.intellect / 5
-
-        class max_health(Attribute):
-
-            name = u'максимальный запас здорвья'
-            description = u'Максимальный запас здоровья героя'
-
-            @classmethod
-            def get(cls, hero):
-                return cls.from_attrs(hero.constitution, hero.wisdom)
-
-            @classmethod
-            def from_attrs(cls, constitution, wisdom):
-                return 25 + constitution * 10 + wisdom
-
-        class min_damage(Attribute):
-            name = u'минимальный урон'
-            description = u'Минимальный урон, наносимый героем'
-
-            @classmethod
-            def get(cls, hero):
-                return max(1, int((hero.constitution * 2 + hero.reflexes * 2 + hero.intellect) / 3.0 - hero.chaoticity) )
-
-        class max_damage(Attribute):
-            name = u'максимальный урон'
-            description = u'Максимальный урон, наносимый героем'
-
-            @classmethod
-            def get(cls, hero):
-                return int((hero.constitution * 2 + hero.reflexes * 2 + hero.intellect) / 3.0 + hero.chaoticity)
-
-        class max_bag_size(Attribute):
-
-            name = u'размер рюкзака'
-            description = u'Максимальная вместимость рюкзака'
-
-            @classmethod
-            def get(cls, hero):
-                return int(5 + hero.constitution + hero.wisdom/10) 
-
-
-    class accumulated(AttributeContainer):
-        pass
-
-
 class actions:
 
     class battle(AttributeContainer):
@@ -155,7 +51,7 @@ class actions:
 
             @classmethod
             def amount(cls, pacient):
-                return random.randint(1, int(pacient.constitution + pacient.chaoticity + pacient.wisdom / 10) )
+                return random.randint(1, int(pacient.chaoticity + pacient.level / 10) )
 
     class trading(AttributeContainer):
 
@@ -166,8 +62,8 @@ class actions:
 
             @classmethod
             def sell_price(cls, seller, artifact, selling_crit):
-                left_delta = int(artifact.cost * (1 - (10 + seller.chaoticity - seller.intellect - seller.charisma) / 100.0))
-                right_delta = int(artifact.cost * (1 + (10 + seller.chaoticity + seller.intellect + seller.charisma) / 100.0))
+                left_delta = int(artifact.cost * (1 - (10 + seller.chaoticity) / 100.0))
+                right_delta = int(artifact.cost * (1 + (10 + seller.chaoticity) / 100.0))
                 price = random.randint(left_delta, right_delta)
                 if selling_crit == 1:
                     price = int(price * 1.5)

@@ -3,6 +3,7 @@
 from django_next.views.resources import BaseResource
 
 from game.angels.prototypes import get_angel_by_model
+from game.prototypes import get_current_time
 
 class Resource(BaseResource):
 
@@ -23,4 +24,10 @@ class Resource(BaseResource):
             if self.account:
                 self._angel = get_angel_by_model(self.account.angel)
         return self._angel            
+
+    @property
+    def time(self):
+        if not hasattr(self, '_time'):
+            self._time = get_current_time()
+        return self._time
 

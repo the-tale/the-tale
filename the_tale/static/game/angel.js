@@ -56,10 +56,8 @@ pgf.game.widgets.Angel = function(selector, params) {
     function RenderAngel() {
         if (!data) return;
 
-        jQuery('.pgf-name', content).text(data.name);
-        jQuery('.pgf-energy-current', content).text(data.energy.value);
-        jQuery('.pgf-energy-maximum', content).text(data.energy.max);
-        jQuery('.pgf-energy-regeneration', content).text(data.energy.regen);
+        jQuery('.pgf-energy', content).text(data.energy.value);
+        jQuery('.pgf-max-energy', content).text(data.energy.max);
 
         pgf.base.UpdateStatsBar(jQuery('.pgf-energy-bar', content), data.energy.max, data.energy.value);
     };
@@ -107,7 +105,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
 
         var abilityInfo = abilities[ability.type];
 
-        if (ability.cooldown_end > turn.number) return;
+        if (ability.available_at > turn.number) return;
         if (abilityInfo.limited && ability.limit == 0) return;
         
         //TODO: replace with some kind of api not related to widgets
@@ -124,16 +122,17 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
             widgets.switcher.ShowActivateAbilityWidget();
 
             function OnSuccessActivation(form, data) {
-                ability.cooldown_end = data.data.cooldown_end;
+                ability.available_at = data.data.available_at;
                 ability.limit = data.data.limit;
 
-                if (ability.cooldown_end) LockAbility(ability.type);
+                if (ability.available_at) LockAbility(ability.type);
                 if (abilityInfo.limited && ability.limit == 0) LockAbility(ability.type);
 
                 //TODO: replace with some kind of api not related to widgets
                 widgets.switcher.ShowMapWidget();
 
                 jQuery(document).trigger(pgf.game.events.ANGEL_DATA_REFRESH_NEEDED);
+                jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
             }
 
             jQuery.ajax({
@@ -160,16 +159,20 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         else {
             var ajax_data = {};
             if (heroId !== undefined) {
-                ajax_data.hero = heroId;
+                ajax_data.hero_id = heroId;
+                ajax_data.angel_id = angelId;
             }
             pgf.forms.Post({action: pgf.urls['game:abilities:activate'](ability.type),
                             data: ajax_data,
                             OnSuccess: function(data) {
-                                ability.cooldown_end = data.data.cooldown_end;
+                                ability.available_at = data.data.available_at;
                                 ability.limit = data.data.limit;
 
-                                if (ability.cooldown_end) LockAbility(ability.cooldown_end);
+                                if (ability.available_at) LockAbility(ability.type);
                                 if (abilityInfo.limited && ability.limit == 0) LockAbility(ability.type);
+
+                                jQuery(document).trigger(pgf.game.events.ANGEL_DATA_REFRESH_NEEDED);
+                                jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
                             }
                            });
         }
@@ -197,7 +200,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         jQuery('.pgf-name', element).text(abilityInfo.name);
         element.addClass( 'ability-'+abilityInfo.type.toLowerCase() );
 
-        if (ability.cooldown_end > turn.number) LockAbility(ability.type);
+        if (ability.available_at > turn.number) LockAbility(ability.type);
         if (abilityInfo.limited && ability.limit == 0) LockAbility(ability.type);
 
         element.click(function(e){

@@ -11,7 +11,12 @@ if (!pgf.game.widgets) {
     pgf.game.widgets = {};
 }
 
-pgf.game.DATA_REFRESHED_EVENT = 'pgf-data-refreshed';
+if (!pgf.game.events) {
+    pgf.game.events = {};
+}
+
+pgf.game.events.DATA_REFRESHED_EVENT = 'pgf-data-refreshed';
+pgf.game.events.DATA_REFRESH_NEEDED = 'pgf-data-refresh-needed'
 
 pgf.game.Updater = function(params) {
 
@@ -32,7 +37,7 @@ pgf.game.Updater = function(params) {
                 instance.data = data;
                 turnNumber = data.turn_number;
 
-                jQuery(document).trigger(pgf.game.DATA_REFRESHED_EVENT);
+                jQuery(document).trigger(pgf.game.events.DATA_REFRESHED_EVENT);
             },
             error: function() {
             },
@@ -40,6 +45,10 @@ pgf.game.Updater = function(params) {
             }
         });
     };
+
+    jQuery(document).bind(pgf.game.events.DATA_REFRESH_NEEDED, function(e){
+        instance.Refresh();
+    });
 };
 
 pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
@@ -53,18 +62,15 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
         if (!data) return;
 
-        jQuery('.pgf-wisdom', widget).text(data.base.wisdom);
+        jQuery('.pgf-level', widget).text(data.base.level);
         jQuery('.pgf-name', widget).text(data.base.name);
         jQuery('.pgf-health', widget).text(data.base.health);
         jQuery('.pgf-max-health', widget).text(data.base.max_health);
+        jQuery('.pgf-experience', widget).text(data.base.experience);
+        jQuery('.pgf-experience-to-level', widget).text(data.base.experience_to_level);
 
         pgf.base.UpdateStatsBar(jQuery('.pgf-health-bar', widget), data.base.max_health, data.base.health);
-
-        jQuery('.pgf-intellect', widget).text(data.primary.intellect);
-        jQuery('.pgf-constitution', widget).text(data.primary.constitution);
-        jQuery('.pgf-reflexes', widget).text(data.primary.reflexes);
-        jQuery('.pgf-charisma', widget).text(data.primary.charisma);
-        jQuery('.pgf-chaoticity', widget).text(data.primary.chaoticity);
+        pgf.base.UpdateStatsBar(jQuery('.pgf-experience-bar', widget), data.base.experience_to_level, data.base.experience);
 
         jQuery('.pgf-min-damage', widget).text(data.secondary.min_damage);
         jQuery('.pgf-max-damage', widget).text(data.secondary.max_damage);
@@ -90,41 +96,19 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         this.RenderHero(data, content);
     };
 
-    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
         instance.Refresh();
         instance.Render();
     });
 };
 
-pgf.game.widgets.PlaceAndTime = function(selector, updater, widgets, params) {
+pgf.game.widgets.Time = function(selector, updater, widgets, params) {
     var instance = this;
 
     var content = jQuery(selector);
     var timeIcon = jQuery('.pgf-time-icon', content);
 
     var data = {};
-
-    function RenderPosition(data, widget) {
-
-        if (!data.position) {
-            return;
-        }
-        
-        if (data.position.place) {
-            jQuery('.pgf-place').removeClass('pgf-hidden');
-            jQuery('.pgf-road').addClass('pgf-hidden');
-            jQuery('.pgf-place .pgf-name', widget).text(data.position.place.name);
-            jQuery('.pgf-place .pgf-comment', widget).text('TODO: add description for places here');
-        }
-
-        if (data.position.road) {
-            jQuery('.pgf-road').removeClass('pgf-hidden');
-            jQuery('.pgf-place').addClass('pgf-hidden');
-            jQuery('.pgf-road .pgf-place-1', widget).text(data.position.road.point_1.name);
-            jQuery('.pgf-road .pgf-place-2', widget).text(data.position.road.point_2.name);
-            jQuery('.pgf-road .pgf-comment', widget).text('TODO: add description for road here');
-        }
-    }
 
     function RenderTime(data, widget) {
         // 1 turn ~ 1 hour
@@ -171,11 +155,10 @@ pgf.game.widgets.PlaceAndTime = function(selector, updater, widgets, params) {
     };
 
     this.Render = function() {
-        RenderPosition(data, content);
         RenderTime(data, content);
     };
 
-    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
         instance.Refresh();
         instance.Render();
     });
@@ -412,7 +395,7 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         return data.actions[id];
     };
 
-    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
         instance.Refresh();
         instance.Render();
     });
@@ -518,7 +501,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
         RenderItems();
     };
 
-    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
         instance.Refresh();
         instance.Render();
     });
@@ -564,7 +547,7 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
         RenderEquipment();
     };
 
-    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
         instance.Refresh();
         instance.Render();
     });
@@ -577,6 +560,8 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     var messages = [];
 
+    var VISIBLE_MESSAGES_NUMBER = 10;
+
     var shortLogContainer = jQuery('.pgf-log-list', content);
 
     function RenderMessage(index, data, element) {
@@ -586,7 +571,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     function RenderLog(data, widget) {
         var shortLog = [];
-        for (var i=messages.length-1; i>=0 && i>messages.length-4; --i) {
+        for (var i=messages.length-1; i>=0 && i>messages.length-1-VISIBLE_MESSAGES_NUMBER; --i) {
             shortLog.push(messages[i]);
         }
         // shortLog.reverse();
@@ -613,7 +598,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
         RenderLog();
     };
 
-    jQuery(document).bind(pgf.game.DATA_REFRESHED_EVENT, function(){
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
         instance.Refresh();
         instance.Render();
     });

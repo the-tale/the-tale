@@ -3,15 +3,16 @@
 jQuery(document).ready(function(e) {
 
     widgets.heroes = new pgf.game.widgets.Hero('#hero-base-block', updater, widgets, {});
+    widgets.angel = new pgf.game.widgets.Angel('#hero-base-block', updater, widgets, {});
 
 });
 </script>
 
 <div id="hero-base-block" class="block">
 
-  <h3 class="name pgf-name"></h3> 
+  <h3 class="name">(<span class="pgf-level"></span>) <span class="pgf-name"></span></h3> 
 
-  <div class="health-bar record">
+  <div class="bar health-bar record">
     <div class="" data-tooltip="здоровье героя: текущее/максимальное">
       <img src="{{ STATIC_URL }}game/images/attrs/hp.png" class="icon"/>
       <div class="stats-bar pgf-health-bar">
@@ -22,31 +23,43 @@ jQuery(document).ready(function(e) {
     </div>
   </div>
 
+  <div class="bar experience-bar record">
+    <div class="" data-tooltip="опыт героя: текущий/до следующего уровня">
+      <img src="{{ STATIC_URL }}game/images/attrs/exp.png" class="icon"/>
+      <div class="stats-bar pgf-experience-bar">
+        <div class="layer layer-0 pgf-layer-0"></div>
+        <div class="layer layer-1 pgf-layer-1"></div>
+      </div>
+      <span class="pgf-experience"></span>/<span class="pgf-experience-to-level"></span>
+    </div>
+  </div>
+
+  <div class="bar energy-bar record">
+    <div class="" data-tooltip="энергия ангела: текущая/максимальная">
+      <img src="{{ STATIC_URL }}game/images/attrs/energy.png" class="icon"/>
+      <div class="stats-bar pgf-energy-bar">
+        <div class="layer layer-0 pgf-layer-0"></div>
+        <div class="layer layer-1 pgf-layer-1"></div>
+      </div>
+      <span class="pgf-energy"></span>/<span class="pgf-max-energy"></span>
+    </div>
+  </div>
+
   <div class="stats-left">
+
+    <div class="record" data-tooltip="очки судьбы">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/yin-yang.png"/>
+      <span class="value pgf-destiny-points">0</span>
+    </div>
     
-    <div class="record" data-tooltip="интеллект">
-      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/intellect.png"/>
-      <span class="value pgf-intellect"></span>
+    <div class="record" data-tooltip="броня">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/armor.gif"/>
+      <span class="value pgf-armor"></span>
     </div>
 
-    <div class="record" data-tooltip="телосложение">
-      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/constitution.png"/>
-      <span class="value pgf-constitution"></span>
-    </div>
-
-    <div class="record" data-tooltip="рефлексы">
-      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/reflexes.gif"/>
-      <span class="value pgf-reflexes"></span>
-    </div>
-
-    <div class="record" data-tooltip="харизма">
-      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/charisma.png"/> 
-      <span class="value pgf-charisma"></span>
-    </div>
-
-    <div class="record" data-tooltip="хаотичность">
-      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/chaoticity.png"/> 
-      <span class="value pgf-chaoticity"></span>
+    <div class="record" data-tooltip="урон">
+      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/damage.png"/>
+      <span class="value"><span class="pgf-min-damage"></span> - <span class="pgf-max-damage"></span></span>
     </div>
 
   </div>
@@ -61,16 +74,6 @@ jQuery(document).ready(function(e) {
     <div class="record" data-tooltip="скорость путешествия">
       <img class="icon" src="{{ STATIC_URL }}game/images/attrs/move_speed.gif"/>
       <span class="value pgf-move-speed"></span>
-    </div>
-
-    <div class="record" data-tooltip="броня">
-      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/armor.gif"/>
-      <span class="value pgf-armor"></span>
-    </div>
-
-    <div class="record" data-tooltip="урон">
-      <img class="icon" src="{{ STATIC_URL }}game/images/attrs/damage.png"/>
-      <span class="value"><span class="pgf-min-damage"></span> - <span class="pgf-max-damage"></span></span>
     </div>
 
     <div class="record" data-tooltip="скорость в бою">

@@ -14,8 +14,6 @@ from ..quests.models import Quest
 from .models import Hero
 from . import game_info
 
-attrs = game_info.attributes
-
 def get_hero_by_id(model_id):
     hero = Hero.objects.get(id=model_id)
     return HeroPrototype(model=hero)
@@ -26,6 +24,8 @@ def get_hero_by_model(model):
 def get_heroes_by_query(query):
     return [ get_hero_by_model(hero) for hero in list(query)]
 
+class BASE_ATTRIBUTES:
+    HEALTH = 100
 
 class HeroPrototype(object):
 
@@ -48,9 +48,13 @@ class HeroPrototype(object):
 
     @property
     def name(self): return self.model.name
-
+    
     @property
-    def wisdom(self): return self.model.wisdom
+    def level(self): return self.model.level
+
+    def get_experience(self): return self.model.experience
+    def set_experience(self, value): self.model.experience = value
+    experience = property(get_experience, set_experience)
 
     def get_health(self): return self.model.health
     def set_health(self, value): self.model.health = value
@@ -97,49 +101,30 @@ class HeroPrototype(object):
 
 
     ###########################################
-    # Primary attributes
-    ###########################################
-
-    @property
-    def intellect(self): return self.model.intellect
-    @property
-    def constitution(self): return self.model.constitution
-    @property
-    def reflexes(self): return self.model.reflexes
-    @property
-    def charisma(self): return self.model.charisma
-    @property
-    def chaoticity(self): return self.model.chaoticity
-
-    ###########################################
-    # accumulated attributes
-    ###########################################
-
-    ###########################################
     # Secondary attributes
     ###########################################
 
     @property
-    def move_speed(self): return game_info.attributes.secondary.move_speed.get(self)
+    def move_speed(self): return 0.3
 
     @property
     def battle_speed(self): 
-        speed = game_info.attributes.secondary.battle_speed.get(self)
+        speed = 5
         speed *= self.equipment.get_attr_battle_speed_multiply()
         return speed
 
     @property
-    def max_health(self): return game_info.attributes.secondary.max_health.get(self)
+    def max_health(self): return BASE_ATTRIBUTES.HEALTH
 
     @property
     def min_damage(self): 
-        damage = game_info.attributes.secondary.min_damage.get(self)
+        damage = 5
         damage += self.equipment.get_attr_damage()[0]
         return damage
 
     @property
     def max_damage(self): 
-        damage = game_info.attributes.secondary.max_damage.get(self)
+        damage = 10
         damage += self.equipment.get_attr_damage()[1]
         return damage
 
@@ -148,7 +133,13 @@ class HeroPrototype(object):
         return self.equipment.get_attr_armor()
 
     @property
-    def max_bag_size(self): return game_info.attributes.secondary.max_bag_size.get(self)
+    def max_bag_size(self): return 8
+
+    @property
+    def experience_to_level(self): return 100
+
+    @property
+    def chaoticity(self): return 5
 
     ###########################################
     # Needs attributes
@@ -235,14 +226,11 @@ class HeroPrototype(object):
                 'equipment': self.equipment.ui_info(),
                 'money': self.money, 
                 'base': { 'name': self.name,
-                          'wisdom': self.wisdom,
+                          'level': self.level,
                           'health': self.health,
-                          'max_health': self.max_health},
-                'primary': { 'intellect': self.intellect,
-                             'constitution': self.constitution,
-                             'reflexes': self.reflexes,
-                             'charisma': self.charisma,
-                             'chaoticity': self.chaoticity },
+                          'max_health': self.max_health,
+                          'experience': self.experience,
+                          'experience_to_level': self.experience_to_level},
                 'secondary': { 'min_damage': math.floor(self.min_damage),
                                'max_damage': math.ceil(self.max_damage),
                                'move_speed': round(self.move_speed, 2),
@@ -256,25 +244,14 @@ class HeroPrototype(object):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, angel, name, intellect, constitution, reflexes, chaoticity, charisma):
+    def create(cls, angel):
         from game.actions.prototypes import ActionIdlenessPrototype
 
         start_place = PlacePrototype.random_place()
 
         hero = Hero.objects.create(angel=angel.model,
-
-                                   name=name,
-
-                                   health=attrs.secondary.max_health.from_attrs(constitution, 
-                                                                                attrs.base.wisdom.initial),
-                                   
-                                   wisdom=attrs.base.wisdom.initial,
-
-                                   intellect=intellect,
-                                   constitution=constitution,
-                                   reflexes=reflexes,
-                                   chaoticity=chaoticity,
-
+                                   name=u'Алекс',
+                                   health=BASE_ATTRIBUTES.HEALTH,
                                    pos_place = start_place.model)
 
         hero = cls(model=hero)

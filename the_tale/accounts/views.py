@@ -6,9 +6,11 @@ from django_next.views.resources import BaseResource, handler
 from django_next.utils.decorators import nested_commit_on_success
 
 from game.angels.prototypes import AngelPrototype
+from game.heroes.prototypes import HeroPrototype
 
 from game.bundles import BundlePrototype
 from game.workers.environment import workers_environment
+
 
 from .prototypes import AccountPrototype, get_account_by_id
 from . import forms
@@ -53,6 +55,7 @@ class AccountsResource(BaseResource):
 
                 account = AccountPrototype.create(user=user)
                 angel = AngelPrototype.create(account=account, name=user.username)
+                HeroPrototype.create(angel=angel)
             
                 self.login_user(user.username, registration_form.c.password)
 

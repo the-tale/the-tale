@@ -47,6 +47,10 @@ class Worker(object):
 
         print '<%s> %r' % (cmd_type, cmd_data)
 
+        if not self.initialized and cmd_type != CMD_TYPE.INITIALIZE:
+            print 'ERROR: receive cmd before initialization'
+            return
+
         try:
             { CMD_TYPE.INITIALIZE: self.process_initialize,
               CMD_TYPE.NEXT_TURN: self.process_next_turn,
@@ -105,7 +109,7 @@ class Worker(object):
                     raise GameException('bundle try to process itself twice on one turn')
 
                 heapq.heappushpop(self.queue, (next_turn_number, bundle.id) )
-                bundle.save()
+                bundle.save_data()
 
         self.supervisor_worker.cmd_answer('next_turn', self.worker_id)
 
@@ -131,16 +135,18 @@ class Worker(object):
         heapq.heappush(self.queue, (0, bundle_id))
 
 
-    def cmd_activate_ability(self, ability_type, form):
-        return self.send_cmd(CMD_TYPE.ACTIVATE_ABILITY, {'ability_type': ability_type, 'form': form})
+    def cmd_activate_ability(self, ability_task_id):
+        return self.send_cmd(CMD_TYPE.ACTIVATE_ABILITY, {'ability_task_id': ability_task_id})
 
-    def process_activate_ability(self, ability_type, form):
+    def process_activate_ability(self, ability_task_id):
         with nested_commit_on_success():
-            from ..abilities.deck import ABILITIES
-            ability = ABILITIES[ability_type]
-            bundle = self.bundles[self.angels2bundles[form['angel_id']]]
-            ability.process(bundle, form)
-            bundle.save()
+            from ..abilities.prototypes import AbilityTaskPrototype
+            
+            task = AbilityTaskPrototype.get_by_id(ability_task_id)
+            bundle = self.bundles[self.angels2bundles[task.angel_id]]
+            task.process(bundle)
+            task.save()
+            bundle.save_data()
 
 
     def cmd_register_hero(self, hero_id):

@@ -83,20 +83,19 @@ jQuery(document).ready(function(e){
 <div id="left-column" class="column">
   {% include "game/hero.html" %}
   {% include "game/hero-equipment.html" %}
-  {% include "game/hero-bag.html" %}
+  {% include "game/abilities.html" %}
 </div>
 
 <div id="center-column" class="column">
-  {% include "game/world-place-time.html" %}
   {% include "game/current-actions.html" %}
-  {% include "game/log.html" %}
   {% include "game/activate_ability.html" %}
   {% include "game/map.html" %}
 </div>
 
 <div id="right-column" class="column">
-  {% include "game/angel.html" %}
-  {% include "game/abilities.html" %}
+  {% include "game/time.html" %}
+  {% include "game/hero-bag.html" %}
+  {% include "game/log.html" %}
 </div>
 
 <div class="pgf-hidden" id="pgf-item-tooltip-template">

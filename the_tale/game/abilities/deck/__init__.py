@@ -1,5 +1,5 @@
 # coding: utf-8
 
-from .create_hero import CreateHero
+from .heal_hero import HealHero
 
-ABILITIES = {CreateHero.get_type(): CreateHero}
+ABILITIES = {HealHero.get_type(): HealHero}

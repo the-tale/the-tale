@@ -47,21 +47,38 @@
 
 #hero-base-block {
 
-    .health-bar {
-        .stats-bar {
-                .layer-0 {
-                    background: @background-color;
-                }
-                .layer-1 {
-                    background: #ff0000;
+    .bar {
 
+        font-size: 13px;
+        
+        .stats-bar {
+            .layer-0 {
+                background: @background-color;
+            }
+        }
+
+        &.health-bar {
+            .layer-1 {
+                background: #ff0000;
                 }
+        }
+
+        &.experience-bar {
+            .layer-1 {
+                background: yellow;
+            }
+        }
+
+        &.energy-bar {
+            .layer-1 {
+                background: #0000ff;
+            }
         }
     }
 
     .stats-left {
-        width: 40px;
-        margin-right: 40px;
+        width: 70px;
+        margin-right: 10px;
         display: inline-block;
     }
 
@@ -128,19 +145,10 @@
     }
 }
 
-#world-place-time-block {
+#time-block {
 
     font-size: 10pt;
     height: 34px;
-
-    .position {
-        display: inline-block;
-        vertical-align: middle;
-        height: 32px;
-        padding-top: 4px;
-        text-align: left;
-        float: left;
-    }
 
     .time {
         display: inline-block;
@@ -279,7 +287,12 @@
 }
 
 #log-block {
-    height: 3em;
+    height: 30em;
+
+    .message {
+        font-size: 10pt;
+        margin-bottom: 0.5em;
+    }
 }
 
 #map-block {
@@ -288,24 +301,7 @@
     }
 }
 
-#angel-block {
 
-    .energy-bar {
-
-        font-size: 10pt;
-
-        .stats-bar {
-            width: 100px;
-            .layer-0 {
-                background: @background-color;
-            }
-            .layer-1 {
-                background: #0000ff;
-            }
-        }
-    }
-    
-}
 
 #abilities-block {
 

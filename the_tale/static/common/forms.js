@@ -74,6 +74,8 @@ pgf.widgets = {
 
 pgf.forms.Form = function(selector, params) {
 
+    var instance = this;
+
     this.Init = function(selector, params) {
 
         this.selector = selector;
@@ -86,8 +88,6 @@ pgf.forms.Form = function(selector, params) {
         var form = jQuery(selector);
         
         this.ClearErrors();
-
-        var instance = this;
 
         form.submit(function(e){
             e.preventDefault();
@@ -142,6 +142,47 @@ pgf.forms.Form = function(selector, params) {
         }
     };
 
+    function OnSuccess(data, request, status) {
+        instance.ClearErrors();
+        if (data.status === 'ok') {
+            if (instance.params.OnSuccess) {
+                instance.params.OnSuccess(instance, data);
+            }
+        }
+        if (data.status == 'error') {
+            instance.DisplayErrors(data.errors);
+            if (data.error) {
+                instance.DisplayErrors({__all__: [data.error]});
+            }
+            else {
+                if (data.errors) {
+                    instance.DisplayErrors({__all__: data.errors});
+                }
+                else {
+                    instance.DisplayErrors({__all__: ['uncknown error']});
+                }
+            }
+        }
+        if (data.status == 'processing') {
+            setTimeout(function() {
+                jQuery.ajax({dataType: 'json',
+                             type: 'get',
+                             url: data.status_url,
+                             success: OnSuccess,
+                             error: OnError,
+                             complete: OnComplete});
+            }, 1000);
+        }
+    }
+
+    function OnError(request, status, error) {
+        instance.ClearErrors();
+        instance.DisplayErrors({__all__: ['uncknown error']});
+    }
+
+    function OnComplete(request, status) {
+    }
+
     this.Submit = function() {
         var instance = this;
         jQuery.ajax({
@@ -149,34 +190,9 @@ pgf.forms.Form = function(selector, params) {
             type: 'post',
             url: instance.params.action,
             data: jQuery(this.selector).serialize(), 
-            success: function(data, request, status) {
-                instance.ClearErrors();
-                if (data.status === 'ok') {
-                    if (instance.params.OnSuccess) {
-                        instance.params.OnSuccess(instance, data);
-                    }
-                }
-                else {
-                    if (data.status === 'error') {
-                        instance.DisplayErrors(data.errors);
-                    }
-                    else {
-                        if (data.error) {
-                            instance.DisplayErrors({__all__: [data.error]});
-                        }
-                        else {
-                            instance.DisplayErrors({__all__: ['uncknown error']});
-                        }
-                    }
-                }
-            },
-
-            error: function(request, status, error) {
-                instance.ClearErrors();
-                instance.DisplayErrors({__all__: ['uncknown error']});
-            },
-            complete: function(request, status) {
-            }
+            success: OnSuccess,
+            error: OnError,
+            complete: OnComplete
         });
     };
 
@@ -189,48 +205,62 @@ pgf.forms.Post = function(params) {
         return;
     }
 
-    // var strData = '';
-    // if (params.data) {
-    //     strData = JSON.stringify(params.data)
-    // }
+    function OnSuccess(data, request, status) {
+        if (data.status == 'ok') {
+            if (params.OnSuccess) {
+                params.OnSuccess(data);
+            }
+        }
+
+        if (data.status == 'error') {
+            if (data.error) {
+                alert(data.error);
+            }
+            else {
+                if (data.errors && data.errors.length > 0) {
+                    alert(data.errors[0]);
+                }
+                else {
+                    alert('unknown error occured!');
+                }
+            } 
+            if (params.OnError) {
+                params.OnError(data);
+            }
+        }
+
+        if (data.status == 'processing') {
+            setTimeout(function() {
+                jQuery.ajax({dataType: 'json',
+                             type: 'get',
+                             url: data.status_url,
+                             success: OnSuccess,
+                             error: OnError,
+                             complete: OnComplete});
+            }, 1000);
+        }
+    }
+
+    function OnError(data, request, status) {
+        if (params.OnError) {
+            params.OnError(data);
+        }
+        else {
+            alert('unknown error occured!');
+        }
+    }
+
+    function OnComplete() {
+    }
 
     jQuery.ajax({
         dataType: 'json',
         type: 'post',
         url: params.action,
-        // data: {data: strData},
         data: params.data,
-        success: function(data, request, status) {
-            if (data.status === 'ok') {
-                if (params.OnSuccess) {
-                    params.OnSuccess(data);
-                }
-            }
-            else {
-                if (data.error) {
-                    alert(data.error);
-                }
-                else {
-                    if (data.errors && data.errors.length > 0) {
-                        alert(data.errors[0]);
-                    }
-                    else {
-                        alert('unknown error occured!');
-                    }
-                } 
-                if (params.OnError) {
-                    params.OnError(data);
-                }
-            }
-        },
-        error: function(data, request, status) {
-            if (params.OnError) {
-                params.OnError(data);
-            }
-            else {
-                alert('unknown error occured!');
-            }
-        }
+        success: OnSuccess,
+        error: OnError,
+        complete: OnComplete
     });
 };
 

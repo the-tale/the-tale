@@ -6,6 +6,7 @@ from django_next.utils.decorators import nested_commit_on_success
 from ..prototypes import get_current_time
 from ..bundles import get_bundle_by_id, get_bundle_by_model
 from ..models import Bundle
+from ..abilities.prototypes import AbilityTaskPrototype
 
 
 class CMD_TYPE:
@@ -45,7 +46,6 @@ class Worker(object):
         while not self.exception_raised and not self.stop_required:
             game_cmd = self.supervisor_queue.get(block=True)
             game_cmd.ack()
-
             self.process_game_cmd(game_cmd.payload)
 
 
@@ -73,6 +73,10 @@ class Worker(object):
     def initialize(self):
         self.time = get_current_time()
 
+        #clearing
+        AbilityTaskPrototype.reset_all()
+
+        #initialization
         self.game_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='game')
         self.highlevel_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='highlevel')
         self.wait_answers_from('initialize', workers=['game', 'highlevel'])
@@ -119,7 +123,7 @@ class Worker(object):
 
 
     def cmd_register_bundle(self, bundle_id):
-        self.send_cmd(CMD_TYPE.REGISTER_BUNDLE, {'bubdle_id': bundle_id})
+        self.send_cmd(CMD_TYPE.REGISTER_BUNDLE, {'budle_id': bundle_id})
 
     def process_register_bundle(self, bundle_id):
         with nested_commit_on_success():
@@ -129,11 +133,11 @@ class Worker(object):
 
         self.game_worker.cmd_register_bundle(bundle_id)
 
-    def cmd_activate_ability(self, ability_type, form):
-        self.send_cmd(CMD_TYPE.ACTIVATE_ABILITY, {'ability_type': ability_type, 'form': form})
+    def cmd_activate_ability(self, ability_task_id):
+        self.send_cmd(CMD_TYPE.ACTIVATE_ABILITY, {'ability_task_id': ability_task_id})
 
-    def process_activate_ability(self, ability_type, form):
-        self.game_worker.cmd_activate_ability(ability_type, form)
+    def process_activate_ability(self, ability_task_id):
+        self.game_worker.cmd_activate_ability(ability_task_id)
 
     def cmd_register_hero(self, hero_id):
         self.send_cmd(CMD_TYPE.REGISTER_HERO, {'hero_id': hero_id})

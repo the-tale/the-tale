@@ -11,22 +11,15 @@ class Hero(models.Model):
     #base
     name = models.CharField(max_length=150, null=False)
 
-
-    wisdom = models.IntegerField()
-
+    level = models.IntegerField(null=False, default=1)
+    experience = models.BigIntegerField(null=False, default=0)
+    
     health = models.FloatField(null=False, default=0.0)
 
     money = models.BigIntegerField(null=False, default=0)
 
     equipment = models.TextField(null=False, default='{}')
     bag = models.TextField(null=False, default='{}')
-
-    #primary
-    intellect = models.IntegerField()
-    constitution = models.IntegerField()
-    reflexes = models.IntegerField()
-    charisma = models.IntegerField(default=3)
-    chaoticity = models.IntegerField()
 
     #position
     pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True)
