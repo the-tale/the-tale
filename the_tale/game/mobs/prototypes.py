@@ -118,6 +118,9 @@ class MobPrototype(object):
         self.health -= damage_percents
         return damage
 
+    def striked_by(self, percents):
+        self.health = max(0, self.health-percents)
+
     def kill(self):
         pass
 

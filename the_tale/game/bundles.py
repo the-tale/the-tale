@@ -12,6 +12,8 @@ def get_bundle_by_id(id):
 def get_bundle_by_model(model):
     return BundlePrototype(model=model)
 
+class BundleException(Exception): pass
+
 class BundlePrototype(object):
 
     def __init__(self, model):
@@ -20,6 +22,8 @@ class BundlePrototype(object):
         self.angels = {}
         self.heroes = {}
         self.actions = {}
+
+        self.heroes_to_actions = {}
 
         self.load_data()
 
@@ -35,16 +39,23 @@ class BundlePrototype(object):
 
     def add_hero(self, hero):
         self.heroes[hero.id] = hero
+        self.heroes_to_actions[hero.id] = []
         for action in hero.get_actions():
             self.add_action(action)
 
     def add_action(self, action):
         action.set_bundle(self)
         self.actions[action.id] = action
+        self.heroes_to_actions[action.hero_id].append(action)
 
     def remove_action(self, action):
         del self.actions[action.id]
         action.set_bundle(None)
+        if self.heroes_to_actions[action.hero_id][-1].id != action.id:
+            raise BundleException('try to remove action (%d) from the middle of actions list' % action.id)
+        self.heroes_to_actions[action.hero_id].pop()
+
+    def current_hero_action(self, hero_id): return self.heroes_to_actions[hero_id][-1]
 
     def load_data(self):
 

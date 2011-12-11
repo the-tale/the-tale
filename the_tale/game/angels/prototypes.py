@@ -45,11 +45,17 @@ class AngelPrototype(object):
 
     def load_abilities(self):
         from ..abilities.prototypes import AbilityPrototype
+        from ..abilities.deck import ABILITIES
         data = s11n.from_json(self.model.abilities)
         abilities = {}
         for ability_dict in data.values():
             ability = AbilityPrototype.deserialize(ability_dict)
             abilities[ability.get_type()] = ability
+
+        for ability_type, ability in ABILITIES.items():
+            if ability_type not in abilities:
+                abilities[ability_type] = ability()
+
         self._abilities = abilities
 
     def save_abilities(self):

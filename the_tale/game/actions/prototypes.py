@@ -215,6 +215,16 @@ class ActionIdlenessPrototype(ActionPrototype):
             model = Action.objects.create( type=cls.TYPE, hero=hero.model, order=0)
         return cls(model=model)
 
+    def init_quest(self):
+
+        if self.state != self.STATE.WAITING:
+            return False
+
+        self.entropy = self.ENTROPY_BARRIER
+        self.percents = 1.0
+
+        return True
+
     def process(self):
 
         if self.state in [self.STATE.UNINITIALIZED, self.STATE.ACTING]:
@@ -322,6 +332,22 @@ class ActionMoveToPrototype(ActionPrototype):
                                        place=destination.model)
         return cls(model=model)
 
+    def short_teleport(self, distance):
+
+        if self.state != self.STATE.MOVING:
+            return False
+
+        delta = distance / self.road.length
+
+        self.hero.position.percents += delta
+
+        if self.hero.position.percents >= 1:
+            self.hero.position.percents = 1
+
+        self.percents = self.hero.position.percents
+
+        return True
+
     @nested_commit_on_success
     def process(self):
 
@@ -374,8 +400,6 @@ class ActionMoveToPrototype(ActionPrototype):
         elif self.state == self.STATE.IN_CITY:
             self.state = self.STATE.CHOOSE_ROAD
 
-        # self.hero.save()
-
 
 class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
@@ -400,6 +424,16 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                                        order=parent.order+1,
                                        mob=s11n.to_json(mob.serialize()))
         return cls(model=model)
+
+    def bit_mob(self, percents):
+
+        if self.state != self.STATE.BATTLE_RUNNING:
+            return False
+
+        self.mob.striked_by(percents)
+        self.percents = 1.0 - self.mob.health
+
+        return True
 
     @nested_commit_on_success
     def process(self):

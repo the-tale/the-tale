@@ -19,9 +19,10 @@ class HealHero(AbilityPrototype):
     FORM = None
     TEMPLATE = None
       
-    def use(self, angel, hero, form):
+    def use(self, bundle, angel, hero, form):
         old_health = hero.health
-        hero.health = min(hero.max_health, hero.health + hero.max_health * 0.1)
+        hero.health = min(hero.max_health, hero.health + hero.max_health * 0.3)
         hero.create_tmp_log_message('You heal hero for %d HP' % (hero.health - old_health))
+        return True
 
 

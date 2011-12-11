@@ -204,7 +204,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         if (abilityInfo.limited && ability.limit == 0) LockAbility(ability.type);
 
         element.click(function(e){
-            e.preventDefault();
+            // e.preventDefault();
             ActivateAbility(ability);
         });
 
