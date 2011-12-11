@@ -27,10 +27,19 @@ PERSON_TYPE_CHOICES = ( (PERSON_TYPE.BLACKSMITH, u'кузнец'),
 PERSON_TYPE_DICT = dict(PERSON_TYPE_CHOICES)
 
 
+class PERSON_STATE:
+    IN_GAME = 0
+    OUT_GAME = 1
+
+PERSON_STATE_CHOICES = ( (PERSON_STATE.IN_GAME, u'в игре'), 
+                         (PERSON_STATE.OUT_GAME, u'вне игры'))
+
 
 class Person(models.Model):
 
     place = models.ForeignKey('places.Place', related_name='persons')
+
+    state = models.IntegerField(default=PERSON_STATE.IN_GAME, choices=PERSON_STATE_CHOICES)
 
     name = models.CharField(max_length=256)
     

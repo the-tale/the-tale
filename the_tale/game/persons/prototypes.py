@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from .models import Person
+from .models import Person, PERSON_STATE
 
 def get_person_by_model(model):
     return PersonPrototype(model=model)
@@ -26,6 +26,12 @@ class PersonPrototype(object):
     
     @property
     def type(self): return self.model.type
+    
+    @property
+    def state(self): return self.model.state
+
+    def move_out_game(self): self.model.state = PERSON_STATE.OUT_GAME
+    def move_in_game(self):  self.model.state = PERSON_STATE.IN_GAME
 
     @property
     def type_verbose(self):
@@ -46,6 +52,7 @@ class PersonPrototype(object):
     def create(cls, place, race, tp, name, power=0):
         
         instance = Person.objects.create(place=place.model,
+                                         state=PERSON_STATE.IN_GAME,
                                          race=race,
                                          type=tp,
                                          name=name,

@@ -4,7 +4,7 @@ import subprocess
 
 from django_next.utils.decorators import nested_commit_on_success
 
-from ..persons.models import Person
+from ..persons.models import Person, PERSON_STATE
 from ..persons.prototypes import get_person_by_model
 from ..map.places.models import Place
 from ..map.places.prototypes import get_place_by_model
@@ -71,7 +71,7 @@ class Worker(object):
 
         self.initialized = True
         self.worker_id = worker_id
-        self.turn_number = 0
+        self.turn_number = turn_number
         self.persons_power = {}
 
         print 'HIGHLEVEL INITIALIZED'
@@ -79,12 +79,15 @@ class Worker(object):
         self.supervisor_worker.cmd_answer('initialize', self.worker_id)
 
 
-    def cmd_next_turn(self):
-        return self.send_cmd(CMD_TYPE.NEXT_TURN)
+    def cmd_next_turn(self, turn_number):
+        return self.send_cmd(CMD_TYPE.NEXT_TURN, data={'turn_number': turn_number})
 
-    def process_next_turn(self):
+    def process_next_turn(self, turn_number):
         with nested_commit_on_success():
             self.turn_number += 1
+
+            if turn_number != self.turn_number:
+                raise HighlevelException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
 
             if self.turn_number % SYNC_DELTA == 0:
                 self.sync_data()
@@ -93,7 +96,7 @@ class Worker(object):
 
     def sync_data(self):
 
-        for person_model in Person.objects.all():
+        for person_model in Person.objects.filter(state=PERSON_STATE.IN_GAME):
             person = get_person_by_model(person_model)
             
             if person.id in self.persons_power:

@@ -5,6 +5,6 @@ from django.contrib import admin
 from .models import Person
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('id','place', 'type', 'name', 'power')
+    list_display = ('id','place', 'state', 'type', 'name', 'power')
 
 admin.site.register(Person, PersonAdmin)

@@ -115,10 +115,10 @@ class Worker(object):
         self.time.increment_turn()
         self.time.save()
 
-        self.game_worker.cmd_next_turn()
+        self.game_worker.cmd_next_turn(turn_number=self.time.turn_number)
         self.wait_answers_from('next_turn', workers=['game'])
 
-        self.highlevel_worker.cmd_next_turn()
+        self.highlevel_worker.cmd_next_turn(turn_number=self.time.turn_number)
         self.wait_answers_from('next_turn', workers=['highlevel'])
 
 

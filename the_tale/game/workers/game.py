@@ -86,12 +86,15 @@ class Worker(object):
 
         self.supervisor_worker.cmd_answer('initialize', self.worker_id)
 
-    def cmd_next_turn(self):
-        return self.send_cmd(CMD_TYPE.NEXT_TURN)
+    def cmd_next_turn(self, turn_number):
+        return self.send_cmd(CMD_TYPE.NEXT_TURN, data={'turn_number': turn_number})
 
-    def process_next_turn(self):
+    def process_next_turn(self, turn_number):
         with nested_commit_on_success():
             self.turn_number += 1
+
+            if turn_number != self.turn_number:
+                raise GameException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
 
             if not len(self.queue):
                 return 

@@ -50,10 +50,11 @@ class PlacePrototype(object):
     @property
     def persons(self):
         from ...persons.prototypes import get_person_by_model
+        from ...persons.models import PERSON_STATE
 
         if not hasattr(self, '_persons'):
             self._persons = []
-            for person_model in self.model.persons.order_by('power'):
+            for person_model in self.model.persons.filter(state=PERSON_STATE.IN_GAME).order_by('power'):
                 person = get_person_by_model(person_model)
                 self._persons.append(person)
 
@@ -69,12 +70,20 @@ class PlacePrototype(object):
         from ...persons.models import PERSON_TYPE_CHOICES
         from ...game_info import RACE_CHOICES
 
-        while persons_count < self.size + places_settings.PERSON_ON_SIZE_1:
+        expected_persons_number = places_settings.SIZE_TO_PERSONS_NUMBER[self.size]
+
+        while persons_count < expected_persons_number:
             PersonPrototype.create(place=self, 
                                    race=random.choice(RACE_CHOICES)[0],
                                    tp=random.choice(PERSON_TYPE_CHOICES)[0],
                                    name='person_%s' % random.choice('QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm'))
             persons_count += 1
+
+        while persons_count > expected_persons_number:
+            person = self.persons[persons_count-1]
+            person.move_out_game()
+            person.save()
+            persons_count -= 1
 
         if hasattr(self, '_persons'):
             delattr(self, '_persons')
@@ -110,7 +119,7 @@ class PlacePrototype(object):
         self.push_power(power)
 
     def sync_size(self, max_power):
-        self.size = int(places_settings.MAX_SIZE+1) * (float(self.power) / (max_power+1))
+        self.size = int(places_settings.MAX_SIZE * (float(self.power) / (max_power+1)) ) + 1
 
     def sync_terrain(self):
         race_power = {}
