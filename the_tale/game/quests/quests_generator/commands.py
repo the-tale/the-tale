@@ -45,21 +45,24 @@ class Description(Command):
 
 class Move(Command):
 
-    def __init__(self, place=None, **kwargs):
+    def __init__(self, place=None, break_at=1.0, **kwargs):
         super(Move, self).__init__(**kwargs)
         self.place = place
+        self.break_at = break_at
 
     def get_description(self, env):
-        return '<move to> place: %s' % self.place
+        return '<move to> place: %s, break_at' % (self.place, self.break_at)
 
     def serialize(self):
         data = super(Move, self).serialize()
-        data.update({'place': self.place})
+        data.update({'place': self.place,
+                     'break_at': self.break_at})
         return data
 
     def deserialize(self, data):
         super(Move, self).deserialize(data)
         self.place = data['place']
+        self.break_at = data.get('break_at')
 
 
 class GetItem(Command):
@@ -192,6 +195,24 @@ class Quest(Command):
     def deserialize(self, data):
         super(Quest, self).deserialize(data)
         self.quest = data['quest']
+
+class Battle(Command):
+
+    def __init__(self, number=None, **kwargs):
+        super(Battle, self).__init__(**kwargs)
+        self.number = number
+
+    def get_description(self, env):
+        return '<battle: %d>' % self.number
+
+    def serialize(self):
+        data = super(Battle, self).serialize()
+        data.update({'number': self.number})
+        return data
+
+    def deserialize(self, data):
+        super(Battle, self).deserialize(data)
+        self.number = data['number']
 
 
 COMMAND_CLASSES = dict( (cmd_class.type(), cmd_class) 

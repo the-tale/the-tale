@@ -22,7 +22,9 @@ class Waymark(models.Model):
     point_from = models.ForeignKey('places.Place', related_name='+') 
     point_to = models.ForeignKey('places.Place', related_name='+') 
 
-    road = models.ForeignKey(Road, related_name='+')
+    road = models.ForeignKey(Road, null=True, related_name='+')
+
+    length = models.FloatField(blank=True, default=0.0)
 
     class Meta:
         unique_together = (('point_from', 'point_to', 'road'), )

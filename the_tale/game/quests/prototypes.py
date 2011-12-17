@@ -164,7 +164,8 @@ class QuestPrototype(object):
          'getreward': self.cmd_get_reward,
          'quest': self.cmd_quest,
          'choose': self.cmd_choose,
-         'givepower': self.cmd_give_power
+         'givepower': self.cmd_give_power,
+         'battle': self.cmd_battle
          }[cmd.type()](cmd, cur_action)
 
     def cmd_description(self, cmd, cur_action):
@@ -173,7 +174,7 @@ class QuestPrototype(object):
     def cmd_move(self, cmd, cur_action):
         from ..actions.prototypes import ActionMoveToPrototype
         destination = self.env.get_game_place(cmd.place)
-        cur_action.bundle.add_action(ActionMoveToPrototype.create(parent=cur_action, destination=destination))
+        cur_action.bundle.add_action(ActionMoveToPrototype.create(parent=cur_action, destination=destination, break_at=cmd.break_at))
 
     def cmd_get_item(self, cmd, cur_action):
         item = self.env.get_game_item(cmd.item)
@@ -201,6 +202,11 @@ class QuestPrototype(object):
             self.env.persons_power_points[cmd.person] = self.env.persons_power_points[cmd.depends_on] * cmd.multiply
         else:
             self.env.persons_power_points[cmd.person] = cmd.power
+
+    def cmd_battle(self, cmd, cur_action):
+        from ..actions.prototypes import ActionBattlePvE_1x1Prototype
+        from ..heroes.logic import create_mob_for_hero
+        cur_action.bundle.add_action(ActionBattlePvE_1x1Prototype.create(parent=cur_action, mob=create_mob_for_hero(cur_action.hero)))
 
     def ui_info(self):
         choices = self.get_choices()

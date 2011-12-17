@@ -9,7 +9,7 @@ class RoadAdmin(admin.ModelAdmin):
     list_display = ('id', 'point_1', 'point_2', 'length')
 
 class WaymarkAdmin(admin.ModelAdmin):
-    list_display = ('id', 'point_from', 'point_to', 'road')
+    list_display = ('id', 'point_from', 'point_to', 'road', 'length')
 
 admin.site.register(Road, RoadAdmin)
 admin.site.register(Waymark, WaymarkAdmin)

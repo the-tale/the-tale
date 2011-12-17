@@ -131,6 +131,13 @@ class ActionPrototype(object):
             self._data = s11n.from_json(self.model.data)
         return self._data
 
+    @property
+    def break_at(self): return self.model.break_at
+
+    def get_length(self): return self.model.length
+    def set_length(self, value): self.model.length = value
+    length = property(get_length, set_length)
+
     ###########################################
     # Object operations
     ###########################################
@@ -323,13 +330,14 @@ class ActionMoveToPrototype(ActionPrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, parent, destination):
+    def create(cls, parent, destination, break_at=None):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE, 
                                        parent=parent.model,
                                        hero=parent.hero.model, 
                                        order=parent.order+1, 
-                                       place=destination.model)
+                                       place=destination.model,
+                                       break_at=break_at)
         return cls(model=model)
 
     def short_teleport(self, distance):
@@ -353,16 +361,54 @@ class ActionMoveToPrototype(ActionPrototype):
 
         if self.state == self.STATE.UNINITIALIZED:
             self.hero.create_tmp_log_message('hero go to %s' % self.destination.name)
+            self.percents = 0
             self.state = self.STATE.CHOOSE_ROAD
 
         elif self.state == self.STATE.CHOOSE_ROAD:
-            if self.hero.position.place_id != self.destination_id:
-                self.road = WaymarkPrototype.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
-                self.hero.position.set_road(self.road, invert=(self.hero.position.place_id != self.road.point_1_id))
-                self.state = self.STATE.MOVING
+            if self.hero.position.place_id:
+                if self.hero.position.place_id != self.destination_id:
+                    self.road, self.length = WaymarkPrototype.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
+                    self.hero.position.set_road(self.road, invert=(self.hero.position.place_id != self.road.point_1_id))
+                    self.state = self.STATE.MOVING
+                else:
+                    self.percents = 1
+                    self.state = self.STATE.PROCESSED
             else:
-                self.percents = 1
-                self.state = self.STATE.PROCESSED
+                road_left, length_left = WaymarkPrototype.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
+                road_right, length_right = WaymarkPrototype.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
+
+                if not self.hero.position.invert_direction:
+                    delta_left = self.hero.position.percents * self.hero.position.road.length
+                else:
+                    delta_left = (1 - self.hero.position.percents) * self.hero.position.road.length
+                delta_rigth = self.hero.position.road.length - delta_left
+
+                if road_left is None:
+                    invert = True
+                elif road_right is None:
+                    invert = False
+                else:
+                    invert = (road_left.length + delta_left) < (delta_rigth + road_right.length)
+
+                if invert:
+                    self.length = length_left + delta_left
+                    if self.hero.position.invert_direction:
+                        percents = self.hero.position.percents
+                    else:
+                        percents = 1 - self.hero.position.percents
+                else:
+                    self.length = delta_rigth + length_right
+                    if self.hero.position.invert_direction:
+                        percents = 1 - self.hero.position.percents
+                    else:
+                        percents = self.hero.position.percents
+
+                if self.length < 0.01:
+                    pass
+                else:
+                    self.road = self.hero.position.road
+                    self.hero.position.set_road(self.hero.position.road, invert=invert, percents=percents)
+                    self.state = self.STATE.MOVING
 
         elif self.state == self.STATE.MOVING:
 
@@ -384,7 +430,8 @@ class ActionMoveToPrototype(ActionPrototype):
 
                 self.hero.position.percents += delta
 
-                self.percents = self.hero.position.percents
+                real_length = self.length if self.break_at is None else self.length * self.break_at
+                self.percents += delta / real_length
 
                 if self.hero.position.percents >= 1:
                     self.hero.position.percents = 1
@@ -393,6 +440,10 @@ class ActionMoveToPrototype(ActionPrototype):
                     self.state = self.STATE.IN_CITY
 
                     self.bundle.add_action(ActionInPlacePrototype.create(parent=self, settlement=current_destination))
+
+                elif self.break_at and self.break_at <= self.percents:
+                    self.percents = 1
+                    self.state = self.STATE.PROCESSED                    
 
         elif self.state == self.STATE.BATTLE:
             self.state = self.STATE.MOVING

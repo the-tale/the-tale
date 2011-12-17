@@ -77,10 +77,16 @@ def update_waymarks():
         for i in xrange(places_len):
             for j in xrange(places_len):
                 if paths[i][j].road_id is not None:
-                    if Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).exists():
-                        Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).update(road=get_road_by_id(paths[i][j].road_id).model)
-                    else:
-                        WaymarkPrototype.create(point_from=places[i],
-                                                point_to=places[j],
-                                                road=get_road_by_id(paths[i][j].road_id) )
+                    road = get_road_by_id(paths[i][j].road_id)
+                else:
+                    road = None
+
+                if Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).exists():
+                    Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).update(road=road.model,
+                                                                                                        length=paths[i][j].length)
+                else:
+                    WaymarkPrototype.create(point_from=places[i],
+                                            point_to=places[j],
+                                            road=road,
+                                            length=paths[i][j].length)
 

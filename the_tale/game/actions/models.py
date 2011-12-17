@@ -29,6 +29,8 @@ class Action(models.Model):
     road = models.ForeignKey('roads.Road', related_name='+', null=True, blank=True)
     mob = models.TextField(null=False, default='{}')
     data = models.TextField(null=False, default='{}')
+    break_at = models.FloatField(null=True, blank=True, default=None)
+    length = models.FloatField(null=True, blank=True, default=None)
 
     @classmethod
     def get_related_query(cls):

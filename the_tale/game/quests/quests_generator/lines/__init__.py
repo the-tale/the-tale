@@ -4,10 +4,12 @@ from ..writer import Writer
 
 from .help import HelpLine, HelpWriter
 from .delivery import DeliveryLine, DeliveryWriter
+from .caravan import CaravanLine, CaravanWriter
 
-QUESTS = [HelpLine, DeliveryLine]
+QUESTS = [HelpLine, DeliveryLine, CaravanLine]
+QUESTS = [CaravanLine]
 
-__all__ = ['QUESTS', 'HelpLine', 'DeliveryLine']
+__all__ = ['QUESTS', 'HelpLine', 'DeliveryLine', 'CaravanLine']
 
 class BaseQuestsSource:
     
@@ -23,7 +25,8 @@ class BaseQuestsSource:
 
 
 QUEST_WRITERS = {HelpLine.type(): [ HelpWriter ],
-                 DeliveryLine.type(): [DeliveryWriter] }
+                 DeliveryLine.type(): [DeliveryWriter],
+                 CaravanLine.type(): [CaravanWriter]}
 
 WRITERS = dict( (writer.type(), writer) 
                 for writer_name, writer in globals().items()

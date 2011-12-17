@@ -10,6 +10,8 @@ def get_road_by_id(model_id):
     return get_road_by_model(model)
 
 def get_road_by_model(model):
+    if model is None:
+        return None
     return RoadPrototype(model=model)
 
 def get_waymark_by_id(model_id):
@@ -143,6 +145,9 @@ class WaymarkPrototype(object):
             self._road = get_road_by_model(self.model.road)
         return self._road
 
+    @property
+    def length(self): return self.model.length
+
     ###########################################
     # Object operations
     ###########################################
@@ -151,7 +156,7 @@ class WaymarkPrototype(object):
     def save(self): self.model.save()
 
     @classmethod
-    def create(cls, point_from, point_to, road):
+    def create(cls, point_from, point_to, road, length):
 
         try:
             Waymark.objects.get(point_from=point_from.model, 
@@ -162,20 +167,21 @@ class WaymarkPrototype(object):
 
         model = Waymark.objects.create(point_from=point_from.model,
                                        point_to=point_to.model,
-                                       road=road.model)
+                                       road=road.model if road else None,
+                                       length=length)
 
         return cls(model)
 
 
-    @staticmethod
-    def look_for_road(point_from, point_to):
+    @classmethod
+    def look_for_road(cls, point_from, point_to):
         if not isinstance(point_from, int):
             point_from = point_from.id
         if not isinstance(point_to, int):
             point_to = point_to.id
 
-        waymark_model = Waymark.objects.get(point_from=point_from, point_to=point_to)
-        return get_road_by_model(waymark_model.road)
+        waymark = cls(Waymark.objects.get(point_from=point_from, point_to=point_to))
+        return waymark.road, waymark.length
     
             
 
