@@ -392,17 +392,10 @@ class ActionMoveToPrototype(ActionPrototype):
 
                 if invert:
                     self.length = length_left + delta_left
-                    if self.hero.position.invert_direction:
-                        percents = self.hero.position.percents
-                    else:
-                        percents = 1 - self.hero.position.percents
+                    percents = delta_left / self.length
                 else:
                     self.length = delta_rigth + length_right
-                    if self.hero.position.invert_direction:
-                        percents = 1 - self.hero.position.percents
-                    else:
-                        percents = self.hero.position.percents
-
+                    percents = delta_rigth / self.length
                 if self.length < 0.01:
                     pass
                 else:
@@ -431,7 +424,7 @@ class ActionMoveToPrototype(ActionPrototype):
                 self.hero.position.percents += delta
 
                 real_length = self.length if self.break_at is None else self.length * self.break_at
-                self.percents += delta / real_length
+                self.percents += self.hero.move_speed / real_length
 
                 if self.hero.position.percents >= 1:
                     self.hero.position.percents = 1
