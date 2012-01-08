@@ -361,6 +361,9 @@ class ActionMoveToPrototype(ActionPrototype):
 
         return True
 
+    @property
+    def current_destination(self): return self.road.point_2 if not self.hero.position.invert_direction else self.road.point_1
+
     @nested_commit_on_success
     def process(self):
 
@@ -376,6 +379,7 @@ class ActionMoveToPrototype(ActionPrototype):
                     self.hero.position.set_road(self.road, invert=(self.hero.position.place_id != self.road.point_1_id))
                     self.state = self.STATE.MOVING
                 else:
+                    length = None
                     self.percents = 1
                     self.state = self.STATE.PROCESSED
             else:
@@ -403,7 +407,10 @@ class ActionMoveToPrototype(ActionPrototype):
                     percents = delta_rigth / length
 
                 if length < 0.01:
-                    pass
+                    current_destination = self.current_destination
+                    self.hero.position.percents = 1
+                    self.hero.position.set_place(current_destination)
+                    self.state = self.STATE.IN_CITY
                 else:
                     self.road = self.hero.position.road
                     self.hero.position.set_road(self.hero.position.road, invert=invert, percents=percents)
@@ -414,7 +421,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
         elif self.state == self.STATE.MOVING:
 
-            current_destination = self.road.point_2 if not self.hero.position.invert_direction else self.road.point_1
+            current_destination = self.current_destination
 
             if self.entropy >= self.ENTROPY_BARRIER:
                 self.entropy = 0

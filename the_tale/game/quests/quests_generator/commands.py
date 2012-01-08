@@ -45,7 +45,7 @@ class Description(Command):
 
 class Move(Command):
 
-    def __init__(self, place=None, break_at=1.0, **kwargs):
+    def __init__(self, place=None, break_at=1.1, **kwargs): # break_at=1.1 - to avoid false break detect on the end of moveto command
         super(Move, self).__init__(**kwargs)
         self.place = place
         self.break_at = break_at

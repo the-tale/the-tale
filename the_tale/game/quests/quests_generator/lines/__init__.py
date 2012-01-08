@@ -6,9 +6,10 @@ from .help import HelpLine, HelpWriter
 from .delivery import DeliveryLine, DeliveryWriter
 from .caravan import CaravanLine, CaravanWriter
 from .spying import SpyingLine, SpyingWriter
+from .not_my_work import NotMyWorkLine, NotMyWorkWriter
 
-QUESTS = [HelpLine, DeliveryLine, CaravanLine, SpyingLine]
-QUESTS = [SpyingLine]
+QUESTS = [HelpLine, DeliveryLine, CaravanLine, SpyingLine, NotMyWorkLine]
+QUESTS = [DeliveryLine, NotMyWorkLine]
 
 __all__ = ['QUESTS', 'HelpLine', 'DeliveryLine', 'CaravanLine', 'SpyingLine']
 
@@ -28,7 +29,8 @@ class BaseQuestsSource:
 QUEST_WRITERS = {HelpLine.type(): [ HelpWriter ],
                  DeliveryLine.type(): [DeliveryWriter],
                  CaravanLine.type(): [CaravanWriter],
-                 SpyingLine.type(): [SpyingWriter]}
+                 SpyingLine.type(): [SpyingWriter],
+                 NotMyWorkLine.type(): [NotMyWorkWriter]}
 
 WRITERS = dict( (writer.type(), writer) 
                 for writer_name, writer in globals().items()
