@@ -432,6 +432,25 @@ pgf.game.map.Map = function(selector, params) {
                            pos.x + x * TILE_SIZE , 
                            pos.y + y * TILE_SIZE);
             }
+
+            if (hero.position.coordinates.to.x ||
+                hero.position.coordinates.to.y ||
+                hero.position.coordinates.from.x ||
+                hero.position.coordinates.from.y) {
+                
+                var to_x = hero.position.coordinates.to.x;
+                var to_y = hero.position.coordinates.to.y;
+                var from_x = hero.position.coordinates.from.x;
+                var from_y = hero.position.coordinates.from.y;
+                var percents = hero.position.percents;
+
+                var x = from_x + (to_x - from_x) * percents;
+                var y = from_y + (to_y - from_y) * percents;
+
+                image.Draw(context, 
+                           parseInt(pos.x + x * TILE_SIZE, 10), 
+                           parseInt(pos.y + y * TILE_SIZE, 10));
+            }
         }
 
         if (selectedTile) {

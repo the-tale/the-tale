@@ -64,6 +64,27 @@ class Move(Command):
         self.place = data['place']
         self.break_at = data.get('break_at')
 
+class MoveNear(Command):
+
+    def __init__(self, place=None, back=False, **kwargs):
+        super(MoveNear, self).__init__(**kwargs)
+        self.place = place
+        self.back = back
+
+    def get_description(self, env):
+        return '<move near> place: %s back: %s' % (self.place, self.back)
+
+    def serialize(self):
+        data = super(MoveNear, self).serialize()
+        data.update({'place': self.place,
+                     'back': self.back})
+        return data
+
+    def deserialize(self, data):
+        super(MoveNear, self).deserialize(data)
+        self.place = data['place']
+        self.back = data['back']
+
 
 class GetItem(Command):
 

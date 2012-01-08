@@ -159,6 +159,7 @@ class QuestPrototype(object):
 
         {'description': self.cmd_description,
          'move': self.cmd_move,
+         'movenear': self.cmd_move_near,
          'getitem': self.cmd_get_item,
          'giveitem': self.cmd_give_item,
          'getreward': self.cmd_get_reward,
@@ -175,6 +176,11 @@ class QuestPrototype(object):
         from ..actions.prototypes import ActionMoveToPrototype
         destination = self.env.get_game_place(cmd.place)
         cur_action.bundle.add_action(ActionMoveToPrototype.create(parent=cur_action, destination=destination, break_at=cmd.break_at))
+
+    def cmd_move_near(self, cmd, cur_action):
+        from ..actions.prototypes import ActionMoveNearPlacePrototype
+        destination = self.env.get_game_place(cmd.place)
+        cur_action.bundle.add_action(ActionMoveNearPlacePrototype.create(parent=cur_action, place=destination, back=cmd.back))
 
     def cmd_get_item(self, cmd, cur_action):
         item = self.env.get_game_item(cmd.item)

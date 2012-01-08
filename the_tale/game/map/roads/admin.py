@@ -10,6 +10,8 @@ class RoadAdmin(admin.ModelAdmin):
 
 class WaymarkAdmin(admin.ModelAdmin):
     list_display = ('id', 'point_from', 'point_to', 'road', 'length')
+    
+    list_filter = ('point_from', 'point_to')
 
 admin.site.register(Road, RoadAdmin)
 admin.site.register(Waymark, WaymarkAdmin)

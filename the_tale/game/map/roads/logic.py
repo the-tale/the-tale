@@ -82,7 +82,7 @@ def update_waymarks():
                     road = None
 
                 if Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).exists():
-                    Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).update(road=road.model,
+                    Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).update(road=road.model if road else None,
                                                                                                         length=paths[i][j].length)
                 else:
                     WaymarkPrototype.create(point_from=places[i],

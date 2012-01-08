@@ -26,6 +26,10 @@ class Hero(models.Model):
     pos_road = models.ForeignKey('roads.Road', related_name='+', null=True, default=None, blank=True)
     pos_percents = models.FloatField(null=True, default=None, blank=True)
     pos_invert_direction = models.NullBooleanField(default=False, null=True, blank=True)
+    pos_from_x = models.IntegerField(null=True, blank=True, default=None)
+    pos_from_y = models.IntegerField(null=True, blank=True, default=None)
+    pos_to_x = models.IntegerField(null=True, blank=True, default=None)
+    pos_to_y = models.IntegerField(null=True, blank=True, default=None)
 
     @classmethod
     def get_related_query(cls):

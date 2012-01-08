@@ -311,15 +311,23 @@ class HeroPositionPrototype(object):
             self._place = PlacePrototype(model=self.hero_model.pos_place) if self.hero_model.pos_place else None
         return self._place
 
-    def set_place(self, place):
+    def _reset_position(self):
         if hasattr(self, '_place'):
             delattr(self, '_place')
         if hasattr(self, '_road'):
             delattr(self, '_road')
-        self.hero_model.pos_place = place.model
+        self.hero_model.pos_place = None
         self.hero_model.pos_road = None
         self.hero_model.pos_invert_direction = None
         self.hero_model.pos_percents = None
+        self.hero_model.pos_from_x = None
+        self.hero_model.pos_from_y = None
+        self.hero_model.pos_to_x = None
+        self.hero_model.pos_to_y = None
+
+    def set_place(self, place):
+        self._reset_position()
+        self.hero_model.pos_place = place.model
 
     @property
     def road(self): 
@@ -328,11 +336,7 @@ class HeroPositionPrototype(object):
         return self._road
 
     def set_road(self, road, percents=0, invert=False):
-        if hasattr(self, '_place'):
-            delattr(self, '_place')
-        if hasattr(self, '_road'):
-            delattr(self, '_road')
-        self.hero_model.pos_place = None
+        self._reset_position()
         self.hero_model.pos_road = road.model
         self.hero_model.pos_invert_direction = invert
         self.hero_model.pos_percents = percents
@@ -344,6 +348,30 @@ class HeroPositionPrototype(object):
     def get_invert_direction(self): return self.hero_model.pos_invert_direction
     def set_invert_direction(self, value): self.hero_model.pos_invert_direction = value
     invert_direction = property(get_invert_direction, set_invert_direction)
+
+    @property
+    def coordinates_from(self): return self.hero_model.pos_from_x, self.hero_model.pos_from_y
+
+    @property
+    def coordinates_to(self): return self.hero_model.pos_to_x, self.hero_model.pos_to_y
+
+    def subroad_len(self): return math.sqrt( (self.hero_model.pos_from_x-self.hero_model.pos_to_x)**2 + 
+                                             (self.hero_model.pos_from_y-self.hero_model.pos_to_y)**2)
+    
+    def set_coordinates(self, from_x, from_y, to_x, to_y, percents):
+        self._reset_position()
+        self.hero_model.pos_from_x = from_x
+        self.hero_model.pos_from_y = from_y
+        self.hero_model.pos_to_x = to_x
+        self.hero_model.pos_to_y = to_y
+        self.hero_model.pos_percents = percents
+
+    @property
+    def is_walking(self): 
+        return (self.hero_model.pos_from_x is not None and
+                self.hero_model.pos_from_y is not None and
+                self.hero_model.pos_to_x is not None and
+                self.hero_model.pos_to_y is not None)
 
     ###########################################
     # Checks
@@ -360,4 +388,8 @@ class HeroPositionPrototype(object):
         return {'place': self.place.map_info() if self.place else None,
                 'road': self.road.map_info() if self.road else None,
                 'invert_direction': self.invert_direction,
-                'percents': self.percents}
+                'percents': self.percents,
+                'coordinates': { 'to': { 'x': self.coordinates_to[0],
+                                         'y': self.coordinates_to[1]}, 
+                                 'from': { 'x': self.coordinates_from[0],
+                                           'y': self.coordinates_from[1]} } }

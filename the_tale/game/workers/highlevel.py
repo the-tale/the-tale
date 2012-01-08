@@ -83,6 +83,7 @@ class Worker(object):
         return self.send_cmd(CMD_TYPE.NEXT_TURN, data={'turn_number': turn_number})
 
     def process_next_turn(self, turn_number):
+        map_update_needed = False
         with nested_commit_on_success():
             self.turn_number += 1
 
@@ -91,6 +92,10 @@ class Worker(object):
 
             if self.turn_number % SYNC_DELTA == 0:
                 self.sync_data()
+                map_update_needed = True
+
+        if map_update_needed:
+            subprocess.call(['./manage.py', 'map_update_map'])
 
         self.supervisor_worker.cmd_answer('next_turn', self.worker_id)
 
@@ -124,8 +129,6 @@ class Worker(object):
             place.sync_size(max_place_power)
             place.sync_persons()
             place.save()
-
-        subprocess.call(['./manage.py', 'map_update_map'])
 
 
     def cmd_change_person_power(self, person_id, power_delta):

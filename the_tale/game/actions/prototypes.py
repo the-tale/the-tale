@@ -138,6 +138,11 @@ class ActionPrototype(object):
     def set_length(self, value): self.model.length = value
     length = property(get_length, set_length)
 
+    def get_destination(self): return self.model.destination_x, self.model.destination_y
+    def set_destination(self, x, y):
+        self.model.destination_x = x
+        self.model.destination_y = y
+
     ###########################################
     # Object operations
     ###########################################
@@ -367,7 +372,7 @@ class ActionMoveToPrototype(ActionPrototype):
         elif self.state == self.STATE.CHOOSE_ROAD:
             if self.hero.position.place_id:
                 if self.hero.position.place_id != self.destination_id:
-                    self.road, self.length = WaymarkPrototype.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
+                    self.road, length = WaymarkPrototype.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
                     self.hero.position.set_road(self.road, invert=(self.hero.position.place_id != self.road.point_1_id))
                     self.state = self.STATE.MOVING
                 else:
@@ -391,17 +396,21 @@ class ActionMoveToPrototype(ActionPrototype):
                     invert = (road_left.length + delta_left) < (delta_rigth + road_right.length)
 
                 if invert:
-                    self.length = length_left + delta_left
-                    percents = delta_left / self.length
+                    length = length_left + delta_left
+                    percents = delta_left / length
                 else:
-                    self.length = delta_rigth + length_right
-                    percents = delta_rigth / self.length
-                if self.length < 0.01:
+                    length = delta_rigth + length_right
+                    percents = delta_rigth / length
+
+                if length < 0.01:
                     pass
                 else:
                     self.road = self.hero.position.road
                     self.hero.position.set_road(self.hero.position.road, invert=invert, percents=percents)
                     self.state = self.STATE.MOVING
+
+            if self.length is None:
+                self.length = length
 
         elif self.state == self.STATE.MOVING:
 
@@ -786,6 +795,94 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
             else:
                 self.hero.create_tmp_log_message('hero has solled all what he wants')
                 self.state = self.STATE.PROCESSED
+
+class ActionMoveNearPlacePrototype(ActionPrototype):
+
+    TYPE = 'MOVE_NEAR_PLACE'
+    SHORT_DESCRIPTION = u'бродит по окрестностям'
+    ENTROPY_BARRIER = 35
+
+    class STATE(ActionPrototype.STATE):
+        MOVING = 'MOVING'
+        BATTLE = 'BATTLE'
+
+    ###########################################
+    # Object operations
+    ###########################################
+
+    def ui_info(self):
+        info = super(ActionMoveNearPlacePrototype, self).ui_info()
+        return info
+
+    @classmethod
+    @nested_commit_on_success
+    def create(cls, parent, place, back):
+        parent.leader = False
+
+        if back:
+            x, y = place.x, place.y
+        else:
+            x, y = random.choice(place.nearest_cells)
+
+        model = Action.objects.create( type=cls.TYPE, 
+                                       parent=parent.model,
+                                       hero=parent.hero.model,
+                                       order=parent.order+1,
+                                       place=place.model,
+                                       destination_x=x,
+                                       destination_y=y)
+        return cls(model=model)
+
+    @nested_commit_on_success
+    def process(self):
+
+        if self.state == self.STATE.UNINITIALIZED:
+            self.state = self.STATE.MOVING
+            self.percents = 0
+
+            dest_x, dest_y = self.get_destination()
+
+            if self.hero.position.is_walking:
+                from_x, from_y = self.hero.position.coordinates_to
+                self.hero.position.set_coordinates(from_x, from_y, dest_x, dest_y, percents=0)
+            else:
+                self.hero.position.set_coordinates(self.place.x, self.place.y, dest_x, dest_y, percents=0)
+
+        elif self.state == self.STATE.MOVING:
+
+            if self.entropy >= self.ENTROPY_BARRIER:
+                self.entropy = 0
+                mob = create_mob_for_hero(self.hero)
+
+                self.bundle.add_action(ActionBattlePvE_1x1Prototype.create(parent=self, mob=mob))
+
+                self.state = self.STATE.BATTLE
+
+            else:
+                self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
+
+                self.hero.create_tmp_log_message('I walk near %s' % self.place.name)
+            
+                if self.hero.position.subroad_len() == 0:
+                    self.hero.position.percents += 0.1
+                else:
+                    delta = self.hero.move_speed / self.hero.position.subroad_len()
+                    self.hero.position.percents += delta
+
+                self.percents = self.hero.position.percents
+
+                if self.hero.position.percents >= 1:
+                    self.hero.position.percents = 1
+                    self.percents = 1
+
+                    to_x, to_y = self.hero.position.coordinates_to
+                    if self.place.x == to_x and self.place.y == to_y:
+                        self.hero.position.set_place(self.place)
+
+                    self.state = self.STATE.PROCESSED
+
+        elif self.state == self.STATE.BATTLE:
+            self.state = self.STATE.MOVING
 
 
 ACTION_TYPES = get_actions_types()

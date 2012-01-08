@@ -79,8 +79,10 @@ class PlacePrototype(object):
                                    name='person_%s' % random.choice('QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm'))
             persons_count += 1
 
+        persons = sorted(self.persons, key=lambda x: -x.power)
+
         while persons_count > expected_persons_number:
-            person = self.persons[persons_count-1]
+            person = persons[persons_count-1]
             person.move_out_game()
             person.save()
             persons_count -= 1
@@ -93,6 +95,13 @@ class PlacePrototype(object):
         if not hasattr(self, '_data'):
             self._data = s11n.from_json(self.model.data)
         return self._data
+
+    def get_nearest_cells(self):
+        if 'nearest_cells' not in self.data:
+            self.data['nearest_cells'] = []
+        return self.data['nearest_cells']
+    def set_nearest_cells(self, value): self.data['nearest_cells'] = value
+    nearest_cells = property(get_nearest_cells, set_nearest_cells)
 
     @property
     def power_points(self): 

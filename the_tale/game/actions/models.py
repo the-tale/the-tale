@@ -31,6 +31,8 @@ class Action(models.Model):
     data = models.TextField(null=False, default='{}')
     break_at = models.FloatField(null=True, blank=True, default=None)
     length = models.FloatField(null=True, blank=True, default=None)
+    destination_x = models.IntegerField(null=True, blank=True, default=None)
+    destination_y = models.IntegerField(null=True, blank=True, default=None)
 
     @classmethod
     def get_related_query(cls):

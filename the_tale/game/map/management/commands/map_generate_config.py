@@ -29,8 +29,8 @@ class Command(BaseCommand):
 
         CONFIG = options['config']
 
-        map_width = 30 # TODO
-        map_height = 20 # TODO
+        map_width = map_settings.WIDTH
+        map_height = map_settings.HEIGHT
 
         places_list = [get_place_by_model(place_model)
                        for place_model in list(Place.objects.all()) ]
