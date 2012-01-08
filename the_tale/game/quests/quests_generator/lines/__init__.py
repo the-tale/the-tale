@@ -9,7 +9,6 @@ from .spying import SpyingLine, SpyingWriter
 from .not_my_work import NotMyWorkLine, NotMyWorkWriter
 
 QUESTS = [HelpLine, DeliveryLine, CaravanLine, SpyingLine, NotMyWorkLine]
-QUESTS = [DeliveryLine, NotMyWorkLine]
 
 __all__ = ['QUESTS', 'HelpLine', 'DeliveryLine', 'CaravanLine', 'SpyingLine']
 
