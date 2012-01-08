@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from django_next.utils.decorators import retry_on_exception
+
 from ..map.places.models import Place
 from ..map.places.prototypes import get_place_by_model
 
 from .quests_generator.lines import BaseQuestsSource, BaseWritersSouece
 from .quests_generator.knowlege_base import KnowlegeBase
+from .quests_generator.environment import RollBackException
 
 from .environment import Environment
 from .prototypes import QuestPrototype
@@ -33,6 +36,7 @@ def get_knowlege_base():
     return base
     
 
+@retry_on_exception(RollBackException)
 def create_random_quest_for_hero(hero):
 
     base = get_knowlege_base()
@@ -47,8 +51,6 @@ def create_random_quest_for_hero(hero):
     env.new_quest(place_start=hero_position_uuid)
     env.create_lines()
 
-    # quest_line.set_writer(QUEST_WRITERS)
-    
     quest_prototype = QuestPrototype.create(hero, env)
-
+    
     return quest_prototype
