@@ -350,14 +350,15 @@ class ActionMoveToPrototype(ActionPrototype):
         if self.state != self.STATE.MOVING:
             return False
 
-        delta = distance / self.road.length
-
-        self.hero.position.percents += delta
+        self.hero.position.percents += distance / self.road.length
+        self.percents += distance / self.length
 
         if self.hero.position.percents >= 1:
+            self.percents -= (self.hero.position.percents - 1) * self.road.length / self.length
             self.hero.position.percents = 1
 
-        self.percents = self.hero.position.percents
+        if self.percents >= 1:
+            self.percents = 1
 
         return True
 

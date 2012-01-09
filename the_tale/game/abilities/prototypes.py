@@ -153,20 +153,32 @@ class AbilityTaskPrototype(object):
   
         ability = angel.abilities[self.type]
 
+        if angel.energy < ability.COST:
+            self.state = ABILITY_STATE.ERROR
+            return
+
+        if ability.LIMITED and not ability.limit:
+            self.state = ABILITY_STATE.ERROR
+            return
+
         if self.hero_id:
             hero = bundle.heroes[self.hero_id]
             result = ability.use(bundle, angel, hero, self.data)
         else:
             result = ability.use(bundle, angel, self.data)
 
-        if result:
-            self.state = ABILITY_STATE.PROCESSED
-
-            if ability.LIMITED:
-                ability.limit -= 1
-
-            ability.available_at = self.available_at
-        else:
+        if not result:
             self.state = ABILITY_STATE.ERROR
+
+            
+        self.state = ABILITY_STATE.PROCESSED
+
+        angel.energy -= ability.COST
+
+        if ability.LIMITED:
+            ability.limit -= 1
+
+        ability.available_at = self.available_at
+
 
 
