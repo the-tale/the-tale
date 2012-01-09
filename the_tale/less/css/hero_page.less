@@ -1,0 +1,25 @@
+@import "constants.less";
+
+@left-column-width: 200px;
+@center-column-width: (@content-width - @left-column-width) / 2 - 10;
+@right-column-width: @center-column-width;
+
+#hero-page-content {
+
+    .column {
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    #left-column {
+        width: @left-column-width;
+    }
+
+    #right-column {
+        width: @right-column-width;
+    }
+
+    #center-column {
+        width: @center-column-width;
+    }
+}

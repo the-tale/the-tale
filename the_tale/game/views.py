@@ -24,8 +24,7 @@ class GameResource(Resource):
         if angel is None:
             angel = self.angel.id
         return self.template('game/game_page.html',
-                             {'map_settings': map_settings,
-                              'angel_id': angel} )
+                             {'map_settings': map_settings} )
 
     @handler('info', method='get')
     def info(self, angel=None):

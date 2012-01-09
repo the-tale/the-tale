@@ -3,8 +3,6 @@
 {% block head %}
 {{ super() }}
 
-<script src="{{ STATIC_URL }}common/urls.js" type="text/javascript"></script>
-<script src="{{ STATIC_URL }}common/dialog.js" type="text/javascript"></script>
 <script src="{{ STATIC_URL }}game/widgets.js" type="text/javascript"></script>
 <script src="{{ STATIC_URL }}game/angel.js" type="text/javascript"></script>
 <script src="{{ STATIC_URL }}game/map/map2.js" type="text/javascript"></script>
@@ -19,8 +17,8 @@ var widgets = {};
 
 jQuery(document).ready(function(e){
 
-    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?angel={{ angel_id }}"});
-    angelUpdater = new pgf.game.AngelUpdater({url: "{{ url('game:angels:info', angel_id) }}"});
+    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?angel={{ resource.angel.id }}"});
+    angelUpdater = new pgf.game.AngelUpdater({url: "{{ url('game:angels:info', resource.angel.id) }}"});
 
     widgets.switcher = new pgf.game.widgets.WidgetSwitcher();
 
@@ -80,37 +78,28 @@ jQuery(document).ready(function(e){
 
 {% block content %}
 
-<div id="left-column" class="column">
-  {% include "game/hero.html" %}
-  {% include "game/hero-equipment.html" %}
-  {% include "game/hero-bag.html" %}
+<div id="game-page-content">
+
+  <div id="left-column" class="column">
+    {% include "heroes/hero_short.html" %}
+    {% include "heroes/hero_equipment.html" %}
+    {% include "heroes/hero_bag.html" %}
+  </div>
+
+  <div id="center-column" class="column">
+    {% include "game/current-actions.html" %}
+    {% include "game/activate_ability.html" %}
+    {% include "game/map.html" %}
+  </div>
+
+  <div id="right-column" class="column">
+    {% include "game/time.html" %}
+    {% include "game/abilities.html" %}
+    {% include "game/log.html" %}
+  </div>
+
 </div>
 
-<div id="center-column" class="column">
-  {% include "game/current-actions.html" %}
-  {% include "game/activate_ability.html" %}
-  {% include "game/map.html" %}
-</div>
-
-<div id="right-column" class="column">
-  {% include "game/time.html" %}
-  {% include "game/abilities.html" %}
-  {% include "game/log.html" %}
-</div>
-
-<div class="pgf-hidden" id="pgf-item-tooltip-template">
-  <h6 class="pgf-name"></h6>
-  <span class="pgf-type"></span><span class="pgf-subtype-enabled pgf-hidden"> - <span class="pgf-subtype"></span></span>
-    
-  <ul>
-    <li class="pgf-effect-weapon-base pgf-hidden">
-      урон: <span class="pgf-min-damage"></span> - <span class="pgf-max-damage"></span>
-    </li>
-    <li class="pgf-effect-armor-base pgf-hidden">
-      броня: <span class="pgf-armor"></span>
-    </li>
-    <li class="pgf-effect-weapon-base pgf-effect-armor-base pgf-hidden">штраф к скорости: <span class="pgf-battle-speed"></li>
-  </ul>
-</div>
+{% include "heroes/item_tooltip.html" %}
 
 {% endblock %}

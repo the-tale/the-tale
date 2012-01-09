@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+
+<script src="{{ STATIC_URL }}game/widgets.js" type="text/javascript"></script>
+<script src="{{ STATIC_URL }}game/angel.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+var updater = undefined;
+var angelUpdater
+var widgets = {};
+
+jQuery(document).ready(function(e){
+
+    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?angel={{ resource.angel.id }}"});
+    angelUpdater = new pgf.game.AngelUpdater({url: "{{ url('game:angels:info', resource.angel.id) }}"});
+
+    setTimeout(function(){
+        updater.Refresh();
+        angelUpdater.Refresh();
+    }, 0);
+});
+
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<div id="hero-page-content">
+
+  <div id="left-column" class="column">
+    {% include "heroes/hero_short.html" %}
+    {% include "heroes/hero_equipment.html" %}
+  </div>
+
+  <div id="center-column" class="column">
+    <div class="block">
+      <h2>Боевые способности</h2>
+      <ul>
+      </ul>
+    </div>
+  </div>
+
+  <div id="right-column" class="column">
+    <div class="block">
+      <h2>Статистика</h2>
+    </div>
+  </div>
+
+</div>
+
+{% include "heroes/item_tooltip.html" %}
+
+{% endblock %}

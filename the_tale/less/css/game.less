@@ -27,22 +27,25 @@
     }
 }
 
-.column {
 
-    display: inline-block;
-    vertical-align: top;
-}
+#game-page-content {
 
-#left-column {
-    width: @side-column-width;
-}
+    .column {
+        display: inline-block;
+        vertical-align: top;
+    }
 
-#right-column {
-    width: @side-column-width;
-}
+    #left-column {
+        width: @side-column-width;
+    }
 
-#center-column {
-    width: @center-column-width;
+    #right-column {
+        width: @side-column-width;
+    }
+
+    #center-column {
+        width: @center-column-width;
+    }
 }
 
 #hero-base-block {
@@ -60,7 +63,7 @@
         &.health-bar {
             .layer-1 {
                 background: #ff0000;
-                }
+            }
         }
 
         &.experience-bar {
@@ -159,7 +162,7 @@
             display: inline-block;
             text-align: right;
         }
-    
+        
         .time-icon {
             display: inline-block;
             width: 32px;
