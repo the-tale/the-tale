@@ -142,7 +142,9 @@ class HeroPrototype(object):
 
         for ability_id, ability_level in self.abilities.items():
             if event_type in habilities.ABILITIES[ability_id].EVENTS:
-                expected_abilities.append(habilities.ABILITIES[ability_id](ability_level))
+                ability = habilities.ABILITIES[ability_id](ability_level)
+                if ability.can_use(self):
+                    expected_abilities.append(ability)
 
         priority_domain = sum([ability.priority for ability in expected_abilities])
 

@@ -10,6 +10,7 @@ from .not_my_work import NotMyWorkLine, NotMyWorkWriter
 
 QUESTS = [HelpLine, DeliveryLine, CaravanLine, SpyingLine, NotMyWorkLine]
 
+
 __all__ = ['QUESTS', 'HelpLine', 'DeliveryLine', 'CaravanLine', 'SpyingLine']
 
 class BaseQuestsSource:

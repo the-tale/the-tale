@@ -377,7 +377,11 @@ class ActionMoveToPrototype(ActionPrototype):
             self.state = self.STATE.CHOOSE_ROAD
 
         elif self.state == self.STATE.CHOOSE_ROAD:
+            # print 'CHOOSE_ROAD start'
+            # print self.destination.name
+
             if self.hero.position.place_id:
+                # print 'in place'
                 if self.hero.position.place_id != self.destination_id:
                     self.road, length = WaymarkPrototype.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
                     self.hero.position.set_road(self.road, invert=(self.hero.position.place_id != self.road.point_1_id))
@@ -387,37 +391,57 @@ class ActionMoveToPrototype(ActionPrototype):
                     self.percents = 1
                     self.state = self.STATE.PROCESSED
             else:
+                # print ('on road ', 
+                #        self.hero.position.road.point_1.name, self.hero.position.road.point_2.name, 
+                #        self.hero.position.invert_direction, self.hero.position.percents )
                 road_left, length_left = WaymarkPrototype.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
                 road_right, length_right = WaymarkPrototype.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
+
+                # print road_left, length_left
+                # print road_right, length_right
 
                 if not self.hero.position.invert_direction:
                     delta_left = self.hero.position.percents * self.hero.position.road.length
                 else:
                     delta_left = (1 - self.hero.position.percents) * self.hero.position.road.length
                 delta_rigth = self.hero.position.road.length - delta_left
+                
+                # print delta_left, delta_rigth
 
                 if road_left is None:
                     invert = True
                 elif road_right is None:
                     invert = False
                 else:
-                    invert = (road_left.length + delta_left) < (delta_rigth + road_right.length)
+                    invert = (length_left + delta_left) < (delta_rigth + length_right)
+
+                # print invert
 
                 if invert:
                     length = length_left + delta_left
-                    percents = delta_left / length
                 else:
                     length = delta_rigth + length_right
-                    percents = delta_rigth / length
+
+                # print length
+
+                percents = self.hero.position.percents
+                if self.hero.position.invert_direction and not invert:
+                    percents = 1 - percents
+                elif not self.hero.position.invert_direction and invert:
+                    percents = 1 - percents
+
+                # print percents
 
                 if length < 0.01:
                     current_destination = self.current_destination
-                    self.hero.position.percents = 1
                     self.hero.position.set_place(current_destination)
                     self.state = self.STATE.IN_CITY
                 else:
                     self.road = self.hero.position.road
                     self.hero.position.set_road(self.hero.position.road, invert=invert, percents=percents)
+                    # print ('new road ', 
+                    #        self.hero.position.road.point_1.name, self.hero.position.road.point_2.name, 
+                    #        self.hero.position.invert_direction, self.hero.position.percents )
                     self.state = self.STATE.MOVING
 
             if self.length is None:
@@ -454,7 +478,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
                     self.bundle.add_action(ActionInPlacePrototype.create(parent=self, settlement=current_destination))
 
-                elif self.break_at and self.break_at <= self.percents:
+                elif self.break_at and self.percents >= 1:
                     self.percents = 1
                     self.state = self.STATE.PROCESSED                    
 
@@ -508,8 +532,14 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
         elif self.state == self.STATE.BATTLE_RUNNING:
 
-            if self.entropy >= self.ENTROPY_BARRIER:
+            if self.hero.context.leave_battle():
+                self.hero.create_tmp_log_message('%(mob)s mis hero and go away' % {'mob': self.mob.name})
+                self.percents = 1
+                self.state = self.STATE.PROCESSED
+
+            elif self.entropy >= self.ENTROPY_BARRIER:
                 self.entropy = 0
+
             else:
                 self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
 
@@ -521,22 +551,31 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                         self.hero.trigger_ability(HERO_ABILITIES_EVENTS.STRIKE_MOB)
 
                     damage = self.mob.strike_by_hero(self.hero)
+
+                    self.hero.context.after_hero_strike()
+
                     self.hero.create_tmp_log_message('%(attaker)s bit %(defender)s for %(damage)s HP' % {'attaker': self.hero.name,
                                                                                                          'defender': self.mob.name,
                                                                                                          'damage': damage})
 
                 else:
-                    damage = self.mob.strike_hero(self.hero)
+                    
+                    if not self.hero.context.skip_mob_strike():
+                        damage = self.mob.strike_hero(self.hero)
+                        self.hero.create_tmp_log_message('%(attaker)s bit %(defender)s for %(damage)s HP' % {'attaker': self.mob.name,
+                                                                                                             'defender': self.hero.name,
+                                                                                                             'damage': damage})
+                    else:
+                        self.hero.create_tmp_log_message('%(attaker)s mis by %(defender)s' % {'attaker': self.mob.name,
+                                                                                              'defender': self.hero.name})
+
                     self.hero.context.after_mob_strike()
-                    self.hero.create_tmp_log_message('%(attaker)s bit %(defender)s for %(damage)s HP' % {'attaker': self.mob.name,
-                                                                                                         'defender': self.hero.name,
-                                                                                                         'damage': damage})
+
 
                 if self.hero.health <= 0:
                     self.hero.kill(self)
                     self.hero.create_tmp_log_message('Hero was killed')
                     self.state = self.STATE.PROCESSED
-                    self.hero.context.after_battle_end()
 
                 if self.mob.health <= 0:
                     self.mob.kill()
@@ -546,12 +585,12 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                     self.hero.put_loot(loot)
 
                     self.state = self.STATE.PROCESSED
-                    self.hero.context.after_battle_end()
 
                 self.percents = 1.0 - self.mob.health
-
-                if self.state == self.STATE.PROCESSED:
-                    self.remove_mob()
+                
+            if self.state == self.STATE.PROCESSED:
+                self.remove_mob()
+                self.hero.context.after_battle_end()
 
 class ActionResurrectPrototype(ActionPrototype):
 

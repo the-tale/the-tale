@@ -58,6 +58,12 @@ jQuery(document).ready(function(e){
         DoTurns(1000);
     });
 
+    jQuery('.pgf-next-10000-turns').click(function(e){
+        e.preventDefault();
+        DoTurns(10000);
+    });
+
+
     setTimeout(function(){
         updater.Refresh();
         angelUpdater.Refresh();
@@ -73,6 +79,7 @@ jQuery(document).ready(function(e){
 <li><a href="#" class="pgf-next-10-turns">10 turns</a></li>
 <li><a href="#" class="pgf-next-100-turns">100 turns</a></li>
 <li><a href="#" class="pgf-next-1000-turns">1000 turns</a></li>
+<li><a href="#" class="pgf-next-10000-turns">10000 turns</a></li>
 {% endblock %}
 
 
