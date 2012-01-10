@@ -1,0 +1,20 @@
+
+{% import 'heroes/macros.html' as macros with context %}
+
+<div class="chose-hero-ability-dialog pgf-chose-hero-ability-dialog">
+
+  <div class="pgf-dialog-title">Выберите способность</div>
+
+  <p class="info">
+    За каждое очко судьбы Вы можете приобрести или улучшить одну способность Вашего героя. Судьба у героев непростая, поэтому выбор способностей ограничен. Позднее Вы сможете переучить Вашего героя, если сочтёте набор его способностей неудобным.
+  </p>
+
+  <br/>
+
+  <h2>Способности:</h2>
+
+  {% set abilities = resource.hero.get_abilities_for_choose() %}
+
+  {{ macros.abilities_list(abilities) }}
+
+</div>

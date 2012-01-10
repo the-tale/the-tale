@@ -13,6 +13,7 @@ class CMD_TYPE:
     REGISTER_BUNDLE = 'register_bundle'
     ACTIVATE_ABILITY = 'activate_ability'
     REGISTER_HERO = 'register_hero'
+    CHOOSE_HERO_ABILITY = 'choose_hero_ability'
 
 class GameException(Exception): pass
 
@@ -56,7 +57,8 @@ class Worker(object):
               CMD_TYPE.NEXT_TURN: self.process_next_turn,
               CMD_TYPE.REGISTER_BUNDLE: self.process_register_bundle,
               CMD_TYPE.ACTIVATE_ABILITY: self.process_activate_ability,
-              CMD_TYPE.REGISTER_HERO: self.process_register_hero }[cmd_type](**cmd_data)
+              CMD_TYPE.REGISTER_HERO: self.process_register_hero,
+              CMD_TYPE.CHOOSE_HERO_ABILITY: self.process_choose_hero_ability}[cmd_type](**cmd_data)
         except Exception, e:
             self.exception_raised = True
             print 'EXCEPTION: %s' % e
@@ -162,4 +164,19 @@ class Worker(object):
         self.heroes2bundles[hero.id] = bundle
 
 
+    def cmd_choose_hero_ability(self, ability_task_id):
+        self.send_cmd(CMD_TYPE.CHOOSE_HERO_ABILITY, {'ability_task_id': ability_task_id})
+
+
+    def process_choose_hero_ability(self, ability_task_id):
+        with nested_commit_on_success():
+            from ..heroes.prototypes import ChooseAbilityTaskPrototype
+            
+            task = ChooseAbilityTaskPrototype.get_by_id(ability_task_id)
+
+            bundle = self.bundles[self.heroes2bundles[task.hero_id]]
+
+            task.process(bundle)
+            task.save()
+            bundle.save_data()
 

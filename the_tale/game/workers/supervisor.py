@@ -7,6 +7,7 @@ from ..prototypes import get_current_time
 from ..bundles import get_bundle_by_id, get_bundle_by_model
 from ..models import Bundle
 from ..abilities.prototypes import AbilityTaskPrototype
+from ..heroes.prototypes import ChooseAbilityTaskPrototype
 
 
 class CMD_TYPE:
@@ -14,6 +15,7 @@ class CMD_TYPE:
     REGISTER_BUNDLE = 'register_bundle'
     ACTIVATE_ABILITY = 'activate_ability'
     REGISTER_HERO = 'register_hero'
+    CHOOSE_HERO_ABILITY = 'choose_hero_ability'
 
 class SupervisorException(Exception): pass
 
@@ -75,6 +77,7 @@ class Worker(object):
 
         #clearing
         AbilityTaskPrototype.reset_all()
+        ChooseAbilityTaskPrototype.reset_all()
 
         #initialization
         self.game_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='game')
@@ -99,7 +102,8 @@ class Worker(object):
             { CMD_TYPE.NEXT_TURN: self.process_next_turn,
               CMD_TYPE.REGISTER_BUNDLE: self.process_register_bundle,
               CMD_TYPE.ACTIVATE_ABILITY: self.process_activate_ability,
-              CMD_TYPE.REGISTER_HERO: self.process_register_hero }[cmd_type](**cmd_data)
+              CMD_TYPE.REGISTER_HERO: self.process_register_hero,
+              CMD_TYPE.CHOOSE_HERO_ABILITY: self.process_choose_hero_ability}[cmd_type](**cmd_data)
         except Exception, e:
             self.exception_raised = True
             print 'EXCEPTION: %s' % e
@@ -145,3 +149,8 @@ class Worker(object):
     def process_register_hero(self, hero_id):
         self.game_worker.cmd_register_hero(hero_id)
 
+    def cmd_choose_hero_ability(self, ability_task_id):
+        self.send_cmd(CMD_TYPE.CHOOSE_HERO_ABILITY, {'ability_task_id': ability_task_id})
+
+    def process_choose_hero_ability(self, ability_task_id):
+        self.game_worker.cmd_choose_hero_ability(ability_task_id)

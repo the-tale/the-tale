@@ -22,4 +22,75 @@
     #center-column {
         width: @center-column-width;
     }
+
+    #choose-ability-button {
+
+        text-align: center;
+        cursor: pointer;
+
+        border-color: #FF6666;
+        background-color: #FF9966;
+
+        &:hover {
+            border-color: #FF6600;
+            background-color: #FF9900;
+        }
+    }
+}
+
+.hero-abilities-list {
+
+    margin: 5px;
+
+    .record {
+        
+        cursor: pointer;
+
+        padding: 2px;
+        
+        border: 2px solid blue;
+        border-radius: 4px;
+
+        width: 250px;
+
+        .icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: url('/static/game/images/habilities.png') no-repeat;
+            vertical-align: middle;
+
+            &.sunrise {
+                background-position-x: 0px;
+                background-position-y: 0px;
+            }
+        }
+        
+        .name {
+            font-weight: bold;
+            font-size: 12pt;
+            display: inline-block;
+            width: 190px;
+        }
+
+        .level {
+            font-weight: bold;
+            font-size: 14pt;
+            display: inline-block;
+        }
+
+        &.battle {
+            border-color: #CC0000;
+            background-color: #CC3300;
+        }
+
+        &.battle:hover {
+            border-color: #FF0000;
+            background-color: #FF3300;
+        }
+    }
+}
+
+.chose-hero-ability-dialog {
+    width: 600px;
 }

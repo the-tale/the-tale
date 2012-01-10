@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% import 'heroes/macros.html' as macros with context %}
+
 {% block head %}
 {{ super() }}
 
@@ -21,6 +23,28 @@ jQuery(document).ready(function(e){
         updater.Refresh();
         angelUpdater.Refresh();
     }, 0);
+
+    jQuery('.pgf-choose-ability-button').click(function(){
+        pgf.ui.dialog.Create({ fromUrl: pgf.urls['game:heroes:choose_ability_dialog']({{ resource.hero.id }}),
+                               OnOpen: function(dialog) {
+                                   pgf.tooltips.Refresh('.pgf-chose-hero-ability-dialog');
+
+                                   jQuery('.pgf-ability-record', dialog).click(function(e){
+                                       e.preventDefault();
+                                       
+                                       var el = jQuery(e.currentTarget);
+
+                                       pgf.forms.Post({ action: pgf.urls['game:heroes:choose_ability']({{ resource.hero.id }}, el.data('ability-id')),
+                                                        OnSuccess: function(data) { location.reload(); }
+                                                      });
+                                       
+                                   });
+                               },
+                               OnClose: function(dialog) {
+                                   pgf.tooltips.Hide('.pgf-chose-hero-ability-dialog');
+                               }
+                             });
+    });
 });
 
 </script>
@@ -37,10 +61,17 @@ jQuery(document).ready(function(e){
   </div>
 
   <div id="center-column" class="column">
+
+    {% if resource.hero.destiny_points %}
+    <div id="choose-ability-button" class="block pgf-choose-ability-button">
+      <h2>ВЫБEРИТЕ НОВУЮ СПОСОБНОСТЬ</h2>
+    </div>
+    {% endif %}
+
     <div class="block">
       <h2>Боевые способности</h2>
-      <ul>
-      </ul>
+      {% set abilities = resource.hero.get_abilities() %}
+      {{ macros.abilities_list(abilities) }}
     </div>
   </div>
 

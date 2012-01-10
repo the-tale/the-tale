@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import math
+import random
+
+from django_next.utils import s11n
 from django_next.utils.decorators import nested_commit_on_success
 
 from game.journal_messages.prototypes import MessagesLogPrototype, get_messages_log_by_model
@@ -10,9 +13,9 @@ from game.map.roads.prototypes import RoadPrototype
 from ..quests.prototypes import get_quest_by_model
 from ..quests.models import Quest
 
-
-from .models import Hero
+from .models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from . import game_info
+from . import habilities
 
 def get_hero_by_id(model_id):
     hero = Hero.objects.get(id=model_id)
@@ -52,9 +55,23 @@ class HeroPrototype(object):
     @property
     def level(self): return self.model.level
 
-    def get_experience(self): return self.model.experience
-    def set_experience(self, value): self.model.experience = value
-    experience = property(get_experience, set_experience)
+    @property
+    def experience(self): return self.model.experience
+    def add_experience(self, value): 
+        self.model.experience += value
+        if self.experience_to_level() <= self.model.experience:
+            self.model.experience -= self.experience_to_level()
+            self.model.level += 1
+            self.model.destiny_points += 1
+
+    def get_destiny_points(self): return self.model.destiny_points
+    def set_destiny_points(self, value): self.model.destiny_points = value
+    destiny_points = property(get_destiny_points, set_destiny_points)
+
+    def get_destiny_points_spend(self): return self.model.destiny_points_spend
+    def set_destiny_points_spend(self, value): self.model.destiny_points_spend = value
+    destiny_points_spend = property(get_destiny_points_spend, set_destiny_points_spend)
+    
 
     def get_health(self): return self.model.health
     def set_health(self, value): self.model.health = value
@@ -63,6 +80,61 @@ class HeroPrototype(object):
     def get_money(self): return self.model.money
     def set_money(self, value): self.model.money = value
     money = property(get_money, set_money)
+
+    @property
+    def abilities(self):
+        if not hasattr(self, '_abilities'):
+            self._abilities = s11n.from_json(self.model.abilities)
+        return self._abilities
+
+    def get_next_ability_level(self, ability_id):
+        max_level = len(habilities.ABILITIES[ability_id].LEVELS)
+
+        if ability_id in self.abilities:
+            if max_level == self.abilities[ability_id]:
+                return None
+            return self.abilities[ability_id] + 1
+
+        return 1
+
+    def get_abilities(self):
+        return [ habilities.ABILITIES[ability_id](ability_level) for ability_id, ability_level in self.abilities.items()]
+
+
+    def get_abilities_for_choose(self):
+        
+        random.seed(self.id * (self.destiny_points_spend + 1))
+
+        MAX_ABILITIES = 8
+        HERO_ABILITIES = 4
+
+        exists_candidates = []
+        for ability_key, ability_level in self.abilities.items():
+            if len(habilities.ABILITIES[ability_key].LEVELS) <= ability_level + 1:
+                continue
+            exists_candidates.append(ability_key)
+        
+        exists_choices = random.sample(exists_candidates, min(HERO_ABILITIES, len(exists_candidates)))
+
+        new_candidates = []
+        for ability_key, ability in habilities.ABILITIES.items():
+            if ability_key in self.abilities:
+                continue
+            new_candidates.append(ability_key)
+        new_choices = random.sample(new_candidates, min(MAX_ABILITIES - HERO_ABILITIES, len(new_candidates)))
+
+        choices = exists_choices + new_choices
+
+        result = []
+
+        for choice in choices:
+            level = 1
+            if choice in self.abilities:
+                level = self.abilities[choice] + 1
+            result.append(habilities.ABILITIES[choice](level))
+
+        return result
+
 
     @property
     def bag(self):
@@ -136,7 +208,8 @@ class HeroPrototype(object):
     def max_bag_size(self): return 8
 
     @property
-    def experience_to_level(self): return 100
+    def experience_to_level(self): 
+        return 100 + (self.level - 1) * 100
 
     @property
     def chaoticity(self): return 5
@@ -206,6 +279,7 @@ class HeroPrototype(object):
     def save(self): 
         self.model.bag = self.bag.serialize()
         self.model.equipment = self.equipment.serialize()
+        self.model.abilities = s11n.to_json(self.abilities)
         self.model.save(force_update=True)
 
     def get_messages_log(self):
@@ -227,6 +301,7 @@ class HeroPrototype(object):
                 'money': self.money, 
                 'base': { 'name': self.name,
                           'level': self.level,
+                          'destiny_points': self.destiny_points,
                           'health': self.health,
                           'max_health': self.max_health,
                           'experience': self.experience,
@@ -393,3 +468,82 @@ class HeroPositionPrototype(object):
                                          'y': self.coordinates_to[1]}, 
                                  'from': { 'x': self.coordinates_from[0],
                                            'y': self.coordinates_from[1]} } }
+
+
+
+class ChooseAbilityTaskPrototype(object):
+    
+    def __init__(self, model):
+        self.model = model
+
+    @classmethod
+    def get_by_id(cls, task_id):
+        return cls(ChooseAbilityTask.objects.get(id=task_id))
+
+    @classmethod
+    def reset_all(cls):
+        ChooseAbilityTask.objects.filter(state=CHOOSE_ABILITY_STATE.WAITING).update(state=CHOOSE_ABILITY_STATE.RESET)
+
+    @property
+    def id(self): return self.model.id
+
+    def get_state(self): return self.model.state
+    def set_state(self, value): self.model.state = value
+    state = property(get_state, set_state)
+
+    def get_comment(self): return self.model.comment
+    def set_comment(self, value): self.model.comment = value
+    comment = property(get_comment, set_comment)
+
+    @property
+    def hero_id(self): return self.model.hero_id
+
+    @property
+    def ability_id(self): return self.model.ability_id
+
+    @property
+    def ability_level(self): return self.model.ability_level
+
+    @classmethod
+    def create(cls, ability_id, ability_level, hero_id):
+        model = ChooseAbilityTask.objects.create(hero_id=hero_id,
+                                                 ability_id=ability_id,
+                                                 ability_level=ability_level)
+        return cls(model)
+
+    def save(self):
+        self.model.save()
+
+    @nested_commit_on_success
+    def process(self, bundle):
+
+        hero = bundle.heroes[self.hero_id]
+
+        if hero.destiny_points <= 0:
+            self.state = CHOOSE_ABILITY_STATE.ERROR
+            self.comment = 'no destiny points'
+            return
+
+        if self.ability_id in hero.abilities:
+
+            if hero.abilities[self.ability_id] + 1 != self.ability_level:
+                self.state = CHOOSE_ABILITY_STATE.ERROR
+                self.comment = 'wrong ability level for existed ability'
+                return
+
+            hero.abilities[self.ability_id] += 1
+
+        else:
+            if self.ability_level != 1: 
+                self.state = CHOOSE_ABILITY_STATE.ERROR
+                self.comment = 'wrong ability level for new ability'
+                return
+
+            hero.abilities[self.ability_id] = 1
+
+        hero.destiny_points -= 1
+        hero.destiny_points_spend += 1
+        
+        self.state =CHOOSE_ABILITY_STATE.PROCESSED
+
+

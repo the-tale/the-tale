@@ -80,7 +80,16 @@ pgf.ui.dialog.Create = function(params) {
             position: 'center',
             resizable: false,
             close: function() {
+                if (params.OnClose) {
+                    params.OnClose(dialog);
+                }
+
                 dialog.dialog('destroy');
+            },
+            open: function() {
+                if (params.OnOpen) {
+                    params.OnOpen(dialog);
+                }
             }
         });
     }

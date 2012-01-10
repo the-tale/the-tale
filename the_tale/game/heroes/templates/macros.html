@@ -1,0 +1,22 @@
+
+{% macro abilities_list(abilities) -%}
+
+<ul class="hero-abilities-list left">
+  {% for ability in abilities %}
+  <li class="record {{ ability.TYPE }} pgf-ability-record" data-ability-id="{{ ability.get_id() }}" data-tooltip=">pgf-tooltip-container">
+    <i class="icon"></i>
+    <span class="name">{{ ability.NAME }}</span>
+    <span class="level">{{ ability.level }}</span>
+    
+    <div class="pgf-tooltip-container">
+      <div class="hero-ability-tooltip {{ ability.TYPE }}">
+        <h6 class="">боевая способность</h6>
+        <p class="description">{{ ability.DESCRIPTION }}</p>
+      </div>
+    </div>
+
+  </li>
+  {% endfor %}
+</ul>
+
+{%- endmacro %}

@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from django.db import models
 
 from game.angels.models import Angel
@@ -13,6 +15,8 @@ class Hero(models.Model):
 
     level = models.IntegerField(null=False, default=1)
     experience = models.BigIntegerField(null=False, default=0)
+    destiny_points = models.IntegerField(null=False, default=1)
+    destiny_points_spend = models.IntegerField(null=False, default=0) # for random.seed
     
     health = models.FloatField(null=False, default=0.0)
 
@@ -20,6 +24,8 @@ class Hero(models.Model):
 
     equipment = models.TextField(null=False, default='{}')
     bag = models.TextField(null=False, default='{}')
+
+    abilities = models.TextField(null=False, default='{}')
 
     #position
     pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True)
@@ -37,3 +43,28 @@ class Hero(models.Model):
 
     def __unicode__(self):
         return u'hero[%d] - %s' % (self.id, self.name)
+
+
+class CHOOSE_ABILITY_STATE:
+    WAITING = 0
+    PROCESSED = 1
+    UNPROCESSED = 2
+    RESET = 3
+    ERROR = 4
+
+CHOOSE_ABILITY_STATE_CHOICES = [(CHOOSE_ABILITY_STATE.WAITING, u'в очереди'),
+                                (CHOOSE_ABILITY_STATE.PROCESSED, u'обработана'),
+                                (CHOOSE_ABILITY_STATE.UNPROCESSED, u'нельзя выбрать'),
+                                (CHOOSE_ABILITY_STATE.RESET, u'сброшена'),
+                                (CHOOSE_ABILITY_STATE.ERROR, u'ошибка')]
+
+class ChooseAbilityTask(models.Model):
+
+    state = models.IntegerField(default=CHOOSE_ABILITY_STATE.WAITING, choices=CHOOSE_ABILITY_STATE_CHOICES)
+
+    hero = models.ForeignKey(Hero,  related_name='+')
+
+    ability_id = models.CharField(max_length=64)
+    ability_level = models.IntegerField(null=False)
+
+    comment = models.CharField(max_length=256, blank=True, null=False, default=True)
