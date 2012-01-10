@@ -5,6 +5,9 @@ from django_next.utils.decorators import nested_commit_on_success
 from django_next.utils import s11n
 
 from ..heroes.logic import create_mob_for_hero, heal_in_town, sell_in_city, equip_in_city
+from ..heroes import settings as heroes_settings
+from ..heroes.habilities import ABILITIES_EVENTS as HERO_ABILITIES_EVENTS
+
 from ..map.places.prototypes import get_place_by_model
 from ..map.roads.prototypes import get_road_by_model, WaymarkPrototype
 
@@ -513,6 +516,10 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                 hero_initiative = random.uniform(0, self.hero.battle_speed + self.mob.battle_speed)
 
                 if hero_initiative < self.hero.battle_speed:
+
+                    if random.uniform(0, 1) <= heroes_settings.USE_ABILITY_CHANCE:
+                        self.hero.trigger_ability(HERO_ABILITIES_EVENTS.STRIKE_MOB)
+
                     damage = self.mob.strike_by_hero(self.hero)
                     self.hero.create_tmp_log_message('%(attaker)s bit %(defender)s for %(damage)s HP' % {'attaker': self.hero.name,
                                                                                                          'defender': self.mob.name,
@@ -520,6 +527,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
                 else:
                     damage = self.mob.strike_hero(self.hero)
+                    self.hero.context.after_mob_strike()
                     self.hero.create_tmp_log_message('%(attaker)s bit %(defender)s for %(damage)s HP' % {'attaker': self.mob.name,
                                                                                                          'defender': self.hero.name,
                                                                                                          'damage': damage})
@@ -528,6 +536,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                     self.hero.kill(self)
                     self.hero.create_tmp_log_message('Hero was killed')
                     self.state = self.STATE.PROCESSED
+                    self.hero.context.after_battle_end()
 
                 if self.mob.health <= 0:
                     self.mob.kill()
@@ -537,10 +546,9 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                     self.hero.put_loot(loot)
 
                     self.state = self.STATE.PROCESSED
+                    self.hero.context.after_battle_end()
 
                 self.percents = 1.0 - self.mob.health
-
-                # self.hero.save()
 
                 if self.state == self.STATE.PROCESSED:
                     self.remove_mob()

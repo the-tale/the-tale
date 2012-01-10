@@ -64,7 +64,7 @@ class AbilitiesResource(Resource):
             return self.json(status='error', errors='Вы пытаетесь получить данные о способностях другого игрока!')        
 
         if ability_task.state == ABILITY_STATE.WAITING:
-            return self.json(status='processing', status_url=reverse('game:abilities:activate_status', args=[self.ability_type]))
+            return self.json(status='processing', status_url=reverse('game:abilities:activate_status', args=[self.ability_type]) + '?task_id=%s' % task_id )
         if ability_task.state == ABILITY_STATE.PROCESSED:
             return self.json(status='ok', data={'available_at': ability_task.available_at} )
         
