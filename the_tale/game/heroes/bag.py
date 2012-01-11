@@ -143,7 +143,7 @@ class Equipment(object):
             if artifact:
                 armor += artifact.get_attr_armor()
 
-        return armor / len(SLOTS_LIST)
+        return armor
 
 
     def ui_info(self):
