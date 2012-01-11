@@ -7,6 +7,7 @@ from django_next.utils import s11n
 from ..heroes.logic import create_mob_for_hero, heal_in_town, sell_in_city, equip_in_city
 from ..heroes import settings as heroes_settings
 from ..heroes.habilities import ABILITIES_EVENTS as HERO_ABILITIES_EVENTS
+from ..heroes.prototypes import EXPERIENCE_VALUES
 
 from ..map.places.prototypes import get_place_by_model
 from ..map.roads.prototypes import get_road_by_model, WaymarkPrototype
@@ -579,6 +580,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
                 if self.mob.health <= 0:
                     self.mob.kill()
+                    self.hero.add_experience(EXPERIENCE_VALUES.FOR_KILL)
                     self.hero.create_tmp_log_message('%s was killed' % self.mob.name)
 
                     loot = self.mob.get_loot(self.hero.chaoticity)

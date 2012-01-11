@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        workers_environment.game.run()
+        workers_environment.logic.run()
 
         workers_environment.deinitialize()
 

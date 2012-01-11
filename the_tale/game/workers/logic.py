@@ -15,7 +15,7 @@ class CMD_TYPE:
     REGISTER_HERO = 'register_hero'
     CHOOSE_HERO_ABILITY = 'choose_hero_ability'
 
-class GameException(Exception): pass
+class LogicException(Exception): pass
 
 class Worker(object):
 
@@ -96,7 +96,7 @@ class Worker(object):
             self.turn_number += 1
 
             if turn_number != self.turn_number:
-                raise GameException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
+                raise LogicException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
 
             if not len(self.queue):
                 return 
@@ -111,7 +111,7 @@ class Worker(object):
                 next_turn_number = bundle.process_turn(self.turn_number)
 
                 if next_turn_number <= self.turn_number:
-                    raise GameException('bundle try to process itself twice on one turn')
+                    raise LogicException('bundle try to process itself twice on one turn')
 
                 heapq.heappushpop(self.queue, (next_turn_number, bundle.id) )
                 bundle.save_data()

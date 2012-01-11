@@ -29,8 +29,8 @@ class Worker(object):
         self.stop_required = False
         print 'SUPERVISOR CONSTRUCTED'
 
-    def set_game_worker(self, game_worker):
-        self.game_worker = game_worker
+    def set_logic_worker(self, logic_worker):
+        self.logic_worker = logic_worker
 
     def set_highlevel_worker(self, highlevel_worker):
         self.highlevel_worker = highlevel_worker
@@ -80,15 +80,15 @@ class Worker(object):
         ChooseAbilityTaskPrototype.reset_all()
 
         #initialization
-        self.game_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='game')
+        self.logic_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='logic')
         self.highlevel_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='highlevel')
-        self.wait_answers_from('initialize', workers=['game', 'highlevel'])
+        self.wait_answers_from('initialize', workers=['logic', 'highlevel'])
 
         for bundle_model in Bundle.objects.all():
             bundle = get_bundle_by_model(bundle_model)
             bundle.owner = 'worker'
             bundle.save()
-            self.game_worker.cmd_register_bundle(bundle.id)
+            self.logic_worker.cmd_register_bundle(bundle.id)
 
         print 'SUPERVISOR INITIALIZED'
 
@@ -119,8 +119,8 @@ class Worker(object):
         self.time.increment_turn()
         self.time.save()
 
-        self.game_worker.cmd_next_turn(turn_number=self.time.turn_number)
-        self.wait_answers_from('next_turn', workers=['game'])
+        self.logic_worker.cmd_next_turn(turn_number=self.time.turn_number)
+        self.wait_answers_from('next_turn', workers=['logic'])
 
         self.highlevel_worker.cmd_next_turn(turn_number=self.time.turn_number)
         self.wait_answers_from('next_turn', workers=['highlevel'])
@@ -135,22 +135,22 @@ class Worker(object):
             bundle.owner = 'worker'
             bundle.save()
 
-        self.game_worker.cmd_register_bundle(bundle_id)
+        self.logic_worker.cmd_register_bundle(bundle_id)
 
     def cmd_activate_ability(self, ability_task_id):
         self.send_cmd(CMD_TYPE.ACTIVATE_ABILITY, {'ability_task_id': ability_task_id})
 
     def process_activate_ability(self, ability_task_id):
-        self.game_worker.cmd_activate_ability(ability_task_id)
+        self.logic_worker.cmd_activate_ability(ability_task_id)
 
     def cmd_register_hero(self, hero_id):
         self.send_cmd(CMD_TYPE.REGISTER_HERO, {'hero_id': hero_id})
 
     def process_register_hero(self, hero_id):
-        self.game_worker.cmd_register_hero(hero_id)
+        self.logic_worker.cmd_register_hero(hero_id)
 
     def cmd_choose_hero_ability(self, ability_task_id):
         self.send_cmd(CMD_TYPE.CHOOSE_HERO_ABILITY, {'ability_task_id': ability_task_id})
 
     def process_choose_hero_ability(self, ability_task_id):
-        self.game_worker.cmd_choose_hero_ability(ability_task_id)
+        self.logic_worker.cmd_choose_hero_ability(ability_task_id)

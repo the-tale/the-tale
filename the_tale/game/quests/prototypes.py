@@ -192,6 +192,8 @@ class QuestPrototype(object):
 
     def cmd_get_reward(self, cmd, cur_action):
         #TODO: implement
+        from ..heroes.prototypes import EXPERIENCE_VALUES
+        cur_action.hero.add_experience(EXPERIENCE_VALUES.FOR_QUEST)
         cur_action.hero.create_tmp_log_message('hero get some reward [TODO: IMPLEMENT]')
 
     def cmd_quest(self, cmd, cur_action):

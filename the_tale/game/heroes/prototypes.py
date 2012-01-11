@@ -31,6 +31,10 @@ def get_heroes_by_query(query):
 class BASE_ATTRIBUTES:
     HEALTH = 100
 
+class EXPERIENCE_VALUES:
+    FOR_KILL = 1
+    FOR_QUEST = 15
+
 class HeroPrototype(object):
 
     def __init__(self, model=None):
@@ -60,8 +64,8 @@ class HeroPrototype(object):
     def experience(self): return self.model.experience
     def add_experience(self, value): 
         self.model.experience += value
-        if self.experience_to_level() <= self.model.experience:
-            self.model.experience -= self.experience_to_level()
+        if self.experience_to_level <= self.model.experience:
+            self.model.experience -= self.experience_to_level
             self.model.level += 1
             self.model.destiny_points += 1
 
