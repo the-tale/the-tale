@@ -1,7 +1,9 @@
 # coding: utf-8
 
-from ..prototypes import AbilityPrototype
+from ...heroes.hmessages import generator as msg_generator
 from ...actions.prototypes import ActionBattlePvE_1x1Prototype
+
+from ..prototypes import AbilityPrototype
 
 attrs = None
 
@@ -29,7 +31,7 @@ class Lightning(AbilityPrototype):
         if not battle_action.bit_mob(0.3):
             return False
 
-        hero.create_tmp_log_message('You strike enemy')
+        self.hero.push_message(msg_generator.msg_ability_lightning_activate(self.hero, battle_action.mob))
 
         return True
 

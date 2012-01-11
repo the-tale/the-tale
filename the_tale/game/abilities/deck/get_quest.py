@@ -1,7 +1,9 @@
 # coding: utf-8
 
-from ..prototypes import AbilityPrototype
 from ...actions.prototypes import ActionIdlenessPrototype
+from ...heroes.hmessages import generator as msg_generator
+
+from ..prototypes import AbilityPrototype
 
 attrs = None
 
@@ -30,7 +32,7 @@ class GetQuest(AbilityPrototype):
         if not idleness_action.init_quest():
             return False
 
-        hero.create_tmp_log_message('Hero desided to take next quest')
+        self.hero.push_message(msg_generator.msg_ability_getquest_activate(self.hero))
 
         return True
 

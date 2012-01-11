@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from django_next.utils import s11n
-
 from django_next.utils.decorators import nested_commit_on_success
+
+from ..heroes.hmessages import generator as msg_generator
 
 from .models import Quest
 
@@ -155,7 +156,7 @@ class QuestPrototype(object):
         log_msg = writer.get_log_msg(cmd.event)
 
         if log_msg:
-            cur_action.hero.create_tmp_log_message(log_msg)
+            cur_action.hero.push_message(log_msg)
 
         {'description': self.cmd_description,
          'move': self.cmd_move,
@@ -170,7 +171,7 @@ class QuestPrototype(object):
          }[cmd.type()](cmd, cur_action)
 
     def cmd_description(self, cmd, cur_action):
-        cur_action.hero.create_tmp_log_message(cmd.msg)
+        cur_action.hero.push_message(cmd.msg)
 
     def cmd_move(self, cmd, cur_action):
         from ..actions.prototypes import ActionMoveToPrototype
@@ -194,7 +195,7 @@ class QuestPrototype(object):
         #TODO: implement
         from ..heroes.prototypes import EXPERIENCE_VALUES
         cur_action.hero.add_experience(EXPERIENCE_VALUES.FOR_QUEST)
-        cur_action.hero.create_tmp_log_message('hero get some reward [TODO: IMPLEMENT]')
+        cur_action.hero.push_message(msg_generator.msg_quests_get_reward(cur_action.hero))
 
     def cmd_quest(self, cmd, cur_action):
         # TODO: move to quest generator environment

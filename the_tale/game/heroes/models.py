@@ -29,6 +29,8 @@ class Hero(models.Model):
 
     context = models.TextField(null=False, default='{}')
 
+    messages = models.TextField(null=False, default='[]')
+
     #position
     pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True)
     pos_road = models.ForeignKey('roads.Road', related_name='+', null=True, default=None, blank=True)

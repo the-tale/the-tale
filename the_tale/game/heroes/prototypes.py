@@ -16,6 +16,8 @@ from ..quests.models import Quest
 from .models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from .context import Context as HeroContext
 from . import game_info, habilities
+from .hmessages import generator as msg_generator
+from . import settings as heroes_settings
 
 
 def get_hero_by_id(model_id):
@@ -187,18 +189,16 @@ class HeroPrototype(object):
         bag_item_uuid = None
         if artifact.quest or loot_items_count < max_bag_size:
             self.bag.put_artifact(artifact)
-            self.create_tmp_log_message('hero received "%s"' % artifact.name)
+            self.push_message(msg_generator.msg_heroes_put_loot(self, artifact))
         else:
-            self.create_tmp_log_message('hero can not put "%s" - the bag is full' % artifact.name)
+            self.push_message(msg_generator.msg_heroes_put_loot_no_space(self, artifact))
         return bag_item_uuid
 
     def pop_loot(self, artifact):
         self.bag.pop_artifact(artifact)
-        self.create_tmp_log_message('hero droped "%s"' % artifact.name)
 
     def pop_quest_loot(self, artifact):
         self.bag.pop_quest_artifact(artifact)
-        self.create_tmp_log_message('hero droped "%s"' % artifact.name)
 
     @property
     def equipment(self):
@@ -301,12 +301,16 @@ class HeroPrototype(object):
             self._position = HeroPositionPrototype(hero_model=self.model)
         return self._position
 
+    @property
+    def messages(self):
+        if not hasattr(self, '_messages'):
+            self._messages = s11n.from_json(self.model.messages)
+        return self._messages
 
-    def create_tmp_log_message(self, text):
-        messages_log = self.get_messages_log()
-        messages_log.push_message('TMP', 'TMP: %s' % text)
-        messages_log.save()
-
+    def push_message(self, msg):
+        self.messages.append(msg)
+        if len(self.messages) > heroes_settings.MESSAGES_LOG_LENGTH:
+            self.messages.pop(0)
 
     ###########################################
     # Object operations
@@ -318,6 +322,7 @@ class HeroPrototype(object):
         self.model.equipment = self.equipment.serialize()
         self.model.abilities = s11n.to_json(self.abilities)
         self.model.context = self.context.serialize()
+        self.model.messages = s11n.to_json(self.messages)
         self.model.save(force_update=True)
 
     def get_messages_log(self):
@@ -331,7 +336,7 @@ class HeroPrototype(object):
                 'angel': self.angel_id,
                 'actions': [ action.ui_info() for action in self.get_actions() ] if not ignore_actions else [],
                 'quests': self.quest.ui_info() if self.quest else {},
-                'messages': self.get_messages_log().messages,
+                'messages': self.messages,
                 'position': self.position.ui_info(),
                 'alive': self.is_alive,
                 'bag': self.bag.ui_info(),

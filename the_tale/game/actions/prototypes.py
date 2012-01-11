@@ -8,6 +8,7 @@ from ..heroes.logic import create_mob_for_hero, heal_in_town, sell_in_city, equi
 from ..heroes import settings as heroes_settings
 from ..heroes.habilities import ABILITIES_EVENTS as HERO_ABILITIES_EVENTS
 from ..heroes.prototypes import EXPERIENCE_VALUES
+from ..heroes.hmessages import generator as msg_generator
 
 from ..map.places.prototypes import get_place_by_model
 from ..map.roads.prototypes import get_road_by_model, WaymarkPrototype
@@ -252,7 +253,9 @@ class ActionIdlenessPrototype(ActionPrototype):
 
             self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
             self.percents = float(self.entropy) / self.ENTROPY_BARRIER
-            self.hero.create_tmp_log_message('do nothing')
+
+            if random.uniform(0, 1) < 0.2:
+                self.hero.push_message(msg_generator.msg_action_idleness_waiting(self.hero))
 
             if (self.entropy >= self.ENTROPY_BARRIER / 2 and 
                 (self.hero.need_trade_in_town or self.hero.need_rest_in_town) and 
@@ -266,7 +269,8 @@ class ActionIdlenessPrototype(ActionPrototype):
                 from ..quests.logic import create_random_quest_for_hero
 
                 self.entropy = 0
-                self.hero.create_tmp_log_message('Entropy filled, receiving new quest')
+
+                self.hero.push_message(msg_generator.msg_action_idleness_start_quest(self.hero))
                 quest = create_random_quest_for_hero(self.hero)
 
                 self.bundle.add_action(ActionQuestPrototype.create(parent=self, quest=quest))
@@ -373,7 +377,7 @@ class ActionMoveToPrototype(ActionPrototype):
     def process(self):
 
         if self.state == self.STATE.UNINITIALIZED:
-            self.hero.create_tmp_log_message('hero go to %s' % self.destination.name)
+            self.hero.push_message(msg_generator.msg_action_moveto_start(self.hero, self.destination))
             self.percents = 0
             self.state = self.STATE.CHOOSE_ROAD
 
@@ -462,7 +466,8 @@ class ActionMoveToPrototype(ActionPrototype):
             else:
                 self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
 
-                self.hero.create_tmp_log_message('I go, I go, I go to %s' % current_destination.name)
+                if random.uniform(0, 1) < 0.33:
+                    self.hero.push_message(msg_generator.msg_action_moveto_move(self.hero, self.destination, self.current_destination))
             
                 delta = self.hero.move_speed / self.road.length
 
@@ -528,13 +533,12 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
     def process(self):
 
         if self.state == self.STATE.UNINITIALIZED:
-            self.hero.create_tmp_log_message('start battle with %s' % self.mob.name)
+            self.hero.push_message(msg_generator.msg_action_battlepve1x1_start(self.hero, self.mob))
             self.state = self.STATE.BATTLE_RUNNING
 
         elif self.state == self.STATE.BATTLE_RUNNING:
 
             if self.hero.context.leave_battle():
-                self.hero.create_tmp_log_message('%(mob)s mis hero and go away' % {'mob': self.mob.name})
                 self.percents = 1
                 self.state = self.STATE.PROCESSED
 
@@ -555,33 +559,29 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
                     self.hero.context.after_hero_strike()
 
-                    self.hero.create_tmp_log_message('%(attaker)s bit %(defender)s for %(damage)s HP' % {'attaker': self.hero.name,
-                                                                                                         'defender': self.mob.name,
-                                                                                                         'damage': damage})
+                    self.hero.push_message(msg_generator.msg_action_battlepve1x1_hero_strike_mob(self.hero, self.mob, damage))
 
                 else:
                     
                     if not self.hero.context.skip_mob_strike():
                         damage = self.mob.strike_hero(self.hero)
-                        self.hero.create_tmp_log_message('%(attaker)s bit %(defender)s for %(damage)s HP' % {'attaker': self.mob.name,
-                                                                                                             'defender': self.hero.name,
-                                                                                                             'damage': damage})
+                        
+                        self.hero.push_message(msg_generator.msg_action_battlepve1x1_mob_strike_hero(self.hero, self.mob, damage))
                     else:
-                        self.hero.create_tmp_log_message('%(attaker)s mis by %(defender)s' % {'attaker': self.mob.name,
-                                                                                              'defender': self.hero.name})
+                        self.hero.push_message(msg_generator.msg_action_battlepve1x1_mob_mis_by_hero(self.hero, self.mob))
 
                     self.hero.context.after_mob_strike()
 
 
                 if self.hero.health <= 0:
                     self.hero.kill(self)
-                    self.hero.create_tmp_log_message('Hero was killed')
+                    self.hero.push_message(msg_generator.msg_action_battlepve1x1_hero_killed(self.hero, self.mob))
                     self.state = self.STATE.PROCESSED
 
                 if self.mob.health <= 0:
                     self.mob.kill()
                     self.hero.add_experience(EXPERIENCE_VALUES.FOR_KILL)
-                    self.hero.create_tmp_log_message('%s was killed' % self.mob.name)
+                    self.hero.push_message(msg_generator.msg_action_battlepve1x1_mob_killed(self.hero, self.mob))
 
                     loot = self.mob.get_loot(self.hero.chaoticity)
                     self.hero.put_loot(loot)
@@ -682,21 +682,15 @@ class ActionInPlacePrototype(ActionPrototype):
             self.state = self.STATE.RESTING
             self.bundle.add_action(ActionRestInSettlementPrototype.create(self, self.place))
 
-            self.hero.create_tmp_log_message('hero decided to have a rest')
-
         elif self.can_equip_in_town and self.hero.need_equipping_in_town:
             self.state = self.STATE.EQUIPPING
 
             self.bundle.add_action(ActionEquipInSettlementPrototype.create(self, self.place))
 
-            self.hero.create_tmp_log_message('hero looking for new equipment in his bag')
-
         elif self.can_trade_in_town and self.hero.need_trade_in_town:
             self.state = self.STATE.TRADING
 
             self.bundle.add_action(ActionTradeInSettlementPrototype.create(self, self.place))
-
-            self.hero.create_tmp_log_message('hero decided to sell all loot')        
             
         else:
             self.state = self.STATE.PROCESSED
@@ -735,18 +729,18 @@ class ActionRestInSettlementPrototype(ActionPrototype):
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.RESTING
             self.percents = 0
+            self.hero.push_message(msg_generator.msg_action_restinsettlement_start(self.hero))
 
         elif self.state == self.STATE.RESTING:
 
             heal_amount = heal_in_town(self.hero)
-            self.hero.create_tmp_log_message('hero healed for %d HP' % heal_amount)
+
+            if random.uniform(0, 1) < 0.33:
+                self.hero.push_message(msg_generator.msg_action_restinsettlement_resring(self.hero, heal_amount))
 
             self.percents = float(self.hero.health/self.hero.max_health)
 
-            # self.hero.save()
-
             if self.hero.health == self.hero.max_health:
-                self.hero.create_tmp_log_message('hero is completly healthty')
                 self.state = self.STATE.PROCESSED
 
 
@@ -783,14 +777,15 @@ class ActionEquipInSettlementPrototype(ActionPrototype):
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.EQUIPPING
             self.percents = 0
+            self.hero.push_message(msg_generator.msg_action_equipinsettlement_start(self.hero))
 
         elif self.state == self.STATE.EQUIPPING:
             unequipped, equipped = equip_in_city(self.hero)
             if equipped:
                 if unequipped:
-                    self.hero.create_tmp_log_message('hero change "%s" to "%s"' % (unequipped.name, equipped.name))
+                    self.hero.push_message(msg_generator.msg_action_equipinsettlement_change_item(self.hero, unequipped, equipped))
                 else:
-                    self.hero.create_tmp_log_message('hero equip "%s"' % equipped.name)
+                    self.hero.push_message(msg_generator.msg_action_equipinsettlement_equip_item(self.hero, equipped))
             else:
                 self.equipped = True
                 self.state = self.STATE.PROCESSED
@@ -835,6 +830,7 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.TRADING
             self.percents = 0
+            self.hero.push_message(msg_generator.msg_action_tradeinsettlement_start(self.hero))
 
         elif self.state == self.STATE.TRADING:
             quest_items_count, loot_items_count = self.hero.bag.occupation
@@ -847,11 +843,10 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
                     
                 sell_price = sell_in_city(self.hero, artifact, False)
 
-                self.hero.create_tmp_log_message('hero solled %s for %d g.' % (artifact.name, sell_price) )
-                # self.hero.save()
+                self.hero.push_message(msg_generator.msg_action_tradeinsettlement_sell_item(self.hero, artifact, sell_price))
             else:
-                self.hero.create_tmp_log_message('hero has solled all what he wants')
                 self.state = self.STATE.PROCESSED
+
 
 class ActionMoveNearPlacePrototype(ActionPrototype):
 
@@ -918,7 +913,8 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
             else:
                 self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
 
-                self.hero.create_tmp_log_message('I walk near %s' % self.place.name)
+                if random.uniform(0, 1) < 0.2:
+                    self.hero.push_message(msg_generator.msg_action_movenearplace_walk(self.hero, self.place))
             
                 if self.hero.position.subroad_len() == 0:
                     self.hero.position.percents += 0.1

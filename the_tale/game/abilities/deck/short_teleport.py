@@ -1,7 +1,9 @@
 # coding: utf-8
 
-from ..prototypes import AbilityPrototype
+from ...heroes.hmessages import generator as msg_generator
 from ...actions.prototypes import ActionMoveToPrototype
+
+from ..prototypes import AbilityPrototype
 
 attrs = None
 
@@ -15,7 +17,7 @@ class ShortTeleport(AbilityPrototype):
 
     NAME = u'Подтолкнуть'
     DESCRIPTION = u'Телепортировать героя на короткое расстояние'
-    ARTISTIC = u'Маленький толчёк, и ваш подопечный уже влетает в дереве в нескольких километрах впереди.'
+    ARTISTIC = u'Маленький толчок, и ваш подопечный уже влетает в дереве в нескольких километрах впереди.'
 
     FORM = None
     TEMPLATE = None
@@ -29,7 +31,7 @@ class ShortTeleport(AbilityPrototype):
         if not move_action.short_teleport(10):
             return False
 
-        hero.create_tmp_log_message('You teleport hero for %d km' % 10 )
+        self.hero.push_message(msg_generator.msg_ability_shortteleport_activate(self.hero))
 
         return True
 

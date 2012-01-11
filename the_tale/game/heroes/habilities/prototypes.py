@@ -1,5 +1,7 @@
 #coding: utf-8
 
+from ..hmessages import generator as msg_generator
+
 class ABILITY_TYPE:
     BATTLE = 'battle'
 
@@ -53,7 +55,7 @@ class MagicMushroom(AbilityPrototype):
 
     def use(self, hero):
         hero.context.ability_magick_mushroom = self.LEVELS[self.level][1]
-        hero.create_tmp_log_message('Hero use ability "Magic Mushroom"')
+        hero.push_message(msg_generator.msg_habilities_use(hero, self))
 
 
 class Sidestep(AbilityPrototype):
@@ -72,7 +74,7 @@ class Sidestep(AbilityPrototype):
 
     def use(self, hero):
         hero.context.ability_once_mob_miss = sum_probabilities(hero.context.ability_once_mob_miss, self.LEVELS[self.level][1])
-        hero.create_tmp_log_message('Hero use ability "Sidestep"')
+        hero.push_message(msg_generator.msg_habilities_use(hero, self))
 
 
 class RunUpPush(AbilityPrototype):
@@ -92,7 +94,7 @@ class RunUpPush(AbilityPrototype):
     def use(self, hero):
         hero.context.ability_once_damage_factor *= self.LEVELS[self.level][1]
         hero.context.ability_once_mob_miss = sum_probabilities(hero.context.ability_once_mob_miss, self.LEVELS[self.level][2])
-        hero.create_tmp_log_message('Hero use ability "RunUpPush"')
+        hero.push_message(msg_generator.msg_habilities_use(hero, self))
 
 
 class MeNotHere(AbilityPrototype):
@@ -114,7 +116,8 @@ class MeNotHere(AbilityPrototype):
 
     def use(self, hero):
         hero.context.ability_once_leave_battle = sum_probabilities(hero.context.ability_once_leave_battle, self.LEVELS[self.level][2])
-        hero.create_tmp_log_message('Hero use ability "MeNotHere"')
+        hero.push_message(msg_generator.msg_habilities_use(hero, self))
+
 
 class Regeneration(AbilityPrototype):
     
@@ -136,7 +139,7 @@ class Regeneration(AbilityPrototype):
     def use(self, hero):
         health_to_regen = hero.max_health * self.LEVELS[self.level][1]
         hero.health = min(hero.health + health_to_regen, hero.max_health)
-        hero.create_tmp_log_message('Hero us ability "Regeneration" and regen %(health)s HP' % {'health': health_to_regen})
+        hero.push_message(msg_generator.msg_habilities_use(hero, self))
 
 
 ABILITIES = dict( (ability.get_id(), ability) 
