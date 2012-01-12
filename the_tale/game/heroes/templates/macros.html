@@ -3,8 +3,10 @@
 
 <ul class="hero-abilities-list left">
   {% for ability in abilities %}
-  <li class="record {{ ability.TYPE }} pgf-ability-record" data-ability-id="{{ ability.get_id() }}" data-tooltip=">pgf-tooltip-container">
-    <i class="icon"></i>
+  <li class="record {{ ability.TYPE }} pgf-ability-record" 
+      data-ability-id="{{ ability.get_id() }}" 
+      data-tooltip=">pgf-tooltip-container">
+    <i class="icon {{ ability.get_id()}}"></i>
     <span class="name">{{ ability.NAME }}</span>
     <span class="level">{{ ability.level }}</span>
     
