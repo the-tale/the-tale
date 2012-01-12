@@ -63,17 +63,17 @@ class SpyingWriter(Writer):
 
     QUEST_TYPE = SpyingLine.type()
 
-    ACTIONS = { EVENTS.QUEST_DESCRIPTION:'QUEST:%(person_start)s ask hero to spy for %(person_end)s in %(place_end)s',
-                EVENTS.MOVE_TO_QUEST: 'QUEST: hero move to %(place_end)s',
-                EVENTS.MOVE_NEAR: 'QUEST: hero is spying for %(person_end)s'}
+    ACTIONS = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя прошпионить за %(person_end)s в %(place_end)s',
+                EVENTS.MOVE_TO_QUEST: u'Герой движется к %(place_end)s',
+                EVENTS.MOVE_NEAR: u'Герой шпионит за %(person_end)s'}
 
-    LOG = { EVENTS.QUEST_DESCRIPTION:'QUEST:%(person_start)s ask hero to spy for %(person_end)s in %(place_end)s',
-            EVENTS.MOVE_NEAR: 'QUEST: hero is spying for %(person_end)s',
-            EVENTS.GET_REWARD: 'QUEST: %(person_end)s give hero a reward',
-            EVENTS.OPEN_UP_CHOICE: 'QUEST: hero desided to open uop'}
+    LOG = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя прошпионить за %(person_end)s в %(place_end)s',
+            EVENTS.MOVE_NEAR: u'И что этот %(person_end)s будет делать?',
+            EVENTS.GET_REWARD: u'%(person_end)s наградил героя',
+            EVENTS.OPEN_UP_CHOICE: u'Не стоит мне шпионить за достойным %(person_end)s, лучше расскажи ему обо всём'}
 
-    CHOICES = { CHOICES.OPEN_UP: {'question': 'should hero <a href="#" class="pgf-choice" data-choice="spy">spying</a> or <a href="#" class="pgf-choice" data-choice="open_up">open up</a>?',
-                                  'results': {'spy': 'hero desided to continue spying',
-                                              'open_up': 'hero desided to open up'} 
+    CHOICES = { CHOICES.OPEN_UP: {'question': u'За <a href="#" class="pgf-choice" data-choice="spy">шпионаж</a> герою пообещали большую награду, но, его честь требует <a href="#" class="pgf-choice" data-choice="open_up">открыться</a>?',
+                                  'results': {'spy': u'Герой решил продолжить шпионаж',
+                                              'open_up': u'Герой решил придти к %(person_end)s с повинной'} 
                                   } 
                 }

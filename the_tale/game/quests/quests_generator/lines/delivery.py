@@ -49,19 +49,19 @@ class DeliveryWriter(Writer):
 
     QUEST_TYPE = DeliveryLine.type()
 
-    ACTIONS = { EVENTS.QUEST_DESCRIPTION:'QUEST:%(person_start)s ask hero to deliver %(item_to_deliver)s to %(person_end)s in %(place_end)s',
-                EVENTS.MOVE_TO_DESTINATION: 'QUEST: hero is delivering to %(place_end)s'}
+    ACTIONS = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя доставить %(item_to_deliver)s для %(person_end)s в %(place_end)s',
+                EVENTS.MOVE_TO_DESTINATION: u'Герой доставляет %(item_to_deliver)s в %(place_end)s'}
 
-    LOG = { EVENTS.QUEST_DESCRIPTION:'QUEST:%(person_start)s ask hero to deliver %(item_to_deliver)s to %(person_end)s in %(place_end)s',
-            EVENTS.GET_ITEM: 'QUEST: hero get %(item_to_deliver)s',
-            EVENTS.MOVE_TO_DESTINATION: 'QUEST: hero is delivering to %(place_end)s',
-            EVENTS.GIVE_ITEM: 'QUEST: hero give %(item_to_deliver)s to %(person_end)s',
-            EVENTS.GET_REWARD: 'QUEST: %(person_end)s give gero a reward',
-            EVENTS.STEAL_REWARD: 'QUEST: hero steal %(item_to_deliver)s',
-            EVENTS.STEAL_CHOICE: 'QUEST: hero is desiding to steal or not to steal'}
+    LOG = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя доставить %(item_to_deliver)s для %(person_end)s в %(place_end)s',
+            EVENTS.GET_ITEM: u'Герой получил %(item_to_deliver)s',
+            EVENTS.MOVE_TO_DESTINATION: u'Работа у курьеров не простая, пора двигаться в %(place_end)s',
+            EVENTS.GIVE_ITEM: u'Герой вручил %(item_to_deliver)s %(person_end)s',
+            EVENTS.GET_REWARD: u'%(person_end)s вручил герою награду',
+            EVENTS.STEAL_REWARD: u'Теперь %(item_to_deliver)s будет моим',
+            EVENTS.STEAL_CHOICE: u'Доставить или украсть - вот в чём вопрос'}
 
-    CHOICES = { CHOICES.STEAL: {'question': 'should hero <a href="#" class="pgf-choice" data-choice="delivery">deliver</a> %(item_to_deliver)s or <a href="#" class="pgf-choice" data-choice="steal">steal</a> it?',
-                                'results': {'delivery': 'hero desided to deliver %(item_to_deliver)s',
-                                            'steal': 'hero desided to steal %(item_to_deliver)s'} 
+    CHOICES = { CHOICES.STEAL: {'question': u'Зачем <a href="#" class="pgf-choice" data-choice="delivery">мучаться с доставкой</a> %(item_to_deliver)s если можно  <a href="#" class="pgf-choice" data-choice="steal">урасть</a> посылку?',
+                                'results': {'delivery': u'Герой решил честно выполнить условия сделки',
+                                            'steal': u'Герой решил присвоить %(item_to_deliver)s'} 
                                 } 
                 }

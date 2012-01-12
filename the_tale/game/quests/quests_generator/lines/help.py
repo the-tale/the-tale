@@ -29,8 +29,8 @@ class HelpWriter(Writer):
 
     QUEST_TYPE = HelpLine.type()
 
-    ACTIONS = { EVENTS.QUEST_DESCRIPTION: 'QUEST: %(person_start)s ask hero to help %(person_end)s from %(place_end)s',
-                EVENTS.MOVE_TO_QUEST: 'QUEST: hero is moving to %(place_end)s'}
+    ACTIONS = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя помочь %(person_end)s из %(place_end)s',
+                EVENTS.MOVE_TO_QUEST: u'Герой направился к %(person_end)s'}
 
-    LOG = { EVENTS.QUEST_DESCRIPTION: 'QUEST: %(person_start)s ask hero to help %(person_end)s from %(place_end)s',
-            EVENTS.MOVE_TO_QUEST: 'QUEST: hero is moving to %(place_end)s'}
+    LOG = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя помочь %(person_end)s из %(place_end)s',
+            EVENTS.MOVE_TO_QUEST: u'Путь до %(place_end)s нелёгкий, о чём же попросит меня %(person_end)s?'}

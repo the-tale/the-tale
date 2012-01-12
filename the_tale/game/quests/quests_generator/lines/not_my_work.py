@@ -62,20 +62,20 @@ class NotMyWorkWriter(Writer):
 
     ATTACK_PERFORMER = 'attack_performer'
 
-    ACTIONS = { EVENTS.QUEST_DESCRIPTION: 'QUEST: %(person_start)s ask hero to chock up %(person_end)s to make the plege',
-                EVENTS.MOVE_TO_QUEST: 'QUEST: hero is moving to %(place_end)s',
-                EVENTS.MOVE_TO_CUSTOMER: 'QUEST: hero is moving to %(place_start)s',
-                EVENTS.ATTACK_PERFORMER: 'QUEST: hero is fighting with servants of %(person_end)s',}
+    ACTIONS = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя "напомнить" %(person_end)s о невыполненном обещании',
+                EVENTS.MOVE_TO_QUEST: u'Герой направляетя в %(place_end)s',
+                EVENTS.MOVE_TO_CUSTOMER: u'Герой возвращается за наградой',
+                EVENTS.ATTACK_PERFORMER: u'Герой сражается с прислужниками %(person_end)s',}
 
-    LOG = { EVENTS.QUEST_DESCRIPTION: 'QUEST: %(person_start)s ask hero to help %(person_end)s from %(place_end)s',
-            EVENTS.MOVE_TO_QUEST: 'QUEST: hero is moving to %(place_end)s',
-            EVENTS.MOVE_TO_CUSTOMER: 'QUEST: hero is moving to %(place_start)s',
-            EVENTS.WORK_CHOICE: 'QUEST: hero desided to help %(person_end)s',
-            EVENTS.GET_REWARD: 'QUEST: %(person_start)s give hero a reward',}
+    LOG = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя "напомнить" %(person_end)s о невыполненном обещании',
+            EVENTS.MOVE_TO_QUEST: u'Пойдём, посмотрим на этого %(person_end)s',
+            EVENTS.MOVE_TO_CUSTOMER: u'А теперь можно и за наградой',
+            EVENTS.WORK_CHOICE: u'Стоит помочь бедняге %(person_end)s',
+            EVENTS.GET_REWARD: u'%(person_start)s наградил героя',}
 
-    CHOICES = { CHOICES.WORK: {'question': 'should hero <a href="#" class="pgf-choice" data-choice="work">do not his job</a> or <a href="#" class="pgf-choice" data-choice="attack">force performer</a>?',
-                                  'results': {'work': 'hero desided to help performer',
-                                              'attack': 'hero desided to attack performer'} 
+    CHOICES = { CHOICES.WORK: {'question': u'Стоит ли <a href="#" class="pgf-choice" data-choice="work">помочь</a> %(person_end)s или <a href="#" class="pgf-choice" data-choice="attack">силой заставить</a> его выполнить обещание?',
+                                  'results': {'work': u'герой решил помочь %(person_end)s',
+                                              'attack': u'герой решил применить силу'} 
                                   } 
                 }
 
