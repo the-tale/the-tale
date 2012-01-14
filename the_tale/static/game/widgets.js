@@ -146,14 +146,6 @@ pgf.game.widgets.Time = function(selector, updater, widgets, params) {
 
     this.Refresh = function() {
         data.date = updater.data.data.turn;
-
-        var hero = widgets.heroes.CurrentHero();
-        if (hero) {
-            data.position = hero.position;
-        }
-        else {
-            data.position = undefined;
-        }
     };
 
     this.Render = function() {

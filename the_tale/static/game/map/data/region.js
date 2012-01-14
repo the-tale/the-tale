@@ -164,26 +164,26 @@
   }, 
   "width": 30, 
   "terrain": [
-    "fffffffffff..ww...........ww..", 
-    "fffffffffff..ww...........ww..", 
-    "fffffffffff...................", 
-    "fffffffffff...................", 
-    "fffffffffff.......__..........", 
-    "fffffffffff_......__..........", 
-    "ffffffffff__ffff..............", 
-    "ffffffffffffff.....__.........", 
-    "fffffffffffffff....._.........", 
-    "fwwwwwwwfffffff...............", 
-    "wwwwwwwwfffffff...............", 
-    "wwwwwwwwwffffff...............", 
-    "wwwwwwwwwfffff.........__.__..", 
-    "wwwwwwwwwwffff.........__.__..", 
-    "wwwwwwwwwwwfff................", 
-    "wwwwwwwwwwwwff................", 
-    "wwwwwwwwwwwww.................", 
-    "wwwwwwwwwwwww.....__..........", 
-    "wwwwwwwwwwwww.................", 
-    "wwwwwwwwwwwww................."
+    "ffffffffwwwwwwwwwwwwwwww..ww..", 
+    "ffffffffwwwwwwwwwwwwwwww..ww..", 
+    "ffffffffwwwwwwwwwwwwwwww......", 
+    "ffffffffwwwwwwwwwwwwwwww......", 
+    "ffffffffwwwwwwwwwwwwwwww......", 
+    "ffffffffwwwwwwwwwwwwwwww......", 
+    "ffffffffwwwwwwwwwwwwwwww......", 
+    "ffffffffwwwwwwwwwwwwwwww......", 
+    "ffffffffwwwwwwwwwwww_www......", 
+    "fffffffwwwwwwwww.....www......", 
+    "ffffffwwwwwwww........ww......", 
+    "..........ff..................", 
+    "wwwww.ww...............__.__..", 
+    "wwwwwwww...............__.__..", 
+    "wwwwwwww......................", 
+    "wwwwwwww......................", 
+    "wwwwwwww......................", 
+    "wwwwwwww..........__..........", 
+    "wwwwwwww......................", 
+    "wwwwwwww......................"
   ], 
   "places": {
     "1": {
@@ -196,7 +196,7 @@
     "2": {
       "y": 1, 
       "x": 14, 
-      "size": 1, 
+      "size": 10, 
       "id": 2, 
       "name": "14x1"
     }, 
@@ -231,7 +231,7 @@
     "7": {
       "y": 17, 
       "x": 3, 
-      "size": 10, 
+      "size": 5, 
       "id": 7, 
       "name": "3x17"
     }, 
@@ -245,7 +245,7 @@
     "9": {
       "y": 11, 
       "x": 11, 
-      "size": 5, 
+      "size": 1, 
       "id": 9, 
       "name": "11x11"
     }, 

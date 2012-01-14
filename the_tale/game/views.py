@@ -4,7 +4,6 @@ from django_next.views.resources import handler
 from django_next.utils.decorators import staff_required, debug_required
 
 from common.utils.resources import Resource
-from common.utils.decorators import login_required
 
 from .heroes.logic import get_angel_heroes
 
@@ -18,11 +17,8 @@ class GameResource(Resource):
     def __init__(self, request, *args, **kwargs):
         super(GameResource, self).__init__(request, *args, **kwargs)
 
-    @login_required
     @handler('', method='get')
-    def game_page(self, angel=None):
-        if angel is None:
-            angel = self.angel.id
+    def game_page(self):
         return self.template('game/game_page.html',
                              {'map_settings': map_settings} )
 
