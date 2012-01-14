@@ -1,0 +1,76 @@
+
+@import "constants.less";
+
+form {
+    
+    &.block {
+        width: 400px;
+    }
+
+    .error-container {
+        border: 0px;
+
+        .error-text {
+            background-color: #faa;
+            border: 2px #f00 solid;
+            border-radius: 4px;
+            padding: 0.2em;
+            margin: 0.2em;
+        }
+    }
+
+    .widget {
+        
+        padding: 2px;
+        margin: 2px;
+        margin-bottom: 0.5em;
+
+        label {
+            font-size: 14pt;
+            font-weight: normal;
+            display: block;
+            margin-bottom: 0.25em;
+        }
+
+        input {
+            font-size: 12pt;
+            width: 390px;
+            border: 2px @border-color solid;
+            border-radius: 4px;
+        }
+
+        .error-container {
+            border: 0px;
+
+            .error-text {
+                font-size: 10pt;
+                /* background-color: transparent; */
+                /* background-color: @border-color; */
+                color: #EF131B;
+                border: 0px;
+                font-weight: bold;
+                padding-left: 0.2em;
+                margin: 0em;
+            }
+        }
+
+        &.error {
+            label {
+            }
+            input {
+            }
+        }
+    }
+
+    input[type="submit"] {
+        font-size: 14pt;
+        border: 2px @border-color solid;
+        border-radius: 4px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #FFCC00;
+        }
+    }
+}
+

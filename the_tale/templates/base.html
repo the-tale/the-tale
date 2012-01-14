@@ -59,10 +59,24 @@ jQuery(document).ready(function() {
   </head>
   <body>
 
+    <div id="top-panel">
+      <div id="top-panel-content">
+        <div class="user-links">
+          {% if request.user.is_authenticated() %}
+          <a href="">Профиль</a> 
+          <a href="{{ url('accounts:logout') }}">Выход</a>
+          {% else %}
+          <a href="{{ url('accounts:login') }}">Вход</a>
+          <a href="{{ url('accounts:registration') }}">Регистрация</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
     {% block body %}
 
     {% if settings.DEBUG %}
-    <ul style="position: absolute; right: 0; top: 0;">
+    <ul style="position: absolute; right: 0; top: 2em;">
     {% block debug_menu%}
     {% endblock %}
     </ul>
@@ -77,16 +91,6 @@ jQuery(document).ready(function() {
           <a href="{{ url('game:') }}">Игра</a>
           <a href="">Руководство</a>
           <a href="">Форум</a>
-        </div>
-
-        <div class="user-links">
-          {% if request.user.is_authenticated() %}
-          <a href="">Профиль</a> 
-          <a href="{{ url('accounts:logout') }}">Выход</a>
-          {% else %}
-          <a href="{{ url('accounts:login') }}">Вход</a>
-          <a href="{{ url('accounts:registration') }}">Регистрация</a>
-          {% endif %}
         </div>
       </nav>
 

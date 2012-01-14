@@ -117,6 +117,7 @@ pgf.forms.Form = function(selector, params) {
         var form = jQuery(this.selector);
         jQuery('.pgf-form-errors', form).html('');
         jQuery('.pgf-form-field-errors', form).html('');
+        jQuery('.pgf-widget', form).toggleClass('error', false);
     };
 
     this.DisplayErrors = function(errors) {
@@ -133,10 +134,12 @@ pgf.forms.Form = function(selector, params) {
                 container = jQuery('.pgf-error-container.pgf-form-field-marker-'+name, form);
             }
 
+            jQuery('.pgf-widget', container.parents()).toggleClass('error', true);
+
             var errors_list = errors[name];
             container.html('');
             for (var j in errors_list) {
-                var error_content = '<div class="pgf-error-text">'+errors_list[j]+'</div>';
+                var error_content = '<div class="pgf-error-text error-text">'+errors_list[j]+'</div>';
                 container.append(error_content);
             }
         }
@@ -150,13 +153,12 @@ pgf.forms.Form = function(selector, params) {
             }
         }
         if (data.status == 'error') {
-            instance.DisplayErrors(data.errors);
             if (data.error) {
                 instance.DisplayErrors({__all__: [data.error]});
             }
             else {
                 if (data.errors) {
-                    instance.DisplayErrors({__all__: data.errors});
+                    instance.DisplayErrors(data.errors);
                 }
                 else {
                     instance.DisplayErrors({__all__: ['uncknown error']});

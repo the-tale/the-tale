@@ -17,9 +17,9 @@ DATABASES = {
 }
 
 #TODO: UTC
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'UTC'
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = 'ru'
 
 SITE_ID = 1
 

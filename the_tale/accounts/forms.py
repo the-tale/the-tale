@@ -1,16 +1,16 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from django_next.forms import forms, fields
 
 class RegistrationForm(forms.Form):
     
-    email = fields.EmailField(label='email')
+    email = fields.EmailField(label=u'Email')
 
-    nick = fields.CharField(label='nick')
+    nick = fields.CharField(label=u'Ник')
 
-    password = fields.PasswordField(label='password')
+    password = fields.PasswordField(label=u'Пароль')
 
-    password_repeated = fields.PasswordField(label='repeated password')
+    password_repeated = fields.PasswordField(label=u'Повторите пароль')
 
 
     def clean(self):
@@ -26,5 +26,5 @@ class RegistrationForm(forms.Form):
 
 class LoginForm(forms.Form):
     
-    email = fields.EmailField(label='email')
-    password = fields.PasswordField(label='password')
+    email = fields.EmailField(label=u'Email')
+    password = fields.PasswordField(label=u'Пароль')

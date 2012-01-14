@@ -5,7 +5,7 @@
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
 
-    var loginForm = new pgf.forms.Form(jQuery('#js-login-form'),
+    var loginForm = new pgf.forms.Form(jQuery('#pgf-login-form'),
                                                {OnSuccess: function(e){location.href = "{{ url('index') }}";}});
 });
 
@@ -15,13 +15,14 @@ jQuery(document).ready( function(e) {
 
 {% block content %}
 
-<form id="js-login-form" method="post" action="{{ url('accounts:login') }}">
+<form id="pgf-login-form" method="post" action="{{ url('accounts:login') }}" class="block">
 
   {{ login_form.errors_container }}
 
-  <div>{{ login_form.email.widget}}</div>
-  <div>{{ login_form.password.widget }}</div>
-  <div><input type="submit" value="Ok"/></div>
+  {{ login_form.email.widget}}
+  {{ login_form.password.widget }}
+
+  <input type="submit" value="Войти"/>
 
 </form>
 

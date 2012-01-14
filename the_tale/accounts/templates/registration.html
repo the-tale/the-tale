@@ -5,7 +5,7 @@
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
 
-    var registrationForm = new pgf.forms.Form(jQuery('#js-registration-form'),
+    var registrationForm = new pgf.forms.Form(jQuery('#pgf-registration-form'),
                                               {OnSuccess: function(e){location.href = "{{ url('index') }}";}});
 });
 </script>
@@ -13,15 +13,16 @@ jQuery(document).ready( function(e) {
 
 {% block content %}
 
-<form id="js-registration-form" method="post" action="{{ url('accounts:registration') }}">
+<form id="pgf-registration-form" method="post" action="{{ url('accounts:registration') }}" class="block">
 
   {{ registration_form.errors_container }}
 
-  <div>{{ registration_form.nick.widget}}</div>
-  <div>{{ registration_form.email.widget }}</div>
-  <div>{{ registration_form.password.widget }}</div>
-  <div>{{ registration_form.password_repeated.widget }}</div>
-  <div><input type="submit" value="Ok"/></div>
+  {{ registration_form.nick.widget}}
+  {{ registration_form.email.widget }}
+  {{ registration_form.password.widget }}
+  {{ registration_form.password_repeated.widget }}
+
+  <input type="submit" value="Готово"/>
 
 </form>
 

@@ -6,6 +6,7 @@
 @import "hero_page.css";
 @import "tooltips.css";
 @import "dialog.css";
+@import "forms.css";
 
 @font-face {
 	font-family: ObelixProB;
@@ -34,7 +35,6 @@ html {
 
 
     #content {
-        /* background-color: @background-color + #101010; */
         position: relative;
         margin: 0 auto;
         width: @content-width;
@@ -56,8 +56,25 @@ html {
 .info {
     padding: 5px;
     margin: 2px;
-    border: 1px solid blue;
+    border: 2px solid #00f;
+    background-color: #abf;
     border-radius: 4px;
+}
+
+#top-panel {
+
+    height: 1em;
+    background-color: @border-color;
+
+    #top-panel-content {
+
+        width: @content-width;
+        margin: 0 auto;
+        
+        .user-links {
+            float: right;
+        }
+    }
 }
 
 #main-navigation {
@@ -83,9 +100,5 @@ html {
 
     .navigation-links {
         float: left;
-    }
-
-    .user-links {
-        float: right;
     }
 }
