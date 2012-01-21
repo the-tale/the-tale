@@ -107,12 +107,13 @@ INSTALLED_APPS = (
 
     'accounts',
 
+    'portal',
+
     'game',
     'game.angels',
     'game.abilities',
     'game.heroes',
     'game.actions',
-    'game.journal_messages',
     'game.quests',
     'game.map',
     'game.map.roads',

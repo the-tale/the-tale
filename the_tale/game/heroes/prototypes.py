@@ -5,8 +5,6 @@ import random
 from django_next.utils import s11n
 from django_next.utils.decorators import nested_commit_on_success
 
-from game.journal_messages.prototypes import MessagesLogPrototype, get_messages_log_by_model
-
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
@@ -334,9 +332,6 @@ class HeroPrototype(object):
         self.model.messages = s11n.to_json(self.messages)
         self.model.save(force_update=True)
 
-    def get_messages_log(self):
-        return get_messages_log_by_model(model=self.model.messages_log)
-
     def ui_info(self, ignore_actions=False, ignore_quests=False):
 
         quest_items_count, loot_items_count = self.bag.occupation
@@ -388,8 +383,6 @@ class HeroPrototype(object):
 
         ActionIdlenessPrototype.create(hero=hero)
 
-        MessagesLogPrototype.create(hero)
-
         return hero
 
     ###########################################
@@ -418,11 +411,7 @@ class HeroPrototype(object):
     # Next turn operations
     ###########################################
 
-    def process_turn(self, turn_number):
-        messages_log = self.get_messages_log()        
-        messages_log.clear_messages()
-        messages_log.save()
-        
+    def process_turn(self, turn_number):     
         return turn_number + 1
 
 

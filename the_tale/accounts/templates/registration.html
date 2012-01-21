@@ -6,7 +6,7 @@
 jQuery(document).ready( function(e) {
 
     var registrationForm = new pgf.forms.Form(jQuery('#pgf-registration-form'),
-                                              {OnSuccess: function(e){location.href = "{{ url('index') }}";}});
+                                              {OnSuccess: function(e){location.href = "{{ url('game:') }}";}});
 });
 </script>
 {% endblock %}

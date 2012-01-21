@@ -164,39 +164,39 @@
   }, 
   "width": 30, 
   "terrain": [
-    "fffff.....wwwwwwwwwwwwwwwwwwww", 
-    "fffff.....wwwwwwwwwwwwwwwwwwww", 
-    "fffff_....wwwwwwwwwwwwwwwwwwww", 
-    "fffff_....wwwwwww___wwwwwwwwww", 
-    "ffffffffffwwwwww_____wwwwwwwww", 
-    "....fffffffffff_______wwwwwwww", 
-    "....ffffffffffff______wwwwwwww", 
-    "....fffffffffffff_____wwwwwwww", 
-    "ww..fffffffffffff______wwwwwww", 
-    "ww..fffffffffffff______wwwwwww", 
-    "wwwwwfffffffffffff______wwwwww", 
-    "wwwwwfffffffffffff______......", 
-    "wwwwwwfffffffffff......__.__..", 
-    "wwwwwwwfffffffffff.....__.._..", 
-    "wwwwwwwfffffffffff............", 
-    "wwwwwww.......ffff............", 
-    "wwwwwww..........f__..........", 
-    "wwwwwww..........f__..........", 
-    "wwwwwww.......................", 
-    "wwwwwww......................."
+    "ffff__________________wwwwwwww", 
+    "ffff__________________wwwwwwww", 
+    "fff____________________wwwwwww", 
+    "fff____________________wwwwwww", 
+    "ff______________________wwwwww", 
+    "ww______________________wwwwww", 
+    "www______________________wwwww", 
+    "wwwww____________________wwwww", 
+    "wwwwww__________________...www", 
+    "wwwwww__________________...www", 
+    "wwwwwww_________________....ww", 
+    "wwwwwwwww________________..._.", 
+    "wwwwwwwwww_______________..__.", 
+    "wwwwwwwwwww__________________.", 
+    "wwwwwwwwwww__________________.", 
+    "wwwwwwwwwww...................", 
+    "wwwwwwwwwww.......__..........", 
+    "wwwwwwwwwww.......__..........", 
+    "wwwwwwwwww....................", 
+    ".............................."
   ], 
   "places": {
     "1": {
       "y": 1, 
       "x": 1, 
-      "size": 4, 
+      "size": 10, 
       "id": 1, 
       "name": "1x1"
     }, 
     "2": {
       "y": 1, 
       "x": 14, 
-      "size": 4, 
+      "size": 1, 
       "id": 2, 
       "name": "14x1"
     }, 
@@ -210,14 +210,14 @@
     "4": {
       "y": 3, 
       "x": 5, 
-      "size": 1, 
+      "size": 10, 
       "id": 4, 
       "name": "5x3"
     }, 
     "5": {
       "y": 9, 
       "x": 1, 
-      "size": 1, 
+      "size": 10, 
       "id": 5, 
       "name": "1x9"
     }, 
@@ -231,49 +231,49 @@
     "7": {
       "y": 17, 
       "x": 3, 
-      "size": 7, 
+      "size": 1, 
       "id": 7, 
       "name": "3x17"
     }, 
     "8": {
       "y": 18, 
       "x": 10, 
-      "size": 7, 
+      "size": 1, 
       "id": 8, 
       "name": "10x18"
     }, 
     "9": {
       "y": 11, 
       "x": 11, 
-      "size": 7, 
+      "size": 1, 
       "id": 9, 
       "name": "11x11"
     }, 
     "10": {
       "y": 6, 
       "x": 11, 
-      "size": 1, 
+      "size": 7, 
       "id": 10, 
       "name": "11x6"
     }, 
     "11": {
       "y": 5, 
       "x": 19, 
-      "size": 4, 
+      "size": 10, 
       "id": 11, 
       "name": "19x5"
     }, 
     "12": {
       "y": 8, 
       "x": 20, 
-      "size": 4, 
+      "size": 1, 
       "id": 12, 
       "name": "20x8"
     }, 
     "13": {
       "y": 8, 
       "x": 24, 
-      "size": 1, 
+      "size": 5, 
       "id": 13, 
       "name": "24x8"
     }, 
@@ -308,7 +308,7 @@
     "18": {
       "y": 19, 
       "x": 28, 
-      "size": 7, 
+      "size": 1, 
       "id": 18, 
       "name": "28x19"
     }
