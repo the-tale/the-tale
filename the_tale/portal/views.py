@@ -8,3 +8,12 @@ class PortalResource(Resource):
     @handler('', method='get')
     def game_page(self):
         return self.template('portal/index.html')
+
+    @handler('404', method='get')
+    def handler404(self):
+        return self.template('portal/404.html')        
+
+    @handler('500', method='get')
+    def handler500(self):
+        return self.template('portal/500.html')
+        

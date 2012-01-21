@@ -5,6 +5,9 @@ from django.conf import settings as project_settings
 
 from django_next import jinja2 as jinja2_next
 from django_next.views.views import template_renderer
+from django_next.views.dispatcher import create_handler_view
+
+from portal.views import PortalResource
 
 admin.autodiscover()
 jinja2_next.autodiscover()
@@ -21,3 +24,6 @@ if project_settings.DEBUG:
                             url(r'^tmp/?$', template_renderer('tmp.html'), name='tmp'),
                             url(r'^less/', include('django_next.less.urls') ) #TODO: replace with settings.LESS_URL)
                             )
+
+handler404 = create_handler_view(PortalResource, 'handler404')
+handler500 = create_handler_view(PortalResource, 'handler500')
