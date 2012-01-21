@@ -4,6 +4,8 @@ from django.db import models
 
 from game.angels.models import Angel
 
+from game.game_info import RACE, RACE_CHOICES
+
 class Hero(models.Model):
 
     angel = models.ForeignKey(Angel, related_name='heroes', default=None, null=True, blank=True)
@@ -12,6 +14,8 @@ class Hero(models.Model):
 
     #base
     name = models.CharField(max_length=150, null=False)
+
+    race = models.IntegerField(choices=RACE_CHOICES, default=RACE.HUMAN)
 
     level = models.IntegerField(null=False, default=1)
     experience = models.BigIntegerField(null=False, default=0)

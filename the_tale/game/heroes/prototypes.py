@@ -10,6 +10,9 @@ from game.journal_messages.prototypes import MessagesLogPrototype, get_messages_
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
+from ..game_info import RACE_CHOICES
+from .. import names
+
 from ..quests.prototypes import get_quest_by_model
 from ..quests.models import Quest
 
@@ -58,6 +61,9 @@ class HeroPrototype(object):
 
     @property
     def name(self): return self.model.name
+
+    @property
+    def race(self): return self.model.race
     
     @property
     def level(self): return self.model.level
@@ -153,6 +159,9 @@ class HeroPrototype(object):
                     expected_abilities.append(ability)
 
         priority_domain = sum([ability.priority for ability in expected_abilities])
+
+        if priority_domain==0:
+            return 
 
         choice = random.randint(0, priority_domain-1)
 
@@ -367,8 +376,11 @@ class HeroPrototype(object):
 
         start_place = PlacePrototype.random_place()
 
+        race = random.choice(RACE_CHOICES)[0]
+
         hero = Hero.objects.create(angel=angel.model,
-                                   name=u'Алекс',
+                                   race=race,
+                                   name=names.generator.get_name(race),
                                    health=BASE_ATTRIBUTES.HEALTH,
                                    pos_place = start_place.model)
 

@@ -3,6 +3,8 @@ import random
 
 from django_next.utils import s11n
 
+from ... import names
+
 from .models import Place, PLACE_TYPE, RACE_TO_TERRAIN
 from . import settings as places_settings
 
@@ -72,11 +74,13 @@ class PlacePrototype(object):
 
         expected_persons_number = places_settings.SIZE_TO_PERSONS_NUMBER[self.size]
 
+        race = random.choice(RACE_CHOICES)[0]
+
         while persons_count < expected_persons_number:
             PersonPrototype.create(place=self, 
-                                   race=random.choice(RACE_CHOICES)[0],
+                                   race=race,
                                    tp=random.choice(PERSON_TYPE_CHOICES)[0],
-                                   name='person_%s' % random.choice('QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm'))
+                                   name=names.generator.get_name(race))
             persons_count += 1
 
         persons = sorted(self.persons, key=lambda x: -x.power)

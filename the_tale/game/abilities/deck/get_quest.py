@@ -32,7 +32,7 @@ class GetQuest(AbilityPrototype):
         if not idleness_action.init_quest():
             return False
 
-        self.hero.push_message(msg_generator.msg_ability_getquest_activate(self.hero))
+        hero.push_message(msg_generator.msg_ability_getquest_activate(hero))
 
         return True
 

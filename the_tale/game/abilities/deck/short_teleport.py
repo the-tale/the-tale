@@ -31,7 +31,7 @@ class ShortTeleport(AbilityPrototype):
         if not move_action.short_teleport(10):
             return False
 
-        self.hero.push_message(msg_generator.msg_ability_shortteleport_activate(self.hero))
+        hero.push_message(msg_generator.msg_ability_shortteleport_activate(hero))
 
         return True
 

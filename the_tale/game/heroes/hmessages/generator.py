@@ -93,7 +93,6 @@ class Generator(object):
         return random.choice([u'%(equipped)s здорово мне подойдёт',
                               u'%(hero)s с удовольствием примерил %(equipped)s',
                               u'%(hero)s решил, что %(equipped)s как нельзя лучше подойдёт его образу']) % {'hero': hero.name,
-                                                                                                            'unequipped': unequipped.name,
                                                                                                             'equipped': equipped.name}
 
     def msg_action_tradeinsettlement_start(self, hero):

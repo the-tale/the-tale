@@ -31,7 +31,7 @@ class Lightning(AbilityPrototype):
         if not battle_action.bit_mob(0.3):
             return False
 
-        self.hero.push_message(msg_generator.msg_ability_lightning_activate(self.hero, battle_action.mob))
+        hero.push_message(msg_generator.msg_ability_lightning_activate(hero, battle_action.mob))
 
         return True
 
