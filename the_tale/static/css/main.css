@@ -1,0 +1,107 @@
+@import "reset.css";
+
+@import "game.css";
+
+@import "hero_page.css";
+
+@import "tooltips.css";
+
+@import "dialog.css";
+
+@import "forms.css";
+@font-face {
+  font-family: ObelixProB;
+  src: url('/static/fonts/ObelixProB-cyr.ttf');
+}
+ol {
+  /* list-style: decimal inside none; */
+
+}
+ul {
+  /* list-style: disc outside none; */
+
+}
+h1 {
+  font-size: 18pt;
+}
+dl {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+dl dt {
+  margin-top: 1em;
+  font-weight: bold;
+}
+dl dd {
+  margin-top: 0.5em;
+  padding-left: 2em;
+}
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+html {
+  background-color: #559dcc;
+  background-image: url(/static/images/background.svg);
+  background-repeat: no-repeat;
+  background-position: center 0;
+  background-attachment: fixed;
+  background-size: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+}
+html #content {
+  position: relative;
+  margin: 0 auto;
+  width: 1000px;
+}
+.block {
+  background: #559dcc;
+  padding: 0.25em;
+  margin: 5px;
+  border: 3px #357dac solid;
+  border-radius: 8px;
+}
+.icon {
+  vertical-align: middle;
+}
+.info {
+  padding: 5px;
+  margin: 2px;
+  border: 2px solid #00f;
+  background-color: #abf;
+  border-radius: 4px;
+}
+#top-panel {
+  height: 1em;
+  background-color: #357dac;
+}
+#top-panel #top-panel-content {
+  width: 1000px;
+  margin: 0 auto;
+}
+#top-panel #top-panel-content .user-links {
+  float: right;
+}
+#main-navigation {
+  font-size: 26px;
+  /* !important;*/
+
+  color: white;
+  font-family: ObelixProB;
+  margin-top: 10px;
+  padding-bottom: 0.1em;
+  height: 26px;
+}
+#main-navigation a {
+  color: #F0F0F0;
+  text-decoration: none;
+  margin-right: 0.25em;
+  /* text-shadow: black 0 -1px 0; */
+
+}
+#main-navigation a:hover {
+  color: #FFCC00;
+}
+#main-navigation .navigation-links {
+  float: left;
+}

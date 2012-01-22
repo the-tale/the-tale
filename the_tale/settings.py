@@ -105,6 +105,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles', # TODO: remove if not in DEBUG mode
 
+    'django_next.less',
+
     'accounts',
 
     'portal',

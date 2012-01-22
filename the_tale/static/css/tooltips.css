@@ -1,0 +1,39 @@
+.tooltip-wrapper {
+  display: inline-block;
+}
+.tipsy {
+  font-size: 10pt !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+.tipsy .tipsy-inner {
+  border: 2px black solid;
+  background: #a0a0a0;
+  color: black;
+  border-radius: 8px;
+}
+.ability-tooltip {
+  text-align: left;
+}
+.ability-tooltip .name {
+  font-size: 12pt;
+  text-align: center;
+}
+.ability-tooltip .pgf-requirements {
+  background: #FFA759;
+  font-weight: bold;
+}
+.ability-tooltip .description {
+  margin-top: 0.5em;
+}
+.ability-tooltip .artistic {
+  margin-top: 0.5em;
+  font-style: italic;
+}
+.hero-ability-tooltip {
+  /* text-align: left; */
+
+}
+.hero-ability-tooltip .description {
+  margin-top: 0.5em;
+  font-style: italic;
+}

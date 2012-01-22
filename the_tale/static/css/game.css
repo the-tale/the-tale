@@ -1,0 +1,283 @@
+.stats-bar {
+  width: 100px;
+  height: 5px;
+  position: relative;
+  background: #F0F0F0;
+  border: 1px solid black;
+  display: inline-block;
+}
+.stats-bar .layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  height: 5px;
+}
+.stats-bar .layer-0 {
+  background: #F0F0F0;
+}
+.stats-bar .layer-1 {
+  background: #90FF90;
+}
+#game-page-content .column {
+  display: inline-block;
+  vertical-align: top;
+}
+#game-page-content #left-column {
+  width: 200px;
+}
+#game-page-content #right-column {
+  width: 200px;
+}
+#game-page-content #center-column {
+  width: 590px;
+}
+#hero-base-block .bar {
+  font-size: 13px;
+}
+#hero-base-block .bar .stats-bar .layer-0 {
+  background: #559dcc;
+}
+#hero-base-block .bar.health-bar .layer-1 {
+  background: #ff0000;
+}
+#hero-base-block .bar.experience-bar .layer-1 {
+  background: yellow;
+}
+#hero-base-block .bar.energy-bar .layer-1 {
+  background: #0000ff;
+}
+#hero-base-block .stats-left {
+  width: 70px;
+  margin-right: 10px;
+  display: inline-block;
+}
+#hero-base-block .stats-right {
+  width: 80px;
+  display: inline-block;
+}
+#hero-base-block .record {
+  margin-top: 5px;
+  cursor: default;
+  position: relative;
+}
+#hero-base-block .record .value {
+  position: absolute;
+  right: 0;
+}
+#hero-base-block .record:hover {
+  background: #75bdec;
+}
+#hero-equipment-block .record {
+  margin-top: 5px;
+  cursor: default;
+}
+#hero-equipment-block .record:hover {
+  background: #75bdec;
+}
+#hero-equipment-block .record .name {
+  margin-left: 0.25em;
+}
+#login-required-block {
+  text-align: center;
+  font-weight: bold;
+}
+#hero-bag-block h4 {
+  font-size: 11pt;
+}
+#hero-bag-block h5 {
+  font-size: 10pt;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+#hero-bag-block .record {
+  cursor: default;
+}
+#hero-bag-block .record:hover {
+  background: #75bdec;
+}
+#hero-bag-block .record .name {
+  font-size: 9pt;
+}
+#time-block {
+  font-size: 8pt;
+  height: 34px;
+}
+#time-block .time {
+  display: inline-block;
+  float: right;
+}
+#time-block .time .value {
+  vertical-align: middle;
+  display: inline-block;
+  text-align: right;
+}
+#time-block .time .time-icon {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background: url('/static/game/images/time.png') no-repeat;
+  vertical-align: middle;
+}
+#time-block .time .time-icon.sunrise {
+  background-position-x: 0px;
+  background-position-y: 0px;
+}
+#time-block .time .time-icon.sunset {
+  background-position-x: 0px;
+  background-position-y: -32px;
+}
+#time-block .time .time-icon.midnight {
+  background-position-x: -32px;
+  background-position-y: -32px;
+}
+#time-block .time .time-icon.noon {
+  background-position-x: -32px;
+  background-position-y: 0px;
+}
+#current-actions-block {
+  font-size: 10pt;
+}
+#current-actions-block .current-action-block {
+  display: inline-block;
+  width: 200px;
+  border-right: 3px #357dac solid;
+}
+#current-actions-block .current-action-block .action-description {
+  padding-bottom: 0.25em;
+  margin-bottom: 0.25em;
+}
+#current-actions-block .current-action-block .action-description h3 {
+  font-size: 11pt;
+}
+#current-actions-block .current-action-block .action-description .action-progress .stats-bar {
+  width: 190px;
+}
+#current-actions-block .current-action-block .action-description .action-progress .stats-bar .layer-0 {
+  background: #559dcc;
+}
+#current-actions-block .current-action-block .action-description .action-progress .stats-bar .layer-1 {
+  background: #00ff00;
+}
+#current-actions-block .current-action-block .action-info {
+  border-top: 3px #357dac solid;
+}
+#current-actions-block .current-quests-block {
+  display: inline-block;
+  vertical-align: top;
+  width: 360px;
+}
+#current-actions-block .current-quests-block .quests-progress {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  vertical-align: top;
+}
+#current-actions-block .current-quests-block .quests-line {
+  display: inline-block;
+  vertical-align: top;
+}
+#current-actions-block .current-quests-block .quests-line .quest-line-element {
+  display: inline-block;
+  margin-left: 3px;
+}
+#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon {
+  background: url('/static/game/images/quests.png') no-repeat;
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+}
+#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.help {
+  background-position-x: 0px;
+  background-position-y: 0px;
+}
+#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.delivery {
+  background-position-x: -32px;
+  background-position-y: 0px;
+}
+#current-actions-block .current-quests-block .quests-line .quest-line-element .action-icon {
+  background: url('/static/game/images/actions.png') no-repeat;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}
+#current-actions-block .current-quests-block .quests-line .quest-line-element .action-icon.move_to_destination {
+  background-position-x: 0px;
+  background-position-y: 0px;
+}
+#current-actions-block .current-quests-block .quest-choices {
+  border-top: 3px #357dac solid;
+}
+#log-block {
+  height: 35em;
+}
+#log-block .message {
+  font-size: 10pt;
+  margin-bottom: 0.5em;
+}
+#abilities-block .record {
+  cursor: default;
+  margin-bottom: 2px;
+}
+#abilities-block .record:hover {
+  background: #75bdec;
+}
+#abilities-block .record.cooldown {
+  background: #A0C0E0;
+}
+#abilities-block .record:hover.cooldown {
+  background: #90B0D0;
+}
+#abilities-block .record .icon {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background: url('/static/game/images/abilities.png') no-repeat;
+}
+#abilities-block .record.ability-healhero .icon {
+  background-position-x: 0px;
+  background-position-y: 0px;
+}
+#abilities-block .record.ability-lightning .icon {
+  background-position-x: -96px;
+  background-position-y: 0px;
+}
+#abilities-block .record.ability-getquest .icon {
+  background-position-x: -32px;
+  background-position-y: 0px;
+}
+#abilities-block .record.ability-shortteleport .icon {
+  background-position-x: -64px;
+  background-position-y: 0px;
+}
+/* dialog with information about place */
+.place-info {
+  max-width: 400px;
+}
+.place-info .description {
+  min-height: 64px;
+  position: relative;
+  margin-bottom: 1em;
+}
+.place-info .description img {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
+.place-info .description p {
+  padding-left: 64px;
+}
+.place-info .characters-list li {
+  min-height: 32px;
+  margin-top: 1em;
+}
+.place-info .characters-list li img {
+  padding: 2px;
+  float: left;
+}
+.place-info .characters-list li .power-bar {
+  background: yellow;
+}
+.place-info .characters-list li .power-bar .layer-0 {
+  background: orange;
+}
