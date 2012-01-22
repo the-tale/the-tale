@@ -20,7 +20,6 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + ( make_option('--config',
                                                           action='store',
                                                           type=str,
-                                                          default=map_settings.GEN_CONFIG_FILE,
                                                           dest='config',
                                                           help='path to generated file'),
                                               )

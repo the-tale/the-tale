@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+
 from django_next.utils import s11n
 from optparse import make_option
 
@@ -24,7 +26,6 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + ( make_option('--config',
                                                           action='store',
                                                           type=str,
-                                                          default=map_settings.GEN_CONFIG_FILE,
                                                           dest='config',
                                                           help='path to file with all needed configuration'),
                                               )
@@ -53,6 +54,10 @@ class Command(BaseCommand):
         game_map.prepair_terrain()
         
         game_map.pave_ways()
+
+        output_dir_name = os.path.dirname(map_settings.GEN_REGION_OUTPUT)
+        if not os.path.exists(output_dir_name):
+            os.makedirs(output_dir_name, 0766)
 
         with open(map_settings.GEN_REGION_OUTPUT, 'w') as region_json_file:
             text = s11n.to_json(game_map.get_json_region_data())

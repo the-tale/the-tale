@@ -12,7 +12,7 @@ jQuery(document).ready(function(e) {
                                                                  staticUrl: "{{ STATIC_URL }}",
                                                              });
 
-    widgets.mapManager = new pgf.game.map.MapManager({regionUrl:  '{{ STATIC_URL }}game/map/data/region.js',
+    widgets.mapManager = new pgf.game.map.MapManager({regionUrl:  '{{ settings.DCONT_URL }}map/region.js',
                                                       updater: updater,
                                                       OnDataUpdated: function() {
                                                           //TODO: rewrite to events

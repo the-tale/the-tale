@@ -1,3 +1,9 @@
+# coding: utf-8
+
+import os
+
+from django.conf import settings as project_settings
+
 from django_next.utils.app_settings import app_settings
 
 settings = app_settings('MAP', 
@@ -8,5 +14,5 @@ settings = app_settings('MAP',
                         
                         # map generation settings
                         GEN_CONFIG_FILE='./game/map/management/commands/map_generator/config.py',
-                        GEN_REGION_OUTPUT='./static/game/map/data/region.js'
+                        GEN_REGION_OUTPUT=os.path.join(project_settings.DCONT_DIR, './map/region.js')
                         )

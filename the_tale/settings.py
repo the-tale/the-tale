@@ -1,7 +1,7 @@
 # coding: utf-8
 import os
 
-PROJECT_DIR = os.path.dirname(__file__)
+PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = False
 
@@ -37,9 +37,11 @@ USE_L10N = True
 # MEDIA_ROOT = ''
 # MEDIA_URL = ''
 
-#STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = ( os.path.join(PROJECT_DIR, 'static'), )
+
+DCONT_URL = '/dcont/'
+DCONT_DIR = os.path.join(PROJECT_DIR, 'dcont')
 
 ADMIN_MEDIA_PREFIX = '/static/admin/'
 
