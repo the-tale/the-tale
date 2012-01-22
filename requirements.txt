@@ -1,2 +1,4 @@
 git+git@github.com:Tiendil/pynames.git#egg=Pynames
+
+-r https://raw.github.com/Tiendil/django-next/master/requirements.txt
 git+git@github.com:Tiendil/django-next.git#egg=DjangoNext
