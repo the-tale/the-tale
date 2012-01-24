@@ -93,7 +93,7 @@ MIDDLEWARE_CLASSES = (
     'django_next.utils.exceptions.ExceptionMiddleware'
 )
 
-ROOT_URLCONF = 'the_tale.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_DIR, 'templates'),
