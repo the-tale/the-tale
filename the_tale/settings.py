@@ -137,7 +137,7 @@ INSTALLED_APPS = (
 AMQP_BROKER_HOST = 'localhost'
 AMQP_BROKER_USER = 'the_tale'
 AMQP_BROKER_PASSWORD = 'the_tale'
-AMQP_BROKER_VHOST = '/the_tale_host'
+AMQP_BROKER_VHOST = '/the_tale'
 
 AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,
                                               AMQP_BROKER_PASSWORD,
