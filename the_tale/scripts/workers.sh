@@ -9,9 +9,9 @@ LOGS_DIR="${HOME}/logs"
 case "$1" in
 start)
 echo "Starting game workers..."
-nohup python -u ./manage.py game_supervisor 2>&1 1>${LOGS_DIR}/game_supervisor.log &
-nohup python -u ./manage.py game_logic 2>&1 1>${LOGS_DIR}/game_logic.log &
-nohup python -u ./manage.py game_highlevel 2>&1 1>${LOGS_DIR}/game_highlevel.log &
+. ../../env/bin/activate && nohup python -u ./manage.py game_supervisor 2>&1 1>${LOGS_DIR}/game_supervisor.log &
+. ../../env/bin/activate && nohup python -u ./manage.py game_logic 2>&1 1>${LOGS_DIR}/game_logic.log &
+. ../../env/bin/activate && nohup python -u ./manage.py game_highlevel 2>&1 1>${LOGS_DIR}/game_highlevel.log &
 ;;
 
 stop)
