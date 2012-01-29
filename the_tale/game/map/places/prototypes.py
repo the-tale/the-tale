@@ -140,6 +140,9 @@ class PlacePrototype(object):
         for person in self.persons:
             race_power[person.race] = race_power.get(person.race, 0) + person.power
 
+        if len(race_power) == 0:
+            return
+
         dominant_race = max(race_power.items(), key=lambda x: x[1])[0]
 
         self.terrain = RACE_TO_TERRAIN[dominant_race]

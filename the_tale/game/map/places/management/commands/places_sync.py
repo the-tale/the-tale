@@ -15,7 +15,7 @@ class Command(BaseCommand):
 
         for place_model in Place.objects.all():
             place = get_place_by_model(place_model)
+            place.sync_persons() # do first
             place.sync_terrain()
-            place.sync_persons()
             place.save()
 
