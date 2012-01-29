@@ -12,6 +12,8 @@ from .prototypes import get_current_time
 from .map import settings as map_settings
 from .angels.prototypes import get_angel_by_id
 
+from . import settings as game_settings
+
 class GameResource(Resource):
 
     def __init__(self, request, *args, **kwargs):
@@ -20,7 +22,8 @@ class GameResource(Resource):
     @handler('', method='get')
     def game_page(self):
         return self.template('game/game_page.html',
-                             {'map_settings': map_settings} )
+                             {'map_settings': map_settings,
+                              'game_settings': game_settings} )
 
     @handler('info', method='get')
     def info(self, angel=None):

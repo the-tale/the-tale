@@ -69,15 +69,20 @@ jQuery(document).ready(function(e){
 
     {% endif %}
 
-
-    setTimeout(function(){
+    function RefreshData() {
         if (updater) {
             updater.Refresh();
         }
         if (angelUpdater) {
             angelUpdater.Refresh();
         }
-    }, 0);
+    }
+
+    setTimeout(RefreshData, 0);
+
+    {% if not settings.DEBUG %}
+    setInterval(RefreshData, {{ game_settings.TURN_DELAY }} );
+    {% endif %}
 });
 
 </script>
