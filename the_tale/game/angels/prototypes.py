@@ -93,7 +93,7 @@ class AngelPrototype(object):
     def create(cls, account, name):
         from ..abilities import deck
         # TODO: rewrite from create-change-save to save
-        angel_model = Angel.objects.create(account=account.model, name=name)
+        angel_model = Angel.objects.create(account=account.model, name=name, energy=ENERGY.MAXIMUM/2)
         angel = AngelPrototype(model=angel_model)
         angel.abilities.update({deck.HealHero.get_type(): deck.HealHero()})
         angel.save()
