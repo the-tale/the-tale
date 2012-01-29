@@ -50,7 +50,7 @@ class Command(BaseCommand):
         p11x6  = self.create_place(11, 6,  TERRAIN.DESERT, size=4)
         p19x5  = self.create_place(19, 5,  TERRAIN.FOREST, size=3)
         p20x8  = self.create_place(20, 8,  TERRAIN.GRASS,  size=9)
-        p24x8  = self.create_place(24, 8,  TERRAIN.FOREST, size=12)
+        p24x8  = self.create_place(24, 8,  TERRAIN.FOREST, size=10)
         p17x12 = self.create_place(17, 12, TERRAIN.GRASS,  size=2)
         p19x17 = self.create_place(19, 17, TERRAIN.FOREST, size=8)
         p24x13 = self.create_place(24, 13, TERRAIN.FOREST, size=1)

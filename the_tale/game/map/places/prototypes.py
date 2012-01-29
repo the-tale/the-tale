@@ -74,9 +74,8 @@ class PlacePrototype(object):
 
         expected_persons_number = places_settings.SIZE_TO_PERSONS_NUMBER[self.size]
 
-        race = random.choice(RACE_CHOICES)[0]
-
         while persons_count < expected_persons_number:
+            race = random.choice(RACE_CHOICES)[0]
             PersonPrototype.create(place=self, 
                                    race=race,
                                    tp=random.choice(PERSON_TYPE_CHOICES)[0],
