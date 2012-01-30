@@ -127,7 +127,7 @@ class Worker(object):
 
 
     def cmd_register_bundle(self, bundle_id):
-        self.send_cmd(CMD_TYPE.REGISTER_BUNDLE, {'budle_id': bundle_id})
+        self.send_cmd(CMD_TYPE.REGISTER_BUNDLE, {'bundle_id': bundle_id})
 
     def process_register_bundle(self, bundle_id):
         with nested_commit_on_success():
