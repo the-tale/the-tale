@@ -9,7 +9,7 @@ from ..persons.prototypes import get_person_by_model
 from ..map.places.models import Place
 from ..map.places.prototypes import get_place_by_model
 
-SYNC_DELTA = 100 # in turns
+SYNC_DELTA = 300 # in turns
 
 class CMD_TYPE:
     INITIALIZE = 'initialize'
