@@ -11,7 +11,7 @@ class HealHero(AbilityPrototype):
     INITIAL_LIMIT = None
 
     COST = 10
-    COOLDOWN = 10
+    COOLDOWN = 25
 
     NAME = u'Вылечить'
     DESCRIPTION = u'Попытаться немного подлечить героя'

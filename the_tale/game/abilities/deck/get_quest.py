@@ -12,8 +12,8 @@ class GetQuest(AbilityPrototype):
     LIMITED = False
     INITIAL_LIMIT = None
 
-    COST = 10
-    COOLDOWN = 10
+    COST = 25
+    COOLDOWN = 50
 
     NAME = u'Простимулировать'
     DESCRIPTION = u'Заставить героя взяться за работу'

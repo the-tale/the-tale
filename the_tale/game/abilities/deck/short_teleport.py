@@ -12,8 +12,8 @@ class ShortTeleport(AbilityPrototype):
     LIMITED = False
     INITIAL_LIMIT = None
 
-    COST = 10
-    COOLDOWN = 10
+    COST = 20
+    COOLDOWN = 15
 
     NAME = u'Подтолкнуть'
     DESCRIPTION = u'Телепортировать героя на короткое расстояние'
@@ -28,7 +28,7 @@ class ShortTeleport(AbilityPrototype):
         if move_action.type != ActionMoveToPrototype.TYPE:
             return False
 
-        if not move_action.short_teleport(10):
+        if not move_action.short_teleport(3):
             return False
 
         hero.push_message(msg_generator.msg_ability_shortteleport_activate(hero))
