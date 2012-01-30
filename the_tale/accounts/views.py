@@ -60,7 +60,10 @@ class AccountsResource(BaseResource):
                 self.login_user(user.username, registration_form.c.password)
 
                 bundle = BundlePrototype.create(angel)
-                workers_environment.supervisor.cmd_register_bundle(bundle.id)
+
+            # send command after success commit
+            # TODO: check if bumdle created
+            workers_environment.supervisor.cmd_register_bundle(bundle.id)
 
             return self.json(status='ok')
 
