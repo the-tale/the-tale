@@ -1,0 +1,40 @@
+{% extends "forum/base.html" %}
+
+{% block forum_content %}
+
+<div class="subcategory">
+  <h2>{{ category.caption }}::{{ subcategory.caption }}</h2>
+  <table>
+    <thead>
+      <tr>
+        <th class="caption">название</th>
+        <th class="author">автор</th>
+        <th class="posts-count">ответов</th>
+        <th class="updated-at">обновлено</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for thread in threads %}
+      <tr>
+        <td class="caption">
+          <a href="{{ url('forum:show_thread', category.slug, subcategory.slug, thread.id) }}">
+            {{ thread.caption }}
+          </a>
+        </td>
+        <td class="author">{{ thread.author.username }}</td>
+        <td class="posts-count">{{ thread.posts_count }}</td>
+        <td class="updated-at">{{ thread.updated_at }} UTC</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
+{% if resource.account %}
+<form action="{{ url('forum:new_thread', category.slug, subcategory.slug) }}" method="get">
+  <input type="submit" value="Добавить обсуждение"/>
+</form>
+{% endif %}
+
+{% endblock %}

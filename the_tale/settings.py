@@ -96,7 +96,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
-    os.path.join(PROJECT_DIR, 'templates'),
+    os.path.join(PROJECT_DIR, 'templates_jinja2'),
 )
 
 INSTALLED_APPS = (
@@ -124,6 +124,8 @@ INSTALLED_APPS = (
     'game.map.places',
     'game.artifacts',
     'game.persons',
+
+    'forum',
 
     'stress_testing',
 

@@ -1,0 +1,187 @@
+
+@import "constants.less";
+
+.forum-content {
+    
+    padding-left: 1em;
+    padding-right: 1em;
+
+    .category {
+
+        margin-bottom: 2em;
+
+        h2 {
+            font-size: 20pt;
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+        }
+ 
+
+        table {
+            width: 100%;
+
+            tr {
+                border-bottom: 1px solid #DDD;
+
+                th {
+                    padding-top: 0.5em;
+                    padding-bottom: 0.5em;
+                                      
+                    &.caption {
+                        text-align: left;
+                    }
+
+                    &.threads-count {
+                        width: 7em;
+                        text-align: center;
+                    }
+                    &.posts-count {
+                        width: 7em;
+                        text-align: center;
+                    }
+                    &.updated-at {
+                        width: 14em;
+                        text-align: center;
+                    }
+                }
+
+                td {
+                    padding-top: 0.5em;
+                    padding-bottom: 0.5em;
+
+                    &.caption {
+                        text-align: left;
+                        padding-left: 1em;
+                    }
+
+                    &.threads-count {
+                        text-align: center;
+                    }
+                    &.posts-count {
+                        text-align: center;
+                    }
+                    &.updated-at {
+                        text-align: center;
+                    }
+                }
+            }
+        }
+    }
+
+    .subcategory {
+
+        margin-bottom: 2em;
+
+        h2 {
+            font-size: 16pt;
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+        }
+ 
+
+        table {
+            width: 100%;
+
+            tr {
+                border-bottom: 1px solid #DDD;
+
+                th {
+                    padding-top: 0.5em;
+                    padding-bottom: 0.5em;
+                                      
+                    &.caption {
+                        text-align: left;
+                    }
+
+                    &.author {
+                        width: 10em;
+                        text-align: center;
+                    }
+                    &.posts-count {
+                        width: 7em;
+                        text-align: center;
+                    }
+                    &.updated-at {
+                        width: 14em;
+                        text-align: center;
+                    }
+                }
+
+                td {
+                    padding-top: 0.5em;
+                    padding-bottom: 0.5em;
+
+                    &.caption {
+                        text-align: left;
+                        padding-left: 1em;
+                    }
+
+                    &.author {
+                        text-align: center;
+                    }
+                    &.posts-count {
+                        text-align: center;
+                    }
+                    &.updated-at {
+                        text-align: center;
+                    }
+                }
+            }
+        }
+    }
+
+   .thread {
+
+        margin-bottom: 2em;
+
+        h2 {
+            font-size: 20pt;
+            margin-top: 0.25em;
+            margin-bottom: 0.5em;
+        }
+
+        .post {
+            margin-top: 0.5em;
+
+            table {
+                width: 100%;
+                background-color: @border-color;
+                border-collapse: separate;
+                margin: 5px;
+                border: 3px @border-color solid;
+                border-radius: 8px;
+
+                .head {
+
+                    td {
+                        padding: 2px;
+                    }
+                  
+                    .index {
+                        width: 3em;
+                    }
+                    .author {
+                        text-transform:uppercase;
+                    }
+                    .created-at {
+                        text-align: right;
+                    }
+                }
+
+                .body {
+                    td {
+                        background-color: @background-color;
+                        padding: 0.25em;
+
+                        border-bottom-right-radius: 8px;
+                        border-bottom-left-radius: 8px;
+                    }
+                }
+            }
+        }
+
+        .new-post-form {
+            margin-top: 2em;
+        }
+   }
+}

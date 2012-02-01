@@ -1,0 +1,87 @@
+{% extends "forum/base.html" %}
+
+{% macro render_pages() %}
+<span>
+  <span>Страницы:</span>
+  <span>
+    {% for page_number in pages_numbers %}
+    {% if page_number == current_page_number %}
+    <span>{{ page_number+1 }}</span>
+    {% else %}
+    <a href="{{ url('forum:show_thread', category.slug, subcategory.slug, thread.id) }}?page={{page_number+1}}">{{ page_number+1 }}</a>
+    {% endif %}
+    {% endfor %}
+  </span>
+</span>
+{% endmacro %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newPostForm = new pgf.forms.Form(jQuery('#pgf-new-post-form'),
+                                         { OnSuccess: function(form, data){
+                                             location.reload();
+                                         }
+                                         });
+});
+
+</script>
+
+{% endblock %}
+
+
+{% block forum_content %}
+
+<div class="thread">
+
+  <h2>
+    <a href="{{ url('forum:subcategory', category.slug, subcategory.slug) }}">{{ subcategory.caption }}</a>::{{ thread.caption }}
+  </h2>
+
+  {{ render_pages() }}
+
+  <ul>
+    {% for post in posts %}
+    <li class="post">
+      <table>
+        <tbody>
+          <tr class="head">
+            {% set message_id = start_posts_from + loop.index %}
+            <td class="index"><a href="#m{{message_id}}" id="m{{message_id}}">#{{message_id}}</a></td>
+            <td class="author">{{ post.author.username }}</td>
+            <td class="created-at">{{ post.created_at }} UTC</td>
+          </tr>
+
+          <tr class="body">
+            <td colspan="3">{{ post.html|safe }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </li>
+    {% endfor %}
+  </ul>
+
+  {{ render_pages() }}
+
+  {% if resource.account %}
+  <form action="{{ url('forum:create_post', category.slug, subcategory.slug, thread.id) }}" 
+        method="post" 
+        id="pgf-new-post-form"
+        class="block long new-post-form">
+
+    {{ new_post_form.errors_container }}
+
+    {{ new_post_form.text.widget }}
+
+    <div class="widget">
+      <input type="submit" value="Ответить"/>
+    </div>
+
+  </form>
+  {% endif %}
+
+</div>
+
+{% endblock %}

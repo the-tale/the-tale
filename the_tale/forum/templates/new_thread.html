@@ -1,0 +1,39 @@
+{% extends "forum/base.html" %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newThreadForm = new pgf.forms.Form(jQuery('#pgf-new-thread-form'),
+                                           { OnSuccess: function(form, data){
+                                               var url = "{{ url('forum:subcategory', category.slug, subcategory.slug) }}";
+                                               location.href = url + '/' + data.data.thread_id;
+                                           }
+                                           });
+});
+
+</script>
+
+{% endblock %}
+
+
+{% block forum_content %}
+
+<h1>{{ category.caption }}::{{ subcategory.caption }}</h1>
+
+<form id="pgf-new-thread-form" method="post" action="{{ url('forum:create_thread', category.slug, subcategory.slug) }}" class="block long">
+
+  {{ new_thread_form.errors_container }}
+
+  {{ new_thread_form.caption.widget}}
+
+  {{ new_thread_form.text.widget }}
+
+  <div class="widget">
+    <input type="submit" value="Создать"/>
+  </div>
+
+</form>
+
+{% endblock %}

@@ -7,6 +7,21 @@ form {
         width: 400px;
     }
 
+    &.block.long {
+        width: 920px;
+
+        input {
+            width: 900px;
+
+            &[type="submit"] {
+                width: 390px;
+            }
+        }
+        textarea {
+            width: 900px;
+        }
+    }
+
     .error-container {
         border: 0px;
 
@@ -24,20 +39,6 @@ form {
         padding: 2px;
         margin: 2px;
         margin-bottom: 0.5em;
-
-        label {
-            font-size: 14pt;
-            font-weight: normal;
-            display: block;
-            margin-bottom: 0.25em;
-        }
-
-        input {
-            font-size: 12pt;
-            width: 390px;
-            border: 2px @border-color solid;
-            border-radius: 4px;
-        }
 
         .error-container {
             border: 0px;
@@ -62,15 +63,37 @@ form {
         }
     }
 
-    input[type="submit"] {
+    label {
         font-size: 14pt;
+        font-weight: normal;
+        display: block;
+        margin-bottom: 0.25em;
+    }
+
+    input {
+        font-size: 12pt;
+        width: 390px;
         border: 2px @border-color solid;
         border-radius: 4px;
-        cursor: pointer;
 
-        &:hover {
-            background-color: #FFCC00;
+        &[type="submit"] {
+            font-size: 14pt;
+            border: 2px @border-color solid;
+            border-radius: 4px;
+            cursor: pointer;
+
+            &:hover {
+                background-color: #FFCC00;
+            }
         }
+    }
+
+    textarea {
+        font-size: 12pt;
+        width: 390px;
+        height: 200px;
+        border: 2px @border-color solid;
+        border-radius: 4px;
     }
 }
 

@@ -1,0 +1,40 @@
+{% extends "forum/base.html" %}
+
+{% block forum_content %}
+
+{% for category_data in forum_structure %}
+
+{% set category = category_data['category'] %}
+{% set subcategories = category_data['subcategories'] %}
+
+<div class="category">
+  <h2>{{ category.caption }}</h2>
+  <table>
+    <thead>
+      <tr>
+        <th class="caption">раздел</th>
+        <th class="threads-count">тем</th>
+        <th class="posts-count">ответов</th>
+        <th class="updated-at">обновлено</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for subcategory in subcategories %}
+      <tr>
+        <td class="caption">
+          <a href="{{ url('forum:subcategory', category.slug, subcategory.slug) }}">
+            {{ subcategory.caption }}
+          </a>
+        </td>
+        <td class="threads-count">{{ subcategory.threads_count }}</td>
+        <td class="posts-count">{{ subcategory.posts_count }}</td>
+        <td class="updated-at">{{ subcategory.updated_at }} UTC</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endfor %}
+
+{% endblock %}
