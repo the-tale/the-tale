@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import postmarkup
 
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
@@ -13,7 +14,6 @@ from forum.forms import NewPostForm, NewThreadForm
 from forum.conf import forum_settings
 
 # time
-# preview (for post & for thread)
 # breadcrumbs
 
 
@@ -166,3 +166,7 @@ class ForumResource(Resource):
         self.subcategory.save()
 
         return self.json(status='ok')
+
+    @handler('preview', name='preview', method='post')
+    def preview(self):
+        return self.string(postmarkup.render_bbcode(self.request.POST.get('text', '')))

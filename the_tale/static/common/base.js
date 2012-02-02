@@ -36,6 +36,39 @@ pgf.base.RenderTemplateList = function(selector, data, newElementCallback, param
 
 };
 
+pgf.base.AddPreview = function(blockSelector, contentSourceSelector, previewUrl) {
+
+    var block = jQuery(blockSelector);
+    var source = jQuery(contentSourceSelector, block);
+
+    var previewButton = jQuery('.pgf-preview-button', block);
+    var editButton = jQuery('.pgf-edit-button', block);
+    var editContent = jQuery('.pgf-edit-content', block);
+    var previewContent = jQuery('.pgf-preview-content', block);
+
+    function SwitchView(preview) {
+        previewButton.toggleClass('pgf-hidden', preview);
+        editContent.toggleClass('pgf-hidden', preview);
+        editButton.toggleClass('pgf-hidden', !preview)
+        previewContent.toggleClass('pgf-hidden', !preview)
+    }
+
+    previewButton.click(function(e){
+        jQuery.ajax({type: 'post',
+                     data: { text: source.val() },
+                     url: previewUrl,
+                     success: function(data) {
+                         previewContent.html(data);
+                         SwitchView(true);
+                     }
+                    });
+    });
+
+    editButton.click(function(e){
+        SwitchView(false);
+    });
+}
+
 pgf.base.UpdateStatsBar = function(selector) {
     
     var widget = jQuery(selector);
