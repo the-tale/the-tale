@@ -13,9 +13,6 @@ from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm
 from forum.conf import forum_settings
 
-# time
-# breadcrumbs
-
 
 class ForumResource(Resource):
 
