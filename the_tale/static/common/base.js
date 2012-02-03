@@ -36,6 +36,15 @@ pgf.base.RenderTemplateList = function(selector, data, newElementCallback, param
 
 };
 
+pgf.base.AutoFormatTime = function() {
+    jQuery('.pgf-format-time').each(function(i, v){
+        var el = jQuery(v);
+        var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
+        var text = Globalize.format( new Date(timestamp), "f" ) + ' UTC';
+        el.text(text);
+    });
+};
+
 pgf.base.AddPreview = function(blockSelector, contentSourceSelector, previewUrl) {
 
     var block = jQuery(blockSelector);

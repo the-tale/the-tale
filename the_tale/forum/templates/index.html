@@ -28,7 +28,7 @@
         </td>
         <td class="threads-count">{{ subcategory.threads_count }}</td>
         <td class="posts-count">{{ subcategory.posts_count }}</td>
-        <td class="updated-at">{{ subcategory.updated_at }} UTC</td>
+        <td class="updated-at pgf-format-time" data-timestamp="{{ subcategory.updated_at|timestamp }}"></td>
       </tr>
       {% endfor %}
     </tbody>

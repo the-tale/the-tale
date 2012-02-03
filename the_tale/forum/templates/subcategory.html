@@ -23,7 +23,7 @@
         </td>
         <td class="author">{{ thread.author.username }}</td>
         <td class="posts-count">{{ thread.posts_count }}</td>
-        <td class="updated-at">{{ thread.updated_at }} UTC</td>
+        <td class="updated-at pgf-format-time" data-timestamp="{{ thread.updated_at|timestamp }}"></td>
       </tr>
       {% endfor %}
     </tbody>

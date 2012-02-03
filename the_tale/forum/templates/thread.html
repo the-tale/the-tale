@@ -53,7 +53,7 @@ jQuery(document).ready( function(e) {
             {% set message_id = start_posts_from + loop.index %}
             <td class="index"><a href="#m{{message_id}}" id="m{{message_id}}">#{{message_id}}</a></td>
             <td class="author">{{ post.author.username }}</td>
-            <td class="created-at">{{ post.created_at }} UTC</td>
+            <td class="created-at pgf-format-time" data-timestamp="{{ post.created_at|timestamp}}"></td>
           </tr>
 
           <tr class="body">
