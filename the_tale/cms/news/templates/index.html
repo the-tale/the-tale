@@ -1,0 +1,20 @@
+{% extends "news/base.html" %}
+
+{% block news_content %}
+
+<ul>
+  {% for news_item in news %}
+  <li class="news-item block">
+    <h2>{{ news_item.caption }}</h2>
+    <div class="description cms-content">{{ news_item.html_description|safe }}</div>
+    <div class="bottom-line">
+      <span class="publish-date pgf-format-time" data-timestamp="{{ news_item.created_at|timestamp }}"></span>
+      {% if news_item.forum_thread %}
+      <a class="forum-link" href="{{ news_item.forum_thread.get_absolute_url() }}">обсудить на форуме</a>
+      {% endif %}
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

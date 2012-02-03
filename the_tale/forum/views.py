@@ -12,6 +12,7 @@ from common.utils.resources import Resource
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm
 from forum.conf import forum_settings
+from forum.logic import create_thread
 
 
 class ForumResource(Resource):
@@ -67,7 +68,7 @@ class ForumResource(Resource):
     @handler('#category', '#subcategory', name='subcategory', method='get')
     def get_subcategory(self):
 
-        threads = Thread.objects.filter(subcategory=self.subcategory).order_by('id')
+        threads = Thread.objects.filter(subcategory=self.subcategory).order_by('updated_at')
 
         return self.template('forum/subcategory.html',
                              {'category': self.category,
@@ -83,7 +84,6 @@ class ForumResource(Resource):
                               'new_thread_form': NewThreadForm()} )
 
     @handler('#category', '#subcategory', 'create-thread', name='create_thread', method='post')
-    @nested_commit_on_success
     def create_thread(self):
 
         new_thread_form = NewThreadForm(self.request.POST)
@@ -91,18 +91,10 @@ class ForumResource(Resource):
         if not new_thread_form.is_valid():
             return self.json(status='error', errors=new_thread_form.errors)
 
-        thread = Thread.objects.create(subcategory=self.subcategory,
-                                       caption=new_thread_form.c.caption,
-                                       author=self.account.user,
-                                       posts_count=1)
-
-        post = Post.objects.create(thread=thread,
-                                   author=self.account.user,
-                                   text=new_thread_form.c.text)
-
-        self.subcategory.threads_count = Thread.objects.filter(subcategory=self.subcategory).count()
-        self.subcategory.updated_at = post.created_at
-        self.subcategory.save()
+        thread = create_thread(self.subcategory, 
+                               caption=new_thread_form.c.caption,
+                               author=self.account.user,
+                               text=new_thread_form.c.text)
 
         return self.json(status='ok', data={'thread_id': thread.id})
 
@@ -114,9 +106,6 @@ class ForumResource(Resource):
 
         post_from = page * forum_settings.POSTS_ON_PAGE
         
-        # print page
-        # print post_from
-        # print self.thread.posts_count
         if post_from > self.thread.posts_count:
             last_page = self.thread.posts_count / forum_settings.POSTS_ON_PAGE + 1
             url = '%s?page=%d' % (reverse('forum:show_thread', args=[self.category.slug, self.subcategory.slug, self.thread.id]), last_page)
@@ -160,6 +149,7 @@ class ForumResource(Resource):
         self.thread.save()
 
         self.subcategory.updated_at = post.created_at
+        self.subcategory.posts_count = sum(Thread.objects.filter(subcategory=self.subcategory).values_list('posts_count', flat=True))
         self.subcategory.save()
 
         return self.json(status='ok')

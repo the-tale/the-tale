@@ -16,6 +16,7 @@ urlpatterns = patterns('',
                        (r'^accounts/', include('accounts.urls', namespace='accounts') ),
                        (r'^game/', include('game.urls', namespace='game') ),
                        (r'^forum/', include('forum.urls', namespace='forum') ),
+                       (r'^news/', include('cms.news.urls', namespace='news') ),
                        (r'^', include('portal.urls', namespace='portal') ),
 )
 

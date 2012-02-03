@@ -4,6 +4,7 @@ import postmarkup
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 
 class Category(models.Model):
@@ -47,6 +48,11 @@ class Thread(models.Model):
     posts_count = models.BigIntegerField(default=0, null=False)
 
     updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
+
+    def get_absolute_url(self):
+        return reverse('forum:show_thread', args=[self.subcategory.category.slug,
+                                                  self.subcategory.slug, 
+                                                  self.id])        
 
 
 class Post(models.Model):

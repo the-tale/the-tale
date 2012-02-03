@@ -3,7 +3,12 @@
 {% block content %}
 
 <div class="block">
-  {{ msg }}
+  <div class="news-content">
+
+    {% block news_content %}
+    {% endblock %}
+
+  </div>
 </div>
 
 {% endblock %}

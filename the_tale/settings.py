@@ -125,6 +125,9 @@ INSTALLED_APPS = (
     'game.artifacts',
     'game.persons',
 
+    'cms',
+    'cms.news',
+
     'forum',
 
     'stress_testing',
