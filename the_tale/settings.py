@@ -144,11 +144,6 @@ AMQP_BROKER_USER = 'the_tale'
 AMQP_BROKER_PASSWORD = 'the_tale'
 AMQP_BROKER_VHOST = '/the_tale'
 
-AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,
-                                              AMQP_BROKER_PASSWORD,
-                                              AMQP_BROKER_HOST,
-                                              AMQP_BROKER_VHOST)
-
 try:
     from settings_local import *
 except:
@@ -162,3 +157,9 @@ if 'CELERY_EMULATE_TASKS' not in globals():
 
 if not DEBUG:
     LESS_CSS_URL = STATIC_URL + 'css/'
+
+
+AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,
+                                              AMQP_BROKER_PASSWORD,
+                                              AMQP_BROKER_HOST,
+                                              AMQP_BROKER_VHOST)
