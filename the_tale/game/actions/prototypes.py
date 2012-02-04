@@ -148,6 +148,10 @@ class ActionPrototype(object):
         self.model.destination_x = x
         self.model.destination_y = y
 
+    def get_percents_barier(self): return self.model.percents_barier
+    def set_percents_barier(self, value): self.model.percents_barier = value
+    percents_barier = property(get_percents_barier, set_percents_barier)
+
     ###########################################
     # Object operations
     ###########################################
@@ -193,11 +197,8 @@ class ActionPrototype(object):
 
             if self.state == self.STATE.PROCESSED:
                 self.parent.leader = True
-                # self.parent.save()
                 self.remove()
-            else:
-                # self.save()
-                pass
+
 
     def process_turn(self, turn_number):
         self.process_action()
@@ -249,7 +250,8 @@ class ActionIdlenessPrototype(ActionPrototype):
             self.percents = 0
             self.state = self.STATE.WAITING
 
-        elif self.state == self.STATE.WAITING:
+
+        if self.state == self.STATE.WAITING:
 
             self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
             self.percents = float(self.entropy) / self.ENTROPY_BARRIER
@@ -305,20 +307,15 @@ class ActionQuestPrototype(ActionPrototype):
 
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.PROCESSING
+
         
-        elif self.state == self.STATE.PROCESSING:
+        if self.state == self.STATE.PROCESSING:
             finish, percents = self.quest.process(self)
 
             self.percents = percents
 
             if finish:
                 self.state = self.STATE.PROCESSED
-                # self.quest.remove()
-            else:
-                # self.quest.save()
-                pass
-
-            # self.hero.save()
 
 
 class ActionMoveToPrototype(ActionPrototype):
@@ -381,12 +378,10 @@ class ActionMoveToPrototype(ActionPrototype):
             self.percents = 0
             self.state = self.STATE.CHOOSE_ROAD
 
-        elif self.state == self.STATE.CHOOSE_ROAD:
-            # print 'CHOOSE_ROAD start'
-            # print self.destination.name
+
+        if self.state == self.STATE.CHOOSE_ROAD:
 
             if self.hero.position.place_id:
-                # print 'in place'
                 if self.hero.position.place_id != self.destination_id:
                     self.road, length = WaymarkPrototype.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
                     self.hero.position.set_road(self.road, invert=(self.hero.position.place_id != self.road.point_1_id))
@@ -396,14 +391,8 @@ class ActionMoveToPrototype(ActionPrototype):
                     self.percents = 1
                     self.state = self.STATE.PROCESSED
             else:
-                # print ('on road ', 
-                #        self.hero.position.road.point_1.name, self.hero.position.road.point_2.name, 
-                #        self.hero.position.invert_direction, self.hero.position.percents )
                 road_left, length_left = WaymarkPrototype.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
                 road_right, length_right = WaymarkPrototype.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
-
-                # print road_left, length_left
-                # print road_right, length_right
 
                 if not self.hero.position.invert_direction:
                     delta_left = self.hero.position.percents * self.hero.position.road.length
@@ -411,8 +400,6 @@ class ActionMoveToPrototype(ActionPrototype):
                     delta_left = (1 - self.hero.position.percents) * self.hero.position.road.length
                 delta_rigth = self.hero.position.road.length - delta_left
                 
-                # print delta_left, delta_rigth
-
                 if road_left is None:
                     invert = True
                 elif road_right is None:
@@ -420,22 +407,16 @@ class ActionMoveToPrototype(ActionPrototype):
                 else:
                     invert = (length_left + delta_left) < (delta_rigth + length_right)
 
-                # print invert
-
                 if invert:
                     length = length_left + delta_left
                 else:
                     length = delta_rigth + length_right
-
-                # print length
 
                 percents = self.hero.position.percents
                 if self.hero.position.invert_direction and not invert:
                     percents = 1 - percents
                 elif not self.hero.position.invert_direction and invert:
                     percents = 1 - percents
-
-                # print percents
 
                 if length < 0.01:
                     current_destination = self.current_destination
@@ -444,15 +425,13 @@ class ActionMoveToPrototype(ActionPrototype):
                 else:
                     self.road = self.hero.position.road
                     self.hero.position.set_road(self.hero.position.road, invert=invert, percents=percents)
-                    # print ('new road ', 
-                    #        self.hero.position.road.point_1.name, self.hero.position.road.point_2.name, 
-                    #        self.hero.position.invert_direction, self.hero.position.percents )
                     self.state = self.STATE.MOVING
 
             if self.length is None:
                 self.length = length
 
-        elif self.state == self.STATE.MOVING:
+
+        if self.state == self.STATE.MOVING:
 
             current_destination = self.current_destination
 
@@ -487,6 +466,7 @@ class ActionMoveToPrototype(ActionPrototype):
                 elif self.break_at and self.percents >= 1:
                     self.percents = 1
                     self.state = self.STATE.PROCESSED                    
+
 
         elif self.state == self.STATE.BATTLE:
             self.state = self.STATE.MOVING
@@ -536,7 +516,8 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
             self.hero.push_message(msg_generator.msg_action_battlepve1x1_start(self.hero, self.mob))
             self.state = self.STATE.BATTLE_RUNNING
 
-        elif self.state == self.STATE.BATTLE_RUNNING:
+
+        if self.state == self.STATE.BATTLE_RUNNING:
 
             if self.hero.context.leave_battle():
                 self.percents = 1
@@ -619,7 +600,8 @@ class ActionResurrectPrototype(ActionPrototype):
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.RESURRECT
 
-        elif self.state == self.STATE.RESURRECT:
+
+        if self.state == self.STATE.RESURRECT:
             self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
             self.percents = min(1, float(self.entropy) / self.ENTROPY_BARRIER)
 
@@ -628,8 +610,6 @@ class ActionResurrectPrototype(ActionPrototype):
                 self.percents = 1.0
                 self.hero.resurrent()
                 self.state = self.STATE.PROCESSED
-                
-                # self.hero.save()
 
 
 class ActionInPlacePrototype(ActionPrototype):
@@ -684,12 +664,10 @@ class ActionInPlacePrototype(ActionPrototype):
 
         elif self.can_equip_in_town and self.hero.need_equipping_in_town:
             self.state = self.STATE.EQUIPPING
-
             self.bundle.add_action(ActionEquipInSettlementPrototype.create(self, self.place))
 
         elif self.can_trade_in_town and self.hero.need_trade_in_town:
             self.state = self.STATE.TRADING
-
             self.bundle.add_action(ActionTradeInSettlementPrototype.create(self, self.place))
             
         else:
@@ -731,7 +709,8 @@ class ActionRestInSettlementPrototype(ActionPrototype):
             self.percents = 0
             self.hero.push_message(msg_generator.msg_action_restinsettlement_start(self.hero))
 
-        elif self.state == self.STATE.RESTING:
+
+        if self.state == self.STATE.RESTING:
 
             heal_amount = heal_in_town(self.hero)
 
@@ -779,7 +758,8 @@ class ActionEquipInSettlementPrototype(ActionPrototype):
             self.percents = 0
             self.hero.push_message(msg_generator.msg_action_equipinsettlement_start(self.hero))
 
-        elif self.state == self.STATE.EQUIPPING:
+        
+        if self.state == self.STATE.EQUIPPING:
             unequipped, equipped = equip_in_city(self.hero)
             if equipped:
                 if unequipped:
@@ -821,7 +801,8 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       place=settlement.model)
+                                       place=settlement.model,
+                                       percents_barier=parent.hero.bag.occupation[1] )
         return cls(model=model)
 
     @nested_commit_on_success
@@ -832,9 +813,12 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
             self.percents = 0
             self.hero.push_message(msg_generator.msg_action_tradeinsettlement_start(self.hero))
 
-        elif self.state == self.STATE.TRADING:
+
+        if self.state == self.STATE.TRADING:
             quest_items_count, loot_items_count = self.hero.bag.occupation
             if loot_items_count:
+
+                self.percents = 1 - float(loot_items_count - 1) / self.percents_barier
 
                 for item in self.hero.bag.items():
                     artifact_uuid, artifact = item
@@ -900,7 +884,8 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
             else:
                 self.hero.position.set_coordinates(self.place.x, self.place.y, dest_x, dest_y, percents=0)
 
-        elif self.state == self.STATE.MOVING:
+
+        if self.state == self.STATE.MOVING:
 
             if self.entropy >= self.ENTROPY_BARRIER:
                 self.entropy = 0

@@ -33,10 +33,10 @@ class Action(models.Model):
     length = models.FloatField(null=True, blank=True, default=None)
     destination_x = models.IntegerField(null=True, blank=True, default=None)
     destination_y = models.IntegerField(null=True, blank=True, default=None)
+    percents_barier = models.IntegerField(null=True, blank=True, default=None)
 
     @classmethod
     def get_related_query(cls):
-        # return cls.objects.select_related('hero', 'quest', 'place', 'road', 'npc')
         return cls.objects.select_related('hero', 'hero__pos_place', 'hero__pos_road', 'quest', 'place', 'road', 'npc')
 
     def __unicode__(self):
