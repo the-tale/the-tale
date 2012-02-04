@@ -10,8 +10,12 @@ class CategoryAdmin(admin.ModelAdmin):
 class SubCategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'caption', 'slug', 'category', )
 
+    readonly_fields = ('threads_count', 'posts_count')
+
 class ThreadAdmin(admin.ModelAdmin):
     list_display = ('id', 'caption', 'author', 'subcategory')
+
+    readonly_fields = ('posts_count', )
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'thread', 'author')
