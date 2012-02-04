@@ -68,5 +68,5 @@ class AbilitiesResource(Resource):
         if ability_task.state == ABILITY_STATE.PROCESSED:
             return self.json(status='ok', data={'available_at': ability_task.available_at} )
         
-        return self.json(status='error', error='ошибка при обработке способности')
+        return self.json(status='error', error='Сейчас нельзя применить эту способность')
 

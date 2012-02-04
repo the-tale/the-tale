@@ -169,10 +169,9 @@ class AbilityTaskPrototype(object):
 
         if not result:
             self.state = ABILITY_STATE.ERROR
+            return
 
-            
         self.state = ABILITY_STATE.PROCESSED
-
         angel.energy -= ability.COST
 
         if ability.LIMITED:
