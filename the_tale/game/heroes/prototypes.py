@@ -99,14 +99,14 @@ class HeroPrototype(object):
         return self._abilities
 
     def get_next_ability_level(self, ability_id):
-        max_level = len(habilities.ABILITIES[ability_id].LEVELS)
+        max_level = len(habilities.ABILITIES[ability_id].LEVELS) - 1
 
         if ability_id in self.abilities:
             if max_level == self.abilities[ability_id]:
                 return None
             return self.abilities[ability_id] + 1
 
-        return 1
+        return 0
 
     def get_abilities(self):
         return [ habilities.ABILITIES[ability_id](ability_level) for ability_id, ability_level in self.abilities.items()]
@@ -139,7 +139,7 @@ class HeroPrototype(object):
         result = []
 
         for choice in choices:
-            level = 1
+            level = 0
             if choice in self.abilities:
                 level = self.abilities[choice] + 1
             result.append(habilities.ABILITIES[choice](level))
@@ -578,12 +578,12 @@ class ChooseAbilityTaskPrototype(object):
             hero.abilities[self.ability_id] += 1
 
         else:
-            if self.ability_level != 1: 
+            if self.ability_level != 0: 
                 self.state = CHOOSE_ABILITY_STATE.ERROR
                 self.comment = 'wrong ability level for new ability'
                 return
 
-            hero.abilities[self.ability_id] = 1
+            hero.abilities[self.ability_id] = 0
 
         hero.destiny_points -= 1
         hero.destiny_points_spend += 1

@@ -48,6 +48,9 @@ class HeroResource(Resource):
         
         ability_level = self.hero.get_next_ability_level(ability_id)
 
+        if ability_level is None:
+            return self.json(status='error', error='У способности нет такого уровня')            
+
         task = ChooseAbilityTaskPrototype.create(ability_id, ability_level, self.hero.id)
 
         workers_environment.supervisor.cmd_choose_hero_ability(task.id)

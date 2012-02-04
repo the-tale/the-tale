@@ -8,6 +8,7 @@ class EVENTS:
     GET_ITEM = 'get_item'
     MOVE_TO_DESTINATION = 'move_to_destination'
     GIVE_ITEM = 'give_item'
+    STEAL_ITEM = 'steal_item'
     GET_REWARD = 'get_reward'
     STEAL_REWARD = 'steal_reward'
     STEAL_CHOICE = 'steal_choice'
@@ -31,7 +32,7 @@ class DeliveryLine(Quest):
                                        cmd.GivePower(person=self.env_local.person_start, power=1, event=EVENTS.GOOD_GIVE_POWER),
                                        cmd.GivePower(person=self.env_local.person_end, power=1, event=EVENTS.GOOD_GIVE_POWER)])
         steal_line = Line(sequence=[cmd.GetReward(event=EVENTS.STEAL_REWARD),
-                                    cmd.GiveItem(self.env_local.item_to_deliver, event=EVENTS.GIVE_ITEM),
+                                    cmd.GiveItem(self.env_local.item_to_deliver, event=EVENTS.STEAL_ITEM),
                                     cmd.GivePower(person=self.env_local.person_start, power=-1, event=EVENTS.EVIL_GIVE_POWER),
                                     cmd.GivePower(person=self.env_local.person_end, power=-1, event=EVENTS.EVIL_GIVE_POWER)])
 
@@ -56,11 +57,12 @@ class DeliveryWriter(Writer):
             EVENTS.GET_ITEM: u'Герой получил %(item_to_deliver)s',
             EVENTS.MOVE_TO_DESTINATION: u'Работа у курьеров не простая, пора двигаться в %(place_end)s',
             EVENTS.GIVE_ITEM: u'Герой вручил %(item_to_deliver)s %(person_end)s',
+            EVENTS.STEAL_ITEM: u'Герой присвоил %(item_to_deliver)s',
             EVENTS.GET_REWARD: u'%(person_end)s вручил герою награду',
             EVENTS.STEAL_REWARD: u'Теперь %(item_to_deliver)s будет моим',
             EVENTS.STEAL_CHOICE: u'Доставить или украсть - вот в чём вопрос'}
 
-    CHOICES = { CHOICES.STEAL: {'question': u'Зачем <a href="#" class="pgf-choice" data-choice="delivery">мучаться с доставкой</a> %(item_to_deliver)s если можно  <a href="#" class="pgf-choice" data-choice="steal">урасть</a> посылку?',
+    CHOICES = { CHOICES.STEAL: {'question': u'Зачем <a href="#" class="pgf-choice" data-choice="delivery">мучаться с доставкой</a> %(item_to_deliver)s если можно  <a href="#" class="pgf-choice" data-choice="steal">украсть</a> посылку?',
                                 'results': {'delivery': u'Герой решил честно выполнить условия сделки',
                                             'steal': u'Герой решил присвоить %(item_to_deliver)s'} 
                                 } 

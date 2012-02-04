@@ -26,7 +26,7 @@ class KnowlegeBase(object):
                               'place': place}
 
     def get_random_place(self, exclude=[]):
-        choices = [place_uuid for place_uuid in self.places.keys()]
+        choices = [place_uuid for place_uuid in self.places.keys() if place_uuid not in exclude]
         if len(choices) == 0:
             raise RollBackException('can not found suitable place with excludes: %r' % exclude)
         return random.choice(choices)
