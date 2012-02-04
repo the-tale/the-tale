@@ -1,3 +1,4 @@
+global-include *.py
 global-include *.json
 global-include *.js
 global-include *.html
