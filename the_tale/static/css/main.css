@@ -9,9 +9,23 @@
 @import "dialog.css";
 
 @import "forms.css";
+
+@import "forum.css";
+
+@import "cms.css";
+
+@import "news.css";
 @font-face {
   font-family: ObelixProB;
   src: url('/static/fonts/ObelixProB-cyr.ttf');
+}
+a {
+  text-decoration: none;
+  color: #0000cc;
+}
+a:hover {
+  text-decoration: underline;
+  color: #0000cc;
 }
 ol {
   /* list-style: decimal inside none; */
