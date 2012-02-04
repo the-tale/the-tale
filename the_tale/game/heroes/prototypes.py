@@ -355,9 +355,9 @@ class HeroPrototype(object):
                           'experience_to_level': self.experience_to_level},
                 'secondary': { 'min_damage': math.floor(self.min_damage),
                                'max_damage': math.ceil(self.max_damage),
-                               'move_speed': round(self.move_speed, 2),
-                               'battle_speed': round(self.battle_speed, 2),
-                               'armor': round(self.armor),
+                               'move_speed': self.move_speed,
+                               'battle_speed': self.battle_speed,
+                               'armor': self.armor,
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': loot_items_count},
                 'accumulated': { }

@@ -124,7 +124,7 @@ class ArmorBase(Effect):
 
     def ui_info(self):
         info = super(ArmorBase, self).ui_info()
-        info.update({'armor': math.ceil(self.armor),
+        info.update({'armor': self.armor,
                      'battle_speed': self.battle_speed})
         return info
 
