@@ -34,6 +34,8 @@ class SubCategory(models.Model):
 
     posts_count = models.BigIntegerField(default=0, null=False)
 
+    closed = models.BooleanField(default=False) # if True, only staff can create themes in this subcategory
+
     def __unicode__(self): return self.slug
 
 

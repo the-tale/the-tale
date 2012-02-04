@@ -31,7 +31,7 @@
 
 </div>
 
-{% if resource.account %}
+{% if resource.account and not subcategory.closed %}
 <form action="{{ url('forum:new_thread', category.slug, subcategory.slug) }}" method="get">
   <input type="submit" value="Добавить обсуждение"/>
 </form>

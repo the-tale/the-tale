@@ -86,6 +86,9 @@ class ForumResource(Resource):
     @handler('#category', '#subcategory', 'create-thread', name='create_thread', method='post')
     def create_thread(self):
 
+        if self.subcategory.closed:
+            return self.json(status='error', error=u'Вы не можете создавать темы в данном разделе')
+
         new_thread_form = NewThreadForm(self.request.POST)
 
         if not new_thread_form.is_valid():
