@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.core.urlresolvers import reverse
 
-from django_next.views.resources import handler
-from django_next.utils.exceptions import Error
+from dext.views.resources import handler
+from dext.utils.exceptions import Error
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import random
 
-from django_next.utils.decorators import nested_commit_on_success
-from django_next.utils import s11n
+from dext.utils.decorators import nested_commit_on_success
+from dext.utils import s11n
 
 from ..heroes.logic import create_mob_for_hero, heal_in_town, sell_in_city, equip_in_city
 from ..heroes import settings as heroes_settings

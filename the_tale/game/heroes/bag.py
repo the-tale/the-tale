@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django_next.utils import s11n
+from dext.utils import s11n
 
 from ..artifacts.prototypes import ArtifactPrototype
 from ..artifacts import constructors

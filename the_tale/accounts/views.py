@@ -2,8 +2,8 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import login as django_login, authenticate as django_authenticate, logout as django_logout
 
-from django_next.views.resources import BaseResource, handler
-from django_next.utils.decorators import nested_commit_on_success
+from dext.views.resources import BaseResource, handler
+from dext.utils.decorators import nested_commit_on_success
 
 from game.angels.prototypes import AngelPrototype
 from game.heroes.prototypes import HeroPrototype

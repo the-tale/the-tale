@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from django_next.utils import s11n
-from django_next.utils.decorators import nested_commit_on_success
+from dext.utils import s11n
+from dext.utils.decorators import nested_commit_on_success
 
 from ..heroes.hmessages import generator as msg_generator
 

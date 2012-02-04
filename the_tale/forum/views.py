@@ -4,8 +4,8 @@ import postmarkup
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 
-from django_next.views.resources import handler
-from django_next.utils.decorators import nested_commit_on_success
+from dext.views.resources import handler
+from dext.utils.decorators import nested_commit_on_success
 
 from common.utils.resources import Resource
 

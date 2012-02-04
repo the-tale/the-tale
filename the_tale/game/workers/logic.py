@@ -2,7 +2,7 @@
 import heapq
 import traceback
 
-from django_next.utils.decorators import nested_commit_on_success
+from dext.utils.decorators import nested_commit_on_success
 
 from ..heroes.prototypes import get_hero_by_id
 from ..bundles import get_bundle_by_id

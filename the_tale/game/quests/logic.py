@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django_next.utils.decorators import retry_on_exception
+from dext.utils.decorators import retry_on_exception
 
 from ..map.places.models import Place
 from ..map.places.prototypes import get_place_by_model

@@ -1,4 +1,6 @@
-from django_next.views.dispatcher import resource_patterns
+# coding: utf-8
+
+from dext.views.dispatcher import resource_patterns
 
 from .views import PlaceResource
 

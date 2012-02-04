@@ -2,10 +2,10 @@
 
 from django.shortcuts import get_object_or_404
 
-from django_next.utils.exceptions import Error
-from django_next.views.resources import handler
-from django_next.utils.decorators import nested_commit_on_success
-from django_next.utils.decorators import staff_required
+from dext.utils.exceptions import Error
+from dext.views.resources import handler
+from dext.utils.decorators import nested_commit_on_success
+from dext.utils.decorators import staff_required
 
 from common.utils.resources import Resource
 

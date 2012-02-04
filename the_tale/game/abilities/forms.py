@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django_next.forms import forms, fields
+from dext.forms import forms, fields
 
 class AbilityForm(forms.Form):
 

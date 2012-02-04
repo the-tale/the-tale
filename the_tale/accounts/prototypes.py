@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django_next.utils.decorators import nested_commit_on_success
+from dext.utils.decorators import nested_commit_on_success
 
 from .models import Account
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from django_next.views.resources import handler
-from django_next.utils.decorators import staff_required, debug_required
+from dext.views.resources import handler
+from dext.utils.decorators import staff_required, debug_required
 
 from common.utils.resources import Resource
 

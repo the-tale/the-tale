@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django_next.utils.decorators import nested_commit_on_success
+from dext.utils.decorators import nested_commit_on_success
 
 from ..places.models import Place
 from ..places.prototypes import get_place_by_model

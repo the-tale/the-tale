@@ -80,7 +80,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.media',
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
-    'django_next.less.context_processors.less'
+    'dext.less.context_processors.less'
     )
 
 
@@ -90,7 +90,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django_next.utils.exceptions.ExceptionMiddleware'
+    'dext.utils.exceptions.ExceptionMiddleware'
 )
 
 ROOT_URLCONF = 'urls'
@@ -107,7 +107,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles', # TODO: remove if not in DEBUG mode
 
-    'django_next.less',
+    'dext.less',
 
     'accounts',
 

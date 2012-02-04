@@ -1,7 +1,7 @@
 # coding: utf-8
 import traceback
 
-from django_next.utils.decorators import nested_commit_on_success
+from dext.utils.decorators import nested_commit_on_success
 
 from ..prototypes import get_current_time
 from ..bundles import get_bundle_by_id, get_bundle_by_model

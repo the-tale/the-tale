@@ -2,8 +2,8 @@
 import math
 import random
 
-from django_next.utils import s11n
-from django_next.utils.decorators import nested_commit_on_success
+from dext.utils import s11n
+from dext.utils.decorators import nested_commit_on_success
 
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype

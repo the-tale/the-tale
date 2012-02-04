@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django_next.views.resources import handler
+from dext.views.resources import handler
 from common.utils.resources import Resource
 
 from .prototypes import get_place_by_id

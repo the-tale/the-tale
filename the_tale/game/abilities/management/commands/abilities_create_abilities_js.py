@@ -3,7 +3,7 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
-from django_next.jinja2 import render
+from dext.jinja2 import render
 
 from ... import settings as abilities_settings
 from ...deck import ABILITIES

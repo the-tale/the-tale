@@ -4,7 +4,7 @@ import os
 
 from django.conf import settings as project_settings
 
-from django_next.utils.app_settings import app_settings
+from dext.utils.app_settings import app_settings
 
 settings = app_settings('MAP', 
                         WIDTH=30,

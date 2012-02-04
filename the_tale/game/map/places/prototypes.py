@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import random
 
-from django_next.utils import s11n
+from dext.utils import s11n
 
 from ... import names
 

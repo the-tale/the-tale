@@ -2,7 +2,7 @@
 import subprocess
 from django.core.management.base import BaseCommand
 
-from django_next.utils.decorators import nested_commit_on_success
+from dext.utils.decorators import nested_commit_on_success
 
 from ...roads.models import Road
 from ...places.models import Place, TERRAIN, PLACE_TYPE

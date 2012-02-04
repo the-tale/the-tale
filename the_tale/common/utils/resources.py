@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django_next.views.resources import BaseResource
+from dext.views.resources import BaseResource
 
 from game.angels.prototypes import get_angel_by_model
 from game.prototypes import get_current_time

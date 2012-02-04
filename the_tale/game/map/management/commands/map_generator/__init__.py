@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 
-from django_next.utils import s11n
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
-# from django.conf import settings as project_settings
+
+from dext.utils import s11n
 
 from .map import Map
 from . import places
