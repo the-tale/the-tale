@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import math
 
-from .. import settings as map_settings
+from ..conf import map_settings
 
 from .models import Road, Waymark
 

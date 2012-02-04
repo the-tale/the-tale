@@ -6,7 +6,7 @@ from dext.utils import s11n
 from ... import names
 
 from .models import Place, PLACE_TYPE, RACE_TO_TERRAIN
-from . import settings as places_settings
+from .conf import places_settings
 
 def get_place_by_id(model_id):
     model = Place.objects.get(id=model_id)

@@ -3,11 +3,11 @@ import math
 
 from django.core.management.base import BaseCommand
 
-from .... import settings as map_settings
+from ....conf import map_settings
 
 from ...prototypes import Place
 from ...prototypes import get_place_by_model
-from ... import settings as places_settings
+from ...conf import places_settings
 
 E = 0.01
 

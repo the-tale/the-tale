@@ -18,7 +18,7 @@ from .models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from .context import Context as HeroContext
 from . import game_info, habilities
 from .hmessages import generator as msg_generator
-from . import settings as heroes_settings
+from .conf import heroes_settings
 
 
 def get_hero_by_id(model_id):

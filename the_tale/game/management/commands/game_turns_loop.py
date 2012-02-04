@@ -4,7 +4,7 @@ import time
 from django.core.management.base import BaseCommand
 
 from ...workers.environment import workers_environment
-from ... import settings as game_settings
+from ...conf import game_settings
 
 class Command(BaseCommand):
 

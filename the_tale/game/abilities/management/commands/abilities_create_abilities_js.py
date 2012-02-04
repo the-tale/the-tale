@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 from dext.jinja2 import render
 
-from ... import settings as abilities_settings
+from ...conf import abilities_settings
 from ...deck import ABILITIES
 
 

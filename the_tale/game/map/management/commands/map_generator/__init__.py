@@ -11,7 +11,7 @@ from .map import Map
 from . import places
 from . import roads
 
-from .... import settings as map_settings
+from ....conf import map_settings
 from ....places.models import TERRAIN
 
 class ConfigConstants:

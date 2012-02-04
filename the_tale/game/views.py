@@ -9,10 +9,10 @@ from .heroes.logic import get_angel_heroes
 
 from .prototypes import get_current_time
 
-from .map import settings as map_settings
+from .map.conf import map_settings
 from .angels.prototypes import get_angel_by_id
 
-from . import settings as game_settings
+from .conf import game_settings
 
 class GameResource(Resource):
 

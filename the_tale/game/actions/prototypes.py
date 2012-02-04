@@ -5,7 +5,7 @@ from dext.utils.decorators import nested_commit_on_success
 from dext.utils import s11n
 
 from ..heroes.logic import create_mob_for_hero, heal_in_town, sell_in_city, equip_in_city
-from ..heroes import settings as heroes_settings
+from ..heroes.conf import heroes_settings
 from ..heroes.habilities import ABILITIES_EVENTS as HERO_ABILITIES_EVENTS
 from ..heroes.prototypes import EXPERIENCE_VALUES
 from ..heroes.hmessages import generator as msg_generator

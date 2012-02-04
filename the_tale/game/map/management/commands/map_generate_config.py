@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 from dext.jinja2 import render
 
-from ... import settings as map_settings
+from ...conf import map_settings
 
 from ...roads.prototypes import get_road_by_model
 from ...roads.models import Road
