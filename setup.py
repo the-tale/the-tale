@@ -1,6 +1,9 @@
 # coding: utf-8
 import setuptools
 
+# find ./ | grep -v \.html'' | grep -v '\.py' | grep -v '\.pyc' | grep -v '\.js' | grep -v '\.css' | grep -v gitignore | grep -v '\.png' | grep -v '\.gif' | grep -v '\.otf' | grep -v '\.ttf' | grep -v '\.jpg' | grep -v '\.sh'
+
+
 setuptools.setup(
     name = 'TheTale',
     version = '0.1.0',
