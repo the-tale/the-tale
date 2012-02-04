@@ -82,7 +82,6 @@ jQuery(document).ready(function() {
       <div id="top-panel-content">
         <div class="user-links">
           {% if request.user.is_authenticated() %}
-          <a href="">Профиль</a> 
           <a href="{{ url('accounts:logout') }}">Выход</a>
           {% else %}
           <a href="{{ url('accounts:login') }}">Вход</a>

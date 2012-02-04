@@ -13,8 +13,7 @@ from cms.news.models import News
 from cms.news.conf import news_settings
 
 from forum.logic import create_thread
-from forum.models import SubCategory
-
+from forum.models import SubCategory, MARKUP_METHOD
 class NewsResource(Resource):
 
     def __init__(self, request, news_id=None, *args, **kwargs):
@@ -52,7 +51,8 @@ class NewsResource(Resource):
         thread = create_thread(get_object_or_404(SubCategory, slug=news_settings.FORUM_CATEGORY_SLUG), 
                                caption=self.news.caption, 
                                author=self.request.user, 
-                               text=self.news.description)
+                               text=self.news.description,
+                               markup_method=MARKUP_METHOD.MARKDOWN)
 
         self.news.forum_thread = thread
         self.news.save()
