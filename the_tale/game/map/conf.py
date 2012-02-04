@@ -7,8 +7,8 @@ from django.conf import settings as project_settings
 from dext.utils.app_settings import app_settings
 
 map_settings = app_settings('MAP', 
-                            WIDTH=30,
-                            HEIGHT=20,
+                            WIDTH=32,
+                            HEIGHT=22,
                             CELL_SIZE=20,
                             CELL_LENGTH=1.0,
                             
