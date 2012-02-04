@@ -49,6 +49,9 @@ class AccountsResource(BaseResource):
                 except User.DoesNotExist:
                     pass
 
+                if User.objects.filter(email=registration_form.c.email).exists():
+                    return self.json(status='error', errors={'email': [u'Пользователь с таким e-mail уже существует']})
+
                 user = User.objects.create_user(registration_form.c.nick,
                                                 registration_form.c.email,
                                                 registration_form.c.password)
