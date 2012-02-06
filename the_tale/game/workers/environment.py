@@ -13,6 +13,7 @@ class QUEUE:
     SUPERVISOR = 'supervisor_queue'
     SUPERVISOR_ANSWERS = 'answers_queue'
     HIGHLEVEL = 'highlevel_queue'
+    STOP = 'stop'
 
 class Environment(object):
 
@@ -25,7 +26,10 @@ class Environment(object):
         self.connection.connect()
 
         self.logic = Logic(connection=self.connection, game_queue=QUEUE.GAME)
-        self.supervisor = Supervisor(connection=self.connection, supervisor_queue=QUEUE.SUPERVISOR, answers_queue=QUEUE.SUPERVISOR_ANSWERS)
+        self.supervisor = Supervisor(connection=self.connection, 
+                                     supervisor_queue=QUEUE.SUPERVISOR, 
+                                     answers_queue=QUEUE.SUPERVISOR_ANSWERS,
+                                     stop_queue=QUEUE.STOP)
         self.highlevel = Highlevel(connection=self.connection, highlevel_queue=QUEUE.HIGHLEVEL)
 
         self.logic.set_supervisor_worker(self.supervisor)

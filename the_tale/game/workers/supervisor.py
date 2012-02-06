@@ -16,15 +16,17 @@ class CMD_TYPE:
     ACTIVATE_ABILITY = 'activate_ability'
     REGISTER_HERO = 'register_hero'
     CHOOSE_HERO_ABILITY = 'choose_hero_ability'
+    STOP = 'stop'
 
 class SupervisorException(Exception): pass
 
 
 class Worker(object):
 
-    def __init__(self, connection, supervisor_queue, answers_queue):
+    def __init__(self, connection, supervisor_queue, answers_queue, stop_queue):
         self.supervisor_queue = connection.SimpleQueue(supervisor_queue)
         self.answers_queue = connection.SimpleQueue(answers_queue)
+        self.stop_queue = connection.SimpleQueue(stop_queue)
         self.exception_raised = False
         self.stop_required = False
         print 'SUPERVISOR CONSTRUCTED'
@@ -38,10 +40,12 @@ class Worker(object):
     def close_queries(self):
         self.supervisor_queue.close()
         self.answers_queue.close()
+        self.stop_queue.close()
 
     def clean_queues(self):
         self.supervisor_queue.queue.purge()
         self.answers_queue.queue.purge()
+        self.stop_queue.queue.purge()
 
     def run(self):
 
@@ -103,7 +107,8 @@ class Worker(object):
               CMD_TYPE.REGISTER_BUNDLE: self.process_register_bundle,
               CMD_TYPE.ACTIVATE_ABILITY: self.process_activate_ability,
               CMD_TYPE.REGISTER_HERO: self.process_register_hero,
-              CMD_TYPE.CHOOSE_HERO_ABILITY: self.process_choose_hero_ability}[cmd_type](**cmd_data)
+              CMD_TYPE.CHOOSE_HERO_ABILITY: self.process_choose_hero_ability,
+              CMD_TYPE.STOP: self.process_stop}[cmd_type](**cmd_data)
         except Exception, e:
             self.exception_raised = True
             print 'EXCEPTION: %s' % e
@@ -124,6 +129,18 @@ class Worker(object):
 
         self.highlevel_worker.cmd_next_turn(turn_number=self.time.turn_number)
         self.wait_answers_from('next_turn', workers=['highlevel'])
+
+    def cmd_stop(self):
+        return self.send_cmd(CMD_TYPE.STOP)
+
+    def process_stop(self):
+        self.logic_worker.cmd_stop()
+        self.wait_answers_from('stop', workers=['logic'])
+
+        self.highlevel_worker.cmd_stop()
+        self.wait_answers_from('stop', workers=['highlevel'])
+
+        self.stop_queue.put({'code': 'stopped', 'worker': 'supervisor'}, serializer='json', compression=None)
 
 
     def cmd_register_bundle(self, bundle_id):

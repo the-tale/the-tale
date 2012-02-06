@@ -15,6 +15,7 @@ class CMD_TYPE:
     INITIALIZE = 'initialize'
     NEXT_TURN = 'next_turn'
     CHANGE_PERSON_POWER = 'change_person_power'
+    STOP = 'stop'
 
 class HighlevelException(Exception): pass
 
@@ -52,7 +53,8 @@ class Worker(object):
         try:
             { CMD_TYPE.INITIALIZE: self.process_initialize,
               CMD_TYPE.NEXT_TURN: self.process_next_turn,
-              CMD_TYPE.CHANGE_PERSON_POWER: self.process_change_person_power,}[cmd_type](**cmd_data)
+              CMD_TYPE.CHANGE_PERSON_POWER: self.process_change_person_power,
+              CMD_TYPE.STOP: self.process_stop}[cmd_type](**cmd_data)
         except Exception, e:
             self.exception_raised = True
             print 'EXCEPTION: %s' % e
@@ -98,6 +100,20 @@ class Worker(object):
             subprocess.call(['./manage.py', 'map_update_map'])
 
         self.supervisor_worker.cmd_answer('next_turn', self.worker_id)
+
+    def cmd_stop(self):
+        return self.send_cmd(CMD_TYPE.STOP)
+
+    def process_stop(self):
+        with nested_commit_on_success():
+            self.sync_data()
+
+        subprocess.call(['./manage.py', 'map_update_map'])
+
+        self.initialized = False
+
+        self.supervisor_worker.cmd_answer('stop', self.worker_id)
+
 
     def sync_data(self):
 

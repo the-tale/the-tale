@@ -14,6 +14,7 @@ class CMD_TYPE:
     ACTIVATE_ABILITY = 'activate_ability'
     REGISTER_HERO = 'register_hero'
     CHOOSE_HERO_ABILITY = 'choose_hero_ability'
+    STOP = 'stop'
 
 class LogicException(Exception): pass
 
@@ -58,7 +59,8 @@ class Worker(object):
               CMD_TYPE.REGISTER_BUNDLE: self.process_register_bundle,
               CMD_TYPE.ACTIVATE_ABILITY: self.process_activate_ability,
               CMD_TYPE.REGISTER_HERO: self.process_register_hero,
-              CMD_TYPE.CHOOSE_HERO_ABILITY: self.process_choose_hero_ability}[cmd_type](**cmd_data)
+              CMD_TYPE.CHOOSE_HERO_ABILITY: self.process_choose_hero_ability,
+              CMD_TYPE.STOP: self.process_stop}[cmd_type](**cmd_data)
         except Exception, e:
             self.exception_raised = True
             print 'EXCEPTION: %s' % e
@@ -118,6 +120,13 @@ class Worker(object):
 
         self.supervisor_worker.cmd_answer('next_turn', self.worker_id)
 
+    def cmd_stop(self):
+        return self.send_cmd(CMD_TYPE.STOP)
+
+    def process_stop(self):
+        # no need to save bundles, since they automaticaly saved on evety turn
+        self.initialized = False
+        self.supervisor_worker.cmd_answer('stop', self.worker_id)
 
     def cmd_register_bundle(self, bundle_id):
         return self.send_cmd(CMD_TYPE.REGISTER_BUNDLE, {'bundle_id': bundle_id})
