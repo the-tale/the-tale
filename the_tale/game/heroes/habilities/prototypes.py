@@ -124,10 +124,10 @@ class Regeneration(AbilityPrototype):
     TYPE = ABILITY_TYPE.BATTLE
     EVENTS = [ABILITIES_EVENTS.STRIKE_MOB]
     #<priority, health percent>
-    LEVELS = [(1, 0.5),
-              (1, 0.7),
+    LEVELS = [(1, 0.05),
               (1, 0.10),
-              (1, 0.13)]
+              (1, 0.15),
+              (1, 0.20)]
 
     NAME = u'Регенерация'
     
