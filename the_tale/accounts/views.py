@@ -92,10 +92,10 @@ class AccountsResource(BaseResource):
             try:
                 user = User.objects.get(email=login_form.c.email)
             except User.DoesNotExist:
-                return self.json(status='error', errors={'nick': [u'Пользователь не найден']})
+                return self.json(status='error', errors={'__all__': [u'Неверный логин или пароль']})
 
             if not user.check_password(login_form.c.password):
-                return self.json(status='error', errors={'nick': [u'Неверный пароль']})
+                return self.json(status='error', errors={'__all__': [u'Неверный логин или пароль']})
 
             self.login_user(username=user.username, password=login_form.c.password)
 
