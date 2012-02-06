@@ -2,6 +2,9 @@
 
 from dext.views.resources import BaseResource
 
+from accounts.models import Account
+
+from game.angels.models import Angel
 from game.angels.prototypes import get_angel_by_model
 from game.prototypes import get_current_time
 
@@ -14,15 +17,22 @@ class Resource(BaseResource):
     @property
     def account(self):
         if not hasattr(self, '_account'):
-            self._account = None if self.user.is_anonymous() else self.user.get_profile()
+            self._account = None
+            try:
+                if not self.user.is_anonymous():
+                    self._account = self.user.get_profile()
+            except Account.DoesNotExist: 
+                pass
         return self._account
 
     @property
     def angel(self):
         if not hasattr(self, '_angel'):
             self._angel = None
-            if self.account:
+            try:
                 self._angel = get_angel_by_model(self.account.angel)
+            except Angel.DoesNotExist:
+                pass
         return self._angel            
 
     @property
