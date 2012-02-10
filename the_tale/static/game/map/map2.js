@@ -291,6 +291,21 @@ pgf.game.map.Map = function(selector, params) {
         Draw(data);
     }
 
+    function CenterOnHero() {
+        for (var hero_id in dynamicData.heroes) {
+            var hero = dynamicData.heroes[hero_id];
+
+            var heroPosition = GetHeroPosition(hero);
+            
+            var x = heroPosition.x * TILE_SIZE - canvasWidth / 2;
+            var y = heroPosition.y * TILE_SIZE - canvasHeight / 2;
+
+            OnMove(x + pos.x, y + pos.y);
+
+            return;
+        }
+    }
+
     function GetRoadTile(map, y, x) {
         var result = {name: '',
                       rotate: 0};
@@ -324,6 +339,68 @@ pgf.game.map.Map = function(selector, params) {
 
         alert('check cell: ('+x+', '+y+')');
         return {name: 'r_line', rotate: 0};
+    }
+
+    function GetHeroPosition(hero) {
+        var x = 0;
+        var y = 0;
+
+        if (hero.position.place) {
+            var place = data.places[hero.position.place.id];
+            x = place.x * TILE_SIZE;
+            y = place.y * TILE_SIZE;
+            return {x: x, y: y}
+        }
+        
+        if (hero.position.road) {
+            var road = data.roads[hero.position.road.id];
+            var point_1 = data.places[road.point_1_id];
+            var point_2 = data.places[road.point_2_id];
+
+            var percents = hero.position.percents;
+            var path = road.path;
+            var x = point_1.x;
+            var y = point_1.y;
+            if (hero.position.invert_direction) {
+                percents = 1 - percents;
+            }
+            var length = percents * path.length;
+            for (var i=0; i+1<length; ++i) {
+                switch(path[i]) {
+                case 'l': x -= 1; break;
+                case 'r': x += 1; break;
+                case 'u': y -= 1; break;
+                case 'd': y += 1; break;
+                }
+            }
+            
+            var delta = length - i;
+            switch(path[i]) {
+            case 'l': x -= delta; break;
+            case 'r': x += delta; break;
+            case 'u': y -= delta; break;
+            case 'd': y += delta; break;
+            }
+
+            return {x: x, y: y}
+        }
+
+        if (hero.position.coordinates.to.x ||
+            hero.position.coordinates.to.y ||
+            hero.position.coordinates.from.x ||
+            hero.position.coordinates.from.y) {
+            
+            var to_x = hero.position.coordinates.to.x;
+            var to_y = hero.position.coordinates.to.y;
+            var from_x = hero.position.coordinates.from.x;
+            var from_y = hero.position.coordinates.from.y;
+            var percents = hero.position.percents;
+
+            var x = from_x + (to_x - from_x) * percents;
+            var y = from_y + (to_y - from_y) * percents;
+
+            return {x: x, y: y}
+        }
     }
 
     function Draw(fullData) {
@@ -389,68 +466,11 @@ pgf.game.map.Map = function(selector, params) {
             var hero = dynamicData.heroes[hero_id];
             var image = spritesManager.GetImage('hero');
 
-            var x = 0;
-            var y = 0;
+            var heroPosition = GetHeroPosition(hero);
 
-            if (hero.position.place) {
-                var place = data.places[hero.position.place.id];
-                x = place.x * TILE_SIZE;
-                y = place.y * TILE_SIZE;
-                image.Draw(context, pos.x + x, pos.y + y);
-            }
-            if (hero.position.road) {
-                var road = data.roads[hero.position.road.id];
-                var point_1 = data.places[road.point_1_id];
-                var point_2 = data.places[road.point_2_id];
-
-                var percents = hero.position.percents;
-                var path = road.path;
-                var x = point_1.x;
-                var y = point_1.y;
-                if (hero.position.invert_direction) {
-                    percents = 1 - percents;
-                }
-                var length = percents * path.length;
-                for (var i=0; i+1<length; ++i) {
-                    switch(path[i]) {
-                    case 'l': x -= 1; break;
-                    case 'r': x += 1; break;
-                    case 'u': y -= 1; break;
-                    case 'd': y += 1; break;
-                    }
-                }
-                
-                var delta = length - i;
-                switch(path[i]) {
-                    case 'l': x -= delta; break;
-                    case 'r': x += delta; break;
-                    case 'u': y -= delta; break;
-                    case 'd': y += delta; break;
-                }
-
-                image.Draw(context, 
-                           pos.x + x * TILE_SIZE , 
-                           pos.y + y * TILE_SIZE);
-            }
-
-            if (hero.position.coordinates.to.x ||
-                hero.position.coordinates.to.y ||
-                hero.position.coordinates.from.x ||
-                hero.position.coordinates.from.y) {
-                
-                var to_x = hero.position.coordinates.to.x;
-                var to_y = hero.position.coordinates.to.y;
-                var from_x = hero.position.coordinates.from.x;
-                var from_y = hero.position.coordinates.from.y;
-                var percents = hero.position.percents;
-
-                var x = from_x + (to_x - from_x) * percents;
-                var y = from_y + (to_y - from_y) * percents;
-
-                image.Draw(context, 
-                           parseInt(pos.x + x * TILE_SIZE, 10), 
-                           parseInt(pos.y + y * TILE_SIZE, 10));
-            }
+            image.Draw(context, 
+                       parseInt(pos.x + heroPosition.x * TILE_SIZE, 10), 
+                       parseInt(pos.y + heroPosition.y * TILE_SIZE, 10) );
         }
 
         if (selectedTile) {
@@ -469,6 +489,7 @@ pgf.game.map.Map = function(selector, params) {
 
     function Activate() {
         OnMove(0, 0);
+        CenterOnHero();
     }
 
     function Refresh() {
@@ -483,6 +504,7 @@ pgf.game.map.Map = function(selector, params) {
     }
 
     this.Draw = Draw;
+    this.CenterOnHero = CenterOnHero;
     this.Refresh = Refresh;
     this.CheckReadyState = CheckReadyState;
 };

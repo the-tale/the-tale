@@ -25,10 +25,18 @@ jQuery(document).ready(function(e) {
                                         tileSize: tileset.TILE_SIZE,
                                         updater: updater,
                                         widgets: widgets});
+
+    jQuery('.pgf-center-on-hero').click(function(e){
+        e.preventDefault();
+        widgets.map.CenterOnHero();
+    });
 });
 </script>
 
 <div id="map-block" class="block">
+  <div class="block commands">
+    <a href="#" class="pgf-center-on-hero">найти героя</a>
+  </div>
   <div id="pgf-game-map">
     <div class="pgf-navigation-layer"></div>
     <canvas class="map-canvas pgf-map-canvas" width="565" height="565"></canvas>
