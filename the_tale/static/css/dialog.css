@@ -54,7 +54,7 @@
 .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close span {
   display: block;
   position: absolute;
-  background: url(/static/images/dialog/close.png);
+  background: url(../images/dialog/close.png);
   text-indent: -99999px;
   width: 25px;
   height: 26px;

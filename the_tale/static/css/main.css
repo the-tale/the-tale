@@ -17,7 +17,7 @@
 @import "news.css";
 @font-face {
   font-family: ObelixProB;
-  src: url('/static/fonts/ObelixProB-cyr.ttf');
+  src: url('../fonts/ObelixProB-cyr.ttf');
 }
 a {
   text-decoration: none;
@@ -62,7 +62,7 @@ blockquote {
 }
 html {
   background-color: #559dcc;
-  background-image: url(/static/images/background.svg);
+  background-image: url(../images/background.svg);
   background-repeat: no-repeat;
   background-position: center 0;
   background-attachment: fixed;
