@@ -7,7 +7,7 @@ from dext.utils import s11n
 class MetaConfig(object):
     
     def __init__(self):
-        self.config_path = './meta_config.json'
+        self.config_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'meta_config.json')
         self.config = {}
         self.load_config()
 
