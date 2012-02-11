@@ -347,9 +347,7 @@ pgf.game.map.Map = function(selector, params) {
 
         if (hero.position.place) {
             var place = data.places[hero.position.place.id];
-            x = place.x * TILE_SIZE;
-            y = place.y * TILE_SIZE;
-            return {x: x, y: y}
+            return {x: place.x, y: place.y}
         }
         
         if (hero.position.road) {
