@@ -54,6 +54,12 @@ p {
   margin-top: 0.5em;
   margin-bottom: 0.5em;
 }
+blockquote {
+  border: 2px dotted #357dac;
+  background-color: #468ebd;
+  padding: 0.25em;
+  border-radius: 4px;
+}
 html {
   background-color: #559dcc;
   background-image: url(/static/images/background.svg);
