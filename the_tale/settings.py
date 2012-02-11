@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+from meta_config import meta_config
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -37,24 +38,15 @@ USE_L10N = True
 # MEDIA_ROOT = ''
 # MEDIA_URL = ''
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = ( os.path.join(PROJECT_DIR, 'static'), )
+STATIC_URL = '/static/%s/' % meta_config.static_data_version
+STATIC_DIR = os.path.join(PROJECT_DIR, 'static')
 
 DCONT_URL = '/dcont/'
 DCONT_DIR = os.path.join(PROJECT_DIR, 'dcont')
 
-ADMIN_MEDIA_PREFIX = '/static/admin/'
-
-
-LESS_CSS_URL = '/less/'
+LESS_CSS_URL = STATIC_URL + 'less/'
 LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
 LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
-
-
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-)
 
 SECRET_KEY = 'i@oi33(3f0vlezy$aj3_3q%q=#fb1ehovw0k&==w3ycs+#5f)y'
 
@@ -105,7 +97,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.admin',
-    'django.contrib.staticfiles', # TODO: remove if not in DEBUG mode
 
     'dext.less',
 

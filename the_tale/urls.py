@@ -23,9 +23,10 @@ urlpatterns = patterns('',
 if project_settings.DEBUG:
     from django.conf.urls.static import static
     urlpatterns += patterns('', 
-                            url(r'^less/', include('dext.less.urls') ) #TODO: replace with settings.LESS_URL)
+                            url(r'^%s' % project_settings.LESS_CSS_URL[1:], include('dext.less.urls') ) 
                             )
     urlpatterns += static(project_settings.DCONT_URL, document_root=project_settings.DCONT_DIR)
+    urlpatterns += static(project_settings.STATIC_URL, document_root=project_settings.STATIC_DIR)
 
 handler404 = create_handler_view(PortalResource, 'handler404')
 handler500 = create_handler_view(PortalResource, 'handler500')
