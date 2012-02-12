@@ -31,7 +31,7 @@ class NewsResource(Resource):
     @handler('', method='get')
     def index(self):
         
-        news = list(News.objects.all())
+        news = reversed(list(News.objects.all()))
 
         return self.template('news/index.html',
                              {'news': news} )
