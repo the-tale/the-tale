@@ -35,7 +35,6 @@ class ActionPrototype(object):
     
     TYPE = 'BASE'
     SHORT_DESCRIPTION = 'undefined'
-    ENTROPY_BARRIER = 100
 
     class STATE:
         UNINITIALIZED = UNINITIALIZED_STATE
@@ -70,10 +69,6 @@ class ActionPrototype(object):
     def get_state(self): return self.model.state
     def set_state(self, value): self.model.state = value
     state = property(get_state, set_state)
-
-    def get_entropy(self): return self.model.entropy
-    def set_entropy(self, value): self.model.entropy = value
-    entropy = property(get_entropy, set_entropy)
 
     @property
     def hero_id(self): return self.model.hero_id
@@ -181,8 +176,6 @@ class ActionPrototype(object):
                 'type': self.type,
                 'short_description': self.SHORT_DESCRIPTION,
                 'percents': self.percents,
-                'entropy': self.entropy,
-                'entropy_barier': self.ENTROPY_BARRIER,
                 'specific': {'place_id': self.place_id,
                              'road_id': self.road_id,
                              'mob': self.mob.ui_info() if self.mob else None},
@@ -209,7 +202,6 @@ class ActionIdlenessPrototype(ActionPrototype):
 
     TYPE = 'IDLENESS'
     SHORT_DESCRIPTION = u'бездельничает'
-    ENTROPY_BARRIER = 100
 
     class STATE(ActionPrototype.STATE):
         WAITING = 'waiting'
@@ -238,7 +230,6 @@ class ActionIdlenessPrototype(ActionPrototype):
         if self.state != self.STATE.WAITING:
             return False
 
-        self.entropy = self.ENTROPY_BARRIER
         self.percents = 1.0
 
         return True
@@ -246,31 +237,27 @@ class ActionIdlenessPrototype(ActionPrototype):
     def process(self):
 
         if self.state in [self.STATE.UNINITIALIZED, self.STATE.ACTING]:
-            self.entropy = 0
             self.percents = 0
             self.state = self.STATE.WAITING
 
 
         if self.state == self.STATE.WAITING:
 
-            self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
-            self.percents = float(self.entropy) / self.ENTROPY_BARRIER
+            self.percents += 0.05
 
             if random.uniform(0, 1) < 0.2:
                 self.hero.push_message(msg_generator.msg_action_idleness_waiting(self.hero))
 
-            if (self.entropy >= self.ENTROPY_BARRIER / 2 and 
-                (self.hero.need_trade_in_town or self.hero.need_rest_in_town) and 
-                self.hero.position.is_settlement):
+            if (self.percents >= 0.5 and 
+                self.hero.position.is_settlement and
+                (self.hero.need_trade_in_town or self.hero.need_rest_in_town) ):
 
                 self.bundle.add_action(ActionInPlacePrototype.create(self, self.hero.position.place))
 
                 self.state = self.STATE.ACTING
 
-            elif self.entropy >= self.ENTROPY_BARRIER:
+            elif self.percents >= 1:
                 from ..quests.logic import create_random_quest_for_hero
-
-                self.entropy = 0
 
                 self.hero.push_message(msg_generator.msg_action_idleness_start_quest(self.hero))
                 quest = create_random_quest_for_hero(self.hero)
@@ -322,7 +309,6 @@ class ActionMoveToPrototype(ActionPrototype):
 
     TYPE = 'MOVE_TO'
     SHORT_DESCRIPTION = u'путешествует'
-    ENTROPY_BARRIER = 35
 
     class STATE(ActionPrototype.STATE):
         CHOOSE_ROAD = 'choose_road'
@@ -435,15 +421,13 @@ class ActionMoveToPrototype(ActionPrototype):
 
             current_destination = self.current_destination
 
-            if self.entropy >= self.ENTROPY_BARRIER:
-                self.entropy = 0
+            if random.uniform(0, 1) <= 0.1:
                 mob = create_mob_for_hero(self.hero)
 
                 self.bundle.add_action(ActionBattlePvE_1x1Prototype.create(parent=self, mob=mob))
 
                 self.state = self.STATE.BATTLE
             else:
-                self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
 
                 if random.uniform(0, 1) < 0.33:
                     self.hero.push_message(msg_generator.msg_action_moveto_move(self.hero, self.destination, self.current_destination))
@@ -479,7 +463,6 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
     TYPE = 'BATTLE_PVE_1x1'
     SHORT_DESCRIPTION = u'сражается'
-    ENTROPY_BARRIER = 35
 
     class STATE(ActionPrototype.STATE):
         BATTLE_RUNNING = 'battle_running'
@@ -523,11 +506,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                 self.percents = 1
                 self.state = self.STATE.PROCESSED
 
-            elif self.entropy >= self.ENTROPY_BARRIER:
-                self.entropy = 0
-
             else:
-                self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
 
                 hero_initiative = random.uniform(0, self.hero.battle_speed + self.mob.battle_speed)
 
@@ -579,7 +558,6 @@ class ActionResurrectPrototype(ActionPrototype):
 
     TYPE = 'RESURRECT'
     SHORT_DESCRIPTION = u'воскресает'
-    ENTROPY_BARRIER = 35
 
     class STATE(ActionPrototype.STATE):
         RESURRECT = 'resurrect'
@@ -602,12 +580,10 @@ class ActionResurrectPrototype(ActionPrototype):
 
 
         if self.state == self.STATE.RESURRECT:
-            self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
-            self.percents = min(1, float(self.entropy) / self.ENTROPY_BARRIER)
+            self.percents += 0.05
 
-            if self.entropy >= self.ENTROPY_BARRIER:
-                self.entropy = 0
-                self.percents = 1.0
+            if self.percents >= 1:
+                self.percents = 1
                 self.hero.resurrent()
                 self.state = self.STATE.PROCESSED
 
@@ -616,7 +592,6 @@ class ActionInPlacePrototype(ActionPrototype):
 
     TYPE = 'IN_PLACE'
     SHORT_DESCRIPTION = u'изучает окрестности'
-    ENTROPY_BARRIER = 35
 
     class STATE(ActionPrototype.STATE):
         TRADING = 'trading'
@@ -678,7 +653,6 @@ class ActionRestInSettlementPrototype(ActionPrototype):
 
     TYPE = 'REST_IN_SETTLEMENT'
     SHORT_DESCRIPTION = u'отдыхает'
-    ENTROPY_BARRIER = 35
 
     class STATE(ActionPrototype.STATE):
         RESTING = 'resting'
@@ -727,7 +701,6 @@ class ActionEquipInSettlementPrototype(ActionPrototype):
 
     TYPE = 'EQUIP_IN_SETTLEMENT'
     SHORT_DESCRIPTION = u'экипируется'
-    ENTROPY_BARRIER = 35
 
     class STATE(ActionPrototype.STATE):
         EQUIPPING = 'equipping'
@@ -775,7 +748,6 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
 
     TYPE = 'TRADE_IN_SETTLEMENT'
     SHORT_DESCRIPTION = u'торгует'
-    ENTROPY_BARRIER = 35
 
     class STATE(ActionPrototype.STATE):
         TRADING = 'trading'
@@ -836,7 +808,6 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
     TYPE = 'MOVE_NEAR_PLACE'
     SHORT_DESCRIPTION = u'бродит по окрестностям'
-    ENTROPY_BARRIER = 35
 
     class STATE(ActionPrototype.STATE):
         MOVING = 'MOVING'
@@ -887,8 +858,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
         if self.state == self.STATE.MOVING:
 
-            if self.entropy >= self.ENTROPY_BARRIER:
-                self.entropy = 0
+            if random.uniform(0, 1) <= 0.1:
                 mob = create_mob_for_hero(self.hero)
 
                 self.bundle.add_action(ActionBattlePvE_1x1Prototype.create(parent=self, mob=mob))
@@ -896,7 +866,6 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                 self.state = self.STATE.BATTLE
 
             else:
-                self.entropy = self.entropy + random.randint(1, self.hero.chaoticity)
 
                 if random.uniform(0, 1) < 0.2:
                     self.hero.push_message(msg_generator.msg_action_movenearplace_walk(self.hero, self.place))
