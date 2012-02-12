@@ -9,6 +9,7 @@ from ..heroes.conf import heroes_settings
 from ..heroes.habilities import ABILITIES_EVENTS as HERO_ABILITIES_EVENTS
 from ..heroes.prototypes import EXPERIENCE_VALUES
 from ..heroes.hmessages import generator as msg_generator
+from ..heroes import hcontexts
 
 from ..map.places.prototypes import get_place_by_model
 from ..map.roads.prototypes import get_road_by_model, WaymarkPrototype
@@ -35,6 +36,7 @@ class ActionPrototype(object):
     
     TYPE = 'BASE'
     SHORT_DESCRIPTION = 'undefined'
+    CONTEXT_MANAGER = None
 
     class STATE:
         UNINITIALIZED = UNINITIALIZED_STATE
@@ -80,6 +82,14 @@ class ActionPrototype(object):
     @property
     def parent(self):
         return self.bundle.actions[self.model.parent_id]
+
+    @property
+    def context(self):
+        if not hasattr(self, '_context'):
+            self._context = None
+            if self.CONTEXT_MANAGER is not  None:
+                self._context = self.CONTEXT_MANAGER.deserialize(self.model.context)
+        return self._context
 
     @property
     def road_id(self): return self.model.road_id
@@ -163,6 +173,8 @@ class ActionPrototype(object):
             self.model.data = s11n.to_json(self._data)
         if hasattr(self, '_mob'):
             self.model.mob = s11n.to_json(self._mob.serialize())
+        if self.context:
+            self.model.context = self.context.serialize()
         if hasattr(self, '_quest'):
             self._quest.save()
         self.model.save(force_update=True)
@@ -463,6 +475,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
     TYPE = 'BATTLE_PVE_1x1'
     SHORT_DESCRIPTION = u'сражается'
+    CONTEXT_MANAGER = hcontexts.BattleContext
 
     class STATE(ActionPrototype.STATE):
         BATTLE_RUNNING = 'battle_running'
@@ -502,7 +515,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
         if self.state == self.STATE.BATTLE_RUNNING:
 
-            if self.hero.context.leave_battle():
+            if self.context.leave_battle():
                 self.percents = 1
                 self.state = self.STATE.PROCESSED
 
@@ -513,24 +526,24 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                 if hero_initiative < self.hero.battle_speed:
 
                     if random.uniform(0, 1) <= heroes_settings.USE_ABILITY_CHANCE:
-                        self.hero.trigger_ability(HERO_ABILITIES_EVENTS.STRIKE_MOB)
+                        self.hero.trigger_ability(HERO_ABILITIES_EVENTS.STRIKE_MOB, self.context)
 
-                    damage = self.mob.strike_by_hero(self.hero)
+                    damage = self.mob.strike_by_hero(self.hero, self.context)
 
-                    self.hero.context.after_hero_strike()
+                    self.context.after_hero_strike()
 
                     self.hero.push_message(msg_generator.msg_action_battlepve1x1_hero_strike_mob(self.hero, self.mob, damage))
 
                 else:
                     
-                    if not self.hero.context.skip_mob_strike():
-                        damage = self.mob.strike_hero(self.hero)
+                    if not self.context.skip_mob_strike():
+                        damage = self.mob.strike_hero(self.hero, self.context)
                         
                         self.hero.push_message(msg_generator.msg_action_battlepve1x1_mob_strike_hero(self.hero, self.mob, damage))
                     else:
                         self.hero.push_message(msg_generator.msg_action_battlepve1x1_mob_mis_by_hero(self.hero, self.mob))
 
-                    self.hero.context.after_mob_strike()
+                    self.context.after_mob_strike()
 
 
                 if self.hero.health <= 0:
@@ -552,7 +565,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                 
             if self.state == self.STATE.PROCESSED:
                 self.remove_mob()
-                self.hero.context.after_battle_end()
+                self.context.after_battle_end()
 
 class ActionResurrectPrototype(ActionPrototype):
 

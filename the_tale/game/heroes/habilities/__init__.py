@@ -80,12 +80,12 @@ class HeroAbilitiesPrototype(object):
 
         return result
 
-    def trigger(self, hero, event_type):
+    def trigger(self, hero, event_type, context):
         expected_abilities = []
 
         for ability_id, ability in self.abilities.items():
             if event_type in ability.EVENTS:
-                if ability.can_use(hero):
+                if ability.can_use(hero, context):
                     expected_abilities.append(ability)
 
         priority_domain = sum([ability.priority for ability in expected_abilities])
@@ -106,6 +106,6 @@ class HeroAbilitiesPrototype(object):
         if choosen_ability is None:
             return
 
-        choosen_ability.use(hero)
+        choosen_ability.use(hero, context)
 
 

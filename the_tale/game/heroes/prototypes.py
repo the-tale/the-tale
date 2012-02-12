@@ -15,7 +15,6 @@ from ..quests.prototypes import get_quest_by_model
 from ..quests.models import Quest
 
 from .models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
-from .context import Context as HeroContext
 from . import game_info
 from .habilities import HeroAbilitiesPrototype
 from .hmessages import generator as msg_generator
@@ -103,14 +102,8 @@ class HeroPrototype(object):
     def get_abilities_for_choose(self):
         return self.abilities.get_for_choose(self)
 
-    def trigger_ability(self, event_type):
-        return self.abilities.trigger(self, event_type)
-
-    @property
-    def context(self):
-        if not hasattr(self, '_context'):
-            self._context = HeroContext.deserialize(self.model.context)
-        return self._context
+    def trigger_ability(self, event_type, context):
+        return self.abilities.trigger(self, event_type, context)
 
     @property
     def bag(self):
@@ -255,7 +248,6 @@ class HeroPrototype(object):
         self.model.bag = self.bag.serialize()
         self.model.equipment = self.equipment.serialize()
         self.model.abilities = self.abilities.serialize()
-        self.model.context = self.context.serialize()
         self.model.messages = s11n.to_json(self.messages)
         self.model.save(force_update=True)
 

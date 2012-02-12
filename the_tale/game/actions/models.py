@@ -21,6 +21,8 @@ class Action(models.Model):
 
     parent = models.ForeignKey('self', related_name='+', null=True, blank=True)
 
+    context = models.TextField(null=False, default='{}')
+
     # action specific fields
     quest = models.ForeignKey('quests.Quest', related_name='+', null=True, blank=True)
     place = models.ForeignKey('places.Place', related_name='+', null=True, blank=True)

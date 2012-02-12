@@ -31,8 +31,6 @@ class Hero(models.Model):
 
     abilities = models.TextField(null=False, default='{}')
 
-    context = models.TextField(null=False, default='{}')
-
     messages = models.TextField(null=False, default='[]')
 
     #position

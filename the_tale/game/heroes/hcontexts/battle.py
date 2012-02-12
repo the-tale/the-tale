@@ -3,7 +3,7 @@ import random
 
 from dext.utils import s11n
 
-class Context(object):
+class BattleContext(object):
 
     def __init__(self):
         self.ability_magick_mushroom = 1

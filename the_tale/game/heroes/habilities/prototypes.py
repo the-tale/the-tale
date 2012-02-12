@@ -41,7 +41,7 @@ class AbilityPrototype(object):
     @property
     def has_max_level(self): return self.level == self.max_level
 
-    def can_use(self, hero):
+    def can_use(self, hero, context):
         return True
     
 
@@ -59,8 +59,8 @@ class MagicMushroom(AbilityPrototype):
     
     DESCRIPTION = u'Находясь в бою, герой может силой своей могучей воли вырастить волшебный гриб, съев который, станет наносить увеличеный урон противникам, пока сам не получит повреждения.'
 
-    def use(self, hero):
-        hero.context.ability_magick_mushroom = self.LEVELS[self.level][1]
+    def use(self, hero, context):
+        context.ability_magick_mushroom = self.LEVELS[self.level][1]
         hero.push_message(msg_generator.msg_habilities_use(hero, self))
 
 
@@ -78,8 +78,8 @@ class Sidestep(AbilityPrototype):
     
     DESCRIPTION = u'Герой быстро меняет свою позицию, дезариентируя противника из-за чего следующий удар по герою уйдёт в пустоту.'
 
-    def use(self, hero):
-        hero.context.ability_once_mob_miss = sum_probabilities(hero.context.ability_once_mob_miss, self.LEVELS[self.level][1])
+    def use(self, hero, context):
+        context.ability_once_mob_miss = sum_probabilities(context.ability_once_mob_miss, self.LEVELS[self.level][1])
         hero.push_message(msg_generator.msg_habilities_use(hero, self))
 
 
@@ -97,9 +97,9 @@ class RunUpPush(AbilityPrototype):
     
     DESCRIPTION = u'Герой разбегается и наносит урон противнику. Существует вероятность, что противник будет оглушён и пропустит следующую атаку.'
 
-    def use(self, hero):
-        hero.context.ability_once_damage_factor *= self.LEVELS[self.level][1]
-        hero.context.ability_once_mob_miss = sum_probabilities(hero.context.ability_once_mob_miss, self.LEVELS[self.level][2])
+    def use(self, hero, context):
+        context.ability_once_damage_factor *= self.LEVELS[self.level][1]
+        context.ability_once_mob_miss = sum_probabilities(context.ability_once_mob_miss, self.LEVELS[self.level][2])
         hero.push_message(msg_generator.msg_habilities_use(hero, self))
 
 
@@ -117,11 +117,11 @@ class MeNotHere(AbilityPrototype):
     
     DESCRIPTION = u'Если у героя останется мало здоровья, то он может попытаться спрятаться, тем самым выйдя из боя'
 
-    def can_use(self, hero):
+    def can_use(self, hero, context):
         return hero.health / float(hero.max_health) <= self.LEVELS[self.level][1]
 
-    def use(self, hero):
-        hero.context.ability_once_leave_battle = sum_probabilities(hero.context.ability_once_leave_battle, self.LEVELS[self.level][2])
+    def use(self, hero, context):
+        context.ability_once_leave_battle = sum_probabilities(context.ability_once_leave_battle, self.LEVELS[self.level][2])
         hero.push_message(msg_generator.msg_habilities_use(hero, self))
 
 
@@ -139,10 +139,10 @@ class Regeneration(AbilityPrototype):
     
     DESCRIPTION = u'Во время боя герой может восстановить часть своего здоровья'
 
-    def can_use(self, hero):
+    def can_use(self, hero, context):
         return hero.health < hero.max_health
 
-    def use(self, hero):
+    def use(self, hero, context):
         health_to_regen = hero.max_health * self.LEVELS[self.level][1]
         hero.health = min(hero.health + health_to_regen, hero.max_health)
         hero.push_message(msg_generator.msg_habilities_use(hero, self))

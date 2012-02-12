@@ -42,16 +42,16 @@ class MobAttributes(object):
         self.damage_to_mob = damage_to_mob
         self.battle_speed = battle_speed
 
-    def get_damage_to_hero(self, hero):
+    def get_damage_to_hero(self, hero, context):
         percents = random.uniform(*self.damage_to_hero)
         return percents, int(percents * hero.health)
 
-    def get_damage_from_hero(self, hero):
+    def get_damage_from_hero(self, hero, context):
         damage = random.randint(math.floor(hero.min_damage), math.ceil(hero.max_damage))
         percents_cooficient = (self.damage_to_mob[1] - self.damage_to_mob[0]) / float(hero.max_damage - hero.min_damage)
         damage_percents = self.damage_to_mob[0] + (damage - hero.min_damage) * percents_cooficient
 
-        return hero.context.update_damage_from_hero(damage_percents, damage)
+        return context.update_damage_from_hero(damage_percents, damage)
 
     def serialize(self):
         return {'damage_to_hero': self.damage_to_hero,
@@ -109,13 +109,13 @@ class MobPrototype(object):
     def get_type_name(cls):
         return cls.__name__.lower()
 
-    def strike_hero(self, hero):
-        damage_percents, damage = self.attributes.get_damage_to_hero(hero)
+    def strike_hero(self, hero, context):
+        damage_percents, damage = self.attributes.get_damage_to_hero(hero, context)
         hero.health -= damage
         return damage
 
-    def strike_by_hero(self, hero):
-        damage_percents, damage = self.attributes.get_damage_from_hero(hero)
+    def strike_by_hero(self, hero, context):
+        damage_percents, damage = self.attributes.get_damage_from_hero(hero, context)
         self.health -= damage_percents
         return damage
 
