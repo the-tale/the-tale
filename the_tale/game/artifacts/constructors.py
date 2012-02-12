@@ -79,7 +79,7 @@ class WeaponConstructor(ArtifactConstructor):
 class ArmorConstructor(ArtifactConstructor):
     TYPE = 'ARMOR'
 
-def generate_loot(loot_list, monster_power, basic_modificator, effects_modificator, chaoticity):
+def generate_loot(loot_list, monster_power, basic_modificator, effects_modificator):
     probalities_sum = sum(x[0] for x in loot_list)
     key_number = random.randint(1, probalities_sum)
 
@@ -91,14 +91,13 @@ def generate_loot(loot_list, monster_power, basic_modificator, effects_modificat
         key_number -= probability
 
     # TODO: move constancs from here
-    BASE_RANDOMIZING_PERCENT = 10
-    CHAOTICITY_MODIFIER = 2.5
+    BASE_RANDOMIZING_PERCENT = 15
 
-    percent_modifier = random.choice([-1, 1]) * (BASE_RANDOMIZING_PERCENT + chaoticity * CHAOTICITY_MODIFIER) / 100.0
+    percent_modifier = random.choice([-1, 1]) * BASE_RANDOMIZING_PERCENT / 100.0
     basic_points = monster_power * basic_modificator
     basic_points += int(percent_modifier * basic_points)
 
-    percent_modifier = random.choice([-1, 1]) * (BASE_RANDOMIZING_PERCENT + chaoticity * CHAOTICITY_MODIFIER) / 100.0
+    percent_modifier = random.choice([-1, 1]) * BASE_RANDOMIZING_PERCENT / 100.0
     effect_points = monster_power * effects_modificator
     effect_points += int(percent_modifier * effect_points)
     

@@ -543,7 +543,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                     self.hero.add_experience(EXPERIENCE_VALUES.FOR_KILL)
                     self.hero.push_message(msg_generator.msg_action_battlepve1x1_mob_killed(self.hero, self.mob))
 
-                    loot = self.mob.get_loot(self.hero.chaoticity)
+                    loot = self.mob.get_loot()
                     self.hero.put_loot(loot)
 
                     self.state = self.STATE.PROCESSED

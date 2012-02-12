@@ -51,7 +51,7 @@ class actions:
 
             @classmethod
             def amount(cls, pacient):
-                return random.randint(1, int(pacient.chaoticity + pacient.level / 10) )
+                return random.randint(1, int(5 + pacient.level) )
 
     class trading(AttributeContainer):
 
@@ -62,8 +62,8 @@ class actions:
 
             @classmethod
             def sell_price(cls, seller, artifact, selling_crit):
-                left_delta = int(artifact.cost * (1 - (10 + seller.chaoticity) / 100.0))
-                right_delta = int(artifact.cost * (1 + (10 + seller.chaoticity) / 100.0))
+                left_delta = int(artifact.cost * 0.85)
+                right_delta = int(artifact.cost * 1.15)
                 price = random.randint(left_delta, right_delta)
                 if selling_crit == 1:
                     price = int(price * 1.5)

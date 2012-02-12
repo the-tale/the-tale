@@ -34,6 +34,7 @@ def get_heroes_by_query(query):
 
 class BASE_ATTRIBUTES:
     HEALTH = 100
+    HEALTH_PER_LEVEL = 10
 
 class EXPERIENCE_VALUES:
     FOR_KILL = 1
@@ -159,7 +160,7 @@ class HeroPrototype(object):
         return speed
 
     @property
-    def max_health(self): return BASE_ATTRIBUTES.HEALTH
+    def max_health(self): return BASE_ATTRIBUTES.HEALTH + BASE_ATTRIBUTES.HEALTH_PER_LEVEL * self.level
 
     @property
     def min_damage(self): 
@@ -183,9 +184,6 @@ class HeroPrototype(object):
     @property
     def experience_to_level(self): 
         return 100 + (self.level - 1) * 100
-
-    @property
-    def chaoticity(self): return 5
 
     ###########################################
     # Needs attributes

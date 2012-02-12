@@ -125,9 +125,9 @@ class MobPrototype(object):
     def kill(self):
         pass
 
-    def get_loot(self, hero_chaoticity):
+    def get_loot(self):
         from ..artifacts.constructors import generate_loot
-        return generate_loot(self.LOOT_LIST, self.power, self.LOOT_BASIC_MODIFICATOR, self.LOOT_EFFECTS_MODIFICATOR, hero_chaoticity)
+        return generate_loot(self.LOOT_LIST, self.power, self.LOOT_BASIC_MODIFICATOR, self.LOOT_EFFECTS_MODIFICATOR)
 
     def serialize(self):
         return {'type': self.get_type_name(),

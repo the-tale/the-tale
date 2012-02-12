@@ -54,7 +54,6 @@ class Command(BaseCommand):
                                      intellect=random.randint(1, 5),
                                      constitution=random.randint(1, 5),
                                      reflexes=random.randint(1, 5),
-                                     chaoticity=random.randint(1, 5), 
                                      charisma=random.randint(1, 5), 
                                      npc=False)
             
