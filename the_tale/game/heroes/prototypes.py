@@ -16,7 +16,8 @@ from ..quests.models import Quest
 
 from .models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from .context import Context as HeroContext
-from . import game_info, habilities
+from . import game_info
+from .habilities import HeroAbilitiesPrototype
 from .hmessages import generator as msg_generator
 from .conf import heroes_settings
 
@@ -95,86 +96,14 @@ class HeroPrototype(object):
     @property
     def abilities(self):
         if not hasattr(self, '_abilities'):
-            self._abilities = s11n.from_json(self.model.abilities)
+            self._abilities = HeroAbilitiesPrototype.deserialize(self.model.abilities)
         return self._abilities
 
-    def get_next_ability_level(self, ability_id):
-        max_level = len(habilities.ABILITIES[ability_id].LEVELS) - 1
-
-        if ability_id in self.abilities:
-            if max_level == self.abilities[ability_id]:
-                return None
-            return self.abilities[ability_id] + 1
-
-        return 0
-
-    def get_abilities(self):
-        return [ habilities.ABILITIES[ability_id](ability_level) for ability_id, ability_level in self.abilities.items()]
-
-
     def get_abilities_for_choose(self):
-        
-        random.seed(self.id * (self.destiny_points_spend + 1))
-
-        MAX_ABILITIES = 8
-        HERO_ABILITIES = 4
-
-        exists_candidates = []
-        for ability_key, ability_level in self.abilities.items():
-            if len(habilities.ABILITIES[ability_key].LEVELS) <= ability_level + 1:
-                continue
-            exists_candidates.append(ability_key)
-        
-        exists_choices = random.sample(exists_candidates, min(HERO_ABILITIES, len(exists_candidates)))
-
-        new_candidates = []
-        for ability_key, ability in habilities.ABILITIES.items():
-            if ability_key in self.abilities:
-                continue
-            new_candidates.append(ability_key)
-        new_choices = random.sample(new_candidates, min(MAX_ABILITIES - HERO_ABILITIES, len(new_candidates)))
-
-        choices = exists_choices + new_choices
-
-        result = []
-
-        for choice in choices:
-            level = 0
-            if choice in self.abilities:
-                level = self.abilities[choice] + 1
-            result.append(habilities.ABILITIES[choice](level))
-
-        return result
-
+        return self.abilities.get_for_choose(self)
 
     def trigger_ability(self, event_type):
-        expected_abilities = []
-
-        for ability_id, ability_level in self.abilities.items():
-            if event_type in habilities.ABILITIES[ability_id].EVENTS:
-                ability = habilities.ABILITIES[ability_id](ability_level)
-                if ability.can_use(self):
-                    expected_abilities.append(ability)
-
-        priority_domain = sum([ability.priority for ability in expected_abilities])
-
-        if priority_domain==0:
-            return 
-
-        choice = random.randint(0, priority_domain-1)
-
-        choosen_ability = None
-
-        for ability in expected_abilities:
-            choice -= ability.priority
-            if choice <= 0:
-                choosen_ability = ability
-                break
-
-        if choosen_ability is None:
-            return
-
-        choosen_ability.use(self)
+        return self.abilities.trigger(self, event_type)
 
     @property
     def context(self):
@@ -327,7 +256,7 @@ class HeroPrototype(object):
     def save(self): 
         self.model.bag = self.bag.serialize()
         self.model.equipment = self.equipment.serialize()
-        self.model.abilities = s11n.to_json(self.abilities)
+        self.model.abilities = self.abilities.serialize()
         self.model.context = self.context.serialize()
         self.model.messages = s11n.to_json(self.messages)
         self.model.save(force_update=True)
@@ -568,14 +497,21 @@ class ChooseAbilityTaskPrototype(object):
             self.comment = 'no destiny points'
             return
 
-        if self.ability_id in hero.abilities:
+        if hero.abilities.has(self.ability_id):
 
-            if hero.abilities[self.ability_id] + 1 != self.ability_level:
+            ability = hero.abilities.get(self.ability_id)
+
+            if ability.level + 1 != self.ability_level:
                 self.state = CHOOSE_ABILITY_STATE.ERROR
                 self.comment = 'wrong ability level for existed ability'
                 return
 
-            hero.abilities[self.ability_id] += 1
+            if ability.level == ability.max_level:
+                self.state = CHOOSE_ABILITY_STATE.ERROR
+                self.comment = 'ability has already had max level'
+                return
+
+            ability.level += 1
 
         else:
             if self.ability_level != 0: 
@@ -583,7 +519,7 @@ class ChooseAbilityTaskPrototype(object):
                 self.comment = 'wrong ability level for new ability'
                 return
 
-            hero.abilities[self.ability_id] = 0
+            hero.abilities.add(self.ability_id)
 
         hero.destiny_points -= 1
         hero.destiny_points_spend += 1

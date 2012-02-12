@@ -46,7 +46,7 @@ class HeroResource(Resource):
 
         from ..workers.environment import workers_environment
         
-        ability_level = self.hero.get_next_ability_level(ability_id)
+        ability_level = self.hero.abilities.get_next_level_for(ability_id)
 
         if ability_level is None:
             return self.json(status='error', error='У способности нет такого уровня')            

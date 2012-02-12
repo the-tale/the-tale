@@ -33,7 +33,13 @@ class AbilityPrototype(object):
         raise NotImplemented('you should declare use method in child classes')
 
     @property
+    def max_level(self): return len(self.LEVELS) - 1
+
+    @property
     def priority(self): return self.LEVELS[self.level][0]
+
+    @property
+    def has_max_level(self): return self.level == self.max_level
 
     def can_use(self, hero):
         return True
