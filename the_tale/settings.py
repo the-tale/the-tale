@@ -41,6 +41,8 @@ USE_L10N = True
 STATIC_URL = '/static/%s/' % meta_config.static_data_version
 STATIC_DIR = os.path.join(PROJECT_DIR, 'static')
 
+ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
+
 DCONT_URL = '/dcont/'
 DCONT_DIR = os.path.join(PROJECT_DIR, 'dcont')
 
