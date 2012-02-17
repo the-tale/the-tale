@@ -147,7 +147,7 @@ class AbilityTaskPrototype(object):
         self.model.save()
 
     @nested_commit_on_success
-    def process(self, bundle):
+    def process(self, bundle, turn_number):
 
         angel = bundle.angels[self.angel_id]
   
@@ -158,6 +158,10 @@ class AbilityTaskPrototype(object):
             return
 
         if ability.LIMITED and not ability.limit:
+            self.state = ABILITY_STATE.ERROR
+            return
+
+        if ability.available_at > turn_number:
             self.state = ABILITY_STATE.ERROR
             return
 

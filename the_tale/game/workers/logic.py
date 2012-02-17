@@ -158,7 +158,7 @@ class Worker(object):
             
             task = AbilityTaskPrototype.get_by_id(ability_task_id)
             bundle = self.bundles[self.angels2bundles[task.angel_id]]
-            task.process(bundle)
+            task.process(bundle, self.turn_number)
             task.save()
             bundle.save_data()
 
