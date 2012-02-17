@@ -16,7 +16,7 @@ from ..quests.models import Quest
 
 from .models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from . import game_info
-from .habilities import HeroAbilitiesPrototype
+from .habilities import AbilitiesPrototype
 from .hmessages import generator as msg_generator
 from .conf import heroes_settings
 
@@ -31,9 +31,12 @@ def get_hero_by_model(model):
 def get_heroes_by_query(query):
     return [ get_hero_by_model(hero) for hero in list(query)]
 
-class BASE_ATTRIBUTES:
+class BASE_ATTRIBUTES(object):
     HEALTH = 100
     HEALTH_PER_LEVEL = 10
+
+    @classmethod
+    def get_max_health(cls, level): return cls.HEALTH + cls.HEALTH_PER_LEVEL * level
 
 class EXPERIENCE_VALUES:
     FOR_KILL = 1
@@ -62,6 +65,10 @@ class HeroPrototype(object):
     def name(self): return self.model.name
 
     @property
+    def power(self): 
+        return 2 + self.level + self.equipment.get_power()
+
+    @property
     def race(self): return self.model.race
     
     @property
@@ -74,7 +81,8 @@ class HeroPrototype(object):
         if self.experience_to_level <= self.model.experience:
             self.model.experience -= self.experience_to_level
             self.model.level += 1
-            self.model.destiny_points += 1
+            if self.model.level % 2:
+                self.model.destiny_points += 1
 
     def get_destiny_points(self): return self.model.destiny_points
     def set_destiny_points(self, value): self.model.destiny_points = value
@@ -96,14 +104,11 @@ class HeroPrototype(object):
     @property
     def abilities(self):
         if not hasattr(self, '_abilities'):
-            self._abilities = HeroAbilitiesPrototype.deserialize(self.model.abilities)
+            self._abilities = AbilitiesPrototype.deserialize(self.model.abilities)
         return self._abilities
 
     def get_abilities_for_choose(self):
         return self.abilities.get_for_choose(self)
-
-    def trigger_ability(self, event_type, context):
-        return self.abilities.trigger(self, event_type, context)
 
     @property
     def bag(self):
@@ -147,13 +152,10 @@ class HeroPrototype(object):
     def move_speed(self): return 0.3
 
     @property
-    def battle_speed(self): 
-        speed = 5
-        speed *= self.equipment.get_attr_battle_speed_multiply()
-        return speed
+    def battle_speed(self): return 5
 
     @property
-    def max_health(self): return BASE_ATTRIBUTES.HEALTH + BASE_ATTRIBUTES.HEALTH_PER_LEVEL * self.level
+    def max_health(self): return BASE_ATTRIBUTES.get_max_health(self.level)
 
     @property
     def min_damage(self): 
@@ -166,10 +168,6 @@ class HeroPrototype(object):
         damage = 10
         damage += self.equipment.get_attr_damage()[1]
         return damage
-
-    @property
-    def armor(self):
-        return self.equipment.get_attr_armor()
 
     @property
     def max_bag_size(self): return 8
@@ -272,11 +270,9 @@ class HeroPrototype(object):
                           'max_health': self.max_health,
                           'experience': self.experience,
                           'experience_to_level': self.experience_to_level},
-                'secondary': { 'min_damage': math.floor(self.min_damage),
-                               'max_damage': math.ceil(self.max_damage),
+                'secondary': { 'power': math.floor(self.power),
                                'move_speed': self.move_speed,
                                'battle_speed': self.battle_speed,
-                               'armor': self.armor,
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': loot_items_count},
                 'accumulated': { }
@@ -308,21 +304,11 @@ class HeroPrototype(object):
     # Game operations
     ###########################################
 
-    def kill(self, current_action=None):
-        self.is_alive = False
-      
+    def kill(self):
         self.health = 1
-        self.position.set_place(PlacePrototype.random_place())
-        
-        for action in reversed(self.get_actions()):
-            if action.id == current_action.id:
-                if current_action.on_die():
-                    break
-            elif action.on_die():
-                action.save()
-                break
+        self.is_alive = False
 
-    def resurrent(self):
+    def resurrect(self):
         self.health = self.max_health
         self.is_alive = True
 
@@ -464,14 +450,10 @@ class ChooseAbilityTaskPrototype(object):
     @property
     def ability_id(self): return self.model.ability_id
 
-    @property
-    def ability_level(self): return self.model.ability_level
-
     @classmethod
-    def create(cls, ability_id, ability_level, hero_id):
+    def create(cls, ability_id, hero_id):
         model = ChooseAbilityTask.objects.create(hero_id=hero_id,
-                                                 ability_id=ability_id,
-                                                 ability_level=ability_level)
+                                                 ability_id=ability_id)
         return cls(model)
 
     def save(self):
@@ -489,31 +471,16 @@ class ChooseAbilityTaskPrototype(object):
 
         if hero.abilities.has(self.ability_id):
 
-            ability = hero.abilities.get(self.ability_id)
-
-            if ability.level + 1 != self.ability_level:
-                self.state = CHOOSE_ABILITY_STATE.ERROR
-                self.comment = 'wrong ability level for existed ability'
-                return
-
-            if ability.level == ability.max_level:
-                self.state = CHOOSE_ABILITY_STATE.ERROR
-                self.comment = 'ability has already had max level'
-                return
-
-            ability.level += 1
+            self.state = CHOOSE_ABILITY_STATE.ERROR
+            self.comment = 'ability has been already choosen'
+            return
 
         else:
-            if self.ability_level != 0: 
-                self.state = CHOOSE_ABILITY_STATE.ERROR
-                self.comment = 'wrong ability level for new ability'
-                return
-
             hero.abilities.add(self.ability_id)
 
         hero.destiny_points -= 1
         hero.destiny_points_spend += 1
         
-        self.state =CHOOSE_ABILITY_STATE.PROCESSED
+        self.state = CHOOSE_ABILITY_STATE.PROCESSED
 
 

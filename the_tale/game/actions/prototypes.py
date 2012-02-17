@@ -5,8 +5,6 @@ from dext.utils.decorators import nested_commit_on_success
 from dext.utils import s11n
 
 from ..heroes.logic import create_mob_for_hero, heal_in_town, sell_in_city, equip_in_city
-from ..heroes.conf import heroes_settings
-from ..heroes.habilities import ABILITIES_EVENTS as HERO_ABILITIES_EVENTS
 from ..heroes.prototypes import EXPERIENCE_VALUES
 from ..heroes.hmessages import generator as msg_generator
 from ..heroes import hcontexts
@@ -15,6 +13,7 @@ from ..map.places.prototypes import get_place_by_model
 from ..map.roads.prototypes import get_road_by_model, WaymarkPrototype
 
 from .models import Action, UNINITIALIZED_STATE
+from . import battle
 
 def get_actions_types():
     actions = {}
@@ -92,6 +91,14 @@ class ActionPrototype(object):
         return self._context
 
     @property
+    def mob_context(self):
+        if not hasattr(self, '_mob_context'):
+            self._mob_context = None
+            if self.CONTEXT_MANAGER is not  None:
+                self._mob_context = self.CONTEXT_MANAGER.deserialize(self.model.mob_context)
+        return self._mob_context
+
+    @property
     def road_id(self): return self.model.road_id
 
     @property
@@ -115,13 +122,9 @@ class ActionPrototype(object):
 
     @property
     def mob(self):
-        from ..mobs.prototypes import get_mob_by_data
+        from ..mobs.prototypes import MobPrototype
         if not hasattr(self, '_mob'):
-            data = s11n.from_json(self.model.mob)
-            if not data:
-                self._mob = None
-            else:
-                self._mob = get_mob_by_data(data=data)
+            self._mob = MobPrototype.deserialize(self.model.mob)
         return self._mob
 
     def remove_mob(self):
@@ -172,16 +175,14 @@ class ActionPrototype(object):
         if hasattr(self, '_data'):
             self.model.data = s11n.to_json(self._data)
         if hasattr(self, '_mob'):
-            self.model.mob = s11n.to_json(self._mob.serialize())
+            self.model.mob = self.mob.serialize()
         if self.context:
             self.model.context = self.context.serialize()
+        if self.mob_context:
+            self.model.mob_context = self.mob_context.serialize()
         if hasattr(self, '_quest'):
             self._quest.save()
         self.model.save(force_update=True)
-
-    def on_die(self):
-        self.remove()
-        return False
 
     def ui_info(self):
         return {'id': self.id,
@@ -222,10 +223,6 @@ class ActionIdlenessPrototype(ActionPrototype):
     ###########################################
     # Object operations
     ###########################################
-
-    def on_die(self):
-        self.bundle.add_action(ActionResurrectPrototype.create(self))
-        return True
 
     @classmethod
     @nested_commit_on_success
@@ -327,6 +324,7 @@ class ActionMoveToPrototype(ActionPrototype):
         MOVING = 'moving'
         IN_CITY = 'walking_in_city'
         BATTLE = 'battle'
+        RESURRECT = 'resurrect'
 
     destination_id = ActionPrototype.place_id
     destination = ActionPrototype.place
@@ -465,11 +463,18 @@ class ActionMoveToPrototype(ActionPrototype):
 
 
         elif self.state == self.STATE.BATTLE:
+            if not self.hero.is_alive:
+                self.bundle.add_action(ActionResurrectPrototype.create(self))
+                self.state = self.STATE.RESURRECT
+            else:
+                self.state = self.STATE.MOVING
+
+        elif self.state == self.STATE.RESURRECT:
             self.state = self.STATE.MOVING
 
         elif self.state == self.STATE.IN_CITY:
             self.state = self.STATE.CHOOSE_ROAD
-
+    
 
 class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
@@ -492,7 +497,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       mob=s11n.to_json(mob.serialize()))
+                                       mob=mob.serialize())
         return cls(model=model)
 
     def bit_mob(self, percents):
@@ -500,8 +505,8 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
         if self.state != self.STATE.BATTLE_RUNNING:
             return False
 
-        self.mob.striked_by(percents)
-        self.percents = 1.0 - self.mob.health
+        self.mob.strike_by(percents)
+        self.percents = self.mob.health_percents
 
         return True
 
@@ -515,57 +520,32 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
         if self.state == self.STATE.BATTLE_RUNNING:
 
-            if self.context.leave_battle():
-                self.percents = 1
+            battle.make_turn(battle.Actor(self.hero, self.context), 
+                             battle.Actor(self.mob, self.mob_context ),
+                             self.hero)
+
+            self.percents = 1.0 - self.mob.health_percents
+
+            if self.hero.health <= 0:
+                self.hero.kill()
+                self.hero.push_message(msg_generator.msg_action_battlepve1x1_hero_killed(self.hero, self.mob))
                 self.state = self.STATE.PROCESSED
+                self.percents = 1.0
 
-            else:
+            if self.mob.health <= 0:
+                self.mob.kill()
+                self.hero.add_experience(EXPERIENCE_VALUES.FOR_KILL)
+                self.hero.push_message(msg_generator.msg_action_battlepve1x1_mob_killed(self.hero, self.mob))
 
-                hero_initiative = random.uniform(0, self.hero.battle_speed + self.mob.battle_speed)
+                loot = self.mob.get_loot()
+                self.hero.put_loot(loot)
 
-                if hero_initiative < self.hero.battle_speed:
-
-                    if random.uniform(0, 1) <= heroes_settings.USE_ABILITY_CHANCE:
-                        self.hero.trigger_ability(HERO_ABILITIES_EVENTS.STRIKE_MOB, self.context)
-
-                    damage = self.mob.strike_by_hero(self.hero, self.context)
-
-                    self.context.after_hero_strike()
-
-                    self.hero.push_message(msg_generator.msg_action_battlepve1x1_hero_strike_mob(self.hero, self.mob, damage))
-
-                else:
-                    
-                    if not self.context.skip_mob_strike():
-                        damage = self.mob.strike_hero(self.hero, self.context)
-                        
-                        self.hero.push_message(msg_generator.msg_action_battlepve1x1_mob_strike_hero(self.hero, self.mob, damage))
-                    else:
-                        self.hero.push_message(msg_generator.msg_action_battlepve1x1_mob_mis_by_hero(self.hero, self.mob))
-
-                    self.context.after_mob_strike()
-
-
-                if self.hero.health <= 0:
-                    self.hero.kill(self)
-                    self.hero.push_message(msg_generator.msg_action_battlepve1x1_hero_killed(self.hero, self.mob))
-                    self.state = self.STATE.PROCESSED
-
-                if self.mob.health <= 0:
-                    self.mob.kill()
-                    self.hero.add_experience(EXPERIENCE_VALUES.FOR_KILL)
-                    self.hero.push_message(msg_generator.msg_action_battlepve1x1_mob_killed(self.hero, self.mob))
-
-                    loot = self.mob.get_loot()
-                    self.hero.put_loot(loot)
-
-                    self.state = self.STATE.PROCESSED
-
-                self.percents = 1.0 - self.mob.health
+                self.percents = 1.0
+                self.state = self.STATE.PROCESSED
                 
             if self.state == self.STATE.PROCESSED:
                 self.remove_mob()
-                self.context.after_battle_end()
+
 
 class ActionResurrectPrototype(ActionPrototype):
 
@@ -597,7 +577,7 @@ class ActionResurrectPrototype(ActionPrototype):
 
             if self.percents >= 1:
                 self.percents = 1
-                self.hero.resurrent()
+                self.hero.resurrect()
                 self.state = self.STATE.PROCESSED
 
 
@@ -825,6 +805,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
     class STATE(ActionPrototype.STATE):
         MOVING = 'MOVING'
         BATTLE = 'BATTLE'
+        RESURRECT = 'RESURRECT'
 
     ###########################################
     # Object operations
@@ -902,7 +883,15 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                     self.state = self.STATE.PROCESSED
 
         elif self.state == self.STATE.BATTLE:
+            if not self.hero.is_alive:
+                self.bundle.add_action(ActionResurrectPrototype.create(self))
+                self.state = self.STATE.RESURRECT
+            else:
+                self.state = self.STATE.RESURRECT
+
+        elif self.state == self.STATE.RESURRECT:
             self.state = self.STATE.MOVING
+
 
 
 ACTION_TYPES = get_actions_types()

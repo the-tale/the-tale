@@ -74,8 +74,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         pgf.base.UpdateStatsBar(jQuery('.pgf-health-bar', widget), data.base.max_health, data.base.health);
         pgf.base.UpdateStatsBar(jQuery('.pgf-experience-bar', widget), data.base.experience_to_level, data.base.experience);
 
-        jQuery('.pgf-min-damage', widget).text(data.secondary.min_damage);
-        jQuery('.pgf-max-damage', widget).text(data.secondary.max_damage);
+        jQuery('.pgf-power', widget).text(data.secondary.power);
         jQuery('.pgf-move-speed', widget).text(Math.round(data.secondary.move_speed*100)/100.0);
         jQuery('.pgf-battle-speed', widget).text(Math.round(data.secondary.battle_speed*100)/100.0);
         jQuery('.pgf-armor', widget).text(Math.ceil(data.secondary.armor));
@@ -395,39 +394,6 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     });
 };
 
-pgf.game.widgets.RenderItemTooltip = function(tooltip, data) {
-
-    jQuery('.pgf-name', tooltip).text(data.name);
-    jQuery('.pgf-type', tooltip).text(data.type);
-
-    if (data.subtype) {
-        jQuery('.pgf-subtype-enabled', tooltip).removeClass('pgf-hidden');
-        jQuery('.pgf-subtype', tooltip).text(data.subtype);
-    }
-
-    for (var i in data.effects) {
-        var effect = data.effects[i];
-
-        switch(effect.type) {
-        case 'WEAPON_BASE': {
-            jQuery('.pgf-min-damage', tooltip).text(effect.min_damage);
-            jQuery('.pgf-max-damage', tooltip).text(effect.max_damage);
-            jQuery('.pgf-battle-speed', tooltip).text(effect.battle_speed);
-            jQuery('.pgf-effect-weapon-base', tooltip).removeClass('pgf-hidden');
-            break;
-        }
-        case 'ARMOR_BASE': {
-            jQuery('.pgf-armor', tooltip).text(Math.round(effect.armor));
-            jQuery('.pgf-battle-speed', tooltip).text(Math.round(effect.battle_speed*100)/100.0);
-            jQuery('.pgf-effect-armor-base', tooltip).removeClass('pgf-hidden');
-            break;
-        }
-        }
-    }
-
-    return tooltip;
-};
-
 
 pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     var instance = this;
@@ -440,8 +406,6 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     var bagQuestsContainer = jQuery('.pgf-bag-container', bagQuestsBlock);
     var bagContainer = jQuery('.pgf-bag-container', bagBlock);
 
-    var tooltipTemplate = jQuery(params.tooltipTemplate);
-
     var data = {};
 
     var instance = this;
@@ -449,10 +413,8 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     function RenderItem(index, data, element) {
         jQuery('.pgf-name', element).text(data.name);
         jQuery('.pgf-cost', element).text(data.cost);
-
-        var tooltipContainer = jQuery('.pgf-tooltip-container', element);
-        var tooltip = tooltipTemplate.clone().removeClass('pgf-hidden');
-        tooltipContainer.html(pgf.game.widgets.RenderItemTooltip(tooltip, data));
+        jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', data.type=='USELESS_THING');
+        jQuery('.pgf-power', element).text(data.power);
     }
 
     function RenderItems() {
@@ -510,16 +472,14 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
 
     var instance = this;   
     
-    var tooltipTemplate = jQuery(params.tooltipTemplate);
-
     function RenderArtifact(element, data) {
-        element.text(data.name);
-        var tooltipContainer = element.siblings('.pgf-tooltip-container');
-        var tooltip = tooltipTemplate.clone().removeClass('pgf-hidden');
-        tooltipContainer.html(pgf.game.widgets.RenderItemTooltip(tooltip, data));
+        jQuery('.pgf-name', element).text(data.name);
+        jQuery('.pgf-power', element).text(data.power);
+        jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', false);
     }
 
     function RenderEquipment() {
+        jQuery('.pgf-power-container', selector).toggleClass('pgf-hidden', true);
         for (var slot in data) {
             RenderArtifact(jQuery('.pgf-'+slot, selector), data[slot]);
         }

@@ -118,33 +118,13 @@ class Equipment(object):
     def __init__(self):
         self.equipment = {}
 
-    def get_attr_damage(self):
-        damage = (0, 0)
+    def get_power(self):
+        power = 0
         for slot in SLOTS_LIST:
             artifact = self.get(slot)
             if artifact:
-                artifact_damage = artifact.get_attr_damage()
-                damage = (damage[0] + artifact_damage[0], damage[1] + artifact_damage[1])
-        return damage
-
-    def get_attr_battle_speed_multiply(self):
-        penalty = 1
-        for slot in SLOTS_LIST:
-            artifact = self.get(slot)
-            if artifact:
-                artifact_penalty = artifact.get_attr_battle_speed_multiply()
-                penalty *= artifact_penalty
-        return penalty
-
-    def get_attr_armor(self):
-        armor = 0
-        for slot in SLOTS_LIST:
-            artifact = self.get(slot)
-            if artifact:
-                armor += artifact.get_attr_armor()
-
-        return armor
-
+                power += artifact.power
+        return power
 
     def ui_info(self):
         return dict( (slot, artifact.ui_info()) for slot, artifact in self.equipment.items() if artifact )

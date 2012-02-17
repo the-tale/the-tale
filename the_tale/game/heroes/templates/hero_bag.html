@@ -4,7 +4,7 @@ jQuery(document).ready(function(e) {
 
     widgets.bag = new pgf.game.widgets.Bag('#hero-bag-block', 
                                            updater, widgets,
-                                           {tooltipTemplate: "#pgf-item-tooltip-template"});
+                                           {});
 
 });
 </script>
@@ -18,8 +18,7 @@ jQuery(document).ready(function(e) {
 
     <ul class="pgf-bag-container">
       <li class="record pgf-template">
-        <span class="name pgf-name" data-tooltip=".pgf-tooltip-container"></span>
-        <div class="pgf-tooltip-container"></div>
+        <span class="name pgf-name"></span>
       </li>
     </ul>
 
@@ -30,8 +29,8 @@ jQuery(document).ready(function(e) {
 
     <ul class="pgf-bag-container">
       <li class="record pgf-template">
-        <span class="name pgf-name" data-tooltip=".pgf-tooltip-container"></span>
-        <div class="pgf-tooltip-container"></div>
+        <span class="name pgf-name"></span>
+        <span class="power-container pgf-power-container">+<span class="pgf-power power"></span></span>
       </li>
     </ul>
 

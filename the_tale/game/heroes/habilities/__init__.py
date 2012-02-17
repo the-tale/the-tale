@@ -3,109 +3,62 @@ import random
 
 from dext.utils import s11n
 
-from .prototypes import ABILITIES, ABILITIES_EVENTS
+from .prototypes import ABILITIES, ABILITIES_ACTIVATION_TYPE, ABILITIES_LOGIC_TYPE
 
-__all__ = ['ABILITIES', 'ABILITIES_EVENTS', 'HeroAbilitiesPrototype']
+__all__ = ['ABILITIES', 'AbilitiesPrototype', 'ABILITIES_LOGIC_TYPE']
 
-class HeroAbilitiesPrototype(object):
+class AbilitiesPrototype(object):
 
     def __init__(self, abilities):
-        self.abilities = abilities
+        self.abilities = dict( (ability_id, ABILITIES[ability_id]) for ability_id in abilities)
 
     @classmethod
     def deserialize(cls, data_string):
-        data = s11n.from_json(data_string)
-        abilities = {}
-        for ability_id, ability_level in data.items():
-            abilities[ability_id] = ABILITIES[ability_id](ability_level)
+        abilities = s11n.from_json(data_string)
+
+        # set default ability, can be removed, when all migrations will be done
+        if 'hit' not in abilities:
+            abilities.append('hit')
+
         return cls(abilities=abilities)
+
+    def serialize(self):
+        data = self.abilities.keys()
+        return s11n.to_json(data)
 
     @property
     def all(self): return self.abilities.values()
+
+    @property
+    def active_abilities(self): return [ability for ability in self.abilities.values() if ability.ACTIVATION_TYPE == ABILITIES_ACTIVATION_TYPE.ACTIVE]
+
+    @property
+    def passive_abilities(self): return [ability for ability in self.abilities.values() if ability.ACTIVATION_TYPE == ABILITIES_ACTIVATION_TYPE.PASSIVE]
 
     def has(self, ability_id): return ability_id in self.abilities
 
     def get(self, ability_id): return self.abilities[ability_id]
 
     def add(self, ability_id): 
-        self.abilities[ability_id] = ABILITIES[ability_id](0)
-
-    def serialize(self):
-        data = dict( (ability_id, ability.level) for ability_id, ability in self.abilities.items() )
-        return s11n.to_json(data)
-
-
-    def get_next_level_for(self, ability_id):
-
-        if ability_id in self.abilities:
-            ability = self.abilities[ability_id]
-            if ability.has_max_level:
-                return None
-            return ability.level + 1
-
-        return 0
+        self.abilities[ability_id] = ABILITIES[ability_id]
 
 
     def get_for_choose(self, hero):
         
         random.seed(hero.id * (hero.destiny_points_spend + 1))
 
-        MAX_ABILITIES = 8
-        HERO_ABILITIES = 4
+        MAX_ABILITIES = 4
 
-        exists_candidates = []
-        for ability_key, ability in self.abilities.items():
-            if ability.has_max_level:
-                continue
-            exists_candidates.append(ability_key)
-        
-        exists_choices = random.sample(exists_candidates, min(HERO_ABILITIES, len(exists_candidates)))
-
-        new_candidates = []
+        candidates = []
         for ability_key, ability in ABILITIES.items():
             if ability_key in self.abilities:
                 continue
-            new_candidates.append(ability_key)
-        new_choices = random.sample(new_candidates, min(MAX_ABILITIES - HERO_ABILITIES, len(new_candidates)))
-
-        choices = exists_choices + new_choices
+            candidates.append(ability_key)
+        choices = random.sample(candidates, min(MAX_ABILITIES, len(candidates)))
 
         result = []
 
         for choice in choices:
-            level = 0
-            if choice in self.abilities:
-                level = self.abilities[choice].level + 1
-            result.append(ABILITIES[choice](level))
+            result.append(ABILITIES[choice])
 
         return result
-
-    def trigger(self, hero, event_type, context):
-        expected_abilities = []
-
-        for ability_id, ability in self.abilities.items():
-            if event_type in ability.EVENTS:
-                if ability.can_use(hero, context):
-                    expected_abilities.append(ability)
-
-        priority_domain = sum([ability.priority for ability in expected_abilities])
-
-        if priority_domain==0:
-            return 
-
-        choice = random.randint(0, priority_domain-1)
-
-        choosen_ability = None
-
-        for ability in expected_abilities:
-            choice -= ability.priority
-            if choice <= 0:
-                choosen_ability = ability
-                break
-
-        if choosen_ability is None:
-            return
-
-        choosen_ability.use(hero, context)
-
-

@@ -34,25 +34,50 @@ class Generator(object):
                               u'%(mob)s на горизонте, в бой!']) % {'hero': hero.name,
                                                                    'mob': mob.name}
 
-    def msg_action_battlepve1x1_hero_strike_mob(self, hero, mob, damage):
-        return random.choice([u'%(hero)s поднатужился и нанёс %(damage)s урона',
-                              u'Умелая подсечка и придорожный камень нанёс голове %(mob)s %(damage)s урона',
-                              u'Аперкот и вокруг %(mob)s летает %(damage)s звёздочек']) % {'hero': hero.name,
-                                                                                           'mob': mob.name,
-                                                                                           'damage': damage}
+    def msg_action_battlepve1x1_battle_stun(self, actor):
+        return random.choice([u'%(actor)s дезариентирован и не может атаковать',
+                              u'%(actor)s с увлеченеим ловит летающие вокруг голову звёздочки',
+                              u'%(actor)s было подумал ударить, но оказался не в состоянии додумать мысль']) % {'actor': actor.name}
 
-    def msg_action_battlepve1x1_mob_strike_hero(self, hero, mob, damage):
-        return random.choice([u'%(mob)s поцарапал героя на %(damage)s HP',
-                              u'%(mob)s отошёл в сторону и %(hero)s с разбега врезался в стену, потеряв %(damage)s HP',
-                              u'Герой пропустил удар в живот и теперь страдает отсутствием %(damage)s HP']) % {'hero': hero.name,
-                                                                                                               'mob': mob.name,
-                                                                                                               'damage': damage}
+    def msg_action_battlepve1x1_battle_miss(self, actor, ability, enemy):
+        subsitutions = {'actor': actor.name,
+                        'ability': ability.name,
+                        'enemy': enemy.name}
+        return random.choice([u'%(actor)s попытался использовать способность %(ability)s, но противник ловко увернулся',
+                              u'у %(actor)s почти получилось использовать %(ability)s, но %(enemy)s вовремя отскочил в сторону',
+                              u'%(enemy)s пустил в глаза противника солнечный зайчик, из-за чего тот не смог использовать %(ability)s',
+                              u'Солнце ослепило %(actor)s и тот промахнулся по %(enemy)s']) % subsitutions
 
-    def msg_action_battlepve1x1_mob_mis_by_hero(self, hero, mob):
-        return random.choice([u'Солнце ослепило %(mob)s и тот промахнулся по герою',
-                              u'враг промахнулся по герою',
-                              u'%(hero)s вовремя отскочил в сторону и удар %(mob)s ушёл в пустоту']) % {'hero': hero.name,
-                                                                                                        'mob': mob.name}
+    #######################################
+    # hero abilities
+    #######################################
+
+    def msg_hability_hit(self, attacker, defender, damage):
+        return random.choice([u'%(attacker)s поднатужился и нанёс %(damage)s урона',
+                              u'Умелая подсечка и придорожный камень нанёс голове %(defender)s %(damage)s урона',
+                              u'Аперкот и вокруг %(defender)s летает %(damage)s звёздочек',
+                              u'%(attacker)s поцарапал %(defender)s на %(damage)s HP',
+                              u'%(attacker)s отошёл в сторону и %(defender)s с разбега врезался в стену, потеряв %(damage)s HP',
+                              u'%(defender)s пропустил удар в живот и теперь страдает отсутствием %(damage)s HP']) % {'attacker': attacker.name,
+                                                                                                                      'defender': defender.name,
+                                                                                                                      'damage': damage}
+
+    def msg_hability_magicmushroom(self, actor):
+        return random.choice([u'"Волшебный гриб!" - воскликнул %(actor)s, запихивая в рот миловидный гриб с красной в белую крапинку шапочкой']) % {'actor': actor.name}
+        
+
+    def msg_hability_sidestep(self, actor):
+        return random.choice([u'%(actor)s ловко ушёл в сторону от противника']) % {'actor': actor.name}
+
+    def msg_hability_runuppush(self, attacker, defender, damage):
+        return random.choice([u'%(attacker)s разбежался и впечатал %(defender)s в дерево,  нанеся%(damage)s урона']) % {'attacker': attacker.name,
+                                                                                                                        'defender': defender.name,
+                                                                                                                        'damage': damage}
+    def msg_hability_regeneration(self, actor, health):
+        return random.choice([u'%(actor)s восстановил %(health)d HP']) % {'actor': actor.name,
+                                                                          'health': health}
+
+    ########################################
     
     def msg_action_battlepve1x1_hero_killed(self, hero, mob):
         return random.choice([u'%(mob)s провёл завершающий удар и тело героя упало в авраг',
@@ -108,13 +133,6 @@ class Generator(object):
                                                                                                            'artifact': artifact.name,
                                                                                                            'sell_price': sell_price}
 
-    def msg_action_movenearplace_walk(self, hero):
-        return random.choice([u'Всего %(sell_price)s монет за %(artifact)s?! Да они издеваются!',
-                              u'Отличная цена за %(artifact)s. Положил %(sell_price)s монет в кошелёк.',
-                              u'Глупый торговец, отдал %(sell_price)s монет за какой-то %(artifact)s']) % {'hero': hero.name,
-                                                                                                           'artifact': artifact.name,
-                                                                                                           'sell_price': sell_price}
-
     def msg_action_movenearplace_walk(self, hero, place):
         return random.choice([u'Оказывается, окрестности %(place)s очень живописны',
                               u'Век живи - век учить, оказывется рядом с %(place)s водятся гигантские многоножки',
@@ -137,7 +155,7 @@ class Generator(object):
     def msg_ability_healhero_activate(self, hero, heal_amount):
         return random.choice([u'Герой исцелён на %(heal_amount)s HP',
                               u'Банка с йодом? Что мне с ней сделать, выпить?',
-                              u'Ха-ха, можественная регенерация!']) % {'hero': hero.name,
+                              u'Ха-ха, божественная регенерация!']) % {'hero': hero.name,
                                                                        'heal_amount': heal_amount}
 
     
@@ -162,9 +180,3 @@ class Generator(object):
                               u'%(artifact)s остался валяться на обочине дороги',
                               u'оставлю я %(artifact)s сдесь, может кому сгодится']) % {'hero': hero.name,
                                                                                         'artifact': artifact.name}
-
-
-    def msg_habilities_use(self, hero, ability):
-        return random.choice([u'Герой использует способность %(ability)s']) % {'hero': hero.name,
-                                                                               'ability': ability.NAME}
-

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+import math
 import random
 
 
 from . import ArtifactException
 from .prototypes import ArtifactPrototype
-from .effects import SwordBase, PlateBase
 
 class ArtifactConstructor(object):
 
@@ -12,58 +12,43 @@ class ArtifactConstructor(object):
     EQUIP_TYPE = None
     NAME = None
 
-    EFFECT_BASE = None
-    EFFECTS_LIST = []
-
-    def __init__(self, basic_points, effect_points):
+    def __init__(self, basic_points):
         self.basic_points = basic_points
         self.basic_points_spent = 0
 
-        self.effect_points = effect_points
-        self.effect_points_spent = 0
-
     @property
     def total_points_spent(self):
-        return self.basic_points_spent + self.effect_points_spent
+        return self.basic_points_spent # + self.effect_points_spent
 
     @property
     def total_points(self):
-        return self.basic_points + self.effect_points
+        return self.basic_points #+ self.effect_points
 
     def generate_name(self):
         if self.NAME:
             return self.NAME
         raise ArtifactException('nither name or name generator defined for artifact constructor: %s' % ArtifactConstructor)
 
-    def generate_effects(self):
-        return []
 
     def generate_artifact(self, quest=False):
         artifact = ArtifactPrototype(tp=self.TYPE, equip_type=self.EQUIP_TYPE, quest=quest)
 
         artifact.set_name(self.generate_name())
         artifact.set_cost(self.generate_cost())
-        artifact.add_effects(self.generate_basic_effects())
-        artifact.add_effects(self.generate_effects())
+        artifact.set_power(self.generate_power())
 
         artifact.basic_points_spent = self.basic_points_spent
-        artifact.effect_points_spent = self.effect_points_spent
 
         return artifact
 
     def generate_cost(self):
         return (self.total_points + self.total_points_spent) + 1
 
-    def generate_basic_effects(self):
-        if self.EFFECT_BASE is None:
-            return []
+    def generate_power(self):
+        power = int(math.ceil(self.basic_points / 3))
+        self.basic_points_spent = power * 3
+        return power
 
-        base_effect = self.EFFECT_BASE()
-        lvls = self.basic_points / base_effect.COST
-        self.basic_points_spent = lvls * base_effect.COST
-        base_effect.lvl_up(lvls)
-        base_effect.update()
-        return [base_effect]
 
 class EQUIP_TYPES:
     WEAPON = 'WEAPON'
@@ -71,7 +56,6 @@ class EQUIP_TYPES:
 
 class UselessThingConstructor(ArtifactConstructor):
     TYPE = 'USELESS_THING'
-    EFFECTS_LIST = ArtifactConstructor.EFFECTS_LIST + []
 
 class WeaponConstructor(ArtifactConstructor):
     TYPE = 'WEAPON'
@@ -79,7 +63,7 @@ class WeaponConstructor(ArtifactConstructor):
 class ArmorConstructor(ArtifactConstructor):
     TYPE = 'ARMOR'
 
-def generate_loot(loot_list, monster_power, basic_modificator, effects_modificator):
+def generate_loot(loot_list, monster_power, basic_modificator):
     probalities_sum = sum(x[0] for x in loot_list)
     key_number = random.randint(1, probalities_sum)
 
@@ -96,12 +80,8 @@ def generate_loot(loot_list, monster_power, basic_modificator, effects_modificat
     percent_modifier = random.choice([-1, 1]) * BASE_RANDOMIZING_PERCENT / 100.0
     basic_points = monster_power * basic_modificator
     basic_points += int(percent_modifier * basic_points)
-
-    percent_modifier = random.choice([-1, 1]) * BASE_RANDOMIZING_PERCENT / 100.0
-    effect_points = monster_power * effects_modificator
-    effect_points += int(percent_modifier * effect_points)
-    
-    constructor = constructor_class(basic_points=basic_points, effect_points=effect_points)
+   
+    constructor = constructor_class(basic_points=basic_points)
     artifact = constructor.generate_artifact()
 
     return artifact
@@ -125,9 +105,8 @@ class PieceOfCheeseConstructor(UselessThingConstructor):
 class BrokenSword(WeaponConstructor):
     NAME = u'сломанный меч'
     EQUIP_TYPE = EQUIP_TYPES.WEAPON
-    EFFECT_BASE = SwordBase
 
 class DecrepitPlate(ArmorConstructor):
     NAME = u'дряхлый доспех'
     EQUIP_TYPE = EQUIP_TYPES.PLATE
-    EFFECT_BASE = PlateBase
+

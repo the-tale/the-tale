@@ -29,7 +29,7 @@ class Hero(models.Model):
     equipment = models.TextField(null=False, default='{}')
     bag = models.TextField(null=False, default='{}')
 
-    abilities = models.TextField(null=False, default='{}')
+    abilities = models.TextField(null=False, default='[]')
 
     messages = models.TextField(null=False, default='[]')
 
@@ -71,6 +71,5 @@ class ChooseAbilityTask(models.Model):
     hero = models.ForeignKey(Hero,  related_name='+')
 
     ability_id = models.CharField(max_length=64)
-    ability_level = models.IntegerField(null=False)
 
     comment = models.CharField(max_length=256, blank=True, null=False, default=True)

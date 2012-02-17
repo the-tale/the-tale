@@ -30,4 +30,4 @@ def equip_in_city(hero):
 
 def create_mob_for_hero(hero):
     from ..mobs.prototypes import get_random_mob
-    return get_random_mob()
+    return get_random_mob(hero)
