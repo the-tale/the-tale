@@ -29,6 +29,8 @@ class Resource(BaseResource):
     def angel(self):
         if not hasattr(self, '_angel'):
             self._angel = None
+            if self.account is None:
+                return self._angel
             try:
                 self._angel = get_angel_by_model(self.account.angel)
             except Angel.DoesNotExist:
