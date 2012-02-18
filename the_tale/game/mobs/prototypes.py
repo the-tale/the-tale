@@ -25,6 +25,7 @@ class MobPrototype(object):
     HEALTH_RELATIVE_TO_HERO = None
     BATTLE_SPEED = None
     POWER_PER_LEVEL = None
+    DAMAGE_DISPERSION = None
 
     ABILITIES = []
 
@@ -46,6 +47,9 @@ class MobPrototype(object):
 
     @property
     def health_percents(self): return float(self.health) / self.max_health
+
+    def get_basic_damage(self):
+        return self.power * (1 + random.uniform(-self.DAMAGE_DISPERSION, self.DAMAGE_DISPERSION))
 
     @classmethod
     def get_type_name(cls):
@@ -88,6 +92,7 @@ class Rat(MobPrototype):
     HEALTH_RELATIVE_TO_HERO = 0.3
     BATTLE_SPEED = 6
     POWER_PER_LEVEL = 1
+    DAMAGE_DISPERSION = 0.15
     ABILITIES = ['hit', 'regeneration']
 
     LOOT_LIST = [ (10, loot.RatTailConstructor),
@@ -102,6 +107,7 @@ class Bandit(MobPrototype):
     HEALTH_RELATIVE_TO_HERO = 0.7
     BATTLE_SPEED = 4
     POWER_PER_LEVEL = 2
+    DAMAGE_DISPERSION = 0.3
     ABILITIES = ['hit']
 
     LOOT_LIST = [ (1, loot.FakeAmuletConstructor),

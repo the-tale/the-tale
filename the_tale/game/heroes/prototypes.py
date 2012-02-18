@@ -68,6 +68,9 @@ class HeroPrototype(object):
     def power(self): 
         return 2 + self.level + self.equipment.get_power()
 
+    def get_basic_damage(self):
+        return self.power * (1 + random.uniform(-0.15, 0.15))
+
     @property
     def race(self): return self.model.race
     

@@ -506,7 +506,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
             return False
 
         self.mob.strike_by(percents)
-        self.percents = self.mob.health_percents
+        self.percents = 1 - self.mob.health_percents
 
         return True
 

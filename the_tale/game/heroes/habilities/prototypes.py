@@ -48,7 +48,7 @@ class Hit(AbilityPrototype):
 
     @classmethod
     def use(cls, messanger, actor, enemy):
-        damage = actor.context.modify_initial_damage(actor.power)
+        damage = actor.context.modify_initial_damage(actor.get_basic_damage())
         damage = enemy.change_health(-damage)
         messanger.push_message(msg_generator.msg_hability_hit(actor, enemy, -damage))
     
@@ -104,7 +104,7 @@ class RunUpPush(AbilityPrototype):
 
     @classmethod
     def use(cls, messanger, actor, enemy):
-        damage = actor.context.modify_initial_damage(actor.power)
+        damage = actor.context.modify_initial_damage(actor.get_basic_damage())
         damage = enemy.change_health(-damage)
         enemy.context.use_stun(cls.STUN_LENGTH)
         messanger.push_message(msg_generator.msg_hability_runuppush(actor, enemy, -damage))

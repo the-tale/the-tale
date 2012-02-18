@@ -20,6 +20,8 @@ class Actor(object):
 
     @property
     def power(self): return self.actor.power
+    
+    def get_basic_damage(self): return self.actor.get_basic_damage()
 
     @property
     def health(self): return self.actor.health
@@ -30,7 +32,7 @@ class Actor(object):
     def change_health(self, value):
         result = self.actor.health + value
         self.actor.health = int(min(self.actor.health + value, self.actor.max_health))
-        return value - (result - self.actor.health)
+        return int(value - (result - self.actor.health))
   
     def choose_ability(self, enemy): 
         choice_abilities = self.actor.abilities.active_abilities
