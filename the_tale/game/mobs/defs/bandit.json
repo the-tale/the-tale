@@ -1,6 +1,6 @@
 {
     "name": "бандит",
-    "health_relative_to_hero": 0.7,
+    "health_relative_to_hero": 0.5,
     "initiative": 4,
     "power_per_level": 1.5,
     "damage_dispersion": 0.3,
