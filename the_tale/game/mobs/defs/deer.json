@@ -1,0 +1,10 @@
+{
+    "name": "олень",
+    "health_relative_to_hero": 1,
+    "initiative": 5,
+    "power_per_level": 1,
+    "damage_dispersion": 0,
+    "abilities": ["hit"],
+    "loot_list": [ [1, "armor_antlers"],
+                   [1, "armor_skin_of_a_deer"] ]
+}

@@ -6,14 +6,23 @@ class EQUIP_TYPE:
     NONE = 1
     WEAPON = 2
     PLATE = 3
+    AMULET = 4
+    HELMET = 5
+    CLOAK = 6
 
 EQUIP_TYPE_CHOICES = ( (EQUIP_TYPE.NONE, u'не экипируется'),
                        (EQUIP_TYPE.WEAPON, u'оружие'),
-                       (EQUIP_TYPE.PLATE, u'броня') )
+                       (EQUIP_TYPE.PLATE, u'броня'),
+                       (EQUIP_TYPE.AMULET, u'амулет'),
+                       (EQUIP_TYPE.HELMET, u'шлем'),
+                       (EQUIP_TYPE.CLOAK, u'плащ') )
 
 EQUIP_TYPE_STR_2_ID = {'none': EQUIP_TYPE.NONE,
                        'weapon': EQUIP_TYPE.WEAPON,
-                       'plate': EQUIP_TYPE.PLATE}
+                       'plate': EQUIP_TYPE.PLATE,
+                       'amulet': EQUIP_TYPE.AMULET,
+                       'helmet': EQUIP_TYPE.HELMET,
+                       'cloak': EQUIP_TYPE.CLOAK}
 
 
 class ITEM_TYPE:

@@ -1,0 +1,10 @@
+{
+    "name": "шакал",
+    "health_relative_to_hero": 0.5,
+    "initiative": 5,
+    "power_per_level": 2,
+    "damage_dispersion": 0.25,
+    "abilities": ["hit", "sidestep"],
+    "loot_list": [ [10, "useless_skin_of_jackal"],
+                   [1, "armor_jackals_tail"] ]
+}
