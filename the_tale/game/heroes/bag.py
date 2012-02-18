@@ -2,7 +2,7 @@
 from dext.utils import s11n
 
 from ..artifacts.prototypes import ArtifactPrototype
-from ..artifacts import constructors
+from ..artifacts.models import EQUIP_TYPE
 
 class EquipmentException(Exception): pass
 
@@ -84,12 +84,12 @@ class SLOTS:
 SLOTS_LIST = [ value for name, value in  SLOTS.__dict__.items() if name.isupper()]
 
 SLOTS_TO_ARTIFACT_TYPES = {
-    SLOTS.HAND_PRIMARY: [constructors.EQUIP_TYPES.WEAPON],
+    SLOTS.HAND_PRIMARY: [EQUIP_TYPE.WEAPON],
     SLOTS.HAND_SECONDARY: [],
 
     SLOTS.HELMET: [],
     SLOTS.SHOULDERS: [],
-    SLOTS.PLATE: [constructors.EQUIP_TYPES.PLATE],
+    SLOTS.PLATE: [EQUIP_TYPE.PLATE],
     SLOTS.GLOVES: [],
     SLOTS.CLOAK: [],
     SLOTS.PANTS: [],

@@ -19,9 +19,6 @@ class MobPrototype(object):
     NAME = ''
     LOOT_LIST = []
 
-    LOOT_BASIC_MODIFICATOR = None
-    LOOT_EFFECTS_MODIFICATOR = None
-
     HEALTH_RELATIVE_TO_HERO = None
     BATTLE_SPEED = None
     POWER_PER_LEVEL = None
@@ -62,8 +59,8 @@ class MobPrototype(object):
         pass
 
     def get_loot(self):
-        from ..artifacts.constructors import generate_loot
-        return generate_loot(self.LOOT_LIST, self.level, self.LOOT_BASIC_MODIFICATOR)
+        from ..artifacts.constructors import ArtifactConstructorPrototype
+        return ArtifactConstructorPrototype.generate_loot(self.LOOT_LIST, self.level)
 
     def serialize(self):
         return s11n.to_json({'type': self.get_type_name(),
@@ -95,9 +92,8 @@ class Rat(MobPrototype):
     DAMAGE_DISPERSION = 0.15
     ABILITIES = ['hit', 'regeneration']
 
-    LOOT_LIST = [ (10, loot.RatTailConstructor),
-                  (1, loot.PieceOfCheeseConstructor) ]
-    LOOT_BASIC_MODIFICATOR = 0.5
+    LOOT_LIST = [ (10, 'useless_rat_tail'),
+                  (1, 'useless_piece_of_cheese') ]
 
 
 class Bandit(MobPrototype):
@@ -110,11 +106,10 @@ class Bandit(MobPrototype):
     DAMAGE_DISPERSION = 0.3
     ABILITIES = ['hit']
 
-    LOOT_LIST = [ (1, loot.FakeAmuletConstructor),
-                  (1, loot.BrokenSword),
-                  (1, loot.DecrepitPlate)]
+    LOOT_LIST = [ (1, 'useless_fake_amulet'),
+                  (1, 'weapon_broken_sword'),
+                  (1, 'armor_decrepit_plate')]
                   
-    LOOT_BASIC_MODIFICATOR = 1.0
 
 
 MOB_PROTOTYPES = dict( (type_name.lower(), prototype)

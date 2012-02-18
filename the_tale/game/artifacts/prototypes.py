@@ -37,6 +37,9 @@ class ArtifactPrototype(object):
     def set_power(self, power):
         self.power = power
 
+    def set_points_spent(self, points):
+        self.basic_points_spent = points
+
     def deserialize(self, data):
         self.type = data.get('type', None)
         self.equip_type = data.get('equip_type', None)

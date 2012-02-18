@@ -21,10 +21,10 @@ class Environment(BaseEnvironment):
         pass
 
     def sync_items(self):
-        from ..artifacts.constructors import LetterConstructor
+        from ..artifacts.constructors import ArtifactConstructorPrototype
 
         for item_id, item_data in self.items.items():
-            constructor = LetterConstructor(basic_points=1)
+            constructor = ArtifactConstructorPrototype.get_by_uuid('useless_letter')
             artifact = constructor.generate_artifact(quest=True)
             artifact.set_quest_uuid(item_id)
             item_data['external_data']['artifact'] = artifact.serialize()
