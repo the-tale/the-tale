@@ -29,6 +29,9 @@ class MobConstructorPrototype(object):
     def damage_dispersion(self): return self.model.damage_dispersion
 
     @property
+    def terrain(self): return self.model.terrain
+
+    @property
     def abilities(self): 
         if not hasattr(self, '_abilities'):
             self._abilities = s11n.from_json(self.model.abilities)
@@ -46,7 +49,7 @@ class MobConstructorPrototype(object):
     
     @classmethod
     def get_random_mob(cls, hero):
-        constructor = cls(model=MobConstructor.objects.order_by('?')[0])
+        constructor = cls(model=MobConstructor.objects.filter(terrain=hero.position.get_terrain()).order_by('?')[0])
         return constructor.generate_mob(hero)
 
 

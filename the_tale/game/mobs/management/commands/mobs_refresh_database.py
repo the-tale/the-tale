@@ -10,6 +10,7 @@ from ...conf import mobs_settings
 
 from ....heroes.habilities import ABILITIES
 from ....artifacts.models import ArtifactConstructor
+from ....map.places.models import TERRAIN_STR_2_ID
 
 
 class Command(BaseCommand):
@@ -53,5 +54,6 @@ class Command(BaseCommand):
                                                initiative=data['initiative'],
                                                power_per_level=data['power_per_level'],
                                                damage_dispersion=data['damage_dispersion'],
+                                               terrain=TERRAIN_STR_2_ID[data['terrain']],
                                                abilities=s11n.to_json(data['abilities']),
                                                loot_list=s11n.to_json(data['loot_list']) )

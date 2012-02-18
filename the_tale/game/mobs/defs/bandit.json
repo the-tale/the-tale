@@ -4,6 +4,7 @@
     "initiative": 4,
     "power_per_level": 2,
     "damage_dispersion": 0.3,
+    "terrain": "grass",
     "abilities": ["hit"],
     "loot_list": [ [1, "useless_fake_amulet"],
                    [1, "weapon_broken_sword"],

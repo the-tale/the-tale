@@ -21,6 +21,11 @@ RACE_TO_TERRAIN = { RACE.HUMAN: TERRAIN.GRASS,
                     RACE.GOBLIN: TERRAIN.SWAMP,
                     RACE.DWARF: TERRAIN.GRASS }
 
+TERRAIN_STR_2_ID = { 'desert': TERRAIN.DESERT,
+                     'forest': TERRAIN.FOREST,
+                     'grass': TERRAIN.GRASS,
+                     'swamp': TERRAIN.SWAMP }
+
 class PLACE_TYPE:
     CITY = 'city'
 

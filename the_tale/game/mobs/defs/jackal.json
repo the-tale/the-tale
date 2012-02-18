@@ -4,6 +4,7 @@
     "initiative": 5,
     "power_per_level": 2,
     "damage_dispersion": 0.25,
+    "terrain": "desert",
     "abilities": ["hit", "sidestep"],
     "loot_list": [ [10, "useless_skin_of_jackal"],
                    [1, "armor_jackals_tail"] ]

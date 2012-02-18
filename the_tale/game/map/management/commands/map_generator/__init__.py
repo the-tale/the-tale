@@ -7,11 +7,14 @@ from django.core.management.base import BaseCommand
 
 from dext.utils import s11n
 
+from game.prototypes import get_current_time
+
 from .map import Map
 from . import places
 from . import roads
 
 from ....conf import map_settings
+from ....prototypes import MapInfoPrototype
 from ....places.models import TERRAIN
 
 class ConfigConstants:
@@ -54,6 +57,14 @@ class Command(BaseCommand):
         game_map.prepair_terrain()
         
         game_map.pave_ways()
+
+        time = get_current_time()
+        terrain = game_map.get_terrain_map()
+        MapInfoPrototype.create(turn_number=time.turn_number,
+                                width=config['map_width'],
+                                height=config['map_height'],
+                                terrain=terrain)
+        
 
         output_dir_name = os.path.dirname(map_settings.GEN_REGION_OUTPUT)
         if not os.path.exists(output_dir_name):

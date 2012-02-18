@@ -5,6 +5,7 @@
     "power_per_level": 1.5,
     "damage_dispersion": 0.15,
     "abilities": ["hit"],
+    "terrain": "forest",
     "loot_list": [ [1, "armor_wolfs_fangs"],
                    [10, "useless_skin_of_a_wolf"]]
 }

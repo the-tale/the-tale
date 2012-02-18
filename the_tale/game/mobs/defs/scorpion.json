@@ -4,6 +4,7 @@
     "initiative": 5,
     "power_per_level": 1,
     "damage_dispersion": 0.5,
+    "terrain": "desert",
     "abilities": ["hit"],
     "loot_list": [ [1, "useless_scorpion_venom"] ]
 }

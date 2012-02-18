@@ -20,6 +20,8 @@ from .habilities import AbilitiesPrototype
 from .hmessages import generator as msg_generator
 from .conf import heroes_settings
 
+from ..map.prototypes import MapInfoPrototype
+
 
 def get_hero_by_id(model_id):
     hero = Hero.objects.get(id=model_id)
@@ -238,7 +240,7 @@ class HeroPrototype(object):
     def push_message(self, msg):
         self.messages.append(msg)
         if len(self.messages) > heroes_settings.MESSAGES_LOG_LENGTH:
-            self.messages.pop(0)
+            self.messages.pop(0)        
 
     ###########################################
     # Object operations
@@ -399,6 +401,48 @@ class HeroPositionPrototype(object):
                 self.hero_model.pos_from_y is not None and
                 self.hero_model.pos_to_x is not None and
                 self.hero_model.pos_to_y is not None)
+ 
+    @property
+    def cell_coordinates(self):
+        if self.place:
+            return self.get_cell_coordinates_in_place()
+        elif self.road:
+            return self.get_cell_coordinates_on_road()
+        else:
+            return self.get_cell_coordinates_near_place()
+
+            
+    def get_cell_coordinates_in_place(self):
+        return self.place.x, self.place.y
+
+    def get_cell_coordinates_on_road(self):
+        point_1 = self.road.point_1
+        point_2 = self.road.point_2
+
+        percents = self.percents;
+
+        if self.invert_direction:
+            percents = 1 - percents
+
+        x = point_1.x + (point_2.x - point_1.x) * percents
+        y = point_1.y + (point_2.y - point_1.y) * percents
+
+        return int(x), int(y)
+
+    def get_cell_coordinates_near_place(self):
+        from_x, from_y = self.coordinates_from
+        to_x, to_y = self.coordinates_to
+        percents = self.percents
+
+        x = from_x + (to_x - from_x) * percents
+        y = from_y + (to_y - from_y) * percents
+
+        return int(x), int(y)
+
+    def get_terrain(self):
+        map_info = MapInfoPrototype.get_latest()
+        x, y = self.cell_coordinates
+        return map_info.terrain[y][x]
 
     ###########################################
     # Checks

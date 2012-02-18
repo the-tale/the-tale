@@ -4,6 +4,7 @@
     "initiative": 6,
     "power_per_level": 1,
     "damage_dispersion": 0.15,
+    "terrain": "grass",
     "abilities": ["hit", "regeneration"],
     "loot_list": [ [10, "useless_rat_tail"],
                    [1, "useless_piece_of_cheese"] ]
