@@ -2,7 +2,7 @@
     "name": "головастик",
     "health_relative_to_hero": 0.1,
     "initiative": 7,
-    "power_per_level": 0.5,
+    "power_per_level": 0.25,
     "damage_dispersion": 0.1,
     "terrain": "swamp",
     "abilities": ["hit"],

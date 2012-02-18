@@ -2,7 +2,7 @@
     "name": "пиявка",
     "health_relative_to_hero": 0.1,
     "initiative": 2,
-    "power_per_level": 2,
+    "power_per_level": 1.5,
     "damage_dispersion": 0.1,
     "terrain": "swamp",
     "abilities": ["hit", "regeneration"],

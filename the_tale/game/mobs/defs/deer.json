@@ -2,7 +2,7 @@
     "name": "олень",
     "health_relative_to_hero": 1,
     "initiative": 5,
-    "power_per_level": 1,
+    "power_per_level": 0.75,
     "damage_dispersion": 0,
     "terrain": "forest",
     "abilities": ["hit"],

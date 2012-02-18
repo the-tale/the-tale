@@ -425,6 +425,9 @@ pgf.game.map.Map = function(selector, params) {
                 var x = pos.x + j * TILE_SIZE;
                 var y = pos.y + i * TILE_SIZE;
 
+                image = spritesManager.GetImage(terrain[i][j]);
+                image.Draw(context, x, y);
+
                 if (calculatedData.roadsMap[i][j] != '.') {
                     var roadTile = GetRoadTile(calculatedData.roadsMap, i, j);
                     image = spritesManager.GetImage(roadTile.name);
@@ -438,10 +441,6 @@ pgf.game.map.Map = function(selector, params) {
                     image.Draw(context, -TILE_SIZE/2, -TILE_SIZE/2);
                     context.restore();
 
-                }
-                else {
-                    image = spritesManager.GetImage(terrain[i][j]);
-                    image.Draw(context, x, y);
                 }
             }
         }
