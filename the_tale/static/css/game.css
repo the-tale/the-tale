@@ -33,7 +33,7 @@
   width: 590px;
 }
 #hero-base-block .bar {
-  font-size: 13px;
+  font-size: 11px;
 }
 #hero-base-block .bar .stats-bar .layer-0 {
   background: #559dcc;
@@ -76,7 +76,11 @@
   background: #75bdec;
 }
 #hero-equipment-block .record .name {
+  font-size: 10pt;
   margin-left: 0.25em;
+}
+#hero-equipment-block .record .power-container {
+  float: right;
 }
 #login-required-block {
   text-align: center;

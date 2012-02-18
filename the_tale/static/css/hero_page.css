@@ -59,16 +59,15 @@
   background-position-x: -128px;
   background-position-y: 0px;
 }
+.hero-abilities-list .record .icon.hit {
+  background-position-x: -160px;
+  background-position-y: 0px;
+}
 .hero-abilities-list .record .name {
   font-weight: bold;
   font-size: 12pt;
   display: inline-block;
   width: 190px;
-}
-.hero-abilities-list .record .level {
-  font-weight: bold;
-  font-size: 14pt;
-  display: inline-block;
 }
 .hero-abilities-list .record.battle {
   border-color: #CC0000;
