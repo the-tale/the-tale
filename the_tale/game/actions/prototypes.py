@@ -538,7 +538,9 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                 self.hero.push_message(msg_generator.msg_action_battlepve1x1_mob_killed(self.hero, self.mob))
 
                 loot = self.mob.get_loot()
-                self.hero.put_loot(loot)
+
+                if loot is not None:
+                    self.hero.put_loot(loot)
 
                 self.percents = 1.0
                 self.state = self.STATE.PROCESSED

@@ -1,0 +1,10 @@
+{
+    "name": "крыса",
+    "health_relative_to_hero": 0.3,
+    "initiative": 6,
+    "power_per_level": 1,
+    "damage_dispersion": 0.15,
+    "abilities": ["hit", "regeneration"],
+    "loot_list": [ [10, "useless_rat_tail"],
+                   [1, "useless_piece_of_cheese"] ]
+}

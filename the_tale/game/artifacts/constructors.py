@@ -11,6 +11,9 @@ class ArtifactConstructorPrototype(object):
         self.model = model
 
     @property
+    def uuid(self): return self.model.uuid
+
+    @property
     def name(self): return self.model.name
 
     @property
@@ -48,6 +51,10 @@ class ArtifactConstructorPrototype(object):
     @classmethod
     def generate_loot(cls, loot_list, monster_power):
         probalities_sum = sum(x[0] for x in loot_list)
+
+        if probalities_sum < 1:
+            return None
+
         key_number = random.randint(1, probalities_sum)
 
         constructor_class = None

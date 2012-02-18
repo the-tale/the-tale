@@ -412,8 +412,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
 
     function RenderItem(index, data, element) {
         jQuery('.pgf-name', element).text(data.name);
-        jQuery('.pgf-cost', element).text(data.cost);
-        jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', !data.equip_type);
+        jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', !data.equipped);
         jQuery('.pgf-power', element).text(data.power);
     }
 

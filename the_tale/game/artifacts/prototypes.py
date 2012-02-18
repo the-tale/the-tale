@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from .models import EQUIP_TYPE
+
 class ArtifactPrototype(object):
 
     def __init__(self, tp=None, equip_type=None, power=0, quest=False, data=None):
@@ -67,8 +69,7 @@ class ArtifactPrototype(object):
 
     def ui_info(self):
         return {'type': self.type,
-                'equip_type': self.equip_type,
+                'equipped': self.equip_type != EQUIP_TYPE.NONE,
                 'name': self.name,
-                'cost': self.cost,
                 'power': self.power,
                 'quest': self.quest}
