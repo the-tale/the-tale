@@ -3,6 +3,8 @@ import random
 
 from dext.utils import s11n
 
+from game.journal.template import FakeFormatter
+
 from ... import names
 
 from .models import Place, PLACE_TYPE, RACE_TO_TERRAIN
@@ -145,6 +147,9 @@ class PlacePrototype(object):
         dominant_race = max(race_power.items(), key=lambda x: x[1])[0]
 
         self.terrain = RACE_TO_TERRAIN[dominant_race]
+
+    def get_formatter(self):
+        return FakeFormatter(self.name)
 
     def __unicode__(self):
         return self.model.__unicode__()

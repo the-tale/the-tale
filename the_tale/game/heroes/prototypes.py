@@ -8,6 +8,9 @@ from dext.utils.decorators import nested_commit_on_success
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
+from game.journal.prototypes import PhrasePrototype
+from game.journal.template import FakeFormatter
+
 from ..game_info import RACE_CHOICES
 from .. import names
 
@@ -17,7 +20,6 @@ from ..quests.models import Quest
 from .models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from . import game_info
 from .habilities import AbilitiesPrototype
-from .hmessages import generator as msg_generator
 from .conf import heroes_settings
 
 from ..map.prototypes import MapInfoPrototype
@@ -126,13 +128,11 @@ class HeroPrototype(object):
     def put_loot(self, artifact):
         max_bag_size = self.max_bag_size
         quest_items_count, loot_items_count = self.bag.occupation
-        bag_item_uuid = None
+
         if artifact.quest or loot_items_count < max_bag_size:
             self.bag.put_artifact(artifact)
-            self.push_message(msg_generator.msg_heroes_put_loot(self, artifact))
-        else:
-            self.push_message(msg_generator.msg_heroes_put_loot_no_space(self, artifact))
-        return bag_item_uuid
+            return artifact.bag_uuid
+
 
     def pop_loot(self, artifact):
         self.bag.pop_artifact(artifact)
@@ -148,6 +148,8 @@ class HeroPrototype(object):
             self._equipment.deserialize(self.model.equipment)
         return self._equipment
 
+    def get_formatter(self):
+        return FakeFormatter(self.name)
 
     ###########################################
     # Secondary attributes
@@ -241,6 +243,12 @@ class HeroPrototype(object):
         self.messages.append(msg)
         if len(self.messages) > heroes_settings.MESSAGES_LOG_LENGTH:
             self.messages.pop(0)        
+
+    def add_message(self, type_, **kwargs):
+        args = {}
+        for k, v in kwargs.items():
+            args[k] = v.get_formatter() if hasattr(v, 'get_formatter') else v
+        self.push_message(PhrasePrototype.get_random(type_).substitute(**args))
 
     ###########################################
     # Object operations

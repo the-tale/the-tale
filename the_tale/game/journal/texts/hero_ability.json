@@ -1,0 +1,46 @@
+{
+    "description": "",
+    "prefix": "hero_ability",
+    "types": {
+        "hit": {
+            "description": "",
+            "variables": ["attacker", "defender", "damage"],
+            "phrases": [
+                "[[attacker|и.п.]] поднатужился и нанёс %(damage)d урона",
+                "Умелая подсечка и придорожный камень нанёс голове [[defender|д.п]] %(damage)d урона",
+                "Аперкот и вокруг [[defender|и.п]] летает %(damage)d звёздочек",
+                "%[[attacker|и.п.]] поцарапал [[defender|р.п]] на %(damage)d HP",
+                "%[[attacker|и.п.]] отошёл в сторону и [[defender|и.п]] с разбега врезался в стену, потеряв %(damage)d HP",
+                "[[defender|и.п]] пропустил удар в живот и теперь страдает отсутствием %(damage)d HP"
+            ]
+        },
+        "magicmushroom": {
+            "description": "",
+            "variables": ["actor"],
+            "phrases": [
+                "'Волшебный гриб!' - воскликнул [[actor|и.п.]], запихивая в рот миловидный гриб с красной в белую крапинку шапочкой"
+            ]
+        },
+        "sidestep": {
+            "description": "",
+            "variables": ["actor"],
+            "phrases": [
+                "[[actor|и.п.]] ловко ушёл в сторону от противника"
+            ]
+        },
+        "runuppush": {
+            "description": "",
+            "variables": ["attacker", "defender", "damage"],
+            "phrases": [
+                "[[attacker|и.п.]] разбежался и впечатал [[defender|д.п.]] в дерево, нанеся %(damage)s урона"
+            ]
+        },
+        "regeneration": {
+            "description": "",
+            "variables": ["actor", "health"],
+            "phrases": [
+                "[[actor|и.п.]] восстановил %(health)d HP"
+            ]
+        }
+    }
+}

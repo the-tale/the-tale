@@ -1,0 +1,13 @@
+{
+    "description": "",
+    "prefix": "action_quest",
+    "types": {
+        "get_reward": {
+            "description": "",
+            "variables": ["hero"],
+            "phrases": [
+                "О Боги! Когда же я наконец получу хоть что-нибудь в награду за труды?"
+            ]
+        }
+    }
+}

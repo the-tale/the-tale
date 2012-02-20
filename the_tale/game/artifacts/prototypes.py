@@ -2,6 +2,8 @@
 
 from .models import EQUIP_TYPE
 
+from game.journal.template import FakeFormatter
+
 class ArtifactPrototype(object):
 
     def __init__(self, tp=None, equip_type=None, power=0, quest=False, data=None):
@@ -41,6 +43,9 @@ class ArtifactPrototype(object):
 
     def set_points_spent(self, points):
         self.basic_points_spent = points
+
+    def get_formatter(self):
+        return FakeFormatter(self.name)
 
     def deserialize(self, data):
         self.type = data.get('type', None)

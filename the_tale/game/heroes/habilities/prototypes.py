@@ -1,6 +1,6 @@
 #coding: utf-8
 
-from ..hmessages import generator as msg_generator
+from game.journal.template import FakeFormatter
 
 class ABILITY_TYPE:
     BATTLE = 'battle'
@@ -28,6 +28,9 @@ class AbilityPrototype(object):
     NAME = u''
     DESCRIPTIN = u''
 
+    def get_formatter(self):
+        return FakeFormatter(self.NAME)
+
     @classmethod
     def get_id(cls): return cls.__name__.lower()
 
@@ -50,7 +53,7 @@ class Hit(AbilityPrototype):
     def use(cls, messanger, actor, enemy):
         damage = actor.context.modify_initial_damage(actor.get_basic_damage())
         damage = enemy.change_health(-damage)
-        messanger.push_message(msg_generator.msg_hability_hit(actor, enemy, -damage))
+        messanger.add_message('hero_ability_hit', attacker=actor, defender=enemy, damage=-damage)
     
 
 class MagicMushroom(AbilityPrototype):
@@ -68,7 +71,7 @@ class MagicMushroom(AbilityPrototype):
     @classmethod
     def use(cls, messanger, actor, enemy):
         actor.context.use_ability_magic_mushroom(cls.DAMAGE_FACTORS)
-        messanger.push_message(msg_generator.msg_hability_magicmushroom(actor))
+        messanger.add_message('hero_ability_magicmushroom', actor=actor)
 
 
 class Sidestep(AbilityPrototype):
@@ -86,7 +89,7 @@ class Sidestep(AbilityPrototype):
     @classmethod
     def use(cls, messanger, actor, enemy):
         enemy.context.use_ability_sidestep(cls.MISS_PROBABILITIES)
-        messanger.push_message(msg_generator.msg_hability_sidestep(actor))
+        messanger.add_message('hero_ability_sidestep', actor=actor)
 
 
 class RunUpPush(AbilityPrototype):
@@ -107,7 +110,7 @@ class RunUpPush(AbilityPrototype):
         damage = actor.context.modify_initial_damage(actor.get_basic_damage())
         damage = enemy.change_health(-damage)
         enemy.context.use_stun(cls.STUN_LENGTH)
-        messanger.push_message(msg_generator.msg_hability_runuppush(actor, enemy, -damage))
+        messanger.add_message('hero_ability_runuppush', attacker=actor, defender=enemy, damage=-damage)
 
 
 class Regeneration(AbilityPrototype):
@@ -126,7 +129,7 @@ class Regeneration(AbilityPrototype):
     def use(cls, messanger, actor, enemy):
         health_to_regen = actor.max_health * cls.RESTORED_PERCENT
         applied_health = actor.change_health(health_to_regen)
-        messanger.push_message(msg_generator.msg_hability_regeneration(actor, applied_health))
+        messanger.add_message('hero_ability_regeneration', actor=actor, health=applied_health)
 
 ABILITIES = dict( (ability.get_id(), ability) 
                   for ability in globals().values() 

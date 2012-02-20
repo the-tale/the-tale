@@ -2,7 +2,6 @@
 
 import random
 
-from ..heroes.hmessages import generator as msg_generator
 from ..heroes.habilities import ABILITIES_LOGIC_TYPE
 
 class Actor(object):
@@ -69,7 +68,7 @@ def strike(attacker, defender, messanger):
     attacker.context.on_own_turn()
 
     if attacker.context.is_stunned:
-        messanger.push_message(msg_generator.msg_action_battlepve1x1_battle_stun(attacker))
+        messanger.add_message('action_battlepve1x1_battle_stun', attacker=attacker)
         return
 
     ability = attacker.choose_ability(defender)
@@ -83,7 +82,7 @@ def strike(attacker, defender, messanger):
 def strike_with_contact(ability, attacker, defender, messanger):
 
     if attacker.context.should_miss_attack():
-        messanger.push_message(msg_generator.msg_action_battlepve1x1_battle_miss(attacker, ability, defender))
+        messanger.add_message('action_battlepve1x1_battle_miss', attacker=attacker, ability=ability, defender=defender)
         return
 
     ability.use(messanger, attacker, defender)

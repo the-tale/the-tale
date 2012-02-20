@@ -110,6 +110,7 @@ INSTALLED_APPS = (
     'game.angels',
     'game.abilities',
     'game.heroes',
+    'game.journal',
     'game.actions',
     'game.quests',
     'game.map',
@@ -145,9 +146,6 @@ except:
 
 if 'TEMPLATE_DEBUG' not in globals():
     TEMPLATE_DEBUG = DEBUG
-
-if 'CELERY_EMULATE_TASKS' not in globals():
-    CELERY_EMULATE_TASKS = DEBUG
 
 if not DEBUG:
     LESS_CSS_URL = STATIC_URL + 'css/'

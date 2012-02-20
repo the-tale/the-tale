@@ -2,8 +2,6 @@
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
 
-from ..heroes.hmessages import generator as msg_generator
-
 from .models import Quest
 
 def get_quest_by_id(id):
@@ -195,7 +193,7 @@ class QuestPrototype(object):
         #TODO: implement
         from ..heroes.prototypes import EXPERIENCE_VALUES
         cur_action.hero.add_experience(EXPERIENCE_VALUES.FOR_QUEST)
-        cur_action.hero.push_message(msg_generator.msg_quests_get_reward(cur_action.hero))
+        cur_action.hero.add_message('quests_get_reward', hero=cur_action.hero)
 
     def cmd_quest(self, cmd, cur_action):
         # TODO: move to quest generator environment

@@ -1,5 +1,4 @@
 # coding: utf-8
-from ...heroes.hmessages import generator as msg_generator
 
 from ..prototypes import AbilityPrototype
 
@@ -23,7 +22,7 @@ class HealHero(AbilityPrototype):
     def use(self, bundle, angel, hero, form):
         old_health = hero.health
         hero.health = min(hero.max_health, hero.health + hero.max_health * 0.3)
-        hero.push_message(msg_generator.msg_ability_healhero_activate(hero, hero.health - old_health))
+        hero.add_message('angel_ability_healhero', hero=hero, health=(hero.health-old_health))
         return True
 
 

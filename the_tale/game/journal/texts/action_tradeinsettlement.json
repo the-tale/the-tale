@@ -1,0 +1,24 @@
+{
+    "description": "",
+    "prefix": "action_tradeinsettlement",
+    "types": {
+        "start": {
+            "description": "",
+            "variables": ["hero"],
+            "phrases": [
+                "Люд говорит, что сегодня ярмарка, надо бы её навестить",
+                "Пора заняться комерцией",
+                "Ой, мне кажется этот торговец смотрит на меня, надо бежать"
+            ]
+        },
+        "sell_item": {
+            "description": "",
+            "variables": ["hero", "artifact", "coins"],
+            "phrases": [
+                "Всего %(coins)s монет за [[artifact|в.п.]]?! Да они издеваются!",
+                "Отличная цена за [[artifact|в.п.]]. Положил %(coins)s монет в кошелёк.",
+                "Глупый торговец, отдал %(coins)s монет за какой-то [[artifact|в.п.]]"
+            ]
+        }
+    }
+}

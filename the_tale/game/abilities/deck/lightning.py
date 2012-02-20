@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from ...heroes.hmessages import generator as msg_generator
 from ...actions.prototypes import ActionBattlePvE_1x1Prototype
 
 from ..prototypes import AbilityPrototype
@@ -31,7 +30,7 @@ class Lightning(AbilityPrototype):
         if not battle_action.bit_mob(0.3):
             return False
 
-        hero.push_message(msg_generator.msg_ability_lightning_activate(hero, battle_action.mob))
+        hero.add_message('angel_ability_lightning', hero=hero, mob=battle_action.mob)
 
         return True
 

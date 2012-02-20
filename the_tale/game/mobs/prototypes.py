@@ -4,6 +4,8 @@ import random
 
 from dext.utils import s11n
 
+from game.journal.template import FakeFormatter
+
 from ..heroes.prototypes import BASE_ATTRIBUTES
 from ..heroes.habilities import AbilitiesPrototype
 
@@ -30,6 +32,9 @@ class MobPrototype(object):
     def get_loot(self):
         from ..artifacts.constructors import ArtifactConstructorPrototype
         return ArtifactConstructorPrototype.generate_loot(self.loot_list, self.level)
+
+    def get_formatter(self):
+        return FakeFormatter(self.name)
 
     def serialize(self):
         return s11n.to_json({'name': self.name,

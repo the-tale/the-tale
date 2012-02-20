@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from ...actions.prototypes import ActionIdlenessPrototype
-from ...heroes.hmessages import generator as msg_generator
 
 from ..prototypes import AbilityPrototype
 
@@ -32,7 +31,7 @@ class GetQuest(AbilityPrototype):
         if not idleness_action.init_quest():
             return False
 
-        hero.push_message(msg_generator.msg_ability_getquest_activate(hero))
+        hero.add_message('angel_ability_getquest', hero=hero)
 
         return True
 

@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from ...heroes.hmessages import generator as msg_generator
 from ...actions.prototypes import ActionMoveToPrototype
 
 from ..prototypes import AbilityPrototype
@@ -31,7 +30,7 @@ class ShortTeleport(AbilityPrototype):
         if not move_action.short_teleport(3):
             return False
 
-        hero.push_message(msg_generator.msg_ability_shortteleport_activate(hero))
+        hero.add_message('angel_ability_shortteleport', hero=hero)
 
         return True
 
