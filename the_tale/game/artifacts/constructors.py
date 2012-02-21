@@ -17,6 +17,12 @@ class ArtifactConstructorPrototype(object):
     def name(self): return self.model.name
 
     @property
+    def name_forms(self):
+        if not hasattr(self, '_name_forms'):
+            self._name_forms = self.model.name_forms.split('|')
+        return self._name_forms
+
+    @property
     def item_type(self): return self.model.item_type
 
     @property
@@ -30,6 +36,7 @@ class ArtifactConstructorPrototype(object):
         artifact = ArtifactPrototype(tp=self.item_type, equip_type=self.equip_type, quest=quest)
 
         artifact.set_name(self.name)
+        artifact.set_name_forms(self.name_forms)
         artifact.set_cost(basic_points + 1)
 
         power, points_spent = self.generate_power(basic_points)

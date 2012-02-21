@@ -43,4 +43,5 @@ class Command(BaseCommand):
                 ArtifactConstructor.objects.create(uuid=uuid,
                                                    item_type=ITEM_TYPE_STR_2_ID[data['item_type']],
                                                    equip_type=EQUIP_TYPE_STR_2_ID[data['equip_type']],
-                                                   name=data['name'])
+                                                   name=data['name'],
+                                                   name_forms='|'.join(data['name_forms']) )

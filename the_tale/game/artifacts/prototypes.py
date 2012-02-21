@@ -2,7 +2,7 @@
 
 from .models import EQUIP_TYPE
 
-from game.journal.template import FakeFormatter
+from game.journal.template import NounFormatterRu
 
 class ArtifactPrototype(object):
 
@@ -29,6 +29,9 @@ class ArtifactPrototype(object):
     def set_name(self, name):
         self.name = name
 
+    def set_name_forms(self, name_forms):
+        self.name_forms = name_forms
+
     def set_cost(self, cost):
         self.cost = cost
         
@@ -45,12 +48,13 @@ class ArtifactPrototype(object):
         self.basic_points_spent = points
 
     def get_formatter(self):
-        return FakeFormatter(self.name)
+        return NounFormatterRu(data=self.name_forms)
 
     def deserialize(self, data):
         self.type = data.get('type', None)
         self.equip_type = data.get('equip_type', None)
         self.name = data.get('name', '')
+        self.name_forms = data.get('name_forms', [self.name, self.name, self.name, self.name, self.name, self.name, ])
         self.cost = data.get('cost', 0)
         self.quest = data.get('quest', False)
         self.power = data.get('power', 1)
@@ -65,6 +69,7 @@ class ArtifactPrototype(object):
         return {'type': self.type,
                 'equip_type': self.equip_type,
                 'name': self.name,
+                'name_forms': self.name_forms,
                 'cost': self.cost,
                 'power': self.power,
                 'quest': self.quest,

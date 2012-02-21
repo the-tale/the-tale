@@ -1,5 +1,6 @@
 {
-    "item_type": "armor",
-    "equip_type": "useless",
-    "name": "шкура волка"
+    "item_type": "useless",
+    "equip_type": "none",
+    "name": "шкура волка",
+    "name_forms": ["шкура волка", "шкуры волка", "шкуре волка", "шкуру волка", "шкурой волка", "шкуре волка"]
 }

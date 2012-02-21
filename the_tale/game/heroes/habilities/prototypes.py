@@ -1,6 +1,6 @@
 #coding: utf-8
 
-from game.journal.template import FakeFormatter
+from game.journal.template import NounFormatterRu
 
 class ABILITY_TYPE:
     BATTLE = 'battle'
@@ -26,10 +26,12 @@ class AbilityPrototype(object):
     PRIORITY = None
 
     NAME = u''
+    NAME_FORMS = [u'', u'', u'', u'', u'', u'']
     DESCRIPTIN = u''
+    
 
     def get_formatter(self):
-        return FakeFormatter(self.NAME)
+        return NounFormatterRu(data=self.NAME_FORMS)
 
     @classmethod
     def get_id(cls): return cls.__name__.lower()
@@ -47,6 +49,7 @@ class Hit(AbilityPrototype):
     PRIORITY = 100
 
     NAME = u'Удар'
+    NAME_FORMS = [u'удар', u'удара', u'удару', u'удар', u'ударом', u'ударе']
     DESCRIPTION = u'Каждый уважающий себя герой должен быть в состоянии ударить противника, или пнуть.'
 
     @classmethod
@@ -64,6 +67,7 @@ class MagicMushroom(AbilityPrototype):
     PRIORITY = 10
 
     NAME = u'Волшебный гриб'
+    NAME_FORMS = [u'волшебный гриб', u'волшебного гриба', u'волшебному грибу', u'волшебный гриб', u'волшебным грибом', u'волшебном грибе']
     DESCRIPTION = u'Находясь в бою, герой может силой своей могучей воли вырастить волшебный гриб, съев который, некоторое время станет наносить увеличеный урон противникам.'
 
     DAMAGE_FACTORS = [3, 2.5, 2, 1.5]
@@ -82,6 +86,7 @@ class Sidestep(AbilityPrototype):
     PRIORITY = 10
 
     NAME = u'Шаг в сторону'
+    NAME_FORMS = [u'шаг в сторону', u'шага в сторону', u'шагу в сторону', u'шаг в сторону', u'шагом в сторону', u'шаге в сторону']
     DESCRIPTION = u'Герой быстро меняет свою позицию, дезариентируя противника из-за чего тот начнёт промахиваться по герою.'
 
     MISS_PROBABILITIES = [0.8, 0.6, 0.4, 0.2]
@@ -99,8 +104,8 @@ class RunUpPush(AbilityPrototype):
     LOGIC_TYPE = ABILITIES_LOGIC_TYPE.WITH_CONTACT
     PRIORITY = 10
 
-
     NAME = u'Разбег-толчок'
+    NAME_FORMS = [u'разбег-толчок', u'разбега-толчка', u'разбегу-толчку', u'разбег-толчок', u'разбегом-толчком', u'разбеге-точке']
     DESCRIPTION = u'Герой разбегается и наносит урон противнику. Существует вероятность, что противник будет оглушён и пропустит следующую атаку.'
 
     STUN_LENGTH = 3
@@ -121,6 +126,7 @@ class Regeneration(AbilityPrototype):
     PRIORITY = 10
 
     NAME = u'Регенерация'
+    NAME_FORMS = [u'регенерация', u'регенерации', u'регенерации', u'регенерацию', u'регенерацией', u'регенерации']
     DESCRIPTION = u'Во время боя герой может восстановить часть своего здоровья'
 
     RESTORED_PERCENT = 0.4
