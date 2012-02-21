@@ -193,7 +193,7 @@ class QuestPrototype(object):
         #TODO: implement
         from ..heroes.prototypes import EXPERIENCE_VALUES
         cur_action.hero.add_experience(EXPERIENCE_VALUES.FOR_QUEST)
-        cur_action.hero.add_message('quests_get_reward', hero=cur_action.hero)
+        cur_action.hero.add_message('action_quest_get_reward', hero=cur_action.hero)
 
     def cmd_quest(self, cmd, cur_action):
         # TODO: move to quest generator environment

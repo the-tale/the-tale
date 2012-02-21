@@ -28,6 +28,8 @@ class Actor(object):
     @property
     def max_health(self): return self.actor.max_health
 
+    def get_formatter(self): return self.actor.get_formatter()
+
     def change_health(self, value):
         result = self.actor.health + value
         self.actor.health = int(min(self.actor.health + value, self.actor.max_health))
@@ -68,7 +70,7 @@ def strike(attacker, defender, messanger):
     attacker.context.on_own_turn()
 
     if attacker.context.is_stunned:
-        messanger.add_message('action_battlepve1x1_battle_stun', attacker=attacker)
+        messanger.add_message('action_battlepve1x1_battle_stun', actor=attacker)
         return
 
     ability = attacker.choose_ability(defender)

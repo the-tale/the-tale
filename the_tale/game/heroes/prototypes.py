@@ -248,7 +248,8 @@ class HeroPrototype(object):
         args = {}
         for k, v in kwargs.items():
             args[k] = v.get_formatter() if hasattr(v, 'get_formatter') else v
-        self.push_message(PhrasePrototype.get_random(type_).substitute(**args))
+        msg = PhrasePrototype.get_random(type_).substitute(**args)
+        self.push_message(msg)
 
     ###########################################
     # Object operations

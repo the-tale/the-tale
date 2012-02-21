@@ -439,7 +439,7 @@ class ActionMoveToPrototype(ActionPrototype):
             else:
 
                 if random.uniform(0, 1) < 0.33:
-                    self.hero.add_message('msg_action_moveto_move', 
+                    self.hero.add_message('action_moveto_move', 
                                           hero=self.hero, 
                                           destination=self.destination, 
                                           current_destination=self.current_destination)
@@ -545,9 +545,9 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                     bag_uuid = self.hero.put_loot(loot)
 
                     if bag_uuid:
-                        self.hero.add_message('action_battlepve1x1_put_loot', hero=self.hero, loot=loot)
+                        self.hero.add_message('action_battlepve1x1_put_loot', hero=self.hero, artifact=loot)
                     else:
-                        self.hero.add_message('action_battlepve1x1_put_loot_no_space', hero=self.hero, loot=loot)
+                        self.hero.add_message('action_battlepve1x1_put_loot_no_space', hero=self.hero, artifact=loot)
 
                 self.percents = 1.0
                 self.state = self.STATE.PROCESSED
