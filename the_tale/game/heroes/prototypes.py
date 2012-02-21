@@ -9,7 +9,7 @@ from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
 from game.journal.prototypes import PhrasePrototype
-from game.journal.template import FakeFormatter
+from game.journal.template import NounFormatterRu
 
 from ..game_info import RACE_CHOICES
 from .. import names
@@ -149,7 +149,7 @@ class HeroPrototype(object):
         return self._equipment
 
     def get_formatter(self):
-        return FakeFormatter(self.name)
+        return NounFormatterRu(data=[self.name, u'героя', u'герою', u'героя', u'героем', u'герое'])
 
     ###########################################
     # Secondary attributes
@@ -249,6 +249,7 @@ class HeroPrototype(object):
         for k, v in kwargs.items():
             args[k] = v.get_formatter() if hasattr(v, 'get_formatter') else v
         msg = PhrasePrototype.get_random(type_).substitute(**args)
+        # print msg
         self.push_message(msg)
 
     ###########################################

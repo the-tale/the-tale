@@ -47,8 +47,13 @@ class Command(BaseCommand):
                     variables = frozenset(type_['variables'])
                     for phrase in type_['phrases']:
                         template = Template(phrase)
+
+                        if not template.check_arguments([u'и.п.', u'р.п.', u'д.п.', u'в.п.', u'т.п.', u'п.п.']):
+                            print 'type: "%s", phrase: "%s" has wrong arguments' % (suffix, phrase)
+                            raise Exception('error')
+
                         if frozenset(template.reserved_ids) - variables:
-                            # print 'type: "%s", phrase: "%s" has wrong variables set' % (suffix, phrase)
-                            raise Exception('type: "%s", phrase: "%s" has wrong variables set' % (suffix, phrase) )
+                            print 'type: "%s", phrase: "%s" has wrong variables set' % (suffix, phrase)
+                            raise Exception('error')
 
                         Phrase.objects.create(type=phrase_key, template=phrase)

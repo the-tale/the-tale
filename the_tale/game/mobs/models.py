@@ -23,6 +23,8 @@ class MobConstructor(models.Model):
 
     loot_list = models.TextField(null=False, default='[]')
 
+    name_forms = models.TextField(null=False, default='')
+
     terrain = models.CharField(max_length=1, 
                                default=TERRAIN.GRASS, 
                                choices=TERRAIN_CHOICES, 

@@ -1,5 +1,6 @@
 {
     "name": "скорпион",
+    "name_forms": ["скорпион", "скорпиона", "скорпиону", "скорпиона", "скорпионом", "скорпионе"],
     "health_relative_to_hero": 0.3,
     "initiative": 5,
     "power_per_level": 1,

@@ -50,6 +50,7 @@ class Command(BaseCommand):
                     
                 MobConstructor.objects.create( uuid=uuid,
                                                name=data['name'],
+                                               name_forms='|'.join(data['name_forms']),
                                                health_relative_to_hero=data['health_relative_to_hero'],
                                                initiative=data['initiative'],
                                                power_per_level=data['power_per_level'],

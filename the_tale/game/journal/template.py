@@ -42,6 +42,21 @@ class FakeFormatter(BaseFormatter):
 
     def get_property(self, name, default=''):
         return default
+
+
+class NounFormatterRu(BaseFormatter):
+    
+    def __init__(self, data=[]):
+        real_data = {u'и.п.': data[0],
+                     u'р.п.': data[1],
+                     u'д.п.': data[2],
+                     u'в.п.': data[3],
+                     u'т.п.': data[4],
+                     u'п.п.': data[5]}
+        super(NounFormatterRu, self).__init__(data=real_data)
+
+    def get_property(self, name, default=''):
+        return default
     
 
 
@@ -97,3 +112,14 @@ class Template(object):
                 replacements[k] = v
 
         return self.template % replacements
+
+
+    def check_arguments(self, accepted_args):
+        
+        for external_id, str_id, args in self.externals:
+            args_list = args.split(';')
+            for arg in args_list:
+                if arg not in accepted_args:
+                    return False
+
+        return True

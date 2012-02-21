@@ -42,7 +42,13 @@ class MobConstructorPrototype(object):
         if not hasattr(self, '_loot_list'):
             self._loot_list = s11n.from_json(self.model.loot_list)
         return self._loot_list
-    
+
+    @property
+    def name_forms(self):
+        if not hasattr(self, '_name_forms'):
+            self._name_forms = self.model.name_forms.split('|')
+        return self._name_forms
+
     ################################
     # object methods
     ################################
@@ -56,6 +62,7 @@ class MobConstructorPrototype(object):
     def generate_mob(self, hero):
         mob = MobPrototype.construct(level=hero.level, 
                                      NAME=self.name, 
+                                     NAME_FORMS=self.name_forms,
                                      HEALTH_RELATIVE_TO_HERO=self.health_relative_to_hero, 
                                      INITIATIVE=self.initiative,
                                      DAMAGE_DISPERSION=self.damage_dispersion,
