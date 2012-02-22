@@ -11,6 +11,7 @@ from ...conf import mobs_settings
 from ....heroes.habilities import ABILITIES
 from ....artifacts.models import ArtifactConstructor
 from ....map.places.models import TERRAIN_STR_2_ID
+from ....journal.template import GENDER_STR_2_ID
 
 
 class Command(BaseCommand):
@@ -51,6 +52,7 @@ class Command(BaseCommand):
                 MobConstructor.objects.create( uuid=uuid,
                                                name=data['name'],
                                                name_forms='|'.join(data['name_forms']),
+                                               gender=GENDER_STR_2_ID[data['gender']],
                                                health_relative_to_hero=data['health_relative_to_hero'],
                                                initiative=data['initiative'],
                                                power_per_level=data['power_per_level'],

@@ -154,10 +154,10 @@ class HeroPrototype(object):
     def get_formatter(self):
         if self.gender == GENDER.MASCULINE:
             return NounFormatter(data=[self.name, u'героя', u'герою', u'героя', u'героем', u'герое'],
-                                 gender=GENDER_ID_2_STR[self.gender])
+                                 gender=self.gender)
         elif self.gender == GENDER.FEMININE:
             return NounFormatter(data=[self.name, u'героини', u'героини', u'героиню', u'героиней', u'героине'],
-                                 gender=GENDER_ID_2_STR[self.gender])
+                                 gender=self.gender)
 
     ###########################################
     # Secondary attributes

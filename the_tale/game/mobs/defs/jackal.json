@@ -1,6 +1,7 @@
 {
     "name": "шакал",
     "name_forms": ["шакал", "шакала", "шакалу", "шакала", "шакалом", "шакале"],
+    "gender": "м.р.",
     "health_relative_to_hero": 0.4,
     "initiative": 5,
     "power_per_level": 1.5,

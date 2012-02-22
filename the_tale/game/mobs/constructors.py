@@ -17,6 +17,9 @@ class MobConstructorPrototype(object):
     def name(self): return self.model.name
 
     @property
+    def gender(self): return self.model.gender
+
+    @property
     def health_relative_to_hero(self): return self.model.health_relative_to_hero
 
     @property
@@ -63,6 +66,7 @@ class MobConstructorPrototype(object):
         mob = MobPrototype.construct(level=hero.level, 
                                      NAME=self.name, 
                                      NAME_FORMS=self.name_forms,
+                                     GENDER=self.gender,
                                      HEALTH_RELATIVE_TO_HERO=self.health_relative_to_hero, 
                                      INITIATIVE=self.initiative,
                                      DAMAGE_DISPERSION=self.damage_dispersion,

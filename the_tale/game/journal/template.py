@@ -63,14 +63,14 @@ class FakeFormatter(BaseFormatter):
 
 class NounFormatter(BaseFormatter):
     
-    def __init__(self, data=[], gender=u'м.р.'):
+    def __init__(self, data=[], gender=GENDER.MASCULINE):
         super(NounFormatter, self).__init__(data={u'и.п.': data[0],
                                                   u'р.п.': data[1],
                                                   u'д.п.': data[2],
                                                   u'в.п.': data[3],
                                                   u'т.п.': data[4],
                                                   u'п.п.': data[5]},
-                                            properties={u'род': gender})  
+                                            properties={u'род': GENDER_ID_2_STR[gender]})  
 
 
 class Template(object):

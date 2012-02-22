@@ -23,6 +23,9 @@ class ArtifactConstructorPrototype(object):
         return self._name_forms
 
     @property
+    def gender(self): return self.model.gender
+
+    @property
     def item_type(self): return self.model.item_type
 
     @property
@@ -38,6 +41,7 @@ class ArtifactConstructorPrototype(object):
         artifact.set_name(self.name)
         artifact.set_name_forms(self.name_forms)
         artifact.set_cost(basic_points + 1)
+        artifact.set_gender(self.gender)
 
         power, points_spent = self.generate_power(basic_points)
 
