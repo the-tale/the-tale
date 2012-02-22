@@ -1,4 +1,5 @@
 global-include *.py
+global-include *.sqlite
 global-include *.svg
 global-include *.json
 global-include *.js
