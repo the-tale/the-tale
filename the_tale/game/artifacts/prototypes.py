@@ -2,7 +2,7 @@
 
 from .models import EQUIP_TYPE
 
-from game.journal.template import NounFormatterRu
+from game.journal.template import NounFormatter
 
 class ArtifactPrototype(object):
 
@@ -48,7 +48,7 @@ class ArtifactPrototype(object):
         self.basic_points_spent = points
 
     def get_formatter(self):
-        return NounFormatterRu(data=self.name_forms)
+        return NounFormatter(data=self.name_forms)
 
     def deserialize(self, data):
         self.type = data.get('type', None)

@@ -1,6 +1,6 @@
 #coding: utf-8
 
-from game.journal.template import NounFormatterRu
+from game.journal.template import NounFormatter
 
 class ABILITY_TYPE:
     BATTLE = 'battle'
@@ -31,7 +31,7 @@ class AbilityPrototype(object):
     
 
     def get_formatter(self):
-        return NounFormatterRu(data=self.NAME_FORMS)
+        return NounFormatter(data=self.NAME_FORMS)
 
     @classmethod
     def get_id(cls): return cls.__name__.lower()

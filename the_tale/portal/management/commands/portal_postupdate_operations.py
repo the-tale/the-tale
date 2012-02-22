@@ -24,3 +24,16 @@ class Command(BaseCommand):
 
         subprocess.call(['./manage.py', 'mobs_refresh_database'])
 
+        print
+        print 'LOAD JOURNAL TEXTS'
+        print 
+
+        subprocess.call(['./manage.py', 'journal_refresh_database'])
+
+        print
+        print 'LOAD JOURNAL TEXTS'
+        print 
+
+        subprocess.call(['./manage.py', 'map_update_map'])            
+
+

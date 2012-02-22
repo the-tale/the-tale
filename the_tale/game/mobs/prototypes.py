@@ -4,7 +4,7 @@ import random
 
 from dext.utils import s11n
 
-from game.journal.template import NounFormatterRu
+from game.journal.template import NounFormatter
 
 from ..heroes.prototypes import BASE_ATTRIBUTES
 from ..heroes.habilities import AbilitiesPrototype
@@ -34,7 +34,7 @@ class MobPrototype(object):
         return ArtifactConstructorPrototype.generate_loot(self.loot_list, self.level)
 
     def get_formatter(self):
-        return NounFormatterRu(data=self.name_forms)
+        return NounFormatter(data=self.name_forms)
 
     def serialize(self):
         return s11n.to_json({'name': self.name,

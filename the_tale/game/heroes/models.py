@@ -6,6 +6,8 @@ from game.angels.models import Angel
 
 from game.game_info import RACE, RACE_CHOICES
 
+from game.journal.template import GENDER, GENDER_CHOICES
+
 class Hero(models.Model):
 
     angel = models.ForeignKey(Angel, related_name='heroes', default=None, null=True, blank=True)
@@ -14,6 +16,8 @@ class Hero(models.Model):
 
     #base
     name = models.CharField(max_length=150, null=False)
+
+    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER_CHOICES)
 
     race = models.IntegerField(choices=RACE_CHOICES, default=RACE.HUMAN)
 

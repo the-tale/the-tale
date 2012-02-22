@@ -31,7 +31,7 @@ class GetQuest(AbilityPrototype):
         if not idleness_action.init_quest():
             return False
 
-        hero.add_message('angel_ability_getquest', hero=hero)
+        hero.add_message('angel_ability_stimulate', hero=hero)
 
         return True
 

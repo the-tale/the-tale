@@ -9,7 +9,7 @@ from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
 from game.journal.prototypes import PhrasePrototype
-from game.journal.template import NounFormatterRu
+from game.journal.template import NounFormatter, GENDER_ID_2_STR, GENDER
 
 from ..game_info import RACE_CHOICES
 from .. import names
@@ -67,6 +67,9 @@ class HeroPrototype(object):
 
     @property
     def name(self): return self.model.name
+
+    @property
+    def gender(self): return self.model.gender
 
     @property
     def power(self): 
@@ -149,7 +152,12 @@ class HeroPrototype(object):
         return self._equipment
 
     def get_formatter(self):
-        return NounFormatterRu(data=[self.name, u'героя', u'герою', u'героя', u'героем', u'герое'])
+        if self.gender == GENDER.MASCULINE:
+            return NounFormatter(data=[self.name, u'героя', u'герою', u'героя', u'героем', u'герое'],
+                                 gender=GENDER_ID_2_STR[self.gender])
+        elif self.gender == GENDER.FEMININE:
+            return NounFormatter(data=[self.name, u'героини', u'героини', u'героиню', u'героиней', u'героине'],
+                                 gender=GENDER_ID_2_STR[self.gender])
 
     ###########################################
     # Secondary attributes
@@ -303,10 +311,13 @@ class HeroPrototype(object):
 
         race = random.choice(RACE_CHOICES)[0]
 
+        gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
+
         hero = Hero.objects.create(angel=angel.model,
+                                   gender=gender,
                                    race=race,
-                                   name=names.generator.get_name(race),
-                                   health=BASE_ATTRIBUTES.HEALTH,
+                                   name=names.generator.get_name(race, gender),
+                                   health=BASE_ATTRIBUTES.get_max_health(1),
                                    pos_place = start_place.model)
 
         hero = cls(model=hero)
