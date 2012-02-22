@@ -6,9 +6,9 @@
             "description": "",
             "variables": ["attacker", "defender", "damage"],
             "phrases": [
-                "[[attacker|и.п.]] [[attacker|род|поднатужился]] и [[attacker|род|нанес]] %(damage)d урона",
-                "Умелая подсечка и придорожный камень нанёс голове [[defender|р.п.]] %(damage)d урона",
-                "Аперкот и вокруг [[defender|р.п.]] летает %(damage)d звёздочек",
+                "[[attacker|и.п.]] [[attacker|род|поднатужился]] и [[attacker|род|нанес]] урон на %(damage)d HP",
+                "Умелая подсечка и придорожный камень нанёс голове [[defender|р.п.]] урон на %(damage)d HP",
+                "Аперкот и вокруг [[defender|р.п.]] взметнулись звёздочки, унося с собой %(damage)d HP",
                 "[[attacker|и.п.]] [[attacker|род|поцарапал]] [[defender|в.п.]] на %(damage)d HP",
                 "[[attacker|и.п.]] [[attacker|род|отошел]] в сторону и [[defender|и.п.]] с разбега [[defender|род|врезался]] в стену, потеряв %(damage)d HP",
                 "[[defender|и.п.]] [[defender|род|пропустил]] удар в живот и теперь страдает отсутствием %(damage)d HP"
@@ -32,7 +32,7 @@
             "description": "",
             "variables": ["attacker", "defender", "damage"],
             "phrases": [
-                "[[attacker|и.п.]] [[attacker|род|разбежался]] и [[attacker|род|впечатал]] [[defender|д.п.]] в дерево, нанеся %(damage)s урона"
+                "[[attacker|и.п.]] [[attacker|род|разбежался]] и [[attacker|род|впечатал]] [[defender|д.п.]] в дерево, [[defender|род|несчастный]] не [[defender|род|досчитался]] %(damage)s HP"
             ]
         },
         "regeneration": {
