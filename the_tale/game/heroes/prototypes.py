@@ -9,7 +9,7 @@ from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
 from game.journal.prototypes import PhrasePrototype
-from game.journal.template import NounFormatter, GENDER_ID_2_STR, GENDER
+from game.journal.template import NounFormatter, GENDER
 
 from ..game_info import RACE_CHOICES
 from .. import names

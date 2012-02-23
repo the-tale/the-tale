@@ -3,8 +3,7 @@ import random
 
 from dext.utils import s11n
 
-from game.journal.template import FakeFormatter
-
+from game.journal.template import FakeFormatter, GENDER
 from ... import names
 
 from .models import Place, PLACE_TYPE, RACE_TO_TERRAIN
@@ -78,10 +77,12 @@ class PlacePrototype(object):
 
         while persons_count < expected_persons_number:
             race = random.choice(RACE_CHOICES)[0]
+            gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
+
             PersonPrototype.create(place=self, 
                                    race=race,
                                    tp=random.choice(PERSON_TYPE_CHOICES)[0],
-                                   name=names.generator.get_name(race))
+                                   name=names.generator.get_name(race, gender))
             persons_count += 1
 
         persons = sorted(self.persons, key=lambda x: -x.power)
