@@ -6,11 +6,14 @@ from .exceptions import TextgenException
 
 class Args(object):
 
-    __slots__ = ('case', 'number')
+    __slots__ = ('case', 'number', 'gender', 'time', 'person')
 
     def __init__(self, *args):
         self.case = u'им'
         self.number = u'ед'
+        self.gender = u'мр'
+        self.time = u'нст'
+        self.person = u'1л'
         self.update(*args)
 
     def update(self, *args):
@@ -19,6 +22,17 @@ class Args(object):
                 self.case = arg
             elif arg in PROPERTIES.NUMBERS:
                 self.number = arg
+            elif arg in PROPERTIES.GENDERS:
+                self.gender = arg
+            elif arg in PROPERTIES.TIMES:
+                self.time = arg
+            elif arg in PROPERTIES.PERSONS:
+                self.time = arg
+
+    def __unicode__(self):
+        return '<%s, %s, %s, %s>' % (self.case, self.number, self.gender, self.time)
+
+    def __str__(self): return self.__unicode__()
 
     
 class Dictionary(object):
@@ -95,7 +109,7 @@ class Template(object):
             if isinstance(external, tuple):
                 normalized, additional_args = external
                 if additional_args:
-                    arguments += tuple(additional_args.split(u','))
+                    arguments += tuple(additional_args.split(u',')) #TODO: move split away?
             else:
                 normalized = external
                 
@@ -108,17 +122,21 @@ class Template(object):
         for internal_str, external_id, str_id, args in self.internals:
             arguments = args
             
-            external = externals[external_id]
+            # check for construction [[internal||args]]
+            external = externals[external_id] if external_id else None
 
             if isinstance(external, tuple):
                 normalized, additional_args = external
                 if additional_args:
-                    arguments += tuple(additional_args.split(u','))
-            # else:
-            #     normalized = external
+                    arguments += tuple(additional_args.split(u','))  #TODO: move split away?
+            else:
+                normalized = external
+
+            if normalized: 
+                arguments += dictionary.get_word(normalized).properties
 
             arguments = Args(*arguments)
-
+            
             data[str_id] = dictionary.get_word(internal_str).get_form(arguments)
 
 

@@ -8,12 +8,10 @@ class WordBase(object):
 
     TYPE = None
     
-    def __init__(self, forms, properties):
+    def __init__(self, normalized, forms, properties):
+        self.normalized = normalized
         self.forms = tuple(forms)
         self.properties = tuple(properties)
-
-    @property
-    def normalized(self): return self.forms[0]
 
     def get_form(self, args):
         raise NotImplemented
@@ -24,8 +22,12 @@ class WordBase(object):
     
     @classmethod
     def create_from_model(cls, model):
-        return cls(forms=model.forms.split('|'),
-                   properties=model.properties.split('|'))
+        properties = model.properties.split('|')
+        if properties == [u'']:
+            properties = ()
+        return cls(normalized=model.normalized,
+                   forms=model.forms.split('|'),
+                   properties=properties)
 
     def save_to_model(self):
         Word.objects.filter(normalized=self.normalized).delete()
@@ -75,4 +77,91 @@ class Noun(WordBase):
         else:
             properties = [u'жр']
 
-        return cls(forms=forms, properties=properties)
+        return cls(normalized=normalized.lower(), forms=forms, properties=properties)
+
+
+class Adjective(WordBase):
+
+    TYPE = WORD_TYPE.ADJECTIVE
+
+    def get_form(self, args):
+        if args.number == u'ед':
+            return self.forms[PROPERTIES.GENDERS.index(args.gender) * len(PROPERTIES.CASES) + PROPERTIES.CASES.index(args.case)]
+        else:
+            delta = len(PROPERTIES.CASES) * len(PROPERTIES.GENDERS)
+            return self.forms[delta + PROPERTIES.CASES.index(args.case)]
+
+    def pluralize(self, number, case):
+        raise NotImplemented
+
+    @classmethod
+    def create_from_baseword(cls, morph, src):
+        normalized = morph.normalize(src.upper())
+
+        if len(normalized) != 1:
+            raise TextgenException(u'can not determine type of word: %s' % src)
+
+        normalized = list(normalized)[0]
+
+        forms = []
+
+        # single
+        for gender in PROPERTIES.GENDERS:
+            for case in PROPERTIES.CASES:
+                forms.append(morph.inflect_ru(normalized, u'%s,%s,ед' % (case, gender) ).lower() )
+
+        #multiple
+        for case in PROPERTIES.CASES:
+            forms.append(morph.inflect_ru(normalized, u'%s,%s' % (case, u'мн') ).lower() )
+        
+        return cls(normalized=normalized.lower(), forms=forms, properties=[])
+
+
+class Verb(WordBase):
+
+    TYPE = WORD_TYPE.VERB
+
+    def get_form(self, args):
+        if args.time == u'прш':
+            if args.number == u'мн':
+                return self.forms[4]
+            else:
+                return self.forms[PROPERTIES.GENDERS.index(args.gender)]
+        elif args.time == u'нст':
+            delta = len(PROPERTIES.GENDERS) + 1
+            return self.forms[delta + len(PROPERTIES.NUMBERS) * PROPERTIES.PERSONS.index(args.person) + PROPERTIES.NUMBERS.index(args.number)]
+        elif args.time == u'буд':
+            delta = len(PROPERTIES.GENDERS) + 1 + len(PROPERTIES.NUMBERS) * PROPERTIES.PERSONS.index(args.person)
+            return self.forms[delta + len(PROPERTIES.NUMBERS) * PROPERTIES.PERSONS.index(args.person) + PROPERTIES.NUMBERS.index(args.number)]
+
+    def pluralize(self, number, case):
+        raise NotImplemented
+
+    @classmethod
+    def create_from_baseword(cls, morph, src):
+        normalized = morph.normalize(src.upper())
+
+        base = morph.inflect_ru(src.upper(), u'ед,мр', u'Г')
+
+        if len(normalized) != 1:
+            raise TextgenException(u'can not determine type of word: %s' % src)
+        normalized = list(normalized)[0]
+
+        forms = [morph.inflect_ru(base, u'прш,мр,ед').lower(),
+                 morph.inflect_ru(base, u'прш,жр,ед').lower(),
+                 morph.inflect_ru(base, u'прш,ср,ед').lower(),
+                 morph.inflect_ru(base, u'прш,мн').lower(),
+                 morph.inflect_ru(base, u'нст,1л,ед').lower(),
+                 morph.inflect_ru(base, u'нст,1л,мн').lower(),
+                 morph.inflect_ru(base, u'нст,2л,ед').lower(),
+                 morph.inflect_ru(base, u'нст,2л,мн').lower(),
+                 morph.inflect_ru(base, u'нст,3л,ед').lower(),
+                 morph.inflect_ru(base, u'нст,3л,мн').lower(),
+                 morph.inflect_ru(base, u'буд,1л,ед').lower(),
+                 morph.inflect_ru(base, u'буд,1л,мн').lower(),
+                 morph.inflect_ru(base, u'буд,2л,ед').lower(),
+                 morph.inflect_ru(base, u'буд,2л,мн').lower(),
+                 morph.inflect_ru(base, u'буд,3л,ед').lower(),
+                 morph.inflect_ru(base, u'буд,3л,мн').lower()]
+
+        return cls(normalized=normalized.lower(), forms=forms, properties=[])

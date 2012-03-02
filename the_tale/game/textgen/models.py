@@ -6,14 +6,19 @@ class PROPERTIES:
     CASES = (u'им', u'рд', u'дт', u'вн', u'тв', u'пр')
     ANIMACYTIES = (u'од', u'но')
     NUMBERS = (u'ед', u'мн')
-    GENDERS = (u'жр', u'ср', u'мр')
+    GENDERS = (u'мр', u'жр', u'ср')
     TIMES = (u'нст', u'прш', u'буд')
+    PERSONS = (u'1л', u'2л', u'3л')
 
 
 class WORD_TYPE:
     NOUN = 1
+    ADJECTIVE = 2
+    VERB = 3
 
-WORD_TYPE_CHOICES = ( (WORD_TYPE.NOUN, u'существительное'), )
+WORD_TYPE_CHOICES = ( (WORD_TYPE.NOUN, u'существительное'),
+                      (WORD_TYPE.ADJECTIVE, u'прилагательное'),
+                      (WORD_TYPE.VERB, u'глагол') )
 
 
 class Word(models.Model):
