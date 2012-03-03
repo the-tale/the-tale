@@ -30,6 +30,42 @@ class NounTest(TestCase):
                                       u'обезьянками',
                                       u'обезьянках'))
 
+    def test_pluralize(self):
+        noun = Noun.create_from_baseword(morph, u'монеты')
+        self.assertEqual(noun.normalized, u'монета')
+        self.assertEqual(noun.pluralize(1, Args()), u'монета')
+        self.assertEqual(noun.pluralize(2, Args()), u'монеты')
+        self.assertEqual(noun.pluralize(3, Args()), u'монеты')
+        self.assertEqual(noun.pluralize(5, Args()), u'монет')
+        self.assertEqual(noun.pluralize(10, Args()), u'монет')
+        self.assertEqual(noun.pluralize(11, Args()), u'монет')
+        self.assertEqual(noun.pluralize(12, Args()), u'монет')
+        self.assertEqual(noun.pluralize(21, Args()), u'монета')
+        self.assertEqual(noun.pluralize(33, Args()), u'монеты')
+        self.assertEqual(noun.pluralize(36, Args()), u'монет')
+
+        self.assertEqual(noun.pluralize(1, Args(u'дт')), u'монете')
+        self.assertEqual(noun.pluralize(2, Args(u'дт')), u'монетам')
+        self.assertEqual(noun.pluralize(3, Args(u'дт')), u'монетам')
+        self.assertEqual(noun.pluralize(5, Args(u'дт')), u'монетам')
+        self.assertEqual(noun.pluralize(10, Args(u'дт')), u'монетам')
+        self.assertEqual(noun.pluralize(11, Args(u'дт')), u'монетам')
+        self.assertEqual(noun.pluralize(12, Args(u'дт')), u'монетам')
+        self.assertEqual(noun.pluralize(21, Args(u'дт')), u'монете')
+        self.assertEqual(noun.pluralize(33, Args(u'дт')), u'монетам')
+        self.assertEqual(noun.pluralize(36, Args(u'дт')), u'монетам')
+
+        self.assertEqual(noun.pluralize(1, Args(u'тв')), u'монетой')
+        self.assertEqual(noun.pluralize(2, Args(u'тв')), u'монетами')
+        self.assertEqual(noun.pluralize(3, Args(u'тв')), u'монетами')
+        self.assertEqual(noun.pluralize(5, Args(u'тв')), u'монетами')
+        self.assertEqual(noun.pluralize(10, Args(u'тв')), u'монетами')
+        self.assertEqual(noun.pluralize(11, Args(u'тв')), u'монетами')
+        self.assertEqual(noun.pluralize(12, Args(u'тв')), u'монетами')
+        self.assertEqual(noun.pluralize(21, Args(u'тв')), u'монетой')
+        self.assertEqual(noun.pluralize(33, Args(u'тв')), u'монетами')
+        self.assertEqual(noun.pluralize(36, Args(u'тв')), u'монетами')
+
     def test_get_form(self):
         noun = Noun.create_from_baseword(morph, u'обезьянками')
         self.assertEqual(noun.get_form(Args(u'рд', u'мн')), u'обезьянок')

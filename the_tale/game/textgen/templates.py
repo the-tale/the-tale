@@ -1,39 +1,8 @@
 # coding: utf-8
 import re
 
-from .models import PROPERTIES
 from .exceptions import TextgenException
-
-class Args(object):
-
-    __slots__ = ('case', 'number', 'gender', 'time', 'person')
-
-    def __init__(self, *args):
-        self.case = u'им'
-        self.number = u'ед'
-        self.gender = u'мр'
-        self.time = u'нст'
-        self.person = u'1л'
-        self.update(*args)
-
-    def update(self, *args):
-        for arg in args:
-            if arg in PROPERTIES.CASES:
-                self.case = arg
-            elif arg in PROPERTIES.NUMBERS:
-                self.number = arg
-            elif arg in PROPERTIES.GENDERS:
-                self.gender = arg
-            elif arg in PROPERTIES.TIMES:
-                self.time = arg
-            elif arg in PROPERTIES.PERSONS:
-                self.time = arg
-
-    def __unicode__(self):
-        return '<%s, %s, %s, %s>' % (self.case, self.number, self.gender, self.time)
-
-    def __str__(self): return self.__unicode__()
-
+from .words import Args
     
 class Dictionary(object):
 

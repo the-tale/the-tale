@@ -3,6 +3,39 @@
 from .models import Word, WORD_TYPE, PROPERTIES
 from .exceptions import TextgenException
 
+class Args(object):
+
+    __slots__ = ('case', 'number', 'gender', 'time', 'person')
+
+    def __init__(self, *args):
+        self.case = u'им'
+        self.number = u'ед'
+        self.gender = u'мр'
+        self.time = u'нст'
+        self.person = u'1л'
+        self.update(*args)
+
+    def get_copy(self):
+        return self.__class__(self.case, self.number, self.gender, self.time, self.person)
+
+    def update(self, *args):
+        for arg in args:
+            if arg in PROPERTIES.CASES:
+                self.case = arg
+            elif arg in PROPERTIES.NUMBERS:
+                self.number = arg
+            elif arg in PROPERTIES.GENDERS:
+                self.gender = arg
+            elif arg in PROPERTIES.TIMES:
+                self.time = arg
+            elif arg in PROPERTIES.PERSONS:
+                self.time = arg
+
+    def __unicode__(self):
+        return '<%s, %s, %s, %s>' % (self.case, self.number, self.gender, self.time)
+
+    def __str__(self): return self.__unicode__()
+
 
 class WordBase(object):
 
@@ -14,6 +47,10 @@ class WordBase(object):
         self.properties = tuple(properties)
 
     def get_form(self, args):
+        raise NotImplemented
+
+
+    def pluralize(self, number, args):
         raise NotImplemented
 
     @classmethod
@@ -47,8 +84,25 @@ class Noun(WordBase):
     def get_form(self, args):
         return self.forms[PROPERTIES.NUMBERS.index(args.number) * len(PROPERTIES.CASES) + PROPERTIES.CASES.index(args.case)]
 
-    def pluralize(self, number, case):
-        raise NotImplemented
+    def pluralize(self, number, args):
+
+        if number % 10 == 1 and number != 11:
+            new_args = args.get_copy()
+            new_args.update(u'ед')
+        elif 2 <= number % 10 <= 4 and not (12 <= number <= 14):
+            new_args = args.get_copy()
+            if args.case == u'им':
+                new_args.update(u'ед')
+                new_args.update(u'рд')
+            else:
+                new_args.update(u'мн')
+        else:
+            new_args = args.get_copy()
+            new_args.update(u'мн')
+            if args.case == u'им':
+                new_args.update(u'рд')
+
+        return self.get_form(new_args)
 
     @classmethod
     def create_from_baseword(cls, morph, src):
