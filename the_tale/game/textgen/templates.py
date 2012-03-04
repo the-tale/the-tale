@@ -1,5 +1,6 @@
 # coding: utf-8
 import re
+#import numbers
 
 from .exceptions import TextgenException
 from .words import Args
@@ -18,8 +19,11 @@ class Dictionary(object):
 
 class Template(object):
 
-    EXTERNAL_REGEX = re.compile(u'\[\[[^\]]+\|[^\]]+\]\]', re.UNICODE)
-    INTERNAL_REGEX = re.compile(u'\[\{[^\]]+\|[^\]]+\}\]', re.UNICODE)
+    # [[external_id|arguments]]
+    EXTERNAL_REGEX = re.compile(u'\[\[[^\]]+\]\]', re.UNICODE)
+
+    # [{internal_id|external_id|arguments}]
+    INTERNAL_REGEX = re.compile(u'\[\{[^\]]+\}\]', re.UNICODE)
 
     def __init__(self, template, externals, internals):
         self.template = template
@@ -34,22 +38,25 @@ class Template(object):
         internals = []
         
         for i, external_macros in enumerate(external_macroses):
-            external_id, args = external_macros[2:-2].split('|')
+            external_arguments = external_macros[2:-2].split('|')
+
+            external_id = external_arguments[0]
+            args = external_arguments[-1]
+            dependences = external_arguments[1:-1]
+
             str_id = 'e_%d' % i
             src = src.replace(external_macros, '%%(%s)s' % str_id)
-            externals.append((external_id, str_id, tuple(args.split(u','))))
+
+            externals.append((external_id, dependences, str_id, tuple(args.split(u','))))
 
         internal_macroses = cls.INTERNAL_REGEX.findall(src)
 
         for i, internal_macros in enumerate(internal_macroses):
-            data = internal_macros[2:-2].split('|')
-            
-            if len(data) == 2:
-                internal_str, external_id = data
-                args = ()
-            else:
-                internal_str, external_id, args = data
-                args = tuple(args.split(u','))
+            internal_arguments = internal_macros[2:-2].split('|')
+
+            internal_str = internal_arguments[0]
+            args = internal_arguments[-1]
+            dependences = internal_arguments[1:-1]
 
             str_id = 'i_%d' % i
             src = src.replace(internal_macros, '%%(%s)s' % str_id)
@@ -61,55 +68,64 @@ class Template(object):
 
             normalized = list(normalized)[0].lower()
 
-            internals.append((normalized, external_id, str_id, args))
+            internals.append((normalized, dependences, str_id, tuple(args.split(u','))))
 
         return cls(src, externals, internals)
 
 
     def substitute(self, dictionary, externals):
 
-        data = {}
-        
-        for external_id, str_id, args in self.externals:
-            arguments = args
+        substitutions = {}
+        processed_externals = {}
 
-            external = externals[external_id]
-
+        for external_id, external in externals.items():
+            additional_args = ()
             if isinstance(external, tuple):
                 normalized, additional_args = external
-                if additional_args:
-                    arguments += tuple(additional_args.split(u',')) #TODO: move split away?
+                additional_args = additional_args.split(u',')
             else:
                 normalized = external
-                
-            arguments = Args(*arguments)
 
-            data[str_id] = dictionary.get_word(normalized).get_form(arguments)
+            word = dictionary.get_word(normalized)
+
+            arguments = Args(*word.properties)    
+            arguments.update(*additional_args)
+            
+            processed_externals[external_id] = (word, arguments)
 
             
+        for external_id, dependences, str_id, args in self.externals:
+
+            word, arguments = processed_externals[external_id]
+
+            arguments = arguments.get_copy()
+
+            for dependence in dependences:
+                dependence_word, dependence_args = processed_externals[dependence]
+                word.update_args(arguments, dependence_word.__class__, dependence_args)
+
+            arguments.update(*args)
+
+            substitutions[str_id] = word.get_form(arguments)
+
         # TODO: remove copy-past parts
-        for internal_str, external_id, str_id, args in self.internals:
-            arguments = args
+        for internal_str, dependences, str_id, args in self.internals:
+
+            word = dictionary.get_word(internal_str)
+
+            arguments = Args()
+
+            for dependence in dependences:
+                dependence_word, dependence_args = processed_externals[dependence]
+                word.update_args(arguments, dependence_word.__class__, dependence_args)
+
+            arguments.update(*args)
             
-            # check for construction [[internal||args]]
-            external = externals[external_id] if external_id else None
 
-            if isinstance(external, tuple):
-                normalized, additional_args = external
-                if additional_args:
-                    arguments += tuple(additional_args.split(u','))  #TODO: move split away?
-            else:
-                normalized = external
-
-            if normalized: 
-                arguments += dictionary.get_word(normalized).properties
-
-            arguments = Args(*arguments)
-            
-            data[str_id] = dictionary.get_word(internal_str).get_form(arguments)
+            substitutions[str_id] = word.get_form(arguments)
 
 
-        return self.template % data
+        return self.template % substitutions
 
     @classmethod
     def from_source(cls, src):

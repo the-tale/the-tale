@@ -32,7 +32,7 @@ class Args(object):
                 self.time = arg
 
     def __unicode__(self):
-        return '<%s, %s, %s, %s>' % (self.case, self.number, self.gender, self.time)
+        return u'<%s, %s, %s, %s>' % (self.case, self.number, self.gender, self.time)
 
     def __str__(self): return self.__unicode__()
 
@@ -47,31 +47,34 @@ class WordBase(object):
         self.properties = tuple(properties)
 
     def get_form(self, args):
-        raise NotImplemented
+        raise NotImplementedError
 
 
     def pluralize(self, number, args):
-        raise NotImplemented
+        raise NotImplementedError
+
+    def update_args(self, arguments, dependence_class, dependence_args):
+        raise NotImplementedError
 
     @classmethod
     def create_from_baseword(cls, src):
-        raise NotImplemented
+        raise NotImplementedError
     
     @classmethod
     def create_from_model(cls, model):
-        properties = model.properties.split('|')
+        properties = model.properties.split(u'|')
         if properties == [u'']:
             properties = ()
         return cls(normalized=model.normalized,
-                   forms=model.forms.split('|'),
+                   forms=model.forms.split(u'|'),
                    properties=properties)
 
     def save_to_model(self):
         Word.objects.filter(normalized=self.normalized).delete()
         return Word.objects.create(normalized=self.normalized,
                                    type=self.TYPE,
-                                   forms='|'.join(self.forms),
-                                   properties='|'.join(self.properties))
+                                   forms=u'|'.join(self.forms),
+                                   properties=u'|'.join(self.properties))
 
 
 class Noun(WordBase):
@@ -104,6 +107,10 @@ class Noun(WordBase):
 
         return self.get_form(new_args)
 
+    def update_args(self, arguments, dependence_class, dependence_args):
+        if issubclass(dependence_class, Noun):
+            arguments.number = dependence_args.number
+
     @classmethod
     def create_from_baseword(cls, morph, src):
         normalized = morph.normalize(src.upper())
@@ -118,7 +125,7 @@ class Noun(WordBase):
         for number in PROPERTIES.NUMBERS:
             for case in PROPERTIES.CASES:
                 # print number, case, morph.inflect_ru(normalized, '%s,%s' % (case, number) ).lower()
-                forms.append(morph.inflect_ru(normalized, '%s,%s' % (case, number) ).lower() )
+                forms.append(morph.inflect_ru(normalized, u'%s,%s' % (case, number) ).lower() )
 
         gram_info = morph.get_graminfo(normalized)[0]
 
@@ -145,8 +152,11 @@ class Adjective(WordBase):
             delta = len(PROPERTIES.CASES) * len(PROPERTIES.GENDERS)
             return self.forms[delta + PROPERTIES.CASES.index(args.case)]
 
-    def pluralize(self, number, case):
-        raise NotImplemented
+    def update_args(self, arguments, dependence_class, dependence_args):
+        if issubclass(dependence_class, Noun):
+            arguments.number = dependence_args.number
+            arguments.gender = dependence_args.gender
+            arguments.case = dependence_args.case
 
     @classmethod
     def create_from_baseword(cls, morph, src):
@@ -189,7 +199,13 @@ class Verb(WordBase):
             return self.forms[delta + len(PROPERTIES.NUMBERS) * PROPERTIES.PERSONS.index(args.person) + PROPERTIES.NUMBERS.index(args.number)]
 
     def pluralize(self, number, case):
-        raise NotImplemented
+        raise NotImplementedError
+
+    def update_args(self, arguments, dependence_class, dependence_args):
+        if issubclass(dependence_class, Noun):
+            arguments.number = dependence_args.number
+            arguments.gender = dependence_args.gender
+
 
     @classmethod
     def create_from_baseword(cls, morph, src):

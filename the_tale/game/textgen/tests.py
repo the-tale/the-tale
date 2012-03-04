@@ -203,6 +203,11 @@ class TemplateTest(TestCase):
         template = Template.create(morph, u'[{тенью|hero|тв}] [[hero|рд]]')
         self.assertEqual(template.substitute(self.dictionary, {'hero': (u'обезьянка', u'мн')} ), u'тенями обезьянок')
 
+    def test_noun_dependences(self):
+        template = Template.create(morph, u'[[shadow|hero|тв]] [[hero|рд]]')
+        self.assertEqual(template.substitute(self.dictionary, {'hero': (u'обезьянка', u'мн'),
+                                                               'shadow': u'тень'} ), u'тенями обезьянок')
+
 
     def test_dependences(self):
         template = Template.create(morph, u'[{глупый|hero|рд}] [[hero|рд]]')        
@@ -211,5 +216,5 @@ class TemplateTest(TestCase):
         template = Template.create(morph, u'враг [{ударила|hero|буд}] [[hero|вн]]')        
         self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка'} ), u'враг ударит обезьянку')
 
-        template = Template.create(morph, u'крыса [{ударить||прш,жр}] [[hero|вн]]')        
+        template = Template.create(morph, u'крыса [{ударить|прш,жр}] [[hero|вн]]')        
         self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка'} ), u'крыса ударила обезьянку')
