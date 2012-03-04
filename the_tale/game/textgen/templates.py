@@ -1,9 +1,9 @@
 # coding: utf-8
 import re
-#import numbers
+import numbers
 
 from .exceptions import TextgenException
-from .words import Args
+from .words import Args, Numeral
     
 class Dictionary(object):
 
@@ -44,6 +44,8 @@ class Template(object):
             args = external_arguments[-1]
             dependences = external_arguments[1:-1]
 
+            if dependences == ['']: dependences = ()
+
             str_id = 'e_%d' % i
             src = src.replace(external_macros, '%%(%s)s' % str_id)
 
@@ -57,6 +59,8 @@ class Template(object):
             internal_str = internal_arguments[0]
             args = internal_arguments[-1]
             dependences = internal_arguments[1:-1]
+
+            if dependences == ['']: dependences = ()
 
             str_id = 'i_%d' % i
             src = src.replace(internal_macros, '%%(%s)s' % str_id)
@@ -73,9 +77,7 @@ class Template(object):
         return cls(src, externals, internals)
 
 
-    def substitute(self, dictionary, externals):
-
-        substitutions = {}
+    def _preprocess_externals(self, dictionary, externals):
         processed_externals = {}
 
         for external_id, external in externals.items():
@@ -86,43 +88,49 @@ class Template(object):
             else:
                 normalized = external
 
-            word = dictionary.get_word(normalized)
+            if isinstance(normalized, numbers.Number):
+                word = Numeral(normalized)
+                arguments = Args()
+            else:
+                word = dictionary.get_word(normalized)
+                arguments = Args(*word.properties)    
 
-            arguments = Args(*word.properties)    
             arguments.update(*additional_args)
             
             processed_externals[external_id] = (word, arguments)
 
+        return processed_externals
+
+    def _create_substitution(self, word, arguments, dependences, externals, args):
+        number = None
+
+        for dependence in dependences:
+            dependence_word, dependence_args = externals[dependence]
+            if isinstance(dependence_word, Numeral):
+                number = dependence_word
+            else:
+                word.update_args(arguments, dependence_word, dependence_args)
+
+        arguments.update(*args)
+
+        if number is not None:
+            word.update_args(arguments, number, arguments.get_copy())
+
+        return word.get_form(arguments)
+
+
+    def substitute(self, dictionary, externals):
+
+        substitutions = {}
+        processed_externals = self._preprocess_externals(dictionary, externals)
             
         for external_id, dependences, str_id, args in self.externals:
-
             word, arguments = processed_externals[external_id]
+            substitutions[str_id] = self._create_substitution(word, arguments.get_copy(), dependences, processed_externals, args)
 
-            arguments = arguments.get_copy()
-
-            for dependence in dependences:
-                dependence_word, dependence_args = processed_externals[dependence]
-                word.update_args(arguments, dependence_word.__class__, dependence_args)
-
-            arguments.update(*args)
-
-            substitutions[str_id] = word.get_form(arguments)
-
-        # TODO: remove copy-past parts
         for internal_str, dependences, str_id, args in self.internals:
-
             word = dictionary.get_word(internal_str)
-
-            arguments = Args()
-
-            for dependence in dependences:
-                dependence_word, dependence_args = processed_externals[dependence]
-                word.update_args(arguments, dependence_word.__class__, dependence_args)
-
-            arguments.update(*args)
-            
-
-            substitutions[str_id] = word.get_form(arguments)
+            substitutions[str_id] = self._create_substitution(word, Args(), dependences, processed_externals, args)
 
 
         return self.template % substitutions

@@ -15,10 +15,12 @@ class WORD_TYPE:
     NOUN = 1
     ADJECTIVE = 2
     VERB = 3
+    NUMERAL = 4
 
 WORD_TYPE_CHOICES = ( (WORD_TYPE.NOUN, u'существительное'),
                       (WORD_TYPE.ADJECTIVE, u'прилагательное'),
-                      (WORD_TYPE.VERB, u'глагол') )
+                      (WORD_TYPE.VERB, u'глагол'),
+                      (WORD_TYPE.NUMERAL, u'числительное') )
 
 
 class Word(models.Model):

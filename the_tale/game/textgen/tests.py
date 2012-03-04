@@ -208,6 +208,45 @@ class TemplateTest(TestCase):
         self.assertEqual(template.substitute(self.dictionary, {'hero': (u'обезьянка', u'мн'),
                                                                'shadow': u'тень'} ), u'тенями обезьянок')
 
+    def test_numeral_1_dependences(self):
+        template = Template.create(morph, u'[[number||]] [[hero|number|им]]')
+        self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка',
+                                                               'number': 1} ), u'1 обезьянка')
+
+        template = Template.create(morph, u'[[number||]] [[hero|number|рд]]')
+        self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка',
+                                                               'number': 1} ), u'1 обезьянки')
+
+        template = Template.create(morph, u'[[number||]] [[hero|number|дт]]')
+        self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка',
+                                                               'number': 1} ), u'1 обезьянке')
+
+    def test_numeral_2_dependences(self):
+        template = Template.create(morph, u'[[number||]] [[hero|number|им]]')
+        self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка',
+                                                               'number': 2} ), u'2 обезьянки')
+
+        template = Template.create(morph, u'[[number||]] [[hero|number|рд]]')
+        self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка',
+                                                               'number': 2} ), u'2 обезьянок')
+
+        template = Template.create(morph, u'[[number||]] [[hero|number|дт]]')
+        self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка',
+                                                               'number': 2} ), u'2 обезьянкам')
+
+    def test_numeral_5_dependences(self):
+        template = Template.create(morph, u'[[number||]] [[hero|number|им]]')
+        self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка',
+                                                               'number': 5} ), u'5 обезьянок')
+
+        template = Template.create(morph, u'[[number||]] [[hero|number|рд]]')
+        self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка',
+                                                               'number': 5} ), u'5 обезьянок')
+
+        template = Template.create(morph, u'[[number||]] [[hero|number|дт]]')
+        self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка',
+                                                               'number': 5} ), u'5 обезьянкам')
+
 
     def test_dependences(self):
         template = Template.create(morph, u'[{глупый|hero|рд}] [[hero|рд]]')        
