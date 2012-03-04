@@ -3,6 +3,8 @@
 from .models import Word, WORD_TYPE, PROPERTIES
 from .exceptions import TextgenException
 
+WORD_CONSTRUCTORS = {}
+
 class Args(object):
 
     __slots__ = ('case', 'number', 'gender', 'time', 'person')
@@ -29,7 +31,7 @@ class Args(object):
             elif arg in PROPERTIES.TIMES:
                 self.time = arg
             elif arg in PROPERTIES.PERSONS:
-                self.time = arg
+                self.person = arg
 
     def __unicode__(self):
         return u'<%s, %s, %s, %s>' % (self.case, self.number, self.gender, self.time)
@@ -60,17 +62,17 @@ class WordBase(object):
     def create_from_baseword(cls, src):
         raise NotImplementedError
     
-    @classmethod
-    def create_from_model(cls, model):
+    @staticmethod
+    def create_from_model(model):
         properties = model.properties.split(u'|')
         if properties == [u'']:
             properties = ()
-        return cls(normalized=model.normalized,
-                   forms=model.forms.split(u'|'),
-                   properties=properties)
+        return WORD_CONSTRUCTORS[model.type](normalized=model.normalized,
+                                             forms=model.forms.split(u'|'),
+                                             properties=properties)
 
     def save_to_model(self):
-        Word.objects.filter(normalized=self.normalized).delete()
+        # Word.objects.filter(normalized=self.normalized).delete()
         return Word.objects.create(normalized=self.normalized,
                                    type=self.TYPE,
                                    forms=u'|'.join(self.forms),
@@ -199,6 +201,7 @@ class Verb(WordBase):
     TYPE = WORD_TYPE.VERB
 
     def get_form(self, args):
+
         if args.time == u'прш':
             if args.number == u'мн':
                 return self.forms[4]
@@ -208,7 +211,7 @@ class Verb(WordBase):
             delta = len(PROPERTIES.GENDERS) + 1
             return self.forms[delta + len(PROPERTIES.NUMBERS) * PROPERTIES.PERSONS.index(args.person) + PROPERTIES.NUMBERS.index(args.number)]
         elif args.time == u'буд':
-            delta = len(PROPERTIES.GENDERS) + 1 + len(PROPERTIES.NUMBERS) * PROPERTIES.PERSONS.index(args.person)
+            delta = len(PROPERTIES.GENDERS) + 1 + len(PROPERTIES.NUMBERS) * len(PROPERTIES.PERSONS)
             return self.forms[delta + len(PROPERTIES.NUMBERS) * PROPERTIES.PERSONS.index(args.person) + PROPERTIES.NUMBERS.index(args.number)]
 
     def pluralize(self, number, case):
@@ -248,3 +251,9 @@ class Verb(WordBase):
                  morph.inflect_ru(base, u'буд,3л,мн').lower()]
 
         return cls(normalized=normalized.lower(), forms=forms, properties=[])
+
+
+WORD_CONSTRUCTORS = dict([(class_.TYPE, class_) 
+                          for class_name, class_ in globals().items()
+                          if isinstance(class_, type) and issubclass(class_, WordBase) and class_ != WordBase])
+

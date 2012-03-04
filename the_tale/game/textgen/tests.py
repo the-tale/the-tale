@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from .models import Word
 from .words import Noun, Adjective, Verb
-from .templates import Args, Template, Dictionary
+from .templates import Args, Template, Dictionary, Vocabulary
 from .conf import textgen_settings
 
 morph = pymorphy.get_morph(textgen_settings.PYMORPHY_DICTS_DIRECTORY)
@@ -177,6 +177,92 @@ class VerbTest(TestCase):
         self.assertEqual(verb_1.properties, verb_2.properties)
 
 
+class DictionaryTest(TestCase):
+
+    def setUp(self):
+        self.monkey = Noun.create_from_baseword(morph, u'обезьянками')
+        self.silly = Adjective.create_from_baseword(morph, u'глупая')
+        self.hit = Verb.create_from_baseword(morph, u'ударил')
+
+    def test_create(self):
+        dictionary = Dictionary()
+
+        dictionary.add_word(self.monkey)
+        dictionary.add_word(self.silly)
+        dictionary.add_word(self.hit)
+
+        self.assertEqual(dictionary.get_word(u'обезьянка'), self.monkey)
+        self.assertEqual(dictionary.get_word(u'глупый'), self.silly)
+        self.assertEqual(dictionary.get_word(u'ударить'), self.hit)
+
+    def test_save_load(self):
+        dictionary = Dictionary()
+
+        dictionary.add_word(self.monkey)
+        dictionary.add_word(self.silly)
+        dictionary.add_word(self.hit)
+
+        dictionary.save()
+
+        dictionary = Dictionary()
+        dictionary.load()
+
+        self.assertEqual(dictionary.get_word(u'обезьянка').normalized, u'обезьянка')
+        self.assertEqual(dictionary.get_word(u'глупый').normalized, u'глупый')
+        self.assertEqual(dictionary.get_word(u'ударить').normalized, u'ударить')
+
+
+class VocabularyTest(TestCase):
+
+    def setUp(self):
+        self.t1 = Template.create(morph, u'ударить [[hero|вн]]')
+        self.t2 = Template.create(morph, u'ударить [[hero|вн,мн]]')
+        self.t3 = Template.create(morph, u'[{тенью|hero|тв}] [[hero|рд]]')
+
+    def __assertChoices(self, voc):
+        choosed_2 = False
+        choosed_3 = False
+
+        for i in xrange(100):
+            self.assertEqual(voc.get_random_phrase('type_1').template, self.t1.template)
+
+            choice = voc.get_random_phrase('type_2')
+            if choice.template == self.t2.template:
+                choosed_2 = True
+            if choice.template == self.t3.template:
+                choosed_3 = True
+            self.assertTrue(choice.template in [self.t2.template, self.t3.template])
+
+        self.assertTrue(choosed_2 and choosed_3)
+        
+    
+    def test_create(self):
+        
+        voc = Vocabulary()
+
+        voc.add_phrase('type_1', self.t1)
+        voc.add_phrase('type_2', self.t2)
+        voc.add_phrase('type_2', self.t3)
+
+        self.__assertChoices(voc)
+
+    def test_save_load(self):
+        voc = Vocabulary()
+
+        voc.add_phrase('type_1', self.t1)
+        voc.add_phrase('type_2', self.t2)
+        voc.add_phrase('type_2', self.t3)
+
+        voc.save()
+
+        voc = Vocabulary()
+        
+        voc.load()
+
+        self.__assertChoices(voc)
+
+
+
 class TemplateTest(TestCase):
 
     def setUp(self):
@@ -185,7 +271,6 @@ class TemplateTest(TestCase):
         self.dictionary.add_word(Noun.create_from_baseword(morph, u'тень'))
         self.dictionary.add_word(Adjective.create_from_baseword(morph, u'глупый'))
         self.dictionary.add_word(Verb.create_from_baseword(morph, u'ударил'))
-        self.dictionary.add_word(Verb.create_from_baseword(morph, u'ударит'))
 
     def test_externals(self):
         template = Template.create(morph, u'ударить [[hero|вн]]')
@@ -252,7 +337,7 @@ class TemplateTest(TestCase):
         template = Template.create(morph, u'[{глупый|hero|рд}] [[hero|рд]]')        
         self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка'} ), u'глупой обезьянки')
 
-        template = Template.create(morph, u'враг [{ударила|hero|буд}] [[hero|вн]]')        
+        template = Template.create(morph, u'враг [{ударила|hero|буд,3л}] [[hero|вн]]')        
         self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка'} ), u'враг ударит обезьянку')
 
         template = Template.create(morph, u'крыса [{ударить|прш,жр}] [[hero|вн]]')        

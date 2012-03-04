@@ -1,9 +1,14 @@
 # coding: utf-8
 import re
 import numbers
+import random
 
+from dext.utils import s11n
+
+from .models import Word
+from .models import Template as TemplateModel
 from .exceptions import TextgenException
-from .words import Args, Numeral
+from .words import Args, WordBase, Numeral
     
 class Dictionary(object):
 
@@ -15,6 +20,40 @@ class Dictionary(object):
 
     def get_word(self, normalized):
         return self.data[normalized]
+
+    def save(self):
+        for norm, word in self.data.items():
+            Word.objects.filter(normalized=norm).delete()
+            word.save_to_model()
+
+    def load(self):
+        for model in Word.objects.all():
+            word = WordBase.create_from_model(model)
+            self.add_word(word)
+
+
+class Vocabulary(object):
+
+    def __init__(self):
+        self.data = {}
+
+    def add_phrase(self, type_, template):
+        if type_ not in self.data:
+            self.data[type_] = []
+        self.data[type_].append(template)
+
+    def get_random_phrase(self, type_):
+        return random.choice(self.data[type_])
+
+    def save(self):
+        for type_, phrases in self.data.items():
+            for phrase in phrases:
+                phrase.save(type_)
+
+    def load(self):
+        for model in TemplateModel.objects.all():
+            phrase = Template.create_from_model(model)
+            self.add_phrase(model.type, phrase)
 
 
 class Template(object):
@@ -131,6 +170,15 @@ class Template(object):
 
         return self.template % substitutions
 
+
+    def save(self, type_):
+        data = {'template': self.template,
+                'internals': self.internals,
+                'externals': self.externals}
+        TemplateModel.objects.create(type=type_,
+                                     data=s11n.to_json(data))
+
     @classmethod
-    def from_source(cls, src):
-        pass
+    def create_from_model(cls, model):
+        data = s11n.from_json(model.data)
+        return cls(data['template'], data['externals'], data['internals'])

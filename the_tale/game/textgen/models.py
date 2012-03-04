@@ -32,3 +32,10 @@ class Word(models.Model):
     forms = models.TextField()
 
     properties = models.CharField(max_length=16)
+
+
+class Template(models.Model):
+
+    type = models.CharField(null=False, max_length=64, db_index=True)
+    
+    data = models.TextField(null=False, default='')
