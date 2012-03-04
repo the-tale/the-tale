@@ -19,10 +19,10 @@ class Dictionary(object):
 
 class Template(object):
 
-    # [[external_id|arguments]]
+    # [[external_id|dependece|dependece|arguments]]
     EXTERNAL_REGEX = re.compile(u'\[\[[^\]]+\]\]', re.UNICODE)
 
-    # [{internal_id|external_id|arguments}]
+    # [{internal_id|dependece|dependece|arguments}]
     INTERNAL_REGEX = re.compile(u'\[\{[^\]]+\}\]', re.UNICODE)
 
     def __init__(self, template, externals, internals):
@@ -30,49 +30,45 @@ class Template(object):
         self.externals = externals
         self.internals = internals
 
+    @classmethod
+    def prepair_words(cls, morph, regex, src, subsitute_pattern, is_internal):
+        words = []
+        word_macroses = regex.findall(src)
+
+        for i, word_macros in enumerate(word_macroses):
+            slugs = word_macros[2:-2].split('|')
+
+            id_ = slugs[0]
+            args = slugs[-1]
+            dependences = slugs[1:-1]
+
+            if dependences == ['']: dependences = ()
+
+            str_id = subsitute_pattern % i
+            src = src.replace(word_macros, '%%(%s)s' % str_id)
+            
+            if is_internal:
+                normalized = morph.normalize(id_.upper())
+
+                if len(normalized) != 1:
+                    raise TextgenException(u'can not determine type of word: %s' % src)
+
+                normalized = list(normalized)[0].lower()
+            else:
+                normalized = id_
+
+
+            words.append((normalized, dependences, str_id, tuple(args.split(u','))))
+
+        return src, words
+
 
     @classmethod
     def create(cls, morph, src):
-        external_macroses = cls.EXTERNAL_REGEX.findall(src)
-        externals = []
         internals = []
-        
-        for i, external_macros in enumerate(external_macroses):
-            external_arguments = external_macros[2:-2].split('|')
 
-            external_id = external_arguments[0]
-            args = external_arguments[-1]
-            dependences = external_arguments[1:-1]
-
-            if dependences == ['']: dependences = ()
-
-            str_id = 'e_%d' % i
-            src = src.replace(external_macros, '%%(%s)s' % str_id)
-
-            externals.append((external_id, dependences, str_id, tuple(args.split(u','))))
-
-        internal_macroses = cls.INTERNAL_REGEX.findall(src)
-
-        for i, internal_macros in enumerate(internal_macroses):
-            internal_arguments = internal_macros[2:-2].split('|')
-
-            internal_str = internal_arguments[0]
-            args = internal_arguments[-1]
-            dependences = internal_arguments[1:-1]
-
-            if dependences == ['']: dependences = ()
-
-            str_id = 'i_%d' % i
-            src = src.replace(internal_macros, '%%(%s)s' % str_id)
-
-            normalized = morph.normalize(internal_str.upper())
-
-            if len(normalized) != 1:
-                raise TextgenException(u'can not determine type of word: %s' % src)
-
-            normalized = list(normalized)[0].lower()
-
-            internals.append((normalized, dependences, str_id, tuple(args.split(u','))))
+        src, externals = cls.prepair_words(morph, cls.EXTERNAL_REGEX, src, 'e_%d', False)
+        src, internals = cls.prepair_words(morph, cls.INTERNAL_REGEX, src, 'i_%d', True)
 
         return cls(src, externals, internals)
 
