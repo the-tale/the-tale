@@ -1,7 +1,5 @@
 {
     "name": "олень",
-    "name_forms": ["олень", "оленя", "оленю", "оленя", "оленем", "олене"],
-    "gender": "м.р.",
     "health_relative_to_hero": 0.75,
     "initiative": 5,
     "power_per_level": 0.75,

@@ -4,16 +4,11 @@ from django.db import models
 
 from game.map.places.models import TERRAIN, TERRAIN_CHOICES
 
-from game.journal.template import GENDER, GENDER_CHOICES
-
-
 class MobConstructor(models.Model):
 
     uuid = models.CharField(null=False, max_length=64, unique=True, db_index=True)
     
     name = models.CharField(null=False, default=u'', max_length=64)
-
-    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER_CHOICES)
 
     health_relative_to_hero = models.FloatField(null=False)
     
@@ -26,8 +21,6 @@ class MobConstructor(models.Model):
     abilities = models.TextField(null=False, default='[]')
 
     loot_list = models.TextField(null=False, default='[]')
-
-    name_forms = models.TextField(null=False, default='')
 
     terrain = models.CharField(max_length=1, 
                                default=TERRAIN.GRASS, 

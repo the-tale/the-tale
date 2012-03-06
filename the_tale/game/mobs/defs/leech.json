@@ -1,7 +1,5 @@
 {
     "name": "пиявка",
-    "name_forms": ["пиявка", "пиявки", "пиявке", "пиявку", "пиявкой", "пиявке"],
-    "gender": "ж.р.",
     "health_relative_to_hero": 0.1,
     "initiative": 2,
     "power_per_level": 1.5,

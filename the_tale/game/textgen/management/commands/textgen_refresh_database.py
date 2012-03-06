@@ -8,6 +8,7 @@ from dext.utils import s11n
 
 from ...templates import Vocabulary, Dictionary, Template
 from ...words import WordBase
+from ...logic import get_tech_vocabulary
 from ...conf import textgen_settings
 
 morph = pymorphy.get_morph(textgen_settings.PYMORPHY_DICTS_DIRECTORY)
@@ -19,17 +20,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         vocabulary = Vocabulary()
-        vocabulary.clear()
+        vocabulary.load()
 
         dictionary = Dictionary()
-        dictionary.clear()
+        dictionary.load()
 
-        tech_vocabulary_file_name = os.path.join(textgen_settings.TEXTS_DIRECTORY, 'vocabulary.json')
-        if not os.path.exists(tech_vocabulary_file_name):
-            tech_vocabulary = {}
-        else:
-            with open(tech_vocabulary_file_name) as f:
-                tech_vocabulary = s11n.from_json(f.read())
+        tech_vocabulary = get_tech_vocabulary()
 
         for filename in os.listdir(textgen_settings.TEXTS_DIRECTORY):
 

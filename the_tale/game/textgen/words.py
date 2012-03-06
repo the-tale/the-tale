@@ -94,7 +94,10 @@ class WordBase(object):
     def create_from_string(morph, string, tech_vocabulary={}):
         normalized = efication(string.upper())
 
-        class_, normalized = get_gram_info(morph, normalized, tech_vocabulary)
+        if ' ' in string:
+            return WORD_CONSTRUCTORS[WORD_TYPE.NOUN_GROUP].create_from_baseword(morph, string, tech_vocabulary)
+
+        class_, normalized, properties = get_gram_info(morph, normalized, tech_vocabulary)
 
         if class_ == u'С':
             return WORD_CONSTRUCTORS[WORD_TYPE.NOUN].create_from_baseword(morph, string, tech_vocabulary)
@@ -153,7 +156,7 @@ class Noun(WordBase):
 
     @classmethod
     def create_from_baseword(cls, morph, src, tech_vocabulary={}):
-        class_, normalized = get_gram_info(morph, efication(src.upper()), tech_vocabulary)
+        class_, normalized, properties = get_gram_info(morph, efication(src.upper()), tech_vocabulary)
 
         forms = []
 
@@ -208,7 +211,7 @@ class Adjective(WordBase):
 
     @classmethod
     def create_from_baseword(cls, morph, src, tech_vocabulary={}):
-        class_, normalized = get_gram_info(morph, efication(src.upper()), tech_vocabulary)
+        class_, normalized, properties = get_gram_info(morph, efication(src.upper()), tech_vocabulary)
 
         forms = []
 
@@ -253,7 +256,7 @@ class Verb(WordBase):
 
     @classmethod
     def create_from_baseword(cls, morph, src, tech_vocabulary={}):
-        class_, normalized = get_gram_info(morph, efication(src.upper()), tech_vocabulary)
+        class_, normalized, properties = get_gram_info(morph, efication(src.upper()), tech_vocabulary)
 
         base = morph.inflect_ru(efication(src.upper()), u'ед,мр', u'Г')
 
@@ -277,7 +280,69 @@ class Verb(WordBase):
         return cls(normalized=normalized.lower(), forms=forms, properties=[])
 
 
+class NounGroup(Noun):
+
+    TYPE = WORD_TYPE.NOUN_GROUP
+
+    @classmethod
+    def create_from_baseword(cls, morph, src, tech_vocabulary={}):
+        '''
+        one noun MUST be in им
+        there are problems with nouns in multiple number: рога
+        '''
+        main_noun = None
+
+        phrase = []
+        for word in src.split(' '):
+            if word:
+                class_, norm, properties = get_gram_info(morph, efication(word.upper()), tech_vocabulary)
+                if class_ == u'С':
+                    if u'им' in properties:
+                        main_noun = norm                 
+                        phrase.append((class_, norm, False))
+                    else:
+                        phrase.append((class_, word, True))
+                else:
+                    phrase.append((class_, norm, False))
+
+        gram_info = morph.get_graminfo(main_noun.upper())[0]
+
+        info = gram_info['info']
+
+        if u'мр' in info:
+            properties = [u'мр']
+        elif u'ср' in info:
+            properties = [u'ср']
+        else:
+            properties = [u'жр']
+
+        forms = []
+
+        for number in PROPERTIES.NUMBERS:
+
+            additional_properties = []
+            if number == u'ед':
+                additional_properties = properties
+
+            for case in PROPERTIES.CASES:
+                phrase_form = []
+                
+                for class_, word, constant in phrase:
+                    if constant:
+                        phrase_form.append(word)
+                    else:
+                        phrase_form.append(morph.inflect_ru(word, u','.join([case, number]+additional_properties), class_ ).lower())
+                forms.append( ' '.join(phrase_form))
+
+        normalized = ' '.join([word for class_, word, constant in phrase])
+
+        return cls(normalized=normalized.lower(), forms=forms, properties=properties)
+
+
+
 WORD_CONSTRUCTORS = dict([(class_.TYPE, class_) 
                           for class_name, class_ in globals().items()
                           if isinstance(class_, type) and issubclass(class_, WordBase) and class_ != WordBase])
+
+
 

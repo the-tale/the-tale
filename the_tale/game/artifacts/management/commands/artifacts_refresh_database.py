@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import pymorphy
 
 from django.core.management.base import BaseCommand
 
@@ -9,12 +10,23 @@ from ...models import ArtifactConstructor, EQUIP_TYPE_STR_2_ID, ITEM_TYPE_STR_2_
 from ...conf import artifacts_settings
 from ....journal.template import GENDER_STR_2_ID
 
+from ....textgen.templates import Dictionary
+from ....textgen.words import WordBase
+from ....textgen.logic import get_tech_vocabulary
+from ....textgen.conf import textgen_settings
+
+morph = pymorphy.get_morph(textgen_settings.PYMORPHY_DICTS_DIRECTORY)
+
 
 class Command(BaseCommand):
 
     help = 'load artifacts fixtures into database'
 
     def handle(self, *args, **options):
+
+        dictionary = Dictionary()
+        dictionary.load()
+        tech_vocabulary = get_tech_vocabulary()
 
         ArtifactConstructor.objects.all().delete()
         
@@ -40,6 +52,9 @@ class Command(BaseCommand):
 
                 if data['equip_type'] not in EQUIP_TYPE_STR_2_ID:
                     raise Exception('unknown equip type: "%s"' % data['equip_type'])
+
+                word = WordBase.create_from_string(morph, data['name'], tech_vocabulary)
+                dictionary.add_word(word)
                 
                 ArtifactConstructor.objects.create(uuid=uuid,
                                                    item_type=ITEM_TYPE_STR_2_ID[data['item_type']],
@@ -47,3 +62,5 @@ class Command(BaseCommand):
                                                    name=data['name'],
                                                    name_forms='|'.join(data['name_forms']),
                                                    gender=GENDER_STR_2_ID[data['gender']], )
+
+        dictionary.save()

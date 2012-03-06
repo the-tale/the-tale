@@ -1,7 +1,5 @@
 {
     "name": "крыса",
-    "name_forms": ["крыса", "крысы", "крысе", "крысу", "крысой", "крысе"],
-    "gender": "ж.р.",
     "health_relative_to_hero": 0.3,
     "initiative": 6,
     "power_per_level": 0.75,

@@ -98,7 +98,7 @@ class Template(object):
             
             if is_internal:
                 source = efication(id_.upper())
-                class_, normalized = get_gram_info(morph, source, tech_vocabulary)
+                class_, normalized, properties = get_gram_info(morph, source, tech_vocabulary)
                 normalized = normalized.lower()
             else:
                 normalized = id_

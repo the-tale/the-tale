@@ -1,7 +1,5 @@
 {
     "name": "бандит",
-    "name_forms": ["бандит", "бандита", "бандиту", "бандита", "бандитом", "бандите"],
-    "gender": "м.р.",
     "health_relative_to_hero": 0.5,
     "initiative": 4,
     "power_per_level": 1.5,

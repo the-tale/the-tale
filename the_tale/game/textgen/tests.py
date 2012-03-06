@@ -5,7 +5,7 @@ import pymorphy
 from django.test import TestCase
 
 from .models import Word
-from .words import Noun, Adjective, Verb
+from .words import Noun, Adjective, Verb, NounGroup
 from .templates import Args, Template, Dictionary, Vocabulary
 from .conf import textgen_settings
 
@@ -81,6 +81,100 @@ class NounTest(TestCase):
         self.assertEqual(noun_1.normalized , noun_2.normalized)
         self.assertEqual(noun_1.forms, noun_2.forms)
         self.assertEqual(noun_1.properties, noun_2.properties)
+
+
+class NounGroupTest(TestCase):
+
+    def test_create_from_baseword(self):
+        group = NounGroup.create_from_baseword(morph, u'жирная крыса')
+        self.assertEqual(group.normalized, u'жирный крыса')
+        self.assertEqual(group.properties, (u'жр',))
+        self.assertEqual(group.forms, (u'жирная крыса',
+                                       u'жирной крысы',
+                                       u'жирной крысе',
+                                       u'жирную крысу',
+                                       u'жирной крысой',
+                                       u'жирной крысе',
+                                       u'жирные крысы',
+                                       u'жирных крыс',
+                                       u'жирным крысам',
+                                       u'жирный крыс', #???????? possible bug in pymorphy
+                                       u'жирными крысами',
+                                       u'жирных крысах'))
+
+    def test_pluralize(self):
+        group = NounGroup.create_from_baseword(morph, u'жирная крыса')
+        self.assertEqual(group.pluralize(1, Args()), u'жирная крыса')
+        self.assertEqual(group.pluralize(2, Args()), u'жирные крысы')
+        self.assertEqual(group.pluralize(3, Args()), u'жирные крысы')
+        self.assertEqual(group.pluralize(5, Args()), u'жирных крыс')
+        self.assertEqual(group.pluralize(10, Args()), u'жирных крыс')
+        self.assertEqual(group.pluralize(11, Args()), u'жирных крыс')
+        self.assertEqual(group.pluralize(12, Args()), u'жирных крыс')
+        self.assertEqual(group.pluralize(21, Args()), u'жирная крыса')
+        self.assertEqual(group.pluralize(33, Args()), u'жирные крысы')
+        self.assertEqual(group.pluralize(36, Args()), u'жирных крыс')
+
+        self.assertEqual(group.pluralize(1, Args(u'дт')), u'жирной крысе')
+        self.assertEqual(group.pluralize(2, Args(u'дт')), u'жирным крысам')
+        self.assertEqual(group.pluralize(3, Args(u'дт')), u'жирным крысам')
+        self.assertEqual(group.pluralize(5, Args(u'дт')), u'жирным крысам')
+        self.assertEqual(group.pluralize(10, Args(u'дт')), u'жирным крысам')
+        self.assertEqual(group.pluralize(11, Args(u'дт')), u'жирным крысам')
+        self.assertEqual(group.pluralize(12, Args(u'дт')), u'жирным крысам')
+        self.assertEqual(group.pluralize(21, Args(u'дт')), u'жирной крысе')
+        self.assertEqual(group.pluralize(33, Args(u'дт')), u'жирным крысам')
+        self.assertEqual(group.pluralize(36, Args(u'дт')), u'жирным крысам')
+
+    def test_get_form(self):
+        group = NounGroup.create_from_baseword(morph, u'жирная крыса')
+        self.assertEqual(group.get_form(Args(u'рд', u'мн')), u'жирных крыс')
+        self.assertEqual(group.get_form(Args(u'дт')), u'жирной крысе')
+
+    def test_save_load(self):
+        group_1 = NounGroup.create_from_baseword(morph, u'жирная крыса')
+        group_1.save_to_model()
+        
+        word = Word.objects.get(normalized=group_1.normalized)
+        group_2 = NounGroup.create_from_model(word)
+
+        self.assertEqual(group_1.normalized , group_2.normalized)
+        self.assertEqual(group_1.forms, group_2.forms)
+        self.assertEqual(group_1.properties, group_2.properties)
+
+    def test_2_adjective(self):
+        group = NounGroup.create_from_baseword(morph, u'белая жирная крыса')
+        self.assertEqual(group.normalized, u'белый жирный крыса')
+        self.assertEqual(group.properties, (u'жр',))
+        self.assertEqual(group.forms, (u'белая жирная крыса',
+                                       u'белой жирной крысы',
+                                       u'белой жирной крысе',
+                                       u'белую жирную крысу',
+                                       u'белой жирной крысой',
+                                       u'белой жирной крысе',
+                                       u'белые жирные крысы',
+                                       u'белых жирных крыс',
+                                       u'белым жирным крысам',
+                                       u'белый жирный крыс', #???????? possible bug in pymorphy
+                                       u'белыми жирными крысами',
+                                       u'белых жирных крысах'))
+
+    def test_2_nouns(self):
+        group = NounGroup.create_from_baseword(morph, u'тень автора')
+        self.assertEqual(group.normalized, u'тень автора')
+        self.assertEqual(group.properties, (u'жр',))
+        self.assertEqual(group.forms, (u'тень автора',
+                                       u'тени автора',
+                                       u'тени автора',
+                                       u'тень автора',
+                                       u'тенью автора',
+                                       u'тени автора',
+                                       u'тени автора',
+                                       u'теней автора',
+                                       u'теням автора',
+                                       u'теней автора', #???????? possible bug in pymorphy
+                                       u'тенями автора',
+                                       u'тенях автора'))
 
 
 class AdjectiveTest(TestCase):

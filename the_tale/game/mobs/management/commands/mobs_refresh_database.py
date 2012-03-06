@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import pymorphy
 
 from django.core.management.base import BaseCommand
 
@@ -11,7 +12,13 @@ from ...conf import mobs_settings
 from ....heroes.habilities import ABILITIES
 from ....artifacts.models import ArtifactConstructor
 from ....map.places.models import TERRAIN_STR_2_ID
-from ....journal.template import GENDER_STR_2_ID
+
+from ....textgen.templates import Dictionary
+from ....textgen.words import WordBase
+from ....textgen.logic import get_tech_vocabulary
+from ....textgen.conf import textgen_settings
+
+morph = pymorphy.get_morph(textgen_settings.PYMORPHY_DICTS_DIRECTORY)
 
 
 class Command(BaseCommand):
@@ -19,6 +26,10 @@ class Command(BaseCommand):
     help = 'load mobs fixtures into database'
 
     def handle(self, *args, **options):
+
+        dictionary = Dictionary()
+        dictionary.load()
+        tech_vocabulary = get_tech_vocabulary()
 
         MobConstructor.objects.all().delete()
         
@@ -48,11 +59,12 @@ class Command(BaseCommand):
                 for loot_priority, item_uuid in data['loot_list']:
                     if not ArtifactConstructor.objects.filter(uuid=item_uuid).exists():
                         raise Exception('unknown loot id: "%s"' % item_uuid)
+
+                word = WordBase.create_from_string(morph, data['name'], tech_vocabulary)
+                dictionary.add_word(word)
                     
                 MobConstructor.objects.create( uuid=uuid,
                                                name=data['name'],
-                                               name_forms='|'.join(data['name_forms']),
-                                               gender=GENDER_STR_2_ID[data['gender']],
                                                health_relative_to_hero=data['health_relative_to_hero'],
                                                initiative=data['initiative'],
                                                power_per_level=data['power_per_level'],
@@ -60,3 +72,5 @@ class Command(BaseCommand):
                                                terrain=TERRAIN_STR_2_ID[data['terrain']],
                                                abilities=s11n.to_json(data['abilities']),
                                                loot_list=s11n.to_json(data['loot_list']) )
+
+        dictionary.save()

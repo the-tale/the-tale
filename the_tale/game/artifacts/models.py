@@ -50,7 +50,3 @@ class ArtifactConstructor(models.Model):
     equip_type = models.IntegerField(null=False, choices=EQUIP_TYPE_CHOICES)
 
     name = models.CharField(null=False, default=u'', max_length=64)
-
-    name_forms = models.TextField(null=False, default='')
-
-    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER_CHOICES)
