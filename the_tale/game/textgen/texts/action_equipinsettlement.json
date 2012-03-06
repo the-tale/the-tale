@@ -1,0 +1,33 @@
+{
+    "description": "",
+    "prefix": "action_equipinsettlement",
+    "types": {
+        "start": {
+            "description": "",
+            "variables": ["hero"],
+            "phrases": [
+                "[[hero|им]] [{решил|hero|прш}] просмотреть своё барахло, может что сгодится",
+                "Столько добычи, неужели среди этого мусора не найдётся чего-нибудь полезного?",
+                "Добыча счёт любит, надо бы её посчитать"
+            ]
+        },
+        "change_item": {
+            "description": "",
+            "variables": ["hero", "unequipped", "equipped"],
+            "phrases": [
+                "Что-то [[unequipped|им]] [{поизносился|unequipped|прш}], надо заменить [{его|unequipped|}] на [[equipped|вн]]",
+                "[[equipped|им]] - хорошая замена для [[unequipped|рд]]",
+                "[[unequipped|им]] уже никуда не годится, а вот [[equipped|им]] - другое дело"
+            ]
+        },
+        "equip_item": {
+            "description": "",
+            "variables": ["hero", "equipped"],
+            "phrases": [
+                "[[equipped|им]] здорово мне подойдёт",
+                "[[hero|им]] с удовольствием [{примерил|hero|прш}] [[equipped|вн]]",
+                "[[hero|им]] [{решил|hero|прш}], что [[equipped|им]] как нельзя лучше подойдёт [{его|hero|}] образу"
+            ]
+        }
+    }
+}

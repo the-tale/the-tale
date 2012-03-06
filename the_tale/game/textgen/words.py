@@ -1,9 +1,28 @@
 # coding: utf-8
 
-from .models import Word, WORD_TYPE, PROPERTIES
+from .models import Word, WORD_TYPE
 from .exceptions import TextgenException
+from .logic import efication, get_gram_info
 
 WORD_CONSTRUCTORS = {}
+
+class PROPERTIES(object):
+    CASES = (u'им', u'рд', u'дт', u'вн', u'тв', u'пр')
+    ANIMACYTIES = (u'од', u'но')
+    NUMBERS = (u'ед', u'мн')
+    GENDERS = (u'мр', u'жр', u'ср')
+    TIMES = (u'нст', u'прш', u'буд')
+    PERSONS = (u'1л', u'2л', u'3л')
+
+    @classmethod
+    def is_argument_available(cls, arg):
+        return (arg in cls.CASES or
+                arg in cls.ANIMACYTIES or
+                arg in cls.NUMBERS or
+                arg in cls.GENDERS or
+                arg in cls.TIMES or
+                arg in cls.PERSONS)
+
 
 class Args(object):
 
@@ -59,7 +78,7 @@ class WordBase(object):
         raise NotImplementedError
 
     @classmethod
-    def create_from_baseword(cls, src):
+    def create_from_baseword(cls, src, tech_vocabulary={}):
         raise NotImplementedError
     
     @staticmethod
@@ -71,8 +90,27 @@ class WordBase(object):
                                              forms=model.forms.split(u'|'),
                                              properties=properties)
 
+    @staticmethod
+    def create_from_string(morph, string, tech_vocabulary={}):
+        normalized = efication(string.upper())
+
+        class_, normalized = get_gram_info(morph, normalized, tech_vocabulary)
+
+        if class_ == u'С':
+            return WORD_CONSTRUCTORS[WORD_TYPE.NOUN].create_from_baseword(morph, string, tech_vocabulary)
+        elif class_ == u'П':
+            return WORD_CONSTRUCTORS[WORD_TYPE.ADJECTIVE].create_from_baseword(morph, string, tech_vocabulary)
+        elif class_ == u'ИНФИНИТИВ':
+            return WORD_CONSTRUCTORS[WORD_TYPE.VERB].create_from_baseword(morph, string, tech_vocabulary)
+        elif class_ == u'МС':
+            return WORD_CONSTRUCTORS[WORD_TYPE.NOUN].create_from_baseword(morph, string, tech_vocabulary)
+        elif class_ == u'МС-П':
+            return WORD_CONSTRUCTORS[WORD_TYPE.ADJECTIVE].create_from_baseword(morph, string, tech_vocabulary)
+        else:
+            raise TextgenException(u'unknown word type: %s' % (string, ) )
+        
+
     def save_to_model(self):
-        # Word.objects.filter(normalized=self.normalized).delete()
         return Word.objects.create(normalized=self.normalized,
                                    type=self.TYPE,
                                    forms=u'|'.join(self.forms),
@@ -114,13 +152,8 @@ class Noun(WordBase):
             self.pluralize_args(dependence.normalized, arguments)
 
     @classmethod
-    def create_from_baseword(cls, morph, src):
-        normalized = morph.normalize(src.upper())
-
-        if len(normalized) != 1:
-            raise TextgenException(u'can not determine type of word: %s' % src)
-
-        normalized = list(normalized)[0]
+    def create_from_baseword(cls, morph, src, tech_vocabulary={}):
+        class_, normalized = get_gram_info(morph, efication(src.upper()), tech_vocabulary)
 
         forms = []
 
@@ -174,13 +207,8 @@ class Adjective(WordBase):
             arguments.case = dependence_args.case
 
     @classmethod
-    def create_from_baseword(cls, morph, src):
-        normalized = morph.normalize(src.upper())
-
-        if len(normalized) != 1:
-            raise TextgenException(u'can not determine type of word: %s' % src)
-
-        normalized = list(normalized)[0]
+    def create_from_baseword(cls, morph, src, tech_vocabulary={}):
+        class_, normalized = get_gram_info(morph, efication(src.upper()), tech_vocabulary)
 
         forms = []
 
@@ -224,14 +252,10 @@ class Verb(WordBase):
 
 
     @classmethod
-    def create_from_baseword(cls, morph, src):
-        normalized = morph.normalize(src.upper())
+    def create_from_baseword(cls, morph, src, tech_vocabulary={}):
+        class_, normalized = get_gram_info(morph, efication(src.upper()), tech_vocabulary)
 
-        base = morph.inflect_ru(src.upper(), u'ед,мр', u'Г')
-
-        if len(normalized) != 1:
-            raise TextgenException(u'can not determine type of word: %s' % src)
-        normalized = list(normalized)[0]
+        base = morph.inflect_ru(efication(src.upper()), u'ед,мр', u'Г')
 
         forms = [morph.inflect_ru(base, u'прш,мр,ед').lower(),
                  morph.inflect_ru(base, u'прш,жр,ед').lower(),

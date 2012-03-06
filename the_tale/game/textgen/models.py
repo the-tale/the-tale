@@ -2,15 +2,6 @@
 
 from django.db import models
 
-class PROPERTIES:
-    CASES = (u'им', u'рд', u'дт', u'вн', u'тв', u'пр')
-    ANIMACYTIES = (u'од', u'но')
-    NUMBERS = (u'ед', u'мн')
-    GENDERS = (u'мр', u'жр', u'ср')
-    TIMES = (u'нст', u'прш', u'буд')
-    PERSONS = (u'1л', u'2л', u'3л')
-
-
 class WORD_TYPE:
     NOUN = 1
     ADJECTIVE = 2
