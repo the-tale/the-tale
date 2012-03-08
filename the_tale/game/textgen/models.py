@@ -8,12 +8,14 @@ class WORD_TYPE:
     VERB = 3
     NUMERAL = 4
     NOUN_GROUP = 5
+    FAKE = 6
 
 WORD_TYPE_CHOICES = ( (WORD_TYPE.NOUN, u'существительное'),
                       (WORD_TYPE.ADJECTIVE, u'прилагательное'),
                       (WORD_TYPE.VERB, u'глагол'),
                       (WORD_TYPE.NUMERAL, u'числительное'),
-                      (WORD_TYPE.NOUN_GROUP, u'группа существительного') )
+                      (WORD_TYPE.NOUN_GROUP, u'группа существительного'),
+                      (WORD_TYPE.FAKE, u'подделка') )
 
 
 class Word(models.Model):

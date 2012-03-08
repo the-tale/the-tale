@@ -8,7 +8,6 @@ from dext.utils import s11n
 
 from ...models import ArtifactConstructor, EQUIP_TYPE_STR_2_ID, ITEM_TYPE_STR_2_ID
 from ...conf import artifacts_settings
-from ....journal.template import GENDER_STR_2_ID
 
 from ....textgen.templates import Dictionary
 from ....textgen.words import WordBase
@@ -53,14 +52,13 @@ class Command(BaseCommand):
                 if data['equip_type'] not in EQUIP_TYPE_STR_2_ID:
                     raise Exception('unknown equip type: "%s"' % data['equip_type'])
 
-                word = WordBase.create_from_string(morph, data['name'], tech_vocabulary)
+                word = WordBase.create_from_string(morph, data['normalized_name'], tech_vocabulary)
                 dictionary.add_word(word)
                 
                 ArtifactConstructor.objects.create(uuid=uuid,
                                                    item_type=ITEM_TYPE_STR_2_ID[data['item_type']],
                                                    equip_type=EQUIP_TYPE_STR_2_ID[data['equip_type']],
                                                    name=data['name'],
-                                                   name_forms='|'.join(data['name_forms']),
-                                                   gender=GENDER_STR_2_ID[data['gender']], )
+                                                   normalized_name=data['normalized_name'] )
 
         dictionary.save()

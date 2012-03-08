@@ -27,6 +27,11 @@ class Command(BaseCommand):
 
         tech_vocabulary = get_tech_vocabulary()
 
+        with open(os.path.join(textgen_settings.TEXTS_DIRECTORY, 'words.txt')) as f:
+            for string in f:
+                word = WordBase.create_from_string(morph, string.decode('utf-8').strip(), tech_vocabulary)
+                dictionary.add_word(word)
+
         for filename in os.listdir(textgen_settings.TEXTS_DIRECTORY):
 
             if not filename.endswith('.json'):

@@ -11,6 +11,12 @@ class Command(BaseCommand):
     requires_model_validation = False
 
     def handle(self, *args, **options):
+
+        print
+        print 'LOAD TEXTGEN TEXTS'
+        print 
+
+        subprocess.call(['./manage.py', 'textgen_refresh_database'])
         
         print
         print 'LOAD ARTIFACT CONSTRUCTORS'
@@ -25,13 +31,7 @@ class Command(BaseCommand):
         subprocess.call(['./manage.py', 'mobs_refresh_database'])
 
         print
-        print 'LOAD JOURNAL TEXTS'
-        print 
-
-        subprocess.call(['./manage.py', 'journal_refresh_database'])
-
-        print
-        print 'LOAD JOURNAL TEXTS'
+        print 'UPDATE MAP'
         print 
 
         subprocess.call(['./manage.py', 'map_update_map'])            

@@ -32,7 +32,8 @@ class Worker(object):
         self.supervisor_worker = supervisor_worker
 
     def close_queries(self):
-        self.highlevel_queue.close()
+        # self.highlevel_queue.close()
+        pass
 
     def clean_queues(self):
         self.highlevel_queue.queue.purge()

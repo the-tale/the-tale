@@ -4,8 +4,6 @@ import random
 
 from dext.utils import s11n
 
-from game.journal.template import NounFormatter, GENDER
-
 from ..heroes.prototypes import BASE_ATTRIBUTES
 from ..heroes.habilities import AbilitiesPrototype
 
@@ -33,11 +31,9 @@ class MobPrototype(object):
         from ..artifacts.constructors import ArtifactConstructorPrototype
         return ArtifactConstructorPrototype.generate_loot(self.loot_list, self.level)
 
-    def get_formatter(self):
-        return NounFormatter(data=self.name_forms, gender=self.gender)
-
     def serialize(self):
         return s11n.to_json({'name': self.name,
+                             'normalized_name': self.normalized_name,
                              'initiative': self.battle_speed,
                              'max_health': self.max_health,
                              'damage_dispersion': self.damage_dispersion,
@@ -55,6 +51,7 @@ class MobPrototype(object):
 
         mob = cls()
         mob.name = data.get('name', u'осколок прошлого')
+        mob.normalized_name = data.get('normalized_name', u'осколок прошлого')
         mob.battle_speed = data.get('initiative', 5)
         mob.health = data.get('health', 1)
         mob.max_health = data.get('max_health', mob.health + 1)
@@ -71,6 +68,7 @@ class MobPrototype(object):
     def construct(cls,
                   level, 
                   NAME, 
+                  NORMALIZED_NAME,
                   HEALTH_RELATIVE_TO_HERO, 
                   INITIATIVE,
                   DAMAGE_DISPERSION,
@@ -79,6 +77,7 @@ class MobPrototype(object):
                   LOOT_LIST):
         mob = cls()
         mob.name = NAME
+        mob.normalized_name = NORMALIZED_NAME
         mob.battle_speed = INITIATIVE
         mob.max_health = int(BASE_ATTRIBUTES.get_max_health(level) * HEALTH_RELATIVE_TO_HERO)
         mob.damage_dispersion = DAMAGE_DISPERSION

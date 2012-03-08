@@ -3,7 +3,8 @@ import random
 
 from dext.utils import s11n
 
-from game.journal.template import FakeFormatter, GENDER
+from game.game_info import GENDER
+from game.textgen.words import Fake
 from ... import names
 
 from .models import Place, PLACE_TYPE, RACE_TO_TERRAIN
@@ -39,6 +40,9 @@ class PlacePrototype(object):
 
     @property
     def name(self): return self.model.name
+
+    @property
+    def normalized_name(self): return Fake(self.model.name)
 
     @property
     def type(self): return self.model.type
@@ -148,9 +152,6 @@ class PlacePrototype(object):
         dominant_race = max(race_power.items(), key=lambda x: x[1])[0]
 
         self.terrain = RACE_TO_TERRAIN[dominant_race]
-
-    def get_formatter(self):
-        return FakeFormatter(self.name)
 
     def __unicode__(self):
         return self.model.__unicode__()

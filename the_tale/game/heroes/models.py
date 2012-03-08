@@ -4,9 +4,7 @@ from django.db import models
 
 from game.angels.models import Angel
 
-from game.game_info import RACE, RACE_CHOICES
-
-from game.journal.template import GENDER, GENDER_CHOICES
+from game.game_info import RACE, RACE_CHOICES, GENDER, GENDER_CHOICES
 
 class Hero(models.Model):
 

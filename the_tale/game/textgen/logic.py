@@ -24,7 +24,7 @@ def get_gram_info(morph, word, tech_vocabulary={}):
             raise TextgenException(u'more then one grammar info for word: %s' % word)
 
         if not classes:
-            raise TextgenException(u'can not find info about word: %s' % word)
+            raise TextgenException(u'can not find info about word: "%s"' % word)
 
         class_ = list(classes)[0]
 

@@ -1,5 +1,6 @@
 {
     "name": "шакал",
+    "normalized_name": "шакал",
     "health_relative_to_hero": 0.4,
     "initiative": 5,
     "power_per_level": 1.5,

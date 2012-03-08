@@ -9,6 +9,7 @@ class MobConstructor(models.Model):
     uuid = models.CharField(null=False, max_length=64, unique=True, db_index=True)
     
     name = models.CharField(null=False, default=u'', max_length=64)
+    normalized_name = models.CharField(null=False, default=u'', max_length=64)
 
     health_relative_to_hero = models.FloatField(null=False)
     

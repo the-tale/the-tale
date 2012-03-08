@@ -17,6 +17,9 @@ class MobConstructorPrototype(object):
     def name(self): return self.model.name
 
     @property
+    def normalized_name(self): return self.model.normalized_name
+
+    @property
     def health_relative_to_hero(self): return self.model.health_relative_to_hero
 
     @property
@@ -56,6 +59,7 @@ class MobConstructorPrototype(object):
     def generate_mob(self, hero):
         mob = MobPrototype.construct(level=hero.level, 
                                      NAME=self.name, 
+                                     NORMALIZED_NAME=self.normalized_name,
                                      HEALTH_RELATIVE_TO_HERO=self.health_relative_to_hero, 
                                      INITIATIVE=self.initiative,
                                      DAMAGE_DISPERSION=self.damage_dispersion,

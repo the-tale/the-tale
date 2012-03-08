@@ -2,8 +2,6 @@
 
 from django.db import models
 
-from game.journal.template import GENDER, GENDER_CHOICES
-
 class EQUIP_TYPE:
     NONE = 1
     WEAPON = 2
@@ -50,3 +48,5 @@ class ArtifactConstructor(models.Model):
     equip_type = models.IntegerField(null=False, choices=EQUIP_TYPE_CHOICES)
 
     name = models.CharField(null=False, default=u'', max_length=64)
+
+    normalized_name = models.CharField(null=False, default=u'', max_length=64)

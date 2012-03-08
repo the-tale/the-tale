@@ -9,7 +9,7 @@ from dext.utils import s11n
 from .models import Word as WordModel
 from .models import Template as TemplateModel
 from .exceptions import TextgenException
-from .words import Args, WordBase, Numeral, PROPERTIES
+from .words import Args, WordBase, Fake, Numeral, PROPERTIES
 from .logic import efication, get_gram_info
     
 class Dictionary(object):
@@ -21,7 +21,9 @@ class Dictionary(object):
         self.data[word.normalized] = word
 
     def get_word(self, normalized):
-        return self.data[normalized]
+        if normalized in self.data:
+            return self.data[normalized]
+        return Fake(u'<word not found: %s>' % normalized)
 
     def clear(self):
         WordModel.objects.all().delete()
@@ -107,7 +109,7 @@ class Template(object):
             if arguments == (u'',):
                 arguments = ()
 
-            words.append((normalized, dependences, str_id, arguments))
+            words.append((normalized, dependences, str_id, arguments, id_))
 
         return src, words
 
@@ -120,17 +122,17 @@ class Template(object):
         src, internals = cls.prepair_words(morph, cls.INTERNAL_REGEX, src, 'i_%d', True, tech_vocabulary)
 
         #check arguments
-        for id_, dependences, str_id, arguments in itertools.chain(externals, internals):
+        for id_, dependences, str_id, arguments, word_src in itertools.chain(externals, internals):
             if not all([PROPERTIES.is_argument_available(arg) for arg in arguments]):
                 raise TextgenException(u'wrong arguments: (%s) in template %s' % (','.join(arguments), src) )
 
         #check externals
         if available_externals:
             used_externals = []
-            for id_, dependences, str_id, arguments in externals:
+            for id_, dependences, str_id, arguments, word_src in externals:
                 used_externals.append(id_)
                 used_externals.extend(dependences)
-            for id_, dependences, str_id, arguments in internals:
+            for id_, dependences, str_id, arguments, word_src in internals:
                 used_externals.extend(dependences)
             if set(used_externals) - set(available_externals):
                 raise TextgenException(u'wrong externals in template %s' % src)
@@ -138,7 +140,7 @@ class Template(object):
         return cls(src, externals, internals)
 
     def get_internal_words(self):
-        return [id_ for id_, dependences, str_id, arguments in self.internals]
+        return [word_src for normalized, dependences, str_id, arguments, word_src in self.internals]
 
     def _preprocess_externals(self, dictionary, externals):
         processed_externals = {}
@@ -154,8 +156,11 @@ class Template(object):
             if isinstance(normalized, numbers.Number):
                 word = Numeral(normalized)
                 arguments = Args()
+            elif isinstance(normalized, WordBase):
+                word = normalized
+                arguments = Args()
             else:
-                word = dictionary.get_word(normalized)
+                word = dictionary.get_word(efication(normalized))
                 arguments = Args(*word.properties)    
 
             arguments.update(*additional_args)
@@ -187,11 +192,11 @@ class Template(object):
         substitutions = {}
         processed_externals = self._preprocess_externals(dictionary, externals)
             
-        for external_id, dependences, str_id, args in self.externals:
+        for external_id, dependences, str_id, args, word_src in self.externals:
             word, arguments = processed_externals[external_id]
             substitutions[str_id] = self._create_substitution(word, arguments.get_copy(), dependences, processed_externals, args)
 
-        for internal_str, dependences, str_id, args in self.internals:
+        for internal_str, dependences, str_id, args, word_src in self.internals:
             word = dictionary.get_word(internal_str)
             substitutions[str_id] = self._create_substitution(word, Args(), dependences, processed_externals, args)
 

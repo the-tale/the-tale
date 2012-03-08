@@ -110,7 +110,6 @@ INSTALLED_APPS = (
     'game.angels',
     'game.abilities',
     'game.heroes',
-    'game.journal',
     'game.actions',
     'game.quests',
     'game.map',

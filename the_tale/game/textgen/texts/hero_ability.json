@@ -6,7 +6,7 @@
             "description": "",
             "variables": ["attacker", "defender", "damage"],
             "phrases": [
-                "[[attacker|им]] [{поднатужился|attacker|прш] и [{нанес|attacker|прш}] [[damage]] [{единиц|damage|}] урона",
+                "[[attacker|им]] [{поднатужился|attacker|прш}] и [{нанес|attacker|прш}] [[damage]] [{единиц|damage|}] урона",
                 "Умелая подсечка и придорожный камень нанёс голове [[defender|рд]] [[damage]] урона",
                 "Аперкот и вокруг [[defender|рд]] [{взметнулось|damage|прш}] [[damage]] [{звёздочек|damage|}]",
                 "[[attacker|им]] [{поцарапал|attacker|прш}] [[defender|вн]] на [[damage]] HP",

@@ -17,6 +17,9 @@ class ArtifactConstructorPrototype(object):
     def name(self): return self.model.name
 
     @property
+    def normalized_name(self): return self.model.name
+
+    @property
     def item_type(self): return self.model.item_type
 
     @property
@@ -30,6 +33,7 @@ class ArtifactConstructorPrototype(object):
         artifact = ArtifactPrototype(tp=self.item_type, equip_type=self.equip_type, quest=quest)
 
         artifact.set_name(self.name)
+        artifact.set_normalized_name(self.normalized_name)
         artifact.set_cost(basic_points + 1)
 
         power, points_spent = self.generate_power(basic_points)

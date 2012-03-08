@@ -70,9 +70,12 @@ class WordBase(object):
     def get_form(self, args):
         raise NotImplementedError
 
+    @classmethod
+    def pluralize_args(cls, number, args):
+        raise NotImplementedError
 
     def pluralize(self, number, args):
-        raise NotImplementedError
+        return self.get_form(self.pluralize_args(number, args.get_copy()))
 
     def update_args(self, arguments, dependence_class, dependence_args):
         raise NotImplementedError
@@ -103,7 +106,7 @@ class WordBase(object):
             return WORD_CONSTRUCTORS[WORD_TYPE.NOUN].create_from_baseword(morph, string, tech_vocabulary)
         elif class_ == u'П':
             return WORD_CONSTRUCTORS[WORD_TYPE.ADJECTIVE].create_from_baseword(morph, string, tech_vocabulary)
-        elif class_ == u'ИНФИНИТИВ':
+        elif class_ == u'Г':
             return WORD_CONSTRUCTORS[WORD_TYPE.VERB].create_from_baseword(morph, string, tech_vocabulary)
         elif class_ == u'МС':
             return WORD_CONSTRUCTORS[WORD_TYPE.NOUN].create_from_baseword(morph, string, tech_vocabulary)
@@ -118,6 +121,23 @@ class WordBase(object):
                                    type=self.TYPE,
                                    forms=u'|'.join(self.forms),
                                    properties=u'|'.join(self.properties))
+
+class Fake(WordBase):
+
+    TYPE = WORD_TYPE.FAKE
+
+    def __init__(self, word):
+        super(Fake, self).__init__(normalized=word.lower(), forms=[word], properties=())
+
+    def get_form(self, args):
+        return self.forms[0]
+
+    @classmethod
+    def pluralize_args(cls, number, args):
+        return args
+
+    def update_args(self, arguments, dependence, dependence_args):
+        pass
 
 
 class Noun(WordBase):
@@ -142,10 +162,6 @@ class Noun(WordBase):
                 args.update(u'рд')
 
         return args
-
-
-    def pluralize(self, number, args):
-        return self.get_form(self.pluralize_args(number, args.get_copy()))
 
     def update_args(self, arguments, dependence, dependence_args):
         if isinstance(dependence, Noun):
@@ -235,7 +251,7 @@ class Verb(WordBase):
 
         if args.time == u'прш':
             if args.number == u'мн':
-                return self.forms[4]
+                return self.forms[3]
             else:
                 return self.forms[PROPERTIES.GENDERS.index(args.gender)]
         elif args.time == u'нст':
@@ -245,13 +261,25 @@ class Verb(WordBase):
             delta = len(PROPERTIES.GENDERS) + 1 + len(PROPERTIES.NUMBERS) * len(PROPERTIES.PERSONS)
             return self.forms[delta + len(PROPERTIES.NUMBERS) * PROPERTIES.PERSONS.index(args.person) + PROPERTIES.NUMBERS.index(args.number)]
 
-    def pluralize(self, number, case):
-        raise NotImplementedError
+    @classmethod
+    def pluralize_args(cls, number, args):
+        if number % 10 == 1 and number != 11:
+            args.update(u'ед')
+        elif 2 <= number % 10 <= 4 and not (12 <= number <= 14):
+            args.update(u'мн')
+        else:
+            args.update(u'мн')
+            if args.case == u'им':
+                args.update(u'рд')
+        return args
 
-    def update_args(self, arguments, dependence_class, dependence_args):
-        if isinstance(dependence_class, Noun):
+    def update_args(self, arguments, dependence, dependence_args):
+        if isinstance(dependence, Noun):
             arguments.number = dependence_args.number
             arguments.gender = dependence_args.gender
+
+        elif isinstance(dependence, Numeral):
+            self.pluralize_args(dependence.normalized, arguments)
 
 
     @classmethod

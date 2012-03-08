@@ -6,22 +6,6 @@ _external_value = re.compile(u'\[\[[^\]]+\|[^\]]+\]\]', re.UNICODE)
 _inline_value = re.compile(u'\[\[[^\]]+\|[^\]]+\]\{[^\}]+\}+\]', re.UNICODE)
 _unprocessed_inline_value = re.compile(u'\[\[[^\]]+\|[^\]]+\|[^\]]+\]\]', re.UNICODE)
 
-class GENDER:
-    MASCULINE = 0
-    FEMININE = 1
-    NEUTER = 2
-
-GENDER_CHOICES = ( (GENDER.MASCULINE, u'мужской род'),
-                   (GENDER.FEMININE, u'женский род'),
-                   (GENDER.NEUTER, u'средний род') )
-
-GENDER_STR_2_ID = {u'м.р.': GENDER.MASCULINE,
-                   u'ж.р.': GENDER.FEMININE,
-                   u'ср.р.': GENDER.NEUTER}
-
-GENDER_ID_2_STR = {GENDER.MASCULINE: u'м.р.',
-                   GENDER.FEMININE: u'ж.р.',
-                   GENDER.NEUTER: u'ср.р.'}
 
 def normalize_args(args):
     return ';'.join(sorted(args.split(';')))

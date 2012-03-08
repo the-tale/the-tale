@@ -38,9 +38,10 @@ class Worker(object):
         self.highlevel_worker = highlevel_worker
 
     def close_queries(self):
-        self.supervisor_queue.close()
-        self.answers_queue.close()
-        self.stop_queue.close()
+        # self.supervisor_queue.close()
+        # self.answers_queue.close()
+        # self.stop_queue.close()
+        pass
 
     def clean_queues(self):
         self.supervisor_queue.queue.purge()

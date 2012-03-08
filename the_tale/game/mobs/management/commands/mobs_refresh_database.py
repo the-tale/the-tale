@@ -60,11 +60,12 @@ class Command(BaseCommand):
                     if not ArtifactConstructor.objects.filter(uuid=item_uuid).exists():
                         raise Exception('unknown loot id: "%s"' % item_uuid)
 
-                word = WordBase.create_from_string(morph, data['name'], tech_vocabulary)
+                word = WordBase.create_from_string(morph, data['normalized_name'], tech_vocabulary)
                 dictionary.add_word(word)
                     
                 MobConstructor.objects.create( uuid=uuid,
                                                name=data['name'],
+                                               normalized_name=data['normalized_name'],
                                                health_relative_to_hero=data['health_relative_to_hero'],
                                                initiative=data['initiative'],
                                                power_per_level=data['power_per_level'],

@@ -5,7 +5,7 @@ import pymorphy
 from django.test import TestCase
 
 from .models import Word
-from .words import Noun, Adjective, Verb, NounGroup
+from .words import Noun, Adjective, Verb, NounGroup, Fake
 from .templates import Args, Template, Dictionary, Vocabulary
 from .conf import textgen_settings
 
@@ -259,6 +259,40 @@ class VerbTest(TestCase):
                                       u'поговорит',
                                       u'поговорят',)) 
 
+    def test_word_recover(self):
+        verb = Verb.create_from_baseword(morph, u'восстановил')
+        self.assertEqual(verb.normalized, u'восстановить')
+        self.assertEqual(verb.forms, (u'восстановил',
+                                      u'восстановила',
+                                      u'восстановило',
+                                      u'восстановили',
+                                      u'восстановил',
+                                      u'восстановил',
+                                      u'восстановил',
+                                      u'восстановил',
+                                      u'восстановил',
+                                      u'восстановил',
+                                      u'восстановлю',
+                                      u'восстановим',
+                                      u'восстановишь',
+                                      u'восстановите',
+                                      u'восстановит',
+                                      u'восстановят',)) 
+
+    def test_pluralize(self):
+        verb = Verb.create_from_baseword(morph, u'взметнулись')
+        self.assertEqual(verb.pluralize(1, Args(u'прш', u'жр')), u'взметнулась')
+        self.assertEqual(verb.pluralize(2, Args(u'прш', u'жр')), u'взметнулись')
+        self.assertEqual(verb.pluralize(3, Args(u'прш', u'жр')), u'взметнулись')
+        self.assertEqual(verb.pluralize(5, Args(u'прш', u'жр')), u'взметнулись')
+        self.assertEqual(verb.pluralize(10, Args(u'прш', u'жр')), u'взметнулись')
+        self.assertEqual(verb.pluralize(11, Args(u'прш', u'жр')), u'взметнулись')
+        self.assertEqual(verb.pluralize(12, Args(u'прш', u'жр')), u'взметнулись')
+        self.assertEqual(verb.pluralize(21, Args(u'прш', u'жр')), u'взметнулась')
+        self.assertEqual(verb.pluralize(33, Args(u'прш', u'жр')), u'взметнулись')
+        self.assertEqual(verb.pluralize(36, Args(u'прш', u'жр')), u'взметнулись')
+
+
     def test_save_load(self):
         verb_1 = Verb.create_from_baseword(morph, u'бежит')
         verb_1.save_to_model()
@@ -436,3 +470,9 @@ class TemplateTest(TestCase):
 
         template = Template.create(morph, u'крыса [{ударить|прш,жр}] [[hero|вн]]')        
         self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка'} ), u'крыса ударила обезьянку')
+
+
+    def test_fake_substitutions(self):
+        template = Template.create(morph, u'[{глупый|hero|рд}] [[hero|рд]]')        
+        self.assertEqual(template.substitute(self.dictionary, {'hero': Fake(u'19x5')} ), u'глупого 19x5')
+        

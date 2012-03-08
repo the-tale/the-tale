@@ -3,8 +3,7 @@
 import pynames
 from pynames.generators import GENDER as PYNAMES_GENDER
 
-from .game_info import RACE
-from .journal.template import GENDER
+from .game_info import RACE, GENDER
 
 class NamesGenerators(object):
 

@@ -8,10 +8,10 @@ from dext.utils.decorators import nested_commit_on_success
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
-from game.journal.prototypes import PhrasePrototype
-from game.journal.template import NounFormatter, GENDER
+from game.textgen import get_vocabulary, get_dictionary
+from game.textgen.words import Fake as FakeWord
+from game.game_info import GENDER, RACE_CHOICES
 
-from ..game_info import RACE_CHOICES
 from .. import names
 
 from ..quests.prototypes import get_quest_by_model
@@ -151,13 +151,13 @@ class HeroPrototype(object):
             self._equipment.deserialize(self.model.equipment)
         return self._equipment
 
-    def get_formatter(self):
+    @property
+    def normalized_name(self):
         if self.gender == GENDER.MASCULINE:
-            return NounFormatter(data=[self.name, u'героя', u'герою', u'героя', u'героем', u'герое'],
-                                 gender=self.gender)
+            return u'герой'
         elif self.gender == GENDER.FEMININE:
-            return NounFormatter(data=[self.name, u'героини', u'героини', u'героиню', u'героиней', u'героине'],
-                                 gender=self.gender)
+            return u'героиня'
+
 
     ###########################################
     # Secondary attributes
@@ -255,8 +255,11 @@ class HeroPrototype(object):
     def add_message(self, type_, **kwargs):
         args = {}
         for k, v in kwargs.items():
-            args[k] = v.get_formatter() if hasattr(v, 'get_formatter') else v
-        msg = PhrasePrototype.get_random(type_).substitute(**args)
+            if isinstance(v, FakeWord):
+                args[k] = v
+            else:
+                args[k] = v.normalized_name if hasattr(v, 'normalized_name') else v
+        msg = get_vocabulary().get_random_phrase(type_).substitute(get_dictionary(), args)
         # print msg
         self.push_message(msg)
 

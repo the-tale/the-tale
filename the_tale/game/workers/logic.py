@@ -31,7 +31,8 @@ class Worker(object):
         self.supervisor_worker = supervisor_worker
 
     def close_queries(self):
-        self.game_queue.close()
+        # self.game_queue.close()
+        pass
 
     def clean_queues(self):
         self.game_queue.queue.purge()

@@ -2,14 +2,13 @@
 
 from .models import EQUIP_TYPE
 
-from game.journal.template import NounFormatter, GENDER
-
 class ArtifactPrototype(object):
 
     def __init__(self, tp=None, equip_type=None, power=0, quest=False, data=None):
         self.type = tp
         self.equip_type = equip_type
         self.name = None
+        self.normalized_name = None
         self.cost = 0
         self.quest = quest
         self.power = power
@@ -29,6 +28,9 @@ class ArtifactPrototype(object):
     def set_name(self, name):
         self.name = name
 
+    def set_normalized_name(self, normalized_name):
+        self.normalized_name = normalized_name
+
     def set_cost(self, cost):
         self.cost = cost
         
@@ -44,13 +46,13 @@ class ArtifactPrototype(object):
     def set_points_spent(self, points):
         self.basic_points_spent = points
 
-    def get_formatter(self):
-        return NounFormatter(data=self.name_forms, gender=self.gender)
-
     def deserialize(self, data):
         self.type = data.get('type', None)
         self.equip_type = data.get('equip_type', None)
         self.name = data.get('name', '')
+        self.normalized_name = data.get('normalized_name', u'осколок прошлого')
+        if not self.normalized_name:
+            self.normalized_name = u'осколок прошлого'
         self.cost = data.get('cost', 0)
         self.quest = data.get('quest', False)
         self.power = data.get('power', 1)
@@ -65,6 +67,7 @@ class ArtifactPrototype(object):
         return {'type': self.type,
                 'equip_type': self.equip_type,
                 'name': self.name,
+                'normalized_name': self.normalized_name,
                 'cost': self.cost,
                 'power': self.power,
                 'quest': self.quest,

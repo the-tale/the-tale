@@ -2,6 +2,5 @@
     "item_type": "useless",
     "equip_type": "none",
     "name": "письмо",
-    "gender": "ср.р.",
-    "name_forms": ["письмо", "письма", "письму", "письмо", "письмом", "письме"]
+    "normalized_name": "письмо"
 }

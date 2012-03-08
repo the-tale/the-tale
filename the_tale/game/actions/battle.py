@@ -18,6 +18,9 @@ class Actor(object):
     def name(self): return self.actor.name
 
     @property
+    def normalized_name(self): return self.actor.normalized_name
+
+    @property
     def power(self): return self.actor.power
     
     def get_basic_damage(self): return self.actor.get_basic_damage()
@@ -27,8 +30,6 @@ class Actor(object):
 
     @property
     def max_health(self): return self.actor.max_health
-
-    def get_formatter(self): return self.actor.get_formatter()
 
     def change_health(self, value):
         result = self.actor.health + value
