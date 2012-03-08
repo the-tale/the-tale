@@ -13,6 +13,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         print
+        print 'CLEAR TEXTGEN TEXTS'
+        print 
+
+        subprocess.call(['./manage.py', 'textgen_clear_database'])
+
+        print
         print 'LOAD TEXTGEN TEXTS'
         print 
 

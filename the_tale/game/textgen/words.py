@@ -108,12 +108,14 @@ class WordBase(object):
             return WORD_CONSTRUCTORS[WORD_TYPE.ADJECTIVE].create_from_baseword(morph, string, tech_vocabulary)
         elif class_ == u'Г':
             return WORD_CONSTRUCTORS[WORD_TYPE.VERB].create_from_baseword(morph, string, tech_vocabulary)
+        elif class_ == u'КР_ПРИЧАСТИЕ':
+            return WORD_CONSTRUCTORS[WORD_TYPE.VERB].create_from_baseword(morph, string, tech_vocabulary)
         elif class_ == u'МС':
             return WORD_CONSTRUCTORS[WORD_TYPE.NOUN].create_from_baseword(morph, string, tech_vocabulary)
         elif class_ == u'МС-П':
             return WORD_CONSTRUCTORS[WORD_TYPE.ADJECTIVE].create_from_baseword(morph, string, tech_vocabulary)
         else:
-            raise TextgenException(u'unknown word type: %s' % (string, ) )
+            raise TextgenException(u'unknown word type: %s of word: %s' % (class_, string) )
         
 
     def save_to_model(self):
@@ -193,7 +195,6 @@ class Noun(WordBase):
 
         return cls(normalized=normalized.lower(), forms=forms, properties=properties)
 
-
 class Numeral(WordBase):
 
     TYPE = WORD_TYPE.NUMERAL
@@ -219,8 +220,8 @@ class Adjective(WordBase):
             delta = len(PROPERTIES.CASES) * len(PROPERTIES.GENDERS)
             return self.forms[delta + PROPERTIES.CASES.index(args.case)]
 
-    def update_args(self, arguments, dependence_class, dependence_args):
-        if isinstance(dependence_class, Noun):
+    def update_args(self, arguments, dependence, dependence_args):
+        if isinstance(dependence, Noun):
             arguments.number = dependence_args.number
             arguments.gender = dependence_args.gender
             arguments.case = dependence_args.case
@@ -239,7 +240,7 @@ class Adjective(WordBase):
         #multiple
         for case in PROPERTIES.CASES:
             forms.append(morph.inflect_ru(normalized, u'%s,%s' % (case, u'мн') ).lower() )
-        
+      
         return cls(normalized=normalized.lower(), forms=forms, properties=[])
 
 

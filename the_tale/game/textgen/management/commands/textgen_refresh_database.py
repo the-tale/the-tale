@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import numbers
 import pymorphy
 
 from django.core.management.base import BaseCommand
@@ -7,8 +8,9 @@ from django.core.management.base import BaseCommand
 from dext.utils import s11n
 
 from ...templates import Vocabulary, Dictionary, Template
+from ...exceptions import TextgenException
 from ...words import WordBase
-from ...logic import get_tech_vocabulary
+from ...logic import get_tech_vocabulary, efication
 from ...conf import textgen_settings
 
 morph = pymorphy.get_morph(textgen_settings.PYMORPHY_DICTS_DIRECTORY)
@@ -62,14 +64,27 @@ class Command(BaseCommand):
                 for suffix, type_ in data['types'].items():
                     phrase_key = '%s_%s' % (group , suffix)
                     for phrase in type_['phrases']:
-                        template = Template.create(morph, phrase, available_externals=type_['variables'], tech_vocabulary=tech_vocabulary)
+                        template_phrase, test_phrase = phrase
+                        variables = type_['variables']
+                        template = Template.create(morph, template_phrase, available_externals=variables.keys(), tech_vocabulary=tech_vocabulary)
                         
                         vocabulary.add_phrase(phrase_key, template)
-                        # print phrase
+
+                        for value in variables.values():
+                            if isinstance(value, numbers.Number):
+                                continue
+                            word = WordBase.create_from_string(morph, value, tech_vocabulary)
+                            dictionary.add_word(word)
 
                         for string in template.get_internal_words():
                             word = WordBase.create_from_string(morph, string, tech_vocabulary)
                             dictionary.add_word(word)
+
+                        test_result = template.substitute(dictionary, variables)
+                        if efication(test_result.lower()) != efication(test_phrase.lower()):
+                            print test_phrase
+                            print test_result
+                            raise TextgenException(u'wrong test render for phrase "%s": "%s"' % (template_phrase, test_result))
 
 
         vocabulary.save()
