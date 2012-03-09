@@ -1,6 +1,5 @@
 # coding: utf-8
 from ..quest_line import Quest, Line
-from ..writer import Writer
 from .. import commands as cmd
 
 class EVENTS:
@@ -63,28 +62,3 @@ class CaravanLine(Quest):
                                               event=EVENTS.BRING_CHOICE,
                                               choice=CHOICES.BRING) ])
         self.line = main_line
-
-
-class CaravanWriter(Writer):
-
-    QUEST_TYPE = CaravanLine.type()
-
-    ACTIONS = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя проводить караван до %(place_end)s, где его встретит %(person_end)s',
-                EVENTS.MOVE_TO_POINT: u'Герой сопровождает караван в %(place_end)s',
-                EVENTS.BANDITS_ATTACK: u'Герой защищает караван от бандитов',
-                EVENTS.CARAVAN_ATTACK: u'Герой грабит караван',
-                EVENTS.RUN_AWAY: u'Герой пытается скрыться с награбленым'}
-
-    LOG = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя проводить караван до %(place_end)s, где его встретит %(person_end)s',
-            EVENTS.MOVE_TO_POINT: u'Герой движется с караваном в %(place_end)s',
-            EVENTS.BANDITS_ATTACK: u'Караван атакуют!',
-            EVENTS.CARAVAN_ATTACK: u'А не взять ли мне свою долю пораньше?',
-            EVENTS.RUN_AWAY: u'Нахватал полные карманы добра, теперь надо бежать',
-            EVENTS.GET_REWARD: u'%(person_end)s вручил герою награду',
-            EVENTS.BRING_CHOICE: u'Надо решать, что делать с этим караваном, может всё-таки ограбить?'}
-
-    CHOICES = { CHOICES.BRING: {'question': u'Торговец везёт с собой солидную сумму денег, возможно стоит <a href="#" class="pgf-choice" data-choice="bandits">присвоить её себе</a>? Или <a href="#" class="pgf-choice" data-choice="caravan">остаться добропорядочным героем</a>?',
-                                'results': {'caravan': u'Герой предпочёл защищать караван',
-                                            'bandits': u'Герой решил ограбить караван'} 
-                                } 
-                }

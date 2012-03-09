@@ -180,7 +180,7 @@ class Noun(WordBase):
 
         for number in PROPERTIES.NUMBERS:
             for case in PROPERTIES.CASES:
-                forms.append(morph.inflect_ru(normalized, u'%s,%s' % (case, number) ).lower() )
+                forms.append(morph.inflect_ru(normalized, u'%s,%s' % (case, number), class_ ).lower() )
 
         gram_info = morph.get_graminfo(normalized)[0]
 
@@ -229,17 +229,16 @@ class Adjective(WordBase):
     @classmethod
     def create_from_baseword(cls, morph, src, tech_vocabulary={}):
         class_, normalized, properties = get_gram_info(morph, efication(src.upper()), tech_vocabulary)
-
         forms = []
 
         # single
         for gender in PROPERTIES.GENDERS:
             for case in PROPERTIES.CASES:
-                forms.append(morph.inflect_ru(normalized, u'%s,%s,ед' % (case, gender) ).lower() )
+                forms.append(morph.inflect_ru(normalized, u'%s,%s,ед' % (case, gender), class_).lower() )
 
         #multiple
         for case in PROPERTIES.CASES:
-            forms.append(morph.inflect_ru(normalized, u'%s,%s' % (case, u'мн') ).lower() )
+            forms.append(morph.inflect_ru(normalized, u'%s,%s' % (case, u'мн'), class_).lower() )
       
         return cls(normalized=normalized.lower(), forms=forms, properties=[])
 

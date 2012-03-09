@@ -29,6 +29,7 @@ class Dictionary(object):
         WordModel.objects.all().delete()
 
     def save(self):
+        self.clear()
         for norm, word in self.data.items():
             WordModel.objects.filter(normalized=norm).delete()
             word.save_to_model()
@@ -49,13 +50,16 @@ class Vocabulary(object):
             self.data[type_] = []
         self.data[type_].append(template)
 
-    def get_random_phrase(self, type_):
-        return random.choice(self.data[type_])
+    def get_random_phrase(self, type_, default=None):
+        if type_ in self.data:
+            return random.choice(self.data[type_])
+        return default
 
     def clear(self):
         TemplateModel.objects.all().delete()
 
     def save(self):
+        self.clear()
         for type_, phrases in self.data.items():
             for phrase in phrases:
                 phrase.save(type_)
@@ -135,7 +139,7 @@ class Template(object):
             for id_, dependences, str_id, arguments, word_src in internals:
                 used_externals.extend(dependences)
             if set(used_externals) - set(available_externals):
-                raise TextgenException(u'wrong externals in template %s' % src)
+                raise TextgenException(u'wrong externals in template %s: [%s]' % (src, ', '.join(set(used_externals) - set(available_externals))))
 
         return cls(src, externals, internals)
 

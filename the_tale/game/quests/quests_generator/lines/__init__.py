@@ -1,14 +1,13 @@
 # coding: utf-8
 
-from ..writer import Writer
-
-from .help import HelpLine, HelpWriter
-from .delivery import DeliveryLine, DeliveryWriter
-from .caravan import CaravanLine, CaravanWriter
-from .spying import SpyingLine, SpyingWriter
-from .not_my_work import NotMyWorkLine, NotMyWorkWriter
+from .help import HelpLine
+from .delivery import DeliveryLine
+from .caravan import CaravanLine
+from .spying import SpyingLine
+from .not_my_work import NotMyWorkLine
 
 QUESTS = [HelpLine, DeliveryLine, CaravanLine, SpyingLine, NotMyWorkLine]
+QUESTS_TYPES = [quest.type() for quest in QUESTS]
 
 
 __all__ = ['QUESTS', 'HelpLine', 'DeliveryLine', 'CaravanLine', 'SpyingLine']
@@ -24,20 +23,3 @@ class BaseQuestsSource:
                 result.deserialize(data)
                 return result
         return None
-
-
-QUEST_WRITERS = {HelpLine.type(): [ HelpWriter ],
-                 DeliveryLine.type(): [DeliveryWriter],
-                 CaravanLine.type(): [CaravanWriter],
-                 SpyingLine.type(): [SpyingWriter],
-                 NotMyWorkLine.type(): [NotMyWorkWriter]}
-
-WRITERS = dict( (writer.type(), writer) 
-                for writer_name, writer in globals().items()
-                if isinstance(writer, type) and issubclass(writer, Writer))
-
-class BaseWritersSouece:
-
-    quest_writers = QUEST_WRITERS
-
-    writers = WRITERS

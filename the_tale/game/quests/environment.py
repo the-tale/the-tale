@@ -1,6 +1,7 @@
 # coding: utf-8
 
-from ..map.places.models import Place
+from ..map.places.prototypes import PlacePrototype
+from ..persons.prototypes import PersonPrototype
 
 from .quests_generator.environment import BaseEnvironment
 
@@ -48,11 +49,11 @@ class Environment(BaseEnvironment):
 
         for key, value in list(subst.items()):
             if value in self.places:
-                subst[key] = Place.objects.get(id=self.places[value]['external_data']['id']).name
+                subst[key] = PlacePrototype.get_by_id(id_=self.places[value]['external_data']['id']).normalized_name
             elif value in self.persons:
-                subst[key] = self.persons[value]['external_data']['name']
+                subst[key] = PersonPrototype.get_by_id(id_=self.persons[value]['external_data']['id']).normalized_name
             elif value in self.items:
-                subst[key] = self.items[value]['external_data']['artifact']['name']
+                subst[key] = self.items[value]['external_data']['artifact']['normalized_name']
 
         return subst
         

@@ -20,7 +20,7 @@ def get_gram_info(morph, word, tech_vocabulary={}):
         if len(classes) > 1:
             # print word
             # for c in classes:
-            #     print c        
+            #     print c      
             raise TextgenException(u'more then one grammar info for word: %s' % word)
 
         if not classes:

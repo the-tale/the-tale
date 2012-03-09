@@ -40,11 +40,12 @@ class QuestPrototype(object):
     def env(self):
         from .logic import get_knowlege_base
         from .environment import Environment
-        from .quests_generator.lines import BaseQuestsSource, BaseWritersSouece
+        from .quests_generator.lines import BaseQuestsSource
+        from .writer import Writer
 
         if not hasattr(self, '_env'):
             self._env = Environment(quests_source=BaseQuestsSource(),
-                                    writers_source=BaseWritersSouece(),
+                                    writers_constructor=Writer,
                                     knowlege_base=get_knowlege_base())
             self._env.deserialize(s11n.from_json(self.model.env))
         return self._env
@@ -149,9 +150,9 @@ class QuestPrototype(object):
 
         cmd = self.env.get_command(self.pointer)
 
-        writer = self.env.get_writer(self.pointer)
+        writer = self.env.get_writer(cur_action.hero, self.pointer)
 
-        log_msg = writer.get_log_msg(cmd.event)
+        log_msg = writer.get_journal_msg(cmd.event)
 
         if log_msg:
             cur_action.hero.push_message(log_msg)
@@ -215,24 +216,24 @@ class QuestPrototype(object):
         from ..heroes.logic import create_mob_for_hero
         cur_action.bundle.add_action(ActionBattlePvE_1x1Prototype.create(parent=cur_action, mob=create_mob_for_hero(cur_action.hero)))
 
-    def ui_info(self):
+    def ui_info(self, hero):
         choices = self.get_choices()
 
         cmd = self.env.get_nearest_quest_choice(self.pointer)
         quest = self.env.get_quest(self.pointer)
-        writer = self.env.get_writer(self.pointer)
+        writer = self.env.get_writer(hero, self.pointer)
 
         if cmd:
             cmd_id = cmd.id
             if cmd.id in choices:
                 choice_msg = writer.get_choice_result_msg(cmd.choice, choices[cmd.id])
             else:
-                choice_msg = writer.get_choice_msg(cmd.choice)
+                choice_msg = writer.get_choice_question_msg(cmd.choice)
         else:
             choice_msg = None
             cmd_id = None
 
-        return {'line': self.env.get_writers_text_chain(self.last_pointer),
+        return {'line': self.env.get_writers_text_chain(hero, self.last_pointer),
                 'choice_id': cmd_id,
                 'choice_text': choice_msg,
                 'id': self.model.id,

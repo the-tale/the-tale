@@ -25,6 +25,10 @@ class PlacePrototype(object):
         super(PlacePrototype, self).__init__(*argv, **kwargs)
         self.model = model
 
+    @classmethod
+    def get_by_id(cls, id_):
+        return cls(Place.objects.get(id=id_))
+
     @property
     def id(self): return self.model.id
 

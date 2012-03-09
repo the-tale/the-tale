@@ -23,6 +23,12 @@ class Command(BaseCommand):
         print 
 
         subprocess.call(['./manage.py', 'textgen_refresh_database'])
+
+        print
+        print 'LOAD QUEST WRITERS'
+        print 
+
+        subprocess.call(['./manage.py', 'quests_load_writers'])
         
         print
         print 'LOAD ARTIFACT CONSTRUCTORS'

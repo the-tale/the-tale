@@ -1,0 +1,33 @@
+{
+    "description": "",
+    "prefix": "quest_spyingline_writer_base",
+    "quest_type": "spyingline",
+    "variables": {"hero": "привидение", "person_start": "свинья", "person_end": "гусь", "place_start": "село", "place_end": "город"},
+    "base": {
+        "description": ["[[person_start]] [{попросил|person_start|прш}] [[hero|вн]] прошпионить за [[person_end|тв]] из [[place_end|рд]]",
+                        "Свинья попросила привидение прошпионить за гусём из города"]
+    },
+    "actions": {
+        "move_to_quest": ["[[hero]] движется к [[place_end|дт]]",
+                          "Привидение движется к городу"],
+        "move_near": ["[[hero]] шпионит за [[person_end|тв]]",
+                      "Привидение шпионит за гусём"]
+    },
+    "journal": {
+        "move_near": ["И что [{этот|person_end|}] [[person_end]] будет делать?",
+                      "И что этот гусь будет делать?"],
+        "get_reward": ["[[person_start]] [{наградил|person_start|прш}] [[hero|вн]]",
+                       "Свинья наградила привидение"],
+        "open_up_choice": ["Не стоит мне шпионить за достойным [[person_end|тв]], лучше расскажу ему обо всём",
+                           "Не стоит мне шпионить за достойным гусём, лучше расскажу ему обо всём"]
+    },
+    "choices": {
+        "open_up": {"question": ["За <a href='#' class='pgf-choice' data-choice='spy'>шпионаж</a> [[hero|дт]] пообещали большую награду, но, геройская честь требует <a href='#' class='pgf-choice' data-choice='open_up'>открыться</a>?",
+                                 "За <a href='#' class='pgf-choice' data-choice='spy'>шпионаж</a> привидению пообещали большую награду, но, геройская честь требует <a href='#' class='pgf-choice' data-choice='open_up'>открыться</a>?"],
+                    "results": {"spy": ["[[hero]] [{решил|hero|прш}] продолжить шпионаж",
+                                        "Привидение решило продолжить шпионаж"],
+                                "open_up": ["[[hero]] [{решил|hero|прш}] придти к [[person_end|дт]] с повинной",
+                                            "Привидение решило придти к гусю с повинной"] } 
+                   } 
+    }
+}

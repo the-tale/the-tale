@@ -2,7 +2,6 @@
 import random
 
 from ..quest_line import Quest, Line
-from ..writer import Writer
 from .. import commands as cmd
 
 class EVENTS:
@@ -55,27 +54,3 @@ class NotMyWorkLine(Quest):
                                               choice=CHOICES.WORK) ])
 
         self.line = main_line
-
-class NotMyWorkWriter(Writer):
-
-    QUEST_TYPE = NotMyWorkLine.type()
-
-    ATTACK_PERFORMER = 'attack_performer'
-
-    ACTIONS = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя "напомнить" %(person_end)s о невыполненном обещании',
-                EVENTS.MOVE_TO_QUEST: u'Герой направляетя в %(place_end)s',
-                EVENTS.MOVE_TO_CUSTOMER: u'Герой возвращается за наградой',
-                EVENTS.ATTACK_PERFORMER: u'Герой сражается с прислужниками %(person_end)s',}
-
-    LOG = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя "напомнить" %(person_end)s о невыполненном обещании',
-            EVENTS.MOVE_TO_QUEST: u'Пойдём, посмотрим на этого %(person_end)s',
-            EVENTS.MOVE_TO_CUSTOMER: u'А теперь можно и за наградой',
-            EVENTS.WORK_CHOICE: u'Стоит помочь бедняге %(person_end)s',
-            EVENTS.GET_REWARD: u'%(person_start)s наградил героя',}
-
-    CHOICES = { CHOICES.WORK: {'question': u'Стоит ли <a href="#" class="pgf-choice" data-choice="work">помочь</a> %(person_end)s или <a href="#" class="pgf-choice" data-choice="attack">силой заставить</a> его выполнить обещание?',
-                                  'results': {'work': u'герой решил помочь %(person_end)s',
-                                              'attack': u'герой решил применить силу'} 
-                                  } 
-                }
-

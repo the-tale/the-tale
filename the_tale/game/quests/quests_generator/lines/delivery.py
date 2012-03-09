@@ -1,6 +1,5 @@
 # coding: utf-8
 from ..quest_line import Quest, Line
-from ..writer import Writer
 from .. import commands as cmd
 
 class EVENTS:
@@ -44,26 +43,3 @@ class DeliveryLine(Quest):
                                                         'steal': env.new_line(steal_line)},
                                                event=EVENTS.STEAL_CHOICE,
                                                choice=CHOICES.STEAL) ])
-
-
-class DeliveryWriter(Writer):
-
-    QUEST_TYPE = DeliveryLine.type()
-
-    ACTIONS = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя доставить %(item_to_deliver)s для %(person_end)s в %(place_end)s',
-                EVENTS.MOVE_TO_DESTINATION: u'Герой доставляет %(item_to_deliver)s в %(place_end)s'}
-
-    LOG = { EVENTS.QUEST_DESCRIPTION: u'%(person_start)s попросил героя доставить %(item_to_deliver)s для %(person_end)s в %(place_end)s',
-            EVENTS.GET_ITEM: u'Герой получил %(item_to_deliver)s',
-            EVENTS.MOVE_TO_DESTINATION: u'Работа у курьеров не простая, пора двигаться в %(place_end)s',
-            EVENTS.GIVE_ITEM: u'Герой вручил %(item_to_deliver)s %(person_end)s',
-            EVENTS.STEAL_ITEM: u'Герой присвоил %(item_to_deliver)s',
-            EVENTS.GET_REWARD: u'%(person_end)s вручил герою награду',
-            EVENTS.STEAL_REWARD: u'Теперь %(item_to_deliver)s будет моим',
-            EVENTS.STEAL_CHOICE: u'Доставить или украсть - вот в чём вопрос'}
-
-    CHOICES = { CHOICES.STEAL: {'question': u'Зачем <a href="#" class="pgf-choice" data-choice="delivery">мучаться с доставкой</a> %(item_to_deliver)s если можно  <a href="#" class="pgf-choice" data-choice="steal">украсть</a> посылку?',
-                                'results': {'delivery': u'Герой решил честно выполнить условия сделки',
-                                            'steal': u'Герой решил присвоить %(item_to_deliver)s'} 
-                                } 
-                }

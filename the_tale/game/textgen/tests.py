@@ -475,4 +475,13 @@ class TemplateTest(TestCase):
     def test_fake_substitutions(self):
         template = Template.create(morph, u'[{глупый|hero|рд}] [[hero|рд]]')        
         self.assertEqual(template.substitute(self.dictionary, {'hero': Fake(u'19x5')} ), u'глупого 19x5')
+
+    # def test_x(self):
+    #     from .words import WordBase
+    #     from .logic import get_tech_vocabulary
+    #     tech_vocabulary = get_tech_vocabulary()
+    #     word = WordBase.create_from_string(morph, u'этого', tech_vocabulary)
+    #     print word
+    #     for f in word.forms:
+    #         print f
         

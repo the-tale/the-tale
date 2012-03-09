@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from game.textgen.words import Fake
+
 from .models import Person, PERSON_STATE
 
 def get_person_by_model(model):
@@ -10,11 +12,18 @@ class PersonPrototype(object):
     def __init__(self, model):
         self.model = model
 
+    @classmethod
+    def get_by_id(cls, id_):
+        return cls(Person.objects.get(id=id_))
+
     @property
     def id(self): return self.model.id
 
     @property
     def name(self): return self.model.name
+
+    @property
+    def normalized_name(self): return Fake(self.model.name)
 
     @property
     def race(self): return self.model.race

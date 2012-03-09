@@ -282,7 +282,7 @@ class HeroPrototype(object):
         return {'id': self.id,
                 'angel': self.angel_id,
                 'actions': [ action.ui_info() for action in self.get_actions() ] if not ignore_actions else [],
-                'quests': self.quest.ui_info() if self.quest else {},
+                'quests': self.quest.ui_info(self) if self.quest else {},
                 'messages': self.messages,
                 'position': self.position.ui_info(),
                 'alive': self.is_alive,

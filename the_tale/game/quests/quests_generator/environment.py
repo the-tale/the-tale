@@ -6,9 +6,9 @@ class RollBackException(Exception): pass
 
 class BaseEnvironment(object):
 
-    def __init__(self, quests_source, writers_source, knowlege_base):
+    def __init__(self, quests_source, writers_constructor, knowlege_base):
         self.quests_source = quests_source
-        self.writers_source = writers_source
+        self.writers_constructor = writers_constructor
         self.knowlege_base = knowlege_base
 
         self.items_number = 0
@@ -21,7 +21,6 @@ class BaseEnvironment(object):
         self.items = {}
         self.quests = {}
         self.lines = {}
-        self.quests_to_writers = {}
         self.choices = {}
         self.persons_power_points = {}
 
@@ -70,7 +69,6 @@ class BaseEnvironment(object):
                          person_start=person_start)
 
         self.quests[quest_id] = quest
-        self.quests_to_writers[quest_id] = random.choice(self.writers_source.quest_writers[quest.type()]).type()
         
         return quest_id
 
@@ -98,15 +96,15 @@ class BaseEnvironment(object):
     def get_command(self, pointer):
         return self.root_quest.get_command(self, pointer)
 
-    def get_writers_text_chain(self, pointer):
+    def get_writers_text_chain(self, hero, pointer):
         chain = self.root_quest.get_quest_action_chain(self, pointer)
 
         writers_chain = []
 
         for quest, command in chain:
-            writer = self.writers_source.writers[self.quests_to_writers[quest.id]](self, quest.env_local)
+            writer = self.writers_constructor(hero, quest.type(), self, quest.env_local)
             writers_chain.append({'quest_type': quest.type(),
-                                  'quest_text': writer.get_action_msg('quest_description'),
+                                  'quest_text': writer.get_description_msg(),
                                   'action_type': command.type(),
                                   'action_text': writer.get_action_msg(command.event)})
         
@@ -130,9 +128,9 @@ class BaseEnvironment(object):
         return None
 
 
-    def get_writer(self, pointer):
+    def get_writer(self, hero, pointer):
         quest = self.get_quest(pointer)
-        writer = self.writers_source.writers[self.quests_to_writers[quest.id]](self, quest.env_local)
+        writer = self.writers_constructor(hero, quest.type(), self, quest.env_local)
         return writer
 
     def percents(self, pointer):
@@ -150,7 +148,6 @@ class BaseEnvironment(object):
                  'lines': dict( (line_id, line.serialize() ) 
                                  for line_id, line in self.lines.items() ),
                  'root_quest': self._root_quest,
-                 'quests_to_writers': self.quests_to_writers,
                  'persons_power_points': self.persons_power_points}
 
     def deserialize(self, data):
@@ -173,7 +170,6 @@ class BaseEnvironment(object):
 
         self._root_quest = data['root_quest']
 
-        self.quests_to_writers = data['quests_to_writers']
         self.persons_power_points = data.get('persons_power_points', {})
 
 

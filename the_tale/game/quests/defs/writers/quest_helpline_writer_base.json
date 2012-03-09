@@ -1,0 +1,20 @@
+{
+    "description": "",
+    "prefix": "quest_helpline_writer_base",
+    "quest_type": "helpline",
+    "variables": {"hero": "привидение", "person_start": "свинья", "person_end": "гусь", "place_start": "село", "place_end": "город"},
+    "base": {
+        "description": ["[[person_start]] [{попросил|person_start|прш}] [[hero|вн]] помочь [[person_end|дт]] из [[place_end|рд]]",
+                        "Свинья попросила привидение помочь гусю из города"]
+    },
+    "actions": {
+        "move_to_quest": ["[[hero]] [{направился|hero|прш}] к [[person_end|дт]]",
+                          "Привидение направилось к гусю"]
+    },
+    "journal": {
+        "move_to_quest": ["Путь до [[place_end|рд]] нелёгкий, о чём же попросит меня [[person_end]]?",
+                          "Путь до города нелёгкий, о чём же попросит меня гусь?"]
+    },
+    "choices": {
+    }
+}
