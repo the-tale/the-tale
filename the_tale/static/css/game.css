@@ -120,24 +120,19 @@
   display: inline-block;
   width: 32px;
   height: 32px;
-  background: url('../game/images/time.png') no-repeat;
   vertical-align: middle;
 }
 #time-block .time .time-icon.sunrise {
-  background-position-x: 0px;
-  background-position-y: 0px;
+  background: url('../game/images/time.png') no-repeat scroll 0 0 transparent;
 }
 #time-block .time .time-icon.sunset {
-  background-position-x: 0px;
-  background-position-y: -32px;
+  background: url('../game/images/time.png') no-repeat scroll 0 -32px transparent;
 }
 #time-block .time .time-icon.midnight {
-  background-position-x: -32px;
-  background-position-y: -32px;
+  background: url('../game/images/time.png') no-repeat scroll -32px -32px transparent;
 }
 #time-block .time .time-icon.noon {
-  background-position-x: -32px;
-  background-position-y: 0px;
+  background: url('../game/images/time.png') no-repeat scroll -32px 0 transparent;
 }
 #current-actions-block {
   font-size: 10pt;
@@ -186,28 +181,38 @@
   margin-left: 3px;
 }
 #current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon {
-  background: url('../game/images/quests.png') no-repeat;
   display: inline-block;
   width: 32px;
   height: 32px;
 }
-#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.help {
-  background-position-x: 0px;
-  background-position-y: 0px;
+#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.helpline {
+  background: url('../game/images/quests.png') no-repeat scroll 0 0 transparent;
 }
-#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.delivery {
-  background-position-x: -32px;
-  background-position-y: 0px;
+#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.deliveryline {
+  background: url('../game/images/quests.png') no-repeat scroll -32px 0 transparent;
+}
+#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.spyingline {
+  background: url('../game/images/quests.png') no-repeat scroll -64px 0 transparent;
+}
+#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.notmyworkline {
+  background: url('../game/images/quests.png') no-repeat scroll -96px 0 transparent;
+}
+#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.caravanline {
+  background: url('../game/images/quests.png') no-repeat scroll -128px 0 transparent;
 }
 #current-actions-block .current-quests-block .quests-line .quest-line-element .action-icon {
-  background: url('../game/images/actions.png') no-repeat;
   display: inline-block;
   width: 24px;
   height: 24px;
 }
-#current-actions-block .current-quests-block .quests-line .quest-line-element .action-icon.move_to_destination {
-  background-position-x: 0px;
-  background-position-y: 0px;
+#current-actions-block .current-quests-block .quests-line .quest-line-element .action-icon.move {
+  background: url('../game/images/actions.png') no-repeat scroll 0 0 transparent;
+}
+#current-actions-block .current-quests-block .quests-line .quest-line-element .action-icon.movenear {
+  background: url('../game/images/actions.png') no-repeat scroll 0 0 transparent;
+}
+#current-actions-block .current-quests-block .quests-line .quest-line-element .action-icon.battle {
+  background: url('../game/images/actions.png') no-repeat scroll -24px 0 transparent;
 }
 #current-actions-block .current-quests-block .quest-choices {
   border-top: 3px #357dac solid;
@@ -245,23 +250,18 @@
   display: inline-block;
   width: 32px;
   height: 32px;
-  background: url('../game/images/abilities.png') no-repeat;
 }
 #abilities-block .record.ability-healhero .icon {
-  background-position-x: 0px;
-  background-position-y: 0px;
+  background: url('../game/images/abilities.png') no-repeat scroll 0 0 transparent;
 }
 #abilities-block .record.ability-lightning .icon {
-  background-position-x: -96px;
-  background-position-y: 0px;
+  background: url('../game/images/abilities.png') no-repeat scroll -96px 0 transparent;
 }
 #abilities-block .record.ability-getquest .icon {
-  background-position-x: -32px;
-  background-position-y: 0px;
+  background: url('../game/images/abilities.png') no-repeat scroll -32px 0 transparent;
 }
 #abilities-block .record.ability-shortteleport .icon {
-  background-position-x: -64px;
-  background-position-y: 0px;
+  background: url('../game/images/abilities.png') no-repeat scroll -64px 0 transparent;
 }
 /* dialog with information about place */
 .place-info {

@@ -36,32 +36,25 @@
   display: inline-block;
   width: 32px;
   height: 32px;
-  background: url('../game/images/habilities.png') no-repeat;
   vertical-align: middle;
 }
 .hero-abilities-list .record .icon.magicmushroom {
-  background-position-x: 0px;
-  background-position-y: 0px;
+  background: url('../game/images/habilities.png') no-repeat scroll 0 0 transparent;
 }
 .hero-abilities-list .record .icon.regeneration {
-  background-position-x: -32px;
-  background-position-y: 0px;
+  background: url('../game/images/habilities.png') no-repeat scroll -32px 0 transparent;
 }
 .hero-abilities-list .record .icon.sidestep {
-  background-position-x: -64px;
-  background-position-y: 0px;
+  background: url('../game/images/habilities.png') no-repeat scroll -64px 0 transparent;
 }
 .hero-abilities-list .record .icon.menothere {
-  background-position-x: -96px;
-  background-position-y: 0px;
+  background: url('../game/images/habilities.png') no-repeat scroll -96px 0 transparent;
 }
 .hero-abilities-list .record .icon.runuppush {
-  background-position-x: -128px;
-  background-position-y: 0px;
+  background: url('../game/images/habilities.png') no-repeat scroll -128px 0 transparent;
 }
 .hero-abilities-list .record .icon.hit {
-  background-position-x: -160px;
-  background-position-y: 0px;
+  background: url('../game/images/habilities.png') no-repeat scroll -160px 0 transparent;
 }
 .hero-abilities-list .record .name {
   font-weight: bold;

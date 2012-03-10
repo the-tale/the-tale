@@ -63,6 +63,7 @@ blockquote {
 html {
   background-color: #559dcc;
   background-image: url(../images/background.svg);
+  background-attachment: fixed;
   background-repeat: no-repeat;
   background-position: center 0;
   background-attachment: fixed;
