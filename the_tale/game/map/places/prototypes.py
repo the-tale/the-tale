@@ -89,6 +89,7 @@ class PlacePrototype(object):
 
             PersonPrototype.create(place=self, 
                                    race=race,
+                                   gender=gender,
                                    tp=random.choice(PERSON_TYPE_CHOICES)[0],
                                    name=names.generator.get_name(race, gender))
             persons_count += 1

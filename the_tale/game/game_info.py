@@ -25,10 +25,10 @@ GENDER_CHOICES = ( (GENDER.MASCULINE, u'мужской род'),
                    (GENDER.FEMININE, u'женский род'),
                    (GENDER.NEUTER, u'средний род') )
 
-GENDER_STR_2_ID = {u'м.р.': GENDER.MASCULINE,
-                   u'ж.р.': GENDER.FEMININE,
-                   u'ср.р.': GENDER.NEUTER}
+GENDER_STR_2_ID = {u'мр': GENDER.MASCULINE,
+                   u'жр': GENDER.FEMININE,
+                   u'ср': GENDER.NEUTER}
 
-GENDER_ID_2_STR = {GENDER.MASCULINE: u'м.р.',
-                   GENDER.FEMININE: u'ж.р.',
-                   GENDER.NEUTER: u'ср.р.'}
+GENDER_ID_2_STR = {GENDER.MASCULINE: u'мр',
+                   GENDER.FEMININE: u'жр',
+                   GENDER.NEUTER: u'ср'}

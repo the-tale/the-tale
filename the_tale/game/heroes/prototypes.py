@@ -10,7 +10,7 @@ from game.map.roads.prototypes import RoadPrototype
 
 from game.textgen import get_vocabulary, get_dictionary
 from game.textgen.words import Fake as FakeWord
-from game.game_info import GENDER, RACE_CHOICES
+from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR
 
 from .. import names
 
@@ -154,9 +154,9 @@ class HeroPrototype(object):
     @property
     def normalized_name(self):
         if self.gender == GENDER.MASCULINE:
-            return u'герой'
+            return (u'герой', GENDER_ID_2_STR[self.gender])
         elif self.gender == GENDER.FEMININE:
-            return u'героиня'
+            return (u'героиня', GENDER_ID_2_STR[self.gender])
 
 
     ###########################################

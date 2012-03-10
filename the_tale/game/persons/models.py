@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from ..game_info import RACE, RACE_CHOICES
+from game.game_info import RACE, RACE_CHOICES, GENDER, GENDER_CHOICES
 
 
 class PERSON_TYPE:
@@ -42,6 +42,8 @@ class Person(models.Model):
     state = models.IntegerField(default=PERSON_STATE.IN_GAME, choices=PERSON_STATE_CHOICES)
 
     name = models.CharField(max_length=256)
+
+    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER_CHOICES)
     
     race = models.IntegerField(choices=RACE_CHOICES, default=RACE.HUMAN)
 

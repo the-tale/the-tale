@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from game.textgen.words import Fake
+from game.game_info import GENDER_ID_2_STR
 
 from .models import Person, PERSON_STATE
 
@@ -23,7 +24,10 @@ class PersonPrototype(object):
     def name(self): return self.model.name
 
     @property
-    def normalized_name(self): return Fake(self.model.name)
+    def normalized_name(self): return (Fake(self.model.name), GENDER_ID_2_STR[self.gender])
+
+    @property
+    def gender(self): return self.model.gender
 
     @property
     def race(self): return self.model.race
@@ -58,12 +62,13 @@ class PersonPrototype(object):
         self.model.remove()
 
     @classmethod
-    def create(cls, place, race, tp, name, power=0):
+    def create(cls, place, race, tp, name, gender, power=0):
         
         instance = Person.objects.create(place=place.model,
                                          state=PERSON_STATE.IN_GAME,
                                          race=race,
                                          type=tp,
+                                         gender=gender,
                                          name=name,
                                          power=power)
 
