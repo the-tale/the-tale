@@ -259,7 +259,11 @@ class HeroPrototype(object):
                 args[k] = v
             else:
                 args[k] = v.normalized_name if hasattr(v, 'normalized_name') else v
-        msg = get_vocabulary().get_random_phrase(type_).substitute(get_dictionary(), args)
+        template = get_vocabulary().get_random_phrase(type_)
+        if template is None:
+            print u'ERROR: unknown template type: %s' % type_
+            return
+        msg = template.substitute(get_dictionary(), args)
         # print msg
         self.push_message(msg)
 
