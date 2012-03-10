@@ -1,11 +1,16 @@
 # coding: utf-8
+import sys
 import heapq
 import traceback
+
+from django.utils.log import getLogger
 
 from dext.utils.decorators import nested_commit_on_success
 
 from ..heroes.prototypes import get_hero_by_id
 from ..bundles import get_bundle_by_id
+
+logger = getLogger('django.request')
 
 class CMD_TYPE:
     INITIALIZE = 'initialize'
@@ -66,6 +71,10 @@ class Worker(object):
             self.exception_raised = True
             print 'EXCEPTION: %s' % e
             traceback.print_exc()
+
+            logger.error('Game worker exception: game_logic',
+                         exc_info=sys.exc_info(),
+                         extra={} )
 
 
     def send_cmd(self, tp, data={}):

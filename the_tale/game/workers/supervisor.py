@@ -1,5 +1,8 @@
 # coding: utf-8
+import sys
 import traceback
+
+from django.utils.log import getLogger
 
 from dext.utils.decorators import nested_commit_on_success
 
@@ -9,6 +12,7 @@ from ..models import Bundle
 from ..abilities.prototypes import AbilityTaskPrototype
 from ..heroes.prototypes import ChooseAbilityTaskPrototype
 
+logger = getLogger('django.request')
 
 class CMD_TYPE:
     NEXT_TURN = 'next_turn'
@@ -114,6 +118,10 @@ class Worker(object):
             self.exception_raised = True
             print 'EXCEPTION: %s' % e
             traceback.print_exc()
+
+            logger.error('Game worker exception: game_supervisor',
+                         exc_info=sys.exc_info(),
+                         extra={} )
 
     def send_cmd(self, tp, data={}):
         self.supervisor_queue.put({'type': tp, 'data': data}, serializer='json', compression=None)

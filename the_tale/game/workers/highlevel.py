@@ -1,6 +1,9 @@
 # coding: utf-8
+import sys
 import traceback
 import subprocess
+
+from django.utils.log import getLogger
 
 from dext.utils.decorators import nested_commit_on_success
 
@@ -8,6 +11,8 @@ from ..persons.models import Person, PERSON_STATE
 from ..persons.prototypes import get_person_by_model
 from ..map.places.models import Place
 from ..map.places.prototypes import get_place_by_model
+
+logger = getLogger('django.request')
 
 SYNC_DELTA = 300 # in turns
 
@@ -60,6 +65,10 @@ class Worker(object):
             self.exception_raised = True
             print 'EXCEPTION: %s' % e
             traceback.print_exc()
+
+            logger.error('Game worker exception: game_highlevel',
+                         exc_info=sys.exc_info(),
+                         extra={} )
 
     def send_cmd(self, tp, data={}):
         self.highlevel_queue.put({'type': tp, 'data': data}, serializer='json', compression=None)
