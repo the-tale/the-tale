@@ -31,9 +31,12 @@ def get_gram_info(morph, word, tech_vocabulary={}):
     normalized = None
     properties = ()
     for info in morph.get_graminfo(word.upper()):
+        if u'имя' in info['info']:
+            continue
         if info['class'] == class_:
             normalized = info['norm']
             properties = tuple(info['info'].split(','))
+
             break # stop of most common form ("им" for nouns)
 
     return class_, normalized, properties

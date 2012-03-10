@@ -230,6 +230,8 @@ pgf.game.map.Map = function(selector, params) {
 
     var subsytemsReady = false;
 
+    var activated = false;
+
     var navigationLayer = new pgf.game.map.NavigationLayer(jQuery('.pgf-navigation-layer'), 
                                                            { OnDrag: OnMove,
                                                              OnMouseEnter: OnMouseEnter,
@@ -487,6 +489,9 @@ pgf.game.map.Map = function(selector, params) {
     }
 
     function Activate() {
+        if (activated) return;
+        activated = true;
+
         OnMove(0, 0);
         CenterOnHero();
     }
