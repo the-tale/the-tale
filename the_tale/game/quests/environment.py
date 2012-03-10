@@ -53,7 +53,7 @@ class Environment(BaseEnvironment):
             elif value in self.persons:
                 subst[key] = PersonPrototype.get_by_id(id_=self.persons[value]['external_data']['id']).normalized_name
             elif value in self.items:
-                subst[key] = self.items[value]['external_data']['artifact']['normalized_name']
+                subst[key] = self.items[value]['external_data']['artifact'].get('normalized_name', u'осколок прошлого')
 
         return subst
         
