@@ -25,22 +25,22 @@ class Command(object):
         self.event = data['event']
 
 
-class Description(Command):
+# class Description(Command):
 
-    def __init__(self, **kwargs):
-        super(Description, self).__init__(**kwargs)
+#     def __init__(self, **kwargs):
+#         super(Description, self).__init__(**kwargs)
 
-    def get_description(self, env):
-        return '<description> msg: %s' % self.event
+#     def get_description(self, env):
+#         return '<description> msg: %s' % self.event
 
-    def serialize(self):
-        data = super(Description, self).serialize()
-        data.update({'msg': self.context_msg})
-        return data
+#     def serialize(self):
+#         data = super(Description, self).serialize()
+#         data.update({'msg': self.context_msg})
+#         return data
 
-    def deserialize(self, data):
-        super(Description, self).deserialize(data)
-        self.context_msg = data['msg']
+#     def deserialize(self, data):
+#         super(Description, self).deserialize(data)
+#         self.context_msg = data['msg']
 
 
 class Move(Command):

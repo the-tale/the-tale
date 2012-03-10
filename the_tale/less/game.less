@@ -181,27 +181,22 @@
             display: inline-block;
             width: 32px;
             height: 32px;
-            background: url('../game/images/time.png') no-repeat;
             vertical-align: middle;
 
             &.sunrise {
-                background-position-x: 0px;
-                background-position-y: 0px;
+                background: url('../game/images/time.png') no-repeat scroll 0 0 transparent;
             }
 
             &.sunset {
-                background-position-x: 0px;
-                background-position-y: -32px;
+                background: url('../game/images/time.png') no-repeat scroll 0 -32px transparent;
             }
 
             &.midnight {
-                background-position-x: -32px;
-                background-position-y: -32px;
+                background: url('../game/images/time.png') no-repeat scroll -32px -32px transparent;
             }
 
             &.noon {
-                background-position-x: -32px;
-                background-position-y: 0px;
+                background: url('../game/images/time.png') no-repeat scroll -32px 0 transparent;
             }
         }
     }    
@@ -265,31 +260,44 @@
                 margin-left: 3px;
 
                 .quest-icon {
-                    background: url('../game/images/quests.png') no-repeat;
                     display: inline-block;
                     width: 32px;
                     height: 32px;
 
-                    &.help {
-                        background-position-x: 0px;
-                        background-position-y: 0px;
+                    &.helpline {
+                        background: url('../game/images/quests.png') no-repeat scroll 0 0 transparent;
                     }
 
-                    &.delivery {
-                        background-position-x: -32px;
-                        background-position-y: 0px;
+                    &.deliveryline {
+                        background: url('../game/images/quests.png') no-repeat scroll -32px 0 transparent;
+                    }
+
+                    &.spyingline {
+                        background: url('../game/images/quests.png') no-repeat scroll -64px 0 transparent;
+                    }
+
+                    &.notmyworkline {
+                        background: url('../game/images/quests.png') no-repeat scroll -96px 0 transparent;
+                    }
+
+                    &.caravanline {
+                        background: url('../game/images/quests.png') no-repeat scroll -128px 0 transparent;
                     }
                 }
                 
                 .action-icon {
-                    background: url('../game/images/actions.png') no-repeat;
                     display: inline-block;
                     width: 24px;
                     height: 24px;
 
-                    &.move_to_destination {
-                        background-position-x: 0px;
-                        background-position-y: 0px;
+                    &.move {
+                        background: url('../game/images/actions.png') no-repeat scroll 0 0 transparent;
+                    }
+                    &.movenear {
+                        background: url('../game/images/actions.png') no-repeat scroll 0 0 transparent;
+                    }
+                    &.battle {
+                        background: url('../game/images/actions.png') no-repeat scroll -24px 0 transparent;
                     }
                 }
             }
@@ -351,30 +359,23 @@
             display: inline-block;
             width: 32px;
             height: 32px;
-
-            background: url('../game/images/abilities.png') no-repeat;
         }
 
         &.ability-healhero .icon{
-            background-position-x: 0px;
-            background-position-y: 0px;
+            background: url('../game/images/abilities.png') no-repeat scroll 0 0 transparent;
         }      
 
         &.ability-lightning .icon{
-            background-position-x: -96px;
-            background-position-y: 0px;
+            background: url('../game/images/abilities.png') no-repeat scroll -96px 0 transparent;
         }      
 
         &.ability-getquest .icon{
-            background-position-x: -32px;
-            background-position-y: 0px;
+            background: url('../game/images/abilities.png') no-repeat scroll -32px 0 transparent;
         }      
 
         &.ability-shortteleport .icon{
-            background-position-x: -64px;
-            background-position-y: 0px;
+            background: url('../game/images/abilities.png') no-repeat scroll -64px 0 transparent;
         }      
-        
     }
 }
 
