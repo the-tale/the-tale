@@ -413,6 +413,8 @@ pgf.game.map.Map = function(selector, params) {
         
         context.save();
 
+        var posX = Math.floor(pos.x);
+        var posY = Math.floor(pos.y);
         var w = data.width;
         var h = data.height;
         var terrain = data.terrain;
@@ -422,8 +424,8 @@ pgf.game.map.Map = function(selector, params) {
                 var image = undefined;
                 var rotate = 0;
 
-                var x = pos.x + j * TILE_SIZE;
-                var y = pos.y + i * TILE_SIZE;
+                var x = posX + j * TILE_SIZE;
+                var y = posY + i * TILE_SIZE;
 
                 image = spritesManager.GetImage(terrain[i][j]);
                 image.Draw(context, x, y);
@@ -452,11 +454,11 @@ pgf.game.map.Map = function(selector, params) {
             var place = data.places[place_id];
             var image = spritesManager.GetImage('place');
             image.Draw(context, 
-                       pos.x + place.x * TILE_SIZE, 
-                       pos.y + place.y * TILE_SIZE);
+                       posX + place.x * TILE_SIZE, 
+                       posY + place.y * TILE_SIZE);
             context.fillText('('+place.size+') '+place.name, 
-                             pos.x + place.x * TILE_SIZE + TILE_SIZE / 2,
-                             pos.y + (place.y + 1) * TILE_SIZE);
+                             posX + place.x * TILE_SIZE + TILE_SIZE / 2,
+                             posY + (place.y + 1) * TILE_SIZE);
         }
 
         for (var hero_id in dynamicData.heroes) {
@@ -466,14 +468,14 @@ pgf.game.map.Map = function(selector, params) {
             var heroPosition = GetHeroPosition(hero);
 
             image.Draw(context, 
-                       parseInt(pos.x + heroPosition.x * TILE_SIZE, 10), 
-                       parseInt(pos.y + heroPosition.y * TILE_SIZE, 10) );
+                       parseInt(posX + heroPosition.x * TILE_SIZE, 10), 
+                       parseInt(posY + heroPosition.y * TILE_SIZE, 10) );
         }
 
         if (selectedTile) {
 
-            var x = pos.x + selectedTile.x * TILE_SIZE;
-            var y = pos.y + selectedTile.y * TILE_SIZE;
+            var x = posX + selectedTile.x * TILE_SIZE;
+            var y = posY + selectedTile.y * TILE_SIZE;
             
             if (0 <= x && x < w * TILE_SIZE &&
                 0 <= y && y < h * TILE_SIZE) {
@@ -496,8 +498,8 @@ pgf.game.map.Map = function(selector, params) {
     function CheckReadyState() {
         if (spritesManager.IsReady()) {
             subsytemsReady = true;
+            Activate();
         }
-        Activate();
     }
 
     this.Draw = Draw;

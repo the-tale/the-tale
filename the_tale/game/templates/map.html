@@ -16,6 +16,7 @@ jQuery(document).ready(function(e) {
                                                       updater: updater,
                                                       OnDataUpdated: function() {
                                                           //TODO: rewrite to events
+                                                          widgets.map.CheckReadyState();
                                                           widgets.map.Refresh();
                                                       }
                                                      });
