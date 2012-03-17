@@ -1,0 +1,483 @@
+(* Content-type: application/mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 7.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       145,          7]
+NotebookDataLength[     19426,        474]
+NotebookOptionsPosition[     18860,        451]
+NotebookOutlinePosition[     19198,        466]
+CellTagsIndexPosition[     19155,        463]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"turnsToHours", "[", "turns_", "]"}], ":=", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"turns", "*", "TurnDelta"}], ")"}], "/", "60"}], "/", 
+   "60"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"turnsToMinutes", "[", "turns_", "]"}], ":=", 
+  RowBox[{
+   RowBox[{"(", 
+    RowBox[{"turns", "*", "TurnDelta"}], ")"}], "/", 
+   "60"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"hoursToTurns", "[", "hours_", "]"}], ":=", 
+   RowBox[{"hours", "*", "60", "*", 
+    RowBox[{"60", "/", "TurnDelta"}]}]}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"timeToLvl", "[", "lvl_", "]"}], " ", ":=", 
+  RowBox[{"TimeToFirstLvl", "*", "lvl"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"expToLvl", "[", "lvl_", "]"}], ":=", 
+  RowBox[{"ExpPerHour", " ", "*", " ", 
+   RowBox[{"timeToLvl", "[", 
+    RowBox[{"lvl", "-", "1"}], "]"}]}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"hpToLvl", "[", "lvl_", "]"}], ":=", 
+  RowBox[{"InitialHP", " ", "+", " ", 
+   RowBox[{"HPPerLvl", " ", "*", " ", 
+    RowBox[{"(", 
+     RowBox[{"lvl", "-", "1"}], ")"}]}]}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"turnsToLvl", "[", "lvl_", "]"}], ":=", 
+  RowBox[{"hoursToTurns", "[", 
+   RowBox[{"timeToLvl", "[", "lvl", "]"}], "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"totalTimeToLvl", "[", "lvl_", "]"}], ":=", 
+  RowBox[{
+   UnderoverscriptBox["\[Sum]", 
+    RowBox[{"x", "=", "1"}], "lvl"], 
+   RowBox[{"timeToLvl", "[", "x", "]"}]}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"totalExpToLvl", "[", "lvl_", "]"}], ":=", 
+   RowBox[{
+    UnderoverscriptBox["\[Sum]", 
+     RowBox[{"x", "=", "1"}], "lvl"], 
+    RowBox[{"expToLvl", "[", "x", "]"}]}]}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"sol", " ", "=", " ", 
+   RowBox[{"Solve", "[", 
+    RowBox[{
+     RowBox[{"time", "\[Equal]", 
+      RowBox[{"totalTimeToLvl", "[", "lvl", "]"}]}], ",", " ", "lvl"}], 
+    "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", "sol1", "}"}], ",", " ", 
+      RowBox[{"{", "sol2", "}"}]}], "}"}], " ", "=", " ", "sol"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"lvlAfterTime", "[", "time_", "]"}], " ", "=", " ", 
+   RowBox[{"1", "+", 
+    RowBox[{"Floor", "[", 
+     RowBox[{"lvl", "/.", "sol2"}], "]"}]}]}], 
+  ";"}], "\[IndentingNewLine]"}], "Input",
+ CellChangeTimes->{{3.5406919021310253`*^9, 3.5406919442705917`*^9}, {
+   3.540692003015869*^9, 3.540692078540452*^9}, {3.540692251824357*^9, 
+   3.540692281515305*^9}, {3.5406923563488092`*^9, 3.540692412484398*^9}, {
+   3.540693809288012*^9, 3.5406938133663816`*^9}, {3.5406938435247183`*^9, 
+   3.540693904295827*^9}, {3.540693940330029*^9, 3.5406940419837437`*^9}, {
+   3.540694161802148*^9, 3.540694221233865*^9}, {3.540742334459055*^9, 
+   3.540742363012599*^9}, {3.540742553891572*^9, 3.540742655314457*^9}, {
+   3.540742688303759*^9, 3.540742973709156*^9}, {3.5407431507080107`*^9, 
+   3.540743322401332*^9}, {3.540743377546299*^9, 3.540743484987253*^9}, {
+   3.5407436298376617`*^9, 3.540743652849319*^9}, {3.540743782568679*^9, 
+   3.540743890288653*^9}, 3.540744287099543*^9, {3.540744319822377*^9, 
+   3.540744450062447*^9}, {3.5407447016901417`*^9, 3.5407447250996017`*^9}, {
+   3.540744968522478*^9, 3.540744995273*^9}, {3.540745167892358*^9, 
+   3.540745190536004*^9}, {3.540745836336165*^9, 3.5407459163970327`*^9}, {
+   3.540826286181181*^9, 3.540826287197506*^9}, {3.540827500129794*^9, 
+   3.540827500708117*^9}, {3.540828969827935*^9, 3.540829024689577*^9}, {
+   3.540829141026107*^9, 3.5408291420009413`*^9}, {3.540829272533856*^9, 
+   3.5408292943134212`*^9}, {3.540829792491131*^9, 3.540829827476944*^9}, {
+   3.5409593846618433`*^9, 3.5409594833659897`*^9}, {3.5409595150882072`*^9, 
+   3.540959521006694*^9}, {3.54096035481231*^9, 3.540960369066288*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"TimeToFirstLvl", " ", "=", " ", "5"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"InitialHP", " ", "=", " ", "100"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"HPPerLvl", " ", "=", " ", "10"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"TurnDelta", " ", "=", " ", "10"}], "  ", 
+   RowBox[{"(*", " ", "seconds", " ", "*)"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ExpPerMob", " ", "=", " ", "1"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"BattleLength", " ", "=", " ", "20"}], " ", 
+  RowBox[{"(*", " ", "turns", " ", "*)"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"IntervalBetweenBattles", " ", "=", " ", "5"}], " ", 
+  RowBox[{"(*", "turns", "*)"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"BattlesBeforeHeal", " ", "=", " ", "10"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"BattlesLineLength", " ", "=", " ", 
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{"BattlesBeforeHeal", "*", 
+      RowBox[{"(", 
+       RowBox[{"BattleLength", " ", "+", " ", "IntervalBetweenBattles"}], " ",
+        ")"}]}], " ", "-", " ", "IntervalBetweenBattles"}], " ", ")"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"HealLength", " ", "=", " ", 
+   RowBox[{"Floor", "[", 
+    RowBox[{"BattlesLineLength", "*", "0.2"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ActionsCycleLength", " ", "=", " ", 
+   RowBox[{"BattlesLineLength", " ", "+", " ", "HealLength"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"BattlesPerHour", "=", " ", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"hoursToTurns", "[", "1", "]"}], "/", "ActionsCycleLength"}], 
+     " ", "*", " ", "BattlesBeforeHeal"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ExpPerHour", " ", "=", " ", 
+   RowBox[{"BattlesPerHour", "*", "ExpPerMob"}]}], 
+  ";"}], "\[IndentingNewLine]"}], "Input",
+ CellChangeTimes->{{3.54074584973836*^9, 3.540745857227315*^9}, {
+   3.540829041139974*^9, 3.5408290602888317`*^9}, {3.540829832759251*^9, 
+   3.5408298888652477`*^9}, {3.540957311896433*^9, 3.5409573806177464`*^9}, {
+   3.540957805676683*^9, 3.540957806167575*^9}, {3.540957867546372*^9, 
+   3.540957906787573*^9}, {3.540957974661688*^9, 3.540958027048057*^9}, {
+   3.5409584978680677`*^9, 3.5409585903498163`*^9}, {3.5409587824023733`*^9, 
+   3.540958838608984*^9}, 3.540958871874488*^9, 3.5409589101334457`*^9, {
+   3.540959156136389*^9, 3.540959200829817*^9}, {3.5409592695386953`*^9, 
+   3.54095928733494*^9}, {3.540960686222571*^9, 3.540960687686717*^9}, {
+   3.540961720093059*^9, 3.540961830449222*^9}, {3.540962671030674*^9, 
+   3.540962686186433*^9}, {3.54096281993302*^9, 3.540962821485611*^9}, {
+   3.540962912920577*^9, 3.540962912970764*^9}, {3.5409663099304457`*^9, 
+   3.5409663364396276`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"tmpTimesStr", "=", 
+     RowBox[{"{", 
+      RowBox[{
+      "\"\<initial\>\"", ",", " ", "\"\<8 hours\>\"", ",", " ", "\"\<day\>\"",
+        ",", " ", "\"\<weak\>\"", ",", " ", "\"\<month\>\"", ",", " ", 
+       "\"\<3 month\>\"", ",", " ", "\"\<6 month\>\"", ",", "\"\<1 year\>\"", 
+       ",", " ", "\"\<2 years\>\"", ",", " ", "\"\<3 years\>\""}], " ", 
+      "}"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"tmpTimes", "=", 
+     RowBox[{"{", 
+      RowBox[{"0", ",", " ", "8", ",", " ", "24", ",", " ", 
+       RowBox[{"24", "*", "7"}], ",", " ", 
+       RowBox[{"24", "*", "30"}], ",", " ", 
+       RowBox[{"24", "*", "30", "*", "3"}], ",", " ", 
+       RowBox[{"24", "*", "30", "*", "6"}], ",", " ", 
+       RowBox[{"24", "*", "30", "*", "12"}], ",", " ", 
+       RowBox[{"24", "*", "30", "*", "12", "*", "2"}], ",", " ", 
+       RowBox[{"24", "*", "30", "*", "12", "*", "3"}]}], "}"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"tmpLvls", "=", 
+     RowBox[{"Map", "[", 
+      RowBox[{"lvlAfterTime", ",", " ", "tmpTimes"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"tmpExp", "=", 
+     RowBox[{"Map", "[", 
+      RowBox[{"Floor", ",", " ", 
+       RowBox[{"Map", "[", 
+        RowBox[{"totalExpToLvl", ",", "tmpLvls"}], "]"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"tmpHP", " ", "=", " ", 
+     RowBox[{"Map", "[", 
+      RowBox[{"hpToLvl", ",", " ", "tmpLvls"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"tmpTurns", " ", "=", " ", 
+     RowBox[{"Map", "[", 
+      RowBox[{"turnsToLvl", ",", " ", "tmpTimes"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"Grid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Prepend", "[", 
+        RowBox[{"tmpTimesStr", ",", " ", "\"\<time\>\""}], "]"}], ",", " ", 
+       "\[IndentingNewLine]", "\t", 
+       RowBox[{"Prepend", "[", 
+        RowBox[{"tmpLvls", ",", " ", "\"\<level\>\""}], "]"}], ",", 
+       "\[IndentingNewLine]", "\t", 
+       RowBox[{"Prepend", "[", 
+        RowBox[{"tmpHP", ",", " ", "\"\<hp\>\""}], "]"}], ",", 
+       "\[IndentingNewLine]", "\t", 
+       RowBox[{"Prepend", "[", 
+        RowBox[{"tmpTurns", ",", " ", "\"\<turns\>\""}], "]"}], ",", 
+       "\[IndentingNewLine]", "\t", 
+       RowBox[{"Prepend", "[", 
+        RowBox[{"tmpExp", ",", " ", "\"\<exp\>\""}], "]"}]}], " ", "}"}], ",",
+      " ", 
+     RowBox[{"Frame", "\[Rule]", "All"}]}], "]"}]}]}]], "Input",
+ CellChangeTimes->{{3.540744323833599*^9, 3.5407443243364277`*^9}, {
+   3.5407444619783173`*^9, 3.5407444929249*^9}, {3.5407447089266033`*^9, 
+   3.540744719531486*^9}, {3.54074497983641*^9, 3.5407451431511173`*^9}, {
+   3.540745197780192*^9, 3.540745214801322*^9}, {3.540745823639957*^9, 
+   3.540745863496399*^9}, {3.540745927046001*^9, 3.540745950607181*^9}, 
+   3.540826762184119*^9, {3.540826879676241*^9, 3.540827035262239*^9}, {
+   3.540827100338993*^9, 3.540827330273609*^9}, {3.54082736573943*^9, 
+   3.540827420580276*^9}, {3.540827532845196*^9, 3.540827583893346*^9}, {
+   3.540827833364438*^9, 3.5408278416105957`*^9}, {3.540828203921233*^9, 
+   3.540828370484357*^9}, {3.540828422308157*^9, 3.54082842531491*^9}, {
+   3.5408290656842422`*^9, 3.540829108034391*^9}, {3.5408291648509912`*^9, 
+   3.540829170750822*^9}, {3.540829335318293*^9, 3.540829372559102*^9}, 
+   3.5408294058536*^9, {3.540829899324929*^9, 3.5408299324088707`*^9}, {
+   3.540829963482402*^9, 3.540829984872175*^9}, {3.54095738536082*^9, 
+   3.540957468745467*^9}, {3.540957814609037*^9, 3.5409578302576838`*^9}, {
+   3.5409589166532507`*^9, 3.540958945338037*^9}, 3.5409590482622433`*^9, {
+   3.540966387000306*^9, 3.540966396907691*^9}}],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"time\"\>", "\<\"initial\"\>", "\<\"8 hours\"\>", "\<\"day\"\>", "\<\
+\"weak\"\>", "\<\"month\"\>", "\<\"3 month\"\>", "\<\"6 month\"\>", "\<\"1 \
+year\"\>", "\<\"2 years\"\>", "\<\"3 years\"\>"},
+    {"\<\"level\"\>", "1", "2", "3", "8", "17", "29", "42", "59", "83", "102"},
+    {"\<\"hp\"\>", "100", "110", "120", "170", "260", "380", "510", "680", 
+     "920", "1110"},
+    {"\<\"turns\"\>", "0", "14400", "43200", "302400", "1296000", "3888000", 
+     "7776000", "15552000", "31104000", "46656000"},
+    {"\<\"exp\"\>", "0", "61", "183", "1714", "8326", "24857", "52714", 
+     "104755", "208346", "315367"}
+   },
+   AutoDelete->False,
+   GridBoxFrame->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{
+  3.5409578314088717`*^9, {3.540958939935729*^9, 3.540958946743328*^9}, 
+   3.5409592040843763`*^9, 3.540959525341961*^9, 3.54096065473923*^9, 
+   3.540962698413196*^9, 3.540962916567638*^9, {3.54096635809328*^9, 
+   3.5409663601373873`*^9}, 3.540966398625112*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Grid", "[", 
+   RowBox[{
+    RowBox[{"{", " ", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "\"\<param\>\"", ",", " ", "\"\<turns\>\"", ",", " ", "\"\<hours\>\"", 
+        ",", " ", "\"\<minutes\>\""}], "}"}], ",", "\[IndentingNewLine]", 
+      "\t", 
+      RowBox[{"{", 
+       RowBox[{
+       "\"\<battle length\>\"", ",", " ", "BattleLength", ",", " ", 
+        "\[IndentingNewLine]", "\t", 
+        RowBox[{"N", "[", 
+         RowBox[{
+          RowBox[{"turnsToHours", "[", "BattleLength", "]"}], ",", " ", "2"}],
+          "]"}], ",", " ", 
+        RowBox[{"N", "[", 
+         RowBox[{
+          RowBox[{"turnsToMinutes", "[", "BattleLength", "]"}], ",", " ", 
+          "2"}], "]"}]}], "}"}], ",", "\[IndentingNewLine]", "\t", 
+      RowBox[{"{", 
+       RowBox[{
+       "\"\<interval between battles\>\"", ",", "IntervalBetweenBattles", ",",
+         " ", "\[IndentingNewLine]", "\t", 
+        RowBox[{"N", "[", 
+         RowBox[{
+          RowBox[{"turnsToMinutes", "[", "IntervalBetweenBattles", "]"}], ",",
+           " ", "2"}], "]"}], ",", " ", 
+        RowBox[{"N", "[", 
+         RowBox[{
+          RowBox[{"turnsToMinutes", "[", "IntervalBetweenBattles", "]"}], ",",
+           " ", "2"}], "]"}]}], "}"}], ",", "\[IndentingNewLine]", "\t", 
+      RowBox[{"{", 
+       RowBox[{
+       "\"\<battles line len\>\"", ",", " ", "BattlesLineLength", ",", " ", 
+        "\[IndentingNewLine]", "\t", 
+        RowBox[{"N", "[", 
+         RowBox[{
+          RowBox[{"turnsToHours", "[", "BattlesLineLength", "]"}], ",", " ", 
+          "2"}], "]"}], ",", " ", 
+        RowBox[{"N", "[", 
+         RowBox[{
+          RowBox[{"turnsToMinutes", "[", "BattlesLineLength", "]"}], ",", " ",
+           "2"}], "]"}]}], "}"}], ",", "\[IndentingNewLine]", "\t", 
+      RowBox[{"{", 
+       RowBox[{
+       "\"\<heal length\>\"", ",", "HealLength", ",", " ", 
+        "\[IndentingNewLine]", "\t", 
+        RowBox[{"N", "[", 
+         RowBox[{
+          RowBox[{"turnsToHours", "[", "HealLength", "]"}], ",", " ", "2"}], 
+         "]"}], ",", 
+        RowBox[{"N", "[", 
+         RowBox[{
+          RowBox[{"turnsToMinutes", "[", "HealLength", "]"}], ",", " ", "2"}],
+          "]"}]}], "}"}], ",", "\[IndentingNewLine]", "\t", 
+      RowBox[{"{", 
+       RowBox[{
+       "\"\<actions cycle length\>\"", ",", "ActionsCycleLength", ",", " ", 
+        "\[IndentingNewLine]", "\t", 
+        RowBox[{"N", "[", 
+         RowBox[{
+          RowBox[{"turnsToHours", "[", "ActionsCycleLength", "]"}], ",", " ", 
+          "2"}], "]"}], ",", 
+        RowBox[{"N", "[", 
+         RowBox[{
+          RowBox[{"turnsToMinutes", "[", "ActionsCycleLength", "]"}], ",", 
+          " ", "2"}], "]"}]}], "}"}]}], "\[IndentingNewLine]", "\t", "}"}], 
+    ",", " ", 
+    RowBox[{"Frame", "\[Rule]", "All"}]}], "]"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"Grid", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\"\<param\>\"", ",", " ", "\"\<value\>\""}], "}"}], ",", 
+     "\[IndentingNewLine]", "\t", 
+     RowBox[{"{", 
+      RowBox[{"\"\<exp/mob\>\"", ",", " ", "ExpPerMob"}], "}"}], ",", 
+     "\[IndentingNewLine]", "\t", 
+     RowBox[{"{", 
+      RowBox[{"\"\<battles/hour\>\"", ",", " ", 
+       RowBox[{"N", "[", 
+        RowBox[{"BattlesPerHour", ",", "2"}], "]"}]}], "}"}], ",", 
+     "\[IndentingNewLine]", "\t", 
+     RowBox[{"{", 
+      RowBox[{"\"\<exp/hour\>\"", ",", " ", 
+       RowBox[{"N", "[", 
+        RowBox[{"ExpPerHour", ",", " ", "2"}], "]"}]}], "}"}]}], " ", "}"}], 
+   ",", " ", 
+   RowBox[{"Frame", "\[Rule]", "All"}]}], 
+  "]"}], "\[IndentingNewLine]"}], "Input",
+ CellChangeTimes->{
+  3.5409579198358603`*^9, {3.54095895925774*^9, 3.540959125407918*^9}, {
+   3.540959206491188*^9, 3.540959253609869*^9}, {3.540959325962906*^9, 
+   3.540959360315523*^9}, {3.540959534550498*^9, 3.540959634626419*^9}, {
+   3.5409598213665133`*^9, 3.540959901850833*^9}, {3.5409605186593323`*^9, 
+   3.540960569432599*^9}, {3.54096066491533*^9, 3.540960680386504*^9}, {
+   3.540961803529633*^9, 3.54096184936122*^9}, {3.5409623387979393`*^9, 
+   3.540962368907778*^9}, {3.5409624706355133`*^9, 3.540962536615288*^9}, {
+   3.540962617533513*^9, 3.540962692981976*^9}, {3.540962725542519*^9, 
+   3.540962882860668*^9}, {3.54096635221089*^9, 3.540966354407318*^9}, {
+   3.540966420448859*^9, 3.5409664400776873`*^9}}],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"param\"\>", "\<\"turns\"\>", "\<\"hours\"\>", "\<\"minutes\"\>"},
+    {"\<\"battle length\"\>", "20", 
+     "0.05555555555555555555555555555555555555`2.", 
+     "3.33333333333333333333333333333333333333`2."},
+    {"\<\"interval between battles\"\>", "5", 
+     "0.83333333333333333333333333333333333333`2.", 
+     "0.83333333333333333333333333333333333333`2."},
+    {"\<\"battles line len\"\>", "245", 
+     "0.68055555555555555555555555555555555555`2.", 
+     "40.83333333333333333333333333333333333333`2."},
+    {"\<\"heal length\"\>", "49", 
+     "0.13611111111111111111111111111111111111`2.", 
+     "8.16666666666666666666666666666666666667`2."},
+    {"\<\"actions cycle length\"\>", "294", 
+     "0.81666666666666666666666666666666666667`2.", "49.`2."}
+   },
+   AutoDelete->False,
+   GridBoxFrame->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{
+  3.54096185035233*^9, 3.5409626996367397`*^9, {3.540962733058511*^9, 
+   3.540962738078815*^9}, 3.54096283387847*^9, {3.5409628703099546`*^9, 
+   3.5409628840352297`*^9}, 3.540962917939232*^9, {3.540966401522615*^9, 
+   3.540966442061473*^9}}],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"param\"\>", "\<\"value\"\>"},
+    {"\<\"exp/mob\"\>", "1"},
+    {"\<\"battles/hour\"\>", "12.24489795918367346938775510204081632653`2."},
+    {"\<\"exp/hour\"\>", "12.24489795918367346938775510204081632653`2."}
+   },
+   AutoDelete->False,
+   GridBoxFrame->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{
+  3.54096185035233*^9, 3.5409626996367397`*^9, {3.540962733058511*^9, 
+   3.540962738078815*^9}, 3.54096283387847*^9, {3.5409628703099546`*^9, 
+   3.5409628840352297`*^9}, 3.540962917939232*^9, {3.540966401522615*^9, 
+   3.540966442067585*^9}}]
+}, Open  ]]
+},
+WindowSize->{988, 750},
+WindowMargins->{{Automatic, 281}, {Automatic, 109}},
+FrontEndVersion->"7.0 for Linux x86 (64-bit) (October 28, 2009)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[545, 20, 3987, 93, 397, "Input"],
+Cell[4535, 115, 2945, 68, 352, "Input"],
+Cell[CellGroupData[{
+Cell[7505, 187, 3805, 82, 252, "Input"],
+Cell[11313, 271, 1126, 21, 98, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[12476, 297, 4405, 106, 372, "Input"],
+Cell[16884, 405, 1252, 26, 114, "Output"],
+Cell[18139, 433, 705, 15, 82, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
