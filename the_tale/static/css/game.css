@@ -234,6 +234,7 @@
   z-index: 1001;
 }
 #abilities-block .record {
+  font-size: 11pt;
   cursor: default;
   margin-bottom: 2px;
 }

@@ -62,7 +62,8 @@
   top: -14px;
   z-index: 2000;
 }
-.ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close span:hover, .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close span:focus {
+.ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close span:hover,
+.ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close span:focus {
   opacity: 0.8;
 }
 .ui-dialog .ui-dialog-content {

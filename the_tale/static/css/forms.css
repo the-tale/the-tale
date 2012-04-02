@@ -7,7 +7,8 @@ form.block.long {
 form.block.long input {
   width: 900px;
 }
-form.block.long input[type="submit"], form.block.long input[type="button"] {
+form.block.long input[type="submit"],
+form.block.long input[type="button"] {
   width: 390px;
 }
 form.block.long textarea {
@@ -55,13 +56,15 @@ form input {
   border: 2px #357dac solid;
   border-radius: 4px;
 }
-form input[type="submit"], form input[type="button"] {
+form input[type="submit"],
+form input[type="button"] {
   font-size: 14pt;
   border: 2px #357dac solid;
   border-radius: 4px;
   cursor: pointer;
 }
-form input[type="submit"]:hover, form input[type="button"]:hover {
+form input[type="submit"]:hover,
+form input[type="button"]:hover {
   background-color: #FFCC00;
 }
 form textarea {

@@ -9,7 +9,7 @@ DEBUG = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'the_tale',
+        'NAME': 'the-tale',
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
@@ -135,9 +135,9 @@ INSTALLED_APPS = (
 ###############################
 
 AMQP_BROKER_HOST = 'localhost'
-AMQP_BROKER_USER = 'the_tale'
-AMQP_BROKER_PASSWORD = 'the_tale'
-AMQP_BROKER_VHOST = '/the_tale'
+AMQP_BROKER_USER = 'the-tale'
+AMQP_BROKER_PASSWORD = 'the-tale'
+AMQP_BROKER_VHOST = '/the-tale'
 
 try:
     from settings_local import *
