@@ -1,0 +1,71 @@
+# -*- coding: utf-8 -*-
+import math
+
+from dext.views.resources import handler
+from dext.utils.decorators import staff_required, debug_required
+
+from common.utils.resources import Resource
+
+from . import constants as c, formulas as f
+
+class BalanceResource(Resource):
+
+    def __init__(self, request, *args, **kwargs):
+        super(BalanceResource, self).__init__(request, *args, **kwargs)
+
+    @debug_required
+    @staff_required()
+    @handler('', method='get')
+    def show_balance(self):
+        tmp_time = [u'начало', u'8 часов', u'день', u'неделя', u'месяц', u'3 месяца', u'6 месяцев', u'1 год', u'2 года', u'3 года']
+        tmp_times = [0, 8, 24, 24*7, 24*30, 24*30*3, 24*30*6, 24*30*12, 24*30*12*2, 24*30*12*3]
+        tmp_lvls = map(f.lvl_after_time, tmp_times)
+
+        print tmp_lvls
+
+        # Всё, что ниже, должно зависеть от уровня, не от времени, т.к. время в данном случае не точный параметр, а анализ всё равно ориентируется на уровень.
+
+        tmp_exp = map(math.floor, map(f.total_exp_to_lvl, tmp_lvls))
+        tmp_hp = map(f.hp_on_lvl, tmp_lvls)
+        tmp_turns = map(f.turns_on_lvl, tmp_lvls)
+        tmp_expected_damage_to_hero_per_hit = map(f.expected_damage_to_hero_per_hit, tmp_lvls)
+        tmp_mob_hp = map(f.mob_hp_to_lvl, tmp_lvls)
+        tmp_power = map(f.power_to_lvl, tmp_lvls)
+        tmp_expected_damage_to_mob_per_hit = map(f.expected_damage_to_mob_per_hit, tmp_lvls)
+        tmp_real_damage_to_mob_per_hit = map(f.damage_from_power, tmp_power)
+        tmp_power_per_slot = [float(x)/c.EQUIP_SLOTS_NUMBER for x in tmp_power]
+        tmp_battles_at_lvl = map(math.floor, [x * c.BATTLES_PER_HOUR for x in map(f.time_on_lvl, tmp_lvls)])
+        tmp_total_battles = map(math.floor, [x * c.BATTLES_PER_HOUR for x in map(f.total_time_for_lvl, tmp_lvls)])
+        tmp_artifacts_per_battle = map(f.artifacts_per_battle, tmp_lvls)
+        tmp_artifacts_per_hour = [x*c.BATTLES_PER_HOUR for x in map(f.artifacts_per_battle, tmp_lvls)]
+        tmp_artifacts_per_day = [x*c.BATTLES_PER_HOUR*24 for x in map(f.artifacts_per_battle, tmp_lvls)]
+
+        tmp_gold_at_lvl = map(f.expected_gold_at_lvl, tmp_lvls)
+        tmp_gold_in_day = map(f.expected_gold_in_day, tmp_lvls)
+        tmp_total_gold_at_lvl = map(f.total_gold_at_lvl, tmp_lvls)
+
+        return self.template('balance/balance.html',
+                             {'c': c,
+                              'f': f ,
+
+                              'tmp_time': tmp_time,
+                              'tmp_lvls': tmp_lvls,
+                              'tmp_exp': tmp_exp,
+                              'tmp_hp': tmp_hp,
+                              'tmp_turns': tmp_turns,
+                              'tmp_expected_damage_to_hero_per_hit': tmp_expected_damage_to_hero_per_hit,
+                              'tmp_mob_hp': tmp_mob_hp,
+                              'tmp_power': tmp_power,
+                              'tmp_expected_damage_to_mob_per_hit': tmp_expected_damage_to_mob_per_hit,
+                              'tmp_real_damage_to_mob_per_hit': tmp_real_damage_to_mob_per_hit,
+                              'tmp_power_per_slot': tmp_power_per_slot,
+                              'tmp_battles_at_lvl': tmp_battles_at_lvl,
+                              'tmp_total_battles': tmp_total_battles,
+                              'tmp_artifacts_per_battle': tmp_artifacts_per_battle,
+                              'tmp_artifacts_per_hour': tmp_artifacts_per_hour,
+                              'tmp_artifacts_per_day': tmp_artifacts_per_day,
+
+                              'tmp_gold_at_lvl': tmp_gold_at_lvl,
+                              'tmp_gold_in_day': tmp_gold_in_day,
+                              'tmp_total_gold_at_lvl': tmp_total_gold_at_lvl
+                              } )

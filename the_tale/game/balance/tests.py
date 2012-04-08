@@ -1,0 +1,62 @@
+# coding: utf-8
+
+from django.test import TestCase
+
+
+from . import formulas as f, constants as c
+
+
+class ConstantsTest(TestCase):
+
+    def test_constants_values(self):
+
+        self.assertEqual(c.TIME_TO_LVL_DELTA, 5.0)
+        self.assertEqual(c.INITIAL_HP, 300)
+        self.assertEqual(c.HP_PER_LVL, 30)
+        self.assertEqual(c.MOB_HP_MULTIPLIER, 0.25)
+        self.assertEqual(c.TURN_DELTA, 10)
+        self.assertEqual(c.TURNS_IN_HOUR, 360.0)
+        self.assertEqual(c.POWER_INITIAL, 0)
+        self.assertEqual(c.EQUIP_SLOTS_NUMBER, 12)
+        self.assertEqual(c.ARTIFACTS_PER_LVL, 3)
+        self.assertEqual(c.EXP_PER_MOB, 1.0)
+        self.assertEqual(c.BATTLE_LENGTH, 16)
+        self.assertEqual(c.INTERVAL_BETWEEN_BATTLES, 5)
+        self.assertEqual(c.BATTLES_BEFORE_HEAL, 10)
+        self.assertEqual(c.HEAL_TIME_FRACTION, 0.2)
+        self.assertEqual(c.GET_LOOT_PROBABILITY, 0.15)
+        self.assertEqual(c.NORMAL_LOOT_PROBABILITY, 0.99)
+        self.assertEqual(c.RARE_LOOT_PROBABILITY, 0.0099)
+        self.assertTrue(c.EPIC_LOOT_PROBABILITY - 0.0001 < 1e-10)
+        self.assertEqual(c.NORMAL_LOOT_COST, 1.5)
+        self.assertEqual(c.RARE_LOOT_COST, 25.0)
+        self.assertEqual(c.EPIC_LOOT_COST, 250.0)
+        self.assertEqual(c.INSTANT_HEAL_PRICE_FRACTION, 0.3)
+        self.assertEqual(c.BUY_ARTIFACT_PRICE_FRACTION, 1.0)
+        self.assertEqual(c.SHARPENING_ARTIFACT_PRICE_FRACTION, 0.7)
+        self.assertEqual(c.USELESS_PRICE_FRACTION, 0.2)
+        self.assertEqual(c.IMPACT_PRICE_FRACTION, 1.5)
+        self.assertEqual(c.POWER_TO_LVL, 12.0)
+        self.assertEqual(c.BATTLES_LINE_LENGTH, 10*(16+5)-5)
+        self.assertEqual(c.HEAL_LENGTH, int(10*(16+5)-5) * 0.2)
+        self.assertEqual(c.ACTIONS_CYCLE_LENGTH, int(10*(16+5)-5 + (10*(16+5)-5) * 0.2))
+        self.assertEqual(c.BATTLES_PER_HOUR, 360.0 / (int(10*(16+5)-5 + (10*(16+5)-5) * 0.2)) * 10)
+        self.assertEqual(c.DAMAGE_TO_HERO_PER_HIT_FRACTION, 1.0 / (10*16/2))
+        self.assertEqual(c.DAMAGE_TO_MOB_PER_HIT_FRACTION, 1.0 / (16/2))
+        self.assertEqual(c.EXP_PER_HOUR, (360.0 / (int(10*(16+5)-5 + (10*(16+5)-5) * 0.2)) * 10) * 1)
+        self.assertEqual(c.ITEM_POWER_DELTA, 12/2)
+
+
+class FormulasTest(TestCase):
+
+    LVLS = [1, 2, 3, 4, 5, 7, 11, 17, 19, 25, 30, 40, 60, 71, 82, 99, 101]
+
+    def test_lvl_after_time(self):
+        for lvl in self.LVLS:
+            # print lvl, f.total_time_for_lvl(lvl), f.lvl_after_time(f.total_time_for_lvl(lvl))
+            self.assertEqual(lvl, f.lvl_after_time(f.total_time_for_lvl(lvl)))
+
+
+    def test_expected_lvl_from_power(self):
+        for lvl in self.LVLS:
+            self.assertEqual(lvl, f.expected_lvl_from_power(f.power_to_lvl(lvl)))

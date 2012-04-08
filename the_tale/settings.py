@@ -119,6 +119,7 @@ INSTALLED_APPS = (
     'game.mobs',
     'game.persons',
     'game.textgen',
+    'game.balance',
 
     'cms',
     'cms.news',

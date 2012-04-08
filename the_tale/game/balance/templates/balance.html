@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="block">
+
+  <h1>параметры времени</h1>
+
+  {% macro time_parameter(name, turns) %}
+  <tr>
+    <td>{{ name }}</td>
+    <td class="center">{{ turns }}</td>
+    <td class="center">{{ f.turns_to_hours(turns)|round(2) }}</td>
+    <td class="center">{{ f.turns_to_minutes(turns)|round(2) }}</td>
+  </tr>
+  {% endmacro %}
+
+  <table>
+    <thead>
+      <tr>
+        <td class="center">параметр</td>
+        <td class="center">ходы</td>
+        <td class="center">часы</td>
+        <td class="center">минуты</td>
+      </tr>
+    </thead>
+    <tbody>
+      {{ time_parameter("длительность битвы", c.BATTLE_LENGTH) }}
+      {{ time_parameter("интервал между битвами", c.INTERVAL_BETWEEN_BATTLES) }}
+      {{ time_parameter("длительность цепочки битв", c.BATTLES_LINE_LENGTH) }}
+      {{ time_parameter("длительность лечения", c.HEAL_LENGTH) }}
+      {{ time_parameter("длительность цикла действий", c.ACTIONS_CYCLE_LENGTH) }}
+    </tbody>
+  </table>
+
+  <h1>прочие параметры</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <td class="center">параметр</td>
+        <td class="center">значение</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>опыт за моба</td><td class="center">{{c.EXP_PER_MOB}}</td></tr>
+      <tr><td>битв в час</td><td class="center">{{ c.BATTLES_PER_HOUR|round }}</td></tr>
+      <tr><td>опыта в час</td><td class="center">{{ c.EXP_PER_HOUR|round }}</td></tr>
+      <tr><td>количество действий участника битвы</td><td class="center">{{ (c.BATTLE_LENGTH/2)|int }}</td></tr>
+      <tr><td>доля урона мобу</td><td class="center">{{c.DAMAGE_TO_MOB_PER_HIT_FRACTION}}</td></tr>
+      <tr><td>доля урона герою</td><td class="center">{{c.DAMAGE_TO_HERO_PER_HIT_FRACTION}}</td></tr>
+    </tbody>
+  </table>
+
+  <h1>временные ряды</h1>
+
+  {% macro time_row(name, elements, round_=none) %}
+  <tr>
+    <td>{{ name }}</td>
+    {% for element in elements %}
+    <td class="center">
+      {% if round_ %}
+      {{ element|round(round_) }}
+      {% else %}
+      {{ element }}
+      {% endif %}
+    </td>
+    {% endfor %}
+  </tr>
+  {% endmacro %}
+
+  Всё, что ниже, должно зависеть от уровня, не от времени, т.к. время в данном случае не точный параметр, а анализ всё равно ориентируется на уровень.
+
+  <table>
+    <thead>
+
+      {{ time_row("время", tmp_time) }}
+      {{ time_row("уровень", tmp_lvls)}}
+      {{ time_row("ходов до следующего уровня", tmp_turns)}}
+      {{ time_row("опыт до следующего уровня", tmp_exp) }}
+      {{ time_row("здоровье", tmp_hp) }}
+      {{ time_row("сила (максимальная)", tmp_power) }}
+      {{ time_row("сила артефакта",  tmp_power_per_slot) }}
+      {{ time_row("ожидаемый урон герою за удар", tmp_expected_damage_to_hero_per_hit)}}
+      {{ time_row("здоровье моба", tmp_mob_hp)}}
+      {{ time_row("ожидаемый урон мобу за удар", tmp_expected_damage_to_mob_per_hit)}}
+      {{ time_row("реальный урон мобу за удар", tmp_real_damage_to_mob_per_hit)}}
+      {{ time_row("проведёт боёв на уровне", tmp_battles_at_lvl)}}
+      {{ time_row("проведено битв до уровня", tmp_total_battles)}}
+      {{ time_row("артефактов за битву", tmp_artifacts_per_battle, 5)}}
+      {{ time_row("артефактов в час", tmp_artifacts_per_hour, 3)}}
+      {{ time_row("артефактов в день", tmp_artifacts_per_day, 2)}}
+      {{ time_row("добытое золото на уровне", tmp_gold_at_lvl)}}
+      {{ time_row("золота в день", tmp_gold_in_day)}}
+      {{ time_row("всего добыто золота до уровня", tmp_total_gold_at_lvl)}}
+
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+</div>
+
+
+
+{% endblock %}
