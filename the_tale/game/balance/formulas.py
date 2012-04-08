@@ -1,5 +1,6 @@
 # coding: utf-8
 import math
+import random
 
 from . import constants as c
 
@@ -36,6 +37,14 @@ def lvl_after_time(time): return int(1 + (-c.TIME_TO_LVL_DELTA + math.sqrt(c.TIM
 # рассматривался альтернативный вариант - зависимость силы, от времени, но в этом случае она растёт очень быстро, что плохо сказывается на цифрах урона и т.п.
 def power_to_lvl(lvl): return int(c.POWER_INITIAL + lvl * c.POWER_TO_LVL)
 
+def power_to_artifact(lvl): return power_to_lvl(lvl) / c.EQUIP_SLOTS_NUMBER
+
+# функция, для получения случайного значения силы артефакта
+def power_to_artifact_randomized(lvl):
+    base_power = power_to_artifact(lvl)
+    return random.randint(max(base_power-c.ARTIFACT_POWER_DELTA, 0), base_power+c.ARTIFACT_POWER_DELTA)
+
+
 def mob_hp_to_lvl(lvl): return int(hp_on_lvl(lvl) * c.MOB_HP_MULTIPLIER) # здоровье моба уровня героя
 
 def expected_damage_to_hero_per_hit(lvl): return float(hp_on_lvl(lvl) * c.DAMAGE_TO_HERO_PER_HIT_FRACTION) # ожидаемый урон моба по герою за удар
@@ -57,21 +66,25 @@ def artifacts_per_battle(lvl): return float(c.ARTIFACTS_PER_LVL) / battles_on_lv
 # на текущий момент предполагаем, что из моба всегда может упась артефакт, подходящий герою по уровню
 # в то же время очевидно, что будет давольно странно на протяжении всей игры получать один и тот же артефакт существенно разной силы из мобов, которых бил ещё на 1-ом уровне
 # следовательно, необходимо ограничивать артефакты уровнем, т.е. организовывать в список, как мобов и лут (см. далее)
-#  следовательно, необходимо поддерживать список артефактов для каждого моба таким, что бы для героя любого уровня находилась добыча
-#  обеспечивать подобное требования сложновато, но, теоретически, можно
-#  возможно, получится ввести широкие уровневые границы для получения артефактов, т.к. они получаются героем достаточно редко.
+# следовательно, необходимо поддерживать список артефактов для каждого моба таким, что бы для героя любого уровня находилась добыча
+# обеспечивать подобное требования сложновато, но, теоретически, можно
+# возможно, получится ввести широкие уровневые границы для получения артефактов, т.к. они получаются героем достаточно редко.
 # ВОПРОС: что должно быть разнообразней: экипировка (артефакты) или лут? предположительно артефакты
 
+# цена лута из моба указанного уровня (т.е. для моба, появляющегося на этом уровне)
+# таким образом, нет необходимости поддерживать лут для каждого моба для каждого уровня, достаточно по одному предмету каждого качества,
+# а остальное по мере фантазии чисто для разнообразия
 def normal_loot_cost_at_lvl(lvl): return  int(math.ceil(c.NORMAL_LOOT_COST * lvl))
 def rare_loot_cost_at_lvl(lvl): return int(math.ceil(c.RARE_LOOT_COST * lvl))
 def epic_loot_cost_at_lvl(lvl): return int(math.ceil(c.EPIC_LOOT_COST * lvl))
-def expected_best_gold_at_lvl(lvl): return int(math.floor(battles_on_lvl(lvl) * c.GET_LOOT_PROBABILITY * (c.NORMAL_LOOT_PROBABILITY * normal_loot_cost_at_lvl(lvl) +
-                                                                                                          c.RARE_LOOT_PROBABILITY * rare_loot_cost_at_lvl(lvl) +
-                                                                                                          c.EPIC_LOOT_PROBABILITY * epic_loot_cost_at_lvl(lvl))))
+def expected_normal_gold_at_lvl(lvl): return int(math.floor(battles_on_lvl(lvl) * c.GET_LOOT_PROBABILITY * (c.NORMAL_LOOT_PROBABILITY * normal_loot_cost_at_lvl(lvl) +
+                                                                                                            c.RARE_LOOT_PROBABILITY * rare_loot_cost_at_lvl(lvl) +
+                                                                                                            c.EPIC_LOOT_PROBABILITY * epic_loot_cost_at_lvl(lvl))))
 
-def expected_gold_at_lvl(lvl): return int(math.floor(sum(expected_best_gold_at_lvl(x) for x in xrange(1, lvl+1)) / lvl))
+# при рассчётах принимаем, что герой будет встречать мобов разных уровней с одинаковой вероятностью
+def expected_gold_at_lvl(lvl): return int(math.floor(sum(expected_normal_gold_at_lvl(x) for x in xrange(1, lvl+1)) / lvl))
 def expected_gold_in_day(lvl): return int(math.floor(expected_gold_at_lvl(lvl) / (time_on_lvl(lvl) / 24)))
-def total_gold_at_lvl(lvl): return int(sum(expected_gold_at_lvl(x) for x in xrange(1, lvl+1)))
+def total_gold_at_lvl(lvl): return int(sum(expected_gold_at_lvl(x) for x in xrange(1, lvl)))
 
 # в общем случае, за уровень герой должен тратить процентов на 10 меньше золота, чем зарабатывать
 # тратить деньги можно на следующие вещи:

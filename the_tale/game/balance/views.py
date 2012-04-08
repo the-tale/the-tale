@@ -33,10 +33,11 @@ class BalanceResource(Resource):
         tmp_power = map(f.power_to_lvl, tmp_lvls)
         tmp_expected_damage_to_mob_per_hit = map(f.expected_damage_to_mob_per_hit, tmp_lvls)
         tmp_real_damage_to_mob_per_hit = map(f.damage_from_power, tmp_power)
-        tmp_power_per_slot = [float(x)/c.EQUIP_SLOTS_NUMBER for x in tmp_power]
+        tmp_power_per_slot = [f.power_to_artifact(x) for x in tmp_lvls]
         tmp_battles_at_lvl = map(math.floor, [x * c.BATTLES_PER_HOUR for x in map(f.time_on_lvl, tmp_lvls)])
         tmp_total_battles = map(math.floor, [x * c.BATTLES_PER_HOUR for x in map(f.total_time_for_lvl, tmp_lvls)])
         tmp_artifacts_per_battle = map(f.artifacts_per_battle, tmp_lvls)
+        tmp_artifacts_total = [(lvl-1)*c.ARTIFACTS_PER_LVL for lvl in tmp_lvls]
         tmp_artifacts_per_hour = [x*c.BATTLES_PER_HOUR for x in map(f.artifacts_per_battle, tmp_lvls)]
         tmp_artifacts_per_day = [x*c.BATTLES_PER_HOUR*24 for x in map(f.artifacts_per_battle, tmp_lvls)]
 
@@ -61,6 +62,7 @@ class BalanceResource(Resource):
                               'tmp_power_per_slot': tmp_power_per_slot,
                               'tmp_battles_at_lvl': tmp_battles_at_lvl,
                               'tmp_total_battles': tmp_total_battles,
+                              'tmp_artifacts_total': tmp_artifacts_total,
                               'tmp_artifacts_per_battle': tmp_artifacts_per_battle,
                               'tmp_artifacts_per_hour': tmp_artifacts_per_hour,
                               'tmp_artifacts_per_day': tmp_artifacts_per_day,

@@ -1,2 +1,1 @@
 
-class ArtifactException(Exception): pass

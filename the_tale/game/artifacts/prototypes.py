@@ -1,79 +1,59 @@
 # -*- coding: utf-8 -*-
 
-from .models import EQUIP_TYPE
+from game.artifacts.conf import EQUIP_TYPE
 
 class ArtifactPrototype(object):
 
-    def __init__(self, tp=None, equip_type=None, power=0, quest=False, data=None):
-        self.type = tp
-        self.equip_type = equip_type
-        self.name = None
-        self.normalized_name = None
-        self.cost = 0
+    def __init__(self, record=None, power=None, quest=False, quest_uuid=None, bag_uuid=None):
+        self.record = record
         self.quest = quest
         self.power = power
 
-        self.quest_uuid = None
-        self.bag_uuid = None
+        self.quest_uuid = quest_uuid
+        self.bag_uuid = bag_uuid
 
-        self.basic_points_spent = 0
-
-        if data:
-            self.deserialize(data)
 
     @property
-    def total_points_spent(self):
-        return self.basic_points_spent # + self.effect_points_spent
+    def id(self): return self.record.id
 
-    def set_name(self, name):
-        self.name = name
+    @property
+    def type(self): return self.record.type
 
-    def set_normalized_name(self, normalized_name):
-        self.normalized_name = normalized_name
+    @property
+    def slot(self): return self.record.slot
 
-    def set_cost(self, cost):
-        self.cost = cost
-        
-    def set_bag_uuid(self, uuid):
-        self.bag_uuid = uuid
+    @property
+    def name(self): return self.record.name
 
-    def set_quest_uuid(self, uuid):
-        self.quest_uuid = uuid
+    @property
+    def normalized_name(self): return self.record.normalized_name
 
-    def set_power(self, power):
-        self.power = power
+    @property
+    def min_lvl(self): return self.record.min_lvl
 
-    def set_points_spent(self, points):
-        self.basic_points_spent = points
+    @property
+    def max_lvl(self): return self.record.max_lvl
 
-    def deserialize(self, data):
-        self.type = data.get('type', None)
-        self.equip_type = data.get('equip_type', None)
-        self.name = data.get('name', '')
-        self.normalized_name = data.get('normalized_name', u'осколок прошлого')
-        if not self.normalized_name:
-            self.normalized_name = u'осколок прошлого'
-        self.cost = data.get('cost', 0)
-        self.quest = data.get('quest', False)
-        self.power = data.get('power', 1)
+    def set_quest_uuid(self, uuid): self.quest_uuid = uuid
 
-        self.quest_uuid = data.get('quest_uuid', False)
-        self.bag_uuid = data.get('bag_uuid', False)
-
-        self.basic_points_spent = data.get('basic_points_spent', 0)
+    def set_bag_uuid(self, uuid): self.bag_uuid = uuid
 
 
     def serialize(self):
-        return {'type': self.type,
-                'equip_type': self.equip_type,
-                'name': self.name,
-                'normalized_name': self.normalized_name,
-                'cost': self.cost,
+        return {'id': self.id,
                 'power': self.power,
                 'quest': self.quest,
                 'quest_uuid': self.quest_uuid,
-                'bag_uuid': self.bag_uuid,
-                'basic_points_spent': self.basic_points_spent}
+                'bag_uuid': self.bag_uuid}
+
+
+    @classmethod
+    def deserialize(cls, storage, data):
+        return cls(record=storage.data[data['id']],
+                   power=data['power'],
+                   quest=data['quest'],
+                   quest_uuid=data['quest_uuid'],
+                   bag_uuid=data['bag_uuid'])
 
     def ui_info(self):
         return {'type': self.type,

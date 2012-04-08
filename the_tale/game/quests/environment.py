@@ -22,11 +22,10 @@ class Environment(BaseEnvironment):
         pass
 
     def sync_items(self):
-        from ..artifacts.constructors import ArtifactConstructorPrototype
+        from ..artifacts.storage import ArtifactsDatabase
 
         for item_id, item_data in self.items.items():
-            constructor = ArtifactConstructorPrototype.get_by_uuid('useless_letter')
-            artifact = constructor.generate_artifact(quest=True)
+            artifact = ArtifactsDatabase.storage().create_artifact('letter', quest=True)
             artifact.set_quest_uuid(item_id)
             item_data['external_data']['artifact'] = artifact.serialize()
 
@@ -56,12 +55,11 @@ class Environment(BaseEnvironment):
                 subst[key] = self.items[value]['external_data']['artifact'].get('normalized_name', u'осколок прошлого')
 
         return subst
-        
+
 
     def serialize(self):
         data = super(Environment, self).serialize()
         return data
 
     def deserialize(self, data):
-        super(Environment, self).deserialize(data)        
-
+        super(Environment, self).deserialize(data)

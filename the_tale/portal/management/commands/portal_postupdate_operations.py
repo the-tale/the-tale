@@ -14,38 +14,36 @@ class Command(BaseCommand):
 
         print
         print 'CLEAR TEXTGEN TEXTS'
-        print 
+        print
 
         subprocess.call(['./manage.py', 'textgen_clear_database'])
 
         print
         print 'LOAD TEXTGEN TEXTS'
-        print 
+        print
 
         subprocess.call(['./manage.py', 'textgen_refresh_database'])
 
         print
         print 'LOAD QUEST WRITERS'
-        print 
+        print
 
         subprocess.call(['./manage.py', 'quests_load_writers'])
-        
+
         print
         print 'LOAD ARTIFACT CONSTRUCTORS'
-        print 
+        print
 
-        subprocess.call(['./manage.py', 'artifacts_refresh_database'])
+        subprocess.call(['./manage.py', 'artifacts_fill_dictionary'])
 
         print
         print 'LOAD MOBS CONSTRUCTORS'
-        print 
+        print
 
         subprocess.call(['./manage.py', 'mobs_refresh_database'])
 
         print
         print 'UPDATE MAP'
-        print 
+        print
 
-        subprocess.call(['./manage.py', 'map_update_map'])            
-
-
+        subprocess.call(['./manage.py', 'map_update_map'])

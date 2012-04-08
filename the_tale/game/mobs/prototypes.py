@@ -28,8 +28,8 @@ class MobPrototype(object):
         pass
 
     def get_loot(self):
-        from ..artifacts.constructors import ArtifactConstructorPrototype
-        return ArtifactConstructorPrototype.generate_loot(self.loot_list, self.level)
+        from ..artifacts.storage import ArtifactsDatabase
+        return ArtifactsDatabase.storage().generate_loot(self.loot_list, self.level)
 
     def serialize(self):
         return s11n.to_json({'name': self.name,
@@ -66,10 +66,10 @@ class MobPrototype(object):
 
     @classmethod
     def construct(cls,
-                  level, 
-                  NAME, 
+                  level,
+                  NAME,
                   NORMALIZED_NAME,
-                  HEALTH_RELATIVE_TO_HERO, 
+                  HEALTH_RELATIVE_TO_HERO,
                   INITIATIVE,
                   DAMAGE_DISPERSION,
                   POWER_PER_LEVEL,

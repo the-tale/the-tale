@@ -1,0 +1,10 @@
+| id             | type   | slot      | name               | normalized name    | min lvl <= | < max lvl |
+|----------------+--------+-----------+--------------------+--------------------+------------+-----------|
+| antlers        | armor  | helmet    | олений рог         | олений рог         |          1 |         6 |
+| skin_of_a_wolf | armor  | shoulders | шкура волка        | шкура волка        |          1 |         6 |
+| dead_tadpole   | armor  | amulet    | мёртвый головастик | мёртвый головастик |          1 |         6 |
+| skin_of_a_deer | armor  | cloak     | шкура оленя        | шкура оленя        |          1 |         6 |
+| skin_of_jackal | armor  | shoulders | шкура шакала       | шкура шакала       |          1 |         6 |
+| decrepit_plate | armor  | plate     | дряхлый доспех     | дряхлый доспех     |          1 |         6 |
+| wolfs_fangs    | armor  | amulet    | волчий клык        | волчий клык        |          1 |         6 |
+| broken_sword   | weapon | weapon    | сломанный меч      | сломанный меч      |          1 |         6 |
