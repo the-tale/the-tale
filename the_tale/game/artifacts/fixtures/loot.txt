@@ -1,8 +1,0 @@
-| id              | type    | slot      | name               | normalized name    | min lvl | max lvl |
-|-----------------+---------+-----------+--------------------+--------------------+---------+---------|
-| fake_amulet     | useless | none      | поддельный амулет  | поддельный амулет  |         |         |
-| piece_of_cheese | useless | none      | кусок сыра         | кусок сыра         |         |         |
-| jackals_tail    | useless | none      | шакалий хвост      | шакалий хвост      |         |         |
-| rat_tail        | useless | none      | крысиный хвостик   | крысиный хвостик   |         |         |
-| letter          | useless | none      | письмо             | письмо             |         |         |
-| scorpion_venom  | useless | none      | яд скорпиона       | яд скорпиона       |         |         |

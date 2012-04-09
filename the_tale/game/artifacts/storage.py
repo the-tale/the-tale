@@ -2,6 +2,8 @@
 import re
 import random
 
+import xlrd
+
 from collections import namedtuple
 
 from game.balance import formulas as f, constants as c
@@ -22,29 +24,26 @@ class ArtifactsDatabase(object):
 
     def load(self, filename):
 
-        with open(filename, 'r') as file:
+        book = xlrd.open_workbook(filename, logfile=None, encoding_override='utf-8')
 
-            for line in file:
-                artifact_data = line.split('|')
-                if len(artifact_data) != 9:
-                    if self.DELIMITER_RE.match(line):
-                        continue
-                    else:
-                        raise ArtifactsExcecption(u'wrong artifact record:\n %s' % line)
+        sheet = book.sheet_by_index(0)
 
-                artifact_data = [field.strip().decode('utf-8') for field in artifact_data[1:-1]]
+        for row_number in xrange(sheet.nrows):
+            artifact_data = list(sheet.row_values(row_number))
 
-                if artifact_data[0] == 'id':
-                    continue
+            if artifact_data[0] != u'+':
+                continue
 
-                artifact_data[-1] = int(artifact_data[-1]) if artifact_data[-1] else 0
-                artifact_data[-2] = int(artifact_data[-2]) if artifact_data[-2] else 0
-                artifact_record = ArtifactRecord(*artifact_data)
+            artifact_data = artifact_data[1:]
 
-                if artifact_record.id in self.data:
-                    raise ArtifactsExcecption(u'duplicate artifact id: %s' % artifact_record.id)
+            artifact_data[-1] = int(artifact_data[-1]) if artifact_data[-1] else 0
+            artifact_data[-2] = int(artifact_data[-2]) if artifact_data[-2] else 0
+            artifact_record = ArtifactRecord(*artifact_data)
 
-                self.data[artifact_record.id] = artifact_record
+            if artifact_record.id in self.data:
+                raise ArtifactsExcecption(u'duplicate artifact id: %s' % artifact_record.id)
+
+            self.data[artifact_record.id] = artifact_record
 
 
     @classmethod

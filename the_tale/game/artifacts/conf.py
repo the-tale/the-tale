@@ -43,6 +43,6 @@ ITEM_TYPE_STR_2_ID = {'useless': ITEM_TYPE.USELESS,
 
 
 artifacts_settings = app_settings( 'ARTIFACTS',
-                                   ARTIFACTS_STORAGE=os.path.join(APP_DIR, 'fixtures', 'artifacts.txt'),
-                                   LOOT_STORAGE=os.path.join(APP_DIR, 'fixtures', 'loot.txt'),
-                                   TEST_STORAGE=os.path.join(APP_DIR, 'fixtures', 'test.txt'))
+                                   ARTIFACTS_STORAGE=os.path.join(APP_DIR, 'fixtures', 'artifacts.xls'),
+                                   LOOT_STORAGE=os.path.join(APP_DIR, 'fixtures', 'loot.xls'),
+                                   TEST_STORAGE=os.path.join(APP_DIR, 'fixtures', 'test.xls'))
