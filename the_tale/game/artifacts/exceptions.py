@@ -1,3 +1,3 @@
 # coding: utf-8
 
-class ArtifactsExcecption(Exception): pass
+class ArtifactsException(Exception): pass

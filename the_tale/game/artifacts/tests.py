@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from .storage import ArtifactsDatabase
 from .conf import artifacts_settings
-from .exceptions import ArtifactsExcecption
+from .exceptions import ArtifactsException
 
 class ArtifactsDatabaseTest(TestCase):
 
@@ -43,4 +43,4 @@ class ArtifactsDatabaseTest(TestCase):
     def test_load_duplicates(self):
         storage = ArtifactsDatabase()
         storage.load(artifacts_settings.TEST_STORAGE)
-        self.assertRaises(ArtifactsExcecption, storage.load, artifacts_settings.TEST_STORAGE)
+        self.assertRaises(ArtifactsException, storage.load, artifacts_settings.TEST_STORAGE)

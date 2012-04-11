@@ -45,6 +45,11 @@ def power_to_artifact_randomized(lvl):
     return random.randint(max(base_power-c.ARTIFACT_POWER_DELTA, 0), base_power+c.ARTIFACT_POWER_DELTA)
 
 
+# Предполагаем, что мобы различаются по инициативе (скорости), здоровью и урону. Каждый из этих параметров высчитывается как процент от среднего (ожидаемого) значения.
+# Таким образом, каждый параметр может быть, например от 0.5 до 1.5. Сложность моба расчитывается по формуле, учитывающей влияние этих параметров на задержку героя
+# в сравнении с битвой со средним мобом. Опыт даётся пропорционально сложности.
+#
+
 def mob_hp_to_lvl(lvl): return int(hp_on_lvl(lvl) * c.MOB_HP_MULTIPLIER) # здоровье моба уровня героя
 
 def expected_damage_to_hero_per_hit(lvl): return float(hp_on_lvl(lvl) * c.DAMAGE_TO_HERO_PER_HIT_FRACTION) # ожидаемый урон моба по герою за удар

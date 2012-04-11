@@ -29,5 +29,5 @@ def equip_in_city(hero):
 
 
 def create_mob_for_hero(hero):
-    from ..mobs.constructors import MobConstructorPrototype
-    return MobConstructorPrototype.get_random_mob(hero)
+    from ..mobs.storage import MobsStorage
+    return MobsStorage.storage().get_random_mob(hero)

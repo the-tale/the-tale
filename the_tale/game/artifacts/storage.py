@@ -1,5 +1,4 @@
 # coding: utf-8
-import re
 import random
 
 import xlrd
@@ -9,15 +8,13 @@ from collections import namedtuple
 from game.balance import formulas as f, constants as c
 
 from game.artifacts.conf import artifacts_settings, ITEM_TYPE
-from game.artifacts.exceptions import ArtifactsExcecption
+from game.artifacts.exceptions import ArtifactsException
 from game.artifacts.prototypes import ArtifactPrototype
 
 
 ArtifactRecord = namedtuple('ArtifactRecord', ('id', 'type', 'slot', 'name', 'normalized_name', 'min_lvl', 'max_lvl'))
 
 class ArtifactsDatabase(object):
-
-    DELIMITER_RE = re.compile(r'^\|[\-\+]+\|$')
 
     def __init__(self):
         self.data = {}
@@ -41,7 +38,7 @@ class ArtifactsDatabase(object):
             artifact_record = ArtifactRecord(*artifact_data)
 
             if artifact_record.id in self.data:
-                raise ArtifactsExcecption(u'duplicate artifact id: %s' % artifact_record.id)
+                raise ArtifactsException(u'duplicate artifact id: %s' % artifact_record.id)
 
             self.data[artifact_record.id] = artifact_record
 
