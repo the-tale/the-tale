@@ -18,6 +18,13 @@ class MobsDatabase(object):
     def __init__(self):
         self.data = {}
 
+    @staticmethod
+    def _prepair_string_set(string_data):
+        sequence = [data.strip() for data in string_data.split(',')]
+        if sequence == [u'']:
+            sequence = []
+        return frozenset(sequence)
+
     def load(self, filename):
 
         book = xlrd.open_workbook(filename, logfile=None, encoding_override='utf-8')
@@ -38,10 +45,10 @@ class MobsDatabase(object):
             mob_data[6] = float(mob_data[6])
             mob_data[7] = float(mob_data[7])
 
-            mob_data[8] = frozenset([data.strip() for data in mob_data[8].split(',')])
-            mob_data[9] = frozenset([data.strip() for data in mob_data[9].split(',')])
-            mob_data[10] = frozenset([data.strip() for data in mob_data[10].split(',')])
-            mob_data[11] = frozenset([data.strip() for data in mob_data[11].split(',')])
+            mob_data[8] = self._prepair_string_set(mob_data[8])
+            mob_data[9] = self._prepair_string_set(mob_data[9])
+            mob_data[10] = self._prepair_string_set(mob_data[10])
+            mob_data[11] = self._prepair_string_set(mob_data[11])
 
             mob_record = MobRecord(*mob_data)
 

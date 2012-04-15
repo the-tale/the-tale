@@ -61,3 +61,10 @@ class MobsDatabaseTest(TestCase):
 
         mobs_in_forest = [mob.id for mob in storage.get_available_mobs_list(0, 'forest')]
         self.assertEqual(frozenset(mobs_in_forest), frozenset())
+
+
+    def test_empty_loot_field(self):
+        storage = MobsDatabase()
+        storage.load(mobs_settings.TEST_STORAGE)
+
+        self.assertEqual(storage.data['jackal'].artifacts, frozenset())
