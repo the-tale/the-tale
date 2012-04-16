@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from dext.utils import s11n
 
-from ..artifacts.prototypes import ArtifactPrototype
-from ..artifacts.models import EQUIP_TYPE
+from game.artifacts.prototypes import ArtifactPrototype
+from game.artifacts.conf import EQUIP_TYPE
 
 class EquipmentException(Exception): pass
 
@@ -20,7 +20,7 @@ class Bag(object):
             artifact = ArtifactPrototype()
             artifact.deserialize(artifact_data)
             self.bag[int(uuid)] = artifact
-    
+
     def serialize(self):
         return s11n.to_json({'next_uuid': self.next_uuid,
                              'bag': dict( (uuid, artifact.serialize()) for uuid, artifact in self.bag.items() )

@@ -66,10 +66,10 @@ class BundlePrototype(object):
 
             for hero in angel.heroes():
                 self.add_hero(hero)
-      
+
     @nested_commit_on_success
     def save_data(self):
-        
+
         for angel in self.angels.values():
             angel.save()
 
@@ -86,7 +86,7 @@ class BundlePrototype(object):
     @classmethod
     @nested_commit_on_success
     def create(cls, angel):
-        
+
         bundle = Bundle.objects.create(type=BUNDLE_TYPE.BASIC)
         member = BundleMember.objects.create(angel=angel.model)
         bundle.members.add(member)
@@ -120,3 +120,11 @@ class BundlePrototype(object):
         self.save_data()
 
         return next_turn
+
+    ##########################
+    # methods for test purposes
+    def tests_get_last_action(self):
+        return self.actions[sorted(self.actions.keys())[-1]]
+
+    def tests_get_hero(self):
+        return self.heroes.values()[0]

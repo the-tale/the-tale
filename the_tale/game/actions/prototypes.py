@@ -662,7 +662,7 @@ class ActionRestPrototype(ActionPrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, parent, settlement):
+    def create(cls, parent):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
@@ -680,8 +680,9 @@ class ActionRestPrototype(ActionPrototype):
 
 
         if self.state == self.STATE.RESTING:
-
             heal_amount = int(round(float(self.hero.max_health) / c.HEAL_LENGTH))
+
+            self.hero.health = min(self.hero.health + heal_amount, self.hero.max_health)
 
             if random.uniform(0, 1) < 0.2:
                 self.hero.add_message('action_rest_resring', hero=self.hero, health=heal_amount)
