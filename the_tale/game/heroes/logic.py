@@ -13,11 +13,6 @@ def strike(attaker, defender):
     result.defender.health = result.defender.health - result.damage
     return result
 
-def heal_in_town(pacient):
-    heal_amount = game_info.actions.healing.heal_in_town.amount(pacient)
-    pacient.health = min(pacient.max_health, pacient.health + heal_amount)
-    return heal_amount
-
 def sell_in_city(seller, artifact, selling_crit):
     sell_price = game_info.actions.trading.trade_in_town.sell_price(seller, artifact, selling_crit)
     seller.money = seller.money + sell_price

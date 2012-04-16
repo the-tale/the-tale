@@ -8,13 +8,13 @@ class GameInfoException(Exception): pass
 class Attribute(object): pass
 
 class AttributeContainer(object):
-    
-    @classmethod 
-    def attrs(cls): 
+
+    @classmethod
+    def attrs(cls):
         result = []
         for attr_name in dir(cls):
-            attr = getattr(cls, attr_name) 
-            if isinstance(attr, type) and issubclass(attr, Attribute): 
+            attr = getattr(cls, attr_name)
+            if isinstance(attr, type) and issubclass(attr, Attribute):
                 result.append(attr)
         return result
 
@@ -28,7 +28,7 @@ class actions:
             description = u'Атакующий герой бьёт защищающегося'
 
             class StrikeInfo(object):
-                
+
                 def __init__(self, attaker, defender, damage):
                     self.attaker = attaker
                     self.defender = defender
@@ -42,21 +42,10 @@ class actions:
                                         damage=random.randint(attaker.min_damage, attaker.max_damage))
                 return result
 
-    class healing(AttributeContainer):
-
-        class heal_in_town(Attribute):
-
-            name = u'лечение в городе'
-            description = u'лечение героя в городе'
-
-            @classmethod
-            def amount(cls, pacient):
-                return random.randint(1, int(5 + pacient.level) )
-
     class trading(AttributeContainer):
 
         class trade_in_town(Attribute):
-            
+
             name = u'торговля в городе'
             description = u'торговля в городе'
 
@@ -86,7 +75,7 @@ class actions:
                 for uuid, artifact in hero.bag.items():
                     if not can_equip(artifact) or artifact.equip_type is None:
                         continue
-                   
+
                     for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
                         equipped_artifact = hero.equipment.get(slot)
                         if equipped_artifact is None:
@@ -121,15 +110,6 @@ class needs:
 
     class InTown(AttributeContainer):
 
-        class rest(Attribute):
-
-            name = u'необходимость отдыха'
-            description = u'необходим ли герою отдых'
-
-            @classmethod
-            def check(cls, hero):
-                return float(hero.health) / hero.max_health < 0.33
-
         class trade(Attribute):
 
             name = u'необходимость торговли'
@@ -149,7 +129,3 @@ class needs:
             def check(cls, hero):
                 from .bag import can_equip
                 return any( can_equip(artifact) for uuid, artifact in hero.bag.items() )
-
-
-
-

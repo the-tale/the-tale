@@ -4,7 +4,7 @@ import random
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils import s11n
 
-from ..heroes.logic import create_mob_for_hero, heal_in_town, sell_in_city, equip_in_city
+from ..heroes.logic import create_mob_for_hero, sell_in_city, equip_in_city
 from ..heroes.prototypes import EXPERIENCE_VALUES
 from ..heroes import hcontexts
 
@@ -14,6 +14,8 @@ from ..map.roads.prototypes import get_road_by_model, WaymarkPrototype
 from .models import Action, UNINITIALIZED_STATE
 from . import battle
 
+from game.balance import constants as c
+
 def get_actions_types():
     actions = {}
     for key, cls in globals().items():
@@ -22,7 +24,7 @@ def get_actions_types():
     return actions
 
 def get_action_by_model(model):
-    if model is None: 
+    if model is None:
         return None
 
     return ACTION_TYPES[model.type](model=model)
@@ -31,7 +33,7 @@ def get_action_by_model(model):
 class ActionException(Exception): pass
 
 class ActionPrototype(object):
-    
+
     TYPE = 'BASE'
     SHORT_DESCRIPTION = 'undefined'
     CONTEXT_MANAGER = None
@@ -163,14 +165,14 @@ class ActionPrototype(object):
     # Object operations
     ###########################################
 
-    def remove(self): 
+    def remove(self):
         self.bundle.remove_action(self)
         if hasattr(self, '_quest'):
             self.quest.remove()
         self.model.delete()
         self.removed = True
 
-    def save(self): 
+    def save(self):
         if hasattr(self, '_data'):
             self.model.data = s11n.to_json(self._data)
         if hasattr(self, '_mob'):
@@ -256,7 +258,7 @@ class ActionIdlenessPrototype(ActionPrototype):
             if random.uniform(0, 1) < 0.2:
                 self.hero.add_message('action_idleness_waiting', hero=self.hero)
 
-            if (self.percents >= 0.5 and 
+            if (self.percents >= 0.5 and
                 self.hero.position.is_settlement and
                 (self.hero.need_trade_in_town or self.hero.need_rest_in_town) ):
 
@@ -291,10 +293,10 @@ class ActionQuestPrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, quest):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, 
-                                       parent=parent.model, 
-                                       hero=parent.hero.model, 
-                                       order=parent.order+1, 
+        model = Action.objects.create( type=cls.TYPE,
+                                       parent=parent.model,
+                                       hero=parent.hero.model,
+                                       order=parent.order+1,
                                        quest=quest.model)
         return cls(model=model)
 
@@ -303,7 +305,7 @@ class ActionQuestPrototype(ActionPrototype):
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.PROCESSING
 
-        
+
         if self.state == self.STATE.PROCESSING:
             finish, percents = self.quest.process(self)
 
@@ -323,6 +325,7 @@ class ActionMoveToPrototype(ActionPrototype):
         MOVING = 'moving'
         IN_CITY = 'walking_in_city'
         BATTLE = 'battle'
+        RESTING = 'resting'
         RESURRECT = 'resurrect'
 
     destination_id = ActionPrototype.place_id
@@ -337,10 +340,10 @@ class ActionMoveToPrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, destination, break_at=None):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, 
+        model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
-                                       hero=parent.hero.model, 
-                                       order=parent.order+1, 
+                                       hero=parent.hero.model,
+                                       order=parent.order+1,
                                        place=destination.model,
                                        break_at=break_at)
         return cls(model=model)
@@ -394,7 +397,7 @@ class ActionMoveToPrototype(ActionPrototype):
                 else:
                     delta_left = (1 - self.hero.position.percents) * self.hero.position.road.length
                 delta_rigth = self.hero.position.road.length - delta_left
-                
+
                 if road_left is None:
                     invert = True
                 elif road_right is None:
@@ -430,7 +433,11 @@ class ActionMoveToPrototype(ActionPrototype):
 
             current_destination = self.current_destination
 
-            if random.uniform(0, 1) <= 0.1:
+            if self.hero.need_rest_in_town:
+                self.state = self.STATE.RESTING
+                self.bundle.add_action(ActionRestPrototype.create(self))
+
+            elif random.uniform(0, 1) <= 0.1:
                 mob = create_mob_for_hero(self.hero)
 
                 self.bundle.add_action(ActionBattlePvE_1x1Prototype.create(parent=self, mob=mob))
@@ -439,11 +446,11 @@ class ActionMoveToPrototype(ActionPrototype):
             else:
 
                 if random.uniform(0, 1) < 0.33:
-                    self.hero.add_message('action_moveto_move', 
-                                          hero=self.hero, 
-                                          destination=self.destination, 
+                    self.hero.add_message('action_moveto_move',
+                                          hero=self.hero,
+                                          destination=self.destination,
                                           current_destination=self.current_destination)
-            
+
                 delta = self.hero.move_speed / self.road.length
 
                 self.hero.position.percents += delta
@@ -454,15 +461,17 @@ class ActionMoveToPrototype(ActionPrototype):
                 if self.hero.position.percents >= 1:
                     self.hero.position.percents = 1
                     self.hero.position.set_place(current_destination)
-                    
+
                     self.state = self.STATE.IN_CITY
 
                     self.bundle.add_action(ActionInPlacePrototype.create(parent=self, settlement=current_destination))
 
                 elif self.break_at and self.percents >= 1:
                     self.percents = 1
-                    self.state = self.STATE.PROCESSED                    
+                    self.state = self.STATE.PROCESSED
 
+        elif self.state == self.STATE.RESTING:
+            self.state = self.STATE.MOVING
 
         elif self.state == self.STATE.BATTLE:
             if not self.hero.is_alive:
@@ -476,7 +485,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
         elif self.state == self.STATE.IN_CITY:
             self.state = self.STATE.CHOOSE_ROAD
-    
+
 
 class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
@@ -495,7 +504,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, mob):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, 
+        model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -522,7 +531,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
         if self.state == self.STATE.BATTLE_RUNNING:
 
-            battle.make_turn(battle.Actor(self.hero, self.context), 
+            battle.make_turn(battle.Actor(self.hero, self.context),
                              battle.Actor(self.mob, self.mob_context ),
                              self.hero)
 
@@ -551,7 +560,7 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
 
                 self.percents = 1.0
                 self.state = self.STATE.PROCESSED
-                
+
             if self.state == self.STATE.PROCESSED:
                 self.remove_mob()
 
@@ -568,9 +577,9 @@ class ActionResurrectPrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, 
+        model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
-                                       hero=parent.hero.model, 
+                                       hero=parent.hero.model,
                                        order=parent.order+1)
         return cls(model=model)
 
@@ -600,18 +609,6 @@ class ActionInPlacePrototype(ActionPrototype):
         RESTING = 'resting'
         EQUIPPING = 'equipping'
 
-    @property
-    def can_rest_in_town(self):
-        return self.state in [self.STATE.UNINITIALIZED]
-
-    @property
-    def can_equip_in_town(self):
-        return self.state in [self.STATE.UNINITIALIZED, self.STATE.RESTING]
-
-    @property
-    def can_trade_in_town(self):
-        return self.state in [self.STATE.UNINITIALIZED, self.STATE.RESTING, self.STATE.EQUIPPING]
-
     ###########################################
     # Object operations
     ###########################################
@@ -620,9 +617,9 @@ class ActionInPlacePrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, settlement):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, 
-                                       parent=parent.model, 
-                                       hero=parent.hero.model, 
+        model = Action.objects.create( type=cls.TYPE,
+                                       parent=parent.model,
+                                       hero=parent.hero.model,
                                        order=parent.order+1,
                                        place=settlement.model)
         return cls(model=model)
@@ -635,32 +632,29 @@ class ActionInPlacePrototype(ActionPrototype):
 
     def process_settlement(self):
 
-        if self.can_rest_in_town and self.hero.need_rest_in_town:
+        if self.state in [self.STATE.UNINITIALIZED] and self.hero.need_rest_in_town:
             self.state = self.STATE.RESTING
-            self.bundle.add_action(ActionRestInSettlementPrototype.create(self, self.place))
+            self.bundle.add_action(ActionRestPrototype.create(self))
 
-        elif self.can_equip_in_town and self.hero.need_equipping_in_town:
+        elif self.state in [self.STATE.UNINITIALIZED, self.STATE.RESTING] and self.hero.need_equipping_in_town:
             self.state = self.STATE.EQUIPPING
             self.bundle.add_action(ActionEquipInSettlementPrototype.create(self, self.place))
 
-        elif self.can_trade_in_town and self.hero.need_trade_in_town:
+        elif self.state in [self.STATE.UNINITIALIZED, self.STATE.RESTING, self.STATE.EQUIPPING] and self.hero.need_trade_in_town:
             self.state = self.STATE.TRADING
             self.bundle.add_action(ActionTradeInSettlementPrototype.create(self, self.place))
-            
+
         else:
             self.state = self.STATE.PROCESSED
 
 
-class ActionRestInSettlementPrototype(ActionPrototype):
+class ActionRestPrototype(ActionPrototype):
 
-    TYPE = 'REST_IN_SETTLEMENT'
+    TYPE = 'REST'
     SHORT_DESCRIPTION = u'отдыхает'
 
     class STATE(ActionPrototype.STATE):
         RESTING = 'resting'
-
-    settlement_id = ActionPrototype.place_id
-    settlement = ActionPrototype.place
 
     ###########################################
     # Object operations
@@ -670,11 +664,10 @@ class ActionRestInSettlementPrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, settlement):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, 
+        model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
-                                       hero=parent.hero.model, 
-                                       order=parent.order+1, 
-                                       place=settlement.model)
+                                       hero=parent.hero.model,
+                                       order=parent.order+1)
         return cls(model=model)
 
     @nested_commit_on_success
@@ -683,15 +676,15 @@ class ActionRestInSettlementPrototype(ActionPrototype):
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.RESTING
             self.percents = 0
-            self.hero.add_message('action_restinsettlement_start', hero=self.hero)
+            self.hero.add_message('action_rest_start', hero=self.hero)
 
 
         if self.state == self.STATE.RESTING:
 
-            heal_amount = heal_in_town(self.hero)
+            heal_amount = int(round(float(self.hero.max_health) / c.HEAL_LENGTH))
 
-            if random.uniform(0, 1) < 0.33:
-                self.hero.add_message('action_restinsettlement_resring', hero=self.hero, health=heal_amount)
+            if random.uniform(0, 1) < 0.2:
+                self.hero.add_message('action_rest_resring', hero=self.hero, health=heal_amount)
 
             self.percents = float(self.hero.health/self.hero.max_health)
 
@@ -718,10 +711,10 @@ class ActionEquipInSettlementPrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, settlement):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, 
+        model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
-                                       hero=parent.hero.model, 
-                                       order=parent.order+1, 
+                                       hero=parent.hero.model,
+                                       order=parent.order+1,
                                        place=settlement.model)
         return cls(model=model)
 
@@ -733,7 +726,7 @@ class ActionEquipInSettlementPrototype(ActionPrototype):
             self.percents = 0
             self.hero.add_message('action_equipinsettlement_start', hero=self.hero)
 
-        
+
         if self.state == self.STATE.EQUIPPING:
             unequipped, equipped = equip_in_city(self.hero)
             if equipped:
@@ -771,7 +764,7 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
     @nested_commit_on_success
     def create(cls, parent, settlement):
         parent.leader = False
-        model = Action.objects.create( type=cls.TYPE, 
+        model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -798,7 +791,7 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
                     artifact_uuid, artifact = item
                     if not artifact.quest:
                         break
-                    
+
                 sell_price = sell_in_city(self.hero, artifact, False)
 
                 self.hero.add_message('action_tradeinsettlement_sell_item', hero=self.hero, artifact=artifact, coins=sell_price)
@@ -814,6 +807,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
     class STATE(ActionPrototype.STATE):
         MOVING = 'MOVING'
         BATTLE = 'BATTLE'
+        RESTING = 'RESTING'
         RESURRECT = 'RESURRECT'
 
     ###########################################
@@ -834,7 +828,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
         else:
             x, y = random.choice(place.nearest_cells)
 
-        model = Action.objects.create( type=cls.TYPE, 
+        model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -861,6 +855,10 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
         if self.state == self.STATE.MOVING:
 
+            if self.hero.need_rest_in_town:
+                self.state = self.STATE.RESTING
+                self.bundle.add_action(ActionRestPrototype.create(self))
+
             if random.uniform(0, 1) <= 0.1:
                 mob = create_mob_for_hero(self.hero)
 
@@ -872,7 +870,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
                 if random.uniform(0, 1) < 0.2:
                     self.hero.add_message('action_movenearplace_walk', hero=self.hero, place=self.place)
-            
+
                 if self.hero.position.subroad_len() == 0:
                     self.hero.position.percents += 0.1
                 else:
@@ -891,12 +889,15 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
                     self.state = self.STATE.PROCESSED
 
+        elif self.state == self.STATE.RESTING:
+            self.state = self.STATE.MOVING
+
         elif self.state == self.STATE.BATTLE:
             if not self.hero.is_alive:
                 self.bundle.add_action(ActionResurrectPrototype.create(self))
                 self.state = self.STATE.RESURRECT
             else:
-                self.state = self.STATE.RESURRECT
+                self.state = self.STATE.MOVING
 
         elif self.state == self.STATE.RESURRECT:
             self.state = self.STATE.MOVING

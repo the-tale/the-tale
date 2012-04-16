@@ -24,6 +24,8 @@ from .conf import heroes_settings
 
 from ..map.prototypes import MapInfoPrototype
 
+from game.balance import constants as c
+
 
 def get_hero_by_id(model_id):
     hero = Hero.objects.get(id=model_id)
@@ -72,7 +74,7 @@ class HeroPrototype(object):
     def gender(self): return self.model.gender
 
     @property
-    def power(self): 
+    def power(self):
         return 2 + self.level + self.equipment.get_power()
 
     def get_basic_damage(self):
@@ -80,13 +82,13 @@ class HeroPrototype(object):
 
     @property
     def race(self): return self.model.race
-    
+
     @property
     def level(self): return self.model.level
 
     @property
     def experience(self): return self.model.experience
-    def add_experience(self, value): 
+    def add_experience(self, value):
         self.model.experience += value
         if self.experience_to_level <= self.model.experience:
             self.model.experience -= self.experience_to_level
@@ -101,7 +103,7 @@ class HeroPrototype(object):
     def get_destiny_points_spend(self): return self.model.destiny_points_spend
     def set_destiny_points_spend(self, value): self.model.destiny_points_spend = value
     destiny_points_spend = property(get_destiny_points_spend, set_destiny_points_spend)
-    
+
 
     def get_health(self): return self.model.health
     def set_health(self, value): self.model.health = value
@@ -173,13 +175,13 @@ class HeroPrototype(object):
     def max_health(self): return BASE_ATTRIBUTES.get_max_health(self.level)
 
     @property
-    def min_damage(self): 
+    def min_damage(self):
         damage = 5
         damage += self.equipment.get_attr_damage()[0]
         return damage
 
     @property
-    def max_damage(self): 
+    def max_damage(self):
         damage = 10
         damage += self.equipment.get_attr_damage()[1]
         return damage
@@ -188,7 +190,7 @@ class HeroPrototype(object):
     def max_bag_size(self): return 8
 
     @property
-    def experience_to_level(self): 
+    def experience_to_level(self):
         return 100 + (self.level - 1) * 100
 
     ###########################################
@@ -196,7 +198,10 @@ class HeroPrototype(object):
     ###########################################
 
     @property
-    def need_rest_in_town(self): return game_info.needs.InTown.rest.check(self)
+    def need_rest_in_settlement(self): return self.health < self.max_health * c.HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION
+
+    @property
+    def need_rest_in_move(self): return self.health < self.max_health * c.HEALTH_IN_MOVE_TO_START_HEAL_FRACTION
 
     @property
     def need_trade_in_town(self): return game_info.needs.InTown.trade.check(self)
@@ -221,7 +226,7 @@ class HeroPrototype(object):
 
     def get_actions(self):
         #TODO: now this code only works on bundle init phase
-        #      using it from another places is dangerouse becouse of 
+        #      using it from another places is dangerouse becouse of
         #      desinchronization between workers and database
         from game.actions.models import Action
         from game.actions.prototypes import ACTION_TYPES
@@ -250,7 +255,7 @@ class HeroPrototype(object):
     def push_message(self, msg):
         self.messages.append(msg)
         if len(self.messages) > heroes_settings.MESSAGES_LOG_LENGTH:
-            self.messages.pop(0)        
+            self.messages.pop(0)
 
     def add_message(self, type_, **kwargs):
         args = {}
@@ -272,7 +277,7 @@ class HeroPrototype(object):
     ###########################################
 
     def remove(self): return self.model.delete()
-    def save(self): 
+    def save(self):
         self.model.bag = self.bag.serialize()
         self.model.equipment = self.equipment.serialize()
         self.model.abilities = self.abilities.serialize()
@@ -292,7 +297,7 @@ class HeroPrototype(object):
                 'alive': self.is_alive,
                 'bag': self.bag.ui_info(),
                 'equipment': self.equipment.ui_info(),
-                'money': self.money, 
+                'money': self.money,
                 'base': { 'name': self.name,
                           'level': self.level,
                           'destiny_points': self.destiny_points,
@@ -349,7 +354,7 @@ class HeroPrototype(object):
     # Next turn operations
     ###########################################
 
-    def process_turn(self, turn_number):     
+    def process_turn(self, turn_number):
         return turn_number + 1
 
 
@@ -363,7 +368,7 @@ class HeroPositionPrototype(object):
     def place_id(self): return self.hero_model.pos_place_id
 
     @property
-    def place(self): 
+    def place(self):
         if not hasattr(self, '_place'):
             self._place = PlacePrototype(model=self.hero_model.pos_place) if self.hero_model.pos_place else None
         return self._place
@@ -387,7 +392,7 @@ class HeroPositionPrototype(object):
         self.hero_model.pos_place = place.model
 
     @property
-    def road(self): 
+    def road(self):
         if not hasattr(self, '_road'):
             self._road = RoadPrototype(model=self.hero_model.pos_road) if self.hero_model.pos_road else None
         return self._road
@@ -412,9 +417,9 @@ class HeroPositionPrototype(object):
     @property
     def coordinates_to(self): return self.hero_model.pos_to_x, self.hero_model.pos_to_y
 
-    def subroad_len(self): return math.sqrt( (self.hero_model.pos_from_x-self.hero_model.pos_to_x)**2 + 
+    def subroad_len(self): return math.sqrt( (self.hero_model.pos_from_x-self.hero_model.pos_to_x)**2 +
                                              (self.hero_model.pos_from_y-self.hero_model.pos_to_y)**2)
-    
+
     def set_coordinates(self, from_x, from_y, to_x, to_y, percents):
         self._reset_position()
         self.hero_model.pos_from_x = from_x
@@ -424,12 +429,12 @@ class HeroPositionPrototype(object):
         self.hero_model.pos_percents = percents
 
     @property
-    def is_walking(self): 
+    def is_walking(self):
         return (self.hero_model.pos_from_x is not None and
                 self.hero_model.pos_from_y is not None and
                 self.hero_model.pos_to_x is not None and
                 self.hero_model.pos_to_y is not None)
- 
+
     @property
     def cell_coordinates(self):
         if self.place:
@@ -439,7 +444,7 @@ class HeroPositionPrototype(object):
         else:
             return self.get_cell_coordinates_near_place()
 
-            
+
     def get_cell_coordinates_in_place(self):
         return self.place.x, self.place.y
 
@@ -489,14 +494,14 @@ class HeroPositionPrototype(object):
                 'invert_direction': self.invert_direction,
                 'percents': self.percents,
                 'coordinates': { 'to': { 'x': self.coordinates_to[0],
-                                         'y': self.coordinates_to[1]}, 
+                                         'y': self.coordinates_to[1]},
                                  'from': { 'x': self.coordinates_from[0],
                                            'y': self.coordinates_from[1]} } }
 
 
 
 class ChooseAbilityTaskPrototype(object):
-    
+
     def __init__(self, model):
         self.model = model
 
@@ -555,7 +560,5 @@ class ChooseAbilityTaskPrototype(object):
 
         hero.destiny_points -= 1
         hero.destiny_points_spend += 1
-        
+
         self.state = CHOOSE_ABILITY_STATE.PROCESSED
-
-

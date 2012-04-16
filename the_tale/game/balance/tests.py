@@ -24,6 +24,11 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.INTERVAL_BETWEEN_BATTLES, 5)
         self.assertEqual(c.BATTLES_BEFORE_HEAL, 10)
         self.assertEqual(c.HEAL_TIME_FRACTION, 0.2)
+
+        self.assertEqual(c.HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION, 0.33)
+        self.assertEqual(c.HEALTH_IN_MOVE_TO_START_HEAL_FRACTION, 0.2)
+
+
         self.assertEqual(c.GET_LOOT_PROBABILITY, 0.33)
         self.assertEqual(c.NORMAL_LOOT_PROBABILITY, 0.99)
         self.assertEqual(c.RARE_LOOT_PROBABILITY, 0.0099)
