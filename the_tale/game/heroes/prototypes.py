@@ -10,7 +10,7 @@ from game.map.roads.prototypes import RoadPrototype
 
 from game.textgen import get_vocabulary, get_dictionary
 from game.textgen.words import Fake as FakeWord
-from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR
+from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, ITEMS_OF_EXPENDITURE
 
 from .. import names
 
@@ -159,6 +159,13 @@ class HeroPrototype(object):
             return (u'герой', GENDER_ID_2_STR[self.gender])
         elif self.gender == GENDER.FEMININE:
             return (u'героиня', GENDER_ID_2_STR[self.gender])
+
+
+    @property
+    def next_spending(self): return self.model.next_spending
+
+    def switch_spending(self):
+        self.model.next_spending = random.choice(ITEMS_OF_EXPENDITURE.ALL)
 
 
     ###########################################

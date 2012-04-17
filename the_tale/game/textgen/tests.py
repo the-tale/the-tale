@@ -8,6 +8,7 @@ from .models import Word
 from .words import Noun, Adjective, Verb, NounGroup, Fake
 from .templates import Args, Template, Dictionary, Vocabulary
 from .conf import textgen_settings
+from .logic import import_texts_into_database
 
 morph = pymorphy.get_morph(textgen_settings.PYMORPHY_DICTS_DIRECTORY)
 
@@ -74,7 +75,7 @@ class NounTest(TestCase):
     def test_save_load(self):
         noun_1 = Noun.create_from_baseword(morph, u'обезьянками')
         noun_1.save_to_model()
-        
+
         word = Word.objects.get(normalized=noun_1.normalized)
         noun_2 = Noun.create_from_model(word)
 
@@ -134,7 +135,7 @@ class NounGroupTest(TestCase):
     def test_save_load(self):
         group_1 = NounGroup.create_from_baseword(morph, u'жирная крыса')
         group_1.save_to_model()
-        
+
         word = Word.objects.get(normalized=group_1.normalized)
         group_2 = NounGroup.create_from_model(word)
 
@@ -207,10 +208,49 @@ class AdjectiveTest(TestCase):
                                      u'глупыми',
                                      u'глупых'))
 
+    def test_pluralize(self):
+        adj = Adjective.create_from_baseword(morph, u'красивый')
+
+        self.assertEqual(adj.normalized, u'красивый')
+
+        self.assertEqual(adj.pluralize(1, Args()), u'красивый')
+        self.assertEqual(adj.pluralize(2, Args()), u'красивые')
+        self.assertEqual(adj.pluralize(3, Args()), u'красивые')
+        self.assertEqual(adj.pluralize(5, Args()), u'красивых')
+        self.assertEqual(adj.pluralize(10, Args()), u'красивых')
+        self.assertEqual(adj.pluralize(11, Args()), u'красивых')
+        self.assertEqual(adj.pluralize(12, Args()), u'красивых')
+        self.assertEqual(adj.pluralize(21, Args()), u'красивый')
+        self.assertEqual(adj.pluralize(33, Args()), u'красивые')
+        self.assertEqual(adj.pluralize(36, Args()), u'красивых')
+
+        self.assertEqual(adj.pluralize(1, Args(u'дт', u'жр')), u'красивой')
+        self.assertEqual(adj.pluralize(2, Args(u'дт', u'жр')), u'красивым')
+        self.assertEqual(adj.pluralize(3, Args(u'дт', u'жр')), u'красивым')
+        self.assertEqual(adj.pluralize(5, Args(u'дт', u'жр')), u'красивым')
+        self.assertEqual(adj.pluralize(10, Args(u'дт', u'жр')), u'красивым')
+        self.assertEqual(adj.pluralize(11, Args(u'дт', u'жр')), u'красивым')
+        self.assertEqual(adj.pluralize(12, Args(u'дт', u'жр')), u'красивым')
+        self.assertEqual(adj.pluralize(21, Args(u'дт', u'жр')), u'красивой')
+        self.assertEqual(adj.pluralize(33, Args(u'дт', u'жр')), u'красивым')
+        self.assertEqual(adj.pluralize(36, Args(u'дт', u'жр')), u'красивым')
+
+        self.assertEqual(adj.pluralize(1, Args(u'тв')), u'красивым')
+        self.assertEqual(adj.pluralize(2, Args(u'тв')), u'красивыми')
+        self.assertEqual(adj.pluralize(3, Args(u'тв')), u'красивыми')
+        self.assertEqual(adj.pluralize(5, Args(u'тв')), u'красивыми')
+        self.assertEqual(adj.pluralize(10, Args(u'тв')), u'красивыми')
+        self.assertEqual(adj.pluralize(11, Args(u'тв')), u'красивыми')
+        self.assertEqual(adj.pluralize(12, Args(u'тв')), u'красивыми')
+        self.assertEqual(adj.pluralize(21, Args(u'тв')), u'красивым')
+        self.assertEqual(adj.pluralize(33, Args(u'тв')), u'красивыми')
+        self.assertEqual(adj.pluralize(36, Args(u'тв')), u'красивыми')
+
+
     def test_save_load(self):
         adj_1 = Adjective.create_from_baseword(morph, u'обезьянками')
         adj_1.save_to_model()
-        
+
         word = Word.objects.get(normalized=adj_1.normalized)
         adj_2 = Adjective.create_from_model(word)
 
@@ -238,7 +278,7 @@ class VerbTest(TestCase):
                                       u'говорил',
                                       u'говорил',
                                       u'говорил',
-                                      u'говорил',)) 
+                                      u'говорил',))
 
         verb = Verb.create_from_baseword(morph, u'поговорил')
         self.assertEqual(verb.normalized, u'поговорить')
@@ -257,7 +297,7 @@ class VerbTest(TestCase):
                                       u'поговоришь',
                                       u'поговорите',
                                       u'поговорит',
-                                      u'поговорят',)) 
+                                      u'поговорят',))
 
     def test_word_recover(self):
         verb = Verb.create_from_baseword(morph, u'восстановил')
@@ -277,7 +317,7 @@ class VerbTest(TestCase):
                                       u'восстановишь',
                                       u'восстановите',
                                       u'восстановит',
-                                      u'восстановят',)) 
+                                      u'восстановят',))
 
     def test_pluralize(self):
         verb = Verb.create_from_baseword(morph, u'взметнулись')
@@ -296,7 +336,7 @@ class VerbTest(TestCase):
     def test_save_load(self):
         verb_1 = Verb.create_from_baseword(morph, u'бежит')
         verb_1.save_to_model()
-        
+
         word = Word.objects.get(normalized=verb_1.normalized)
         verb_2 = Verb.create_from_model(word)
 
@@ -362,10 +402,10 @@ class VocabularyTest(TestCase):
             self.assertTrue(choice.template in [self.t2.template, self.t3.template])
 
         self.assertTrue(choosed_2 and choosed_3)
-        
-    
+
+
     def test_create(self):
-        
+
         voc = Vocabulary()
 
         voc.add_phrase('type_1', self.t1)
@@ -384,7 +424,7 @@ class VocabularyTest(TestCase):
         voc.save()
 
         voc = Vocabulary()
-        
+
         voc.load()
 
         self.__assertChoices(voc)
@@ -399,6 +439,7 @@ class TemplateTest(TestCase):
         self.dictionary.add_word(Noun.create_from_baseword(morph, u'тень'))
         self.dictionary.add_word(Adjective.create_from_baseword(morph, u'глупый'))
         self.dictionary.add_word(Verb.create_from_baseword(morph, u'ударил'))
+        self.dictionary.add_word(Adjective.create_from_baseword(morph, u'целый'))
 
     def test_externals(self):
         template = Template.create(morph, u'ударить [[hero|вн]]')
@@ -447,6 +488,11 @@ class TemplateTest(TestCase):
         self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка',
                                                                'number': 2} ), u'2 обезьянкам')
 
+    def test_numeral_13_adj_dependences(self):
+        template = Template.create(morph, u'[[number||]] [{целый|number|}]')
+        self.assertEqual(template.substitute(self.dictionary, {'number': 13} ), u'13 целых')
+
+
     def test_numeral_5_dependences(self):
         template = Template.create(morph, u'[[number||]] [[hero|number|им]]')
         self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка',
@@ -462,18 +508,18 @@ class TemplateTest(TestCase):
 
 
     def test_dependences(self):
-        template = Template.create(morph, u'[{глупый|hero|рд}] [[hero|рд]]')        
+        template = Template.create(morph, u'[{глупый|hero|рд}] [[hero|рд]]')
         self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка'} ), u'глупой обезьянки')
 
-        template = Template.create(morph, u'враг [{ударила|hero|буд,3л}] [[hero|вн]]')        
+        template = Template.create(morph, u'враг [{ударила|hero|буд,3л}] [[hero|вн]]')
         self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка'} ), u'враг ударит обезьянку')
 
-        template = Template.create(morph, u'крыса [{ударить|прш,жр}] [[hero|вн]]')        
+        template = Template.create(morph, u'крыса [{ударить|прш,жр}] [[hero|вн]]')
         self.assertEqual(template.substitute(self.dictionary, {'hero': u'обезьянка'} ), u'крыса ударила обезьянку')
 
 
     def test_fake_substitutions(self):
-        template = Template.create(morph, u'[{глупый|hero|рд}] [[hero|рд]]')        
+        template = Template.create(morph, u'[{глупый|hero|рд}] [[hero|рд]]')
         self.assertEqual(template.substitute(self.dictionary, {'hero': Fake(u'19x5')} ), u'глупого 19x5')
 
     # def test_x(self):
@@ -484,4 +530,13 @@ class TemplateTest(TestCase):
     #     print word
     #     for f in word.forms:
     #         print f
-        
+
+
+
+class LoadDataTest(TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_load(self):
+        import_texts_into_database(morph)

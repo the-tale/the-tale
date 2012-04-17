@@ -108,14 +108,14 @@ def total_gold_at_lvl(lvl): return int(sum(expected_gold_at_lvl(x) for x in xran
 # выбираем второй вараинт, как более управляемый
 
 def normal_action_price(lvl): return int(expected_gold_in_day(lvl))
-def instant_heal_prrice(lvl): return int(normal_action_price(lvl) * c.INSTANT_HEAL_PRICE_FRACTION)
+def instant_heal_price(lvl): return int(normal_action_price(lvl) * c.INSTANT_HEAL_PRICE_FRACTION)
 def buy_artifact_price(lvl): return int(normal_action_price(lvl) * c.BUY_ARTIFACT_PRICE_FRACTION)
 def sharpening_artifact_price(lvl): return int(normal_action_price(lvl) * c.SHARPENING_ARTIFACT_PRICE_FRACTION)
 def useless_price(lvl): return int(normal_action_price(lvl) * c.USELESS_PRICE_FRACTION)
 def impact_price(lvl): return int(normal_action_price(lvl) * c.IMPACT_PRICE_FRACTION)
 
 # задания (квесты)
-#  - игрок всегда должен получать полезную/интересную нагруда за выполнение задания
+#  - игрок всегда должен получать полезную/интересную награду за выполнение задания
 #  - сложность заданий (точнее количество этапов в них) должно расти с уровнем
 #  - со сложностью задания должна увеличиваться вероятность получения эпичной награды (вместо просто "крутой")
 #  - очки судьбы должны даваться по 1 за квест (или подквест)
@@ -140,3 +140,5 @@ def impact_price(lvl): return int(normal_action_price(lvl) * c.IMPACT_PRICE_FRAC
 # - по выполнении квеста, каждому персонажу начисляется влияние равное +/- (<уровень героя>+<сложность задания>)
 #   -  учитывается влияние на проятжении месяца
 #   -  общее влияние равно сумме влияний за месяц с коофициентом давности, т.е. влияние, полученное месяц назад, применяется с коофициентом 0 (не влияет)
+
+def impact_value(lvl, quest_difficult): return lvl+quest_difficult

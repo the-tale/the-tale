@@ -1,6 +1,6 @@
 {
     "description": "",
-    "prefix": "action_restinsettlement",
+    "prefix": "action_rest",
     "types": {
         "start": {
             "description": "",

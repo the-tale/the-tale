@@ -4,17 +4,25 @@ import random
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils import s11n
 
-from ..heroes.logic import create_mob_for_hero, sell_in_city, equip_in_city
-from ..heroes.prototypes import EXPERIENCE_VALUES
-from ..heroes import hcontexts
+from game.heroes.logic import create_mob_for_hero, sell_in_city, equip_in_city
+from game.heroes.prototypes import EXPERIENCE_VALUES
+from game.heroes import hcontexts
+from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
 
-from ..map.places.prototypes import get_place_by_model
-from ..map.roads.prototypes import get_road_by_model, WaymarkPrototype
+from game.map.places.prototypes import get_place_by_model
+from game.map.roads.prototypes import get_road_by_model, WaymarkPrototype
 
-from .models import Action, UNINITIALIZED_STATE
-from . import battle
+from game.actions.models import Action, UNINITIALIZED_STATE
+from game.actions import battle
 
-from game.balance import constants as c
+from game.balance import constants as c, formulas as f
+from game.game_info import ITEMS_OF_EXPENDITURE
+
+from game.artifacts.storage import ArtifactsDatabase
+
+from game.actions.exceptions import ActionException
+
+from game.workers.environment import workers_environment
 
 def get_actions_types():
     actions = {}
@@ -29,8 +37,6 @@ def get_action_by_model(model):
 
     return ACTION_TYPES[model.type](model=model)
 
-
-class ActionException(Exception): pass
 
 class ActionPrototype(object):
 
@@ -605,6 +611,7 @@ class ActionInPlacePrototype(ActionPrototype):
     SHORT_DESCRIPTION = u'изучает окрестности'
 
     class STATE(ActionPrototype.STATE):
+        SPEND_MONEY = 'spend_money'
         TRADING = 'trading'
         RESTING = 'resting'
         EQUIPPING = 'equipping'
@@ -620,8 +627,7 @@ class ActionInPlacePrototype(ActionPrototype):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
-                                       order=parent.order+1,
-                                       place=settlement.model)
+                                       order=parent.order+1)
         return cls(model=model)
 
     @nested_commit_on_success
@@ -630,17 +636,77 @@ class ActionInPlacePrototype(ActionPrototype):
         if self.place.is_settlement:
             return self.process_settlement()
 
+    def try_to_spend_money(self, gold_amount):
+        if gold_amount <= self.hero.money:
+            gold_amount = min(self.hero.money, int(gold_amount * random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)))
+            self.hero.money -= gold_amount
+            self.hero.switch_spending()
+            return gold_amount
+
+        return None
+
+    def spend_money(self):
+
+        if self.hero.next_spending == ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
+            coins = self.try_to_spend_money(f.instant_heal_price(self.hero.level))
+            if coins is not None:
+                self.hero.health = self.hero.max_health
+                self.hero.add_message('action_instant_heal', hero=self.hero, coins=coins)
+
+        elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+            coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level))
+            if coins is not None:
+                artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+                self.hero.bag.put_artifact(artifact)
+                self.hero.add_message('buying_artifact', hero=self.hero, coins=coins, artifact=artifact)
+
+        elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
+            coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level))
+            if coins is not None:
+                # select filled slot
+                for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
+                    artifact = self.hero.equipment.get(slot)
+                    if artifact is not None:
+                        # sharpening artefact
+                        artifact.power += 1
+                        self.hero.add_message('sharpening_artifact', hero=self.hero, coins=coins, artifact=artifact)
+
+        elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.USELESS:
+            coins = self.try_to_spend_money(f.useless_price(self.hero.level))
+            if coins is not None:
+                self.hero.add_message('action_spend_useless', hero=self.hero, coins=coins)
+
+        elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.IMPACT:
+            coins = self.try_to_spend_money(f.impact_price(self.hero.level))
+            if coins is not None:
+                impact = f.impact_value(self.hero.level, 1)
+                person = random.choice(self.position.place.persons)
+                if random.choice([True, False]):
+                    workers_environment.highlevel.cmd_change_person_power(person.id, impact)
+                    self.hero.add_message('action_impact_good', hero=self.hero, coins=coins, person=person)
+                else:
+                    workers_environment.highlevel.cmd_change_person_power(person.id, -impact)
+                    self.hero.add_message('action_impact_bad', hero=self.hero, coins=coins, person=person)
+
+        else:
+            raise ActionException('wrong hero money spend type: %d' % self.hero.next_spending)
+
+
     def process_settlement(self):
 
-        if self.state in [self.STATE.UNINITIALIZED] and self.hero.need_rest_in_town:
+        if self.state == self.STATE.UNINITIALIZED:
+            self.state = self.STATE.SPEND_MONEY
+            self.spend_money()
+
+        if self.state in [self.STATE.SPEND_MONEY] and self.hero.need_rest_in_town:
             self.state = self.STATE.RESTING
             self.bundle.add_action(ActionRestPrototype.create(self))
 
-        elif self.state in [self.STATE.UNINITIALIZED, self.STATE.RESTING] and self.hero.need_equipping_in_town:
+        elif self.state in [self.STATE.SPEND_MONEY, self.STATE.RESTING] and self.hero.need_equipping_in_town:
             self.state = self.STATE.EQUIPPING
             self.bundle.add_action(ActionEquipInSettlementPrototype.create(self, self.place))
 
-        elif self.state in [self.STATE.UNINITIALIZED, self.STATE.RESTING, self.STATE.EQUIPPING] and self.hero.need_trade_in_town:
+        elif self.state in [self.STATE.SPEND_MONEY, self.STATE.RESTING, self.STATE.EQUIPPING] and self.hero.need_trade_in_town:
             self.state = self.STATE.TRADING
             self.bundle.add_action(ActionTradeInSettlementPrototype.create(self, self.place))
 

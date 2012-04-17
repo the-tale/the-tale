@@ -4,7 +4,7 @@ from django.db import models
 
 from game.angels.models import Angel
 
-from game.game_info import RACE, RACE_CHOICES, GENDER, GENDER_CHOICES
+from game.game_info import RACE, RACE_CHOICES, GENDER, GENDER_CHOICES, ITEMS_OF_EXPENDITURE
 
 class Hero(models.Model):
 
@@ -23,7 +23,7 @@ class Hero(models.Model):
     experience = models.BigIntegerField(null=False, default=0)
     destiny_points = models.IntegerField(null=False, default=1)
     destiny_points_spend = models.IntegerField(null=False, default=0) # for random.seed
-    
+
     health = models.FloatField(null=False, default=0.0)
 
     money = models.BigIntegerField(null=False, default=0)
@@ -34,6 +34,8 @@ class Hero(models.Model):
     abilities = models.TextField(null=False, default='[]')
 
     messages = models.TextField(null=False, default='[]')
+
+    next_spending = models.IntegerField(null=False, default=ITEMS_OF_EXPENDITURE.USELESS)
 
     #position
     pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True)

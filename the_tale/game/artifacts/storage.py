@@ -19,6 +19,10 @@ class ArtifactsDatabase(object):
     def __init__(self):
         self.data = {}
 
+    @property
+    def artifacts_ids(self):
+        return [artifact_id for artifact_id, artifact_record in self.data.items() if artifact_record.type != ITEM_TYPE.USELESS]
+
     def load(self, filename):
 
         book = xlrd.open_workbook(filename, logfile=None, encoding_override='utf-8')
@@ -56,11 +60,15 @@ class ArtifactsDatabase(object):
                                  power=power,
                                  quest=quest)
 
-
     def generate_artifact_from_list(self, artifacts_list, level):
-        artifact_id = random.choice(artifacts_list)
 
-        artifact_record = self.data[artifact_id]
+        artifacts = []
+        for artifact_id in artifacts_list:
+            artifact_record = self.data[artifact_id]
+            if artifact_record.type == ITEM_TYPE.USELESS or (artifact_record.min_lvl <= level <= artifact_record.max_lvl):
+                artifacts.append(artifact_record)
+
+        artifact_record = random.choice(artifacts)
 
         if artifact_record.type == ITEM_TYPE.USELESS:
             power = 0

@@ -13,6 +13,12 @@ class EQUIP_TYPE:
     HELMET = 5
     CLOAK = 6
 
+    SHOULDERS = 7
+    GLOVES = 8
+    PANTS = 9
+    BOOTS = 10
+
+
 EQUIP_TYPE_CHOICES = ( (EQUIP_TYPE.NONE, u'не экипируется'),
                        (EQUIP_TYPE.WEAPON, u'оружие'),
                        (EQUIP_TYPE.PLATE, u'броня'),

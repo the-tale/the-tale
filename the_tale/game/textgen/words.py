@@ -61,7 +61,7 @@ class Args(object):
 class WordBase(object):
 
     TYPE = None
-    
+
     def __init__(self, normalized, forms, properties):
         self.normalized = normalized
         self.forms = tuple(forms)
@@ -83,7 +83,7 @@ class WordBase(object):
     @classmethod
     def create_from_baseword(cls, src, tech_vocabulary={}):
         raise NotImplementedError
-    
+
     @staticmethod
     def create_from_model(model):
         properties = model.properties.split(u'|')
@@ -116,7 +116,7 @@ class WordBase(object):
             return WORD_CONSTRUCTORS[WORD_TYPE.ADJECTIVE].create_from_baseword(morph, string, tech_vocabulary)
         else:
             raise TextgenException(u'unknown word type: %s of word: %s' % (class_, string) )
-        
+
 
     def save_to_model(self):
         return Word.objects.create(normalized=self.normalized,
@@ -220,11 +220,28 @@ class Adjective(WordBase):
             delta = len(PROPERTIES.CASES) * len(PROPERTIES.GENDERS)
             return self.forms[delta + PROPERTIES.CASES.index(args.case)]
 
+    @classmethod
+    def pluralize_args(cls, number, args):
+        if number % 10 == 1 and number != 11:
+            args.update(u'ед')
+        elif 2 <= number % 10 <= 4 and not (12 <= number <= 14):
+            args.update(u'мн')
+        else:
+            args.update(u'мн')
+            if args.case == u'им':
+                args.update(u'рд')
+
+        return args
+
+
     def update_args(self, arguments, dependence, dependence_args):
         if isinstance(dependence, Noun):
             arguments.number = dependence_args.number
             arguments.gender = dependence_args.gender
             arguments.case = dependence_args.case
+
+        elif isinstance(dependence, Numeral):
+            self.pluralize_args(dependence.normalized, arguments)
 
     @classmethod
     def create_from_baseword(cls, morph, src, tech_vocabulary={}):
@@ -239,7 +256,7 @@ class Adjective(WordBase):
         #multiple
         for case in PROPERTIES.CASES:
             forms.append(morph.inflect_ru(normalized, u'%s,%s' % (case, u'мн'), class_).lower() )
-      
+
         return cls(normalized=normalized.lower(), forms=forms, properties=[])
 
 
@@ -326,7 +343,7 @@ class NounGroup(Noun):
                 class_, norm, properties = get_gram_info(morph, efication(word.upper()), tech_vocabulary)
                 if class_ == u'С':
                     if u'им' in properties:
-                        main_noun = norm                 
+                        main_noun = norm
                         phrase.append((class_, norm, False))
                     else:
                         phrase.append((class_, word, True))
@@ -354,7 +371,7 @@ class NounGroup(Noun):
 
             for case in PROPERTIES.CASES:
                 phrase_form = []
-                
+
                 for class_, word, constant in phrase:
                     if constant:
                         phrase_form.append(word)
@@ -368,9 +385,6 @@ class NounGroup(Noun):
 
 
 
-WORD_CONSTRUCTORS = dict([(class_.TYPE, class_) 
+WORD_CONSTRUCTORS = dict([(class_.TYPE, class_)
                           for class_name, class_ in globals().items()
                           if isinstance(class_, type) and issubclass(class_, WordBase) and class_ != WordBase])
-
-
-

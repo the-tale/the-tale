@@ -48,11 +48,13 @@ EPIC_LOOT_COST = float(250)
 
 # относительные размеры различных трат
 
-INSTANT_HEAL_PRICE_FRACTION = float(0.3)
-BUY_ARTIFACT_PRICE_FRACTION = float(1.0)
-SHARPENING_ARTIFACT_PRICE_FRACTION = float(0.7)
-USELESS_PRICE_FRACTION = float(0.2)
-IMPACT_PRICE_FRACTION = float(1.5)
+INSTANT_HEAL_PRICE_FRACTION = float(0.3) # моментальное лечение
+BUY_ARTIFACT_PRICE_FRACTION = float(2.0) # покупка нового артефакта
+SHARPENING_ARTIFACT_PRICE_FRACTION = float(0.7) # "заточка" экипированного артефакта
+USELESS_PRICE_FRACTION = float(0.2) # безполезные траты
+IMPACT_PRICE_FRACTION = float(1.5) # изменение (+/-) влияния персонажей
+
+PRICE_DELTA = float(0.2) # дельта на цену PRICE * (1 + random.uniform(-0.2, 0.2))
 
 POWER_TO_LVL = float(EQUIP_SLOTS_NUMBER) # бонус к ожидаемой силе на уровнеь героя
 ARTIFACT_POWER_DELTA = 2 # дельта, на которую может изменяться сила артифакта

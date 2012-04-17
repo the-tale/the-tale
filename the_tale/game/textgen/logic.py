@@ -1,10 +1,12 @@
 # coding: utf-8
 import os
+import numbers
 
 from dext.utils import s11n
 
-from .exceptions import TextgenException
-from .conf import textgen_settings
+from game.textgen.exceptions import TextgenException
+from game.textgen.conf import textgen_settings
+
 
 def efication(word):
     return word.replace(u'Ё', u'Е').replace(u'ё', u'е')
@@ -16,11 +18,8 @@ def get_gram_info(morph, word, tech_vocabulary={}):
         gram_info = morph.get_graminfo(word.upper())
 
         classes = set([info['class'] for info in gram_info])
-        
+
         if len(classes) > 1:
-            # print word
-            # for c in classes:
-            #     print c      
             raise TextgenException(u'more then one grammar info for word: %s' % word)
 
         if not classes:
@@ -50,3 +49,76 @@ def get_tech_vocabulary():
         with open(tech_vocabulary_file_name) as f:
             tech_vocabulary = s11n.from_json(f.read())
     return tech_vocabulary
+
+
+def import_texts_into_database(morph, debug=False):
+    from game.textgen.templates import Dictionary, Vocabulary, Template
+    from game.textgen.words import WordBase
+
+    vocabulary = Vocabulary()
+    vocabulary.load()
+
+    dictionary = Dictionary()
+    dictionary.load()
+
+    tech_vocabulary = get_tech_vocabulary()
+
+    with open(os.path.join(textgen_settings.TEXTS_DIRECTORY, 'words.txt')) as f:
+        for string in f:
+            word = WordBase.create_from_string(morph, string.decode('utf-8').strip(), tech_vocabulary)
+            dictionary.add_word(word)
+
+    for filename in os.listdir(textgen_settings.TEXTS_DIRECTORY):
+
+        if not filename.endswith('.json'):
+            continue
+
+        if filename == 'vocabulary.json':
+            continue
+
+        texts_path = os.path.join(textgen_settings.TEXTS_DIRECTORY, filename)
+
+        if not os.path.isfile(texts_path):
+            continue
+
+        group = filename[:-5]
+
+        if debug:
+            print 'load %s' % group
+
+        with open(texts_path) as f:
+            data = s11n.from_json(f.read())
+
+            if group != data['prefix']:
+                raise Exception('filename MUST be equal to prefix')
+
+            for suffix in data['types']:
+                if suffix == '':
+                    raise Exception('type MUST be not equal to empty string')
+
+            for suffix, type_ in data['types'].items():
+                phrase_key = '%s_%s' % (group , suffix)
+                for phrase in type_['phrases']:
+                    template_phrase, test_phrase = phrase
+                    variables = type_['variables']
+                    template = Template.create(morph, template_phrase, available_externals=variables.keys(), tech_vocabulary=tech_vocabulary)
+
+                    vocabulary.add_phrase(phrase_key, template)
+
+                    for value in variables.values():
+                        if isinstance(value, numbers.Number):
+                            continue
+                        word = WordBase.create_from_string(morph, value, tech_vocabulary)
+                        dictionary.add_word(word)
+
+                    for string in template.get_internal_words():
+                        word = WordBase.create_from_string(morph, string, tech_vocabulary)
+                        dictionary.add_word(word)
+
+                    test_result = template.substitute(dictionary, variables)
+                    if efication(test_result.lower()) != efication(test_phrase.lower()):
+                        raise TextgenException(u'wrong test render for phrase "%s": "%s"' % (template_phrase, test_result))
+
+
+    vocabulary.save()
+    dictionary.save()

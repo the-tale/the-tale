@@ -11,7 +11,7 @@ from .models import Template as TemplateModel
 from .exceptions import TextgenException
 from .words import Args, WordBase, Fake, Numeral, PROPERTIES
 from .logic import efication, get_gram_info
-    
+
 class Dictionary(object):
 
     def __init__(self):
@@ -101,7 +101,7 @@ class Template(object):
 
             str_id = subsitute_pattern % i
             src = src.replace(word_macros, '%%(%s)s' % str_id)
-            
+
             if is_internal:
                 source = efication(id_.upper())
                 class_, normalized, properties = get_gram_info(morph, source, tech_vocabulary)
@@ -165,10 +165,10 @@ class Template(object):
                 arguments = Args()
             else:
                 word = dictionary.get_word(efication(normalized))
-                arguments = Args(*word.properties)    
+                arguments = Args(*word.properties)
 
             arguments.update(*additional_args)
-            
+
             processed_externals[external_id] = (word, arguments)
 
         return processed_externals
@@ -195,7 +195,7 @@ class Template(object):
 
         substitutions = {}
         processed_externals = self._preprocess_externals(dictionary, externals)
-            
+
         for external_id, dependences, str_id, args, word_src in self.externals:
             word, arguments = processed_externals[external_id]
             substitutions[str_id] = self._create_substitution(word, arguments.get_copy(), dependences, processed_externals, args)
