@@ -20,7 +20,7 @@ class ArtifactPrototype(object):
     def type(self): return self.record.type
 
     @property
-    def slot(self): return self.record.slot
+    def equip_type(self): return self.record.slot
 
     @property
     def name(self): return self.record.name

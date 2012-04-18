@@ -2,9 +2,9 @@
 
 from django.test import TestCase
 
-from .storage import ArtifactsDatabase
-from .conf import artifacts_settings
-from .exceptions import ArtifactsException
+from game.artifacts.storage import ArtifactsDatabase
+from game.artifacts.conf import artifacts_settings, EQUIP_TYPE, ITEM_TYPE
+from game.artifacts.exceptions import ArtifactsException
 
 class ArtifactsDatabaseTest(TestCase):
 
@@ -33,8 +33,8 @@ class ArtifactsDatabaseTest(TestCase):
         skin_of_a_wolf = storage.data['skin_of_a_wolf']
 
         self.assertEqual(skin_of_a_wolf.id , u'skin_of_a_wolf')
-        self.assertEqual(skin_of_a_wolf.type , u'armor')
-        self.assertEqual(skin_of_a_wolf.slot , u'shoulders')
+        self.assertEqual(skin_of_a_wolf.type , ITEM_TYPE.ARMOR)
+        self.assertEqual(skin_of_a_wolf.slot , EQUIP_TYPE.SHOULDERS)
         self.assertEqual(skin_of_a_wolf.name , u'шкура волка')
         self.assertEqual(skin_of_a_wolf.normalized_name , u'шкура волка')
         self.assertEqual(skin_of_a_wolf.min_lvl , 1)

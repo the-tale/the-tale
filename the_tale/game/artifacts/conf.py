@@ -31,7 +31,11 @@ EQUIP_TYPE_STR_2_ID = {'none': EQUIP_TYPE.NONE,
                        'plate': EQUIP_TYPE.PLATE,
                        'amulet': EQUIP_TYPE.AMULET,
                        'helmet': EQUIP_TYPE.HELMET,
-                       'cloak': EQUIP_TYPE.CLOAK}
+                       'cloak': EQUIP_TYPE.CLOAK,
+                       'shoulders': EQUIP_TYPE.SHOULDERS,
+                       'gloves': EQUIP_TYPE.GLOVES,
+                       'pants': EQUIP_TYPE.PANTS,
+                       'boots': EQUIP_TYPE.BOOTS}
 
 
 class ITEM_TYPE:

@@ -7,7 +7,7 @@ from collections import namedtuple
 
 from game.balance import formulas as f, constants as c
 
-from game.artifacts.conf import artifacts_settings, ITEM_TYPE
+from game.artifacts.conf import artifacts_settings, ITEM_TYPE, ITEM_TYPE_STR_2_ID, EQUIP_TYPE_STR_2_ID
 from game.artifacts.exceptions import ArtifactsException
 from game.artifacts.prototypes import ArtifactPrototype
 
@@ -23,6 +23,10 @@ class ArtifactsDatabase(object):
     def artifacts_ids(self):
         return [artifact_id for artifact_id, artifact_record in self.data.items() if artifact_record.type != ITEM_TYPE.USELESS]
 
+    @property
+    def loot_ids(self):
+        return [artifact_id for artifact_id, artifact_record in self.data.items() if artifact_record.type == ITEM_TYPE.USELESS]
+
     def load(self, filename):
 
         book = xlrd.open_workbook(filename, logfile=None, encoding_override='utf-8')
@@ -37,6 +41,8 @@ class ArtifactsDatabase(object):
 
             artifact_data = artifact_data[1:]
 
+            artifact_data[1] = ITEM_TYPE_STR_2_ID[artifact_data[1]]
+            artifact_data[2] = EQUIP_TYPE_STR_2_ID[artifact_data[2]]
             artifact_data[-1] = int(artifact_data[-1]) if artifact_data[-1] else 0
             artifact_data[-2] = int(artifact_data[-2]) if artifact_data[-2] else 0
             artifact_record = ArtifactRecord(*artifact_data)

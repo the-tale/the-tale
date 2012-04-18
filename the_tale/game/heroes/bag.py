@@ -146,6 +146,8 @@ class Equipment(object):
     def equip(self, slot, artifact):
         if slot in self.equipment:
             raise EquipmentException('slot for equipment has already busy')
+        if slot not in SLOTS_LIST:
+            raise EquipmentException('unknown slot id: %s' % slot)
         self.equipment[slot] = artifact
 
     def get(self, slot):

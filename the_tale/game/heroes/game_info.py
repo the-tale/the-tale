@@ -110,16 +110,6 @@ class needs:
 
     class InTown(AttributeContainer):
 
-        class trade(Attribute):
-
-            name = u'необходимость торговли'
-            description = u'необходимо ли герою избавиться от лута'
-
-            @classmethod
-            def check(cls, hero):
-                quest_items_count, loot_items_count = hero.bag.occupation
-                return float(loot_items_count) / hero.max_bag_size > 0.33
-
         class equipping(Attribute):
 
             name = u'необходимость смены экипировки'

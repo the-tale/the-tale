@@ -194,7 +194,7 @@ class HeroPrototype(object):
         return damage
 
     @property
-    def max_bag_size(self): return 8
+    def max_bag_size(self): return c.MAX_BAG_SIZE
 
     @property
     def experience_to_level(self):
@@ -211,7 +211,9 @@ class HeroPrototype(object):
     def need_rest_in_move(self): return self.health < self.max_health * c.HEALTH_IN_MOVE_TO_START_HEAL_FRACTION
 
     @property
-    def need_trade_in_town(self): return game_info.needs.InTown.trade.check(self)
+    def need_trade_in_town(self):
+        quest_items_count, loot_items_count = self.bag.occupation
+        return float(loot_items_count) / self.max_bag_size > c.BAG_SIZE_TO_SELL_LOOT_FRACTION
 
     @property
     def need_equipping_in_town(self): return game_info.needs.InTown.equipping.check(self)

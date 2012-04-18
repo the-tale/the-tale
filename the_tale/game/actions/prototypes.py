@@ -7,10 +7,12 @@ from dext.utils import s11n
 from game.heroes.logic import create_mob_for_hero, sell_in_city, equip_in_city
 from game.heroes.prototypes import EXPERIENCE_VALUES
 from game.heroes import hcontexts
-from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
+from game.heroes.bag import SLOTS_LIST
 
 from game.map.places.prototypes import get_place_by_model
 from game.map.roads.prototypes import get_road_by_model, WaymarkPrototype
+
+from game.mobs.storage import MobsDatabase
 
 from game.actions.models import Action, UNINITIALIZED_STATE
 from game.actions import battle
@@ -131,7 +133,10 @@ class ActionPrototype(object):
     def mob(self):
         from ..mobs.prototypes import MobPrototype
         if not hasattr(self, '_mob'):
-            self._mob = MobPrototype.deserialize(self.model.mob)
+            mob_data = s11n.from_json(self.model.mob)
+            self._mob = None
+            if mob_data:
+                self._mob = MobPrototype.deserialize(MobsDatabase.storage(), )
         return self._mob
 
     def remove_mob(self):
@@ -266,7 +271,7 @@ class ActionIdlenessPrototype(ActionPrototype):
 
             if (self.percents >= 0.5 and
                 self.hero.position.is_settlement and
-                (self.hero.need_trade_in_town or self.hero.need_rest_in_town) ):
+                (self.hero.need_trade_in_town or self.hero.need_rest_in_settlement) ):
 
                 self.bundle.add_action(ActionInPlacePrototype.create(self, self.hero.position.place))
 
@@ -439,7 +444,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
             current_destination = self.current_destination
 
-            if self.hero.need_rest_in_town:
+            if self.hero.need_rest_in_settlement:
                 self.state = self.STATE.RESTING
                 self.bundle.add_action(ActionRestPrototype.create(self))
 
@@ -611,7 +616,7 @@ class ActionInPlacePrototype(ActionPrototype):
     SHORT_DESCRIPTION = u'изучает окрестности'
 
     class STATE(ActionPrototype.STATE):
-        SPEND_MONEY = 'spend_money'
+        CHOOSING = 'choosing'
         TRADING = 'trading'
         RESTING = 'resting'
         EQUIPPING = 'equipping'
@@ -622,7 +627,7 @@ class ActionInPlacePrototype(ActionPrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, parent, settlement):
+    def create(cls, parent):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
@@ -633,12 +638,12 @@ class ActionInPlacePrototype(ActionPrototype):
     @nested_commit_on_success
     def process(self):
 
-        if self.place.is_settlement:
+        if self.hero.position.place.is_settlement:
             return self.process_settlement()
 
     def try_to_spend_money(self, gold_amount):
         if gold_amount <= self.hero.money:
-            gold_amount = min(self.hero.money, int(gold_amount * random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)))
+            gold_amount = min(self.hero.money, int(gold_amount * (1 + random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA))))
             self.hero.money -= gold_amount
             self.hero.switch_spending()
             return gold_amount
@@ -664,7 +669,7 @@ class ActionInPlacePrototype(ActionPrototype):
             coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level))
             if coins is not None:
                 # select filled slot
-                for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
+                for slot in SLOTS_LIST:
                     artifact = self.hero.equipment.get(slot)
                     if artifact is not None:
                         # sharpening artefact
@@ -680,7 +685,7 @@ class ActionInPlacePrototype(ActionPrototype):
             coins = self.try_to_spend_money(f.impact_price(self.hero.level))
             if coins is not None:
                 impact = f.impact_value(self.hero.level, 1)
-                person = random.choice(self.position.place.persons)
+                person = random.choice(self.hero.position.place.persons)
                 if random.choice([True, False]):
                     workers_environment.highlevel.cmd_change_person_power(person.id, impact)
                     self.hero.add_message('action_impact_good', hero=self.hero, coins=coins, person=person)
@@ -695,23 +700,27 @@ class ActionInPlacePrototype(ActionPrototype):
     def process_settlement(self):
 
         if self.state == self.STATE.UNINITIALIZED:
-            self.state = self.STATE.SPEND_MONEY
+            self.state = self.STATE.CHOOSING
             self.spend_money()
 
-        if self.state in [self.STATE.SPEND_MONEY] and self.hero.need_rest_in_town:
-            self.state = self.STATE.RESTING
-            self.bundle.add_action(ActionRestPrototype.create(self))
+        if self.state in [self.STATE.RESTING, self.STATE.EQUIPPING, self.STATE.TRADING]:
+            self.state = self.STATE.CHOOSING
 
-        elif self.state in [self.STATE.SPEND_MONEY, self.STATE.RESTING] and self.hero.need_equipping_in_town:
-            self.state = self.STATE.EQUIPPING
-            self.bundle.add_action(ActionEquipInSettlementPrototype.create(self, self.place))
+        if self.state == self.STATE.CHOOSING:
+            if self.hero.need_rest_in_settlement:
+                self.state = self.STATE.RESTING
+                self.bundle.add_action(ActionRestPrototype.create(self))
 
-        elif self.state in [self.STATE.SPEND_MONEY, self.STATE.RESTING, self.STATE.EQUIPPING] and self.hero.need_trade_in_town:
-            self.state = self.STATE.TRADING
-            self.bundle.add_action(ActionTradeInSettlementPrototype.create(self, self.place))
+            elif self.hero.need_equipping_in_town:
+                self.state = self.STATE.EQUIPPING
+                self.bundle.add_action(ActionEquipInSettlementPrototype.create(self, self.hero.position.place))
 
-        else:
-            self.state = self.STATE.PROCESSED
+            elif self.hero.need_trade_in_town:
+                self.state = self.STATE.TRADING
+                self.bundle.add_action(ActionTradeInSettlementPrototype.create(self, self.hero.position.place))
+
+            else:
+                self.state = self.STATE.PROCESSED
 
 
 class ActionRestPrototype(ActionPrototype):
@@ -922,7 +931,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
         if self.state == self.STATE.MOVING:
 
-            if self.hero.need_rest_in_town:
+            if self.hero.need_rest_in_settlement:
                 self.state = self.STATE.RESTING
                 self.bundle.add_action(ActionRestPrototype.create(self))
 

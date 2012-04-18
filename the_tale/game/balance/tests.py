@@ -52,6 +52,9 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.EXP_PER_HOUR, (360.0 / (int(10*(16+5)-5 + (10*(16+5)-5) * 0.2)) * 10) * 1)
         self.assertEqual(c.ITEM_POWER_DELTA, 12/2)
 
+        self.assertEqual(c.MAX_BAG_SIZE, 12)
+        self.assertEqual(c.BAG_SIZE_TO_SELL_LOOT_FRACTION, 0.33)
+
 
 class FormulasTest(TestCase):
 
