@@ -108,9 +108,6 @@ for slot, types in SLOTS_TO_ARTIFACT_TYPES.items():
             ARTIFACT_TYPES_TO_SLOTS[tp].append(slot)
 
 
-def can_equip(artifact):
-    return artifact.equip_type in ARTIFACT_TYPES_TO_SLOTS
-
 class Equipment(object):
 
     RINGS_NUMBER = 4

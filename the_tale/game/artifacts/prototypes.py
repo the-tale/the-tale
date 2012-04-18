@@ -34,10 +34,14 @@ class ArtifactPrototype(object):
     @property
     def max_lvl(self): return self.record.max_lvl
 
+    @property
+    def can_be_equipped(self):
+        from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
+        return self.equip_type in ARTIFACT_TYPES_TO_SLOTS
+
     def set_quest_uuid(self, uuid): self.quest_uuid = uuid
 
     def set_bag_uuid(self, uuid): self.bag_uuid = uuid
-
 
     def serialize(self):
         return {'id': self.id,

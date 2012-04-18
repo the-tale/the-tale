@@ -19,9 +19,6 @@ def sell_in_city(seller, artifact, selling_crit):
     seller.bag.pop_artifact(artifact)
     return sell_price
 
-def equip_in_city(hero):
-    return game_info.actions.equipping.equip_in_town.equip(hero)
-
 
 def create_mob_for_hero(hero):
     from ..mobs.storage import MobsStorage

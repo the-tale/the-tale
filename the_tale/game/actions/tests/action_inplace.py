@@ -5,7 +5,7 @@ from django.test import TestCase
 from game.game_info import ITEMS_OF_EXPENDITURE
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
 from game.logic import create_test_bundle, create_test_map
-from game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradeInSettlementPrototype, ActionEquipInSettlementPrototype
+from game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradeInSettlementPrototype, ActionEquippingPrototype
 from game.artifacts.storage import ArtifactsDatabase
 from game.artifacts.conf import ITEM_TYPE
 
@@ -62,7 +62,7 @@ class InPlaceActionTest(TestCase):
 
         self.bundle.process_turn(1)
         self.assertEqual(len(self.bundle.actions), 3)
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionEquipInSettlementPrototype.TYPE)
+        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionEquippingPrototype.TYPE)
 
 
 class InPlaceActionSpendMoneyTest(TestCase):

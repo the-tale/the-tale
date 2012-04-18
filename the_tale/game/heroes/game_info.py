@@ -60,51 +60,6 @@ class actions:
                     price = max(1, int(price * 0.75))
                 return price
 
-    class equipping(AttributeContainer):
-
-        class equip_in_town(Attribute):
-            name = u'экипировка в городе'
-            description = u'управление обмундированием в городе'
-
-            @classmethod
-            def equip(cls, hero):
-
-                from .bag import can_equip, ARTIFACT_TYPES_TO_SLOTS
-                equipped = None
-                unequipped = None
-                for uuid, artifact in hero.bag.items():
-                    if not can_equip(artifact) or artifact.equip_type is None:
-                        continue
-
-                    for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
-                        equipped_artifact = hero.equipment.get(slot)
-                        if equipped_artifact is None:
-                            equipped = True
-                            hero.bag.pop_artifact(artifact)
-                            hero.equipment.equip(slot, artifact)
-                            equipped = artifact
-                            break
-
-                    if equipped:
-                        break
-
-                    for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
-                        equipped_artifact = hero.equipment.get(slot)
-                        if equipped_artifact.total_points_spent < artifact.total_points_spent:
-                            equipped = True
-                            hero.bag.pop_artifact(artifact)
-                            hero.equipment.unequip(slot)
-                            hero.bag.put_artifact(equipped_artifact)
-                            hero.equipment.equip(slot, artifact)
-                            equipped = artifact
-                            unequipped = equipped_artifact
-                            break
-
-                    if equipped:
-                        break
-
-                return unequipped, equipped
-
 
 class needs:
 
@@ -117,5 +72,4 @@ class needs:
 
             @classmethod
             def check(cls, hero):
-                from .bag import can_equip
-                return any( can_equip(artifact) for uuid, artifact in hero.bag.items() )
+                return any( artifact.can_be_equipped for uuid, artifact in hero.bag.items() )

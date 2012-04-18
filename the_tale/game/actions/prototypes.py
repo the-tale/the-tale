@@ -4,10 +4,10 @@ import random
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils import s11n
 
-from game.heroes.logic import create_mob_for_hero, sell_in_city, equip_in_city
+from game.heroes.logic import create_mob_for_hero, sell_in_city
 from game.heroes.prototypes import EXPERIENCE_VALUES
 from game.heroes import hcontexts
-from game.heroes.bag import SLOTS_LIST
+from game.heroes.bag import SLOTS_LIST, ARTIFACT_TYPES_TO_SLOTS
 
 from game.map.places.prototypes import get_place_by_model
 from game.map.roads.prototypes import get_road_by_model, WaymarkPrototype
@@ -713,7 +713,7 @@ class ActionInPlacePrototype(ActionPrototype):
 
             elif self.hero.need_equipping_in_town:
                 self.state = self.STATE.EQUIPPING
-                self.bundle.add_action(ActionEquipInSettlementPrototype.create(self, self.hero.position.place))
+                self.bundle.add_action(ActionEquippingPrototype.create(self))
 
             elif self.hero.need_trade_in_town:
                 self.state = self.STATE.TRADING
@@ -768,16 +768,13 @@ class ActionRestPrototype(ActionPrototype):
                 self.state = self.STATE.PROCESSED
 
 
-class ActionEquipInSettlementPrototype(ActionPrototype):
+class ActionEquippingPrototype(ActionPrototype):
 
-    TYPE = 'EQUIP_IN_SETTLEMENT'
+    TYPE = 'EQUIPPING'
     SHORT_DESCRIPTION = u'экипируется'
 
     class STATE(ActionPrototype.STATE):
         EQUIPPING = 'equipping'
-
-    settlement_id = ActionPrototype.place_id
-    settlement = ActionPrototype.place
 
     ###########################################
     # Object operations
@@ -785,14 +782,52 @@ class ActionEquipInSettlementPrototype(ActionPrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, parent, settlement):
+    def create(cls, parent):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
-                                       order=parent.order+1,
-                                       place=settlement.model)
+                                       order=parent.order+1)
         return cls(model=model)
+
+
+    def equip(self):
+
+        equipped = None
+        unequipped = None
+        for uuid, artifact in self.hero.bag.items():
+            if not artifact.can_be_equipped or artifact.equip_type is None:
+                continue
+
+            for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
+                equipped_artifact = self.hero.equipment.get(slot)
+                if equipped_artifact is None:
+                    equipped = True
+                    self.hero.bag.pop_artifact(artifact)
+                    self.hero.equipment.equip(slot, artifact)
+                    equipped = artifact
+                    break
+
+            if equipped:
+                break
+
+            for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
+                equipped_artifact = self.hero.equipment.get(slot)
+
+                if equipped_artifact.power < artifact.power:
+                    equipped = True
+                    self.hero.bag.pop_artifact(artifact)
+                    self.hero.equipment.unequip(slot)
+                    self.hero.bag.put_artifact(equipped_artifact)
+                    self.hero.equipment.equip(slot, artifact)
+                    equipped = artifact
+                    unequipped = equipped_artifact
+                    break
+
+            if equipped:
+                break
+
+        return unequipped, equipped
 
     @nested_commit_on_success
     def process(self):
@@ -800,18 +835,15 @@ class ActionEquipInSettlementPrototype(ActionPrototype):
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.EQUIPPING
             self.percents = 0
-            self.hero.add_message('action_equipinsettlement_start', hero=self.hero)
-
 
         if self.state == self.STATE.EQUIPPING:
-            unequipped, equipped = equip_in_city(self.hero)
+            unequipped, equipped = self.equip()
             if equipped:
                 if unequipped:
-                    self.hero.add_message('action_equipinsettlement_change_item', hero=self.hero, unequipped=unequipped, equipped=equipped)
+                    self.hero.add_message('action_equiping_change_item', hero=self.hero, unequipped=unequipped, equipped=equipped)
                 else:
-                    self.hero.add_message('action_equipinsettlement_equip_item', hero=self.hero, equipped=equipped)
+                    self.hero.add_message('action_equiping_equip_item', hero=self.hero, equipped=equipped)
             else:
-                self.equipped = True
                 self.state = self.STATE.PROCESSED
 
 
