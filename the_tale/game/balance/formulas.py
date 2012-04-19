@@ -116,7 +116,7 @@ def sharpening_artifact_price(lvl): return int(normal_action_price(lvl) * c.SHAR
 def useless_price(lvl): return int(normal_action_price(lvl) * c.USELESS_PRICE_FRACTION)
 def impact_price(lvl): return int(normal_action_price(lvl) * c.IMPACT_PRICE_FRACTION)
 
-def sell_artifact_price(power): return int(buy_artifact_price(expected_lvl_from_power(power)) * c.SELL_ARTIFACT_PRICE_FRACTION)
+def sell_artifact_price(power): return int(buy_artifact_price(expected_lvl_from_power(power*c.EQUIP_SLOTS_NUMBER)) * c.SELL_ARTIFACT_PRICE_FRACTION)
 def sell_artifact_price_randomized(power): return int(sell_artifact_price(power)*(1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)))
 
 # задания (квесты)
