@@ -11,7 +11,7 @@ class TradingActionTest(TestCase):
     def setUp(self):
         create_test_map()
 
-        self.bundle = create_test_bundle('RestActionTest')
+        self.bundle = create_test_bundle('TradingActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
         self.bundle.add_action(ActionTradingPrototype.create(self.action_idl))
         self.action_trade = self.bundle.tests_get_last_action()

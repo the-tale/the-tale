@@ -24,6 +24,8 @@ from game.artifacts.storage import ArtifactsDatabase
 
 from game.actions.exceptions import ActionException
 
+from game.quests.logic import create_random_quest_for_hero
+
 from game.workers.environment import workers_environment
 
 def get_actions_types():
@@ -89,7 +91,9 @@ class ActionPrototype(object):
 
     @property
     def parent(self):
-        return self.bundle.actions[self.model.parent_id]
+        if self.model.parent_id is not None:
+            return self.bundle.actions[self.model.parent_id]
+        return None
 
     @property
     def context(self):
@@ -229,8 +233,9 @@ class ActionIdlenessPrototype(ActionPrototype):
     SHORT_DESCRIPTION = u'бездельничает'
 
     class STATE(ActionPrototype.STATE):
-        WAITING = 'waiting'
-        ACTING = 'acting'
+        QUEST = 'QUEST'
+        IN_PLACE = 'IN_PLACE'
+        WAITING = 'WAITING'
 
     ###########################################
     # Object operations
@@ -257,35 +262,38 @@ class ActionIdlenessPrototype(ActionPrototype):
 
     def process(self):
 
-        if self.state in [self.STATE.UNINITIALIZED, self.STATE.ACTING]:
-            self.percents = 0
+        if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.WAITING
+            self.percents = 0
 
+            if self.parent is None:
+                # initiate fast quest creating for new heroes
+                self.percents = 1.0
 
         if self.state == self.STATE.WAITING:
 
-            self.percents += 0.05
+            self.percents += 1.0 / c.TURNS_TO_IDLE
 
-            if random.uniform(0, 1) < 0.2:
-                self.hero.add_message('action_idleness_waiting', hero=self.hero)
-
-            if (self.percents >= 0.5 and
-                self.hero.position.is_settlement and
-                (self.hero.need_trade_in_town or self.hero.need_rest_in_settlement) ):
-
-                self.bundle.add_action(ActionInPlacePrototype.create(self, self.hero.position.place))
-
-                self.state = self.STATE.ACTING
-
-            elif self.percents >= 1:
-                from ..quests.logic import create_random_quest_for_hero
+            if self.percents >= 1.0:
+                self.state = self.STATE.QUEST
 
                 self.hero.add_message('action_idleness_start_quest', hero=self.hero)
                 quest = create_random_quest_for_hero(self.hero)
 
                 self.bundle.add_action(ActionQuestPrototype.create(parent=self, quest=quest))
 
-                self.state = self.STATE.ACTING
+            else:
+                if random.uniform(0, 1) < 0.2:
+                    self.hero.add_message('action_idleness_waiting', hero=self.hero)
+
+        elif self.state == self.STATE.QUEST:
+            self.percents = 1.0
+            self.state = self.STATE.IN_PLACE
+            self.bundle.add_action(ActionInPlacePrototype.create(self))
+
+        elif self.state == self.STATE.IN_PLACE:
+            self.state = self.STATE.WAITING
+            self.percents = 0
 
 
 class ActionQuestPrototype(ActionPrototype):

@@ -13,7 +13,7 @@ class ActionEquippingTest(TestCase):
     def setUp(self):
         create_test_map()
 
-        self.bundle = create_test_bundle('RestActionTest')
+        self.bundle = create_test_bundle('EquippingActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
         self.bundle.add_action(ActionEquippingPrototype.create(self.action_idl))
         self.action_equipping = self.bundle.tests_get_last_action()

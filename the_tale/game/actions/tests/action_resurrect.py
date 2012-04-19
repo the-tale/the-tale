@@ -12,7 +12,7 @@ class ResurrectActionTest(TestCase):
     def setUp(self):
         create_test_map()
 
-        self.bundle = create_test_bundle('RestActionTest')
+        self.bundle = create_test_bundle('ResurrectActionTest')
 
         self.hero = self.bundle.tests_get_hero()
         self.hero.kill()
