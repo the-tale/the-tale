@@ -28,6 +28,8 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION, 0.33)
         self.assertEqual(c.HEALTH_IN_MOVE_TO_START_HEAL_FRACTION, 0.2)
 
+        self.assertEqual(c.TURNS_TO_RESURRECT, 20)
+
 
         self.assertEqual(c.GET_LOOT_PROBABILITY, 0.33)
         self.assertEqual(c.NORMAL_LOOT_PROBABILITY, 0.99)

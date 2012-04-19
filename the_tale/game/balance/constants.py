@@ -32,6 +32,8 @@ HEAL_TIME_FRACTION = float(0.2) # доля времени от цепочки б
 HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION = float(0.33) # если у героя здоровья меньше, чем указанная доля и он в городе, то он будет лечиться
 HEALTH_IN_MOVE_TO_START_HEAL_FRACTION = (2 *float(1)) / BATTLES_BEFORE_HEAL # если у героя здоровья меньше, чем указанная доля и он в походе, то он будет лечиться
 
+TURNS_TO_RESURRECT = int(20) # количество ходов, необходимое для воскрешения
+
 
 GET_LOOT_PROBABILITY = float(0.33) # вероятность получить лут после боя, если не получен артефакт
 

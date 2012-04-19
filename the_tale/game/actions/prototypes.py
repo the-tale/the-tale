@@ -602,7 +602,8 @@ class ActionResurrectPrototype(ActionPrototype):
 
 
         if self.state == self.STATE.RESURRECT:
-            self.percents += 0.05
+
+            self.percents += 1.0 / c.TURNS_TO_RESURRECT
 
             if self.percents >= 1:
                 self.percents = 1
