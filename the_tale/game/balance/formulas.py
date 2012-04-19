@@ -116,7 +116,10 @@ def sharpening_artifact_price(lvl): return int(normal_action_price(lvl) * c.SHAR
 def useless_price(lvl): return int(normal_action_price(lvl) * c.USELESS_PRICE_FRACTION)
 def impact_price(lvl): return int(normal_action_price(lvl) * c.IMPACT_PRICE_FRACTION)
 
-def sell_artifact_price(power): return int(buy_artifact_price(expected_lvl_from_power(power)) * c.SELL_ARTIFACT_PRICE_FRACTION)
+# +1 top power - to prevent total zero power -> zero lvl
+# +1 to slots - to emulate heroe's clean power
+def sell_artifact_price(power): return int(buy_artifact_price(expected_lvl_from_power(1+power*(c.EQUIP_SLOTS_NUMBER+1))) * c.SELL_ARTIFACT_PRICE_FRACTION)
+
 def sell_artifact_price_randomized(power): return int(sell_artifact_price(power)*(1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)))
 
 # задания (квесты)
