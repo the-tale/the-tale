@@ -1,0 +1,74 @@
+# coding: utf-8
+
+from django.test import TestCase
+
+from game.logic import create_test_bundle, create_test_map
+from game.actions.prototypes import ActionTradingPrototype
+from game.artifacts.storage import ArtifactsDatabase
+
+class TradingActionTest(TestCase):
+
+    def setUp(self):
+        create_test_map()
+
+        self.bundle = create_test_bundle('RestActionTest')
+        self.action_idl = self.bundle.tests_get_last_action()
+        self.bundle.add_action(ActionTradingPrototype.create(self.action_idl))
+        self.action_trade = self.bundle.tests_get_last_action()
+        self.hero = self.bundle.tests_get_hero()
+
+
+    def tearDown(self):
+        pass
+
+
+    def test_create(self):
+        self.assertEqual(self.action_idl.leader, False)
+        self.assertEqual(self.action_trade.leader, True)
+
+
+    def test_processed(self):
+        self.bundle.process_turn(1)
+        self.assertEqual(len(self.bundle.actions), 1)
+        self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
+
+
+    def test_sell_and_finish(self):
+        old_money = self.hero.money
+
+        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+        self.hero.bag.put_artifact(artifact)
+
+        self.action_trade.percents_barier = 1
+
+        self.bundle.process_turn(1)
+        self.assertEqual(len(self.bundle.actions), 1)
+        self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
+
+        self.assertTrue(self.hero.money > old_money)
+
+
+    def test_sell_and_continue(self):
+        old_money = self.hero.money
+
+        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+        self.hero.bag.put_artifact(artifact)
+
+        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+        self.hero.bag.put_artifact(artifact)
+
+        self.action_trade.percents_barier = 2
+
+        self.bundle.process_turn(1)
+        self.assertEqual(len(self.bundle.actions), 2)
+        self.assertEqual(self.bundle.tests_get_last_action(), self.action_trade)
+
+        self.assertTrue(self.hero.money > old_money)
+
+        old_money = self.hero.money
+
+        self.bundle.process_turn(1)
+        self.assertEqual(len(self.bundle.actions), 1)
+        self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
+
+        self.assertTrue(self.hero.money > old_money)

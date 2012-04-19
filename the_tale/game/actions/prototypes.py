@@ -4,7 +4,7 @@ import random
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils import s11n
 
-from game.heroes.logic import create_mob_for_hero, sell_in_city
+from game.heroes.logic import create_mob_for_hero
 from game.heroes.prototypes import EXPERIENCE_VALUES
 from game.heroes import hcontexts
 from game.heroes.bag import SLOTS_LIST, ARTIFACT_TYPES_TO_SLOTS
@@ -717,7 +717,7 @@ class ActionInPlacePrototype(ActionPrototype):
 
             elif self.hero.need_trade_in_town:
                 self.state = self.STATE.TRADING
-                self.bundle.add_action(ActionTradeInSettlementPrototype.create(self, self.hero.position.place))
+                self.bundle.add_action(ActionTradingPrototype.create(self))
 
             else:
                 self.state = self.STATE.PROCESSED
@@ -847,38 +847,40 @@ class ActionEquippingPrototype(ActionPrototype):
                 self.state = self.STATE.PROCESSED
 
 
-class ActionTradeInSettlementPrototype(ActionPrototype):
+class ActionTradingPrototype(ActionPrototype):
 
-    TYPE = 'TRADE_IN_SETTLEMENT'
+    TYPE = 'TRADING'
     SHORT_DESCRIPTION = u'торгует'
 
     class STATE(ActionPrototype.STATE):
         TRADING = 'trading'
-
-    settlement_id = ActionPrototype.place_id
-    settlement = ActionPrototype.place
 
     ###########################################
     # Object operations
     ###########################################
 
     def ui_info(self):
-        info = super(ActionTradeInSettlementPrototype, self).ui_info()
+        # TODO: move to parent class
+        info = super(ActionTradingPrototype, self).ui_info()
         info['data'] = {'hero_id': self.hero_id,
                         'settlement': self.settlement_id }
         return info
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, parent, settlement):
+    def create(cls, parent):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       place=settlement.model,
                                        percents_barier=parent.hero.bag.occupation[1] )
         return cls(model=model)
+
+
+    def get_sell_price(self, artifact):
+        return f.sell_artifact_price_randomized(artifact.power)
+
 
     @nested_commit_on_success
     def process(self):
@@ -886,11 +888,12 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.TRADING
             self.percents = 0
-            self.hero.add_message('action_tradeinsettlement_start', hero=self.hero)
+            self.hero.add_message('action_trading_start', hero=self.hero)
 
 
         if self.state == self.STATE.TRADING:
             quest_items_count, loot_items_count = self.hero.bag.occupation
+
             if loot_items_count:
 
                 self.percents = 1 - float(loot_items_count - 1) / self.percents_barier
@@ -900,10 +903,13 @@ class ActionTradeInSettlementPrototype(ActionPrototype):
                     if not artifact.quest:
                         break
 
-                sell_price = sell_in_city(self.hero, artifact, False)
+                sell_price = self.get_sell_price(artifact)
+                self.hero.money = self.hero.money + sell_price
+                self.hero.bag.pop_artifact(artifact)
 
-                self.hero.add_message('action_tradeinsettlement_sell_item', hero=self.hero, artifact=artifact, coins=sell_price)
-            else:
+                self.hero.add_message('action_trading_sell_item', hero=self.hero, artifact=artifact, coins=sell_price)
+
+            if loot_items_count <= 1:
                 self.state = self.STATE.PROCESSED
 
 

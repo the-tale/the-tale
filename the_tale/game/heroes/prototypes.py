@@ -18,13 +18,12 @@ from ..quests.prototypes import get_quest_by_model
 from ..quests.models import Quest
 
 from .models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
-from . import game_info
 from .habilities import AbilitiesPrototype
 from .conf import heroes_settings
 
 from ..map.prototypes import MapInfoPrototype
 
-from game.balance import constants as c
+from game.balance import constants as c, formulas as f
 
 
 def get_hero_by_id(model_id):
@@ -75,7 +74,7 @@ class HeroPrototype(object):
 
     @property
     def power(self):
-        return 2 + self.level + self.equipment.get_power()
+        return f.clean_power_to_lvl(self.level) + self.equipment.get_power()
 
     def get_basic_damage(self):
         return self.power * (1 + random.uniform(-0.15, 0.15))
@@ -216,7 +215,7 @@ class HeroPrototype(object):
         return float(loot_items_count) / self.max_bag_size > c.BAG_SIZE_TO_SELL_LOOT_FRACTION
 
     @property
-    def need_equipping_in_town(self): return game_info.needs.InTown.equipping.check(self)
+    def need_equipping_in_town(self): return any( artifact.can_be_equipped for uuid, artifact in self.bag.items() )
 
     ###########################################
     # quests

@@ -32,10 +32,12 @@ def total_exp_to_lvl(lvl): return int(sum(exp_on_lvl(x) for x in xrange(1, lvl+1
 # и добавляем 1
 def lvl_after_time(time): return int(1 + (-c.TIME_TO_LVL_DELTA + math.sqrt(c.TIME_TO_LVL_DELTA) * math.sqrt(8 * time + c.TIME_TO_LVL_DELTA)) / (2 * c.TIME_TO_LVL_DELTA))
 
+# чистая сила героя на уровень
+def clean_power_to_lvl(lvl): return int(lvl * c.POWER_PER_LVL)
 
 # общая ожидаемая сила артефактов, надетых на героя указанного уровня к моменту получения следующего уровня
 # рассматривался альтернативный вариант - зависимость силы, от времени, но в этом случае она растёт очень быстро, что плохо сказывается на цифрах урона и т.п.
-def power_to_lvl(lvl): return int(c.POWER_INITIAL + lvl * c.POWER_TO_LVL)
+def power_to_lvl(lvl): return int(lvl * c.POWER_TO_LVL)
 
 def power_to_artifact(lvl): return power_to_lvl(lvl) / c.EQUIP_SLOTS_NUMBER
 
@@ -59,7 +61,7 @@ def expected_damage_to_mob_per_hit(lvl): return float(mob_hp_to_lvl(lvl) * c.DAM
 # для этого опираясь на силу, оцениваем уровень героя, на котором она может быть и исходя из этого делаем предположение об уроне мобу
 # т.к. здоровье моба зависит от здоровья героя, то полученая формула должна быть применима и в PvP - т.е. бои просто будут идти дольше
 # решаем уравнение:  Solve[power == powerToLvl[lvl], lvl];
-def expected_lvl_from_power(power): return int((power - c.POWER_INITIAL) / c.POWER_TO_LVL) # оцениваемый уровень героя, исходя из его силы
+def expected_lvl_from_power(power): return int(math.ceil(float(power) / (c.POWER_PER_LVL + c.POWER_TO_LVL))) # оцениваемый уровень героя, исходя из его силы
 
 def damage_from_power(power): return float(expected_damage_to_mob_per_hit(expected_lvl_from_power(power)))  # урон, наносимый героем
 
@@ -113,6 +115,9 @@ def buy_artifact_price(lvl): return int(normal_action_price(lvl) * c.BUY_ARTIFAC
 def sharpening_artifact_price(lvl): return int(normal_action_price(lvl) * c.SHARPENING_ARTIFACT_PRICE_FRACTION)
 def useless_price(lvl): return int(normal_action_price(lvl) * c.USELESS_PRICE_FRACTION)
 def impact_price(lvl): return int(normal_action_price(lvl) * c.IMPACT_PRICE_FRACTION)
+
+def sell_artifact_price(power): return int(buy_artifact_price(expected_lvl_from_power(power)) * c.SELL_ARTIFACT_PRICE_FRACTION)
+def sell_artifact_price_randomized(power): return int(sell_artifact_price(power)*(1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)))
 
 # задания (квесты)
 #  - игрок всегда должен получать полезную/интересную награду за выполнение задания

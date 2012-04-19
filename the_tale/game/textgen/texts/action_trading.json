@@ -1,6 +1,6 @@
 {
     "description": "",
-    "prefix": "action_tradeinsettlement",
+    "prefix": "action_trading",
     "types": {
         "start": {
             "description": "",

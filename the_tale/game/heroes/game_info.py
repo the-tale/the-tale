@@ -41,35 +41,3 @@ class actions:
                                         defender=defender,
                                         damage=random.randint(attaker.min_damage, attaker.max_damage))
                 return result
-
-    class trading(AttributeContainer):
-
-        class trade_in_town(Attribute):
-
-            name = u'торговля в городе'
-            description = u'торговля в городе'
-
-            @classmethod
-            def sell_price(cls, seller, artifact, selling_crit):
-                left_delta = int(artifact.cost * 0.85)
-                right_delta = int(artifact.cost * 1.15)
-                price = random.randint(left_delta, right_delta)
-                if selling_crit == 1:
-                    price = int(price * 1.5)
-                elif selling_crit == -1:
-                    price = max(1, int(price * 0.75))
-                return price
-
-
-class needs:
-
-    class InTown(AttributeContainer):
-
-        class equipping(Attribute):
-
-            name = u'необходимость смены экипировки'
-            description = u'необходимо ли герою поменять снаряжение'
-
-            @classmethod
-            def check(cls, hero):
-                return any( artifact.can_be_equipped for uuid, artifact in hero.bag.items() )

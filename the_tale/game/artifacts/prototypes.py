@@ -2,6 +2,8 @@
 
 from game.artifacts.conf import EQUIP_TYPE
 
+from game.balance import formulas as f
+
 class ArtifactPrototype(object):
 
     def __init__(self, record=None, power=None, quest=False, quest_uuid=None, bag_uuid=None):
