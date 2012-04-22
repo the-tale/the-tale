@@ -42,7 +42,6 @@ class MobsDatabaseTest(TestCase):
         self.assertEqual(bandit.speed , 1)
         self.assertEqual(bandit.health , 0.8)
         self.assertEqual(bandit.damage , 1)
-        self.assertEqual(bandit.damage_dispersion , 0.2)
         self.assertEqual(bandit.abilities , frozenset(['hit']))
         self.assertEqual(bandit.terrain , frozenset(['.', 'f']))
         self.assertEqual(bandit.loot , frozenset(['fake_amulet']))

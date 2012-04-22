@@ -11,7 +11,7 @@ class ABILITIES_ACTIVATION_TYPE:
 
 
 class ABILITIES_LOGIC_TYPE:
-    
+
     WITHOUT_CONTACT = 'without_contact'
     WITH_CONTACT = 'with_contact'
 
@@ -26,10 +26,10 @@ class AbilityPrototype(object):
     NAME = u''
     NORMALIZED_NAME = u''
     DESCRIPTIN = u''
-    
+
     @property
     def normalized_name(self):  return self.NORMALIZED_NAME
-    
+
 
     @classmethod
     def get_id(cls): return cls.__name__.lower()
@@ -40,7 +40,7 @@ class AbilityPrototype(object):
 
 
 class Hit(AbilityPrototype):
-    
+
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITIES_LOGIC_TYPE.WITH_CONTACT
@@ -52,13 +52,13 @@ class Hit(AbilityPrototype):
 
     @classmethod
     def use(cls, messanger, actor, enemy):
-        damage = actor.context.modify_initial_damage(actor.get_basic_damage())
-        damage = enemy.change_health(-damage)
+        damage = actor.context.modify_initial_damage(actor.basic_damage)
+        enemy.change_health(-damage)
         messanger.add_message('hero_ability_hit', attacker=actor, defender=enemy, damage=-damage)
-    
+
 
 class MagicMushroom(AbilityPrototype):
-    
+
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITIES_LOGIC_TYPE.WITHOUT_CONTACT
@@ -77,7 +77,7 @@ class MagicMushroom(AbilityPrototype):
 
 
 class Sidestep(AbilityPrototype):
-    
+
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITIES_LOGIC_TYPE.WITHOUT_CONTACT
@@ -96,7 +96,7 @@ class Sidestep(AbilityPrototype):
 
 
 class RunUpPush(AbilityPrototype):
-    
+
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITIES_LOGIC_TYPE.WITH_CONTACT
@@ -110,14 +110,14 @@ class RunUpPush(AbilityPrototype):
 
     @classmethod
     def use(cls, messanger, actor, enemy):
-        damage = actor.context.modify_initial_damage(actor.get_basic_damage())
-        damage = enemy.change_health(-damage)
+        damage = actor.context.modify_initial_damage(actor.basic_damage)
+        enemy.change_health(-damage)
         enemy.context.use_stun(cls.STUN_LENGTH)
         messanger.add_message('hero_ability_runuppush', attacker=actor, defender=enemy, damage=-damage)
 
 
 class Regeneration(AbilityPrototype):
-    
+
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITIES_LOGIC_TYPE.WITHOUT_CONTACT
@@ -135,6 +135,6 @@ class Regeneration(AbilityPrototype):
         applied_health = actor.change_health(health_to_regen)
         messanger.add_message('hero_ability_regeneration', actor=actor, health=applied_health)
 
-ABILITIES = dict( (ability.get_id(), ability) 
-                  for ability in globals().values() 
+ABILITIES = dict( (ability.get_id(), ability)
+                  for ability in globals().values()
                   if isinstance(ability, type) and issubclass(ability, AbilityPrototype) and ability != AbilityPrototype)

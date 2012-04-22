@@ -1,15 +1,12 @@
 # coding: utf-8
 import random
 
-from dext.utils import s11n
-
 class BattleContext(object):
 
     def __init__(self):
         self.ability_magic_mushroom = []
         self.ability_sidestep = []
         self.stun_length = 0
-
 
     def use_ability_magic_mushroom(self, damage_factors): self.ability_magic_mushroom = [None] + damage_factors
 
@@ -36,17 +33,16 @@ class BattleContext(object):
         if self.ability_sidestep:
             self.ability_sidestep.pop(0)
         if self.stun_length:
-            self.stun_length - 1
+            self.stun_length -= 1
 
 
     def serialize(self):
-        return s11n.to_json({ 'ability_magic_mushroom': self.ability_magic_mushroom,
-                              'ability_sidestep': self.ability_sidestep,
-                              'stun_length': self.stun_length})
+        return { 'ability_magic_mushroom': self.ability_magic_mushroom,
+                 'ability_sidestep': self.ability_sidestep,
+                 'stun_length': self.stun_length }
 
     @classmethod
     def deserialize(cls, data):
-        data = s11n.from_json(data)
         context = cls()
 
         context.ability_magic_mushroom = data.get('ability_magic_mushroom', [])

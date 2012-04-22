@@ -33,7 +33,7 @@ class MobPrototype(object):
     def normalized_name(self): return self.record.normalized_name
 
     @property
-    def battle_speed(self): return self.record.speed
+    def initiative(self): return self.record.speed
 
     @property
     def damage_dispersion(self): return self.record.damage_dispersion
@@ -44,12 +44,11 @@ class MobPrototype(object):
     @property
     def artifacts(self): return self.record.artifacts
 
-
     @property
     def health_percents(self): return float(self.health) / self.max_health
 
-    def get_basic_damage(self):
-        return f.expected_damage_to_hero_per_hit(self.level) * (1 + random.uniform(-self.damage_dispersion, self.damage_dispersion))
+    @property
+    def basic_damage(self): return f.expected_damage_to_hero_per_hit(self.level)
 
     def strike_by(self, percents):
         self.health = max(0, self.health - self.max_health * percents)

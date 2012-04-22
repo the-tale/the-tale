@@ -5,8 +5,6 @@ from dext.utils.decorators import nested_commit_on_success
 from dext.utils import s11n
 
 from game.heroes.logic import create_mob_for_hero
-from game.heroes.prototypes import EXPERIENCE_VALUES
-from game.heroes import hcontexts
 from game.heroes.bag import SLOTS_LIST, ARTIFACT_TYPES_TO_SLOTS
 
 from game.map.places.prototypes import get_place_by_model
@@ -15,7 +13,7 @@ from game.map.roads.prototypes import get_road_by_model, WaymarkPrototype
 from game.mobs.storage import MobsDatabase
 
 from game.actions.models import Action, UNINITIALIZED_STATE
-from game.actions import battle
+from game.actions import battle, contexts
 
 from game.balance import constants as c, formulas as f
 from game.game_info import ITEMS_OF_EXPENDITURE
@@ -100,7 +98,7 @@ class ActionPrototype(object):
         if not hasattr(self, '_context'):
             self._context = None
             if self.CONTEXT_MANAGER is not  None:
-                self._context = self.CONTEXT_MANAGER.deserialize(self.model.context)
+                self._context = self.CONTEXT_MANAGER.deserialize(s11n.from_json(self.model.context))
         return self._context
 
     @property
@@ -108,7 +106,7 @@ class ActionPrototype(object):
         if not hasattr(self, '_mob_context'):
             self._mob_context = None
             if self.CONTEXT_MANAGER is not  None:
-                self._mob_context = self.CONTEXT_MANAGER.deserialize(self.model.mob_context)
+                self._mob_context = self.CONTEXT_MANAGER.deserialize(s11n.from_json(self.model.mob_context))
         return self._mob_context
 
     @property
@@ -194,7 +192,7 @@ class ActionPrototype(object):
         if hasattr(self, '_mob'):
             self.model.mob = self.mob.serialize()
         if self.context:
-            self.model.context = self.context.serialize()
+            self.model.context = s11n.to_json(self.context.serialize())
         if self.mob_context:
             self.model.mob_context = self.mob_context.serialize()
         if hasattr(self, '_quest'):
@@ -460,7 +458,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
             elif random.uniform(0, 1) <= 0.1:
                 mob = create_mob_for_hero(self.hero)
-                self.bundle.add_action(ActionBattlePvE_1x1Prototype.create(parent=self, mob=mob))
+                self.bundle.add_action(ActionBattlePvE1x1Prototype.create(parent=self, mob=mob))
                 self.state = self.STATE.BATTLE
             else:
 
@@ -506,11 +504,11 @@ class ActionMoveToPrototype(ActionPrototype):
             self.state = self.STATE.CHOOSE_ROAD
 
 
-class ActionBattlePvE_1x1Prototype(ActionPrototype):
+class ActionBattlePvE1x1Prototype(ActionPrototype):
 
-    TYPE = 'BATTLE_PVE_1x1'
+    TYPE = 'BATTLE_PVE1x1'
     SHORT_DESCRIPTION = u'сражается'
-    CONTEXT_MANAGER = hcontexts.BattleContext
+    CONTEXT_MANAGER = contexts.BattleContext
 
     class STATE(ActionPrototype.STATE):
         BATTLE_RUNNING = 'battle_running'
@@ -562,9 +560,10 @@ class ActionBattlePvE_1x1Prototype(ActionPrototype):
                 self.state = self.STATE.PROCESSED
                 self.percents = 1.0
 
+
             if self.mob.health <= 0:
                 self.mob.kill()
-                self.hero.add_experience(EXPERIENCE_VALUES.FOR_KILL)
+                self.hero.add_experience(c.EXP_PER_MOB)
                 self.hero.add_message('action_battlepve1x1_mob_killed', hero=self.hero, mob=self.mob)
 
                 loot = self.mob.get_loot()
@@ -984,7 +983,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
             elif random.uniform(0, 1) <= 0.1:
                 mob = create_mob_for_hero(self.hero)
-                self.bundle.add_action(ActionBattlePvE_1x1Prototype.create(parent=self, mob=mob))
+                self.bundle.add_action(ActionBattlePvE1x1Prototype.create(parent=self, mob=mob))
                 self.state = self.STATE.BATTLE
 
             else:

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from ...actions.prototypes import ActionBattlePvE_1x1Prototype
+from ...actions.prototypes import ActionBattlePvE1x1Prototype
 
 from ..prototypes import AbilityPrototype
 
@@ -20,11 +20,11 @@ class Lightning(AbilityPrototype):
 
     FORM = None
     TEMPLATE = None
-      
+
     def use(self, bundle, angel, hero, form):
         battle_action = bundle.current_hero_action(hero.id)
 
-        if battle_action.type != ActionBattlePvE_1x1Prototype.TYPE:
+        if battle_action.type != ActionBattlePvE1x1Prototype.TYPE:
             return False
 
         if not battle_action.bit_mob(0.3):
@@ -33,4 +33,3 @@ class Lightning(AbilityPrototype):
         hero.add_message('angel_ability_lightning', hero=hero, mob=battle_action.mob)
 
         return True
-

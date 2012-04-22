@@ -2,17 +2,17 @@
 
 import random
 
-from ..heroes.habilities import ABILITIES_LOGIC_TYPE
+from game.heroes.habilities import ABILITIES_LOGIC_TYPE
 
 class Actor(object):
 
-    def __init__(self, actor, context): 
+    def __init__(self, actor, context):
         self.actor = actor
         self.context = context
         self.messages = []
 
     @property
-    def initiative(self): return self.actor.battle_speed
+    def initiative(self): return self.actor.initiative
 
     @property
     def name(self): return self.actor.name
@@ -21,9 +21,7 @@ class Actor(object):
     def normalized_name(self): return self.actor.normalized_name
 
     @property
-    def power(self): return self.actor.power
-    
-    def get_basic_damage(self): return self.actor.get_basic_damage()
+    def basic_damage(self): return self.actor.basic_damage
 
     @property
     def health(self): return self.actor.health
@@ -32,11 +30,11 @@ class Actor(object):
     def max_health(self): return self.actor.max_health
 
     def change_health(self, value):
-        result = self.actor.health + value
-        self.actor.health = int(min(self.actor.health + value, self.actor.max_health))
-        return int(value - (result - self.actor.health))
-  
-    def choose_ability(self, enemy): 
+        old_health = self.actor.health
+        self.actor.health = int(max(0, min(self.actor.health + value, self.actor.max_health)))
+        return int(self.actor.health - old_health)
+
+    def choose_ability(self):
         choice_abilities = self.actor.abilities.active_abilities
         domain = 0
 
@@ -52,7 +50,7 @@ class Actor(object):
                 choosen_ability = ability
                 break
             choice_value -= ability.PRIORITY
-            
+
         return choosen_ability
 
 
@@ -74,7 +72,7 @@ def strike(attacker, defender, messanger):
         messanger.add_message('action_battlepve1x1_battle_stun', actor=attacker)
         return
 
-    ability = attacker.choose_ability(defender)
+    ability = attacker.choose_ability()
 
     if ability.LOGIC_TYPE == ABILITIES_LOGIC_TYPE.WITHOUT_CONTACT:
         strike_without_contact(ability, attacker, defender, messanger)
@@ -90,6 +88,6 @@ def strike_with_contact(ability, attacker, defender, messanger):
 
     ability.use(messanger, attacker, defender)
 
-    
+
 def strike_without_contact(ability, attacker, defender, messanger):
     ability.use(messanger, attacker, defender)

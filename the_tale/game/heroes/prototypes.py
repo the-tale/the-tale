@@ -43,9 +43,6 @@ class BASE_ATTRIBUTES(object):
     @classmethod
     def get_max_health(cls, level): return cls.HEALTH + cls.HEALTH_PER_LEVEL * level
 
-class EXPERIENCE_VALUES:
-    FOR_KILL = 1
-    FOR_QUEST = 15
 
 class HeroPrototype(object):
 
@@ -73,11 +70,10 @@ class HeroPrototype(object):
     def gender(self): return self.model.gender
 
     @property
-    def power(self):
-        return f.clean_power_to_lvl(self.level) + self.equipment.get_power()
+    def power(self): return f.clean_power_to_lvl(self.level) + self.equipment.get_power()
 
-    def get_basic_damage(self):
-        return self.power * (1 + random.uniform(-0.15, 0.15))
+    @property
+    def basic_damage(self): return f.damage_from_power(self.power)
 
     @property
     def race(self): return self.model.race
@@ -175,7 +171,7 @@ class HeroPrototype(object):
     def move_speed(self): return 0.3
 
     @property
-    def battle_speed(self): return 5
+    def initiative(self): return 1.0
 
     @property
     def max_health(self): return BASE_ATTRIBUTES.get_max_health(self.level)
@@ -315,7 +311,7 @@ class HeroPrototype(object):
                           'experience_to_level': self.experience_to_level},
                 'secondary': { 'power': math.floor(self.power),
                                'move_speed': self.move_speed,
-                               'battle_speed': self.battle_speed,
+                               'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': loot_items_count},
                 'accumulated': { }

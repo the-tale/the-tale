@@ -75,9 +75,6 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         pgf.base.UpdateStatsBar(jQuery('.pgf-experience-bar', widget), data.base.experience_to_level, data.base.experience);
 
         jQuery('.pgf-power', widget).text(data.secondary.power);
-        jQuery('.pgf-move-speed', widget).text(Math.round(data.secondary.move_speed*100)/100.0);
-        jQuery('.pgf-battle-speed', widget).text(Math.round(data.secondary.battle_speed*100)/100.0);
-        jQuery('.pgf-armor', widget).text(Math.ceil(data.secondary.armor));
 
         jQuery('.pgf-money', widget).text(data.money);
     };
