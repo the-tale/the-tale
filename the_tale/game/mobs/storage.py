@@ -8,7 +8,7 @@ from collections import namedtuple
 from game.mobs.conf import mobs_settings
 from game.mobs.exceptions import MobsException
 from game.mobs.prototypes import MobPrototype
-
+from game.map.places.models import TERRAIN_STR_2_ID
 
 MobRecord = namedtuple('MobRecord', ('level', 'id', 'name', 'normalized_name', 'speed', 'health', 'damage', 'damage_dispersion', 'abilities', 'terrain', 'loot', 'artifacts'))
 
@@ -46,7 +46,10 @@ class MobsDatabase(object):
             mob_data[7] = float(mob_data[7])
 
             mob_data[8] = self._prepair_string_set(mob_data[8])
+
             mob_data[9] = self._prepair_string_set(mob_data[9])
+            mob_data[9] = frozenset([TERRAIN_STR_2_ID[terrain] for terrain in mob_data[9]])
+
             mob_data[10] = self._prepair_string_set(mob_data[10])
             mob_data[11] = self._prepair_string_set(mob_data[11])
 
@@ -76,5 +79,5 @@ class MobsDatabase(object):
 
     @classmethod
     def get_random_mob(cls, hero):
-        mob_record = random.choice(cls.storage().get_available_mobs_list(level=hero.lvl, terrain=hero.position.get_terrain()))
-        return MobPrototype(record=mob_record)
+        mob_record = random.choice(cls.storage().get_available_mobs_list(level=hero.level, terrain=hero.position.get_terrain()))
+        return MobPrototype(record=mob_record, level=hero.level)

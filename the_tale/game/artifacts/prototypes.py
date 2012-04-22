@@ -55,7 +55,7 @@ class ArtifactPrototype(object):
 
     @classmethod
     def deserialize(cls, storage, data):
-        return cls(record=storage.data[data['id']],
+        return cls(record=storage.get_artifact_record(data['id']),
                    power=data['power'],
                    quest=data['quest'],
                    quest_uuid=data['quest_uuid'],

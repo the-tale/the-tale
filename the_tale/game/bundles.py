@@ -51,9 +51,9 @@ class BundlePrototype(object):
     def remove_action(self, action):
         del self.actions[action.id]
         action.set_bundle(None)
-        last_action_id = self.heroes_to_actions[action.hero_id][-1].id
-        if last_action_id != action.id:
-            raise BundleException('try to remove action (%d) from the middle of actions list, last action id: %s' % (action.id, last_action_id))
+        last_action = self.heroes_to_actions[action.hero_id][-1]
+        if last_action.id != action.id:
+            raise BundleException('try to remove action (%d - %r) from the middle of actions list, last action id: (%d - %r). Actions list: %r' % (action.id, action, last_action.id, last_action, self.heroes_to_actions[action.hero_id]))
         self.heroes_to_actions[action.hero_id].pop()
 
     def current_hero_action(self, hero_id): return self.heroes_to_actions[hero_id][-1]

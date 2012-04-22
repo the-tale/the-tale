@@ -137,10 +137,11 @@ class ActionPrototype(object):
     def mob(self):
         from ..mobs.prototypes import MobPrototype
         if not hasattr(self, '_mob'):
-            mob_data = s11n.from_json(self.model.mob)
+            # mob_data = s11n.from_json(self.model.mob)
+            mob_data = self.model.mob
             self._mob = None
             if mob_data:
-                self._mob = MobPrototype.deserialize(MobsDatabase.storage(), )
+                self._mob = MobPrototype.deserialize(MobsDatabase.storage(), mob_data)
         return self._mob
 
     def remove_mob(self):
@@ -326,11 +327,12 @@ class ActionQuestPrototype(ActionPrototype):
 
 
         if self.state == self.STATE.PROCESSING:
-            finish, percents = self.quest.process(self)
+            percents = self.quest.process(self)
 
             self.percents = percents
 
-            if finish:
+            if self.percents >= 1:
+                self.percents = 1
                 self.state = self.STATE.PROCESSED
 
 
@@ -452,15 +454,13 @@ class ActionMoveToPrototype(ActionPrototype):
 
             current_destination = self.current_destination
 
-            if self.hero.need_rest_in_settlement:
-                self.state = self.STATE.RESTING
+            if self.hero.need_rest_in_move:
                 self.bundle.add_action(ActionRestPrototype.create(self))
+                self.state = self.STATE.RESTING
 
             elif random.uniform(0, 1) <= 0.1:
                 mob = create_mob_for_hero(self.hero)
-
                 self.bundle.add_action(ActionBattlePvE_1x1Prototype.create(parent=self, mob=mob))
-
                 self.state = self.STATE.BATTLE
             else:
 
@@ -483,7 +483,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
                     self.state = self.STATE.IN_CITY
 
-                    self.bundle.add_action(ActionInPlacePrototype.create(parent=self, settlement=current_destination))
+                    self.bundle.add_action(ActionInPlacePrototype.create(parent=self))
 
                 elif self.break_at and self.percents >= 1:
                     self.percents = 1
@@ -978,15 +978,13 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
         if self.state == self.STATE.MOVING:
 
-            if self.hero.need_rest_in_settlement:
-                self.state = self.STATE.RESTING
+            if self.hero.need_rest_in_move:
                 self.bundle.add_action(ActionRestPrototype.create(self))
+                self.state = self.STATE.RESTING
 
-            if random.uniform(0, 1) <= 0.1:
+            elif random.uniform(0, 1) <= 0.1:
                 mob = create_mob_for_hero(self.hero)
-
                 self.bundle.add_action(ActionBattlePvE_1x1Prototype.create(parent=self, mob=mob))
-
                 self.state = self.STATE.BATTLE
 
             else:

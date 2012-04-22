@@ -2,7 +2,8 @@
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
 
-from .models import Quest
+from game.quests.models import Quest
+from game.quests.exceptions import QuestException
 
 def get_quest_by_id(id):
     try:
@@ -27,7 +28,7 @@ class QuestPrototype(object):
     def hero_id(self): return self.model.hero_id
 
     @property
-    def percents(self): 
+    def percents(self):
         return self.env.percents(self.pointer)
 
     @property
@@ -90,7 +91,7 @@ class QuestPrototype(object):
     ###########################################
 
     def remove(self): self.model.delete()
-    def save(self): 
+    def save(self):
         self.model.data = s11n.to_json(self.data)
         self.model.env = s11n.to_json(self.env.serialize())
         self.model.save(force_update=True)
@@ -119,14 +120,17 @@ class QuestPrototype(object):
 
 
     def process(self, cur_action):
-        
-        if self.do_step(cur_action):
-            return False, self.percents
 
-        return True, 1
+        if self.do_step(cur_action):
+            percents = self.percents
+            if percents >= 1:
+                raise QuestException('completed percents > 1 for not ended quest')
+            return percents
+
+        return 1
 
     def do_step(self, cur_action):
-        
+
         self.process_current_command(cur_action)
 
         self.last_pointer = self.pointer
@@ -145,7 +149,7 @@ class QuestPrototype(object):
             person_data = self.env.persons[person_id]
             from ..workers.environment import workers_environment
             workers_environment.highlevel.cmd_change_person_power(person_data['external_data']['id'], power * 100)
-         
+
     def process_current_command(self, cur_action):
 
         cmd = self.env.get_command(self.pointer)

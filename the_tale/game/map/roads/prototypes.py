@@ -40,7 +40,7 @@ class RoadPrototype(object):
     def point_1_id(self): return self.model.point_1_id
 
     @property
-    def point_1(self): 
+    def point_1(self):
         if not hasattr(self, '_point_1'):
             self._point_1 = get_place_prototype(self.model.point_1)
         return self._point_1
@@ -49,7 +49,7 @@ class RoadPrototype(object):
     def point_2_id(self): return self.model.point_2_id
 
     @property
-    def point_2(self): 
+    def point_2(self):
         if not hasattr(self, '_point_2'):
             self._point_2 = get_place_prototype(self.model.point_2)
         return self._point_2
@@ -82,9 +82,9 @@ class RoadPrototype(object):
 
         if point_1.id > point_2.id:
             point_1, point_2 = point_2, point_1
-        
+
         try:
-            Road.objects.get(point_1=point_1.model, 
+            Road.objects.get(point_1=point_1.model,
                              point_2=point_2.model)
             raise RoadsException('road (%i, %i) has already exist' % (point_1.id, point_2.id) )
         except Road.DoesNotExist:
@@ -122,7 +122,7 @@ class WaymarkPrototype(object):
     def point_from_id(self): return self.model.point_from_id
 
     @property
-    def point_from(self): 
+    def point_from(self):
         if not hasattr(self, '_point_from'):
             self._point_from = get_place_prototype(self.model.point_from)
         return self._point_1
@@ -131,7 +131,7 @@ class WaymarkPrototype(object):
     def point_to_id(self): return self.model.point_to_id
 
     @property
-    def point_to(self): 
+    def point_to(self):
         if not hasattr(self, '_point_to'):
             self._point_to = get_place_prototype(self.model.point_to)
         return self._point_to
@@ -140,7 +140,7 @@ class WaymarkPrototype(object):
     def road_id(self): return self.model.road_id
 
     @property
-    def road(self): 
+    def road(self):
         if not hasattr(self, '_road'):
             self._road = get_road_by_model(self.model.road)
         return self._road
@@ -159,7 +159,7 @@ class WaymarkPrototype(object):
     def create(cls, point_from, point_to, road, length):
 
         try:
-            Waymark.objects.get(point_from=point_from.model, 
+            Waymark.objects.get(point_from=point_from.model,
                                 point_to=point_to.model)
             raise RoadsException('waymark (%i, %i) has already exist' % (point_from.id, point_to.id) )
         except Waymark.DoesNotExist:
@@ -182,6 +182,3 @@ class WaymarkPrototype(object):
 
         waymark = cls(Waymark.objects.get(point_from=point_from, point_to=point_to))
         return waymark.road, waymark.length
-    
-            
-

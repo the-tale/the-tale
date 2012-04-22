@@ -14,5 +14,5 @@ def strike(attaker, defender):
     return result
 
 def create_mob_for_hero(hero):
-    from ..mobs.storage import MobsStorage
-    return MobsStorage.storage().get_random_mob(hero)
+    from game.mobs.storage import MobsDatabase
+    return MobsDatabase.storage().get_random_mob(hero)

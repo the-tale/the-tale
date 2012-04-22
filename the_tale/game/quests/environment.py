@@ -37,8 +37,9 @@ class Environment(BaseEnvironment):
         return self.persons['external_data']['name']
 
     def get_game_item(self, item_id):
-        from ..artifacts.prototypes import ArtifactPrototype
-        return ArtifactPrototype(data=self.items[item_id]['external_data']['artifact'])
+        from game.artifacts.prototypes import ArtifactPrototype
+        from game.artifacts.storage import ArtifactsDatabase
+        return ArtifactPrototype.deserialize(ArtifactsDatabase().storage(), data=self.items[item_id]['external_data']['artifact'])
 
     def set_game_item(self, item_id, item):
         self.items['external_data']['artifact'] = item.serialize()

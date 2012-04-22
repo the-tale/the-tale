@@ -6,3 +6,4 @@ from game.actions.tests.action_equipping import *
 from game.actions.tests.action_trading import *
 from game.actions.tests.action_resurrect import *
 from game.actions.tests.action_idleness import *
+from game.actions.tests.action_quest import *

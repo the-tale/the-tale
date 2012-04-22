@@ -27,6 +27,8 @@ class ArtifactsDatabase(object):
     def loot_ids(self):
         return [artifact_id for artifact_id, artifact_record in self.data.items() if artifact_record.type == ITEM_TYPE.USELESS]
 
+    def get_artifact_record(self, id_):  return self.data[id_]
+
     def load(self, filename):
 
         book = xlrd.open_workbook(filename, logfile=None, encoding_override='utf-8')

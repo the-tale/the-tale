@@ -10,7 +10,11 @@ from game.bundles import BundlePrototype
 
 from game.map.places.prototypes import get_place_by_model
 from game.map.places.models import Place, TERRAIN, PLACE_TYPE
-from game.map.roads.models import Road
+from game.map.roads.prototypes import RoadPrototype
+from game.map.roads.logic import update_waymarks
+from game.map.prototypes import MapInfoPrototype
+from game.map.places.logic import update_nearest_cells
+from game.map.conf import map_settings
 
 def create_test_map():
     p1 = get_place_by_model(Place.objects.create( x=1,
@@ -26,13 +30,24 @@ def create_test_map():
     p2 = get_place_by_model(Place.objects.create( x=10,
                                                   y=10,
                                                   name='10x10',
-                                                  terrain=TERRAIN.GRASS,
+                                                  terrain=TERRAIN.FOREST,
                                                   type=PLACE_TYPE.CITY,
                                                   subtype='UNDEFINED',
                                                   size=3))
     p2.sync_persons()
 
-    Road.objects.create(point_1=p1.model, point_2=p2.model)
+    RoadPrototype.create(point_1=p1, point_2=p2)
+
+    update_waymarks()
+    # WaymarkPrototype.create(p1, p2, r1_2, 10)
+    # WaymarkPrototype.create(p2, p1, r1_2, 10)
+
+    MapInfoPrototype.create(turn_number=0,
+                            width=map_settings.WIDTH,
+                            height=map_settings.HEIGHT,
+                            terrain=[ [TERRAIN.FOREST for j in xrange(map_settings.WIDTH)] for j in xrange(map_settings.HEIGHT)])
+
+    update_nearest_cells()
 
 
 def create_test_bundle(uuid):

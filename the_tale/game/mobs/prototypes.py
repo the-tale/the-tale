@@ -2,7 +2,6 @@
 
 import random
 
-from ..heroes.prototypes import BASE_ATTRIBUTES
 from ..heroes.habilities import AbilitiesPrototype
 
 from game.balance import formulas as f
@@ -23,9 +22,6 @@ class MobPrototype(object):
 
         self.abilities = AbilitiesPrototype(abilities=record.abilities) if abilities is None else abilities
 
-
-    @property
-    def level(self): return self.record.level
 
     @property
     def id(self): return self.record.id
