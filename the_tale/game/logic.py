@@ -17,6 +17,9 @@ from game.map.places.logic import update_nearest_cells
 from game.map.conf import map_settings
 
 def create_test_map():
+    """
+    map: p1-p2-p3
+    """
     p1 = get_place_by_model(Place.objects.create( x=1,
                                                   y=1,
                                                   name='1x1',
@@ -36,11 +39,19 @@ def create_test_map():
                                                   size=3))
     p2.sync_persons()
 
+    p3 = get_place_by_model(Place.objects.create( x=1,
+                                                  y=10,
+                                                  name='1x10',
+                                                  terrain=TERRAIN.FOREST,
+                                                  type=PLACE_TYPE.CITY,
+                                                  subtype='UNDEFINED',
+                                                  size=3))
+    p3.sync_persons()
+
     RoadPrototype.create(point_1=p1, point_2=p2)
+    RoadPrototype.create(point_1=p2, point_2=p3)
 
     update_waymarks()
-    # WaymarkPrototype.create(p1, p2, r1_2, 10)
-    # WaymarkPrototype.create(p2, p1, r1_2, 10)
 
     MapInfoPrototype.create(turn_number=0,
                             width=map_settings.WIDTH,
@@ -48,6 +59,8 @@ def create_test_map():
                             terrain=[ [TERRAIN.FOREST for j in xrange(map_settings.WIDTH)] for j in xrange(map_settings.HEIGHT)])
 
     update_nearest_cells()
+
+    return (p1, p2, p3)
 
 
 def create_test_bundle(uuid):

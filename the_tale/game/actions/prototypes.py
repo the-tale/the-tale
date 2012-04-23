@@ -342,7 +342,7 @@ class ActionMoveToPrototype(ActionPrototype):
     class STATE(ActionPrototype.STATE):
         CHOOSE_ROAD = 'choose_road'
         MOVING = 'moving'
-        IN_CITY = 'walking_in_city'
+        IN_CITY = 'in_city'
         BATTLE = 'battle'
         RESTING = 'resting'
         RESURRECT = 'resurrect'
@@ -452,11 +452,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
             current_destination = self.current_destination
 
-            if self.hero.need_rest_in_move:
-                self.bundle.add_action(ActionRestPrototype.create(self))
-                self.state = self.STATE.RESTING
-
-            elif random.uniform(0, 1) <= 0.1:
+            if random.uniform(0, 1) <= 0.1:
                 mob = create_mob_for_hero(self.hero)
                 self.bundle.add_action(ActionBattlePvE1x1Prototype.create(parent=self, mob=mob))
                 self.state = self.STATE.BATTLE
@@ -495,7 +491,11 @@ class ActionMoveToPrototype(ActionPrototype):
                 self.bundle.add_action(ActionResurrectPrototype.create(self))
                 self.state = self.STATE.RESURRECT
             else:
-                self.state = self.STATE.MOVING
+                if self.hero.need_rest_in_move:
+                    self.bundle.add_action(ActionRestPrototype.create(self))
+                    self.state = self.STATE.RESTING
+                else:
+                    self.state = self.STATE.MOVING
 
         elif self.state == self.STATE.RESURRECT:
             self.state = self.STATE.MOVING
@@ -977,11 +977,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
         if self.state == self.STATE.MOVING:
 
-            if self.hero.need_rest_in_move:
-                self.bundle.add_action(ActionRestPrototype.create(self))
-                self.state = self.STATE.RESTING
-
-            elif random.uniform(0, 1) <= 0.1:
+            if random.uniform(0, 1) <= 0.1:
                 mob = create_mob_for_hero(self.hero)
                 self.bundle.add_action(ActionBattlePvE1x1Prototype.create(parent=self, mob=mob))
                 self.state = self.STATE.BATTLE
@@ -1017,7 +1013,11 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                 self.bundle.add_action(ActionResurrectPrototype.create(self))
                 self.state = self.STATE.RESURRECT
             else:
-                self.state = self.STATE.MOVING
+                if self.hero.need_rest_in_move:
+                    self.bundle.add_action(ActionRestPrototype.create(self))
+                    self.state = self.STATE.RESTING
+                else:
+                    self.state = self.STATE.MOVING
 
         elif self.state == self.STATE.RESURRECT:
             self.state = self.STATE.MOVING
