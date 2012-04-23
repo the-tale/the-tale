@@ -1,9 +1,10 @@
 # coding: utf-8
+import mock
 
 from django.test import TestCase
 
 from game.logic import create_test_bundle, create_test_map
-from game.actions.prototypes import ActionMoveToPrototype, ActionInPlacePrototype, ActionRestPrototype, ActionResurrectPrototype
+from game.actions.prototypes import ActionMoveToPrototype, ActionInPlacePrototype, ActionRestPrototype, ActionResurrectPrototype, ActionBattlePvE1x1Prototype
 
 
 class MoveToActionTest(TestCase):
@@ -26,7 +27,6 @@ class MoveToActionTest(TestCase):
 
     def tearDown(self):
         pass
-
 
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
@@ -55,6 +55,7 @@ class MoveToActionTest(TestCase):
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionInPlacePrototype.TYPE)
 
 
+    @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
     def test_short_teleport(self):
         self.bundle.process_turn(1)
 
@@ -65,12 +66,17 @@ class MoveToActionTest(TestCase):
         self.action_move.short_teleport(self.hero.position.road.length)
         self.assertEqual(self.hero.position.percents, 1)
         self.bundle.process_turn(1)
+
         self.assertEqual(self.hero.position.place.id, self.p2.id)
 
 
-    def test_rest(self):
+    @mock.patch('game.balance.constants.BATTLES_PER_TURN', 1.0)
+    def test_battle(self):
         self.bundle.process_turn(1)
+        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionBattlePvE1x1Prototype.TYPE)
 
+
+    def test_rest(self):
         self.hero.health = 1
         self.action_move.state = self.action_move.STATE.BATTLE
         self.bundle.process_turn(1)
@@ -79,8 +85,6 @@ class MoveToActionTest(TestCase):
 
 
     def test_resurrect(self):
-        self.bundle.process_turn(1)
-
         self.hero.kill()
         self.action_move.state = self.action_move.STATE.BATTLE
         self.bundle.process_turn(1)
@@ -88,9 +92,9 @@ class MoveToActionTest(TestCase):
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionResurrectPrototype.TYPE)
 
 
+    @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
     def test_inplace(self):
         self.bundle.process_turn(1)
-
         self.hero.position.percents = 1
         self.bundle.process_turn(1)
 

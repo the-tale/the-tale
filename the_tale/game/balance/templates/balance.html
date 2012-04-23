@@ -48,6 +48,7 @@
     </thead>
     <tbody>
       <tr><td>опыт за моба</td><td class="center">{{c.EXP_PER_MOB}}</td></tr>
+      <tr><td>битв в ход</td><td class="center">{{ c.BATTLES_PER_TURN|round(2) }}</td></tr>
       <tr><td>битв в час</td><td class="center">{{ c.BATTLES_PER_HOUR|round }}</td></tr>
       <tr><td>опыта в час</td><td class="center">{{ c.EXP_PER_HOUR|round }}</td></tr>
       <tr><td>количество действий участника битвы</td><td class="center">{{ (c.BATTLE_LENGTH/2)|int }}</td></tr>

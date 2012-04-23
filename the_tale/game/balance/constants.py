@@ -74,10 +74,16 @@ ARTIFACT_POWER_DELTA = int(EQUIP_SLOTS_NUMBER / 2) # дельта, на кото
 # ходов - длинна непрерывной цепочки боёв до остановки на лечение
 BATTLES_LINE_LENGTH = int(BATTLES_BEFORE_HEAL * (BATTLE_LENGTH + INTERVAL_BETWEEN_BATTLES ) - INTERVAL_BETWEEN_BATTLES)
 
+# количество битв в ход в промежутке непрерывных боёв
+BATTLES_PER_TURN = float(1.0 / INTERVAL_BETWEEN_BATTLES)
+
 HEAL_LENGTH = int(math.floor(BATTLES_LINE_LENGTH * HEAL_TIME_FRACTION)) # ходов - длительность лечения героя
 
 ACTIONS_CYCLE_LENGTH = int(BATTLES_LINE_LENGTH + HEAL_LENGTH) # ходов - длинна одного "игрового цикла" - цепочка боёв + хил
-BATTLES_PER_HOUR = float(TURNS_IN_HOUR) / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL # количество битв в час
+
+# примерное количество боёв, которое будет происходить в час игрового времени
+BATTLES_PER_HOUR = TURNS_IN_HOUR * (float(BATTLES_BEFORE_HEAL) / ACTIONS_CYCLE_LENGTH)
+
 
 DAMAGE_TO_HERO_PER_HIT_FRACTION = float(1.0 / (BATTLES_BEFORE_HEAL * BATTLE_LENGTH / 2)) # доля урона, наносимого герою за удар
 DAMAGE_TO_MOB_PER_HIT_FRACTION = float(1.0 / (BATTLE_LENGTH / 2)) # доля урона, наносимого мобу за удар

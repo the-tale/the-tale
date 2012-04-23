@@ -49,6 +49,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.POWER_TO_LVL, 12.0)
         self.assertEqual(c.ARTIFACT_POWER_DELTA, 6)
         self.assertEqual(c.BATTLES_LINE_LENGTH, 10*(16+5)-5)
+        self.assertEqual(c.BATTLES_PER_TURN, 10.0 / (10*(16+5)-5) )
         self.assertEqual(c.HEAL_LENGTH, int(10*(16+5)-5) * 0.2)
         self.assertEqual(c.ACTIONS_CYCLE_LENGTH, int(10*(16+5)-5 + (10*(16+5)-5) * 0.2))
         self.assertEqual(c.BATTLES_PER_HOUR, 360.0 / (int(10*(16+5)-5 + (10*(16+5)-5) * 0.2)) * 10)

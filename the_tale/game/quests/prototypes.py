@@ -214,9 +214,9 @@ class QuestPrototype(object):
             self.env.persons_power_points[cmd.person] = cmd.power
 
     def cmd_battle(self, cmd, cur_action):
-        from ..actions.prototypes import ActionBattlePvE_1x1Prototype
+        from ..actions.prototypes import ActionBattlePvE1x1Prototype
         from ..heroes.logic import create_mob_for_hero
-        cur_action.bundle.add_action(ActionBattlePvE_1x1Prototype.create(parent=cur_action, mob=create_mob_for_hero(cur_action.hero)))
+        cur_action.bundle.add_action(ActionBattlePvE1x1Prototype.create(parent=cur_action, mob=create_mob_for_hero(cur_action.hero)))
 
     def ui_info(self, hero):
         choices = self.get_choices()

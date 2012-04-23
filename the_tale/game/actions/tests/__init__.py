@@ -9,6 +9,7 @@ from game.actions.tests.action_idleness import *
 from game.actions.tests.action_quest import *
 from game.actions.tests.action_battlepve1x1 import *
 from game.actions.tests.action_moveto import *
+from game.actions.tests.action_movenear import *
 
 from game.actions.tests.context_battle import *
 

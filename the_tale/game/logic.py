@@ -8,7 +8,7 @@ from game.angels.prototypes import AngelPrototype
 from game.heroes.prototypes import HeroPrototype
 from game.bundles import BundlePrototype
 
-from game.map.places.prototypes import get_place_by_model
+from game.map.places.prototypes import get_place_by_model, get_place_by_id
 from game.map.places.models import Place, TERRAIN, PLACE_TYPE
 from game.map.roads.prototypes import RoadPrototype
 from game.map.roads.logic import update_waymarks
@@ -60,7 +60,7 @@ def create_test_map():
 
     update_nearest_cells()
 
-    return (p1, p2, p3)
+    return (get_place_by_id(p1.id), get_place_by_id(p2.id), get_place_by_id(p3.id))
 
 
 def create_test_bundle(uuid):

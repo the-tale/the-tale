@@ -452,7 +452,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
             current_destination = self.current_destination
 
-            if random.uniform(0, 1) <= 0.1:
+            if random.uniform(0, 1) <= c.BATTLES_PER_TURN:
                 mob = create_mob_for_hero(self.hero)
                 self.bundle.add_action(ActionBattlePvE1x1Prototype.create(parent=self, mob=mob))
                 self.state = self.STATE.BATTLE
@@ -977,7 +977,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
         if self.state == self.STATE.MOVING:
 
-            if random.uniform(0, 1) <= 0.1:
+            if random.uniform(0, 1) <= c.BATTLES_PER_TURN:
                 mob = create_mob_for_hero(self.hero)
                 self.bundle.add_action(ActionBattlePvE1x1Prototype.create(parent=self, mob=mob))
                 self.state = self.STATE.BATTLE
