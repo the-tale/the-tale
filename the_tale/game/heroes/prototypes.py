@@ -8,6 +8,8 @@ from dext.utils.decorators import nested_commit_on_success
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
+from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
+
 from game.textgen import get_vocabulary, get_dictionary
 from game.textgen.words import Fake as FakeWord
 from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, ITEMS_OF_EXPENDITURE
@@ -111,7 +113,7 @@ class HeroPrototype(object):
     @property
     def abilities(self):
         if not hasattr(self, '_abilities'):
-            self._abilities = AbilitiesPrototype.deserialize(self.model.abilities)
+            self._abilities = AbilitiesPrototype.deserialize(s11n.from_json(self.model.abilities))
         return self._abilities
 
     def get_abilities_for_choose(self):
@@ -122,7 +124,7 @@ class HeroPrototype(object):
         if not hasattr(self, '_bag'):
             from .bag import Bag
             self._bag = Bag()
-            self._bag.deserialize(self.model.bag)
+            self._bag.deserialize(s11n.from_json(self.model.bag))
         return self._bag
 
     def put_loot(self, artifact):
@@ -140,12 +142,56 @@ class HeroPrototype(object):
     def pop_quest_loot(self, artifact):
         self.bag.pop_quest_artifact(artifact)
 
+    def get_equip_canditates(self):
+
+        equipped_slot = None
+        equipped = None
+        unequipped = None
+        for uuid, artifact in self.bag.items():
+            if not artifact.can_be_equipped or artifact.equip_type is None:
+                continue
+
+            for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
+                equipped_artifact = self.equipment.get(slot)
+                if equipped_artifact is None:
+                    equipped_slot = slot
+                    equipped = artifact
+                    break
+
+            if equipped:
+                break
+
+            for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
+                equipped_artifact = self.equipment.get(slot)
+
+                if equipped_artifact.power < artifact.power:
+                    equipped = artifact
+                    unequipped = equipped_artifact
+                    equipped_slot = slot
+                    break
+
+            if equipped:
+                break
+
+        return equipped_slot, unequipped, equipped
+
+
+    def change_equipment(self, slot, unequipped, equipped):
+        if unequipped:
+            self.equipment.unequip(slot)
+            self.bag.put_artifact(unequipped)
+
+        if equipped:
+            self.bag.pop_artifact(equipped)
+            self.equipment.equip(slot, equipped)
+
+
     @property
     def equipment(self):
         if not hasattr(self, '_equipment'):
             from .bag import Equipment
             self._equipment = Equipment()
-            self._equipment.deserialize(self.model.equipment)
+            self._equipment.deserialize(s11n.from_json(self.model.equipment))
         return self._equipment
 
     @property
@@ -211,7 +257,9 @@ class HeroPrototype(object):
         return float(loot_items_count) / self.max_bag_size > c.BAG_SIZE_TO_SELL_LOOT_FRACTION
 
     @property
-    def need_equipping_in_town(self): return any( artifact.can_be_equipped for uuid, artifact in self.bag.items() )
+    def need_equipping_in_town(self):
+        slot, unequipped, equipped = self.get_equip_canditates()
+        return equipped is not None
 
     ###########################################
     # quests
@@ -282,9 +330,9 @@ class HeroPrototype(object):
 
     def remove(self): return self.model.delete()
     def save(self):
-        self.model.bag = self.bag.serialize()
-        self.model.equipment = self.equipment.serialize()
-        self.model.abilities = self.abilities.serialize()
+        self.model.bag = s11n.to_json(self.bag.serialize())
+        self.model.equipment = s11n.to_json(self.equipment.serialize())
+        self.model.abilities = s11n.to_json(self.abilities.serialize())
         self.model.messages = s11n.to_json(self.messages)
         self.model.save(force_update=True)
 

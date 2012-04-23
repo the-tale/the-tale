@@ -28,6 +28,7 @@ class BalanceResource(Resource):
         tmp_exp = map(math.floor, map(f.total_exp_to_lvl, tmp_lvls))
         tmp_hp = map(f.hp_on_lvl, tmp_lvls)
         tmp_turns = map(f.turns_on_lvl, tmp_lvls)
+        tmp_turns_to_time = map(int, map(f.hours_to_turns, tmp_times))
         tmp_expected_damage_to_hero_per_hit = map(f.expected_damage_to_hero_per_hit, tmp_lvls)
         tmp_mob_hp = map(f.mob_hp_to_lvl, tmp_lvls)
         tmp_power = map(f.power_to_lvl, tmp_lvls)
@@ -54,6 +55,7 @@ class BalanceResource(Resource):
                               'tmp_exp': tmp_exp,
                               'tmp_hp': tmp_hp,
                               'tmp_turns': tmp_turns,
+                              'tmp_turns_to_time': tmp_turns_to_time,
                               'tmp_expected_damage_to_hero_per_hit': tmp_expected_damage_to_hero_per_hit,
                               'tmp_mob_hp': tmp_mob_hp,
                               'tmp_power': tmp_power,

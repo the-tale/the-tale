@@ -5,7 +5,7 @@ from dext.utils.decorators import nested_commit_on_success
 from dext.utils import s11n
 
 from game.heroes.logic import create_mob_for_hero
-from game.heroes.bag import SLOTS_LIST, ARTIFACT_TYPES_TO_SLOTS
+from game.heroes.bag import SLOTS_LIST
 
 from game.map.places.prototypes import get_place_by_model
 from game.map.roads.prototypes import get_road_by_model, WaymarkPrototype
@@ -135,8 +135,7 @@ class ActionPrototype(object):
     def mob(self):
         from ..mobs.prototypes import MobPrototype
         if not hasattr(self, '_mob'):
-            # mob_data = s11n.from_json(self.model.mob)
-            mob_data = self.model.mob
+            mob_data = s11n.from_json(self.model.mob)
             self._mob = None
             if mob_data:
                 self._mob = MobPrototype.deserialize(MobsDatabase.storage(), mob_data)
@@ -190,11 +189,11 @@ class ActionPrototype(object):
         if hasattr(self, '_data'):
             self.model.data = s11n.to_json(self._data)
         if hasattr(self, '_mob'):
-            self.model.mob = self.mob.serialize()
+            self.model.mob = s11n.to_json(self.mob.serialize())
         if self.context:
             self.model.context = s11n.to_json(self.context.serialize())
         if self.mob_context:
-            self.model.mob_context = self.mob_context.serialize()
+            self.model.mob_context = s11n.to_json(self.mob_context.serialize())
         if hasattr(self, '_quest'):
             self._quest.save()
         self.model.save(force_update=True)
@@ -525,7 +524,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       mob=mob.serialize())
+                                       mob=s11n.to_json(mob.serialize()))
         return cls(model=model)
 
     def bit_mob(self, percents):
@@ -798,45 +797,6 @@ class ActionEquippingPrototype(ActionPrototype):
                                        order=parent.order+1)
         return cls(model=model)
 
-
-    def equip(self):
-
-        equipped = None
-        unequipped = None
-        for uuid, artifact in self.hero.bag.items():
-            if not artifact.can_be_equipped or artifact.equip_type is None:
-                continue
-
-            for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
-                equipped_artifact = self.hero.equipment.get(slot)
-                if equipped_artifact is None:
-                    equipped = True
-                    self.hero.bag.pop_artifact(artifact)
-                    self.hero.equipment.equip(slot, artifact)
-                    equipped = artifact
-                    break
-
-            if equipped:
-                break
-
-            for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
-                equipped_artifact = self.hero.equipment.get(slot)
-
-                if equipped_artifact.power < artifact.power:
-                    equipped = True
-                    self.hero.bag.pop_artifact(artifact)
-                    self.hero.equipment.unequip(slot)
-                    self.hero.bag.put_artifact(equipped_artifact)
-                    self.hero.equipment.equip(slot, artifact)
-                    equipped = artifact
-                    unequipped = equipped_artifact
-                    break
-
-            if equipped:
-                break
-
-        return unequipped, equipped
-
     @nested_commit_on_success
     def process(self):
 
@@ -845,7 +805,8 @@ class ActionEquippingPrototype(ActionPrototype):
             self.percents = 0
 
         if self.state == self.STATE.EQUIPPING:
-            unequipped, equipped = self.equip()
+            slot, unequipped, equipped = self.hero.get_equip_canditates()
+            self.hero.change_equipment(slot, unequipped, equipped)
             if equipped:
                 if unequipped:
                     self.hero.add_message('action_equiping_change_item', hero=self.hero, unequipped=unequipped, equipped=equipped)

@@ -45,6 +45,7 @@ class MoveNearActionTest(TestCase):
         self.assertTrue(self.hero.position.is_walking)
 
 
+    @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
     def test_not_ready(self):
         self.bundle.process_turn(1)
         self.assertEqual(len(self.bundle.actions), 2)

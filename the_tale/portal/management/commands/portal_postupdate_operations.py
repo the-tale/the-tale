@@ -40,7 +40,7 @@ class Command(BaseCommand):
         print 'LOAD MOBS CONSTRUCTORS'
         print
 
-        subprocess.call(['./manage.py', 'mobs_refresh_database'])
+        subprocess.call(['./manage.py', 'mobs_fill_dictionary'])
 
         print
         print 'UPDATE MAP'

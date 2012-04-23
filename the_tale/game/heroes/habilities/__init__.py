@@ -1,7 +1,6 @@
 # coding: utf-8
 import random
-
-from dext.utils import s11n
+import copy
 
 from .prototypes import ABILITIES, ABILITIES_ACTIVATION_TYPE, ABILITIES_LOGIC_TYPE
 
@@ -13,8 +12,8 @@ class AbilitiesPrototype(object):
         self.abilities = dict( (ability_id, ABILITIES[ability_id]) for ability_id in abilities)
 
     @classmethod
-    def deserialize(cls, data_string):
-        abilities = s11n.from_json(data_string)
+    def deserialize(cls, data):
+        abilities = copy.deepcopy(data)
 
         # set default ability, can be removed, when all migrations will be done
         if 'hit' not in abilities:
@@ -23,8 +22,7 @@ class AbilitiesPrototype(object):
         return cls(abilities=abilities)
 
     def serialize(self):
-        data = self.abilities.keys()
-        return s11n.to_json(data)
+        return self.abilities.keys()
 
     @property
     def all(self): return self.abilities.values()
@@ -39,12 +37,12 @@ class AbilitiesPrototype(object):
 
     def get(self, ability_id): return self.abilities[ability_id]
 
-    def add(self, ability_id): 
+    def add(self, ability_id):
         self.abilities[ability_id] = ABILITIES[ability_id]
 
 
     def get_for_choose(self, hero):
-        
+
         random.seed(hero.id * (hero.destiny_points_spend + 1))
 
         MAX_ABILITIES = 4

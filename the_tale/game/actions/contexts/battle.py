@@ -25,7 +25,7 @@ class BattleContext(object):
     def modify_initial_damage(self, damage):
         if self.ability_magic_mushroom:
             damage = damage * self.ability_magic_mushroom[0]
-        return damage
+        return int(round(damage))
 
     def on_own_turn(self):
         if self.ability_magic_mushroom:

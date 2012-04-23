@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from dext.utils import s11n
-
 from game.artifacts.prototypes import ArtifactPrototype
 from game.artifacts.conf import EQUIP_TYPE
+from game.artifacts.storage import ArtifactsDatabase
 
 class EquipmentException(Exception): pass
 
@@ -13,18 +12,15 @@ class Bag(object):
         self.bag = {}
 
     def deserialize(self, data):
-        data = s11n.from_json(data)
         self.next_uuid = data.get('next_uuid', 0)
         self.bag = {}
         for uuid, artifact_data in data.get('bag', {}).items():
-            artifact = ArtifactPrototype()
-            artifact.deserialize(artifact_data)
+            artifact = ArtifactPrototype.deserialize(ArtifactsDatabase.storage(), artifact_data)
             self.bag[int(uuid)] = artifact
 
     def serialize(self):
-        return s11n.to_json({'next_uuid': self.next_uuid,
-                             'bag': dict( (uuid, artifact.serialize()) for uuid, artifact in self.bag.items() )
-                             })
+        return { 'next_uuid': self.next_uuid,
+                 'bag': dict( (uuid, artifact.serialize()) for uuid, artifact in self.bag.items() )  }
 
     def ui_info(self):
         return dict( (int(uuid), artifact.ui_info()) for uuid, artifact in self.bag.items() )
@@ -127,11 +123,10 @@ class Equipment(object):
         return dict( (slot, artifact.ui_info()) for slot, artifact in self.equipment.items() if artifact )
 
     def serialize(self):
-        return s11n.to_json(dict( (slot, artifact.serialize()) for slot, artifact in self.equipment.items() if artifact ))
+        return dict( (slot, artifact.serialize()) for slot, artifact in self.equipment.items() if artifact )
 
     def deserialize(self, data):
-        data = s11n.from_json(data)
-        self.equipment = dict( (slot, ArtifactPrototype(data=artifact_data)) for slot, artifact_data in data.items() if  artifact_data)
+        self.equipment = dict( (slot, ArtifactPrototype.deserialize(ArtifactsDatabase.storage(), artifact_data)) for slot, artifact_data in data.items() if  artifact_data)
 
     def unequip(self, slot):
         if slot not in self.equipment:

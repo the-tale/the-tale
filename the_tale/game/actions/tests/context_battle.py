@@ -29,19 +29,19 @@ class BattleContextTest(TestCase):
 
         self.context.on_own_turn()
         self.assertEqual(self.context.ability_magic_mushroom, [2.0, 1.0, 0.5])
-        self.assertEqual(self.context.modify_initial_damage(1), 2.0)
+        self.assertEqual(self.context.modify_initial_damage(10), 20)
 
         self.context.on_own_turn()
         self.assertEqual(self.context.ability_magic_mushroom, [1.0, 0.5])
-        self.assertEqual(self.context.modify_initial_damage(1), 1.0)
+        self.assertEqual(self.context.modify_initial_damage(10), 10)
 
         self.context.on_own_turn()
         self.assertEqual(self.context.ability_magic_mushroom, [0.5])
-        self.assertEqual(self.context.modify_initial_damage(1), 0.5)
+        self.assertEqual(self.context.modify_initial_damage(10), 5)
 
         self.context.on_own_turn()
         self.assertEqual(self.context.ability_magic_mushroom, [])
-        self.assertEqual(self.context.modify_initial_damage(1), 1)
+        self.assertEqual(self.context.modify_initial_damage(10), 10)
 
 
     def test_ability_sidestep(self):
@@ -81,6 +81,12 @@ class BattleContextTest(TestCase):
         self.context.on_own_turn()
         self.assertEqual(self.context.stun_length, 0)
         self.assertTrue(not self.context.is_stunned)
+
+    def test_modify_initial_damage(self):
+        self.assertEqual(self.context.modify_initial_damage(10), 10)
+        self.assertEqual(self.context.modify_initial_damage(10.4), 10)
+        self.assertEqual(self.context.modify_initial_damage(10.5), 11)
+        self.assertEqual(self.context.modify_initial_damage(10.6), 11)
 
 
     def test_on_own_turn_with_empty_values(self):

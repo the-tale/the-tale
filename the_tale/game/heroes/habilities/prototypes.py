@@ -54,7 +54,7 @@ class Hit(AbilityPrototype):
     def use(cls, messanger, actor, enemy):
         damage = actor.context.modify_initial_damage(actor.basic_damage)
         enemy.change_health(-damage)
-        messanger.add_message('hero_ability_hit', attacker=actor, defender=enemy, damage=-damage)
+        messanger.add_message('hero_ability_hit', attacker=actor, defender=enemy, damage=damage)
 
 
 class MagicMushroom(AbilityPrototype):
@@ -113,7 +113,7 @@ class RunUpPush(AbilityPrototype):
         damage = actor.context.modify_initial_damage(actor.basic_damage)
         enemy.change_health(-damage)
         enemy.context.use_stun(cls.STUN_LENGTH)
-        messanger.add_message('hero_ability_runuppush', attacker=actor, defender=enemy, damage=-damage)
+        messanger.add_message('hero_ability_runuppush', attacker=actor, defender=enemy, damage=damage)
 
 
 class Regeneration(AbilityPrototype):
