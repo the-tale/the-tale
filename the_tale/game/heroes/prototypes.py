@@ -38,13 +38,6 @@ def get_hero_by_model(model):
 def get_heroes_by_query(query):
     return [ get_hero_by_model(hero) for hero in list(query)]
 
-class BASE_ATTRIBUTES(object):
-    HEALTH = 100
-    HEALTH_PER_LEVEL = 10
-
-    @classmethod
-    def get_max_health(cls, level): return cls.HEALTH + cls.HEALTH_PER_LEVEL * level
-
 
 class HeroPrototype(object):
 
@@ -220,7 +213,7 @@ class HeroPrototype(object):
     def initiative(self): return 1.0
 
     @property
-    def max_health(self): return BASE_ATTRIBUTES.get_max_health(self.level)
+    def max_health(self): return f.hp_on_lvl(self.level)
 
     @property
     def min_damage(self):
@@ -381,7 +374,7 @@ class HeroPrototype(object):
                                    gender=gender,
                                    race=race,
                                    name=names.generator.get_name(race, gender),
-                                   health=BASE_ATTRIBUTES.get_max_health(1),
+                                   health=f.hp_on_lvl(1),
                                    pos_place = start_place.model)
 
         hero = cls(model=hero)

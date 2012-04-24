@@ -19,7 +19,7 @@ pgf.game.resources.Image = function(canvas) {
 
     this.Draw = function(context, x, y) {
         context.drawImage(image, x, y);
-    }
+    };
 };
 
 pgf.game.resources.ImageManager =  function(spritesSettins, params) {
@@ -89,7 +89,7 @@ pgf.game.resources.ImageManager =  function(spritesSettins, params) {
 
     this.GetImage = function(name) {
         return sprites[name];
-    }
+    };
 
     this.IsReady = function(){ return (initializedSprites == totalSprites); };
 };
@@ -130,7 +130,7 @@ pgf.game.map.MapManager = function(params) {
         
         var roadsMap = [];
         for (var i=0; i<h; ++i) {
-            var row = []
+            var row = [];
             for (var j=0; j<w; ++j) {
                 row.push('.');
             }
@@ -349,7 +349,7 @@ pgf.game.map.Map = function(selector, params) {
 
         if (hero.position.place) {
             var place = data.places[hero.position.place.id];
-            return {x: place.x, y: place.y}
+            return {x: place.x, y: place.y};
         }
         
         if (hero.position.road) {
@@ -382,7 +382,7 @@ pgf.game.map.Map = function(selector, params) {
             case 'd': y += delta; break;
             }
 
-            return {x: x, y: y}
+            return {x: x, y: y};
         }
 
         if (hero.position.coordinates.to.x ||
@@ -399,7 +399,7 @@ pgf.game.map.Map = function(selector, params) {
             var x = from_x + (to_x - from_x) * percents;
             var y = from_y + (to_y - from_y) * percents;
 
-            return {x: x, y: y}
+            return {x: x, y: y};
         }
     }
 

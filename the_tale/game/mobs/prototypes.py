@@ -36,9 +36,6 @@ class MobPrototype(object):
     def initiative(self): return self.record.speed
 
     @property
-    def damage_dispersion(self): return self.record.damage_dispersion
-
-    @property
     def loot(self): return self.record.loot
 
     @property
@@ -48,7 +45,10 @@ class MobPrototype(object):
     def health_percents(self): return float(self.health) / self.max_health
 
     @property
-    def basic_damage(self): return f.expected_damage_to_hero_per_hit(self.level)
+    def damage(self): return self.record.damage
+
+    @property
+    def basic_damage(self): return f.expected_damage_to_hero_per_hit(self.level) * self.damage
 
     def strike_by(self, percents):
         self.health = max(0, self.health - self.max_health * percents)

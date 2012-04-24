@@ -102,6 +102,8 @@ INSTALLED_APPS = (
 
     'dext.less',
 
+    'common.utils',
+
     'accounts',
 
     'portal',

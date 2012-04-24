@@ -3,6 +3,8 @@ import os
 
 from dext.utils.app_settings import app_settings
 
+from game.balance import constants as c
+
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class EQUIP_TYPE:
@@ -51,8 +53,22 @@ ITEM_TYPE_STR_2_ID = {'useless': ITEM_TYPE.USELESS,
                       'weapon': ITEM_TYPE.WEAPON,
                       'armor': ITEM_TYPE.ARMOR}
 
+class RARITY_TYPE:
+    NORMAL = 0
+    RARE = 1
+    EPIC = 2
+
+RARITY_TYPE_STR_2_ID = {'normal': RARITY_TYPE.NORMAL,
+                        'rare': RARITY_TYPE.RARE,
+                        'epic': RARITY_TYPE.EPIC}
+
+RARITY_TYPE_2_PRIORITY = { RARITY_TYPE.NORMAL: c.NORMAL_LOOT_PROBABILITY,
+                           RARITY_TYPE.RARE: c.RARE_LOOT_PROBABILITY,
+                           RARITY_TYPE.EPIC : c.EPIC_LOOT_PROBABILITY  }
+
 
 artifacts_settings = app_settings( 'ARTIFACTS',
                                    ARTIFACTS_STORAGE=os.path.join(APP_DIR, 'fixtures', 'artifacts.xls'),
                                    LOOT_STORAGE=os.path.join(APP_DIR, 'fixtures', 'loot.xls'),
-                                   TEST_STORAGE=os.path.join(APP_DIR, 'fixtures', 'test.xls'))
+                                   TEST_STORAGE=os.path.join(APP_DIR, 'fixtures', 'test.xls'),
+                                   INFINITY_ARTIFACT_LEVEL=999999999)

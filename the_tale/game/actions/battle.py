@@ -2,6 +2,8 @@
 
 import random
 
+from common.utils.logic import random_value_by_priority
+
 from game.heroes.habilities import ABILITIES_LOGIC_TYPE
 
 class Actor(object):
@@ -35,23 +37,8 @@ class Actor(object):
         return int(self.actor.health - old_health)
 
     def choose_ability(self):
-        choice_abilities = self.actor.abilities.active_abilities
-        domain = 0
-
-        for ability in choice_abilities:
-            domain += ability.PRIORITY
-
-        choice_value = random.randint(0, domain)
-
-        choosen_ability = None
-
-        for ability in choice_abilities:
-            if choice_value <= ability.PRIORITY:
-                choosen_ability = ability
-                break
-            choice_value -= ability.PRIORITY
-
-        return choosen_ability
+        choice_abilities = [ (ability, ability.PRIORITY) for ability in self.actor.abilities.active_abilities]
+        return random_value_by_priority(choice_abilities)
 
 
 def make_turn(actor1, actor2, messanger):

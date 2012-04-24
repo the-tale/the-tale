@@ -25,7 +25,7 @@ class Environment(BaseEnvironment):
         from ..artifacts.storage import ArtifactsDatabase
 
         for item_id, item_data in self.items.items():
-            artifact = ArtifactsDatabase.storage().create_artifact('letter', quest=True)
+            artifact = ArtifactsDatabase.storage().create_artifact('letter', level=1, quest=True)
             artifact.set_quest_uuid(item_id)
             item_data['external_data']['artifact'] = artifact.serialize()
 

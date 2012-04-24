@@ -3,16 +3,28 @@ import random
 
 import xlrd
 
+from common.utils.logic import random_value_by_priority
+
 from collections import namedtuple
 
 from game.balance import formulas as f, constants as c
 
-from game.artifacts.conf import artifacts_settings, ITEM_TYPE, ITEM_TYPE_STR_2_ID, EQUIP_TYPE_STR_2_ID
+from game.artifacts.conf import artifacts_settings, ITEM_TYPE, ITEM_TYPE_STR_2_ID, EQUIP_TYPE_STR_2_ID, RARITY_TYPE_STR_2_ID, RARITY_TYPE_2_PRIORITY
 from game.artifacts.exceptions import ArtifactsException
 from game.artifacts.prototypes import ArtifactPrototype
 
 
-ArtifactRecord = namedtuple('ArtifactRecord', ('id', 'type', 'slot', 'name', 'normalized_name', 'min_lvl', 'max_lvl'))
+class ArtifactRecord(namedtuple('ArtifactRecord', ('id', 'type', 'slot', 'name', 'normalized_name', 'min_lvl', 'max_lvl', 'rarity'))):
+    __slots__ = ()
+
+    @property
+    def is_useless(self): return self.type == ITEM_TYPE.USELESS
+
+    @property
+    def priority(self): return RARITY_TYPE_2_PRIORITY[self.rarity]
+
+    def accepted_for_level(self, level): return self.min_lvl <= level <= self.max_lvl
+
 
 class ArtifactsDatabase(object):
 
@@ -45,8 +57,11 @@ class ArtifactsDatabase(object):
 
             artifact_data[1] = ITEM_TYPE_STR_2_ID[artifact_data[1]]
             artifact_data[2] = EQUIP_TYPE_STR_2_ID[artifact_data[2]]
-            artifact_data[-1] = int(artifact_data[-1]) if artifact_data[-1] else 0
-            artifact_data[-2] = int(artifact_data[-2]) if artifact_data[-2] else 0
+
+            artifact_data[-3] = int(artifact_data[-3]) if artifact_data[-3] else 0
+            artifact_data[-2] = int(artifact_data[-2]) if artifact_data[-2] else artifacts_settings.INFINITY_ARTIFACT_LEVEL
+            artifact_data[-1] = RARITY_TYPE_STR_2_ID[artifact_data[-1]]
+
             artifact_record = ArtifactRecord(*artifact_data)
 
             if artifact_record.id in self.data:
@@ -63,27 +78,29 @@ class ArtifactsDatabase(object):
             cls._storage.load(artifacts_settings.LOOT_STORAGE)
         return cls._storage
 
-    def create_artifact(self, id_, power=0, quest=False):
+    def create_artifact(self, id_, level, power=0, quest=False):
         return ArtifactPrototype(record=self.data[id_],
                                  power=power,
-                                 quest=quest)
+                                 quest=quest,
+                                 level=level)
 
     def generate_artifact_from_list(self, artifacts_list, level):
 
-        artifacts = []
+        artifact_choices = []
+
         for artifact_id in artifacts_list:
             artifact_record = self.data[artifact_id]
-            if artifact_record.type == ITEM_TYPE.USELESS or (artifact_record.min_lvl <= level <= artifact_record.max_lvl):
-                artifacts.append(artifact_record)
+            if artifact_record.accepted_for_level(level):
+                artifact_choices.append((artifact_record, artifact_record.priority))
 
-        artifact_record = random.choice(artifacts)
+        artifact_record = random_value_by_priority(artifact_choices)
 
         if artifact_record.type == ITEM_TYPE.USELESS:
             power = 0
         else:
             power = f.power_to_artifact_randomized(level)
 
-        return self.create_artifact(artifact_id, power=power)
+        return self.create_artifact(artifact_record.id, level=level, power=power)
 
 
     def generate_loot(self, artifacts_list, loot_list, level):

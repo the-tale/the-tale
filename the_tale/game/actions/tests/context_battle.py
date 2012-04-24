@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from django.test import TestCase
 
@@ -23,6 +24,7 @@ class BattleContextTest(TestCase):
         self.check_empty_values()
 
 
+    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
     def test_ability_magic_mushroom(self):
         self.context.use_ability_magic_mushroom([2.0, 1.0, 0.5])
         self.assertEqual(self.context.ability_magic_mushroom, [None, 2.0, 1.0, 0.5])
@@ -82,6 +84,7 @@ class BattleContextTest(TestCase):
         self.assertEqual(self.context.stun_length, 0)
         self.assertTrue(not self.context.is_stunned)
 
+    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
     def test_modify_initial_damage(self):
         self.assertEqual(self.context.modify_initial_damage(10), 10)
         self.assertEqual(self.context.modify_initial_damage(10.4), 10)

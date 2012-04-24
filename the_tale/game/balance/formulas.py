@@ -61,7 +61,8 @@ def expected_damage_to_mob_per_hit(lvl): return float(mob_hp_to_lvl(lvl) * c.DAM
 # для этого опираясь на силу, оцениваем уровень героя, на котором она может быть и исходя из этого делаем предположение об уроне мобу
 # т.к. здоровье моба зависит от здоровья героя, то полученая формула должна быть применима и в PvP - т.е. бои просто будут идти дольше
 # решаем уравнение:  Solve[power == powerToLvl[lvl], lvl];
-def expected_lvl_from_power(power): return int(math.ceil(float(power) / (c.POWER_PER_LVL + c.POWER_TO_LVL))) # оцениваемый уровень героя, исходя из его силы
+# ВНИМАНИЕ: должен быть float
+def expected_lvl_from_power(power): return float(power) / (c.POWER_PER_LVL + c.POWER_TO_LVL) # оцениваемый уровень героя, исходя из его силы
 
 def damage_from_power(power): return float(expected_damage_to_mob_per_hit(expected_lvl_from_power(power)))  # урон, наносимый героем
 
@@ -118,9 +119,9 @@ def impact_price(lvl): return int(normal_action_price(lvl) * c.IMPACT_PRICE_FRAC
 
 # +1 top power - to prevent total zero power -> zero lvl
 # +1 to slots - to emulate heroe's clean power
-def sell_artifact_price(power): return int(buy_artifact_price(expected_lvl_from_power(1+power*(c.EQUIP_SLOTS_NUMBER+1))) * c.SELL_ARTIFACT_PRICE_FRACTION)
-
-def sell_artifact_price_randomized(power): return int(sell_artifact_price(power)*(1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)))
+def sell_artifact_price(lvl):
+    # lvl = int(math.ceil(expected_lvl_from_power((power+1)*c.EQUIP_SLOTS_NUMBER)))
+    return int(buy_artifact_price(lvl) * c.SELL_ARTIFACT_PRICE_FRACTION)
 
 # задания (квесты)
 #  - игрок всегда должен получать полезную/интересную награду за выполнение задания

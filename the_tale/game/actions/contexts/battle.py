@@ -1,6 +1,8 @@
 # coding: utf-8
 import random
 
+from game.balance import constants as c
+
 class BattleContext(object):
 
     def __init__(self):
@@ -25,7 +27,7 @@ class BattleContext(object):
     def modify_initial_damage(self, damage):
         if self.ability_magic_mushroom:
             damage = damage * self.ability_magic_mushroom[0]
-        return int(round(damage))
+        return int(round(damage * random.uniform(1-c.DAMAGE_DELTA, 1+c.DAMAGE_DELTA)))
 
     def on_own_turn(self):
         if self.ability_magic_mushroom:

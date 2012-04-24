@@ -48,6 +48,7 @@
     </thead>
     <tbody>
       <tr><td>опыт за моба</td><td class="center">{{c.EXP_PER_MOB}}</td></tr>
+      <tr><td>битв в цепочке</td><td class="center">{{c.BATTLES_BEFORE_HEAL}}</td></tr>
       <tr><td>битв в ход</td><td class="center">{{ c.BATTLES_PER_TURN|round(2) }}</td></tr>
       <tr><td>битв в час</td><td class="center">{{ c.BATTLES_PER_HOUR|round }}</td></tr>
       <tr><td>опыта в час</td><td class="center">{{ c.EXP_PER_HOUR|round }}</td></tr>
@@ -88,9 +89,11 @@
       {{ time_row("сила (максимальная)", tmp_power) }}
       {{ time_row("сила артефакта",  tmp_power_per_slot) }}
       {{ time_row("ожидаемый урон герою за удар", tmp_expected_damage_to_hero_per_hit)}}
+      {{ time_row("ожидаемый урон герою за удар (интервал)", tmp_expected_damage_to_hero_per_hit_interval)}}
       {{ time_row("здоровье моба", tmp_mob_hp)}}
       {{ time_row("ожидаемый урон мобу за удар", tmp_expected_damage_to_mob_per_hit)}}
       {{ time_row("реальный урон мобу за удар", tmp_real_damage_to_mob_per_hit)}}
+      {{ time_row("реальный урон мобу за удар (интервал)", tmp_real_damage_to_mob_per_hit_interval)}}
       {{ time_row("проведёт боёв на уровне", tmp_battles_at_lvl)}}
       {{ time_row("проведено битв до уровня", tmp_total_battles)}}
       {{ time_row("артефактов всего (до уровня)", tmp_artifacts_total)}}

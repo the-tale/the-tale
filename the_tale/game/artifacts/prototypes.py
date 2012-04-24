@@ -2,14 +2,13 @@
 
 from game.artifacts.conf import EQUIP_TYPE
 
-from game.balance import formulas as f
-
 class ArtifactPrototype(object):
 
-    def __init__(self, record=None, power=None, quest=False, quest_uuid=None, bag_uuid=None):
+    def __init__(self, record=None, power=None, quest=False, quest_uuid=None, bag_uuid=None, level=0):
         self.record = record
         self.quest = quest
         self.power = power
+        self.level = level
 
         self.quest_uuid = quest_uuid
         self.bag_uuid = bag_uuid
@@ -20,6 +19,9 @@ class ArtifactPrototype(object):
 
     @property
     def type(self): return self.record.type
+
+    @property
+    def rarity(self): return self.record.rarity
 
     @property
     def equip_type(self): return self.record.slot
@@ -50,7 +52,8 @@ class ArtifactPrototype(object):
                 'power': self.power,
                 'quest': self.quest,
                 'quest_uuid': self.quest_uuid,
-                'bag_uuid': self.bag_uuid}
+                'bag_uuid': self.bag_uuid,
+                'level': self.level}
 
 
     @classmethod
@@ -59,7 +62,8 @@ class ArtifactPrototype(object):
                    power=data['power'],
                    quest=data['quest'],
                    quest_uuid=data['quest_uuid'],
-                   bag_uuid=data['bag_uuid'])
+                   bag_uuid=data['bag_uuid'],
+                   level=data.get('level', 1))
 
     def ui_info(self):
         return {'type': self.type,

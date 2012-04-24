@@ -19,6 +19,7 @@ from game.balance import constants as c, formulas as f
 from game.game_info import ITEMS_OF_EXPENDITURE
 
 from game.artifacts.storage import ArtifactsDatabase
+from game.artifacts.conf import ITEM_TYPE, RARITY_TYPE
 
 from game.actions.exceptions import ActionException
 
@@ -769,7 +770,7 @@ class ActionRestPrototype(ActionPrototype):
             if random.uniform(0, 1) < 0.2:
                 self.hero.add_message('action_rest_resring', hero=self.hero, health=heal_amount)
 
-            self.percents = float(self.hero.health/self.hero.max_health)
+            self.percents = float(self.hero.health)/self.hero.max_health
 
             if self.hero.health == self.hero.max_health:
                 self.state = self.STATE.PROCESSED
@@ -831,8 +832,7 @@ class ActionTradingPrototype(ActionPrototype):
     def ui_info(self):
         # TODO: move to parent class
         info = super(ActionTradingPrototype, self).ui_info()
-        info['data'] = {'hero_id': self.hero_id,
-                        'settlement': self.settlement_id }
+        info['data'] = {'hero_id': self.hero_id}
         return info
 
     @classmethod
@@ -848,7 +848,18 @@ class ActionTradingPrototype(ActionPrototype):
 
 
     def get_sell_price(self, artifact):
-        return f.sell_artifact_price_randomized(artifact.power)
+        multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
+        if artifact.type == ITEM_TYPE.USELESS:
+            if artifact.rarity == RARITY_TYPE.NORMAL:
+                return 1 + int(f.normal_loot_cost_at_lvl(artifact.level) * multiplier)
+            elif artifact.rarity == RARITY_TYPE.RARE:
+                return 1 + int(f.rare_loot_cost_at_lvl(artifact.level) * multiplier)
+            elif artifact.rarity == RARITY_TYPE.EPIC:
+                return 1 + int(f.epic_loot_cost_at_lvl(artifact.level) * multiplier)
+            else:
+                raise ActionException('unknown artifact rarity type: %s' % artifact)
+        else:
+            return 1 + int(f.sell_artifact_price(artifact.level) * multiplier)
 
 
     @nested_commit_on_success
