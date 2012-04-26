@@ -14,6 +14,17 @@ if (!pgf.game.resources) {
     pgf.game.resources = {};
 }
 
+if (!pgf.game.resources.events) {
+    pgf.game.resources.events = {};
+}
+
+if (!pgf.game.map.events) {
+    pgf.game.map.events = {};
+}
+
+pgf.game.resources.events.SPRITES_LOADED = 'pgf-game-resources-sprites-loaded';
+pgf.game.map.events.DATA_UPDATED = 'pgf-game-map-data-updated';
+
 pgf.game.resources.Image = function(canvas) {
     var image = canvas;
 
@@ -55,9 +66,7 @@ pgf.game.resources.ImageManager =  function(spritesSettins, params) {
         }
 
         if (initializedSprites == totalSprites) {
-            if (params.OnSpritesInitialized) {
-                params.OnSpritesInitialized();
-            }
+            jQuery(document).trigger(pgf.game.resources.events.SPRITES_LOADED);            
         }
     }
 
@@ -113,10 +122,8 @@ pgf.game.map.MapManager = function(params) {
 
             instance.mapWidth = data.width;
             instance.mapHeight = data.height;
-            
-            if (params.OnDataUpdated) {
-                params.OnDataUpdated();
-            }
+
+            jQuery(document).trigger(pgf.game.map.events.DATA_UPDATED);            
         },
         error: function() {
         },
@@ -228,10 +235,6 @@ pgf.game.map.Map = function(selector, params) {
 
     var selectedTile = undefined;
 
-    var subsytemsReady = false;
-
-    var activated = false;
-
     var navigationLayer = new pgf.game.map.NavigationLayer(jQuery('.pgf-navigation-layer'), 
                                                            { OnDrag: OnMove,
                                                              OnMouseEnter: OnMouseEnter,
@@ -241,6 +244,14 @@ pgf.game.map.Map = function(selector, params) {
                                                              w: canvasWidth,
                                                              h: canvasHeight
                                                            });
+
+    var INITIALIZATION_INFO_LOADED = false;
+    var INITIALIZATION_SPRITES_LOADED = false;
+    var INITIALIZATION_MAP_LOADED = false;
+
+    function IsInitialized() {
+        return INITIALIZATION_INFO_LOADED && INITIALIZATION_SPRITES_LOADED && INITIALIZATION_MAP_LOADED;
+    }
 
     function OnClick(offsetX, offsetY) {
         var x =  Math.floor(-(pos.x - offsetX) / TILE_SIZE);
@@ -279,7 +290,7 @@ pgf.game.map.Map = function(selector, params) {
 
     function OnMove(dx, dy) {
 
-        if (!subsytemsReady) return;
+        if (!IsInitialized()) return;
 
         pos.x -= dx;
         pos.y -= dy;
@@ -294,10 +305,14 @@ pgf.game.map.Map = function(selector, params) {
     }
 
     function CenterOnHero() {
+        var fullData = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
+        var data = fullData.mapData;
+        var dynamicData = fullData.dynamicData;
+
         for (var hero_id in dynamicData.heroes) {
             var hero = dynamicData.heroes[hero_id];
 
-            var heroPosition = GetHeroPosition(hero);
+            var heroPosition = GetHeroPosition(data, hero);
             
             var x = heroPosition.x * TILE_SIZE - canvasWidth / 2;
             var y = heroPosition.y * TILE_SIZE - canvasHeight / 2;
@@ -343,7 +358,7 @@ pgf.game.map.Map = function(selector, params) {
         return {name: 'r_line', rotate: 0};
     }
 
-    function GetHeroPosition(hero) {
+    function GetHeroPosition(data, hero) {
         var x = 0;
         var y = 0;
 
@@ -405,11 +420,11 @@ pgf.game.map.Map = function(selector, params) {
 
     function Draw(fullData) {
         
-        if (!subsytemsReady) return;
+        if (!IsInitialized()) return;
 
-        data = fullData.mapData;
-        dynamicData = fullData.dynamicData;
-        calculatedData = fullData.calculatedData;
+        var data = fullData.mapData;
+        var dynamicData = fullData.dynamicData;
+        var calculatedData = fullData.calculatedData;
 
         var context = canvas.get(0).getContext("2d");
         
@@ -467,7 +482,7 @@ pgf.game.map.Map = function(selector, params) {
             var hero = dynamicData.heroes[hero_id];
             var image = spritesManager.GetImage('hero');
 
-            var heroPosition = GetHeroPosition(hero);
+            var heroPosition = GetHeroPosition(data, hero);
 
             image.Draw(context, 
                        parseInt(posX + heroPosition.x * TILE_SIZE, 10), 
@@ -489,9 +504,6 @@ pgf.game.map.Map = function(selector, params) {
     }
 
     function Activate() {
-        if (activated) return;
-        activated = true;
-
         OnMove(0, 0);
         CenterOnHero();
     }
@@ -500,17 +512,31 @@ pgf.game.map.Map = function(selector, params) {
         OnMove(0, 0);
     }
 
-    function CheckReadyState() {
-        if (spritesManager.IsReady()) {
-            subsytemsReady = true;
-            Activate();
-        }
-    }
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, 
+                          function() {
+                              INITIALIZATION_INFO_LOADED = true;                         
+
+                              if (IsInitialized()) Activate();
+                          }); 
+
+    jQuery(document).bind(pgf.game.resources.events.SPRITES_LOADED, 
+                          function() {
+                              INITIALIZATION_SPRITES_LOADED = true;
+                              if (IsInitialized()) Activate();
+                          });   
+
+    jQuery(document).bind(pgf.game.map.events.DATA_UPDATED, 
+                          function() {
+                              INITIALIZATION_MAP_LOADED = true;
+                              if (IsInitialized()) Activate();
+
+                              widgets.map.Refresh();
+                          });   
+
 
     this.Draw = Draw;
     this.CenterOnHero = CenterOnHero;
     this.Refresh = Refresh;
-    this.CheckReadyState = CheckReadyState;
 };
 
 pgf.game.map.NavigationLayer = function(selector, params) {

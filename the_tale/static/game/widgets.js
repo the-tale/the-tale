@@ -16,7 +16,7 @@ if (!pgf.game.events) {
 }
 
 pgf.game.events.DATA_REFRESHED_EVENT = 'pgf-data-refreshed';
-pgf.game.events.DATA_REFRESH_NEEDED = 'pgf-data-refresh-needed'
+pgf.game.events.DATA_REFRESH_NEEDED = 'pgf-data-refresh-needed';
 
 pgf.game.Updater = function(params) {
 

@@ -4,24 +4,15 @@ jQuery(document).ready(function(e) {
 
     var tileset = pgf.tilesets.tileset2;
 
-    var spritesManager = new pgf.game.resources.ImageManager(tileset.sprites, 
-                                                             { 
-                                                                 OnSpritesInitialized : function() {
-                                                                     widgets.map.CheckReadyState();
-                                                                 } ,
-                                                                 staticUrl: "{{ STATIC_URL }}",
+    var spritesManager = new pgf.game.resources.ImageManager(tileset.sprites,
+                                                             { staticUrl: "{{ STATIC_URL }}",
                                                              });
 
     widgets.mapManager = new pgf.game.map.MapManager({regionUrl:  '{{ settings.DCONT_URL }}map/region.js',
-                                                      updater: updater,
-                                                      OnDataUpdated: function() {
-                                                          //TODO: rewrite to events
-                                                          widgets.map.CheckReadyState();
-                                                          widgets.map.Refresh();
-                                                      }
+                                                      updater: updater
                                                      });
 
-    widgets.map = new pgf.game.map.Map('#pgf-game-map', 
+    widgets.map = new pgf.game.map.Map('#pgf-game-map',
                                        {spritesManager: spritesManager,
                                         tileSize: tileset.TILE_SIZE,
                                         updater: updater,
