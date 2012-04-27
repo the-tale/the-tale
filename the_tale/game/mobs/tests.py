@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from django.test import TestCase
 
@@ -7,14 +8,22 @@ from .conf import mobs_settings
 from .exceptions import MobsException
 
 from game.artifacts.storage import ArtifactsDatabase
+from game.artifacts.conf import ITEM_TYPE
 from game.map.places.models import TERRAIN
+from game.logic import create_test_bundle, create_test_map
 
 class MobsDatabaseTest(TestCase):
+
+    def setUp(self):
+        create_test_map()
+
+        self.bundle = create_test_bundle('MobsDatabaseTest')
+        self.hero = self.bundle.tests_get_hero()
+
 
     def test_load_real_data(self):
         storage = MobsDatabase()
         storage.load(mobs_settings.MOBS_STORAGE)
-
 
     def test_load_data(self):
         storage = MobsDatabase()
@@ -84,3 +93,23 @@ class MobsDatabaseTest(TestCase):
 
             for artifact_id in mob_record.artifacts:
                 self.assertTrue(artifact_id in loot_storage.data)
+
+    def test_get_loot(self):
+        storage = MobsDatabase()
+        storage.load(mobs_settings.TEST_STORAGE)
+
+        self.hero.model.level = 5
+
+        mob = storage.get_random_mob(self.hero)
+
+        self.assertTrue(self.hero.level != mob.record.level) # min mob level MUST not be equal to hero level
+
+        with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
+            artifact = mob.get_loot()
+            self.assertEqual(artifact.level, 5)
+            self.assertTrue(artifact.type != ITEM_TYPE.USELESS)
+
+        with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 0),  mock.patch('game.balance.constants.GET_LOOT_PROBABILITY', 1):
+            artifact = mob.get_loot()
+            self.assertEqual(artifact.level, mob.record.level)
+            self.assertEqual(artifact.type, ITEM_TYPE.USELESS)

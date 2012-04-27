@@ -18,7 +18,7 @@ class ArtifactsDatabaseTest(TestCase):
         storage = ArtifactsDatabase()
         storage.load(artifacts_settings.TEST_STORAGE)
 
-        self.assertEqual(len(storage.data), 8)
+        self.assertEqual(len(storage.data), 11)
 
         self.assertTrue('id' not in storage.data)
 
@@ -39,7 +39,7 @@ class ArtifactsDatabaseTest(TestCase):
         self.assertEqual(skin_of_a_wolf.name , u'шкура волка')
         self.assertEqual(skin_of_a_wolf.normalized_name , u'шкура волка')
         self.assertEqual(skin_of_a_wolf.min_lvl , 1)
-        self.assertEqual(skin_of_a_wolf.max_lvl , 6)
+        self.assertEqual(skin_of_a_wolf.max_lvl , 60)
         self.assertEqual(skin_of_a_wolf.rarity, RARITY_TYPE.NORMAL)
 
     def test_load_duplicates(self):
@@ -71,3 +71,17 @@ class ArtifactsDatabaseTest(TestCase):
             for i in xrange(100):
                 artifact = storage.generate_artifact_from_list(storage.artifacts_ids, 1)
                 self.assertTrue(artifact.id in ['dead_tadpole', 'skin_of_a_deer'])
+
+    def test_generate_artifact(self):
+        storage = ArtifactsDatabase()
+        storage.load(artifacts_settings.TEST_STORAGE)
+
+        with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
+            artifact = storage.generate_loot(storage.artifacts_ids, storage.loot_ids, artifact_level=7, loot_level=3)
+            self.assertEqual(artifact.level, 7)
+            self.assertTrue(artifact.type != ITEM_TYPE.USELESS)
+
+        with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 0),  mock.patch('game.balance.constants.GET_LOOT_PROBABILITY', 1):
+            artifact = storage.generate_loot(storage.artifacts_ids, storage.loot_ids, artifact_level=7, loot_level=3)
+            self.assertEqual(artifact.level, 3)
+            self.assertEqual(artifact.type, ITEM_TYPE.USELESS)

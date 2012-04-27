@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-
-import random
-
 from ..heroes.habilities import AbilitiesPrototype
 
 from game.balance import formulas as f
@@ -58,7 +55,7 @@ class MobPrototype(object):
 
     def get_loot(self):
         from ..artifacts.storage import ArtifactsDatabase
-        return ArtifactsDatabase.storage().generate_loot(self.artifacts, self.loot, self.level)
+        return ArtifactsDatabase.storage().generate_loot(self.artifacts, self.loot, artifact_level=self.level, loot_level=self.record.level)
 
     def serialize(self):
         return {'level': self.level,

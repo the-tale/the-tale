@@ -80,7 +80,7 @@ class HeroPrototype(object):
     def experience(self): return self.model.experience
     def add_experience(self, value):
         self.model.experience += value
-        if self.experience_to_level <= self.model.experience:
+        while self.experience_to_level <= self.model.experience:
             self.model.experience -= self.experience_to_level
             self.model.level += 1
             if self.model.level % 2:

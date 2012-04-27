@@ -103,12 +103,12 @@ class ArtifactsDatabase(object):
         return self.create_artifact(artifact_record.id, level=level, power=power)
 
 
-    def generate_loot(self, artifacts_list, loot_list, level):
+    def generate_loot(self, artifacts_list, loot_list, artifact_level, loot_level):
 
-        if random.uniform(0, 1) < f.artifacts_per_battle(level):
-            return self.generate_artifact_from_list(artifacts_list, level)
+        if random.uniform(0, 1) < f.artifacts_per_battle(artifact_level):
+            return self.generate_artifact_from_list(artifacts_list, artifact_level)
 
         if random.uniform(0, 1) < c.GET_LOOT_PROBABILITY:
-            return self.generate_artifact_from_list(loot_list, level)
+            return self.generate_artifact_from_list(loot_list, loot_level)
 
         return None
