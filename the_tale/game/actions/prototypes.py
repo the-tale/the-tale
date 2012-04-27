@@ -245,9 +245,9 @@ class ActionIdlenessPrototype(ActionPrototype):
     def create(cls, parent=None, hero=None):
         if parent:
             parent.leader = False
-            model = Action.objects.create( type=cls.TYPE, parent=parent.model, hero=parent.hero.model, order=parent.order+1)
+            model = Action.objects.create( type=cls.TYPE, parent=parent.model, hero=parent.hero.model, order=parent.order+1, state=cls.STATE.WAITING)
         else:
-            model = Action.objects.create( type=cls.TYPE, hero=hero.model, order=0)
+            model = Action.objects.create( type=cls.TYPE, hero=hero.model, order=0, percents=1.0, state=cls.STATE.WAITING)
         return cls(model=model)
 
     def init_quest(self):
@@ -260,14 +260,6 @@ class ActionIdlenessPrototype(ActionPrototype):
         return True
 
     def process(self):
-
-        if self.state == self.STATE.UNINITIALIZED:
-            self.state = self.STATE.WAITING
-            self.percents = 0
-
-            if self.parent is None:
-                # initiate fast quest creating for new heroes
-                self.percents = 1.0
 
         if self.state == self.STATE.IN_PLACE:
             self.state = self.STATE.WAITING
@@ -312,13 +304,11 @@ class ActionQuestPrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       quest=quest.model)
+                                       quest=quest.model,
+                                       state=cls.STATE.PROCESSING)
         return cls(model=model)
 
     def process(self):
-
-        if self.state == self.STATE.UNINITIALIZED:
-            self.state = self.STATE.PROCESSING
 
         if self.state == self.STATE.PROCESSING:
             percents = self.quest.process(self)
@@ -360,7 +350,9 @@ class ActionMoveToPrototype(ActionPrototype):
                                        hero=parent.hero.model,
                                        order=parent.order+1,
                                        place=destination.model,
-                                       break_at=break_at)
+                                       break_at=break_at,
+                                       state=cls.STATE.CHOOSE_ROAD)
+        parent.hero.add_message('action_moveto_start', hero=parent.hero, destination=destination)
         return cls(model=model)
 
     def short_teleport(self, distance):
@@ -385,11 +377,6 @@ class ActionMoveToPrototype(ActionPrototype):
 
     @nested_commit_on_success
     def process(self):
-
-        if self.state == self.STATE.UNINITIALIZED:
-            self.hero.add_message('action_moveto_start', hero=self.hero, destination=self.destination)
-            self.percents = 0
-            self.state = self.STATE.CHOOSE_ROAD
 
         if self.state == self.STATE.RESTING:
             self.state = self.STATE.MOVING
@@ -520,7 +507,9 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       mob=s11n.to_json(mob.serialize()))
+                                       mob=s11n.to_json(mob.serialize()),
+                                       state=cls.STATE.BATTLE_RUNNING)
+        parent.hero.add_message('action_battlepve1x1_start', hero=parent.hero, mob=mob)
         return cls(model=model)
 
     def bit_mob(self, percents):
@@ -535,11 +524,6 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
 
     @nested_commit_on_success
     def process(self):
-
-        if self.state == self.STATE.UNINITIALIZED:
-            self.hero.add_message('action_battlepve1x1_start', hero=self.hero, mob=self.mob)
-            self.state = self.STATE.BATTLE_RUNNING
-
 
         if self.state == self.STATE.BATTLE_RUNNING:
 
@@ -593,15 +577,13 @@ class ActionResurrectPrototype(ActionPrototype):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
-                                       order=parent.order+1)
+                                       order=parent.order+1,
+                                       state=cls.STATE.RESURRECT)
         return cls(model=model)
+
 
     @nested_commit_on_success
     def process(self):
-
-        if self.state == self.STATE.UNINITIALIZED:
-            self.state = self.STATE.RESURRECT
-
 
         if self.state == self.STATE.RESURRECT:
 
@@ -619,6 +601,7 @@ class ActionInPlacePrototype(ActionPrototype):
     SHORT_DESCRIPTION = u'изучает окрестности'
 
     class STATE(ActionPrototype.STATE):
+        SPEND_MONEY = 'spend_money'
         CHOOSING = 'choosing'
         TRADING = 'trading'
         RESTING = 'resting'
@@ -635,7 +618,8 @@ class ActionInPlacePrototype(ActionPrototype):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
-                                       order=parent.order+1)
+                                       order=parent.order+1,
+                                       state=cls.STATE.SPEND_MONEY)
         return cls(model=model)
 
     @nested_commit_on_success
@@ -702,7 +686,7 @@ class ActionInPlacePrototype(ActionPrototype):
 
     def process_settlement(self):
 
-        if self.state == self.STATE.UNINITIALIZED:
+        if self.state == self.STATE.SPEND_MONEY:
             self.state = self.STATE.CHOOSING
             self.spend_money()
 
@@ -745,17 +729,13 @@ class ActionRestPrototype(ActionPrototype):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
-                                       order=parent.order+1)
+                                       order=parent.order+1,
+                                       state=cls.STATE.RESTING)
+        parent.hero.add_message('action_rest_start', hero=parent.hero)
         return cls(model=model)
 
     @nested_commit_on_success
     def process(self):
-
-        if self.state == self.STATE.UNINITIALIZED:
-            self.state = self.STATE.RESTING
-            self.percents = 0
-            self.hero.add_message('action_rest_start', hero=self.hero)
-
 
         if self.state == self.STATE.RESTING:
             heal_amount = int(round(float(self.hero.max_health) / c.HEAL_LENGTH))
@@ -790,15 +770,12 @@ class ActionEquippingPrototype(ActionPrototype):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
-                                       order=parent.order+1)
+                                       order=parent.order+1,
+                                       state=cls.STATE.EQUIPPING)
         return cls(model=model)
 
     @nested_commit_on_success
     def process(self):
-
-        if self.state == self.STATE.UNINITIALIZED:
-            self.state = self.STATE.EQUIPPING
-            self.percents = 0
 
         if self.state == self.STATE.EQUIPPING:
             slot, unequipped, equipped = self.hero.get_equip_canditates()
@@ -838,7 +815,9 @@ class ActionTradingPrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       percents_barier=parent.hero.bag.occupation[1] )
+                                       percents_barier=parent.hero.bag.occupation[1],
+                                       state=cls.STATE.TRADING)
+        parent.hero.add_message('action_trading_start', hero=parent.hero)
         return cls(model=model)
 
 
@@ -859,12 +838,6 @@ class ActionTradingPrototype(ActionPrototype):
 
     @nested_commit_on_success
     def process(self):
-
-        if self.state == self.STATE.UNINITIALIZED:
-            self.state = self.STATE.TRADING
-            self.percents = 0
-            self.hero.add_message('action_trading_start', hero=self.hero)
-
 
         if self.state == self.STATE.TRADING:
             quest_items_count, loot_items_count = self.hero.bag.occupation
@@ -923,23 +896,19 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                                        order=parent.order+1,
                                        place=place.model,
                                        destination_x=x,
-                                       destination_y=y)
+                                       destination_y=y,
+                                       state=cls.STATE.MOVING)
+
+        if parent.hero.position.is_walking:
+            from_x, from_y = parent.hero.position.coordinates_to
+            parent.hero.position.set_coordinates(from_x, from_y, x, y, percents=0)
+        else:
+            parent.hero.position.set_coordinates(place.x, place.y, x, y, percents=0)
+
         return cls(model=model)
 
     @nested_commit_on_success
     def process(self):
-
-        if self.state == self.STATE.UNINITIALIZED:
-            self.state = self.STATE.MOVING
-            self.percents = 0
-
-            dest_x, dest_y = self.get_destination()
-
-            if self.hero.position.is_walking:
-                from_x, from_y = self.hero.position.coordinates_to
-                self.hero.position.set_coordinates(from_x, from_y, dest_x, dest_y, percents=0)
-            else:
-                self.hero.position.set_coordinates(self.place.x, self.place.y, dest_x, dest_y, percents=0)
 
         if self.state == self.STATE.RESTING:
             self.state = self.STATE.MOVING
