@@ -249,6 +249,8 @@ pgf.game.map.Map = function(selector, params) {
     var INITIALIZATION_SPRITES_LOADED = false;
     var INITIALIZATION_MAP_LOADED = false;
 
+    var activated = false;
+
     function IsInitialized() {
         return INITIALIZATION_INFO_LOADED && INITIALIZATION_SPRITES_LOADED && INITIALIZATION_MAP_LOADED;
     }
@@ -504,6 +506,7 @@ pgf.game.map.Map = function(selector, params) {
     }
 
     function Activate() {
+        activated = true;
         OnMove(0, 0);
         CenterOnHero();
     }
@@ -516,19 +519,21 @@ pgf.game.map.Map = function(selector, params) {
                           function() {
                               INITIALIZATION_INFO_LOADED = true;                         
 
-                              if (IsInitialized()) Activate();
+                              if (IsInitialized() && !activated) Activate();
+
+                              widgets.map.Refresh();
                           }); 
 
     jQuery(document).bind(pgf.game.resources.events.SPRITES_LOADED, 
                           function() {
                               INITIALIZATION_SPRITES_LOADED = true;
-                              if (IsInitialized()) Activate();
+                              if (IsInitialized() && !activated) Activate();
                           });   
 
     jQuery(document).bind(pgf.game.map.events.DATA_UPDATED, 
                           function() {
                               INITIALIZATION_MAP_LOADED = true;
-                              if (IsInitialized()) Activate();
+                              if (IsInitialized() && !activated) Activate();
 
                               widgets.map.Refresh();
                           });   

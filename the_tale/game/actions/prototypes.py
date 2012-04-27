@@ -269,30 +269,27 @@ class ActionIdlenessPrototype(ActionPrototype):
                 # initiate fast quest creating for new heroes
                 self.percents = 1.0
 
+        if self.state == self.STATE.IN_PLACE:
+            self.state = self.STATE.WAITING
+            self.percents = 0
+
+        if self.state == self.STATE.QUEST:
+            self.percents = 1.0
+            self.state = self.STATE.IN_PLACE
+            self.bundle.add_action(ActionInPlacePrototype.create(self))
+
         if self.state == self.STATE.WAITING:
 
             self.percents += 1.0 / c.TURNS_TO_IDLE
 
             if self.percents >= 1.0:
                 self.state = self.STATE.QUEST
-
-                self.hero.add_message('action_idleness_start_quest', hero=self.hero)
                 quest = create_random_quest_for_hero(self.hero)
-
                 self.bundle.add_action(ActionQuestPrototype.create(parent=self, quest=quest))
 
             else:
                 if random.uniform(0, 1) < 0.2:
                     self.hero.add_message('action_idleness_waiting', hero=self.hero)
-
-        elif self.state == self.STATE.QUEST:
-            self.percents = 1.0
-            self.state = self.STATE.IN_PLACE
-            self.bundle.add_action(ActionInPlacePrototype.create(self))
-
-        elif self.state == self.STATE.IN_PLACE:
-            self.state = self.STATE.WAITING
-            self.percents = 0
 
 
 class ActionQuestPrototype(ActionPrototype):
@@ -322,7 +319,6 @@ class ActionQuestPrototype(ActionPrototype):
 
         if self.state == self.STATE.UNINITIALIZED:
             self.state = self.STATE.PROCESSING
-
 
         if self.state == self.STATE.PROCESSING:
             percents = self.quest.process(self)
@@ -395,6 +391,25 @@ class ActionMoveToPrototype(ActionPrototype):
             self.percents = 0
             self.state = self.STATE.CHOOSE_ROAD
 
+        if self.state == self.STATE.RESTING:
+            self.state = self.STATE.MOVING
+
+        if self.state == self.STATE.RESURRECT:
+            self.state = self.STATE.MOVING
+
+        if self.state == self.STATE.IN_CITY:
+            self.state = self.STATE.CHOOSE_ROAD
+
+        if self.state == self.STATE.BATTLE:
+            if not self.hero.is_alive:
+                self.bundle.add_action(ActionResurrectPrototype.create(self))
+                self.state = self.STATE.RESURRECT
+            else:
+                if self.hero.need_rest_in_move:
+                    self.bundle.add_action(ActionRestPrototype.create(self))
+                    self.state = self.STATE.RESTING
+                else:
+                    self.state = self.STATE.MOVING
 
         if self.state == self.STATE.CHOOSE_ROAD:
 
@@ -482,26 +497,6 @@ class ActionMoveToPrototype(ActionPrototype):
                 elif self.break_at and self.percents >= 1:
                     self.percents = 1
                     self.state = self.STATE.PROCESSED
-
-        elif self.state == self.STATE.RESTING:
-            self.state = self.STATE.MOVING
-
-        elif self.state == self.STATE.BATTLE:
-            if not self.hero.is_alive:
-                self.bundle.add_action(ActionResurrectPrototype.create(self))
-                self.state = self.STATE.RESURRECT
-            else:
-                if self.hero.need_rest_in_move:
-                    self.bundle.add_action(ActionRestPrototype.create(self))
-                    self.state = self.STATE.RESTING
-                else:
-                    self.state = self.STATE.MOVING
-
-        elif self.state == self.STATE.RESURRECT:
-            self.state = self.STATE.MOVING
-
-        elif self.state == self.STATE.IN_CITY:
-            self.state = self.STATE.CHOOSE_ROAD
 
 
 class ActionBattlePvE1x1Prototype(ActionPrototype):
@@ -946,6 +941,22 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
             else:
                 self.hero.position.set_coordinates(self.place.x, self.place.y, dest_x, dest_y, percents=0)
 
+        if self.state == self.STATE.RESTING:
+            self.state = self.STATE.MOVING
+
+        if self.state == self.STATE.RESURRECT:
+            self.state = self.STATE.MOVING
+
+        if self.state == self.STATE.BATTLE:
+            if not self.hero.is_alive:
+                self.bundle.add_action(ActionResurrectPrototype.create(self))
+                self.state = self.STATE.RESURRECT
+            else:
+                if self.hero.need_rest_in_move:
+                    self.bundle.add_action(ActionRestPrototype.create(self))
+                    self.state = self.STATE.RESTING
+                else:
+                    self.state = self.STATE.MOVING
 
         if self.state == self.STATE.MOVING:
 
@@ -976,24 +987,6 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                         self.hero.position.set_place(self.place)
 
                     self.state = self.STATE.PROCESSED
-
-        elif self.state == self.STATE.RESTING:
-            self.state = self.STATE.MOVING
-
-        elif self.state == self.STATE.BATTLE:
-            if not self.hero.is_alive:
-                self.bundle.add_action(ActionResurrectPrototype.create(self))
-                self.state = self.STATE.RESURRECT
-            else:
-                if self.hero.need_rest_in_move:
-                    self.bundle.add_action(ActionRestPrototype.create(self))
-                    self.state = self.STATE.RESTING
-                else:
-                    self.state = self.STATE.MOVING
-
-        elif self.state == self.STATE.RESURRECT:
-            self.state = self.STATE.MOVING
-
 
 
 ACTION_TYPES = get_actions_types()
