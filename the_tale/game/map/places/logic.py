@@ -36,7 +36,7 @@ def update_nearest_cells():
                 if cur_dst < E:
                     place_power = places_settings.MAX_SIZE**2
                 else:
-                    place_power = place.size / (cur_dst**2)
+                    place_power = float(place.size) / (cur_dst**2)
 
                 if nearest_power < place_power:
                     nearest_place = place

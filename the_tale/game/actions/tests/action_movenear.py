@@ -42,7 +42,7 @@ class MoveNearActionTest(TestCase):
         self.bundle.process_turn(1)
 
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionIdlenessPrototype.TYPE)
-        self.assertTrue(self.hero.position.is_walking)
+        self.assertTrue(self.hero.position.is_walking or self.hero.position.place) # can end in start place
 
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
@@ -50,7 +50,7 @@ class MoveNearActionTest(TestCase):
         self.bundle.process_turn(1)
         self.assertEqual(len(self.bundle.actions), 2)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_move)
-        self.assertTrue(self.hero.position.is_walking)
+        self.assertTrue(self.hero.position.is_walking or self.hero.position.place) # can end in start place
 
 
     def test_full_move_and_back(self):
@@ -59,7 +59,7 @@ class MoveNearActionTest(TestCase):
             self.bundle.process_turn(1)
 
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionIdlenessPrototype.TYPE)
-        self.assertTrue(self.hero.position.is_walking)
+        self.assertTrue(self.hero.position.is_walking or self.hero.position.place)  # can end in start place
 
         self.bundle.add_action(ActionMoveNearPlacePrototype.create(self.action_idl, self.p1, True))
         while self.hero.position.place is None or self.hero.position.place.id != self.p1.id:
