@@ -24,6 +24,8 @@ LANGUAGE_CODE = 'ru'
 
 SITE_ID = 1
 
+X_FRAME_OPTIONS = 'DENY'
+
 ##############################
 # I18N
 ##############################
@@ -84,6 +86,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'dext.utils.exceptions.ExceptionMiddleware'
 )
 
