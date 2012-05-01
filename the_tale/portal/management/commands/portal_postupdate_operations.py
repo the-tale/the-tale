@@ -22,25 +22,13 @@ class Command(BaseCommand):
         print 'LOAD TEXTGEN TEXTS'
         print
 
-        subprocess.call(['./manage.py', 'textgen_refresh_database'])
+        subprocess.call(['./manage.py', 'game_load_texts'])
 
         print
         print 'LOAD QUEST WRITERS'
         print
 
         subprocess.call(['./manage.py', 'quests_load_writers'])
-
-        print
-        print 'LOAD ARTIFACT CONSTRUCTORS'
-        print
-
-        subprocess.call(['./manage.py', 'artifacts_fill_dictionary'])
-
-        print
-        print 'LOAD MOBS CONSTRUCTORS'
-        print
-
-        subprocess.call(['./manage.py', 'mobs_fill_dictionary'])
 
         print
         print 'UPDATE MAP'

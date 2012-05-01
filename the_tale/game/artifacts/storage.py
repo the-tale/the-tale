@@ -1,5 +1,6 @@
 # coding: utf-8
 import random
+import numbers
 
 import xlrd
 
@@ -60,8 +61,8 @@ class ArtifactsDatabase(object):
 
             artifact_data[-4] = tuple([morph for morph in artifact_data[-4].split(',') if morph])
 
-            artifact_data[-3] = int(artifact_data[-3]) if artifact_data[-3] else 0
-            artifact_data[-2] = int(artifact_data[-2]) if artifact_data[-2] else artifacts_settings.INFINITY_ARTIFACT_LEVEL
+            artifact_data[-3] = int(artifact_data[-3]) if isinstance(artifact_data[-3], numbers.Number) else 0
+            artifact_data[-2] = int(artifact_data[-2]) if isinstance(artifact_data[-2], numbers.Number) else artifacts_settings.INFINITY_ARTIFACT_LEVEL
             artifact_data[-1] = RARITY_TYPE_STR_2_ID[artifact_data[-1]]
 
             artifact_record = ArtifactRecord(*artifact_data)

@@ -121,11 +121,13 @@ class HeroPrototype(object):
             self._bag.deserialize(s11n.from_json(self.model.bag))
         return self._bag
 
-    def put_loot(self, artifact):
-        max_bag_size = self.max_bag_size
+    @property
+    def bag_is_full(self):
         quest_items_count, loot_items_count = self.bag.occupation
+        return loot_items_count >= self.max_bag_size
 
-        if artifact.quest or loot_items_count < max_bag_size:
+    def put_loot(self, artifact):
+        if artifact.quest or not self.bag_is_full:
             self.bag.put_artifact(artifact)
             return artifact.bag_uuid
 

@@ -61,6 +61,9 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.MAX_BAG_SIZE, 12)
         self.assertEqual(c.BAG_SIZE_TO_SELL_LOOT_FRACTION, 0.33)
 
+        self.assertEqual(c.QUEST_REWARD_MONEY_FRACTION, 0.5)
+        self.assertEqual(c.QUEST_REWARD_ARTIFACT_FRACTION, 0.5)
+
 
 class FormulasTest(TestCase):
 

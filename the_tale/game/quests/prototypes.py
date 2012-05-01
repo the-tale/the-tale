@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
+import random
+
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
 
+from game.balance import constants as c, formulas as f
+
+from game.artifacts.storage import ArtifactsDatabase
+
 from game.quests.models import Quest
 from game.quests.exceptions import QuestException
+
 
 def get_quest_by_id(id):
     try:
@@ -195,8 +202,18 @@ class QuestPrototype(object):
         cur_action.hero.pop_quest_loot(item)
 
     def cmd_get_reward(self, cmd, cur_action):
-        #TODO: implement
-        cur_action.hero.add_message('action_quest_get_reward', hero=cur_action.hero)
+
+        domain = random.uniform(0, 1)
+
+        if domain <= c.QUEST_REWARD_MONEY_FRACTION or cur_action.hero.bag_is_full:
+            multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
+            money = 1 + int(f.sell_artifact_price(cur_action.hero.level) * multiplier)
+            cur_action.hero.add_message('action_quest_reward_money', hero=cur_action.hero, coins=money)
+        else:
+            storage = ArtifactsDatabase.storage()
+            artifact = storage.generate_artifact_from_list(storage.artifacts_ids, cur_action.hero.level)
+            cur_action.hero.put_loot(artifact)
+            cur_action.hero.add_message('action_quest_reward_artifact', hero=cur_action.hero, artifact=artifact)
 
     def cmd_quest(self, cmd, cur_action):
         # TODO: move to quest generator environment
