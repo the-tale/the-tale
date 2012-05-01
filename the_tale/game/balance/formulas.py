@@ -66,6 +66,16 @@ def expected_lvl_from_power(power): return float(power) / (c.POWER_PER_LVL + c.P
 
 def damage_from_power(power): return float(expected_damage_to_mob_per_hit(expected_lvl_from_power(power)))  # урон, наносимый героем
 
+
+# сложность моба рассчитывается как влияние оказываемое им на скорость протекания боёв и на длительность цепочки боёв (в боях, т.е. как быстро здоровье снимает)
+# формула:
+# сложность = урон *              // влияет только на длительность цепочки
+#             здоровье ** 2 *     // влияет и на длительность цепочки и на длительность боя
+#             скорость *          // влияет на длительность цепочки (т.е. снимет здоровье в speed раз больше)
+#             (1+скорость) / 2    // влияет на длительность боя
+#
+def mob_difficulty(speed, health, damage): return damage * health**2 * speed * (1+speed) / 2
+
 def battles_on_lvl(lvl): return int(time_on_lvl(lvl) * c.BATTLES_PER_HOUR)
 
 # вероятность выпаденя артефакта из моба (т.е. вероятноть получить артефакт после боя)

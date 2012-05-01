@@ -542,7 +542,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
 
             if self.mob.health <= 0:
                 self.mob.kill()
-                self.hero.add_experience(c.EXP_PER_MOB)
+                self.hero.add_experience(c.EXP_PER_MOB * self.mob.exp_cooficient)
                 self.hero.add_message('action_battlepve1x1_mob_killed', hero=self.hero, mob=self.mob)
 
                 loot = self.mob.get_loot()
@@ -738,7 +738,7 @@ class ActionRestPrototype(ActionPrototype):
     def process(self):
 
         if self.state == self.STATE.RESTING:
-            heal_amount = int(round(float(self.hero.max_health) / c.HEAL_LENGTH))
+            heal_amount = int(round(float(self.hero.max_health) / c.HEAL_LENGTH * (1 + random.uniform(-c.HEAL_STEP_FRACTION, c.HEAL_STEP_FRACTION))))
 
             self.hero.health = min(self.hero.health + heal_amount, self.hero.max_health)
 

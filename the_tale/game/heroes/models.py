@@ -20,7 +20,7 @@ class Hero(models.Model):
     race = models.IntegerField(choices=RACE_CHOICES, default=RACE.HUMAN)
 
     level = models.IntegerField(null=False, default=1)
-    experience = models.BigIntegerField(null=False, default=0)
+    experience = models.FloatField(null=False, default=0)
     destiny_points = models.IntegerField(null=False, default=1)
     destiny_points_spend = models.IntegerField(null=False, default=0) # for random.seed
 

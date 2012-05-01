@@ -24,6 +24,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.INTERVAL_BETWEEN_BATTLES, 5)
         self.assertEqual(c.BATTLES_BEFORE_HEAL, 8)
         self.assertEqual(c.HEAL_TIME_FRACTION, 0.2)
+        self.assertEqual(c.HEAL_STEP_FRACTION, 0.2)
 
         self.assertEqual(c.HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION, 0.33)
         self.assertEqual(c.HEALTH_IN_MOVE_TO_START_HEAL_FRACTION, 0.25)
@@ -41,7 +42,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.EPIC_LOOT_COST, 250.0)
         self.assertEqual(c.INSTANT_HEAL_PRICE_FRACTION, 0.3)
         self.assertEqual(c.BUY_ARTIFACT_PRICE_FRACTION, 2.0)
-        self.assertEqual(c.SHARPENING_ARTIFACT_PRICE_FRACTION, 0.7)
+        self.assertEqual(c.SHARPENING_ARTIFACT_PRICE_FRACTION, 1.5)
         self.assertEqual(c.USELESS_PRICE_FRACTION, 0.2)
         self.assertEqual(c.IMPACT_PRICE_FRACTION, 1.5)
         self.assertEqual(c.SELL_ARTIFACT_PRICE_FRACTION, 0.15)

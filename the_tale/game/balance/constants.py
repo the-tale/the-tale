@@ -28,6 +28,7 @@ INTERVAL_BETWEEN_BATTLES = int(5) # ходов - время, между двум
 BATTLES_BEFORE_HEAL = int(8) # количество боёв в непрерывной цепочке битв
 
 HEAL_TIME_FRACTION = float(0.2) # доля времени от цепочки битв, которую занимает полный отхил героя
+HEAL_STEP_FRACTION = float(0.2) # разброс регенерации за один ход
 
 HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION = float(0.33) # если у героя здоровья меньше, чем указанная доля и он в городе, то он будет лечиться
 HEALTH_IN_MOVE_TO_START_HEAL_FRACTION = (2 *float(1)) / BATTLES_BEFORE_HEAL # если у героя здоровья меньше, чем указанная доля и он в походе, то он будет лечиться
@@ -56,7 +57,7 @@ BAG_SIZE_TO_SELL_LOOT_FRACTION = float(0.33) # процент заполненн
 
 INSTANT_HEAL_PRICE_FRACTION = float(0.3) # моментальное лечение
 BUY_ARTIFACT_PRICE_FRACTION = float(2.0) # покупка нового артефакта
-SHARPENING_ARTIFACT_PRICE_FRACTION = float(0.7) # "заточка" экипированного артефакта
+SHARPENING_ARTIFACT_PRICE_FRACTION = float(1.5) # "заточка" экипированного артефакта
 USELESS_PRICE_FRACTION = float(0.2) # безполезные траты
 IMPACT_PRICE_FRACTION = float(1.5) # изменение (+/-) влияния персонажей
 

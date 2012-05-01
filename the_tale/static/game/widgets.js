@@ -68,7 +68,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-hero-page-link', widget).attr('href', pgf.urls['game:heroes:'](data.id));
         jQuery('.pgf-health', widget).text(data.base.health);
         jQuery('.pgf-max-health', widget).text(data.base.max_health);
-        jQuery('.pgf-experience', widget).text(data.base.experience);
+        jQuery('.pgf-experience', widget).text(parseInt(data.base.experience));
         jQuery('.pgf-experience-to-level', widget).text(data.base.experience_to_level);
 
         pgf.base.UpdateStatsBar(jQuery('.pgf-health-bar', widget), data.base.max_health, data.base.health);
