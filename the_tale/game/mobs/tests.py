@@ -56,6 +56,9 @@ class MobsDatabaseTest(TestCase):
         self.assertEqual(bandit.loot , frozenset(['fake_amulet']))
         self.assertEqual(bandit.artifacts , frozenset(['broken_sword', 'decrepit_plate']))
 
+        wolf = storage.data['wolf']
+        self.assertEqual(wolf.morph, (u'мн',))
+
 
     def test_load_duplicates(self):
         storage = MobsDatabase()

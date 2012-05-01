@@ -346,9 +346,9 @@ class NounGroup(Noun):
                         main_noun = norm
                         phrase.append((class_, norm, False))
                     else:
-                        phrase.append((class_, word, True))
+                        phrase.append((class_, efication(word).upper(), True))
                 else:
-                    phrase.append((class_, norm, False))
+                    phrase.append((class_, efication(word).upper(), False))
 
         gram_info = morph.get_graminfo(main_noun.upper())[0]
 
@@ -374,7 +374,7 @@ class NounGroup(Noun):
 
                 for class_, word, constant in phrase:
                     if constant:
-                        phrase_form.append(word)
+                        phrase_form.append(word.lower())
                     else:
                         phrase_form.append(morph.inflect_ru(word, u','.join([case, number]+additional_properties), class_ ).lower())
                 forms.append( ' '.join(phrase_form))

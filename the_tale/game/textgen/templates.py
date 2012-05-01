@@ -21,6 +21,7 @@ class Dictionary(object):
         self.data[word.normalized] = word
 
     def get_word(self, normalized):
+        normalized = efication(normalized)
         if normalized in self.data:
             return self.data[normalized]
         return Fake(u'<word not found: %s>' % normalized)
@@ -153,7 +154,7 @@ class Template(object):
             additional_args = ()
             if isinstance(external, tuple):
                 normalized, additional_args = external
-                additional_args = additional_args.split(u',')
+                additional_args = additional_args.split(u',') if isinstance(additional_args, basestring) else additional_args
             else:
                 normalized = external
 

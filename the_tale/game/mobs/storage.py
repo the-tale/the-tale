@@ -10,7 +10,7 @@ from game.mobs.exceptions import MobsException
 from game.mobs.prototypes import MobPrototype
 from game.map.places.models import TERRAIN_STR_2_ID
 
-MobRecord = namedtuple('MobRecord', ('level', 'id', 'name', 'normalized_name', 'speed', 'health', 'damage', 'abilities', 'terrain', 'loot', 'artifacts'))
+MobRecord = namedtuple('MobRecord', ('level', 'id', 'name', 'normalized_name', 'morph', 'speed', 'health', 'damage', 'abilities', 'terrain', 'loot', 'artifacts'))
 
 
 class MobsDatabase(object):
@@ -40,17 +40,19 @@ class MobsDatabase(object):
             mob_data = mob_data[1:]
 
             mob_data[0] = int(mob_data[0])
-            mob_data[4] = float(mob_data[4])
+
+            mob_data[4] = tuple([morph for morph in mob_data[4].split(',') if morph])
             mob_data[5] = float(mob_data[5])
             mob_data[6] = float(mob_data[6])
-
-            mob_data[7] = self._prepair_string_set(mob_data[7])
+            mob_data[7] = float(mob_data[7])
 
             mob_data[8] = self._prepair_string_set(mob_data[8])
-            mob_data[8] = frozenset([TERRAIN_STR_2_ID[terrain] for terrain in mob_data[8]])
 
             mob_data[9] = self._prepair_string_set(mob_data[9])
+            mob_data[9] = frozenset([TERRAIN_STR_2_ID[terrain] for terrain in mob_data[9]])
+
             mob_data[10] = self._prepair_string_set(mob_data[10])
+            mob_data[11] = self._prepair_string_set(mob_data[11])
 
             mob_record = MobRecord(*mob_data)
 

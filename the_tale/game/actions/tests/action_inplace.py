@@ -58,6 +58,7 @@ class InPlaceActionTest(TestCase):
         storage = ArtifactsDatabase.storage()
 
         artifact = storage.generate_artifact_from_list(storage.artifacts_ids, 1)
+        artifact.power = 666
         self.hero.bag.put_artifact(artifact)
 
         self.bundle.process_turn(1)

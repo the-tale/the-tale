@@ -37,10 +37,14 @@ class ArtifactsDatabaseTest(TestCase):
         self.assertEqual(skin_of_a_wolf.type , ITEM_TYPE.ARMOR)
         self.assertEqual(skin_of_a_wolf.slot , EQUIP_TYPE.SHOULDERS)
         self.assertEqual(skin_of_a_wolf.name , u'шкура волка')
+        self.assertEqual(skin_of_a_wolf.morph , ())
         self.assertEqual(skin_of_a_wolf.normalized_name , u'шкура волка')
         self.assertEqual(skin_of_a_wolf.min_lvl , 1)
         self.assertEqual(skin_of_a_wolf.max_lvl , 60)
         self.assertEqual(skin_of_a_wolf.rarity, RARITY_TYPE.NORMAL)
+
+        antlers = storage.data['antlers']
+        self.assertEqual(antlers.morph, (u'мн',))
 
     def test_load_duplicates(self):
         storage = ArtifactsDatabase()

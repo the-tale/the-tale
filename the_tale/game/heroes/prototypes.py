@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import math
 import random
+import numbers
 
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
@@ -194,7 +195,6 @@ class HeroPrototype(object):
         elif self.gender == GENDER.FEMININE:
             return (u'героиня', GENDER_ID_2_STR[self.gender])
 
-
     @property
     def next_spending(self): return self.model.next_spending
 
@@ -305,14 +305,16 @@ class HeroPrototype(object):
     def add_message(self, type_, **kwargs):
         args = {}
         for k, v in kwargs.items():
-            if isinstance(v, FakeWord):
+            if isinstance(v, (FakeWord, numbers.Number)):
                 args[k] = v
             else:
-                args[k] = v.normalized_name if hasattr(v, 'normalized_name') else v
+                args[k] = v.normalized_name
         template = get_vocabulary().get_random_phrase(type_)
         if template is None:
-            # print u'ERROR: unknown template type: %s' % type_
             return
+            # TODO: raise exception in production (not when tests running)
+            # from game.textgen.exceptions import TextgenException
+            # raise TextgenException(u'ERROR: unknown template type: %s' % type_)
         msg = template.substitute(get_dictionary(), args)
         # print msg
         self.push_message(msg)

@@ -87,7 +87,7 @@ class PlacePrototype(object):
             race = random.choice(RACE_CHOICES)[0]
             gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
-            PersonPrototype.create(place=self, 
+            PersonPrototype.create(place=self,
                                    race=race,
                                    gender=gender,
                                    tp=random.choice(PERSON_TYPE_CHOICES)[0],
@@ -119,18 +119,18 @@ class PlacePrototype(object):
     nearest_cells = property(get_nearest_cells, set_nearest_cells)
 
     @property
-    def power_points(self): 
+    def power_points(self):
         if 'power_points' not in self.data:
             self.data['power_points'] = []
         return self.data['power_points']
-    
+
     @property
-    def power(self): 
+    def power(self):
         if self.power_points:
             return max(sum(self.power_points), 0)
         return 0
 
-    def push_power(self, value): 
+    def push_power(self, value):
         self.power_points.append(value)
 
         while len(self.power_points) > places_settings.POWER_HISTORY_LENGTH:
@@ -147,7 +147,7 @@ class PlacePrototype(object):
 
     def sync_terrain(self):
         race_power = {}
-        
+
         for person in self.persons:
             race_power[person.race] = race_power.get(person.race, 0) + person.power
 
@@ -181,7 +181,7 @@ class PlacePrototype(object):
         return cls(model=model)
 
     def remove(self): self.model.delete()
-    def save(self): 
+    def save(self):
         self.model.data = s11n.to_json(self.data)
         self.model.save(force_update=True)
 

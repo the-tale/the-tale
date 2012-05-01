@@ -14,7 +14,7 @@ from game.artifacts.exceptions import ArtifactsException
 from game.artifacts.prototypes import ArtifactPrototype
 
 
-class ArtifactRecord(namedtuple('ArtifactRecord', ('id', 'type', 'slot', 'name', 'normalized_name', 'min_lvl', 'max_lvl', 'rarity'))):
+class ArtifactRecord(namedtuple('ArtifactRecord', ('id', 'type', 'slot', 'name', 'normalized_name', 'morph', 'min_lvl', 'max_lvl', 'rarity'))):
     __slots__ = ()
 
     @property
@@ -57,6 +57,8 @@ class ArtifactsDatabase(object):
 
             artifact_data[1] = ITEM_TYPE_STR_2_ID[artifact_data[1]]
             artifact_data[2] = EQUIP_TYPE_STR_2_ID[artifact_data[2]]
+
+            artifact_data[-4] = tuple([morph for morph in artifact_data[-4].split(',') if morph])
 
             artifact_data[-3] = int(artifact_data[-3]) if artifact_data[-3] else 0
             artifact_data[-2] = int(artifact_data[-2]) if artifact_data[-2] else artifacts_settings.INFINITY_ARTIFACT_LEVEL

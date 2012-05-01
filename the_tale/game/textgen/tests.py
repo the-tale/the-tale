@@ -88,7 +88,7 @@ class NounGroupTest(TestCase):
 
     def test_create_from_baseword(self):
         group = NounGroup.create_from_baseword(morph, u'жирная крыса')
-        self.assertEqual(group.normalized, u'жирный крыса')
+        self.assertEqual(group.normalized, u'жирная крыса')
         self.assertEqual(group.properties, (u'жр',))
         self.assertEqual(group.forms, (u'жирная крыса',
                                        u'жирной крысы',
@@ -99,7 +99,7 @@ class NounGroupTest(TestCase):
                                        u'жирные крысы',
                                        u'жирных крыс',
                                        u'жирным крысам',
-                                       u'жирный крыс', #???????? possible bug in pymorphy
+                                       u'жирная крыс', #???????? possible bug in pymorphy
                                        u'жирными крысами',
                                        u'жирных крысах'))
 
@@ -145,7 +145,7 @@ class NounGroupTest(TestCase):
 
     def test_2_adjective(self):
         group = NounGroup.create_from_baseword(morph, u'белая жирная крыса')
-        self.assertEqual(group.normalized, u'белый жирный крыса')
+        self.assertEqual(group.normalized, u'белая жирная крыса')
         self.assertEqual(group.properties, (u'жр',))
         self.assertEqual(group.forms, (u'белая жирная крыса',
                                        u'белой жирной крысы',
@@ -156,7 +156,7 @@ class NounGroupTest(TestCase):
                                        u'белые жирные крысы',
                                        u'белых жирных крыс',
                                        u'белым жирным крысам',
-                                       u'белый жирный крыс', #???????? possible bug in pymorphy
+                                       u'белая жирная крыс', #???????? possible bug in pymorphy
                                        u'белыми жирными крысами',
                                        u'белых жирных крысах'))
 

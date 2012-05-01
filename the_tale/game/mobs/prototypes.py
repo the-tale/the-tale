@@ -27,7 +27,7 @@ class MobPrototype(object):
     def name(self): return self.record.name
 
     @property
-    def normalized_name(self): return self.record.normalized_name
+    def normalized_name(self): return (self.record.normalized_name, self.record.morph)
 
     @property
     def initiative(self): return self.record.speed

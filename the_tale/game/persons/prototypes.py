@@ -36,10 +36,10 @@ class PersonPrototype(object):
     def race_verbose(self):
         from ..game_info import RACE_DICT
         return RACE_DICT[self.race]
-    
+
     @property
     def type(self): return self.model.type
-    
+
     @property
     def state(self): return self.model.state
 
@@ -63,7 +63,7 @@ class PersonPrototype(object):
 
     @classmethod
     def create(cls, place, race, tp, name, gender, power=0):
-        
+
         instance = Person.objects.create(place=place.model,
                                          state=PERSON_STATE.IN_GAME,
                                          race=race,
