@@ -112,6 +112,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
         artifact_power = artifact.power
         equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
+        self.hero.equipment.unequip(equip_slot)
         self.hero.equipment.equip(equip_slot, artifact)
         self.bundle.process_turn(1)
         self.assertTrue(self.hero.money < f.sharpening_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)

@@ -37,6 +37,11 @@ class ActionEquippingTest(TestCase):
 
     def test_equip(self):
         artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+        artifact.power = 666
+
+        equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
+        self.hero.equipment.unequip(equip_slot)
+
         self.hero.bag.put_artifact(artifact)
 
         self.bundle.process_turn(1)
@@ -52,6 +57,7 @@ class ActionEquippingTest(TestCase):
         artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
         artifact.power = 13
         equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
+        self.hero.equipment.unequip(equip_slot)
         self.hero.equipment.equip(equip_slot, artifact)
 
         new_artifact = ArtifactsDatabase.storage().generate_artifact_from_list([artifact.id], self.hero.level+1)

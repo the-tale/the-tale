@@ -1,12 +1,8 @@
 # coding: utf-8
 
-from django.contrib.auth.models import User
-
-from accounts.prototypes import AccountPrototype
-
-from game.angels.prototypes import AngelPrototype
-from game.heroes.prototypes import HeroPrototype
-from game.bundles import BundlePrototype
+from game.heroes.bag import SLOTS
+from game.artifacts.storage import ArtifactsDatabase
+from game.bundles import get_bundle_by_id
 
 from game.map.places.prototypes import get_place_by_model, get_place_by_id
 from game.map.places.models import Place, TERRAIN, PLACE_TYPE
@@ -15,6 +11,8 @@ from game.map.roads.logic import update_waymarks
 from game.map.prototypes import MapInfoPrototype
 from game.map.places.logic import update_nearest_cells
 from game.map.conf import map_settings
+
+
 
 def create_test_map():
     """
@@ -64,12 +62,16 @@ def create_test_map():
 
 
 def create_test_bundle(uuid):
-    user = User.objects.create_user(uuid,
-                                    uuid + '@' + uuid + '.com',
-                                    '111111')
+    from accounts.logic import register_user
+    result, bundle_id = register_user(uuid, uuid + '@' + uuid + '.com', '111111')
+    return get_bundle_by_id(bundle_id)
 
-    account = AccountPrototype.create(user=user)
-    angel = AngelPrototype.create(account=account, name=user.username)
-    HeroPrototype.create(angel=angel)
 
-    return BundlePrototype.create(angel)
+def dress_new_hero(hero):
+    storage = ArtifactsDatabase.storage()
+
+    hero.equipment.equip(SLOTS.PANTS, storage.create_artifact('default_pants', level=1, power=0))
+    hero.equipment.equip(SLOTS.BOOTS, storage.create_artifact('default_boots', level=1, power=0))
+    hero.equipment.equip(SLOTS.PLATE, storage.create_artifact('default_plate', level=1, power=0))
+    hero.equipment.equip(SLOTS.GLOVES, storage.create_artifact('default_gloves', level=1, power=0))
+    hero.equipment.equip(SLOTS.HAND_PRIMARY, storage.create_artifact('default_weapon', level=1, power=0))

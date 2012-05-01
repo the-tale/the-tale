@@ -5,6 +5,8 @@ from django.test import TestCase
 from game.logic import create_test_bundle, create_test_map
 from game.artifacts.storage import ArtifactsDatabase
 
+from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
+
 
 class HeroTest(TestCase):
 
@@ -28,6 +30,10 @@ class HeroTest(TestCase):
 
         #equip artefact in empty slot
         artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+
+        equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
+        self.hero.equipment.unequip(equip_slot)
+
         self.hero.bag.put_artifact(artifact)
 
         slot, unequipped, equipped = self.hero.get_equip_canditates()
