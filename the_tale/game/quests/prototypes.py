@@ -147,6 +147,7 @@ class QuestPrototype(object):
             return True
 
         self.end_quest()
+        cur_action.hero.statistics.change_quests_done(1)
 
         return False
 
@@ -208,11 +209,13 @@ class QuestPrototype(object):
         if domain <= c.QUEST_REWARD_MONEY_FRACTION or cur_action.hero.bag_is_full:
             multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
             money = 1 + int(f.sell_artifact_price(cur_action.hero.level) * multiplier)
+            cur_action.hero.statistics.change_money_earned_from_quests(money)
             cur_action.hero.add_message('action_quest_reward_money', hero=cur_action.hero, coins=money)
         else:
             storage = ArtifactsDatabase.storage()
             artifact = storage.generate_artifact_from_list(storage.artifacts_ids, cur_action.hero.level)
             cur_action.hero.put_loot(artifact)
+            cur_action.hero.statistics.change_artifacts_had(1)
             cur_action.hero.add_message('action_quest_reward_artifact', hero=cur_action.hero, artifact=artifact)
 
     def cmd_quest(self, cmd, cur_action):

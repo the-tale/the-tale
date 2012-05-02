@@ -63,8 +63,8 @@ class ArtifactsDatabaseTest(TestCase):
                 self.assertTrue(artifact.id in ['antlers', 'skin_of_a_wolf', 'skin_of_jackal', 'broken_sword'])
 
         with mock.patch('game.artifacts.storage.RARITY_TYPE_2_PRIORITY', { RARITY_TYPE.NORMAL: 0,
-                                                                        RARITY_TYPE.RARE: 1,
-                                                                        RARITY_TYPE.EPIC: 0 }):
+                                                                           RARITY_TYPE.RARE: 1,
+                                                                           RARITY_TYPE.EPIC: 0 }):
             for i in xrange(100):
                 artifact = storage.generate_artifact_from_list(storage.artifacts_ids, 1)
                 self.assertTrue(artifact.id in ['decrepit_plate', 'wolfs_fangs'])

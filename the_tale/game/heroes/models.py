@@ -47,6 +47,25 @@ class Hero(models.Model):
     pos_to_x = models.IntegerField(null=True, blank=True, default=None)
     pos_to_y = models.IntegerField(null=True, blank=True, default=None)
 
+    #statistics
+    stat_pve_deaths = models.BigIntegerField(default=0, null=False)
+    stat_pve_kills = models.BigIntegerField(default=0, null=False)
+
+    stat_money_earned_from_loot = models.BigIntegerField(default=0, null=False)
+    stat_money_earned_from_artifacts = models.BigIntegerField(default=0, null=False)
+    stat_money_earned_from_quests = models.BigIntegerField(default=0, null=False)
+
+    stat_money_spend_for_heal = models.BigIntegerField(default=0, null=False)
+    stat_money_spend_for_artifacts = models.BigIntegerField(default=0, null=False)
+    stat_money_spend_for_sharpening = models.BigIntegerField(default=0, null=False)
+    stat_money_spend_for_useless = models.BigIntegerField(default=0, null=False)
+    stat_money_spend_for_impact = models.BigIntegerField(default=0, null=False)
+
+    stat_artifacts_had = models.BigIntegerField(default=0, null=False)
+    stat_loot_had = models.BigIntegerField(default=0, null=False)
+
+    stat_quests_done = models.BigIntegerField(default=0, null=False)
+
     @classmethod
     def get_related_query(cls):
         return cls.objects.select_related('pos_place', 'pos_road')

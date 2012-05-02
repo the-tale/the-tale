@@ -34,6 +34,8 @@ class TradingActionTest(TestCase):
 
 
     def test_sell_and_finish(self):
+
+        old_money_statistics = self.hero.statistics.money_earned
         old_money = self.hero.money
 
         artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
@@ -46,6 +48,7 @@ class TradingActionTest(TestCase):
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
 
         self.assertTrue(self.hero.money > old_money)
+        self.assertTrue(self.hero.statistics.money_earned > old_money_statistics)
 
 
     def test_sell_and_continue(self):

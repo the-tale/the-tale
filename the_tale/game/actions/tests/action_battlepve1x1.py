@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from django.test import TestCase
 
@@ -29,18 +30,41 @@ class BattlePvE1x1ActionTest(TestCase):
 
 
     def test_mob_killed(self):
+        self.assertEqual(self.hero.statistics.pve_kills, 0)
         self.action_battle.mob.health = 0
         self.bundle.process_turn(1)
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
+        self.assertEqual(self.hero.statistics.pve_kills, 1)
 
+
+    @mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 0)
+    @mock.patch('game.balance.constants.GET_LOOT_PROBABILITY', 1)
+    def test_loot(self):
+        self.assertEqual(self.hero.statistics.loot_had, 0)
+        self.assertEqual(len(self.hero.bag.items()), 0)
+        self.action_battle.mob.health = 0
+        self.bundle.process_turn(1)
+        self.assertEqual(self.hero.statistics.loot_had, 1)
+        self.assertEqual(len(self.hero.bag.items()), 1)
+
+    @mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 1)
+    def test_artifacts(self):
+        self.assertEqual(self.hero.statistics.artifacts_had, 0)
+        self.assertEqual(len(self.hero.bag.items()), 0)
+        self.action_battle.mob.health = 0
+        self.bundle.process_turn(1)
+        self.assertEqual(self.hero.statistics.artifacts_had, 1)
+        self.assertEqual(len(self.hero.bag.items()), 1)
 
     def test_hero_killed(self):
+        self.assertEqual(self.hero.statistics.pve_deaths, 0)
         self.hero.health = 0
         self.bundle.process_turn(1)
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
         self.assertTrue(not self.hero.is_alive)
+        self.assertEqual(self.hero.statistics.pve_deaths, 1)
 
 
     def test_full_battle(self):

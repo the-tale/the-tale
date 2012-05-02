@@ -9,20 +9,20 @@ from dext.utils.decorators import nested_commit_on_success
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
-from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
-
 from game.textgen import get_vocabulary, get_dictionary
 from game.textgen.words import Fake as FakeWord
 from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, ITEMS_OF_EXPENDITURE
 
-from .. import names
+from game import names
 
-from ..quests.prototypes import get_quest_by_model
-from ..quests.models import Quest
+from game.quests.prototypes import get_quest_by_model
+from game.quests.models import Quest
 
-from .models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
-from .habilities import AbilitiesPrototype
-from .conf import heroes_settings
+from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
+from game.heroes.statistics import HeroStatistics
+from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
+from game.heroes.habilities import AbilitiesPrototype
+from game.heroes.conf import heroes_settings
 
 from ..map.prototypes import MapInfoPrototype
 
@@ -81,8 +81,8 @@ class HeroPrototype(object):
     def experience(self): return self.model.experience
     def add_experience(self, value):
         self.model.experience += value
-        while self.experience_to_level <= self.model.experience:
-            self.model.experience -= self.experience_to_level
+        while f.exp_on_lvl(self.level) <= self.model.experience:
+            self.model.experience -= f.exp_on_lvl(self.level)
             self.model.level += 1
             if self.model.level % 2:
                 self.model.destiny_points += 1
@@ -232,10 +232,6 @@ class HeroPrototype(object):
     @property
     def max_bag_size(self): return c.MAX_BAG_SIZE
 
-    @property
-    def experience_to_level(self):
-        return 100 + (self.level - 1) * 100
-
     ###########################################
     # Needs attributes
     ###########################################
@@ -292,6 +288,12 @@ class HeroPrototype(object):
         if not hasattr(self, '_position'):
             self._position = HeroPositionPrototype(hero_model=self.model)
         return self._position
+
+    @property
+    def statistics(self):
+        if not hasattr(self, '_statistics'):
+            self._statistics = HeroStatistics(hero_model=self.model)
+        return self._statistics
 
     @property
     def messages(self):
@@ -353,7 +355,7 @@ class HeroPrototype(object):
                           'health': self.health,
                           'max_health': self.max_health,
                           'experience': self.experience,
-                          'experience_to_level': self.experience_to_level},
+                          'experience_to_level': f.exp_on_lvl(self.level)},
                 'secondary': { 'power': math.floor(self.power),
                                'move_speed': self.move_speed,
                                'initiative': self.initiative,

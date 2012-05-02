@@ -83,33 +83,52 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
 
     def test_no_money(self):
+
         self.hero.money = 1
         self.bundle.process_turn(1)
         self.assertEqual(self.hero.money, 1)
+        self.assertEqual(self.hero.statistics.money_spend, 0)
+
 
     def test_instant_heal(self):
         while self.hero.next_spending != ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
             self.hero.switch_spending()
-        self.hero.money = f.instant_heal_price(self.hero.level)
+
+        money = f.instant_heal_price(self.hero.level)
+
+        self.hero.money = money
         self.hero.health = 1
         self.bundle.process_turn(1)
         self.assertTrue(self.hero.money < f.instant_heal_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(self.hero.health, self.hero.max_health)
 
+        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.money_spend_for_heal, money - self.hero.money)
+
     def test_bying_artifact(self):
         while self.hero.next_spending != ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             self.hero.switch_spending()
-        self.hero.money = f.buy_artifact_price(self.hero.level)
+
+        money = f.buy_artifact_price(self.hero.level)
+
+        self.hero.money = money
         self.bundle.process_turn(1)
         self.assertTrue(self.hero.money < f.buy_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(len(self.hero.bag.items()), 1)
         artifact_id, artifact = self.hero.bag.items()[0]
         self.assertNotEqual(artifact.type, ITEM_TYPE.USELESS)
 
+        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.artifacts_had, 1)
+
     def test_sharpening_artifact(self):
         while self.hero.next_spending != ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
             self.hero.switch_spending()
-        self.hero.money = f.sharpening_artifact_price(self.hero.level)
+
+        money = f.sharpening_artifact_price(self.hero.level)
+
+        self.hero.money = money
         artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
         artifact_power = artifact.power
         equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
@@ -119,17 +138,30 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.assertTrue(self.hero.money < f.sharpening_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(artifact_power + 1, self.hero.equipment.get(equip_slot).power)
 
+        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)
+
     def test_useless(self):
         while self.hero.next_spending != ITEMS_OF_EXPENDITURE.USELESS:
             self.hero.switch_spending()
-        self.hero.money = f.useless_price(self.hero.level)
+
+        money = f.useless_price(self.hero.level)
+        self.hero.money = money
         self.bundle.process_turn(1)
         self.assertTrue(self.hero.money < f.useless_price(self.hero.level) * c.PRICE_DELTA + 1)
+
+        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.money_spend_for_useless, money - self.hero.money)
 
 
     def test_impact(self):
         while self.hero.next_spending != ITEMS_OF_EXPENDITURE.IMPACT:
             self.hero.switch_spending()
-        self.hero.money = f.impact_price(self.hero.level)
+
+        money = f.impact_price(self.hero.level)
+        self.hero.money = money
         self.bundle.process_turn(1)
         self.assertTrue(self.hero.money < f.impact_price(self.hero.level) * c.PRICE_DELTA + 1)
+
+        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.money_spend_for_impact, money - self.hero.money)

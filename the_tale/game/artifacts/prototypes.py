@@ -39,6 +39,9 @@ class ArtifactPrototype(object):
     def max_lvl(self): return self.record.max_lvl
 
     @property
+    def is_useless(self): return self.record.is_useless
+
+    @property
     def can_be_equipped(self):
         from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
         return self.equip_type in ARTIFACT_TYPES_TO_SLOTS

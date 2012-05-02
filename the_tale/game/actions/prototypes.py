@@ -19,7 +19,7 @@ from game.balance import constants as c, formulas as f
 from game.game_info import ITEMS_OF_EXPENDITURE
 
 from game.artifacts.storage import ArtifactsDatabase
-from game.artifacts.conf import ITEM_TYPE, RARITY_TYPE
+from game.artifacts.conf import RARITY_TYPE
 
 from game.actions.exceptions import ActionException
 
@@ -535,6 +535,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
 
             if self.hero.health <= 0:
                 self.hero.kill()
+                self.hero.statistics.change_pve_deaths(1)
                 self.hero.add_message('action_battlepve1x1_hero_killed', hero=self.hero, mob=self.mob)
                 self.state = self.STATE.PROCESSED
                 self.percents = 1.0
@@ -542,6 +543,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
 
             if self.mob.health <= 0:
                 self.mob.kill()
+                self.hero.statistics.change_pve_kills(1)
                 self.hero.add_experience(c.EXP_PER_MOB * self.mob.exp_cooficient)
                 self.hero.add_message('action_battlepve1x1_mob_killed', hero=self.hero, mob=self.mob)
 
@@ -550,7 +552,11 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
                 if loot is not None:
                     bag_uuid = self.hero.put_loot(loot)
 
-                    if bag_uuid:
+                    if bag_uuid is not None:
+                        if loot.is_useless:
+                            self.hero.statistics.change_loot_had(1)
+                        else:
+                            self.hero.statistics.change_artifacts_had(1)
                         self.hero.add_message('action_battlepve1x1_put_loot', hero=self.hero, artifact=loot)
                     else:
                         self.hero.add_message('action_battlepve1x1_put_loot_no_space', hero=self.hero, artifact=loot)
@@ -642,19 +648,23 @@ class ActionInPlacePrototype(ActionPrototype):
         if self.hero.next_spending == ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
             coins = self.try_to_spend_money(f.instant_heal_price(self.hero.level))
             if coins is not None:
+                self.hero.statistics.change_money_spend_for_heal(coins)
                 self.hero.health = self.hero.max_health
                 self.hero.add_message('action_instant_heal', hero=self.hero, coins=coins)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level))
             if coins is not None:
+                self.hero.statistics.change_money_spend_for_artifacts(coins)
                 artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
                 self.hero.bag.put_artifact(artifact)
+                self.hero.statistics.change_artifacts_had(1)
                 self.hero.add_message('buying_artifact', hero=self.hero, coins=coins, artifact=artifact)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
             coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level))
             if coins is not None:
+                self.hero.statistics.change_money_spend_for_sharpening(coins)
                 # select filled slot
                 for slot in SLOTS_LIST:
                     artifact = self.hero.equipment.get(slot)
@@ -666,11 +676,13 @@ class ActionInPlacePrototype(ActionPrototype):
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.USELESS:
             coins = self.try_to_spend_money(f.useless_price(self.hero.level))
             if coins is not None:
+                self.hero.statistics.change_money_spend_for_useless(coins)
                 self.hero.add_message('action_spend_useless', hero=self.hero, coins=coins)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.IMPACT:
             coins = self.try_to_spend_money(f.impact_price(self.hero.level))
             if coins is not None:
+                self.hero.statistics.change_money_spend_for_impact(coins)
                 impact = f.impact_value(self.hero.level, 1)
                 person = random.choice(self.hero.position.place.persons)
                 if random.choice([True, False]):
@@ -823,7 +835,7 @@ class ActionTradingPrototype(ActionPrototype):
 
     def get_sell_price(self, artifact):
         multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
-        if artifact.type == ITEM_TYPE.USELESS:
+        if artifact.is_useless:
             if artifact.rarity == RARITY_TYPE.NORMAL:
                 return 1 + int(f.normal_loot_cost_at_lvl(artifact.level) * multiplier)
             elif artifact.rarity == RARITY_TYPE.RARE:
@@ -852,6 +864,12 @@ class ActionTradingPrototype(ActionPrototype):
                         break
 
                 sell_price = self.get_sell_price(artifact)
+
+                if artifact.is_useless:
+                    self.hero.statistics.change_money_earned_from_loot(sell_price)
+                else:
+                    self.hero.statistics.change_money_earned_from_artifacts(sell_price)
+
                 self.hero.money = self.hero.money + sell_price
                 self.hero.bag.pop_artifact(artifact)
 
