@@ -1,6 +1,4 @@
 # coding: utf-8
-from dext.utils.decorators import nested_commit_on_success
-
 from .models import Time
 
 def get_current_time():
@@ -20,15 +18,12 @@ class TimePrototype(object):
     def increment_turn(self):
         self.model.turn_number += 1
 
-    @nested_commit_on_success
     def save(self):
         self.model.save()
 
     @classmethod
-    @nested_commit_on_success
     def create(cls):
         return cls(model=Time.objects.create())
 
     def ui_info(self):
-        return { 'number': self.turn_number } 
-
+        return { 'number': self.turn_number }

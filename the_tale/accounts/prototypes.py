@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from dext.utils.decorators import nested_commit_on_success
-
 from .models import Account
 
 def get_account_by_id(model_id):
@@ -32,8 +30,6 @@ class AccountPrototype(object):
         return {}
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, user):
         account_model = Account.objects.create(user=user)
         return AccountPrototype(model=account_model)
-

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
 
-from dext.utils.decorators import nested_commit_on_success
 from dext.utils import s11n
 
 from game.heroes.logic import create_mob_for_hero
@@ -246,7 +245,6 @@ class ActionIdlenessPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, parent=None, hero=None):
         if parent:
             parent.leader = False
@@ -302,7 +300,6 @@ class ActionQuestPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, parent, quest):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
@@ -347,7 +344,6 @@ class ActionMoveToPrototype(ActionPrototype):
 
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, parent, destination, break_at=None):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
@@ -380,7 +376,6 @@ class ActionMoveToPrototype(ActionPrototype):
     @property
     def current_destination(self): return self.road.point_2 if not self.hero.position.invert_direction else self.road.point_1
 
-    @nested_commit_on_success
     def process(self):
 
         if self.state == self.STATE.RESTING:
@@ -505,7 +500,6 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, parent, mob):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
@@ -527,7 +521,6 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
 
         return True
 
-    @nested_commit_on_success
     def process(self):
 
         if self.state == self.STATE.BATTLE_RUNNING:
@@ -582,7 +575,6 @@ class ActionResurrectPrototype(ActionPrototype):
         RESURRECT = 'resurrect'
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, parent):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
@@ -593,7 +585,6 @@ class ActionResurrectPrototype(ActionPrototype):
         return cls(model=model)
 
 
-    @nested_commit_on_success
     def process(self):
 
         if self.state == self.STATE.RESURRECT:
@@ -623,7 +614,6 @@ class ActionInPlacePrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, parent):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
@@ -633,7 +623,6 @@ class ActionInPlacePrototype(ActionPrototype):
                                        state=cls.STATE.SPEND_MONEY)
         return cls(model=model)
 
-    @nested_commit_on_success
     def process(self):
 
         if self.hero.position.place.is_settlement:
@@ -740,7 +729,6 @@ class ActionRestPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, parent):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
@@ -751,7 +739,6 @@ class ActionRestPrototype(ActionPrototype):
         parent.hero.add_message('action_rest_start', hero=parent.hero)
         return cls(model=model)
 
-    @nested_commit_on_success
     def process(self):
 
         if self.state == self.STATE.RESTING:
@@ -781,7 +768,6 @@ class ActionEquippingPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, parent):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
@@ -791,7 +777,6 @@ class ActionEquippingPrototype(ActionPrototype):
                                        state=cls.STATE.EQUIPPING)
         return cls(model=model)
 
-    @nested_commit_on_success
     def process(self):
 
         if self.state == self.STATE.EQUIPPING:
@@ -825,7 +810,6 @@ class ActionTradingPrototype(ActionPrototype):
         return info
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, parent):
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
@@ -853,7 +837,6 @@ class ActionTradingPrototype(ActionPrototype):
             return 1 + int(f.sell_artifact_price(artifact.level) * multiplier)
 
 
-    @nested_commit_on_success
     def process(self):
 
         if self.state == self.STATE.TRADING:
@@ -904,7 +887,6 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
         return info
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, parent, place, back):
         parent.leader = False
 
@@ -930,7 +912,6 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
         return cls(model=model)
 
-    @nested_commit_on_success
     def process(self):
 
         if self.state == self.STATE.RESTING:

@@ -1,6 +1,5 @@
 # coding: utf-8
 from dext.utils import s11n
-from dext.utils.decorators import nested_commit_on_success
 
 from .forms import AbilityForm
 from .models import AbilityTask, ABILITY_STATE
@@ -59,20 +58,19 @@ class AbilityPrototype(object):
 
         if resource.request.POST:
             return form(resource.request.POST)
-        
+
         return form()
 
-    # @nested_commit_on_success
     def activate(self, form, time):
         from ..workers.environment import workers_environment
 
         available_at = time.turn_number + (self.COOLDOWN if self.COOLDOWN else 0)
 
         task = AbilityTaskPrototype.create(task_type=self.get_type(),
-                                           angel_id=form.c.angel_id, 
-                                           hero_id=form.c.hero_id, 
-                                           activated_at=time.turn_number, 
-                                           available_at=available_at, 
+                                           angel_id=form.c.angel_id,
+                                           hero_id=form.c.hero_id,
+                                           activated_at=time.turn_number,
+                                           available_at=available_at,
                                            data=form.data)
 
         workers_environment.supervisor.cmd_activate_ability(task.id)
@@ -84,7 +82,7 @@ class AbilityPrototype(object):
 
 
 class AbilityTaskPrototype(object):
-    
+
     def __init__(self, model):
         self.model = model
 
@@ -146,11 +144,10 @@ class AbilityTaskPrototype(object):
         self.model.data = s11n.to_json(self.data)
         self.model.save()
 
-    @nested_commit_on_success
     def process(self, bundle, turn_number):
 
         angel = bundle.angels[self.angel_id]
-  
+
         ability = angel.abilities[self.type]
 
         if angel.energy < ability.COST:
@@ -182,6 +179,3 @@ class AbilityTaskPrototype(object):
             ability.limit -= 1
 
         ability.available_at = self.available_at
-
-
-

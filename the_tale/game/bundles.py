@@ -1,6 +1,4 @@
 # coding utf-8
-from dext.utils.decorators import nested_commit_on_success
-
 from .angels.prototypes import get_angel_by_id
 
 from .models import Bundle, BundleMember, BUNDLE_TYPE
@@ -67,7 +65,6 @@ class BundlePrototype(object):
             for hero in angel.heroes():
                 self.add_hero(hero)
 
-    @nested_commit_on_success
     def save_data(self):
 
         for angel in self.angels.values():
@@ -82,7 +79,6 @@ class BundlePrototype(object):
 
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, angel):
 
         bundle = Bundle.objects.create(type=BUNDLE_TYPE.BASIC)
@@ -91,7 +87,6 @@ class BundlePrototype(object):
 
         return BundlePrototype(model=bundle)
 
-    @nested_commit_on_success
     def save(self):
         self.model.save()
 
@@ -114,8 +109,6 @@ class BundlePrototype(object):
             next = action.process_turn(turn_number)
             if next_turn is None and next or next < next_turn:
                 next_turn = next
-
-        self.save_data()
 
         return next_turn
 

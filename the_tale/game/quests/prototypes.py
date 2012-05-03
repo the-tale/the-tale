@@ -2,7 +2,6 @@
 import random
 
 from dext.utils import s11n
-from dext.utils.decorators import nested_commit_on_success
 
 from game.balance import constants as c, formulas as f
 
@@ -104,7 +103,6 @@ class QuestPrototype(object):
         self.model.save(force_update=True)
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, hero, env):
 
         env.sync()

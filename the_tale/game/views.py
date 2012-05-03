@@ -50,6 +50,3 @@ class GameResource(Resource):
         workers_environment.supervisor.cmd_next_turn()
 
         return self.json(status='ok')
-
-
-

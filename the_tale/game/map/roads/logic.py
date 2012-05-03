@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-from dext.utils.decorators import nested_commit_on_success
-
 from ..places.models import Place
 from ..places.prototypes import get_place_by_model
 from .models import Road, Waymark
 from .prototypes import WaymarkPrototype, get_road_by_model, get_road_by_id
 
-@nested_commit_on_success
 def update_roads():
     roads = [ get_road_by_model(road) for road in list(Road.objects.all()) ]
     for road in roads:
@@ -39,7 +36,7 @@ class Path(object):
             self.length = new_length
 
 def update_waymarks():
-    
+
     places = [ get_place_by_model(place) for place in list(Place.objects.all()) ]
 
     roads = [ get_road_by_model(road) for road in list(Road.objects.all()) ]
@@ -62,7 +59,7 @@ def update_waymarks():
     for k in xrange(places_len):
         for i in xrange(places_len):
             for j in xrange(places_len):
-                new_len = min(paths[i][j].length, 
+                new_len = min(paths[i][j].length,
                               paths[i][k].length + paths[k][j].length)
                 paths[i][j].update_path(new_len, paths[i][k].road_id)
 
@@ -71,22 +68,21 @@ def update_waymarks():
         for el in row:
             res.append(el.road_id)
 
-    with nested_commit_on_success():
-        # Waymark.objects.all().delete()
 
-        for i in xrange(places_len):
-            for j in xrange(places_len):
-                if paths[i][j].road_id is not None:
-                    road = get_road_by_id(paths[i][j].road_id)
-                else:
-                    road = None
+    # Waymark.objects.all().delete()
 
-                if Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).exists():
-                    Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).update(road=road.model if road else None,
-                                                                                                        length=paths[i][j].length)
-                else:
-                    WaymarkPrototype.create(point_from=places[i],
-                                            point_to=places[j],
-                                            road=road,
-                                            length=paths[i][j].length)
+    for i in xrange(places_len):
+        for j in xrange(places_len):
+            if paths[i][j].road_id is not None:
+                road = get_road_by_id(paths[i][j].road_id)
+            else:
+                road = None
 
+            if Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).exists():
+                Waymark.objects.filter(point_from=places[i].model, point_to=places[j].model).update(road=road.model if road else None,
+                                                                                                    length=paths[i][j].length)
+            else:
+                WaymarkPrototype.create(point_from=places[i],
+                                        point_to=places[j],
+                                        road=road,
+                                        length=paths[i][j].length)

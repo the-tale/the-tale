@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from dext.utils import s11n
-from dext.utils.decorators import nested_commit_on_success
 
 from ..heroes.prototypes import get_heroes_by_query
 
@@ -35,9 +34,9 @@ class AngelPrototype(object):
     def set_energy(self, value): self.model.energy = value
     energy = property(get_energy, set_energy)
 
-    def heroes(self): 
+    def heroes(self):
         #TODO: now this code only works on bundle init phase
-        #      using it from another places is dangerouse becouse of 
+        #      using it from another places is dangerouse becouse of
         #      desinchronization between workers and database
         if not hasattr(self, '_heroes'):
             self._heroes = get_heroes_by_query(self.model.heroes.all())
@@ -75,7 +74,7 @@ class AngelPrototype(object):
     ###########################################
 
     def remove(self): return self.model.delete()
-    def save(self): 
+    def save(self):
         self.save_abilities()
         self.model.save(force_update=True)
 
@@ -89,7 +88,6 @@ class AngelPrototype(object):
                 }
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, account, name):
         from ..abilities import deck
         # TODO: rewrite from create-change-save to save
@@ -111,5 +109,3 @@ class AngelPrototype(object):
             self.energy = self.energy_maximum
 
         return turn_number + 1
-
-

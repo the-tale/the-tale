@@ -4,7 +4,6 @@ import random
 import numbers
 
 from dext.utils import s11n
-from dext.utils.decorators import nested_commit_on_success
 
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
@@ -366,7 +365,6 @@ class HeroPrototype(object):
 
 
     @classmethod
-    @nested_commit_on_success
     def create(cls, angel):
         from game.actions.prototypes import ActionIdlenessPrototype
 
@@ -590,7 +588,6 @@ class ChooseAbilityTaskPrototype(object):
     def save(self):
         self.model.save()
 
-    @nested_commit_on_success
     def process(self, bundle):
 
         hero = bundle.heroes[self.hero_id]

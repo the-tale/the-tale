@@ -2,8 +2,6 @@
 
 from django.contrib.auth.models import User
 
-from dext.utils.decorators import nested_commit_on_success
-
 from accounts.prototypes import AccountPrototype
 
 from game.angels.prototypes import AngelPrototype
@@ -18,7 +16,6 @@ class REGISTER_USER_RESULT:
     DUPLICATE_EMAIL = 2
 
 
-@nested_commit_on_success
 def register_user(nick, email, password):
 
     if User.objects.filter(username=nick).exists():
