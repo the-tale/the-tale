@@ -56,6 +56,7 @@ class ActionPrototype(object):
         self.model = model
         self.removed = False
         self.bundle = None
+        self.updated = True
 
     @property
     def id(self): return self.model.id
@@ -199,6 +200,8 @@ class ActionPrototype(object):
             self._quest.save()
         self.model.save(force_update=True)
 
+        self.updated = False
+
     def ui_info(self):
         return {'id': self.id,
                 'type': self.type,
@@ -211,6 +214,8 @@ class ActionPrototype(object):
                 }
 
     def process_action(self):
+
+        self.updated = True
 
         self.process()
 

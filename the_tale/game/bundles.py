@@ -77,10 +77,8 @@ class BundlePrototype(object):
             hero.save()
 
         for action in self.actions.values():
-            # TODO: we should save non-leader actions after creating new action
-            # if not action.leader:
-            #     continue
-            action.save()
+            if action.updated:
+                action.save()
 
 
     @classmethod

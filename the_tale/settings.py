@@ -6,6 +6,9 @@ PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = False
 
+DEBUG_DATABASE_USAGE = False
+DEBUG_DATABASE_USAGE_OUTPUT_DIR = '/tmp/'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -161,3 +164,8 @@ AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,
                                               AMQP_BROKER_PASSWORD,
                                               AMQP_BROKER_HOST,
                                               AMQP_BROKER_VHOST)
+
+try:
+    from settings_check import *
+except:
+    pass

@@ -4,11 +4,12 @@ import heapq
 import traceback
 
 from django.utils.log import getLogger
+from django.conf import settings as project_settings
 
 from dext.utils.decorators import nested_commit_on_success
 
-from ..heroes.prototypes import get_hero_by_id
-from ..bundles import get_bundle_by_id
+from game.heroes.prototypes import get_hero_by_id
+from game.bundles import get_bundle_by_id
 
 logger = getLogger('django.request')
 
@@ -104,6 +105,8 @@ class Worker(object):
         return self.send_cmd(CMD_TYPE.NEXT_TURN, data={'turn_number': turn_number})
 
     def process_next_turn(self, turn_number):
+        from game.logic import log_sql_queries
+
         with nested_commit_on_success():
             self.turn_number += 1
 
@@ -111,7 +114,7 @@ class Worker(object):
                 raise LogicException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
 
             if not len(self.queue):
-                return 
+                return
 
             while True:
                 turn_number, bundle_id = self.queue[0]
@@ -127,6 +130,9 @@ class Worker(object):
 
                 heapq.heappushpop(self.queue, (next_turn_number, bundle.id) )
                 bundle.save_data()
+
+        if project_settings.DEBUG_DATABASE_USAGE:
+            log_sql_queries(turn_number)
 
         self.supervisor_worker.cmd_answer('next_turn', self.worker_id)
 
@@ -146,7 +152,7 @@ class Worker(object):
 
         if bundle.id in self.bundles:
             print 'WARNING: bundle with id "%d" has already registerd in worker, probably on initialization step' % bundle.id
-            return 
+            return
 
         self.bundles[bundle.id] = bundle
 
@@ -154,7 +160,7 @@ class Worker(object):
             self.angels2bundles[angel_id] = bundle.id
 
         for hero_id in bundle.heroes.keys():
-            self.heroes2bundles[hero_id] = bundle.id            
+            self.heroes2bundles[hero_id] = bundle.id
 
         heapq.heappush(self.queue, (0, bundle_id))
 
@@ -165,7 +171,7 @@ class Worker(object):
     def process_activate_ability(self, ability_task_id):
         with nested_commit_on_success():
             from ..abilities.prototypes import AbilityTaskPrototype
-            
+
             task = AbilityTaskPrototype.get_by_id(ability_task_id)
             bundle = self.bundles[self.angels2bundles[task.angel_id]]
             task.process(bundle, self.turn_number)
@@ -178,7 +184,7 @@ class Worker(object):
 
     def process_register_hero(self, hero_id):
         hero = get_hero_by_id(hero_id)
-        bundle = self.bundles[self.angels2bundles[hero.angel_id]] 
+        bundle = self.bundles[self.angels2bundles[hero.angel_id]]
         bundle.add_hero(hero)
         self.heroes2bundles[hero.id] = bundle
 
@@ -190,7 +196,7 @@ class Worker(object):
     def process_choose_hero_ability(self, ability_task_id):
         with nested_commit_on_success():
             from ..heroes.prototypes import ChooseAbilityTaskPrototype
-            
+
             task = ChooseAbilityTaskPrototype.get_by_id(ability_task_id)
 
             bundle = self.bundles[self.heroes2bundles[task.hero_id]]
@@ -198,4 +204,3 @@ class Worker(object):
             task.process(bundle)
             task.save()
             bundle.save_data()
-
