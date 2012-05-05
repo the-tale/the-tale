@@ -10,6 +10,7 @@ class AbilitiesPrototype(object):
 
     def __init__(self, abilities):
         self.abilities = dict( (ability_id, ABILITIES[ability_id]) for ability_id in abilities)
+        self.updated = True
 
     @classmethod
     def deserialize(cls, data):
@@ -38,6 +39,7 @@ class AbilitiesPrototype(object):
     def get(self, ability_id): return self.abilities[ability_id]
 
     def add(self, ability_id):
+        self.updated = True
         self.abilities[ability_id] = ABILITIES[ability_id]
 
 

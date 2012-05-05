@@ -668,6 +668,7 @@ class ActionInPlacePrototype(ActionPrototype):
                     if artifact is not None:
                         # sharpening artefact
                         artifact.power += 1
+                        self.hero.equipment.updated = True
                         self.hero.add_message('sharpening_artifact', hero=self.hero, coins=coins, artifact=artifact)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.USELESS:

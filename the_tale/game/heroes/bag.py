@@ -9,6 +9,7 @@ class Bag(object):
 
     def __init__(self):
         self.next_uuid = 0
+        self.updated = True
         self.bag = {}
 
     def deserialize(self, data):
@@ -26,12 +27,14 @@ class Bag(object):
         return dict( (int(uuid), artifact.ui_info()) for uuid, artifact in self.bag.items() )
 
     def put_artifact(self, artifact):
+        self.updated = True
         uuid = self.next_uuid
         self.bag[uuid] = artifact
         artifact.set_bag_uuid(uuid)
         self.next_uuid += 1
 
     def pop_artifact(self, artifact):
+        self.updated = True
         del self.bag[artifact.bag_uuid]
 
     def pop_quest_artifact(self, artifact):
@@ -110,6 +113,8 @@ class Equipment(object):
 
     def __init__(self):
         self.equipment = {}
+        self.updated = True
+
 
     def get_power(self):
         power = 0
@@ -131,6 +136,7 @@ class Equipment(object):
     def unequip(self, slot):
         if slot not in self.equipment:
             return None
+        self.updated = True
         artifact = self.equipment[slot]
         del self.equipment[slot]
         return artifact
@@ -140,6 +146,8 @@ class Equipment(object):
             raise EquipmentException('slot for equipment has already busy')
         if slot not in SLOTS_LIST:
             raise EquipmentException('unknown slot id: %s' % slot)
+
+        self.updated = True
         self.equipment[slot] = artifact
 
     def get(self, slot):

@@ -44,6 +44,8 @@ class HeroPrototype(object):
 
     def __init__(self, model=None):
         self.model = model
+        self.messages_updated = False
+
 
     def get_is_alive(self): return self.model.alive
     def set_is_alive(self, value): self.model.alive = value
@@ -302,6 +304,7 @@ class HeroPrototype(object):
         return self._messages
 
     def push_message(self, msg):
+        self.messages_updated = True
         self.messages.append(msg)
         if len(self.messages) > heroes_settings.MESSAGES_LOG_LENGTH:
             self.messages.pop(0)
@@ -329,37 +332,24 @@ class HeroPrototype(object):
 
     def remove(self): return self.model.delete()
     def save(self):
-        self.model.bag = s11n.to_json(self.bag.serialize())
-        self.model.equipment = s11n.to_json(self.equipment.serialize())
-        self.model.abilities = s11n.to_json(self.abilities.serialize())
-        self.model.messages = s11n.to_json(self.messages)
+        if self.bag.updated:
+            self.model.bag = s11n.to_json(self.bag.serialize())
+            self.bag.updated = False
+
+        if self.equipment.updated:
+            self.model.equipment = s11n.to_json(self.equipment.serialize())
+            self.equipment.updated = False
+
+        if self.abilities.updated:
+            self.model.abilities = s11n.to_json(self.abilities.serialize())
+            self.abilities.updated = False
+
+        if self.messages_updated:
+            self.model.messages = s11n.to_json(self.messages)
+            self.messages_updated = False
 
         database.raw_save(self.model)
 
-        # from django.db import connection, transaction
-        # cursor = connection.cursor()
-        # sql = ["UPDATE heroes_hero SET"]
-        # args = []
-        # for j, field in enumerate(Hero._meta.fields):
-        #     sql.extend([field.column, ' = ', '%s'])
-        #     args.append(getattr(self.model, field.attname))
-        #     if j != len(Hero._meta.fields) - 1:
-        #         sql.append(',')
-        # sql.append('WHERE id = %s')
-        # args.append(self.model.id)
-        # sql = u' '.join(sql)
-
-        # cursor.execute(sql, args)
-        # transaction.commit_unless_managed()
-
-
-        # data = {}
-        # for field in Hero._meta.fields:
-        #     data[field.name] = getattr(self.model, field.name)
-
-        # Hero.objects.filter(id=self.model.id).update(**data)
-
-        # self.model.save(force_update=True)
 
     def ui_info(self, ignore_actions=False, ignore_quests=False):
 
