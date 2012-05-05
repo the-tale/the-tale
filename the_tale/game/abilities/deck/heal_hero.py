@@ -9,7 +9,7 @@ class HealHero(AbilityPrototype):
     LIMITED = False
     INITIAL_LIMIT = None
 
-    COST = 30
+    COST = 2
     COOLDOWN = 10
 
     NAME = u'Вылечить'
@@ -18,11 +18,9 @@ class HealHero(AbilityPrototype):
 
     FORM = None
     TEMPLATE = None
-      
+
     def use(self, bundle, angel, hero, form):
         old_health = hero.health
         hero.health = min(hero.max_health, hero.health + hero.max_health * 0.3)
         hero.add_message('angel_ability_healhero', hero=hero, health=(hero.health-old_health))
         return True
-
-

@@ -11,7 +11,7 @@ class ShortTeleport(AbilityPrototype):
     LIMITED = False
     INITIAL_LIMIT = None
 
-    COST = 20
+    COST = 3
     COOLDOWN = 15
 
     NAME = u'Подтолкнуть'
@@ -20,7 +20,7 @@ class ShortTeleport(AbilityPrototype):
 
     FORM = None
     TEMPLATE = None
-      
+
     def use(self, bundle, angel, hero, form):
         move_action = bundle.current_hero_action(hero.id)
 
@@ -33,5 +33,3 @@ class ShortTeleport(AbilityPrototype):
         hero.add_message('angel_ability_shortteleport', hero=hero)
 
         return True
-
-

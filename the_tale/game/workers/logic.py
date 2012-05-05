@@ -7,7 +7,7 @@ from django.utils.log import getLogger
 from django.conf import settings as project_settings
 
 from dext.utils.decorators import nested_commit_on_success
-from dext.utils.profile import profile_decorator
+# from dext.utils.profile import profile_decorator
 
 from game.heroes.prototypes import get_hero_by_id
 from game.bundles import get_bundle_by_id

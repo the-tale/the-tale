@@ -4,6 +4,7 @@ import random
 import numbers
 
 from dext.utils import s11n
+from dext.utils import database
 
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
@@ -333,13 +334,32 @@ class HeroPrototype(object):
         self.model.abilities = s11n.to_json(self.abilities.serialize())
         self.model.messages = s11n.to_json(self.messages)
 
+        database.raw_save(self.model)
+
+        # from django.db import connection, transaction
+        # cursor = connection.cursor()
+        # sql = ["UPDATE heroes_hero SET"]
+        # args = []
+        # for j, field in enumerate(Hero._meta.fields):
+        #     sql.extend([field.column, ' = ', '%s'])
+        #     args.append(getattr(self.model, field.attname))
+        #     if j != len(Hero._meta.fields) - 1:
+        #         sql.append(',')
+        # sql.append('WHERE id = %s')
+        # args.append(self.model.id)
+        # sql = u' '.join(sql)
+
+        # cursor.execute(sql, args)
+        # transaction.commit_unless_managed()
+
+
         # data = {}
         # for field in Hero._meta.fields:
         #     data[field.name] = getattr(self.model, field.name)
 
         # Hero.objects.filter(id=self.model.id).update(**data)
 
-        self.model.save(force_update=True)
+        # self.model.save(force_update=True)
 
     def ui_info(self, ignore_actions=False, ignore_quests=False):
 

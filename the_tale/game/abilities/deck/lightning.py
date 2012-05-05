@@ -11,7 +11,7 @@ class Lightning(AbilityPrototype):
     LIMITED = False
     INITIAL_LIMIT = None
 
-    COST = 20
+    COST = 1
     COOLDOWN = 10
 
     NAME = u'Жахнуть'

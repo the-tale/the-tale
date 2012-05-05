@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from dext.utils import s11n
+from dext.utils import database
 
 from game.heroes.prototypes import get_heroes_by_query
 
@@ -85,7 +86,8 @@ class AngelPrototype(object):
     def remove(self): return self.model.delete()
     def save(self):
         self.save_abilities()
-        self.model.save(force_update=True)
+        database.raw_save(self.model)
+        # self.model.save(force_update=True)
         self.updated = False
 
     def ui_info(self, ignore_actions=False, ignore_quests=False):

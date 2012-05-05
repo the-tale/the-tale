@@ -2,6 +2,7 @@
 import random
 
 from dext.utils import s11n
+from dext.utils import database
 
 from game.heroes.logic import create_mob_for_hero
 from game.heroes.bag import SLOTS_LIST
@@ -197,7 +198,9 @@ class ActionPrototype(object):
             self.model.mob_context = s11n.to_json(self.mob_context.serialize())
         if hasattr(self, '_quest'):
             self._quest.save()
-        self.model.save(force_update=True)
+
+        database.raw_save(self.model)
+        # self.model.save(force_update=True)
 
         self.updated = False
 
