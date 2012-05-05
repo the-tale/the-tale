@@ -120,3 +120,11 @@ EXP_PER_HOUR = float(BATTLES_PER_HOUR * EXP_PER_MOB)  # опыт в час ;
 # принимаем, что награда по ценности будет эквивалентна получению артефакта
 QUEST_REWARD_MONEY_FRACTION = 0.5 # вероятность получения денег
 QUEST_REWARD_ARTIFACT_FRACTION = 1 - QUEST_REWARD_MONEY_FRACTION # вероятность получения артефакта
+
+
+# параметры ангелов
+
+# енергия должна полностью регенериться за сутки, раз в 2 часа должна появляться новая мажка
+ANGEL_ENERGY_MAX = int(12) # всего энергии
+ANGEL_ENERGY_REGENERATION_PERIOD = int(2 * TURNS_IN_HOUR) # раз в сколько часов регенерируем
+ANGEL_ENERGY_REGENERATION_AMAUNT = int(1) # сколько восстанавливаем

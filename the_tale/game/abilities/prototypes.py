@@ -150,7 +150,9 @@ class AbilityTaskPrototype(object):
 
         ability = angel.abilities[self.type]
 
-        if angel.energy < ability.COST:
+        energy = angel.get_energy_at_turn(turn_number)
+
+        if energy < ability.COST:
             self.state = ABILITY_STATE.ERROR
             return
 
@@ -173,7 +175,7 @@ class AbilityTaskPrototype(object):
             return
 
         self.state = ABILITY_STATE.PROCESSED
-        angel.energy -= ability.COST
+        angel.set_energy_at_turn(turn_number, energy - ability.COST)
 
         if ability.LIMITED:
             ability.limit -= 1

@@ -55,7 +55,7 @@ class ActionPrototype(object):
         self.model = model
         self.removed = False
         self.bundle = None
-        self.updated = True
+        self.updated = False
 
     @property
     def id(self): return self.model.id

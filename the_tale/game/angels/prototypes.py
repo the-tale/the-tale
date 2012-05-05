@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from dext.utils import s11n
 
-from ..heroes.prototypes import get_heroes_by_query
+from game.heroes.prototypes import get_heroes_by_query
 
-from .models import Angel
-from .game_info import ENERGY
+from game.balance import constants as c
+
+from game.angels.models import Angel
+
 
 def get_angel_by_id(model_id):
     angel = Angel.objects.get(id=model_id)
@@ -17,6 +19,7 @@ class AngelPrototype(object):
 
     def __init__(self, model=None):
         self.model = model
+        self.updated = False
 
     @property
     def id(self): return self.model.id
@@ -24,15 +27,21 @@ class AngelPrototype(object):
     @property
     def name(self): return self.model.name
 
-    @property
-    def energy_maximum(self): return ENERGY.MAXIMUM
+    def get_updated_at_turn(self): return self.model.updated_at_turn
+    def set_updated_at_turn(self, value): self.model.updated_at_turn = value
+    updated_at_turn = property(get_updated_at_turn, set_updated_at_turn)
 
     @property
-    def energy_regeneration(self): return ENERGY.REGENERATION
+    def energy_maximum(self): return c.ANGEL_ENERGY_MAX
 
-    def get_energy(self): return self.model.energy
-    def set_energy(self, value): self.model.energy = value
-    energy = property(get_energy, set_energy)
+    def get_energy_at_turn(self, turn_number):
+        regeneration_periods = int(turn_number - self.updated_at_turn) / c.ANGEL_ENERGY_REGENERATION_PERIOD
+        return min(self.energy_maximum, self.model.energy + c.ANGEL_ENERGY_REGENERATION_AMAUNT * regeneration_periods)
+
+    def set_energy_at_turn(self, turn_number, energy):
+        self.updated_at_turn = turn_number
+        self.updated = True
+        self.model.energy = energy
 
     def heroes(self):
         #TODO: now this code only works on bundle init phase
@@ -77,12 +86,12 @@ class AngelPrototype(object):
     def save(self):
         self.save_abilities()
         self.model.save(force_update=True)
+        self.updated = False
 
     def ui_info(self, ignore_actions=False, ignore_quests=False):
         return {'id': self.id,
                 'name': self.name,
                 'energy': { 'max': self.energy_maximum,
-                            'regen': self.energy_regeneration,
                             'value': self.energy },
                 'abilities': [ability.ui_info() for ability_type, ability in self.abilities.items()]
                 }
@@ -91,7 +100,7 @@ class AngelPrototype(object):
     def create(cls, account, name):
         from ..abilities import deck
         # TODO: rewrite from create-change-save to save
-        angel_model = Angel.objects.create(account=account.model, name=name, energy=ENERGY.MAXIMUM/2)
+        angel_model = Angel.objects.create(account=account.model, name=name, energy=c.ANGEL_ENERGY_MAX)
         angel = AngelPrototype(model=angel_model)
         angel.abilities.update({deck.HealHero.get_type(): deck.HealHero()})
         angel.save()
@@ -104,8 +113,4 @@ class AngelPrototype(object):
     ###########################################
 
     def process_turn(self, turn_number):
-        self.energy += self.energy_regeneration
-        if self.energy > self.energy_maximum:
-            self.energy = self.energy_maximum
-
         return turn_number + 1

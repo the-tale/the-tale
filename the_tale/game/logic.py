@@ -3,8 +3,6 @@ import os
 
 from django.conf import settings as project_settings
 
-from dext.utils import s11n
-
 from game.heroes.bag import SLOTS
 from game.artifacts.storage import ArtifactsDatabase
 from game.bundles import get_bundle_by_id

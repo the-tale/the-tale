@@ -68,7 +68,8 @@ class BundlePrototype(object):
     def save_data(self):
 
         for angel in self.angels.values():
-            angel.save()
+            if angel.updated:
+                angel.save()
 
         for hero in self.heroes.values():
             hero.save()
@@ -119,3 +120,6 @@ class BundlePrototype(object):
 
     def tests_get_hero(self):
         return self.heroes.values()[0]
+
+    def tests_get_angel(self):
+        return self.angels.values()[0]

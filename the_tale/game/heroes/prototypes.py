@@ -332,6 +332,13 @@ class HeroPrototype(object):
         self.model.equipment = s11n.to_json(self.equipment.serialize())
         self.model.abilities = s11n.to_json(self.abilities.serialize())
         self.model.messages = s11n.to_json(self.messages)
+
+        # data = {}
+        # for field in Hero._meta.fields:
+        #     data[field.name] = getattr(self.model, field.name)
+
+        # Hero.objects.filter(id=self.model.id).update(**data)
+
         self.model.save(force_update=True)
 
     def ui_info(self, ignore_actions=False, ignore_quests=False):
