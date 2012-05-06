@@ -5,14 +5,15 @@ from dext.utils.decorators import staff_required, debug_required
 
 from common.utils.resources import Resource
 
-from .heroes.logic import get_angel_heroes
+from game.heroes.logic import get_angel_heroes
 
-from .prototypes import get_current_time
+from game.prototypes import get_current_time
 
-from .map.conf import map_settings
-from .angels.prototypes import get_angel_by_id
+from game.map.conf import map_settings
+from game.angels.prototypes import get_angel_by_id
+from game.quests.prototypes import QuestPrototype
 
-from .conf import game_settings
+from game.conf import game_settings
 
 class GameResource(Resource):
 
@@ -37,7 +38,18 @@ class GameResource(Resource):
 
         if angel:
             foreign_angel = get_angel_by_id(int(angel))
-            data['heroes'] = dict( (hero.id, hero.ui_info()) for hero in get_angel_heroes(foreign_angel.id) )
+
+            data['heroes'] = {}
+
+            for hero in get_angel_heroes(foreign_angel.id):
+                data['heroes'][hero.id]= hero.ui_info()
+
+                for hero_id, hero_data in data['heroes'].items():
+                    quest = QuestPrototype.get_for_hero(hero_id)
+                    if quest:
+                        data['heroes'][hero_id]['quests'] = quest.ui_info(hero)
+                    else:
+                        data['heroes'][hero_id]['quests'] = {}
 
         return self.json(status='ok', data=data)
 

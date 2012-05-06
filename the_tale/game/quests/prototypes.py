@@ -7,7 +7,7 @@ from game.balance import constants as c, formulas as f
 
 from game.artifacts.storage import ArtifactsDatabase
 
-from game.quests.models import Quest
+from game.quests.models import Quest, QuestsHeroes
 from game.quests.exceptions import QuestException
 
 
@@ -27,11 +27,17 @@ class QuestPrototype(object):
         super(QuestPrototype, self).__init__(*argv, **kwargs)
         self.model = model
 
-    @property
-    def id(self): return self.model.id
+    @classmethod
+    def get_for_hero(cls, hero_id):
+        quests_models = list(QuestsHeroes.objects.filter(hero_id=hero_id))
+        if len(quests_models) > 1:
+            raise QuestException(u'more then one quest found fo hero: %d (quests: %r)' % (hero_id, [quest.id for quest in quests_models]))
+        if quests_models:
+            return cls(model=quests_models[0].quest)
+        return None
 
     @property
-    def hero_id(self): return self.model.hero_id
+    def id(self): return self.model.id
 
     @property
     def percents(self):
@@ -110,12 +116,13 @@ class QuestPrototype(object):
         data = { 'pointer': env.get_start_pointer(),
                  'last_pointer': env.get_start_pointer()}
 
-        if Quest.objects.filter(hero=hero.model).exists():
+        if QuestsHeroes.objects.filter(hero=hero.model).exists():
             raise Exception('Hero %s has already had quest' % hero.id)
 
-        model = Quest.objects.create(hero=hero.model,
-                                     env=s11n.to_json(env.serialize()),
+        model = Quest.objects.create(env=s11n.to_json(env.serialize()),
                                      data=s11n.to_json(data))
+
+        QuestsHeroes.objects.create(quest=model, hero=hero.model)
 
         quest = QuestPrototype(model=model)
 

@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from .models import Quest, QuestChoice
+from .models import Quest, QuestChoice, QuestsHeroes
 from .prototypes import QuestPrototype
 
 class QuestChoiceInline(admin.TabularInline):
@@ -15,6 +15,12 @@ class QuestAdmin(admin.ModelAdmin):
 
     def percents(self, instance):
         return QuestPrototype(model=instance).percents
+
+    def hero(self, instance):
+        heroes = QuestsHeroes.objects.filter(quest=instance.id).values_list('id', flat=True)
+        if heroes:
+            return heroes[0]
+        return None
 
 
 admin.site.register(Quest, QuestAdmin)

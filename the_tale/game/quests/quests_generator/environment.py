@@ -25,7 +25,7 @@ class BaseEnvironment(object):
         self.persons_power_points = {}
 
         self._root_quest = None
-        
+
     def new_place(self, place_uuid=None):
         if not place_uuid:
             place_uuid = self.knowlege_base.get_random_place(exclude=self.places.keys())
@@ -65,11 +65,11 @@ class BaseEnvironment(object):
 
         quest.initialize(quest_id,
                          self,
-                         place_start=place_start, 
+                         place_start=place_start,
                          person_start=person_start)
 
         self.quests[quest_id] = quest
-        
+
         return quest_id
 
     def new_line(self, line):
@@ -107,7 +107,7 @@ class BaseEnvironment(object):
                                   'quest_text': writer.get_description_msg(),
                                   'action_type': command.type(),
                                   'action_text': writer.get_action_msg(command.event)})
-        
+
         return writers_chain
 
     def get_nearest_quest_choice(self, pointer):
@@ -143,9 +143,9 @@ class BaseEnvironment(object):
                  'persons': self.persons,
                  'items': self.items,
                  'choices': self.choices,
-                 'quests': dict( (quest_id, quest.serialize() ) 
+                 'quests': dict( (quest_id, quest.serialize() )
                                  for quest_id, quest in self.quests.items() ),
-                 'lines': dict( (line_id, line.serialize() ) 
+                 'lines': dict( (line_id, line.serialize() )
                                  for line_id, line in self.lines.items() ),
                  'root_quest': self._root_quest,
                  'persons_power_points': self.persons_power_points}
@@ -160,7 +160,7 @@ class BaseEnvironment(object):
         self.items = data['items']
         self.choices = data.get('choices', {})
 
-        self.quests = dict( (quest_id, self.quests_source.deserialize_quest(quest_data)) 
+        self.quests = dict( (quest_id, self.quests_source.deserialize_quest(quest_data))
                             for quest_id, quest_data in data['quests'].items())
 
         for line_id, line_data in data['lines'].items():

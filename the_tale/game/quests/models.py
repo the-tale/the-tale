@@ -3,8 +3,7 @@ from django.db import models
 
 class Quest(models.Model):
 
-    #DO NOT USE THIS FIELD FROM WORKERS!!!! ONLY USE FOR GET QUESTS INFO FOR HERO
-    hero = models.ForeignKey('heroes.Hero', related_name='+', null=False)
+    heroes = models.ManyToManyField('heroes.Hero', through='QuestsHeroes')
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -12,6 +11,11 @@ class Quest(models.Model):
 
     data = models.TextField(null=False, default='{}')
     env = models.TextField(null=False, default='{}')
+
+
+class QuestsHeroes(models.Model):
+    hero = models.ForeignKey('heroes.Hero', related_name='+', null=False)
+    quest = models.ForeignKey(Quest, related_name='+', null=False)
 
 
 class QuestChoice(models.Model):

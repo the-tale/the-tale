@@ -255,17 +255,6 @@ class HeroPrototype(object):
         return equipped is not None
 
     ###########################################
-    # quests
-    ###########################################
-
-    @property
-    def quest(self):
-        try:
-            return get_quest_by_model(Quest.objects.get(hero=self.model))
-        except Quest.DoesNotExist:
-            return None
-
-    ###########################################
     # actions
     ###########################################p
 
@@ -371,14 +360,13 @@ class HeroPrototype(object):
                 self.statistics == other.statistics and
                 self.messages == other.messages)
 
-    def ui_info(self, ignore_actions=False, ignore_quests=False):
+    def ui_info(self, ignore_actions=False):
 
         quest_items_count, loot_items_count = self.bag.occupation
 
         return {'id': self.id,
                 'angel': self.angel_id,
                 'actions': [ action.ui_info() for action in self.get_actions() ] if not ignore_actions else [],
-                'quests': self.quest.ui_info(self) if self.quest else {},
                 'messages': self.messages,
                 'position': self.position.ui_info(),
                 'alive': self.is_alive,

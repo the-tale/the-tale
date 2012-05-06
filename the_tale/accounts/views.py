@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login as django_login, authenticate as django_authenticate, logout as django_logout
 
 from dext.views.resources import handler
+from dext.utils.decorators import nested_commit_on_success
 
 from common.utils.resources import Resource
 
@@ -46,20 +47,22 @@ class AccountsResource(Resource):
 
         if registration_form.is_valid():
 
-            result, bundle_id = register_user(nick=registration_form.c.nick,
-                                              email=registration_form.c.email,
-                                              password=registration_form.c.password)
+            with nested_commit_on_success():
 
-            if result == REGISTER_USER_RESULT.DUPLICATE_EMAIL:
-                return self.json(status='error', errors={'email': [u'Пользователь с таким e-mail уже существует']})
-            elif result == REGISTER_USER_RESULT.DUPLICATE_USERNAME:
-                return self.json(status='error', errors={'nick': [u'Пользователь с таким ником уже существует']})
-            elif result == REGISTER_USER_RESULT.OK:
-                pass
-            else:
-                return self.json(status='error', errors={'nick': [u'Неизвестная ошибка']})
+                result, bundle_id = register_user(nick=registration_form.c.nick,
+                                                  email=registration_form.c.email,
+                                                  password=registration_form.c.password)
 
-            self.login_user(registration_form.c.nick, registration_form.c.password)
+                if result == REGISTER_USER_RESULT.DUPLICATE_EMAIL:
+                    return self.json(status='error', errors={'email': [u'Пользователь с таким e-mail уже существует']})
+                elif result == REGISTER_USER_RESULT.DUPLICATE_USERNAME:
+                    return self.json(status='error', errors={'nick': [u'Пользователь с таким ником уже существует']})
+                elif result == REGISTER_USER_RESULT.OK:
+                    pass
+                else:
+                    return self.json(status='error', errors={'nick': [u'Неизвестная ошибка']})
+
+                self.login_user(registration_form.c.nick, registration_form.c.password)
 
             # send command after success commit
             # TODO: check if bundle created

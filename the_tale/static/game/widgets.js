@@ -160,7 +160,7 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
     var widget = jQuery(selector);
     
     var actionBlock = jQuery('.pgf-current-action-block', widget);
-    var questsBlock = jQuery('.pgf-current-quests-block', widget)
+    var questsBlock = jQuery('.pgf-current-quests-block', widget);
 
     var actionInfo = jQuery('.pgf-action-info', widget);
     var questsLine = jQuery('.pgf-quests-line', widget);
@@ -181,30 +181,28 @@ pgf.game.widgets.Actions = function(selector, updater, widgets, params) {
         IN_CITY: 'IN_CITY'
     };
 
-    var instance = this;
-
-    function RenderQuest(index, data, element) {
+    function RenderQuest(index, quest, element) {
         jQuery('.pgf-quest-icon', element)
             .removeClass()
             .addClass('quest-icon pgf-quest-icon')
-            .toggleClass('pgf-hidden', !data.quest_text)
-            .addClass(data.quest_type)
-            .data('tooltip', data.quest_text);
+            .toggleClass('pgf-hidden', !quest.quest_text)
+            .addClass(quest.quest_type)
+            .data('tooltip', quest.quest_text);
 
         jQuery('.pgf-action-icon', element)
             .removeClass()
             .addClass('action-icon pgf-action-icon')
-            .toggleClass('pgf-hidden', !data.action_text)
-            .addClass(data.action_type)
-            .data('tooltip', data.action_text);
+            .toggleClass('pgf-hidden', !quest.action_text)
+            .addClass(quest.action_type)
+            .data('tooltip', quest.action_text);
         
     }
 
     function RenderQuests() {
-        questsLine.toggleClass('pgf-hidden', !(data.quests.line && data.quests.line.length > 0) )
-        noQuestsMsg.toggleClass('pgf-hidden', !!(data.quests.line && data.quests.line.length > 0) )
+        questsLine.toggleClass('pgf-hidden', !(data.quests.line && data.quests.line.length > 0) );
+        noQuestsMsg.toggleClass('pgf-hidden', !!(data.quests.line && data.quests.line.length > 0) );
 
-        jQuery('.pgf-quests-progress', questsBlock).toggleClass('pgf-hidden', !(data.quests.line && data.quests.line.length > 0) )
+        jQuery('.pgf-quests-progress', questsBlock).toggleClass('pgf-hidden', !(data.quests.line && data.quests.line.length > 0) );
 
         if (data.quests.line && data.quests.line.length > 0) {
             pgf.base.RenderTemplateList(questsLine, data.quests.line, RenderQuest, {});
