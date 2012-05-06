@@ -21,6 +21,16 @@
   border-color: #FF6600;
   background-color: #FF9900;
 }
+.hero-statistics h2 {
+  font-size: 14pt;
+}
+.hero-statistics h3 {
+  font-size: 12pt;
+  padding-top: 0.5em;
+}
+.hero-statistics .stat-record .value {
+  float: right;
+}
 .hero-abilities-list {
   margin: 5px;
 }

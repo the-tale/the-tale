@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 
-from game.logic import create_test_bundle, create_test_map
+from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionQuestPrototype
 
 from game.quests.logic import create_random_quest_for_hero
@@ -26,15 +26,22 @@ class QuestActionTest(TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_quest.leader, True)
+        test_bundle_save(self, self.bundle)
 
     def test_one_step(self):
         self.bundle.process_turn(1)
         # quest can create new action on first step
         self.assertTrue(2 <= len(self.bundle.actions) <= 3)
+        test_bundle_save(self, self.bundle)
 
 
     def test_full_quest(self):
 
+        turn_number = 1
+
         # just test that quest will be ended
         while not self.action_idl.leader:
-            self.bundle.process_turn(1)
+            self.bundle.process_turn(turn_number)
+            turn_number += 1
+
+        test_bundle_save(self, self.bundle)

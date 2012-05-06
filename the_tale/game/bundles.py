@@ -75,6 +75,7 @@ class BundlePrototype(object):
             hero.save()
 
         for action in self.actions.values():
+            # print 'try save', action.__class__, action.updated, action.leader
             if action.updated:
                 action.save()
 
@@ -123,3 +124,14 @@ class BundlePrototype(object):
 
     def tests_get_angel(self):
         return self.angels.values()[0]
+
+
+    def __eq__(self, other):
+        # print self.angels == other.angels
+        # print self.heroes == other.heroes
+        # print self.actions == other.actions
+        # print self.model == other.model
+        return (self.angels == other.angels and
+                self.heroes == other.heroes and
+                self.actions == other.actions and
+                self.model == other.model)

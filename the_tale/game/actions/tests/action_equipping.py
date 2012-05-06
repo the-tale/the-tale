@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 
-from game.logic import create_test_bundle, create_test_map
+from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionEquippingPrototype
 
 from game.artifacts.storage import ArtifactsDatabase
@@ -27,12 +27,14 @@ class ActionEquippingTest(TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_equipping.leader, True)
+        test_bundle_save(self, self.bundle)
 
 
     def test_processed(self):
         self.bundle.process_turn(1)
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
+        test_bundle_save(self, self.bundle)
 
 
     def test_equip(self):
@@ -51,6 +53,8 @@ class ActionEquippingTest(TestCase):
 
         equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
         self.assertEqual(self.hero.equipment.get(equip_slot), artifact)
+
+        test_bundle_save(self, self.bundle)
 
 
     def test_switch_artifact(self):
@@ -76,3 +80,5 @@ class ActionEquippingTest(TestCase):
         equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
         self.assertEqual(self.hero.equipment.get(equip_slot), new_artifact)
         self.assertEqual(self.hero.equipment.get(equip_slot).power, 666)
+
+        test_bundle_save(self, self.bundle)

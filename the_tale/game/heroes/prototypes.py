@@ -351,6 +351,26 @@ class HeroPrototype(object):
         database.raw_save(self.model)
 
 
+    def __eq__(self, other):
+        return (self.id == other.id and
+                self.is_alive == other.is_alive and
+                self.angel_id == other.angel_id and
+                self.name == other.name and
+                self.gender == other.gender and
+                self.race == other.race and
+                self.level == other.level and
+                self.experience == other.experience and
+                self.destiny_points == other.destiny_points and
+                self.health == other.health and
+                self.money == other.money and
+                self.abilities == other.abilities and
+                self.bag == other.bag and
+                self.equipment == other.equipment and
+                self.next_spending == other.next_spending and
+                self.position == other.position and
+                self.statistics == other.statistics and
+                self.messages == other.messages)
+
     def ui_info(self, ignore_actions=False, ignore_quests=False):
 
         quest_items_count, loot_items_count = self.bag.occupation
@@ -456,6 +476,9 @@ class HeroPositionPrototype(object):
     def set_place(self, place):
         self._reset_position()
         self.hero_model.pos_place = place.model
+
+    @property
+    def road_id(self): return self.hero_model.pos_road_id
 
     @property
     def road(self):
@@ -564,6 +587,13 @@ class HeroPositionPrototype(object):
                                  'from': { 'x': self.coordinates_from[0],
                                            'y': self.coordinates_from[1]} } }
 
+    def __eq__(self, other):
+        return ( self.place_id == other.place_id and
+                 self.road_id == other.road_id and
+                 self.percents == other.percents and
+                 self.invert_direction == other.invert_direction and
+                 self.coordinates_from == other.coordinates_from and
+                 self.coordinates_to == other.coordinates_to)
 
 
 class ChooseAbilityTaskPrototype(object):

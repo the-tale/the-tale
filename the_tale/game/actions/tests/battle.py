@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 
-from game.logic import create_test_bundle, create_test_map
+from game.logic import create_test_bundle, create_test_map, test_bundle_save
 
 from game.actions.battle import Actor
 from game.actions.contexts import BattleContext
@@ -57,6 +57,8 @@ class ActorTest(TestCase):
         self.assertTrue(hit_selected)
         self.assertTrue(run_up_push_selected)
 
+        test_bundle_save(self, self.bundle)
+
 
     def test_mob_actor(self):
         hero = self.bundle.tests_get_hero()
@@ -94,3 +96,5 @@ class ActorTest(TestCase):
 
         self.assertTrue(hit_selected)
         self.assertTrue(run_up_push_selected)
+
+        test_bundle_save(self, self.bundle)

@@ -74,3 +74,11 @@ class ArtifactPrototype(object):
                 'name': self.name,
                 'power': self.power,
                 'quest': self.quest}
+
+    def __eq__(self, other):
+        return (self.record.id == other.record.id and
+                self.quest == other.quest and
+                self.power == other.power and
+                self.level == other.level and
+                self.quest_uuid == other.quest_uuid and
+                self.bag_uuid == other.bag_uuid)

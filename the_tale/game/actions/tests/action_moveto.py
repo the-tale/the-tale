@@ -3,7 +3,7 @@ import mock
 
 from django.test import TestCase
 
-from game.logic import create_test_bundle, create_test_map
+from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionMoveToPrototype, ActionInPlacePrototype, ActionRestPrototype, ActionResurrectPrototype, ActionBattlePvE1x1Prototype
 
 
@@ -31,6 +31,7 @@ class MoveToActionTest(TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_move.leader, True)
+        test_bundle_save(self, self.bundle)
 
 
     def test_processed(self):
@@ -38,6 +39,7 @@ class MoveToActionTest(TestCase):
         self.bundle.process_turn(1)
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
+        test_bundle_save(self, self.bundle)
 
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
@@ -46,14 +48,19 @@ class MoveToActionTest(TestCase):
         self.assertEqual(len(self.bundle.actions), 2)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_move)
         self.assertTrue(self.hero.position.road)
+        test_bundle_save(self, self.bundle)
 
 
     def test_full_move(self):
 
+        turn_number = 1
+
         while self.hero.position.place is None or self.hero.position.place.id != self.p3.id:
-            self.bundle.process_turn(1)
+            self.bundle.process_turn(turn_number)
+            turn_number += 1
 
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionInPlacePrototype.TYPE)
+        test_bundle_save(self, self.bundle)
 
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
@@ -66,15 +73,18 @@ class MoveToActionTest(TestCase):
 
         self.action_move.short_teleport(self.hero.position.road.length)
         self.assertEqual(self.hero.position.percents, 1)
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(2)
 
         self.assertEqual(self.hero.position.place.id, self.p2.id)
+
+        test_bundle_save(self, self.bundle)
 
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 1.0)
     def test_battle(self):
         self.bundle.process_turn(1)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionBattlePvE1x1Prototype.TYPE)
+        test_bundle_save(self, self.bundle)
 
 
     def test_rest(self):
@@ -84,6 +94,8 @@ class MoveToActionTest(TestCase):
 
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionRestPrototype.TYPE)
 
+        test_bundle_save(self, self.bundle)
+
 
     def test_resurrect(self):
         self.hero.kill()
@@ -91,15 +103,17 @@ class MoveToActionTest(TestCase):
         self.bundle.process_turn(1)
 
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionResurrectPrototype.TYPE)
+        test_bundle_save(self, self.bundle)
 
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
     def test_inplace(self):
         self.bundle.process_turn(1)
         self.hero.position.percents = 1
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(2)
 
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionInPlacePrototype.TYPE)
+        test_bundle_save(self, self.bundle)
 
 
 class MoveToActionWithBreaksTest(TestCase):
@@ -121,19 +135,24 @@ class MoveToActionWithBreaksTest(TestCase):
 
 
     def test_sequence_move(self):
+        turn_number = 1
 
         while self.bundle.tests_get_last_action() != self.action_idl:
-            self.bundle.process_turn(1)
+            self.bundle.process_turn(turn_number)
+            turn_number += 1
         self.assertEqual(self.hero.position.road.point_1_id, self.p2.id)
         self.assertEqual(self.hero.position.road.point_2_id, self.p3.id)
 
         self.bundle.add_action(ActionMoveToPrototype.create(self.action_idl, self.p1, 0.9))
         while self.bundle.tests_get_last_action() != self.action_idl:
-            self.bundle.process_turn(1)
+            self.bundle.process_turn(turn_number)
+            turn_number += 1
         self.assertEqual(self.hero.position.road.point_1_id, self.p1.id)
         self.assertEqual(self.hero.position.road.point_2_id, self.p2.id)
 
         self.bundle.add_action(ActionMoveToPrototype.create(self.action_idl, self.p2))
         while self.hero.position.place is None or self.hero.position.place.id != self.p2.id:
-            self.bundle.process_turn(1)
+            self.bundle.process_turn(turn_number)
+            turn_number += 1
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionInPlacePrototype.TYPE)
+        test_bundle_save(self, self.bundle)

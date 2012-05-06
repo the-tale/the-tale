@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 
-from game.logic import create_test_bundle, create_test_map
+from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.artifacts.storage import ArtifactsDatabase
 
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
@@ -59,3 +59,5 @@ class HeroTest(TestCase):
         self.assertEqual(self.hero.bag.items()[0][1], artifact)
         self.assertEqual(len(self.hero.bag.items()), 1)
         self.assertEqual(self.hero.equipment.get(slot), new_artifact)
+
+        test_bundle_save(self, self.bundle)

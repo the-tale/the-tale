@@ -80,6 +80,11 @@ class AbilityPrototype(object):
     def use(self, angel, form):
         pass
 
+    def __eq__(self, other):
+        return ( self.limit == other.limit and
+                 self.available_at == other.available_at and
+                 self.__class__ == other.__class__ )
+
 
 class AbilityTaskPrototype(object):
 

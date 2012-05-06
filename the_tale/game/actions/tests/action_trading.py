@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 
-from game.logic import create_test_bundle, create_test_map
+from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionTradingPrototype
 from game.artifacts.storage import ArtifactsDatabase
 
@@ -25,13 +25,13 @@ class TradingActionTest(TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_trade.leader, True)
-
+        test_bundle_save(self, self.bundle)
 
     def test_processed(self):
         self.bundle.process_turn(1)
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
-
+        test_bundle_save(self, self.bundle)
 
     def test_sell_and_finish(self):
 
@@ -49,7 +49,7 @@ class TradingActionTest(TestCase):
 
         self.assertTrue(self.hero.money > old_money)
         self.assertTrue(self.hero.statistics.money_earned > old_money_statistics)
-
+        test_bundle_save(self, self.bundle)
 
     def test_sell_and_continue(self):
         old_money = self.hero.money
@@ -70,8 +70,9 @@ class TradingActionTest(TestCase):
 
         old_money = self.hero.money
 
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(2)
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
 
         self.assertTrue(self.hero.money > old_money)
+        test_bundle_save(self, self.bundle)

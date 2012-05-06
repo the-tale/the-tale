@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 
-from game.logic import create_test_bundle, create_test_map
+from game.logic import create_test_bundle, create_test_map, test_bundle_save
 
 from game.balance import constants as c
 
@@ -23,7 +23,7 @@ class AngelTest(TestCase):
         self.assertTrue(not self.angel.updated)
         self.assertEqual(self.angel.updated_at_turn, 0)
         self.assertEqual(self.angel.get_energy_at_turn(1), c.ANGEL_ENERGY_MAX)
-
+        test_bundle_save(self, self.bundle)
 
     def test_energy_regeneration(self):
         new_enegry = 1
@@ -38,3 +38,4 @@ class AngelTest(TestCase):
         self.assertEqual(self.angel.get_energy_at_turn(self.angel.updated_at_turn + c.ANGEL_ENERGY_REGENERATION_PERIOD), new_enegry + c.ANGEL_ENERGY_REGENERATION_AMAUNT)
 
         self.assertEqual(self.angel.get_energy_at_turn(self.angel.updated_at_turn + 9999999999), self.angel.energy_maximum)
+        test_bundle_save(self, self.bundle)

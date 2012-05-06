@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 
-from game.logic import create_test_bundle, create_test_map
+from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionIdlenessPrototype, ActionQuestPrototype, ActionInPlacePrototype
 
 from game.balance import constants as c
@@ -22,6 +22,7 @@ class IdlenessActionTest(TestCase):
 
     def test_create(self):
         self.assertEqual(self.action_idl.leader, True)
+        test_bundle_save(self, self.bundle)
 
 
     def test_first_quest(self):
@@ -29,6 +30,7 @@ class IdlenessActionTest(TestCase):
         self.assertEqual(len(self.bundle.actions), 2)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionQuestPrototype.TYPE)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
+        test_bundle_save(self, self.bundle)
 
 
     def test_inplace(self):
@@ -37,6 +39,7 @@ class IdlenessActionTest(TestCase):
         self.assertEqual(len(self.bundle.actions), 2)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionInPlacePrototype.TYPE)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.IN_PLACE)
+        test_bundle_save(self, self.bundle)
 
     def test_waiting(self):
         self.action_idl.state = ActionIdlenessPrototype.STATE.IN_PLACE
@@ -44,6 +47,7 @@ class IdlenessActionTest(TestCase):
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.WAITING)
+        test_bundle_save(self, self.bundle)
 
 
     def test_full_waiting(self):
@@ -51,15 +55,17 @@ class IdlenessActionTest(TestCase):
         self.action_idl.percents = 0
 
         for i in xrange(c.TURNS_TO_IDLE-1):
-            self.bundle.process_turn(1)
+            self.bundle.process_turn(i+1)
             self.assertEqual(len(self.bundle.actions), 1)
             self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
 
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(i+2)
 
         self.assertEqual(len(self.bundle.actions), 2)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionQuestPrototype.TYPE)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
+
+        test_bundle_save(self, self.bundle)
 
     def test_initiate_quest(self):
         self.action_idl.state = ActionIdlenessPrototype.STATE.WAITING
@@ -72,3 +78,5 @@ class IdlenessActionTest(TestCase):
         self.assertEqual(len(self.bundle.actions), 2)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionQuestPrototype.TYPE)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
+
+        test_bundle_save(self, self.bundle)

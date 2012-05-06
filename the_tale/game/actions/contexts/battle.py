@@ -52,3 +52,9 @@ class BattleContext(object):
         context.stun_turns = data.get('stun_length', 0)
 
         return context
+
+
+    def __eq__(self, other):
+        return (self.ability_magic_mushroom == other.ability_magic_mushroom and
+                self.ability_sidestep == other.ability_sidestep and
+                self.stun_length == other.stun_length)

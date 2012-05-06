@@ -73,3 +73,11 @@ class MobPrototype(object):
     def ui_info(self):
         return { 'name': self.name,
                  'health': self.health_percents }
+
+
+    def __eq__(self, other):
+        return (self.id == other.id and
+                self.level == other.level and
+                self.max_health == other.max_health and
+                self.health == other.health and
+                self.abilities == other.abilities)

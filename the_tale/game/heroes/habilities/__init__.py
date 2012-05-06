@@ -62,3 +62,6 @@ class AbilitiesPrototype(object):
             result.append(ABILITIES[choice])
 
         return result
+
+    def __eq__(self, other):
+        return self.abilities.keys() == other.abilities.keys()

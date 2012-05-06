@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from game.game_info import ITEMS_OF_EXPENDITURE
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
-from game.logic import create_test_bundle, create_test_map
+from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradingPrototype, ActionEquippingPrototype
 from game.artifacts.storage import ArtifactsDatabase
 from game.artifacts.conf import ITEM_TYPE
@@ -29,12 +29,14 @@ class InPlaceActionTest(TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_inplace.leader, True)
+        test_bundle_save(self, self.bundle)
 
 
     def test_processed(self):
         self.bundle.process_turn(1)
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
+        test_bundle_save(self, self.bundle)
 
 
     def test_heal_action_create(self):
@@ -42,6 +44,7 @@ class InPlaceActionTest(TestCase):
         self.bundle.process_turn(1)
         self.assertEqual(len(self.bundle.actions), 3)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionRestPrototype.TYPE)
+        test_bundle_save(self, self.bundle)
 
     def test_trade_action_create(self):
         storage = ArtifactsDatabase.storage()
@@ -54,6 +57,8 @@ class InPlaceActionTest(TestCase):
         self.assertEqual(len(self.bundle.actions), 3)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionTradingPrototype.TYPE)
 
+        test_bundle_save(self, self.bundle)
+
     def test_equip_action_create(self):
         storage = ArtifactsDatabase.storage()
 
@@ -64,6 +69,8 @@ class InPlaceActionTest(TestCase):
         self.bundle.process_turn(1)
         self.assertEqual(len(self.bundle.actions), 3)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionEquippingPrototype.TYPE)
+
+        test_bundle_save(self, self.bundle)
 
 
 class InPlaceActionSpendMoneyTest(TestCase):
@@ -88,6 +95,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.bundle.process_turn(1)
         self.assertEqual(self.hero.money, 1)
         self.assertEqual(self.hero.statistics.money_spend, 0)
+        test_bundle_save(self, self.bundle)
 
 
     def test_instant_heal(self):
@@ -104,6 +112,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_heal, money - self.hero.money)
+        test_bundle_save(self, self.bundle)
 
     def test_bying_artifact(self):
         while self.hero.next_spending != ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
@@ -121,6 +130,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
+        test_bundle_save(self, self.bundle)
 
     def test_sharpening_artifact(self):
         while self.hero.next_spending != ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
@@ -140,6 +150,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)
+        test_bundle_save(self, self.bundle)
 
     def test_useless(self):
         while self.hero.next_spending != ITEMS_OF_EXPENDITURE.USELESS:
@@ -152,6 +163,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_useless, money - self.hero.money)
+        test_bundle_save(self, self.bundle)
 
 
     def test_impact(self):
@@ -165,3 +177,4 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_impact, money - self.hero.money)
+        test_bundle_save(self, self.bundle)

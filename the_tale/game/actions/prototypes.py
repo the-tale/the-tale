@@ -191,7 +191,7 @@ class ActionPrototype(object):
         if hasattr(self, '_data'):
             self.model.data = s11n.to_json(self._data)
         if hasattr(self, '_mob'):
-            self.model.mob = s11n.to_json(self.mob.serialize())
+            self.model.mob = s11n.to_json(self.mob.serialize()) if self.mob else '{}'
         if self.context:
             self.model.context = s11n.to_json(self.context.serialize())
         if self.mob_context:
@@ -233,6 +233,48 @@ class ActionPrototype(object):
         return turn_number + 1
 
 
+    def __eq__(self, other):
+        # print 'action'
+        # print self.id == other.id
+        # print self.removed == other.removed
+        # print self.type == other.type
+        # print self.order == other.order
+        # print self.leader == other.leader
+        # print self.percents == other.percents
+        # print self.state == other.state
+        # print self.hero_id == other.hero_id
+        # print self.context == other.context
+        # print self.mob_context == other.mob_context
+        # print self.road_id == other.road_id
+        # print self.place_id == other.place_id
+        # print self.mob == other.mob
+        # print self.model.quest_id == other.model.quest_id
+        # print self.data == other.data
+        # print self.break_at == other.break_at
+        # print self.length == other.length
+        # print self.get_destination() == other.get_destination()
+        # print self.percents_barier == other.percents_barier
+        return (self.id == other.id and
+                self.removed == other.removed and
+                self.type == other.type and
+                self.order == other.order and
+                self.leader == other.leader and
+                self.percents == other.percents and
+                self.state == other.state and
+                self.hero_id == other.hero_id and
+                self.context == other.context and
+                self.mob_context == other.mob_context and
+                self.road_id == other.road_id and
+                self.place_id == other.place_id and
+                self.mob == other.mob and
+                self.model.quest_id == other.model.quest_id and # TODO: is that needed
+                self.data == other.data and
+                self.break_at == other.break_at and
+                self.length == other.length and
+                self.get_destination() == other.get_destination() and
+                self.percents_barier == other.percents_barier)
+
+
 class ActionIdlenessPrototype(ActionPrototype):
 
     TYPE = 'IDLENESS'
@@ -250,6 +292,7 @@ class ActionIdlenessPrototype(ActionPrototype):
     @classmethod
     def create(cls, parent=None, hero=None):
         if parent:
+            parent.updated = True
             parent.leader = False
             model = Action.objects.create( type=cls.TYPE, parent=parent.model, hero=parent.hero.model, order=parent.order+1, state=cls.STATE.WAITING)
         else:
@@ -304,6 +347,7 @@ class ActionQuestPrototype(ActionPrototype):
 
     @classmethod
     def create(cls, parent, quest):
+        parent.updated = True
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
@@ -348,6 +392,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
     @classmethod
     def create(cls, parent, destination, break_at=None):
+        parent.updated = True
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
@@ -504,6 +549,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
 
     @classmethod
     def create(cls, parent, mob):
+        parent.updated = True
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
@@ -579,6 +625,7 @@ class ActionResurrectPrototype(ActionPrototype):
 
     @classmethod
     def create(cls, parent):
+        parent.updated = True
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
@@ -618,6 +665,7 @@ class ActionInPlacePrototype(ActionPrototype):
 
     @classmethod
     def create(cls, parent):
+        parent.updated = True
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
@@ -734,6 +782,7 @@ class ActionRestPrototype(ActionPrototype):
 
     @classmethod
     def create(cls, parent):
+        parent.updated = True
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
@@ -773,6 +822,7 @@ class ActionEquippingPrototype(ActionPrototype):
 
     @classmethod
     def create(cls, parent):
+        parent.updated = True
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
@@ -815,6 +865,7 @@ class ActionTradingPrototype(ActionPrototype):
 
     @classmethod
     def create(cls, parent):
+        parent.updated = True
         parent.leader = False
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
@@ -892,6 +943,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
     @classmethod
     def create(cls, parent, place, back):
+        parent.updated = True
         parent.leader = False
 
         if back:

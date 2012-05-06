@@ -81,3 +81,19 @@ class HeroStatistics(object):
     @property
     def quests_done(self): return self.hero_model.stat_quests_done
     def change_quests_done(self, value): self.hero_model.stat_quests_done += value
+
+
+    def __eq__(self, other):
+        return ( self.pve_deaths == other.pve_deaths and
+                 self.pve_kills == other.pve_kills and
+                 self.money_earned_from_loot == other.money_earned_from_loot and
+                 self.money_earned_from_artifacts == other.money_earned_from_artifacts and
+                 self.money_earned_from_quests == other.money_earned_from_quests and
+                 self.money_spend_for_heal == other.money_spend_for_heal and
+                 self.money_spend_for_artifacts == other.money_spend_for_artifacts and
+                 self.money_spend_for_sharpening == other.money_spend_for_sharpening and
+                 self.money_spend_for_useless == other.money_spend_for_useless and
+                 self.money_spend_for_impact == other.money_spend_for_impact and
+                 self.artifacts_had == other.artifacts_had and
+                 self.loot_had == other.loot_had and
+                 self.quests_done == other.quests_done )

@@ -60,6 +60,11 @@ class Bag(object):
                 loot_items_count += 1
         return quest_items_count, loot_items_count
 
+    def __eq__(self, other):
+        return (self.next_uuid == other.next_uuid and
+                self.bag == other.bag)
+
+
 ####################################################
 # Equipment
 ####################################################
@@ -152,3 +157,6 @@ class Equipment(object):
 
     def get(self, slot):
         return self.equipment.get(slot, None)
+
+    def __eq__(self, other):
+        return (self.equipment == other.equipment)

@@ -60,6 +60,13 @@ blockquote {
   padding: 0.25em;
   border-radius: 4px;
 }
+table {
+  margin: 0.5em;
+}
+table tr td {
+  padding: 0.25em;
+  border: 1px solid black;
+}
 html {
   background-color: #559dcc;
   background-image: url(../images/background.svg);
@@ -91,6 +98,15 @@ html #content {
   border: 2px solid #00f;
   background-color: #abf;
   border-radius: 4px;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: righ;
+}
+.center {
+  text-align: center;
 }
 #top-panel {
   height: 1em;
