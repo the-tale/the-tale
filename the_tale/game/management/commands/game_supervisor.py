@@ -14,14 +14,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        if not pid.capture('game_supervisor'):
-            print 'process has been already running'
-            return
+        with pid.wrap('game_supervisor'):
+            try:
+                workers_environment.clean_queues()
+                workers_environment.supervisor.initialize()
+                workers_environment.supervisor.run()
+            except KeyboardInterrupt:
+                pass
 
-        workers_environment.clean_queues()
-
-        workers_environment.supervisor.initialize()
-
-        workers_environment.supervisor.run()
-
-        workers_environment.deinitialize()
+            workers_environment.deinitialize()
