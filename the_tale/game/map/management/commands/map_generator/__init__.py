@@ -42,7 +42,7 @@ class Command(BaseCommand):
                       'constants': ConfigConstants}
         global_vars = {}
 
-        execfile(CONFIG, local_vars, global_vars) 
+        execfile(CONFIG, local_vars, global_vars)
 
         config = global_vars
 
@@ -55,7 +55,7 @@ class Command(BaseCommand):
             game_map.add_road(map_road)
 
         game_map.prepair_terrain()
-        
+
         game_map.pave_ways()
 
         time = get_current_time()
@@ -64,11 +64,11 @@ class Command(BaseCommand):
                                 width=config['map_width'],
                                 height=config['map_height'],
                                 terrain=terrain)
-        
+
 
         output_dir_name = os.path.dirname(map_settings.GEN_REGION_OUTPUT)
         if not os.path.exists(output_dir_name):
-            os.makedirs(output_dir_name, 0766)
+            os.makedirs(output_dir_name, 0755)
 
         with open(map_settings.GEN_REGION_OUTPUT, 'w') as region_json_file:
             text = s11n.to_json(game_map.get_json_region_data())
