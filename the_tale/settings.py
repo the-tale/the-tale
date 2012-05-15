@@ -165,6 +165,9 @@ AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,
                                               AMQP_BROKER_HOST,
                                               AMQP_BROKER_VHOST)
 
+
+DEXT_PID_DIRECTORY = os.path.join(os.getenv("HOME"), '.the-tale')
+
 try:
     from settings_check import *
 except:

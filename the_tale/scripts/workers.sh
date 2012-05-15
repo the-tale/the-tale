@@ -1,10 +1,6 @@
 #! /bin/sh
 
-PID_FILE="/var/run/the-tale-workers.pid"
 LOGS_DIR="${HOME}/logs"
-
-# test -f /lib/lsb/init-functions || exit 1
-# . /lib/lsb/init-functions
 
 case "$1" in
 start)
@@ -28,7 +24,7 @@ echo "Not implemented yet"
 ;;
 *)
 
-echo "Usage: /etc/init.d/boinc {start|stop|status}"
+echo "Usage: ./scripts/workers {start|stop|status}"
 exit 1
 
 esac
