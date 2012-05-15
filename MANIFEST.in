@@ -1,3 +1,4 @@
+global-include *.xls
 global-include *.py
 global-include *.txt
 global-include *.sqlite
