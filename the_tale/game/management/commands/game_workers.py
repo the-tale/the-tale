@@ -55,6 +55,14 @@ class Command(BaseCommand):
 
             print 'game stopped'
 
+        elif command == 'force_stop':
+            pid.force_kill('game_supervisor')
+            pid.force_kill('game_logic')
+            pid.force_kill('game_highlevel')
+            pid.force_kill('game_turns_loop')
+
+            print 'game stopped'
+
         elif command == 'restart':
             subprocess.call(['./manage.py', 'game_workers', 'stop'])
             subprocess.call(['./manage.py', 'game_workers', 'start'])

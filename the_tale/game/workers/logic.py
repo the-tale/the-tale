@@ -114,10 +114,7 @@ class Worker(object):
             if turn_number != self.turn_number:
                 raise LogicException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
 
-            if not len(self.queue):
-                return
-
-            while True:
+            while self.queue:
                 turn_number, bundle_id = self.queue[0]
 
                 if turn_number > self.turn_number:
