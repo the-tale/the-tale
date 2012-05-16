@@ -9,6 +9,7 @@ from django.core.management.base import BaseCommand
 
 from dext.utils import pid
 
+from game.conf import game_settings
 from game.workers.environment import workers_environment
 
 class Command(BaseCommand):
@@ -33,8 +34,13 @@ class Command(BaseCommand):
             with open(os.devnull, 'w') as devnull:
                 subprocess.Popen(['./manage.py', 'game_supervisor'], stdin=devnull, stdout=devnull, stderr=devnull)
                 subprocess.Popen(['./manage.py', 'game_logic'], stdin=devnull, stdout=devnull, stderr=devnull)
-                subprocess.Popen(['./manage.py', 'game_highlevel'], stdin=devnull, stdout=devnull, stderr=devnull)
-                subprocess.Popen(['./manage.py', 'game_turns_loop'], stdin=devnull, stdout=devnull, stderr=devnull)
+
+                if game_settings.ENABLE_WORKER_HIGHLEVEL:
+                    subprocess.Popen(['./manage.py', 'game_highlevel'], stdin=devnull, stdout=devnull, stderr=devnull)
+
+                if game_settings.ENABLE_WORKER_TURNS_LOOP:
+                    subprocess.Popen(['./manage.py', 'game_turns_loop'], stdin=devnull, stdout=devnull, stderr=devnull)
+
             print 'game started'
 
         elif command == 'stop':

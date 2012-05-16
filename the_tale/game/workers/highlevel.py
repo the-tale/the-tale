@@ -7,10 +7,10 @@ from django.utils.log import getLogger
 
 from dext.utils.decorators import nested_commit_on_success
 
-from ..persons.models import Person, PERSON_STATE
-from ..persons.prototypes import get_person_by_model
-from ..map.places.models import Place
-from ..map.places.prototypes import get_place_by_model
+from game.persons.models import Person, PERSON_STATE
+from game.persons.prototypes import get_person_by_model
+from game.map.places.models import Place
+from game.map.places.prototypes import get_place_by_model
 
 logger = getLogger('the-tale.workers.game_highlevel')
 

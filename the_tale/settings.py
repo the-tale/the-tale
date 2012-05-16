@@ -182,6 +182,7 @@ def get_worker_log_file_handler(name):
             'interval': 7,
             'backupCount': 2*4,
             'encoding': 'utf-8',
+            'formatter': 'verbose',
             'utc': True }
 
 def get_worker_logger(name):
@@ -192,6 +193,14 @@ def get_worker_logger(name):
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '[%(levelname)s %(asctime)s %(module)s %(process)d] %(message)s'
+        },
+        'simple': {
+            'format': '%[(levelname)s] %(message)s'
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse',
@@ -205,7 +214,8 @@ LOGGING = {
             },
         'console': {
             'level': 'DEBUG',
-            'class': 'logging.StreamHandler'
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
             },
         'file_game_supervisor': get_worker_log_file_handler('game_supervisor'),
         'file_game_logic': get_worker_log_file_handler('game_logic'),

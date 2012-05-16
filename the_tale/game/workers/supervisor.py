@@ -6,11 +6,12 @@ from django.utils.log import getLogger
 
 from dext.utils.decorators import nested_commit_on_success
 
-from ..prototypes import get_current_time
-from ..bundles import get_bundle_by_id, get_bundle_by_model
-from ..models import Bundle
-from ..abilities.prototypes import AbilityTaskPrototype
-from ..heroes.prototypes import ChooseAbilityTaskPrototype
+from game.prototypes import get_current_time
+from game.bundles import get_bundle_by_id, get_bundle_by_model
+from game.models import Bundle
+from game.abilities.prototypes import AbilityTaskPrototype
+from game.heroes.prototypes import ChooseAbilityTaskPrototype
+from game.conf import game_settings
 
 logger = getLogger('the-tale.workers.game_supervisor')
 
@@ -94,11 +95,15 @@ class Worker(object):
 
         #initialization
         self.logic_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='logic')
-        self.highlevel_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='highlevel')
-        self.wait_answers_from('initialize', workers=['logic', 'highlevel'])
+        self.wait_answers_from('initialize', workers=['logic'])
 
-        self.turns_loop_worker.cmd_initialize(worker_id='turns_loop')
-        self.wait_answers_from('initialize', workers=['turns_loop'])
+        if game_settings.ENABLE_WORKER_HIGHLEVEL:
+            self.highlevel_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='highlevel')
+            self.wait_answers_from('initialize', workers=['highlevel'])
+
+        if game_settings.ENABLE_WORKER_TURNS_LOOP:
+            self.turns_loop_worker.cmd_initialize(worker_id='turns_loop')
+            self.wait_answers_from('initialize', workers=['turns_loop'])
 
         for bundle_model in Bundle.objects.all():
             bundle = get_bundle_by_model(bundle_model)
@@ -143,8 +148,9 @@ class Worker(object):
         self.logic_worker.cmd_next_turn(turn_number=self.time.turn_number)
         self.wait_answers_from('next_turn', workers=['logic'])
 
-        self.highlevel_worker.cmd_next_turn(turn_number=self.time.turn_number)
-        self.wait_answers_from('next_turn', workers=['highlevel'])
+        if game_settings.ENABLE_WORKER_HIGHLEVEL:
+            self.highlevel_worker.cmd_next_turn(turn_number=self.time.turn_number)
+            self.wait_answers_from('next_turn', workers=['highlevel'])
 
     def cmd_stop(self):
         return self.send_cmd(CMD_TYPE.STOP)
@@ -153,11 +159,13 @@ class Worker(object):
         self.logic_worker.cmd_stop()
         self.wait_answers_from('stop', workers=['logic'])
 
-        self.highlevel_worker.cmd_stop()
-        self.wait_answers_from('stop', workers=['highlevel'])
+        if game_settings.ENABLE_WORKER_HIGHLEVEL:
+            self.highlevel_worker.cmd_stop()
+            self.wait_answers_from('stop', workers=['highlevel'])
 
-        self.turns_loop_worker.cmd_stop()
-        self.wait_answers_from('stop', workers=['turns_loop'])
+        if game_settings.ENABLE_WORKER_TURNS_LOOP:
+            self.turns_loop_worker.cmd_stop()
+            self.wait_answers_from('stop', workers=['turns_loop'])
 
         self.stop_queue.put({'code': 'stopped', 'worker': 'supervisor'}, serializer='json', compression=None)
 
