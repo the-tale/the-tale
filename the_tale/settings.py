@@ -3,6 +3,7 @@ import os
 from meta_config import meta_config
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
+HOME_DIR = os.getenv("HOME")
 
 DEBUG = False
 
@@ -166,7 +167,68 @@ AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,
                                               AMQP_BROKER_VHOST)
 
 
-DEXT_PID_DIRECTORY = os.path.join(os.getenv("HOME"), '.the-tale')
+DEXT_PID_DIRECTORY = os.path.join(HOME_DIR, '.the-tale')
+
+############################
+# LOGGING
+############################
+
+
+def get_worker_log_file_handler(name):
+    return {'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(HOME_DIR, 'logs', '%s.log' % name),
+            'when': 'D',
+            'interval': 7,
+            'backupCount': 2*4,
+            'encoding': 'utf-8',
+            'utc': True }
+
+def get_worker_logger(name):
+    return {'handlers': ['file_%s' % name],
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'propagate': True }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        }
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+            },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler'
+            },
+        'file_game_supervisor': get_worker_log_file_handler('game_supervisor'),
+        'file_game_logic': get_worker_log_file_handler('game_logic'),
+        'file_game_highlevel': get_worker_log_file_handler('game_highlevel'),
+        'file_game_turns_loop': get_worker_log_file_handler('game_turns_loop')
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'the-tale.workers': {
+            'handlers': ['mail_admins', 'console'],
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'propagate': False
+        },
+        'the-tale.workers.game_supervisor': get_worker_logger('game_supervisor'),
+        'the-tale.workers.game_logic': get_worker_logger('game_logic'),
+        'the-tale.workers.game_highlevel': get_worker_logger('game_highlevel'),
+        'the-tale.workers.game_turns_loop': get_worker_logger('game_turns_loop'),
+    }
+}
 
 try:
     from settings_check import *

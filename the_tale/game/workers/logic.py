@@ -12,7 +12,7 @@ from dext.utils.decorators import nested_commit_on_success
 from game.heroes.prototypes import get_hero_by_id
 from game.bundles import get_bundle_by_id
 
-logger = getLogger('django.request')
+logger = getLogger('the-tale.workers.game_logic')
 
 class CMD_TYPE:
     INITIALIZE = 'initialize'
@@ -32,7 +32,6 @@ class Worker(object):
         self.exception_raised = False
         self.stop_required = False
         self.initialized = False
-        print 'GAME CONSTRUCTED'
 
     def set_supervisor_worker(self, supervisor_worker):
         self.supervisor_worker = supervisor_worker
@@ -56,10 +55,10 @@ class Worker(object):
         cmd_type = cmd['type']
         cmd_data = cmd['data']
 
-        print '<%s> %r' % (cmd_type, cmd_data)
+        logger.info('<%s> %r' % (cmd_type, cmd_data))
 
         if not self.initialized and cmd_type != CMD_TYPE.INITIALIZE:
-            print 'ERROR: receive cmd before initialization'
+            logger.error('ERROR: receive cmd before initialization')
             return
 
         try:
@@ -72,7 +71,7 @@ class Worker(object):
               CMD_TYPE.STOP: self.process_stop}[cmd_type](**cmd_data)
         except Exception, e:
             self.exception_raised = True
-            print 'EXCEPTION: %s' % e
+            logger.error('EXCEPTION: %s' % e)
             traceback.print_exc()
 
             logger.error('Game worker exception: game_logic',
@@ -89,7 +88,7 @@ class Worker(object):
     def process_initialize(self, turn_number, worker_id):
 
         if self.initialized:
-            print 'WARNING: game already initialized, do reinitialization'
+            logger.warn('WARNING: game already initialized, do reinitialization')
 
         self.initialized = True
         self.turn_number = turn_number
@@ -99,7 +98,7 @@ class Worker(object):
         self.heroes2bundles = {}
         self.worker_id = worker_id
 
-        print 'GAME INITIALIZED'
+        logger.info('GAME INITIALIZED')
 
         self.supervisor_worker.cmd_answer('initialize', self.worker_id)
 
@@ -142,9 +141,11 @@ class Worker(object):
         return self.send_cmd(CMD_TYPE.STOP)
 
     def process_stop(self):
-        # no need to save bundles, since they automaticaly saved on evety turn
+        # no need to save bundles, since they automaticaly saved on every turn
         self.initialized = False
         self.supervisor_worker.cmd_answer('stop', self.worker_id)
+        self.stop_required = True
+        logger.info('GAME STOPPED')
 
     def cmd_register_bundle(self, bundle_id):
         return self.send_cmd(CMD_TYPE.REGISTER_BUNDLE, {'bundle_id': bundle_id})
@@ -153,7 +154,7 @@ class Worker(object):
         bundle = get_bundle_by_id(id=bundle_id)
 
         if bundle.id in self.bundles:
-            print 'WARNING: bundle with id "%d" has already registerd in worker, probably on initialization step' % bundle.id
+            logger.warn('WARNING: bundle with id "%d" has already registerd in worker, probably on initialization step' % bundle.id)
             return
 
         self.bundles[bundle.id] = bundle

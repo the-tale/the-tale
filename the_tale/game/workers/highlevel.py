@@ -12,7 +12,7 @@ from ..persons.prototypes import get_person_by_model
 from ..map.places.models import Place
 from ..map.places.prototypes import get_place_by_model
 
-logger = getLogger('django.request')
+logger = getLogger('the-tale.workers.game_highlevel')
 
 SYNC_DELTA = 300 # in turns
 
@@ -31,7 +31,6 @@ class Worker(object):
         self.exception_raised = False
         self.stop_required = False
         self.initialized = False
-        print 'HIGHLEVEL CONSTRUCTED'
 
     def set_supervisor_worker(self, supervisor_worker):
         self.supervisor_worker = supervisor_worker
@@ -54,7 +53,7 @@ class Worker(object):
         cmd_type = cmd['type']
         cmd_data = cmd['data']
 
-        print '<%s> %r' % (cmd_type, cmd_data)
+        logger.info('<%s> %r' % (cmd_type, cmd_data))
 
         try:
             { CMD_TYPE.INITIALIZE: self.process_initialize,
@@ -63,7 +62,7 @@ class Worker(object):
               CMD_TYPE.STOP: self.process_stop}[cmd_type](**cmd_data)
         except Exception, e:
             self.exception_raised = True
-            print 'EXCEPTION: %s' % e
+            logger.error('EXCEPTION: %s' % e)
             traceback.print_exc()
 
             logger.error('Game worker exception: game_highlevel',
@@ -77,16 +76,16 @@ class Worker(object):
         self.send_cmd(CMD_TYPE.INITIALIZE, {'turn_number': turn_number, 'worker_id': worker_id})
 
     def process_initialize(self, turn_number, worker_id):
-        
+
         if self.initialized:
-            print 'WARNING: highlevel already initialized, do reinitialization'
+            logger.warn('highlevel already initialized, do reinitialization')
 
         self.initialized = True
         self.worker_id = worker_id
         self.turn_number = turn_number
         self.persons_power = {}
 
-        print 'HIGHLEVEL INITIALIZED'
+        logger.info('HIGHLEVEL INITIALIZED')
 
         self.supervisor_worker.cmd_answer('initialize', self.worker_id)
 
@@ -124,17 +123,20 @@ class Worker(object):
 
         self.supervisor_worker.cmd_answer('stop', self.worker_id)
 
+        self.stop_required = True
+        logger.info('HIGHLEVEL STOPPED')
+
 
     def sync_data(self):
 
         for person_model in Person.objects.filter(state=PERSON_STATE.IN_GAME):
             person = get_person_by_model(person_model)
-            
+
             if person.id in self.persons_power:
                 person.power = max(person.power + self.persons_power[person.id], 0)
 
             person.save()
-            
+
         old_powers = self.persons_power
 
         self.persons_power = {}
@@ -163,4 +165,3 @@ class Worker(object):
     def process_change_person_power(self, person_id, power_delta):
         person_power = self.persons_power.get(person_id, 0)
         self.persons_power[person_id] = max(person_power + power_delta, 0)
-

@@ -12,7 +12,7 @@ from ..models import Bundle
 from ..abilities.prototypes import AbilityTaskPrototype
 from ..heroes.prototypes import ChooseAbilityTaskPrototype
 
-logger = getLogger('django.request')
+logger = getLogger('the-tale.workers.game_supervisor')
 
 class CMD_TYPE:
     NEXT_TURN = 'next_turn'
@@ -27,13 +27,16 @@ class SupervisorException(Exception): pass
 
 class Worker(object):
 
-    def __init__(self, connection, supervisor_queue, answers_queue, stop_queue):
+    def __init__(self, connection, supervisor_queue, answers_queue, turns_loop_queue, stop_queue):
         self.supervisor_queue = connection.SimpleQueue(supervisor_queue)
         self.answers_queue = connection.SimpleQueue(answers_queue)
+        self.turns_loop_queue = connection.SimpleQueue(turns_loop_queue)
         self.stop_queue = connection.SimpleQueue(stop_queue)
         self.exception_raised = False
         self.stop_required = False
-        print 'SUPERVISOR CONSTRUCTED'
+
+    def set_turns_loop_worker(self, turns_loop_worker):
+        self.turns_loop_worker = turns_loop_worker
 
     def set_logic_worker(self, logic_worker):
         self.logic_worker = logic_worker
@@ -51,6 +54,7 @@ class Worker(object):
         self.supervisor_queue.queue.purge()
         self.answers_queue.queue.purge()
         self.stop_queue.queue.purge()
+        self.turns_loop_queue.queue.purge()
 
     def run(self):
 
@@ -61,7 +65,7 @@ class Worker(object):
 
 
     def wait_answers_from(self, code, workers=[]):
-        
+
         while workers:
 
             answer_cmd = self.answers_queue.get(block=True)
@@ -93,19 +97,22 @@ class Worker(object):
         self.highlevel_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='highlevel')
         self.wait_answers_from('initialize', workers=['logic', 'highlevel'])
 
+        self.turns_loop_worker.cmd_initialize(worker_id='turns_loop')
+        self.wait_answers_from('initialize', workers=['turns_loop'])
+
         for bundle_model in Bundle.objects.all():
             bundle = get_bundle_by_model(bundle_model)
             bundle.owner = 'worker'
             bundle.save()
             self.logic_worker.cmd_register_bundle(bundle.id)
 
-        print 'SUPERVISOR INITIALIZED'
+        logger.info('SUPERVISOR INITIALIZED')
 
     def process_game_cmd(self, cmd):
         cmd_type = cmd['type']
         cmd_data = cmd['data']
 
-        print '<%s> %r' % (cmd_type, cmd_data)
+        logger.info('<%s> %r' % (cmd_type, cmd_data))
 
         try:
             { CMD_TYPE.NEXT_TURN: self.process_next_turn,
@@ -116,7 +123,7 @@ class Worker(object):
               CMD_TYPE.STOP: self.process_stop}[cmd_type](**cmd_data)
         except Exception, e:
             self.exception_raised = True
-            print 'EXCEPTION: %s' % e
+            logger.error('EXCEPTION: %s' % e)
             traceback.print_exc()
 
             logger.error('Game worker exception: game_supervisor',
@@ -149,7 +156,14 @@ class Worker(object):
         self.highlevel_worker.cmd_stop()
         self.wait_answers_from('stop', workers=['highlevel'])
 
+        self.turns_loop_worker.cmd_stop()
+        self.wait_answers_from('stop', workers=['turns_loop'])
+
         self.stop_queue.put({'code': 'stopped', 'worker': 'supervisor'}, serializer='json', compression=None)
+
+        self.stop_required = True
+
+        logger.info('SUPERVISOR STOPPED')
 
 
     def cmd_register_bundle(self, bundle_id):
