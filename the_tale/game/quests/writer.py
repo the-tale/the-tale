@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from game.textgen import get_vocabulary, get_dictionary
+from game.text_generation import get_vocabulary, get_dictionary
 
 class Writer(object):
 
@@ -42,6 +42,3 @@ class Writer(object):
 
     def get_choice_result_msg(self, choice, answer):
         return self.get_message(self.get_msg_choice_answer(choice, answer))
-
-
-    

@@ -6,17 +6,14 @@ import numbers
 from dext.utils import s11n
 from dext.utils import database
 
+from textgen.words import Fake as FakeWord
+
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
-from game.textgen import get_vocabulary, get_dictionary
-from game.textgen.words import Fake as FakeWord
 from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, ITEMS_OF_EXPENDITURE
 
 from game import names
-
-from game.quests.prototypes import get_quest_by_model
-from game.quests.models import Quest
 
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
 from game.heroes.statistics import HeroStatistics
@@ -24,7 +21,9 @@ from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from game.heroes.habilities import AbilitiesPrototype
 from game.heroes.conf import heroes_settings
 
-from ..map.prototypes import MapInfoPrototype
+from game.map.prototypes import MapInfoPrototype
+
+from game.text_generation import get_vocabulary, get_dictionary
 
 from game.balance import constants as c, formulas as f
 
@@ -309,7 +308,7 @@ class HeroPrototype(object):
         if template is None:
             return
             # TODO: raise exception in production (not when tests running)
-            # from game.textgen.exceptions import TextgenException
+            # from textgen.exceptions import TextgenException
             # raise TextgenException(u'ERROR: unknown template type: %s' % type_)
         msg = template.substitute(get_dictionary(), args)
         # print msg

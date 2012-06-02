@@ -1,6 +1,7 @@
 # coding: utf-8
 
-from game.textgen.words import Fake
+from textgen.words import Fake
+
 from game.game_info import GENDER_ID_2_STR
 
 from .models import Person, PERSON_STATE

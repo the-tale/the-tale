@@ -127,7 +127,6 @@ INSTALLED_APPS = (
     'game.artifacts',
     'game.mobs',
     'game.persons',
-    'game.textgen',
     'game.balance',
 
     'cms',
