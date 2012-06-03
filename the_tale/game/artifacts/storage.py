@@ -56,6 +56,7 @@ class ArtifactsDatabase(object):
 
             artifact_data = artifact_data[1:]
 
+            artifact_data[0] = artifact_data[0].strip()
             artifact_data[1] = ITEM_TYPE_STR_2_ID[artifact_data[1]]
             artifact_data[2] = EQUIP_TYPE_STR_2_ID[artifact_data[2]]
 
