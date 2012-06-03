@@ -109,10 +109,10 @@ class ArtifactsDatabase(object):
 
     def generate_loot(self, artifacts_list, loot_list, artifact_level, loot_level):
 
-        if random.uniform(0, 1) < f.artifacts_per_battle(artifact_level):
+        if random.uniform(0, 1) <= f.artifacts_per_battle(artifact_level):
             return self.generate_artifact_from_list(artifacts_list, artifact_level)
 
-        if random.uniform(0, 1) < c.GET_LOOT_PROBABILITY:
+        if random.uniform(0, 1) <= c.GET_LOOT_PROBABILITY:
             return self.generate_artifact_from_list(loot_list, loot_level)
 
         return None
