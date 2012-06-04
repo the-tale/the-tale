@@ -2,8 +2,6 @@
 import random
 import copy
 
-class RollBackException(Exception): pass
-
 class BaseEnvironment(object):
 
     def __init__(self, quests_source, writers_constructor, knowlege_base):

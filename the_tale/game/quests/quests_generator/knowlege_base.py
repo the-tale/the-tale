@@ -3,7 +3,7 @@ import random
 
 UNDEFINED_PLACE = 'undefined_place'
 
-from .environment import RollBackException
+from game.quests.quests_generator.exceptions import QuestGeneratorException, RollBackException
 
 class KnowlegeBase(object):
 
@@ -13,14 +13,21 @@ class KnowlegeBase(object):
 
     def initialize(self):
         for person_uuid, person in self.persons.items():
-            self.places[person['place']]['persons'].append(person_uuid)
+            if person['place'] not in self.places:
+                raise QuestGeneratorException(u'place "%s" for person "%s" does not added to base' % (person['place'], person_uuid))
+            self.places[person['place']]['persons'].add(person_uuid)
 
     def add_place(self, uuid, external_data={}):
+        if uuid in self.places:
+            raise QuestGeneratorException(u'place "%s" has already added to base' % uuid)
+
         self.places[uuid] = {'uuid': uuid,
                              'external_data': external_data,
-                             'persons': []}
+                             'persons': set()}
 
     def add_person(self, uuid, place=UNDEFINED_PLACE, external_data={}):
+        if uuid in self.persons:
+            raise QuestGeneratorException(u'person "%s" has already added to base' % uuid)
         self.persons[uuid] = {'uuid': uuid,
                               'external_data': external_data,
                               'place': place}

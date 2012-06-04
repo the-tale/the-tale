@@ -7,7 +7,7 @@ from ..map.places.prototypes import get_place_by_model
 
 from .quests_generator.lines import BaseQuestsSource
 from .quests_generator.knowlege_base import KnowlegeBase
-from .quests_generator.environment import RollBackException
+from .quests_generator.exceptions import RollBackException
 from .writer import Writer
 
 from .environment import Environment
@@ -22,7 +22,7 @@ def get_knowlege_base():
         place = get_place_by_model(place_model)
 
         place_uuid = 'place_%d' % place.id
-        
+
         base.add_place(place_uuid, external_data={'id': place.id,
                                                   'name': place.name})
 
@@ -35,7 +35,7 @@ def get_knowlege_base():
     base.initialize()
 
     return base
-    
+
 
 @retry_on_exception(RollBackException)
 def create_random_quest_for_hero(hero):
@@ -53,5 +53,5 @@ def create_random_quest_for_hero(hero):
     env.create_lines()
 
     quest_prototype = QuestPrototype.create(hero, env)
-    
+
     return quest_prototype
