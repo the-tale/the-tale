@@ -1,7 +1,7 @@
 # coding: utf-8
-from . import QuestGeneratorException
-from .environment import LocalEnvironment
-from .commands import deserialize_command
+from game.quests.quests_generator.exceptions import QuestGeneratorException
+from game.quests.quests_generator.environment import LocalEnvironment
+from game.quests.quests_generator.commands import deserialize_command
 
 class Line(object):
 
@@ -11,39 +11,23 @@ class Line(object):
     def get_start_pointer(self):
         return [0]
 
-    # def get_pointer_cmd(self, env, pointer):
-    #     if pointer[0] >= len(self.sequence):
-    #         return None
-
-    #     cmd = self.sequence[pointer[0]]
-
-    #     if len(pointer) != 1:
-    #         if hasattr(cmd, 'quest'):
-    #             quest = env.quests[cmd.quest]
-    #             return quest.get_command(env, pointer[1:])
-    #         if hasattr(cmd, 'choices'):
-    #             line = env.lines[pointer[1]]
-    #             return line.get_pointer_cmd(env, pointer[2:])
-    #         raise QuestGeneratorException('command has no attributes "quest" or "choices", cmd is: %r' % cmd.serialize())
-
-    #     return cmd
-
-
     def get_commands_number(self, env, pointer=None):
 
         if pointer is None:
             cmd_number = len(self.sequence)
             number = len(self.sequence)
         else:
+            if pointer[0] >= len(self.sequence):
+                raise QuestGeneratorException('get_commands_number: wrong pointer value (%r) for this line' % pointer)
             cmd_number = pointer[0]
             number = pointer[0]
-        
+
         for cmd in self.sequence[:cmd_number]:
             if hasattr(cmd, 'quest'):
                 number += env.quests[cmd.quest].get_commands_number(env)
             elif hasattr(cmd, 'choices'):
                 number += max(env.lines[line].get_commands_number(env) for line in cmd.choices.values())
-                
+
         if pointer and len(pointer) > 1:
             cmd = self.sequence[cmd_number]
             if hasattr(cmd, 'quest'):
@@ -56,6 +40,9 @@ class Line(object):
         return number
 
     def increment_pointer(self, env, pointer, choices):
+
+        if pointer[0] >= len(self.sequence):
+            raise QuestGeneratorException('increment pointer: wrong pointer value (%r) for this line' % pointer)
 
         cmd = self.sequence[pointer[0]]
 
@@ -90,6 +77,9 @@ class Line(object):
 
     def get_quest_command(self, env, pointer):
 
+        if pointer[0] >= len(self.sequence):
+            raise QuestGeneratorException('get quest command: wrong pointer value (%r) for this line' % pointer)
+
         cmd = self.sequence[pointer[0]]
 
         if not hasattr(cmd, 'choices'):
@@ -108,6 +98,9 @@ class Line(object):
 
     def get_description(self, env):
         return [cmd.get_description(env) for cmd in self.sequence]
+
+    def __eq__(self, other):
+        return self.sequence == other.sequence
 
 
 class Quest(object):

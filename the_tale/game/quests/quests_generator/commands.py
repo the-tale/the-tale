@@ -36,7 +36,7 @@ class Move(Command):
         self.break_at = break_at
 
     def get_description(self, env):
-        return '<move to> place: %s, break_at' % (self.place, self.break_at)
+        return '<move to> place: %s, break_at %s' % (self.place, self.break_at)
 
     def serialize(self):
         data = super(Move, self).serialize()
