@@ -174,21 +174,24 @@ class BaseEnvironment(object):
 class LocalEnvironment(object):
 
     def __init__(self, data=None):
-        self.storage = {}
+        self._storage = {}
 
     def register(self, name, value):
-        self.storage[name] = value
+        self._storage[name] = value
 
     def get_data(self):
-        return copy.deepcopy(self.storage)
+        return copy.deepcopy(self._storage)
 
     def __getattr__(self, name):
-        if name in self.storage:
-            return self.storage[name]
+        if name in self._storage:
+            return self._storage[name]
         raise AttributeError('LocalEnvironment object does not contain value "%s"' % name)
 
     def serialize(self):
-        return self.storage
+        return self._storage
 
     def deserialize(self, data):
-        self.storage = data
+        self._storage = data
+
+    def __eq__(self, other):
+        return self._storage == other._storage
