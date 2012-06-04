@@ -9,7 +9,7 @@ class Command(object):
 
     def __init__(self, event=None):
         self.event = event
-        
+
     @classmethod
     def type(cls):
         return cls.__name__.lower()
@@ -24,23 +24,8 @@ class Command(object):
     def deserialize(self, data):
         self.event = data['event']
 
-
-# class Description(Command):
-
-#     def __init__(self, **kwargs):
-#         super(Description, self).__init__(**kwargs)
-
-#     def get_description(self, env):
-#         return '<description> msg: %s' % self.event
-
-#     def serialize(self):
-#         data = super(Description, self).serialize()
-#         data.update({'msg': self.context_msg})
-#         return data
-
-#     def deserialize(self, data):
-#         super(Description, self).deserialize(data)
-#         self.context_msg = data['msg']
+    def __eq__(self, other):
+        return self.event == other.event
 
 
 class Move(Command):
@@ -64,6 +49,12 @@ class Move(Command):
         self.place = data['place']
         self.break_at = data.get('break_at')
 
+    def __eq__(self, other):
+        return (super(Move, self).__eq__(other) and
+                self.place == other.place and
+                self.break_at == other.break_at)
+
+
 class MoveNear(Command):
 
     def __init__(self, place=None, back=False, **kwargs):
@@ -86,6 +77,12 @@ class MoveNear(Command):
         self.back = data['back']
 
 
+    def __eq__(self, other):
+        return (super(MoveNear, self).__eq__(other) and
+                self.place == other.place and
+                self.back == other.back)
+
+
 class GetItem(Command):
 
     def __init__(self, item=None, **kwargs):
@@ -103,6 +100,10 @@ class GetItem(Command):
     def deserialize(self, data):
         super(GetItem, self).deserialize(data)
         self.item = data['item']
+
+    def __eq__(self, other):
+        return (super(GetItem, self).__eq__(other) and
+                self.item == other.item)
 
 
 class GiveItem(Command):
@@ -123,8 +124,13 @@ class GiveItem(Command):
         super(GiveItem, self).deserialize(data)
         self.item = data['item']
 
+    def __eq__(self, other):
+        return (super(GiveItem, self).__eq__(other) and
+                self.item == other.item)
+
+
 class GetReward(Command):
-    
+
     def __init__(self, person=None, **kwargs):
         super(GetReward, self).__init__(**kwargs)
         self.person = person
@@ -140,6 +146,11 @@ class GetReward(Command):
     def deserialize(self, data):
         super(GetReward, self).deserialize(data)
         self.person = data['person']
+
+    def __eq__(self, other):
+        return (super(GetReward, self).__eq__(other) and
+                self.person == other.person)
+
 
 class GivePower(Command):
 
@@ -167,6 +178,14 @@ class GivePower(Command):
         self.depends_on = data['depends_on']
         self.power = data['power']
         self.multiply = data['multiply']
+
+    def __eq__(self, other):
+        return (super(GivePower, self).__eq__(other) and
+                self.person == other.person and
+                self.power == other.power and
+                self.multiply == other.multiply and
+                self.depends_on == other.depends_on)
+
 
 class Choose(Command):
 
@@ -198,6 +217,13 @@ class Choose(Command):
         self.default = data['default']
         self.choice = data['choice']
 
+    def __eq__(self, other):
+        return (super(Choose, self).__eq__(other) and
+                self.choices == other.choices and
+                self.default == other.default and
+                self.id == other.id and
+                self.choice == other.choice)
+
 
 class Quest(Command):
 
@@ -217,6 +243,11 @@ class Quest(Command):
         super(Quest, self).deserialize(data)
         self.quest = data['quest']
 
+    def __eq__(self, other):
+        return (super(Quest, self).__eq__(other) and
+                self.quest == other.quest)
+
+
 class Battle(Command):
 
     def __init__(self, number=None, **kwargs):
@@ -235,7 +266,12 @@ class Battle(Command):
         super(Battle, self).deserialize(data)
         self.number = data['number']
 
+    def __eq__(self, other):
+        return (super(Battle, self).__eq__(other) and
+                self.number == other.number)
 
-COMMAND_CLASSES = dict( (cmd_class.type(), cmd_class) 
-                        for cmd_name, cmd_class in globals().items() 
+
+
+COMMAND_CLASSES = dict( (cmd_class.type(), cmd_class)
+                        for cmd_name, cmd_class in globals().items()
                         if isinstance(cmd_class, type) and issubclass(cmd_class, Command) and cmd_class is not Command)
