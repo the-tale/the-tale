@@ -18,7 +18,7 @@ from game import names
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
 from game.heroes.statistics import HeroStatistics
 from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
-from game.heroes.habilities import AbilitiesPrototype
+from game.heroes.habilities import AbilitiesPrototype, ABILITIES
 from game.heroes.conf import heroes_settings
 
 from game.map.prototypes import MapInfoPrototype
@@ -217,18 +217,6 @@ class HeroPrototype(object):
 
     @property
     def max_health(self): return f.hp_on_lvl(self.level)
-
-    @property
-    def min_damage(self):
-        damage = 5
-        damage += self.equipment.get_attr_damage()[0]
-        return damage
-
-    @property
-    def max_damage(self):
-        damage = 10
-        damage += self.equipment.get_attr_damage()[1]
-        return damage
 
     @property
     def max_bag_size(self): return c.MAX_BAG_SIZE
@@ -625,6 +613,18 @@ class ChooseAbilityTaskPrototype(object):
     def process(self, bundle):
 
         hero = bundle.heroes[self.hero_id]
+
+        if self.ability_id not in ABILITIES:
+            self.state = CHOOSE_ABILITY_STATE.ERROR
+            self.comment = u'no ability with id "%s"' % self.ability_id
+            return
+
+        ability = ABILITIES[self.ability_id]
+
+        if not ability.AVAILABLE_TO_PLAYERS:
+            self.state = CHOOSE_ABILITY_STATE.ERROR
+            self.comment = u'ability "%s" does not available to players' % self.ability_id
+            return
 
         if hero.destiny_points <= 0:
             self.state = CHOOSE_ABILITY_STATE.ERROR

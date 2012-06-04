@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from ..heroes.habilities import AbilitiesPrototype
+from game.heroes.habilities import AbilitiesPrototype
 
 from game.balance import formulas as f
+from game.game_info import ATTRIBUTES
 
 class MobException(Exception): pass
 
@@ -11,13 +12,16 @@ class MobPrototype(object):
     def __init__(self, record=None, level=None, health=None, abilities=None):
 
         self.record = record
-
         self.level = level
-
-        self.max_health = f.mob_hp_to_lvl(level) * self.record.health
-        self.health = self.max_health if health is None else health
-
         self.abilities = AbilitiesPrototype(abilities=record.abilities) if abilities is None else abilities
+
+        self.initiative = self.abilities.modify_attribute(ATTRIBUTES.INITIATIVE, 1)
+        self.health_cooficient = self.abilities.modify_attribute(ATTRIBUTES.HEALTH, 1)
+        self.damage_cooficient = self.abilities.modify_attribute(ATTRIBUTES.DAMAGE, 1)
+
+        self.max_health = f.mob_hp_to_lvl(level) * self.health_cooficient
+
+        self.health = self.max_health if health is None else health
 
 
     @property
@@ -30,9 +34,6 @@ class MobPrototype(object):
     def normalized_name(self): return (self.record.normalized_name, self.record.morph)
 
     @property
-    def initiative(self): return self.record.speed
-
-    @property
     def loot(self): return self.record.loot
 
     @property
@@ -42,10 +43,10 @@ class MobPrototype(object):
     def health_percents(self): return float(self.health) / self.max_health
 
     @property
-    def exp_cooficient(self): return f.mob_difficulty(self.record.speed, self.record.health, self.record.damage)
+    def exp_cooficient(self): return f.mob_difficulty(self.initiative, self.health_cooficient, self.damage_cooficient)
 
     @property
-    def basic_damage(self): return f.expected_damage_to_hero_per_hit(self.level) * self.record.damage
+    def basic_damage(self): return f.expected_damage_to_hero_per_hit(self.level) * self.damage_cooficient
 
     def strike_by(self, percents):
         self.health = max(0, self.health - self.max_health * percents)

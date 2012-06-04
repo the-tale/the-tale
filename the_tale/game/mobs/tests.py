@@ -3,14 +3,16 @@ import mock
 
 from django.test import TestCase
 
-from .storage import MobsDatabase
-from .conf import mobs_settings
-from .exceptions import MobsException
+from game.mobs.storage import MobsDatabase
+from game.mobs.prototypes import MobPrototype
+from game.mobs.conf import mobs_settings
+from game.mobs.exceptions import MobsException
 
 from game.artifacts.storage import ArtifactsDatabase
 from game.artifacts.conf import ITEM_TYPE
 from game.map.places.models import TERRAIN
 from game.logic import create_test_bundle, create_test_map
+from game.balance import formulas as f
 
 class MobsDatabaseTest(TestCase):
 
@@ -48,16 +50,26 @@ class MobsDatabaseTest(TestCase):
         self.assertEqual(bandit.id , u'bandit')
         self.assertEqual(bandit.name , u'бандит')
         self.assertEqual(bandit.normalized_name , u'бандит')
-        self.assertEqual(bandit.speed , 1)
-        self.assertEqual(bandit.health , 0.8)
-        self.assertEqual(bandit.damage , 1)
-        self.assertEqual(bandit.abilities , frozenset(['hit']))
+        self.assertEqual(bandit.abilities , frozenset(['hit', 'thick', 'slow', 'extra_strong']))
         self.assertEqual(bandit.terrain , frozenset(['.', 'f']))
         self.assertEqual(bandit.loot , frozenset(['fake_amulet']))
         self.assertEqual(bandit.artifacts , frozenset(['broken_sword', 'decrepit_plate']))
 
         wolf = storage.data['wolf']
         self.assertEqual(wolf.morph, (u'мн',))
+
+
+    def test_mob_attributes(self):
+        storage = MobsDatabase()
+        storage.load(mobs_settings.TEST_STORAGE)
+
+        bandit = MobPrototype(record=storage.data['bandit'], level=1)
+
+        self.assertEqual(bandit.health_cooficient, 1.2)
+        self.assertEqual(bandit.initiative, 0.8)
+        self.assertEqual(bandit.damage_cooficient, 1.4)
+
+        self.assertEqual(bandit.exp_cooficient, f.mob_difficulty(0.8, 1.2, 1.4))
 
 
     def test_load_duplicates(self):
@@ -98,14 +110,17 @@ class MobsDatabaseTest(TestCase):
                 self.assertTrue(artifact_id in loot_storage.data)
 
     def test_get_loot(self):
-        storage = MobsDatabase()
-        storage.load(mobs_settings.TEST_STORAGE)
 
         self.hero.model.level = 5
 
-        mob = storage.get_random_mob(self.hero)
+        mob = None
 
-        self.assertTrue(self.hero.level != mob.record.level) # min mob level MUST not be equal to hero level
+        # min mob level MUST not be equal to hero level
+        # since in other case next check has no meaning
+        while mob is None or mob.record.level == self.hero.level:
+            mob = MobsDatabase.storage().get_random_mob(self.hero)
+
+        self.assertTrue(self.hero.level != mob.record.level)
 
         with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
             artifact = mob.get_loot()

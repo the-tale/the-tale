@@ -1,7 +1,8 @@
 #coding: utf-8
 
 class ABILITY_TYPE:
-    BATTLE = 'battle'
+    BATTLE = 1
+    STATIC = 2
 
 
 class ABILITIES_ACTIVATION_TYPE:
@@ -22,6 +23,7 @@ class AbilityPrototype(object):
     ACTIVATION_TYPE = None
     LOGIC_TYPE = None
     PRIORITY = None
+    AVAILABLE_TO_PLAYERS = True
 
     NAME = u''
     NORMALIZED_NAME = u''
@@ -30,6 +32,8 @@ class AbilityPrototype(object):
     @property
     def normalized_name(self):  return self.NORMALIZED_NAME
 
+    @classmethod
+    def modify_attribute(cls, name, value): return value
 
     @classmethod
     def get_id(cls): return cls.__name__.lower()
@@ -134,6 +138,9 @@ class Regeneration(AbilityPrototype):
         health_to_regen = actor.max_health * cls.RESTORED_PERCENT
         applied_health = actor.change_health(health_to_regen)
         messanger.add_message('hero_ability_regeneration', actor=actor, health=applied_health)
+
+
+
 
 ABILITIES = dict( (ability.get_id(), ability)
                   for ability in globals().values()

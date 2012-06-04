@@ -2,7 +2,12 @@
 import random
 import copy
 
-from .prototypes import ABILITIES, ABILITIES_ACTIVATION_TYPE, ABILITIES_LOGIC_TYPE
+from game.heroes.habilities.prototypes import ABILITIES_ACTIVATION_TYPE, ABILITIES_LOGIC_TYPE
+
+from game.heroes.habilities.prototypes import ABILITIES as COMMON_ABILITIES
+from game.heroes.habilities.attributes import ABILITIES as ATTRIBUTES_ABILITIES
+
+ABILITIES = dict(COMMON_ABILITIES, **ATTRIBUTES_ABILITIES)
 
 __all__ = ['ABILITIES', 'AbilitiesPrototype', 'ABILITIES_LOGIC_TYPE']
 
@@ -53,6 +58,8 @@ class AbilitiesPrototype(object):
         for ability_key, ability in ABILITIES.items():
             if ability_key in self.abilities:
                 continue
+            if not ability.AVAILABLE_TO_PLAYERS:
+                continue
             candidates.append(ability_key)
         choices = random.sample(candidates, min(MAX_ABILITIES, len(candidates)))
 
@@ -62,6 +69,11 @@ class AbilitiesPrototype(object):
             result.append(ABILITIES[choice])
 
         return result
+
+    def modify_attribute(self, name, value):
+        for ability in self.abilities.values():
+            value = ability.modify_attribute(name, value)
+        return value
 
     def __eq__(self, other):
         return self.abilities.keys() == other.abilities.keys()
