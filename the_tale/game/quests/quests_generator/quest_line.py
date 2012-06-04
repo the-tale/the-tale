@@ -190,3 +190,8 @@ class Quest(object):
 
         self.env_local = LocalEnvironment()
         self.env_local.deserialize(data['env_local'])
+
+    def __eq__(self, other):
+        return (self.id == other.id and
+                self.line == other.line and
+                self.env_local == other.env_local)

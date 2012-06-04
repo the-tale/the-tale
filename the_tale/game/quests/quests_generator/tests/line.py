@@ -2,31 +2,16 @@
 
 from django.test import TestCase
 
-from game.quests.quests_generator.quest_line import Line, Quest
+from game.quests.quests_generator.quest_line import Line
 from game.quests.quests_generator import commands as cmd
 from game.quests.quests_generator.environment import BaseEnvironment, LocalEnvironment
 from game.quests.quests_generator.lines import BaseQuestsSource
 from game.quests.quests_generator.knowlege_base import KnowlegeBase
 from game.quests.quests_generator.exceptions import QuestGeneratorException
+from game.quests.quests_generator.tests.helpers import FakeQuest
 
 quests_source = BaseQuestsSource()
 writers_constructor = lambda hero, quest_type, env, quest_env_local: 0
-
-class FakeQuest(Quest):
-
-    def __init__(self, commands_number):
-        self.commands_number = commands_number
-
-    def get_commands_number(self, *args):
-        return self.commands_number
-
-    def increment_pointer(self, env, pointer, choices):
-        next_poiner = list(pointer)
-        if pointer[-1] < self.commands_number - 1:
-            next_poiner[-1] += 1
-            return next_poiner
-
-        return None
 
 
 class LineTest(TestCase):
@@ -76,11 +61,18 @@ class LineTest(TestCase):
 
         self.assertEqual(self.quest_line.get_commands_number(self.env), 16)
         self.assertEqual(self.quest_line.get_commands_number(self.env, pointer=[1]), 1)
+        self.assertEqual(self.quest_line.get_commands_number(self.env, [1, 0]), 2)
+        self.assertEqual(self.quest_line.get_commands_number(self.env, [1, 5]), 7)
+        self.assertEqual(self.quest_line.get_commands_number(self.env, [1, 12]), 14)
         self.assertEqual(self.quest_line.get_commands_number(self.env, pointer=[2]), 15)
         self.assertRaises(QuestGeneratorException, self.quest_line.get_commands_number, self.env, pointer=[9])
 
         self.assertEqual(self.choice_line.get_commands_number(self.env), 19)
         self.assertEqual(self.choice_line.get_commands_number(self.env, pointer=[1]), 1)
+        self.assertEqual(self.choice_line.get_commands_number(self.env, [1, 'line_1', 0]), 2)
+        self.assertEqual(self.choice_line.get_commands_number(self.env, [1, 'line_1', 7]), 9)
+        self.assertEqual(self.choice_line.get_commands_number(self.env, [1, 'line_2', 0]), 2)
+        self.assertEqual(self.choice_line.get_commands_number(self.env, [1, 'line_2', 2]), 17)
         self.assertEqual(self.choice_line.get_commands_number(self.env, pointer=[2]), 18)
         self.assertRaises(QuestGeneratorException, self.choice_line.get_commands_number, self.env, pointer=[9])
 
@@ -106,7 +98,7 @@ class LineTest(TestCase):
         self.assertEqual(self.choice_line.increment_pointer(self.env, [1], {'choose_1': 'choice_2'}), [1, 'line_2', 0])
         self.assertEqual(self.choice_line.increment_pointer(self.env, [1, 'line_2', 0], {'choose_1': 'choice_2'}), [1, 'line_2', 1])
         self.assertEqual(self.choice_line.increment_pointer(self.env, [1, 'line_2', 2], {'choose_1': 'choice_2'}), [2])
-        self.assertEqual(self.quest_line.increment_pointer(self.env, [2], {}), None)
+        self.assertEqual(self.choice_line.increment_pointer(self.env, [2], {}), None)
         self.assertRaises(QuestGeneratorException, self.choice_line.increment_pointer, self.env, [3], {})
 
 
