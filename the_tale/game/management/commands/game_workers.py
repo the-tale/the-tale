@@ -12,6 +12,37 @@ from dext.utils import pid
 from game.conf import game_settings
 from game.workers.environment import workers_environment
 
+def start():
+    with open(os.devnull, 'w') as devnull:
+        subprocess.Popen(['./manage.py', 'game_supervisor'], stdin=devnull, stdout=devnull, stderr=devnull)
+        subprocess.Popen(['./manage.py', 'game_logic'], stdin=devnull, stdout=devnull, stderr=devnull)
+
+        if game_settings.ENABLE_WORKER_HIGHLEVEL:
+            subprocess.Popen(['./manage.py', 'game_highlevel'], stdin=devnull, stdout=devnull, stderr=devnull)
+
+        if game_settings.ENABLE_WORKER_TURNS_LOOP:
+            subprocess.Popen(['./manage.py', 'game_turns_loop'], stdin=devnull, stdout=devnull, stderr=devnull)
+
+    print 'game started'
+
+def stop():
+    if pid.check('game_supervisor'):
+        print 'supervisor found, send stop command'
+        workers_environment.supervisor.cmd_stop()
+        print 'waiting answer'
+        answer_cmd = workers_environment.supervisor.stop_queue.get(block=True)
+        answer_cmd.ack()
+        print 'answer received'
+
+    while (pid.check('game_supervisor') or
+           pid.check('game_logic') or
+           pid.check('game_highlevel') or
+           pid.check('game_turns_loop') ):
+        time.sleep(0.1)
+
+    print 'game stopped'
+
+
 class Command(BaseCommand):
 
     help = 'run game turns loop'
@@ -27,40 +58,12 @@ class Command(BaseCommand):
 
     @pid.protector('game_workers')
     def handle(self, *args, **options):
-
         command = options['command']
 
         if command == 'start':
-            with open(os.devnull, 'w') as devnull:
-                subprocess.Popen(['./manage.py', 'game_supervisor'], stdin=devnull, stdout=devnull, stderr=devnull)
-                subprocess.Popen(['./manage.py', 'game_logic'], stdin=devnull, stdout=devnull, stderr=devnull)
-
-                if game_settings.ENABLE_WORKER_HIGHLEVEL:
-                    subprocess.Popen(['./manage.py', 'game_highlevel'], stdin=devnull, stdout=devnull, stderr=devnull)
-
-                if game_settings.ENABLE_WORKER_TURNS_LOOP:
-                    subprocess.Popen(['./manage.py', 'game_turns_loop'], stdin=devnull, stdout=devnull, stderr=devnull)
-
-            print 'game started'
-
+            start()
         elif command == 'stop':
-
-            if pid.check('game_supervisor'):
-                print 'supervisor found, send stop command'
-                workers_environment.supervisor.cmd_stop()
-                print 'waiting answer'
-                answer_cmd = workers_environment.supervisor.stop_queue.get(block=True)
-                answer_cmd.ack()
-                print 'answer received'
-
-            while (pid.check('game_supervisor') or
-                   pid.check('game_logic') or
-                   pid.check('game_highlevel') or
-                   pid.check('game_turns_loop') ):
-                time.sleep(0.1)
-
-            print 'game stopped'
-
+            stop()
         elif command == 'force_stop':
             pid.force_kill('game_supervisor')
             pid.force_kill('game_logic')
@@ -70,9 +73,9 @@ class Command(BaseCommand):
             print 'game stopped'
 
         elif command == 'restart':
-            subprocess.call(['./manage.py', 'game_workers', 'stop'])
-            subprocess.call(['./manage.py', 'game_workers', 'start'])
-            print 'command "%s" does not implemented yet ' % command
+            start()
+            stop()
+            print 'game restarted '
 
         elif command == 'status':
             print 'command "%s" does not implemented yet ' % command
