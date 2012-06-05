@@ -7,6 +7,9 @@ def deserialize_command(data):
 
 class Command(object):
 
+    is_quest = False
+    is_choice = False
+
     def __init__(self, event=None):
         self.event = event
 
@@ -189,6 +192,8 @@ class GivePower(Command):
 
 class Choose(Command):
 
+    is_choice = True
+
     def __init__(self, id=None, choices=None, default=None, choice=None, **kwargs):
         super(Choose, self).__init__(**kwargs)
         self.choices = choices
@@ -226,6 +231,8 @@ class Choose(Command):
 
 
 class Quest(Command):
+
+    is_quest = True
 
     def __init__(self, quest=None, **kwargs):
         super(Quest, self).__init__(**kwargs)

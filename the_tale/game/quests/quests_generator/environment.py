@@ -135,7 +135,7 @@ class BaseEnvironment(object):
             if len(tmp_pointer) != len(pointer):
                 return None
 
-            if hasattr(cmd, 'choices'):
+            if cmd.is_choice:
                 return cmd
 
             tmp_pointer = self.increment_pointer(tmp_pointer, {})

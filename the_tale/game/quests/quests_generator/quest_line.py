@@ -23,16 +23,16 @@ class Line(object):
             number = pointer[0]
 
         for cmd in self.sequence[:cmd_number]:
-            if hasattr(cmd, 'quest'):
+            if cmd.is_quest:
                 number += env.quests[cmd.quest].get_commands_number(env)
-            elif hasattr(cmd, 'choices'):
+            elif cmd.is_choice:
                 number += max(env.lines[line].get_commands_number(env) for line in cmd.choices.values())
 
         if pointer and len(pointer) > 1:
             cmd = self.sequence[cmd_number]
-            if hasattr(cmd, 'quest'):
+            if cmd.is_quest:
                 number += 1 + env.quests[cmd.quest].get_commands_number(env, pointer[1:])
-            elif hasattr(cmd, 'choices'):
+            elif cmd.is_choice:
                 number += 1 + env.lines[pointer[1]].get_commands_number(env, pointer[2:])
             else:
                 raise QuestGeneratorException('command has no attribute "quest" or "choices", cmd is: %r' % cmd.serialize())
@@ -47,9 +47,9 @@ class Line(object):
         cmd = self.sequence[pointer[0]]
 
         if len(pointer) == 1:
-            if hasattr(cmd, 'quest'):
+            if cmd.is_quest:
                 return [pointer[0]] + self.get_start_pointer()
-            if hasattr(cmd, 'choices'):
+            if cmd.is_choice:
                 choice = choices.get(cmd.id, cmd.default)
                 choosed_line = cmd.choices[choice]
                 return [pointer[0], choosed_line] + env.lines[choosed_line].get_start_pointer()
@@ -57,10 +57,10 @@ class Line(object):
                 return [pointer[0]+1]
             return None
 
-        if hasattr(cmd, 'quest'):
+        if cmd.is_quest:
             prev_subpointer = pointer[0:1]
             next_subpointer = env.quests[self.sequence[pointer[0]].quest].increment_pointer(env, pointer[1:], choices)
-        if hasattr(cmd, 'choices'):
+        if cmd.is_choice:
             prev_subpointer = pointer[0:2]
             next_subpointer = env.lines[pointer[1]].increment_pointer(env, pointer[2:], choices)
 
@@ -82,7 +82,7 @@ class Line(object):
 
         cmd = self.sequence[pointer[0]]
 
-        if not hasattr(cmd, 'choices'):
+        if not cmd.is_choice:
             return cmd, pointer[1:]
 
         if len(pointer) == 1:
@@ -169,7 +169,7 @@ class Quest(object):
         if not subpointer:
             return chain
 
-        if not hasattr(cmd, 'quest'):
+        if not cmd.is_quest:
             raise QuestGeneratorException('command has no attribute "quest", cmd is: %r' % cmd.serialize())
 
         quest = env.quests[cmd.quest]
