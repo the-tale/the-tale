@@ -31,7 +31,12 @@ class FakeQuest(Quest):
     def __init__(self, commands_number):
         super(FakeQuest, self).__init__()
         self.commands_number = commands_number
-        self.line = FakeLine()
+
+    def initialize(self, identifier, env, **kwargs):
+        pass
+
+    def create_line(self, env):
+        self.line = env.new_line(FakeLine())
 
     def get_commands_number(self, env, pointer=None):
         if pointer:
@@ -67,7 +72,7 @@ class JustQuest(Quest):
                                     cmd.Quest(event='event_2_2', quest=self.env_local.quest_1),
                                     cmd.GetReward(event='event_2_3', person='person_2')  ])
 
-        self.line = Line(sequence=[cmd.Move(event='event_3_1', place='place_3'),
+        main_line = Line(sequence=[cmd.Move(event='event_3_1', place='place_3'),
                                    cmd.Choose(id='choose_1',
                                               default='choice_1',
                                               choices={'choice_1': env.new_line(linear_line),
@@ -75,3 +80,4 @@ class JustQuest(Quest):
                                               event='event_3_2',
                                               choice='choice_id_1'),
                                    cmd.Battle(event='event_3_3', number=13) ])
+        self.line = env.new_line(main_line)

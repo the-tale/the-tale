@@ -88,6 +88,9 @@ class Line(object):
         if len(pointer) == 1:
             return cmd, []
 
+        if pointer[1] not in cmd.choices.values():
+            raise QuestGeneratorException(u'wrong pointer "%r" - line "%s" not in choice "%s"' % (pointer, pointer[1], cmd.get_description(env)))
+
         return env.lines[pointer[1]].get_quest_command(env, pointer[2:])
 
     def serialize(self):
@@ -108,6 +111,7 @@ class Quest(object):
     def __init__(self):
         self.env_local = None
         self.id = None
+        self.line = None
 
     def initialize(self, identifier, env, place_start=None, person_start=None, place_end=None, person_end=None):
         self.id = identifier
@@ -138,29 +142,28 @@ class Quest(object):
     def type(cls): return cls.__name__.lower()
 
     def create_line(self, env):
-        self.line = Line()
+        raise NotImplementedError
 
     def get_command(self, env, pointer):
-        # return self.line.get_pointer_cmd(env, pointer)
         return self.get_quest_action_chain(env, pointer)[-1][1]
 
     def get_quest(self, env, pointer):
         return self.get_quest_action_chain(env, pointer)[-1][0]
 
     def get_commands_number(self, env, pointer=None):
-        return self.line.get_commands_number(env=env, pointer=pointer)
+        return env.lines[self.line].get_commands_number(env=env, pointer=pointer)
 
     def get_percents(self, env, pointer):
         return float(self.get_commands_number(env, pointer)) / self.get_commands_number(env)
 
-    def get_start_pointer(self):
-        return self.line.get_start_pointer()
+    def get_start_pointer(self, env):
+        return env.lines[self.line].get_start_pointer()
 
     def increment_pointer(self, env, pointer, choices):
-        return self.line.increment_pointer(env, pointer, choices)
+        return env.lines[self.line].increment_pointer(env, pointer, choices)
 
     def get_quest_action_chain(self, env, pointer):
-        cmd, subpointer = self.line.get_quest_command(env, pointer)
+        cmd, subpointer = env.lines[self.line].get_quest_command(env, pointer)
         chain = [ (self, cmd ) ]
 
         if not subpointer:
@@ -177,20 +180,18 @@ class Quest(object):
 
     def get_description(self, env):
         description = [self.__class__.__name__]
-        description.extend( self.line.get_description(env) )
+        description.extend( env.lines[self.line].get_description(env) )
         return description
 
     def serialize(self):
         return { 'type': self.type(),
                  'id': self.id,
-                 'line': self.line.serialize(),
+                 'line': self.line,
                  'env_local': self.env_local.serialize() }
 
     def deserialize(self, data):
         self.id = data['id']
-
-        self.line = Line()
-        self.line.deserialize(data['line'])
+        self.line = data['line']
 
         self.env_local = LocalEnvironment()
         self.env_local.deserialize(data['env_local'])

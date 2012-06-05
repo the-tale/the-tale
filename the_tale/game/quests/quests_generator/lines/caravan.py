@@ -53,7 +53,7 @@ class CaravanLine(Quest):
                                                          'bandits': env.new_line(bad_line_2)},
                                                 event=EVENTS.BRING_CHOICE,
                                                 choice=CHOICES.BRING) ])
-       
+
         main_line = Line(sequence=[cmd.Move(place=self.env_local.place_end, break_at=0.33, event=EVENTS.MOVE_TO_POINT),
                                    cmd.Choose(id=self.env_local.choose_point_1,
                                               default='caravan',
@@ -61,4 +61,4 @@ class CaravanLine(Quest):
                                                        'bandits': env.new_line(bad_line_1)},
                                               event=EVENTS.BRING_CHOICE,
                                               choice=CHOICES.BRING) ])
-        self.line = main_line
+        self.line = env.new_line(main_line)

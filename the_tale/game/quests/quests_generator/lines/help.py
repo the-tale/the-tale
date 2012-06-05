@@ -17,9 +17,10 @@ class HelpLine(Quest):
                                                             person_start=self.env_local.person_end) )
 
     def create_line(self, env):
-        self.line =  Line(sequence= [ cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
+        main_line =  Line(sequence= [ cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
                                       cmd.Quest(quest=self.env_local.quest_help, event=EVENTS.START_QUEST),
-                                      cmd.GivePower(person=self.env_local.person_start, 
+                                      cmd.GivePower(person=self.env_local.person_start,
                                                     depends_on=self.env_local.person_end, multiply=0.25,
                                                     event=EVENTS.GIVE_POWER)])
+        self.line = env.new_line(main_line)
         env.quests[self.env_local.quest_help].create_line(env)

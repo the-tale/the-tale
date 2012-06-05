@@ -100,7 +100,7 @@ class BaseEnvironment(object):
         self.root_quest.create_line(self)
 
     def get_start_pointer(self):
-        return self.root_quest.get_start_pointer()
+        return self.root_quest.get_start_pointer(self)
 
     def increment_pointer(self, pointer, choices):
         return self.root_quest.increment_pointer(self, pointer, choices)

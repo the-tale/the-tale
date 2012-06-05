@@ -10,7 +10,7 @@ QUESTS = [HelpLine, DeliveryLine, CaravanLine, SpyingLine, NotMyWorkLine]
 QUESTS_TYPES = [quest.type() for quest in QUESTS]
 
 # TODO: WHY no all quest added here?
-__all__ = ['QUESTS', 'HelpLine', 'DeliveryLine', 'CaravanLine', 'SpyingLine']
+__all__ = ['QUESTS', 'BaseQuestsSource']
 
 class BaseQuestsSource(object):
 

@@ -35,7 +35,7 @@ class DeliveryLine(Quest):
                                     cmd.GivePower(person=self.env_local.person_start, power=-1, event=EVENTS.EVIL_GIVE_POWER),
                                     cmd.GivePower(person=self.env_local.person_end, power=-1, event=EVENTS.EVIL_GIVE_POWER)])
 
-        self.line = Line(sequence=[ cmd.GetItem(self.env_local.item_to_deliver, event=EVENTS.GET_ITEM),
+        main_line = Line(sequence=[ cmd.GetItem(self.env_local.item_to_deliver, event=EVENTS.GET_ITEM),
                                     cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_DESTINATION),
                                     cmd.Choose(id=self.env_local.steal_point,
                                                default='delivery',
@@ -43,3 +43,5 @@ class DeliveryLine(Quest):
                                                         'steal': env.new_line(steal_line)},
                                                event=EVENTS.STEAL_CHOICE,
                                                choice=CHOICES.STEAL) ])
+
+        self.line = env.new_line(main_line)

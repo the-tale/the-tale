@@ -150,8 +150,15 @@ class EnvironmentTest(TestCase):
         quest.initialize('quest', self.env)
         quest.create_line(self.env)
 
+        fake_quest = FakeQuest(13)
+        fake_quest.initialize('fake_quest', self.env)
+        fake_quest.create_line(self.env)
+
+        FIRST_CHOICE_LINE = 'line_1'
+        SECOND_CHOICE_LINE = 'line_2'
+
         self.env.quests[self.env._root_quest] = quest
-        self.env.quests['quest_1'] = FakeQuest(13)
+        self.env.quests['quest_1'] = fake_quest
 
         self.assertEqual(self.env.get_writers_text_chain('hero', [0]),
                          [{'quest_type': 'justquest',
@@ -165,22 +172,22 @@ class EnvironmentTest(TestCase):
                            'action_type': 'choose',
                            'action_text': 'hero_justquest_event_3_2'}])
 
-        self.assertEqual(self.env.get_writers_text_chain('hero', [1, 'line_1', 7]),
+        self.assertEqual(self.env.get_writers_text_chain('hero', [1, FIRST_CHOICE_LINE, 7]),
                          [{'quest_type': 'justquest',
                            'quest_text': 'hero_justquest',
                            'action_type': 'givepower',
                            'action_text': 'hero_justquest_event_1_8'}])
 
-        self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, 'line_1', 7, 8])
-        self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, 'line_1', 8])
+        self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, FIRST_CHOICE_LINE, 7, 8])
+        self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, FIRST_CHOICE_LINE, 8])
 
-        self.assertEqual(self.env.get_writers_text_chain('hero', [1, 'line_2', 1]),
+        self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 1]),
                          [{'quest_type': 'justquest',
                            'quest_text': 'hero_justquest',
                            'action_type': 'quest',
                            'action_text': 'hero_justquest_event_2_2'}])
 
-        self.assertEqual(self.env.get_writers_text_chain('hero', [1, 'line_2', 1, 0]),
+        self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 1, 0]),
                          [{'quest_type': 'justquest',
                            'quest_text': 'hero_justquest',
                            'action_type': 'quest',
@@ -190,7 +197,7 @@ class EnvironmentTest(TestCase):
                            'action_type': 'fakecmd',
                            'action_text': 'hero_fakequest_fake_event'}])
 
-        self.assertEqual(self.env.get_writers_text_chain('hero', [1, 'line_2', 1, 2]),
+        self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 1, 2]),
                          [{'quest_type': 'justquest',
                            'quest_text': 'hero_justquest',
                            'action_type': 'quest',
@@ -200,13 +207,13 @@ class EnvironmentTest(TestCase):
                            'action_type': 'fakecmd',
                            'action_text': 'hero_fakequest_fake_event'}])
 
-        self.assertEqual(self.env.get_writers_text_chain('hero', [1, 'line_2', 2]),
+        self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 2]),
                          [{'quest_type': 'justquest',
                            'quest_text': 'hero_justquest',
                            'action_type': 'getreward',
                            'action_text': 'hero_justquest_event_2_3'}])
 
-        self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, 'line_2', 3])
+        self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, SECOND_CHOICE_LINE, 3])
 
 
     def test_get_nearest_quest_choice(self):
@@ -214,30 +221,37 @@ class EnvironmentTest(TestCase):
         quest.initialize('quest', self.env)
         quest.create_line(self.env)
 
+        fake_quest = FakeQuest(13)
+        fake_quest.initialize('fake_quest', self.env)
+        fake_quest.create_line(self.env)
+
+        FIRST_CHOICE_LINE = 'line_1'
+        SECOND_CHOICE_LINE = 'line_2'
+
         self.env.quests[self.env._root_quest] = quest
-        self.env.quests['quest_1'] = FakeQuest(13)
+        self.env.quests['quest_1'] = fake_quest
 
         cmd_choose = cmd.Choose(id='choose_1',
                                 default='choice_1',
-                                choices={'choice_1': 'line_1',
-                                         'choice_2': 'line_2' },
+                                choices={'choice_1': FIRST_CHOICE_LINE,
+                                         'choice_2': SECOND_CHOICE_LINE },
                                 event='event_3_2',
                                 choice='choice_id_1')
 
 
         self.assertEqual(self.env.get_nearest_quest_choice([0]), cmd_choose)
         self.assertEqual(self.env.get_nearest_quest_choice([1]), cmd_choose)
-        self.assertEqual(self.env.get_nearest_quest_choice([1, 'line_1', 0]), None)
-        self.assertEqual(self.env.get_nearest_quest_choice([1, 'line_1', 7]), None)
-        self.assertRaises(QuestGeneratorException, self.env.get_nearest_quest_choice, [1, 'line_1', 7, 8])
-        self.assertRaises(QuestGeneratorException, self.env.get_nearest_quest_choice, [1, 'line_1', 8])
+        self.assertEqual(self.env.get_nearest_quest_choice([1, FIRST_CHOICE_LINE, 0]), None)
+        self.assertEqual(self.env.get_nearest_quest_choice([1, FIRST_CHOICE_LINE, 7]), None)
+        self.assertRaises(QuestGeneratorException, self.env.get_nearest_quest_choice, [1, FIRST_CHOICE_LINE, 7, 8])
+        self.assertRaises(QuestGeneratorException, self.env.get_nearest_quest_choice, [1, FIRST_CHOICE_LINE, 8])
 
-        self.assertEqual(self.env.get_nearest_quest_choice([1, 'line_2', 0]), None)
-        self.assertEqual(self.env.get_nearest_quest_choice([1, 'line_2', 1]), None)
-        self.assertEqual(self.env.get_nearest_quest_choice([1, 'line_2', 1, 0]), None)
-        self.assertEqual(self.env.get_nearest_quest_choice([1, 'line_2', 1, 2]), None)
-        self.assertEqual(self.env.get_nearest_quest_choice([1, 'line_2', 2]), None)
-        self.assertRaises(QuestGeneratorException, self.env.get_nearest_quest_choice, [1, 'line_2', 3])
+        self.assertEqual(self.env.get_nearest_quest_choice([1, SECOND_CHOICE_LINE, 0]), None)
+        self.assertEqual(self.env.get_nearest_quest_choice([1, SECOND_CHOICE_LINE, 1]), None)
+        self.assertEqual(self.env.get_nearest_quest_choice([1, SECOND_CHOICE_LINE, 1, 0]), None)
+        self.assertEqual(self.env.get_nearest_quest_choice([1, SECOND_CHOICE_LINE, 1, 2]), None)
+        self.assertEqual(self.env.get_nearest_quest_choice([1, SECOND_CHOICE_LINE, 2]), None)
+        self.assertRaises(QuestGeneratorException, self.env.get_nearest_quest_choice, [1, SECOND_CHOICE_LINE, 3])
 
     def test_serialization(self):
         self.env.new_quest()

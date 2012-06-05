@@ -6,8 +6,8 @@ from .. import commands as cmd
 
 class EVENTS:
     QUEST_DESCRIPTION = 'quest_description'
-    MOVE_TO_QUEST = 'move_to_quest'    
-    MOVE_TO_CUSTOMER = 'move_to_customer'    
+    MOVE_TO_QUEST = 'move_to_quest'
+    MOVE_TO_CUSTOMER = 'move_to_customer'
     START_QUEST = 'start_quest'
     GIVE_POWER_TO_CUSTOMER = 'give_power_to_customer'
     GET_POWER_FROM_PERFORMER = 'get_power_from_performer'
@@ -53,4 +53,4 @@ class NotMyWorkLine(Quest):
                                               event=EVENTS.WORK_CHOICE,
                                               choice=CHOICES.WORK) ])
 
-        self.line = main_line
+        self.line = env.new_line(main_line)

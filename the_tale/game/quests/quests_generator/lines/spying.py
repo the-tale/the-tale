@@ -47,7 +47,7 @@ class SpyingLine(Quest):
                                                          'open_up': env.new_line(bad_line_2)},
                                                 event=EVENTS.OPEN_UP_CHOICE,
                                                 choice=CHOICES.OPEN_UP) ])
-       
+
         main_line = Line(sequence=[cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
                                    cmd.Choose(id=self.env_local.choose_point_1,
                                               default='spy',
@@ -55,5 +55,4 @@ class SpyingLine(Quest):
                                                        'open_up': env.new_line(bad_line_1)},
                                               event=EVENTS.OPEN_UP_CHOICE,
                                               choice=CHOICES.OPEN_UP) ])
-        self.line = main_line
-
+        self.line = env.new_line(main_line)
