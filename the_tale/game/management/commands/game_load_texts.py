@@ -9,6 +9,7 @@ from django.core.management.base import BaseCommand
 
 from game.mobs import logic as mobs_logic
 from game.artifacts import logic as artifacts_logic
+from game.quests import logic as quests_logic
 from game.conf import game_settings
 
 
@@ -28,7 +29,7 @@ class Command(BaseCommand):
         print "LOAD ARTIFACT'S NAMES"
         artifacts_logic.import_texts_into_database(morph,
                                                    tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
-                                                    dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY)
+                                                   dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY)
 
         print "LOAD MESSAGES"
         textgen_logic.import_texts(morph,
@@ -37,6 +38,14 @@ class Command(BaseCommand):
                                    voc_storage=game_settings.TEXTGEN_STORAGE_VOCABULARY,
                                    dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY,
                                    debug=True)
+
+        print "LOAD QUEST WRITERS"
+        quests_logic.import_texts(morph,
+                                  source_dir=game_settings.TEXTGEN_SOURCES_DIR,
+                                  tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
+                                  voc_storage=game_settings.TEXTGEN_STORAGE_VOCABULARY,
+                                  dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY,
+                                  debug=True)
 
 
         dictionary = Dictionary()

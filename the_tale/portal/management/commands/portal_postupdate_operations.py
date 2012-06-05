@@ -33,24 +33,6 @@ class Command(BaseCommand):
 
 
         print
-        print 'CLEAR TEXTGEN TEXTS'
-        print
-
-        subprocess.call(['./manage.py', 'textgen_clear_database'])
-
-        print
-        print 'LOAD TEXTGEN TEXTS'
-        print
-
-        subprocess.call(['./manage.py', 'game_load_texts'])
-
-        print
-        print 'LOAD QUEST WRITERS'
-        print
-
-        subprocess.call(['./manage.py', 'quests_load_writers'])
-
-        print
         print 'UPDATE MAP'
         print
 
