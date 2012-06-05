@@ -11,13 +11,14 @@ class QuestsResource(Resource):
 
     def __init__(self, request, quest_id=None, *argv, **kwargs):
         super(QuestsResource, self).__init__(request, *argv, **kwargs)
-        
+
         self.quest_id = int(quest_id)
 
-        from ..heroes.prototypes import get_hero_by_id
+        if self.quest is None:
+            raise Error(u'Вы не можете работать с этим квестом')
 
-        if self.quest is None or self.angel.id != get_hero_by_id(self.quest.hero_id).angel_id:
-            raise Error(u'Вы не работать с этим квестом')
+        if self.angel.id not in self.quest.angels_ids():
+            raise Error(u'Вы не можете работать с этим квестом')
 
     @property
     def quest(self):

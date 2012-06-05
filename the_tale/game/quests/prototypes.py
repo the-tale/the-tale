@@ -78,6 +78,13 @@ class QuestPrototype(object):
     def is_processed(self):
         return len(self.pos) == 0
 
+    def heroes_ids(self):
+        return set(self.model.heroes.values_list('id', flat=True))
+
+    def angels_ids(self):
+        return set(self.model.heroes.values_list('angel_id', flat=True))
+
+
     def get_choices(self):
         # MUST be always actual
         choices = {}

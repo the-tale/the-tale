@@ -76,3 +76,6 @@ class Command(BaseCommand):
 
         elif command == 'status':
             print 'command "%s" does not implemented yet ' % command
+
+        else:
+            print 'command did not specified'
