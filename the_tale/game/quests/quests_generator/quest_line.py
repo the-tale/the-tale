@@ -114,12 +114,16 @@ class Quest(object):
         self.env_local = LocalEnvironment()
 
         if not place_start:
+            if person_start:
+                raise QuestGeneratorException(u'person "%s" specified without place' % person_start)
             place_start = env.new_place()
 
         if not person_start:
             person_start = env.new_person(from_place=place_start)
 
         if not place_end:
+            if person_end:
+                raise QuestGeneratorException(u'person "%s" specified without place' % person_end)
             place_end = env.new_place()
 
         if not person_end:

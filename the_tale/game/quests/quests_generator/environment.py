@@ -2,6 +2,8 @@
 import random
 import copy
 
+from game.quests.quests_generator.exceptions import QuestGeneratorException
+
 class BaseEnvironment(object):
 
     def __init__(self, quests_source, writers_constructor, knowlege_base):
@@ -27,14 +29,29 @@ class BaseEnvironment(object):
     def new_place(self, place_uuid=None):
         if not place_uuid:
             place_uuid = self.knowlege_base.get_random_place(exclude=self.places.keys())
+        else:
+            if place_uuid not in self.knowlege_base.places:
+                raise QuestGeneratorException(u'place "%s" does not exist in knowlege base' % place_uuid)
+
+        if place_uuid in self.places:
+            return place_uuid
 
         place = self.knowlege_base.places[place_uuid]
         self.places[place_uuid] = {'external_data': copy.deepcopy(place['external_data'])}
         return place_uuid
 
     def new_person(self, from_place, person_uuid=None):
+        if from_place not in self.places:
+            raise QuestGeneratorException(u'place "%s" does not registered' % from_place)
+
         if not person_uuid:
             person_uuid = self.knowlege_base.get_random_person(place=from_place, exclude=self.persons.keys())
+        else:
+            if person_uuid not in self.knowlege_base.persons:
+                raise QuestGeneratorException(u'person "%s" does not exist in knowlege base' % person_uuid)
+
+        if person_uuid in self.persons:
+            return person_uuid
 
         person = self.knowlege_base.persons[person_uuid]
         self.persons[person_uuid] = {'external_data': copy.deepcopy(person['external_data'])}
@@ -136,7 +153,9 @@ class BaseEnvironment(object):
 
     def serialize(self):
         return { 'numbers': { 'items_number': self.items_number,
-                              'choices_number': self.choices_number},
+                              'choices_number': self.choices_number,
+                              'quests_number': self.quests_number,
+                              'lines_number': self.lines_number},
                  'places': self.places,
                  'persons': self.persons,
                  'items': self.items,
@@ -153,6 +172,8 @@ class BaseEnvironment(object):
 
         self.items_number = data['numbers']['items_number']
         self.choices_number = data['numbers'].get('choices_number', 0)
+        self.quests_number = data['numbers'].get('quests_number', 0)
+        self.lines_number = data['numbers'].get('lines_number', 0)
         self.places = data['places']
         self.persons = data['persons']
         self.items = data['items']
@@ -169,6 +190,27 @@ class BaseEnvironment(object):
         self._root_quest = data['root_quest']
 
         self.persons_power_points = data.get('persons_power_points', {})
+
+    def __eq__(self, other):
+        return (self.quests_source == other.quests_source and
+                self.writers_constructor == other.writers_constructor and
+                self.knowlege_base == other.knowlege_base and
+
+                self.items_number == other.items_number and
+                self.quests_number == other.quests_number and
+                self.lines_number == other.lines_number and
+                self.choices_number == other.choices_number and
+
+                self.places == other.places and
+                self.persons == other.persons and
+                self.items == other.items and
+                self.quests == other.quests and
+                self.lines == other.lines and
+                self.choices == other.choices and
+                self.persons_power_points == other.persons_power_points and
+
+                self._root_quest == other._root_quest)
+
 
 
 class LocalEnvironment(object):

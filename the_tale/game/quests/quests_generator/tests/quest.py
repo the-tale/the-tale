@@ -2,47 +2,15 @@
 
 from django.test import TestCase
 
-from game.quests.quests_generator.quest_line import Line, Quest
 from game.quests.quests_generator import commands as cmd
-from game.quests.quests_generator.environment import BaseEnvironment, LocalEnvironment
+from game.quests.quests_generator.environment import BaseEnvironment
 from game.quests.quests_generator.lines import BaseQuestsSource
 from game.quests.quests_generator.knowlege_base import KnowlegeBase
 from game.quests.quests_generator.exceptions import QuestGeneratorException
-from game.quests.quests_generator.tests.helpers import FakeQuest
+from game.quests.quests_generator.tests.helpers import FakeQuest, JustQuest, FakeCmd
 
 quests_source = BaseQuestsSource()
 writers_constructor = lambda hero, quest_type, env, quest_env_local: 0
-
-class JustQuest(Quest):
-
-    def initialize(self, identifier, env, **kwargs):
-        super(JustQuest, self).initialize(identifier, env, **kwargs)
-        self.env_local.register('quest_1', 'quest_1')
-
-    def create_line(self, env):
-        linear_line = Line(sequence=[cmd.Move(event='event_1_1', place='place_1'),
-                                     cmd.MoveNear(event='event_1_2', place='place_1', back=False),
-                                     cmd.MoveNear(event='event_1_3', place='place_1', back=True),
-                                     cmd.GetItem(event='event_1_4', item='item_1'),
-                                     cmd.GiveItem(event='event_1_5', item='item_1'),
-                                     cmd.Battle(event='event_1_6', number=13),
-                                     cmd.GetReward(event='event_1_7', person='person_1'),
-                                     cmd.GivePower(event='event_1_8', person='person_1', power=2, multiply=3, depends_on='person_2')  ])
-
-        quest_line = Line(sequence=[cmd.Move(event='event_2_1', place='place_2'),
-                                    cmd.Quest(event='event_2_2', quest=self.env_local.quest_1),
-                                    cmd.GetReward(event='event_2_3', person='person_2')  ])
-
-        self.line = Line(sequence=[cmd.Move(event='event_3_1', place='place_3'),
-                                   cmd.Choose(id='choose_1',
-                                              default='choice_1',
-                                              choices={'choice_1': env.new_line(linear_line),
-                                                       'choice_2': env.new_line(quest_line) },
-                                              event='event_3_2',
-                                              choice='choice_id_1'),
-                                   cmd.Battle(event='event_3_3', number=13),                                            ])
-
-
 
 class QuestTest(TestCase):
 
@@ -83,6 +51,11 @@ class QuestTest(TestCase):
         self.assertTrue(self.quest.env_local.person_start)
         self.assertTrue(self.quest.env_local.place_end)
         self.assertTrue(self.quest.env_local.person_end)
+
+    def test_wrong_initialization(self):
+        self.quest = JustQuest()
+        self.assertRaises(QuestGeneratorException, self.quest.initialize, 'quest', self.env, person_start='person_1')
+        self.assertRaises(QuestGeneratorException, self.quest.initialize, 'quest', self.env, person_end='person_1')
 
     def test_get_commands_number(self):
         self.assertEqual(self.quest.get_commands_number(self.env), 19)
@@ -130,8 +103,8 @@ class QuestTest(TestCase):
 
         self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, 'line_2', 0]), [(self.quest, self.cmd_quest_move)])
         self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, 'line_2', 1]), [(self.quest, self.cmd_quest_quest)])
-        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, 'line_2', 1, 0]), [(self.quest, self.cmd_quest_quest), (self.fake_quest, 'fake_cmd')])
-        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, 'line_2', 1, 2]), [(self.quest, self.cmd_quest_quest), (self.fake_quest, 'fake_cmd')])
+        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, 'line_2', 1, 0]), [(self.quest, self.cmd_quest_quest), (self.fake_quest, FakeCmd('fake_event'))])
+        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, 'line_2', 1, 2]), [(self.quest, self.cmd_quest_quest), (self.fake_quest, FakeCmd('fake_event'))])
         self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, 'line_2', 2]), [(self.quest, self.cmd_quest_get_reward)])
         self.assertRaises(QuestGeneratorException, self.quest.get_quest_action_chain, self.env, [1, 'line_2', 3])
 
@@ -145,8 +118,8 @@ class QuestTest(TestCase):
 
         self.assertEqual(self.quest.get_command(self.env, [1, 'line_2', 0]), self.cmd_quest_move)
         self.assertEqual(self.quest.get_command(self.env, [1, 'line_2', 1]), self.cmd_quest_quest)
-        self.assertEqual(self.quest.get_command(self.env, [1, 'line_2', 1, 0]), 'fake_cmd')
-        self.assertEqual(self.quest.get_command(self.env, [1, 'line_2', 1, 2]), 'fake_cmd')
+        self.assertEqual(self.quest.get_command(self.env, [1, 'line_2', 1, 0]), FakeCmd('fake_event'))
+        self.assertEqual(self.quest.get_command(self.env, [1, 'line_2', 1, 2]), FakeCmd('fake_event'))
         self.assertEqual(self.quest.get_command(self.env, [1, 'line_2', 2]), self.cmd_quest_get_reward)
         self.assertRaises(QuestGeneratorException, self.quest.get_command, self.env, [1, 'line_2', 3])
 
