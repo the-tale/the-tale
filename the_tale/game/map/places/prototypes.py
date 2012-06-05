@@ -9,6 +9,7 @@ from game import names
 
 from game.map.places.models import Place, PLACE_TYPE, RACE_TO_TERRAIN
 from game.map.places.conf import places_settings
+from game.map.places.exceptions import PlacesException
 
 def get_place_by_id(model_id):
     model = Place.objects.get(id=model_id)
@@ -127,20 +128,23 @@ class PlacePrototype(object):
     @property
     def power(self):
         if self.power_points:
-            return max(sum(self.power_points), 0)
+            return max(sum([power[1] for power in self.power_points]), 0)
         return 0
 
-    def push_power(self, value):
-        self.power_points.append(value)
+    def push_power(self, turn, value):
+        if self.power_points and self.power_points[-1][0] > turn:
+            raise PlacesException(u'can not push power to place "%s" - current push turn number (%d) less then latest (%d) ' % (self.name, self.power_points[-1][0], turn))
 
-        while len(self.power_points) > places_settings.POWER_HISTORY_LENGTH:
+        self.power_points.append((turn, value))
+
+        while self.power_points and self.power_points[0][0] < turn - places_settings.POWER_HISTORY_LENGTH:
             self.power_points.pop(0)
 
-    def sync_power(self, powers):
+    def sync_power(self, turn, powers):
         power = 0
         for person in self.persons:
             power += powers.get(person.id, 0)
-        self.push_power(power)
+        self.push_power(turn, power)
 
     def sync_size(self, max_power):
         self.size = int(places_settings.MAX_SIZE * (float(self.power) / (max_power+1)) ) + 1

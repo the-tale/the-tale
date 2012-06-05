@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 from django.contrib import admin
@@ -9,4 +8,3 @@ class PlaceAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'type', 'subtype', 'terrain', 'size', 'x', 'y')
 
 admin.site.register(Place, PlaceAdmin)
-

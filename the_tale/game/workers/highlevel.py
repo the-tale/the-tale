@@ -147,7 +147,7 @@ class Worker(object):
 
         for place_model in Place.objects.all():
             place = get_place_by_model(place_model)
-            place.sync_power(old_powers)
+            place.sync_power(self.turn_number, old_powers)
             place.sync_terrain()
             places.append(place)
 
