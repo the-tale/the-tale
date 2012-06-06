@@ -7,9 +7,9 @@ from django.core.management.base import BaseCommand
 
 from dext.utils import s11n
 
-from game.prototypes import get_current_time
+from game.prototypes import TimePrototype
 
-from .map import Map
+from game.map import Map
 from . import places
 from . import roads
 
@@ -58,7 +58,7 @@ class Command(BaseCommand):
 
         game_map.pave_ways()
 
-        time = get_current_time()
+        time = TimePrototype.get_current_time()
         terrain = game_map.get_terrain_map()
         MapInfoPrototype.create(turn_number=time.turn_number,
                                 width=config['map_width'],

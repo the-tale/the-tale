@@ -26,6 +26,7 @@ from game.map.prototypes import MapInfoPrototype
 from game.text_generation import get_vocabulary, get_dictionary
 
 from game.balance import constants as c, formulas as f
+from game.prototypes import TimePrototype
 
 
 def get_hero_by_id(model_id):
@@ -55,6 +56,9 @@ class HeroPrototype(object):
 
     @property
     def angel_id(self): return self.model.angel_id
+
+    @property
+    def created_at_turn(self): return self.model.created_at_turn
 
     ###########################################
     # Base attributes
@@ -386,7 +390,8 @@ class HeroPrototype(object):
 
         gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
-        hero = Hero.objects.create(angel=angel.model,
+        hero = Hero.objects.create(created_at_turn=TimePrototype.get_current_time().turn_number,
+                                   angel=angel.model,
                                    gender=gender,
                                    race=race,
                                    name=names.generator.get_name(race, gender),

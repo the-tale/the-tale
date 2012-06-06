@@ -11,8 +11,6 @@ from game.mobs.storage import MobsDatabase
 from textgen import words
 from textgen.conf import textgen_settings
 
-# from game.mobs import logic as mobs_logic
-# from game.artifacts import logic as artifacts_logic
 from game.text_generation import get_dictionary
 
 from game import expected_values

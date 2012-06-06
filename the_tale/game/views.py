@@ -7,8 +7,6 @@ from common.utils.resources import Resource
 
 from game.heroes.logic import get_angel_heroes
 
-from game.prototypes import get_current_time
-
 from game.map.conf import map_settings
 from game.angels.prototypes import get_angel_by_id
 from game.quests.prototypes import QuestPrototype
@@ -30,7 +28,7 @@ class GameResource(Resource):
     def info(self, angel=None):
         data = {}
 
-        data['turn'] = get_current_time().ui_info()
+        data['turn'] = self.time.ui_info()
 
         if self.angel:
             if angel is None:

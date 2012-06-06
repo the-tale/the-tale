@@ -91,6 +91,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'accounts.middleware.RegistrationMiddleware',
     'dext.utils.exceptions.ExceptionMiddleware'
 )
 
@@ -219,7 +220,8 @@ LOGGING = {
         'file_game_supervisor': get_worker_log_file_handler('game_supervisor'),
         'file_game_logic': get_worker_log_file_handler('game_logic'),
         'file_game_highlevel': get_worker_log_file_handler('game_highlevel'),
-        'file_game_turns_loop': get_worker_log_file_handler('game_turns_loop')
+        'file_game_turns_loop': get_worker_log_file_handler('game_turns_loop'),
+        'file_registration': get_worker_log_file_handler('registration')
     },
     'loggers': {
         'django.request': {
@@ -236,6 +238,7 @@ LOGGING = {
         'the-tale.workers.game_logic': get_worker_logger('game_logic'),
         'the-tale.workers.game_highlevel': get_worker_logger('game_highlevel'),
         'the-tale.workers.game_turns_loop': get_worker_logger('game_turns_loop'),
+        'accounts.workers.registration': get_worker_logger('registration'),
     }
 }
 

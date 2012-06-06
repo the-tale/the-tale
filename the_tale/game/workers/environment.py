@@ -1,9 +1,5 @@
 # coding: utf-8
 
-from kombu import BrokerConnection
-
-from django.conf import settings as project_settings
-
 from game.workers.supervisor import Worker as Supervisor
 from game.workers.logic import Worker as Logic
 from game.workers.highlevel import Worker as Highlevel
@@ -23,18 +19,14 @@ class Environment(object):
         pass
 
     def initialize(self):
-        self.connection = BrokerConnection(project_settings.AMQP_CONNECTION_URL)
 
-        self.connection.connect()
-
-        self.logic = Logic(connection=self.connection, game_queue=QUEUE.GAME)
-        self.supervisor = Supervisor(connection=self.connection,
-                                     supervisor_queue=QUEUE.SUPERVISOR,
+        self.logic = Logic(game_queue=QUEUE.GAME)
+        self.supervisor = Supervisor(supervisor_queue=QUEUE.SUPERVISOR,
                                      answers_queue=QUEUE.SUPERVISOR_ANSWERS,
                                      turns_loop_queue=QUEUE.TURNS_LOOP,
                                      stop_queue=QUEUE.STOP)
-        self.highlevel = Highlevel(connection=self.connection, highlevel_queue=QUEUE.HIGHLEVEL)
-        self.turns_loop = TurnsLoop(connection=self.connection, game_queue=QUEUE.TURNS_LOOP)
+        self.highlevel = Highlevel(highlevel_queue=QUEUE.HIGHLEVEL)
+        self.turns_loop = TurnsLoop(game_queue=QUEUE.TURNS_LOOP)
 
         self.turns_loop.set_supervisor_worker(self.supervisor)
         self.logic.set_supervisor_worker(self.supervisor)

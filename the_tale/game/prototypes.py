@@ -1,11 +1,6 @@
 # coding: utf-8
 from .models import Time
 
-def get_current_time():
-    try:
-        return TimePrototype(model=Time.objects.all()[0])
-    except IndexError:
-        return TimePrototype.create()
 
 class TimePrototype(object):
 
@@ -14,6 +9,14 @@ class TimePrototype(object):
 
     @property
     def turn_number(self): return self.model.turn_number
+
+    @classmethod
+    def get_current_time(cls):
+        try:
+            return TimePrototype(model=Time.objects.all()[0])
+        except IndexError:
+            return TimePrototype.create()
+
 
     def increment_turn(self):
         self.model.turn_number += 1

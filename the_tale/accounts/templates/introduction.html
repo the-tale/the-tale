@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+Поздравляем! <br/>
+
+Ваш герой уже появился в Сказке, вы можете:
+
+<ul>
+  <li><a href="{{ url('game:') }}">сразу перейти к нему</a></li>
+  <li><a href="">прочитать руководство начинающего ангела</a> - герой сам сориентируется в текущей ситуации </li>
+</ul>
+
+
+
+{% endblock %}

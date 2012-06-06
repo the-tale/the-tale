@@ -4,6 +4,7 @@ from django.test import TestCase
 
 from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.artifacts.storage import ArtifactsDatabase
+from game.prototypes import TimePrototype
 
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
 
@@ -23,6 +24,20 @@ class HeroTest(TestCase):
 
     def test_create(self):
         self.assertTrue(self.hero.is_alive)
+        self.assertEqual(self.hero.created_at_turn, TimePrototype.get_current_time().turn_number)
+
+    def test_create_time(self):
+        time = TimePrototype.get_current_time()
+        time.increment_turn()
+        time.increment_turn()
+        time.increment_turn()
+        time.save()
+
+        bundle = create_test_bundle('CreatedAtTurnHeroTest')
+        hero = bundle.tests_get_hero()
+        self.assertEqual(hero.created_at_turn, TimePrototype.get_current_time().turn_number)
+
+        self.assertTrue(hero.created_at_turn != self.hero.created_at_turn)
 
 
     def test_equipping_process(self):

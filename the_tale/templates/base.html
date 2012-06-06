@@ -33,7 +33,7 @@
     <script src="{{ STATIC_URL }}common/base.js" type="text/javascript"></script>
     <script src="{{ STATIC_URL }}common/dialog.js" type="text/javascript"></script>
     <script src="{{ STATIC_URL }}common/forms.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}common/tooltips.js" type="text/javascript"></script> 
+    <script src="{{ STATIC_URL }}common/tooltips.js" type="text/javascript"></script>
     <script src="{{ STATIC_URL }}common/urls.js" type="text/javascript"></script>
     <script src="{{ STATIC_URL }}common/dialog.js" type="text/javascript"></script>
 
@@ -86,7 +86,7 @@ jQuery(document).ready(function() {
           <a href="{{ url('accounts:logout') }}">Выход</a>
           {% else %}
           <a href="{{ url('accounts:login') }}">Вход</a>
-          <a href="{{ url('accounts:registration') }}">Регистрация</a>
+          <a href="{{ url('accounts:fast_registration') }}">Создать героя</a>
           {% endif %}
         </div>
       </div>

@@ -8,6 +8,8 @@ from game.game_info import RACE, RACE_CHOICES, GENDER, GENDER_CHOICES, ITEMS_OF_
 
 class Hero(models.Model):
 
+    created_at_turn = models.IntegerField(null=False, default=0)
+
     angel = models.ForeignKey(Angel, related_name='heroes', default=None, null=True, blank=True)
 
     alive = models.BooleanField(default=True)
