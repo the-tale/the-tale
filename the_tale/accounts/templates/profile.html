@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var registrationForm = new pgf.forms.Form(jQuery('#pgf-edit-form'),
+                                              {OnSuccess: function(e){location.href = "{{ url('game:') }}";}});
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+<form id="pgf-registration-form" method="post" action="{{ url('accounts:profile_edit') }}" class="block">
+
+  {{ edit_profile_form.errors_container }}
+
+  {{ edit_profile_form.email.widget }}
+  {{ edit_profile_form.password.widget }}
+
+  <input type="submit" value="Готово"/>
+
+</form>
+
+</div>
+
+{% endblock %}

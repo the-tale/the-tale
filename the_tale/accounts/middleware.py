@@ -21,4 +21,4 @@ class RegistrationMiddleware(object):
         request.session[accounts_settings.SESSION_REGISTRATION_TASK_STATE_KEY] = task.state
 
         if task.state == REGISTRATION_TASK_STATE.PROCESSED:
-            login_user(request, task.account.user)
+            login_user(request, username=task.account.user.username, password=accounts_settings.FAST_REGISTRATION_USER_PASSWORD)

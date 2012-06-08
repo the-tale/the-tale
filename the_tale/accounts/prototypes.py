@@ -3,29 +3,32 @@ import sys
 import uuid
 import datetime
 
+from django.contrib.auth.hashers import make_password
+
 from dext.utils.decorators import nested_commit_on_success
 
-from accounts.models import Account, RegistrationTask, REGISTRATION_TASK_STATE
+from accounts.models import Account, RegistrationTask, REGISTRATION_TASK_STATE, ChangeCredentialsTask, CHANGE_CREDENTIALS_TASK_STATE
 from accounts.conf import accounts_settings
-
-
-def get_account_by_id(model_id):
-    angel = Account.objects.get(id=model_id)
-    return AccountPrototype(model=angel)
-
-def get_account_by_model(model):
-    return AccountPrototype(model=model)
+from accounts.email import ChangeEmailNotification
+from accounts.exceptions import AccountsException
 
 class AccountPrototype(object):
 
     def __init__(self, model=None):
         self.model = model
 
+    @classmethod
+    def get_by_id(cls, model_id):
+        return AccountPrototype(model=Account.objects.get(id=model_id))
+
     @property
     def id(self): return self.model.id
 
     @property
     def user(self): return self.model.user
+
+    @property
+    def is_fast(self): return self.model.is_fast
 
     ###########################################
     # Object operations
@@ -38,8 +41,8 @@ class AccountPrototype(object):
         return {}
 
     @classmethod
-    def create(cls, user):
-        account_model = Account.objects.create(user=user)
+    def create(cls, user, is_fast):
+        account_model = Account.objects.create(user=user, is_fast=is_fast)
         return AccountPrototype(model=account_model)
 
 
@@ -69,7 +72,7 @@ class RegistrationTaskPrototype(object):
     @property
     def account(self):
         if not hasattr(self, '_account'):
-            self._account = get_account_by_id(self.model.account_id) if self.model.account_id is not None else None
+            self._account = AccountPrototype.get_by_id(self.model.account_id) if self.model.account_id is not None else None
         return self._account
 
     def get_unique_nick(self):
@@ -128,5 +131,110 @@ class RegistrationTaskPrototype(object):
                          extra={} )
 
             self.model.state = REGISTRATION_TASK_STATE.ERROR
+            self.model.comment = u'%s\n\n%s\n\n %s' % exception_info
+            self.model.save()
+
+
+class ChangeCredentialsTaskPrototype(object):
+
+    def __init__(self, model=None):
+        self.model = model
+
+    @classmethod
+    def get_by_uuid(cls, task_uuid):
+        try:
+            model = ChangeCredentialsTask.objects.get(uuid=task_uuid)
+            return cls(model=model)
+        except ChangeCredentialsTask.DoesNotExist:
+            return None
+
+    @classmethod
+    def create(cls, account, new_email=None, new_password=None):
+        old_email = account.user.email
+        if account.is_fast and new_email is None:
+            raise AccountsException('new_email must be specified for fast account')
+        if account.is_fast and new_password is None:
+            raise AccountsException('password must be specified for fast account')
+        model = ChangeCredentialsTask.objects.create(uuid=uuid.uuid4().hex,
+                                                     account=account.model,
+                                                     old_email=old_email,
+                                                     new_email=new_email,
+                                                     new_password=make_password(new_password) if new_password else '')
+        return cls(model=model)
+
+    @property
+    def id(self): return self.model.id
+
+    @property
+    def uuid(self): return self.model.uuid
+
+    @property
+    def state(self): return self.model.state
+
+    @property
+    def account(self):
+        if not hasattr(self, '_account'):
+            self._account = AccountPrototype.get_by_id(self.model.account_id)
+        return self._account
+
+    @property
+    def email_changed(self):
+        return self.model.new_email is not None and (self.model.old_email != self.model.new_email)
+
+    def change_credentials(self):
+        if self.model.new_password:
+            self.account.user.password = self.model.new_password
+        if self.model.new_email:
+            self.account.user.email = self.model.new_email
+        self.account.user.save()
+
+    def request_email_confirmation(self):
+        if self.model.new_email is None:
+            raise AccountsException('email not specified')
+        email = ChangeEmailNotification({'task': self})
+        email.send([self.model.new_email])
+
+    @nested_commit_on_success
+    def process(self, logger):
+
+        if self.state not in (CHANGE_CREDENTIALS_TASK_STATE.WAITING, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT):
+            return
+
+        if self.model.created_at + datetime.timedelta(seconds=accounts_settings.REGISTRATION_TIMEOUT) < datetime.datetime.now():
+            self.model.state = CHANGE_CREDENTIALS_TASK_STATE.UNPROCESSED
+            self.model.comment = 'timeout'
+            self.model.save()
+            return
+
+        try:
+
+            if self.state == CHANGE_CREDENTIALS_TASK_STATE.WAITING:
+                if self.email_changed:
+                    self.request_email_confirmation()
+                    self.model.state = CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
+                    self.model.save()
+                    return
+                else:
+                    self.change_credentials()
+                    self.model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
+                    self.model.save()
+                    return
+
+            if self.state == CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT:
+                self.change_credentials()
+                self.model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
+                self.model.save()
+                return
+
+        except Exception, e:
+            logger.error('EXCEPTION: %s' % e)
+
+            exception_info = sys.exc_info()
+
+            logger.error('Worker exception: %r' % self,
+                         exc_info=exception_info,
+                         extra={} )
+
+            self.model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
             self.model.comment = u'%s\n\n%s\n\n %s' % exception_info
             self.model.save()

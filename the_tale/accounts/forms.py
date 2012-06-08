@@ -4,7 +4,7 @@ from dext.forms import forms, fields
 
 class EditProfileForm(forms.Form):
 
-    email = fields.EmailField(label=u'Email')
+    email = fields.EmailField(label=u'Email (логин)')
 
     password = fields.PasswordField(label=u'Пароль')
 

@@ -4,6 +4,8 @@ from django.utils.log import getLogger
 
 from common.amqp_queues import connection, BaseWorker
 
+from accounts.prototypes import RegistrationTaskPrototype
+
 class RegistrationException(Exception): pass
 
 class Worker(BaseWorker):
@@ -24,11 +26,13 @@ class Worker(BaseWorker):
             game_cmd.ack()
             self.process_game_cmd(game_cmd.payload)
 
-    def cmd_register(self):
-        return self.send_cmd('register')
+    def cmd_register(self, task_id):
+        return self.send_cmd('register', {'task_id': task_id})
 
-    def process_register(self):
-        pass
+    def process_register(self, task_id):
+        task = RegistrationTaskPrototype.get_by_id(task_id)
+        if task:
+            task.process()
 
     def cmd_stop(self):
         return self.send_cmd('stop')

@@ -1,0 +1,12 @@
+{% extends "email.txt" %}
+
+{% block content %}
+
+Здравствуйте!
+
+Для подтверждения e-mail адреса, перейдите по ссылке:
+
+{% set email_confirmation_link = url('accounts:confirm_email') + '?uuid=' + task.uuid %}
+{{ email_confirmation_link }}
+
+{% endblock %}

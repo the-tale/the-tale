@@ -38,6 +38,8 @@ class TestRegistration(TestCase):
 
         account = user.get_profile()
 
+        self.assertTrue(not account.is_fast)
+
         angel = get_angel_by_model(account.angel)
         self.assertEqual(len(angel.heroes()), 1)
 
@@ -99,6 +101,8 @@ class TestRegistrationTask(TestCase):
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.PROCESSED)
         self.assertTrue(self.task.account)
 
+        self.assertTrue(self.task.account.is_fast)
+
         self.assertEqual(Account.objects.all().count(), 1)
 
     def test_process_processed(self):
@@ -128,7 +132,7 @@ class TestRegistrationTask(TestCase):
         self.assertEqual(self.task.model.comment, 'bundle 1 does not found')
         self.assertEqual(Account.objects.all().count(), 0)
 
-    @mock.patch('accounts.logic.register_user', lambda nick: raise_exception())
+    @mock.patch('accounts.logic.register_user', lambda nick, password: raise_exception())
     def test_process_exceptin(self):
         self.task.process(FakeLogger())
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.ERROR)

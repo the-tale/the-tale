@@ -62,6 +62,11 @@ SECRET_KEY = 'i@oi33(3f0vlezy$aj3_3q%q=#fb1ehovw0k&==w3ycs+#5f)y'
 # Other settings
 ################################
 
+EMAIL_NOREPLY = 'no-reply.the-tale@gmail.com'
+EMAIL_SUPPORT = 'support.the-tale@gmail.com'
+
+EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+
 APPEND_SLASH = True
 #PREPEND_WWW = True
 
