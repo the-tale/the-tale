@@ -3,6 +3,7 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout
+from django.utils.log import getLogger
 
 from dext.views.resources import handler
 
@@ -17,6 +18,7 @@ from accounts.logic import logout_user, login_user
 
 from portal.workers.environment import workers_environment as infrastructure_workers_environment
 
+logger = getLogger('django.request')
 
 class AccountsResource(Resource):
 
@@ -92,33 +94,30 @@ class AccountsResource(Resource):
         return self.template('accounts/profile_edited.html')
 
     @login_required
-    @handler('profile', 'password_changed', name='password_changed', method='get')
-    def password_changed(self):
-        return self.template('accounts/password_changed.html')
+    @handler('profile', 'confirm_email_request', method='get')
+    def confirm_email_request(self):
+        return self.template('accounts/confirm_email_request.html')
 
     @login_required
-    @handler('profile', 'email_changed', name='email_changed', method='get')
-    def email_changed(self):
-        return self.template('accounts/email_changed.html')
-
-    @login_required
-    @handler('profile', 'edit', name='profile_edit', method='post')
-    def edit_profile(self):
+    @handler('profile', 'edit', name='profile_update', method='post')
+    def update_profile(self):
 
         edit_profile_form = forms.EditProfileForm(self.request.POST)
 
         if edit_profile_form.is_valid():
 
+            if self.account.is_fast and not (edit_profile_form.c.email and edit_profile_form.c.password):
+                return self.json(status='error', errors=u'Необходимо указать и email и пароль')
+
             task = ChangeCredentialsTaskPrototype.create(account=self.account,
-                                                         old_email=self.user.email,
                                                          new_email=edit_profile_form.c.email,
                                                          new_password=edit_profile_form.c.password)
 
-            task.process()
+            task.process(logger)
 
-            next_url = reverse('accounts:password_changed')
+            next_url = reverse('accounts:profile_edited')
             if task.email_changed:
-                next_url = reverse('accounts:email_changed')
+                next_url = reverse('accounts:confirm_email_request')
 
             return self.json(status='ok', data={'next_url': next_url})
 
@@ -134,7 +133,7 @@ class AccountsResource(Resource):
                                  {'error': u'неверная ссылка, убедитесь, что верно скопировали адрес',
                                   'task': None} )
 
-        task.process()
+        task.process(logger)
 
         return self.template('accounts/confirm_email.html',
                              {'task': task} )

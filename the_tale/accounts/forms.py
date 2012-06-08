@@ -6,7 +6,7 @@ class EditProfileForm(forms.Form):
 
     email = fields.EmailField(label=u'Email (логин)')
 
-    password = fields.PasswordField(label=u'Пароль')
+    password = fields.PasswordField(label=u'Пароль', required=False)
 
 
 class LoginForm(forms.Form):

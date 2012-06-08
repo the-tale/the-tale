@@ -2,6 +2,7 @@
 
 from dext.views.resources import BaseResource
 
+from accounts.prototypes import AccountPrototype
 from accounts.models import Account
 
 from game.angels.models import Angel
@@ -20,7 +21,7 @@ class Resource(BaseResource):
             self._account = None
             try:
                 if not self.user.is_anonymous():
-                    self._account = self.user.get_profile()
+                    self._account = AccountPrototype(self.user.get_profile())
             except Account.DoesNotExist:
                 pass
         return self._account

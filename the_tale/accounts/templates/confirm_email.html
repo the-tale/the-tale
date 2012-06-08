@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+{% if error %}
+<p>{{ error }}</p>
+{% else %}
+Поздравляем!
+
+Изменения вступили в силу.
+{% endif %}
+
+{% endblock %}

@@ -1,14 +1,17 @@
 # coding: utf-8
 from django.test import TestCase, client
 from django.core.urlresolvers import reverse
+from django.core import mail
+from django.contrib.auth import authenticate as django_authenticate
 
 from dext.utils import s11n
 
 from common.utils.fake import FakeLogger
 
 from accounts.logic import register_user
-from accounts.models import RegistrationTask, REGISTRATION_TASK_STATE
-from accounts.prototypes import RegistrationTaskPrototype
+from accounts.models import RegistrationTask, REGISTRATION_TASK_STATE, CHANGE_CREDENTIALS_TASK_STATE, ChangeCredentialsTask
+from accounts.prototypes import RegistrationTaskPrototype, AccountPrototype
+
 
 from game.logic import create_test_map
 
@@ -135,8 +138,10 @@ class TestProfileRequests(TestCase):
 
     def setUp(self):
         create_test_map()
-        register_user('test_user', 'test_user@test.com', '111111')
         self.client = client.Client()
+
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.account = AccountPrototype.get_by_id(account_id)
 
     def test_profile_page_unlogined(self):
         response = self.client.get(reverse('accounts:profile'))
@@ -147,7 +152,62 @@ class TestProfileRequests(TestCase):
         response = self.client.get(reverse('accounts:profile'))
         self.assertEqual(response.status_code, 200)
 
-    # def test_profile_edited(self):
-    #     response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-    #     response = self.client.get(reverse('accounts:profile_edited'))
-    #     self.assertEqual(response.status_code, 200)
+    def test_profile_edited(self):
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.get(reverse('accounts:profile_edited'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_confirm_email_request(self):
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.get(reverse('accounts:confirm_email_request'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_update_password(self):
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.post(reverse('accounts:profile_update'), {'email': 'test_user@test.com', 'password': '222222'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(s11n.from_json(response.content), {'status': 'ok', 'data': {'next_url': reverse('accounts:profile_edited')}})
+        self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
+        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(django_authenticate(username='test_user', password='222222').id, self.account.user.id)
+
+    def test_profile_update_email(self):
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.post(reverse('accounts:profile_update'), {'email': 'test_user@test.ru'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(s11n.from_json(response.content), {'status': 'ok', 'data': {'next_url': reverse('accounts:confirm_email_request')}})
+        self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
+        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(django_authenticate(username='test_user', password='111111').id, self.account.user.id)
+        self.assertEqual(django_authenticate(username='test_user', password='111111').email, 'test_user@test.com')
+
+    def test_profile_update_fast_errors(self):
+        response = self.client.post(reverse('accounts:fast_registration'))
+
+        response = self.client.post(reverse('accounts:profile_update'), {'email': 'test_user@test.ru'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+
+        response = self.client.post(reverse('accounts:profile_update'), {'password': '111111'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+
+        self.assertEqual(ChangeCredentialsTask.objects.all().count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+
+    def test_profile_confirm_email(self):
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.post(reverse('accounts:profile_update'), {'email': 'test_user@test.ru'})
+
+        uuid = ChangeCredentialsTask.objects.all()[0].uuid
+
+        response = self.client.get(reverse('accounts:confirm_email')+'?uuid='+uuid)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
+        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(django_authenticate(username='test_user', password='111111').email, 'test_user@test.ru')

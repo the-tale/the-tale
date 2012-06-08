@@ -13,7 +13,7 @@ jQuery(document).ready( function(e) {
 
 {% block content %}
 
-<form id="pgf-registration-form" method="post" action="{{ url('accounts:profile_edit') }}" class="block">
+<form id="pgf-registration-form" method="post" action="{{ url('accounts:profile_update') }}" class="block">
 
   {{ edit_profile_form.errors_container }}
 
