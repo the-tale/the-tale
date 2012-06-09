@@ -12,7 +12,6 @@ from accounts.logic import register_user
 from accounts.models import RegistrationTask, REGISTRATION_TASK_STATE, CHANGE_CREDENTIALS_TASK_STATE, ChangeCredentialsTask
 from accounts.prototypes import RegistrationTaskPrototype, AccountPrototype
 
-
 from game.logic import create_test_map
 
 class TestRequests(TestCase):
@@ -79,6 +78,29 @@ class TestRegistrationRequests(TestCase):
         response = self.client.post(reverse('accounts:fast_registration'))
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
         self.assertEqual(RegistrationTask.objects.all().count(), 1)
+
+    def test_fast_registration_second_request_after_error(self):
+        response = self.client.post(reverse('accounts:fast_registration'))
+
+        task = RegistrationTask.objects.all().order_by('id')[0]
+        task.state = REGISTRATION_TASK_STATE.UNPROCESSED
+        task.save()
+        response = self.client.post(reverse('accounts:fast_registration'))
+        self.assertEqual(s11n.from_json(response.content)['status'], 'processing')
+        self.assertEqual(RegistrationTask.objects.all().count(), 2)
+
+        task = RegistrationTask.objects.all().order_by('id')[1]
+        task.state = REGISTRATION_TASK_STATE.ERROR
+        task.save()
+        response = self.client.post(reverse('accounts:fast_registration'))
+        self.assertEqual(s11n.from_json(response.content)['status'], 'processing')
+        self.assertEqual(RegistrationTask.objects.all().count(), 3)
+
+        task = RegistrationTask.objects.all().order_by('id')[2]
+        task.delete()
+        response = self.client.post(reverse('accounts:fast_registration'))
+        self.assertEqual(s11n.from_json(response.content)['status'], 'processing')
+        self.assertEqual(RegistrationTask.objects.all().count(), 3)
 
     def test_fast_registration_status_after_login(self):
         response = self.client.post(reverse('accounts:fast_registration'))

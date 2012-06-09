@@ -4,7 +4,7 @@ import Queue
 
 from django.utils.log import getLogger
 
-from common.amqp_queues import connection, BaseWorker
+from common.amqp_queues import BaseWorker
 
 from game.conf import game_settings
 

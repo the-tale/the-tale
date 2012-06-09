@@ -17,9 +17,9 @@ var widgets = {};
 
 jQuery(document).ready(function(e){
 
-    {% if resource.angel %}
-    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?angel={{ resource.angel.id }}"});
-    angelUpdater = new pgf.game.AngelUpdater({url: "{{ url('game:angels:info', resource.angel.id) }}"});
+    {% if angel %}
+    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?angel={{ angel.id }}"});
+    angelUpdater = new pgf.game.AngelUpdater({url: "{{ url('game:angels:info', angel.id) }}"});
     widgets.switcher = new pgf.game.widgets.WidgetSwitcher();
     {% else %}
     updater = new pgf.game.Updater({url: "{{ url('game:info') }}"});
@@ -28,7 +28,7 @@ jQuery(document).ready(function(e){
     {% if settings.DEBUG %}
     function DoTurns(number) {
         if (number == 0) {
-            setTimeout(function() { 
+            setTimeout(function() {
                 updater.Refresh();
                 angelUpdater.Refresh();
             }, 1000 );
@@ -103,7 +103,7 @@ jQuery(document).ready(function(e){
 <div id="game-page-content">
 
   <div id="left-column" class="column">
-    {% if resource.angel %}
+    {% if angel %}
 
     {% include "heroes/hero_short.html" %}
     {% include "heroes/hero_equipment.html" %}
@@ -113,15 +113,15 @@ jQuery(document).ready(function(e){
   </div>
 
   <div id="center-column" class="column">
-    {% if resource.angel %}
+    {% if angel %}
 
     {% include "game/current-actions.html" %}
     {% include "game/activate_ability.html" %}
 
     {% else %}
 
-    <div id="login-required-block" class="block"> 
-      Вам необходимо <a href="{{ url('accounts:login') }}">войти</a> (или <a href="{{ url('accounts:registration') }}">зарегистрироваться</a>), </br>
+    <div id="login-required-block" class="block">
+      Вам необходимо <a href="{{ url('accounts:login') }}">войти</a> (или <a href="{{ url('accounts:fast_registration') }}" class="pgf-fast-registration">начать игру <strong>без регистрации</strong></a>), </br>
       чтобы увидеть информацию о своём герое.
     </div>
 
@@ -133,11 +133,11 @@ jQuery(document).ready(function(e){
   <div id="right-column" class="column">
     {% include "game/time.html" %}
 
-    {% if resource.angel %}
+    {% if angel %}
 
     {% include "game/abilities.html" %}
     {% include "game/log.html" %}
-    
+
     {% endif %}
   </div>
 

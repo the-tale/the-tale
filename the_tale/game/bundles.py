@@ -1,7 +1,7 @@
 # coding utf-8
-from .angels.prototypes import get_angel_by_id
+from game.angels.prototypes import AngelPrototype
 
-from .models import Bundle, BundleMember, BUNDLE_TYPE
+from game.models import Bundle, BundleMember, BUNDLE_TYPE
 
 def get_bundle_by_id(id):
     bundle = Bundle.objects.get(id=id)
@@ -59,7 +59,7 @@ class BundlePrototype(object):
     def load_data(self):
 
         for member in self.model.members.all():
-            angel = get_angel_by_id(member.angel_id)
+            angel = AngelPrototype.get_by_id(member.angel_id)
             self.angels[angel.id] = angel
 
             for hero in angel.heroes():

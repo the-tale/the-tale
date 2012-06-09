@@ -24,7 +24,7 @@
 
 <p>
   {% if not resource.account %}
-  Чтобы начать игру, Вам надо <a href="{{ url('accounts:registration') }}">зарегистрироваться</a> или <a href="{{ url('accounts:login') }}">войти</a>, если вы уже создали аккаунт.
+  Вы можете <a href="{{ url('accounts:fast_registration') }}" class="pgf-fast-registration">начать игру <strong>без регистрации</strong></a> или <a href="{{ url('accounts:login') }}">войти</a>, если вы уже создали аккаунт.
   {% else %}
   <a href="{{ url('game:') }}">Перейти к игре</a>
   {% endif %}

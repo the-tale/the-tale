@@ -9,18 +9,19 @@ from game.balance import constants as c
 from game.angels.models import Angel
 
 
-def get_angel_by_id(model_id):
-    angel = Angel.objects.get(id=model_id)
-    return AngelPrototype(model=angel)
-
-def get_angel_by_model(model):
-    return AngelPrototype(model=model)
-
 class AngelPrototype(object):
 
     def __init__(self, model=None):
         self.model = model
         self.updated = False
+
+    @classmethod
+    def get_by_id(cls, id_):
+        return cls(model=Angel.objects.get(id=id_))
+
+    @classmethod
+    def get_by_account(cls, account):
+        return cls(model=Angel.objects.get(account_id=account.id))
 
     @property
     def id(self): return self.model.id

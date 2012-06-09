@@ -5,10 +5,10 @@ from dext.utils.decorators import staff_required, debug_required
 
 from common.utils.resources import Resource
 
+from game.angels.prototypes import AngelPrototype
 from game.heroes.logic import get_angel_heroes
 
 from game.map.conf import map_settings
-from game.angels.prototypes import get_angel_by_id
 from game.quests.prototypes import QuestPrototype
 
 from game.conf import game_settings
@@ -22,7 +22,8 @@ class GameResource(Resource):
     def game_page(self):
         return self.template('game/game_page.html',
                              {'map_settings': map_settings,
-                              'game_settings': game_settings} )
+                              'game_settings': game_settings,
+                              'angel': self.account.angel if self.account else None } )
 
     @handler('info', method='get')
     def info(self, angel=None):
@@ -30,12 +31,12 @@ class GameResource(Resource):
 
         data['turn'] = self.time.ui_info()
 
-        if self.angel:
+        if self.account and self.account.angel:
             if angel is None:
-                angel = self.angel.id
+                angel = self.account.angel.id
 
         if angel:
-            foreign_angel = get_angel_by_id(int(angel))
+            foreign_angel = AngelPrototype.get_by_id(int(angel))
 
             data['heroes'] = {}
 

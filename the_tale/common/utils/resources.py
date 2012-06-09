@@ -5,8 +5,6 @@ from dext.views.resources import BaseResource
 from accounts.prototypes import AccountPrototype
 from accounts.models import Account
 
-from game.angels.models import Angel
-from game.angels.prototypes import get_angel_by_model
 from game.prototypes import TimePrototype
 
 class Resource(BaseResource):
@@ -25,18 +23,6 @@ class Resource(BaseResource):
             except Account.DoesNotExist:
                 pass
         return self._account
-
-    @property
-    def angel(self):
-        if not hasattr(self, '_angel'):
-            self._angel = None
-            if self.account is None:
-                return self._angel
-            try:
-                self._angel = get_angel_by_model(self.account.angel)
-            except Angel.DoesNotExist:
-                pass
-        return self._angel
 
     @property
     def time(self):

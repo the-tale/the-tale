@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -8,9 +9,9 @@ class Account(models.Model):
 
     user = models.OneToOneField(User, unique=True, null=False)
 
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, default=datetime.datetime.fromtimestamp(0))
 
-    updated_at = models.DateTimeField(auto_now=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True, db_index=True, default=datetime.datetime.fromtimestamp(0))
 
     is_fast = models.BooleanField(default=True)
 
@@ -32,7 +33,7 @@ class RegistrationTask(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
-    state = models.IntegerField(default=REGISTRATION_TASK_STATE.WAITING, db_index=True)
+    state = models.IntegerField(default=REGISTRATION_TASK_STATE.WAITING, db_index=True, choices=REGISTRATION_TASK_STATE_CHOICES)
 
     comment = models.CharField(max_length=256, blank=True, null=True, default='')
 
@@ -59,7 +60,7 @@ class ChangeCredentialsTask(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
-    state = models.IntegerField(default=CHANGE_CREDENTIALS_TASK_STATE.WAITING, db_index=True)
+    state = models.IntegerField(default=CHANGE_CREDENTIALS_TASK_STATE.WAITING, db_index=True, choices=CHANGE_CREDENTIALS_TASK_STATE_CHOICES)
 
     comment = models.CharField(max_length=256, blank=True, null=True, default='')
 

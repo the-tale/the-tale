@@ -18,12 +18,14 @@ class BaseWorker(object):
 
         self.commands = {}
 
+        self.prepair_commands_map()
+
     def close_queries(self):
         # TODO: implement
         pass
 
     def clean_queues(self):
-        self.command_queue.purge()
+        self.command_queue.queue.purge()
 
     def prepair_commands_map(self):
 

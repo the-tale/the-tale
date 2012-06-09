@@ -9,10 +9,9 @@ from django.test import TestCase
 from common.utils.fake import FakeLogger
 
 from accounts.logic import register_user, REGISTER_USER_RESULT
-from accounts.prototypes import RegistrationTaskPrototype
+from accounts.prototypes import RegistrationTaskPrototype, AccountPrototype
 from accounts.models import Account, RegistrationTask, REGISTRATION_TASK_STATE
 
-from game.angels.prototypes import get_angel_by_model
 from game.heroes.bag import SLOTS
 from game.logic import create_test_map
 
@@ -36,14 +35,13 @@ class TestRegistration(TestCase):
         self.assertEqual(user.username, 'test_user')
         self.assertEqual(user.email, 'test_user@test.com')
 
-        account = user.get_profile()
+        account = AccountPrototype(user.get_profile())
 
         self.assertTrue(not account.is_fast)
 
-        angel = get_angel_by_model(account.angel)
-        self.assertEqual(len(angel.heroes()), 1)
+        self.assertEqual(len(account.angel.heroes()), 1)
 
-        hero = angel.heroes()[0]
+        hero = account.angel.heroes()[0]
 
         # test hero equipment
         self.assertEqual(hero.equipment.get(SLOTS.PANTS).id, 'default_pants')

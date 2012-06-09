@@ -113,3 +113,41 @@ pgf.ui.dialog.Alert = function(params) {
 pgf.ui.dialog.Error = function(params) {
     pgf.ui.dialog.Alert(params);
 }
+
+
+pgf.ui.dialog._wait_counter = 0;
+pgf.ui.dialog._wait_dialog = undefined;
+pgf.ui.dialog.wait = function(command) {
+
+    if (pgf.ui.dialog._wait_dialog == undefined) {
+        html = '<div><img src="'+STATIC_URL+'images/waiting.gif"></img></div>';
+        pgf.ui.dialog._wait_dialog = jQuery(html).dialog({ autoOpen: false, 
+                                                           closeOnEscape: false,
+                                                           draggable: false,
+                                                           modal: true,
+                                                           resizable: false,
+                                                           width: 'auto',
+                                                           height: 'auto',
+                                                           dialogClass: 'waiting-dialog',
+                                                           minHeight: 0
+                                                         });
+    }
+
+    if (command == 'start') {
+        pgf.ui.dialog._wait_counter += 1;
+        if (pgf.ui.dialog._wait_counter > 1) {
+            return;
+        }
+        pgf.ui.dialog._wait_dialog.dialog("open");
+    }
+
+    if (command == 'stop') {
+        pgf.ui.dialog._wait_counter -= 1;
+        if (pgf.ui.dialog._wait_counter > 0) {
+            return;
+        }
+        pgf.ui.dialog._wait_dialog.dialog("close");
+    }
+
+    
+}

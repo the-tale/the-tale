@@ -12,6 +12,8 @@ from accounts.conf import accounts_settings
 from accounts.email import ChangeEmailNotification
 from accounts.exceptions import AccountsException
 
+from game.angels.prototypes import AngelPrototype
+
 class AccountPrototype(object):
 
     def __init__(self, model=None):
@@ -20,6 +22,12 @@ class AccountPrototype(object):
     @classmethod
     def get_by_id(cls, model_id):
         return AccountPrototype(model=Account.objects.get(id=model_id))
+
+    @property
+    def angel(self):
+        if not hasattr(self, '_angel'):
+            self._angel = AngelPrototype.get_by_account(self)
+        return self._angel
 
     @property
     def id(self): return self.model.id
@@ -58,10 +66,15 @@ class RegistrationTaskPrototype(object):
             return cls(model=model)
         except RegistrationTask.DoesNotExist:
             return None
+
     @classmethod
     def create(cls):
         model = RegistrationTask.objects.create()
         return cls(model=model)
+
+    @classmethod
+    def stop_old_tasks(cls):
+        RegistrationTask.objects.filter(state=REGISTRATION_TASK_STATE.WAITING).update(state=REGISTRATION_TASK_STATE.ERROR, comment='stop old tasks')
 
     @property
     def id(self): return self.model.id
@@ -76,7 +89,7 @@ class RegistrationTaskPrototype(object):
         return self._account
 
     def get_unique_nick(self):
-        return uuid.uuid4().hex
+        return uuid.uuid4().hex[:30] # 30 - is django user len limitation
 
     def process(self, logger):
         from accounts.logic import register_user, REGISTER_USER_RESULT

@@ -312,3 +312,4 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
         pgf.forms.PostSimple(el.attr('href'));
     }
 });
+

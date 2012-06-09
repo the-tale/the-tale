@@ -17,14 +17,19 @@ class Worker(BaseWorker):
         self.initialized = True
 
     def clean_queues(self):
-        self.registration_queue.queue.purge()
+        super(Worker, self).clean_queues()
+        self.stop_queue.queue.purge()
+
+    def initialize(self):
+        RegistrationTaskPrototype.stop_old_tasks()
+        self.logger.info('REGISTRATION INITIALIZED')
 
     def run(self):
 
         while not self.exception_raised and not self.stop_required:
             game_cmd = self.command_queue.get(block=True)
             game_cmd.ack()
-            self.process_game_cmd(game_cmd.payload)
+            self.process_cmd(game_cmd.payload)
 
     def cmd_register(self, task_id):
         return self.send_cmd('register', {'task_id': task_id})
@@ -32,7 +37,7 @@ class Worker(BaseWorker):
     def process_register(self, task_id):
         task = RegistrationTaskPrototype.get_by_id(task_id)
         if task:
-            task.process()
+            task.process(self.logger)
 
     def cmd_stop(self):
         return self.send_cmd('stop')

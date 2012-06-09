@@ -43,6 +43,8 @@
 
     <script type="text/javascript">
 
+STATIC_URL = "{{ STATIC_URL }}"
+
 jQuery(document).ready(function() {
 
     Globalize.culture('ru');
@@ -72,6 +74,16 @@ jQuery(document).ready(function() {
     });
 
     pgf.tooltips.Init();
+
+    jQuery('.pgf-fast-registration').click(function(e){
+        e.preventDefault();
+        pgf.forms.Post({ OnSuccess: function(data)
+                         {
+                             location.href = "{{ url('accounts:introduction') }}";
+                         },
+                         action: jQuery(e.currentTarget).attr('href')
+                       });
+    });
 });
     </script>
 
@@ -83,10 +95,10 @@ jQuery(document).ready(function() {
       <div id="top-panel-content">
         <div class="user-links">
           {% if request.user.is_authenticated() %}
-          <a href="{{ url('accounts:logout') }}">Выход</a>
+          <a href="{{ url('accounts:logout') }}">выйти</a>
           {% else %}
-          <a href="{{ url('accounts:login') }}">Вход</a>
-          <a href="{{ url('accounts:fast_registration') }}">Создать героя</a>
+          <a href="{{ url('accounts:fast_registration') }}" class="pgf-fast-registration"><strong>играть без регистрации</strong></a> |
+          <a href="{{ url('accounts:login') }}">войти</a>
           {% endif %}
         </div>
       </div>

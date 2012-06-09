@@ -42,10 +42,16 @@ class AccountsResource(Resource):
     def fast_registration(self):
 
         if not self.user.is_anonymous():
-            return self.json(status='error', errors=u'Вы уже зарегистрированы')
+            return self.json(status='error', error=u'Вы уже зарегистрированы')
 
         if accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY in self.request.session:
-            return self.json(status='error', errors=u'Ваша регистрация уже обрабатывается, пожалуйста, подождите')
+            task_id = self.request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
+            task = RegistrationTaskPrototype.get_by_id(task_id)
+            if task is not None:
+                if task.state == REGISTRATION_TASK_STATE.PROCESSED:
+                    return self.json(status='error', error=u'Ваша регистрация уже обработана, обновите страницу')
+                if task.state == REGISTRATION_TASK_STATE.WAITING:
+                    return self.json(status='error', error=u'Ваша регистрация уже обрабатывается, пожалуйста, подождите')
 
         registration_task = RegistrationTaskPrototype.create()
 
@@ -64,7 +70,7 @@ class AccountsResource(Resource):
             return self.json(status='ok')
 
         if accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY not in self.request.session:
-            return self.json(status='error', errors=u'Вы не пытались регистрироваться или уже зарегистрировались')
+            return self.json(status='error', error=u'Вы не пытались регистрироваться или уже зарегистрировались')
 
         task_id = self.request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
 
@@ -74,12 +80,12 @@ class AccountsResource(Resource):
             return self.json(status='processing', status_url=reverse('accounts:fast_registration_status'))
 
         if registration_task.state == REGISTRATION_TASK_STATE.UNPROCESSED:
-            return self.json(status='error', errors=u'Таймаут при обработке запроса, повторите попытку')
+            return self.json(status='error', error=u'Таймаут при обработке запроса, повторите попытку')
 
         if registration_task.state == REGISTRATION_TASK_STATE.PROCESSED:
             return self.json(status='ok')
 
-        return self.json(status='error', errors=u'ошибка при регистрации, повторите попытку')
+        return self.json(status='error', error=u'ошибка при регистрации, повторите попытку')
 
     @login_required
     @handler('profile', method='get')
@@ -107,7 +113,7 @@ class AccountsResource(Resource):
         if edit_profile_form.is_valid():
 
             if self.account.is_fast and not (edit_profile_form.c.email and edit_profile_form.c.password):
-                return self.json(status='error', errors=u'Необходимо указать и email и пароль')
+                return self.json(status='error', error=u'Необходимо указать и email и пароль')
 
             task = ChangeCredentialsTaskPrototype.create(account=self.account,
                                                          new_email=edit_profile_form.c.email,
@@ -156,10 +162,10 @@ class AccountsResource(Resource):
             try:
                 user = User.objects.get(email=login_form.c.email)
             except User.DoesNotExist:
-                return self.json(status='error', errors={'__all__': [u'Неверный логин или пароль']})
+                return self.json(status='error', error=u'Неверный логин или пароль')
 
             if not user.check_password(login_form.c.password):
-                return self.json(status='error', errors={'__all__': [u'Неверный логин или пароль']})
+                return self.json(status='error', error=u'Неверный логин или пароль')
 
             login_user(self.request, username=user.username, password=login_form.c.password)
 
