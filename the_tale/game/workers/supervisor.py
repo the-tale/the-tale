@@ -6,7 +6,7 @@ from dext.utils.decorators import nested_commit_on_success
 from common.amqp_queues import connection, BaseWorker
 
 from game.prototypes import TimePrototype
-from game.bundles import get_bundle_by_id, get_bundle_by_model
+from game.bundles import BundlePrototype
 from game.models import Bundle
 from game.abilities.prototypes import AbilityTaskPrototype
 from game.heroes.prototypes import ChooseAbilityTaskPrototype
@@ -65,7 +65,7 @@ class Worker(BaseWorker):
             self.wait_answers_from('initialize', workers=['turns_loop'])
 
         for bundle_model in Bundle.objects.all():
-            bundle = get_bundle_by_model(bundle_model)
+            bundle = BundlePrototype(bundle_model)
             bundle.owner = 'worker'
             bundle.save()
             self.logic_worker.cmd_register_bundle(bundle.id)
@@ -114,7 +114,7 @@ class Worker(BaseWorker):
 
     def process_register_bundle(self, bundle_id):
         with nested_commit_on_success():
-            bundle = get_bundle_by_id(bundle_id)
+            bundle = BundlePrototype.get_by_id(bundle_id)
             bundle.owner = 'worker'
             bundle.save()
 

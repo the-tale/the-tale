@@ -13,6 +13,7 @@ from accounts.email import ChangeEmailNotification
 from accounts.exceptions import AccountsException
 
 from game.angels.prototypes import AngelPrototype
+from game.bundles import BundlePrototype
 
 class AccountPrototype(object):
 
@@ -35,14 +36,26 @@ class AccountPrototype(object):
     @property
     def user(self): return self.model.user
 
-    @property
-    def is_fast(self): return self.model.is_fast
+    def get_is_fast(self): return self.model.is_fast
+    def set_is_fast(self, value): self.model.is_fast = value
+    is_fast = property(get_is_fast, set_is_fast)
 
     ###########################################
     # Object operations
     ###########################################
 
-    def remove(self): return self.model.delete()
+    def can_be_removed(self):
+        bundle = BundlePrototype.get_by_angel(self.angel)
+        return bundle.is_single
+
+    def remove(self):
+        registration_task = RegistrationTaskPrototype.get_by_account(self)
+        if registration_task:
+            registration_task.unbind_from_account()
+
+        self.angel.remove()
+        return self.model.delete()
+
     def save(self): self.model.save(force_update=True)
 
     def ui_info(self, ignore_actions=False, ignore_quests=False):
@@ -63,6 +76,14 @@ class RegistrationTaskPrototype(object):
     def get_by_id(cls, task_id):
         try:
             model = RegistrationTask.objects.get(id=task_id)
+            return cls(model=model)
+        except RegistrationTask.DoesNotExist:
+            return None
+
+    @classmethod
+    def get_by_account(cls, account):
+        try:
+            model = RegistrationTask.objects.get(account_id=account.id)
             return cls(model=model)
         except RegistrationTask.DoesNotExist:
             return None
@@ -90,6 +111,13 @@ class RegistrationTaskPrototype(object):
 
     def get_unique_nick(self):
         return uuid.uuid4().hex[:30] # 30 - is django user len limitation
+
+    def unbind_from_account(self):
+        self.model.comment = u'unbind from account "%s"' % self.account.user.username
+        if hasattr(self, '_account'):
+            delattr(self, '_account')
+        self.model.account = None
+        self.model.save()
 
     def process(self, logger):
         from accounts.logic import register_user, REGISTER_USER_RESULT
@@ -199,7 +227,10 @@ class ChangeCredentialsTaskPrototype(object):
             self.account.user.password = self.model.new_password
         if self.model.new_email:
             self.account.user.email = self.model.new_email
+        self.account.is_fast = False
+
         self.account.user.save()
+        self.account.save()
 
     def request_email_confirmation(self):
         if self.model.new_email is None:

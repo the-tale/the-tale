@@ -5,7 +5,7 @@ from django.conf import settings as project_settings
 
 from game.heroes.bag import SLOTS
 from game.artifacts.storage import ArtifactsDatabase
-from game.bundles import get_bundle_by_id
+from game.bundles import BundlePrototype
 
 from game.map.places.prototypes import get_place_by_model, get_place_by_id
 from game.map.places.models import Place, TERRAIN, PLACE_TYPE
@@ -67,14 +67,14 @@ def create_test_map():
 def create_test_bundle(uuid):
     from accounts.logic import register_user
     result, account_id, bundle_id = register_user(uuid, uuid + '@' + uuid + '.com', '111111')
-    return get_bundle_by_id(bundle_id)
+    return BundlePrototype.get_by_id(bundle_id)
 
 
 def test_bundle_save(test, bundle):
     bundle.save_data()
     bundle.save()
 
-    saved_bundel = get_bundle_by_id(bundle.id)
+    saved_bundel = BundlePrototype.get_by_id(bundle.id)
     test.assertEqual(bundle, saved_bundel)
 
 

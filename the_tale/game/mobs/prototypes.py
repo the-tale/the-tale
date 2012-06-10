@@ -77,6 +77,12 @@ class MobPrototype(object):
 
 
     def __eq__(self, other):
+        # print '=mob='
+        # print self.id == other.id, self.id, other.id
+        # print self.level == other.level, self.level, other.level
+        # print self.max_health == other.max_health, self.max_health, other.max_health
+        # print self.health == other.health, self.health, other.health
+        # print self.abilities == other.abilities, self.abilities, other.abilities
         return (self.id == other.id and
                 self.level == other.level and
                 self.max_health == other.max_health and

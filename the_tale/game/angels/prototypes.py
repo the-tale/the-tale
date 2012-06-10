@@ -87,7 +87,11 @@ class AngelPrototype(object):
     # Object operations
     ###########################################
 
-    def remove(self): return self.model.delete()
+    def remove(self):
+        for hero in self.heroes():
+            hero.remove()
+        self.model.delete()
+
     def save(self):
         self.save_abilities()
         database.raw_save(self.model)

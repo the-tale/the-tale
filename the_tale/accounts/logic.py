@@ -1,8 +1,12 @@
 # coding: utf-8
+import datetime
 
 from django.contrib.auth.models import User
 from django.contrib.auth import login as django_login, authenticate as django_authenticate, logout as django_logout
 
+from dext.utils.decorators import nested_commit_on_success
+
+from accounts.models import Account
 from accounts.prototypes import AccountPrototype
 from accounts.exceptions  import AccountsException
 from accounts.conf import accounts_settings
@@ -56,3 +60,19 @@ def login_user(request, username=None, password=None):
 def logout_user(request):
     django_logout(request)
     request.session.flush()
+
+
+def block_expired_accounts():
+
+    expired_before = datetime.datetime.now() - datetime.timedelta(seconds=accounts_settings.FAST_ACCOUNT_EXPIRED_TIME)
+
+    for account_model in Account.objects.filter(is_fast=True, created_at__lt=expired_before):
+        account = AccountPrototype(account_model)
+        if account.can_be_removed():
+            with nested_commit_on_success():
+                bundle = BundlePrototype.get_by_angel(account.angel)
+                user = account.user
+
+                account.remove()
+                bundle.remove()
+                user.delete()

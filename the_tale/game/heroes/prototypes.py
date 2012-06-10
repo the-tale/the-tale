@@ -310,7 +310,11 @@ class HeroPrototype(object):
     # Object operations
     ###########################################
 
-    def remove(self): return self.model.delete()
+    def remove(self):
+        for action in reversed(self.get_actions()):
+            action.remove()
+        self.model.delete()
+
     def save(self):
         if self.bag.updated:
             self.model.bag = s11n.to_json(self.bag.serialize())

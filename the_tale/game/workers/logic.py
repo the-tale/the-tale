@@ -9,7 +9,7 @@ from dext.utils.decorators import nested_commit_on_success
 from common.amqp_queues import BaseWorker
 
 from game.heroes.prototypes import get_hero_by_id
-from game.bundles import get_bundle_by_id
+from game.bundles import BundlePrototype
 
 
 class LogicException(Exception): pass
@@ -96,7 +96,7 @@ class Worker(BaseWorker):
         return self.send_cmd('register_bundle', {'bundle_id': bundle_id})
 
     def process_register_bundle(self, bundle_id):
-        bundle = get_bundle_by_id(id=bundle_id)
+        bundle = BundlePrototype.get_by_id(id=bundle_id)
 
         if bundle.id in self.bundles:
             self.logger.warn('WARNING: bundle with id "%d" has already registerd in worker, probably on initialization step' % bundle.id)

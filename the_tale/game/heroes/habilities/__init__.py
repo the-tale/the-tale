@@ -76,4 +76,4 @@ class AbilitiesPrototype(object):
         return value
 
     def __eq__(self, other):
-        return self.abilities.keys() == other.abilities.keys()
+        return set(self.abilities.keys()) == set(other.abilities.keys())

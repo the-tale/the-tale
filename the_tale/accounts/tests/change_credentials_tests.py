@@ -36,6 +36,7 @@ class TestChangeCredentialsTask(TestCase):
         self.assertTrue(task.model.new_password != '222222')
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.WAITING)
         self.assertEqual(task.account.id, self.test_account.id)
+        self.assertTrue(not AccountPrototype.get_by_id(self.test_account.id).is_fast)
 
         task_duplicate = ChangeCredentialsTaskPrototype.get_by_uuid(task.uuid)
 
@@ -57,11 +58,16 @@ class TestChangeCredentialsTask(TestCase):
 
     def test_change_credentials(self):
         task = ChangeCredentialsTaskPrototype.create(self.fast_account, new_email='fast_user@test.ru', new_password='222222')
+
+        self.assertTrue(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
+
         task.change_credentials()
 
         self.assertEqual(task.account.user.email, 'fast_user@test.ru')
         user = django_authenticate(username='fast_user', password='222222')
         self.assertEqual(user.id, task.account.user.id)
+
+        self.assertTrue(not AccountPrototype.get_by_id(self.fast_account.id).is_fast)
 
     def test_change_credentials_password(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_password='222222')

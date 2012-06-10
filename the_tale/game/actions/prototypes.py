@@ -149,9 +149,11 @@ class ActionPrototype(object):
 
     @property
     def quest(self):
-        from ..quests.prototypes import get_quest_by_model
+        from game.quests.prototypes import get_quest_by_model
         if not hasattr(self, '_quest'):
-            self._quest = get_quest_by_model(model=self.model.quest)
+            self._quest = None
+            if self.model.quest:
+                self._quest = get_quest_by_model(model=self.model.quest)
         return self._quest
 
     @property
@@ -181,9 +183,12 @@ class ActionPrototype(object):
     ###########################################
 
     def remove(self):
-        self.bundle.remove_action(self)
-        if hasattr(self, '_quest'):
+        if self.bundle:
+            self.bundle.remove_action(self)
+
+        if self.quest:
             self.quest.remove()
+
         self.model.delete()
         self.removed = True
 

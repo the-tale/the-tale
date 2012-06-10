@@ -140,8 +140,6 @@ INSTALLED_APPS = (
 
     'forum',
 
-    'stress_testing',
-
     'south'
 )
 

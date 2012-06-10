@@ -13,7 +13,7 @@ class Account(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, db_index=True, default=datetime.datetime.fromtimestamp(0))
 
-    is_fast = models.BooleanField(default=True)
+    is_fast = models.BooleanField(default=True, db_index=True)
 
 
 class REGISTRATION_TASK_STATE:

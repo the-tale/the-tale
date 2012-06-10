@@ -19,9 +19,8 @@ class Bundle(models.Model):
 
     owner = models.CharField(null=True, max_length=32)
 
-    members = models.ManyToManyField('game.BundleMember')
-
 
 class BundleMember(models.Model):
 
-    angel = models.ForeignKey('angels.Angel', null=True, related_name='bundle')
+    angel = models.ForeignKey('angels.Angel', null=False, related_name='+', unique=True)
+    bundle = models.ForeignKey(Bundle, null=False, related_name='members')

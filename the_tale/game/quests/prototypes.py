@@ -109,7 +109,9 @@ class QuestPrototype(object):
     # Object operations
     ###########################################
 
-    def remove(self): self.model.delete()
+    def remove(self):
+        self.model.delete()
+
     def save(self):
         self.model.data = s11n.to_json(self.data)
         self.model.env = s11n.to_json(self.env.serialize())

@@ -166,6 +166,7 @@ pgf.forms.Form = function(selector, params) {
             }
         }
         if (data.status == 'processing') {
+            pgf.ui.dialog.wait("start");
             setTimeout(function() {
                 jQuery.ajax({dataType: 'json',
                              type: 'get',
@@ -183,9 +184,11 @@ pgf.forms.Form = function(selector, params) {
     }
 
     function OnComplete(request, status) {
+        pgf.ui.dialog.wait("stop");
     }
 
     this.Submit = function() {
+        pgf.ui.dialog.wait("start");
         var instance = this;
         jQuery.ajax({
             dataType: 'json',
@@ -232,6 +235,7 @@ pgf.forms.Post = function(params) {
         }
 
         if (data.status == 'processing') {
+            pgf.ui.dialog.wait("start");
             setTimeout(function() {
                 jQuery.ajax({dataType: 'json',
                              type: 'get',
@@ -253,8 +257,10 @@ pgf.forms.Post = function(params) {
     }
 
     function OnComplete() {
+        pgf.ui.dialog.wait("stop");
     }
 
+    pgf.ui.dialog.wait("start");
     jQuery.ajax({
         dataType: 'json',
         type: 'post',

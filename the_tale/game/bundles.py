@@ -3,13 +3,6 @@ from game.angels.prototypes import AngelPrototype
 
 from game.models import Bundle, BundleMember, BUNDLE_TYPE
 
-def get_bundle_by_id(id):
-    bundle = Bundle.objects.get(id=id)
-    return get_bundle_by_model(model=bundle)
-
-def get_bundle_by_model(model):
-    return BundlePrototype(model=model)
-
 class BundleException(Exception): pass
 
 class BundlePrototype(object):
@@ -25,6 +18,15 @@ class BundlePrototype(object):
 
         self.load_data()
 
+    @classmethod
+    def get_by_id(cls, model_id):
+        return cls(model=Bundle.objects.get(id=model_id))
+
+    @classmethod
+    def get_by_angel(cls, angel):
+        member = BundleMember.objects.get(angel_id=angel.id)
+        return cls(member.bundle)
+
     @property
     def id(self): return self.model.id
 
@@ -34,6 +36,12 @@ class BundlePrototype(object):
     def get_owner(self): return self.model.owner
     def set_owner(self, value): self.model.owner = value
     owner = property(get_owner, set_owner)
+
+    @property
+    def is_single(self):
+        if not hasattr(self, '_is_single'):
+            self._is_single = self.model.members.all().count()
+        return self._is_single
 
     def add_hero(self, hero):
         self.heroes[hero.id] = hero
@@ -84,10 +92,12 @@ class BundlePrototype(object):
     def create(cls, angel):
 
         bundle = Bundle.objects.create(type=BUNDLE_TYPE.BASIC)
-        member = BundleMember.objects.create(angel=angel.model)
-        bundle.members.add(member)
+        BundleMember.objects.create(angel=angel.model, bundle=bundle)
 
         return BundlePrototype(model=bundle)
+
+    def remove(self):
+        self.model.delete() # must delete all members automaticaly
 
     def save(self):
         self.model.save()
