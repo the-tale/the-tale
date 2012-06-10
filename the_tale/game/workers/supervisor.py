@@ -70,6 +70,8 @@ class Worker(BaseWorker):
             bundle.save()
             self.logic_worker.cmd_register_bundle(bundle.id)
 
+        self.initialized = True
+
         self.logger.info('SUPERVISOR INITIALIZED')
 
 

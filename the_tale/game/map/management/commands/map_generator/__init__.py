@@ -9,7 +9,7 @@ from dext.utils import s11n
 
 from game.prototypes import TimePrototype
 
-from game.map import Map
+from .map import Map
 from . import places
 from . import roads
 

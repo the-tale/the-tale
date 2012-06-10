@@ -21,13 +21,13 @@ class AbilitiesResource(Resource):
         if self.ability.LIMITED and self.ability.limit == 0:
             raise Error(u'Вы больше не можете исспользовать эту способность')
 
-        if self.ability.on_cooldown(self.time, self.angel.id):
+        if self.ability.on_cooldown(self.time, self.account.angel.id):
             raise Error(u'Вы пока не можете использовать эту способность')
 
     @property
     def ability(self):
-        if self.ability_type in self.angel.abilities:
-            return self.angel.abilities[self.ability_type]
+        if self.ability_type in self.account.angel.abilities:
+            return self.account.angel.abilities[self.ability_type]
         return None
 
     @handler('#ability_type', 'form', method='get')
@@ -46,7 +46,7 @@ class AbilitiesResource(Resource):
 
         if form.is_valid():
 
-            if form.c.angel_id != self.angel.id:
+            if form.c.angel_id != self.account.angel.id:
                 return self.json(status='error', errors='Вы пытаетесь провести операцию для чужого героя, ай-яй-яй, как нехорошо!')
 
             task = self.ability.activate(form, self.time)
@@ -60,7 +60,7 @@ class AbilitiesResource(Resource):
     def activate_status(self, task_id):
         ability_task = AbilityTaskPrototype.get_by_id(task_id)
 
-        if ability_task.type != self.ability_type or ability_task.angel_id != self.angel.id:
+        if ability_task.type != self.ability_type or ability_task.angel_id != self.account.angel.id:
             return self.json(status='error', errors='Вы пытаетесь получить данные о способностях другого игрока!')
 
         if ability_task.state == ABILITY_STATE.WAITING:

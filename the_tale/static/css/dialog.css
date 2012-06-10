@@ -97,3 +97,37 @@
   right: 3px;
   bottom: 3px;
 }
+.waiting-dialog.ui-dialog {
+  background: #559dcc;
+  padding: 0.25em;
+  margin: 5px;
+  display: block;
+  border: 3px #357dac solid;
+  border-radius: 8px;
+  /* jQuery */
+
+  position: absolute;
+  padding: .2em;
+  width: 300px;
+  overflow: visible !important;
+}
+.waiting-dialog.ui-dialog .ui-dialog-titlebar {
+  display: none;
+}
+.waiting-dialog.ui-dialog .ui-dialog-content {
+  position: relative;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: none;
+  overflow: visible !important;
+  /* overflow: auto; */
+
+  zoom: 1;
+}
+.waiting-dialog.ui-dialog .ui-dialog-buttonpane {
+  display: none;
+}
+.waiting-dialog.ui-dialog .ui-resizable-se {
+  display: none;
+}

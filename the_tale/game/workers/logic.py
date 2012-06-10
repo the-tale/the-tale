@@ -96,7 +96,7 @@ class Worker(BaseWorker):
         return self.send_cmd('register_bundle', {'bundle_id': bundle_id})
 
     def process_register_bundle(self, bundle_id):
-        bundle = BundlePrototype.get_by_id(id=bundle_id)
+        bundle = BundlePrototype.get_by_id(bundle_id)
 
         if bundle.id in self.bundles:
             self.logger.warn('WARNING: bundle with id "%d" has already registerd in worker, probably on initialization step' % bundle.id)

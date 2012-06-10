@@ -90,7 +90,8 @@ class AccountsResource(Resource):
     @login_required
     @handler('profile', method='get')
     def profile(self):
-        edit_profile_form = forms.EditProfileForm()
+        data = {'email': self.account.user.email if self.account.user.email else u'укажите email'}
+        edit_profile_form = forms.EditProfileForm(data)
         return self.template('accounts/profile.html',
                              {'edit_profile_form': edit_profile_form} )
 
