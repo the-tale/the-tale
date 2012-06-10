@@ -578,7 +578,6 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
     def process(self):
 
         if self.state == self.STATE.BATTLE_RUNNING:
-
             battle.make_turn(battle.Actor(self.hero, self.context),
                              battle.Actor(self.mob, self.mob_context ),
                              self.hero)
