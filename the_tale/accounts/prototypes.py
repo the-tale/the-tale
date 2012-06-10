@@ -29,6 +29,9 @@ class AccountPrototype(object):
 
     @classmethod
     def get_by_email(cls, email):
+        if email is None:
+            return None
+
         try:
             user = User.objects.get(email=email)
             return cls(user.get_profile())
@@ -57,6 +60,19 @@ class AccountPrototype(object):
         self.user.save()
         email = ResetPasswordNotification({'password': new_password})
         email.send([self.user.email])
+
+    @nested_commit_on_success
+    def change_credentials(self, new_email=None, new_password=None):
+        if new_password:
+            self.user.password = new_password
+        if new_email:
+            self.user.email = new_email
+            self.model.email = new_email
+        self.is_fast = False
+
+        self.user.save()
+        self.save()
+
 
     ###########################################
     # Object operations
@@ -214,6 +230,10 @@ class ChangeCredentialsTaskPrototype(object):
             raise AccountsException('new_email must be specified for fast account')
         if account.is_fast and new_password is None:
             raise AccountsException('password must be specified for fast account')
+
+        if old_email == new_email:
+            new_email = None
+
         model = ChangeCredentialsTask.objects.create(uuid=uuid.uuid4().hex,
                                                      account=account.model,
                                                      old_email=old_email,
@@ -241,14 +261,7 @@ class ChangeCredentialsTaskPrototype(object):
         return self.model.new_email is not None and (self.model.old_email != self.model.new_email)
 
     def change_credentials(self):
-        if self.model.new_password:
-            self.account.user.password = self.model.new_password
-        if self.model.new_email:
-            self.account.user.email = self.model.new_email
-        self.account.is_fast = False
-
-        self.account.user.save()
-        self.account.save()
+        self.account.change_credentials(new_email=self.model.new_email, new_password=self.model.new_password)
 
     def request_email_confirmation(self):
         if self.model.new_email is None:
@@ -269,7 +282,6 @@ class ChangeCredentialsTaskPrototype(object):
             return
 
         try:
-
             if self.state == CHANGE_CREDENTIALS_TASK_STATE.WAITING:
                 if self.email_changed:
                     self.request_email_confirmation()
@@ -283,6 +295,12 @@ class ChangeCredentialsTaskPrototype(object):
                     return
 
             if self.state == CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT:
+                if AccountPrototype.get_by_email(self.model.new_email):
+                    self.model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
+                    self.model.comment = 'duplicate email'
+                    self.model.save()
+                    return
+
                 self.change_credentials()
                 self.model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
                 self.model.save()

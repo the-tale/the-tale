@@ -15,6 +15,10 @@ class Account(models.Model):
 
     is_fast = models.BooleanField(default=True, db_index=True)
 
+    # duplicate django user email - add unique constraints
+    email = models.EmailField(max_length=254, null=True, unique=True)
+
+
 
 class REGISTRATION_TASK_STATE:
     WAITING = 0

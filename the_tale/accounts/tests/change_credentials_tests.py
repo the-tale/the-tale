@@ -114,6 +114,14 @@ class TestChangeCredentialsTask(TestCase):
         task.process(FakeLogger())
         self.assertEqual(task.model.state, CHANGE_CREDENTIALS_TASK_STATE.ERROR)
 
+    def test_process_duplicated_email(self):
+        register_user('duplicated_user', 'duplicated@test.com', '111111')
+        task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='duplicated@test.com')
+        task.model.state = CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
+        task.process(FakeLogger())
+        self.assertEqual(task.model.state, CHANGE_CREDENTIALS_TASK_STATE.ERROR)
+
+
     def test_process_timeout(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')
         task.model.created_at = datetime.datetime.fromtimestamp(0)

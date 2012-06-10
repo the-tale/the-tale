@@ -115,6 +115,11 @@ class AccountsResource(Resource):
             if self.account.is_fast and not (edit_profile_form.c.email and edit_profile_form.c.password):
                 return self.json(status='error', error=u'Необходимо указать и email и пароль')
 
+            if edit_profile_form.c.email:
+                existed_account = AccountPrototype.get_by_email(edit_profile_form.c.email)
+                if existed_account and existed_account.id != self.account.id:
+                    return self.json(status='error', error=u'На этот адрес уже зарегистрирован аккаунт')
+
             task = ChangeCredentialsTaskPrototype.create(account=self.account,
                                                          new_email=edit_profile_form.c.email,
                                                          new_password=edit_profile_form.c.password)

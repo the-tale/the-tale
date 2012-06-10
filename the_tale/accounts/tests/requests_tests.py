@@ -205,6 +205,17 @@ class TestProfileRequests(TestCase):
         self.assertEqual(django_authenticate(username='test_user', password='111111').id, self.account.user.id)
         self.assertEqual(django_authenticate(username='test_user', password='111111').email, 'test_user@test.com')
 
+    def test_profile_update_duplicate_email(self):
+        register_user('duplicated_user', 'duplicated@test.com', '111111')
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.post(reverse('accounts:profile_update'), {'email': 'duplicated@test.com'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+        self.assertEqual(ChangeCredentialsTask.objects.all().count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(django_authenticate(username='test_user', password='111111').id, self.account.user.id)
+        self.assertEqual(django_authenticate(username='test_user', password='111111').email, 'test_user@test.com')
+
     def test_profile_update_fast_errors(self):
         response = self.client.post(reverse('accounts:fast_registration'))
 
