@@ -4,12 +4,15 @@ import uuid
 import datetime
 
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 
 from dext.utils.decorators import nested_commit_on_success
 
+from common.utils.password import generate_password
+
 from accounts.models import Account, RegistrationTask, REGISTRATION_TASK_STATE, ChangeCredentialsTask, CHANGE_CREDENTIALS_TASK_STATE
 from accounts.conf import accounts_settings
-from accounts.email import ChangeEmailNotification
+from accounts.email import ChangeEmailNotification, ResetPasswordNotification
 from accounts.exceptions import AccountsException
 
 from game.angels.prototypes import AngelPrototype
@@ -23,6 +26,14 @@ class AccountPrototype(object):
     @classmethod
     def get_by_id(cls, model_id):
         return AccountPrototype(model=Account.objects.get(id=model_id))
+
+    @classmethod
+    def get_by_email(cls, email):
+        try:
+            user = User.objects.get(email=email)
+            return cls(user.get_profile())
+        except User.DoesNotExist:
+            return None
 
     @property
     def angel(self):
@@ -39,6 +50,13 @@ class AccountPrototype(object):
     def get_is_fast(self): return self.model.is_fast
     def set_is_fast(self, value): self.model.is_fast = value
     is_fast = property(get_is_fast, set_is_fast)
+
+    def reset_password(self):
+        new_password = generate_password(len_=accounts_settings.RESET_PASSWORD_LENGTH)
+        self.user.set_password(new_password)
+        self.user.save()
+        email = ResetPasswordNotification({'password': new_password})
+        email.send([self.user.email])
 
     ###########################################
     # Object operations

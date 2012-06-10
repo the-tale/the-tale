@@ -13,4 +13,5 @@ accounts_settings = app_settings('ACCOUNTS',
                                  FAST_REGISTRATION_USER_PASSWORD='password-FOR_fast-USERS',
                                  FAST_ACCOUNT_EXPIRED_TIME=3*24*60*60,
                                  REGISTRATION_TIMEOUT=1*60,
+                                 RESET_PASSWORD_LENGTH=8,
                                  CHANGE_EMAIL_TIMEOUT=2*24*60*60)

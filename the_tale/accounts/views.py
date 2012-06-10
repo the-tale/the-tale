@@ -144,6 +144,43 @@ class AccountsResource(Resource):
         return self.template('accounts/confirm_email.html',
                              {'task': task} )
 
+    @handler('reset_password', method='get')
+    def reset_password_page(self):
+        if not self.user.is_anonymous():
+            return self.redirect('/')
+
+        reset_password_form = forms.ResetPasswordForm()
+        return self.template('accounts/reset_password.html',
+                             {'reset_password_form': reset_password_form} )
+
+    @handler('reset_password_done', method='get')
+    def reset_password_done(self):
+        if not self.user.is_anonymous():
+            return self.redirect('/')
+
+        reset_password_form = forms.ResetPasswordForm()
+        return self.template('accounts/reset_password_done.html',
+                             {'reset_password_form': reset_password_form} )
+
+    @handler('reset_password', method='post')
+    def reset_password(self):
+        if not self.user.is_anonymous():
+            return self.json(status='error', error=u'Вы уже вошли на сайт и можете просто изменить пароль')
+
+        reset_password_form = forms.ResetPasswordForm(self.request.POST)
+
+        if reset_password_form.is_valid():
+
+            account = AccountPrototype.get_by_email(reset_password_form.c.email)
+
+            if account is not None:
+                account.reset_password()
+
+            return self.json(status='ok')
+
+        return self.json(status='error', errors=reset_password_form.errors)
+
+
     @handler('login', method='get')
     def login_page(self):
         if not self.user.is_anonymous():

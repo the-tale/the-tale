@@ -13,3 +13,8 @@ class LoginForm(forms.Form):
 
     email = fields.EmailField(label=u'Email')
     password = fields.PasswordField(label=u'Пароль')
+
+
+class ResetPasswordForm(forms.Form):
+
+    email = fields.EmailField(label=u'Email')
