@@ -35,13 +35,13 @@ class HeroResource(Resource):
                              {} )
 
     @login_required
-    @handler('#hero_id', 'choose_ability_dialog', method='get')
+    @handler('#hero_id', 'choose-ability-dialog', method='get')
     def choose_ability_dialog(self):
         return self.template('heroes/choose_ability.html',
                              {} )
 
     @login_required
-    @handler('#hero_id', 'choose_ability', method='post')
+    @handler('#hero_id', 'choose-ability', method='post')
     def choose_ability(self, ability_id):
 
         from ..workers.environment import workers_environment
@@ -54,7 +54,7 @@ class HeroResource(Resource):
                          status_url=reverse('game:heroes:choose_ability_status', args=[self.hero.id]) + '?task_id=%s' % task.id )
 
     @login_required
-    @handler('#hero_id', 'choose_ability_status', method='get')
+    @handler('#hero_id', 'choose-ability-status', method='get')
     def choose_ability_status(self, task_id):
         ability_task = ChooseAbilityTaskPrototype.get_by_id(task_id)
 

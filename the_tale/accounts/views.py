@@ -38,7 +38,7 @@ class AccountsResource(Resource):
         return self.template('accounts/introduction.html')
 
 
-    @handler('fast_registration', method='post')
+    @handler('fast-registration', method='post')
     def fast_registration(self):
 
         if not self.user.is_anonymous():
@@ -62,7 +62,7 @@ class AccountsResource(Resource):
         return self.json(status='processing', status_url=reverse('accounts:fast_registration_status') )
 
 
-    @handler('fast_registration_status', method='get')
+    @handler('fast-registration-status', method='get')
     def fast_registration_status(self):
 
         # if task already checked in middleware
@@ -100,7 +100,7 @@ class AccountsResource(Resource):
         return self.template('accounts/profile_edited.html')
 
     @login_required
-    @handler('profile', 'confirm_email_request', method='get')
+    @handler('profile', 'confirm-email-request', method='get')
     def confirm_email_request(self):
         return self.template('accounts/confirm_email_request.html')
 
@@ -134,7 +134,7 @@ class AccountsResource(Resource):
 
         return self.json(status='error', errors=edit_profile_form.errors)
 
-    @handler('profile', 'confirm_email', method='get')
+    @handler('profile', 'confirm-email', method='get')
     def confirm_email(self, uuid):
 
         task = ChangeCredentialsTaskPrototype.get_by_uuid(uuid)
@@ -149,7 +149,7 @@ class AccountsResource(Resource):
         return self.template('accounts/confirm_email.html',
                              {'task': task} )
 
-    @handler('reset_password', method='get')
+    @handler('reset-password', method='get')
     def reset_password_page(self):
         if not self.user.is_anonymous():
             return self.redirect('/')
@@ -158,7 +158,7 @@ class AccountsResource(Resource):
         return self.template('accounts/reset_password.html',
                              {'reset_password_form': reset_password_form} )
 
-    @handler('reset_password_done', method='get')
+    @handler('reset-password-done', method='get')
     def reset_password_done(self):
         if not self.user.is_anonymous():
             return self.redirect('/')
@@ -167,7 +167,7 @@ class AccountsResource(Resource):
         return self.template('accounts/reset_password_done.html',
                              {'reset_password_form': reset_password_form} )
 
-    @handler('reset_password', method='post')
+    @handler('reset-password', method='post')
     def reset_password(self):
         if not self.user.is_anonymous():
             return self.json(status='error', error=u'Вы уже вошли на сайт и можете просто изменить пароль')

@@ -54,7 +54,7 @@ class GameResource(Resource):
 
     @debug_required
     @staff_required()
-    @handler('next_turn', method=['post'])
+    @handler('next-turn', method=['post'])
     def next_turn(self):
 
         from .workers.environment import workers_environment

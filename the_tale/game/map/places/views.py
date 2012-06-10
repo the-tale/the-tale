@@ -17,8 +17,7 @@ class PlaceResource(Resource):
             self._place= get_place_by_id(self.place_id)
         return self._place
 
-    @handler('#place_id', 'map_info', method='get')
+    @handler('#place_id', 'map-info', method='get')
     def map_info(self):
         return self.template('places/map_info.html',
                              {'place': self.place} )
-
