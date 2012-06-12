@@ -74,10 +74,18 @@ class BattlePvE1x1ActionTest(TestCase):
         self.assertEqual(self.hero.statistics.pve_deaths, 1)
         test_bundle_save(self, self.bundle)
 
-
     def test_full_battle(self):
         turn_number = 1
         while len(self.bundle.actions) != 1:
             self.bundle.process_turn(turn_number)
             turn_number += 1
         test_bundle_save(self, self.bundle)
+
+    def test_bit_mob(self):
+        old_mob_health = self.action_battle.mob.health
+        old_action_percents = self.action_battle.percents
+
+        self.action_battle.bit_mob(0.33)
+
+        self.assertTrue(self.action_battle.mob.health < old_mob_health)
+        self.assertTrue(self.action_battle.percents > old_action_percents)

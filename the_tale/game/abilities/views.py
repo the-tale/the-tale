@@ -18,9 +18,6 @@ class AbilitiesResource(Resource):
         if self.ability is None:
             raise Error(u'У вас нет такой способности')
 
-        if self.ability.LIMITED and self.ability.limit == 0:
-            raise Error(u'Вы больше не можете исспользовать эту способность')
-
         if self.ability.on_cooldown(self.time, self.account.angel.id):
             raise Error(u'Вы пока не можете использовать эту способность')
 

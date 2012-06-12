@@ -90,7 +90,7 @@ class Worker(BaseWorker):
         self.initialized = False
         self.supervisor_worker.cmd_answer('stop', self.worker_id)
         self.stop_required = True
-        self.logger.info('GAME STOPPED')
+        self.logger.info('LOGIC STOPPED')
 
     def cmd_register_bundle(self, bundle_id):
         return self.send_cmd('register_bundle', {'bundle_id': bundle_id})

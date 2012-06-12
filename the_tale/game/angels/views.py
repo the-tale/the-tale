@@ -22,5 +22,5 @@ class AngelsResource(Resource):
 
         data['turn'] = self.time.ui_info()
 
-        data['angel'] = self.account.angel.ui_info()
+        data['angel'] = self.account.angel.ui_info(turn_number=self.time.turn_number)
         return self.json(status='ok', data=data)

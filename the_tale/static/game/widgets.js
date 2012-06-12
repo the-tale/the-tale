@@ -537,7 +537,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
             turnMessages = hero.messages;
         }
 
-        messages = []
+        messages = [];
 
         for (var i=0; i<turnMessages.length; ++i) {
             messages.push({turn: turnNumber, message: turnMessages[i]});

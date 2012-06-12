@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 import random
 
 from dext.utils import s11n
@@ -41,11 +42,21 @@ def get_action_by_model(model):
     return ACTION_TYPES[model.type](model=model)
 
 
+class HELP_CHOICES:
+    HEAL = 0
+    TELEPORT = 1
+    LIGHTING = 2
+    START_QUEST = 3
+    MONEY = 4
+    RESURRECT = 5
+
+
 class ActionPrototype(object):
 
     TYPE = 'BASE'
     SHORT_DESCRIPTION = 'undefined'
     CONTEXT_MANAGER = None
+    EXTRA_HELP_CHOICES = set()
 
     class STATE:
         UNINITIALIZED = UNINITIALIZED_STATE
@@ -178,6 +189,15 @@ class ActionPrototype(object):
     def set_percents_barier(self, value): self.model.percents_barier = value
     percents_barier = property(get_percents_barier, set_percents_barier)
 
+    def get_help_choice(self):
+        choices = copy.copy(self.EXTRA_HELP_CHOICES)
+        choices.add(HELP_CHOICES.MONEY)
+
+        if c.ANGEL_HELP_HEAL_IF_LOWER_THEN * self.hero.max_health > self.hero.health:
+            choices.add(HELP_CHOICES.HEAL)
+
+        return random.choice(list(choices))
+
     ###########################################
     # Object operations
     ###########################################
@@ -284,6 +304,7 @@ class ActionIdlenessPrototype(ActionPrototype):
 
     TYPE = 'IDLENESS'
     SHORT_DESCRIPTION = u'бездельничает'
+    EXTRA_HELP_CHOICES = set((HELP_CHOICES.START_QUEST,))
 
     class STATE(ActionPrototype.STATE):
         QUEST = 'QUEST'
@@ -337,11 +358,11 @@ class ActionIdlenessPrototype(ActionPrototype):
                 if random.uniform(0, 1) < 0.2:
                     self.hero.add_message('action_idleness_waiting', hero=self.hero)
 
-
 class ActionQuestPrototype(ActionPrototype):
 
     TYPE = 'QUEST'
     SHORT_DESCRIPTION = u'выполняет задание'
+    EXTRA_HELP_CHOICES = set()
 
     class STATE(ActionPrototype.STATE):
         PROCESSING = 'processing'
@@ -378,6 +399,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
     TYPE = 'MOVE_TO'
     SHORT_DESCRIPTION = u'путешествует'
+    EXTRA_HELP_CHOICES = set((HELP_CHOICES.TELEPORT,))
 
     class STATE(ActionPrototype.STATE):
         CHOOSE_ROAD = 'choose_road'
@@ -544,6 +566,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
     TYPE = 'BATTLE_PVE1x1'
     SHORT_DESCRIPTION = u'сражается'
     CONTEXT_MANAGER = contexts.BattleContext
+    EXTRA_HELP_CHOICES = set((HELP_CHOICES.LIGHTING,))
 
     class STATE(ActionPrototype.STATE):
         BATTLE_RUNNING = 'battle_running'
@@ -623,6 +646,7 @@ class ActionResurrectPrototype(ActionPrototype):
 
     TYPE = 'RESURRECT'
     SHORT_DESCRIPTION = u'воскресает'
+    EXTRA_HELP_CHOICES = set((HELP_CHOICES.RESURRECT,))
 
     class STATE(ActionPrototype.STATE):
         RESURRECT = 'resurrect'
@@ -638,6 +662,12 @@ class ActionResurrectPrototype(ActionPrototype):
                                        state=cls.STATE.RESURRECT)
         return cls(model=model)
 
+    def fast_resurrect(self):
+        if self.state == self.STATE.RESURRECT:
+            self.percents = 1.0
+            return True
+
+        return False
 
     def process(self):
 
@@ -655,6 +685,7 @@ class ActionInPlacePrototype(ActionPrototype):
 
     TYPE = 'IN_PLACE'
     SHORT_DESCRIPTION = u'изучает окрестности'
+    EXTRA_HELP_CHOICES = set()
 
     class STATE(ActionPrototype.STATE):
         SPEND_MONEY = 'spend_money'
@@ -776,6 +807,7 @@ class ActionRestPrototype(ActionPrototype):
 
     TYPE = 'REST'
     SHORT_DESCRIPTION = u'отдыхает'
+    EXTRA_HELP_CHOICES = set()
 
     class STATE(ActionPrototype.STATE):
         RESTING = 'resting'
@@ -801,7 +833,7 @@ class ActionRestPrototype(ActionPrototype):
         if self.state == self.STATE.RESTING:
             heal_amount = int(round(float(self.hero.max_health) / c.HEAL_LENGTH * (1 + random.uniform(-c.HEAL_STEP_FRACTION, c.HEAL_STEP_FRACTION))))
 
-            self.hero.health = min(self.hero.health + heal_amount, self.hero.max_health)
+            heal_amount = self.hero.heal(heal_amount)
 
             if random.uniform(0, 1) < 0.2:
                 self.hero.add_message('action_rest_resring', hero=self.hero, health=heal_amount)
@@ -816,6 +848,7 @@ class ActionEquippingPrototype(ActionPrototype):
 
     TYPE = 'EQUIPPING'
     SHORT_DESCRIPTION = u'экипируется'
+    EXTRA_HELP_CHOICES = set()
 
     class STATE(ActionPrototype.STATE):
         EQUIPPING = 'equipping'
@@ -853,6 +886,7 @@ class ActionTradingPrototype(ActionPrototype):
 
     TYPE = 'TRADING'
     SHORT_DESCRIPTION = u'торгует'
+    EXTRA_HELP_CHOICES = set()
 
     class STATE(ActionPrototype.STATE):
         TRADING = 'trading'
@@ -930,6 +964,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
     TYPE = 'MOVE_NEAR_PLACE'
     SHORT_DESCRIPTION = u'бродит по окрестностям'
+    EXTRA_HELP_CHOICES = set()
 
     class STATE(ActionPrototype.STATE):
         MOVING = 'MOVING'

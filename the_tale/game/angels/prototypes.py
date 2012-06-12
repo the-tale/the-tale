@@ -36,10 +36,9 @@ class AngelPrototype(object):
     @property
     def energy_maximum(self): return c.ANGEL_ENERGY_MAX
 
-    @property
-    def energy(self): return self.model.energy
-
     def get_energy_at_turn(self, turn_number):
+        # return 10
+        # print turn_number, self.updated_at_turn, c.ANGEL_ENERGY_REGENERATION_PERIOD
         regeneration_periods = int(turn_number - self.updated_at_turn) / c.ANGEL_ENERGY_REGENERATION_PERIOD
         return min(self.energy_maximum, self.model.energy + c.ANGEL_ENERGY_REGENERATION_AMAUNT * regeneration_periods)
 
@@ -63,6 +62,8 @@ class AngelPrototype(object):
         abilities = {}
         for ability_dict in data.values():
             ability = AbilityPrototype.deserialize(ability_dict)
+            if ability is None:
+                continue
             abilities[ability.get_type()] = ability
 
         for ability_type, ability in ABILITIES.items():
@@ -98,22 +99,22 @@ class AngelPrototype(object):
         # self.model.save(force_update=True)
         self.updated = False
 
-    def ui_info(self, ignore_actions=False, ignore_quests=False):
+    def ui_info(self, turn_number, ignore_actions=False, ignore_quests=False):
         return {'id': self.id,
                 'name': self.name,
                 'energy': { 'max': self.energy_maximum,
-                            'value': self.energy },
+                            'value': self.get_energy_at_turn(turn_number) },
                 'abilities': [ability.ui_info() for ability_type, ability in self.abilities.items()]
                 }
 
     @classmethod
     def create(cls, account, name):
-        from ..abilities import deck
+        # from ..abilities import deck
         # TODO: rewrite from create-change-save to save
         angel_model = Angel.objects.create(account=account.model, name=name, energy=c.ANGEL_ENERGY_MAX)
         angel = AngelPrototype(model=angel_model)
-        angel.abilities.update({deck.HealHero.get_type(): deck.HealHero()})
-        angel.save()
+        # angel.abilities.update({deck.Help.get_type(): deck.Help()})
+        # angel.save()
 
         return angel
 

@@ -128,3 +128,9 @@ QUEST_REWARD_ARTIFACT_FRACTION = 1 - QUEST_REWARD_MONEY_FRACTION # вероят�
 ANGEL_ENERGY_MAX = int(12) # всего энергии
 ANGEL_ENERGY_REGENERATION_PERIOD = int(2 * TURNS_IN_HOUR) # раз в сколько часов регенерируем
 ANGEL_ENERGY_REGENERATION_AMAUNT = int(1) # сколько восстанавливаем
+
+# абилки ангела
+ANGEL_HELP_HEAL_IF_LOWER_THEN = float(0.8) # можем лечить если здоровья меньше чем
+ANGEL_HELP_HEAL_FRACTION = (float(0.25), float(0.5)) # (min, max) процент хелсов, которые будут вылечины
+ANGEL_HELP_TELEPORT_DISTANCE = float(3.0) # расстяние на которое происходит телепорт
+ANGEL_HELP_LIGHTING_FRACTION = (float(0.25), float(0.5)) # (min, max) процент урона, который будет нанесён

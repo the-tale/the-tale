@@ -48,3 +48,17 @@ class ResurrectActionTest(TestCase):
         self.assertEqual(self.hero.is_alive, True)
 
         test_bundle_save(self, self.bundle)
+
+
+    def test_fast_resurrect(self):
+
+        self.action_resurrect.fast_resurrect()
+
+        self.bundle.process_turn(1)
+        self.assertEqual(len(self.bundle.actions), 1)
+        self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
+
+        self.assertEqual(self.hero.health, self.hero.max_health)
+        self.assertEqual(self.hero.is_alive, True)
+
+        test_bundle_save(self, self.bundle)

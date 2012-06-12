@@ -14,3 +14,4 @@ from game.actions.tests.action_movenear import *
 from game.actions.tests.context_battle import *
 
 from game.actions.tests.battle import *
+from game.actions.tests.general import *

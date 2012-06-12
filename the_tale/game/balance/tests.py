@@ -69,6 +69,11 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD,  2*360)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_AMAUNT, 1)
 
+        self.assertEqual(c.ANGEL_HELP_HEAL_IF_LOWER_THEN, float(0.8))
+        self.assertEqual(c.ANGEL_HELP_HEAL_FRACTION,  (float(0.25), float(0.5)))
+        self.assertEqual(c.ANGEL_HELP_TELEPORT_DISTANCE, float(3.0))
+        self.assertEqual(c.ANGEL_HELP_LIGHTING_FRACTION, (float(0.25), float(0.5)))
+
 
 class FormulasTest(TestCase):
 

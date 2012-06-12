@@ -15,7 +15,7 @@ if (!pgf.game.events) {
 }
 
 pgf.game.events.ANGEL_DATA_REFRESHED = 'pgf-angel-data-refreshed';
-pgf.game.events.ANGEL_DATA_REFRESH_NEEDED = 'pgf-angel-data-refresh-needed'
+pgf.game.events.ANGEL_DATA_REFRESH_NEEDED = 'pgf-angel-data-refresh-needed';
 
 pgf.game.AngelUpdater = function(params) {
 

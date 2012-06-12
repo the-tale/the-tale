@@ -306,6 +306,12 @@ class HeroPrototype(object):
         # print msg
         self.push_message(msg)
 
+
+    def heal(self, delta):
+        old_health = self.health
+        self.health = min(self.health + int(delta), self.max_health)
+        return self.health - old_health
+
     ###########################################
     # Object operations
     ###########################################

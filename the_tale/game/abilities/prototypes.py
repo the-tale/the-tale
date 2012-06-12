@@ -8,8 +8,6 @@ class AbilityPrototype(object):
 
     COST = None
     COOLDOWN = None
-    LIMITED = False
-    INITIAL_LIMIT = 0
 
     NAME = None
     DESCRIPTION = None
@@ -19,7 +17,6 @@ class AbilityPrototype(object):
     TEMPLATE = None
 
     def __init__(self):
-        self.limit = self.INITIAL_LIMIT
         self.available_at = None
 
     @classmethod
@@ -37,19 +34,18 @@ class AbilityPrototype(object):
 
     def serialize(self):
         return {'type': self.__class__.__name__.lower(),
-                'limit': self.limit,
                 'available_at': self.available_at}
 
     def ui_info(self):
         return {'type': self.__class__.__name__.lower(),
-                'limit': self.limit,
                 'available_at': self.available_at}
 
     @staticmethod
     def deserialize(data):
         from .deck import ABILITIES
+        if data['type'] not in ABILITIES:
+            return None
         obj = ABILITIES[data['type']]()
-        obj.limit = data.get('limit', obj.INITIAL_LIMIT)
         obj.available_at = data.get('available_at', 0)
         return obj
 
@@ -81,8 +77,7 @@ class AbilityPrototype(object):
         pass
 
     def __eq__(self, other):
-        return ( self.limit == other.limit and
-                 self.available_at == other.available_at and
+        return ( self.available_at == other.available_at and
                  self.__class__ == other.__class__ )
 
 
@@ -161,10 +156,6 @@ class AbilityTaskPrototype(object):
             self.state = ABILITY_STATE.ERROR
             return
 
-        if ability.LIMITED and not ability.limit:
-            self.state = ABILITY_STATE.ERROR
-            return
-
         if ability.available_at > turn_number:
             self.state = ABILITY_STATE.ERROR
             return
@@ -181,8 +172,5 @@ class AbilityTaskPrototype(object):
 
         self.state = ABILITY_STATE.PROCESSED
         angel.set_energy_at_turn(turn_number, energy - ability.COST)
-
-        if ability.LIMITED:
-            ability.limit -= 1
 
         ability.available_at = self.available_at
