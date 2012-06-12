@@ -30,6 +30,7 @@ class IdlenessActionTest(TestCase):
         self.assertEqual(len(self.bundle.actions), 2)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionQuestPrototype.TYPE)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
+        self.assertTrue(self.action_idl.updated)
         test_bundle_save(self, self.bundle)
 
 

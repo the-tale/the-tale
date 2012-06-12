@@ -332,6 +332,8 @@ class ActionIdlenessPrototype(ActionPrototype):
 
         self.percents = 1.0
 
+        self.updated = True
+
         return True
 
     def process(self):
@@ -445,6 +447,8 @@ class ActionMoveToPrototype(ActionPrototype):
 
         if self.percents >= 1:
             self.percents = 1
+
+        self.updated = True
 
         return True
 
@@ -596,6 +600,8 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
         self.mob.strike_by(percents)
         self.percents = 1 - self.mob.health_percents
 
+        self.updated = True
+
         return True
 
     def process(self):
@@ -663,11 +669,13 @@ class ActionResurrectPrototype(ActionPrototype):
         return cls(model=model)
 
     def fast_resurrect(self):
-        if self.state == self.STATE.RESURRECT:
-            self.percents = 1.0
-            return True
+        if self.state != self.STATE.RESURRECT:
+            return False
 
-        return False
+        self.percents = 1.0
+        self.updated = True
+        return True
+
 
     def process(self):
 

@@ -73,6 +73,7 @@ class MoveToActionTest(TestCase):
 
         self.action_move.short_teleport(self.hero.position.road.length)
         self.assertEqual(self.hero.position.percents, 1)
+        self.assertTrue(self.action_move.updated)
         self.bundle.process_turn(2)
 
         self.assertEqual(self.hero.position.place.id, self.p2.id)
