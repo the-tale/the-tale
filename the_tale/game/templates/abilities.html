@@ -2,7 +2,7 @@
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
-    widgets.abilities = new pgf.game.widgets.Abilities('#abilities-block', 
+    widgets.abilities = new pgf.game.widgets.Abilities('#abilities-block',
                                                        widgets,
                                                        {tooltipTemplate: '#pgf-ability-tooltip-template'});
 
@@ -21,12 +21,10 @@ jQuery(document).ready(function(e) {
 
 <div class="pgf-hidden ability-tooltip" id="pgf-ability-tooltip-template">
   <h6 class="name pgf-name"></h6>
+  <p class="cost">Требуется энергии: <span class="pgf-energy"></span></p>
   <ul class="requirements pgf-requirements">
     <li class="cooldown pgf-cooldown pgf-hidden"></li>
-    <li class="limited pgf-limited pgf-hidden">
-      <span class="pgf-can-use">Осталось <span class="limit-number pgf-limit-number"></span> исспользований</span>
-      <span class="pgf-limit-exceeded">Вы исспользовали все попытки</span>
-    </li>
+    <li class="energy-required pgf-energy-required pgf-hidden">недостаточно энергии</li>
   </ul>
   <p class="description pgf-description"></p>
   <p class="artistic pgf-artistic"></p>

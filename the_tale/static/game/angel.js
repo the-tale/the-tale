@@ -94,6 +94,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
     });
 
     var angelId = undefined;
+    var angelEnergy = 0;
     var deck = {};
     var turn = {};
 
@@ -106,7 +107,6 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         var abilityInfo = abilities[ability.type];
 
         if (ability.available_at > turn.number) return;
-        if (abilityInfo.limited && ability.limit == 0) return;
         
         //TODO: replace with some kind of api not related to widgets
         var currentHero = widgets.heroes.CurrentHero();
@@ -123,10 +123,9 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
 
             function OnSuccessActivation(form, data) {
                 ability.available_at = data.data.available_at;
-                ability.limit = data.data.limit;
 
                 if (ability.available_at) LockAbility(ability.type);
-                if (abilityInfo.limited && ability.limit == 0) LockAbility(ability.type);
+                if (abilityInfo.cost > angelEnergy) LockAbility(ability.type);
 
                 //TODO: replace with some kind of api not related to widgets
                 widgets.switcher.ShowMapWidget();
@@ -166,10 +165,9 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
                             data: ajax_data,
                             OnSuccess: function(data) {
                                 ability.available_at = data.data.available_at;
-                                ability.limit = data.data.limit;
 
                                 if (ability.available_at) LockAbility(ability.type);
-                                if (abilityInfo.limited && ability.limit == 0) LockAbility(ability.type);
+                                if (abilityInfo.cost > angelEnergy) LockAbility(ability.type);
 
                                 jQuery(document).trigger(pgf.game.events.ANGEL_DATA_REFRESH_NEEDED);
                                 jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
@@ -180,28 +178,24 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
     }
 
     function RenderAbilityTootltip(tooltip, ability) {
-        var abilityInfo = abilities[ability.type]
+        var abilityInfo = abilities[ability.type];
         jQuery('.pgf-name', tooltip).text(abilityInfo.name);
+        jQuery('.pgf-energy', tooltip).text(abilityInfo.cost);
         jQuery('.pgf-description', tooltip).text(abilityInfo.description);
         jQuery('.pgf-artistic', tooltip).text(abilityInfo.artistic);
 
-        if (abilityInfo.limited) {
-            jQuery('.pgf-limited', tooltip).toggleClass('pgf-hidden', false);
-            jQuery('.pgf-limited .pgf-limit-number', tooltip).text(ability.limit);
-            jQuery('.pgf-limited .pgf-can-use', tooltip).toggleClass('pgf-hidden', ability.limit==0);
-            jQuery('.pgf-limited .pgf-limit-exceeded', tooltip).toggleClass('pgf-hidden', ability.limit!=0);
-        }
+        jQuery('.pgf-energy-required', tooltip).toggleClass('pgf-hidden', abilityInfo.cost < angelEnergy);
 
         return tooltip;
     };
 
     function RenderAbility(index, ability, element) {
-        var abilityInfo = abilities[ability.type]
+        var abilityInfo = abilities[ability.type];
         jQuery('.pgf-name', element).text(abilityInfo.name);
         element.addClass( 'ability-'+abilityInfo.type.toLowerCase() );
 
         if (ability.available_at > turn.number) LockAbility(ability.type);
-        if (abilityInfo.limited && ability.limit == 0) LockAbility(ability.type);
+        if (abilityInfo.cost > angelEnergy) LockAbility(ability.type);
 
         element.click(function(e){
             // e.preventDefault();
@@ -220,6 +214,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
     function Refresh(event_data) {
         deck = event_data.angel.abilities;
         angelId = event_data.angel.id;
+        angelEnergy = event_data.angel.energy.value;
         turn = event_data.turn;
     };
 

@@ -252,17 +252,8 @@
   width: 32px;
   height: 32px;
 }
-#abilities-block .record.ability-healhero .icon {
-  background: url('../game/images/abilities.png') no-repeat scroll 0 0 transparent;
-}
-#abilities-block .record.ability-lightning .icon {
-  background: url('../game/images/abilities.png') no-repeat scroll -96px 0 transparent;
-}
-#abilities-block .record.ability-getquest .icon {
+#abilities-block .record.ability-help .icon {
   background: url('../game/images/abilities.png') no-repeat scroll -32px 0 transparent;
-}
-#abilities-block .record.ability-shortteleport .icon {
-  background: url('../game/images/abilities.png') no-repeat scroll -64px 0 transparent;
 }
 /* dialog with information about place */
 .place-info {

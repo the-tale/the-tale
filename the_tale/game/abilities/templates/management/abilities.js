@@ -21,7 +21,7 @@ pgf.game.data.abilities = {
         "name": "{{ ability.NAME }}",
         "description": "{{ ability.DESCRIPTION }}",
         "artistic": "{{ ability.ARTISTIC }}",
-        "limited": {% if ability.LIMITED %}true{% else %}false{% endif %}
+        "cost": {{ ability.COST }}
     }{%- if not loop.last -%},{%- endif -%}
     
     {% endfor %}
