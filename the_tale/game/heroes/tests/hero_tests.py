@@ -6,6 +6,8 @@ from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.artifacts.storage import ArtifactsDatabase
 from game.prototypes import TimePrototype
 
+from game.balance import formulas as f
+
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
 
 
@@ -76,3 +78,25 @@ class HeroTest(TestCase):
         self.assertEqual(self.hero.equipment.get(slot), new_artifact)
 
         test_bundle_save(self, self.bundle)
+
+
+    def test_lvl_up(self):
+        self.assertEqual(self.hero.level, 1)
+
+        self.hero.add_experience(f.exp_on_lvl(1)/2)
+        self.assertEqual(self.hero.level, 1)
+
+        self.hero.add_experience(f.exp_on_lvl(1))
+        self.assertEqual(self.hero.level, 2)
+        self.assertEqual(self.hero.experience, f.exp_on_lvl(1)/2)
+
+        self.hero.add_experience(f.exp_on_lvl(2))
+        self.assertEqual(self.hero.level, 3)
+
+        self.hero.add_experience(f.exp_on_lvl(3))
+        self.assertEqual(self.hero.level, 4)
+        self.assertEqual(self.hero.destiny_points, 1)
+
+        self.hero.add_experience(f.exp_on_lvl(4))
+        self.assertEqual(self.hero.level, 5)
+        self.assertEqual(self.hero.destiny_points, 2)

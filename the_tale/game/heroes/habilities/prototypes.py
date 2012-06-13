@@ -1,5 +1,7 @@
 #coding: utf-8
 
+from game.balance import formulas as f
+
 class ABILITY_TYPE:
     BATTLE = 1
     STATIC = 2
@@ -43,7 +45,7 @@ class AbilityPrototype(object):
         raise NotImplemented('you should declare use method in child classes')
 
 
-class Hit(AbilityPrototype):
+class HIT(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.ACTIVE
@@ -61,7 +63,7 @@ class Hit(AbilityPrototype):
         messanger.add_message('hero_ability_hit', attacker=actor, defender=enemy, damage=damage)
 
 
-class MagicMushroom(AbilityPrototype):
+class MAGIC_MUSHROOM(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.ACTIVE
@@ -80,7 +82,7 @@ class MagicMushroom(AbilityPrototype):
         messanger.add_message('hero_ability_magicmushroom', actor=actor)
 
 
-class Sidestep(AbilityPrototype):
+class SIDESTEP(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.ACTIVE
@@ -99,7 +101,7 @@ class Sidestep(AbilityPrototype):
         messanger.add_message('hero_ability_sidestep', attacker=actor, defender=enemy)
 
 
-class RunUpPush(AbilityPrototype):
+class RUN_UP_PUSH(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.ACTIVE
@@ -108,7 +110,7 @@ class RunUpPush(AbilityPrototype):
 
     NAME = u'Разбег-толчок'
     NORMALIZED_NAME = NAME
-    DESCRIPTION = u'Герой разбегается и наносит урон противнику. Существует вероятность, что противник будет оглушён и пропустит следующую атаку.'
+    DESCRIPTION = u'Герой разбегается и наносит урон противнику. Враг будет оглушён и пропустит следующую атаку.'
 
     STUN_LENGTH = 3
 
@@ -120,7 +122,7 @@ class RunUpPush(AbilityPrototype):
         messanger.add_message('hero_ability_runuppush', attacker=actor, defender=enemy, damage=damage)
 
 
-class Regeneration(AbilityPrototype):
+class REGENERATION(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.ACTIVE
@@ -131,11 +133,11 @@ class Regeneration(AbilityPrototype):
     NORMALIZED_NAME = NAME
     DESCRIPTION = u'Во время боя герой может восстановить часть своего здоровья'
 
-    RESTORED_PERCENT = 0.4
+    RESTORED_PERCENT = 0.25
 
     @classmethod
     def use(cls, messanger, actor, enemy):
-        health_to_regen = actor.max_health * cls.RESTORED_PERCENT
+        health_to_regen = f.mob_hp_to_lvl(actor.level) * cls.RESTORED_PERCENT # !!!MOB HP, NOT HERO!!!
         applied_health = actor.change_health(health_to_regen)
         messanger.add_message('hero_ability_regeneration', actor=actor, health=applied_health)
 

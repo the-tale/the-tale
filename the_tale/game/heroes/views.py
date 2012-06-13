@@ -17,7 +17,7 @@ class HeroResource(Resource):
 
         self.hero_id = int(hero_id)
 
-        if self.angel is None or self.angel.id != self.hero.angel_id:
+        if self.account is None or self.account.angel.id != self.hero.angel_id:
             raise Error(u'Вы не можете просматривать данные этого игрока')
 
 

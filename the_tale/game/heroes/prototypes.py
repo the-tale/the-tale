@@ -89,7 +89,7 @@ class HeroPrototype(object):
         while f.exp_on_lvl(self.level) <= self.model.experience:
             self.model.experience -= f.exp_on_lvl(self.level)
             self.model.level += 1
-            if self.model.level % 2:
+            if self.model.level % c.DESTINY_POINT_IN_LEVELS == 0:
                 self.model.destiny_points += 1
 
     def get_destiny_points(self): return self.model.destiny_points

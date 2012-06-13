@@ -121,6 +121,7 @@ EXP_PER_HOUR = float(BATTLES_PER_HOUR * EXP_PER_MOB)  # опыт в час ;
 QUEST_REWARD_MONEY_FRACTION = 0.5 # вероятность получения денег
 QUEST_REWARD_ARTIFACT_FRACTION = 1 - QUEST_REWARD_MONEY_FRACTION # вероятность получения артефакта
 
+DESTINY_POINT_IN_LEVELS = 5 # раз в сколько уровней давать очко абилок
 
 # параметры ангелов
 

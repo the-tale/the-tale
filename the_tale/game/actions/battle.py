@@ -20,6 +20,9 @@ class Actor(object):
     def name(self): return self.actor.name
 
     @property
+    def level(self): return self.actor.level
+
+    @property
     def normalized_name(self): return self.actor.normalized_name
 
     @property

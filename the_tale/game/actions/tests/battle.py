@@ -7,7 +7,7 @@ from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.battle import Actor
 from game.actions.contexts import BattleContext
 
-from game.heroes.habilities.prototypes import RunUpPush, Hit
+from game.heroes.habilities.prototypes import RUN_UP_PUSH, HIT
 from game.mobs.storage import MobsDatabase
 
 class ActorTest(TestCase):
@@ -24,7 +24,7 @@ class ActorTest(TestCase):
     def test_hero_actor(self):
         hero = self.bundle.tests_get_hero()
         hero.health = 10
-        hero.abilities.add(RunUpPush.get_id())
+        hero.abilities.add(RUN_UP_PUSH.get_id())
 
         actor = Actor(hero, BattleContext())
 
@@ -49,9 +49,9 @@ class ActorTest(TestCase):
         for i in xrange(100):
             ability = actor.choose_ability()
 
-            if ability.get_id() == Hit.get_id():
+            if ability.get_id() == HIT.get_id():
                hit_selected = True
-            elif ability.get_id() == RunUpPush.get_id():
+            elif ability.get_id() == RUN_UP_PUSH.get_id():
                 run_up_push_selected = True
 
         self.assertTrue(hit_selected)
@@ -64,7 +64,7 @@ class ActorTest(TestCase):
         hero = self.bundle.tests_get_hero()
         mob = MobsDatabase.storage().get_random_mob(hero)
         mob.health = 10
-        mob.abilities.add(RunUpPush.get_id())
+        mob.abilities.add(RUN_UP_PUSH.get_id())
 
         actor = Actor(mob, BattleContext())
 
@@ -89,9 +89,9 @@ class ActorTest(TestCase):
         for i in xrange(100):
             ability = actor.choose_ability()
 
-            if ability.get_id() == Hit.get_id():
+            if ability.get_id() == HIT.get_id():
                hit_selected = True
-            elif ability.get_id() == RunUpPush.get_id():
+            elif ability.get_id() == RUN_UP_PUSH.get_id():
                 run_up_push_selected = True
 
         self.assertTrue(hit_selected)

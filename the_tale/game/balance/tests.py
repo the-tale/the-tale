@@ -64,6 +64,7 @@ class ConstantsTest(TestCase):
 
         self.assertEqual(c.QUEST_REWARD_MONEY_FRACTION, 0.5)
         self.assertEqual(c.QUEST_REWARD_ARTIFACT_FRACTION, 0.5)
+        self.assertEqual(c.DESTINY_POINT_IN_LEVELS, 5)
 
         self.assertEqual(c.ANGEL_ENERGY_MAX, 12)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD,  2*360)

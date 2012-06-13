@@ -16,8 +16,8 @@ var widgets = {};
 
 jQuery(document).ready(function(e){
 
-    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?angel={{ resource.angel.id }}"});
-    angelUpdater = new pgf.game.AngelUpdater({url: "{{ url('game:angels:info', resource.angel.id) }}"});
+    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?angel={{ resource.account.angel.id }}"});
+    angelUpdater = new pgf.game.AngelUpdater({url: "{{ url('game:angels:info', resource.account.angel.id) }}"});
 
     setTimeout(function(){
         updater.Refresh();
