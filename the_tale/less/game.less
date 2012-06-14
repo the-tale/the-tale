@@ -3,19 +3,45 @@
 
 #hero-base-block {
 
+
    .record-with-progress {
+      margin: 5px 0;
+      position: relative;
+      padding-left: 20px;
+      padding-right: 5em;
+      /* heigtj: 10px; */
+      img {
+         position: absolute;
+         left: 0px;
+      }
+      .progress {
+         display: inline-block;
+         height: 8px;
+         width: 100%;
+         margin-top: 3px;
+         margin-bottom: 4px;
+      }
+      .text-values {
+         position: absolute;
+         right: 0px;
+         top: -2px;
+      }
+   }
+
+   .attribute-record {
+      display: inline-block;
+      width: 49%;
+
       img {
          vertical-align: middle;
       }
-      .progress {
-         width: 70%;
-         display: inline-block;
+
+      .value {
          vertical-align: middle;
-         height: 8px;
-         margin: 0;
       }
    }
 }
+
 
 /* .stats-bar { */
 /*     width: 100px; */
