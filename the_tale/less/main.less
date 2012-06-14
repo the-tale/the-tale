@@ -1,164 +1,34 @@
 
 @import "constants.less";
 
-@import "reset.css";
 @import "game.css";
-@import "hero_page.css";
-@import "tooltips.css";
-@import "dialog.css";
-@import "forms.css";
-@import "forum.css";
-@import "cms.css";
-@import "news.css";
+/* @import "hero_page.css"; */
+/* @import "tooltips.css"; */
+/* @import "dialog.css"; */
+/* @import "forms.css"; */
+/* @import "forum.css"; */
+/* @import "cms.css"; */
+/* @import "news.css"; */
 
-@font-face {
-	font-family: ObelixProB;
-	src: url('../fonts/ObelixProB-cyr.ttf');
-}
+body {
+   padding-top: 50px;
 
-a {
-    text-decoration: none;
-    color: #0000cc;
-
-    &:hover {
-        text-decoration: underline;
-        color: #0000cc;
-    }
-}
-
-ol {
-    /* list-style: decimal inside none; */
-}
-
-ul {
-    /* list-style: disc outside none; */
-}
-
-h1 { font-size: 18pt;
-}
-
-dl {
-   margin-top: 0.5em;
-   margin-bottom: 0.5em;
-
-   dt {
-       margin-top: 1em;
-       font-weight: bold;
+   div.block {
+      background-color: whiteSmoke;
+      border: 1px solid #CCC;
+      border-radius: 8px;
+      padding: 0.75em;
+      /* margin-left: 10px; */
+      margin-top: 0;
+      margin-bottom: 10px;
    }
 
-   dd {
-       margin-top: 0.5em;
-       padding-left: 2em;
+   hr {
+      border-top-color: #CCC;
+      margin: 0;
    }
-}
 
-p {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-}
-
-blockquote {
-    border: 2px dotted @border-color;
-    background-color: @border-color + #111;
-    padding: 0.25em;
-    border-radius: 4px;
-}
-
-table {
-   margin: 0.5em;
-
-   tr {
-
-      td {
-         padding: 0.25em;
-         border: 1px solid black;
-      }
+   .progress {
+      border: 1px solid gray;
    }
-}
-
-html {
-
-    background-color: @background-color;
-    background-image: url(../images/background.svg);
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    background-position: center 0;
-    background-attachment: fixed;
-    background-size: 100%;
-
-    font-family: Arial, Helvetica, sans-serif;
-
-
-
-    #content {
-        position: relative;
-        margin: 0 auto;
-        width: @content-width;
-    }
-}
-
-.block {
-    background: @background-color;
-    padding: 0.25em;
-    margin: 5px;
-    border: 3px @border-color solid;
-    border-radius: 8px;
-}
-
-.icon {
-    vertical-align: middle;
-}
-
-.info {
-    padding: 5px;
-    margin: 2px;
-    border: 2px solid #00f;
-    background-color: #abf;
-    border-radius: 4px;
-}
-
-.left { text-align: left;}
-.right { text-align: righ;}
-.center { text-align: center;}
-
-#top-panel {
-
-    height: 1em;
-    background-color: @border-color;
-
-    #top-panel-content {
-
-        width: @content-width;
-        margin: 0 auto;
-
-        .user-links {
-            float: right;
-        }
-    }
-}
-
-#main-navigation {
-    font-size: 26px;/* !important;*/
-    color: white;
-    font-family: ObelixProB;
-
-    margin-top: 10px;
-    padding-bottom: 0.1em;
-
-    height: 26px;
-
-    a {
-        color: #F0F0F0;
-        text-decoration: none;
-        margin-right: 0.25em;
-        /* text-shadow: black 0 -1px 0; */
-
-        &:hover {
-            color: #FFCC00;
-        }
-    }
-
-    .navigation-links {
-        float: left;
-    }
 }

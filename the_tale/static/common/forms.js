@@ -210,6 +210,8 @@ pgf.forms.Post = function(params) {
         return;
     }
 
+    if (!('wait' in params)) params.wait = true;
+
     function OnSuccess(data, request, status) {
         if (data.status == 'ok') {
             if (params.OnSuccess) {
@@ -235,7 +237,10 @@ pgf.forms.Post = function(params) {
         }
 
         if (data.status == 'processing') {
-            pgf.ui.dialog.wait("start");
+            if (params.wait) {
+                pgf.ui.dialog.wait("start");                
+            }
+
             setTimeout(function() {
                 jQuery.ajax({dataType: 'json',
                              type: 'get',
@@ -257,10 +262,14 @@ pgf.forms.Post = function(params) {
     }
 
     function OnComplete() {
-        pgf.ui.dialog.wait("stop");
+        if (params.wait) {
+            pgf.ui.dialog.wait("stop");
+        }
     }
 
-    pgf.ui.dialog.wait("start");
+    if (params.wait) {
+        pgf.ui.dialog.wait("start");
+    }
     jQuery.ajax({
         dataType: 'json',
         type: 'post',

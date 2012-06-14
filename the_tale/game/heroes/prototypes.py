@@ -45,6 +45,7 @@ class HeroPrototype(object):
     def __init__(self, model=None):
         self.model = model
         self.messages_updated = False
+        self.diary_updated = False
 
 
     def get_is_alive(self): return self.model.alive
@@ -283,13 +284,25 @@ class HeroPrototype(object):
             self._messages = s11n.from_json(self.model.messages)
         return self._messages
 
-    def push_message(self, msg):
+    @property
+    def diary(self):
+        if not hasattr(self, '_diary'):
+            self._diary = s11n.from_json(self.model.diary)
+        return self._diary
+
+    def push_message(self, msg, important=False):
         self.messages_updated = True
         self.messages.append(msg)
         if len(self.messages) > heroes_settings.MESSAGES_LOG_LENGTH:
             self.messages.pop(0)
 
-    def add_message(self, type_, **kwargs):
+        if important:
+            self.diary_updated = True
+            self.diary.append(msg)
+            if len(self.diary) > heroes_settings.MESSAGES_LOG_LENGTH:
+                self.diary.pop(0)
+
+    def add_message(self, type_, important=False, **kwargs):
         args = {}
         for k, v in kwargs.items():
             if isinstance(v, (FakeWord, numbers.Number)):
@@ -304,7 +317,7 @@ class HeroPrototype(object):
             # raise TextgenException(u'ERROR: unknown template type: %s' % type_)
         msg = template.substitute(get_dictionary(), args)
         # print msg
-        self.push_message(msg)
+        self.push_message(msg, important=important)
 
 
     def heal(self, delta):
@@ -338,6 +351,10 @@ class HeroPrototype(object):
             self.model.messages = s11n.to_json(self.messages)
             self.messages_updated = False
 
+        if self.diary_updated:
+            self.model.diary = s11n.to_json(self.diary)
+            self.diary_updated = False
+
         database.raw_save(self.model)
 
 
@@ -369,6 +386,7 @@ class HeroPrototype(object):
                 'angel': self.angel_id,
                 'actions': [ action.ui_info() for action in self.get_actions() ] if not ignore_actions else [],
                 'messages': self.messages,
+                'diary': self.diary,
                 'position': self.position.ui_info(),
                 'alive': self.is_alive,
                 'bag': self.bag.ui_info(),

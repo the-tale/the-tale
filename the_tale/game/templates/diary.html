@@ -2,14 +2,14 @@
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
-    widgets.log = new pgf.game.widgets.Log('#log-block',
+    widgets.diary = new pgf.game.widgets.Log('#diary-block',
                                                updater, widgets,
-                                               {messagesAttribute: 'messages'} );
+                                               {messagesAttribute: 'diary'} );
 
 });
 </script>
 
-<div id="log-block" class="block">
+<div id="diary-block">
   <ul class="unstyled pgf-log-list">
     <li class="pgf-template log-record">
       <div class="dash">&ndash;</div> <div class="pgf-message message"></div>

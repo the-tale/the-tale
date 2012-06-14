@@ -1,0 +1,34 @@
+
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    widgets.quest = new pgf.game.widgets.Quest('#current-quest-block',
+                                               updater, widgets,
+                                               { } );
+
+
+});
+</script>
+
+<div id="current-quest-block" class="block">
+
+  <div class="quest pgf-current-quests-block">
+
+    <div class="pgf-current-quest">
+      <div class="quest-record">
+        <img class="quest-icon pgf-quest-icon"></img>
+        <span class="pgf-quest-description"></span><br/>
+      </div>
+      <small class="pgf-quest-action-description" style="color: #999; margin-bottom: 5px; display: inline-block;"></small>
+    </div>
+
+  </div>
+
+  <hr/>
+
+  <div class="pgf-quest-choices">
+    <div class="pgf-hidden pgf-no-choices">Сейчас поступки героя определены, повлиять на них нельзя</div>
+    <div class="pgf-hidden pgf-choices"></div>
+  </div>
+
+</div>

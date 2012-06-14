@@ -36,6 +36,7 @@ class Hero(models.Model):
     abilities = models.TextField(null=False, default='[]')
 
     messages = models.TextField(null=False, default='[]')
+    diary = models.TextField(null=False, default='[]')
 
     next_spending = models.IntegerField(null=False, default=ITEMS_OF_EXPENDITURE.USELESS)
 

@@ -20,7 +20,6 @@ jQuery(document).ready(function(e){
     {% if angel %}
     updater = new pgf.game.Updater({url: "{{ url('game:info') }}?angel={{ angel.id }}"});
     angelUpdater = new pgf.game.AngelUpdater({url: "{{ url('game:angels:info', angel.id) }}"});
-    widgets.switcher = new pgf.game.widgets.WidgetSwitcher();
     {% else %}
     updater = new pgf.game.Updater({url: "{{ url('game:info') }}"});
     {% endif %}
@@ -38,7 +37,8 @@ jQuery(document).ready(function(e){
         pgf.forms.Post({ action: "{{ url('game:next_turn') }}",
                          OnSuccess: function(e){
                              DoTurns(number-1);
-                         }
+                         },
+                         wait: false
                        });
     }
 
@@ -83,6 +83,10 @@ jQuery(document).ready(function(e){
     {% if not settings.DEBUG %}
     setInterval(RefreshData, {{ game_settings.TURN_DELAY*1000 }} );
     {% endif %}
+
+    jQuery('.pgf-journal-tab-button').tab('show');
+    jQuery('.pgf-diary-tab-button').tab('show');
+
 });
 
 </script>
@@ -97,48 +101,70 @@ jQuery(document).ready(function(e){
 <li><a href="#" class="pgf-next-10000-turns">10000 turns</a></li>
 {% endblock %}
 
-
 {% block content %}
 
-<div id="game-page-content">
-
-  <div id="left-column" class="column">
-    {% if angel %}
-
+<div class="row">
+  <div class="span3">
     {% include "heroes/hero_short.html" %}
-    {% include "heroes/hero_equipment.html" %}
-    {% include "heroes/hero_bag.html" %}
-
-    {% endif %}
   </div>
+  <div class="span5">
+    {% include "game/current_action.html" %}
+  </div>
+  <div class="span4">
+    {% include "game/current_quest.html" %}
+  </div>
+</div>
 
-  <div id="center-column" class="column">
-    {% if angel %}
+<div class="row">
 
-    {% include "game/current-actions.html" %}
-    {% include "game/activate_ability.html" %}
+  <div class="span8">
 
-    {% else %}
+    <ul class="nav nav-tabs pull-right">
+      <li><a href="#pgf-map-container" class="pgf-map-tab-button" data-toggle="tab">карта</a></li>
+      <li><a href="#pgf-journal-container" class="pgf-journal-tab-button" data-toggle="tab">журнал</a></li>
+    </ul>
 
-    <div id="login-required-block" class="block">
-      Вам необходимо <a href="{{ url('accounts:login') }}">войти</a> (или <a href="{{ url('accounts:fast_registration') }}" class="pgf-fast-registration">начать игру <strong>без регистрации</strong></a>), </br>
-      чтобы увидеть информацию о своём герое.
+    <div class="row tab-content">
+      <div class="tab-pane" id="pgf-journal-container">
+
+        <div class="span3">
+            <div class="block">
+              {% include "heroes/hero_equipment.html" %}
+            </div>
+            <div class="block">
+              {% include "heroes/hero_bag.html" %}
+            </div>
+        </div>
+
+        <div class="span5">
+          {% include "game/log.html" %}
+        </div>
+      </div>
+
+      <div class="tab-pane span8" id="pgf-map-container">
+        {% include "game/map.html" %}
+      </div>
+
     </div>
 
-    {% endif %}
-
-    {% include "game/map.html" %}
   </div>
 
-  <div id="right-column" class="column">
-    {% include "game/time.html" %}
+  <div class="span4">
+    <ul class="nav nav-tabs">
+      <li><a href="#pgf-diary-container" class="pgf-diary-tab-button" data-toggle="tab">дневник</a></li>
+      <li><a href="#pgf-quests-container" class="pgf-quests-tab-button" data-toggle="tab">задания</a></li>
+    </ul>
 
-    {% if angel %}
+    <div class="tab-content">
+      <div class="tab-pane block" id="pgf-diary-container">
+          {% include "game/diary.html" %}
+      </div>
 
-    {% include "game/abilities.html" %}
-    {% include "game/log.html" %}
+      <div class="tab-pane block" id="pgf-quests-container">
+        {% include "game/quests_line.html" %}
+      </div>
+    </div>
 
-    {% endif %}
   </div>
 
 </div>

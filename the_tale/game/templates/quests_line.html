@@ -1,0 +1,26 @@
+
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    widgets.quests_line = new pgf.game.widgets.QuestsLine('#quests-line-block',
+                                                     updater, widgets,
+                                                     { } );
+
+
+});
+</script>
+
+<div id="quests-line-block">
+
+  <ul class="unstyled pgf-quests-line-container">
+    <li class="pgf-template quest-record">
+      <img class="quest-icon pgf-quest-icon" align='left'></img>
+      <span class="pgf-quest-description"></span>
+    </li>
+  </ul>
+
+  <div class="pgf-no-quests-message pgf-hidden">
+    Сейчас герой не выполняет задания
+  </div>
+
+</div>

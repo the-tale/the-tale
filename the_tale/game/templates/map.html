@@ -25,14 +25,14 @@ jQuery(document).ready(function(e) {
 });
 </script>
 
-<div id="map-block" class="block">
-  {% if resource.angel %}
-  <div class="block commands">
+<div style="position: relative;" class="block">
+  {% if resource.account.angel %}
+  <div class="" style="position: absolute; right: 0; top: 0; z-index: 1001; background-color: whiteSmoke; margin: 2px;">
     <a href="#" class="pgf-center-on-hero">найти героя</a>
   </div>
   {% endif %}
   <div id="pgf-game-map">
     <div class="pgf-navigation-layer"></div>
-    <canvas class="map-canvas pgf-map-canvas" width="565" height="565"></canvas>
+    <canvas class="pgf-map-canvas"></canvas>
   </div>
 </div>

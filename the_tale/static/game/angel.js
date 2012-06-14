@@ -59,7 +59,7 @@ pgf.game.widgets.Angel = function(selector, params) {
         jQuery('.pgf-energy', content).text(data.energy.value);
         jQuery('.pgf-max-energy', content).text(data.energy.max);
 
-        pgf.base.UpdateStatsBar(jQuery('.pgf-energy-bar', content), data.energy.max, data.energy.value);
+        jQuery('.pgf-energy-percents', content).width( (100 * data.energy.value / data.energy.max) + '%');
     };
 
     function Refresh(angel_data) {
@@ -177,38 +177,22 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         
     }
 
-    function RenderAbilityTootltip(tooltip, ability) {
+    function RenderAbility(ability) {
+
         var abilityInfo = abilities[ability.type];
-        jQuery('.pgf-name', tooltip).text(abilityInfo.name);
-        jQuery('.pgf-energy', tooltip).text(abilityInfo.cost);
-        jQuery('.pgf-description', tooltip).text(abilityInfo.description);
-        jQuery('.pgf-artistic', tooltip).text(abilityInfo.artistic);
-
-        jQuery('.pgf-energy-required', tooltip).toggleClass('pgf-hidden', abilityInfo.cost < angelEnergy);
-
-        return tooltip;
-    };
-
-    function RenderAbility(index, ability, element) {
-        var abilityInfo = abilities[ability.type];
-        jQuery('.pgf-name', element).text(abilityInfo.name);
-        element.addClass( 'ability-'+abilityInfo.type.toLowerCase() );
+        var element = jQuery('.pgf-ability-'+abilityInfo.type.toLowerCase());
 
         if (ability.available_at > turn.number) LockAbility(ability.type);
         if (abilityInfo.cost > angelEnergy) LockAbility(ability.type);
 
         element.click(function(e){
-            // e.preventDefault();
+            e.preventDefault();                          
             ActivateAbility(ability);
         });
-
-        var tooltipContainer = jQuery('.pgf-tooltip-container', element);
-        var tooltip = tooltipTemplate.clone().removeClass('pgf-hidden');
-        tooltipContainer.html(RenderAbilityTootltip(tooltip, ability));
     }
 
     function RenderDeck() {
-        pgf.base.RenderTemplateList(deckContainer, deck, RenderAbility, {});
+        RenderAbility(deck[0]);
     };
 
     function Refresh(event_data) {

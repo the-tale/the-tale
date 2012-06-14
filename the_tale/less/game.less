@@ -1,415 +1,309 @@
 
 @import "constants.less";
 
-@side-column-width: 200px;
-@center-column-width: @content-width - @side-column-width * 2 - 10;
-
-.stats-bar {
-    width: 100px;
-    height: 5px;
-    position: relative;
-    background: #F0F0F0;
-    border: 1px solid black;
-    display: inline-block;
-
-    .layer {
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        height: 5px;
-    }
-    .layer-0 {
-        background: #F0F0F0;
-    }
-    .layer-1 {
-        background: #90FF90;
-    }
-}
-
-
-#game-page-content {
-
-    .column {
-        display: inline-block;
-        vertical-align: top;
-    }
-
-    #left-column {
-        width: @side-column-width;
-    }
-
-    #right-column {
-        width: @side-column-width;
-    }
-
-    #center-column {
-        width: @center-column-width;
-    }
-}
-
 #hero-base-block {
 
-    .bar {
-
-        font-size: 11px;
-
-        .stats-bar {
-            .layer-0 {
-                background: @background-color;
-            }
-        }
-
-        &.health-bar {
-            .layer-1 {
-                background: #ff0000;
-            }
-        }
-
-        &.experience-bar {
-            .layer-1 {
-                background: yellow;
-            }
-        }
-
-        &.energy-bar {
-            .layer-1 {
-                background: #0000ff;
-            }
-        }
-    }
-
-    .stats-left {
-        width: 70px;
-        margin-right: 10px;
-        display: inline-block;
-    }
-
-    .stats-right {
-        width: 80px;
-        display: inline-block;
-    }
-
-    .record {
-        margin-top: 5px;
-        cursor: default;
-        position: relative;
-
-        .value {
-            position: absolute;
-            right: 0;
-        }
-
-        &:hover {
-            background: @hover-color;
-        }
-    }
+   .record-with-progress {
+      img {
+         vertical-align: middle;
+      }
+      .progress {
+         width: 70%;
+         display: inline-block;
+         vertical-align: middle;
+         height: 8px;
+         margin: 0;
+      }
+   }
 }
 
-#hero-equipment-block {
+/* .stats-bar { */
+/*     width: 100px; */
+/*     height: 5px; */
+/*     position: relative; */
+/*     background: #F0F0F0; */
+/*     border: 1px solid black; */
+/*     display: inline-block; */
 
-    .record {
-        margin-top: 5px;
-        cursor: default;
+/*     .layer { */
+/*         position: absolute; */
+/*         left: 0; */
+/*         top: 0; */
+/*         height: 100%; */
+/*         height: 5px; */
+/*     } */
+/*     .layer-0 { */
+/*         background: #F0F0F0; */
+/*     } */
+/*     .layer-1 { */
+/*         background: #90FF90; */
+/*     } */
+/* } */
 
-        &:hover {
-            background: @hover-color;
-        }
 
-        .name {
-            font-size: 10pt;
-            margin-left: 0.25em;
-        }
+/* #game-page-content { */
 
-        .power-container {
-            float: right;
+/*     .column { */
+/*         display: inline-block; */
+/*         vertical-align: top; */
+/*     } */
 
-            .power {
+/*     #left-column { */
+/*         width: @side-column-width; */
+/*     } */
 
-            }
-        }
-    }
+/*     #right-column { */
+/*         width: @side-column-width; */
+/*     } */
+
+/*     #center-column { */
+/*         width: @center-column-width; */
+/*     } */
+/* } */
+
+
+
+/* #hero-equipment-block { */
+
+/*     .record { */
+/*         margin-top: 5px; */
+/*         cursor: default; */
+
+/*         &:hover { */
+/*             background: @hover-color; */
+/*         } */
+
+/*         .name { */
+/*             font-size: 10pt; */
+/*             margin-left: 0.25em; */
+/*         } */
+
+/*         .power-container { */
+/*             float: right; */
+
+/*             .power { */
+
+/*             } */
+/*         } */
+/*     } */
+/* } */
+
+/* #login-required-block { */
+/*     text-align: center; */
+/*     font-weight: bold; */
+/* } */
+
+/* #hero-bag-block { */
+
+/*     h4 { */
+/*         font-size: 11pt; */
+/*     } */
+
+/*     h5 { */
+/*         font-size: 10pt; */
+/*         margin-top: 0.5em; */
+/*         margin-bottom: 0.5em; */
+/*     } */
+
+/*     .record { */
+
+/*         cursor: default; */
+
+/*         &:hover { */
+/*             background: @hover-color; */
+/*         } */
+
+/*         .name { */
+/*             font-size: 9pt; */
+/*         } */
+/*     } */
+/* } */
+
+/* #time-block { */
+
+/*     font-size: 8pt; */
+/*     height: 34px; */
+
+/*     .time { */
+/*         display: inline-block; */
+/*         float: right; */
+
+/*         .value { */
+/*             vertical-align: middle; */
+/*             display: inline-block; */
+/*             text-align: right; */
+/*         } */
+
+/*         .time-icon { */
+/*             display: inline-block; */
+/*             width: 32px; */
+/*             height: 32px; */
+/*             vertical-align: middle; */
+
+/*             &.sunrise { */
+/*                 background: url('../game/images/time.png') no-repeat scroll 0 0 transparent; */
+/*             } */
+
+/*             &.sunset { */
+/*                 background: url('../game/images/time.png') no-repeat scroll 0 -32px transparent; */
+/*             } */
+
+/*             &.midnight { */
+/*                 background: url('../game/images/time.png') no-repeat scroll -32px -32px transparent; */
+/*             } */
+
+/*             &.noon { */
+/*                 background: url('../game/images/time.png') no-repeat scroll -32px 0 transparent; */
+/*             } */
+/*         } */
+/*     } */
+/* } */
+
+.quest-icon {
+   width: 64px;
+   height: 64px;
+   float: left;
+   margin-right: 5px;
+   margin-bottom: 5px;
+
+   &.helpline {
+      background: url('../game/images/quests.png') no-repeat scroll 0 0 transparent;
+   }
+
+   &.deliveryline {
+      background: url('../game/images/quests.png') no-repeat scroll -64px 0 transparent;
+   }
+
+   &.spyingline {
+      background: url('../game/images/quests.png') no-repeat scroll -128px 0 transparent;
+   }
+
+   &.notmyworkline {
+      background: url('../game/images/quests.png') no-repeat scroll -192px 0 transparent;
+   }
+
+   &.caravanline {
+      background: url('../game/images/quests.png') no-repeat scroll -256px 0 transparent;
+   }
 }
 
-#login-required-block {
-    text-align: center;
-    font-weight: bold;
+.quest-record {
+   min-height: 64px + 5px;
 }
 
-#hero-bag-block {
+.log-record {
+   margin: 0.75em 0;
 
-    h4 {
-        font-size: 11pt;
-    }
+   .dash {
+      float: left;
+      margin: 0 3px;
+   }
 
-    h5 {
-        font-size: 10pt;
-        margin-top: 0.5em;
-        margin-bottom: 0.5em;
-    }
-
-    .record {
-
-        cursor: default;
-
-        &:hover {
-            background: @hover-color;
-        }
-
-        .name {
-            font-size: 9pt;
-        }
-    }
-}
-
-#time-block {
-
-    font-size: 8pt;
-    height: 34px;
-
-    .time {
-        display: inline-block;
-        float: right;
-
-        .value {
-            vertical-align: middle;
-            display: inline-block;
-            text-align: right;
-        }
-
-        .time-icon {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            vertical-align: middle;
-
-            &.sunrise {
-                background: url('../game/images/time.png') no-repeat scroll 0 0 transparent;
-            }
-
-            &.sunset {
-                background: url('../game/images/time.png') no-repeat scroll 0 -32px transparent;
-            }
-
-            &.midnight {
-                background: url('../game/images/time.png') no-repeat scroll -32px -32px transparent;
-            }
-
-            &.noon {
-                background: url('../game/images/time.png') no-repeat scroll -32px 0 transparent;
-            }
-        }
-    }
-}
-
-#current-actions-block {
-
-    font-size: 10pt;
-
-    .current-action-block {
-
-        display: inline-block;
-        width: 200px;
-        border-right: 3px @border-color solid;
-
-        .action-description {
-
-            padding-bottom: 0.25em;
-            margin-bottom: 0.25em;
-
-            h3 {
-                font-size: 11pt;
-            }
-
-            .action-progress {
-                .stats-bar {
-                    width: 190px;
-                    .layer-0 {
-                        background: @background-color;
-                    }
-                    .layer-1 {
-                        background: #00ff00;
-                    }
-                }
-            }
-        }
-
-        .action-info {
-            border-top: 3px @border-color solid;
-        }
-    }
-
-    .current-quests-block {
-        display: inline-block;
-        vertical-align: top;
-        width: @center-column-width - 200px - 30px;
-
-        .quests-progress {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            vertical-align: top;
-        }
-
-        .quests-line {
-            display: inline-block;
-            vertical-align: top;
-
-            .quest-line-element {
-                display: inline-block;
-                margin-left: 3px;
-
-                .quest-icon {
-                    display: inline-block;
-                    width: 32px;
-                    height: 32px;
-
-                    &.helpline {
-                        background: url('../game/images/quests.png') no-repeat scroll 0 0 transparent;
-                    }
-
-                    &.deliveryline {
-                        background: url('../game/images/quests.png') no-repeat scroll -32px 0 transparent;
-                    }
-
-                    &.spyingline {
-                        background: url('../game/images/quests.png') no-repeat scroll -64px 0 transparent;
-                    }
-
-                    &.notmyworkline {
-                        background: url('../game/images/quests.png') no-repeat scroll -96px 0 transparent;
-                    }
-
-                    &.caravanline {
-                        background: url('../game/images/quests.png') no-repeat scroll -128px 0 transparent;
-                    }
-                }
-
-                .action-icon {
-                    display: inline-block;
-                    width: 24px;
-                    height: 24px;
-
-                    &.move {
-                        background: url('../game/images/actions.png') no-repeat scroll 0 0 transparent;
-                    }
-                    &.movenear {
-                        background: url('../game/images/actions.png') no-repeat scroll 0 0 transparent;
-                    }
-                    &.battle {
-                        background: url('../game/images/actions.png') no-repeat scroll -24px 0 transparent;
-                    }
-                }
-            }
-        }
-
-        .quest-choices {
-
-            border-top: 3px @border-color solid;
-
-        }
-    }
-}
-
-#log-block {
-    height: 35em;
-
-    .message {
-        font-size: 10pt;
-        margin-bottom: 0.5em;
-    }
-}
-
-#map-block {
-
-    position: relative;
-
-    .commands {
-        position: absolute;
-        right: 0;
-        top: 0;
-        z-index: 1001;
-    }
-
-    .map-canvas {
-    }
+   .message {
+      margin-left: 1.6em;
+   }
 }
 
 
+/* #log-block { */
+/*     height: 35em; */
 
-#abilities-block {
+/*     .message { */
+/*         font-size: 10pt; */
+/*         margin-bottom: 0.5em; */
+/*     } */
+/* } */
 
-    .record {
+/* #map-block { */
 
-        font-size: 11pt;
-        cursor: default;
-        margin-bottom: 2px;
+/*     position: relative; */
 
-        &:hover {
-            background: @hover-color;
-        }
+/*     .commands { */
+/*         position: absolute; */
+/*         right: 0; */
+/*         top: 0; */
+/*         z-index: 1001; */
+/*     } */
 
-        &.cooldown {
-            background: #A0C0E0;
-        }
-        &:hover.cooldown {
-            background: #90B0D0;
-        }
+/*     .map-canvas { */
+/*     } */
+/* } */
 
-        .icon {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-        }
 
-        &.ability-help .icon{
-            background: url('../game/images/abilities.png') no-repeat scroll -32px 0 transparent;
-        }
-    }
-}
 
-/* dialog with information about place */
-.place-info {
+/* #abilities-block { */
 
-    max-width: 400px;
+/*     .record { */
 
-    .description {
+/*         font-size: 11pt; */
+/*         cursor: default; */
+/*         margin-bottom: 2px; */
 
-        min-height: 64px;
-        position: relative;
+/*         &:hover { */
+/*             background: @hover-color; */
+/*         } */
 
-        img {
-            position: absolute;
-            left: 0px;
-            top: 0px;
-        }
+/*         &.cooldown { */
+/*             background: #A0C0E0; */
+/*         } */
+/*         &:hover.cooldown { */
+/*             background: #90B0D0; */
+/*         } */
 
-        p {
-            padding-left: 64px;
-        }
+/*         .icon { */
+/*             display: inline-block; */
+/*             width: 32px; */
+/*             height: 32px; */
+/*         } */
 
-        margin-bottom: 1em;
-    }
+/*         &.ability-help .icon{ */
+/*             background: url('../game/images/abilities.png') no-repeat scroll -32px 0 transparent; */
+/*         } */
+/*     } */
+/* } */
 
-    .characters-list {
+/* /\* dialog with information about place *\/ */
+/* .place-info { */
 
-        li {
-            min-height: 32px;
-            margin-top: 1em;
+/*     max-width: 400px; */
 
-            img {
-                padding: 2px;
-                float: left;
-            }
+/*     .description { */
 
-            .power-bar {
-                background: yellow;
+/*         min-height: 64px; */
+/*         position: relative; */
 
-                .layer-0 {
-                    background: orange;
-                }
-            }
-        }
-    }
+/*         img { */
+/*             position: absolute; */
+/*             left: 0px; */
+/*             top: 0px; */
+/*         } */
 
-}
+/*         p { */
+/*             padding-left: 64px; */
+/*         } */
+
+/*         margin-bottom: 1em; */
+/*     } */
+
+/*     .characters-list { */
+
+/*         li { */
+/*             min-height: 32px; */
+/*             margin-top: 1em; */
+
+/*             img { */
+/*                 padding: 2px; */
+/*                 float: left; */
+/*             } */
+
+/*             .power-bar { */
+/*                 background: yellow; */
+
+/*                 .layer-0 { */
+/*                     background: orange; */
+/*                 } */
+/*             } */
+/*         } */
+/*     } */
+
+/* } */

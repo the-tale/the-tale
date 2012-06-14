@@ -13,7 +13,7 @@ pgf.base.RenderTemplateList = function(selector, data, newElementCallback, param
     var template = jQuery('.pgf-template', container).eq(0);
     var emptyTemplate = jQuery('.pgf-empty-template', container).eq(0);
 
-    pgf.tooltips.Hide(container);
+    // pgf.tooltips.Hide(container);
 
     container.children().not('.pgf-template').not('.pgf-empty-template').remove();
 
@@ -32,7 +32,7 @@ pgf.base.RenderTemplateList = function(selector, data, newElementCallback, param
         }
     }
 
-    pgf.tooltips.Refresh(container);
+    // pgf.tooltips.Refresh(container);
 
 };
 

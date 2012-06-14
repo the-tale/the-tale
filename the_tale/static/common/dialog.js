@@ -149,5 +149,5 @@ pgf.ui.dialog.wait = function(command) {
         pgf.ui.dialog._wait_dialog.dialog("close");
     }
 
-    
-}
+   
+};

@@ -616,7 +616,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
             if self.hero.health <= 0:
                 self.hero.kill()
                 self.hero.statistics.change_pve_deaths(1)
-                self.hero.add_message('action_battlepve1x1_hero_killed', hero=self.hero, mob=self.mob)
+                self.hero.add_message('action_battlepve1x1_hero_killed', important=True, hero=self.hero, mob=self.mob)
                 self.state = self.STATE.PROCESSED
                 self.percents = 1.0
 
@@ -738,7 +738,7 @@ class ActionInPlacePrototype(ActionPrototype):
             if coins is not None:
                 self.hero.statistics.change_money_spend_for_heal(coins)
                 self.hero.health = self.hero.max_health
-                self.hero.add_message('action_instant_heal', hero=self.hero, coins=coins)
+                self.hero.add_message('action_instant_heal', important=True, hero=self.hero, coins=coins)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level))
@@ -747,7 +747,7 @@ class ActionInPlacePrototype(ActionPrototype):
                 artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
                 self.hero.bag.put_artifact(artifact)
                 self.hero.statistics.change_artifacts_had(1)
-                self.hero.add_message('buying_artifact', hero=self.hero, coins=coins, artifact=artifact)
+                self.hero.add_message('buying_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
             coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level))
@@ -760,13 +760,13 @@ class ActionInPlacePrototype(ActionPrototype):
                         # sharpening artefact
                         artifact.power += 1
                         self.hero.equipment.updated = True
-                        self.hero.add_message('sharpening_artifact', hero=self.hero, coins=coins, artifact=artifact)
+                        self.hero.add_message('sharpening_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.USELESS:
             coins = self.try_to_spend_money(f.useless_price(self.hero.level))
             if coins is not None:
                 self.hero.statistics.change_money_spend_for_useless(coins)
-                self.hero.add_message('action_spend_useless', hero=self.hero, coins=coins)
+                self.hero.add_message('action_spend_useless', important=True, hero=self.hero, coins=coins)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.IMPACT:
             coins = self.try_to_spend_money(f.impact_price(self.hero.level))
@@ -776,10 +776,10 @@ class ActionInPlacePrototype(ActionPrototype):
                 person = random.choice(self.hero.position.place.persons)
                 if random.choice([True, False]):
                     workers_environment.highlevel.cmd_change_person_power(person.id, impact)
-                    self.hero.add_message('action_impact_good', hero=self.hero, coins=coins, person=person)
+                    self.hero.add_message('action_impact_good', important=True, hero=self.hero, coins=coins, person=person)
                 else:
                     workers_environment.highlevel.cmd_change_person_power(person.id, -impact)
-                    self.hero.add_message('action_impact_bad', hero=self.hero, coins=coins, person=person)
+                    self.hero.add_message('action_impact_bad', important=True, hero=self.hero, coins=coins, person=person)
 
         else:
             raise ActionException('wrong hero money spend type: %d' % self.hero.next_spending)
@@ -883,9 +883,9 @@ class ActionEquippingPrototype(ActionPrototype):
             self.hero.change_equipment(slot, unequipped, equipped)
             if equipped:
                 if unequipped:
-                    self.hero.add_message('action_equiping_change_item', hero=self.hero, unequipped=unequipped, equipped=equipped)
+                    self.hero.add_message('action_equiping_change_item', important=True, hero=self.hero, unequipped=unequipped, equipped=equipped)
                 else:
-                    self.hero.add_message('action_equiping_equip_item', hero=self.hero, equipped=equipped)
+                    self.hero.add_message('action_equiping_equip_item', important=True, hero=self.hero, equipped=equipped)
             else:
                 self.state = self.STATE.PROCESSED
 

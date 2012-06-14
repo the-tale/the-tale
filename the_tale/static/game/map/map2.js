@@ -220,8 +220,17 @@ pgf.game.map.Map = function(selector, params) {
     var map = jQuery(selector);
     var canvas = jQuery('.pgf-map-canvas', selector);
 
-    var canvasWidth = canvas.width();
-    var canvasHeight = canvas.height();
+    // var canvasWidth = canvas.width();
+    // var canvasHeight = canvas.height();
+
+    var canvasWidth = jQuery('#pgf-map-container').width();
+    var canvasHeight = 550; //jQuery('#pgf-map-container').height();
+
+    canvas.get(0).width = canvasWidth;
+    canvas.get(0).height = canvasHeight;
+
+    // var canvasWidth = canvas.context.width;
+    // var canvasHeight = canvas.context.height;
 
     map.css({width: canvasWidth,
              height: canvasHeight });

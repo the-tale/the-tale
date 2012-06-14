@@ -1,0 +1,53 @@
+
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    widgets.actions = new pgf.game.widgets.Action('#current-action-block',
+                                                   updater, widgets,
+                                                   { } );
+
+    widgets.abilities = new pgf.game.widgets.Abilities('#abilities-block',
+                                                       widgets,
+                                                       {tooltipTemplate: '#pgf-ability-tooltip-template'});
+
+
+});
+</script>
+
+<div id="current-action-block" class="block">
+
+  <strong class="action-info pgf-action-info">
+
+    <span class="pgf-action-info pgf-action-other pgf-hidden">
+      <span class="pgf-name"></span>
+    </span>
+    <span class="pgf-action-info pgf-action-idleness pgf-hidden">
+      Нет для героя ничего постыднее, чем безделье. Это безобразие надо немедленно прекратить!
+    </span>
+    <span class="pgf-action-info pgf-action-quest pgf-hidden">
+      Герой прилагает максимальные усилия, что бы выполнить задание.
+    </span>
+    <span class="pgf-action-info pgf-action-move-to pgf-hidden">
+      Герой путешествует в сторону города "<span class="pgf-place-name"></span>"
+    </span>
+    <span class="pgf-action-info pgf-action-battle-pve-1x1 pgf-hidden">
+      Герой сражается с <span class="pgf-mob-name"></span>
+    </span>
+    <span class="pgf-action-info pgf-action-resurrect pgf-hidden">
+      Герой проходит курс усиленного восстановления
+    </span>
+    <span class="pgf-action-info pgf-action-in-city pgf-hidden">
+      Герой изучает витрины города "<span class="pgf-place-name"></span>"
+    </span>
+
+  </strong>
+
+  <div class="progress progress-success" style="height: 8px; margin: 10px 0;">
+    <div class="bar pgf-action-percents"></div>
+  </div>
+
+  <div class="" style="text-align: center; font-size: 14pt;">
+    <a href="#" class="pgf-ability-help">помочь</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#">на арену</a>
+  </div>
+
+</div>

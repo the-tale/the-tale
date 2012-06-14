@@ -2,15 +2,15 @@
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
-    widgets.bag = new pgf.game.widgets.Bag('#hero-bag-block', 
+    widgets.bag = new pgf.game.widgets.Bag('#hero-bag-block',
                                            updater, widgets,
                                            {});
 
 });
 </script>
 
-<div id="hero-bag-block" class="block">
-  
+<div id="hero-bag-block">
+
   <h4>рюкзак (<span class="pgf-loot-items-count"></span>/<span class="pgf-max-bag-size"></span>)</h4>
 
   <div class="pgf-bag-quests pgf-hidden">
@@ -27,7 +27,7 @@ jQuery(document).ready(function(e) {
   <div class="pgf-bag pgf-hidden">
     <h5>содержимое:</h5>
 
-    <ul class="pgf-bag-container">
+    <ul class="unstyled pgf-bag-container">
       <li class="record pgf-template">
         <span class="name pgf-name"></span>
         <span class="power-container pgf-power-container">+<span class="pgf-power power"></span></span>
