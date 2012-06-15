@@ -464,6 +464,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     var widget = jQuery(selector);
     
     var bagContainer = jQuery('.pgf-bag-container', widget);
+    var tabButton = jQuery('.pgf-bag-tab-button');
 
     var data = {};
 
@@ -498,8 +499,9 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     };
 
     this.Render = function() {
-        jQuery('.pgf-loot-items-count', widget).text(data.loot_items_count);
-        jQuery('.pgf-max-bag-size', widget).text(data.max_bag_size);
+        jQuery('.pgf-loot-items-count', tabButton).text(data.loot_items_count);
+        jQuery('.pgf-max-bag-size', tabButton).text(data.max_bag_size);
+        jQuery('.pgf-item-count-container', tabButton).removeClass('pgf-hidden');
         RenderItems();
     };
 

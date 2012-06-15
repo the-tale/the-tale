@@ -86,6 +86,7 @@ jQuery(document).ready(function(e){
 
     jQuery('.pgf-journal-tab-button').tab('show');
     jQuery('.pgf-diary-tab-button').tab('show');
+    jQuery('.pgf-equipment-tab-button').tab('show');
 
 });
 
@@ -128,12 +129,24 @@ jQuery(document).ready(function(e){
       <div class="tab-pane" id="pgf-journal-container">
 
         <div class="span3">
-            <div class="block">
-              {% include "heroes/hero_equipment.html" %}
+
+          <div class="block">
+            <ul class="nav nav-tabs">
+              <li><a href="#pgf-equipment-container" class="pgf-equipment-tab-button" data-toggle="tab">экипировка</a></li>
+              <li><a href="#pgf-bag-container" class="pgf-bag-tab-button" data-toggle="tab">
+                  рюкзак <span class="pgf-item-count-container pgf-hidden">(<span class="pgf-loot-items-count"></span>/<span class="pgf-max-bag-size"></span>)</span>
+              </a></li>
+            </ul>
+
+            <div class="tab-content">
+              <div class="tab-pane" id="pgf-equipment-container">
+                {% include "heroes/hero_equipment.html" %}
+              </div>
+              <div class="tab-pane" id="pgf-bag-container">
+                {% include "heroes/hero_bag.html" %}
+              </div>
             </div>
-            <div class="block">
-              {% include "heroes/hero_bag.html" %}
-            </div>
+          </div>
         </div>
 
         <div class="span5">
