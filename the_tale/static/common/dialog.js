@@ -49,64 +49,56 @@ pgf.ui.dialog.Create = function(params) {
     }
 
     function CreateFromSelector(selector) {
-        CreateFromString(jQuery(selector).text());
+        CreateFromString(jQuery(selector).html());
     }
 
     function CreateFromString(string) {
         
-        var content = '<div><div class="pgf-dialog-content">'+string+'</div></div>';
+        var content = string;
         
         content = jQuery(content);
 
-        var redifinedTitle = jQuery('.pgf-dialog-title', content)
-        if (redifinedTitle.length>0) {
-            if (redifinedTitle.length>1) {
-                pgf.ui.dialog.Error({message: 'dialog.Create: more then 1 title defined in dialog content'})
-            }
-            title = redifinedTitle.html();
+        if (title) {
+            jQuery('.pgf-dialog-title', content).html(title);   
         }
 
         var dialog = undefined;
 
-        dialog = jQuery(content).dialog({ 
-            closeOnEscape: closeOnEscape,
-            minWidth: 400,
-            minHeight: 50,
-            modal: true,
-            width: 'auto',
-            title: title,
-            autoOpen: true,
-            draggable: false,
-            position: 'center',
-            resizable: false,
-            close: function() {
-                if (params.OnClose) {
-                    params.OnClose(dialog);
-                }
+        dialog = jQuery(content).modal({   keyboard: closeOnEscape,
+                                           show: true,
+                                           hide: function() {
+                                               if (params.OnClose) {
+                                                   params.OnClose(dialog);
+                                               }
 
-                dialog.dialog('destroy');
-            },
-            open: function() {
-                if (params.OnOpen) {
-                    params.OnOpen(dialog);
-                }
-            }
-        });
+                                               dialog.dialog('destroy');
+                                           },
+                                           show: function() {
+                                               if (params.OnOpen) {
+                                                   params.OnOpen(dialog);
+                                               }
+                                           }
+                                       });
+
     }
 };
 
 pgf.ui.dialog.Alert = function(params) {
 
-    var title = 'caption' in params ? params.title : 'Внимание!';
-    var message = params.message;
+    var content = "<div><div class='modal hide'><div class='modal-header'><button type='button' class='close' data-dismiss='modal'>×</button><h3 class='pgf-dialog-title'></h3></div><div class='modal-body'></div><div class='modal-footer'><a href='#' class='btn' data-dismiss='modal'>Ok</a></div></div></div>";
 
-    if (!message) {
+    var dialog = jQuery(content);
+
+    var title = 'title' in params ? params.title : 'Внимание!';
+
+    if (!params.message) {
         pgf.ui.dialog.Error({message: 'dialog.Alert: mesage does not specified'});
     }
     
-    var content = '<p>'+message+'</p>';
+    jQuery('.modal-body', dialog).html(params.message);
 
-    pgf.ui.dialog.Create({fromString: content,
+    // dialog.modal({});
+    pgf.ui.dialog.Create({fromSelector: dialog,
                           title: title});
 };
 

@@ -10,25 +10,57 @@
 /* @import "cms.css"; */
 /* @import "news.css"; */
 
+@footer-height: 125px;
+
+html {
+   height: 100%;
+}
+
 body {
    padding-top: 50px;
+   height: 100%;
+
+   #main-container {
+      height: 100%;
+      min-height: 100%;
+      height: auto;
+
+      #content {
+         padding-bottom: @footer-height;
+      }
+   }
 
    div.block {
-      background-color: whiteSmoke;
-      border: 1px solid #CCC;
+      background-color: @background-color;
+      border: 1px solid @border-color;
       border-radius: 8px;
       padding: 0.75em;
-      /* margin-left: 10px; */
       margin-top: 0;
       margin-bottom: 10px;
    }
 
    hr {
-      border-top-color: #CCC;
+      border-top-color: @border-color;
       margin: 0;
    }
 
    .progress {
-      border: 1px solid gray;
+      border: 1px solid @progress-border-color;
+      height: 8px;
+   }
+
+   .nav-tabs > li > a, .nav-pills > li > a {
+      padding-right: 10px;
+      padding-left: 10px;
+   }
+
+   footer {
+      clear: both;
+      position: relative;
+      z-index: 10;
+      height: @footer-height;
+      margin-top: -3em;
+      border-top: 1px solid @border-color;
+      padding: 1em;
    }
 }

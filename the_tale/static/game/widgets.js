@@ -71,6 +71,10 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-experience', widget).text(parseInt(data.base.experience));
         jQuery('.pgf-experience-to-level', widget).text(data.base.experience_to_level);
 
+        jQuery('.pgf-race-gender').removeClass('pgf-hidden');
+        jQuery('.pgf-gender', widget).text(data.base.gender);
+        jQuery('.pgf-race', widget).text(data.base.race);
+
         jQuery('.pgf-health-percents', widget).width( (100 * data.base.health / data.base.max_health) + '%');
         jQuery('.pgf-experience-percents', widget).width( (100 * data.base.experience / data.base.experience_to_level) + '%');
 

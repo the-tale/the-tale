@@ -25,6 +25,10 @@ GENDER_CHOICES = ( (GENDER.MASCULINE, u'мужской род'),
                    (GENDER.FEMININE, u'женский род'),
                    (GENDER.NEUTER, u'средний род') )
 
+GENDER_DICT_USERFRIENDLY = {GENDER.MASCULINE: u'мужчина',
+                            GENDER.FEMININE: u'женщина',
+                            GENDER.NEUTER: u'оно'}
+
 GENDER_STR_2_ID = {u'мр': GENDER.MASCULINE,
                    u'жр': GENDER.FEMININE,
                    u'ср': GENDER.NEUTER}

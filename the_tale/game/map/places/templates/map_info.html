@@ -1,33 +1,52 @@
 
-<div class="place-info">
-  <div class="pgf-dialog-title">({{ place.size }}) {{ place.name }}</div>
+<div class="modal hide place-description-dialog">
 
-  <div class="description">
-    <img src="{{ STATIC_URL }}tmp/city.png" />
-    <p>Сдесь должно быть или не должно крутое или не очень описание этого замечательного/волшебного/ужасного важного/не важного места.</p>
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">
+      <span class="badge">{{ place.size }}</span>
+      <span>{{ place.name }}</span>
+    </h3>
   </div>
 
-  <h2>Персонажи:</h2>
+  <div class="modal-body">
 
-  <ul class="characters-list">
-    {% for person in place.persons %}
-    <li>
-      
-      <img src="{{ STATIC_URL }}tmp/profession.gif" />
-      <div>
+    <div class="description">
+      <img src="{{ STATIC_URL }}tmp/city.png"/>
+      Сдесь должно быть или не должно крутое или не очень описание этого замечательного/волшебного/ужасного важного/не важного места.
+    </div>
+
+    <h3>персонажи</h3>
+
+    <ul class="unstyled">
+      {% for person in place.persons %}
+      <li class="person-record">
+
+        <img src="{{ STATIC_URL }}tmp/profession.gif"/>
+
         {% if place.total_persons_power %}
         {% set power = (person.power/place.total_persons_power) %}
         {% else %}
         {% set power = 0 %}
         {% endif %}
-        <h3>{{ person.race_verbose }} {{ person.type_verbose }}: {{ person.name }}</h3>
-        <span>влиятельность</span>
-        <div class="stats-bar power-bar">
-          <div class="layer layer-0" style="width: {{ power*100 }}%;"></div>
+
+        <h4>
+          {{ person.name }}
+          <small>{{ person.race_verbose }}-{{ person.type_verbose }}</small>
+        </h4>
+        <strong>влиятельность:</strong>
+        <div class="progress progress-warning">
+          <div class="bar pgf-health-percents" style="width: {{ power|percents }};"></div>
         </div>
         <span class="pgf-power">{{ power|percents }}</span>
-      </div>
-    </li>
-    {% endfor %}
-  </ul>
+      </li>
+      {% endfor %}
+    </ul>
+
+  </div>
+
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Ok</a>
+  </div>
+
 </div>

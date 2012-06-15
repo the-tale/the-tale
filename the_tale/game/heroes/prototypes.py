@@ -11,7 +11,7 @@ from textgen.words import Fake as FakeWord
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
-from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, ITEMS_OF_EXPENDITURE
+from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, ITEMS_OF_EXPENDITURE, GENDER_DICT_USERFRIENDLY, RACE_DICT
 
 from game import names
 
@@ -398,7 +398,9 @@ class HeroPrototype(object):
                           'health': self.health,
                           'max_health': self.max_health,
                           'experience': self.experience,
-                          'experience_to_level': f.exp_on_lvl(self.level)},
+                          'experience_to_level': f.exp_on_lvl(self.level),
+                          'gender': GENDER_DICT_USERFRIENDLY[self.gender],
+                          'race': RACE_DICT[self.race] },
                 'secondary': { 'power': math.floor(self.power),
                                'move_speed': self.move_speed,
                                'initiative': self.initiative,

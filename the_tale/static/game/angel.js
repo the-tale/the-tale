@@ -99,7 +99,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
     var turn = {};
 
     function LockAbility(abilityType) {
-        jQuery('.ability-'+abilityType, widget).toggleClass('cooldown', true);
+        jQuery('.pgf-ability-'+abilityType, widget).toggleClass('cooldown', true);
     }
 
     function ActivateAbility(ability) {

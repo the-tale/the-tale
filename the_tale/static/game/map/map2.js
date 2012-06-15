@@ -276,7 +276,8 @@ pgf.game.map.Map = function(selector, params) {
                                  });
         }
         else {
-            pgf.ui.dialog.Alert({ message: 'nothing special on this cell' });
+            pgf.ui.dialog.Alert({ title: "пустая клетка", 
+                                  message: 'На это клетке нет ничего важного' });
         }
     }
 

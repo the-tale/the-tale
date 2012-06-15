@@ -3,23 +3,32 @@
 
 #hero-base-block {
 
+   .hero-level {
+      &:hover {
+         background-color: #BBB;
+      }
+   }
 
    .record-with-progress {
-      margin: 5px 0;
+      margin: 6px 0;
       position: relative;
       padding-left: 20px;
       padding-right: 5em;
-      /* heigtj: 10px; */
+
+      &:hover {
+         background-color: @hover-color;
+      }
+
       img {
          position: absolute;
          left: 0px;
       }
+
       .progress {
          display: inline-block;
-         height: 8px;
          width: 100%;
-         margin-top: 3px;
-         margin-bottom: 4px;
+         margin-top: 0;
+         margin-bottom: 0;
       }
       .text-values {
          position: absolute;
@@ -31,6 +40,10 @@
    .attribute-record {
       display: inline-block;
       width: 49%;
+
+      &:hover {
+         background-color: @hover-color;
+      }
 
       img {
          vertical-align: middle;
@@ -44,36 +57,45 @@
 
 #hero-equipment-block {
 
-    .equip-record {
-        margin-top: 5px;
-        cursor: default;
+   .equip-record {
+      margin-top: 5px;
+      cursor: default;
 
-        .name {
-            font-size: 10pt;
-            margin-left: 0.25em;
-        }
+      &:hover {
+         background-color: @hover-color;
+      }
 
-        .power-container {
-            float: right;
+      .name {
+         font-size: 10pt;
+         margin-left: 0.25em;
+      }
 
-            .power {
+      .power-container {
+         float: right;
 
-            }
-        }
-    }
+         .power {
+
+         }
+      }
+   }
 }
 
 #hero-bag-block {
 
-    .bag-record {
-        margin-top: 5px;
-        cursor: default;
+   .bag-record {
+      margin-top: 5px;
+      cursor: default;
 
-        .name {
-            font-size: 10pt;
-            margin-left: 0.25em;
-        }
-    }
+      &:hover {
+         background-color: @hover-color;
+      }
+
+
+      .name {
+         font-size: 10pt;
+         margin-left: 0.25em;
+      }
+   }
 }
 
 .quest-icon {
@@ -107,11 +129,19 @@
 .quest-record {
    min-height: 64px + 5px;
    cursor: default;
+
+   &:hover {
+      background-color: @hover-color;
+   }
 }
 
 .log-record {
    margin: 0.75em 0;
    cursor: default;
+
+   &:hover {
+      background-color: @hover-color;
+   }
 
    .dash {
       float: left;
@@ -132,10 +162,10 @@
       right: 0;
       top: 0;
       z-index: 1001;
-      background-color: whiteSmoke;
+      background-color: @background-color;
       /* margin: 2px; */
 
-      border: 1px solid #CCC;
+      border: 1px solid @border-color;
       border-bottom-left-radius: 8px;
       padding: 0.25em;
 
@@ -144,7 +174,66 @@
    }
 }
 
+.place-description-dialog {
 
+   cursor: default;
+
+   background-color: @background-color !important;
+
+   .dialog-title span {
+      vertical-align: middle;
+   }
+
+   .description {
+      min-height: 70px;
+
+      img {
+         float: left;
+      }
+   }
+
+   .person-record {
+      min-height: 40px;
+      margin-top: 0.5em;
+      cursor: default;
+
+      &:hover {
+         background-color: @hover-color;
+      }
+
+      img {
+         float: left;
+         margin: 4px;
+      }
+
+      .progress {
+         width: 100px;
+         display: inline-block;
+         margin: 0;
+      }
+   }
+
+}
+
+#abilities-block {
+   text-align: center;
+   font-size: 14pt;
+
+   .cooldown {
+      color: #999;
+      text-decoration: none;
+   }
+
+   .icon-time {
+      display: none;
+   }
+
+   .cooldown .icon-time {
+      display: inline-block;
+      vertical-align: middle;
+   }
+
+}
 
 
 /* .stats-bar { */
