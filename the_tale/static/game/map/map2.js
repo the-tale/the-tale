@@ -223,8 +223,9 @@ pgf.game.map.Map = function(selector, params) {
     // var canvasWidth = canvas.width();
     // var canvasHeight = canvas.height();
 
-    var canvasWidth = jQuery('#pgf-map-container').width();
-    var canvasHeight = 550; //jQuery('#pgf-map-container').height();
+    // TODO: do something with this
+    var canvasWidth = jQuery('#pgf-map-container').width()-20;
+    var canvasHeight = 450; //jQuery('#pgf-map-container').height();
 
     canvas.get(0).width = canvasWidth;
     canvas.get(0).height = canvasHeight;

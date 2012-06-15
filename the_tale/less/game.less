@@ -42,6 +42,110 @@
    }
 }
 
+#hero-equipment-block {
+
+    .equip-record {
+        margin-top: 5px;
+        cursor: default;
+
+        .name {
+            font-size: 10pt;
+            margin-left: 0.25em;
+        }
+
+        .power-container {
+            float: right;
+
+            .power {
+
+            }
+        }
+    }
+}
+
+#hero-bag-block {
+
+    .bag-record {
+        margin-top: 5px;
+        cursor: default;
+
+        .name {
+            font-size: 10pt;
+            margin-left: 0.25em;
+        }
+    }
+}
+
+.quest-icon {
+   width: 64px;
+   height: 64px;
+   float: left;
+   margin-right: 5px;
+   margin-bottom: 5px;
+
+   &.helpline {
+      background: url('../game/images/quests.png') no-repeat scroll 0 0 transparent;
+   }
+
+   &.deliveryline {
+      background: url('../game/images/quests.png') no-repeat scroll -64px 0 transparent;
+   }
+
+   &.spyingline {
+      background: url('../game/images/quests.png') no-repeat scroll -128px 0 transparent;
+   }
+
+   &.notmyworkline {
+      background: url('../game/images/quests.png') no-repeat scroll -192px 0 transparent;
+   }
+
+   &.caravanline {
+      background: url('../game/images/quests.png') no-repeat scroll -256px 0 transparent;
+   }
+}
+
+.quest-record {
+   min-height: 64px + 5px;
+   cursor: default;
+}
+
+.log-record {
+   margin: 0.75em 0;
+   cursor: default;
+
+   .dash {
+      float: left;
+      margin: 0 3px;
+   }
+
+   .message {
+      margin-left: 1.6em;
+   }
+}
+
+#pgf-map-block {
+
+   position: relative;
+
+   .map-commands {
+      position: absolute;
+      right: 0;
+      top: 0;
+      z-index: 1001;
+      background-color: whiteSmoke;
+      /* margin: 2px; */
+
+      border: 1px solid #CCC;
+      border-bottom-left-radius: 8px;
+      padding: 0.25em;
+
+      margin-right: 0.75em;
+      margin-top: 0.75em;
+   }
+}
+
+
+
 
 /* .stats-bar { */
 /*     width: 100px; */
@@ -88,61 +192,9 @@
 /* } */
 
 
-
-/* #hero-equipment-block { */
-
-/*     .record { */
-/*         margin-top: 5px; */
-/*         cursor: default; */
-
-/*         &:hover { */
-/*             background: @hover-color; */
-/*         } */
-
-/*         .name { */
-/*             font-size: 10pt; */
-/*             margin-left: 0.25em; */
-/*         } */
-
-/*         .power-container { */
-/*             float: right; */
-
-/*             .power { */
-
-/*             } */
-/*         } */
-/*     } */
-/* } */
-
 /* #login-required-block { */
 /*     text-align: center; */
 /*     font-weight: bold; */
-/* } */
-
-/* #hero-bag-block { */
-
-/*     h4 { */
-/*         font-size: 11pt; */
-/*     } */
-
-/*     h5 { */
-/*         font-size: 10pt; */
-/*         margin-top: 0.5em; */
-/*         margin-bottom: 0.5em; */
-/*     } */
-
-/*     .record { */
-
-/*         cursor: default; */
-
-/*         &:hover { */
-/*             background: @hover-color; */
-/*         } */
-
-/*         .name { */
-/*             font-size: 9pt; */
-/*         } */
-/*     } */
 /* } */
 
 /* #time-block { */
@@ -184,51 +236,6 @@
 /*         } */
 /*     } */
 /* } */
-
-.quest-icon {
-   width: 64px;
-   height: 64px;
-   float: left;
-   margin-right: 5px;
-   margin-bottom: 5px;
-
-   &.helpline {
-      background: url('../game/images/quests.png') no-repeat scroll 0 0 transparent;
-   }
-
-   &.deliveryline {
-      background: url('../game/images/quests.png') no-repeat scroll -64px 0 transparent;
-   }
-
-   &.spyingline {
-      background: url('../game/images/quests.png') no-repeat scroll -128px 0 transparent;
-   }
-
-   &.notmyworkline {
-      background: url('../game/images/quests.png') no-repeat scroll -192px 0 transparent;
-   }
-
-   &.caravanline {
-      background: url('../game/images/quests.png') no-repeat scroll -256px 0 transparent;
-   }
-}
-
-.quest-record {
-   min-height: 64px + 5px;
-}
-
-.log-record {
-   margin: 0.75em 0;
-
-   .dash {
-      float: left;
-      margin: 0 3px;
-   }
-
-   .message {
-      margin-left: 1.6em;
-   }
-}
 
 
 /* #log-block { */
