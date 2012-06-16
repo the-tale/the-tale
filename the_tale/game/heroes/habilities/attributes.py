@@ -14,7 +14,7 @@ class EXTRA_SLOW(AbilityPrototype):
     AVAILABLE_TO_PLAYERS = False
 
     NAME = u'очень медленный'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTIN = u''
 
     @classmethod
@@ -28,7 +28,7 @@ class SLOW(AbilityPrototype):
     AVAILABLE_TO_PLAYERS = False
 
     NAME = u'медленный'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTIN = u''
 
     @classmethod
@@ -42,7 +42,7 @@ class FAST(AbilityPrototype):
     AVAILABLE_TO_PLAYERS = False
 
     NAME = u'быстрый'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTIN = u'герой выделяется своей скоростью'
 
     @classmethod
@@ -56,7 +56,7 @@ class EXTRA_FAST(AbilityPrototype):
     AVAILABLE_TO_PLAYERS = False
 
     NAME = u'очень быстрый'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTIN = u''
 
     @classmethod
@@ -74,7 +74,7 @@ class EXTRA_THIN(AbilityPrototype):
     AVAILABLE_TO_PLAYERS = False
 
     NAME = u'очень худой'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTIN = u''
 
     @classmethod
@@ -88,7 +88,7 @@ class THIN(AbilityPrototype):
     AVAILABLE_TO_PLAYERS = False
 
     NAME = u'худой'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTIN = u''
 
     @classmethod
@@ -102,7 +102,7 @@ class THICK(AbilityPrototype):
     AVAILABLE_TO_PLAYERS = False
 
     NAME = u'толстый'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTIN = u'герой выделяется своим здоровьем'
 
     @classmethod
@@ -116,7 +116,7 @@ class EXTRA_THICK(AbilityPrototype):
     AVAILABLE_TO_PLAYERS = False
 
     NAME = u'очень толстый'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTIN = u''
 
     @classmethod
@@ -134,7 +134,7 @@ class EXTRA_WEAK(AbilityPrototype):
     AVAILABLE_TO_PLAYERS = False
 
     NAME = u'очень слабый'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTIN = u''
 
     @classmethod
@@ -148,7 +148,7 @@ class WEAK(AbilityPrototype):
     AVAILABLE_TO_PLAYERS = False
 
     NAME = u'слабый'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTIN = u''
 
     @classmethod
@@ -162,7 +162,7 @@ class STRONG(AbilityPrototype):
     AVAILABLE_TO_PLAYERS = False
 
     NAME = u'сильный'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTIN = u'герой выделяется своей силой'
 
     @classmethod
@@ -176,7 +176,7 @@ class EXTRA_STRONG(AbilityPrototype):
     AVAILABLE_TO_PLAYERS = False
 
     NAME = u'очень сильный'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTIN = u''
 
     @classmethod

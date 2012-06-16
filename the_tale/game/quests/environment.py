@@ -1,9 +1,11 @@
 # coding: utf-8
 
-from ..map.places.prototypes import PlacePrototype
-from ..persons.prototypes import PersonPrototype
+from game.map.places.prototypes import PlacePrototype
+from game.persons.prototypes import PersonPrototype
+from game.text_generation import NamedObject
 
-from .quests_generator.environment import BaseEnvironment
+from game.quests.quests_generator.environment import BaseEnvironment
+
 
 class Environment(BaseEnvironment):
 
@@ -47,15 +49,17 @@ class Environment(BaseEnvironment):
     def get_msg_substitutions(self, local_env):
         subst = local_env.get_data()
 
+        result = {}
+
         for key, value in list(subst.items()):
             if value in self.places:
-                subst[key] = PlacePrototype.get_by_id(id_=self.places[value]['external_data']['id']).normalized_name
+                result[key] = PlacePrototype.get_by_id(id_=self.places[value]['external_data']['id'])
             elif value in self.persons:
-                subst[key] = PersonPrototype.get_by_id(id_=self.persons[value]['external_data']['id']).normalized_name
+                result[key] = PersonPrototype.get_by_id(id_=self.persons[value]['external_data']['id'])
             elif value in self.items:
-                subst[key] = self.items[value]['external_data']['artifact'].get('normalized_name', u'осколок прошлого')
+                result[key] = NamedObject(self.items[value]['external_data']['artifact'].get('normalized_name', u'осколок прошлого'))
 
-        return subst
+        return result
 
 
     def serialize(self):

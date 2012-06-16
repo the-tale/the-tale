@@ -7,6 +7,7 @@ from game.actions.prototypes import ActionEquippingPrototype
 
 from game.artifacts.storage import ArtifactsDatabase
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
+from game.prototypes import TimePrototype
 
 class ActionEquippingTest(TestCase):
 
@@ -15,7 +16,7 @@ class ActionEquippingTest(TestCase):
 
         self.bundle = create_test_bundle('EquippingActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionEquippingPrototype.create(self.action_idl))
+        self.bundle.add_action(ActionEquippingPrototype.create(self.action_idl, TimePrototype.get_current_time()))
         self.action_equipping = self.bundle.tests_get_last_action()
         self.hero = self.bundle.tests_get_hero()
 
@@ -31,7 +32,7 @@ class ActionEquippingTest(TestCase):
 
 
     def test_processed(self):
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
         test_bundle_save(self, self.bundle)
@@ -46,7 +47,7 @@ class ActionEquippingTest(TestCase):
 
         self.hero.bag.put_artifact(artifact)
 
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertEqual(len(self.bundle.actions), 2)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_equipping)
         self.assertEqual(len(self.hero.bag.items()), 0)
@@ -69,7 +70,7 @@ class ActionEquippingTest(TestCase):
 
         self.hero.bag.put_artifact(new_artifact)
 
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
 
         self.assertEqual(len(self.bundle.actions), 2)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_equipping)

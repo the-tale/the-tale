@@ -64,14 +64,16 @@ class BaseWorker(object):
 
         try:
             self.commands[cmd_type](**cmd_data)
-        except Exception, e:
+        except Exception:
             self.exception_raised = True
-            self.logger.error('EXCEPTION: %s' % e)
-            traceback.print_exc()
+            traceback_strings = traceback.format_exception(*sys.exc_info())
+            self.logger.error('EXCEPTION: %s' % traceback_strings)
+            # self.logger.error('EXCEPTION: %s' % '\n'.join(traceback_strings))
+            # self.logger.error(sys.last_traceback.format_exc())
+            # self.logger.error('Worker exception: %r' % self,
+            #                   exc_info=sys.exc_info(),
+            #                   extra={} )
 
-            self.logger.error('Worker exception: %r' % self,
-                              exc_info=sys.exc_info(),
-                              extra={} )
 
     def wait_answers_from(self, code, workers=[]):
 

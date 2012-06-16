@@ -4,8 +4,8 @@ from django.test import TestCase
 
 from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionResurrectPrototype
-
 from game.balance import constants as c
+from game.prototypes import TimePrototype
 
 class ResurrectActionTest(TestCase):
 
@@ -18,7 +18,7 @@ class ResurrectActionTest(TestCase):
         self.hero.kill()
 
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionResurrectPrototype.create(self.action_idl))
+        self.bundle.add_action(ActionResurrectPrototype.create(self.action_idl, TimePrototype.get_current_time()))
         self.action_resurrect = self.bundle.tests_get_last_action()
 
 
@@ -32,15 +32,16 @@ class ResurrectActionTest(TestCase):
 
     def test_processed(self):
 
-        turn_number = 1
+        current_time = TimePrototype.get_current_time()
 
         for i in xrange(c.TURNS_TO_RESURRECT-1):
-            self.bundle.process_turn(turn_number)
-            turn_number += 1
+
+            self.bundle.process_turn(current_time)
+            current_time.increment_turn()
             self.assertEqual(len(self.bundle.actions), 2)
             self.assertEqual(self.bundle.tests_get_last_action(), self.action_resurrect)
 
-        self.bundle.process_turn(turn_number)
+        self.bundle.process_turn(current_time)
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
 
@@ -54,7 +55,7 @@ class ResurrectActionTest(TestCase):
 
         self.action_resurrect.fast_resurrect()
 
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
 

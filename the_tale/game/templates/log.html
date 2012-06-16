@@ -4,7 +4,7 @@ jQuery(document).ready(function(e) {
 
     widgets.log = new pgf.game.widgets.Log('#log-block',
                                                updater, widgets,
-                                               {messagesAttribute: 'messages'} );
+                                               {type: 'log'} );
 
 });
 </script>
@@ -12,7 +12,7 @@ jQuery(document).ready(function(e) {
 <div id="log-block" class="block">
   <ul class="unstyled pgf-log-list">
     <li class="pgf-template log-record">
-      <div class="dash">&ndash;</div> <div class="pgf-message message"></div>
+      <div class="pgf-time time"></div> <div class="pgf-message message"></div>
     </li>
   </ul>
 </div>

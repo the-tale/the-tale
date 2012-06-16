@@ -12,6 +12,10 @@ class GameTime(namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'min
                    3: u'жаркого месяца',
                    4: u'сухого месяца'}
 
+    @classmethod
+    def create_from_turn(cls, turn_number):
+        return cls(*f.turns_to_game_time(turn_number))
+
     @property
     def verbose_date(self):
         return u'%(day)d день %(month)s %(year)d года' % {'day': self.day,

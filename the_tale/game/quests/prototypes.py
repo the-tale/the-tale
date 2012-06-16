@@ -4,12 +4,11 @@ import random
 from dext.utils import s11n
 
 from game.balance import constants as c, formulas as f
-
 from game.artifacts.storage import ArtifactsDatabase
-
+from game.heroes.prototypes import HeroPrototype
 from game.quests.models import Quest, QuestsHeroes
 from game.quests.exceptions import QuestException
-
+from game.prototypes import GameTime
 
 def get_quest_by_id(id):
     try:
@@ -118,7 +117,7 @@ class QuestPrototype(object):
         self.model.save(force_update=True)
 
     @classmethod
-    def create(cls, hero, env):
+    def create(cls, cur_time, hero, env):
 
         env.sync()
 
@@ -129,6 +128,7 @@ class QuestPrototype(object):
             raise Exception('Hero %s has already had quest' % hero.id)
 
         model = Quest.objects.create(env=s11n.to_json(env.serialize()),
+                                     created_at_turn=cur_time.turn_number,
                                      data=s11n.to_json(data))
 
         QuestsHeroes.objects.create(quest=model, hero=hero.model)
@@ -140,9 +140,9 @@ class QuestPrototype(object):
         return quest
 
 
-    def process(self, cur_action):
+    def process(self, cur_action, cur_time):
 
-        if self.do_step(cur_action):
+        if self.do_step(cur_action, cur_time):
             percents = self.percents
             if percents >= 1:
                 raise QuestException('completed percents > 1 for not ended quest')
@@ -150,9 +150,9 @@ class QuestPrototype(object):
 
         return 1
 
-    def do_step(self, cur_action):
+    def do_step(self, cur_action, cur_time):
 
-        self.process_current_command(cur_action)
+        self.process_current_command(cur_action, cur_time)
 
         self.last_pointer = self.pointer
         self.pointer = self.env.increment_pointer(self.pointer, self.get_choices())
@@ -172,7 +172,7 @@ class QuestPrototype(object):
             from ..workers.environment import workers_environment
             workers_environment.highlevel.cmd_change_person_power(person_data['external_data']['id'], power * 100)
 
-    def process_current_command(self, cur_action):
+    def process_current_command(self, cur_action, cur_time):
 
         cmd = self.env.get_command(self.pointer)
 
@@ -181,7 +181,7 @@ class QuestPrototype(object):
         log_msg = writer.get_journal_msg(cmd.event)
 
         if log_msg:
-            cur_action.hero.push_message(log_msg)
+            cur_action.hero.push_message(HeroPrototype._prepair_message(cur_time, log_msg))
 
         {'description': self.cmd_description,
          'move': self.cmd_move,
@@ -193,30 +193,30 @@ class QuestPrototype(object):
          'choose': self.cmd_choose,
          'givepower': self.cmd_give_power,
          'battle': self.cmd_battle
-         }[cmd.type()](cmd, cur_action)
+         }[cmd.type()](cmd, cur_action, cur_time)
 
-    def cmd_description(self, cmd, cur_action):
-        cur_action.hero.push_message(cmd.msg)
+    def cmd_description(self, cmd, cur_action, cur_time):
+        cur_action.hero.push_message(HeroPrototype._prepair_message(cur_time, cmd.msg))
 
-    def cmd_move(self, cmd, cur_action):
+    def cmd_move(self, cmd, cur_action, cur_time):
         from ..actions.prototypes import ActionMoveToPrototype
         destination = self.env.get_game_place(cmd.place)
-        cur_action.bundle.add_action(ActionMoveToPrototype.create(parent=cur_action, destination=destination, break_at=cmd.break_at))
+        cur_action.bundle.add_action(ActionMoveToPrototype.create(parent=cur_action, current_time=cur_time, destination=destination, break_at=cmd.break_at))
 
-    def cmd_move_near(self, cmd, cur_action):
+    def cmd_move_near(self, cmd, cur_action, cur_time):
         from ..actions.prototypes import ActionMoveNearPlacePrototype
         destination = self.env.get_game_place(cmd.place)
-        cur_action.bundle.add_action(ActionMoveNearPlacePrototype.create(parent=cur_action, place=destination, back=cmd.back))
+        cur_action.bundle.add_action(ActionMoveNearPlacePrototype.create(parent=cur_action, current_time=cur_time, place=destination, back=cmd.back))
 
-    def cmd_get_item(self, cmd, cur_action):
+    def cmd_get_item(self, cmd, cur_action, cur_time):
         item = self.env.get_game_item(cmd.item)
         cur_action.hero.put_loot(item)
 
-    def cmd_give_item(self, cmd, cur_action):
+    def cmd_give_item(self, cmd, cur_action, cur_time):
         item = self.env.get_game_item(cmd.item)
         cur_action.hero.pop_quest_loot(item)
 
-    def cmd_get_reward(self, cmd, cur_action):
+    def cmd_get_reward(self, cmd, cur_action, cur_time):
 
         domain = random.uniform(0, 1)
 
@@ -224,33 +224,33 @@ class QuestPrototype(object):
             multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
             money = 1 + int(f.sell_artifact_price(cur_action.hero.level) * multiplier)
             cur_action.hero.statistics.change_money_earned_from_quests(money)
-            cur_action.hero.add_message('action_quest_reward_money', important=True, hero=cur_action.hero, coins=money)
+            cur_action.hero.add_message('action_quest_reward_money', cur_time, important=True, hero=cur_action.hero, coins=money)
         else:
             storage = ArtifactsDatabase.storage()
             artifact = storage.generate_artifact_from_list(storage.artifacts_ids, cur_action.hero.level)
             cur_action.hero.put_loot(artifact)
             cur_action.hero.statistics.change_artifacts_had(1)
-            cur_action.hero.add_message('action_quest_reward_artifact', important=True, hero=cur_action.hero, artifact=artifact)
+            cur_action.hero.add_message('action_quest_reward_artifact', cur_time, important=True, hero=cur_action.hero, artifact=artifact)
 
-    def cmd_quest(self, cmd, cur_action):
+    def cmd_quest(self, cmd, cur_action, cur_time):
         # TODO: move to quest generator environment
         pass
 
-    def cmd_choose(self, cmd, cur_action):
+    def cmd_choose(self, cmd, cur_action, cur_time):
         # TODO: move to quest generator environment
         pass
 
-    def cmd_give_power(self, cmd, cur_action):
+    def cmd_give_power(self, cmd, cur_action, cur_time):
         # TODO: move to quest generator environment
         if cmd.depends_on:
             self.env.persons_power_points[cmd.person] = self.env.persons_power_points[cmd.depends_on] * cmd.multiply
         else:
             self.env.persons_power_points[cmd.person] = cmd.power
 
-    def cmd_battle(self, cmd, cur_action):
+    def cmd_battle(self, cmd, cur_action, cur_time):
         from ..actions.prototypes import ActionBattlePvE1x1Prototype
         from ..heroes.logic import create_mob_for_hero
-        cur_action.bundle.add_action(ActionBattlePvE1x1Prototype.create(parent=cur_action, mob=create_mob_for_hero(cur_action.hero)))
+        cur_action.bundle.add_action(ActionBattlePvE1x1Prototype.create(parent=cur_action, current_time=cur_time, mob=create_mob_for_hero(cur_action.hero)))
 
     def ui_info(self, hero):
         choices = self.get_choices()
@@ -269,8 +269,12 @@ class QuestPrototype(object):
             choice_msg = None
             cmd_id = None
 
+        game_time = GameTime.create_from_turn(self.model.created_at_turn)
+
         return {'line': self.env.get_writers_text_chain(hero, self.last_pointer),
                 'choice_id': cmd_id,
                 'choice_text': choice_msg,
+                'verbose_date': game_time.verbose_date,
+                'verbose_time': game_time.verbose_time,
                 'id': self.model.id,
                 'subquest_id': quest.id}

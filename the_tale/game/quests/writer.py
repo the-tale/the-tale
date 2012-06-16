@@ -1,11 +1,11 @@
 # coding: utf-8
 
-from game.text_generation import get_vocabulary, get_dictionary
+from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 
 class Writer(object):
 
     def __init__(self, hero, quest_type, env, local_env):
-        self.substitution = env.get_msg_substitutions(local_env)
+        self.substitution = prepair_substitution(env.get_msg_substitutions(local_env))
         self.substitution['hero'] = hero.normalized_name
         self.quest_type = quest_type
 
@@ -20,13 +20,11 @@ class Writer(object):
 
     def get_msg_choice_answer(self, choice, answer): return 'quest_%s_writer_base_choice_%s_result_%s' % (self.quest_type, choice, answer)
 
-
     def get_message(self, type_):
         template = get_vocabulary().get_random_phrase(type_, None)
         if template:
             return template.substitute(get_dictionary(), self.substitution)
         return None
-
 
     def get_description_msg(self):
         return self.get_message(self.get_msg_description_id())

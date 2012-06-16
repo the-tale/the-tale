@@ -10,6 +10,7 @@ from common.amqp_queues import BaseWorker
 
 from game.heroes.prototypes import get_hero_by_id
 from game.bundles import BundlePrototype
+from game.prototypes import TimePrototype
 
 
 class LogicException(Exception): pass
@@ -40,6 +41,7 @@ class Worker(BaseWorker):
 
         self.initialized = True
         self.turn_number = turn_number
+        self.current_time = TimePrototype.get_current_time()
         self.bundles = {}
         self.queue = []
         self.angels2bundles = {}
@@ -62,6 +64,11 @@ class Worker(BaseWorker):
             if turn_number != self.turn_number:
                 raise LogicException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
 
+            self.current_time = TimePrototype.get_current_time()
+
+            if self.current_time.turn_number != self.turn_number:
+                raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number, self.current_time.turn_number))
+
             while self.queue:
                 turn_number, bundle_id = self.queue[0]
 
@@ -69,7 +76,7 @@ class Worker(BaseWorker):
                     break
 
                 bundle = self.bundles[bundle_id]
-                next_turn_number = bundle.process_turn(self.turn_number)
+                next_turn_number = bundle.process_turn(self.current_time)
 
                 if next_turn_number <= self.turn_number:
                     raise LogicException('bundle try to process itself twice on one turn')
@@ -122,7 +129,7 @@ class Worker(BaseWorker):
 
             task = AbilityTaskPrototype.get_by_id(ability_task_id)
             bundle = self.bundles[self.angels2bundles[task.angel_id]]
-            task.process(bundle, self.turn_number)
+            task.process(self.current_time, bundle)
             task.save()
             bundle.save_data()
 

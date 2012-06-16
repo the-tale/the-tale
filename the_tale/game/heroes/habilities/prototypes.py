@@ -28,11 +28,8 @@ class AbilityPrototype(object):
     AVAILABLE_TO_PLAYERS = True
 
     NAME = u''
-    NORMALIZED_NAME = u''
+    normalized_name = u''
     DESCRIPTIN = u''
-
-    @property
-    def normalized_name(self):  return self.NORMALIZED_NAME
 
     @classmethod
     def modify_attribute(cls, name, value): return value
@@ -53,14 +50,14 @@ class HIT(AbilityPrototype):
     PRIORITY = 100
 
     NAME = u'Удар'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTION = u'Каждый уважающий себя герой должен быть в состоянии ударить противника, или пнуть.'
 
     @classmethod
-    def use(cls, messanger, actor, enemy):
+    def use(cls, messanger, current_time, actor, enemy):
         damage = actor.context.modify_initial_damage(actor.basic_damage)
         enemy.change_health(-damage)
-        messanger.add_message('hero_ability_hit', attacker=actor, defender=enemy, damage=damage)
+        messanger.add_message('hero_ability_hit', current_time, attacker=actor, defender=enemy, damage=damage)
 
 
 class MAGIC_MUSHROOM(AbilityPrototype):
@@ -71,15 +68,15 @@ class MAGIC_MUSHROOM(AbilityPrototype):
     PRIORITY = 10
 
     NAME = u'Волшебный гриб'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTION = u'Находясь в бою, герой может силой своей могучей воли вырастить волшебный гриб, съев который, некоторое время станет наносить увеличеный урон противникам.'
 
     DAMAGE_FACTORS = [3, 2.5, 2, 1.5]
 
     @classmethod
-    def use(cls, messanger, actor, enemy):
+    def use(cls, messanger, current_time, actor, enemy):
         actor.context.use_ability_magic_mushroom(cls.DAMAGE_FACTORS)
-        messanger.add_message('hero_ability_magicmushroom', actor=actor)
+        messanger.add_message('hero_ability_magicmushroom', current_time, actor=actor)
 
 
 class SIDESTEP(AbilityPrototype):
@@ -90,15 +87,15 @@ class SIDESTEP(AbilityPrototype):
     PRIORITY = 10
 
     NAME = u'Шаг в сторону'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTION = u'Герой быстро меняет свою позицию, дезариентируя противника из-за чего тот начнёт промахиваться по герою.'
 
     MISS_PROBABILITIES = [0.8, 0.6, 0.4, 0.2]
 
     @classmethod
-    def use(cls, messanger, actor, enemy):
+    def use(cls, messanger, current_time, actor, enemy):
         enemy.context.use_ability_sidestep(cls.MISS_PROBABILITIES)
-        messanger.add_message('hero_ability_sidestep', attacker=actor, defender=enemy)
+        messanger.add_message('hero_ability_sidestep', current_time, attacker=actor, defender=enemy)
 
 
 class RUN_UP_PUSH(AbilityPrototype):
@@ -109,17 +106,17 @@ class RUN_UP_PUSH(AbilityPrototype):
     PRIORITY = 10
 
     NAME = u'Разбег-толчок'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTION = u'Герой разбегается и наносит урон противнику. Враг будет оглушён и пропустит следующую атаку.'
 
     STUN_LENGTH = 3
 
     @classmethod
-    def use(cls, messanger, actor, enemy):
+    def use(cls, messanger, current_time, actor, enemy):
         damage = actor.context.modify_initial_damage(actor.basic_damage)
         enemy.change_health(-damage)
         enemy.context.use_stun(cls.STUN_LENGTH)
-        messanger.add_message('hero_ability_runuppush', attacker=actor, defender=enemy, damage=damage)
+        messanger.add_message('hero_ability_runuppush', current_time, attacker=actor, defender=enemy, damage=damage)
 
 
 class REGENERATION(AbilityPrototype):
@@ -130,16 +127,16 @@ class REGENERATION(AbilityPrototype):
     PRIORITY = 10
 
     NAME = u'Регенерация'
-    NORMALIZED_NAME = NAME
+    normalized_name = NAME
     DESCRIPTION = u'Во время боя герой может восстановить часть своего здоровья'
 
     RESTORED_PERCENT = 0.25
 
     @classmethod
-    def use(cls, messanger, actor, enemy):
+    def use(cls, messanger, current_time, actor, enemy):
         health_to_regen = f.mob_hp_to_lvl(actor.level) * cls.RESTORED_PERCENT # !!!MOB HP, NOT HERO!!!
         applied_health = actor.change_health(health_to_regen)
-        messanger.add_message('hero_ability_regeneration', actor=actor, health=applied_health)
+        messanger.add_message('hero_ability_regeneration', current_time, actor=actor, health=applied_health)
 
 
 

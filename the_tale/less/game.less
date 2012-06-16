@@ -140,6 +140,10 @@
    &:hover {
       background-color: @hover-color;
    }
+
+   .quest-body {
+      padding-left: 70px;
+   }
 }
 
 .log-record {
@@ -150,13 +154,30 @@
       background-color: @hover-color;
    }
 
-   .dash {
+   .time {
       float: left;
       margin: 0 3px;
    }
 
    .message {
-      margin-left: 1.6em;
+      margin-left: 3.5em;
+   }
+}
+
+.diary-record {
+   margin: 0.75em 0;
+   cursor: default;
+
+   &:hover {
+      background-color: @hover-color;
+   }
+
+   .datetime {
+      font-weight: bold;
+   }
+
+   .message {
+      margin-left: 1em;
    }
 }
 

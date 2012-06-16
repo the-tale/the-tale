@@ -122,8 +122,8 @@ class AngelPrototype(object):
     # Next turn operations
     ###########################################
 
-    def process_turn(self, turn_number):
-        return turn_number + 1
+    def process_turn(self, current_time):
+        return current_time.turn_number + 1
 
     def __eq__(self, other):
         # print 'angel'

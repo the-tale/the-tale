@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import math
+import time
+import datetime
 import random
-import numbers
+
 
 from dext.utils import s11n
 from dext.utils import database
-
-from textgen.words import Fake as FakeWord
 
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
@@ -23,10 +23,10 @@ from game.heroes.conf import heroes_settings
 
 from game.map.prototypes import MapInfoPrototype
 
-from game.text_generation import get_vocabulary, get_dictionary
+from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 
 from game.balance import constants as c, formulas as f
-from game.prototypes import TimePrototype
+from game.prototypes import TimePrototype, GameTime
 
 
 def get_hero_by_id(model_id):
@@ -302,22 +302,20 @@ class HeroPrototype(object):
             if len(self.diary) > heroes_settings.MESSAGES_LOG_LENGTH:
                 self.diary.pop(0)
 
-    def add_message(self, type_, important=False, **kwargs):
-        args = {}
-        for k, v in kwargs.items():
-            if isinstance(v, (FakeWord, numbers.Number)):
-                args[k] = v
-            else:
-                args[k] = v.normalized_name
+    @staticmethod
+    def _prepair_message(current_time, msg):
+        return (current_time.turn_number, time.mktime(datetime.datetime.now().timetuple()), msg)
+
+    def add_message(self, type_, current_time, important=False, **kwargs):
+        args = prepair_substitution(kwargs)
         template = get_vocabulary().get_random_phrase(type_)
         if template is None:
-            return
             # TODO: raise exception in production (not when tests running)
             # from textgen.exceptions import TextgenException
             # raise TextgenException(u'ERROR: unknown template type: %s' % type_)
+            return
         msg = template.substitute(get_dictionary(), args)
-        # print msg
-        self.push_message(msg, important=important)
+        self.push_message(self._prepair_message(current_time, msg), important=important)
 
 
     def heal(self, delta):
@@ -357,8 +355,19 @@ class HeroPrototype(object):
 
         database.raw_save(self.model)
 
+    @staticmethod
+    def _compare_messages(first, second):
+        if len(first) != len(second):
+            return False
+
+        for a,b in zip(first, second):
+            if a[0] != b[0] or a[2] != b[2] or abs(a[1] - b[1]) > 0.0001:
+                return False
+
+        return True
 
     def __eq__(self, other):
+
         return (self.id == other.id and
                 self.is_alive == other.is_alive and
                 self.angel_id == other.angel_id and
@@ -376,17 +385,28 @@ class HeroPrototype(object):
                 self.next_spending == other.next_spending and
                 self.position == other.position and
                 self.statistics == other.statistics and
-                self.messages == other.messages)
+                self._compare_messages(self.messages, other.messages) and
+                self._compare_messages(self.diary, other.diary))
 
     def ui_info(self, ignore_actions=False):
 
         quest_items_count, loot_items_count = self.bag.occupation
 
+        messages = []
+        for turn_number, timestamp, msg in self.messages:
+            game_time = GameTime.create_from_turn(turn_number)
+            messages.append((timestamp, game_time.verbose_time, msg))
+
+        diary = []
+        for turn_number, timestamp, msg in self.diary:
+            game_time = GameTime.create_from_turn(turn_number)
+            diary.append((timestamp, game_time.verbose_date, game_time.verbose_time, msg))
+
         return {'id': self.id,
                 'angel': self.angel_id,
                 'actions': [ action.ui_info() for action in self.get_actions() ] if not ignore_actions else [],
-                'messages': self.messages,
-                'diary': self.diary,
+                'messages': messages,
+                'diary': diary,
                 'position': self.position.ui_info(),
                 'alive': self.is_alive,
                 'bag': self.bag.ui_info(),
@@ -450,8 +470,8 @@ class HeroPrototype(object):
     # Next turn operations
     ###########################################
 
-    def process_turn(self, turn_number):
-        return turn_number + 1
+    def process_turn(self, current_time):
+        return current_time.turn_number + 1
 
 
 

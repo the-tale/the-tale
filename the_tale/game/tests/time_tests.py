@@ -3,7 +3,7 @@
 from django.test import TestCase
 
 from game.models import Time
-from game.prototypes import TimePrototype
+from game.prototypes import TimePrototype, GameTime
 
 
 class TimeTest(TestCase):
@@ -45,4 +45,11 @@ class TimeTest(TestCase):
         time = TimePrototype.get_current_time()
         time.increment_turn()
 
-        self.assertEqual(time.ui_info(), { 'number': 1 })
+        self.assertEqual(time.ui_info()['number'], 1)
+
+    def test_game_time(self):
+        time = TimePrototype.get_current_time()
+        self.assertEqual(time.game_time, GameTime(0,1,1,0,0,0))
+
+        time.increment_turn()
+        self.assertEqual(time.game_time, GameTime(0,1,1,0,2,0))

@@ -8,6 +8,7 @@ from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradingPrototype, ActionEquippingPrototype
 from game.artifacts.storage import ArtifactsDatabase
 from game.artifacts.conf import ITEM_TYPE
+from game.prototypes import TimePrototype
 
 from game.balance import constants as c, formulas as f
 
@@ -18,7 +19,7 @@ class InPlaceActionTest(TestCase):
 
         self.bundle = create_test_bundle('InPlaceActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionInPlacePrototype.create(self.action_idl))
+        self.bundle.add_action(ActionInPlacePrototype.create(self.action_idl, TimePrototype.get_current_time()))
         self.action_inplace = self.bundle.tests_get_last_action()
         self.hero = self.bundle.tests_get_hero()
 
@@ -33,7 +34,7 @@ class InPlaceActionTest(TestCase):
 
 
     def test_processed(self):
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
         test_bundle_save(self, self.bundle)
@@ -41,7 +42,7 @@ class InPlaceActionTest(TestCase):
 
     def test_heal_action_create(self):
         self.hero.health = 1
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertEqual(len(self.bundle.actions), 3)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionRestPrototype.TYPE)
         test_bundle_save(self, self.bundle)
@@ -53,7 +54,7 @@ class InPlaceActionTest(TestCase):
             artifact = storage.generate_artifact_from_list(storage.loot_ids, 1)
             self.hero.bag.put_artifact(artifact)
 
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertEqual(len(self.bundle.actions), 3)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionTradingPrototype.TYPE)
 
@@ -66,7 +67,7 @@ class InPlaceActionTest(TestCase):
         artifact.power = 666
         self.hero.bag.put_artifact(artifact)
 
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertEqual(len(self.bundle.actions), 3)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionEquippingPrototype.TYPE)
 
@@ -80,7 +81,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         self.bundle = create_test_bundle('InPlaceActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionInPlacePrototype.create(self.action_idl))
+        self.bundle.add_action(ActionInPlacePrototype.create(self.action_idl, TimePrototype.get_current_time()))
         self.action_inplace = self.bundle.tests_get_last_action()
         self.hero = self.bundle.tests_get_hero()
 
@@ -92,7 +93,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
     def test_no_money(self):
 
         self.hero.money = 1
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertEqual(self.hero.money, 1)
         self.assertEqual(self.hero.statistics.money_spend, 0)
         test_bundle_save(self, self.bundle)
@@ -106,7 +107,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         self.hero.money = money
         self.hero.health = 1
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertTrue(self.hero.money < f.instant_heal_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(self.hero.health, self.hero.max_health)
 
@@ -121,7 +122,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         money = f.buy_artifact_price(self.hero.level)
 
         self.hero.money = money
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertTrue(self.hero.money < f.buy_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(len(self.hero.bag.items()), 1)
         artifact_id, artifact = self.hero.bag.items()[0]
@@ -144,7 +145,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
         self.hero.equipment.unequip(equip_slot)
         self.hero.equipment.equip(equip_slot, artifact)
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertTrue(self.hero.money < f.sharpening_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(artifact_power + 1, self.hero.equipment.get(equip_slot).power)
 
@@ -158,7 +159,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         money = f.useless_price(self.hero.level)
         self.hero.money = money
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertTrue(self.hero.money < f.useless_price(self.hero.level) * c.PRICE_DELTA + 1)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
@@ -172,7 +173,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         money = f.impact_price(self.hero.level)
         self.hero.money = money
-        self.bundle.process_turn(1)
+        self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertTrue(self.hero.money < f.impact_price(self.hero.level) * c.PRICE_DELTA + 1)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)

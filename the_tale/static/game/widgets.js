@@ -256,6 +256,8 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
             .addClass('quest-icon pgf-quest-icon')
             .addClass(quest.quest_type);
 
+        jQuery('.pgf-date', element).text(quest.verbose_date);
+        jQuery('.pgf-time', element).text(quest.verbose_time);
         jQuery('.pgf-quest-description', element).text(quest.quest_text);
     }
 
@@ -545,9 +547,15 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     var shortLogContainer = jQuery('.pgf-log-list', content);
 
-    function RenderMessage(index, data, element) {
-        jQuery('.pgf-turn-number', element).text(data.turn);
-        jQuery('.pgf-message', element).text(data.message);
+    function RenderDiaryMessage(index, data, element) {
+        jQuery('.pgf-time', element).text(data.message[2]);
+        jQuery('.pgf-date', element).text(data.message[1]);
+        jQuery('.pgf-message', element).text(data.message[3]);
+    }
+
+    function RenderLogMessage(index, data, element) {
+        jQuery('.pgf-time', element).text(data.message[1]);
+        jQuery('.pgf-message', element).text(data.message[2]);
     }
 
     function RenderLog(data, widget) {
@@ -555,9 +563,15 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
         for (var i=messages.length-1; i>=0 && i>messages.length-1-VISIBLE_MESSAGES_NUMBER; --i) {
             shortLog.push(messages[i]);
         }
-        // shortLog.reverse();
 
-        pgf.base.RenderTemplateList(shortLogContainer, shortLog, RenderMessage, {});
+        if (params.type == 'log') {
+            pgf.base.RenderTemplateList(shortLogContainer, shortLog, RenderLogMessage, {});
+        }
+        if (params.type == 'diary') {
+            pgf.base.RenderTemplateList(shortLogContainer, shortLog, RenderDiaryMessage, {});
+        }            
+
+
     }
 
     this.Refresh = function() {
@@ -567,7 +581,12 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
         var turnMessages = [];
         if (hero) {
-            turnMessages = hero[params.messagesAttribute];
+            if (params.type == 'log') {
+                turnMessages = hero.messages;                
+            }
+            if (params.type == 'diary') {
+                turnMessages = hero.diary;                
+            }            
         }
 
         messages = [];

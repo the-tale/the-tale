@@ -13,6 +13,7 @@ from game.heroes.models import Hero
 from game.quests.models import Quest
 from game.actions.models import Action
 from game.models import Bundle, BundleMember
+from game.prototypes import TimePrototype
 
 class AngelTest(TestCase):
 
@@ -49,11 +50,11 @@ class AngelTest(TestCase):
         test_bundle_save(self, self.bundle)
 
     def test_remove(self):
-        turn_number = 1
+        current_time = TimePrototype.get_current_time()
 
         for i in xrange(100):
-            self.bundle.process_turn(turn_number)
-            turn_number += 1
+            self.bundle.process_turn(current_time)
+            current_time.increment_turn()
 
         test_bundle_save(self, self.bundle)
 

@@ -44,40 +44,40 @@ class Actor(object):
         return random_value_by_priority(choice_abilities)
 
 
-def make_turn(actor1, actor2, messanger):
+def make_turn(current_time, actor1, actor2, messanger):
 
     actor1_initiative = random.uniform(0, actor1.initiative + actor2.initiative)
 
     if actor1_initiative < actor1.initiative:
-        return strike(actor1, actor2, messanger)
+        return strike(current_time, actor1, actor2, messanger)
     else:
-        return strike(actor2, actor1, messanger)
+        return strike(current_time, actor2, actor1, messanger)
 
 
-def strike(attacker, defender, messanger):
+def strike(current_time, attacker, defender, messanger):
 
     attacker.context.on_own_turn()
 
     if attacker.context.is_stunned:
-        messanger.add_message('action_battlepve1x1_battle_stun', actor=attacker)
+        messanger.add_message('action_battlepve1x1_battle_stun', current_time, actor=attacker)
         return
 
     ability = attacker.choose_ability()
 
     if ability.LOGIC_TYPE == ABILITIES_LOGIC_TYPE.WITHOUT_CONTACT:
-        strike_without_contact(ability, attacker, defender, messanger)
+        strike_without_contact(current_time, ability, attacker, defender, messanger)
     elif ability.LOGIC_TYPE == ABILITIES_LOGIC_TYPE.WITH_CONTACT:
-        strike_without_contact(ability, attacker, defender, messanger)
+        strike_with_contact(current_time, ability, attacker, defender, messanger)
 
 
-def strike_with_contact(ability, attacker, defender, messanger):
+def strike_with_contact(current_time, ability, attacker, defender, messanger):
 
     if attacker.context.should_miss_attack():
-        messanger.add_message('action_battlepve1x1_battle_miss', attacker=attacker, ability=ability, defender=defender)
+        messanger.add_message('action_battlepve1x1_battle_miss', current_time, attacker=attacker, ability=ability, defender=defender)
         return
 
-    ability.use(messanger, attacker, defender)
+    ability.use(messanger, current_time, attacker, defender)
 
 
-def strike_without_contact(ability, attacker, defender, messanger):
-    ability.use(messanger, attacker, defender)
+def strike_without_contact(current_time, ability, attacker, defender, messanger):
+    ability.use(messanger, current_time, attacker, defender)
