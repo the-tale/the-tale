@@ -116,6 +116,14 @@ jQuery(document).ready(function() {
           </ul>
 
           <ul class="nav pull-right">
+            <li>
+              {% set game_time = resource.time.game_time %}
+              <p id="time-block" class="navbar-text">
+                <span class="pgf-game-date">{{ game_time.verbose_date}}</span>
+                <span class="pgf-game-time">{{ game_time.verbose_time }}</span>
+              </p>
+            </li>
+            <li class="divider-vertical"></li>
             {% if request.user.is_authenticated() %}
             <li><a href="{{ url('accounts:logout') }}">выйти</a></li>
             {% else %}

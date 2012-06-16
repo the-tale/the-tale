@@ -107,40 +107,15 @@ pgf.game.widgets.Time = function(selector, updater, widgets, params) {
     var instance = this;
 
     var content = jQuery(selector);
-    var timeIcon = jQuery('.pgf-time-icon', content);
+
+    var gameDate = jQuery('.pgf-game-date', content);
+    var gameTime = jQuery('.pgf-game-time', content);
 
     var data = {};
 
     function RenderTime(data, widget) {
-        // 1 turn ~ 1 hour
-        // 24 hours ~ 1 day
-        // 30 days ~ month
-        // 4 month ~ 1 year
-        var months = ['Сухой месяц', 'Холодный месяц', 'Жаркий месяц', 'Сырой месяц']
-
-        var turn = data.date.number;
-
-        var year = Math.floor(turn / 24 /30 / 4);
-        turn -= year * 24 * 30 * 4;
-
-        var month = Math.floor( turn / 24 / 30);
-        turn -= month * 24 * 30;
-
-        var days = Math.floor( turn / 24);
-        turn -= days * 24;
-
-        var hours = turn;
-
-        jQuery('.pgf-time .pgf-year', widget).text(1000 + year);
-        jQuery('.pgf-time .pgf-month', widget).text(months[month]);
-        jQuery('.pgf-time .pgf-day', widget).text(days);
-        jQuery('.pgf-time .pgf-hours', widget).text(hours);
-
-        timeIcon.removeClass('sunrise sunset midnight noon');
-        if (4 < hours && hours <= 10) timeIcon.addClass('sunrise');
-        if (10 < hours && hours <= 16) timeIcon.addClass('noon');
-        if (16 < hours && hours <= 22) timeIcon.addClass('sunset');
-        if (22 < hours || hours <= 4) timeIcon.addClass('midnight');
+        gameDate.text(data.date.verbose_date);
+        gameTime.text(data.date.verbose_time);
     }
 
     this.Refresh = function() {

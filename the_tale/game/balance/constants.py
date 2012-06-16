@@ -135,3 +135,22 @@ ANGEL_HELP_HEAL_IF_LOWER_THEN = float(0.8) # можем лечить если з
 ANGEL_HELP_HEAL_FRACTION = (float(0.25), float(0.5)) # (min, max) процент хелсов, которые будут вылечины
 ANGEL_HELP_TELEPORT_DISTANCE = float(3.0) # расстяние на которое происходит телепорт
 ANGEL_HELP_LIGHTING_FRACTION = (float(0.25), float(0.5)) # (min, max) процент урона, который будет нанесён
+
+# игровое время из расчёта 1/4 дня в полчаса (считаем среднюю сессию в 15 минут, берём х2 запас), т.е. 1 игровой день == 2 часа реального времени
+
+GAME_SECONDS_IN_GAME_MINUTE = int(60)
+GAME_MINUTES_IN_GAME_HOUR = int(60)
+GAME_HOURSE_IN_GAME_DAY = int(24)
+GAME_DAYS_IN_GAME_WEEK = int(7)
+GAME_WEEKS_IN_GAME_MONTH = int(4)
+GAME_MONTH_IN_GAME_YEAR = int(4)
+
+GAME_SECONDS_IN_GAME_HOUR = int(GAME_SECONDS_IN_GAME_MINUTE * GAME_MINUTES_IN_GAME_HOUR)
+GAME_SECONDS_IN_GAME_DAY = int(GAME_SECONDS_IN_GAME_HOUR * GAME_HOURSE_IN_GAME_DAY)
+GAME_SECONDS_IN_GAME_WEEK = int(GAME_SECONDS_IN_GAME_DAY * GAME_DAYS_IN_GAME_WEEK)
+GAME_SECONDS_IN_GAME_MONTH = int(GAME_SECONDS_IN_GAME_WEEK * GAME_WEEKS_IN_GAME_MONTH)
+GAME_SECONDS_IN_GAME_YEAR = int(GAME_SECONDS_IN_GAME_MONTH * GAME_MONTH_IN_GAME_YEAR)
+
+_TURNS_IN_GAME_DAY = int(4 *(TURNS_IN_HOUR / 2))
+
+GAME_SECONDS_IN_TURN = int(GAME_SECONDS_IN_GAME_DAY / _TURNS_IN_GAME_DAY)

@@ -75,6 +75,21 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.ANGEL_HELP_TELEPORT_DISTANCE, float(3.0))
         self.assertEqual(c.ANGEL_HELP_LIGHTING_FRACTION, (float(0.25), float(0.5)))
 
+        self.assertEqual(c.GAME_SECONDS_IN_GAME_MINUTE, 60)
+        self.assertEqual(c.GAME_MINUTES_IN_GAME_HOUR, 60)
+        self.assertEqual(c.GAME_HOURSE_IN_GAME_DAY, 24)
+        self.assertEqual(c.GAME_DAYS_IN_GAME_WEEK, 7)
+        self.assertEqual(c.GAME_WEEKS_IN_GAME_MONTH, 4)
+        self.assertEqual(c.GAME_MONTH_IN_GAME_YEAR, 4)
+
+        self.assertEqual(c.GAME_SECONDS_IN_GAME_HOUR, 60*60)
+        self.assertEqual(c.GAME_SECONDS_IN_GAME_DAY, 60*60*24)
+        self.assertEqual(c.GAME_SECONDS_IN_GAME_WEEK, 60*60*24*7)
+        self.assertEqual(c.GAME_SECONDS_IN_GAME_MONTH, 60*60*24*7*4)
+        self.assertEqual(c.GAME_SECONDS_IN_GAME_YEAR, 60*60*24*7*4*4)
+
+        self.assertEqual(c.GAME_SECONDS_IN_TURN, 120)
+
 
 class FormulasTest(TestCase):
 
@@ -97,3 +112,16 @@ class FormulasTest(TestCase):
     def test_sell_artifact_price(self):
 
         self.assertTrue(f.sell_artifact_price(1))
+
+    def test_turns_to_game_time(self):
+
+        self.assertEqual(f.turns_to_game_time(0), (0, 1, 1, 0, 0, 0))
+        self.assertEqual(f.turns_to_game_time(1), (0, 1, 1, 0, 2, 0))
+        self.assertEqual(f.turns_to_game_time(5), (0, 1, 1, 0, 10, 0))
+        self.assertEqual(f.turns_to_game_time(20), (0, 1, 1, 0, 40, 0))
+        self.assertEqual(f.turns_to_game_time(70), (0, 1, 1, 2, 20, 0))
+        self.assertEqual(f.turns_to_game_time(700), (0, 1, 1, 23, 20, 0))
+        self.assertEqual(f.turns_to_game_time(7001), (0, 1, 10, 17, 22, 0))
+        self.assertEqual(f.turns_to_game_time(70010), (0, 4, 14, 5, 40, 0))
+        self.assertEqual(f.turns_to_game_time(700103), (8, 3, 21, 8, 46, 0))
+        self.assertEqual(f.turns_to_game_time(7001038), (86, 4, 8, 15, 56, 0))

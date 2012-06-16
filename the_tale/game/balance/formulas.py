@@ -161,3 +161,26 @@ def sell_artifact_price(lvl):
 #   -  общее влияние равно сумме влияний за месяц с коофициентом давности, т.е. влияние, полученное месяц назад, применяется с коофициентом 0 (не влияет)
 
 def impact_value(lvl, quest_difficult): return lvl+quest_difficult
+
+
+def turns_to_game_time(turns):
+    game_time = turns * c.GAME_SECONDS_IN_TURN
+
+    year = int(game_time / c.GAME_SECONDS_IN_GAME_YEAR)
+    game_time %= int(c.GAME_SECONDS_IN_GAME_YEAR)
+
+    month = int(game_time / c.GAME_SECONDS_IN_GAME_MONTH) + 1
+    game_time %= int(c.GAME_SECONDS_IN_GAME_MONTH)
+
+    day = int(game_time / c.GAME_SECONDS_IN_GAME_DAY) + 1
+    game_time %= int(c.GAME_SECONDS_IN_GAME_DAY)
+
+    hour = int(game_time / c.GAME_SECONDS_IN_GAME_HOUR)
+    game_time %= int(c.GAME_SECONDS_IN_GAME_HOUR)
+
+    minute = int(game_time / c.GAME_SECONDS_IN_GAME_MINUTE)
+    game_time %= int(c.GAME_SECONDS_IN_GAME_MINUTE)
+
+    second = game_time
+
+    return (year, month, day, hour, minute, second)
