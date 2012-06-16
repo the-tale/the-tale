@@ -10,7 +10,6 @@ from game.balance import constants as c, formulas as f
 class Help(AbilityPrototype):
 
     COST = 4
-    COOLDOWN = 6
 
     NAME = u'Помочь'
     DESCRIPTION = u'Попытаться помочь герою, чем бы тот не занимался'

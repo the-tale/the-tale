@@ -1,6 +1,13 @@
 
 @import "constants.less";
 
+.second-row {
+
+   .block {
+      min-height: 350px;
+   }
+}
+
 #hero-base-block {
 
    .hero-level {
@@ -219,18 +226,26 @@
    text-align: center;
    font-size: 14pt;
 
-   .cooldown {
+   .wait, .no-energy {
       color: #999;
       text-decoration: none;
    }
 
-   .icon-time {
+   .icon-tint {
       display: none;
    }
 
-   .cooldown .icon-time {
+   .no-energy .icon-tint {
       display: inline-block;
       vertical-align: middle;
+   }
+
+   .spinner {
+      display: inline-block;
+      vertical-align: middle;
+      margin: 5px;
+      left: 0 !important;
+      top: 0 !important;
    }
 
 }

@@ -265,6 +265,9 @@ pgf.forms.Post = function(params) {
         if (params.wait) {
             pgf.ui.dialog.wait("stop");
         }
+        if (params.OnComplete) {
+            params.OnComplete();
+        }
     }
 
     if (params.wait) {

@@ -92,21 +92,63 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         //TODO: replace with some kind of api not related to widgets
         widgets.switcher.ShowMapWidget();
     });
+    var MINIMUM_LOCK_DELAY = 750; 
+    var abilitiesWaitingStartTimes = {};
 
     var angelId = undefined;
     var angelEnergy = 0;
     var deck = {};
     var turn = {};
 
-    function LockAbility(abilityType) {
-        jQuery('.pgf-ability-'+abilityType, widget).toggleClass('cooldown', true);
+    function ChangeAbilityEnergyState(abilityType, energy) {
+        jQuery('.pgf-ability-'+abilityType, widget).toggleClass('no-energy', energy);
+    }
+
+    function ToggleWait(ability, wait) {
+        ability.spin(wait ? 'tiny' : false);
+        ability.toggleClass('wait', wait).toggleClass('pgf-wait', wait);                
+    }
+
+    function ChangeAbilityWaitingState(abilityType, wait) {
+        var ability = jQuery('.pgf-ability-'+abilityType, widget);
+
+        if (wait) {
+            var date = new Date();
+            abilitiesWaitingStartTimes[abilityType] = date.getTime();
+
+            ToggleWait(ability, true);
+        }
+        else {
+            var date = new Date();
+            var curTime = date.getTime();
+            var minCloseTime =  abilitiesWaitingStartTimes[abilityType] + MINIMUM_LOCK_DELAY;
+
+            if ( minCloseTime <= curTime) {
+                ToggleWait(ability, false);
+            }
+            else {
+                window.setTimeout(function() { ToggleWait(ability, false); }, minCloseTime - curTime);
+            }
+        }
+    }
+
+    function IsProcessingAbility(abilityType) {
+        return jQuery('.pgf-ability-'+abilityType, widget).hasClass('pgf-wait');
     }
 
     function ActivateAbility(ability) {
 
         var abilityInfo = abilities[ability.type];
 
-        if (ability.available_at > turn.number) return;
+        if (abilityInfo.cost > angelEnergy) {
+            return;
+        }
+
+        if (IsProcessingAbility(ability.type)) {
+            return;
+        }
+
+        ChangeAbilityWaitingState(ability.type, true);
         
         //TODO: replace with some kind of api not related to widgets
         var currentHero = widgets.heroes.CurrentHero();
@@ -116,65 +158,26 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
             heroId = currentHero.id;
         }
 
-        if (abilityInfo.use_form) { 
-
-            //TODO: replace with some kind of api not related to widgets
-            widgets.switcher.ShowActivateAbilityWidget();
-
-            function OnSuccessActivation(form, data) {
-                ability.available_at = data.data.available_at;
-
-                if (ability.available_at) LockAbility(ability.type);
-                if (abilityInfo.cost > angelEnergy) LockAbility(ability.type);
-
-                //TODO: replace with some kind of api not related to widgets
-                widgets.switcher.ShowMapWidget();
-
-                jQuery(document).trigger(pgf.game.events.ANGEL_DATA_REFRESH_NEEDED);
-                jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
-            }
-
-            jQuery.ajax({
-                type: 'get',
-                url: pgf.urls['game:abilities:form'](ability.type),
-                success: function(data, request, status) {
-                    activateAbilityFormWidget.html(data);
-
-                    formSelector = jQuery('form', activateAbilityFormWidget);
-
-                    jQuery('#id_angel_id', formSelector).val(angelId);
-                    jQuery('#id_hero_id', formSelector).val(heroId);
-
-                    var activationForm = new pgf.forms.Form(formSelector,
-                                                            {action: pgf.urls['game:abilities:activate'](ability.type),
-                                                             OnSuccess: OnSuccessActivation});
-                },
-                error: function(request, status, error) {
-                },
-                complete: function(request, status) {
-                }
-            });
+        var ajax_data = {};
+        if (heroId !== undefined) {
+            ajax_data.hero_id = heroId;
+            ajax_data.angel_id = angelId;
         }
-        else {
-            var ajax_data = {};
-            if (heroId !== undefined) {
-                ajax_data.hero_id = heroId;
-                ajax_data.angel_id = angelId;
-            }
-            pgf.forms.Post({action: pgf.urls['game:abilities:activate'](ability.type),
-                            data: ajax_data,
-                            OnSuccess: function(data) {
-                                ability.available_at = data.data.available_at;
+        pgf.forms.Post({action: pgf.urls['game:abilities:activate'](ability.type),
+                        data: ajax_data,
+                        wait: false,
+                        OnError: function() {
+                            ChangeAbilityWaitingState(ability.type, false);                            
+                        },
+                        OnSuccess: function(data) {
+                            ChangeAbilityWaitingState(ability.type, false);
 
-                                if (ability.available_at) LockAbility(ability.type);
-                                if (abilityInfo.cost > angelEnergy) LockAbility(ability.type);
-
-                                jQuery(document).trigger(pgf.game.events.ANGEL_DATA_REFRESH_NEEDED);
-                                jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
-                            }
-                           });
-        }
-        
+                            ability.available_at = data.data.available_at;
+                           
+                            jQuery(document).trigger(pgf.game.events.ANGEL_DATA_REFRESH_NEEDED);
+                            jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
+                        }
+                       });
     }
 
     function RenderAbility(ability) {
@@ -182,8 +185,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         var abilityInfo = abilities[ability.type];
         var element = jQuery('.pgf-ability-'+abilityInfo.type.toLowerCase());
 
-        if (ability.available_at > turn.number) LockAbility(ability.type);
-        if (abilityInfo.cost > angelEnergy) LockAbility(ability.type);
+        ChangeAbilityEnergyState(ability.type, abilityInfo.cost > angelEnergy);
 
         element.click(function(e){
             e.preventDefault();                          

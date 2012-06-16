@@ -27,6 +27,8 @@ class AbilityPrototype(object):
         return cls.FORM is not None
 
     def on_cooldown(self, time, angel_id):
+        if self.COOLDOWN is None:
+            return False
         if self.available_at < time.turn_number:
             return False
         if AbilityTaskPrototype.check_if_used(self.get_type(), angel_id):
@@ -153,11 +155,13 @@ class AbilityTaskPrototype(object):
         energy = angel.get_energy_at_turn(turn_number)
 
         if energy < ability.COST:
+            self.model.comment = 'energy < ability.COST'
             self.state = ABILITY_STATE.ERROR
             return
 
         if ability.available_at > turn_number:
             self.state = ABILITY_STATE.ERROR
+            self.model.comment = 'available_at (%d) > turn_number (%d)' % (ability.available_at, turn_number)
             return
 
         if self.hero_id:
@@ -167,6 +171,7 @@ class AbilityTaskPrototype(object):
             result = ability.use(bundle, angel, self.data)
 
         if not result:
+            self.model.comment = 'result is False'
             self.state = ABILITY_STATE.ERROR
             return
 

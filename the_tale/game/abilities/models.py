@@ -27,4 +27,6 @@ class AbilityTask(models.Model):
     activated_at = models.IntegerField()
     available_at = models.IntegerField()
 
+    comment = models.TextField(default='')
+
     data = models.TextField(default='{}')
