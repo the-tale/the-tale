@@ -75,7 +75,13 @@ class Line(object):
 
         return next_pointer
 
-    def get_quest_command(self, env, pointer):
+    def get_quest_command(self, env, pointer, choices=None):
+        '''
+        return cmd, choices list, subpointer
+        '''
+
+        if choices is None:
+            choices = []
 
         if pointer[0] >= len(self.sequence):
             raise QuestGeneratorException('get quest command: wrong pointer value (%r) for this line' % pointer)
@@ -83,15 +89,16 @@ class Line(object):
         cmd = self.sequence[pointer[0]]
 
         if not cmd.is_choice:
-            return cmd, pointer[1:]
+            return cmd, choices, pointer[1:]
 
         if len(pointer) == 1:
-            return cmd, []
+            return cmd, choices, []
 
         if pointer[1] not in cmd.choices.values():
             raise QuestGeneratorException(u'wrong pointer "%r" - line "%s" not in choice "%s"' % (pointer, pointer[1], cmd.get_description(env)))
 
-        return env.lines[pointer[1]].get_quest_command(env, pointer[2:])
+        choices.append((cmd.choice, cmd.get_choice_by_line(pointer[1])))
+        return env.lines[pointer[1]].get_quest_command(env, pointer[2:], choices=choices)
 
     def serialize(self):
         return {'sequence': [cmd.serialize() for cmd in self.sequence]}
@@ -163,8 +170,8 @@ class Quest(object):
         return env.lines[self.line].increment_pointer(env, pointer, choices)
 
     def get_quest_action_chain(self, env, pointer):
-        cmd, subpointer = env.lines[self.line].get_quest_command(env, pointer)
-        chain = [ (self, cmd ) ]
+        cmd, choices, subpointer = env.lines[self.line].get_quest_command(env, pointer)
+        chain = [ (self, cmd, choices ) ]
 
         if not subpointer:
             return chain

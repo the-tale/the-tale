@@ -116,12 +116,19 @@ class BaseEnvironment(object):
 
         writers_chain = []
 
-        for quest, command in chain:
+        for quest, command, choices in chain:
             writer = self.writers_constructor(hero, quest.type(), self, quest.env_local)
+
+            quest_choices = []
+            for choice_id, choosen_line in choices:
+                quest_choices.append(writer.get_choice_result_msg(choice_id, choosen_line))
+
             writers_chain.append({'quest_type': quest.type(),
                                   'quest_text': writer.get_description_msg(),
                                   'action_type': command.type(),
-                                  'action_text': writer.get_action_msg(command.event)})
+                                  'action_text': writer.get_action_msg(command.event),
+                                  'choices': quest_choices})
+
 
         return writers_chain
 

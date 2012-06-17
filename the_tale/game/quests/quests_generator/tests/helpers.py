@@ -17,6 +17,9 @@ class FakeWriter(object):
     def get_action_msg(self, event):
         return '%s_%s_%s' % (self.hero, self.quest_type, event)
 
+    def get_choice_result_msg(self, choice, answer):
+        return '%s_%s_%s_%s' % (self.hero, self.quest_type, choice, answer)
+
 
 class FakeCmd(cmd.Command): pass
 
@@ -24,7 +27,7 @@ class FakeCmd(cmd.Command): pass
 class FakeLine(Line):
 
     def get_quest_command(self, env, pointer):
-        return FakeCmd('fake_event'), []
+        return FakeCmd('fake_event'), [], []
 
 class FakeQuest(Quest):
 

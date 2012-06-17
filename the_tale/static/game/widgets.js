@@ -250,6 +250,10 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
 
     var data = {};
 
+    function RenderChoice(index, choice, element) {
+        element.text(choice);
+    }
+
     function RenderQuest(index, quest, element) {
         jQuery('.pgf-quest-icon', element)
             .removeClass()
@@ -259,6 +263,11 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
         jQuery('.pgf-date', element).text(quest.verbose_date);
         jQuery('.pgf-time', element).text(quest.verbose_time);
         jQuery('.pgf-quest-description', element).text(quest.quest_text);
+
+        if (quest.choices.length) {
+            jQuery('.pgf-choices', element).removeClass('pgf-hidden');
+            pgf.base.RenderTemplateList(jQuery('.pgf-choices-container', element), quest.choices, RenderChoice, {});            
+        }
     }
 
     function RenderQuests() {

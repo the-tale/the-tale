@@ -21,7 +21,11 @@ class Writer(object):
     def get_msg_choice_answer(self, choice, answer): return 'quest_%s_writer_base_choice_%s_result_%s' % (self.quest_type, choice, answer)
 
     def get_message(self, type_):
+        # print type_
         template = get_vocabulary().get_random_phrase(type_, None)
+        # print template
+        # print '----------------------'
+        # print [k for k in get_vocabulary().data.keys() if k.startswith('quest_notmyworkline_writer_base_choice')]
         if template:
             return template.substitute(get_dictionary(), self.substitution)
         return None

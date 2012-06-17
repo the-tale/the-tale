@@ -100,21 +100,28 @@ class QuestTest(TestCase):
         self.assertRaises(QuestGeneratorException, self.quest.increment_pointer, self.env, [3], {})
 
     def test_get_quest_action_chain(self):
-        self.assertEqual(self.quest.get_quest_action_chain(self.env, [0]), [(self.quest, self.cmd_move)])
-        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1]), [(self.quest, self.cmd_choose)])
+        self.assertEqual(self.quest.get_quest_action_chain(self.env, [0]), [(self.quest, self.cmd_move, [])])
+        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1]), [(self.quest, self.cmd_choose, [])])
 
         self.assertRaises(QuestGeneratorException, self.quest.get_quest_action_chain, self.env, [1, 'line_1', 0])
 
-        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.FIRST_CHOICE_LINE, 0]), [(self.quest, self.cmd_linear_move)])
-        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.FIRST_CHOICE_LINE, 7]), [(self.quest, self.cmd_linear_give_power)])
+        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.FIRST_CHOICE_LINE, 0]),
+                         [(self.quest, self.cmd_linear_move, [('choice_id_1', 'choice_1')])])
+        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.FIRST_CHOICE_LINE, 7]),
+                         [(self.quest, self.cmd_linear_give_power, [('choice_id_1', 'choice_1')])])
         self.assertRaises(QuestGeneratorException, self.quest.get_quest_action_chain, self.env, [1, self.FIRST_CHOICE_LINE, 7, 8])
         self.assertRaises(QuestGeneratorException, self.quest.get_quest_action_chain, self.env, [1, self.FIRST_CHOICE_LINE, 8])
 
-        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.SECOND_CHOICE_LINE, 0]), [(self.quest, self.cmd_quest_move)])
-        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.SECOND_CHOICE_LINE, 1]), [(self.quest, self.cmd_quest_quest)])
-        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.SECOND_CHOICE_LINE, 1, 0]), [(self.quest, self.cmd_quest_quest), (self.fake_quest, FakeCmd('fake_event'))])
-        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.SECOND_CHOICE_LINE, 1, 2]), [(self.quest, self.cmd_quest_quest), (self.fake_quest, FakeCmd('fake_event'))])
-        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.SECOND_CHOICE_LINE, 2]), [(self.quest, self.cmd_quest_get_reward)])
+        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.SECOND_CHOICE_LINE, 0]),
+                         [(self.quest, self.cmd_quest_move, [('choice_id_1', 'choice_2')])])
+        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.SECOND_CHOICE_LINE, 1]),
+                         [(self.quest, self.cmd_quest_quest, [('choice_id_1', 'choice_2')])])
+        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.SECOND_CHOICE_LINE, 1, 0]),
+                         [(self.quest, self.cmd_quest_quest, [('choice_id_1', 'choice_2')]), (self.fake_quest, FakeCmd('fake_event'), [])])
+        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.SECOND_CHOICE_LINE, 1, 2]),
+                         [(self.quest, self.cmd_quest_quest, [('choice_id_1', 'choice_2')]), (self.fake_quest, FakeCmd('fake_event'), [])])
+        self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.SECOND_CHOICE_LINE, 2]),
+                         [(self.quest, self.cmd_quest_get_reward, [('choice_id_1', 'choice_2')])])
         self.assertRaises(QuestGeneratorException, self.quest.get_quest_action_chain, self.env, [1, self.SECOND_CHOICE_LINE, 3])
 
     def test_get_command(self):

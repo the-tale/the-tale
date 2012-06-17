@@ -164,19 +164,22 @@ class EnvironmentTest(TestCase):
                          [{'quest_type': 'justquest',
                            'quest_text': 'hero_justquest',
                            'action_type': 'move',
-                           'action_text': 'hero_justquest_event_3_1'}])
+                           'action_text': 'hero_justquest_event_3_1',
+                           'choices': []}])
 
         self.assertEqual(self.env.get_writers_text_chain('hero', [1]),
                          [{'quest_type': 'justquest',
                            'quest_text': 'hero_justquest',
                            'action_type': 'choose',
-                           'action_text': 'hero_justquest_event_3_2'}])
+                           'action_text': 'hero_justquest_event_3_2',
+                           'choices': []}])
 
         self.assertEqual(self.env.get_writers_text_chain('hero', [1, FIRST_CHOICE_LINE, 7]),
                          [{'quest_type': 'justquest',
                            'quest_text': 'hero_justquest',
                            'action_type': 'givepower',
-                           'action_text': 'hero_justquest_event_1_8'}])
+                           'action_text': 'hero_justquest_event_1_8',
+                           'choices': ['hero_justquest_choice_id_1_choice_1']}])
 
         self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, FIRST_CHOICE_LINE, 7, 8])
         self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, FIRST_CHOICE_LINE, 8])
@@ -185,33 +188,39 @@ class EnvironmentTest(TestCase):
                          [{'quest_type': 'justquest',
                            'quest_text': 'hero_justquest',
                            'action_type': 'quest',
-                           'action_text': 'hero_justquest_event_2_2'}])
+                           'action_text': 'hero_justquest_event_2_2',
+                           'choices': ['hero_justquest_choice_id_1_choice_2']}])
 
         self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 1, 0]),
                          [{'quest_type': 'justquest',
                            'quest_text': 'hero_justquest',
                            'action_type': 'quest',
-                           'action_text': 'hero_justquest_event_2_2'},
-                           {'quest_type': 'fakequest',
+                           'action_text': 'hero_justquest_event_2_2',
+                           'choices': ['hero_justquest_choice_id_1_choice_2']},
+                          {'quest_type': 'fakequest',
                            'quest_text': 'hero_fakequest',
                            'action_type': 'fakecmd',
-                           'action_text': 'hero_fakequest_fake_event'}])
+                           'action_text': 'hero_fakequest_fake_event',
+                           'choices': []}])
 
         self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 1, 2]),
                          [{'quest_type': 'justquest',
                            'quest_text': 'hero_justquest',
                            'action_type': 'quest',
-                           'action_text': 'hero_justquest_event_2_2'},
-                           {'quest_type': 'fakequest',
+                           'action_text': 'hero_justquest_event_2_2',
+                           'choices': ['hero_justquest_choice_id_1_choice_2']},
+                          {'quest_type': 'fakequest',
                            'quest_text': 'hero_fakequest',
                            'action_type': 'fakecmd',
-                           'action_text': 'hero_fakequest_fake_event'}])
+                           'action_text': 'hero_fakequest_fake_event',
+                           'choices': []}])
 
         self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 2]),
                          [{'quest_type': 'justquest',
                            'quest_text': 'hero_justquest',
                            'action_type': 'getreward',
-                           'action_text': 'hero_justquest_event_2_3'}])
+                           'action_text': 'hero_justquest_event_2_3',
+                           'choices': ['hero_justquest_choice_id_1_choice_2']}])
 
         self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, SECOND_CHOICE_LINE, 3])
 

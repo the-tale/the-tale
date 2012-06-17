@@ -201,6 +201,12 @@ class Choose(Command):
         self.id = id
         self.choice = choice
 
+    def get_choice_by_line(self, line):
+        for k, v in self.choices.items():
+            if v == line:
+                return k
+        return None
+
     def get_description(self, env):
         return { 'cmd': 'choose',
                  'default': self.default,
