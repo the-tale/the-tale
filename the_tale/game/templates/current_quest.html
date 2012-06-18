@@ -16,8 +16,7 @@ jQuery(document).ready(function(e) {
 
     <div class="pgf-current-quest">
       <div class="quest-record">
-        <img class="quest-icon pgf-quest-icon"></img>
-        <span class="pgf-quest-description"></span><br/>
+        {% include "game/quest_record_body.html" %}
       </div>
       <small class="pgf-quest-action-description" style="color: #999; margin-bottom: 5px; display: inline-block; cursor: default;"></small>
     </div>
@@ -28,7 +27,9 @@ jQuery(document).ready(function(e) {
 
   <div class="pgf-quest-choices" style="cursor: default;">
     <div class="pgf-hidden pgf-no-choices">Сейчас поступки героя определены, повлиять на них нельзя</div>
-    <div class="pgf-hidden pgf-choices"></div>
+    <ul class="unstyled pgf-hidden choices-container pgf-choices-container">
+      <li class="pgf-template choice-record">&ndash; <a href="#" class="pgf-choice-link"></a></li>
+    </ul>
   </div>
 
 </div>

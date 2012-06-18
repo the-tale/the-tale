@@ -1,12 +1,12 @@
 # coding: utf-8
 
-from .help import HelpLine
-from .delivery import DeliveryLine
-from .caravan import CaravanLine
-from .spying import SpyingLine
-from .not_my_work import NotMyWorkLine
+from .help import Help
+from .delivery import Delivery
+from .caravan import Caravan
+from .spying import Spying
+from .not_my_work import NotMyWork
 
-QUESTS = [HelpLine, DeliveryLine, CaravanLine, SpyingLine, NotMyWorkLine]
+QUESTS = [Help, Delivery, Caravan, Spying, NotMyWork]
 QUESTS_TYPES = [quest.type() for quest in QUESTS]
 
 # TODO: WHY no all quest added here?

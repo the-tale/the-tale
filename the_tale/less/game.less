@@ -110,31 +110,31 @@
    height: 64px;
    float: left;
    margin-right: 5px;
-   margin-bottom: 5px;
+   margin-bottom: 0;
 
-   &.helpline {
+   &.help {
       background: url('../game/images/quests.png') no-repeat scroll 0 0 transparent;
    }
 
-   &.deliveryline {
+   &.delivery {
       background: url('../game/images/quests.png') no-repeat scroll -64px 0 transparent;
    }
 
-   &.spyingline {
+   &.spying {
       background: url('../game/images/quests.png') no-repeat scroll -128px 0 transparent;
    }
 
-   &.notmyworkline {
+   &.notmywork {
       background: url('../game/images/quests.png') no-repeat scroll -192px 0 transparent;
    }
 
-   &.caravanline {
+   &.caravan {
       background: url('../game/images/quests.png') no-repeat scroll -256px 0 transparent;
    }
 }
 
 .quest-record {
-   min-height: 64px + 5px;
+   min-height: 64px;
    cursor: default;
 
    &:hover {
@@ -145,8 +145,17 @@
       padding-left: 70px;
    }
 
-   .choices-container {
-      color: @disabled-text-color;
+   .choices {
+      margin-top: 0.5em;
+      margin-bottom: 1em;
+
+      .choices-container {
+         color: @disabled-text-color;
+      }
+   }
+
+   .actors-container {
+      margin: 0;
    }
 }
 

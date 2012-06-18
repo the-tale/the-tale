@@ -3,6 +3,10 @@ from game.quests.quests_generator.exceptions import QuestGeneratorException
 from game.quests.quests_generator.environment import LocalEnvironment
 from game.quests.quests_generator.commands import deserialize_command
 
+class ACTOR_TYPE:
+    PERSON = 0
+    PLACE = 1
+
 class Line(object):
 
     def __init__(self, sequence=[]):
@@ -115,6 +119,9 @@ class Line(object):
 
 class Quest(object):
 
+    ACTORS = []
+    CHOICES = {}
+
     def __init__(self):
         self.env_local = None
         self.id = None
@@ -184,6 +191,19 @@ class Quest(object):
         chain.extend( quest.get_quest_action_chain(env, subpointer) )
 
         return chain
+
+    def get_actors(self, env):
+        actors = []
+        for actor_name, actor_id, actor_type  in self.ACTORS:
+            if actor_type == ACTOR_TYPE.PERSON:
+                actor_data = env.persons[self.env_local[actor_id]]['external_data']
+            if actor_type == ACTOR_TYPE.PLACE:
+                actor_data = env.places[self.env_local[actor_id]]['external_data']
+            else:
+                raise QuestGeneratorException('unknown actor type: %s' % actor_type)
+            actors.append((actor_name, actor_data))
+        return actors
+
 
     def get_description(self, env):
         description = [self.__class__.__name__]

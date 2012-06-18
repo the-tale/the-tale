@@ -10,15 +10,15 @@ class Writer(object):
         self.quest_type = quest_type
 
 
-    def get_msg_description_id(self): return 'quest_%s_writer_base_base_description' % (self.quest_type,)
+    def get_msg_description_id(self): return 'quest_%s_description' % (self.quest_type,)
 
-    def get_msg_action_id(self, event): return 'quest_%s_writer_base_actions_%s' % (self.quest_type, event)
+    def get_msg_action_id(self, event): return 'quest_%s_action_%s' % (self.quest_type, event)
 
-    def get_msg_journal_id(self, event): return 'quest_%s_writer_base_journal_%s' % (self.quest_type, event)
+    def get_msg_journal_id(self, event): return 'quest_%s_journal_%s' % (self.quest_type, event)
 
-    def get_msg_choice_question(self, choice): return 'quest_%s_writer_base_choice_%s_question' % (self.quest_type, choice)
+    def get_msg_choice_variant_id(self, choice, variant): return 'quest_%s_choice_%s_variant_%s' % (self.quest_type, choice, variant)
 
-    def get_msg_choice_answer(self, choice, answer): return 'quest_%s_writer_base_choice_%s_result_%s' % (self.quest_type, choice, answer)
+    def get_msg_choice_result_id(self, choice, answer): return 'quest_%s_choice_%s_result_%s' % (self.quest_type, choice, answer)
 
     def get_message(self, type_):
         # print type_
@@ -39,8 +39,8 @@ class Writer(object):
     def get_journal_msg(self, event):
         return self.get_message(self.get_msg_journal_id(event))
 
-    def get_choice_question_msg(self, choice):
-        return self.get_message(self.get_msg_choice_question(choice))
+    def get_choice_variant_msg(self, choice, variant):
+        return self.get_message(self.get_msg_choice_variant_id(choice, variant))
 
     def get_choice_result_msg(self, choice, answer):
-        return self.get_message(self.get_msg_choice_answer(choice, answer))
+        return self.get_message(self.get_msg_choice_result_id(choice, answer))

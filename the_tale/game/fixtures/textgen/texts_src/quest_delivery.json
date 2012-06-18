@@ -1,0 +1,44 @@
+{
+    "description": "",
+    "prefix": "quest_delivery",
+    "variables": {"hero": "привидение", "person_start": "свинья", "person_end": "гусь", "place_start": "село", "place_end": "город", "item_to_deliver": "краска"},
+    "types": {
+
+        "description": [["Доставить посылку",
+                         "Доставить посылку"]],
+
+        "action_move_to_destination": [["[[hero]] идёт к месту назначения",
+                                        "Привидение идёт к месту назначения"]],
+
+        "journal_get_item": [["[[hero]] [{получил|hero|прш}] [[item_to_deliver|вн]]",
+                              "Привидение получило краску"]],
+
+        "journal_move_to_destination": [["Работа у курьеров не простая, пора двигаться",
+                                         "Работа у курьеров не простая, пора двигаться"]],
+
+        "journal_give_item": [["[[hero]] [{отдал|hero|прш}] [[item_to_deliver|вн]]",
+                               "Привидение отдало краску"]],
+
+        "journal_steal_item": [["[[hero]] [{присвоил|hero|прш}] [[item_to_deliver|вн]]",
+                                "Привидение присвоило краску"]],
+
+        "journal_get_reward": [["[[hero]] [{получил|hero|прш}] награду",
+                                "Привидение получило награду"]],
+
+        "journal_steal_reward": [["Теперь [[item_to_deliver]] будет [{мой|item_to_deliver|тв}]",
+                                  "Теперь краска будет моей"]],
+
+
+        "choice_steal_variant_delivery": [["чесно выполнить свои обязательства",
+                                           "чесно выполнить свои обязательства"]],
+
+        "choice_steal_variant_steal": [["украсть-украсть-украсть",
+                                        "украсть-украсть-украсть"]],
+
+        "choice_steal_result_delivery": [["[[hero]] [{решил|hero|прш}] доставить [[item_to_deliver|вн]]",
+                                          "Привидение решило доставить краску"]],
+
+        "choice_steal_result_steal": [["[[hero]] [{решил|hero|прш}] прикарманить [[item_to_deliver|вн]]",
+                                       "Привидение решило прикарманить краску"]]
+    }
+}

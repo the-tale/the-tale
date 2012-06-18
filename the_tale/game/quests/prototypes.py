@@ -8,7 +8,6 @@ from game.artifacts.storage import ArtifactsDatabase
 from game.heroes.prototypes import HeroPrototype
 from game.quests.models import Quest, QuestsHeroes
 from game.quests.exceptions import QuestException
-from game.prototypes import GameTime
 
 def get_quest_by_id(id):
     try:
@@ -259,22 +258,17 @@ class QuestPrototype(object):
         quest = self.env.get_quest(self.pointer)
         writer = self.env.get_writer(hero, self.pointer)
 
+        cmd_id = None
+        choice_variants = []
+
         if cmd:
             cmd_id = cmd.id
-            if cmd.id in choices:
-                choice_msg = writer.get_choice_result_msg(cmd.choice, choices[cmd.id])
-            else:
-                choice_msg = writer.get_choice_question_msg(cmd.choice)
-        else:
-            choice_msg = None
-            cmd_id = None
-
-        game_time = GameTime.create_from_turn(self.model.created_at_turn)
+            if cmd.id not in choices:
+                for variant in cmd.get_variants():
+                    choice_variants.append((variant, writer.get_choice_variant_msg(cmd.choice, variant)))
 
         return {'line': self.env.get_writers_text_chain(hero, self.last_pointer),
                 'choice_id': cmd_id,
-                'choice_text': choice_msg,
-                'verbose_date': game_time.verbose_date,
-                'verbose_time': game_time.verbose_time,
+                'choice_variants': choice_variants,
                 'id': self.model.id,
                 'subquest_id': quest.id}

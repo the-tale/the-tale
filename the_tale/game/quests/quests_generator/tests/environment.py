@@ -7,13 +7,13 @@ from game.quests.quests_generator.knowlege_base import KnowlegeBase
 from game.quests.quests_generator.environment import BaseEnvironment
 from game.quests.quests_generator.lines import BaseQuestsSource
 from game.quests.quests_generator.exceptions import QuestGeneratorException, RollBackException
-from game.quests.quests_generator.lines import DeliveryLine
+from game.quests.quests_generator.lines import Delivery
 from game.quests.quests_generator.quest_line import Line, Quest
 from game.quests.quests_generator.tests.helpers import JustQuest, FakeWriter, FakeQuest
 
 class QuestsSource(BaseQuestsSource):
 
-    quests_list = [DeliveryLine]
+    quests_list = [Delivery]
 
     def deserialize_quest(self, data):
         for quest in self.quests_list:
@@ -165,6 +165,7 @@ class EnvironmentTest(TestCase):
                            'quest_text': 'hero_justquest',
                            'action_type': 'move',
                            'action_text': 'hero_justquest_event_3_1',
+                           'actors': [],
                            'choices': []}])
 
         self.assertEqual(self.env.get_writers_text_chain('hero', [1]),
@@ -172,6 +173,7 @@ class EnvironmentTest(TestCase):
                            'quest_text': 'hero_justquest',
                            'action_type': 'choose',
                            'action_text': 'hero_justquest_event_3_2',
+                           'actors': [],
                            'choices': []}])
 
         self.assertEqual(self.env.get_writers_text_chain('hero', [1, FIRST_CHOICE_LINE, 7]),
@@ -179,6 +181,7 @@ class EnvironmentTest(TestCase):
                            'quest_text': 'hero_justquest',
                            'action_type': 'givepower',
                            'action_text': 'hero_justquest_event_1_8',
+                           'actors': [],
                            'choices': ['hero_justquest_choice_id_1_choice_1']}])
 
         self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, FIRST_CHOICE_LINE, 7, 8])
@@ -189,6 +192,7 @@ class EnvironmentTest(TestCase):
                            'quest_text': 'hero_justquest',
                            'action_type': 'quest',
                            'action_text': 'hero_justquest_event_2_2',
+                           'actors': [],
                            'choices': ['hero_justquest_choice_id_1_choice_2']}])
 
         self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 1, 0]),
@@ -196,11 +200,13 @@ class EnvironmentTest(TestCase):
                            'quest_text': 'hero_justquest',
                            'action_type': 'quest',
                            'action_text': 'hero_justquest_event_2_2',
+                           'actors': [],
                            'choices': ['hero_justquest_choice_id_1_choice_2']},
                           {'quest_type': 'fakequest',
                            'quest_text': 'hero_fakequest',
                            'action_type': 'fakecmd',
                            'action_text': 'hero_fakequest_fake_event',
+                           'actors': [],
                            'choices': []}])
 
         self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 1, 2]),
@@ -208,11 +214,13 @@ class EnvironmentTest(TestCase):
                            'quest_text': 'hero_justquest',
                            'action_type': 'quest',
                            'action_text': 'hero_justquest_event_2_2',
+                           'actors': [],
                            'choices': ['hero_justquest_choice_id_1_choice_2']},
                           {'quest_type': 'fakequest',
                            'quest_text': 'hero_fakequest',
                            'action_type': 'fakecmd',
                            'action_text': 'hero_fakequest_fake_event',
+                           'actors': [],
                            'choices': []}])
 
         self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 2]),
@@ -220,6 +228,7 @@ class EnvironmentTest(TestCase):
                            'quest_text': 'hero_justquest',
                            'action_type': 'getreward',
                            'action_text': 'hero_justquest_event_2_3',
+                           'actors': [],
                            'choices': ['hero_justquest_choice_id_1_choice_2']}])
 
         self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, SECOND_CHOICE_LINE, 3])

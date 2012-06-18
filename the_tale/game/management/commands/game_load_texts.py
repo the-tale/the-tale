@@ -1,4 +1,5 @@
 # coding: utf-8
+import os
 import pymorphy
 
 from textgen.conf import textgen_settings
@@ -21,6 +22,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        print 'CLEAN STORED PHRASES'
+        if os.path.exists(game_settings.TEXTGEN_STORAGE_VOCABULARY):
+            os.remove(game_settings.TEXTGEN_STORAGE_VOCABULARY)
+
         print "LOAD MOB'S NAMES"
         mobs_logic.import_texts_into_database(morph,
                                               tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
@@ -39,13 +44,13 @@ class Command(BaseCommand):
                                    dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY,
                                    debug=True)
 
-        print "LOAD QUEST WRITERS"
-        quests_logic.import_texts(morph,
-                                  source_dir=game_settings.TEXTGEN_SOURCES_DIR,
-                                  tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
-                                  voc_storage=game_settings.TEXTGEN_STORAGE_VOCABULARY,
-                                  dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY,
-                                  debug=True)
+        # print "LOAD QUEST WRITERS"
+        # quests_logic.import_texts(morph,
+        #                           source_dir=game_settings.TEXTGEN_SOURCES_DIR,
+        #                           tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
+        #                           voc_storage=game_settings.TEXTGEN_STORAGE_VOCABULARY,
+        #                           dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY,
+        #                           debug=True)
 
 
         dictionary = Dictionary()

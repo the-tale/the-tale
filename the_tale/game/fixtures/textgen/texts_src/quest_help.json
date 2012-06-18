@@ -1,0 +1,16 @@
+{
+    "description": "",
+    "prefix": "quest_help",
+    "variables": {"hero": "привидение", "person_start": "свинья", "person_end": "гусь", "place_start": "село", "place_end": "город"},
+    "types": {
+
+        "description": [["Помочь другу",
+                         "Помочь другу"]],
+
+        "action_move_to_quest": [["[[hero]] идёт на помощь",
+                                  "привидение идёт на помощь"]],
+
+        "journal_move_to_quest": [["Впереди нелёгкий путь, о чём же меня попросят?",
+                                   "Впереди нелёгкий путь, о чём же меня попросят?"]]
+    }
+}

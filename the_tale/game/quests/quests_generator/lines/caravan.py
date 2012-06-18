@@ -1,5 +1,5 @@
 # coding: utf-8
-from ..quest_line import Quest, Line
+from ..quest_line import Quest, Line, ACTOR_TYPE
 from .. import commands as cmd
 
 class EVENTS:
@@ -15,13 +15,14 @@ class EVENTS:
 
     BRING_CHOICE = 'bring_choice'
 
-class CHOICES:
-    BRING = 'bring'
+class Caravan(Quest):
 
-class CaravanLine(Quest):
+    ACTORS = [(u'отправил', 'person_start', ACTOR_TYPE.PERSON),
+              (u'место назначения', 'place_end', ACTOR_TYPE.PLACE),
+              (u'ожидает прибытия', 'person_end', ACTOR_TYPE.PERSON)]
 
     def initialize(self, identifier, env, **kwargs):
-        super(CaravanLine, self).initialize(identifier, env, **kwargs)
+        super(Caravan, self).initialize(identifier, env, **kwargs)
         self.env_local.register('choose_point_1', env.new_choice_point())
         self.env_local.register('choose_point_2', env.new_choice_point())
 
@@ -52,7 +53,7 @@ class CaravanLine(Quest):
                                                 choices={'caravan': env.new_line(good_line_2),
                                                          'bandits': env.new_line(bad_line_2)},
                                                 event=EVENTS.BRING_CHOICE,
-                                                choice=CHOICES.BRING) ])
+                                                choice='bring') ])
 
         main_line = Line(sequence=[cmd.Move(place=self.env_local.place_end, break_at=0.33, event=EVENTS.MOVE_TO_POINT),
                                    cmd.Choose(id=self.env_local.choose_point_1,
@@ -60,5 +61,5 @@ class CaravanLine(Quest):
                                               choices={'caravan': env.new_line(good_line_1),
                                                        'bandits': env.new_line(bad_line_1)},
                                               event=EVENTS.BRING_CHOICE,
-                                              choice=CHOICES.BRING) ])
+                                              choice='bring') ])
         self.line = env.new_line(main_line)

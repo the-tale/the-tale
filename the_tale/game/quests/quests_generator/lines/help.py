@@ -1,5 +1,5 @@
 # coding: utf-8
-from ..quest_line import Quest, Line
+from ..quest_line import Quest, Line, ACTOR_TYPE
 from .. import commands as cmd
 
 class EVENTS:
@@ -8,10 +8,13 @@ class EVENTS:
     START_QUEST = 'start_quest'
     GIVE_POWER = 'give_power'
 
-class HelpLine(Quest):
+class Help(Quest):
+
+    ACTORS = [(u'попросил', 'person_start', ACTOR_TYPE.PERSON),
+              (u'нуждающийся', 'person_end', ACTOR_TYPE.PERSON)]
 
     def initialize(self, identifier, env, **kwargs):
-        super(HelpLine, self).initialize(identifier, env, **kwargs)
+        super(Help, self).initialize(identifier, env, **kwargs)
 
         self.env_local.register('quest_help', env.new_quest(place_start=self.env_local.place_end,
                                                             person_start=self.env_local.person_end) )

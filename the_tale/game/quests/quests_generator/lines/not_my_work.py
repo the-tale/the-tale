@@ -1,7 +1,7 @@
 # coding: utf-8
 import random
 
-from ..quest_line import Quest, Line
+from ..quest_line import Quest, Line, ACTOR_TYPE
 from .. import commands as cmd
 
 class EVENTS:
@@ -11,18 +11,18 @@ class EVENTS:
     START_QUEST = 'start_quest'
     GIVE_POWER_TO_CUSTOMER = 'give_power_to_customer'
     GET_POWER_FROM_PERFORMER = 'get_power_from_performer'
-    ATTACK_PERFORMER = 'attack_performer'
-    WORK_CHOICE = 'work_choice'
+    ATTACK_PERFORMER = 'brutforce_performer'
+    WORK_CHOICE = 'diplomacy_choice'
     GET_REWARD = 'get_reward'
 
-class CHOICES:
-    WORK = 'work'
 
+class NotMyWork(Quest):
 
-class NotMyWorkLine(Quest):
+    ACTORS = [(u'попросил', 'person_start', ACTOR_TYPE.PERSON),
+              (u'должник', 'person_end', ACTOR_TYPE.PERSON)]
 
     def initialize(self, identifier, env, **kwargs):
-        super(NotMyWorkLine, self).initialize(identifier, env, **kwargs)
+        super(NotMyWork, self).initialize(identifier, env, **kwargs)
 
         self.env_local.register('choose_point_1', env.new_choice_point())
 
@@ -48,9 +48,9 @@ class NotMyWorkLine(Quest):
         main_line = Line(sequence=[cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
                                    cmd.Choose(id=self.env_local.choose_point_1,
                                               default='work',
-                                              choices={'work': env.new_line(work_line),
-                                                       'attack': env.new_line(attack_line)},
+                                              choices={'diplomacy': env.new_line(work_line),
+                                                       'bruteforce': env.new_line(attack_line)},
                                               event=EVENTS.WORK_CHOICE,
-                                              choice=CHOICES.WORK) ])
+                                              choice='work') ])
 
         self.line = env.new_line(main_line)

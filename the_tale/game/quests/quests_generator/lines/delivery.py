@@ -1,5 +1,5 @@
 # coding: utf-8
-from ..quest_line import Quest, Line
+from ..quest_line import Quest, Line, ACTOR_TYPE
 from .. import commands as cmd
 
 class EVENTS:
@@ -15,13 +15,14 @@ class EVENTS:
     GOOD_GIVE_POWER = 'good_give_power'
     EVIL_GIVE_POWER = 'evil_give_power'
 
-class CHOICES:
-    STEAL = 'steal'
 
-class DeliveryLine(Quest):
+class Delivery(Quest):
+
+    ACTORS = [(u'отправитель', 'person_start', ACTOR_TYPE.PERSON),
+              (u'получатель', 'person_end', ACTOR_TYPE.PERSON)]
 
     def initialize(self, identifier, env, **kwargs):
-        super(DeliveryLine, self).initialize(identifier, env, **kwargs)
+        super(Delivery, self).initialize(identifier, env, **kwargs)
         self.env_local.register('item_to_deliver', env.new_item())
         self.env_local.register('steal_point', env.new_choice_point())
 
@@ -42,6 +43,6 @@ class DeliveryLine(Quest):
                                                choices={'delivery': env.new_line(delivery_line),
                                                         'steal': env.new_line(steal_line)},
                                                event=EVENTS.STEAL_CHOICE,
-                                               choice=CHOICES.STEAL) ])
+                                               choice='steal') ])
 
         self.line = env.new_line(main_line)

@@ -132,6 +132,40 @@ pgf.game.widgets.Time = function(selector, updater, widgets, params) {
     });
 };
 
+////////////////////////////
+// quests code
+
+pgf.game.widgets._RenderActor = function(index, actor, element) {
+    jQuery('.pgf-role', element).text(actor[0]);
+    jQuery('.pgf-name', element).text(actor[1].name);
+};
+
+pgf.game.widgets._RenderChoice = function (index, choice, element) {
+    element.text(choice);
+};
+
+pgf.game.widgets._RenderQuest = function(index, quest, element) {
+    jQuery('.pgf-quest-icon', element)
+        .removeClass()
+        .addClass('quest-icon pgf-quest-icon')
+        .addClass(quest.quest_type);
+
+    jQuery('.pgf-quest-description', element).text(quest.quest_text);
+    jQuery('.pgf-quest-action-description', element).text(quest.action_text);        
+
+    if (quest.actors.length) {
+        var actorsElement = jQuery('.pgf-actors', element);
+        actorsElement.removeClass('pgf-hidden');
+        pgf.base.RenderTemplateList(actorsElement, quest.actors, pgf.game.widgets._RenderActor, {});            
+    }    
+
+    if (quest.choices.length) {
+        jQuery('.pgf-choices', element).removeClass('pgf-hidden');
+        pgf.base.RenderTemplateList(jQuery('.pgf-choices-container', element), quest.choices, pgf.game.widgets._RenderChoice, {});            
+    }
+};
+  
+
 pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
     var instance = this;
 
@@ -144,19 +178,9 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
 
     var choicesBlock = jQuery('.pgf-quest-choices', widget);
     var noChoicesMsg = jQuery('.pgf-no-choices', choicesBlock);
-    var choicesMsg = jQuery('.pgf-choices', choicesBlock);
+    var choicesMsg = jQuery('.pgf-choices-container', choicesBlock);
 
     var data = {};
-
-    function RenderQuest(quest, element) {
-        jQuery('.pgf-quest-icon', element)
-            .removeClass()
-            .addClass('quest-icon pgf-quest-icon')
-            .addClass(quest.quest_type);
-
-        jQuery('.pgf-quest-description', element).text(quest.quest_text);
-        jQuery('.pgf-quest-action-description', element).text(quest.action_text);        
-    }
 
     function RenderQuests() {
         noQuestsMsg.toggleClass('pgf-hidden', !!(data.quests.line && data.quests.line.length > 0) );
@@ -164,56 +188,53 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
         jQuery('.pgf-quests-progress', questsBlock).toggleClass('pgf-hidden', !(data.quests.line && data.quests.line.length > 0) );
 
         if (data.quests.line && data.quests.line.length > 0) {
-            RenderQuest(data.quests.line[data.quests.line.length-1], currentQuest);
+            pgf.game.widgets._RenderQuest(0, data.quests.line[data.quests.line.length-1], currentQuest);
         }
     }
 
+    function RenderChoiceVariant(index, variant, element) {
+        var variantLink = jQuery('.pgf-choice-link', element);
+        variantLink.text(variant[1]);
+                                                                                                       
+        var url = pgf.urls['game:quests:choose'](data.quests.id, data.quests.subquest_id, data.quests.choice_id, variant[0]);
+
+        variantLink.click( function(e){
+                               e.preventDefault();
+                    
+                               jQuery.ajax({   dataType: 'json',
+                                               type: 'post',
+                                               url: url,
+                                               success: function(data, request, status) {
+
+                                                   if (data.status == 'error') {
+                                                       pgf.ui.dialog.Error({ message: data.errors });
+                                                       return;
+                                                   }
+
+                                                   if (data.status == 'ok') {
+                                                       updater.Refresh();
+                                                       return;
+                                                   }
+
+                                                   pgf.ui.dialog.Error({ message: 'unknown error while making choice' });
+
+                                               },
+                                               error: function() {
+                                               },
+                                               complete: function() {
+                                               }
+                                           });
+                           });
+    }
+
     function RenderChoices() {
-        
-        var questId = data.quests.id;
-        var subquestId = data.quests.subquest_id;
-        var choiceText = data.quests.choice_text;
         var choiceId = data.quests.choice_id;
 
         noChoicesMsg.toggleClass('pgf-hidden', !!choiceId);
         choicesMsg.toggleClass('pgf-hidden', !choiceId);
 
         if (choiceId) {
-            choicesMsg.html(choiceText);
-            jQuery('.pgf-choice', choicesMsg).each(function(i, v){
-                var el = jQuery(v);
-                
-                var choice = el.data('choice');
-                var url = pgf.urls['game:quests:choose'](questId, subquestId, choiceId, choice);
-                el.click(function(e){
-                    e.preventDefault();
-                    
-                    jQuery.ajax({
-                        dataType: 'json',
-                        type: 'post',
-                        url: url,
-                        success: function(data, request, status) {
-
-                            if (data.status == 'error') {
-                                pgf.ui.dialog.Error({ message: data.errors });
-                                return;
-                            }
-
-                            if (data.status == 'ok') {
-                                updater.Refresh();
-                                return;
-                            }
-
-                            pgf.ui.dialog.Error({ message: 'unknown error while making choice' });
-
-                        },
-                        error: function() {
-                        },
-                        complete: function() {
-                        }
-                    });
-                });
-            });
+            pgf.base.RenderTemplateList(choicesMsg, data.quests.choice_variants, RenderChoiceVariant, {});            
         }
     }
 
@@ -250,31 +271,11 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
 
     var data = {};
 
-    function RenderChoice(index, choice, element) {
-        element.text(choice);
-    }
-
-    function RenderQuest(index, quest, element) {
-        jQuery('.pgf-quest-icon', element)
-            .removeClass()
-            .addClass('quest-icon pgf-quest-icon')
-            .addClass(quest.quest_type);
-
-        jQuery('.pgf-date', element).text(quest.verbose_date);
-        jQuery('.pgf-time', element).text(quest.verbose_time);
-        jQuery('.pgf-quest-description', element).text(quest.quest_text);
-
-        if (quest.choices.length) {
-            jQuery('.pgf-choices', element).removeClass('pgf-hidden');
-            pgf.base.RenderTemplateList(jQuery('.pgf-choices-container', element), quest.choices, RenderChoice, {});            
-        }
-    }
-
     function RenderQuests() {
         noQuestsMsg.toggleClass('pgf-hidden', !!(data.quests.line && data.quests.line.length > 0) );
 
         if (data.quests.line && data.quests.line.length > 0) {
-            pgf.base.RenderTemplateList(questsContainer, data.quests.line, RenderQuest, {});
+            pgf.base.RenderTemplateList(questsContainer, data.quests.line, pgf.game.widgets._RenderQuest, {});
         }
     }
 

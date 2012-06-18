@@ -127,7 +127,8 @@ class BaseEnvironment(object):
                                   'quest_text': writer.get_description_msg(),
                                   'action_type': command.type(),
                                   'action_text': writer.get_action_msg(command.event),
-                                  'choices': quest_choices})
+                                  'choices': quest_choices,
+                                  'actors': quest.get_actors(self)})
 
 
         return writers_chain
@@ -235,6 +236,9 @@ class LocalEnvironment(object):
         if name in self._storage:
             return self._storage[name]
         raise AttributeError('LocalEnvironment object does not contain value "%s"' % name)
+
+    def __getitem__(self, name):
+        return self._storage[name]
 
     def serialize(self):
         return self._storage
