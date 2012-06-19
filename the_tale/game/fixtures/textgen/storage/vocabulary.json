@@ -216,6 +216,33 @@
       "template": "%(e_0)s %(i_0)s %(e_1)s в награду за выполнение задания"
     }
   ], 
+  "quest_caravan_choice_bring_result_bandits": [
+    {
+      "internals": [
+        [
+          "собрался", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "собрался"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s ограбить караван"
+    }
+  ], 
   "quest_help_description": [
     {
       "internals": [], 
@@ -386,33 +413,6 @@
       "template": "%(e_0)s ловко %(i_0)s в сторону от %(e_1)s"
     }
   ], 
-  "quest_notmywork_choice_work_result_brutforce": [
-    {
-      "internals": [
-        [
-          "решил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "решил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s применить силу"
-    }
-  ], 
   "hero_ability_regeneration": [
     {
       "internals": [
@@ -476,6 +476,21 @@
         ]
       ], 
       "template": "'Волшебный гриб!' - %(i_0)s %(e_0)s, запихивая в рот мухомор"
+    }
+  ], 
+  "quest_caravan_choice_bring_result_caravan": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s будет защищать караван"
     }
   ], 
   "quest_delivery_journal_get_item": [
@@ -1209,21 +1224,31 @@
       "template": "%(e_0)s %(i_0)s %(e_1)s"
     }
   ], 
-  "action_trading_start": [
+  "quest_notmywork_choice_work_result_bruteforce": [
     {
-      "internals": [], 
-      "externals": [], 
-      "template": "Люд говорит, что сегодня ярмарка, надо бы её навестить"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "Пора заняться комерцией"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "Ой, мне кажется этот торговец смотрит на меня - надо бежать"
+      "internals": [
+        [
+          "решил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "решил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s применить силу"
     }
   ], 
   "action_rest_resring": [
@@ -1403,6 +1428,13 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s и %(i_1)s %(e_1)s в дерево, %(i_2)s не %(i_3)s %(e_2)s HP"
+    }
+  ], 
+  "quest_caravan_choice_bring_variant_caravan": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "защищать торговца"
     }
   ], 
   "quest_spying_journal_get_reward": [
@@ -1623,21 +1655,6 @@
       "template": "Работа у курьеров не простая, пора двигаться"
     }
   ], 
-  "quest_caravan_choice_bring_result_protection": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s будет защищать караван"
-    }
-  ], 
   "quest_delivery_journal_get_reward": [
     {
       "internals": [
@@ -1665,11 +1682,21 @@
       "template": "%(e_0)s %(i_0)s награду"
     }
   ], 
-  "quest_notmywork_choice_work_variant_brutforce": [
+  "action_trading_start": [
     {
       "internals": [], 
       "externals": [], 
-      "template": "задействовать грубую силу"
+      "template": "Люд говорит, что сегодня ярмарка, надо бы её навестить"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Пора заняться комерцией"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Ой, мне кажется этот торговец смотрит на меня - надо бежать"
     }
   ], 
   "quest_spying_action_move_to_quest": [
@@ -1830,13 +1857,6 @@
         ]
       ], 
       "template": "%(e_0)s уже никуда не годится, а вот %(e_1)s - другое дело"
-    }
-  ], 
-  "quest_caravan_choice_bring_variant_robbery": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "ограбить торговца"
     }
   ], 
   "action_idleness_waiting": [
@@ -2655,6 +2675,13 @@
       "template": "%(e_0)s %(i_0)s за караваном"
     }
   ], 
+  "quest_notmywork_choice_work_variant_bruteforce": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "задействовать грубую силу"
+    }
+  ], 
   "quest_notmywork_journal_work_choice": [
     {
       "internals": [], 
@@ -3096,6 +3123,13 @@
       "template": "%(e_0)s сражается с прислужниками %(e_1)s"
     }
   ], 
+  "quest_caravan_choice_bring_variant_bandits": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "ограбить торговца"
+    }
+  ], 
   "action_inplace_impact_bad": [
     {
       "internals": [
@@ -3161,40 +3195,6 @@
         ]
       ], 
       "template": "%(e_0)s идёт на помощь"
-    }
-  ], 
-  "quest_caravan_choice_bring_variant_protection": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "защищать торговца"
-    }
-  ], 
-  "quest_caravan_choice_bring_result_robbery": [
-    {
-      "internals": [
-        [
-          "собрался", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "собрался"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s ограбить караван"
     }
   ], 
   "quest_notmywork_choice_work_result_diplomacy": [

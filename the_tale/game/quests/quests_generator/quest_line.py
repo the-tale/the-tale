@@ -1,4 +1,6 @@
 # coding: utf-8
+import random
+
 from game.quests.quests_generator.exceptions import QuestGeneratorException
 from game.quests.quests_generator.environment import LocalEnvironment
 from game.quests.quests_generator.commands import deserialize_command
@@ -54,7 +56,7 @@ class Line(object):
             if cmd.is_quest:
                 return [pointer[0]] + self.get_start_pointer()
             if cmd.is_choice:
-                choice = choices.get(cmd.id, cmd.default)
+                choice = choices.get(cmd.id, random.choice(cmd.get_choices()))
                 choosed_line = cmd.choices[choice]
                 return [pointer[0], choosed_line] + env.lines[choosed_line].get_start_pointer()
             if len(self.sequence) > pointer[0]+1:
@@ -197,11 +199,11 @@ class Quest(object):
         for actor_name, actor_id, actor_type  in self.ACTORS:
             if actor_type == ACTOR_TYPE.PERSON:
                 actor_data = env.persons[self.env_local[actor_id]]['external_data']
-            if actor_type == ACTOR_TYPE.PLACE:
+            elif actor_type == ACTOR_TYPE.PLACE:
                 actor_data = env.places[self.env_local[actor_id]]['external_data']
             else:
                 raise QuestGeneratorException('unknown actor type: %s' % actor_type)
-            actors.append((actor_name, actor_data))
+            actors.append((actor_name, actor_type, actor_data))
         return actors
 
 

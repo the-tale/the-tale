@@ -17,7 +17,7 @@ class QuestsResource(Resource):
         if self.quest is None:
             raise Error(u'Вы не можете работать с этим квестом')
 
-        if self.angel.id not in self.quest.angels_ids():
+        if self.account is not None and self.account.angel.id not in self.quest.angels_ids():
             raise Error(u'Вы не можете работать с этим квестом')
 
     @property

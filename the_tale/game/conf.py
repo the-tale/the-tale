@@ -13,6 +13,8 @@ game_settings = app_settings('GAME',
                              ENABLE_WORKER_HIGHLEVEL=True,
                              ENABLE_WORKER_TURNS_LOOP=True,
 
+                             JS_CONSTNATS_FILE_LOCATION='./static/game/data/constants.js',
+
                              TEXTGEN_SOURCES_DIR=os.path.join(APP_DIR, 'fixtures', 'textgen', 'texts_src'),
                              TEXTGEN_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'vocabulary.json'),
                              TEXTGEN_STORAGE_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'storage', 'vocabulary.json'),

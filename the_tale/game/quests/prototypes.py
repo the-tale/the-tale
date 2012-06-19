@@ -260,15 +260,19 @@ class QuestPrototype(object):
 
         cmd_id = None
         choice_variants = []
+        future_choice = None
 
         if cmd:
             cmd_id = cmd.id
             if cmd.id not in choices:
                 for variant in cmd.get_variants():
                     choice_variants.append((variant, writer.get_choice_variant_msg(cmd.choice, variant)))
+            else:
+                future_choice = writer.get_choice_result_msg(cmd.choice, choices[cmd.id])
 
         return {'line': self.env.get_writers_text_chain(hero, self.last_pointer),
                 'choice_id': cmd_id,
                 'choice_variants': choice_variants,
+                'future_choice': future_choice,
                 'id': self.model.id,
                 'subquest_id': quest.id}

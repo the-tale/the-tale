@@ -31,14 +31,16 @@ def get_knowlege_base():
 
         place_uuid = 'place_%d' % place.id
 
-        base.add_place(place_uuid, external_data={'id': place.id,
-                                                  'name': place.name})
+        base.add_place(place_uuid, external_data={'id': place.id})
 
         for person in place.persons:
             person_uuid = 'person_%d' % person.id
             base.add_person(person_uuid, place=place_uuid, external_data={'id': person.id,
                                                                           'name': person.name,
-                                                                          'type': person.type})
+                                                                          'type': person.type,
+                                                                          'gender': person.gender,
+                                                                          'race': person.race,
+                                                                          'place_id': person.place_id})
 
     base.initialize()
 

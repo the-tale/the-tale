@@ -1,3 +1,4 @@
+{% import 'game/macros.html' as macros with context %}
 
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
@@ -16,7 +17,7 @@ jQuery(document).ready(function(e) {
 
     <div class="pgf-current-quest">
       <div class="quest-record">
-        {% include "game/quest_record_body.html" %}
+        {{ macros.quest_record_body(choices_list=false) }}
       </div>
       <small class="pgf-quest-action-description" style="color: #999; margin-bottom: 5px; display: inline-block; cursor: default;"></small>
     </div>
@@ -26,7 +27,8 @@ jQuery(document).ready(function(e) {
   <hr/>
 
   <div class="pgf-quest-choices" style="cursor: default;">
-    <div class="pgf-hidden pgf-no-choices">Сейчас поступки героя определены, повлиять на них нельзя</div>
+    <div class="pgf-hidden pgf-no-choices">поступки героя определены, повлиять на них нельзя</div>
+    <div class="pgf-hidden pgf-future-choice"></div>
     <ul class="unstyled pgf-hidden choices-container pgf-choices-container">
       <li class="pgf-template choice-record">&ndash; <a href="#" class="pgf-choice-link"></a></li>
     </ul>

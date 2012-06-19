@@ -49,7 +49,6 @@ class Caravan(Quest):
         good_line_1 = Line(sequence=[cmd.Battle(number=1, event=EVENTS.BANDITS_ATTACK),
                                      cmd.Move(place=self.env_local.place_end, break_at=0.67, event=EVENTS.MOVE_TO_POINT),
                                      cmd.Choose(id=self.env_local.choose_point_2,
-                                                default='caravan',
                                                 choices={'caravan': env.new_line(good_line_2),
                                                          'bandits': env.new_line(bad_line_2)},
                                                 event=EVENTS.BRING_CHOICE,
@@ -57,7 +56,6 @@ class Caravan(Quest):
 
         main_line = Line(sequence=[cmd.Move(place=self.env_local.place_end, break_at=0.33, event=EVENTS.MOVE_TO_POINT),
                                    cmd.Choose(id=self.env_local.choose_point_1,
-                                              default='caravan',
                                               choices={'caravan': env.new_line(good_line_1),
                                                        'bandits': env.new_line(bad_line_1)},
                                               event=EVENTS.BRING_CHOICE,

@@ -136,8 +136,46 @@ pgf.game.widgets.Time = function(selector, updater, widgets, params) {
 // quests code
 
 pgf.game.widgets._RenderActor = function(index, actor, element) {
+    
+    var nameElement = jQuery('.pgf-name', element);
+
+    var data = actor[2];
+
     jQuery('.pgf-role', element).text(actor[0]);
-    jQuery('.pgf-name', element).text(actor[1].name);
+    nameElement.text(data.name);
+
+    var popoverTitle = undefined;
+    var popoverContent = undefined;
+
+    if (actor[1] == pgf.game.constants.ACTOR_TYPE.PERSON) {
+        popoverTitle = 'персонаж';
+
+        var place = widgets.mapManager.GetPlaceData(data.place_id);
+        var race = pgf.game.constants.GENDER_TO_STR[data.race];
+        var gender = pgf.game.constants.GENDER_TO_STR[data.gender];
+        var profeccion = pgf.game.constants.PERSON_TYPE_TO_STR[data.type];
+
+        var content = jQuery('#pgf-popover-person').clone();
+        jQuery('.pgf-place', content).text(place.name);
+        jQuery('.pgf-race', content).text(race);
+        jQuery('.pgf-gender', content).text(gender);
+        jQuery('.pgf-type', content).text(profeccion);
+        popoverContent = content.html();
+    }
+    
+    if (actor[1] == pgf.game.constants.ACTOR_TYPE.PLACE) {
+        popoverTitle = 'город';
+
+        var place = widgets.mapManager.GetPlaceData(data.id);
+
+        var content = jQuery('#pgf-popover-place').clone();
+        jQuery('.pgf-size', content).text(place.size);
+        popoverContent = content.html();
+    }
+
+    nameElement.popover({delay: 250,
+                         title: popoverTitle,
+                         content: popoverContent});
 };
 
 pgf.game.widgets._RenderChoice = function (index, choice, element) {
@@ -153,11 +191,15 @@ pgf.game.widgets._RenderQuest = function(index, quest, element) {
     jQuery('.pgf-quest-description', element).text(quest.quest_text);
     jQuery('.pgf-quest-action-description', element).text(quest.action_text);        
 
+    var actorsElement = jQuery('.pgf-actors', element);
+
     if (quest.actors.length) {
-        var actorsElement = jQuery('.pgf-actors', element);
         actorsElement.removeClass('pgf-hidden');
         pgf.base.RenderTemplateList(actorsElement, quest.actors, pgf.game.widgets._RenderActor, {});            
     }    
+    else {
+        actorsElement.toggleClass('pgf-hidden', 'true');
+    }
 
     if (quest.choices.length) {
         jQuery('.pgf-choices', element).removeClass('pgf-hidden');
@@ -174,25 +216,29 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
     var questsBlock = jQuery('.pgf-current-quests-block', widget);
 
     var currentQuest = jQuery('.pgf-current-quest', widget);
-    var noQuestsMsg = jQuery('.pgf-no-quests-message', widget);
 
     var choicesBlock = jQuery('.pgf-quest-choices', widget);
     var noChoicesMsg = jQuery('.pgf-no-choices', choicesBlock);
     var choicesMsg = jQuery('.pgf-choices-container', choicesBlock);
+    var futureChoiceMsg = jQuery('.pgf-future-choice', choicesBlock);
 
     var data = {};
 
     function RenderQuests() {
-        noQuestsMsg.toggleClass('pgf-hidden', !!(data.quests.line && data.quests.line.length > 0) );
-
-        jQuery('.pgf-quests-progress', questsBlock).toggleClass('pgf-hidden', !(data.quests.line && data.quests.line.length > 0) );
-
         if (data.quests.line && data.quests.line.length > 0) {
             pgf.game.widgets._RenderQuest(0, data.quests.line[data.quests.line.length-1], currentQuest);
+        }
+        else {
+            pgf.game.widgets._RenderQuest(0, {quest_type: 'no-quest',
+                                              quest_text: 'бездельничает',
+                                              action_text: 'имитирует бурную деятельность',
+                                              actors: [],
+                                              choices: []}, currentQuest);
         }
     }
 
     function RenderChoiceVariant(index, variant, element) {
+
         var variantLink = jQuery('.pgf-choice-link', element);
         variantLink.text(variant[1]);
                                                                                                        
@@ -229,12 +275,20 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
 
     function RenderChoices() {
         var choiceId = data.quests.choice_id;
+        var futureChoice = data.quests.future_choice;
 
         noChoicesMsg.toggleClass('pgf-hidden', !!choiceId);
-        choicesMsg.toggleClass('pgf-hidden', !choiceId);
-
+        choicesMsg.toggleClass('pgf-hidden', true);
+        futureChoiceMsg.toggleClass('pgf-hidden', !futureChoice);
+       
         if (choiceId) {
-            pgf.base.RenderTemplateList(choicesMsg, data.quests.choice_variants, RenderChoiceVariant, {});            
+            if (futureChoice) {
+                futureChoiceMsg.text(futureChoice);
+            }
+            else {
+                pgf.base.RenderTemplateList(choicesMsg, data.quests.choice_variants, RenderChoiceVariant, {});                            
+                choicesMsg.toggleClass('pgf-hidden', false);
+            }
         }
     }
 
@@ -273,9 +327,12 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
 
     function RenderQuests() {
         noQuestsMsg.toggleClass('pgf-hidden', !!(data.quests.line && data.quests.line.length > 0) );
+        questsContainer.toggleClass('pgf-hidden', !(data.quests.line && data.quests.line.length > 0) );
 
         if (data.quests.line && data.quests.line.length > 0) {
             pgf.base.RenderTemplateList(questsContainer, data.quests.line, pgf.game.widgets._RenderQuest, {});
+        }
+        else {
         }
     }
 

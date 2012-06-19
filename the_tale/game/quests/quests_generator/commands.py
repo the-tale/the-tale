@@ -208,6 +208,7 @@ class Choose(Command):
         return None
 
     def get_variants(self): return self.choices.keys()
+    def get_choices(self): return self.choices.values()
 
     def get_description(self, env):
         return { 'cmd': 'choose',

@@ -3,6 +3,7 @@
 {% block head %}
 {{ super() }}
 
+<script src="{{ STATIC_URL }}game/constants.js" type="text/javascript"></script>
 <script src="{{ STATIC_URL }}game/widgets.js" type="text/javascript"></script>
 <script src="{{ STATIC_URL }}game/angel.js" type="text/javascript"></script>
 <script src="{{ STATIC_URL }}game/map/map2.js" type="text/javascript"></script>
@@ -184,6 +185,21 @@ jQuery(document).ready(function(e){
       </div>
     </div>
 
+  </div>
+
+  // popovers
+
+  <div class="pgf-hidden" id="pgf-popover-person">
+    <ul class="unstyled">
+      <li><strong>раса</strong>: <span class="pgf-race"></span></li>
+      <li><strong>пол</strong>: <span class="pgf-gender"></span></li>
+      <li><strong>город</strong>: <span class="pgf-place"></span></li>
+      <li><strong>профессия</strong>: <span class="pgf-type"></span></li>
+    </ul>
+  </div>
+
+  <div class="pgf-hidden" id="pgf-popover-place">
+    <strong>размер</strong>: <span class="pgf-size"></span>
   </div>
 
 </div>

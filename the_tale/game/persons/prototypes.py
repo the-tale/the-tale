@@ -22,6 +22,9 @@ class PersonPrototype(object):
     def id(self): return self.model.id
 
     @property
+    def place_id(self): return self.model.place_id
+
+    @property
     def name(self): return self.model.name
 
     @property

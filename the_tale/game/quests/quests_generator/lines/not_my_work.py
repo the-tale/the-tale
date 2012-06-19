@@ -47,7 +47,6 @@ class NotMyWork(Quest):
 
         main_line = Line(sequence=[cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
                                    cmd.Choose(id=self.env_local.choose_point_1,
-                                              default='work',
                                               choices={'diplomacy': env.new_line(work_line),
                                                        'bruteforce': env.new_line(attack_line)},
                                               event=EVENTS.WORK_CHOICE,

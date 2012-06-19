@@ -343,7 +343,7 @@ class ActionIdlenessPrototype(ActionPrototype):
             self.percents = 0
 
         if self.state == self.STATE.QUEST:
-            self.percents = 1.0
+            self.percents = 0
             self.state = self.STATE.IN_PLACE
             self.bundle.add_action(ActionInPlacePrototype.create(self, current_time))
 
@@ -355,6 +355,7 @@ class ActionIdlenessPrototype(ActionPrototype):
                 self.state = self.STATE.QUEST
                 quest = create_random_quest_for_hero(current_time, self.hero)
                 self.bundle.add_action(ActionQuestPrototype.create(parent=self, current_time=current_time, quest=quest))
+                self.percents = 0
 
             else:
                 if random.uniform(0, 1) < 0.2:
@@ -881,6 +882,9 @@ class ActionEquippingPrototype(ActionPrototype):
     def process(self, current_time):
 
         if self.state == self.STATE.EQUIPPING:
+            # TODO: calculate real percents
+            self.percents = min(self.percents+0.25, 1)
+
             slot, unequipped, equipped = self.hero.get_equip_canditates()
             self.hero.change_equipment(slot, unequipped, equipped)
             if equipped:

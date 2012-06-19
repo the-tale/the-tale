@@ -9,7 +9,6 @@ class Writer(object):
         self.substitution['hero'] = hero.normalized_name
         self.quest_type = quest_type
 
-
     def get_msg_description_id(self): return 'quest_%s_description' % (self.quest_type,)
 
     def get_msg_action_id(self, event): return 'quest_%s_action_%s' % (self.quest_type, event)
@@ -34,7 +33,10 @@ class Writer(object):
         return self.get_message(self.get_msg_description_id())
 
     def get_action_msg(self, event):
-        return self.get_message(self.get_msg_action_id(event))
+        msg = self.get_message(self.get_msg_action_id(event))
+        if msg is None:
+            msg = u'занимается чем-то полезным'
+        return msg
 
     def get_journal_msg(self, event):
         return self.get_message(self.get_msg_journal_id(event))

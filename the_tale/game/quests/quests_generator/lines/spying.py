@@ -11,7 +11,7 @@ class EVENTS:
     GOOD_GIVE_POWER = 'good_give_power'
     BAD_GIVE_POWER = 'bad_give_power'
 
-    OPEN_UP_CHOICE = 'open_up_choice'
+    OPEN_UP_CHOICE = 'openup_choice'
 
 
 class Spying(Quest):
@@ -43,15 +43,13 @@ class Spying(Quest):
 
         good_line_1 = Line(sequence=[cmd.MoveNear(place=self.env_local.place_end, event=EVENTS.MOVE_NEAR),
                                      cmd.Choose(id=self.env_local.choose_point_2,
-                                                default='spy',
                                                 choices={'spy': env.new_line(good_line_2),
-                                                         'open_up': env.new_line(bad_line_2)},
+                                                         'openup': env.new_line(bad_line_2)},
                                                 event=EVENTS.OPEN_UP_CHOICE,
                                                 choice='openup') ])
 
         main_line = Line(sequence=[cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
                                    cmd.Choose(id=self.env_local.choose_point_1,
-                                              default='spy',
                                               choices={'spy': env.new_line(good_line_1),
                                                        'open_up': env.new_line(bad_line_1)},
                                               event=EVENTS.OPEN_UP_CHOICE,

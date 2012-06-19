@@ -1,3 +1,4 @@
+{% import 'game/macros.html' as macros with context %}
 
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
@@ -14,12 +15,12 @@ jQuery(document).ready(function(e) {
 
   <ul class="unstyled pgf-quests-line-container">
     <li class="pgf-template quest-record">
-      {% include "game/quest_record_body.html" %}
+      {{ macros.quest_record_body(choices_list=true) }}
     </li>
   </ul>
 
   <div class="pgf-no-quests-message pgf-hidden">
-    Сейчас герой не выполняет задания
+    герой бездельничает
   </div>
 
 </div>

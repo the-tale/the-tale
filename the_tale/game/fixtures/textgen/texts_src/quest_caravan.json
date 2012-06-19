@@ -34,16 +34,16 @@
         "journal_get_reward": [["[[hero]] [{получил|hero|прш}] награду",
                                 "Привидение получило награду"]],
 
-        "choice_bring_variant_robbery": [["ограбить торговца",
+        "choice_bring_variant_bandits": [["ограбить торговца",
                                            "ограбить торговца"]],
 
-        "choice_bring_variant_protection": [["защищать торговца",
+        "choice_bring_variant_caravan": [["защищать торговца",
                                            "защищать торговца"]],
 
-        "choice_bring_result_robbery": [["[[hero]] [{собрался|hero|прш}] ограбить караван",
+        "choice_bring_result_bandits": [["[[hero]] [{собрался|hero|прш}] ограбить караван",
                                         "Привидение собралось ограбить караван"]],
 
-        "choice_bring_result_protection": [["[[hero]] будет защищать караван",
+        "choice_bring_result_caravan": [["[[hero]] будет защищать караван",
                                            "Привидение будет защищать караван"]]
     }
 }

@@ -81,15 +81,15 @@ jQuery(document).ready(function() {
 
     // pgf.tooltips.Init();
 
-    // jQuery('.pgf-fast-registration').click(function(e){
-    //     e.preventDefault();
-    //     pgf.forms.Post({ OnSuccess: function(data)
-    //                      {
-    //                          location.href = "{{ url('accounts:introduction') }}";
-    //                      },
-    //                      action: jQuery(e.currentTarget).attr('href')
-    //                    });
-    // });
+    jQuery('.pgf-fast-registration').click(function(e){
+        e.preventDefault();
+        pgf.forms.Post({ OnSuccess: function(data)
+                         {
+                             location.href = "{{ url('accounts:introduction') }}";
+                         },
+                         action: jQuery(e.currentTarget).attr('href')
+                       });
+    });
 
     $('[rel="tooltip"]').tooltip({animation: true,
                                   placement: 'left',

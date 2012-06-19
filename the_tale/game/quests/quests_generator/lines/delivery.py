@@ -39,7 +39,6 @@ class Delivery(Quest):
         main_line = Line(sequence=[ cmd.GetItem(self.env_local.item_to_deliver, event=EVENTS.GET_ITEM),
                                     cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_DESTINATION),
                                     cmd.Choose(id=self.env_local.steal_point,
-                                               default='delivery',
                                                choices={'delivery': env.new_line(delivery_line),
                                                         'steal': env.new_line(steal_line)},
                                                event=EVENTS.STEAL_CHOICE,
