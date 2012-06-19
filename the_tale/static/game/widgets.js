@@ -62,10 +62,13 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
         if (!data) return;
 
+        var heroPageUrl = pgf.urls['game:heroes:show'](data.id);
+
         jQuery('.pgf-level', widget).text(data.base.level);
         jQuery('.pgf-destiny-points', widget).text(data.base.destiny_points);
         jQuery('.pgf-name', widget).text(data.base.name);
-        jQuery('.pgf-hero-page-link', widget).attr('href', pgf.urls['game:heroes:'](data.id));
+        jQuery('.pgf-hero-page-link', widget).attr('href', heroPageUrl);
+        jQuery('.pgf-free-destiny-points', widget).attr('href', heroPageUrl).toggleClass('pgf-hidden', !data.base.destiny_points);
         jQuery('.pgf-health', widget).text(data.base.health);
         jQuery('.pgf-max-health', widget).text(data.base.max_health);
         jQuery('.pgf-experience', widget).text(parseInt(data.base.experience));

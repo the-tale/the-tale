@@ -4,7 +4,7 @@ if (!window.pgf) {
 }
 
 pgf.urls = {
-    'game:heroes:': function(heroId){return '/game/heroes/'+heroId;},
+    'game:heroes:show': function(heroId){return '/game/heroes/'+heroId;},
     'game:heroes:choose_ability_dialog': function(heroId){return '/game/heroes/'+heroId+'/choose-ability-dialog';},
     'game:heroes:choose_ability': function(heroId, abilityId){return '/game/heroes/'+heroId+'/choose-ability?ability_id='+abilityId;},
     'game:abilities:form': function(cardType){return '/game/abilities/'+cardType+'/form';},

@@ -29,7 +29,7 @@ class HeroResource(Resource):
 
 
     @login_required
-    @handler('#hero_id', method='get')
+    @handler('#hero_id', name='show', method='get')
     def hero_page(self):
         return self.template('heroes/hero_page.html',
                              {} )

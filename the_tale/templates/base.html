@@ -113,6 +113,9 @@ jQuery(document).ready(function() {
             <li><a href="{{ url('news:') }}">Новости</a></li>
             <li><a href="{{ url('game:') }}">Игра</a></li>
             <li><a href="{{ url('forum:') }}">Форум</a></li>
+            {% if resource.account %}
+            <li><a href="{{ url('game:heroes:show', resource.account.angel.heroes()[0].id) }}">Страница героя</a></li>
+            {% endif %}
           </ul>
 
           <ul class="nav pull-right">
