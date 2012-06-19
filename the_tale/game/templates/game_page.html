@@ -111,6 +111,7 @@ jQuery(document).ready(function(e){
 
 {% block content %}
 
+{% if angel %}
 <div class="row">
   <div class="span3">
     {% include "heroes/hero_short.html" %}
@@ -187,8 +188,6 @@ jQuery(document).ready(function(e){
 
   </div>
 
-  // popovers
-
   <div class="pgf-hidden" id="pgf-popover-person">
     <ul class="unstyled">
       <li><strong>раса</strong>: <span class="pgf-race"></span></li>
@@ -203,5 +202,20 @@ jQuery(document).ready(function(e){
   </div>
 
 </div>
+{% else %}
+
+<div class="alert fade in">
+  <button type="button" class="close" data-dismiss="alert">×</button>
+  Вы можете <a href="{{ url('accounts:fast_registration') }}" class="pgf-fast-registration">начать игру без регистрации</a> или <a href="{{ url('accounts:login') }}">войти</a>, если вы имеете аккаунт.
+</div>
+
+<div class="row">
+  <div class="tab-pane span12" id="pgf-map-container">
+    {% include "game/map.html" %}
+  </div>
+</div>
+
+
+{% endif %}
 
 {% endblock %}

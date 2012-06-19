@@ -309,6 +309,11 @@ class HeroPrototype(object):
     def add_message(self, type_, current_time, important=False, **kwargs):
         args = prepair_substitution(kwargs)
         template = get_vocabulary().get_random_phrase(type_)
+
+        # from django.utils.log import getLogger
+        # logger=getLogger('the-tale.workers.game_logic')
+        # logger.error(type_)
+
         if template is None:
             # TODO: raise exception in production (not when tests running)
             # from textgen.exceptions import TextgenException
