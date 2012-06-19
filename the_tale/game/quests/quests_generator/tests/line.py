@@ -92,7 +92,7 @@ class LineTest(TestCase):
         self.assertRaises(QuestGeneratorException, self.quest_line.increment_pointer, self.env, [8], {})
 
         self.assertEqual(self.choice_line.increment_pointer(self.env, [0], {}), [1])
-        self.assertEqual(self.choice_line.increment_pointer(self.env, [1], {}), [1, 'line_1', 0])
+        self.assertTrue(self.choice_line.increment_pointer(self.env, [1], {}) in ([1, 'line_1', 0], [1, 'line_2', 0]))
         self.assertEqual(self.choice_line.increment_pointer(self.env, [1, 'line_1', 0], {}), [1, 'line_1', 1])
         self.assertEqual(self.choice_line.increment_pointer(self.env, [1, 'line_1', 7], {}), [2])
         self.assertEqual(self.choice_line.increment_pointer(self.env, [1], {'choose_1': 'choice_2'}), [1, 'line_2', 0])

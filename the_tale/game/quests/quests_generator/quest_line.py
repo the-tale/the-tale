@@ -56,7 +56,7 @@ class Line(object):
             if cmd.is_quest:
                 return [pointer[0]] + self.get_start_pointer()
             if cmd.is_choice:
-                choice = choices.get(cmd.id, random.choice(cmd.get_choices()))
+                choice = choices.get(cmd.id, random.choice(cmd.get_variants()))
                 choosed_line = cmd.choices[choice]
                 return [pointer[0], choosed_line] + env.lines[choosed_line].get_start_pointer()
             if len(self.sequence) > pointer[0]+1:

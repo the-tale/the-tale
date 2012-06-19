@@ -90,7 +90,7 @@ class QuestTest(TestCase):
 
     def test_increment_pointer(self):
         self.assertEqual(self.quest.increment_pointer(self.env, [0], {}), [1])
-        self.assertEqual(self.quest.increment_pointer(self.env, [1], {}), [1, self.FIRST_CHOICE_LINE, 0])
+        self.assertTrue(self.quest.increment_pointer(self.env, [1], {}) in ([1, self.FIRST_CHOICE_LINE, 0], [1, self.SECOND_CHOICE_LINE, 0]))
         self.assertEqual(self.quest.increment_pointer(self.env, [1, self.FIRST_CHOICE_LINE, 0], {}), [1, self.FIRST_CHOICE_LINE, 1])
         self.assertEqual(self.quest.increment_pointer(self.env, [1, self.FIRST_CHOICE_LINE, 7], {}), [2])
         self.assertEqual(self.quest.increment_pointer(self.env, [1], {'choose_1': 'choice_2'}), [1, self.SECOND_CHOICE_LINE, 0])
