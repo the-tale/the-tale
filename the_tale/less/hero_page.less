@@ -1,134 +1,48 @@
 @import "constants.less";
 
-@left-column-width: 200px;
-@center-column-width: (@content-width - @left-column-width) / 2 - 10;
-@right-column-width: @center-column-width;
-
-#hero-page-content {
-
-    .column {
-        display: inline-block;
-        vertical-align: top;
-    }
-
-    #left-column {
-        width: @left-column-width;
-    }
-
-    #right-column {
-        width: @right-column-width;
-    }
-
-    #center-column {
-        width: @center-column-width;
-    }
-
-    #choose-ability-button {
-
-        text-align: center;
-        cursor: pointer;
-
-        border-color: #FF6666;
-        background-color: #FF9966;
-
-        &:hover {
-            border-color: #FF6600;
-            background-color: #FF9900;
-        }
-    }
-}
-
 .hero-statistics {
-   h2 {font-size: 14pt;}
-   h3 {
-      font-size: 12pt;
-      padding-top: 0.5em;
-   }
+
+   cursor: default;
 
    .stat-record {
+
+      &:hover {
+         background-color: @hover-color;
+      }
+
       .value {
          float: right;
       }
    }
 }
 
-.hero-abilities-list {
-
-    margin: 5px;
-
-    .record {
-        cursor: default;
-
-        padding: 2px;
-        margin: 2px;
-
-        border: 2px solid blue;
-        border-radius: 4px;
-
-        width: 250px;
-
-        .icon {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            vertical-align: middle;
-
-            &.magic_mushroom {
-                background: url('../game/images/habilities.png') no-repeat scroll 0 0 transparent;
-            }
-
-            &.regeneration {
-                background: url('../game/images/habilities.png') no-repeat scroll -32px 0 transparent;
-            }
-
-            &.sidestep {
-                background: url('../game/images/habilities.png') no-repeat scroll -64px 0 transparent;
-            }
-
-            &.menothere {
-                background: url('../game/images/habilities.png') no-repeat scroll -96px 0 transparent;
-            }
-
-            &.run_up_push {
-                background: url('../game/images/habilities.png') no-repeat scroll -128px 0 transparent;
-            }
-
-            &.hit {
-                background: url('../game/images/habilities.png') no-repeat scroll -160px 0 transparent;
-            }
-        }
-
-        .name {
-            font-weight: bold;
-            font-size: 12pt;
-            display: inline-block;
-            width: 190px;
-        }
-
-        &.battle {
-            border-color: #CC0000;
-            background-color: #CC3300;
-        }
-
-        &.battle:hover {
-            border-color: #FF0000;
-            background-color: #FF3300;
-        }
-    }
+#choose-ability-button {
+   cursor: pointer;
 }
 
-.chose-hero-ability-dialog {
-    width: 600px;
+.hero-ability-record {
 
-    .hero-abilities-list {
+   margin-bottom: 1em;
 
-        margin: 5px;
+   &:hover {
+      background-color: @hover-color;
+   }
 
-        .record {
+   .ability-name {
 
-            cursor: pointer;
+      .ability-type {
+         font-weight: normal;
+         color: @disabled-text-color;
+      }
+   }
+}
 
-        }
-    }
+.hero-abilities-list {
+   cursor: default;
+}
 
+.choose-hero-ability-dialog {
+   .hero-ability-record {
+      cursor: pointer;
+   }
 }

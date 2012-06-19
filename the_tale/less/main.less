@@ -2,7 +2,7 @@
 @import "constants.less";
 
 @import "game.css";
-/* @import "hero_page.css"; */
+@import "hero_page.css";
 /* @import "tooltips.css"; */
 /* @import "dialog.css"; */
 /* @import "forms.css"; */
@@ -71,4 +71,34 @@ body {
 
 .popover {
    z-index: 30000000 !important;
+}
+
+.modal-backdrop {
+   opacity: 0.5 !important;
+
+   &.wait-backdrop {
+      z-index:10000
+   }
+}
+
+.wait-indicator-backdrop {
+
+   position: fixed;
+   z-index: 100010;
+   left: 0;
+   right: 0;
+   top: 0;
+   bottom: 0;
+
+   background-color: transparent;
+
+   .wait-indicator {
+      background-color: white;
+      margin-top: 300px;
+      margin-bottom: 0;
+      margin-left: auto;
+      margin-right: auto;
+      height: 32px;
+      width: 32px;
+   }
 }

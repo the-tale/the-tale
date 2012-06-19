@@ -5,8 +5,8 @@
 {% block head %}
 {{ super() }}
 
-<!-- <script src="{{ STATIC_URL }}game/widgets.js" type="text/javascript"></script> -->
-<!-- <script src="{{ STATIC_URL }}game/angel.js" type="text/javascript"></script> -->
+<script src="{{ STATIC_URL }}game/widgets.js" type="text/javascript"></script>
+<script src="{{ STATIC_URL }}game/angel.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 
@@ -24,12 +24,10 @@ jQuery(document).ready(function(e){
         angelUpdater.Refresh();
     }, 0);
 
-    jQuery('.pgf-choose-ability-button').click(function(){
+    jQuery('#choose-ability-button').click(function(){
         pgf.ui.dialog.Create({ fromUrl: pgf.urls['game:heroes:choose_ability_dialog']({{ resource.hero.id }}),
                                OnOpen: function(dialog) {
-                                   pgf.tooltips.Refresh('.pgf-chose-hero-ability-dialog');
-
-                                   jQuery('.pgf-ability-record', dialog).click(function(e){
+                                   jQuery('.pgf-hero-ability-record', dialog).click(function(e){
                                        e.preventDefault();
 
                                        var el = jQuery(e.currentTarget);
@@ -39,9 +37,6 @@ jQuery(document).ready(function(e){
                                                       });
 
                                    });
-                               },
-                               OnClose: function(dialog) {
-                                   pgf.tooltips.Hide('.pgf-chose-hero-ability-dialog');
                                }
                              });
     });
@@ -53,38 +48,42 @@ jQuery(document).ready(function(e){
 
 {% block content %}
 
-<div id="hero-page-content">
+<div id="hero-page-content" class="row">
 
-  <div id="left-column" class="column">
+  <div class="span3">
     {% include "heroes/hero_short.html" %}
-    {% include "heroes/hero_equipment.html" %}
-  </div>
-
-  <div id="center-column" class="column">
-
-    {% if resource.hero.destiny_points %}
-    <div id="choose-ability-button" class="block pgf-choose-ability-button">
-      <h2>ВЫБEРИТЕ НОВУЮ СПОСОБНОСТЬ</h2>
-    </div>
-    {% endif %}
 
     <div class="block">
-      <h2>Боевые способности:</h2>
-      {% set abilities = resource.hero.abilities.all %}
-      {{ macros.abilities_list(abilities) }}
+      {% include "heroes/hero_equipment.html" %}
     </div>
   </div>
 
-  <div id="right-column" class="column">
+  <div class="span5">
+
+      {% if resource.hero.destiny_points %}
+      <div id="choose-ability-button" class="alert fade in pgf-choose-ability-button">
+        {{ resource.hero.name }} может выучить новую способность. <br/>
+        Нажмите на это сообщение что бы выбрать её.
+      </div>
+      {% endif %}
+
+      <div class="block">
+        <h2 style="cursor: default;">Способности</h2>
+        {% set abilities = resource.hero.abilities.all %}
+        {{ macros.abilities_list(abilities) }}
+      </div>
+  </div>
+
+  <div class="span4">
     <div class="block hero-statistics">
       <h2>Статистика</h2>
       <h3>Сражения</h3>
-      <ul>
+      <ul class="unstyled">
         <li class="stat-record"><span class="name">смертей от монстров</span><span class="value">{{ resource.hero.statistics.pve_deaths }}</span></li>
         <li class="stat-record"><span class="name">убито монстров</span><span class="value">{{ resource.hero.statistics.pve_kills }}</span></li>
       </ul>
       <h3>Золото</h3>
-      <ul>
+      <ul class="unstyled">
         <li class="stat-record">
           <span class="name">всего заработано</span><span class="value">{{ resource.hero.statistics.money_earned }}</span>
         </li>
@@ -117,7 +116,7 @@ jQuery(document).ready(function(e){
         </li>
       </ul>
       <h3>Прочее</h3>
-      <ul>
+      <ul class="unstyled">
         <li class="stat-record"><span class="name">артефактов добыто</span><span class="value">{{ resource.hero.statistics.artifacts_had }}</span></li>
         <li class="stat-record"><span class="name">лута получено</span><span class="value">{{ resource.hero.statistics.loot_had }}</span></li>
         <li class="stat-record"><span class="name">заданий выполнено</span><span class="value">{{ resource.hero.statistics.quests_done }}</span></li>

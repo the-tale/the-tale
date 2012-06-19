@@ -64,22 +64,26 @@ pgf.ui.dialog.Create = function(params) {
 
         var dialog = undefined;
 
-        dialog = jQuery(content).modal({   keyboard: closeOnEscape,
-                                           show: true,
-                                           hide: function() {
-                                               if (params.OnClose) {
-                                                   params.OnClose(dialog);
-                                               }
+        var OnShow = function() {
+            if (params.OnOpen) {
+                params.OnOpen(dialog);
+            }
+        };
 
-                                               dialog.dialog('destroy');
-                                           },
-                                           show: function() {
-                                               if (params.OnOpen) {
-                                                   params.OnOpen(dialog);
-                                               }
-                                           }
-                                       });
+        var OnHide = function() {
+            if (params.OnClose) {
+                params.OnClose(dialog);
+            }
+            
+            dialog.dialog('destroy');
+        };
 
+        dialog = jQuery(content)
+            .modal({keyboard: closeOnEscape, show: false})
+            .bind('show', OnShow)
+            .bind('hide', OnHide);
+
+        dialog.modal('show');
     }
 };
 
@@ -104,33 +108,21 @@ pgf.ui.dialog.Alert = function(params) {
 
 pgf.ui.dialog.Error = function(params) {
     pgf.ui.dialog.Alert(params);
-}
+};
 
 
 pgf.ui.dialog._wait_counter = 0;
-pgf.ui.dialog._wait_dialog = undefined;
+pgf.ui.dialog._wait_content = '<div class="pgf-wait-backdrop modal-backdrop wait-backdrop in" style=";"></div>';
+pgf.ui.dialog._wait_indicator_content = '<div class="wait-indicator-backdrop pgf-wait-indicator-backdrop"><div class="pgf-wait-indicator block wait-indicator"></div></div>';
 pgf.ui.dialog.wait = function(command) {
-
-    if (pgf.ui.dialog._wait_dialog == undefined) {
-        html = '<div><img src="'+STATIC_URL+'images/waiting.gif"></img></div>';
-        pgf.ui.dialog._wait_dialog = jQuery(html).dialog({ autoOpen: false, 
-                                                           closeOnEscape: false,
-                                                           draggable: false,
-                                                           modal: true,
-                                                           resizable: false,
-                                                           width: 'auto',
-                                                           height: 'auto',
-                                                           dialogClass: 'waiting-dialog',
-                                                           minHeight: 0
-                                                         });
-    }
-
+    
     if (command == 'start') {
         pgf.ui.dialog._wait_counter += 1;
         if (pgf.ui.dialog._wait_counter > 1) {
             return;
         }
-        pgf.ui.dialog._wait_dialog.dialog("open");
+        jQuery('body').append(pgf.ui.dialog._wait_content).append(pgf.ui.dialog._wait_indicator_content);
+        jQuery('.pgf-wait-indicator').spin('large');
     }
 
     if (command == 'stop') {
@@ -138,8 +130,8 @@ pgf.ui.dialog.wait = function(command) {
         if (pgf.ui.dialog._wait_counter > 0) {
             return;
         }
-        pgf.ui.dialog._wait_dialog.dialog("close");
+        jQuery('.pgf-wait-indicator').spin(false);
+        jQuery('.pgf-wait-backdrop').remove();
+        jQuery('.pgf-wait-indicator-backdrop').remove();
     }
-
-   
 };
