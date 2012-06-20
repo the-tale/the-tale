@@ -1,0 +1,14 @@
+{
+    "description": "",
+    "prefix": "action_resurrect",
+    "types": {
+        "description": {
+            "description": "",
+            "variables": {"hero": "привидение"},
+            "phrases": [
+                ["проходит курс усиленного восстановления",
+                 "проходит курс усиленного восстановления"]
+            ]
+        }
+    }
+}

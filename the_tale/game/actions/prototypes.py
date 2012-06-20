@@ -28,6 +28,9 @@ from game.quests.logic import create_random_quest_for_hero
 
 from game.workers.environment import workers_environment
 
+from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
+
+
 def get_actions_types():
     actions = {}
     for key, cls in globals().items():
@@ -54,7 +57,7 @@ class HELP_CHOICES:
 class ActionPrototype(object):
 
     TYPE = 'BASE'
-    SHORT_DESCRIPTION = 'undefined'
+    TEXTGEN_TYPE = None
     CONTEXT_MANAGER = None
     EXTRA_HELP_CHOICES = set()
 
@@ -198,11 +201,75 @@ class ActionPrototype(object):
 
         return random.choice(list(choices))
 
+    def get_description(self):
+        template_name = '%s_description' % self.TEXTGEN_TYPE
+        args = prepair_substitution(self.get_description_arguments())
+        template = get_vocabulary().get_random_phrase(template_name)
+
+        # from django.utils.log import getLogger
+        # logger=getLogger('the-tale.workers.game_logic')
+        # logger.error(template_name)
+
+        if template is None:
+            raise Exception(template_name)
+            # TODO: raise exception in production (not when tests running)
+            # from textgen.exceptions import TextgenException
+            # raise TextgenException(u'ERROR: unknown template type: %s' % type_)
+            return
+        msg = template.substitute(get_dictionary(), args)
+        return msg
+
+    def get_description_arguments(self):
+        return {'hero': self.hero}
+
     ###########################################
     # Object operations
     ###########################################
 
-    def remove(self):
+    def on_create(self, parent):
+        if parent:
+            parent.updated = True
+            parent.leader = False
+            parent.bundle.add_action(self)
+        self.hero.push_action_description(self.get_description())
+        self.hero.last_action_percents = self.percents
+
+    def on_remove(self, force=False):
+        if force:
+            return
+
+        if self.parent:
+            self.parent.leader = True
+            self.hero.last_action_percents = self.parent.percents
+        else:
+            self.hero.last_action_percents = 0
+
+        self.hero.pop_action_description()
+
+    @classmethod
+    def create(cls, parent, *argv, **kwargs):
+        '''
+        _bundle argument used only in creating hero step
+        '''
+        _bundle = None
+        if '_bundle' in kwargs:
+            _bundle = kwargs['_bundle']
+            del kwargs['_bundle']
+
+        action = cls._create(parent, *argv, **kwargs)
+
+        if _bundle:
+            _bundle.add_action(action)
+
+        action.on_create(parent)
+        return action
+
+    def remove(self, force=False):
+        '''
+        force - if True, bundles will be ignored (need for full remove of angel & hero)
+        '''
+        self.on_remove(force=force)
+
         if self.bundle:
             self.bundle.remove_action(self)
 
@@ -230,9 +297,10 @@ class ActionPrototype(object):
         self.updated = False
 
     def ui_info(self):
+
         return {'id': self.id,
                 'type': self.type,
-                'short_description': self.SHORT_DESCRIPTION,
+                'description': 'bla-bla-bla',
                 'percents': self.percents,
                 'specific': {'place_id': self.place_id,
                              'road_id': self.road_id,
@@ -246,10 +314,11 @@ class ActionPrototype(object):
 
         self.process(current_time)
 
+        self.hero.last_action_percents = self.percents
+
         if not self.removed:
 
             if self.state == self.STATE.PROCESSED:
-                self.parent.leader = True
                 self.remove()
 
 
@@ -303,7 +372,7 @@ class ActionPrototype(object):
 class ActionIdlenessPrototype(ActionPrototype):
 
     TYPE = 'IDLENESS'
-    SHORT_DESCRIPTION = u'бездельничает'
+    TEXTGEN_TYPE = 'action_idleness'
     EXTRA_HELP_CHOICES = set((HELP_CHOICES.START_QUEST,))
 
     class STATE(ActionPrototype.STATE):
@@ -316,10 +385,8 @@ class ActionIdlenessPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def create(cls, parent=None, hero=None, current_time=None):
+    def _create(cls, parent=None, hero=None, current_time=None):
         if parent:
-            parent.updated = True
-            parent.leader = False
             model = Action.objects.create( type=cls.TYPE, parent=parent.model, hero=parent.hero.model, order=parent.order+1, state=cls.STATE.WAITING)
         else:
             model = Action.objects.create( type=cls.TYPE, hero=hero.model, order=0, percents=1.0, state=cls.STATE.WAITING)
@@ -345,7 +412,7 @@ class ActionIdlenessPrototype(ActionPrototype):
         if self.state == self.STATE.QUEST:
             self.percents = 0
             self.state = self.STATE.IN_PLACE
-            self.bundle.add_action(ActionInPlacePrototype.create(self, current_time))
+            ActionInPlacePrototype.create(self, current_time)
 
         if self.state == self.STATE.WAITING:
 
@@ -354,17 +421,18 @@ class ActionIdlenessPrototype(ActionPrototype):
             if self.percents >= 1.0:
                 self.state = self.STATE.QUEST
                 quest = create_random_quest_for_hero(current_time, self.hero)
-                self.bundle.add_action(ActionQuestPrototype.create(parent=self, current_time=current_time, quest=quest))
+                ActionQuestPrototype.create(parent=self, current_time=current_time, quest=quest)
                 self.percents = 0
 
             else:
                 if random.uniform(0, 1) < 0.2:
                     self.hero.add_message('action_idleness_waiting', current_time, hero=self.hero)
 
+
 class ActionQuestPrototype(ActionPrototype):
 
     TYPE = 'QUEST'
-    SHORT_DESCRIPTION = u'выполняет задание'
+    TEXTGEN_TYPE = 'action_quest'
     EXTRA_HELP_CHOICES = set()
 
     class STATE(ActionPrototype.STATE):
@@ -375,9 +443,7 @@ class ActionQuestPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def create(cls, parent, current_time, quest):
-        parent.updated = True
-        parent.leader = False
+    def _create(cls, parent, current_time, quest):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
@@ -401,6 +467,7 @@ class ActionQuestPrototype(ActionPrototype):
 class ActionMoveToPrototype(ActionPrototype):
 
     TYPE = 'MOVE_TO'
+    TEXTGEN_TYPE = 'action_moveto'
     SHORT_DESCRIPTION = u'путешествует'
     EXTRA_HELP_CHOICES = set((HELP_CHOICES.TELEPORT,))
 
@@ -421,9 +488,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
 
     @classmethod
-    def create(cls, parent, current_time, destination, break_at=None):
-        parent.updated = True
-        parent.leader = False
+    def _create(cls, parent, current_time, destination, break_at=None):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
@@ -433,6 +498,11 @@ class ActionMoveToPrototype(ActionPrototype):
                                        state=cls.STATE.CHOOSE_ROAD)
         parent.hero.add_message('action_moveto_start', current_time, hero=parent.hero, destination=destination)
         return cls(model=model)
+
+    def get_description_arguments(self):
+        args = super(ActionMoveToPrototype, self).get_description_arguments()
+        args.update({'destination': self.place})
+        return args
 
     def short_teleport(self, distance):
 
@@ -469,11 +539,11 @@ class ActionMoveToPrototype(ActionPrototype):
 
         if self.state == self.STATE.BATTLE:
             if not self.hero.is_alive:
-                self.bundle.add_action(ActionResurrectPrototype.create(self, current_time))
+                ActionResurrectPrototype.create(self, current_time)
                 self.state = self.STATE.RESURRECT
             else:
                 if self.hero.need_rest_in_move:
-                    self.bundle.add_action(ActionRestPrototype.create(self, current_time))
+                    ActionRestPrototype.create(self, current_time)
                     self.state = self.STATE.RESTING
                 else:
                     self.state = self.STATE.MOVING
@@ -536,7 +606,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
             if random.uniform(0, 1) <= c.BATTLES_PER_TURN:
                 mob = create_mob_for_hero(self.hero)
-                self.bundle.add_action(ActionBattlePvE1x1Prototype.create(parent=self, current_time=current_time, mob=mob))
+                ActionBattlePvE1x1Prototype.create(parent=self, current_time=current_time, mob=mob)
                 self.state = self.STATE.BATTLE
             else:
 
@@ -560,7 +630,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
                     self.state = self.STATE.IN_CITY
 
-                    self.bundle.add_action(ActionInPlacePrototype.create(parent=self, current_time=current_time))
+                    ActionInPlacePrototype.create(parent=self, current_time=current_time)
 
                 elif self.break_at and self.percents >= 1:
                     self.percents = 1
@@ -570,7 +640,7 @@ class ActionMoveToPrototype(ActionPrototype):
 class ActionBattlePvE1x1Prototype(ActionPrototype):
 
     TYPE = 'BATTLE_PVE1x1'
-    SHORT_DESCRIPTION = u'сражается'
+    TEXTGEN_TYPE = 'action_battlepve1x1'
     CONTEXT_MANAGER = contexts.BattleContext
     EXTRA_HELP_CHOICES = set((HELP_CHOICES.LIGHTING,))
 
@@ -582,9 +652,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def create(cls, parent, current_time, mob):
-        parent.updated = True
-        parent.leader = False
+    def _create(cls, parent, current_time, mob):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
@@ -593,6 +661,11 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
                                        state=cls.STATE.BATTLE_RUNNING)
         parent.hero.add_message('action_battlepve1x1_start', current_time, hero=parent.hero, mob=mob)
         return cls(model=model)
+
+    def get_description_arguments(self):
+        args = super(ActionBattlePvE1x1Prototype, self).get_description_arguments()
+        args.update({'mob': self.mob})
+        return args
 
     def bit_mob(self, percents):
 
@@ -654,16 +727,14 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
 class ActionResurrectPrototype(ActionPrototype):
 
     TYPE = 'RESURRECT'
-    SHORT_DESCRIPTION = u'воскресает'
+    TEXTGEN_TYPE = 'action_resurrect'
     EXTRA_HELP_CHOICES = set((HELP_CHOICES.RESURRECT,))
 
     class STATE(ActionPrototype.STATE):
         RESURRECT = 'resurrect'
 
     @classmethod
-    def create(cls, parent, current_time):
-        parent.updated = True
-        parent.leader = False
+    def _create(cls, parent, current_time):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
@@ -695,7 +766,7 @@ class ActionResurrectPrototype(ActionPrototype):
 class ActionInPlacePrototype(ActionPrototype):
 
     TYPE = 'IN_PLACE'
-    SHORT_DESCRIPTION = u'изучает окрестности'
+    TEXTGEN_TYPE = 'action_inplace'
     EXTRA_HELP_CHOICES = set()
 
     class STATE(ActionPrototype.STATE):
@@ -710,15 +781,18 @@ class ActionInPlacePrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def create(cls, parent, current_time):
-        parent.updated = True
-        parent.leader = False
+    def _create(cls, parent, current_time):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
                                        state=cls.STATE.SPEND_MONEY)
         return cls(model=model)
+
+    def get_description_arguments(self):
+        args = super(ActionInPlacePrototype, self).get_description_arguments()
+        args.update({'place': self.hero.position.place})
+        return args
 
     def process(self, current_time):
 
@@ -800,15 +874,15 @@ class ActionInPlacePrototype(ActionPrototype):
         if self.state == self.STATE.CHOOSING:
             if self.hero.need_rest_in_settlement:
                 self.state = self.STATE.RESTING
-                self.bundle.add_action(ActionRestPrototype.create(self, current_time))
+                ActionRestPrototype.create(self, current_time)
 
             elif self.hero.need_equipping_in_town:
                 self.state = self.STATE.EQUIPPING
-                self.bundle.add_action(ActionEquippingPrototype.create(self, current_time))
+                ActionEquippingPrototype.create(self, current_time)
 
             elif self.hero.need_trade_in_town:
                 self.state = self.STATE.TRADING
-                self.bundle.add_action(ActionTradingPrototype.create(self, current_time))
+                ActionTradingPrototype.create(self, current_time)
 
             else:
                 self.state = self.STATE.PROCESSED
@@ -817,7 +891,7 @@ class ActionInPlacePrototype(ActionPrototype):
 class ActionRestPrototype(ActionPrototype):
 
     TYPE = 'REST'
-    SHORT_DESCRIPTION = u'отдыхает'
+    TEXTGEN_TYPE = 'action_rest'
     EXTRA_HELP_CHOICES = set()
 
     class STATE(ActionPrototype.STATE):
@@ -828,9 +902,7 @@ class ActionRestPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def create(cls, parent, current_time):
-        parent.updated = True
-        parent.leader = False
+    def _create(cls, parent, current_time):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
@@ -858,7 +930,7 @@ class ActionRestPrototype(ActionPrototype):
 class ActionEquippingPrototype(ActionPrototype):
 
     TYPE = 'EQUIPPING'
-    SHORT_DESCRIPTION = u'экипируется'
+    TEXTGEN_TYPE = 'action_equipping'
     EXTRA_HELP_CHOICES = set()
 
     class STATE(ActionPrototype.STATE):
@@ -869,9 +941,7 @@ class ActionEquippingPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def create(cls, parent, current_time):
-        parent.updated = True
-        parent.leader = False
+    def _create(cls, parent, current_time):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
@@ -899,6 +969,7 @@ class ActionEquippingPrototype(ActionPrototype):
 class ActionTradingPrototype(ActionPrototype):
 
     TYPE = 'TRADING'
+    TEXTGEN_TYPE = 'action_trading'
     SHORT_DESCRIPTION = u'торгует'
     EXTRA_HELP_CHOICES = set()
 
@@ -916,9 +987,7 @@ class ActionTradingPrototype(ActionPrototype):
         return info
 
     @classmethod
-    def create(cls, parent, current_time):
-        parent.updated = True
-        parent.leader = False
+    def _create(cls, parent, current_time):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
@@ -977,7 +1046,7 @@ class ActionTradingPrototype(ActionPrototype):
 class ActionMoveNearPlacePrototype(ActionPrototype):
 
     TYPE = 'MOVE_NEAR_PLACE'
-    SHORT_DESCRIPTION = u'бродит по окрестностям'
+    TEXTGEN_TYPE = 'action_movenearplace'
     EXTRA_HELP_CHOICES = set()
 
     class STATE(ActionPrototype.STATE):
@@ -995,9 +1064,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
         return info
 
     @classmethod
-    def create(cls, parent, current_time, place, back):
-        parent.updated = True
-        parent.leader = False
+    def _create(cls, parent, current_time, place, back):
 
         if back:
             x, y = place.x, place.y
@@ -1021,6 +1088,11 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
         return cls(model=model)
 
+    def get_description_arguments(self):
+        args = super(ActionMoveNearPlacePrototype, self).get_description_arguments()
+        args.update({'place': self.place})
+        return args
+
     def process(self, current_time):
 
         if self.state == self.STATE.RESTING:
@@ -1031,11 +1103,11 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
         if self.state == self.STATE.BATTLE:
             if not self.hero.is_alive:
-                self.bundle.add_action(ActionResurrectPrototype.create(self, current_time))
+                ActionResurrectPrototype.create(self, current_time)
                 self.state = self.STATE.RESURRECT
             else:
                 if self.hero.need_rest_in_move:
-                    self.bundle.add_action(ActionRestPrototype.create(self, current_time))
+                    ActionRestPrototype.create(self, current_time)
                     self.state = self.STATE.RESTING
                 else:
                     self.state = self.STATE.MOVING
@@ -1044,7 +1116,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
             if random.uniform(0, 1) <= c.BATTLES_PER_TURN:
                 mob = create_mob_for_hero(self.hero)
-                self.bundle.add_action(ActionBattlePvE1x1Prototype.create(parent=self, current_time=current_time, mob=mob))
+                ActionBattlePvE1x1Prototype.create(parent=self, current_time=current_time, mob=mob)
                 self.state = self.STATE.BATTLE
 
             else:

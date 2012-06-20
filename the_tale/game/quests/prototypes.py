@@ -200,12 +200,12 @@ class QuestPrototype(object):
     def cmd_move(self, cmd, cur_action, cur_time):
         from ..actions.prototypes import ActionMoveToPrototype
         destination = self.env.get_game_place(cmd.place)
-        cur_action.bundle.add_action(ActionMoveToPrototype.create(parent=cur_action, current_time=cur_time, destination=destination, break_at=cmd.break_at))
+        ActionMoveToPrototype.create(parent=cur_action, current_time=cur_time, destination=destination, break_at=cmd.break_at)
 
     def cmd_move_near(self, cmd, cur_action, cur_time):
         from ..actions.prototypes import ActionMoveNearPlacePrototype
         destination = self.env.get_game_place(cmd.place)
-        cur_action.bundle.add_action(ActionMoveNearPlacePrototype.create(parent=cur_action, current_time=cur_time, place=destination, back=cmd.back))
+        ActionMoveNearPlacePrototype.create(parent=cur_action, current_time=cur_time, place=destination, back=cmd.back)
 
     def cmd_get_item(self, cmd, cur_action, cur_time):
         item = self.env.get_game_item(cmd.item)
@@ -249,7 +249,7 @@ class QuestPrototype(object):
     def cmd_battle(self, cmd, cur_action, cur_time):
         from ..actions.prototypes import ActionBattlePvE1x1Prototype
         from ..heroes.logic import create_mob_for_hero
-        cur_action.bundle.add_action(ActionBattlePvE1x1Prototype.create(parent=cur_action, current_time=cur_time, mob=create_mob_for_hero(cur_action.hero)))
+        ActionBattlePvE1x1Prototype.create(parent=cur_action, current_time=cur_time, mob=create_mob_for_hero(cur_action.hero))
 
     def ui_info(self, hero):
         choices = self.get_choices()

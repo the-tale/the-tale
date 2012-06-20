@@ -46,6 +46,7 @@ class HeroPrototype(object):
         self.model = model
         self.messages_updated = False
         self.diary_updated = False
+        self.actions_descriptions_updated = False
 
 
     def get_is_alive(self): return self.model.alive
@@ -278,6 +279,25 @@ class HeroPrototype(object):
             self._statistics = HeroStatistics(hero_model=self.model)
         return self._statistics
 
+
+    def get_last_action_percents(self): return self.model.last_action_percents
+    def set_last_action_percents(self, value): self.model.last_action_percents = value
+    last_action_percents = property(get_last_action_percents, set_last_action_percents)
+
+    @property
+    def actions_descriptions(self):
+        if not hasattr(self, '_actions_descriptions'):
+            self._actions_descriptions = s11n.from_json(self.model.actions_descriptions)
+        return self._actions_descriptions
+
+    def push_action_description(self, description):
+        self.actions_descriptions_updated = True
+        self.actions_descriptions.append(description)
+
+    def pop_action_description(self):
+        self.actions_descriptions_updated = True
+        self.actions_descriptions.pop()
+
     @property
     def messages(self):
         if not hasattr(self, '_messages'):
@@ -334,7 +354,7 @@ class HeroPrototype(object):
 
     def remove(self):
         for action in reversed(self.get_actions()):
-            action.remove()
+            action.remove(force=True)
         self.model.delete()
 
     def save(self):
@@ -357,6 +377,10 @@ class HeroPrototype(object):
         if self.diary_updated:
             self.model.diary = s11n.to_json(self.diary)
             self.diary_updated = False
+
+        if self.actions_descriptions_updated:
+            self.model.actions_descriptions = s11n.to_json(self.actions_descriptions)
+            self.actions_descriptions_updated = False
 
         database.raw_save(self.model)
 
@@ -391,7 +415,8 @@ class HeroPrototype(object):
                 self.position == other.position and
                 self.statistics == other.statistics and
                 self._compare_messages(self.messages, other.messages) and
-                self._compare_messages(self.diary, other.diary))
+                self._compare_messages(self.diary, other.diary) and
+                self.actions_descriptions == other.actions_descriptions)
 
     def ui_info(self, ignore_actions=False):
 
@@ -409,7 +434,6 @@ class HeroPrototype(object):
 
         return {'id': self.id,
                 'angel': self.angel_id,
-                'actions': [ action.ui_info() for action in self.get_actions() ] if not ignore_actions else [],
                 'messages': messages,
                 'diary': diary,
                 'position': self.position.ui_info(),
@@ -417,6 +441,8 @@ class HeroPrototype(object):
                 'bag': self.bag.ui_info(),
                 'equipment': self.equipment.ui_info(),
                 'money': self.money,
+                'action': { 'percents': self.last_action_percents,
+                            'description': self.actions_descriptions[-1]},
                 'base': { 'name': self.name,
                           'level': self.level,
                           'destiny_points': self.destiny_points,
@@ -436,7 +462,7 @@ class HeroPrototype(object):
 
 
     @classmethod
-    def create(cls, angel):
+    def create(cls, angel, bundle):
         from game.actions.prototypes import ActionIdlenessPrototype
 
         start_place = PlacePrototype.random_place()
@@ -455,7 +481,9 @@ class HeroPrototype(object):
 
         hero = cls(model=hero)
 
-        ActionIdlenessPrototype.create(hero=hero)
+        bundle.add_hero(hero)
+
+        ActionIdlenessPrototype.create(parent=None, hero=hero, _bundle=bundle)
 
         return hero
 

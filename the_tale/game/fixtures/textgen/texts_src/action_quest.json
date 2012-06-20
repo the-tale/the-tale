@@ -2,6 +2,14 @@
     "description": "",
     "prefix": "action_quest",
     "types": {
+        "description": {
+            "description": "",
+            "variables": {"hero": "привидение"},
+            "phrases": [
+                ["прилагает максимальные усилия, что бы выполнить задание",
+                 "прилагает максимальные усилия, что бы выполнить задание"]
+            ]
+        },
         "reward_money": {
             "description": "",
             "variables": {"hero": "привидение", "coins": 13},

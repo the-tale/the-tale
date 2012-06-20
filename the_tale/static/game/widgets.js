@@ -371,109 +371,14 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
     var data = {};
 
-    var ACTION_TYPES = {
-        IDLENESS: 'IDLENESS',
-        BATTLE_PvE_1x1: 'BATTLE_PVE1x1',
-        QUEST: 'QUEST',
-        MOVE_TO: 'MOVE_TO',
-        RESURRECT: 'RESURRECT',
-        IN_CITY: 'IN_CITY'
-    };
-
-    function RenderOtherAction(action) {
-        var otherAction = jQuery('.pgf-action-other', actionInfo);
-        otherAction.toggleClass('pgf-hidden', false);
-        jQuery('.pgf-name', otherAction).text(action.short_description);
-    }
-
-    function RenderIdlenessAction(action) {
-        var idlenessAction = jQuery('.pgf-action-idleness', actionInfo);
-        idlenessAction.toggleClass('pgf-hidden', false);
-    }
-
-    function RenderQuestAction(action) {
-        var questAction = jQuery('.pgf-action-quest', actionInfo);
-        questAction.toggleClass('pgf-hidden', false);
-    }
-
-    function RenderMoveToAction(action) { 
-        var moveToAction = jQuery('.pgf-action-move-to', actionInfo);
-        var destinationId = action.specific.place_id;
-        var placeName = widgets.mapManager.GetPlaceData(destinationId).name;
-        jQuery('.pgf-place-name', moveToAction).text(placeName);
-        moveToAction.toggleClass('pgf-hidden', false);
-    }
-
-    function RenderBattlePvE_1x1Action(action) {
-        var battleAction = jQuery('.pgf-action-battle-pve-1x1', actionInfo);
-        battleAction.toggleClass('pgf-hidden', false);
-        jQuery('.pgf-mob-name', battleAction).text(action.specific.mob.name);
-    }
-    
-    function RenderResurrectAction(action) {
-        var resurrectAction = jQuery('.pgf-action-resurrect', actionInfo);
-        resurrectAction.toggleClass('pgf-hidden', false);
-    }
-
-    function RenderInCityAction(action) {
-        var inCityAction = jQuery('.pgf-action-in-city', actionInfo);
-        var cityId = action.data.city;
-        var placeName = widgets.mapManager.GetPlaceData(cityId).name;
-        jQuery('.pgf-place-name', inCityAction).text(placeName);
-        inCityAction.toggleClass('pgf-hidden', false);
-    }
-
-    function RenderActionInfo(action) {
-
-        if (!action) return;
-
-        jQuery('.pgf-action-info', actionInfo).toggleClass('pgf-hidden', true);
-
-        switch (action.type) {
-        case ACTION_TYPES.IDLENESS: {
-            RenderIdlenessAction(action);
-            break;
-        }
-        case ACTION_TYPES.QUEST: {
-            RenderQuestAction(action);
-            break;
-        }
-        case ACTION_TYPES.MOVE_TO: {
-            RenderMoveToAction(action);
-            break;
-        }
-        case ACTION_TYPES.BATTLE_PvE_1x1: {
-            RenderBattlePvE_1x1Action(action);
-            break;
-        }
-        case ACTION_TYPES.RESURRECT: {
-            RenderResurrectAction(action);
-            break;
-        }
-        case ACTION_TYPES.IN_CITY: {
-            RenderInCityAction(action);
-            break;
-        }
-        default: {
-            RenderOtherAction(action);
-            break;
-        }
-        }
-        
-    }
-
     function RenderAction() {
         
-        var action = data.actions[data.actions.length-1];
+        var action = data.action;
 
         if (!action) return;
 
-        jQuery('.pgf-name', actionBlock).text(action.short_description);
-        jQuery('.pgf-percents', actionBlock).text( parseInt(action.percents * 100));
-
+        jQuery('.pgf-action-info', widget).text(action.description);
         jQuery('.pgf-action-percents', widget).width( (action.percents * 100) + '%');
-        
-        RenderActionInfo(action);
     }
 
     this.Refresh = function() {
@@ -481,7 +386,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         var hero = widgets.heroes.CurrentHero();
 
         if (hero) {
-            data.actions = hero.actions;
+            data.action = hero.action;
         }
         else {
             data.actions = [];
@@ -490,16 +395,10 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
     this.Render = function() {
         RenderAction();
-        RenderActionInfo(instance.GetCurrentAction());
     };
 
     this.GetCurrentAction = function() {
-        return data.actions[data.actions.length-1];
-    };
-
-    this.GetAction = function(id) {
-        if (id<0 || id>data.actions.length-1) return undefined;
-        return data.actions[id];
+        return data.action;
     };
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){

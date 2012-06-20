@@ -37,6 +37,9 @@ class Hero(models.Model):
 
     messages = models.TextField(null=False, default='[]')
     diary = models.TextField(null=False, default='[]')
+    actions_descriptions = models.TextField(null=False, default='[]')
+
+    last_action_percents = models.FloatField(null=False, default=0)
 
     next_spending = models.IntegerField(null=False, default=ITEMS_OF_EXPENDITURE.USELESS)
 

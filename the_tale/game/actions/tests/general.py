@@ -23,6 +23,10 @@ class GeneralTest(TestCase):
         for action_class in ACTION_TYPES.values():
             self.assertTrue('EXTRA_HELP_CHOICES' in action_class.__dict__)
 
+    def test_TEXTGEN_TYPE(self):
+        for action_class in ACTION_TYPES.values():
+            self.assertTrue('TEXTGEN_TYPE' in action_class.__dict__)
+
     def test_get_help_choice_has_heal(self):
         for i in xrange(100):
             self.assertNotEqual(self.action_idl.get_help_choice(), HELP_CHOICES.HEAL)

@@ -2,6 +2,14 @@
     "description": "",
     "prefix": "action_battlepve1x1",
     "types": {
+        "description": {
+            "description": "",
+            "variables": {"hero": "привидение", "mob": "крыса"},
+            "phrases": [
+                ["сражается с [[mob|тв]]",
+                 "сражается с крысой"]
+            ]
+        },
         "start": {
             "description": "",
             "variables": {"hero": "привидение", "mob": "крыса"},

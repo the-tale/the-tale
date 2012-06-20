@@ -2,6 +2,14 @@
     "description": "",
     "prefix": "action_rest",
     "types": {
+        "description": {
+            "description": "",
+            "variables": {"hero": "привидение"},
+            "phrases": [
+                ["залечивает раны",
+                 "залечивает раны"]
+            ]
+        },
         "start": {
             "description": "",
             "variables": {"hero": "привидение"},

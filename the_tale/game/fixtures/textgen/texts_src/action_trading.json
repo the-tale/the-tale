@@ -2,6 +2,14 @@
     "description": "",
     "prefix": "action_trading",
     "types": {
+        "description": {
+            "description": "",
+            "variables": {"hero": "привидение"},
+            "phrases": [
+                ["торгуется в комиссионом магазине",
+                 "торгуется в комиссионом магазине"]
+            ]
+        },
         "start": {
             "description": "",
             "variables": {"hero": "привидение"},

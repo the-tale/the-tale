@@ -40,13 +40,12 @@ def register_user(nick, email=None, password=None):
     user = User.objects.create_user(nick, email, password)
     account = AccountPrototype.create(user=user, is_fast=not (email and password))
     angel = AngelPrototype.create(account=account, name=user.username)
-    hero = HeroPrototype.create(angel=angel)
-
-    dress_new_hero(hero)
-
-    hero.save()
 
     bundle = BundlePrototype.create(angel)
+
+    hero = HeroPrototype.create(angel=angel, bundle=bundle)
+    dress_new_hero(hero)
+    hero.save()
 
     return REGISTER_USER_RESULT.OK, account.id, bundle.id
 

@@ -2,6 +2,14 @@
     "description": "",
     "prefix": "action_movenearplace",
     "types": {
+        "description": {
+            "description": "",
+            "variables": {"hero": "привидение", "place": "город"},
+            "phrases": [
+                ["Бродит в окрестностях [[place|рд]]",
+                 "Бродит в окрестностях города"]
+            ]
+        },
         "walk": {
             "description": "",
             "variables": {"hero": "привидение", "place": "город"},

@@ -216,6 +216,13 @@
       "template": "%(e_0)s %(i_0)s %(e_1)s в награду за выполнение задания"
     }
   ], 
+  "action_inplace_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "изучает окрестности"
+    }
+  ], 
   "quest_caravan_choice_bring_result_bandits": [
     {
       "internals": [
@@ -413,40 +420,11 @@
       "template": "%(e_0)s ловко %(i_0)s в сторону от %(e_1)s"
     }
   ], 
-  "hero_ability_regeneration": [
+  "action_equipping_description": [
     {
-      "internals": [
-        [
-          "восстановил", 
-          [
-            "actor"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "восстановил"
-        ]
-      ], 
-      "externals": [
-        [
-          "actor", 
-          [], 
-          "e_0", 
-          [
-            "им"
-          ], 
-          "actor"
-        ], 
-        [
-          "health", 
-          [], 
-          "e_1", 
-          [], 
-          "health"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s %(e_1)s HP"
+      "internals": [], 
+      "externals": [], 
+      "template": "перебирает содержимое рюкзака"
     }
   ], 
   "hero_ability_magicmushroom": [
@@ -491,6 +469,13 @@
         ]
       ], 
       "template": "%(e_0)s будет защищать караван"
+    }
+  ], 
+  "action_idleness_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Нет для героя ничего постыднее, чем безделье. Это безобразие надо немедленно прекратить!"
     }
   ], 
   "quest_delivery_journal_get_item": [
@@ -1085,6 +1070,23 @@
       "template": "Неплохая вещица, %(i_0)s %(e_0)s - надо оставить себе"
     }
   ], 
+  "action_moveto_description": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "destination", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "destination"
+        ]
+      ], 
+      "template": "путешествует в сторону %(e_0)s"
+    }
+  ], 
   "action_moveto_move": [
     {
       "internals": [], 
@@ -1479,7 +1481,7 @@
       "template": "%(e_0)s пытается скрыться с награбленным"
     }
   ], 
-  "action_rest_start": [
+  "quest_delivery_choice_steal_result_steal": [
     {
       "internals": [
         [
@@ -1499,35 +1501,20 @@
           "hero", 
           [], 
           "e_0", 
-          [
-            "им"
-          ], 
+          [], 
           "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s отдохнуть и залечить раны"
-    }, 
-    {
-      "internals": [
+        ], 
         [
-          "отправился", 
+          "item_to_deliver", 
+          [], 
+          "e_1", 
           [
-            "hero"
+            "вн"
           ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "отправился"
+          "item_to_deliver"
         ]
       ], 
-      "externals": [], 
-      "template": "%(i_0)s искать подорожник"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "Йод, касторка, спирт, теперь надо всё это смешать и выпить, глядишь - поможет"
+      "template": "%(e_0)s %(i_0)s прикарманить %(e_1)s"
     }
   ], 
   "quest_caravan_journal_run_away": [
@@ -1535,6 +1522,13 @@
       "internals": [], 
       "externals": [], 
       "template": "Нахватал полные карманы добра, теперь надо бежать"
+    }
+  ], 
+  "action_rest_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "залечивает раны"
     }
   ], 
   "action_battlepve1x1_start": [
@@ -1757,6 +1751,20 @@
         ]
       ], 
       "template": "%(i_0)s %(e_0)s %(i_1)s %(e_1)s - на благое дело"
+    }
+  ], 
+  "action_resurrect_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "проходит курс усиленного восстановления"
+    }
+  ], 
+  "action_quest_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "прилагает максимальные усилия, что бы выполнить задание"
     }
   ], 
   "quest_delivery_choice_steal_variant_steal": [
@@ -2338,6 +2346,23 @@
       "template": "%(e_0)s %(i_0)s %(e_1)s"
     }
   ], 
+  "action_movenearplace_description": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "Бродит в окрестностях %(e_0)s"
+    }
+  ], 
   "quest_spying_description": [
     {
       "internals": [], 
@@ -2650,6 +2675,42 @@
       "template": "'Ну и грязища - второй раз за день %(i_0)s в лужу'"
     }
   ], 
+  "hero_ability_regeneration": [
+    {
+      "internals": [
+        [
+          "восстановил", 
+          [
+            "actor"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "восстановил"
+        ]
+      ], 
+      "externals": [
+        [
+          "actor", 
+          [], 
+          "e_0", 
+          [
+            "им"
+          ], 
+          "actor"
+        ], 
+        [
+          "health", 
+          [], 
+          "e_1", 
+          [], 
+          "health"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s %(e_1)s HP"
+    }
+  ], 
   "quest_caravan_journal_move_to_point": [
     {
       "internals": [
@@ -2788,6 +2849,23 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s, что %(e_1)s как нельзя лучше подойдёт геройскому образу"
+    }
+  ], 
+  "action_battlepve1x1_description": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "mob", 
+          [], 
+          "e_0", 
+          [
+            "тв"
+          ], 
+          "mob"
+        ]
+      ], 
+      "template": "сражается с %(e_0)s"
     }
   ], 
   "action_quest_reward_money": [
@@ -2931,7 +3009,7 @@
       "template": "%(e_0)s сопровождает караван"
     }
   ], 
-  "quest_delivery_choice_steal_result_steal": [
+  "action_rest_start": [
     {
       "internals": [
         [
@@ -2951,20 +3029,35 @@
           "hero", 
           [], 
           "e_0", 
-          [], 
-          "hero"
-        ], 
-        [
-          "item_to_deliver", 
-          [], 
-          "e_1", 
           [
-            "вн"
+            "им"
           ], 
-          "item_to_deliver"
+          "hero"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s прикарманить %(e_1)s"
+      "template": "%(e_0)s %(i_0)s отдохнуть и залечить раны"
+    }, 
+    {
+      "internals": [
+        [
+          "отправился", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "отправился"
+        ]
+      ], 
+      "externals": [], 
+      "template": "%(i_0)s искать подорожник"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Йод, касторка, спирт, теперь надо всё это смешать и выпить, глядишь - поможет"
     }
   ], 
   "action_battlepve1x1_hero_killed": [
@@ -3197,6 +3290,13 @@
         ]
       ], 
       "template": "%(e_0)s идёт на помощь"
+    }
+  ], 
+  "action_trading_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "торгуется в комиссионом магазине"
     }
   ], 
   "quest_notmywork_choice_work_result_diplomacy": [

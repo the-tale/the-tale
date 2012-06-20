@@ -2,6 +2,14 @@
     "description": "",
     "prefix": "action_equipping",
     "types": {
+        "description": {
+            "description": "",
+            "variables": {"hero": "приведение"},
+            "phrases": [
+                ["перебирает содержимое рюкзака",
+                 "перебирает содержимое рюкзака"]
+            ]
+        },
         "change_item": {
             "description": "",
             "variables": {"hero": "приведение", "unequipped": "копьё", "equipped": "меч"},

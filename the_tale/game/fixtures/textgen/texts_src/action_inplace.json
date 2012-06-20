@@ -2,6 +2,14 @@
     "description": "",
     "prefix": "action_inplace",
     "types": {
+        "description": {
+            "description": "",
+            "variables": {"hero": "привидение", "place": "город"},
+            "phrases": [
+                ["изучает окрестности",
+                 "изучает окрестности"]
+            ]
+        },
         "spend_useless": {
             "description": "",
             "variables": {"hero": "привидение", "coins": 13},
