@@ -111,9 +111,11 @@ jQuery(document).ready(function() {
           <ul class="nav">
             <li><a href="{{ url('portal:') }}">Главная</a></li>
             <li><a href="{{ url('news:') }}">Новости</a></li>
-            <li><a href="{{ url('game:') }}">Игра</a></li>
             <li><a href="{{ url('forum:') }}">Форум</a></li>
+            <li><a href="{{ url('game:') }}">Игра</a></li>
             {% if resource.account %}
+            <li class="divider-vertical"></li>
+            <li><a href="{{ url('accounts:profile') }}">Профиль игрока</a></li>
             <li><a href="{{ url('game:heroes:show', resource.account.angel.get_hero().id) }}">Страница героя</a></li>
             {% endif %}
           </ul>
@@ -130,7 +132,7 @@ jQuery(document).ready(function() {
             {% if request.user.is_authenticated() %}
             <li><a href="{{ url('accounts:logout') }}">выйти</a></li>
             {% else %}
-            <li><a href="{{ url('accounts:fast_registration') }}" class="pgf-fast-registration"><strong>играть без регистрации</strong></a></li>
+            <li><a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration"><strong>играть без регистрации</strong></a></li>
             <li><a href="{{ url('accounts:login') }}">войти</a></li>
             {% endif %}
           </ul>
@@ -150,6 +152,13 @@ jQuery(document).ready(function() {
 
     <div id="main-container">
       <div id="content" class="container">
+
+        {% if resource.account and resource.account.is_fast %}
+        <div class="alert alert-info">
+          ВНИМАНИЕ! Ваша игра доступна только с этого компьютера. Для игры из друго места Вам необходимо задать email и пароль в своём <a href="{{ url('accounts:profile') }}">профиле</a> (подробнее о быстрой регистрации можно почитать в <a href="{{ url('portal:manual') }}">Путеводителе по Сказке</a>).
+        </div>
+        {% endif %}
+
         {% block content %}
         {% endblock %}
       </div>
@@ -163,12 +172,10 @@ jQuery(document).ready(function() {
             <li>использована часть иконок из набора <a href="http://glyphicons.com" target="_blank">Glyphicons</a></li>
             <li>использована часть иконок из  <a href="http://eu.battle.net/wow/en/" target="_blank">WoW</a>, будут убраны как только нарисуются альтернативные, близы не обижайтесь :-)</li>
             <li>использованы картинки из различных источников, будут убраны как только нарисуются альтернативные, если вы автор какой-либо из картинок, сообщите нам об этом. В зависимости от Вашего желания, мы либо оставим ссылку на Ваш ресурс либо уберём картинку</li>
+          </ul>
         </div>
-        </ul>
       </div>
     </footer>
-
-
 
     {% endblock %}
   </body>

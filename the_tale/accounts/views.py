@@ -59,7 +59,7 @@ class AccountsResource(Resource):
 
         infrastructure_workers_environment.registration.cmd_register(registration_task.id)
 
-        return self.json(status='processing', status_url=reverse('accounts:fast_registration_status') )
+        return self.json(status='processing', status_url=reverse('accounts:fast-registration-status') )
 
 
     @handler('fast-registration-status', method='get')
@@ -77,7 +77,7 @@ class AccountsResource(Resource):
         registration_task = RegistrationTaskPrototype.get_by_id(int(task_id))
 
         if registration_task.state == REGISTRATION_TASK_STATE.WAITING:
-            return self.json(status='processing', status_url=reverse('accounts:fast_registration_status'))
+            return self.json(status='processing', status_url=reverse('accounts:fast-registration-status'))
 
         if registration_task.state == REGISTRATION_TASK_STATE.UNPROCESSED:
             return self.json(status='error', error=u'Таймаут при обработке запроса, повторите попытку')
@@ -96,7 +96,7 @@ class AccountsResource(Resource):
                              {'edit_profile_form': edit_profile_form} )
 
     @login_required
-    @handler('profile', 'edited', name='profile_edited', method='get')
+    @handler('profile', 'edited', name='profile-edited', method='get')
     def edit_profile_done(self):
         return self.template('accounts/profile_edited.html')
 
@@ -106,7 +106,7 @@ class AccountsResource(Resource):
         return self.template('accounts/confirm_email_request.html')
 
     @login_required
-    @handler('profile', 'edit', name='profile_update', method='post')
+    @handler('profile', 'update', name='profile-update', method='post')
     def update_profile(self):
 
         edit_profile_form = forms.EditProfileForm(self.request.POST)
@@ -127,9 +127,9 @@ class AccountsResource(Resource):
 
             task.process(logger)
 
-            next_url = reverse('accounts:profile_edited')
+            next_url = reverse('accounts:profile-edited')
             if task.email_changed:
-                next_url = reverse('accounts:confirm_email_request')
+                next_url = reverse('accounts:confirm-email-request')
 
             return self.json(status='ok', data={'next_url': next_url})
 

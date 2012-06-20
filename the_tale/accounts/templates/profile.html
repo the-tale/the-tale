@@ -13,17 +13,23 @@ jQuery(document).ready( function(e) {
 
 {% block content %}
 
-<form id="pgf-edit-form" method="post" action="{{ url('accounts:profile_update') }}" class="block">
+<div class="row">
+  <div class="span12">
+    <div class="block">
 
-  {{ edit_profile_form.errors_container }}
+      <form id="pgf-edit-form" method="post" action="{{ url('accounts:profile-update') }}" class="block">
 
-  {{ edit_profile_form.email.widget }}
-  {{ edit_profile_form.password.widget }}
+        {{ edit_profile_form.errors_container }}
 
-  <input type="submit" value="Изменить"/>
+        {{ edit_profile_form.email.widget }}
+        {{ edit_profile_form.password.widget }}
 
-</form>
+        <input type="submit" value="Изменить"/>
 
+      </form>
+
+    </div>
+  </div>
 </div>
 
 {% endblock %}

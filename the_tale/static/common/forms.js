@@ -115,6 +115,7 @@ pgf.forms.Form = function(selector, params) {
 
     this.ClearErrors = function() {
         var form = jQuery(this.selector);
+        jQuery('.pgf-error-container').toggleClass('pgf-hidden', true);
         jQuery('.pgf-form-errors', form).html('');
         jQuery('.pgf-form-field-errors', form).html('');
         jQuery('.pgf-widget', form).toggleClass('error', false);
@@ -128,13 +129,13 @@ pgf.forms.Form = function(selector, params) {
         for (var name in errors) {
             var container = undefined;
             if (name == '__all__') {
-                container = jQuery('.pgf-error-container.pgf-form-marker', form);
+                container = jQuery('.pgf-error-container.pgf-form-marker', form).toggleClass('pgf-hidden', false);
             }
             else {
-                container = jQuery('.pgf-error-container.pgf-form-field-marker-'+name, form);
+                container = jQuery('.pgf-error-container.pgf-form-field-marker-'+name, form).toggleClass('pgf-hidden', false);
             }
 
-            jQuery('.pgf-widget', container.parents()).toggleClass('error', true);
+            container.parents().filter('.pgf-widget').toggleClass('error', true);
 
             var errors_list = errors[name];
             container.html('');

@@ -114,6 +114,14 @@ pgf.ui.dialog.Error = function(params) {
 pgf.ui.dialog._wait_counter = 0;
 pgf.ui.dialog._wait_content = '<div class="pgf-wait-backdrop modal-backdrop wait-backdrop in" style=";"></div>';
 pgf.ui.dialog._wait_indicator_content = '<div class="wait-indicator-backdrop pgf-wait-indicator-backdrop"><div class="pgf-wait-indicator block wait-indicator"></div></div>';
+pgf.ui.dialog._WAIT_MINIMUM_LOCK_DELAY = 750; 
+pgf.ui.dialog._wait_start_time = undefined;
+pgf.ui.dialog._wait_close_timer = undefined;
+pgf.ui.dialog.closeWait = function() {
+    jQuery('.pgf-wait-indicator').spin(false);
+    jQuery('.pgf-wait-backdrop').remove();
+    jQuery('.pgf-wait-indicator-backdrop').remove();    
+};
 pgf.ui.dialog.wait = function(command) {
     
     if (command == 'start') {
@@ -123,6 +131,13 @@ pgf.ui.dialog.wait = function(command) {
         }
         jQuery('body').append(pgf.ui.dialog._wait_content).append(pgf.ui.dialog._wait_indicator_content);
         jQuery('.pgf-wait-indicator').spin('large');
+
+        var date = new Date();
+        pgf.ui.dialog._wait_start_time = date.getTime();
+
+        if (pgf.ui.dialog._wait_close_timer) {
+            clearTimeout(pgf.ui.dialog._wait_close_timer);
+        }
     }
 
     if (command == 'stop') {
@@ -130,8 +145,16 @@ pgf.ui.dialog.wait = function(command) {
         if (pgf.ui.dialog._wait_counter > 0) {
             return;
         }
-        jQuery('.pgf-wait-indicator').spin(false);
-        jQuery('.pgf-wait-backdrop').remove();
-        jQuery('.pgf-wait-indicator-backdrop').remove();
+
+        var date = new Date();
+        var curTime = date.getTime();
+        var minCloseTime =  pgf.ui.dialog._wait_start_time + pgf.ui.dialog._WAIT_MINIMUM_LOCK_DELAY;
+
+        if ( minCloseTime <= curTime) {
+            pgf.ui.dialog.closeWait();
+        }
+        else {
+            pgf.ui.dialog._wait_close_timer = window.setTimeout(function() { pgf.ui.dialog.closeWait(); }, minCloseTime - curTime);
+        }
     }
 };

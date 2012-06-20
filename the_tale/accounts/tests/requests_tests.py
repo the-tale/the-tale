@@ -61,97 +61,97 @@ class TestRegistrationRequests(TestCase):
 
 
     def test_fast_registration_processing(self):
-        response = self.client.post(reverse('accounts:fast_registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content), {'status': 'processing',
-                                                            'status_url': reverse('accounts:fast_registration_status')})
+                                                            'status_url': reverse('accounts:fast-registration-status')})
         self.assertEqual(RegistrationTask.objects.all().count(), 1)
 
     def test_fast_registration_for_logged_in_user(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-        response = self.client.post(reverse('accounts:fast_registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
 
     def test_fast_registration_second_request(self):
-        response = self.client.post(reverse('accounts:fast_registration'))
-        response = self.client.post(reverse('accounts:fast_registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
         self.assertEqual(RegistrationTask.objects.all().count(), 1)
 
     def test_fast_registration_second_request_after_error(self):
-        response = self.client.post(reverse('accounts:fast_registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
 
         task = RegistrationTask.objects.all().order_by('id')[0]
         task.state = REGISTRATION_TASK_STATE.UNPROCESSED
         task.save()
-        response = self.client.post(reverse('accounts:fast_registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
         self.assertEqual(s11n.from_json(response.content)['status'], 'processing')
         self.assertEqual(RegistrationTask.objects.all().count(), 2)
 
         task = RegistrationTask.objects.all().order_by('id')[1]
         task.state = REGISTRATION_TASK_STATE.ERROR
         task.save()
-        response = self.client.post(reverse('accounts:fast_registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
         self.assertEqual(s11n.from_json(response.content)['status'], 'processing')
         self.assertEqual(RegistrationTask.objects.all().count(), 3)
 
         task = RegistrationTask.objects.all().order_by('id')[2]
         task.delete()
-        response = self.client.post(reverse('accounts:fast_registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
         self.assertEqual(s11n.from_json(response.content)['status'], 'processing')
         self.assertEqual(RegistrationTask.objects.all().count(), 3)
 
     def test_fast_registration_status_after_login(self):
-        response = self.client.post(reverse('accounts:fast_registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-        response = self.client.get(reverse('accounts:fast_registration_status'))
+        response = self.client.get(reverse('accounts:fast-registration-status'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content), {'status': 'ok'})
 
     def test_fast_registration_status_without_registration(self):
-        response = self.client.get(reverse('accounts:fast_registration_status'))
+        response = self.client.get(reverse('accounts:fast-registration-status'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
 
     def test_fast_registration_status_waiting(self):
-        response = self.client.post(reverse('accounts:fast_registration'))
-        response = self.client.get(reverse('accounts:fast_registration_status'))
+        response = self.client.post(reverse('accounts:fast-registration'))
+        response = self.client.get(reverse('accounts:fast-registration-status'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content), {'status': 'processing',
-                                                            'status_url': reverse('accounts:fast_registration_status')})
+                                                            'status_url': reverse('accounts:fast-registration-status')})
 
     def test_fast_registration_status_timeout(self):
-        response = self.client.post(reverse('accounts:fast_registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
 
         task = RegistrationTask.objects.all()[0]
         task.state = REGISTRATION_TASK_STATE.UNPROCESSED
         task.save()
 
-        response = self.client.get(reverse('accounts:fast_registration_status'))
+        response = self.client.get(reverse('accounts:fast-registration-status'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
 
     def test_fast_registration_status_error(self):
-        response = self.client.post(reverse('accounts:fast_registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
 
         task = RegistrationTask.objects.all()[0]
         task.state = REGISTRATION_TASK_STATE.ERROR
         task.save()
 
-        response = self.client.get(reverse('accounts:fast_registration_status'))
+        response = self.client.get(reverse('accounts:fast-registration-status'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
 
 
     def test_fast_registration_status_ok(self):
-        response = self.client.post(reverse('accounts:fast_registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
 
         task_model = RegistrationTask.objects.all()[0]
         task = RegistrationTaskPrototype.get_by_id(task_model.id)
         task.process(FakeLogger())
 
-        response = self.client.get(reverse('accounts:fast_registration_status'))
+        response = self.client.get(reverse('accounts:fast-registration-status'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content), {'status': 'ok'})
 
@@ -176,19 +176,19 @@ class TestProfileRequests(TestCase):
 
     def test_profile_edited(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-        response = self.client.get(reverse('accounts:profile_edited'))
+        response = self.client.get(reverse('accounts:profile-edited'))
         self.assertEqual(response.status_code, 200)
 
     def test_profile_confirm_email_request(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-        response = self.client.get(reverse('accounts:confirm_email_request'))
+        response = self.client.get(reverse('accounts:confirm-email-request'))
         self.assertEqual(response.status_code, 200)
 
     def test_profile_update_password(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-        response = self.client.post(reverse('accounts:profile_update'), {'email': 'test_user@test.com', 'password': '222222'})
+        response = self.client.post(reverse('accounts:profile-update'), {'email': 'test_user@test.com', 'password': '222222'})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content), {'status': 'ok', 'data': {'next_url': reverse('accounts:profile_edited')}})
+        self.assertEqual(s11n.from_json(response.content), {'status': 'ok', 'data': {'next_url': reverse('accounts:profile-edited')}})
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
         self.assertEqual(len(mail.outbox), 0)
@@ -196,9 +196,9 @@ class TestProfileRequests(TestCase):
 
     def test_profile_update_email(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-        response = self.client.post(reverse('accounts:profile_update'), {'email': 'test_user@test.ru'})
+        response = self.client.post(reverse('accounts:profile-update'), {'email': 'test_user@test.ru'})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content), {'status': 'ok', 'data': {'next_url': reverse('accounts:confirm_email_request')}})
+        self.assertEqual(s11n.from_json(response.content), {'status': 'ok', 'data': {'next_url': reverse('accounts:confirm-email-request')}})
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
         self.assertEqual(len(mail.outbox), 1)
@@ -208,7 +208,7 @@ class TestProfileRequests(TestCase):
     def test_profile_update_duplicate_email(self):
         register_user('duplicated_user', 'duplicated@test.com', '111111')
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-        response = self.client.post(reverse('accounts:profile_update'), {'email': 'duplicated@test.com'})
+        response = self.client.post(reverse('accounts:profile-update'), {'email': 'duplicated@test.com'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 0)
@@ -217,13 +217,13 @@ class TestProfileRequests(TestCase):
         self.assertEqual(django_authenticate(username='test_user', password='111111').email, 'test_user@test.com')
 
     def test_profile_update_fast_errors(self):
-        response = self.client.post(reverse('accounts:fast_registration'))
+        response = self.client.post(reverse('accounts:fast-registration'))
 
-        response = self.client.post(reverse('accounts:profile_update'), {'email': 'test_user@test.ru'})
+        response = self.client.post(reverse('accounts:profile-update'), {'email': 'test_user@test.ru'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
 
-        response = self.client.post(reverse('accounts:profile_update'), {'password': '111111'})
+        response = self.client.post(reverse('accounts:profile-update'), {'password': '111111'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
 
@@ -233,11 +233,11 @@ class TestProfileRequests(TestCase):
 
     def test_profile_confirm_email(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-        response = self.client.post(reverse('accounts:profile_update'), {'email': 'test_user@test.ru'})
+        response = self.client.post(reverse('accounts:profile-update'), {'email': 'test_user@test.ru'})
 
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
-        response = self.client.get(reverse('accounts:confirm_email')+'?uuid='+uuid)
+        response = self.client.get(reverse('accounts:confirm-email')+'?uuid='+uuid)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)

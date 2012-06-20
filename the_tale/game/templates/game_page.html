@@ -35,7 +35,7 @@ jQuery(document).ready(function(e){
             return;
         }
 
-        pgf.forms.Post({ action: "{{ url('game:next_turn') }}",
+        pgf.forms.Post({ action: "{{ url('game:next-turn') }}",
                          OnSuccess: function(e){
                              DoTurns(number-1);
                          },
@@ -204,7 +204,7 @@ jQuery(document).ready(function(e){
 
 <div class="alert fade in">
   <button type="button" class="close" data-dismiss="alert">×</button>
-  Вы можете <a href="{{ url('accounts:fast_registration') }}" class="pgf-fast-registration">начать игру без регистрации</a> или <a href="{{ url('accounts:login') }}">войти</a>, если вы имеете аккаунт.
+  Вы можете <a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration">начать игру без регистрации</a> или <a href="{{ url('accounts:login') }}">войти</a>, если имеете аккаунт.
 </div>
 
 <div class="row">

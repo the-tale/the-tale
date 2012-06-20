@@ -31,27 +31,27 @@ class TestResetPassword(TestCase):
 
     def test_reset_password_page_for_loggined_user(self):
         self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-        response = self.client.get(reverse('accounts:reset_password'))
+        response = self.client.get(reverse('accounts:reset-password'))
         self.assertEqual(response.status_code, 302)
 
     def test_reset_password_page(self):
-        response = self.client.get(reverse('accounts:reset_password'))
+        response = self.client.get(reverse('accounts:reset-password'))
         self.assertEqual(response.status_code, 200)
 
     def test_reset_password_page_for_wrong_email(self):
-        response = self.client.post(reverse('accounts:reset_password'), {'email': 'wrong@test.com'})
+        response = self.client.post(reverse('accounts:reset-password'), {'email': 'wrong@test.com'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content), {'status': 'ok'})
         self.assertEqual(django_authenticate(username='test_user', password='111111').id, self.account.user.id)
         self.assertEqual(len(mail.outbox), 0)
 
     def test_reset_password_success(self):
-        response = self.client.post(reverse('accounts:reset_password'), {'email': 'test_user@test.com'})
+        response = self.client.post(reverse('accounts:reset-password'), {'email': 'test_user@test.com'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content), {'status': 'ok'})
         self.assertEqual(django_authenticate(username='test_user', password='111111'), None)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_reset_password_done(self):
-        response = self.client.get(reverse('accounts:reset_password_done'))
+        response = self.client.get(reverse('accounts:reset-password-done'))
         self.assertEqual(response.status_code, 200)

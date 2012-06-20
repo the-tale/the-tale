@@ -15,16 +15,46 @@ jQuery(document).ready( function(e) {
 
 {% block content %}
 
-<form id="pgf-login-form" method="post" action="{{ url('accounts:login') }}" class="block">
+<div class="row">
 
-  {{ login_form.errors_container }}
+  <div class="span3">
 
-  {{ login_form.email.widget}}
-  {{ login_form.password.widget }}
+    <div class="block">
 
-  <input type="submit" value="Войти"/>
+      <form id="pgf-login-form" method="post" action="{{ url('accounts:login') }}" class="block">
 
-</form>
+        {{ login_form.errors_container }}
+
+        {{ login_form.email.widget}}
+        {{ login_form.password.widget }}
+
+        <input type="submit" value="Войти"/>
+
+      </form>
+
+    </div>
+
+  </div>
+
+  <div class="span9">
+
+    <div class="block">
+      <dl>
+
+        <div class="dl-record">
+          <dt>не зарегистрированы?</dt>
+          <dd>Вы можете <a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration">начать игру без регистрации</a>, а зарегестрироваться позже </dd>
+        </div>
+
+        <div class="dl-record">
+          <dt>забыли пароль?</dt>
+          <dd>Перейдите на <a href="{{ url('accounts:reset-password') }}">страницу восстановления пароля</a> - это быстрая операция</dd>
+        </div>
+
+      </dl>
+    </div>
+
+  </div>
 
 </div>
 
