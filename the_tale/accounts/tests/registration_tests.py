@@ -39,9 +39,9 @@ class TestRegistration(TestCase):
 
         self.assertTrue(not account.is_fast)
 
-        self.assertEqual(len(account.angel.heroes()), 1)
+        self.assertTrue(account.angel.get_hero())
 
-        hero = account.angel.heroes()[0]
+        hero = account.angel.get_hero()
 
         # test hero equipment
         self.assertEqual(hero.equipment.get(SLOTS.PANTS).id, 'default_pants')

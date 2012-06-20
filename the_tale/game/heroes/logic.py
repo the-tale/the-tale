@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
-from .models import Hero
-from .prototypes import get_hero_by_model
-from . import game_info
-
-def get_angel_heroes(angel_id):
-    heroes = Hero.objects.filter(angel=angel_id)
-    objects = [get_hero_by_model(hero) for hero in heroes]
-    return objects
+from game.heroes.models import Hero
+from game.heroes import game_info
 
 def strike(attaker, defender):
     result =  game_info.actions.battle.strike.do(attaker, defender)

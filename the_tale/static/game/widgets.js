@@ -90,10 +90,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
     };
 
     this.Refresh = function() {
-        for (var hero_id in updater.data.data.heroes) {
-            data = updater.data.data.heroes[hero_id];
-            return;
-        }
+        data = updater.data.data.hero;
     };
 
     this.Render = function() {

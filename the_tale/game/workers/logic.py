@@ -8,7 +8,7 @@ from dext.utils.decorators import nested_commit_on_success
 
 from common.amqp_queues import BaseWorker
 
-from game.heroes.prototypes import get_hero_by_id
+from game.heroes.prototypes import HeroPrototype
 from game.bundles import BundlePrototype
 from game.prototypes import TimePrototype
 
@@ -132,17 +132,6 @@ class Worker(BaseWorker):
             task.process(self.current_time, bundle)
             task.save()
             bundle.save_data()
-
-
-    def cmd_register_hero(self, hero_id):
-        return self.send_cmd('register_hero', {'hero_id': hero_id})
-
-    def process_register_hero(self, hero_id):
-        hero = get_hero_by_id(hero_id)
-        bundle = self.bundles[self.angels2bundles[hero.angel_id]]
-        bundle.add_hero(hero)
-        self.heroes2bundles[hero.id] = bundle
-
 
     def cmd_choose_hero_ability(self, ability_task_id):
         self.send_cmd('choose_hero_ability', {'ability_task_id': ability_task_id})

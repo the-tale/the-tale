@@ -2,7 +2,7 @@
 from dext.utils import s11n
 from dext.utils import database
 
-from game.heroes.prototypes import get_heroes_by_query
+from game.heroes.prototypes import HeroPrototype
 
 from game.balance import constants as c
 
@@ -46,13 +46,11 @@ class AngelPrototype(object):
         self.updated = True
         self.model.energy = energy
 
-    def heroes(self):
+    def get_hero(self):
         #TODO: now this code only works on bundle init phase
         #      using it from another places is dangerouse becouse of
         #      desinchronization between workers and database
-        if not hasattr(self, '_heroes'):
-            self._heroes = get_heroes_by_query(self.model.heroes.all())
-        return self._heroes
+        return HeroPrototype.get_by_angel_id(self.id)
 
     def load_abilities(self):
         from ..abilities.prototypes import AbilityPrototype
@@ -88,8 +86,7 @@ class AngelPrototype(object):
     ###########################################
 
     def remove(self):
-        for hero in self.heroes():
-            hero.remove()
+        self.get_hero().remove()
         self.model.delete()
 
     def save(self):

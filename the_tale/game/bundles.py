@@ -70,7 +70,9 @@ class BundlePrototype(object):
             angel = AngelPrototype.get_by_id(member.angel_id)
             self.angels[angel.id] = angel
 
-            for hero in angel.heroes():
+            hero = angel.get_hero()
+
+            if hero: # hero can be None if we at process of creating account
                 self.add_hero(hero)
 
     def save_data(self):

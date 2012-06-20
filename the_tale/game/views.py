@@ -6,7 +6,6 @@ from dext.utils.decorators import staff_required, debug_required
 from common.utils.resources import Resource
 
 from game.angels.prototypes import AngelPrototype
-from game.heroes.logic import get_angel_heroes
 
 from game.map.conf import map_settings
 from game.quests.prototypes import QuestPrototype
@@ -40,15 +39,14 @@ class GameResource(Resource):
 
             data['heroes'] = {}
 
-            for hero in get_angel_heroes(foreign_angel.id):
-                data['heroes'][hero.id]= hero.ui_info()
+            hero = foreign_angel.get_hero()
+            data['hero'] = hero.ui_info()
 
-                for hero_id, hero_data in data['heroes'].items():
-                    quest = QuestPrototype.get_for_hero(hero_id)
-                    if quest:
-                        data['heroes'][hero_id]['quests'] = quest.ui_info(hero)
-                    else:
-                        data['heroes'][hero_id]['quests'] = {}
+            quest = QuestPrototype.get_for_hero(hero.id)
+            if quest:
+                data['hero']['quests'] = quest.ui_info(hero)
+            else:
+                data['hero']['quests'] = {}
 
         return self.json(status='ok', data=data)
 

@@ -28,18 +28,6 @@ from game.text_generation import get_vocabulary, get_dictionary, prepair_substit
 from game.balance import constants as c, formulas as f
 from game.prototypes import TimePrototype, GameTime
 
-
-def get_hero_by_id(model_id):
-    hero = Hero.objects.get(id=model_id)
-    return HeroPrototype(model=hero)
-
-def get_hero_by_model(model):
-    return HeroPrototype(model=model)
-
-def get_heroes_by_query(query):
-    return [ get_hero_by_model(hero) for hero in list(query)]
-
-
 class HeroPrototype(object):
 
     def __init__(self, model=None):
@@ -47,6 +35,17 @@ class HeroPrototype(object):
         self.messages_updated = False
         self.diary_updated = False
         self.actions_descriptions_updated = False
+
+    @classmethod
+    def get_by_id(cls, model_id):
+        return cls(model=Hero.objects.get(id=model_id))
+
+    @classmethod
+    def get_by_angel_id(cls, angel_id):
+        try:
+            return cls(model=Hero.objects.get(angel_id=angel_id))
+        except Hero.DoesNotExist:
+            return None
 
 
     def get_is_alive(self): return self.model.alive
@@ -463,6 +462,7 @@ class HeroPrototype(object):
 
     @classmethod
     def create(cls, angel, bundle):
+
         from game.actions.prototypes import ActionIdlenessPrototype
 
         start_place = PlacePrototype.random_place()

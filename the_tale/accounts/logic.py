@@ -38,7 +38,9 @@ def register_user(nick, email=None, password=None):
         password = accounts_settings.FAST_REGISTRATION_USER_PASSWORD
 
     user = User.objects.create_user(nick, email, password)
+
     account = AccountPrototype.create(user=user, is_fast=not (email and password))
+
     angel = AngelPrototype.create(account=account, name=user.username)
 
     bundle = BundlePrototype.create(angel)

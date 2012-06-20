@@ -128,12 +128,6 @@ class Worker(BaseWorker):
     def process_activate_ability(self, ability_task_id):
         self.logic_worker.cmd_activate_ability(ability_task_id)
 
-    def cmd_register_hero(self, hero_id):
-        self.send_cmd('register_hero', {'hero_id': hero_id})
-
-    def process_register_hero(self, hero_id):
-        self.logic_worker.cmd_register_hero(hero_id)
-
     def cmd_choose_hero_ability(self, ability_task_id):
         self.send_cmd('choose_hero_ability', {'ability_task_id': ability_task_id})
 

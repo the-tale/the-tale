@@ -7,7 +7,7 @@ from dext.utils.exceptions import Error
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
 
-from game.heroes.prototypes import get_hero_by_id, ChooseAbilityTaskPrototype
+from game.heroes.prototypes import HeroPrototype, ChooseAbilityTaskPrototype
 from game.heroes.models import CHOOSE_ABILITY_STATE
 
 class HeroResource(Resource):
@@ -24,7 +24,7 @@ class HeroResource(Resource):
     @property
     def hero(self):
         if not hasattr(self, '_hero'):
-            self._hero = get_hero_by_id(self.hero_id)
+            self._hero = HeroPrototype.get_by_id(self.hero_id)
         return self._hero
 
 
