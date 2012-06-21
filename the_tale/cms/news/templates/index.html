@@ -5,12 +5,13 @@
 <ul class="unstyled">
 
   {% for news_item in news %}
-  <li class="" style="margin-bottom: 1em;">
-    <h3><small style="font-size: 10pt;"><span class="pgf-format-time" data-timestamp="{{ news_item.created_at|timestamp }}"></span></small> {{ news_item.caption }}</h3>
+  <li class="news-record" style="margin-bottom: 1em;">
+    <h3>{{ news_item.caption }}</h3>
     <div class="">{{ news_item.html_description|safe }}</div>
     <div class="">
+      <span class="publication-date">опубликовано: <span class="pgf-format-time" data-timestamp="{{ news_item.created_at|timestamp }}"></span></span>
       {% if news_item.forum_thread %}
-      <a class="" href="{{ news_item.forum_thread.get_absolute_url() }}">обсудить на форуме</a>
+      <br/><a class="" href="{{ news_item.forum_thread.get_absolute_url() }}">обсудить на форуме</a>
       {% endif %}
     </div>
   </li>
