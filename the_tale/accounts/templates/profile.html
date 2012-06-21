@@ -6,7 +6,9 @@
 jQuery(document).ready( function(e) {
 
     var changeCredentialsForm = new pgf.forms.Form(jQuery('#pgf-edit-form'),
-                                                   {OnSuccess: function(e){location.href = "{{ url('game:') }}";}});
+                                                   {OnSuccess: function(instance, data){
+                                                       location.href = data.data.next_url;}
+                                                   });
 });
 </script>
 {% endblock %}
@@ -16,6 +18,27 @@ jQuery(document).ready( function(e) {
 <div class="row">
   <div class="span12">
     <div class="block">
+
+      {% if resource.account and resource.account.is_fast %}
+      <div class="alert alert-error">
+        <h3>Вы не закончили регистрацию!</h3>
+        Для завершения регистрации задайте email и пароль в форме ниже (до завершения регистрации Ваш аккаунт имеет ограниченную функциональность). <br/>
+        После завершения регистрации:
+        <ul>
+          <li>Вы сможете входить в игру с любого компьютера</li>
+          <li>Ваш герой будет защищён от вмешательство злоумышленников</li>
+          <li>Пропадёт надоедливое сообщение в верху страницы</li>
+        </ul>
+
+      </div>
+      {% endif %}
+
+      <h2>Изменение email и пароля</h2>
+
+      <ul>
+        <li>email является вашим идентификатором в игре. С помощью него вы входите на сайт. На указаный адрес будет выслан новый пароль в случае, если вы забудите текущий.</li>
+        <li>будьте внимательны при смене пароля, убедитесь, что включена верная раскладка клавиатуры и выключен режим ввода прописных букв.</li>
+      </ul>
 
       <form id="pgf-edit-form" method="post" action="{{ url('accounts:profile-update') }}" class="block">
 

@@ -11,12 +11,28 @@ jQuery(document).ready( function(e) {
 
 {% block content %}
 
-{% if error %}
-<p>{{ error }}</p>
-{% else %}
-Поздравляем!
+<div class="row">
+  <div class="span12">
+    <div class="block">
 
-Изменения вступили в силу.
-{% endif %}
+      {% if error %}
+      <h2>Ошибка</h2>
+      <p class="alert alert-error">
+        {{ error }}
+      </p>
+      {% else %}
+      <h2>Поздравляем!</h2>
+
+      <p>
+        Изменения вступили в силу.
+      </p>
+
+      <a href="{{ url('game:')}}">перейти на страницу игры</a>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
 
 {% endblock %}

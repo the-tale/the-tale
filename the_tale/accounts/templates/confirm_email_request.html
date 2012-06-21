@@ -11,8 +11,21 @@ jQuery(document).ready( function(e) {
 
 {% block content %}
 
-Вы должны подтвердить указанный email. <br/>
+<div class="row">
+  <div class="span12">
+    <div class="block">
+      <p>
+      <strong>Вы должны подтвердить указанный email.</strong> <br/>
 
-Для этого перейдите по ссылки в отправленом на него письме.
+      Для этого перейдите по ссылки в отправленом на него письме. <br/>
+
+      <a href="{{ url('game:')}}">вернуться на страницу игры</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+
+
 
 {% endblock %}
