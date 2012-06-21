@@ -7,9 +7,8 @@
 {% set category = category_data['category'] %}
 {% set subcategories = category_data['subcategories'] %}
 
-<div class="category">
-  <h2>{{ category.caption }}</h2>
-  <table>
+<h2>{{ category.caption }}</h2>
+<table class="table table-striped forum-table">
     <thead>
       <tr>
         <th class="caption">раздел</th>
@@ -33,7 +32,6 @@
       {% endfor %}
     </tbody>
   </table>
-</div>
 
 {% endfor %}
 

@@ -2,16 +2,15 @@
 
 {% block news_content %}
 
-<ul>
+<ul class="unstyled">
 
   {% for news_item in news %}
-  <li class="news-item block">
-    <h2>{{ news_item.caption }}</h2>
-    <div class="description cms-content">{{ news_item.html_description|safe }}</div>
-    <div class="bottom-line">
-      <span class="publish-date pgf-format-time" data-timestamp="{{ news_item.created_at|timestamp }}"></span>
+  <li class="" style="margin-bottom: 1em;">
+    <h3><small style="font-size: 10pt;"><span class="pgf-format-time" data-timestamp="{{ news_item.created_at|timestamp }}"></span></small> {{ news_item.caption }}</h3>
+    <div class="">{{ news_item.html_description|safe }}</div>
+    <div class="">
       {% if news_item.forum_thread %}
-      <a class="forum-link" href="{{ news_item.forum_thread.get_absolute_url() }}">обсудить на форуме</a>
+      <a class="" href="{{ news_item.forum_thread.get_absolute_url() }}">обсудить на форуме</a>
       {% endif %}
     </div>
   </li>

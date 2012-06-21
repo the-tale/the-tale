@@ -2,34 +2,35 @@
 
 {% block forum_content %}
 
-<div class="subcategory">
-  <h2>{{ category.caption }}::{{ subcategory.caption }}</h2>
-  <table>
-    <thead>
-      <tr>
-        <th class="caption">название</th>
-        <th class="author">автор</th>
-        <th class="posts-count">ответов</th>
-        <th class="updated-at">обновлено</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for thread in threads %}
-      <tr>
-        <td class="caption">
-          <a href="{{ url('forum:show_thread', category.slug, subcategory.slug, thread.id) }}">
-            {{ thread.caption }}
-          </a>
-        </td>
-        <td class="author">{{ thread.author.username }}</td>
-        <td class="posts-count">{{ thread.posts_count }}</td>
-        <td class="updated-at pgf-format-time" data-timestamp="{{ thread.updated_at|timestamp }}"></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<ul class="breadcrumb">
+  <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
+  <li class="active">{{ subcategory.caption }}</li>
+</ul>
 
-</div>
+<table class="table table-striped forum-table">
+  <thead>
+    <tr>
+      <th class="caption">название</th>
+      <th class="author">автор</th>
+      <th class="posts-count">ответов</th>
+      <th class="updated-at">обновлено</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for thread in threads %}
+    <tr>
+      <td class="caption">
+        <a href="{{ url('forum:show_thread', category.slug, subcategory.slug, thread.id) }}">
+          {{ thread.caption }}
+        </a>
+      </td>
+      <td class="author">{{ thread.author.username }}</td>
+      <td class="posts-count">{{ thread.posts_count }}</td>
+      <td class="updated-at pgf-format-time" data-timestamp="{{ thread.updated_at|timestamp }}"></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 {% if resource.account and not subcategory.closed %}
 <form action="{{ url('forum:new_thread', category.slug, subcategory.slug) }}" method="get">

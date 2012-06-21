@@ -7,10 +7,13 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from accounts.models import Account, RegistrationTask, ChangeCredentialsTask
 
 class AccountAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user')
+    list_display = ('id', 'is_fast', 'email')
+
+    def email(self, obj):
+        return obj.user.email
 
 class UserAdmin(DjangoUserAdmin):
-    list_display = ('id', 'username', 'is_staff', 'last_login')
+    list_display = ('id', 'email', 'is_staff', 'last_login')
 
 class RegistrationTaskAdmin(admin.ModelAdmin):
     list_display = ('id', 'state', 'account')

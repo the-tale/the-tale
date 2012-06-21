@@ -32,7 +32,7 @@ class NewsResource(Resource):
 
     @handler('', method='get')
     def index(self):
-        
+
         news = reversed(list(News.objects.all()))
 
         return self.template('news/index.html',
@@ -49,10 +49,10 @@ class NewsResource(Resource):
 
         if self.news.forum_thread is not None:
             raise Error(u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
-        
-        thread = create_thread(get_object_or_404(SubCategory, slug=news_settings.FORUM_CATEGORY_SLUG), 
-                               caption=self.news.caption, 
-                               author=self.request.user, 
+
+        thread = create_thread(get_object_or_404(SubCategory, slug=news_settings.FORUM_CATEGORY_SLUG ),
+                               caption=self.news.caption,
+                               author=self.request.user,
                                text=self.news.description,
                                markup_method=MARKUP_METHOD.MARKDOWN)
 

@@ -20,8 +20,8 @@ class ForumField(fields.TextField):
 '''
 
     def html(self, bound_field):
-        return jinja2.Markup(bound_field.label_tag()) + jinja2.Markup(self.command_line) + jinja2.Markup(bound_field) + bound_field.errors_container
-    
+        return jinja2.Markup(self.command_line) + jinja2.Markup(bound_field) + bound_field.errors_container
+
 
 class NewPostForm(forms.Form):
 

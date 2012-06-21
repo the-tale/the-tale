@@ -24,17 +24,24 @@ jQuery(document).ready( function(e) {
 
 {% block forum_content %}
 
-<h1>{{ category.caption }}::{{ subcategory.caption }}</h1>
+<ul class="breadcrumb">
+  <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
+  <li><a href="{{ url('forum:subcategory', category.slug, subcategory.slug) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
+  <li class="active">новая тема</li>
+</ul>
 
-<form id="pgf-new-thread-form" method="post" action="{{ url('forum:create_thread', category.slug, subcategory.slug) }}" class="block long">
+<form id="pgf-new-thread-form" method="post" action="{{ url('forum:create_thread', category.slug, subcategory.slug) }}" class="new-post-form">
 
   {{ new_thread_form.errors_container }}
-  {{ new_thread_form.caption.widget}}
 
-  <div class="pgf-edit-content">
+  <div class="post-content">
+    {{ new_thread_form.caption.widget}}
+  </div>
+
+  <div class="pgf-edit-content post-content">
     {{ new_thread_form.text.widget }}
   </div>
-  <div class="pgf-preview-content pgf-hidden block">
+  <div class="pgf-preview-content pgf-hidden post-content">
   </div>
 
   <div class="widget">

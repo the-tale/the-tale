@@ -2,18 +2,21 @@
 
 {% block content %}
 
-<div class="block">
-  <div class="news-content">
+<div class="row">
+  <div class="span12">
+    <div class="block">
 
-    <div class="subscribe-links">
-      <a href="http://feeds.feedburner.com/The-Tale" rel="alternate" type="application/rss+xml">
-        <img src="{{STATIC_URL}}images/rss.png"/> подписаться
-      </a>
+      <h2 style="margin-bottom: 0.5em;">
+        Новости
+        <a href="http://feeds.feedburner.com/The-Tale" rel="alternate" type="application/rss+xml" class="pull-right">
+          <img src="{{STATIC_URL}}images/rss.png"/><small>подписаться</small>
+        </a>
+      </h2>
+
+      {% block news_content %}
+      {% endblock %}
+
     </div>
-
-    {% block news_content %}
-    {% endblock %}
-
   </div>
 </div>
 

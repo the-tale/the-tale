@@ -1,18 +1,17 @@
 {% extends "forum/base.html" %}
 
 {% macro render_pages() %}
-<span>
-  <span>Страницы:</span>
-  <span>
-    {% for page_number in pages_numbers %}
-    {% if page_number == current_page_number %}
-    <span>{{ page_number+1 }}</span>
-    {% else %}
-    <a href="{{ url('forum:show_thread', category.slug, subcategory.slug, thread.id) }}?page={{page_number+1}}">{{ page_number+1 }}</a>
-    {% endif %}
-    {% endfor %}
-  </span>
-</span>
+<div class="pagination pagination-right">
+  <ul>
+      {% for page_number in pages_numbers %}
+      {% if page_number == current_page_number %}
+      <li class="active"><a>{{ page_number+1 }}</a></li>
+      {% else %}
+      <li><a href="{{ url('forum:show_thread', category.slug, subcategory.slug, thread.id) }}?page={{page_number+1}}">{{ page_number+1 }}</a></li>
+      {% endif %}
+      {% endfor %}
+  </ul>
+</div>
 {% endmacro %}
 
 {% block head %}
@@ -38,61 +37,60 @@ jQuery(document).ready( function(e) {
 
 {% block forum_content %}
 
-<div class="thread">
+<ul class="breadcrumb">
+  <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
+  <li><a href="{{ url('forum:subcategory', category.slug, subcategory.slug) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
+  <li class="active">{{ thread.caption }}</li>
+</ul>
 
-  <h2>
-    <a href="{{ url('forum:subcategory', category.slug, subcategory.slug) }}">{{ subcategory.caption }}</a>::{{ thread.caption }}
-  </h2>
+{{ render_pages() }}
 
-  {{ render_pages() }}
+<ul class="unstyled">
+  {% for post in posts %}
+  {# give anchor to previous element, if we give anchor to current element#}
+  {% set message_id = start_posts_from + loop.index%}
+  <li class="post">
+    <table class="table post-table table-striped">
+      <tbody>
+        <tr class="head">
+          <td class="index"><a href="#m{{message_id}}" >#{{message_id}}</a><div class="anchor" id="m{{message_id}}"></div></td>
+          <td class="author">{{ post.author.username }}</td>
+          <td class="created-at pgf-format-time" data-timestamp="{{ post.created_at|timestamp}}"></td>
+        </tr>
 
-  <ul>
-    {% for post in posts %}
-    <li class="post">
-      <table>
-        <tbody>
-          <tr class="head">
-            {% set message_id = start_posts_from + loop.index %}
-            <td class="index"><a href="#m{{message_id}}" id="m{{message_id}}">#{{message_id}}</a></td>
-            <td class="author">{{ post.author.username }}</td>
-            <td class="created-at pgf-format-time" data-timestamp="{{ post.created_at|timestamp}}"></td>
-          </tr>
+        <tr class="body">
+          <td colspan="3">{{ post.html|safe }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  {% endfor %}
+</ul>
 
-          <tr class="body">
-            <td colspan="3">{{ post.html|safe }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-    {% endfor %}
-  </ul>
+{{ render_pages() }}
 
-  {{ render_pages() }}
+{% if resource.account %}
+<form action="{{ url('forum:create_post', category.slug, subcategory.slug, thread.id) }}"
+      method="post"
+      id="pgf-new-post-form"
+      class="new-post-form">
 
-  {% if resource.account %}
-  <form action="{{ url('forum:create_post', category.slug, subcategory.slug, thread.id) }}" 
-        method="post" 
-        id="pgf-new-post-form"
-        class="block long new-post-form">
+  {{ new_post_form.errors_container }}
 
-    {{ new_post_form.errors_container }}
+  <div class="pgf-edit-content post-content">
+    {{ new_post_form.text.widget }}
+  </div>
 
-    <div class="pgf-edit-content">
-      {{ new_post_form.text.widget }}
-    </div>
+  <div class="pgf-preview-content pgf-hidden post-content">
+  </div>
 
-    <div class="pgf-preview-content pgf-hidden block">
-    </div>
+  <div class="widget">
+    <input type="submit" value="Ответить"/>
+    <input type="button" class="pgf-preview-button" value="Предпросмотр"/>
+    <input type="button" class="pgf-edit-button pgf-hidden" value="Редактировать"/>
+  </div>
 
-    <div class="widget">
-      <input type="submit" value="Ответить"/>
-      <input type="button" class="pgf-preview-button" value="Предпросмотр"/>
-      <input type="button" class="pgf-edit-button pgf-hidden" value="Редактировать"/>
-    </div>
-
-  </form>
-  {% endif %}
-
-</div>
+</form>
+{% endif %}
 
 {% endblock %}
