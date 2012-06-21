@@ -1,3 +1,5 @@
+{% import 'macros.html' as base_macros with context %}
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
   <head>
@@ -109,14 +111,14 @@ jQuery(document).ready(function() {
           <a class="brand" href="{{ url('portal:') }}">Сказка</a>
 
           <ul class="nav">
-            <li><a href="{{ url('portal:') }}">Главная</a></li>
-            <li><a href="{{ url('news:') }}">Новости</a></li>
-            <li><a href="{{ url('forum:') }}">Форум</a></li>
-            <li><a href="{{ url('game:') }}">Игра</a></li>
+            {{ base_macros.main_menu_item("index", url("portal:"), "Главная") }}
+            {{ base_macros.main_menu_item("news", url("news:"), "Новости") }}
+            {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
+            {{ base_macros.main_menu_item("game", url("game:"), "Игра") }}
             {% if resource.account %}
             <li class="divider-vertical"></li>
-            <li><a href="{{ url('accounts:profile') }}">Профиль игрока</a></li>
-            <li><a href="{{ url('game:heroes:show', resource.account.angel.get_hero().id) }}">Страница героя</a></li>
+            {{ base_macros.main_menu_item("profile", url("accounts:profile"), "Профиль игрока") }}
+            {{ base_macros.main_menu_item("hero", url("game:heroes:show", resource.account.angel.get_hero().id), "Страница героя") }}
             {% endif %}
           </ul>
 

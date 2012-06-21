@@ -1,0 +1,8 @@
+
+{% macro main_menu_item(type, url, name) -%}
+
+<li class="{% if type == SECTION %}active{% endif %}">
+  <a href="{{ url }}">{{ name }}</a>
+</li>
+
+{%- endmacro %}
