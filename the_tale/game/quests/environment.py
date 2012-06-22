@@ -2,7 +2,6 @@
 
 from game.map.places.prototypes import PlacePrototype
 from game.persons.prototypes import PersonPrototype
-from game.text_generation import NamedObject
 
 from game.quests.quests_generator.environment import BaseEnvironment
 
@@ -57,7 +56,7 @@ class Environment(BaseEnvironment):
             elif value in self.persons:
                 result[key] = PersonPrototype.get_by_id(id_=self.persons[value]['external_data']['id'])
             elif value in self.items:
-                result[key] = NamedObject(self.items[value]['external_data']['artifact'].get('normalized_name', u'осколок прошлого'))
+                result[key] = self.get_game_item(value)
 
         return result
 

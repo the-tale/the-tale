@@ -7,6 +7,11 @@ if (!pgf.base) {
     pgf.base = {};
 }
 
+pgf.base.tooltipsArgs = { animation: true,
+                          placement: 'left',
+                          delay: { show: 500,
+                                   hidr: 100 } };
+
 pgf.base.RenderTemplateList = function(selector, data, newElementCallback, params) {
     
     var container = jQuery(selector);

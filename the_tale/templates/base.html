@@ -32,18 +32,12 @@
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css" />
     <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
-    <!-- <script src="{{ STATIC_URL }}plugins/jquery/tipsy/jquery.tipsy.js" type="text/javascript" charset="utf-8"></script> -->
-    <!-- <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}plugins/jquery/tipsy/tipsy.css" /> -->
-
     <script src="{{ STATIC_URL }}plugins/globalize/globalize.js"></script>
     <script src="{{ STATIC_URL }}plugins/globalize/cultures/globalize.culture.ru.js"></script>
-
     <script src="{{ STATIC_URL }}common/base.js" type="text/javascript"></script>
     <script src="{{ STATIC_URL }}common/dialog.js" type="text/javascript"></script>
     <script src="{{ STATIC_URL }}common/forms.js" type="text/javascript"></script>
-    <!-- <script src="{{ STATIC_URL }}common/tooltips.js" type="text/javascript"></script> -->
     <script src="{{ STATIC_URL }}common/urls.js" type="text/javascript"></script>
-    <!-- <script src="{{ STATIC_URL }}common/dialog.js" type="text/javascript"></script> -->
 
     {% if settings.DEBUG %}
     <script src="{{ STATIC_URL }}common/debug.js" type="text/javascript"></script>
@@ -81,8 +75,6 @@ jQuery(document).ready(function() {
         }
     });
 
-    // pgf.tooltips.Init();
-
     jQuery('.pgf-fast-registration').click(function(e){
         e.preventDefault();
         pgf.forms.Post({ OnSuccess: function(data)
@@ -93,10 +85,7 @@ jQuery(document).ready(function() {
                        });
     });
 
-    $('[rel="tooltip"]').tooltip({animation: true,
-                                  placement: 'left',
-                                  delay: { show: 500,
-                                           hidr: 100 } })
+    jQuery('[rel="tooltip"]').tooltip(pgf.base.tooltipsArgs)
 });
     </script>
 

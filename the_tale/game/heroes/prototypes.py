@@ -455,7 +455,8 @@ class HeroPrototype(object):
                                'move_speed': self.move_speed,
                                'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,
-                               'loot_items_count': loot_items_count},
+                               'loot_items_count': loot_items_count,
+                               'quest_items_count': quest_items_count},
                 'accumulated': { }
                 }
 

@@ -415,10 +415,11 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
 
     var data = {};
 
-    function RenderItem(index, data, element) {
-        jQuery('.pgf-name', element).text(data.name);
-        jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', !data.equipped);
-        jQuery('.pgf-power', element).text(data.power);
+    function RenderItem(index, item, element) {
+        jQuery('.pgf-name', element).text(item.name);
+        jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', !item.equipped);
+        jQuery('.pgf-power', element).text(item.power);
+        jQuery('.pgf-quest-item-marker', element).toggleClass('pgf-hidden', !item.quest);
     }
 
     function RenderItems() {
@@ -435,6 +436,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
 
         if (hero) {
             data.bag = hero.bag;
+            data.quest_items_count = hero.secondary.quest_items_count; 
             data.loot_items_count = hero.secondary.loot_items_count;
             data.max_bag_size = hero.secondary.max_bag_size;
         }
@@ -446,10 +448,13 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     };
 
     this.Render = function() {
+        jQuery('.pgf-special-items-count').text(data.quest_items_count);
         jQuery('.pgf-loot-items-count', tabButton).text(data.loot_items_count);
         jQuery('.pgf-max-bag-size', tabButton).text(data.max_bag_size);
         jQuery('.pgf-item-count-container', tabButton).removeClass('pgf-hidden');
         RenderItems();
+
+        jQuery('[rel="tooltip"]', widget).tooltip(pgf.base.tooltipsArgs);
     };
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){

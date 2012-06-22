@@ -118,8 +118,6 @@ class QuestPrototype(object):
     @classmethod
     def create(cls, cur_time, hero, env):
 
-        env.sync()
-
         data = { 'pointer': env.get_start_pointer(),
                  'last_pointer': env.get_start_pointer()}
 
