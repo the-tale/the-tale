@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block fast_account_warning %}
+ВНИМАНИЕ! Для Вас форум доступен только для чтения. Что бы создавать темы и отвечать в темах других игроков, необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile') }}">профиле</a> (подробнее о быстрой регистрации можно почитать в <a href="{{ url('portal:manual') }}">Путеводителе по Сказке</a>).
+{% endblock %}
+
 {% block content %}
 
 <div class="row">

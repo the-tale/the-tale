@@ -32,7 +32,7 @@
   </tbody>
 </table>
 
-{% if resource.account and not subcategory.closed %}
+{% if resource.account and not resource.account.is_fast and not subcategory.closed %}
 <form action="{{ url('forum:new_thread', category.slug, subcategory.slug) }}" method="get">
   <input type="submit" value="Добавить обсуждение"/>
 </form>

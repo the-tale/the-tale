@@ -60,7 +60,7 @@ class ForumResource(Resource):
             forum_structure.append({'category': category,
                                     'subcategories': children})
 
-                
+
         return self.template('forum/index.html',
                              {'forum_structure': forum_structure} )
 
@@ -78,6 +78,9 @@ class ForumResource(Resource):
 
     @handler('#category', '#subcategory', 'new-thread', name='new_thread', method='get')
     def new_thread(self):
+        if self.account.is_fast:
+            return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете писать на форуме'})
+
         return self.template('forum/new_thread.html',
                              {'category': self.category,
                               'subcategory': self.subcategory,
@@ -85,6 +88,9 @@ class ForumResource(Resource):
 
     @handler('#category', '#subcategory', 'create-thread', name='create_thread', method='post')
     def create_thread(self):
+
+        if self.account.is_fast:
+            return self.json(status='error', error=u'Вы не закончили регистрацию и не можете писать на форуме')
 
         if self.subcategory.closed:
             return self.json(status='error', error=u'Вы не можете создавать темы в данном разделе')
@@ -94,7 +100,7 @@ class ForumResource(Resource):
         if not new_thread_form.is_valid():
             return self.json(status='error', errors=new_thread_form.errors)
 
-        thread = create_thread(self.subcategory, 
+        thread = create_thread(self.subcategory,
                                caption=new_thread_form.c.caption,
                                author=self.account.user,
                                text=new_thread_form.c.text)
@@ -108,7 +114,7 @@ class ForumResource(Resource):
         page = int(page) - 1
 
         post_from = page * forum_settings.POSTS_ON_PAGE
-        
+
         if post_from > self.thread.posts_count:
             last_page = self.thread.posts_count / forum_settings.POSTS_ON_PAGE + 1
             url = '%s?page=%d' % (reverse('forum:show_thread', args=[self.category.slug, self.subcategory.slug, self.thread.id]), last_page)
@@ -137,6 +143,9 @@ class ForumResource(Resource):
     @handler('#category', '#subcategory', '#thread_id', 'create-post', name='create_post', method='post')
     @nested_commit_on_success
     def create_post(self):
+
+        if self.account.is_fast:
+            return self.json(status='error', error=u'Вы не закончили регистрацию и не можете писать на форуме')
 
         new_post_form = NewPostForm(self.request.POST)
 

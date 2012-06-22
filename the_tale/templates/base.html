@@ -157,7 +157,9 @@ jQuery(document).ready(function() {
 
         {% if resource.account and resource.account.is_fast %}
         <div class="alert alert-info">
-          ВНИМАНИЕ! Ваша игра доступна только с этого компьютера. Для игры из друго места необходимо задать email и пароль в своём <a href="{{ url('accounts:profile') }}">профиле</a> (подробнее о быстрой регистрации можно почитать в <a href="{{ url('portal:manual') }}">Путеводителе по Сказке</a>).
+          {% block fast_account_warning %}
+          ВНИМАНИЕ! Ваша игра доступна только с этого компьютера. Для игры из друго места необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile') }}">профиле</a> (подробнее о быстрой регистрации можно почитать в <a href="{{ url('portal:manual') }}">Путеводителе по Сказке</a>).
+          {% endblock %}
         </div>
         {% endif %}
 
