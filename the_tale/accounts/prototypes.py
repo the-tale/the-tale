@@ -38,6 +38,17 @@ class AccountPrototype(object):
         except User.DoesNotExist:
             return None
 
+    @classmethod
+    def get_by_nick(cls, nick):
+        if nick is None:
+            return None
+
+        try:
+            user = User.objects.get(username=nick)
+            return cls(user.get_profile())
+        except User.DoesNotExist:
+            return None
+
     @property
     def angel(self):
         if not hasattr(self, '_angel'):
@@ -62,12 +73,14 @@ class AccountPrototype(object):
         email.send([self.user.email])
 
     @nested_commit_on_success
-    def change_credentials(self, new_email=None, new_password=None):
+    def change_credentials(self, new_email=None, new_password=None, new_nick=None):
         if new_password:
             self.user.password = new_password
         if new_email:
             self.user.email = new_email
             self.model.email = new_email
+        if new_nick:
+            self.user.username = new_nick
         self.is_fast = False
 
         self.user.save()
@@ -224,12 +237,14 @@ class ChangeCredentialsTaskPrototype(object):
             return None
 
     @classmethod
-    def create(cls, account, new_email=None, new_password=None):
+    def create(cls, account, new_email=None, new_password=None, new_nick=None):
         old_email = account.user.email
         if account.is_fast and new_email is None:
             raise AccountsException('new_email must be specified for fast account')
         if account.is_fast and new_password is None:
             raise AccountsException('password must be specified for fast account')
+        if account.is_fast and new_nick is None:
+            raise AccountsException('nick must be specified for fast account')
 
         if old_email == new_email:
             new_email = None
@@ -238,7 +253,8 @@ class ChangeCredentialsTaskPrototype(object):
                                                      account=account.model,
                                                      old_email=old_email,
                                                      new_email=new_email,
-                                                     new_password=make_password(new_password) if new_password else '')
+                                                     new_password=make_password(new_password) if new_password else '',
+                                                     new_nick=new_nick)
         return cls(model=model)
 
     @property
@@ -261,7 +277,7 @@ class ChangeCredentialsTaskPrototype(object):
         return self.model.new_email is not None and (self.model.old_email != self.model.new_email)
 
     def change_credentials(self):
-        self.account.change_credentials(new_email=self.model.new_email, new_password=self.model.new_password)
+        self.account.change_credentials(new_email=self.model.new_email, new_password=self.model.new_password, new_nick=self.model.new_nick)
 
     def request_email_confirmation(self):
         if self.model.new_email is None:

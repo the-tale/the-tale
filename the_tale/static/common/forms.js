@@ -162,7 +162,7 @@ pgf.forms.Form = function(selector, params) {
                     instance.DisplayErrors(data.errors);
                 }
                 else {
-                    instance.DisplayErrors({__all__: ['uncknown error']});
+                    instance.DisplayErrors({__all__: ['Произошла ошибка, мы уже работаем над её устранением, повторите попытку через некоторое время']});
                 }
             }
         }
@@ -181,7 +181,7 @@ pgf.forms.Form = function(selector, params) {
 
     function OnError(request, status, error) {
         instance.ClearErrors();
-        instance.DisplayErrors({__all__: ['uncknown error']});
+        instance.DisplayErrors({__all__: ['Произошла ошибка, мы уже работаем над её устранением, повторите попытку через некоторое время']});
     }
 
     function OnComplete(request, status) {

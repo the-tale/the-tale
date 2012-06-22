@@ -13,7 +13,7 @@ class AccountAdmin(admin.ModelAdmin):
         return obj.user.email
 
 class UserAdmin(DjangoUserAdmin):
-    list_display = ('id', 'email', 'is_staff', 'last_login')
+    list_display = ('id', 'email', 'username', 'is_staff', 'last_login')
 
 class RegistrationTaskAdmin(admin.ModelAdmin):
     list_display = ('id', 'state', 'account')

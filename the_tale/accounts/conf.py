@@ -14,4 +14,8 @@ accounts_settings = app_settings('ACCOUNTS',
                                  FAST_ACCOUNT_EXPIRED_TIME=3*24*60*60,
                                  REGISTRATION_TIMEOUT=1*60,
                                  RESET_PASSWORD_LENGTH=8,
-                                 CHANGE_EMAIL_TIMEOUT=2*24*60*60)
+                                 CHANGE_EMAIL_TIMEOUT=2*24*60*60,
+
+                                 NICK_REGEX=u'[a-zA-Z0-9\-\ _а-яА-Я]+',
+                                 NICK_MIN_LENGTH=3,
+                                 NICK_MAX_LENGTH=30)

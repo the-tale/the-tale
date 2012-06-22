@@ -90,7 +90,8 @@ class AccountsResource(Resource):
     @login_required
     @handler('profile', method='get')
     def profile(self):
-        data = {'email': self.account.user.email if self.account.user.email else u'укажите email'}
+        data = {'email': self.account.user.email if self.account.user.email else u'укажите email',
+                'nick': self.account.user.username if not self.account.is_fast and self.account.user.username else u'укажите ваше имя'}
         edit_profile_form = forms.EditProfileForm(data)
         return self.template('accounts/profile.html',
                              {'edit_profile_form': edit_profile_form} )
@@ -113,17 +114,25 @@ class AccountsResource(Resource):
 
         if edit_profile_form.is_valid():
 
-            if self.account.is_fast and not (edit_profile_form.c.email and edit_profile_form.c.password):
-                return self.json(status='error', error=u'Необходимо указать и email и пароль')
+            if self.account.is_fast and not (edit_profile_form.c.email and edit_profile_form.c.password and edit_profile_form.c.nick):
+                return self.json(status='error', error=u'Необходимо заполнить все поля')
 
             if edit_profile_form.c.email:
                 existed_account = AccountPrototype.get_by_email(edit_profile_form.c.email)
                 if existed_account and existed_account.id != self.account.id:
-                    return self.json(status='error', error=u'На этот адрес уже зарегистрирован аккаунт')
+                    return self.json(status='error', errors={'email': [u'На этот адрес уже зарегистрирован аккаунт']})
+
+            if edit_profile_form.c.nick:
+                existed_account = AccountPrototype.get_by_nick(edit_profile_form.c.nick)
+                if existed_account and existed_account.id != self.account.id:
+                    return self.json(status='error', errors={'nick': [u'Это имя уже занято']})
 
             task = ChangeCredentialsTaskPrototype.create(account=self.account,
                                                          new_email=edit_profile_form.c.email,
-                                                         new_password=edit_profile_form.c.password)
+                                                         new_password=edit_profile_form.c.password,
+                                                         new_nick=edit_profile_form.c.nick)
+
+            # print task.uuid
 
             task.process(logger)
 
