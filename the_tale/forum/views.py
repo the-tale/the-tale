@@ -68,7 +68,7 @@ class ForumResource(Resource):
     @handler('#category', '#subcategory', name='subcategory', method='get')
     def get_subcategory(self):
 
-        threads = Thread.objects.filter(subcategory=self.subcategory).order_by('updated_at')
+        threads = Thread.objects.filter(subcategory=self.subcategory).order_by('-updated_at')
 
         return self.template('forum/subcategory.html',
                              {'category': self.category,
