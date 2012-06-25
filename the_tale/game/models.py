@@ -2,9 +2,12 @@
 
 from django.db import models
 
+from game.balance import constants as c
+
 class Time(models.Model):
 
-    turn_number = models.BigIntegerField(null=False, default=0)
+    # default > 0, since we must reserve some time to initial hero journal & diary records (from past)
+    turn_number = models.BigIntegerField(null=False, default=c.TURNS_IN_HOUR)
 
 
 class BUNDLE_TYPE:
