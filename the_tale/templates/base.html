@@ -104,6 +104,7 @@ jQuery(document).ready(function() {
             {{ base_macros.main_menu_item("news", url("news:"), "Новости") }}
             {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
             {{ base_macros.main_menu_item("game", url("game:"), "Игра") }}
+            {{ base_macros.main_menu_item("manual", url("portal:manual"), "Путеводитель") }}
             {% if resource.account %}
             <li class="divider-vertical"></li>
             {{ base_macros.main_menu_item("profile", url("accounts:profile"), "Профиль игрока") }}
@@ -161,7 +162,7 @@ jQuery(document).ready(function() {
       <div class="row">
         <div class="span12">
           <ul class="unstyled">
-            <li>© 2011-{{now().year}} Елецкий Алексей</li>
+            <li>© 2011-{{now().year}} Елецкий Алексей (Tiendil)</li>
             <li>использована часть иконок из набора <a href="http://glyphicons.com" target="_blank">Glyphicons</a></li>
             <li>использована часть иконок из  <a href="http://eu.battle.net/wow/en/" target="_blank">WoW</a>, будут убраны как только нарисуются альтернативные, близы не обижайтесь :-)</li>
             <li>использованы картинки из различных источников, будут убраны как только нарисуются альтернативные, если вы автор какой-либо из картинок, сообщите нам об этом. В зависимости от Вашего желания, мы либо оставим ссылку на Ваш ресурс либо уберём картинку</li>
