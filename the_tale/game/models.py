@@ -6,8 +6,7 @@ from game.balance import constants as c
 
 class Time(models.Model):
 
-    # default > 0, since we must reserve some time to initial hero journal & diary records (from past)
-    turn_number = models.BigIntegerField(null=False, default=c.TURNS_IN_HOUR)
+    turn_number = models.BigIntegerField(null=False, default=0)
 
 
 class BUNDLE_TYPE:
