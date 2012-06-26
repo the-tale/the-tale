@@ -42,6 +42,10 @@ body .nav-pills > li > a {
   padding-right: 10px;
   padding-left: 10px;
 }
+body .navbar .nav > li > a {
+  padding-right: 8px;
+  padding-left: 8px;
+}
 body footer {
   clear: both;
   position: relative;
