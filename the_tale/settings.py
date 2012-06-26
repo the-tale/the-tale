@@ -59,13 +59,20 @@ LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
 SECRET_KEY = 'i@oi33(3f0vlezy$aj3_3q%q=#fb1ehovw0k&==w3ycs+#5f)y'
 
 ################################
-# Other settings
+# Mail settings
 ################################
 
-EMAIL_NOREPLY = 'no-reply.the-tale@gmail.com'
-EMAIL_SUPPORT = 'support.the-tale@gmail.com'
+SERVER_EMAIL = 'no-reply@the-tale.org'
+ADMINS = (('Tiendil', 'admin@the-tale.org'), )
+
+EMAIL_NOREPLY = 'no-reply@the-tale.org'
+EMAIL_SUPPORT = 'support@the-tale.org'
 
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+
+################################
+# Other settings
+################################
 
 APPEND_SLASH = True
 #PREPEND_WWW = True

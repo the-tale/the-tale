@@ -12,8 +12,8 @@ SITE_SECTIONS = ( (re.compile(r'^/$'), 'index'),
                   (re.compile(r'^/accounts/profile.*$'), 'profile'),
                   (re.compile(r'^/game/heroes.*$'), 'hero'),
                   (re.compile(r'^/game.*$'), 'game'),
-                   (re.compile(r'^/manual.*$'), 'manual') )
+                  (re.compile(r'^/manual.*$'), 'manual') )
 
 portal_settings = app_settings('PORTAL',
-                               DUMP_EMAIL='a.eletsky@gmail.com',
+                               DUMP_EMAIL='admin@the-tale.org',
                                META_CONFIG=os.path.join(project_settings.PROJECT_DIR, 'meta_config.json'))
