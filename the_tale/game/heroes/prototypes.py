@@ -38,7 +38,10 @@ class HeroPrototype(object):
 
     @classmethod
     def get_by_id(cls, model_id):
-        return cls(model=Hero.objects.get(id=model_id))
+        try:
+            return cls(model=Hero.objects.get(id=model_id))
+        except Hero.DoesNotExist:
+            return None
 
     @classmethod
     def get_by_angel_id(cls, angel_id):
@@ -732,7 +735,6 @@ class ChooseAbilityTaskPrototype(object):
             return
 
         if hero.abilities.has(self.ability_id):
-
             self.state = CHOOSE_ABILITY_STATE.ERROR
             self.comment = 'ability has been already choosen'
             return

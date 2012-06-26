@@ -6,6 +6,14 @@ from common.utils.resources import Resource
 
 class PortalResource(Resource):
 
+    # render error taken by exception middleware
+    def error(self, msg=None):
+        return self.template('error.html', {'msg': msg})
+
+    # render error taken by exception middleware
+    def handler403(self, msg=None):
+        return self.template('403.html', {'msg': msg})
+
     @handler('', method='get')
     def game_page(self):
         return self.template('portal/index.html')

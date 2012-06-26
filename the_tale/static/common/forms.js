@@ -229,7 +229,7 @@ pgf.forms.Post = function(params) {
                     alert(data.errors[0]);
                 }
                 else {
-                    alert('unknown error occured!');
+                    alert('Произошла ошибка, мы уже работаем над её устранением, повторите попытку через некоторое время');
                 }
             } 
             if (params.OnError) {
@@ -258,7 +258,7 @@ pgf.forms.Post = function(params) {
             params.OnError(data);
         }
         else {
-            alert('unknown error occured!');
+            alert('Произошла ошибка, мы уже работаем над её устранением, повторите попытку через некоторое время');
         }
     }
 

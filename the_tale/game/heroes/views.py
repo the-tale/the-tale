@@ -17,9 +17,11 @@ class HeroResource(Resource):
 
         self.hero_id = int(hero_id)
 
-        if self.account is None or self.account.angel.id != self.hero.angel_id:
+        if self.hero is None:
             raise Error(u'Вы не можете просматривать данные этого игрока')
 
+        if self.account is None or self.account.angel.id != self.hero.angel_id:
+            raise Error(u'Вы не можете просматривать данные этого игрока')
 
     @property
     def hero(self):
@@ -51,7 +53,7 @@ class HeroResource(Resource):
         workers_environment.supervisor.cmd_choose_hero_ability(task.id)
 
         return self.json(status='processing',
-                         status_url=reverse('game:heroes:choose_ability_status', args=[self.hero.id]) + '?task_id=%s' % task.id )
+                         status_url=reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % task.id )
 
     @login_required
     @handler('#hero_id', 'choose-ability-status', method='get')
@@ -63,7 +65,7 @@ class HeroResource(Resource):
 
         if ability_task.state == CHOOSE_ABILITY_STATE.WAITING:
             return self.json(status='processing',
-                             status_url=reverse('game:heroes:choose_ability_status', args=[self.hero.id]) + '?task_id=%s' % task_id )
+                             status_url=reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % task_id )
         if ability_task.state == CHOOSE_ABILITY_STATE.PROCESSED:
             return self.json(status='ok')
 

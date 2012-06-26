@@ -105,7 +105,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'accounts.middleware.RegistrationMiddleware',
-    'dext.utils.exceptions.ExceptionMiddleware'
+    'portal.middleware.ExceptionMiddleware'
 )
 
 ROOT_URLCONF = 'urls'
