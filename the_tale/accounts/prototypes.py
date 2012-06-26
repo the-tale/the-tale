@@ -2,6 +2,7 @@
 import sys
 import uuid
 import datetime
+import traceback
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
@@ -327,10 +328,12 @@ class ChangeCredentialsTaskPrototype(object):
 
             exception_info = sys.exc_info()
 
+            traceback_strings = traceback.format_exception(*sys.exc_info())
+
             logger.error('Worker exception: %r' % self,
                          exc_info=exception_info,
                          extra={} )
 
             self.model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
-            self.model.comment = u'%s\n\n%s\n\n %s' % exception_info
+            self.model.comment = u'%s' % traceback_strings
             self.model.save()
