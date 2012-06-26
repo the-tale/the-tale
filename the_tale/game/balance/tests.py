@@ -67,7 +67,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.DESTINY_POINT_IN_LEVELS, 5)
 
         self.assertEqual(c.ANGEL_ENERGY_MAX, 12)
-        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD,  2*360)
+        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD,  180)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_AMAUNT, 1)
 
         self.assertEqual(c.ANGEL_HELP_HEAL_IF_LOWER_THEN, float(0.8))
