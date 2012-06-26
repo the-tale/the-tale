@@ -127,7 +127,7 @@ DESTINY_POINT_IN_LEVELS = 5 # раз в сколько уровней дават
 
 # енергия должна полностью регенериться за сутки, раз в 2 часа должна появляться новая мажка
 ANGEL_ENERGY_MAX = int(12) # всего энергии
-ANGEL_ENERGY_REGENERATION_PERIOD = int(2 * TURNS_IN_HOUR) # раз в сколько часов регенерируем
+ANGEL_ENERGY_REGENERATION_PERIOD = int(0.5 * TURNS_IN_HOUR) # раз в сколько часов регенерируем
 ANGEL_ENERGY_REGENERATION_AMAUNT = int(1) # сколько восстанавливаем
 
 # абилки ангела

@@ -53,7 +53,7 @@ class CHANGE_CREDENTIALS_TASK_STATE:
 
 CHANGE_CREDENTIALS_TASK_STATE_CHOICES = ( (CHANGE_CREDENTIALS_TASK_STATE.WAITING, u'ожидает обработки'),
                                           (CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT, u'отослано письмо'),
-                                          (CHANGE_CREDENTIALS_TASK_STATE.PROCESSED, u'обработкана'),
+                                          (CHANGE_CREDENTIALS_TASK_STATE.PROCESSED, u'обработана'),
                                           (CHANGE_CREDENTIALS_TASK_STATE.UNPROCESSED, u'не обработана'),
                                           (CHANGE_CREDENTIALS_TASK_STATE.ERROR, u'ошибка'),)
 
