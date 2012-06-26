@@ -6,7 +6,7 @@
 
 <p>Для подтверждения e-mail адреса, перейдите по ссылке:<p>
 
-{% set email_confirmation_link = url('accounts:confirm-email') + '?uuid=' + task.uuid %}
+{% set email_confirmation_link = project_settings.SITE_URL + url('accounts:confirm-email') + '?uuid=' + task.uuid %}
 <a href="{{ confirmation_email_link }}">{{ email_confirmation_link }}</a>
 
 

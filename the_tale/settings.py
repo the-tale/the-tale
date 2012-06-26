@@ -27,6 +27,7 @@ TIME_ZONE = 'UTC'
 LANGUAGE_CODE = 'ru'
 
 SITE_ID = 1
+SITE_URL = 'the-tale.org'
 
 X_FRAME_OPTIONS = 'DENY'
 
