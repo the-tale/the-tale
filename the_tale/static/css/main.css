@@ -1,144 +1,98 @@
-@import "reset.css";
-
 @import "game.css";
 
 @import "hero_page.css";
 
-@import "tooltips.css";
-
-@import "dialog.css";
-
-@import "forms.css";
-
 @import "forum.css";
 
-@import "cms.css";
-
 @import "news.css";
-@font-face {
-  font-family: ObelixProB;
-  src: url('../fonts/ObelixProB-cyr.ttf');
-}
-a {
-  text-decoration: none;
-  color: #0000cc;
-}
-a:hover {
-  text-decoration: underline;
-  color: #0000cc;
-}
-ol {
-  /* list-style: decimal inside none; */
-
-}
-ul {
-  /* list-style: disc outside none; */
-
-}
-h1 {
-  font-size: 18pt;
-}
-dl {
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-}
-dl dt {
-  margin-top: 1em;
-  font-weight: bold;
-}
-dl dd {
-  margin-top: 0.5em;
-  padding-left: 2em;
-}
-p {
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-}
-blockquote {
-  border: 2px dotted #357dac;
-  background-color: #468ebd;
-  padding: 0.25em;
-  border-radius: 4px;
-}
-table {
-  margin: 0.5em;
-}
-table tr td {
-  padding: 0.25em;
-  border: 1px solid black;
-}
 html {
-  background-color: #559dcc;
-  background-image: url(../images/background.svg);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  background-position: center 0;
-  background-attachment: fixed;
-  background-size: 100%;
-  font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
 }
-html #content {
-  position: relative;
-  margin: 0 auto;
-  width: 1000px;
+body {
+  padding-top: 50px;
+  height: 100%;
 }
-.block {
-  background: #559dcc;
-  padding: 0.25em;
-  margin: 5px;
-  border: 3px #357dac solid;
+body #main-container {
+  height: 100%;
+  min-height: 100%;
+  height: auto;
+}
+body #main-container #content {
+  padding-bottom: 125px;
+}
+body div.block,
+body li.block {
+  background-color: whiteSmoke;
+  border: 1px solid #cccccc;
   border-radius: 8px;
+  padding: 0.75em;
+  margin-top: 0;
+  margin-bottom: 10px;
 }
-.icon {
-  vertical-align: middle;
+body hr {
+  border-top-color: #cccccc;
+  margin: 0;
 }
-.info {
-  padding: 5px;
-  margin: 2px;
-  border: 2px solid #00f;
-  background-color: #abf;
-  border-radius: 4px;
+body .progress {
+  border: 1px solid #808080;
+  height: 8px;
 }
-.left {
-  text-align: left;
+body .nav-tabs > li > a,
+body .nav-pills > li > a {
+  padding-right: 10px;
+  padding-left: 10px;
 }
-.right {
-  text-align: righ;
+body footer {
+  clear: both;
+  position: relative;
+  z-index: 10;
+  height: 125px;
+  margin-top: -3em;
+  border-top: 1px solid #cccccc;
+  padding: 1em;
 }
-.center {
-  text-align: center;
+body .dl-record {
+  margin-bottom: 0.5em;
 }
-#top-panel {
-  height: 1em;
-  background-color: #357dac;
+#time-block {
+  cursor: default;
 }
-#top-panel #top-panel-content {
-  width: 1000px;
-  margin: 0 auto;
+.anchor {
+  position: relative;
+  top: -70px;
 }
-#top-panel #top-panel-content .user-links {
-  float: right;
+.popover {
+  z-index: 30000000 !important;
 }
-#main-navigation {
-  font-size: 26px;
-  /* !important;*/
-
-  color: white;
-  font-family: ObelixProB;
-  margin-top: 10px;
-  padding-bottom: 0.1em;
-  height: 26px;
+.modal-backdrop {
+  opacity: 0.5 !important;
 }
-#main-navigation a {
-  color: #F0F0F0;
-  text-decoration: none;
-  margin-right: 0.25em;
-  /* text-shadow: black 0 -1px 0; */
-
+.modal-backdrop.wait-backdrop {
+  z-index: 10000;
 }
-#main-navigation a:hover {
-  color: #FFCC00;
+.pagination {
+  margin-top: 0 !important;
+  margin-bottom: 2px !important;
 }
-#main-navigation .navigation-links {
-  float: left;
+.pagination a {
+  padding: 0 5px !important;
+  line-height: 24px !important;
+}
+.wait-indicator-backdrop {
+  position: fixed;
+  z-index: 100010;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: transparent;
+}
+.wait-indicator-backdrop .wait-indicator {
+  background-color: white;
+  margin-top: 300px;
+  margin-bottom: 0;
+  margin-left: auto;
+  margin-right: auto;
+  height: 32px;
+  width: 32px;
 }

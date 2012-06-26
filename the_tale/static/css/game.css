@@ -1,288 +1,220 @@
-.stats-bar {
-  width: 100px;
-  height: 5px;
+.second-row .block {
+  min-height: 350px;
+}
+#hero-base-block .hero-level:hover {
+  background-color: #BBB;
+}
+#hero-base-block .free-destiny-points:hover {
+  background-color: #bbbbbb;
+}
+#hero-base-block .record-with-progress {
+  margin: 6px 0;
   position: relative;
-  background: #F0F0F0;
-  border: 1px solid black;
-  display: inline-block;
+  padding-left: 20px;
+  padding-right: 5em;
 }
-.stats-bar .layer {
+#hero-base-block .record-with-progress:hover {
+  background-color: #dddddd;
+}
+#hero-base-block .record-with-progress img {
   position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  height: 5px;
+  left: 0px;
 }
-.stats-bar .layer-0 {
-  background: #F0F0F0;
-}
-.stats-bar .layer-1 {
-  background: #90FF90;
-}
-#game-page-content .column {
+#hero-base-block .record-with-progress .progress {
   display: inline-block;
-  vertical-align: top;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0;
 }
-#game-page-content #left-column {
-  width: 200px;
-}
-#game-page-content #right-column {
-  width: 200px;
-}
-#game-page-content #center-column {
-  width: 590px;
-}
-#hero-base-block .bar {
-  font-size: 11px;
-}
-#hero-base-block .bar .stats-bar .layer-0 {
-  background: #559dcc;
-}
-#hero-base-block .bar.health-bar .layer-1 {
-  background: #ff0000;
-}
-#hero-base-block .bar.experience-bar .layer-1 {
-  background: yellow;
-}
-#hero-base-block .bar.energy-bar .layer-1 {
-  background: #0000ff;
-}
-#hero-base-block .stats-left {
-  width: 70px;
-  margin-right: 10px;
-  display: inline-block;
-}
-#hero-base-block .stats-right {
-  width: 80px;
-  display: inline-block;
-}
-#hero-base-block .record {
-  margin-top: 5px;
-  cursor: default;
-  position: relative;
-}
-#hero-base-block .record .value {
+#hero-base-block .record-with-progress .text-values {
   position: absolute;
-  right: 0;
+  right: 0px;
+  top: -2px;
 }
-#hero-base-block .record:hover {
-  background: #75bdec;
+#hero-base-block .attribute-record {
+  display: inline-block;
+  width: 49%;
 }
-#hero-equipment-block .record {
+#hero-base-block .attribute-record:hover {
+  background-color: #dddddd;
+}
+#hero-base-block .attribute-record img {
+  vertical-align: middle;
+}
+#hero-base-block .attribute-record .value {
+  vertical-align: middle;
+}
+#hero-equipment-block .equip-record {
   margin-top: 5px;
   cursor: default;
 }
-#hero-equipment-block .record:hover {
-  background: #75bdec;
+#hero-equipment-block .equip-record:hover {
+  background-color: #dddddd;
 }
-#hero-equipment-block .record .name {
+#hero-equipment-block .equip-record .name {
   font-size: 10pt;
   margin-left: 0.25em;
 }
-#hero-equipment-block .record .power-container {
+#hero-equipment-block .equip-record .power-container {
   float: right;
 }
-#login-required-block {
-  text-align: center;
-  font-weight: bold;
-}
-#hero-bag-block h4 {
-  font-size: 11pt;
-}
-#hero-bag-block h5 {
-  font-size: 10pt;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-}
-#hero-bag-block .record {
+#hero-bag-block .bag-record {
+  margin-top: 5px;
   cursor: default;
 }
-#hero-bag-block .record:hover {
-  background: #75bdec;
+#hero-bag-block .bag-record:hover {
+  background-color: #dddddd;
 }
-#hero-bag-block .record .name {
-  font-size: 9pt;
-}
-#time-block {
-  font-size: 8pt;
-  height: 34px;
-}
-#time-block .time {
-  display: inline-block;
-  float: right;
-}
-#time-block .time .value {
-  vertical-align: middle;
-  display: inline-block;
-  text-align: right;
-}
-#time-block .time .time-icon {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
+#hero-bag-block .bag-record i {
   vertical-align: middle;
 }
-#time-block .time .time-icon.sunrise {
-  background: url('../game/images/time.png') no-repeat scroll 0 0 transparent;
-}
-#time-block .time .time-icon.sunset {
-  background: url('../game/images/time.png') no-repeat scroll 0 -32px transparent;
-}
-#time-block .time .time-icon.midnight {
-  background: url('../game/images/time.png') no-repeat scroll -32px -32px transparent;
-}
-#time-block .time .time-icon.noon {
-  background: url('../game/images/time.png') no-repeat scroll -32px 0 transparent;
-}
-#current-actions-block {
+#hero-bag-block .bag-record .name {
   font-size: 10pt;
+  margin-left: 0.25em;
+  vertical-align: middle;
 }
-#current-actions-block .current-action-block {
-  display: inline-block;
-  width: 200px;
-  border-right: 3px #357dac solid;
+#hero-bag-block .bag-record .power-container {
+  vertical-align: middle;
 }
-#current-actions-block .current-action-block .action-description {
-  padding-bottom: 0.25em;
-  margin-bottom: 0.25em;
+.quest-icon {
+  width: 64px;
+  height: 64px;
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 0;
 }
-#current-actions-block .current-action-block .action-description h3 {
-  font-size: 11pt;
-}
-#current-actions-block .current-action-block .action-description .action-progress .stats-bar {
-  width: 190px;
-}
-#current-actions-block .current-action-block .action-description .action-progress .stats-bar .layer-0 {
-  background: #559dcc;
-}
-#current-actions-block .current-action-block .action-description .action-progress .stats-bar .layer-1 {
-  background: #00ff00;
-}
-#current-actions-block .current-action-block .action-info {
-  border-top: 3px #357dac solid;
-}
-#current-actions-block .current-quests-block {
-  display: inline-block;
-  vertical-align: top;
-  width: 360px;
-}
-#current-actions-block .current-quests-block .quests-progress {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  vertical-align: top;
-}
-#current-actions-block .current-quests-block .quests-line {
-  display: inline-block;
-  vertical-align: top;
-}
-#current-actions-block .current-quests-block .quests-line .quest-line-element {
-  display: inline-block;
-  margin-left: 3px;
-}
-#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-}
-#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.helpline {
+.quest-icon.help {
   background: url('../game/images/quests.png') no-repeat scroll 0 0 transparent;
 }
-#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.deliveryline {
-  background: url('../game/images/quests.png') no-repeat scroll -32px 0 transparent;
-}
-#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.spyingline {
+.quest-icon.delivery {
   background: url('../game/images/quests.png') no-repeat scroll -64px 0 transparent;
 }
-#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.notmyworkline {
-  background: url('../game/images/quests.png') no-repeat scroll -96px 0 transparent;
-}
-#current-actions-block .current-quests-block .quests-line .quest-line-element .quest-icon.caravanline {
+.quest-icon.spying {
   background: url('../game/images/quests.png') no-repeat scroll -128px 0 transparent;
 }
-#current-actions-block .current-quests-block .quests-line .quest-line-element .action-icon {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
+.quest-icon.notmywork {
+  background: url('../game/images/quests.png') no-repeat scroll -192px 0 transparent;
 }
-#current-actions-block .current-quests-block .quests-line .quest-line-element .action-icon.move {
-  background: url('../game/images/actions.png') no-repeat scroll 0 0 transparent;
+.quest-icon.caravan {
+  background: url('../game/images/quests.png') no-repeat scroll -256px 0 transparent;
 }
-#current-actions-block .current-quests-block .quests-line .quest-line-element .action-icon.movenear {
-  background: url('../game/images/actions.png') no-repeat scroll 0 0 transparent;
+.quest-icon.no-quest {
+  background: url('../game/images/quests.png') no-repeat scroll -320px 0 transparent;
 }
-#current-actions-block .current-quests-block .quests-line .quest-line-element .action-icon.battle {
-  background: url('../game/images/actions.png') no-repeat scroll -24px 0 transparent;
+.quest-record {
+  min-height: 64px;
+  cursor: default;
 }
-#current-actions-block .current-quests-block .quest-choices {
-  border-top: 3px #357dac solid;
+.quest-record:hover {
+  background-color: #dddddd;
 }
-#log-block {
-  height: 35em;
+.quest-record .quest-body {
+  padding-left: 70px;
 }
-#log-block .message {
-  font-size: 10pt;
-  margin-bottom: 0.5em;
+.quest-record .choices {
+  margin-top: 0.5em;
+  margin-bottom: 1em;
 }
-#map-block {
+.quest-record .choices .choices-container {
+  color: #999999;
+}
+.quest-record .actors-container {
+  margin: 0;
+}
+.log-record {
+  margin: 0.75em 0;
+  cursor: default;
+}
+.log-record:hover {
+  background-color: #dddddd;
+}
+.log-record .time {
+  float: left;
+  margin: 0 3px;
+}
+.log-record .message {
+  margin-left: 3.5em;
+}
+.diary-record {
+  margin: 0.75em 0;
+  cursor: default;
+}
+.diary-record:hover {
+  background-color: #dddddd;
+}
+.diary-record .datetime {
+  font-weight: bold;
+}
+.diary-record .message {
+  margin-left: 1em;
+}
+#pgf-map-block {
   position: relative;
 }
-#map-block .commands {
+#pgf-map-block .map-commands {
   position: absolute;
   right: 0;
   top: 0;
   z-index: 1001;
+  background-color: whiteSmoke;
+  /* margin: 2px; */
+
+  border: 1px solid #cccccc;
+  border-bottom-left-radius: 8px;
+  padding: 0.25em;
+  margin-right: 0.75em;
+  margin-top: 0.75em;
 }
-#abilities-block .record {
-  font-size: 11pt;
+.place-description-dialog {
   cursor: default;
-  margin-bottom: 2px;
+  background-color: whiteSmoke !important;
 }
-#abilities-block .record:hover {
-  background: #75bdec;
+.place-description-dialog .dialog-title span {
+  vertical-align: middle;
 }
-#abilities-block .record.cooldown {
-  background: #A0C0E0;
+.place-description-dialog .description {
+  min-height: 70px;
 }
-#abilities-block .record:hover.cooldown {
-  background: #90B0D0;
-}
-#abilities-block .record .icon {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-}
-#abilities-block .record.ability-help .icon {
-  background: url('../game/images/abilities.png') no-repeat scroll -32px 0 transparent;
-}
-/* dialog with information about place */
-.place-info {
-  max-width: 400px;
-}
-.place-info .description {
-  min-height: 64px;
-  position: relative;
-  margin-bottom: 1em;
-}
-.place-info .description img {
-  position: absolute;
-  left: 0px;
-  top: 0px;
-}
-.place-info .description p {
-  padding-left: 64px;
-}
-.place-info .characters-list li {
-  min-height: 32px;
-  margin-top: 1em;
-}
-.place-info .characters-list li img {
-  padding: 2px;
+.place-description-dialog .description img {
   float: left;
 }
-.place-info .characters-list li .power-bar {
-  background: yellow;
+.place-description-dialog .person-record {
+  min-height: 40px;
+  margin-top: 0.5em;
+  cursor: default;
 }
-.place-info .characters-list li .power-bar .layer-0 {
-  background: orange;
+.place-description-dialog .person-record:hover {
+  background-color: #dddddd;
+}
+.place-description-dialog .person-record img {
+  float: left;
+  margin: 4px;
+}
+.place-description-dialog .person-record .progress {
+  width: 100px;
+  display: inline-block;
+  margin: 0;
+}
+#abilities-block {
+  text-align: center;
+  font-size: 14pt;
+}
+#abilities-block .wait,
+#abilities-block .no-energy {
+  color: #999999;
+  text-decoration: none;
+}
+#abilities-block .icon-tint {
+  display: none;
+}
+#abilities-block .no-energy .icon-tint {
+  display: inline-block;
+  vertical-align: middle;
+}
+#abilities-block .spinner {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 5px;
+  left: 0 !important;
+  top: 0 !important;
 }

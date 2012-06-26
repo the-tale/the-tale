@@ -1,91 +1,28 @@
-#hero-page-content .column {
-  display: inline-block;
-  vertical-align: top;
+.hero-statistics {
+  cursor: default;
 }
-#hero-page-content #left-column {
-  width: 200px;
-}
-#hero-page-content #right-column {
-  width: 390px;
-}
-#hero-page-content #center-column {
-  width: 390px;
-}
-#hero-page-content #choose-ability-button {
-  text-align: center;
-  cursor: pointer;
-  border-color: #FF6666;
-  background-color: #FF9966;
-}
-#hero-page-content #choose-ability-button:hover {
-  border-color: #FF6600;
-  background-color: #FF9900;
-}
-.hero-statistics h2 {
-  font-size: 14pt;
-}
-.hero-statistics h3 {
-  font-size: 12pt;
-  padding-top: 0.5em;
+.hero-statistics .stat-record:hover {
+  background-color: #dddddd;
 }
 .hero-statistics .stat-record .value {
   float: right;
 }
+#choose-ability-button {
+  cursor: pointer;
+}
+.hero-ability-record {
+  margin-bottom: 1em;
+}
+.hero-ability-record:hover {
+  background-color: #dddddd;
+}
+.hero-ability-record .ability-name .ability-type {
+  font-weight: normal;
+  color: #999999;
+}
 .hero-abilities-list {
-  margin: 5px;
-}
-.hero-abilities-list .record {
   cursor: default;
-  padding: 2px;
-  margin: 2px;
-  border: 2px solid blue;
-  border-radius: 4px;
-  width: 250px;
 }
-.hero-abilities-list .record .icon {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  vertical-align: middle;
-}
-.hero-abilities-list .record .icon.magicmushroom {
-  background: url('../game/images/habilities.png') no-repeat scroll 0 0 transparent;
-}
-.hero-abilities-list .record .icon.regeneration {
-  background: url('../game/images/habilities.png') no-repeat scroll -32px 0 transparent;
-}
-.hero-abilities-list .record .icon.sidestep {
-  background: url('../game/images/habilities.png') no-repeat scroll -64px 0 transparent;
-}
-.hero-abilities-list .record .icon.menothere {
-  background: url('../game/images/habilities.png') no-repeat scroll -96px 0 transparent;
-}
-.hero-abilities-list .record .icon.runuppush {
-  background: url('../game/images/habilities.png') no-repeat scroll -128px 0 transparent;
-}
-.hero-abilities-list .record .icon.hit {
-  background: url('../game/images/habilities.png') no-repeat scroll -160px 0 transparent;
-}
-.hero-abilities-list .record .name {
-  font-weight: bold;
-  font-size: 12pt;
-  display: inline-block;
-  width: 190px;
-}
-.hero-abilities-list .record.battle {
-  border-color: #CC0000;
-  background-color: #CC3300;
-}
-.hero-abilities-list .record.battle:hover {
-  border-color: #FF0000;
-  background-color: #FF3300;
-}
-.chose-hero-ability-dialog {
-  width: 600px;
-}
-.chose-hero-ability-dialog .hero-abilities-list {
-  margin: 5px;
-}
-.chose-hero-ability-dialog .hero-abilities-list .record {
+.choose-hero-ability-dialog .hero-ability-record {
   cursor: pointer;
 }
