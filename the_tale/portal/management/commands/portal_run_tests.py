@@ -13,6 +13,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        subprocess.call("rm -f `find ./ -name '*.pyc'`", shell=True)
+
         tests = []
         for app_label in project_settings.INSTALLED_APPS:
             label = app_label.split('.')
