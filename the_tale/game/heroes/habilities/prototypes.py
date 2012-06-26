@@ -41,6 +41,10 @@ class AbilityPrototype(object):
     def use(self, *argv):
         raise NotImplemented('you should declare use method in child classes')
 
+    @classmethod
+    def on_miss(self, *argv):
+        raise NotImplemented('you should declare on_miss method in child classes')
+
 
 class HIT(AbilityPrototype):
 
@@ -58,6 +62,10 @@ class HIT(AbilityPrototype):
         damage = actor.context.modify_initial_damage(actor.basic_damage)
         enemy.change_health(-damage)
         messanger.add_message('hero_ability_hit', current_time, attacker=actor, defender=enemy, damage=damage)
+
+    @classmethod
+    def on_miss(cls, messanger, current_time, actor, enemy):
+        messanger.add_message('hero_ability_hit_miss', current_time, attacker=actor, defender=enemy)
 
 
 class MAGIC_MUSHROOM(AbilityPrototype):
@@ -97,6 +105,10 @@ class SIDESTEP(AbilityPrototype):
         enemy.context.use_ability_sidestep(cls.MISS_PROBABILITIES)
         messanger.add_message('hero_ability_sidestep', current_time, attacker=actor, defender=enemy)
 
+    @classmethod
+    def on_miss(cls, messanger, current_time, actor, enemy):
+        messanger.add_message('hero_ability__miss', current_time, attacker=actor, defender=enemy)
+
 
 class RUN_UP_PUSH(AbilityPrototype):
 
@@ -117,6 +129,11 @@ class RUN_UP_PUSH(AbilityPrototype):
         enemy.change_health(-damage)
         enemy.context.use_stun(cls.STUN_LENGTH)
         messanger.add_message('hero_ability_runuppush', current_time, attacker=actor, defender=enemy, damage=damage)
+
+    @classmethod
+    def on_miss(cls, messanger, current_time, actor, enemy):
+        messanger.add_message('hero_ability_runuppush_miss', current_time, attacker=actor, defender=enemy)
+
 
 
 class REGENERATION(AbilityPrototype):

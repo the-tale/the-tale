@@ -136,6 +136,8 @@ pgf.game.widgets.Time = function(selector, updater, widgets, params) {
 // quests code
 
 pgf.game.widgets._RenderActor = function(index, actor, element) {
+
+    pgf.base.HideTooltips();
     
     var nameElement = jQuery('.pgf-name', element);
 
@@ -151,7 +153,7 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         popoverTitle = 'персонаж';
 
         var place = widgets.mapManager.GetPlaceData(data.place_id);
-        var race = pgf.game.constants.GENDER_TO_STR[data.race];
+        var race = pgf.game.constants.RACE_TO_STR[data.race];
         var gender = pgf.game.constants.GENDER_TO_STR[data.gender];
         var profeccion = pgf.game.constants.PERSON_TYPE_TO_STR[data.type];
 

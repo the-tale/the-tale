@@ -14,6 +14,8 @@ from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from game.bundles import BundlePrototype
 from game.heroes.prototypes import HeroPrototype, ChooseAbilityTaskPrototype
 from game.heroes.habilities import prototypes as common_abilities
+from game.heroes.habilities import ABILITIES
+from game.heroes.habilities.prototypes import ABILITIES_LOGIC_TYPE
 from game.prototypes import TimePrototype
 
 from game.logic import create_test_map
@@ -28,6 +30,11 @@ class HabilitiesTest(TestCase):
 
     def tearDown(self):
         pass
+
+    def test_on_miss_method_exists(self):
+        for ability_class in ABILITIES.values():
+            if ability_class.LOGIC_TYPE == ABILITIES_LOGIC_TYPE.WITH_CONTACT:
+                self.assertTrue('on_miss' in ability_class.__dict__)
 
     def test_hit(self):
         common_abilities.HIT.use(self.messanger, TimePrototype.get_current_time(), self.attacker, self.defender)

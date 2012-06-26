@@ -73,7 +73,7 @@ def strike(current_time, attacker, defender, messanger):
 def strike_with_contact(current_time, ability, attacker, defender, messanger):
 
     if attacker.context.should_miss_attack():
-        messanger.add_message('action_battlepve1x1_battle_miss', current_time, attacker=attacker, ability=ability, defender=defender)
+        ability.on_miss(messanger, current_time, attacker, defender)
         return
 
     ability.use(messanger, current_time, attacker, defender)

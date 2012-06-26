@@ -12,6 +12,10 @@ pgf.base.tooltipsArgs = { animation: true,
                           delay: { show: 500,
                                    hidr: 100 } };
 
+pgf.base.HideTooltips = function() {
+  jQuery('.popover').remove();
+};
+
 pgf.base.RenderTemplateList = function(selector, data, newElementCallback, params) {
     
     var container = jQuery(selector);
