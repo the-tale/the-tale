@@ -519,6 +519,8 @@ class ActionMoveToPrototype(ActionPrototype):
         if self.percents >= 1:
             self.percents = 1
 
+        self.hero.last_action_percents = self.percents
+
         self.updated = True
 
         return True
@@ -673,7 +675,9 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
             return False
 
         self.mob.strike_by(percents)
+
         self.percents = 1 - self.mob.health_percents
+        self.hero.last_action_percents = self.percents
 
         self.updated = True
 
@@ -747,6 +751,8 @@ class ActionResurrectPrototype(ActionPrototype):
             return False
 
         self.percents = 1.0
+        self.hero.last_action_percents = self.percents
+
         self.updated = True
         return True
 

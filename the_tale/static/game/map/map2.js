@@ -197,9 +197,7 @@ pgf.game.map.MapManager = function(params) {
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
 
-        for (var hero_id in updater.data.data.heroes) {
-            RefreshHero(updater.data.data.heroes[hero_id]);
-        }
+        RefreshHero(updater.data.data.hero);
 
         if (params.OnDataUpdated) {
             params.OnDataUpdated();

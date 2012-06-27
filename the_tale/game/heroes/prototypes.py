@@ -260,14 +260,13 @@ class HeroPrototype(object):
         from game.actions.models import Action
         from game.actions.prototypes import ACTION_TYPES
 
-        if not hasattr(self, '_actions'):
-            self._actions = []
-            actions = list(Action.objects.filter(hero=self.model).order_by('order'))
-            for action in actions:
-                action_object = ACTION_TYPES[action.type](model=action)
-                self._actions.append(action_object)
+        actions = []
+        actions_models = list(Action.objects.filter(hero=self.model).order_by('order'))
+        for action in actions_models:
+            action_object = ACTION_TYPES[action.type](model=action)
+            actions.append(action_object)
 
-        return self._actions
+        return actions
 
     @property
     def position(self):
@@ -406,6 +405,7 @@ class HeroPrototype(object):
                 self.gender == other.gender and
                 self.race == other.race and
                 self.level == other.level and
+                self.last_action_percents == other.last_action_percents and
                 self.experience == other.experience and
                 self.destiny_points == other.destiny_points and
                 self.health == other.health and

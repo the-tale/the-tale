@@ -8,7 +8,6 @@ from dext.utils.decorators import nested_commit_on_success
 
 from common.amqp_queues import BaseWorker
 
-from game.heroes.prototypes import HeroPrototype
 from game.bundles import BundlePrototype
 from game.prototypes import TimePrototype
 

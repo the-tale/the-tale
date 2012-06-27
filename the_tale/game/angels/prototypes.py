@@ -37,6 +37,7 @@ class AngelPrototype(object):
     def energy_maximum(self): return c.ANGEL_ENERGY_MAX
 
     def get_energy_at_turn(self, turn_number):
+        # return 10
         # print turn_number, self.updated_at_turn, c.ANGEL_ENERGY_REGENERATION_PERIOD
         regeneration_periods = int(turn_number - self.updated_at_turn) / c.ANGEL_ENERGY_REGENERATION_PERIOD
         return min(self.energy_maximum, self.model.energy + c.ANGEL_ENERGY_REGENERATION_AMAUNT * regeneration_periods)

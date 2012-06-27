@@ -60,15 +60,21 @@ class HelpAbilityTest(TestCase):
         current_time = TimePrototype.get_current_time()
 
         self.bundle.add_action(actions_prototypes.ActionMoveToPrototype.create(self.action_idl, current_time, move_place))
+        action_move = self.bundle.tests_get_last_action()
 
         current_time.increment_turn()
         self.bundle.process_turn(current_time)
 
         old_road_percents = self.hero.position.percents
+        old_percents = action_move.percents
 
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: HELP_CHOICES.TELEPORT):
             self.assertTrue(self.ability.use(current_time, self.bundle, self.angel, self.hero, None))
-            self.assertTrue(old_road_percents < self.hero.position.percents)
+
+        self.assertTrue(old_road_percents < self.hero.position.percents)
+        self.assertTrue(old_percents < action_move.percents)
+        self.assertEqual(self.hero.last_action_percents, action_move.percents)
+
 
     def test_lighting(self):
         current_time = TimePrototype.get_current_time()
@@ -79,20 +85,30 @@ class HelpAbilityTest(TestCase):
         self.bundle.process_turn(current_time)
 
         old_mob_health = action_battle.mob.health
+        old_percents = action_battle.percents
 
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: HELP_CHOICES.LIGHTING):
             self.assertTrue(self.ability.use(current_time, self.bundle, self.angel, self.hero, None))
-            self.assertTrue(old_mob_health > action_battle.mob.health)
+
+        self.assertTrue(old_mob_health > action_battle.mob.health)
+        self.assertEqual(self.hero.last_action_percents, action_battle.percents)
+        self.assertTrue(old_percents < action_battle.percents)
 
     def test_resurrect(self):
         current_time = TimePrototype.get_current_time()
 
         self.hero.kill()
         self.bundle.add_action(actions_prototypes.ActionResurrectPrototype.create(self.action_idl, current_time))
+        action_resurrect = self.bundle.tests_get_last_action()
+
+        old_percents = action_resurrect.percents
 
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
             current_time.increment_turn()
             self.assertTrue(self.ability.use(current_time, self.bundle, self.angel, self.hero, None))
             self.bundle.process_turn(current_time)
-            self.assertEqual(self.hero.health, self.hero.max_health)
-            self.assertEqual(self.hero.is_alive, True)
+
+        self.assertEqual(self.hero.health, self.hero.max_health)
+        self.assertEqual(self.hero.is_alive, True)
+        self.assertTrue(old_percents < action_resurrect.percents)
+        self.assertEqual(self.hero.last_action_percents, action_resurrect.percents)
