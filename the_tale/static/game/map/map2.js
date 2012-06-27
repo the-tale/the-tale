@@ -167,7 +167,9 @@ pgf.game.map.MapManager = function(params) {
     }
     
     function RefreshHero(hero) {
-        dynamicData.heroes[hero.id] = hero;
+        if (hero) {
+            dynamicData.heroes[hero.id] = hero;            
+        }
     }
     
     function GetMapDataForRect(x, y, w, h) {
