@@ -635,6 +635,42 @@
       "template": "перебирает содержимое рюкзака"
     }
   ], 
+  "hero_ability_regeneration": [
+    {
+      "internals": [
+        [
+          "восстановил", 
+          [
+            "actor"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "восстановил"
+        ]
+      ], 
+      "externals": [
+        [
+          "actor", 
+          [], 
+          "e_0", 
+          [
+            "им"
+          ], 
+          "actor"
+        ], 
+        [
+          "health", 
+          [], 
+          "e_1", 
+          [], 
+          "health"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s %(e_1)s HP"
+    }
+  ], 
   "hero_ability_magicmushroom": [
     {
       "internals": [
@@ -847,33 +883,6 @@
         ]
       ], 
       "template": "Глупый торговец, отдал %(e_0)s %(i_0)s за %(i_1)s-то %(e_1)s"
-    }
-  ], 
-  "quest_spying_choice_openup_result_openup": [
-    {
-      "internals": [
-        [
-          "решил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "решил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s придти с повинной"
     }
   ], 
   "quest_caravan_description": [
@@ -1275,6 +1284,13 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s применить силу"
+    }
+  ], 
+  "quest_spying_choice_openup_variant_open_up": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "поддаться укорам совести и раскрыться"
     }
   ], 
   "action_rest_resring": [
@@ -1796,13 +1812,6 @@
       "internals": [], 
       "externals": [], 
       "template": "украсть-украсть-украсть"
-    }
-  ], 
-  "quest_spying_choice_openup_variant_openup": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "поддаться укорам совести и раскрыться"
     }
   ], 
   "action_equipping_change_item": [
@@ -2699,42 +2708,6 @@
       "template": "'Ну и грязища - второй раз за день %(i_0)s в лужу'"
     }
   ], 
-  "hero_ability_regeneration": [
-    {
-      "internals": [
-        [
-          "восстановил", 
-          [
-            "actor"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "восстановил"
-        ]
-      ], 
-      "externals": [
-        [
-          "actor", 
-          [], 
-          "e_0", 
-          [
-            "им"
-          ], 
-          "actor"
-        ], 
-        [
-          "health", 
-          [], 
-          "e_1", 
-          [], 
-          "health"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s %(e_1)s HP"
-    }
-  ], 
   "quest_caravan_journal_move_to_point": [
     {
       "internals": [
@@ -2937,6 +2910,33 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s %(e_1)s %(i_1)s в награду за выполнение задания"
+    }
+  ], 
+  "quest_spying_choice_openup_result_open_up": [
+    {
+      "internals": [
+        [
+          "решил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "решил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s придти с повинной"
     }
   ], 
   "quest_notmywork_journal_get_reward": [
