@@ -20,6 +20,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.EQUIP_SLOTS_NUMBER, 12)
         self.assertEqual(c.ARTIFACTS_PER_LVL, 4)
         self.assertEqual(c.EXP_PER_MOB, 1.0)
+        self.assertEqual(c.EXP_MULTIPLICATOR, 10.0)
         self.assertEqual(c.BATTLE_LENGTH, 16)
         self.assertEqual(c.INTERVAL_BETWEEN_BATTLES, 5)
         self.assertEqual(c.BATTLES_BEFORE_HEAL, 8)
