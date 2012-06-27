@@ -35,9 +35,11 @@ class GameResource(Resource):
                 angel = self.account.angel.id
 
         if angel:
+
             foreign_angel = AngelPrototype.get_by_id(int(angel))
 
-            data['heroes'] = {}
+            if foreign_angel is None:
+                return self.json(status='error', error=u'Вы запрашиваете информацию несуществующего игрока')
 
             hero = foreign_angel.get_hero()
             data['hero'] = hero.ui_info()

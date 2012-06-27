@@ -17,11 +17,14 @@ class AngelPrototype(object):
 
     @classmethod
     def get_by_id(cls, id_):
-        return cls(model=Angel.objects.get(id=id_))
+        try:
+            return cls(model=Angel.objects.get(id=id_))
+        except Angel.DoesNotExist:
+            return None
 
     @classmethod
-    def get_by_account(cls, account):
-        return cls(model=Angel.objects.get(account_id=account.id))
+    def get_by_account_id(cls, account_id):
+        return cls(model=Angel.objects.get(account_id=account_id))
 
     @property
     def id(self): return self.model.id

@@ -53,7 +53,7 @@ class AccountPrototype(object):
     @property
     def angel(self):
         if not hasattr(self, '_angel'):
-            self._angel = AngelPrototype.get_by_account(self)
+            self._angel = AngelPrototype.get_by_account_id(self.id)
         return self._angel
 
     @property
@@ -97,7 +97,7 @@ class AccountPrototype(object):
         return bundle.is_single
 
     def remove(self):
-        registration_task = RegistrationTaskPrototype.get_by_account(self)
+        registration_task = RegistrationTaskPrototype.get_by_account_id(self.id)
         if registration_task:
             registration_task.unbind_from_account()
 
@@ -129,9 +129,9 @@ class RegistrationTaskPrototype(object):
             return None
 
     @classmethod
-    def get_by_account(cls, account):
+    def get_by_account_id(cls, account_id):
         try:
-            model = RegistrationTask.objects.get(account_id=account.id)
+            model = RegistrationTask.objects.get(account_id=account_id)
             return cls(model=model)
         except RegistrationTask.DoesNotExist:
             return None
