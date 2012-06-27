@@ -44,7 +44,7 @@ class AbilitiesResource(Resource):
         if form.is_valid():
 
             if form.c.angel_id != self.account.angel.id:
-                return self.json(status='error', errors='Вы пытаетесь провести операцию для чужого героя, ай-яй-яй, как нехорошо!')
+                return self.json(status='error', error='Вы пытаетесь провести операцию для чужого героя, ай-яй-яй, как нехорошо!')
 
             task = self.ability.activate(form, self.time)
 
