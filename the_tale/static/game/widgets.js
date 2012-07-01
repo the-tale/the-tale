@@ -144,12 +144,13 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
     var data = actor[2];
 
     jQuery('.pgf-role', element).text(actor[0]);
-    nameElement.text(data.name);
 
     var popoverTitle = undefined;
     var popoverContent = undefined;
 
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.PERSON) {
+        nameElement.text(data.name);
+
         popoverTitle = 'персонаж';
 
         var place = widgets.mapManager.GetPlaceData(data.place_id);
@@ -166,9 +167,12 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
     }
     
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.PLACE) {
-        popoverTitle = 'город';
 
         var place = widgets.mapManager.GetPlaceData(data.id);
+
+        nameElement.text(place.name);
+
+        popoverTitle = 'город';
 
         var content = jQuery('#pgf-popover-place').clone();
         jQuery('.pgf-size', content).text(place.size);
