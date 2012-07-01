@@ -1,6 +1,11 @@
 # coding: utf-8
 
+from django.utils.log import getLogger
+from django.conf import settings as project_settings
+
 from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
+
+logger=getLogger('the-tale.workers.game_logic')
 
 class Writer(object):
 
@@ -20,13 +25,13 @@ class Writer(object):
     def get_msg_choice_result_id(self, choice, answer): return 'quest_%s_choice_%s_result_%s' % (self.quest_type, choice, answer)
 
     def get_message(self, type_):
-        # print type_
         template = get_vocabulary().get_random_phrase(type_, None)
-        # print template
-        # print '----------------------'
-        # print [k for k in get_vocabulary().data.keys() if k.startswith('quest_notmyworkline_writer_base_choice')]
         if template:
             return template.substitute(get_dictionary(), self.substitution)
+
+        if not project_settings.TESTS_RUNNING:
+            logger.error('writer:get_message: unknown template type: %s' % type_)
+
         return None
 
     def get_description_msg(self):

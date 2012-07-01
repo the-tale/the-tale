@@ -821,7 +821,7 @@ class ActionInPlacePrototype(ActionPrototype):
             if coins is not None:
                 self.hero.statistics.change_money_spend_for_heal(coins)
                 self.hero.health = self.hero.max_health
-                self.hero.add_message('action_instant_heal', current_time, important=True, hero=self.hero, coins=coins)
+                self.hero.add_message('action_inplace_instant_heal', current_time, important=True, hero=self.hero, coins=coins)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level))
@@ -830,26 +830,29 @@ class ActionInPlacePrototype(ActionPrototype):
                 artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
                 self.hero.bag.put_artifact(artifact)
                 self.hero.statistics.change_artifacts_had(1)
-                self.hero.add_message('buying_artifact', current_time, important=True, hero=self.hero, coins=coins, artifact=artifact)
+                self.hero.add_message('action_inplace_buying_artifact', current_time, important=True, hero=self.hero, coins=coins, artifact=artifact)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
             coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level))
             if coins is not None:
                 self.hero.statistics.change_money_spend_for_sharpening(coins)
                 # select filled slot
-                for slot in SLOTS_LIST:
+                choices = copy.copy(SLOTS_LIST)
+                random.shuffle(choices)
+                for slot in choices:
                     artifact = self.hero.equipment.get(slot)
                     if artifact is not None:
                         # sharpening artefact
                         artifact.power += 1
                         self.hero.equipment.updated = True
-                        self.hero.add_message('sharpening_artifact', current_time, important=True, hero=self.hero, coins=coins, artifact=artifact)
+                        self.hero.add_message('action_inplace_sharpening_artifact', current_time, important=True, hero=self.hero, coins=coins, artifact=artifact)
+                        break
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.USELESS:
             coins = self.try_to_spend_money(f.useless_price(self.hero.level))
             if coins is not None:
                 self.hero.statistics.change_money_spend_for_useless(coins)
-                self.hero.add_message('action_spend_useless', current_time, important=True, hero=self.hero, coins=coins)
+                self.hero.add_message('action_inplace_spend_useless', current_time, important=True, hero=self.hero, coins=coins)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.IMPACT:
             coins = self.try_to_spend_money(f.impact_price(self.hero.level))
@@ -859,10 +862,10 @@ class ActionInPlacePrototype(ActionPrototype):
                 person = random.choice(self.hero.position.place.persons)
                 if random.choice([True, False]):
                     workers_environment.highlevel.cmd_change_person_power(person.id, impact)
-                    self.hero.add_message('action_impact_good', current_time, important=True, hero=self.hero, coins=coins, person=person)
+                    self.hero.add_message('action_inplace_impact_good', current_time, important=True, hero=self.hero, coins=coins, person=person)
                 else:
                     workers_environment.highlevel.cmd_change_person_power(person.id, -impact)
-                    self.hero.add_message('action_impact_bad', current_time, important=True, hero=self.hero, coins=coins, person=person)
+                    self.hero.add_message('action_inplace_impact_bad', current_time, important=True, hero=self.hero, coins=coins, person=person)
 
         else:
             raise ActionException('wrong hero money spend type: %d' % self.hero.next_spending)

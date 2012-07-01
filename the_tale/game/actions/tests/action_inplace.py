@@ -139,15 +139,12 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         money = f.sharpening_artifact_price(self.hero.level)
 
+        old_power = self.hero.power
+
         self.hero.money = money
-        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
-        artifact_power = artifact.power
-        equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
-        self.hero.equipment.unequip(equip_slot)
-        self.hero.equipment.equip(equip_slot, artifact)
         self.bundle.process_turn(TimePrototype.get_current_time())
         self.assertTrue(self.hero.money < f.sharpening_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
-        self.assertEqual(artifact_power + 1, self.hero.equipment.get(equip_slot).power)
+        self.assertEqual(old_power + 1, self.hero.power)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)

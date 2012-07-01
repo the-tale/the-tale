@@ -1,6 +1,9 @@
 # coding: utf-8
 import os
+import sys
 from meta_config import meta_config
+
+TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 HOME_DIR = os.getenv("HOME")

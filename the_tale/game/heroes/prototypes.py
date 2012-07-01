@@ -4,6 +4,8 @@ import time
 import datetime
 import random
 
+from django.utils.log import getLogger
+from django.conf import settings as project_settings
 
 from dext.utils import s11n
 from dext.utils import database
@@ -27,6 +29,8 @@ from game.text_generation import get_vocabulary, get_dictionary, prepair_substit
 
 from game.balance import constants as c, formulas as f
 from game.prototypes import TimePrototype, GameTime
+
+logger=getLogger('the-tale.workers.game_logic')
 
 class HeroPrototype(object):
 
@@ -331,14 +335,9 @@ class HeroPrototype(object):
         args = prepair_substitution(kwargs)
         template = get_vocabulary().get_random_phrase(type_)
 
-        # from django.utils.log import getLogger
-        # logger=getLogger('the-tale.workers.game_logic')
-        # logger.error(type_)
-
         if template is None:
-            # TODO: raise exception in production (not when tests running)
-            # from textgen.exceptions import TextgenException
-            # raise TextgenException(u'ERROR: unknown template type: %s' % type_)
+            if not project_settings.TESTS_RUNNING:
+                logger.error('hero:add_message: unknown template type: %s' % type_)
             return
         msg = template.substitute(get_dictionary(), args)
         self.push_message(self._prepair_message(current_time, msg), important=important)
