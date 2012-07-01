@@ -7,13 +7,31 @@ if (!pgf.base) {
     pgf.base = {};
 }
 
+pgf.base.TooltipPlacement = function (tip, element) {
+    var offset = $(element).offset();
+    height = $(document).outerHeight();
+    width = $(document).outerWidth();
+    vert = 0.5 * height - offset.top;
+    vertPlacement = vert > 0 ? 'bottom' : 'top';
+    horiz = 0.5 * width - offset.left;
+    horizPlacement = horiz > 0 ? 'right' : 'left';
+    placement = Math.abs(horiz) > Math.abs(vert) ?  horizPlacement : vertPlacement;
+    return placement;
+};
+
 pgf.base.tooltipsArgs = { animation: true,
-                          placement: 'left',
+                          placement: pgf.base.TooltipPlacement,
                           delay: { show: 500,
-                                   hidr: 100 } };
+                                   hide: 100 } };
+
+pgf.base.popoverArgs = { animation: true,
+                         placement: pgf.base.TooltipPlacement,
+                         delay: { show: 500,
+                                  hide: 100 } };
 
 pgf.base.HideTooltips = function() {
   jQuery('.popover').remove();
+  jQuery('.tooltip').remove();
 };
 
 pgf.base.RenderTemplateList = function(selector, data, newElementCallback, params) {

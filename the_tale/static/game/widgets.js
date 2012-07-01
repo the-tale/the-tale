@@ -178,10 +178,10 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         jQuery('.pgf-size', content).text(place.size);
         popoverContent = content.html();
     }
-
-    nameElement.popover({delay: 250,
-                         title: popoverTitle,
-                         content: popoverContent});
+    
+    var popoverArgs = jQuery.extend(true, {}, pgf.base.popoverArgs, {title: popoverTitle,
+                                                                     content: popoverContent});
+    nameElement.popover(popoverArgs);
 };
 
 pgf.game.widgets._RenderChoice = function (index, choice, element) {
