@@ -1,11 +1,11 @@
 # coding: utf-8
 
-from django.utils.log import getLogger
-from django.conf import settings as project_settings
+# from django.utils.log import getLogger
+# from django.conf import settings as project_settings
 
 from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 
-logger=getLogger('the-tale.workers.game_logic')
+# logger=getLogger('the-tale.workers.game_logic')
 
 class Writer(object):
 
@@ -29,8 +29,8 @@ class Writer(object):
         if template:
             return template.substitute(get_dictionary(), self.substitution)
 
-        if not project_settings.TESTS_RUNNING:
-            logger.error('writer:get_message: unknown template type: %s' % type_)
+        # if not project_settings.TESTS_RUNNING:
+        #     logger.error('writer:get_message: unknown template type: %s' % type_)
 
         return None
 
