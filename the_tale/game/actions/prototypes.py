@@ -968,9 +968,9 @@ class ActionEquippingPrototype(ActionPrototype):
             self.hero.change_equipment(slot, unequipped, equipped)
             if equipped:
                 if unequipped:
-                    self.hero.add_message('action_equiping_change_item', current_time, important=True, hero=self.hero, unequipped=unequipped, equipped=equipped)
+                    self.hero.add_message('action_equipping_change_item', current_time, important=True, hero=self.hero, unequipped=unequipped, equipped=equipped)
                 else:
-                    self.hero.add_message('action_equiping_equip_item', current_time, important=True, hero=self.hero, equipped=equipped)
+                    self.hero.add_message('action_equipping_equip_item', current_time, important=True, hero=self.hero, equipped=equipped)
             else:
                 self.state = self.STATE.PROCESSED
 

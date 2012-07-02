@@ -56,13 +56,17 @@ BAG_SIZE_TO_SELL_LOOT_FRACTION = float(0.33) # процент заполненн
 
 # относительные размеры различных трат
 
-INSTANT_HEAL_PRICE_FRACTION = float(0.3) # моментальное лечение
-BUY_ARTIFACT_PRICE_FRACTION = float(2.0) # покупка нового артефакта
-SHARPENING_ARTIFACT_PRICE_FRACTION = float(1.5) # "заточка" экипированного артефакта
-USELESS_PRICE_FRACTION = float(0.2) # безполезные траты
-IMPACT_PRICE_FRACTION = float(1.5) # изменение (+/-) влияния персонажей
+# эвристический мультипликатор для нормальной цены дейсвия, учитывающий стронние доходы
+# не учтённые в формулах (доходы по заданиям и прочему)
+NORMAL_ACTION_PRICE_MULTIPLYER = float(1.2)
 
-SELL_ARTIFACT_PRICE_FRACTION = float(0.15) # часть цены, за которую артефакты продаются
+INSTANT_HEAL_PRICE_FRACTION = float(0.3) # моментальное лечение
+BUY_ARTIFACT_PRICE_FRACTION = float(1.5) # покупка нового артефакта
+SHARPENING_ARTIFACT_PRICE_FRACTION = float(2.0) # "заточка" экипированного артефакта
+USELESS_PRICE_FRACTION = float(0.4) # безполезные траты
+IMPACT_PRICE_FRACTION = float(2.5) # изменение (+/-) влияния персонажей
+
+SELL_ARTIFACT_PRICE_FRACTION = float(0.1) # часть цены, за которую артефакты продаются
 
 PRICE_DELTA = float(0.2) # дельта на цену PRICE * (1 + random.uniform(-0.2, 0.2))
 
@@ -119,7 +123,7 @@ EXP_PER_HOUR = float(BATTLES_PER_HOUR * EXP_PER_MOB)  # опыт в час ;
 
 # вероятности получения разных видов наград по выполнению квеста
 # принимаем, что награда по ценности будет эквивалентна получению артефакта
-QUEST_REWARD_MONEY_FRACTION = 0.5 # вероятность получения денег
+QUEST_REWARD_MONEY_FRACTION = 0.8 # вероятность получения денег (имеет приоритет, т.к. артефакты должны быть редкой наградой)
 QUEST_REWARD_ARTIFACT_FRACTION = 1 - QUEST_REWARD_MONEY_FRACTION # вероятность получения артефакта
 
 DESTINY_POINT_IN_LEVELS = 5 # раз в сколько уровней давать очко абилок
@@ -155,3 +159,6 @@ GAME_SECONDS_IN_GAME_YEAR = int(GAME_SECONDS_IN_GAME_MONTH * GAME_MONTH_IN_GAME_
 _TURNS_IN_GAME_DAY = int(4 *(TURNS_IN_HOUR / 2))
 
 GAME_SECONDS_IN_TURN = int(GAME_SECONDS_IN_GAME_DAY / _TURNS_IN_GAME_DAY)
+
+# Карта
+MAP_CELL_LENGTH = float(3.0) # длина клетки в километрах

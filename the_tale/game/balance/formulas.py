@@ -120,7 +120,7 @@ def total_gold_at_lvl(lvl): return int(sum(expected_gold_at_lvl(x) for x in xran
 # при этом на него копятся деньги, а по накоплении оно может возникнуть с какой-то большой вероятностью (что бы срабатывать достаточно быстро, не не сиюминуту)
 # выбираем второй вараинт, как более управляемый
 
-def normal_action_price(lvl): return int(expected_gold_in_day(lvl))
+def normal_action_price(lvl): return int(expected_gold_in_day(lvl) * c.NORMAL_ACTION_PRICE_MULTIPLYER)
 def instant_heal_price(lvl): return int(normal_action_price(lvl) * c.INSTANT_HEAL_PRICE_FRACTION)
 def buy_artifact_price(lvl): return int(normal_action_price(lvl) * c.BUY_ARTIFACT_PRICE_FRACTION)
 def sharpening_artifact_price(lvl): return int(normal_action_price(lvl) * c.SHARPENING_ARTIFACT_PRICE_FRACTION)

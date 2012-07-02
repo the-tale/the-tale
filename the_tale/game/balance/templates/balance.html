@@ -19,7 +19,7 @@
   </tr>
   {% endmacro %}
 
-  <table>
+  <table class="table table-striped table-condensed">
     <thead>
       <tr>
         <td class="center">параметр</td>
@@ -39,7 +39,7 @@
 
   <h1>прочие параметры</h1>
 
-  <table>
+  <table class="table table-striped table-condensed">
     <thead>
       <tr>
         <td class="center">параметр</td>
@@ -77,8 +77,10 @@
 
   Всё, что ниже, должно зависеть от уровня, не от времени, т.к. время в данном случае не точный параметр, а анализ всё равно ориентируется на уровень.
 
-  <table>
+  <table class="table table-striped table-condensed">
     <thead>
+    </thead>
+    <tbody>
 
       {{ time_row("время", tmp_time) }}
       {{ time_row("уровень", tmp_lvls)}}
@@ -104,8 +106,6 @@
       {{ time_row("золота в день", tmp_gold_in_day)}}
       {{ time_row("всего добыто золота до уровня", tmp_total_gold_at_lvl)}}
 
-    </thead>
-    <tbody>
     </tbody>
   </table>
 
