@@ -58,6 +58,10 @@
 #hero-equipment-block .equip-record .power-container {
   float: right;
 }
+#equipment-tabs a {
+  padding-right: 5px;
+  padding-left: 5px;
+}
 #hero-bag-block .bag-record {
   margin-top: 5px;
   cursor: default;

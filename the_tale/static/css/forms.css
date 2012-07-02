@@ -1,0 +1,7 @@
+form .control-group {
+  margin-right: 1em;
+}
+form .control-group textarea,
+form .control-group input {
+  width: 100%;
+}

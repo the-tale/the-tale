@@ -5,6 +5,8 @@
 @import "forum.css";
 
 @import "news.css";
+
+@import "forms.css";
 html {
   height: 100%;
 }

@@ -19,10 +19,3 @@
 .new-post-form {
   margin-top: 1em;
 }
-.new-post-form .post-content {
-  margin-right: 1em;
-}
-.new-post-form textarea,
-.new-post-form input {
-  width: 100%;
-}
