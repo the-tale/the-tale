@@ -14,7 +14,7 @@ from accounts.prototypes import AccountPrototype, RegistrationTaskPrototype, Cha
 from accounts.models import REGISTRATION_TASK_STATE
 from accounts import forms
 from accounts.conf import accounts_settings
-from accounts.logic import logout_user, login_user
+from accounts.logic import logout_user, login_user, force_login_user
 
 from portal.workers.environment import workers_environment as infrastructure_workers_environment
 
@@ -155,6 +155,8 @@ class AccountsResource(Resource):
                                   'task': None} )
 
         task.process(logger)
+
+        force_login_user(self.request, task.account.user)
 
         return self.template('accounts/confirm_email.html',
                              {'task': task} )

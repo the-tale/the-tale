@@ -16,7 +16,7 @@ class AbilitiesResource(Resource):
         self.ability_type = ability_type
 
         if self.account is None:
-            raise Error(u'Вы должны представиться')
+            raise Error(u'Вам необходимо войти на сайт')
 
         if self.ability is None:
             raise Error(u'У вас нет такой способности')

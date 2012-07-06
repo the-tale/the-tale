@@ -299,3 +299,17 @@ class TestProfileRequests(TestCase):
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(django_authenticate(username='test_nick', password='123456').email, 'test_user@test.ru')
+
+
+    def test_profile_confirm_email_for_unlogined(self):
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.post(reverse('accounts:profile-update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
+        response = self.client.get(reverse('accounts:logout'))
+
+        uuid = ChangeCredentialsTask.objects.all()[0].uuid
+
+        response = self.client.get(reverse('accounts:confirm-email')+'?uuid='+uuid)
+
+        # check if we loggined
+        response = self.client.get(reverse('accounts:login'))
+        self.assertEqual(response.status_code, 302) # there will be redirect if user loginned

@@ -1,6 +1,7 @@
 # coding: utf-8
 import datetime
 
+from django.conf import settings as project_settings
 from django.contrib.auth.models import User
 from django.contrib.auth import login as django_login, authenticate as django_authenticate, logout as django_logout
 
@@ -53,9 +54,23 @@ def register_user(nick, email=None, password=None):
 
 
 def login_user(request, username=None, password=None):
-    request.session.flush()
     user = django_authenticate(username=username, password=password)
+
+    if request.user.id != user.id:
+        request.session.flush()
+
     django_login(request, user)
+
+
+def force_login_user(request, user):
+
+    if request.user.id != user.id:
+        request.session.flush()
+
+    user.backend = project_settings.AUTHENTICATION_BACKENDS[0]
+
+    django_login(request, user)
+
 
 
 def logout_user(request):
