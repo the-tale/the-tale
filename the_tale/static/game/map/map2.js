@@ -599,11 +599,21 @@ pgf.game.map.NavigationLayer = function(selector, params) {
                          helper: 'original',
                          revert: true,
                          revertDuration: 0,
-                         scroll: false,
+                         scroll: false
                         });
 
-    container.mousemove(function(e) {OnMove(pos.x + e.offsetX, pos.y + e.offsetY);});
-    container.mouseenter(function(e){OnMouseEnter();})
-    container.mouseleave(function(e){OnMouseLeave();})
-    container.click(function(e){OnClick(pos.x + e.offsetX, pos.y + e.offsetY)})
+    container.mousemove(function(e) {
+                            var offset = container.offset();
+                            var x = e.pageX - offset.left;
+                            var y = e.pageY - offset.top;
+                            OnMove(pos.x + x, pos.y + y);
+                        });
+    container.mouseenter(function(e){OnMouseEnter();});
+    container.mouseleave(function(e){OnMouseLeave();});
+    container.click(function(e){
+                        var offset = container.offset();
+                        var x = e.pageX - offset.left;
+                        var y = e.pageY - offset.top;
+                        OnClick(pos.x + x, pos.y + y);
+                    });
 };
