@@ -1,0 +1,15 @@
+
+{% macro news_record(news) -%}
+
+<li class="news-record" style="margin-bottom: 1em;">
+  <h3>{{ news.caption }}</h3>
+  <div class="">{{ news.html_description|safe }}</div>
+  <div class="">
+    <span class="publication-date">опубликовано: <span class="pgf-format-time" data-timestamp="{{ news.created_at|timestamp }}"></span></span>
+    {% if news.forum_thread %}
+    <br/><a class="" href="{{ news.forum_thread.get_absolute_url() }}">обсудить на форуме</a>
+    {% endif %}
+  </div>
+</li>
+
+{%- endmacro %}

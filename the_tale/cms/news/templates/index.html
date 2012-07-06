@@ -1,20 +1,13 @@
 {% extends "news/base.html" %}
 
+{% import 'news/macros.html' as macros with context %}
+
 {% block news_content %}
 
 <ul class="unstyled">
 
-  {% for news_item in news %}
-  <li class="news-record" style="margin-bottom: 1em;">
-    <h3>{{ news_item.caption }}</h3>
-    <div class="">{{ news_item.html_description|safe }}</div>
-    <div class="">
-      <span class="publication-date">опубликовано: <span class="pgf-format-time" data-timestamp="{{ news_item.created_at|timestamp }}"></span></span>
-      {% if news_item.forum_thread %}
-      <br/><a class="" href="{{ news_item.forum_thread.get_absolute_url() }}">обсудить на форуме</a>
-      {% endif %}
-    </div>
-  </li>
+  {% for record in news %}
+  {{ macros.news_record(record) }}
   {% endfor %}
 </ul>
 

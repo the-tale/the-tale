@@ -4,6 +4,10 @@ from dext.views.resources import handler
 
 from common.utils.resources import Resource
 
+from cms.news.models import News
+
+from portal.conf import portal_settings
+
 class PortalResource(Resource):
 
     # render error taken by exception middleware
@@ -15,8 +19,10 @@ class PortalResource(Resource):
         return self.template('403.html', {'msg': msg})
 
     @handler('', method='get')
-    def game_page(self):
-        return self.template('portal/index.html')
+    def index(self):
+        news = News.objects.all().order_by('-created_at')[:portal_settings.NEWS_ON_INDEX]
+        return self.template('portal/index.html',
+                             {'news': news})
 
     @handler('manual', method='get')
     def manual(self):

@@ -12,10 +12,10 @@ class News(models.Model):
 
     description = models.TextField(null=False, blank=True, default='')
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=False, db_index=True)
 
     forum_thread = models.ForeignKey(Thread, null=True)
-    
+
     @property
     def html_description(self):
         return markdown.markdown(self.description)

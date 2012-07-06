@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 
+{% import 'news/macros.html' as news_macros with context %}
+
 {% block content %}
 
 <div class="row">
-  <div class="span12">
+  <div class="span8">
     <div class="block">
 
       <h2>Здравствуйте!</h2>
@@ -49,6 +51,18 @@
         {% endif %}
       </p>
 
+    </div>
+  </div>
+
+  <div class="span4">
+    <div class="block">
+      <h2>Новости <small><a href="{{ url('news:') }}">ещё...</a></small></h2>
+
+      <ul class="unstyled">
+        {% for record in news %}
+        {{ news_macros.news_record(record) }}
+        {% endfor %}
+      </ul>
     </div>
   </div>
 </div>
