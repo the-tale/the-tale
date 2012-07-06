@@ -15,6 +15,9 @@ class AbilitiesResource(Resource):
         super(AbilitiesResource, self).__init__(request, *argv, **kwargs)
         self.ability_type = ability_type
 
+        if self.account is None:
+            raise Error(u'Вы должны представиться')
+
         if self.ability is None:
             raise Error(u'У вас нет такой способности')
 
