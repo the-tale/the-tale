@@ -7,6 +7,7 @@ from dext.utils import database
 
 from game.heroes.logic import create_mob_for_hero
 from game.heroes.bag import SLOTS_LIST
+from game.heroes.statistics import MONEY_SOURCE
 
 from game.map.places.prototypes import get_place_by_model
 from game.map.roads.prototypes import get_road_by_model, WaymarkPrototype
@@ -805,10 +806,10 @@ class ActionInPlacePrototype(ActionPrototype):
         if self.hero.position.place.is_settlement:
             return self.process_settlement(current_time)
 
-    def try_to_spend_money(self, gold_amount):
+    def try_to_spend_money(self, gold_amount, money_source):
         if gold_amount <= self.hero.money:
             gold_amount = min(self.hero.money, int(gold_amount * (1 + random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA))))
-            self.hero.money -= gold_amount
+            self.hero.change_money(money_source, -gold_amount)
             self.hero.switch_spending()
             return gold_amount
 
@@ -817,25 +818,22 @@ class ActionInPlacePrototype(ActionPrototype):
     def spend_money(self, current_time):
 
         if self.hero.next_spending == ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
-            coins = self.try_to_spend_money(f.instant_heal_price(self.hero.level))
+            coins = self.try_to_spend_money(f.instant_heal_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_HEAL)
             if coins is not None:
-                self.hero.statistics.change_money_spend_for_heal(coins)
                 self.hero.health = self.hero.max_health
                 self.hero.add_message('action_inplace_instant_heal', current_time, important=True, hero=self.hero, coins=coins)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
-            coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level))
+            coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
             if coins is not None:
-                self.hero.statistics.change_money_spend_for_artifacts(coins)
                 artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
                 self.hero.bag.put_artifact(artifact)
                 self.hero.statistics.change_artifacts_had(1)
                 self.hero.add_message('action_inplace_buying_artifact', current_time, important=True, hero=self.hero, coins=coins, artifact=artifact)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
-            coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level))
+            coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_SHARPENING)
             if coins is not None:
-                self.hero.statistics.change_money_spend_for_sharpening(coins)
                 # select filled slot
                 choices = copy.copy(SLOTS_LIST)
                 random.shuffle(choices)
@@ -849,15 +847,13 @@ class ActionInPlacePrototype(ActionPrototype):
                         break
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.USELESS:
-            coins = self.try_to_spend_money(f.useless_price(self.hero.level))
+            coins = self.try_to_spend_money(f.useless_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_USELESS)
             if coins is not None:
-                self.hero.statistics.change_money_spend_for_useless(coins)
                 self.hero.add_message('action_inplace_spend_useless', current_time, important=True, hero=self.hero, coins=coins)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.IMPACT:
-            coins = self.try_to_spend_money(f.impact_price(self.hero.level))
+            coins = self.try_to_spend_money(f.impact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_IMPACT)
             if coins is not None:
-                self.hero.statistics.change_money_spend_for_impact(coins)
                 impact = f.impact_value(self.hero.level, 1)
                 person = random.choice(self.hero.position.place.persons)
                 if random.choice([True, False]):
@@ -1039,11 +1035,11 @@ class ActionTradingPrototype(ActionPrototype):
                 sell_price = self.get_sell_price(artifact)
 
                 if artifact.is_useless:
-                    self.hero.statistics.change_money_earned_from_loot(sell_price)
+                    money_source = MONEY_SOURCE.EARNED_FROM_LOOT
                 else:
-                    self.hero.statistics.change_money_earned_from_artifacts(sell_price)
+                    money_source = MONEY_SOURCE.EARNED_FROM_ARTIFACTS
 
-                self.hero.money = self.hero.money + sell_price
+                self.hero.change_money(money_source, sell_price)
                 self.hero.bag.pop_artifact(artifact)
 
                 self.hero.add_message('action_trading_sell_item', current_time, hero=self.hero, artifact=artifact, coins=sell_price)

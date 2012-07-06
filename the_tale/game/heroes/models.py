@@ -60,6 +60,7 @@ class Hero(models.Model):
     stat_money_earned_from_loot = models.BigIntegerField(default=0, null=False)
     stat_money_earned_from_artifacts = models.BigIntegerField(default=0, null=False)
     stat_money_earned_from_quests = models.BigIntegerField(default=0, null=False)
+    stat_money_earned_from_help = models.BigIntegerField(default=0, null=False)
 
     stat_money_spend_for_heal = models.BigIntegerField(default=0, null=False)
     stat_money_spend_for_artifacts = models.BigIntegerField(default=0, null=False)

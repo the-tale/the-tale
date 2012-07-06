@@ -14,6 +14,8 @@ from textgen.conf import textgen_settings
 from game.text_generation import get_dictionary
 
 from game import expected_values
+from game.logic import create_test_bundle, create_test_map
+from game.prototypes import TimePrototype
 
 morph = pymorphy.get_morph(textgen_settings.PYMORPHY_DICTS_DIRECTORY)
 
@@ -28,6 +30,22 @@ class GameTest(TestCase):
     def test_dictionary_consistency(self):
         dictionary = get_dictionary()
         self.assertEqual(len(dictionary.get_undefined_words()), 0)
+
+    def test_statistics_consistency(self):
+
+        create_test_map()
+
+        self.bundle = create_test_bundle('QuestActionTest')
+        self.hero = self.bundle.tests_get_hero()
+
+        current_time = TimePrototype.get_current_time()
+
+        for i in xrange(10000):
+            self.bundle.process_turn(current_time)
+            current_time.increment_turn()
+
+        self.assertEqual(self.hero.money, self.hero.statistics.money_earned - self.hero.statistics.money_spend)
+
 
     def test_vocabulary_consistency(self):
 

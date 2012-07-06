@@ -113,9 +113,12 @@ class HeroPrototype(object):
     def set_health(self, value): self.model.health = value
     health = property(get_health, set_health)
 
-    def get_money(self): return self.model.money
-    def set_money(self, value): self.model.money = value
-    money = property(get_money, set_money)
+    @property
+    def money(self): return self.model.money
+
+    def change_money(self, source, value):
+        self.statistics.change_money(source, abs(value))
+        self.model.money += value
 
     @property
     def abilities(self):

@@ -1,5 +1,21 @@
 # coding: utf-8
 
+from game.heroes.exceptions import HeroException
+
+class MONEY_SOURCE:
+
+    EARNED_FROM_LOOT = 0
+    EARNED_FROM_ARTIFACTS = 1
+    EARNED_FROM_QUESTS = 2
+    EARNED_FROM_HELP = 3
+
+    SPEND_FOR_HEAL = 1000
+    SPEND_FOR_ARTIFACTS = 1001
+    SPEND_FOR_SHARPENING = 1002
+    SPEND_FOR_USELESS = 1003
+    SPEND_FOR_IMPACT = 1004
+
+
 class HeroStatistics(object):
 
     def __init__(self, hero_model):
@@ -22,10 +38,38 @@ class HeroStatistics(object):
     #########################################
     # money
     #########################################
+
+    def change_money(self, source, value):
+
+        if source == MONEY_SOURCE.EARNED_FROM_LOOT:
+            self.hero_model.stat_money_earned_from_loot += value
+        elif source == MONEY_SOURCE.EARNED_FROM_ARTIFACTS:
+            self.hero_model.stat_money_earned_from_artifacts += value
+        elif source == MONEY_SOURCE.EARNED_FROM_QUESTS:
+            self.hero_model.stat_money_earned_from_quests += value
+        elif source == MONEY_SOURCE.EARNED_FROM_HELP:
+            self.hero_model.stat_money_earned_from_help += value
+
+        elif source == MONEY_SOURCE.SPEND_FOR_HEAL:
+            self.hero_model.stat_money_spend_for_heal += value
+        elif source == MONEY_SOURCE.SPEND_FOR_ARTIFACTS:
+            self.hero_model.stat_money_spend_for_artifacts += value
+        elif source == MONEY_SOURCE.SPEND_FOR_SHARPENING:
+            self.hero_model.stat_money_spend_for_sharpening += value
+        elif source == MONEY_SOURCE.SPEND_FOR_USELESS:
+            self.hero_model.stat_money_spend_for_useless += value
+        elif source == MONEY_SOURCE.SPEND_FOR_IMPACT:
+            self.hero_model.stat_money_spend_for_impact += value
+
+        else:
+            raise HeroException('unknown money source: %s' % source)
+
+
     @property
     def money_earned(self): return (self.money_earned_from_loot +
                                     self.money_earned_from_artifacts +
-                                    self.money_earned_from_quests)
+                                    self.money_earned_from_quests +
+                                    self.money_earned_from_help)
 
     @property
     def money_spend(self): return (self.money_spend_for_heal +
@@ -36,35 +80,31 @@ class HeroStatistics(object):
 
     @property
     def money_earned_from_loot(self): return self.hero_model.stat_money_earned_from_loot
-    def change_money_earned_from_loot(self, value): self.hero_model.stat_money_earned_from_loot += value
 
     @property
     def money_earned_from_artifacts(self): return self.hero_model.stat_money_earned_from_artifacts
-    def change_money_earned_from_artifacts(self, value): self.hero_model.stat_money_earned_from_artifacts += value
 
     @property
     def money_earned_from_quests(self): return self.hero_model.stat_money_earned_from_quests
-    def change_money_earned_from_quests(self, value): self.hero_model.stat_money_earned_from_quests += value
+
+    @property
+    def money_earned_from_help(self): return self.hero_model.stat_money_earned_from_help
+
 
     @property
     def money_spend_for_heal(self): return self.hero_model.stat_money_spend_for_heal
-    def change_money_spend_for_heal(self, value): self.hero_model.stat_money_spend_for_heal += value
 
     @property
     def money_spend_for_artifacts(self): return self.hero_model.stat_money_spend_for_artifacts
-    def change_money_spend_for_artifacts(self, value): self.hero_model.stat_money_spend_for_artifacts += value
 
     @property
     def money_spend_for_sharpening(self): return self.hero_model.stat_money_spend_for_sharpening
-    def change_money_spend_for_sharpening(self, value): self.hero_model.stat_money_spend_for_sharpening += value
 
     @property
     def money_spend_for_useless(self): return self.hero_model.stat_money_spend_for_useless
-    def change_money_spend_for_useless(self, value): self.hero_model.stat_money_spend_for_useless += value
 
     @property
     def money_spend_for_impact(self): return self.hero_model.stat_money_spend_for_impact
-    def change_money_spend_for_impact(self, value): self.hero_model.stat_money_spend_for_impact += value
 
     #########################################
     # different values

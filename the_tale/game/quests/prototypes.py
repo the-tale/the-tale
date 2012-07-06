@@ -6,6 +6,7 @@ from dext.utils import s11n
 from game.balance import constants as c, formulas as f
 from game.artifacts.storage import ArtifactsDatabase
 from game.heroes.prototypes import HeroPrototype
+from game.heroes.statistics import MONEY_SOURCE
 from game.quests.models import Quest, QuestsHeroes
 from game.quests.exceptions import QuestException
 
@@ -220,7 +221,7 @@ class QuestPrototype(object):
         if domain <= c.QUEST_REWARD_MONEY_FRACTION or cur_action.hero.bag_is_full:
             multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
             money = 1 + int(f.sell_artifact_price(cur_action.hero.level) * multiplier)
-            cur_action.hero.statistics.change_money_earned_from_quests(money)
+            cur_action.hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
             cur_action.hero.add_message('action_quest_reward_money', cur_time, important=True, hero=cur_action.hero, coins=money)
         else:
             storage = ArtifactsDatabase.storage()

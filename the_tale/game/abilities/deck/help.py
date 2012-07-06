@@ -1,6 +1,8 @@
 # coding: utf-8
 import random
 
+from game.heroes.statistics import MONEY_SOURCE
+
 from game.abilities.prototypes import AbilityPrototype
 
 from game.actions.prototypes import HELP_CHOICES
@@ -33,7 +35,7 @@ class Help(AbilityPrototype):
         if choice == HELP_CHOICES.MONEY:
             multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
             coins = int(f.normal_loot_cost_at_lvl(hero.level) * multiplier)
-            hero.money += coins
+            hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, coins)
             hero.add_message('angel_ability_money', current_time, hero=hero, coins=coins)
             return True
 
