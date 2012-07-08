@@ -69,17 +69,24 @@ class HabilitiesTest(TestCase):
 
     def test_critical_chance(self):
         self.assertFalse(self.attacker.context.crit_chance > 0)
-        common_abilities.CRITICAL_HIT.update_context(self.attacker.context, self.attacker)
+        common_abilities.CRITICAL_HIT.update_context(self.attacker, self.defender)
         self.assertTrue(self.attacker.context.crit_chance > 0)
 
     @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
     def test_berserk(self):
         old_damage = self.attacker.context.modify_initial_damage(100)
-        common_abilities.BERSERK.update_context(self.attacker.context, self.attacker)
+        common_abilities.BERSERK.update_context(self.attacker, self.defender)
         self.assertEqual(old_damage, self.attacker.context.modify_initial_damage(100))
         self.attacker.health = 1
-        common_abilities.BERSERK.update_context(self.attacker.context, self.attacker)
+        common_abilities.BERSERK.update_context(self.attacker, self.defender)
         self.assertTrue(old_damage < self.attacker.context.modify_initial_damage(100))
+
+    def test_ninja(self):
+        self.assertTrue(self.attacker.context.ninja == 0)
+        self.assertTrue(self.defender.context.ninja == 0)
+        common_abilities.NINJA.update_context(self.attacker, self.defender)
+        self.assertTrue(self.attacker.context.ninja == 0)
+        self.assertTrue(self.defender.context.ninja > 0)
 
 
 class HabilitiesViewsTest(TestCase):

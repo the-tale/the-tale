@@ -20,6 +20,7 @@ class BattleContextTest(TestCase):
         self.assertEqual(self.context.stun_length, 0)
         self.assertEqual(self.context.crit_chance, 0)
         self.assertEqual(self.context.berserk_damage_modifier, 1.0)
+        self.assertEqual(self.context.ninja, 0)
 
 
     def test_create(self):
@@ -107,6 +108,10 @@ class BattleContextTest(TestCase):
         self.context.use_berserk(1.5)
         self.assertTrue(old_damage < self.context.modify_initial_damage(100))
 
+    def test_ninja(self):
+        self.context.use_ninja(1.0)
+        for i in xrange(100):
+            self.assertTrue(self.context.should_miss_attack())
 
     def test_on_own_turn_with_empty_values(self):
         self.context.on_own_turn()

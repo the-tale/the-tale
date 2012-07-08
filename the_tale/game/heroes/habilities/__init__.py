@@ -75,9 +75,9 @@ class AbilitiesPrototype(object):
             value = ability.modify_attribute(name, value)
         return value
 
-    def update_context(self, context, actor):
+    def update_context(self, actor, enemy):
         for ability in self.abilities.values():
-            ability.update_context(context, actor)
+            ability.update_context(actor, enemy)
 
     def __eq__(self, other):
         return set(self.abilities.keys()) == set(other.abilities.keys())

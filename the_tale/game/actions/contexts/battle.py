@@ -11,6 +11,7 @@ class BattleContext(object):
         self.stun_length = 0
         self.crit_chance = 0
         self.berserk_damage_modifier = 1.0
+        self.ninja = 0
 
     def use_ability_magic_mushroom(self, damage_factors): self.ability_magic_mushroom = [None] + damage_factors
 
@@ -22,13 +23,16 @@ class BattleContext(object):
 
     def use_berserk(self, damage_modifier): self.berserk_damage_modifier = damage_modifier
 
+    def use_ninja(self, probability): self.ninja = probability
+
     @property
     def is_stunned(self): return (self.stun_length > 0)
 
     def should_miss_attack(self):
-        if not self.ability_sidestep:
-            return False
-        return (random.uniform(0, 1) < self.ability_sidestep[0])
+        miss = self.ninja
+        if self.ability_sidestep:
+            miss = max(miss, self.ability_sidestep[0])
+        return (random.uniform(0, 1) < miss)
 
     def modify_initial_damage(self, damage):
         if self.ability_magic_mushroom:
@@ -52,7 +56,8 @@ class BattleContext(object):
                  'ability_sidestep': self.ability_sidestep,
                  'stun_length': self.stun_length,
                  'crit_chance': self.crit_chance,
-                 'berserk_damage_modifier': self.berserk_damage_modifier}
+                 'berserk_damage_modifier': self.berserk_damage_modifier,
+                 'ninja': self.ninja}
 
     @classmethod
     def deserialize(cls, data):
@@ -63,6 +68,7 @@ class BattleContext(object):
         context.stun_turns = data.get('stun_length', 0)
         context.crit_chance = data.get('crit_chance', 0)
         context.berserk_damage_modifier = data.get('berserk_damage_modifier', 1.0)
+        context.ninja = data.get('ninja', 0)
 
         return context
 
@@ -72,4 +78,5 @@ class BattleContext(object):
                 self.ability_sidestep == other.ability_sidestep and
                 self.stun_length == other.stun_length and
                 self.crit_chance == other.crit_chance and
-                self.berserk_damage_modifier == other.berserk_damage_modifier)
+                self.berserk_damage_modifier == other.berserk_damage_modifier and
+                self.ninja == other.ninja)

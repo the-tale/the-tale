@@ -35,7 +35,7 @@ class AbilityPrototype(object):
     def modify_attribute(cls, name, value): return value
 
     @classmethod
-    def update_context(cls, context, actor): pass
+    def update_context(cls, actor, enemy): pass
 
     @classmethod
     def get_id(cls): return cls.__name__.lower()
@@ -99,7 +99,7 @@ class SIDESTEP(AbilityPrototype):
 
     NAME = u'Шаг в сторону'
     normalized_name = NAME
-    DESCRIPTION = u'Герой быстро меняет свою позицию, дезариентируя противника из-за чего тот начинает промахиваться по герою.'
+    DESCRIPTION = u'Герой быстро меняет свою позицию, дезариентируя противника из-за чего тот начинает промахиваться.'
 
     MISS_PROBABILITIES = [0.8, 0.6, 0.4, 0.2]
 
@@ -171,8 +171,8 @@ class CRITICAL_HIT(AbilityPrototype):
     CRITICAL_CHANCE = 0.1
 
     @classmethod
-    def update_context(cls, context, actor):
-        context.use_crit_chance(cls.CRITICAL_CHANCE)
+    def update_context(cls, actor, enemy):
+        actor.context.use_crit_chance(cls.CRITICAL_CHANCE)
 
 
 class BERSERK(AbilityPrototype):
@@ -187,8 +187,24 @@ class BERSERK(AbilityPrototype):
     MAXIMUM_BONUS = 0.2
 
     @classmethod
-    def update_context(cls, context, actor):
-        context.use_berserk(1 + cls.MAXIMUM_BONUS * float(actor.max_health - actor.health) / actor.max_health)
+    def update_context(cls, actor, enemy):
+        actor.context.use_berserk(1 + cls.MAXIMUM_BONUS * float(actor.max_health - actor.health) / actor.max_health)
+
+
+class NINJA(AbilityPrototype):
+
+    TYPE = ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.PASSIVE
+
+    NAME = u'Ниндзя'
+    normalized_name = NAME
+    DESCRIPTION = u'Ниндзя может уклониться от атаки противника.'
+
+    MISS_PROBABILITY = 0.1
+
+    @classmethod
+    def update_context(cls, actor, enemy):
+        enemy.context.use_ninja(cls.MISS_PROBABILITY)
 
 
 
