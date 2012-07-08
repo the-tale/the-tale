@@ -24,10 +24,6 @@ class PortalResource(Resource):
         return self.template('portal/index.html',
                              {'news': news})
 
-    @handler('manual', method='get')
-    def manual(self):
-        return self.template('portal/manual.html')
-
     @handler('404', method='get')
     def handler404(self):
         return self.template('portal/404.html')

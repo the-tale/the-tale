@@ -67,7 +67,7 @@ class MobsDatabaseTest(TestCase):
 
         self.assertEqual(bandit.health_cooficient, 1.2)
         self.assertEqual(bandit.initiative, 0.8)
-        self.assertEqual(bandit.damage_cooficient, 1.4)
+        self.assertEqual(bandit.damage_modifier, 1.4)
 
         self.assertEqual(bandit.exp_cooficient, f.mob_difficulty(0.8, 1.2, 1.4))
 

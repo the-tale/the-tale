@@ -15,6 +15,7 @@ urlpatterns = patterns('',
                        (r'^admin/', include(admin.site.urls)),
                        (r'^accounts/', include('accounts.urls', namespace='accounts') ),
                        (r'^game/', include('game.urls', namespace='game') ),
+                       (r'^guide/', include('guide.urls', namespace='guide') ),
                        (r'^forum/', include('forum.urls', namespace='forum') ),
                        (r'^news/', include('cms.news.urls', namespace='news') ),
                        (r'^', include('portal.urls', namespace='portal') ),
@@ -22,8 +23,8 @@ urlpatterns = patterns('',
 
 if project_settings.DEBUG:
     from django.conf.urls.static import static
-    urlpatterns += patterns('', 
-                            url(r'^%s' % project_settings.LESS_CSS_URL[1:], include('dext.less.urls') ) 
+    urlpatterns += patterns('',
+                            url(r'^%s' % project_settings.LESS_CSS_URL[1:], include('dext.less.urls') )
                             )
     urlpatterns += static(project_settings.DCONT_URL, document_root=project_settings.DCONT_DIR)
     urlpatterns += static(project_settings.STATIC_URL, document_root=project_settings.STATIC_DIR)

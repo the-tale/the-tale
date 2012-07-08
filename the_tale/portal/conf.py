@@ -12,7 +12,7 @@ SITE_SECTIONS = ( (re.compile(r'^/$'), 'index'),
                   (re.compile(r'^/accounts/profile.*$'), 'profile'),
                   (re.compile(r'^/game/heroes.*$'), 'hero'),
                   (re.compile(r'^/game.*$'), 'game'),
-                  (re.compile(r'^/manual.*$'), 'manual') )
+                  (re.compile(r'^/guide.*$'), 'guide') )
 
 portal_settings = app_settings('PORTAL',
                                DUMP_EMAIL='admin@the-tale.org',

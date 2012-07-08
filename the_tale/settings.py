@@ -131,6 +131,8 @@ INSTALLED_APPS = (
 
     'accounts',
 
+    'guide',
+
     'portal',
 
     'game',

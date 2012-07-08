@@ -4,7 +4,12 @@
 <dl class="hero-abilities-list">
   {% for ability in abilities %}
   <div class="hero-ability-record pgf-hero-ability-record" data-ability-id="{{ability.get_id()}}">
-    <dt class="ability-name">{{ ability.NAME }} <small class="ability-type">боевая способность</small></dt>
+    <dt class="ability-name">
+      {{ ability.NAME }}
+      <small class="ability-type">
+        боевая способность{% if not ability.AVAILABLE_TO_PLAYERS %}, только для монстров{% endif %}
+      </small>
+    </dt>
     <dd>{{ ability.DESCRIPTION }}</dd>
   </div>
   {% endfor %}

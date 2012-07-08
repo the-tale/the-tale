@@ -17,7 +17,7 @@ class MobPrototype(object):
 
         self.initiative = self.abilities.modify_attribute(ATTRIBUTES.INITIATIVE, 1)
         self.health_cooficient = self.abilities.modify_attribute(ATTRIBUTES.HEALTH, 1)
-        self.damage_cooficient = self.abilities.modify_attribute(ATTRIBUTES.DAMAGE, 1)
+        self.damage_modifier = self.abilities.modify_attribute(ATTRIBUTES.DAMAGE, 1)
 
         self.max_health = f.mob_hp_to_lvl(level) * self.health_cooficient
 
@@ -43,10 +43,10 @@ class MobPrototype(object):
     def health_percents(self): return float(self.health) / self.max_health
 
     @property
-    def exp_cooficient(self): return f.mob_difficulty(self.initiative, self.health_cooficient, self.damage_cooficient)
+    def exp_cooficient(self): return f.mob_difficulty(self.initiative, self.health_cooficient, self.damage_modifier)
 
     @property
-    def basic_damage(self): return f.expected_damage_to_hero_per_hit(self.level) * self.damage_cooficient
+    def basic_damage(self): return f.expected_damage_to_hero_per_hit(self.level) * self.damage_modifier
 
     def strike_by(self, percents):
         self.health = max(0, self.health - self.max_health * percents)

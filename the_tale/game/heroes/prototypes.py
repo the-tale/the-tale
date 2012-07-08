@@ -13,7 +13,7 @@ from dext.utils import database
 from game.map.places.prototypes import PlacePrototype
 from game.map.roads.prototypes import RoadPrototype
 
-from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, ITEMS_OF_EXPENDITURE, GENDER_DICT_USERFRIENDLY, RACE_DICT
+from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, ITEMS_OF_EXPENDITURE, GENDER_DICT_USERFRIENDLY, RACE_DICT, ATTRIBUTES
 
 from game import names
 
@@ -82,7 +82,7 @@ class HeroPrototype(object):
     def power(self): return f.clean_power_to_lvl(self.level) + self.equipment.get_power()
 
     @property
-    def basic_damage(self): return f.damage_from_power(self.power)
+    def basic_damage(self): return f.damage_from_power(self.power) * self.damage_modifier
 
     @property
     def race(self): return self.model.race
@@ -225,13 +225,16 @@ class HeroPrototype(object):
     ###########################################
 
     @property
+    def damage_modifier(self): return self.abilities.modify_attribute(ATTRIBUTES.DAMAGE, 1)
+
+    @property
     def move_speed(self): return 0.3
 
     @property
-    def initiative(self): return 1.0
+    def initiative(self): return self.abilities.modify_attribute(ATTRIBUTES.INITIATIVE, 1)
 
     @property
-    def max_health(self): return f.hp_on_lvl(self.level)
+    def max_health(self): return int(f.hp_on_lvl(self.level) * self.abilities.modify_attribute(ATTRIBUTES.HEALTH, 1))
 
     @property
     def max_bag_size(self): return c.MAX_BAG_SIZE

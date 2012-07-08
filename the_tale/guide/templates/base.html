@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+  <div class="span12">
+    <div class="block">
+
+      {% block guide_context %}
+      <div class="block pull-right">
+        <h3>Содержание</h3>
+        <ul>
+          <li><a href="{{ url('guide:registration') }}">Регистрация</a></li>
+          <li><a href="{{ url('guide:game') }}">Игра</a></li>
+          <li><a href="{{ url('guide:hero-abilities') }}">Способности героев</a></li>
+        </ul>
+      </div>
+      {% endblock %}
+
+      {% block guide_content %}
+      {% endblock %}
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
