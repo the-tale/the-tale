@@ -35,7 +35,7 @@ class AbilityPrototype(object):
     def modify_attribute(cls, name, value): return value
 
     @classmethod
-    def initialize_context(cls, context): pass
+    def update_context(cls, context, actor): pass
 
     @classmethod
     def get_id(cls): return cls.__name__.lower()
@@ -171,8 +171,24 @@ class CRITICAL_HIT(AbilityPrototype):
     CRITICAL_CHANCE = 0.1
 
     @classmethod
-    def initialize_context(cls, context):
+    def update_context(cls, context, actor):
         context.use_crit_chance(cls.CRITICAL_CHANCE)
+
+
+class BERSERK(AbilityPrototype):
+
+    TYPE = ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.PASSIVE
+
+    NAME = u'Берсерк'
+    normalized_name = NAME
+    DESCRIPTION = u'Чем меньше у героя остаётся здоровья, тем сильнее его удары.'
+
+    MAXIMUM_BONUS = 0.2
+
+    @classmethod
+    def update_context(cls, context, actor):
+        context.use_berserk(1 + cls.MAXIMUM_BONUS * float(actor.max_health - actor.health) / actor.max_health)
 
 
 

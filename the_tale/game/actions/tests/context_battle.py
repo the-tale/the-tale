@@ -19,6 +19,7 @@ class BattleContextTest(TestCase):
         self.assertEqual(self.context.ability_sidestep, [])
         self.assertEqual(self.context.stun_length, 0)
         self.assertEqual(self.context.crit_chance, 0)
+        self.assertEqual(self.context.berserk_damage_modifier, 1.0)
 
 
     def test_create(self):
@@ -96,6 +97,14 @@ class BattleContextTest(TestCase):
     def test_critical_hit(self):
         old_damage = self.context.modify_initial_damage(100)
         self.context.use_crit_chance(100)
+        self.assertTrue(old_damage < self.context.modify_initial_damage(100))
+
+    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    def test_berserk(self):
+        old_damage = self.context.modify_initial_damage(100)
+        self.context.use_berserk(1.0)
+        self.assertEqual(old_damage, self.context.modify_initial_damage(100))
+        self.context.use_berserk(1.5)
         self.assertTrue(old_damage < self.context.modify_initial_damage(100))
 
 

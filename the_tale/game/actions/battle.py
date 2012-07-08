@@ -43,8 +43,14 @@ class Actor(object):
         choice_abilities = [ (ability, ability.PRIORITY) for ability in self.actor.abilities.active_abilities]
         return random_value_by_priority(choice_abilities)
 
+    def update_context(self):
+        self.actor.abilities.update_context(self.context, self)
+
 
 def make_turn(current_time, actor1, actor2, messanger):
+
+    actor1.update_context()
+    actor2.update_context()
 
     actor1_initiative = random.uniform(0, actor1.initiative + actor2.initiative)
 
