@@ -61,10 +61,13 @@ class HabilitiesTest(TestCase):
         self.assertEqual(self.messanger.messages, ['hero_ability_runuppush'])
 
     def test_regeneration(self):
-        self.attacker.healt = 1
+        self.attacker.health = 1
         common_abilities.REGENERATION.use(self.messanger, TimePrototype.get_current_time(), self.attacker, self.defender)
         self.assertTrue(self.attacker.health > 1)
         self.assertEqual(self.messanger.messages, ['hero_ability_regeneration'])
+
+    def test_critical_chance(self):
+        pass
 
 
 class HabilitiesViewsTest(TestCase):

@@ -75,5 +75,9 @@ class AbilitiesPrototype(object):
             value = ability.modify_attribute(name, value)
         return value
 
+    def initialize_context(self, context):
+        for ability in self.abilities.values():
+            ability.initialize_context(context)
+
     def __eq__(self, other):
         return set(self.abilities.keys()) == set(other.abilities.keys())

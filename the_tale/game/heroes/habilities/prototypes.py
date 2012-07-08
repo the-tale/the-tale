@@ -35,6 +35,9 @@ class AbilityPrototype(object):
     def modify_attribute(cls, name, value): return value
 
     @classmethod
+    def initialize_context(cls, context): pass
+
+    @classmethod
     def get_id(cls): return cls.__name__.lower()
 
     @classmethod
@@ -155,6 +158,21 @@ class REGENERATION(AbilityPrototype):
         applied_health = actor.change_health(health_to_regen)
         messanger.add_message('hero_ability_regeneration', current_time, actor=actor, health=applied_health)
 
+
+class CRITICAL_HIT(AbilityPrototype):
+
+    TYPE = ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.PASSIVE
+
+    NAME = u'Критический удар'
+    normalized_name = NAME
+    DESCRIPTION = u'Удача благосклонна к герою - урон от любого удара может существенно увеличится.'
+
+    CRITICAL_CHANCE = 0.1
+
+    @classmethod
+    def initialize_context(cls, context):
+        context.use_crit_chance(cls.CRITICAL_CHANCE)
 
 
 

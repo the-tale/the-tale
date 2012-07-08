@@ -9,12 +9,15 @@ class BattleContext(object):
         self.ability_magic_mushroom = []
         self.ability_sidestep = []
         self.stun_length = 0
+        self.crit_chance = 0
 
     def use_ability_magic_mushroom(self, damage_factors): self.ability_magic_mushroom = [None] + damage_factors
 
     def use_ability_sidestep(self, miss_probabilities): self.ability_sidestep = [None] + miss_probabilities
 
     def use_stun(self, stun_length): self.stun_length = max(self.stun_length, stun_length + 1)
+
+    def use_crit_chance(self, crit_chance): self.crit_chance = crit_chance
 
     @property
     def is_stunned(self): return (self.stun_length > 0)
@@ -27,6 +30,8 @@ class BattleContext(object):
     def modify_initial_damage(self, damage):
         if self.ability_magic_mushroom:
             damage = damage * self.ability_magic_mushroom[0]
+        if random.uniform(0, 1) < self.crit_chance:
+            damage = damage * c.DAMAGE_CRIT_MULTIPLIER
         return int(round(damage * random.uniform(1-c.DAMAGE_DELTA, 1+c.DAMAGE_DELTA)))
 
     def on_own_turn(self):
@@ -41,7 +46,8 @@ class BattleContext(object):
     def serialize(self):
         return { 'ability_magic_mushroom': self.ability_magic_mushroom,
                  'ability_sidestep': self.ability_sidestep,
-                 'stun_length': self.stun_length }
+                 'stun_length': self.stun_length,
+                 'crit_chance': self.crit_chance}
 
     @classmethod
     def deserialize(cls, data):
@@ -50,6 +56,7 @@ class BattleContext(object):
         context.ability_magic_mushroom = data.get('ability_magic_mushroom', [])
         context.ability_sidestep = data.get('ability_sidestep', [])
         context.stun_turns = data.get('stun_length', 0)
+        context.crit_chance = data.get('crit_chance', 0)
 
         return context
 
@@ -57,4 +64,5 @@ class BattleContext(object):
     def __eq__(self, other):
         return (self.ability_magic_mushroom == other.ability_magic_mushroom and
                 self.ability_sidestep == other.ability_sidestep and
-                self.stun_length == other.stun_length)
+                self.stun_length == other.stun_length,
+                self.crit_chance == other.crit_chance)

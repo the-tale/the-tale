@@ -656,11 +656,20 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
 
     @classmethod
     def _create(cls, parent, current_time, mob):
+
+        hero_context = cls.CONTEXT_MANAGER()
+        mob_context =  cls.CONTEXT_MANAGER()
+
+        parent.hero.abilities.initialize_context(hero_context)
+        mob.abilities.initialize_context(mob_context)
+
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
                                        mob=s11n.to_json(mob.serialize()),
+                                       context=s11n.to_json(hero_context.serialize()),
+                                       mob_context=s11n.to_json(mob_context.serialize()),
                                        state=cls.STATE.BATTLE_RUNNING)
         parent.hero.add_message('action_battlepve1x1_start', current_time, hero=parent.hero, mob=mob)
         return cls(model=model)

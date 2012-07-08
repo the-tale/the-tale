@@ -18,6 +18,7 @@ class BattleContextTest(TestCase):
         self.assertEqual(self.context.ability_magic_mushroom, [])
         self.assertEqual(self.context.ability_sidestep, [])
         self.assertEqual(self.context.stun_length, 0)
+        self.assertEqual(self.context.crit_chance, 0)
 
 
     def test_create(self):
@@ -90,6 +91,12 @@ class BattleContextTest(TestCase):
         self.assertEqual(self.context.modify_initial_damage(10.4), 10)
         self.assertEqual(self.context.modify_initial_damage(10.5), 11)
         self.assertEqual(self.context.modify_initial_damage(10.6), 11)
+
+    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    def test_critical_hit(self):
+        old_damage = self.context.modify_initial_damage(100)
+        self.context.use_crit_chance(100)
+        self.assertTrue(old_damage < self.context.modify_initial_damage(100))
 
 
     def test_on_own_turn_with_empty_values(self):

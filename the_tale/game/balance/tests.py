@@ -59,6 +59,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.DAMAGE_TO_HERO_PER_HIT_FRACTION, 1.0 / (8*16/2))
         self.assertEqual(c.DAMAGE_TO_MOB_PER_HIT_FRACTION, 1.0 / (16/2))
         self.assertEqual(c.DAMAGE_DELTA, 0.2)
+        self.assertEqual(c.DAMAGE_CRIT_MULTIPLIER, 2.0)
         self.assertEqual(c.EXP_PER_HOUR, (360.0 / (int(8*(16+5)-5 + (8*(16+5)-5) * 0.2)) * 8) * 1)
 
         self.assertEqual(c.MAX_BAG_SIZE, 12)
