@@ -4,7 +4,7 @@ from game.balance import formulas as f
 
 class ABILITY_TYPE:
     BATTLE = 1
-    STATIC = 2
+    NONBATTLE = 2
 
 
 class ABILITIES_ACTIVATION_TYPE:
@@ -30,6 +30,12 @@ class AbilityPrototype(object):
     NAME = u''
     normalized_name = u''
     DESCRIPTIN = u''
+
+    @classmethod
+    def is_battle(cls): return cls.TYPE == ABILITY_TYPE.BATTLE
+
+    @classmethod
+    def is_nonbattle(cls): return cls.TYPE == ABILITY_TYPE.NONBATTLE
 
     @classmethod
     def modify_attribute(cls, name, value): return value

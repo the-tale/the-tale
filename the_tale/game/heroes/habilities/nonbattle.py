@@ -6,10 +6,10 @@ from game.heroes.habilities.prototypes import AbilityPrototype, ABILITY_TYPE, AB
 
 class CHARISMA(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.STATIC
+    TYPE = ABILITY_TYPE.NONBATTLE
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.PASSIVE
 
-    NAME = u'Харизматичность'
+    NAME = u'Харизматичный'
     normalized_name = NAME
     DESCRIPTION = u'Герой настолько обоятелен, что умудряется получать лучшие награды за выполнение заданий.'
 
@@ -22,7 +22,7 @@ class CHARISMA(AbilityPrototype):
 
 class HUCKSTER(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.STATIC
+    TYPE = ABILITY_TYPE.NONBATTLE
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.PASSIVE
 
     NAME = u'Торгаш'

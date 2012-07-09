@@ -7,7 +7,9 @@
     <dt class="ability-name">
       {{ ability.NAME }}
       <small class="ability-type">
-        боевая способность{% if not ability.AVAILABLE_TO_PLAYERS %}, только для монстров{% endif %}
+        {%- if ability.is_battle() -%}боевая способность
+        {%- elif ability.is_nonbattle() -%}социальная способность{% endif -%}
+        {%- if not ability.AVAILABLE_TO_PLAYERS %}, только для монстров{% endif %}
       </small>
     </dt>
     <dd>{{ ability.DESCRIPTION }}</dd>
