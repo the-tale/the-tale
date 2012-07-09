@@ -20,6 +20,27 @@ class CHARISMA(AbilityPrototype):
         return int(money * cls.MONEY_MULTIPLIER)
 
 
+class HACKSTER(AbilityPrototype):
+
+    TYPE = ABILITY_TYPE.STATIC
+    ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.PASSIVE
+
+    NAME = u'Торгаш'
+    normalized_name = NAME
+    DESCRIPTION = u'Увеличивается цена продажи и уменьшается цена покупки предметов.'
+
+    SELL_MULTIPLIER = 1.2
+    BUY_MULTIPLIER = 0.8
+
+    @classmethod
+    def update_buy_price(cls, hero, money):
+        return int(money * cls.BUY_MULTIPLIER)
+
+    @classmethod
+    def update_sell_price(cls, hero, money):
+        return int(money * cls.SELL_MULTIPLIER)
+
+
 ABILITIES = dict( (ability.get_id(), ability)
                   for ability in globals().values()
                   if isinstance(ability, type) and issubclass(ability, AbilityPrototype) and ability != AbilityPrototype)

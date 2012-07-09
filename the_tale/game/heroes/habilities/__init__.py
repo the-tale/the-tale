@@ -87,5 +87,15 @@ class AbilitiesPrototype(object):
             money = ability.update_quest_reward(hero, money)
         return money
 
+    def update_buy_price(self, hero, money):
+        for ability in self.abilities.values():
+            money = ability.update_buy_price(hero, money)
+        return money
+
+    def update_sell_price(self, hero, money):
+        for ability in self.abilities.values():
+            money = ability.update_sell_price(hero, money)
+        return money
+
     def __eq__(self, other):
         return set(self.abilities.keys()) == set(other.abilities.keys())

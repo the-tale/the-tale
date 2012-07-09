@@ -41,6 +41,12 @@ class AbilityPrototype(object):
     def update_quest_reward(cls, hero, money): return money
 
     @classmethod
+    def update_buy_price(cls, hero, money): return money
+
+    @classmethod
+    def update_sell_price(cls, hero, money): return money
+
+    @classmethod
     def get_id(cls): return cls.__name__.lower()
 
     @classmethod

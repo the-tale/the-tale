@@ -1,5 +1,4 @@
 # coding: utf-8
-import mock
 
 from django.test import TestCase
 
@@ -21,3 +20,7 @@ class HabilitiesNonBattleTest(TestCase):
 
     def test_charisma(self):
         self.assertTrue(100 < nonbattle.CHARISMA.update_quest_reward(self.hero, 100))
+
+    def test_hackster(self):
+        self.assertTrue(100 > nonbattle.HACKSTER.update_buy_price(self.hero, 100))
+        self.assertTrue(100 < nonbattle.HACKSTER.update_sell_price(self.hero, 100))

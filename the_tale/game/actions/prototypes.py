@@ -810,6 +810,7 @@ class ActionInPlacePrototype(ActionPrototype):
     def try_to_spend_money(self, gold_amount, money_source):
         if gold_amount <= self.hero.money:
             gold_amount = min(self.hero.money, int(gold_amount * (1 + random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA))))
+            gold_amount = self.hero.abilities.update_buy_price(self.hero, gold_amount)
             self.hero.change_money(money_source, -gold_amount)
             self.hero.switch_spending()
             return gold_amount
@@ -1008,15 +1009,17 @@ class ActionTradingPrototype(ActionPrototype):
         multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
         if artifact.is_useless:
             if artifact.rarity == RARITY_TYPE.NORMAL:
-                return 1 + int(f.normal_loot_cost_at_lvl(artifact.level) * multiplier)
+                gold_amount = 1 + int(f.normal_loot_cost_at_lvl(artifact.level) * multiplier)
             elif artifact.rarity == RARITY_TYPE.RARE:
-                return 1 + int(f.rare_loot_cost_at_lvl(artifact.level) * multiplier)
+                gold_amount = 1 + int(f.rare_loot_cost_at_lvl(artifact.level) * multiplier)
             elif artifact.rarity == RARITY_TYPE.EPIC:
-                return 1 + int(f.epic_loot_cost_at_lvl(artifact.level) * multiplier)
+                gold_amount = 1 + int(f.epic_loot_cost_at_lvl(artifact.level) * multiplier)
             else:
                 raise ActionException('unknown artifact rarity type: %s' % artifact)
         else:
-            return 1 + int(f.sell_artifact_price(artifact.level) * multiplier)
+            gold_amount = 1 + int(f.sell_artifact_price(artifact.level) * multiplier)
+
+        return self.hero.abilities.update_sell_price(self.hero, gold_amount)
 
 
     def process(self, current_time):
