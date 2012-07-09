@@ -11,7 +11,7 @@
   cursor: pointer;
 }
 .hero-ability-record {
-  margin-bottom: 1em;
+  padding: 0.5em;
 }
 .hero-ability-record:hover {
   background-color: #dddddd;
