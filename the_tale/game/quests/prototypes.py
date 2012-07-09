@@ -216,19 +216,11 @@ class QuestPrototype(object):
 
     def cmd_get_reward(self, cmd, cur_action, cur_time):
 
-        domain = random.uniform(0, 1)
-
-        if domain <= c.QUEST_REWARD_MONEY_FRACTION or cur_action.hero.bag_is_full:
-            multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
-            money = 1 + int(f.sell_artifact_price(cur_action.hero.level) * multiplier)
-            cur_action.hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
-            cur_action.hero.add_message('action_quest_reward_money', cur_time, important=True, hero=cur_action.hero, coins=money)
-        else:
-            storage = ArtifactsDatabase.storage()
-            artifact = storage.generate_artifact_from_list(storage.artifacts_ids, cur_action.hero.level)
-            cur_action.hero.put_loot(artifact)
-            cur_action.hero.statistics.change_artifacts_had(1)
-            cur_action.hero.add_message('action_quest_reward_artifact', cur_time, important=True, hero=cur_action.hero, artifact=artifact)
+        multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
+        money = 1 + int(f.sell_artifact_price(cur_action.hero.level) * multiplier)
+        money = cur_action.hero.abilities.update_quest_reward(cur_action.hero, money)
+        cur_action.hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
+        cur_action.hero.add_message('action_quest_reward_money', cur_time, important=True, hero=cur_action.hero, coins=money)
 
     def cmd_quest(self, cmd, cur_action, cur_time):
         # TODO: move to quest generator environment

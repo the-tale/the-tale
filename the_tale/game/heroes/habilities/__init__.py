@@ -6,8 +6,11 @@ from game.heroes.habilities.prototypes import ABILITIES_ACTIVATION_TYPE, ABILITI
 
 from game.heroes.habilities.prototypes import ABILITIES as COMMON_ABILITIES
 from game.heroes.habilities.attributes import ABILITIES as ATTRIBUTES_ABILITIES
+from game.heroes.habilities.nonbattle import ABILITIES as NONBATTLE_ABILITIES
 
-ABILITIES = dict(COMMON_ABILITIES, **ATTRIBUTES_ABILITIES)
+ABILITIES = dict(COMMON_ABILITIES)
+ABILITIES.update(**ATTRIBUTES_ABILITIES)
+ABILITIES.update(**NONBATTLE_ABILITIES)
 
 __all__ = ['ABILITIES', 'AbilitiesPrototype', 'ABILITIES_LOGIC_TYPE']
 
@@ -78,6 +81,11 @@ class AbilitiesPrototype(object):
     def update_context(self, actor, enemy):
         for ability in self.abilities.values():
             ability.update_context(actor, enemy)
+
+    def update_quest_reward(self, hero, money):
+        for ability in self.abilities.values():
+            money = ability.update_quest_reward(hero, money)
+        return money
 
     def __eq__(self, other):
         return set(self.abilities.keys()) == set(other.abilities.keys())

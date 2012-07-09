@@ -38,6 +38,9 @@ class AbilityPrototype(object):
     def update_context(cls, actor, enemy): pass
 
     @classmethod
+    def update_quest_reward(cls, hero, money): return money
+
+    @classmethod
     def get_id(cls): return cls.__name__.lower()
 
     @classmethod
