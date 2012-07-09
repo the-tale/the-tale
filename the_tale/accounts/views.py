@@ -11,7 +11,7 @@ from common.utils.resources import Resource
 from common.utils.decorators import login_required
 
 from accounts.prototypes import AccountPrototype, RegistrationTaskPrototype, ChangeCredentialsTaskPrototype
-from accounts.models import REGISTRATION_TASK_STATE
+from accounts.models import REGISTRATION_TASK_STATE, CHANGE_CREDENTIALS_TASK_STATE
 from accounts import forms
 from accounts.conf import accounts_settings
 from accounts.logic import logout_user, login_user, force_login_user
@@ -151,10 +151,21 @@ class AccountsResource(Resource):
 
         if task is None:
             return self.template('accounts/confirm_email.html',
-                                 {'error': u'неверная ссылка, убедитесь, что верно скопировали адрес',
-                                  'task': None} )
+                                 {'error': u'Неверная ссылка, убедитесь, что верно скопировали адрес'} )
+
+        if task.has_already_processed:
+            return self.template('accounts/confirm_email.html',
+                                 {'already_processed': True} )
 
         task.process(logger)
+
+        if task.state == CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT:
+            return self.template('accounts/confirm_email.html',
+                                 {'timout': True} )
+
+        if task.state == CHANGE_CREDENTIALS_TASK_STATE.ERROR:
+            return self.template('accounts/confirm_email.html',
+                                 {'error_occured': True} )
 
         force_login_user(self.request, task.account.user)
 

@@ -50,12 +50,14 @@ class CHANGE_CREDENTIALS_TASK_STATE:
     PROCESSED = 2
     UNPROCESSED = 3
     ERROR = 4
+    TIMEOUT = 5
 
 CHANGE_CREDENTIALS_TASK_STATE_CHOICES = ( (CHANGE_CREDENTIALS_TASK_STATE.WAITING, u'ожидает обработки'),
                                           (CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT, u'отослано письмо'),
                                           (CHANGE_CREDENTIALS_TASK_STATE.PROCESSED, u'обработана'),
                                           (CHANGE_CREDENTIALS_TASK_STATE.UNPROCESSED, u'не обработана'),
-                                          (CHANGE_CREDENTIALS_TASK_STATE.ERROR, u'ошибка'),)
+                                          (CHANGE_CREDENTIALS_TASK_STATE.ERROR, u'ошибка'),
+                                          (CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT, u'таймаут') )
 
 
 class ChangeCredentialsTask(models.Model):

@@ -286,14 +286,18 @@ class ChangeCredentialsTaskPrototype(object):
         email = ChangeEmailNotification({'task': self})
         email.send([self.model.new_email])
 
+    @property
+    def has_already_processed(self):
+        return self.state not in (CHANGE_CREDENTIALS_TASK_STATE.WAITING, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
+
     @nested_commit_on_success
     def process(self, logger):
 
-        if self.state not in (CHANGE_CREDENTIALS_TASK_STATE.WAITING, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT):
+        if self.has_already_processed:
             return
 
-        if self.model.created_at + datetime.timedelta(seconds=accounts_settings.REGISTRATION_TIMEOUT) < datetime.datetime.now():
-            self.model.state = CHANGE_CREDENTIALS_TASK_STATE.UNPROCESSED
+        if self.model.created_at + datetime.timedelta(seconds=accounts_settings.CHANGE_EMAIL_TIMEOUT) < datetime.datetime.now():
+            self.model.state = CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT
             self.model.comment = 'timeout'
             self.model.save()
             return

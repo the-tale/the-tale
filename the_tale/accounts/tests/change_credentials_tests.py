@@ -137,7 +137,7 @@ class TestChangeCredentialsTask(TestCase):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')
         task.model.created_at = datetime.datetime.fromtimestamp(0)
         task.process(FakeLogger())
-        self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.UNPROCESSED)
+        self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT)
         self.assertEqual(task.model.comment, 'timeout')
         self.assertEqual(django_authenticate(username='test_user', password='111111').id, task.account.user.id)
 
