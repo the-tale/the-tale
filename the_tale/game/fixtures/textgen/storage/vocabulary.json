@@ -337,44 +337,6 @@
       "template": "Итак, чем собралась заниматься моя цель?"
     }
   ], 
-  "action_quest_reward_artifact": [
-    {
-      "internals": [
-        [
-          "получил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "получил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "им"
-          ], 
-          "hero"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s %(e_1)s в награду за выполнение задания"
-    }
-  ], 
   "action_inplace_description": [
     {
       "internals": [], 
@@ -998,7 +960,7 @@
           "artifact"
         ]
       ], 
-      "template": "Оставлю я %(e_0)s сдесь, может кому сгодится"
+      "template": "Оставлю я %(e_0)s здесь, может кому сгодится"
     }
   ], 
   "quest_notmywork_choice_work_variant_diplomacy": [
@@ -1725,7 +1687,7 @@
     {
       "internals": [], 
       "externals": [], 
-      "template": "Пора заняться комерцией"
+      "template": "Пора заняться коммерцией"
     }, 
     {
       "internals": [], 
@@ -2180,7 +2142,7 @@
     {
       "internals": [], 
       "externals": [], 
-      "template": "Что-то совестно тоскливо мне стало без дела сидеть"
+      "template": "Что-то совестно мне стало без дела сидеть"
     }, 
     {
       "internals": [], 
@@ -2936,7 +2898,7 @@
           "hero"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s придти с повинной"
+      "template": "%(e_0)s %(i_0)s прийти с повинной"
     }
   ], 
   "quest_notmywork_journal_get_reward": [
@@ -3300,7 +3262,7 @@
     {
       "internals": [], 
       "externals": [], 
-      "template": "торгуется в комиссионом магазине"
+      "template": "торгуется в комиссионном магазине"
     }
   ], 
   "quest_notmywork_choice_work_result_diplomacy": [
