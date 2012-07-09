@@ -20,7 +20,7 @@ class CHARISMA(AbilityPrototype):
         return int(money * cls.MONEY_MULTIPLIER)
 
 
-class HACKSTER(AbilityPrototype):
+class HUCKSTER(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.STATIC
     ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.PASSIVE
