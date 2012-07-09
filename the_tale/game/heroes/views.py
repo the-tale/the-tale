@@ -33,8 +33,9 @@ class HeroResource(Resource):
     @login_required
     @handler('#hero_id', name='show', method='get')
     def hero_page(self):
+        abilities = sorted(self.hero.abilities.all, key=lambda x: x.NAME)
         return self.template('heroes/hero_page.html',
-                             {} )
+                             {'abilities': abilities} )
 
     @login_required
     @handler('#hero_id', 'choose-ability-dialog', method='get')

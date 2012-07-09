@@ -38,7 +38,8 @@ class HUCKSTER(AbilityPrototype):
 
     @classmethod
     def update_sell_price(cls, hero, money):
-        return int(money * cls.SELL_MULTIPLIER)
+        ''' +1 for increase price on low levels'''
+        return int(money * cls.SELL_MULTIPLIER + 1)
 
 
 ABILITIES = dict( (ability.get_id(), ability)
