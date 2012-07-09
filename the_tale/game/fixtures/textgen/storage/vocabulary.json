@@ -2723,7 +2723,20 @@
   ], 
   "action_equipping_equip_item": [
     {
-      "internals": [], 
+      "internals": [
+        [
+          "подошёл", 
+          [
+            "equipped"
+          ], 
+          "i_0", 
+          [
+            "буд", 
+            "3л"
+          ], 
+          "подошёл"
+        ]
+      ], 
       "externals": [
         [
           "equipped", 
@@ -2735,7 +2748,7 @@
           "equipped"
         ]
       ], 
-      "template": "%(e_0)s здорово мне подойдёт"
+      "template": "%(e_0)s здорово мне %(i_0)s"
     }, 
     {
       "internals": [
