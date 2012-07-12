@@ -97,7 +97,7 @@ class ConstantsTest(TestCase):
 
         self.assertEqual(calc.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED, 2)
         self.assertEqual(calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED, 8)
-        self.assertEqual(calc.CHARACTER_PREFERENCES_COMRADE_LEVEL_REQUIRED, 12)
+        self.assertEqual(calc.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED, 12)
         self.assertEqual(calc.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED, 17)
 
 

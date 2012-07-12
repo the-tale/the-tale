@@ -13,7 +13,7 @@ class ChooseAbilityTaskAdmin(admin.ModelAdmin):
     list_display = ('id', 'state', 'ability_id', 'comment')
 
 class ChoosePreferencesTaskAdmin(admin.ModelAdmin):
-    list_display = ('id', 'state', 'preference_type', 'comment')
+    list_display = ('id', 'hero', 'state', 'preference_type', 'comment')
 
 
 admin.site.register(Hero, HeroAdmin)

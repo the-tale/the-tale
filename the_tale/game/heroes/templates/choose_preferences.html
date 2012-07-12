@@ -8,6 +8,8 @@
       Выберите любимую добычу
       {% elif type == PREFERENCE_TYPE.PLACE %}
       Выберите родной город
+      {% elif type == PREFERENCE_TYPE.FRIEND %}
+      Выберите соратника
       {% endif %}
     </h3>
   </div>
@@ -18,6 +20,9 @@
     {% include "heroes/choose_preferences_mob.html" with context %}
     {% elif type == PREFERENCE_TYPE.PLACE %}
     {% include "heroes/choose_preferences_place.html" with context %}
+    {% elif type == PREFERENCE_TYPE.FRIEND %}
+    {% set persons = friends %}
+    {% include "heroes/choose_preferences_person.html" with context %}
     {% endif %}
 
   </div>

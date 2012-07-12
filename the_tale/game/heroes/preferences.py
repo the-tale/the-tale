@@ -7,6 +7,9 @@ from game.mobs.storage import MobsDatabase
 from game.map.places.models import Place
 from game.map.places.prototypes import PlacePrototype
 
+from game.persons.models import Person
+from game.persons.prototypes import PersonPrototype
+
 from game.heroes.models import ChoosePreferencesTask, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE
 
 
@@ -30,11 +33,16 @@ class HeroPreferences(object):
     def set_place_id(self, value): self.hero_model.pref_place_id = value
     place_id = property(get_place_id, set_place_id)
 
-    @property
-    def place(self):
-        if not hasattr(self, '_place'):
-            self._place = PlacePrototype(model=self.hero_model.pref_place) if self.hero_model.pref_place else None
-        return self._place
+    def get_place(self):
+        return PlacePrototype(model=self.hero_model.pref_place) if self.hero_model.pref_place else None
+
+
+    def get_friend_id(self): return self.hero_model.pref_friend_id
+    def set_friend_id(self, value): self.hero_model.pref_friend_id = value
+    friend_id = property(get_friend_id, set_friend_id)
+
+    def get_friend(self):
+        return PersonPrototype(model=self.hero_model.pref_friend) if self.hero_model.pref_friend else None
 
 
 
@@ -112,12 +120,27 @@ class ChoosePreferencesTaskPrototype(object):
                 self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
                 return
 
-            if not Place.objects.filter(id=self.model.preference_id).exists():
+            if not Place.objects.filter(id=place_id).exists():
                 self.model.comment = u'unknown place id: %s' % (place_id, )
                 self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
                 return
 
             hero.preferences.place_id = place_id
+
+        elif self.model.preference_type == PREFERENCE_TYPE.FRIEND:
+            friend_id = int(self.model.preference_id)
+
+            if hero.level < calc.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED:
+                self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, calc.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED)
+                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                return
+
+            if not Person.objects.filter(id=friend_id).exists():
+                self.model.comment = u'unknown person id: %s' % (place_id, )
+                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                return
+
+            hero.preferences.friend_id = friend_id
 
         else:
             self.model.comment = u'unknown preference type: %s' % (self.model.preference_type, )

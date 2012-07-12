@@ -12,6 +12,9 @@ from game.mobs.storage import MobsDatabase
 from game.map.places.models import Place
 from game.map.places.prototypes import PlacePrototype
 
+from game.persons.models import Person, PERSON_STATE
+from game.persons.prototypes import PersonPrototype
+
 from game.workers.environment import workers_environment
 
 from game.heroes.prototypes import HeroPrototype, ChooseAbilityTaskPrototype
@@ -98,6 +101,12 @@ class HeroResource(Resource):
 
         mobs = None
         places = None
+        friends = None
+
+        all_places = []
+        for place_model in Place.objects.all().order_by('name'):
+                all_places.append(PlacePrototype(place_model))
+
 
         if type == PREFERENCE_TYPE.MOB:
             hero = self.account.angel.get_hero()
@@ -106,16 +115,21 @@ class HeroResource(Resource):
             mobs = split_list(all_mobs)
 
         elif type == PREFERENCE_TYPE.PLACE:
-            all_places = []
-            for place_model in Place.objects.all().order_by('name'):
-                all_places.append(PlacePrototype(place_model))
             places = split_list(all_places)
+
+        elif type == PREFERENCE_TYPE.FRIEND:
+            all_friends = []
+            for person_model in Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name'):
+                all_friends.append(PersonPrototype(person_model))
+            friends = split_list(all_friends)
 
         return self.template('heroes/choose_preferences.html',
                              {'type': type,
                               'PREFERENCE_TYPE': PREFERENCE_TYPE,
                               'mobs': mobs,
-                              'places': places} )
+                              'places': places,
+                              'all_places': dict([ (place.id, place) for place in all_places]),
+                              'friends': friends} )
 
     @login_required
     @handler('#hero_id', 'choose-preferences', method='post')

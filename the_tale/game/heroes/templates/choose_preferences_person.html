@@ -1,0 +1,18 @@
+
+
+<table class="table table-bordered table-striped table-condensed">
+  {% for person_left, person_right in persons %}
+  <tr>
+    <td>
+      <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ person_left.id }}">{{ person_left.name }}</a>
+      (город: {{ all_places[person_left.place_id].name }})
+    </td>
+    {% if person_right %}
+    <td>
+      <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ person_right.id }}">{{ person_right.name }}</a>
+      (город: {{ all_places[person_right.place_id].name }})
+    </td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+</table>
