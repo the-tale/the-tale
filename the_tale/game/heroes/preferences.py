@@ -4,6 +4,9 @@ from game.balance import calculated as calc
 
 from game.mobs.storage import MobsDatabase
 
+from game.map.places.models import Place
+from game.map.places.prototypes import PlacePrototype
+
 from game.heroes.models import ChoosePreferencesTask, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE
 
 
@@ -21,6 +24,18 @@ class HeroPreferences(object):
         if self.mob_id is None:
             return None
         return MobsDatabase.storage()[self.mob_id]
+
+
+    def get_place_id(self): return self.hero_model.pref_place_id
+    def set_place_id(self, value): self.hero_model.pref_place_id = value
+    place_id = property(get_place_id, set_place_id)
+
+    @property
+    def place(self):
+        if not hasattr(self, '_place'):
+            self._place = PlacePrototype(model=self.hero_model.pref_place) if self.hero_model.pref_place else None
+        return self._place
+
 
 
 class ChoosePreferencesTaskPrototype(object):
@@ -88,6 +103,21 @@ class ChoosePreferencesTaskPrototype(object):
                 return
 
             hero.preferences.mob_id = mob.id
+
+        elif self.model.preference_type == PREFERENCE_TYPE.PLACE:
+            place_id = int(self.model.preference_id)
+
+            if hero.level < calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED:
+                self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED)
+                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                return
+
+            if not Place.objects.filter(id=self.model.preference_id).exists():
+                self.model.comment = u'unknown place id: %s' % (place_id, )
+                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                return
+
+            hero.preferences.place_id = place_id
 
         else:
             self.model.comment = u'unknown preference type: %s' % (self.model.preference_type, )

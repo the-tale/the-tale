@@ -9,12 +9,24 @@ from common.utils.decorators import login_required
 
 from game.mobs.storage import MobsDatabase
 
+from game.map.places.models import Place
+from game.map.places.prototypes import PlacePrototype
+
 from game.workers.environment import workers_environment
 
 from game.heroes.prototypes import HeroPrototype, ChooseAbilityTaskPrototype
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.heroes.models import CHOOSE_ABILITY_STATE, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE
 from game.heroes.forms import ChoosePreferencesForm
+
+def split_list(items):
+    half = (len(items)+1)/2
+    left = items[:half]
+    right = items[half:]
+    if len(left) > len(right):
+        right.append(None)
+    return zip(left, right)
+
 
 class HeroResource(Resource):
 
@@ -85,21 +97,25 @@ class HeroResource(Resource):
         type = int(type)
 
         mobs = None
+        places = None
 
         if type == PREFERENCE_TYPE.MOB:
             hero = self.account.angel.get_hero()
             all_mobs = MobsDatabase.storage().get_available_mobs_list(level=hero.level)
-            half = (len(all_mobs)+1)/2
-            mobs_left = all_mobs[:half]
-            mobs_right = all_mobs[half:]
-            if len(mobs_left) > len(mobs_right):
-                mobs_right.append(None)
-            mobs = zip(mobs_left, mobs_right)
+            all_mobs = sorted(all_mobs, key=lambda x: x.name)
+            mobs = split_list(all_mobs)
+
+        elif type == PREFERENCE_TYPE.PLACE:
+            all_places = []
+            for place_model in Place.objects.all().order_by('name'):
+                all_places.append(PlacePrototype(place_model))
+            places = split_list(all_places)
 
         return self.template('heroes/choose_preferences.html',
                              {'type': type,
                               'PREFERENCE_TYPE': PREFERENCE_TYPE,
-                              'mobs': mobs} )
+                              'mobs': mobs,
+                              'places': places} )
 
     @login_required
     @handler('#hero_id', 'choose-preferences', method='post')

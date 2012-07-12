@@ -1,0 +1,18 @@
+
+
+<table class="table table-bordered table-striped table-condensed">
+  {% for place_left, place_right in places %}
+  <tr>
+    <td>
+      <span class="badge" style="vertical-align: middle;" rel="tooltip" title="размер города">{{ place_left.size }}</span>
+      <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ place_left.id }}">{{ place_left.name }}</a>
+    </td>
+    {% if place_right %}
+    <td>
+      <span class="badge" style="vertical-align: middle;" rel="tooltip" title="размер города">{{ place_right.size }}</span>
+      <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ place_right.id }}">{{ place_right.name }}</a>
+    </td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+</table>

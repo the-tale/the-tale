@@ -55,6 +55,9 @@ class Hero(models.Model):
 
     #character
     pref_mob_id = models.CharField(max_length=32, null=True, default=None)
+    pref_place = models.ForeignKey('places.Place', null=True, default=None, related_name='+')
+    pref_friend = models.ForeignKey('persons.Person', null=True, default=None, related_name='+')
+    pref_enemy = models.ForeignKey('persons.Person', null=True, default=None, related_name='+')
 
     #statistics
     stat_pve_deaths = models.BigIntegerField(default=0, null=False)

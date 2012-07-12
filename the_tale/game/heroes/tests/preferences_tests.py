@@ -14,6 +14,8 @@ from game.bundles import BundlePrototype
 
 from game.mobs.storage import MobsDatabase
 
+from game.map.places.models import Place
+
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.heroes.models import ChoosePreferencesTask, CHOOSE_PREFERENCES_STATE, PREFERENCE_TYPE
 
@@ -51,7 +53,7 @@ class HeroPreferencesMobTest(TestCase):
 
     def test_wrong_level(self):
         self.hero.model.level = 1
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 'wrong_mob_id')
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_id)
         task.process(self.bundle)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
@@ -100,10 +102,72 @@ class HeroPreferencesMobTest(TestCase):
         self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
 
 
+class HeroPreferencesPlaceTest(TestCase):
+
+    def setUp(self):
+        place_1, place_2, place_3 = create_test_map()
+
+        self.bundle = create_test_bundle('HeroTest')
+        self.hero = self.bundle.tests_get_hero()
+
+        self.hero.model.level = calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED
+        self.hero.model.save()
+
+        self.place = place_1
+        self.place_2 = place_2
+
+    def tearDown(self):
+        pass
+
+    def test_create(self):
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, 'wrong_place_id')
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.WAITING)
+        self.assertEqual(self.hero.preferences.place_id, None)
+
+    def test_reset_all(self):
+        ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, 666)
+        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 1)
+        ChoosePreferencesTaskPrototype.reset_all()
+        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 0)
+        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.RESET).count(), 1)
+
+    def test_wrong_level(self):
+        self.hero.model.level = 1
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+
+    def test_wrong_place(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 666)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+
+    def test_set_place(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
+        self.assertEqual(self.hero.preferences.place_id, None)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.place_id, self.place.id)
+
+    def test_change_place(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
+        task.process(self.bundle)
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place_2.id)
+        self.assertEqual(self.hero.preferences.place_id, self.place.id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.place_id, self.place_2.id)
+
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+
+
 class HeroPreferencesRequestsTest(TestCase):
 
     def setUp(self):
-        create_test_map()
+        place_1, place_2, place_3 = create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 
         self.bundle = BundlePrototype.get_by_id(bundle_id)
@@ -118,6 +182,10 @@ class HeroPreferencesRequestsTest(TestCase):
 
         self.mob_id = MobsDatabase.storage().data.keys()[0]
         self.mob_2_id = MobsDatabase.storage().data.keys()[1]
+
+        self.place = place_1
+        self.place_2 = place_2
+
 
     def tearDown(self):
         pass
@@ -134,6 +202,17 @@ class HeroPreferencesRequestsTest(TestCase):
                 self.assertTrue(mob_id in content)
             else:
                 self.assertFalse(mob_id in content)
+
+    def test_preferences_dialog_place(self):
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.PLACE))
+        self.assertEqual(response.status_code, 200)
+
+        content = response.content.decode('utf-8')
+
+        for place in Place.objects.all():
+            self.assertTrue(unicode(place.id) in content)
+            self.assertTrue(place.name in content)
 
     def test_choose_preferences_unlogined(self):
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})

@@ -4,7 +4,9 @@
 jQuery(document).ready(function(e){
     jQuery('.choose-preference-button').click(function(e){
         e.preventDefault();
-        var url = jQuery(e.target).attr('href');
+        var target = jQuery(e.target);
+        var url = target.attr('href');
+        var preferenceType = target.data('preference-type')
         pgf.ui.dialog.Create({ fromUrl: url,
                                OnOpen: function(dialog) {
                                    jQuery('.pgf-hero-preference-record', dialog).click(function(e){
@@ -15,7 +17,7 @@ jQuery(document).ready(function(e){
 
                                        pgf.forms.Post({ action: actionUrl,
                                                         data: {preference_id: preferenceId,
-                                                               preference_type: {{PREFERENCE_TYPE.MOB}} },
+                                                               preference_type: preferenceType },
                                                         OnSuccess: function(data) { location.reload(); }
                                                       });
 
@@ -36,7 +38,7 @@ jQuery(document).ready(function(e){
       {% if resource.hero.level >= lvl_required %}
       <a class="pull-right choose-preference-button"
          href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type}}"
-         data-action="{{ url('game:heroes:choose-preferences', resource.hero.id) }}">
+         data-preference-type="{{ type }}">
         {% if value %}{{value}}{% else %}выбрать{% endif %}
       </a>
       {% else %}
@@ -55,7 +57,7 @@ jQuery(document).ready(function(e){
 
   <ul class="unstyled">
     {{ preferences_record("любимая добыча", PREFERENCE_TYPE.MOB, calc.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED, resource.hero.preferences.mob.name) }}
-    {{ preferences_record("родной город", PREFERENCE_TYPE.PLACE, calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED, none) }}
+    {{ preferences_record("родной город", PREFERENCE_TYPE.PLACE, calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED, resource.hero.preferences.place.name) }}
     {{ preferences_record("соратник", PREFERENCE_TYPE.FRIEND, calc.CHARACTER_PREFERENCES_COMRADE_LEVEL_REQUIRED, none) }}
     {{ preferences_record("враг", PREFERENCE_TYPE.ENEMY, calc.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED, none) }}
   </ul>
