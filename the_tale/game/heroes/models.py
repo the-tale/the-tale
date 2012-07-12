@@ -145,6 +145,6 @@ class ChoosePreferencesTask(models.Model):
     hero = models.ForeignKey(Hero,  related_name='+')
 
     preference_type = models.IntegerField(choices=PREFERENCE_TYPE_CHOICES, db_index=True)
-    preference_id = models.CharField(default=None, max_length=32) # id can be either number nor strong
+    preference_id = models.CharField(default=None, max_length=32, null=True) # id can be either number nor strong
 
     comment = models.CharField(max_length=256, blank=True, null=False, default=True)

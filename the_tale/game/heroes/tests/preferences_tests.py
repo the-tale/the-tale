@@ -18,7 +18,6 @@ from game.mobs.storage import MobsDatabase
 from game.map.places.models import Place
 
 from game.persons.models import Person, PERSON_STATE
-from game.persons.prototypes import PersonPrototype
 
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.heroes.models import ChoosePreferencesTask, CHOOSE_PREFERENCES_STATE, PREFERENCE_TYPE
@@ -105,6 +104,18 @@ class HeroPreferencesMobTest(TestCase):
 
         self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
 
+    def test_remove_mob(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_id)
+        task.process(self.bundle)
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, None)
+        self.assertEqual(self.hero.preferences.mob_id, self.mob_id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.mob_id, None)
+
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+
 
 class HeroPreferencesPlaceTest(TestCase):
 
@@ -164,6 +175,18 @@ class HeroPreferencesPlaceTest(TestCase):
         task.process(self.bundle)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.place_id, self.place_2.id)
+
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+
+    def test_remove_place(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
+        task.process(self.bundle)
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, None)
+        self.assertEqual(self.hero.preferences.place_id, self.place.id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.place_id, None)
 
         self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
 
@@ -229,6 +252,92 @@ class HeroPreferencesFriendTest(TestCase):
 
         self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
 
+    def test_remove_friend(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
+        task.process(self.bundle)
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, None)
+        self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.friend_id, None)
+
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+
+
+class HeroPreferencesEnemyTest(TestCase):
+
+    def setUp(self):
+        place_1, place_2, place_3 = create_test_map()
+
+        self.bundle = create_test_bundle('HeroTest')
+        self.hero = self.bundle.tests_get_hero()
+
+        self.hero.model.level = calc.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED
+        self.hero.model.save()
+
+        self.enemy_id = Person.objects.all()[0].id
+        self.enemy_2_id = Person.objects.all()[1].id
+
+    def tearDown(self):
+        pass
+
+    def test_create(self):
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, 666)
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.WAITING)
+        self.assertEqual(self.hero.preferences.enemy_id, None)
+
+    def test_reset_all(self):
+        ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, 666)
+        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 1)
+        ChoosePreferencesTaskPrototype.reset_all()
+        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 0)
+        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.RESET).count(), 1)
+
+    def test_wrong_level(self):
+        self.hero.model.level = 1
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+
+    def test_wrong_enemy(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 666)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+
+    def test_set_enemy(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
+        self.assertEqual(self.hero.preferences.enemy_id, None)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
+
+    def test_change_enemy(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
+        task.process(self.bundle)
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_2_id)
+        self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.enemy_id, self.enemy_2_id)
+
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+
+    def test_remove_enemy(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
+        task.process(self.bundle)
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, None)
+        self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.enemy_id, None)
+
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+
 
 class HeroPreferencesRequestsTest(TestCase):
 
@@ -291,6 +400,17 @@ class HeroPreferencesRequestsTest(TestCase):
             self.assertTrue(unicode(person.id) in content)
             self.assertTrue(escape(person.name) in content)
 
+    def test_preferences_dialog_enemy(self):
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY))
+        self.assertEqual(response.status_code, 200)
+
+        content = response.content.decode('utf-8')
+
+        for person in Person.objects.filter(state=PERSON_STATE.IN_GAME):
+            self.assertTrue(unicode(person.id) in content)
+            self.assertTrue(escape(person.name) in content)
+
     def test_choose_preferences_unlogined(self):
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
         self.assertEqual(response.status_code, 200)
@@ -303,6 +423,21 @@ class HeroPreferencesRequestsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         task = ChoosePreferencesTask.objects.all()[0]
+
+        self.assertEqual(s11n.from_json(response.content), {'status': 'processing',
+                                                            'status_url': reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % task.id)})
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
+
+    def test_choose_preferences_remove_success(self):
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB})
+
+        self.assertEqual(response.status_code, 200)
+
+        task = ChoosePreferencesTask.objects.all()[0]
+
+        self.assertEqual(task.preference_id, None)
 
         self.assertEqual(s11n.from_json(response.content), {'status': 'processing',
                                                             'status_url': reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % task.id)})

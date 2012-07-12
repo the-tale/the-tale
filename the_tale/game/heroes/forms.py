@@ -6,5 +6,5 @@ from game.heroes.models import PREFERENCE_TYPE_CHOICES
 
 class ChoosePreferencesForm(forms.Form):
 
-    preference_id = fields.CharField(max_length=32)
+    preference_id = fields.CharField(max_length=32, required=False)
     preference_type = fields.ChoiceField(choices=PREFERENCE_TYPE_CHOICES)

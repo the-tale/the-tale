@@ -44,6 +44,13 @@ class HeroPreferences(object):
     def get_friend(self):
         return PersonPrototype(model=self.hero_model.pref_friend) if self.hero_model.pref_friend else None
 
+    def get_enemy_id(self): return self.hero_model.pref_enemy_id
+    def set_enemy_id(self, value): self.hero_model.pref_enemy_id = value
+    enemy_id = property(get_enemy_id, set_enemy_id)
+
+    def get_enemy(self):
+        return PersonPrototype(model=self.hero_model.pref_enemy) if self.hero_model.pref_enemy else None
+
 
 
 class ChoosePreferencesTaskPrototype(object):
@@ -63,7 +70,7 @@ class ChoosePreferencesTaskPrototype(object):
 
         model = ChoosePreferencesTask.objects.create(hero=hero.model,
                                                      preference_type=preference_type,
-                                                     preference_id=str(preference_id))
+                                                     preference_id=str(preference_id) if preference_id is not None else None)
 
         return cls(model)
 
@@ -98,49 +105,75 @@ class ChoosePreferencesTaskPrototype(object):
                 self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
                 return
 
-            if self.model.preference_id not in MobsDatabase.storage():
-                self.model.comment = u'unknown mob id: %s' % (self.model.preference_id, )
-                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                return
+            mob_id = self.model.preference_id
 
-            mob = MobsDatabase.storage()[self.model.preference_id]
+            if mob_id is not None:
 
-            if hero.level < mob.level:
-                self.model.comment = u'hero level < mob level (%d < %d)' % (hero.level, mob.level)
-                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                return
+                if self.model.preference_id not in MobsDatabase.storage():
+                    self.model.comment = u'unknown mob id: %s' % (self.model.preference_id, )
+                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
 
-            hero.preferences.mob_id = mob.id
+                mob = MobsDatabase.storage()[self.model.preference_id]
+
+                if hero.level < mob.level:
+                    self.model.comment = u'hero level < mob level (%d < %d)' % (hero.level, mob.level)
+                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
+
+            hero.preferences.mob_id = mob_id
 
         elif self.model.preference_type == PREFERENCE_TYPE.PLACE:
-            place_id = int(self.model.preference_id)
 
-            if hero.level < calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED:
-                self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED)
-                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                return
+            place_id = int(self.model.preference_id) if self.model.preference_id is not None else None
 
-            if not Place.objects.filter(id=place_id).exists():
-                self.model.comment = u'unknown place id: %s' % (place_id, )
-                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                return
+            if place_id is not None:
+
+                if hero.level < calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED:
+                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED)
+                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
+
+                if not Place.objects.filter(id=place_id).exists():
+                    self.model.comment = u'unknown place id: %s' % (place_id, )
+                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
 
             hero.preferences.place_id = place_id
 
         elif self.model.preference_type == PREFERENCE_TYPE.FRIEND:
-            friend_id = int(self.model.preference_id)
 
-            if hero.level < calc.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED:
-                self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, calc.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED)
-                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                return
+            friend_id = int(self.model.preference_id) if self.model.preference_id is not None else None
 
-            if not Person.objects.filter(id=friend_id).exists():
-                self.model.comment = u'unknown person id: %s' % (place_id, )
-                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                return
+            if friend_id is not None:
+                if hero.level < calc.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED:
+                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, calc.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED)
+                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
+
+                if not Person.objects.filter(id=friend_id).exists():
+                    self.model.comment = u'unknown person id: %s' % (place_id, )
+                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
 
             hero.preferences.friend_id = friend_id
+
+        elif self.model.preference_type == PREFERENCE_TYPE.ENEMY:
+
+            enemy_id = int(self.model.preference_id) if self.model.preference_id is not None else None
+
+            if enemy_id is not None:
+                if hero.level < calc.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED:
+                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, calc.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED)
+                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
+
+                if not Person.objects.filter(id=enemy_id).exists():
+                    self.model.comment = u'unknown person id: %s' % (place_id, )
+                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
+
+            hero.preferences.enemy_id = enemy_id
 
         else:
             self.model.comment = u'unknown preference type: %s' % (self.model.preference_type, )

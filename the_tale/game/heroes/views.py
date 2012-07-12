@@ -102,6 +102,7 @@ class HeroResource(Resource):
         mobs = None
         places = None
         friends = None
+        enemies = None
 
         all_places = []
         for place_model in Place.objects.all().order_by('name'):
@@ -123,13 +124,20 @@ class HeroResource(Resource):
                 all_friends.append(PersonPrototype(person_model))
             friends = split_list(all_friends)
 
+        elif type == PREFERENCE_TYPE.ENEMY:
+            all_enemys = []
+            for person_model in Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name'):
+                all_enemys.append(PersonPrototype(person_model))
+            enemies = split_list(all_enemys)
+
         return self.template('heroes/choose_preferences.html',
                              {'type': type,
                               'PREFERENCE_TYPE': PREFERENCE_TYPE,
                               'mobs': mobs,
                               'places': places,
                               'all_places': dict([ (place.id, place) for place in all_places]),
-                              'friends': friends} )
+                              'friends': friends,
+                              'enemies': enemies} )
 
     @login_required
     @handler('#hero_id', 'choose-preferences', method='post')
@@ -144,13 +152,11 @@ class HeroResource(Resource):
 
         task = ChoosePreferencesTaskPrototype.create(hero,
                                                      preference_type=choose_preferences_form.c.preference_type,
-                                                     preference_id=choose_preferences_form.c.preference_id)
+                                                     preference_id=choose_preferences_form.c.preference_id if choose_preferences_form.c.preference_id else None)
 
         workers_environment.supervisor.cmd_choose_hero_preference(task.id)
 
         return self.json(status='processing', status_url=reverse('game:heroes:choose-preferences-status', args=[hero.id]) + ('?task_id=%d' % task.id) )
-
-
 
     @login_required
     @handler('#hero_id', 'choose-preferences-status', method='get')
