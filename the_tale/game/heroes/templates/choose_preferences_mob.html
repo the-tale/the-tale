@@ -1,0 +1,12 @@
+
+
+<table class="table table-bordered table-striped table-condensed">
+  {% for mob_left, mob_right in mobs %}
+  <tr>
+    <td><a href="#" class="pgf-hero-preference-record" data-preference-id="{{ mob_left.id }}">{{ mob_left.name }}</a></td>
+    {% if mob_right %}
+    <td><a href="#" class="pgf-hero-preference-record" data-preference-id="{{ mob_right.id }}">{{ mob_right.name }}</a></td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+</ul>

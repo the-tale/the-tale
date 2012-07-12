@@ -7,8 +7,14 @@ from dext.utils.exceptions import Error
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
 
+from game.mobs.storage import MobsDatabase
+
+from game.workers.environment import workers_environment
+
 from game.heroes.prototypes import HeroPrototype, ChooseAbilityTaskPrototype
-from game.heroes.models import CHOOSE_ABILITY_STATE
+from game.heroes.preferences import ChoosePreferencesTaskPrototype
+from game.heroes.models import CHOOSE_ABILITY_STATE, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE
+from game.heroes.forms import ChoosePreferencesForm
 
 class HeroResource(Resource):
 
@@ -35,7 +41,8 @@ class HeroResource(Resource):
     def hero_page(self):
         abilities = sorted(self.hero.abilities.all, key=lambda x: x.NAME)
         return self.template('heroes/hero_page.html',
-                             {'abilities': abilities} )
+                             {'abilities': abilities,
+                              'PREFERENCE_TYPE': PREFERENCE_TYPE} )
 
     @login_required
     @handler('#hero_id', 'choose-ability-dialog', method='get')
@@ -46,8 +53,6 @@ class HeroResource(Resource):
     @login_required
     @handler('#hero_id', 'choose-ability', method='post')
     def choose_ability(self, ability_id):
-
-        from ..workers.environment import workers_environment
 
         task = ChooseAbilityTaskPrototype.create(ability_id, self.hero.id)
 
@@ -71,3 +76,65 @@ class HeroResource(Resource):
             return self.json(status='ok')
 
         return self.json(status='error', error='ошибка при выборе способности')
+
+
+    @login_required
+    @handler('#hero_id', 'choose-preferences-dialog', method='get')
+    def choose_preferences_dialog(self, type):
+
+        type = int(type)
+
+        mobs = None
+
+        if type == PREFERENCE_TYPE.MOB:
+            hero = self.account.angel.get_hero()
+            all_mobs = MobsDatabase.storage().get_available_mobs_list(level=hero.level)
+            half = (len(all_mobs)+1)/2
+            mobs_left = all_mobs[:half]
+            mobs_right = all_mobs[half:]
+            if len(mobs_left) < len(mobs_right):
+                mobs_left.append(None)
+            mobs = zip(mobs_left, mobs_right)
+
+        return self.template('heroes/choose_preferences.html',
+                             {'type': type,
+                              'PREFERENCE_TYPE': PREFERENCE_TYPE,
+                              'mobs': mobs} )
+
+    @login_required
+    @handler('#hero_id', 'choose-preferences', method='post')
+    def choose_preferences(self):
+
+        choose_preferences_form = ChoosePreferencesForm(self.request.POST)
+
+        if not choose_preferences_form.is_valid():
+            return self.json(status='error', errors=choose_preferences_form.errors)
+
+        hero = self.account.angel.get_hero()
+
+        task = ChoosePreferencesTaskPrototype.create(hero,
+                                                     preference_type=choose_preferences_form.c.preference_type,
+                                                     preference_id=choose_preferences_form.c.preference_id)
+
+        workers_environment.supervisor.cmd_choose_hero_preference(task.id)
+
+        return self.json(status='processing', status_url=reverse('game:heroes:choose-preferences-status', args=[hero.id]) + ('?task_id=%d' % task.id) )
+
+
+
+    @login_required
+    @handler('#hero_id', 'choose-preferences-status', method='get')
+    def choose_preferences_status(self, task_id):
+
+        task = ChoosePreferencesTaskPrototype.get_by_id(int(task_id))
+
+        if task is None:
+            return self.json(status='error', error=u'задачи не существует')
+
+        if task.state == CHOOSE_PREFERENCES_STATE.WAITING:
+            return self.json(status='processing', status_url=reverse('game:heroes:choose-preferences-status', args=[self.hero_id]) + ('?task_id=%d' % task.id) )
+
+        if task.state == CHOOSE_PREFERENCES_STATE.PROCESSED:
+            return self.json(status='ok')
+
+        return self.json(status='error', error=u'Ошибка при выборе предпочтений героя, повторите попытку позже')

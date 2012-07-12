@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% import 'heroes/macros.html' as macros with context %}
-
 {% block head %}
 {{ super() }}
 
@@ -24,22 +22,7 @@ jQuery(document).ready(function(e){
         angelUpdater.Refresh();
     }, 0);
 
-    jQuery('#choose-ability-button').click(function(){
-        pgf.ui.dialog.Create({ fromUrl: pgf.urls['game:heroes:choose_ability_dialog']({{ resource.hero.id }}),
-                               OnOpen: function(dialog) {
-                                   jQuery('.pgf-hero-ability-record', dialog).click(function(e){
-                                       e.preventDefault();
-
-                                       var el = jQuery(e.currentTarget);
-
-                                       pgf.forms.Post({ action: pgf.urls['game:heroes:choose_ability']({{ resource.hero.id }}, el.data('ability-id')),
-                                                        OnSuccess: function(data) { location.reload(); }
-                                                      });
-
-                                   });
-                               }
-                             });
-    });
+    jQuery('.pgf-attributes-tab-button').tab('show');
 });
 
 </script>
@@ -58,73 +41,31 @@ jQuery(document).ready(function(e){
     </div>
   </div>
 
-  <div class="span5">
+  <div class="span8">
 
-      {% if resource.hero.destiny_points %}
-      <div id="choose-ability-button" class="alert fade in pgf-choose-ability-button">
-        {{ resource.hero.name }} может выучить новую способность. <br/>
-        Нажмите на это сообщение что бы выбрать её.
+    <ul class="nav nav-tabs">
+      <li class=""><a href="#pgf-attributes-container" class="pgf-attributes-tab-button" data-toggle="tab">Аттрибуты</a></li>
+      <li class=""><a href="#pgf-statistics-container" class="pgf-statistics-tab-button" data-toggle="tab">Статистика</a></li>
+    </ul>
+
+    <div class="row tab-content">
+      <div class="tab-pane" id="pgf-attributes-container">
+
+        <div class="span4">
+          {% include "heroes/hero_abilities.html" with context %}
+        </div>
+
+        <div class="span4">
+          {% include "heroes/hero_character.html" with context %}
+        </div>
       </div>
-      {% endif %}
 
-      <div class="block">
-        <h2 style="cursor: default;">Способности</h2>
-        {{ macros.abilities_list(abilities) }}
+      <div class="tab-pane" id="pgf-statistics-container">
+        <div class="span8">
+          {% include "heroes/hero_statistics.html" with context %}
+        </div>
       </div>
-  </div>
-
-  <div class="span4">
-    <div class="block hero-statistics">
-      <h2>Статистика</h2>
-      <h3>Сражения</h3>
-      <ul class="unstyled">
-        <li class="stat-record"><span class="name">смертей от монстров</span><span class="value">{{ resource.hero.statistics.pve_deaths }}</span></li>
-        <li class="stat-record"><span class="name">убито монстров</span><span class="value">{{ resource.hero.statistics.pve_kills }}</span></li>
-      </ul>
-      <h3>Золото</h3>
-      <ul class="unstyled">
-        <li class="stat-record">
-          <span class="name">всего заработано</span><span class="value">{{ resource.hero.statistics.money_earned }}</span>
-        </li>
-        <li class="stat-record">
-          <span class="name">заработано продажей лута</span><span class="value">{{ resource.hero.statistics.money_earned_from_loot }}</span>
-        </li>
-        <li class="stat-record">
-          <span class="name">заработано продажей артефактов</span><span class="value">{{ resource.hero.statistics.money_earned_from_artifacts }}</span>
-        </li>
-        <li class="stat-record">
-          <span class="name">заработано выполнением квестов</span><span class="value">{{ resource.hero.statistics.money_earned_from_quests }}</span>
-        </li>
-        <li class="stat-record">
-          <span class="name">получено от ангела</span><span class="value">{{ resource.hero.statistics.money_earned_from_help }}</span>
-        </li>
-        <li class="stat-record">
-          <span class="name">всего потрачено</span><span class="value">{{ resource.hero.statistics.money_spend }}</span>
-        </li>
-        <li class="stat-record">
-          <span class="name">потрачено на лечение</span><span class="value">{{ resource.hero.statistics.money_spend_for_heal }}</span>
-        </li>
-        <li class="stat-record">
-          <span class="name">потрачено на покупку артефактов</span><span class="value">{{ resource.hero.statistics.money_spend_for_artifacts }}</span>
-        </li>
-        <li class="stat-record">
-          <span class="name">потрачено на заточку артефактов</span><span class="value">{{ resource.hero.statistics.money_spend_for_sharpening }}</span>
-        </li>
-        <li class="stat-record">
-          <span class="name">потрачено на изменение влияния</span><span class="value">{{ resource.hero.statistics.money_spend_for_impact }}</span>
-        </li>
-        <li class="stat-record">
-          <span class="name">потрачено без пользы</span><span class="value">{{ resource.hero.statistics.money_spend_for_useless }}</span>
-        </li>
-      </ul>
-      <h3>Прочее</h3>
-      <ul class="unstyled">
-        <li class="stat-record"><span class="name">артефактов добыто</span><span class="value">{{ resource.hero.statistics.artifacts_had }}</span></li>
-        <li class="stat-record"><span class="name">лута получено</span><span class="value">{{ resource.hero.statistics.loot_had }}</span></li>
-        <li class="stat-record"><span class="name">заданий выполнено</span><span class="value">{{ resource.hero.statistics.quests_done }}</span></li>
-      </ul>
     </div>
-  </div>
 
 </div>
 

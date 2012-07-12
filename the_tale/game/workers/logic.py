@@ -147,3 +147,19 @@ class Worker(BaseWorker):
             task.process(bundle)
             task.save()
             bundle.save_data()
+
+    def cmd_choose_hero_preference(self, preference_task_id):
+        self.send_cmd('choose_hero_preference', {'preference_task_id': preference_task_id})
+
+
+    def process_choose_hero_preference(self, preference_task_id):
+        with nested_commit_on_success():
+            from ..heroes.preferences import ChoosePreferencesTaskPrototype
+
+            task = ChoosePreferencesTaskPrototype.get_by_id(preference_task_id)
+
+            bundle = self.bundles[self.heroes2bundles[task.hero_id]]
+
+            task.process(bundle)
+            task.save()
+            bundle.save_data()

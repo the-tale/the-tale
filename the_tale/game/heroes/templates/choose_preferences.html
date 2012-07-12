@@ -1,0 +1,17 @@
+
+<div class="modal hide choose-hero-ability-dialog">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">Выберите любимую добычу</h3>
+  </div>
+
+  <div class="modal-body">
+
+    {% if type == PREFERENCE_TYPE.MOB %}
+    {% include "heroes/choose_preferences_mob.html" with context %}
+    {% endif %}
+
+  </div>
+
+</div>

@@ -10,6 +10,7 @@ from game.bundles import BundlePrototype
 from game.models import Bundle
 from game.abilities.prototypes import AbilityTaskPrototype
 from game.heroes.prototypes import ChooseAbilityTaskPrototype
+from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.conf import game_settings
 
 
@@ -51,6 +52,7 @@ class Worker(BaseWorker):
         #clearing
         AbilityTaskPrototype.reset_all()
         ChooseAbilityTaskPrototype.reset_all()
+        ChoosePreferencesTaskPrototype.reset_all()
 
         #initialization
         self.logic_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='logic')
@@ -133,3 +135,9 @@ class Worker(BaseWorker):
 
     def process_choose_hero_ability(self, ability_task_id):
         self.logic_worker.cmd_choose_hero_ability(ability_task_id)
+
+    def cmd_choose_hero_preference(self, preference_task_id):
+        self.send_cmd('choose_hero_preference', {'preference_task_id': preference_task_id})
+
+    def process_choose_hero_preference(self, preference_task_id):
+        self.logic_worker.cmd_choose_hero_preference(preference_task_id)

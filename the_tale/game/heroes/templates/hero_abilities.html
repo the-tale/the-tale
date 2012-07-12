@@ -1,0 +1,36 @@
+{% import 'heroes/macros.html' as macros with context %}
+
+<script type="text/javascript">
+
+jQuery(document).ready(function(e){
+    jQuery('#choose-ability-button').click(function(){
+        pgf.ui.dialog.Create({ fromUrl: pgf.urls['game:heroes:choose_ability_dialog']({{ resource.hero.id }}),
+                               OnOpen: function(dialog) {
+                                   jQuery('.pgf-hero-ability-record', dialog).click(function(e){
+                                       e.preventDefault();
+
+                                       var el = jQuery(e.currentTarget);
+
+                                       pgf.forms.Post({ action: pgf.urls['game:heroes:choose_ability']({{ resource.hero.id }}, el.data('ability-id')),
+                                                        OnSuccess: function(data) { location.reload(); }
+                                                      });
+
+                                   });
+                               }
+                             });
+    });
+});
+
+</script>
+
+{% if resource.hero.destiny_points %}
+<div id="choose-ability-button" class="alert fade in pgf-choose-ability-button">
+  {{ resource.hero.name }} может выучить новую способность. <br/>
+  Нажмите на это сообщение что бы выбрать её.
+</div>
+{% endif %}
+
+<div class="block">
+  <h2 style="cursor: default;">Способности</h2>
+  {{ macros.abilities_list(abilities) }}
+</div>

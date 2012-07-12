@@ -19,6 +19,7 @@ from game import names
 
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
 from game.heroes.statistics import HeroStatistics
+from game.heroes.preferences import HeroPreferences
 from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from game.heroes.habilities import AbilitiesPrototype, ABILITIES
 from game.heroes.conf import heroes_settings
@@ -290,6 +291,11 @@ class HeroPrototype(object):
             self._statistics = HeroStatistics(hero_model=self.model)
         return self._statistics
 
+    @property
+    def preferences(self):
+        if not hasattr(self, '_preferences'):
+            self._preferences = HeroPreferences(hero_model=self.model)
+        return self._preferences
 
     def get_last_action_percents(self): return self.model.last_action_percents
     def set_last_action_percents(self, value): self.model.last_action_percents = value

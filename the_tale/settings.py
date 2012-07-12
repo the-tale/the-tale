@@ -97,7 +97,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
     'dext.less.context_processors.less',
-    'portal.context_processors.section'
+    'portal.context_processors.section',
+    'game.balance.context_processors.balance'
     )
 
 

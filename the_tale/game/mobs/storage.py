@@ -58,6 +58,11 @@ class MobsDatabase(object):
 
             self.data[mob_record.id] = mob_record
 
+    def __contains__(self, key):
+        return key in self.data
+
+    def __getitem__(self, key):
+        return self.data[key]
 
     @classmethod
     def storage(cls):
@@ -66,11 +71,10 @@ class MobsDatabase(object):
             cls._storage.load(mobs_settings.MOBS_STORAGE)
         return cls._storage
 
-
-    def get_available_mobs_list(self, level, terrain):
+    def get_available_mobs_list(self, level, terrain=None):
         mobs = []
         for mob_record in self.data.values():
-            if terrain in mob_record.terrain and mob_record.level <= level:
+            if mob_record.level <= level and (terrain is None or terrain in mob_record.terrain):
                 mobs.append(mob_record)
         return mobs
 

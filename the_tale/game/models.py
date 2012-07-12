@@ -2,8 +2,6 @@
 
 from django.db import models
 
-from game.balance import constants as c
-
 class Time(models.Model):
 
     turn_number = models.BigIntegerField(null=False, default=0)

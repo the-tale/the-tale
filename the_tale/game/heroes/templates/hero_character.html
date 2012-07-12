@@ -1,0 +1,63 @@
+
+<script type="text/javascript">
+
+jQuery(document).ready(function(e){
+    jQuery('.choose-preference-button').click(function(e){
+        e.preventDefault();
+        var url = jQuery(e.target).attr('href');
+        pgf.ui.dialog.Create({ fromUrl: url,
+                               OnOpen: function(dialog) {
+                                   jQuery('.pgf-hero-preference-record', dialog).click(function(e){
+                                       e.preventDefault();
+
+                                       var actionUrl = "{{ url('game:heroes:choose-preferences', resource.hero.id) }}";
+                                       var preferenceId = jQuery(e.target).data('preference-id');
+
+                                       pgf.forms.Post({ action: actionUrl,
+                                                        data: {preference_id: preferenceId,
+                                                               preference_type: {{PREFERENCE_TYPE.MOB}} },
+                                                        OnSuccess: function(data) { location.reload(); }
+                                                      });
+
+                                   });
+                               }
+                             });
+    });
+
+});
+
+</script>
+
+{% macro preferences_record(name, type, lvl_required, value) -%}
+
+<li>
+    <li class="hero-preferences-record">
+      <strong>{{ name }}:</strong>
+      {% if resource.hero.level >= lvl_required %}
+      <a class="pull-right choose-preference-button"
+         href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type}}"
+         data-action="{{ url('game:heroes:choose-preferences', resource.hero.id) }}">
+        {% if value %}{{value}}{% else %}выбрать{% endif %}
+      </a>
+      {% else %}
+      <span class="pull-right">необходим {{ lvl_required }} уровень</span>
+      {% endif %}
+    </li>
+</li>
+
+{% endmacro %}
+
+
+<div class="block">
+  <h2 style="cursor: default;">Характер</h2>
+
+  <h3>предпочтения</h3>
+
+  <ul class="unstyled">
+    {{ preferences_record("любимая добыча", PREFERENCE_TYPE.MOB, calc.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED, resource.hero.preferences.mob.name) }}
+    {{ preferences_record("родной город", PREFERENCE_TYPE.PLACE, calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED, none) }}
+    {{ preferences_record("соратник", PREFERENCE_TYPE.FRIEND, calc.CHARACTER_PREFERENCES_COMRADE_LEVEL_REQUIRED, none) }}
+    {{ preferences_record("враг", PREFERENCE_TYPE.ENEMY, calc.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED, none) }}
+  </ul>
+
+</div>

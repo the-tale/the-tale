@@ -53,6 +53,9 @@ class Hero(models.Model):
     pos_to_x = models.IntegerField(null=True, blank=True, default=None)
     pos_to_y = models.IntegerField(null=True, blank=True, default=None)
 
+    #character
+    pref_mob_id = models.CharField(max_length=32, null=True, default=None)
+
     #statistics
     stat_pve_deaths = models.BigIntegerField(default=0, null=False)
     stat_pve_kills = models.BigIntegerField(default=0, null=False)
@@ -101,5 +104,44 @@ class ChooseAbilityTask(models.Model):
     hero = models.ForeignKey(Hero,  related_name='+')
 
     ability_id = models.CharField(max_length=64)
+
+    comment = models.CharField(max_length=256, blank=True, null=False, default=True)
+
+
+class CHOOSE_PREFERENCES_STATE:
+    WAITING = 0
+    PROCESSED = 1
+    TIMEOUT = 2
+    RESET = 3
+    ERROR = 4
+
+CHOOSE_PREFERENCES_STATE_CHOICES = [(CHOOSE_PREFERENCES_STATE.WAITING, u'в очереди'),
+                                (CHOOSE_PREFERENCES_STATE.PROCESSED, u'обработана'),
+                                (CHOOSE_PREFERENCES_STATE.TIMEOUT, u'таймаут'),
+                                (CHOOSE_PREFERENCES_STATE.RESET, u'сброшена'),
+                                (CHOOSE_PREFERENCES_STATE.ERROR, u'ошибка')]
+
+class PREFERENCE_TYPE:
+    MOB = 0
+    PLACE = 1
+    FRIEND = 2
+    ENEMY = 3
+
+PREFERENCE_TYPE_CHOICES = [ (PREFERENCE_TYPE.MOB, u'любимая добыча'),
+                            (PREFERENCE_TYPE.PLACE, u'родной город'),
+                            (PREFERENCE_TYPE.FRIEND, u'соратник'),
+                            (PREFERENCE_TYPE.ENEMY, u'враг')]
+
+
+class ChoosePreferencesTask(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    state = models.IntegerField(default=CHOOSE_PREFERENCES_STATE.WAITING, choices=CHOOSE_PREFERENCES_STATE_CHOICES, db_index=True)
+
+    hero = models.ForeignKey(Hero,  related_name='+')
+
+    preference_type = models.IntegerField(choices=PREFERENCE_TYPE_CHOICES, db_index=True)
+    preference_id = models.CharField(default=None, max_length=32) # id can be either number nor strong
 
     comment = models.CharField(max_length=256, blank=True, null=False, default=True)

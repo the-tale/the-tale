@@ -1,0 +1,49 @@
+<div class="block hero-statistics">
+  <h3>Сражения</h3>
+  <ul class="unstyled">
+    <li class="stat-record"><span class="name">смертей от монстров</span><span class="value">{{ resource.hero.statistics.pve_deaths }}</span></li>
+    <li class="stat-record"><span class="name">убито монстров</span><span class="value">{{ resource.hero.statistics.pve_kills }}</span></li>
+  </ul>
+  <h3>Золото</h3>
+  <ul class="unstyled">
+    <li class="stat-record">
+      <span class="name">всего заработано</span><span class="value">{{ resource.hero.statistics.money_earned }}</span>
+    </li>
+    <li class="stat-record">
+      <span class="name">заработано продажей лута</span><span class="value">{{ resource.hero.statistics.money_earned_from_loot }}</span>
+    </li>
+    <li class="stat-record">
+      <span class="name">заработано продажей артефактов</span><span class="value">{{ resource.hero.statistics.money_earned_from_artifacts }}</span>
+    </li>
+    <li class="stat-record">
+      <span class="name">заработано выполнением квестов</span><span class="value">{{ resource.hero.statistics.money_earned_from_quests }}</span>
+    </li>
+    <li class="stat-record">
+      <span class="name">получено от ангела</span><span class="value">{{ resource.hero.statistics.money_earned_from_help }}</span>
+    </li>
+    <li class="stat-record">
+      <span class="name">всего потрачено</span><span class="value">{{ resource.hero.statistics.money_spend }}</span>
+    </li>
+    <li class="stat-record">
+      <span class="name">потрачено на лечение</span><span class="value">{{ resource.hero.statistics.money_spend_for_heal }}</span>
+    </li>
+    <li class="stat-record">
+      <span class="name">потрачено на покупку артефактов</span><span class="value">{{ resource.hero.statistics.money_spend_for_artifacts }}</span>
+    </li>
+    <li class="stat-record">
+      <span class="name">потрачено на заточку артефактов</span><span class="value">{{ resource.hero.statistics.money_spend_for_sharpening }}</span>
+    </li>
+    <li class="stat-record">
+      <span class="name">потрачено на изменение влияния</span><span class="value">{{ resource.hero.statistics.money_spend_for_impact }}</span>
+    </li>
+    <li class="stat-record">
+      <span class="name">потрачено без пользы</span><span class="value">{{ resource.hero.statistics.money_spend_for_useless }}</span>
+    </li>
+  </ul>
+  <h3>Прочее</h3>
+  <ul class="unstyled">
+    <li class="stat-record"><span class="name">артефактов добыто</span><span class="value">{{ resource.hero.statistics.artifacts_had }}</span></li>
+    <li class="stat-record"><span class="name">лута получено</span><span class="value">{{ resource.hero.statistics.loot_had }}</span></li>
+    <li class="stat-record"><span class="name">заданий выполнено</span><span class="value">{{ resource.hero.statistics.quests_done }}</span></li>
+  </ul>
+</div>
