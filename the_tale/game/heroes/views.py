@@ -92,8 +92,8 @@ class HeroResource(Resource):
             half = (len(all_mobs)+1)/2
             mobs_left = all_mobs[:half]
             mobs_right = all_mobs[half:]
-            if len(mobs_left) < len(mobs_right):
-                mobs_left.append(None)
+            if len(mobs_left) > len(mobs_right):
+                mobs_right.append(None)
             mobs = zip(mobs_left, mobs_right)
 
         return self.template('heroes/choose_preferences.html',

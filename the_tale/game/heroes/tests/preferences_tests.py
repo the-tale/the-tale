@@ -43,6 +43,7 @@ class HeroPreferencesMobTest(TestCase):
         self.assertEqual(self.hero.preferences.mob_id, None)
 
     def test_reset_all(self):
+        ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 'wrong_mob_id')
         self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 1)
         ChoosePreferencesTaskPrototype.reset_all()
         self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 0)
