@@ -24,9 +24,11 @@
     {% include "heroes/choose_preferences_place.html" with context %}
     {% elif type == PREFERENCE_TYPE.FRIEND %}
     {% set persons = friends %}
+    {% set person_id = resource.hero.preferences.friend_id %}
     {% include "heroes/choose_preferences_person.html" with context %}
     {% elif type == PREFERENCE_TYPE.ENEMY %}
     {% set persons = enemies %}
+    {% set person_id = resource.hero.preferences.enemy_id %}
     {% include "heroes/choose_preferences_person.html" with context %}
     {% endif %}
 

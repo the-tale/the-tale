@@ -1,17 +1,24 @@
 
 
+{% macro preference_record(item, choosen_id) %}
+
+<td class="hero-preference-choise {% if item.id == choosen_id %}choosen{% endif %}">
+  {% if item.id != choosen_id %}
+  <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.id }}">{{ item.name }}</a>
+  {% else %}
+  <span style="cursor: default">{{ item.name }}</span>
+  {% endif %}
+  (город: {{ all_places[item.place_id].name }})
+
+</td>
+{% endmacro %}
+
 <table class="table table-bordered table-striped table-condensed">
   {% for person_left, person_right in persons %}
   <tr>
-    <td>
-      <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ person_left.id }}">{{ person_left.name }}</a>
-      (город: {{ all_places[person_left.place_id].name }})
-    </td>
+    {{ preference_record(person_left, person_id) }}
     {% if person_right %}
-    <td>
-      <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ person_right.id }}">{{ person_right.name }}</a>
-      (город: {{ all_places[person_right.place_id].name }})
-    </td>
+    {{ preference_record(person_right, person_id) }}
     {% endif %}
   </tr>
   {% endfor %}

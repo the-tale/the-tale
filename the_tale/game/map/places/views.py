@@ -20,4 +20,5 @@ class PlaceResource(Resource):
     @handler('#place_id', 'map-info', method='get')
     def map_info(self):
         return self.template('places/map_info.html',
-                             {'place': self.place} )
+                             {'place': self.place,
+                              'hero': self.account.angel.get_hero()} )

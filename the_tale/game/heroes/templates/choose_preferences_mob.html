@@ -1,11 +1,20 @@
 
+{% macro preference_record(item, choosen_id) %}
+<td class="hero-preference-choise {% if item.id == choosen_id %}choosen{% endif %}">
+  {% if item.id != choosen_id %}
+  <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.id }}">{{ item.name }}</a>
+  {% else %}
+  <span style="cursor: default">{{ item.name }}</span>
+  {% endif %}
+</td>
+{% endmacro %}
 
 <table class="table table-bordered table-striped table-condensed">
   {% for mob_left, mob_right in mobs %}
   <tr>
-    <td><a href="#" class="pgf-hero-preference-record" data-preference-id="{{ mob_left.id }}">{{ mob_left.name }}</a></td>
+    {{ preference_record(mob_left, resource.hero.preferences.mob_id) }}
     {% if mob_right %}
-    <td><a href="#" class="pgf-hero-preference-record" data-preference-id="{{ mob_right.id }}">{{ mob_right.name }}</a></td>
+    {{ preference_record(mob_right, resource.hero.preferences.mob_id) }}
     {% endif %}
   </tr>
   {% endfor %}
