@@ -58,11 +58,6 @@ class QuestTest(TestCase):
         self.assertTrue(self.quest.env_local.place_end)
         self.assertTrue(self.quest.env_local.person_end)
 
-    def test_wrong_initialization(self):
-        self.quest = JustQuest()
-        self.assertRaises(QuestGeneratorException, self.quest.initialize, 'quest', self.env, person_start='person_1')
-        self.assertRaises(QuestGeneratorException, self.quest.initialize, 'quest', self.env, person_end='person_1')
-
     def test_get_commands_number(self):
         self.assertEqual(self.quest.get_commands_number(self.env), 19)
         self.assertEqual(self.quest.get_commands_number(self.env, pointer=[1]), 1)

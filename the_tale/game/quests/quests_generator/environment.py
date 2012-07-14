@@ -2,7 +2,7 @@
 import random
 import copy
 
-from game.quests.quests_generator.exceptions import QuestGeneratorException
+from game.quests.quests_generator.exceptions import QuestGeneratorException, RollBackException
 
 class BaseEnvironment(object):
 
@@ -26,9 +26,9 @@ class BaseEnvironment(object):
 
         self._root_quest = None
 
-    def new_place(self, place_uuid=None):
+    def new_place(self, terrain=None, place_uuid=None):
         if not place_uuid:
-            place_uuid = self.knowlege_base.get_random_place(exclude=self.places.keys())
+            place_uuid = self.knowlege_base.get_random_place(terrain=terrain, exclude=self.places.keys())
         else:
             if place_uuid not in self.knowlege_base.places:
                 raise QuestGeneratorException(u'place "%s" does not exist in knowlege base' % place_uuid)
@@ -69,19 +69,23 @@ class BaseEnvironment(object):
         self.choices[choice] = {'external_data': {}}
         return choice
 
-    def new_quest(self, place_start=None, person_start=None):
+    def new_quest(self, special=False, **kwargs):
         self.quests_number += 1
         quest_id = 'quest_%d' % self.quests_number
 
         if self._root_quest is None:
             self._root_quest = quest_id
 
-        quest = random.choice(self.quests_source.quests_list)()
+        quests_list = self.quests_source.filter(self, special=special)
+
+        if not quests_list:
+            raise RollBackException('can not find suitable quests with args: special=%r' % special)
+
+        quest = random.choice(quests_list)()
 
         quest.initialize(quest_id,
                          self,
-                         place_start=place_start,
-                         person_start=person_start)
+                         **kwargs)
 
         self.quests[quest_id] = quest
 

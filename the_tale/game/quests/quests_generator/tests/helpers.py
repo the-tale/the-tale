@@ -35,7 +35,7 @@ class FakeQuest(Quest):
         super(FakeQuest, self).__init__()
         self.commands_number = commands_number
 
-    def initialize(self, identifier, env, **kwargs):
+    def initialize(self, identifier, env, place_start=None, person_start=None, place_end=None, person_end=None):
         pass
 
     def create_line(self, env):
@@ -57,8 +57,14 @@ class FakeQuest(Quest):
 
 class JustQuest(Quest):
 
-    def initialize(self, identifier, env, **kwargs):
-        super(JustQuest, self).initialize(identifier, env, **kwargs)
+    def initialize(self, identifier, env, place_start=None, person_start=None, place_end=None, person_end=None):
+        super(JustQuest, self).initialize(identifier, env)
+
+        self.env_local.register('place_start', place_start or env.new_place())
+        self.env_local.register('person_start', person_start or env.new_person(from_place=self.env_local.place_start))
+        self.env_local.register('place_end', place_end or env.new_place())
+        self.env_local.register('person_end', person_end or env.new_person(from_place=self.env_local.place_end))
+
         self.env_local.register('quest_1', 'quest_1')
 
     def create_line(self, env):

@@ -280,28 +280,53 @@
       "template": "%(e_0)s наблюдает за целью"
     }
   ], 
-  "quest_notmywork_action_move_to_quest": [
+  "action_movenearplace_walk": [
     {
       "internals": [], 
       "externals": [
         [
-          "hero", 
+          "place", 
           [], 
           "e_0", 
-          [], 
-          "hero"
-        ], 
-        [
-          "place_end", 
-          [], 
-          "e_1", 
           [
-            "вн"
+            "рд"
           ], 
-          "place_end"
+          "place"
         ]
       ], 
-      "template": "%(e_0)s направляется в %(e_1)s"
+      "template": "Оказывается, окрестности %(e_0)s очень живописны"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "тв"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "Век живи - век учись, оказывается, рядом с %(e_0)s водятся гигантские многоножки"
+    }, 
+    {
+      "internals": [
+        [
+          "вступил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "вступил"
+        ]
+      ], 
+      "externals": [], 
+      "template": "'Ну и грязища - второй раз за день %(i_0)s в лужу'"
     }
   ], 
   "angel_ability_resurrect": [
@@ -369,6 +394,33 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s ограбить караван"
+    }
+  ], 
+  "quest_hunt_journal_get_reward": [
+    {
+      "internals": [
+        [
+          "получил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "получил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s награду"
     }
   ], 
   "quest_help_description": [
@@ -597,42 +649,6 @@
       "template": "перебирает содержимое рюкзака"
     }
   ], 
-  "hero_ability_regeneration": [
-    {
-      "internals": [
-        [
-          "восстановил", 
-          [
-            "actor"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "восстановил"
-        ]
-      ], 
-      "externals": [
-        [
-          "actor", 
-          [], 
-          "e_0", 
-          [
-            "им"
-          ], 
-          "actor"
-        ], 
-        [
-          "health", 
-          [], 
-          "e_1", 
-          [], 
-          "health"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s %(e_1)s HP"
-    }
-  ], 
   "hero_ability_magicmushroom": [
     {
       "internals": [
@@ -718,6 +734,21 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s %(e_1)s"
+    }
+  ], 
+  "quest_hunt_action_hunt": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s охотится"
     }
   ], 
   "quest_notmywork_description": [
@@ -845,6 +876,30 @@
         ]
       ], 
       "template": "Глупый торговец, отдал %(e_0)s %(i_0)s за %(i_1)s-то %(e_1)s"
+    }
+  ], 
+  "quest_notmywork_action_move_to_quest": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ], 
+        [
+          "place_end", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "place_end"
+        ]
+      ], 
+      "template": "%(e_0)s направляется в %(e_1)s"
     }
   ], 
   "quest_caravan_description": [
@@ -1221,6 +1276,33 @@
       "template": "%(e_0)s %(i_0)s %(e_1)s"
     }
   ], 
+  "quest_hunt_journal_move_to_quest": [
+    {
+      "internals": [
+        [
+          "отправился", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "отправился"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s в исконные места обитания любимой добычи"
+    }
+  ], 
   "quest_notmywork_choice_work_result_bruteforce": [
     {
       "internals": [
@@ -1432,6 +1514,13 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s и %(i_1)s %(e_1)s в дерево, %(i_2)s не %(i_3)s %(e_2)s HP"
+    }
+  ], 
+  "quest_hunt_journal_move_to_city": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Рюкзак полон добычи, пора возвращаться в город"
     }
   ], 
   "quest_caravan_choice_bring_variant_caravan": [
@@ -1651,6 +1740,21 @@
       "template": "Работа у курьеров не простая, пора двигаться"
     }
   ], 
+  "quest_hunt_action_move_to_quest": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s идёт к месту охоты"
+    }
+  ], 
   "quest_delivery_journal_get_reward": [
     {
       "internals": [
@@ -1753,6 +1857,13 @@
         ]
       ], 
       "template": "%(i_0)s %(e_0)s %(i_1)s %(e_1)s - на благое дело"
+    }
+  ], 
+  "quest_hunt_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Поохотиться в удовольствие"
     }
   ], 
   "action_resurrect_description": [
@@ -1877,6 +1988,21 @@
       "internals": [], 
       "externals": [], 
       "template": "'Чего смотришь? У меня перекур'"
+    }
+  ], 
+  "quest_hunt_action_track": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s выслеживает добычу"
     }
   ], 
   "hero_ability_hit": [
@@ -2341,6 +2467,21 @@
       "template": "%(e_0)s %(i_0)s %(e_1)s"
     }
   ], 
+  "quest_hunt_action_move_to_city": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s возвращается с добычей"
+    }
+  ], 
   "action_movenearplace_description": [
     {
       "internals": [], 
@@ -2621,53 +2762,40 @@
       "template": "Золото посыпалось с неба! %(i_0)s %(e_0)s %(i_1)s."
     }
   ], 
-  "action_movenearplace_walk": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "Оказывается, окрестности %(e_0)s очень живописны"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "тв"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "Век живи - век учись, оказывается, рядом с %(e_0)s водятся гигантские многоножки"
-    }, 
+  "hero_ability_regeneration": [
     {
       "internals": [
         [
-          "вступил", 
+          "восстановил", 
           [
-            "hero"
+            "actor"
           ], 
           "i_0", 
           [
             "прш"
           ], 
-          "вступил"
+          "восстановил"
         ]
       ], 
-      "externals": [], 
-      "template": "'Ну и грязища - второй раз за день %(i_0)s в лужу'"
+      "externals": [
+        [
+          "actor", 
+          [], 
+          "e_0", 
+          [
+            "им"
+          ], 
+          "actor"
+        ], 
+        [
+          "health", 
+          [], 
+          "e_1", 
+          [], 
+          "health"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s %(e_1)s HP"
     }
   ], 
   "quest_caravan_journal_move_to_point": [
@@ -2885,6 +3013,13 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s %(e_1)s %(i_1)s в награду за выполнение задания"
+    }
+  ], 
+  "quest_hunt_journal_track": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Вижу следы!"
     }
   ], 
   "quest_spying_choice_openup_result_open_up": [

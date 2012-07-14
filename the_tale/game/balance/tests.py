@@ -93,6 +93,8 @@ class ConstantsTest(TestCase):
 
         self.assertEqual(c.MAP_CELL_LENGTH, 3.0)
 
+        self.assertEqual(c.QUESTS_SPECIAL_FRACTION, 0.2)
+
     def test_calculated_values(self):
 
         self.assertEqual(calc.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED, 2)

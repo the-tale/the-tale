@@ -4,9 +4,12 @@ import random
 from dext.utils import s11n
 
 from game.balance import constants as c, formulas as f
-from game.artifacts.storage import ArtifactsDatabase
+
+from game.mobs.storage import MobsDatabase
+
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.statistics import MONEY_SOURCE
+
 from game.quests.models import Quest, QuestsHeroes
 from game.quests.exceptions import QuestException
 
@@ -58,7 +61,8 @@ class QuestPrototype(object):
         if not hasattr(self, '_env'):
             self._env = Environment(quests_source=BaseQuestsSource(),
                                     writers_constructor=Writer,
-                                    knowlege_base=get_knowlege_base())
+                                    # TODO: REWRITE TO remove database requests and heroes data duplication
+                                    knowlege_base=get_knowlege_base(hero=HeroPrototype.get_by_id(list(self.heroes_ids())[0])))
             self._env.deserialize(s11n.from_json(self.model.env))
         return self._env
 
@@ -239,8 +243,14 @@ class QuestPrototype(object):
 
     def cmd_battle(self, cmd, cur_action, cur_time):
         from ..actions.prototypes import ActionBattlePvE1x1Prototype
-        from ..heroes.logic import create_mob_for_hero
-        ActionBattlePvE1x1Prototype.create(parent=cur_action, current_time=cur_time, mob=create_mob_for_hero(cur_action.hero))
+
+        mob = None
+        if cmd.mob_id:
+            mob = MobsDatabase.storage().get_mob(cur_action.hero, cmd.mob_id)
+        if mob is None:
+            mob = MobsDatabase.storage().get_random_mob(cur_action.hero)
+
+        ActionBattlePvE1x1Prototype.create(parent=cur_action, current_time=cur_time, mob=mob)
 
     def ui_info(self, hero):
         choices = self.get_choices()

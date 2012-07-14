@@ -266,25 +266,29 @@ class Quest(Command):
 
 class Battle(Command):
 
-    def __init__(self, number=None, **kwargs):
+    def __init__(self, number=None, mob_id=None, **kwargs):
         super(Battle, self).__init__(**kwargs)
         self.number = number
+        self.mob_id = mob_id
 
     def get_description(self, env):
-        return '<battle: %d>' % self.number
+        return '<battle: %s, %d>' % (self.mob_id, self.number)
 
     def serialize(self):
         data = super(Battle, self).serialize()
-        data.update({'number': self.number})
+        data.update({'number': self.number,
+                     'mob_id': self.mob_id})
         return data
 
     def deserialize(self, data):
         super(Battle, self).deserialize(data)
         self.number = data['number']
+        self.mob_id = data.get('mob_id')
 
     def __eq__(self, other):
         return (super(Battle, self).__eq__(other) and
-                self.number == other.number)
+                self.number == other.number and
+                self.mob_id == other.mob_id)
 
 
 

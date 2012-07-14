@@ -21,10 +21,15 @@ class Caravan(Quest):
               (u'место назначения', 'place_end', ACTOR_TYPE.PLACE),
               (u'ожидает прибытия', 'person_end', ACTOR_TYPE.PERSON)]
 
-    def initialize(self, identifier, env, **kwargs):
-        super(Caravan, self).initialize(identifier, env, **kwargs)
+    def initialize(self, identifier, env, place_start=None, person_start=None, place_end=None, person_end=None):
+        super(Caravan, self).initialize(identifier, env)
+
+        self.env_local.register('place_start', place_start or env.new_place())
+        self.env_local.register('person_start', person_start or env.new_person(from_place=self.env_local.place_start))
+        self.env_local.register('place_end', place_end or env.new_place())
+        self.env_local.register('person_end', person_end or env.new_person(from_place=self.env_local.place_end))
+
         self.env_local.register('choose_point_1', env.new_choice_point())
-        self.env_local.register('choose_point_2', env.new_choice_point())
 
     def create_line(self, env):
 

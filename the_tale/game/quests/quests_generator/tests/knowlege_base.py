@@ -13,12 +13,17 @@ class KnowlegeBaseInitializationTest(TestCase):
     def test_after_constuction(self):
         self.assertEqual(self.base.persons, {})
         self.assertEqual(self.base.places, {})
+        self.assertEqual(self.base.specials, {})
+
+    def test_add_special(self):
+        self.base.add_special('special_1', {'id': 1, 'name': 'special_1_name'})
+        self.assertRaises(QuestGeneratorException, self.base.add_special, 'special_1', {'id': 1, 'name': 'special_1_name'})
+        self.base.initialize()
 
     def test_add_place(self):
         self.base.add_place('place_1', external_data={'id': 1, 'name': 'place_1_name'})
         self.assertRaises(QuestGeneratorException, self.base.add_place, 'place_1', external_data={'id': 1, 'name': 'place_1_name'})
         self.base.initialize()
-
 
     def test_add_person(self):
         self.base.add_place('place_1', external_data={'id': 1, 'name': 'place_1_name'})
@@ -37,9 +42,10 @@ class KnowlegeBaseTest(TestCase):
     def setUp(self):
         self.base = KnowlegeBase()
 
-        self.base.add_place('place_1', external_data={'id': 1, 'name': 'place_1_name'})
-        self.base.add_place('place_2', external_data={'id': 2, 'name': 'place_2_name'})
-        self.base.add_place('place_3', external_data={'id': 3, 'name': 'place_3_name'})
+        self.base.add_place('place_1', terrain='f', external_data={'id': 1, 'name': 'place_1_name'})
+        self.base.add_place('place_2', terrain='f', external_data={'id': 2, 'name': 'place_2_name'})
+        self.base.add_place('place_3', terrain='g', external_data={'id': 3, 'name': 'place_3_name'})
+        self.base.add_place('place_4', external_data={'id': 3, 'name': 'place_3_name'})
 
         self.base.add_person('person_2_1', place='place_2', external_data={'id': 1, 'name': 'person_2_1_name'})
         self.base.add_person('person_2_2', place='place_2', external_data={'id': 2, 'name': 'person_2_2_name'})
@@ -53,13 +59,28 @@ class KnowlegeBaseTest(TestCase):
         self.assertEqual(self.base.places['place_3']['persons'], set(['person_3']))
 
     def test_get_random_place(self):
-        unchoosen_places = set(['place_1', 'place_2', 'place_3'])
+        unchoosen_places = set(['place_1', 'place_2', 'place_3', 'place_4'])
         for i in xrange(100):
             unchoosen_places.discard(self.base.get_random_place())
         self.assertEqual(unchoosen_places, set())
 
+    def test_get_random_place_with_terrain(self):
+        unchoosen_places = set(['place_1', 'place_2', 'place_3', 'place_4'])
+        for i in xrange(100):
+            unchoosen_places.discard(self.base.get_random_place(terrain=('f', )))
+        self.assertEqual(unchoosen_places, set(['place_3', 'place_4']))
+
+    def test_get_random_place_with_2_terrains(self):
+        unchoosen_places = set(['place_1', 'place_2', 'place_3', 'place_4'])
+        for i in xrange(100):
+            unchoosen_places.discard(self.base.get_random_place(terrain=('f', 'g')))
+        self.assertEqual(unchoosen_places, set(['place_4']))
+
     def test_get_random_place_rollback(self):
-        self.assertRaises(RollBackException, self.base.get_random_place, exclude=['place_1', 'place_2', 'place_3'])
+        self.assertRaises(RollBackException, self.base.get_random_place, exclude=['place_1', 'place_2', 'place_3', 'place_4'])
+
+    def test_get_random_place_with_terrain_rollback(self):
+        self.assertRaises(RollBackException, self.base.get_random_place, terrain=('d',))
 
     def test_get_random_person(self):
         unchoosen_places = set(['person_2_1', 'person_2_2', 'person_3'])

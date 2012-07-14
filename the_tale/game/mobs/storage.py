@@ -78,6 +78,9 @@ class MobsDatabase(object):
                 mobs.append(mob_record)
         return mobs
 
+    def get_mob(self, hero, mob_id):
+        mob_record = self.data[mob_id]
+        return MobPrototype(record=mob_record, level=hero.level)
 
     def get_random_mob(self, hero):
         mob_record = random.choice(self.get_available_mobs_list(level=hero.level, terrain=hero.position.get_terrain()))

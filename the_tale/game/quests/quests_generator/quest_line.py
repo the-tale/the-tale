@@ -121,6 +121,8 @@ class Line(object):
 
 class Quest(object):
 
+    SPECIAL = False
+
     ACTORS = []
     CHOICES = {}
 
@@ -129,30 +131,13 @@ class Quest(object):
         self.id = None
         self.line = None
 
+    @classmethod
+    def can_be_used(cls, env):
+        return True
+
     def initialize(self, identifier, env, place_start=None, person_start=None, place_end=None, person_end=None):
         self.id = identifier
         self.env_local = LocalEnvironment()
-
-        if not place_start:
-            if person_start:
-                raise QuestGeneratorException(u'person "%s" specified without place' % person_start)
-            place_start = env.new_place()
-
-        if not person_start:
-            person_start = env.new_person(from_place=place_start)
-
-        if not place_end:
-            if person_end:
-                raise QuestGeneratorException(u'person "%s" specified without place' % person_end)
-            place_end = env.new_place()
-
-        if not person_end:
-            person_end = env.new_person(from_place=place_end)
-
-        self.env_local.register('place_start', place_start)
-        self.env_local.register('person_start', person_start)
-        self.env_local.register('place_end', place_end)
-        self.env_local.register('person_end', person_end)
 
     @classmethod
     def type(cls): return cls.__name__.lower()

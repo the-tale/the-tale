@@ -21,11 +21,15 @@ class NotMyWork(Quest):
     ACTORS = [(u'попросил', 'person_start', ACTOR_TYPE.PERSON),
               (u'должник', 'person_end', ACTOR_TYPE.PERSON)]
 
-    def initialize(self, identifier, env, **kwargs):
-        super(NotMyWork, self).initialize(identifier, env, **kwargs)
+    def initialize(self, identifier, env, place_start=None, person_start=None, place_end=None, person_end=None):
+        super(NotMyWork, self).initialize(identifier, env)
+
+        self.env_local.register('place_start', place_start or env.new_place())
+        self.env_local.register('person_start', person_start or env.new_person(from_place=self.env_local.place_start))
+        self.env_local.register('place_end', place_end or env.new_place())
+        self.env_local.register('person_end', person_end or env.new_person(from_place=self.env_local.place_end))
 
         self.env_local.register('choose_point_1', env.new_choice_point())
-
         self.env_local.register('others_work_quest', env.new_quest(place_start=self.env_local.place_end,
                                                                    person_start=self.env_local.person_end) )
 

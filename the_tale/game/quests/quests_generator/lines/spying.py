@@ -19,10 +19,15 @@ class Spying(Quest):
     ACTORS = [(u'заказчик', 'person_start', ACTOR_TYPE.PERSON),
               (u'цель', 'person_end', ACTOR_TYPE.PERSON)]
 
-    def initialize(self, identifier, env, **kwargs):
-        super(Spying, self).initialize(identifier, env, **kwargs)
+    def initialize(self, identifier, env, place_start=None, person_start=None, place_end=None, person_end=None):
+        super(Spying, self).initialize(identifier, env)
+
+        self.env_local.register('place_start', place_start or env.new_place())
+        self.env_local.register('person_start', person_start or env.new_person(from_place=self.env_local.place_start))
+        self.env_local.register('place_end', place_end or env.new_place())
+        self.env_local.register('person_end', person_end or env.new_person(from_place=self.env_local.place_end))
+
         self.env_local.register('choose_point_1', env.new_choice_point())
-        self.env_local.register('choose_point_2', env.new_choice_point())
 
     def create_line(self, env):
 
@@ -37,6 +42,7 @@ class Spying(Quest):
                                      cmd.GivePower(person=self.env_local.person_end, power=1, event=EVENTS.GOOD_GIVE_POWER)])
 
         main_line = Line(sequence=[cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
+                                   cmd.MoveNear(place=self.env_local.place_end, back=False, event=EVENTS.MOVE_NEAR),
                                    cmd.Choose(id=self.env_local.choose_point_1,
                                               choices={'spy': env.new_line(good_line_2),
                                                        'open_up': env.new_line(bad_line_1)},
