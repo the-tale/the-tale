@@ -34,7 +34,8 @@ jQuery(document).ready(function(e){
 <div id="hero-page-content" class="row">
 
   <div class="span3">
-    {% include "heroes/hero_short.html" %}
+    {% set is_hero_page = true %} {# say hero_short that we on hero page #}
+    {% include "heroes/hero_short.html" with context %}
 
     <div class="block">
       {% include "heroes/hero_equipment.html" %}

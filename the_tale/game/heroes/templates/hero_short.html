@@ -15,7 +15,12 @@ jQuery(document).ready(function(e) {
       <span class="pgf-gender"></span>-<span class="pgf-race"></span>
     </small>
     <span class="badge pgf-level hero-level" style="vertical-align: middle;" rel="tooltip" title="уровень героя"></span>
+
+    {% if is_hero_page %}
+    <span href="" class="pgf-name" style="vertical-align: middle;"></span>
+    {% else %}
     <a href="" class="pgf-hero-page-link pgf-name" style="vertical-align: middle;"></a>
+    {% endif %}
 
     <a href="" class="badge pgf-free-destiny-points free-destiny-points pull-right pgf-hidden"  rel="tooltip" title="доступна новая способность"><i class="icon-arrow-up"></i></a>
   </h3>
