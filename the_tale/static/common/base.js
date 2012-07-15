@@ -7,6 +7,49 @@ if (!pgf.base) {
     pgf.base = {};
 }
 
+if (typeof(Storage)!=="undefined") {
+    pgf.base.settings = {
+        _prefix: undefined,
+        init: function(prefix) {
+            this._prefix = prefix;
+        },
+        set: function(key, value) {
+            localStorage[this._prefix+'_'+key] = value;
+        },
+        get: function(key, def) {
+            key = this._prefix+'_'+key;
+            if (!(key in localStorage)) return def;
+            return localStorage[key];
+        }
+    };
+}
+else {
+    pgf.base.settings = {
+        init: function(prefix) {},
+        set: function(key, value) {},
+        get: function(key, def) {return def;}
+    };    
+}
+
+pgf.base.InitializeTabs = function(settingName, def, tabs) {
+
+    for (var i in tabs) {
+        var selector = jQuery(tabs[i][0]);
+        var id = tabs[i][1];
+
+        if (pgf.base.settings.get(settingName, def) == id) {
+            selector.tab('show');
+        }
+        
+        (function(id) {
+            selector.click(function(e){
+                               pgf.base.settings.set(settingName, id);
+                           });            
+        })(id);
+
+    }
+};
+
 pgf.base.TooltipPlacement = function (tip, element) {
     var offset = $(element).offset();
     height = $(document).outerHeight();
@@ -85,8 +128,8 @@ pgf.base.AddPreview = function(blockSelector, contentSourceSelector, previewUrl)
     function SwitchView(preview) {
         previewButton.toggleClass('pgf-hidden', preview);
         editContent.toggleClass('pgf-hidden', preview);
-        editButton.toggleClass('pgf-hidden', !preview)
-        previewContent.toggleClass('pgf-hidden', !preview)
+        editButton.toggleClass('pgf-hidden', !preview);
+        previewContent.toggleClass('pgf-hidden', !preview);
     }
 
     previewButton.click(function(e){
@@ -103,7 +146,7 @@ pgf.base.AddPreview = function(blockSelector, contentSourceSelector, previewUrl)
     editButton.click(function(e){
         SwitchView(false);
     });
-}
+};
 
 pgf.base.UpdateStatsBar = function(selector) {
     

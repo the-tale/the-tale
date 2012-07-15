@@ -47,6 +47,12 @@
 
 STATIC_URL = "{{ STATIC_URL }}"
 
+{% if resource.account %}
+pgf.base.settings.init("account_{{resource.account.id}}");
+{% else %}
+pgf.base.settings.init("anonimues");
+{% endif %}
+
 jQuery(document).ready(function() {
 
     Globalize.culture('ru');

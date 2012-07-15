@@ -90,9 +90,9 @@ jQuery(document).ready(function(e){
     setInterval(RefreshData, {{ game_settings.TURN_DELAY*1000 }} );
     {% endif %}
 
-    jQuery('.pgf-journal-tab-button').tab('show');
-    jQuery('.pgf-diary-tab-button').tab('show');
-    jQuery('.pgf-equipment-tab-button').tab('show');
+    pgf.base.InitializeTabs('game-tab-main', 'journal', [['.pgf-journal-tab-button', 'journal'], ['.pgf-map-tab-button', 'map']]);
+    pgf.base.InitializeTabs('game-tab-second', 'diary', [['.pgf-diary-tab-button', 'diary'], ['.pgf-quests-tab-button', 'quests']]);
+    pgf.base.InitializeTabs('game-tab-equipment', 'equipment', [['.pgf-equipment-tab-button', 'equipment'], ['.pgf-bag-tab-button', 'bag']]);
 
     widgets.placeAndTime = new pgf.game.widgets.Time('#time-block',
                                                      updater, widgets,
