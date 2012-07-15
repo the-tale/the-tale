@@ -89,6 +89,65 @@ class HabilitiesTest(TestCase):
         self.assertTrue(self.defender.context.ninja > 0)
 
 
+class ChooseAbilityTaskTest(TestCase):
+
+    def setUp(self):
+        create_test_map()
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+
+        self.bundle = BundlePrototype.get_by_id(bundle_id)
+        self.hero = self.bundle.tests_get_hero()
+
+    def get_new_ability_id(self, hero=None):
+        if hero is None:
+            hero = self.hero
+        return hero.get_abilities_for_choose()[0].get_id()
+
+    def get_unchoosed_ability_id(self, hero=None):
+        if hero is None:
+            hero = self.hero
+        choices = hero.get_abilities_for_choose()
+        all_ = hero.abilities.get_for_choose(hero, all_=True)
+        for ability in all_:
+            if ability not in choices:
+                return ability.get_id()
+
+    def get_only_for_mobs_ability_id(self):
+        for ability_key, ability in ABILITIES.items():
+            if not ability.AVAILABLE_TO_PLAYERS:
+                return ability_key
+
+    def test_create(self):
+        task = ChooseAbilityTaskPrototype.create(self.get_new_ability_id(), self.hero.id)
+        self.assertEqual(task.hero_id, self.hero.id)
+        self.assertEqual(task.state, CHOOSE_ABILITY_STATE.WAITING)
+
+    def test_process_wrong_id(self):
+        task = ChooseAbilityTaskPrototype.create('ssadasda', self.hero.id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_ABILITY_STATE.ERROR)
+
+    def test_process_id_not_in_choices(self):
+        task = ChooseAbilityTaskPrototype.create(self.get_unchoosed_ability_id(), self.hero.id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_ABILITY_STATE.ERROR)
+
+    def test_process_not_for_heroes(self):
+        task = ChooseAbilityTaskPrototype.create(self.get_only_for_mobs_ability_id(), self.hero.id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_ABILITY_STATE.ERROR)
+
+    def test_process_already_choosen(self):
+        task = ChooseAbilityTaskPrototype.create(common_abilities.HIT.get_id(), self.hero.id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_ABILITY_STATE.ERROR)
+
+    def test_process_success(self):
+        task = ChooseAbilityTaskPrototype.create(self.get_new_ability_id(), self.hero.id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_ABILITY_STATE.PROCESSED)
+
+
 class HabilitiesViewsTest(TestCase):
 
     def setUp(self):

@@ -51,7 +51,7 @@ class AbilitiesPrototype(object):
         self.abilities[ability_id] = ABILITIES[ability_id]
 
 
-    def get_for_choose(self, hero):
+    def get_for_choose(self, hero, all_=False):
 
         random.seed(hero.id * (hero.destiny_points_spend + 1))
 
@@ -64,7 +64,11 @@ class AbilitiesPrototype(object):
             if not ability.AVAILABLE_TO_PLAYERS:
                 continue
             candidates.append(ability_key)
-        choices = random.sample(candidates, min(MAX_ABILITIES, len(candidates)))
+
+        if not all_:
+            choices = random.sample(candidates, min(MAX_ABILITIES, len(candidates)))
+        else:
+            choices = candidates
 
         result = []
 

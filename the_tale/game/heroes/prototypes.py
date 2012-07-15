@@ -733,6 +733,13 @@ class ChooseAbilityTaskPrototype(object):
             self.comment = u'no ability with id "%s"' % self.ability_id
             return
 
+        choices = hero.get_abilities_for_choose()
+
+        if self.ability_id not in [choice.get_id() for choice in choices]:
+            self.state = CHOOSE_ABILITY_STATE .ERROR
+            self.comment = u'ability not in choices list: %s' % self.ability_id
+            return
+
         ability = ABILITIES[self.ability_id]
 
         if not ability.AVAILABLE_TO_PLAYERS:
