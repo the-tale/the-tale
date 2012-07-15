@@ -200,11 +200,11 @@ pgf.game.widgets._RenderQuest = function(index, quest, element) {
     var actorsElement = jQuery('.pgf-actors', element);
 
     if (quest.actors.length) {
-        actorsElement.removeClass('pgf-hidden');
+        actorsElement.toggleClass('pgf-hidden', false);
         pgf.base.RenderTemplateList(actorsElement, quest.actors, pgf.game.widgets._RenderActor, {});            
     }    
     else {
-        actorsElement.toggleClass('pgf-hidden', 'true');
+        actorsElement.toggleClass('pgf-hidden', true);
     }
 
     if (quest.choices.length) {
