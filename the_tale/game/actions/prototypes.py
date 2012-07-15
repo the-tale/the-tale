@@ -722,6 +722,8 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
                         self.hero.add_message('action_battlepve1x1_put_loot', current_time, hero=self.hero, artifact=loot)
                     else:
                         self.hero.add_message('action_battlepve1x1_put_loot_no_space', current_time, hero=self.hero, artifact=loot)
+                else:
+                    self.hero.add_message('action_battlepve1x1_no_loot', current_time, hero=self.hero)
 
                 self.percents = 1.0
                 self.state = self.STATE.PROCESSED

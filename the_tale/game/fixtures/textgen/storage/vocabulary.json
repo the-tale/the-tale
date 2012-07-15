@@ -3413,6 +3413,40 @@
       "template": "торгуется в комиссионном магазине"
     }
   ], 
+  "action_battlepve1x1_no_loot": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Очередной монстр без лута, куда катится этот мир?"
+    }, 
+    {
+      "internals": [
+        [
+          "нашёл", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "нашёл"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "им"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s не %(i_0)s ничего полезного на тушке монстра"
+    }
+  ], 
   "quest_notmywork_choice_work_result_diplomacy": [
     {
       "internals": [
