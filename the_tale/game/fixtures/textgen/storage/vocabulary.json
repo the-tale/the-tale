@@ -3130,6 +3130,44 @@
       "template": "%(i_0)s кузнецу %(e_0)s %(i_1)s за улучшение %(e_1)s"
     }
   ], 
+  "action_equipping_change_equal_items": [
+    {
+      "internals": [
+        [
+          "новый", 
+          [
+            "item"
+          ], 
+          "i_0", 
+          [], 
+          "новый"
+        ], 
+        [
+          "старый", 
+          [
+            "item"
+          ], 
+          "i_1", 
+          [
+            "рд"
+          ], 
+          "старый"
+        ]
+      ], 
+      "externals": [
+        [
+          "item", 
+          [], 
+          "e_0", 
+          [
+            "им"
+          ], 
+          "item"
+        ]
+      ], 
+      "template": "%(i_0)s %(e_0)s куда лучше %(i_1)s - надо их поменять"
+    }
+  ], 
   "quest_caravan_action_move_to_point": [
     {
       "internals": [], 

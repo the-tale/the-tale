@@ -10,6 +10,14 @@
                  "перебирает содержимое рюкзака"]
             ]
         },
+        "change_equal_items": {
+            "description": "",
+            "variables": {"hero": "приведение", "item": "копьё"},
+            "phrases": [
+                ["[{новый|item|}] [[item|им]] куда лучше [{старый|item|рд}] - надо их поменять",
+                 "Новое копьё куда лучше старого - надо их поменять"]
+            ]
+        },
         "change_item": {
             "description": "",
             "variables": {"hero": "приведение", "unequipped": "копьё", "equipped": "меч"},
