@@ -11,7 +11,7 @@ class CHARISMA(AbilityPrototype):
 
     NAME = u'Харизматичный'
     normalized_name = NAME
-    DESCRIPTION = u'Герой настолько обоятелен, что умудряется получать лучшие награды за выполнение заданий.'
+    DESCRIPTION = u'Герой настолько обаятелен, что умудряется получать лучшие награды за выполнение заданий.'
 
     MONEY_MULTIPLIER = 3
 

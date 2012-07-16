@@ -117,7 +117,7 @@ class EXTRA_THICK(AbilityPrototype):
 
     NAME = u'Толстяк'
     normalized_name = NAME
-    DESCRIPTION = u'У этого монстра с этой способностью очень, очень много здоровья.'
+    DESCRIPTION = u'У этого монстра с этой способностью очень, очень много этого здоровья.'
 
     @classmethod
     def modify_attribute(cls, type_, value): return value*1.4 if type_ == ATTRIBUTES.HEALTH else value
