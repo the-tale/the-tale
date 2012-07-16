@@ -136,9 +136,7 @@ pgf.game.widgets.Time = function(selector, updater, widgets, params) {
 // quests code
 
 pgf.game.widgets._RenderActor = function(index, actor, element) {
-
-    pgf.base.HideTooltips();
-    
+  
     var nameElement = jQuery('.pgf-name', element);
 
     var data = actor[2];
@@ -181,7 +179,7 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
     
     var popoverArgs = jQuery.extend(true, {}, pgf.base.popoverArgs, {title: popoverTitle,
                                                                      content: popoverContent});
-    nameElement.popover(popoverArgs);
+    nameElement.toggleClass('pgf-has-popover', true).popover(popoverArgs);
 };
 
 pgf.game.widgets._RenderChoice = function (index, choice, element) {
@@ -231,6 +229,7 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
     var data = {};
 
     function RenderQuests() {
+        pgf.base.HideTooltips(widget);
         if (data.quests.line && data.quests.line.length > 0) {
             pgf.game.widgets._RenderQuest(0, data.quests.line[data.quests.line.length-1], currentQuest);
         }
@@ -332,6 +331,8 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
     var data = {};
 
     function RenderQuests() {
+        pgf.base.HideTooltips(widget);
+
         noQuestsMsg.toggleClass('pgf-hidden', !!(data.quests.line && data.quests.line.length > 0) );
         questsContainer.toggleClass('pgf-hidden', !(data.quests.line && data.quests.line.length > 0) );
 

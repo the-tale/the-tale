@@ -58,7 +58,7 @@ pgf.base.TooltipPlacement = function (tip, element) {
     vertPlacement = vert > 0 ? 'bottom' : 'top';
     horiz = 0.5 * width - offset.left;
     horizPlacement = horiz > 0 ? 'right' : 'left';
-    placement = Math.abs(horiz) > Math.abs(vert) ?  horizPlacement : vertPlacement;
+    placement = horizPlacement; //Math.abs(horiz) > Math.abs(vert) ?  horizPlacement : vertPlacement;
     return placement;
 };
 
@@ -72,9 +72,16 @@ pgf.base.popoverArgs = { animation: true,
                          delay: { show: 500,
                                   hide: 100 } };
 
-pgf.base.HideTooltips = function() {
-  jQuery('.popover').remove();
-  jQuery('.tooltip').remove();
+pgf.base.HideTooltips = function(clearedContainer) {
+    jQuery('.popover').remove();
+    jQuery('.tooltip').remove();
+
+    if (clearedContainer) {
+        jQuery('.pgf-has-popover', clearedContainer).each(function(i, el){
+                                                              el = jQuery(el);
+                                                              el.data('popover').enabled = false;
+                                                          });        
+    }
 };
 
 pgf.base.RenderTemplateList = function(selector, data, newElementCallback, params) {
