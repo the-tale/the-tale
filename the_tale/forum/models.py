@@ -20,7 +20,7 @@ class Category(models.Model):
 
 
 class SubCategory(models.Model):
-    
+
     category = models.ForeignKey(Category, null=False)
 
     slug = models.CharField(max_length=32, blank=False, null=False, db_index=True)
@@ -29,7 +29,7 @@ class SubCategory(models.Model):
 
     order = models.IntegerField(default=0, null=False, blank=True)
 
-    updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))    
+    updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
 
     threads_count = models.IntegerField(default=0, null=False)
 
@@ -41,12 +41,14 @@ class SubCategory(models.Model):
 
 
 class Thread(models.Model):
-    
+
     subcategory = models.ForeignKey(SubCategory, null=False)
 
     caption = models.CharField(max_length=256, blank=False, null=False)
 
-    author =  models.ForeignKey(User, null=True)
+    author =  models.ForeignKey(User, null=True, related_name='+')
+
+    last_poster = models.ForeignKey(User, null=True, related_name='+')
 
     posts_count = models.BigIntegerField(default=0, null=False)
 
@@ -54,8 +56,8 @@ class Thread(models.Model):
 
     def get_absolute_url(self):
         return reverse('forum:show_thread', args=[self.subcategory.category.slug,
-                                                  self.subcategory.slug, 
-                                                  self.id])        
+                                                  self.subcategory.slug,
+                                                  self.id])
 
 class MARKUP_METHOD:
     POSTMARKUP = 0

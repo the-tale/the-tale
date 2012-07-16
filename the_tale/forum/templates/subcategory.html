@@ -12,6 +12,7 @@
     <tr>
       <th class="caption">название</th>
       <th class="author">автор</th>
+      <th class="last-poster">последний</th>
       <th class="posts-count">ответов</th>
       <th class="updated-at">обновлено</th>
     </tr>
@@ -25,6 +26,7 @@
         </a>
       </td>
       <td class="author">{{ thread.author.username }}</td>
+      <td class="last-poster">{% if thread.last_poster %}{{ thread.last_poster.username }}{% else %} {{ thread.author.username }} {% endif %}</td>
       <td class="posts-count">{{ thread.posts_count }}</td>
       <td class="updated-at pgf-format-time" data-timestamp="{{ thread.updated_at|timestamp }}"></td>
     </tr>

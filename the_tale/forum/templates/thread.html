@@ -50,7 +50,7 @@ jQuery(document).ready( function(e) {
   {# give anchor to previous element, if we give anchor to current element#}
   {% set message_id = start_posts_from + loop.index%}
   <li class="post">
-    <table class="table post-table table-striped">
+    <table class="table post-table table-striped table-no-highlighting">
       <tbody>
         <tr class="head">
           <td class="index"><a href="#m{{message_id}}" >#{{message_id}}</a><div class="anchor" id="m{{message_id}}"></div></td>
