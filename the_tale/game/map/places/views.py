@@ -21,4 +21,4 @@ class PlaceResource(Resource):
     def map_info(self):
         return self.template('places/map_info.html',
                              {'place': self.place,
-                              'hero': self.account.angel.get_hero()} )
+                              'hero': self.account.angel.get_hero() if self.account else None} )

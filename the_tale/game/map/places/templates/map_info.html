@@ -7,7 +7,7 @@
       <span class="badge">{{ place.size }}</span>
       <span>{{ place.name }}</span>
 
-      {% if hero.preferences.place_id == place.id %}
+      {% if hero and hero.preferences.place_id == place.id %}
       <span class="badge badge-success">родной город</span>
       {% endif %}
     </h3>
@@ -37,10 +37,10 @@
         <h4>
           {{ person.name }}
           <small>{{ person.race_verbose }}-{{ person.type_verbose }}</small>
-          {% if hero.preferences.friend_id == person.id %}
+          {% if hero and hero.preferences.friend_id == person.id %}
           <span class="badge badge-success">соратник</span>
           {% endif %}
-          {% if hero.preferences.enemy_id == person.id %}
+          {% if hero and hero.preferences.enemy_id == person.id %}
           <span class="badge badge-important">противник</span>
           {% endif %}
         </h4>
