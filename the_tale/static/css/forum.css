@@ -1,14 +1,17 @@
 .forum-table .updated-at {
-  width: 15em;
+  width: 10em;
 }
 .forum-table .posts-count {
-  width: 15em;
+  width: 5em;
 }
 .forum-table .threads-count {
-  width: 15em;
+  width: 5em;
 }
 .forum-table .author {
-  width: 15em;
+  width: 10em;
+}
+.forum-table .last-poster {
+  width: 10em;
 }
 .post-table .index {
   width: 3em;

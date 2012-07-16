@@ -20,6 +20,24 @@
   font-weight: normal;
   color: #999999;
 }
+.hero-preferences-record {
+  cursor: default;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+.hero-preferences-record:hover {
+  background-color: #dddddd;
+}
+.hero-preference-choise {
+  width: 50%;
+  cursor: default;
+}
+.hero-preference-choise.choosen {
+  background-color: #72C1E7 !important;
+}
+.hero-preference-choise.choosen:hover {
+  background-color: #72C1E7 !important;
+}
 .hero-abilities-list {
   cursor: default;
 }

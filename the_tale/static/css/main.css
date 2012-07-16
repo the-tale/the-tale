@@ -102,3 +102,14 @@ body .dl-record {
   height: 32px;
   width: 32px;
 }
+/* remove table row highlighting */
+table.table-no-highlighting.table tbody tr:hover td,
+table.table-no-highlighting.table tbody tr:hover th {
+  background-color: transparent;
+}
+table.table-striped tbody tr:nth-child(odd):hover td {
+  background-color: #F9F9F9;
+}
+blockquote {
+  font-style: italic;
+}

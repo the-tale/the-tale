@@ -105,6 +105,9 @@
 .quest-icon.no-quest {
   background: url('../game/images/quests.png') no-repeat scroll -320px 0 transparent;
 }
+.quest-icon.hunt {
+  background: url('../game/images/quests.png') no-repeat scroll -384px 0 transparent;
+}
 .quest-record {
   min-height: 64px;
   cursor: default;
