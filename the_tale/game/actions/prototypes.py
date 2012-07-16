@@ -315,7 +315,8 @@ class ActionPrototype(object):
 
         self.process(current_time)
 
-        self.hero.last_action_percents = self.percents
+        if self.leader:
+            self.hero.last_action_percents = self.percents
 
         if not self.removed:
 

@@ -3,6 +3,7 @@
 from django.test import TestCase
 
 from game.logic import create_test_bundle, create_test_map
+from game.prototypes import TimePrototype
 
 from game.actions.prototypes import ACTION_TYPES, HELP_CHOICES
 
@@ -17,7 +18,6 @@ class GeneralTest(TestCase):
 
     def tearDown(self):
         pass
-
 
     def test_EXTRA_HELP_CHOICES(self):
         for action_class in ACTION_TYPES.values():
@@ -38,3 +38,13 @@ class GeneralTest(TestCase):
             heal_found = heal_found or (self.action_idl.get_help_choice() == HELP_CHOICES.HEAL)
 
         self.assertTrue(heal_found)
+
+
+    def test_percents_consistency(self):
+        current_time = TimePrototype.get_current_time()
+
+        # just test that quest will be ended
+        while not self.action_idl.leader:
+            self.bundle.process_turn(current_time)
+            current_time.increment_turn()
+            self.assertEqual(self.bundle.tests_get_last_action().percents, self.hero.last_action_percents)
