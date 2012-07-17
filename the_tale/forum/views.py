@@ -103,7 +103,6 @@ class ForumResource(Resource):
         thread = create_thread(self.subcategory,
                                caption=new_thread_form.c.caption,
                                author=self.account.user,
-                               last_poster=self.account.user,
                                text=new_thread_form.c.text)
 
 

@@ -13,6 +13,7 @@ def create_thread(subcategory, caption, author, text, markup_method=MARKUP_METHO
     thread = Thread.objects.create(subcategory=subcategory,
                                    caption=caption,
                                    author=author,
+                                   last_poster=author,
                                    posts_count=0)
 
     post = Post.objects.create(thread=thread,
