@@ -1,9 +1,10 @@
 # coding: utf-8
+
+from dext.settings import settings
+
 from collections import namedtuple
 
 from game.balance import formulas as f
-
-from game.models import Time
 
 class GameTime(namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'minute', 'second'))):
 
@@ -29,32 +30,23 @@ class GameTime(namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'min
 
 class TimePrototype(object):
 
-    def __init__(self, model):
-        self.model = model
+    def __init__(self, turn_number):
+        self.turn_number = turn_number
 
     @property
     def game_time(self): return GameTime(*f.turns_to_game_time(self.turn_number))
 
-    @property
-    def turn_number(self): return self.model.turn_number
-
     @classmethod
     def get_current_time(cls):
-        try:
-            return TimePrototype(model=Time.objects.all()[0])
-        except IndexError:
-            return TimePrototype.create()
-
+        if 'turn number' not in settings:
+            settings['turn number'] = '0'
+        return cls(turn_number=int(settings['turn number']))
 
     def increment_turn(self):
-        self.model.turn_number += 1
+        self.turn_number += 1
 
     def save(self):
-        self.model.save()
-
-    @classmethod
-    def create(cls):
-        return cls(model=Time.objects.create())
+        settings['turn number'] = str(self.turn_number)
 
     def ui_info(self):
         game_time = self.game_time

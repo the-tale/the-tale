@@ -127,6 +127,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
 
     'dext.less',
+    'dext.settings',
 
     'common.utils',
 

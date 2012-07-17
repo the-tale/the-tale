@@ -2,10 +2,6 @@
 
 from django.db import models
 
-class Time(models.Model):
-
-    turn_number = models.BigIntegerField(null=False, default=0)
-
 
 class BUNDLE_TYPE:
     BASIC = 0

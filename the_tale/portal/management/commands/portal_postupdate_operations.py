@@ -4,7 +4,7 @@ import subprocess
 
 from django.core.management.base import BaseCommand
 
-from game.models import Time
+from game.prototypes import TimePrototype
 
 class Command(BaseCommand):
 
@@ -14,11 +14,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        if not Time.objects.all().exists():
-            print
-            print 'CREATE TIME OBJECT'
-            print
-            Time.objects.create()
+        if not TimePrototype.get_current_time().turn_number == 0:
 
             print
             print 'CREATE TEST MAP'
