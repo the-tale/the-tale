@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        if not TimePrototype.get_current_time().turn_number == 0:
+        if TimePrototype.get_current_time().turn_number == 0:
 
             print
             print 'CREATE TEST MAP'
