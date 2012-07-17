@@ -1,6 +1,8 @@
 # coding: utf-8
 import subprocess
 
+from dext.settings import settings
+
 from django.utils.log import getLogger
 
 from dext.utils.decorators import nested_commit_on_success
@@ -54,6 +56,9 @@ class Worker(BaseWorker):
         return self.send_cmd('next_turn', data={'turn_number': turn_number})
 
     def process_next_turn(self, turn_number):
+
+        settings.refresh()
+
         map_update_needed = False
         with nested_commit_on_success():
             self.turn_number += 1

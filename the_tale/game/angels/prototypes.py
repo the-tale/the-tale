@@ -5,7 +5,7 @@ from dext.utils import database
 from game.heroes.prototypes import HeroPrototype
 
 from game.balance import constants as c
-
+from game.prototypes import TimePrototype
 from game.angels.models import Angel
 
 
@@ -123,8 +123,8 @@ class AngelPrototype(object):
     # Next turn operations
     ###########################################
 
-    def process_turn(self, current_time):
-        return current_time.turn_number + 1
+    def process_turn(self):
+        return TimePrototype.get_current_turn_number() + 1
 
     def __eq__(self, other):
         # print 'angel'

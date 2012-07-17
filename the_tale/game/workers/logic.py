@@ -1,6 +1,8 @@
 # coding: utf-8
 import heapq
 
+from dext.settings import settings
+
 from django.utils.log import getLogger
 from django.conf import settings as project_settings
 
@@ -40,7 +42,6 @@ class Worker(BaseWorker):
 
         self.initialized = True
         self.turn_number = turn_number
-        self.current_time = TimePrototype.get_current_time()
         self.bundles = {}
         self.queue = []
         self.angels2bundles = {}
@@ -57,16 +58,17 @@ class Worker(BaseWorker):
     def process_next_turn(self, turn_number):
         from game.logic import log_sql_queries
 
+        settings.refresh()
+
         with nested_commit_on_success():
             self.turn_number += 1
 
             if turn_number != self.turn_number:
                 raise LogicException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
 
-            self.current_time = TimePrototype.get_current_time()
 
-            if self.current_time.turn_number != self.turn_number:
-                raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number, self.current_time.turn_number))
+            if TimePrototype.get_current_turn_number() != self.turn_number:
+                raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number, TimePrototype.get_current_turn_number()))
 
             while self.queue:
                 turn_number, bundle_id = self.queue[0]
@@ -75,7 +77,7 @@ class Worker(BaseWorker):
                     break
 
                 bundle = self.bundles[bundle_id]
-                next_turn_number = bundle.process_turn(self.current_time)
+                next_turn_number = bundle.process_turn()
 
                 if next_turn_number <= self.turn_number:
                     raise LogicException('bundle try to process itself twice on one turn')
@@ -128,7 +130,7 @@ class Worker(BaseWorker):
 
             task = AbilityTaskPrototype.get_by_id(ability_task_id)
             bundle = self.bundles[self.angels2bundles[task.angel_id]]
-            task.process(self.current_time, bundle)
+            task.process(bundle)
             task.save()
             bundle.save_data()
 

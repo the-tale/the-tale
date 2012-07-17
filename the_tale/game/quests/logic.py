@@ -47,7 +47,7 @@ def get_knowlege_base(hero):
 
 
 @retry_on_exception(RollBackException)
-def create_random_quest_for_hero(current_time, hero):
+def create_random_quest_for_hero(hero):
 
     base = get_knowlege_base(hero)
 
@@ -65,6 +65,6 @@ def create_random_quest_for_hero(current_time, hero):
 
     env.sync()
 
-    quest_prototype = QuestPrototype.create(current_time, hero, env)
+    quest_prototype = QuestPrototype.create(hero, env)
 
     return quest_prototype

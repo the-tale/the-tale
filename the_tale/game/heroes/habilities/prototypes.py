@@ -76,14 +76,14 @@ class HIT(AbilityPrototype):
     DESCRIPTION = u'Каждый уважающий себя герой должен быть в состоянии ударить противника, или пнуть.'
 
     @classmethod
-    def use(cls, messanger, current_time, actor, enemy):
+    def use(cls, messanger, actor, enemy):
         damage = actor.context.modify_initial_damage(actor.basic_damage)
         enemy.change_health(-damage)
-        messanger.add_message('hero_ability_hit', current_time, attacker=actor, defender=enemy, damage=damage)
+        messanger.add_message('hero_ability_hit', attacker=actor, defender=enemy, damage=damage)
 
     @classmethod
-    def on_miss(cls, messanger, current_time, actor, enemy):
-        messanger.add_message('hero_ability_hit_miss', current_time, attacker=actor, defender=enemy)
+    def on_miss(cls, messanger, actor, enemy):
+        messanger.add_message('hero_ability_hit_miss', attacker=actor, defender=enemy)
 
 
 class MAGIC_MUSHROOM(AbilityPrototype):
@@ -100,9 +100,9 @@ class MAGIC_MUSHROOM(AbilityPrototype):
     DAMAGE_FACTORS = [3, 2.5, 2, 1.5]
 
     @classmethod
-    def use(cls, messanger, current_time, actor, enemy):
+    def use(cls, messanger, actor, enemy):
         actor.context.use_ability_magic_mushroom(cls.DAMAGE_FACTORS)
-        messanger.add_message('hero_ability_magicmushroom', current_time, actor=actor)
+        messanger.add_message('hero_ability_magicmushroom', actor=actor)
 
 
 class SIDESTEP(AbilityPrototype):
@@ -119,13 +119,13 @@ class SIDESTEP(AbilityPrototype):
     MISS_PROBABILITIES = [0.8, 0.6, 0.4, 0.2]
 
     @classmethod
-    def use(cls, messanger, current_time, actor, enemy):
+    def use(cls, messanger, actor, enemy):
         enemy.context.use_ability_sidestep(cls.MISS_PROBABILITIES)
-        messanger.add_message('hero_ability_sidestep', current_time, attacker=actor, defender=enemy)
+        messanger.add_message('hero_ability_sidestep', attacker=actor, defender=enemy)
 
     @classmethod
-    def on_miss(cls, messanger, current_time, actor, enemy):
-        messanger.add_message('hero_ability__miss', current_time, attacker=actor, defender=enemy)
+    def on_miss(cls, messanger, actor, enemy):
+        messanger.add_message('hero_ability__miss', attacker=actor, defender=enemy)
 
 
 class RUN_UP_PUSH(AbilityPrototype):
@@ -142,15 +142,15 @@ class RUN_UP_PUSH(AbilityPrototype):
     STUN_LENGTH = 3
 
     @classmethod
-    def use(cls, messanger, current_time, actor, enemy):
+    def use(cls, messanger, actor, enemy):
         damage = actor.context.modify_initial_damage(actor.basic_damage)
         enemy.change_health(-damage)
         enemy.context.use_stun(cls.STUN_LENGTH)
-        messanger.add_message('hero_ability_runuppush', current_time, attacker=actor, defender=enemy, damage=damage)
+        messanger.add_message('hero_ability_runuppush', attacker=actor, defender=enemy, damage=damage)
 
     @classmethod
-    def on_miss(cls, messanger, current_time, actor, enemy):
-        messanger.add_message('hero_ability_runuppush_miss', current_time, attacker=actor, defender=enemy)
+    def on_miss(cls, messanger, actor, enemy):
+        messanger.add_message('hero_ability_runuppush_miss', attacker=actor, defender=enemy)
 
 
 
@@ -168,10 +168,10 @@ class REGENERATION(AbilityPrototype):
     RESTORED_PERCENT = 0.25
 
     @classmethod
-    def use(cls, messanger, current_time, actor, enemy):
+    def use(cls, messanger, actor, enemy):
         health_to_regen = f.mob_hp_to_lvl(actor.level) * cls.RESTORED_PERCENT # !!!MOB HP, NOT HERO!!!
         applied_health = actor.change_health(health_to_regen)
-        messanger.add_message('hero_ability_regeneration', current_time, actor=actor, health=applied_health)
+        messanger.add_message('hero_ability_regeneration', actor=actor, health=applied_health)
 
 
 class CRITICAL_HIT(AbilityPrototype):

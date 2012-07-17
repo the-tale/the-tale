@@ -30,6 +30,7 @@ from game.quests.logic import create_random_quest_for_hero
 from game.workers.environment import workers_environment
 
 from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
+from game.prototypes import TimePrototype
 
 
 def get_actions_types():
@@ -309,11 +310,11 @@ class ActionPrototype(object):
                 'data': self.data #TODO: get json directly from self.model.data, without reloading it
                 }
 
-    def process_action(self, current_time):
+    def process_action(self):
 
         self.updated = True
 
-        self.process(current_time)
+        self.process()
 
         if self.leader:
             self.hero.last_action_percents = self.percents
@@ -324,9 +325,9 @@ class ActionPrototype(object):
                 self.remove()
 
 
-    def process_turn(self, current_time):
-        self.process_action(current_time)
-        return current_time.turn_number + 1
+    def process_turn(self):
+        self.process_action()
+        return TimePrototype.get_current_turn_number() + 1
 
 
     def __eq__(self, other):
@@ -387,7 +388,7 @@ class ActionIdlenessPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent=None, hero=None, current_time=None):
+    def _create(cls, parent=None, hero=None):
         if parent:
             model = Action.objects.create( type=cls.TYPE, parent=parent.model, hero=parent.hero.model, order=parent.order+1, state=cls.STATE.WAITING)
         else:
@@ -405,7 +406,7 @@ class ActionIdlenessPrototype(ActionPrototype):
 
         return True
 
-    def process(self, current_time):
+    def process(self):
 
         if self.state == self.STATE.IN_PLACE:
             self.state = self.STATE.WAITING
@@ -414,7 +415,7 @@ class ActionIdlenessPrototype(ActionPrototype):
         if self.state == self.STATE.QUEST:
             self.percents = 0
             self.state = self.STATE.IN_PLACE
-            ActionInPlacePrototype.create(self, current_time)
+            ActionInPlacePrototype.create(self)
 
         if self.state == self.STATE.WAITING:
 
@@ -422,13 +423,13 @@ class ActionIdlenessPrototype(ActionPrototype):
 
             if self.percents >= 1.0:
                 self.state = self.STATE.QUEST
-                quest = create_random_quest_for_hero(current_time, self.hero)
-                ActionQuestPrototype.create(parent=self, current_time=current_time, quest=quest)
+                quest = create_random_quest_for_hero(self.hero)
+                ActionQuestPrototype.create(parent=self, quest=quest)
                 self.percents = 0
 
             else:
                 if random.uniform(0, 1) < 0.2:
-                    self.hero.add_message('action_idleness_waiting', current_time, hero=self.hero)
+                    self.hero.add_message('action_idleness_waiting', hero=self.hero)
 
 
 class ActionQuestPrototype(ActionPrototype):
@@ -445,7 +446,7 @@ class ActionQuestPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent, current_time, quest):
+    def _create(cls, parent, quest):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
@@ -454,10 +455,10 @@ class ActionQuestPrototype(ActionPrototype):
                                        state=cls.STATE.PROCESSING)
         return cls(model=model)
 
-    def process(self, current_time):
+    def process(self):
 
         if self.state == self.STATE.PROCESSING:
-            percents = self.quest.process(self, current_time)
+            percents = self.quest.process(self)
 
             self.percents = percents
 
@@ -490,7 +491,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
 
     @classmethod
-    def _create(cls, parent, current_time, destination, break_at=None):
+    def _create(cls, parent, destination, break_at=None):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
@@ -498,7 +499,7 @@ class ActionMoveToPrototype(ActionPrototype):
                                        place=destination.model,
                                        break_at=break_at,
                                        state=cls.STATE.CHOOSE_ROAD)
-        parent.hero.add_message('action_moveto_start', current_time, hero=parent.hero, destination=destination)
+        parent.hero.add_message('action_moveto_start', hero=parent.hero, destination=destination)
         return cls(model=model)
 
     def get_description_arguments(self):
@@ -530,7 +531,7 @@ class ActionMoveToPrototype(ActionPrototype):
     @property
     def current_destination(self): return self.road.point_2 if not self.hero.position.invert_direction else self.road.point_1
 
-    def process(self, current_time):
+    def process(self):
 
         if self.state == self.STATE.RESTING:
             self.state = self.STATE.MOVING
@@ -543,11 +544,11 @@ class ActionMoveToPrototype(ActionPrototype):
 
         if self.state == self.STATE.BATTLE:
             if not self.hero.is_alive:
-                ActionResurrectPrototype.create(self, current_time)
+                ActionResurrectPrototype.create(self)
                 self.state = self.STATE.RESURRECT
             else:
                 if self.hero.need_rest_in_move:
-                    ActionRestPrototype.create(self, current_time)
+                    ActionRestPrototype.create(self)
                     self.state = self.STATE.RESTING
                 else:
                     self.state = self.STATE.MOVING
@@ -610,13 +611,12 @@ class ActionMoveToPrototype(ActionPrototype):
 
             if random.uniform(0, 1) <= c.BATTLES_PER_TURN:
                 mob = create_mob_for_hero(self.hero)
-                ActionBattlePvE1x1Prototype.create(parent=self, current_time=current_time, mob=mob)
+                ActionBattlePvE1x1Prototype.create(parent=self, mob=mob)
                 self.state = self.STATE.BATTLE
             else:
 
                 if random.uniform(0, 1) < 0.33:
                     self.hero.add_message('action_moveto_move',
-                                          current_time,
                                           hero=self.hero,
                                           destination=self.destination,
                                           current_destination=self.current_destination)
@@ -634,7 +634,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
                     self.state = self.STATE.IN_CITY
 
-                    ActionInPlacePrototype.create(parent=self, current_time=current_time)
+                    ActionInPlacePrototype.create(parent=self)
 
                 elif self.break_at and self.percents >= 1:
                     self.percents = 1
@@ -656,7 +656,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent, current_time, mob):
+    def _create(cls, parent, mob):
 
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
@@ -664,7 +664,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
                                        order=parent.order+1,
                                        mob=s11n.to_json(mob.serialize()),
                                        state=cls.STATE.BATTLE_RUNNING)
-        parent.hero.add_message('action_battlepve1x1_start', current_time, hero=parent.hero, mob=mob)
+        parent.hero.add_message('action_battlepve1x1_start', hero=parent.hero, mob=mob)
         return cls(model=model)
 
     def get_description_arguments(self):
@@ -686,11 +686,10 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
 
         return True
 
-    def process(self, current_time):
+    def process(self, ):
 
         if self.state == self.STATE.BATTLE_RUNNING:
-            battle.make_turn(current_time,
-                             battle.Actor(self.hero, self.context),
+            battle.make_turn(battle.Actor(self.hero, self.context),
                              battle.Actor(self.mob, self.mob_context ),
                              self.hero)
 
@@ -699,7 +698,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
             if self.hero.health <= 0:
                 self.hero.kill()
                 self.hero.statistics.change_pve_deaths(1)
-                self.hero.add_message('action_battlepve1x1_hero_killed', current_time, important=True, hero=self.hero, mob=self.mob)
+                self.hero.add_message('action_battlepve1x1_hero_killed', important=True, hero=self.hero, mob=self.mob)
                 self.state = self.STATE.PROCESSED
                 self.percents = 1.0
 
@@ -708,7 +707,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
                 self.mob.kill()
                 self.hero.statistics.change_pve_kills(1)
                 self.hero.add_experience(c.EXP_PER_MOB * self.mob.exp_cooficient)
-                self.hero.add_message('action_battlepve1x1_mob_killed', current_time, hero=self.hero, mob=self.mob)
+                self.hero.add_message('action_battlepve1x1_mob_killed', hero=self.hero, mob=self.mob)
 
                 loot = self.mob.get_loot()
 
@@ -720,11 +719,11 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
                             self.hero.statistics.change_loot_had(1)
                         else:
                             self.hero.statistics.change_artifacts_had(1)
-                        self.hero.add_message('action_battlepve1x1_put_loot', current_time, hero=self.hero, artifact=loot)
+                        self.hero.add_message('action_battlepve1x1_put_loot', hero=self.hero, artifact=loot)
                     else:
-                        self.hero.add_message('action_battlepve1x1_put_loot_no_space', current_time, hero=self.hero, artifact=loot)
+                        self.hero.add_message('action_battlepve1x1_put_loot_no_space', hero=self.hero, artifact=loot)
                 else:
-                    self.hero.add_message('action_battlepve1x1_no_loot', current_time, hero=self.hero)
+                    self.hero.add_message('action_battlepve1x1_no_loot', hero=self.hero)
 
                 self.percents = 1.0
                 self.state = self.STATE.PROCESSED
@@ -743,7 +742,7 @@ class ActionResurrectPrototype(ActionPrototype):
         RESURRECT = 'resurrect'
 
     @classmethod
-    def _create(cls, parent, current_time):
+    def _create(cls, parent):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
@@ -762,7 +761,7 @@ class ActionResurrectPrototype(ActionPrototype):
         return True
 
 
-    def process(self, current_time):
+    def process(self):
 
         if self.state == self.STATE.RESURRECT:
 
@@ -792,7 +791,7 @@ class ActionInPlacePrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent, current_time):
+    def _create(cls, parent):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
@@ -805,10 +804,10 @@ class ActionInPlacePrototype(ActionPrototype):
         args.update({'place': self.hero.position.place})
         return args
 
-    def process(self, current_time):
+    def process(self):
 
         if self.hero.position.place.is_settlement:
-            return self.process_settlement(current_time)
+            return self.process_settlement()
 
     def try_to_spend_money(self, gold_amount, money_source):
         if gold_amount <= self.hero.money:
@@ -820,13 +819,13 @@ class ActionInPlacePrototype(ActionPrototype):
 
         return None
 
-    def spend_money(self, current_time):
+    def spend_money(self):
 
         if self.hero.next_spending == ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
             coins = self.try_to_spend_money(f.instant_heal_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_HEAL)
             if coins is not None:
                 self.hero.health = self.hero.max_health
-                self.hero.add_message('action_inplace_instant_heal', current_time, important=True, hero=self.hero, coins=coins)
+                self.hero.add_message('action_inplace_instant_heal', important=True, hero=self.hero, coins=coins)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
@@ -834,7 +833,7 @@ class ActionInPlacePrototype(ActionPrototype):
                 artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
                 self.hero.bag.put_artifact(artifact)
                 self.hero.statistics.change_artifacts_had(1)
-                self.hero.add_message('action_inplace_buying_artifact', current_time, important=True, hero=self.hero, coins=coins, artifact=artifact)
+                self.hero.add_message('action_inplace_buying_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
             coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_SHARPENING)
@@ -848,13 +847,13 @@ class ActionInPlacePrototype(ActionPrototype):
                         # sharpening artefact
                         artifact.power += 1
                         self.hero.equipment.updated = True
-                        self.hero.add_message('action_inplace_sharpening_artifact', current_time, important=True, hero=self.hero, coins=coins, artifact=artifact)
+                        self.hero.add_message('action_inplace_sharpening_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
                         break
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.USELESS:
             coins = self.try_to_spend_money(f.useless_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_USELESS)
             if coins is not None:
-                self.hero.add_message('action_inplace_spend_useless', current_time, important=True, hero=self.hero, coins=coins)
+                self.hero.add_message('action_inplace_spend_useless', important=True, hero=self.hero, coins=coins)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.IMPACT:
             coins = self.try_to_spend_money(f.impact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_IMPACT)
@@ -863,20 +862,20 @@ class ActionInPlacePrototype(ActionPrototype):
                 person = random.choice(self.hero.position.place.persons)
                 if random.choice([True, False]):
                     workers_environment.highlevel.cmd_change_person_power(person.id, impact)
-                    self.hero.add_message('action_inplace_impact_good', current_time, important=True, hero=self.hero, coins=coins, person=person)
+                    self.hero.add_message('action_inplace_impact_good', important=True, hero=self.hero, coins=coins, person=person)
                 else:
                     workers_environment.highlevel.cmd_change_person_power(person.id, -impact)
-                    self.hero.add_message('action_inplace_impact_bad', current_time, important=True, hero=self.hero, coins=coins, person=person)
+                    self.hero.add_message('action_inplace_impact_bad', important=True, hero=self.hero, coins=coins, person=person)
 
         else:
             raise ActionException('wrong hero money spend type: %d' % self.hero.next_spending)
 
 
-    def process_settlement(self, current_time):
+    def process_settlement(self):
 
         if self.state == self.STATE.SPEND_MONEY:
             self.state = self.STATE.CHOOSING
-            self.spend_money(current_time)
+            self.spend_money()
 
         if self.state in [self.STATE.RESTING, self.STATE.EQUIPPING, self.STATE.TRADING]:
             self.state = self.STATE.CHOOSING
@@ -884,15 +883,15 @@ class ActionInPlacePrototype(ActionPrototype):
         if self.state == self.STATE.CHOOSING:
             if self.hero.need_rest_in_settlement:
                 self.state = self.STATE.RESTING
-                ActionRestPrototype.create(self, current_time)
+                ActionRestPrototype.create(self)
 
             elif self.hero.need_equipping_in_town:
                 self.state = self.STATE.EQUIPPING
-                ActionEquippingPrototype.create(self, current_time)
+                ActionEquippingPrototype.create(self)
 
             elif self.hero.need_trade_in_town:
                 self.state = self.STATE.TRADING
-                ActionTradingPrototype.create(self, current_time)
+                ActionTradingPrototype.create(self)
 
             else:
                 self.state = self.STATE.PROCESSED
@@ -912,16 +911,16 @@ class ActionRestPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent, current_time):
+    def _create(cls, parent):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
                                        state=cls.STATE.RESTING)
-        parent.hero.add_message('action_rest_start', current_time, hero=parent.hero)
+        parent.hero.add_message('action_rest_start', hero=parent.hero)
         return cls(model=model)
 
-    def process(self, current_time):
+    def process(self):
 
         if self.state == self.STATE.RESTING:
             heal_amount = int(round(float(self.hero.max_health) / c.HEAL_LENGTH * (1 + random.uniform(-c.HEAL_STEP_FRACTION, c.HEAL_STEP_FRACTION))))
@@ -929,7 +928,7 @@ class ActionRestPrototype(ActionPrototype):
             heal_amount = self.hero.heal(heal_amount)
 
             if random.uniform(0, 1) < 0.2:
-                self.hero.add_message('action_rest_resring', current_time, hero=self.hero, health=heal_amount)
+                self.hero.add_message('action_rest_resring', hero=self.hero, health=heal_amount)
 
             self.percents = float(self.hero.health)/self.hero.max_health
 
@@ -951,7 +950,7 @@ class ActionEquippingPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent, current_time):
+    def _create(cls, parent):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
@@ -959,7 +958,7 @@ class ActionEquippingPrototype(ActionPrototype):
                                        state=cls.STATE.EQUIPPING)
         return cls(model=model)
 
-    def process(self, current_time):
+    def process(self):
 
         if self.state == self.STATE.EQUIPPING:
             # TODO: calculate real percents
@@ -970,11 +969,11 @@ class ActionEquippingPrototype(ActionPrototype):
             if equipped:
                 if unequipped:
                     if equipped.id == unequipped.id:
-                        self.hero.add_message('action_equipping_change_equal_items', current_time, important=True, hero=self.hero, item=equipped)
+                        self.hero.add_message('action_equipping_change_equal_items', important=True, hero=self.hero, item=equipped)
                     else:
-                        self.hero.add_message('action_equipping_change_item', current_time, important=True, hero=self.hero, unequipped=unequipped, equipped=equipped)
+                        self.hero.add_message('action_equipping_change_item', important=True, hero=self.hero, unequipped=unequipped, equipped=equipped)
                 else:
-                    self.hero.add_message('action_equipping_equip_item', current_time, important=True, hero=self.hero, equipped=equipped)
+                    self.hero.add_message('action_equipping_equip_item', important=True, hero=self.hero, equipped=equipped)
             else:
                 self.state = self.STATE.PROCESSED
 
@@ -1000,14 +999,14 @@ class ActionTradingPrototype(ActionPrototype):
         return info
 
     @classmethod
-    def _create(cls, parent, current_time):
+    def _create(cls, parent):
         model = Action.objects.create( type=cls.TYPE,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
                                        percents_barier=parent.hero.bag.occupation[1],
                                        state=cls.STATE.TRADING)
-        parent.hero.add_message('action_trading_start', current_time, hero=parent.hero)
+        parent.hero.add_message('action_trading_start', hero=parent.hero)
         return cls(model=model)
 
 
@@ -1028,7 +1027,7 @@ class ActionTradingPrototype(ActionPrototype):
         return self.hero.abilities.update_sell_price(self.hero, gold_amount)
 
 
-    def process(self, current_time):
+    def process(self):
 
         if self.state == self.STATE.TRADING:
             quest_items_count, loot_items_count = self.hero.bag.occupation
@@ -1052,7 +1051,7 @@ class ActionTradingPrototype(ActionPrototype):
                 self.hero.change_money(money_source, sell_price)
                 self.hero.bag.pop_artifact(artifact)
 
-                self.hero.add_message('action_trading_sell_item', current_time, hero=self.hero, artifact=artifact, coins=sell_price)
+                self.hero.add_message('action_trading_sell_item', hero=self.hero, artifact=artifact, coins=sell_price)
 
             if loot_items_count <= 1:
                 self.state = self.STATE.PROCESSED
@@ -1079,7 +1078,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
         return info
 
     @classmethod
-    def _create(cls, parent, current_time, place, back):
+    def _create(cls, parent, place, back):
 
         if back:
             x, y = place.x, place.y
@@ -1108,7 +1107,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
         args.update({'place': self.place})
         return args
 
-    def process(self, current_time):
+    def process(self):
 
         if self.state == self.STATE.RESTING:
             self.state = self.STATE.MOVING
@@ -1118,11 +1117,11 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
         if self.state == self.STATE.BATTLE:
             if not self.hero.is_alive:
-                ActionResurrectPrototype.create(self, current_time)
+                ActionResurrectPrototype.create(self)
                 self.state = self.STATE.RESURRECT
             else:
                 if self.hero.need_rest_in_move:
-                    ActionRestPrototype.create(self, current_time)
+                    ActionRestPrototype.create(self)
                     self.state = self.STATE.RESTING
                 else:
                     self.state = self.STATE.MOVING
@@ -1131,13 +1130,13 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
             if random.uniform(0, 1) <= c.BATTLES_PER_TURN:
                 mob = create_mob_for_hero(self.hero)
-                ActionBattlePvE1x1Prototype.create(parent=self, current_time=current_time, mob=mob)
+                ActionBattlePvE1x1Prototype.create(parent=self, mob=mob)
                 self.state = self.STATE.BATTLE
 
             else:
 
                 if random.uniform(0, 1) < 0.2:
-                    self.hero.add_message('action_movenearplace_walk', current_time, hero=self.hero, place=self.place)
+                    self.hero.add_message('action_movenearplace_walk', hero=self.hero, place=self.place)
 
                 if self.hero.position.subroad_len() == 0:
                     self.hero.position.percents += 0.1

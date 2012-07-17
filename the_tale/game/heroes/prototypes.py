@@ -340,10 +340,10 @@ class HeroPrototype(object):
                 self.diary.pop(0)
 
     @staticmethod
-    def _prepair_message(current_time, msg, in_past=0):
-        return (current_time.turn_number-in_past, time.mktime(datetime.datetime.now().timetuple())-in_past*c.TURN_DELTA, msg)
+    def _prepair_message(msg, in_past=0):
+        return (TimePrototype.get_current_turn_number()-in_past, time.mktime(datetime.datetime.now().timetuple())-in_past*c.TURN_DELTA, msg)
 
-    def add_message(self, type_, current_time, important=False, **kwargs):
+    def add_message(self, type_, important=False, **kwargs):
         args = prepair_substitution(kwargs)
         template = get_vocabulary().get_random_phrase(type_)
 
@@ -352,7 +352,7 @@ class HeroPrototype(object):
                 logger.error('hero:add_message: unknown template type: %s' % type_)
             return
         msg = template.substitute(get_dictionary(), args)
-        self.push_message(self._prepair_message(current_time, msg), important=important)
+        self.push_message(self._prepair_message(msg), important=important)
 
 
     def heal(self, delta):
@@ -486,21 +486,19 @@ class HeroPrototype(object):
 
         gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
-        current_time = TimePrototype.get_current_time()
-
-        hero = Hero.objects.create(created_at_turn=current_time.turn_number,
+        hero = Hero.objects.create(created_at_turn=TimePrototype.get_current_turn_number(),
                                    angel=angel.model,
                                    gender=gender,
                                    race=race,
-                                   messages=s11n.to_json([cls._prepair_message(current_time, u'Тучи сгущаются (и как быстро!), к непогоде...', in_past=7),
-                                                          cls._prepair_message(current_time, u'Аааааа, по всюду молниции, спрячусь ка я под этим большим дубом.', in_past=6),
-                                                          cls._prepair_message(current_time, u'Бабах!!!', in_past=5),
-                                                          cls._prepair_message(current_time, u'Темно, страшно, кажется, я в коридоре...', in_past=4),
-                                                          cls._prepair_message(current_time, u'Свет! Надо идти на свет!', in_past=3),
-                                                          cls._prepair_message(current_time, u'Свет сказал, что избрал меня для великих дел, взял кровь из пальца и поставил ей крестик в каком-то пергаменте.', in_past=2),
-                                                          cls._prepair_message(current_time, u'Приказано идти обратно и геройствовать, как именно геройствовать - не уточняется', in_past=1),
-                                                          cls._prepair_message(current_time, u'Эх, опять в этом мире, в том было хотя бы чисто и сухо. Голова болит. Палец болит. Тянет на подвиги.', in_past=0)]),
-                                   diary=s11n.to_json([cls._prepair_message(current_time, u'Вот жеж угораздило. У всех ангелы-хранители нормальные, сидят себе и попаданию подопечных в загробный мир не мешают. А у моего, значит, шило в заднице! Где ты был, когда я лотерейные билеты покупал?! Молнию отвести он значит не может, а воскресить - запросто. Как же всё болит, кажется теперь у меня две печёнки (это, конечно, тебе спасибо, всегда пригодится). Ну ничего, рано или поздно я к твоему начальству попаду и там уж всё расскажу! А пока буду записывать в свой дневник.')]),
+                                   messages=s11n.to_json([cls._prepair_message(u'Тучи сгущаются (и как быстро!), к непогоде...', in_past=7),
+                                                          cls._prepair_message(u'Аааааа, по всюду молниции, спрячусь ка я под этим большим дубом.', in_past=6),
+                                                          cls._prepair_message(u'Бабах!!!', in_past=5),
+                                                          cls._prepair_message(u'Темно, страшно, кажется, я в коридоре...', in_past=4),
+                                                          cls._prepair_message(u'Свет! Надо идти на свет!', in_past=3),
+                                                          cls._prepair_message(u'Свет сказал, что избрал меня для великих дел, взял кровь из пальца и поставил ей крестик в каком-то пергаменте.', in_past=2),
+                                                          cls._prepair_message(u'Приказано идти обратно и геройствовать, как именно геройствовать - не уточняется', in_past=1),
+                                                          cls._prepair_message(u'Эх, опять в этом мире, в том было хотя бы чисто и сухо. Голова болит. Палец болит. Тянет на подвиги.', in_past=0)]),
+                                   diary=s11n.to_json([cls._prepair_message(u'Вот жеж угораздило. У всех ангелы-хранители нормальные, сидят себе и попаданию подопечных в загробный мир не мешают. А у моего, значит, шило в заднице! Где ты был, когда я лотерейные билеты покупал?! Молнию отвести он значит не может, а воскресить - запросто. Как же всё болит, кажется теперь у меня две печёнки (это, конечно, тебе спасибо, всегда пригодится). Ну ничего, рано или поздно я к твоему начальству попаду и там уж всё расскажу! А пока буду записывать в свой дневник.')]),
                                    name=names.generator.get_name(race, gender),
                                    health=f.hp_on_lvl(1),
                                    pos_place = start_place.model)
@@ -529,8 +527,8 @@ class HeroPrototype(object):
     # Next turn operations
     ###########################################
 
-    def process_turn(self, current_time):
-        return current_time.turn_number + 1
+    def process_turn(self):
+        return TimePrototype.get_current_turn_number() + 1
 
 
 

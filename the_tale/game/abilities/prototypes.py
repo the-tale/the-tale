@@ -4,6 +4,8 @@ from dext.utils import s11n
 from .forms import AbilityForm
 from .models import AbilityTask, ABILITY_STATE
 
+from game.prototypes import TimePrototype
+
 class AbilityPrototype(object):
 
     COST = None
@@ -146,29 +148,31 @@ class AbilityTaskPrototype(object):
         self.model.data = s11n.to_json(self.data)
         self.model.save()
 
-    def process(self, current_time, bundle):
+    def process(self, bundle):
 
         angel = bundle.angels[self.angel_id]
 
         ability = angel.abilities[self.type]
 
-        energy = angel.get_energy_at_turn(current_time.turn_number)
+        turn_number = TimePrototype.get_current_turn_number()
+
+        energy = angel.get_energy_at_turn(turn_number)
 
         if energy < ability.COST:
             self.model.comment = 'energy < ability.COST'
             self.state = ABILITY_STATE.ERROR
             return
 
-        if ability.available_at > current_time.turn_number:
+        if ability.available_at > turn_number:
             self.state = ABILITY_STATE.ERROR
-            self.model.comment = 'available_at (%d) > turn_number (%d)' % (ability.available_at, current_time.turn_number)
+            self.model.comment = 'available_at (%d) > turn_number (%d)' % (ability.available_at, turn_number)
             return
 
         if self.hero_id:
             hero = bundle.heroes[self.hero_id]
-            result = ability.use(current_time, bundle, angel, hero, self.data)
+            result = ability.use(bundle, angel, hero, self.data)
         else:
-            result = ability.use(current_time, bundle, angel, self.data)
+            result = ability.use(bundle, angel, self.data)
 
         if not result:
             self.model.comment = 'result is False'
@@ -176,6 +180,6 @@ class AbilityTaskPrototype(object):
             return
 
         self.state = ABILITY_STATE.PROCESSED
-        angel.set_energy_at_turn(current_time.turn_number, energy - ability.COST)
+        angel.set_energy_at_turn(turn_number, energy - ability.COST)
 
         ability.available_at = self.available_at

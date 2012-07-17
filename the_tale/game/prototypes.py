@@ -38,9 +38,13 @@ class TimePrototype(object):
 
     @classmethod
     def get_current_time(cls):
+        return cls(turn_number=cls.get_current_turn_number())
+
+    @classmethod
+    def get_current_turn_number(cls):
         if 'turn number' not in settings:
             settings['turn number'] = '0'
-        return cls(turn_number=int(settings['turn number']))
+        return int(settings['turn number'])
 
     def increment_turn(self):
         self.turn_number += 1

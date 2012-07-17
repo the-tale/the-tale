@@ -13,7 +13,7 @@ class RestActionTest(TestCase):
 
         self.bundle = create_test_bundle('RestActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionRestPrototype.create(self.action_idl, TimePrototype.get_current_time()))
+        self.bundle.add_action(ActionRestPrototype.create(self.action_idl))
         self.action_rest = self.bundle.tests_get_last_action()
         self.hero = self.bundle.tests_get_hero()
 
@@ -27,14 +27,14 @@ class RestActionTest(TestCase):
         test_bundle_save(self, self.bundle)
 
     def test_processed(self):
-        self.bundle.process_turn(TimePrototype.get_current_time())
+        self.bundle.process_turn()
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
         test_bundle_save(self, self.bundle)
 
     def test_not_ready(self):
         self.hero.health = 1
-        self.bundle.process_turn(TimePrototype.get_current_time())
+        self.bundle.process_turn()
         self.assertEqual(len(self.bundle.actions), 2)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_rest)
         self.assertTrue(self.hero.health > 1)
@@ -46,7 +46,7 @@ class RestActionTest(TestCase):
         current_time = TimePrototype.get_current_time()
 
         for i in xrange(self.hero.max_health):
-            self.bundle.process_turn(current_time)
+            self.bundle.process_turn()
             current_time.increment_turn()
             if self.hero.health == self.hero.max_health:
                 break

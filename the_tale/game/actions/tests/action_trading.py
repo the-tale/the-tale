@@ -14,7 +14,7 @@ class TradingActionTest(TestCase):
 
         self.bundle = create_test_bundle('TradingActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionTradingPrototype.create(self.action_idl, TimePrototype.get_current_time()))
+        self.bundle.add_action(ActionTradingPrototype.create(self.action_idl))
         self.action_trade = self.bundle.tests_get_last_action()
         self.hero = self.bundle.tests_get_hero()
 
@@ -29,7 +29,7 @@ class TradingActionTest(TestCase):
         test_bundle_save(self, self.bundle)
 
     def test_processed(self):
-        self.bundle.process_turn(TimePrototype.get_current_time())
+        self.bundle.process_turn()
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
         test_bundle_save(self, self.bundle)
@@ -44,7 +44,7 @@ class TradingActionTest(TestCase):
 
         self.action_trade.percents_barier = 1
 
-        self.bundle.process_turn(TimePrototype.get_current_time())
+        self.bundle.process_turn()
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
 
@@ -65,7 +65,7 @@ class TradingActionTest(TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        self.bundle.process_turn(current_time)
+        self.bundle.process_turn()
         self.assertEqual(len(self.bundle.actions), 2)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_trade)
 
@@ -75,7 +75,7 @@ class TradingActionTest(TestCase):
 
         current_time.increment_turn()
 
-        self.bundle.process_turn(current_time)
+        self.bundle.process_turn()
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
 

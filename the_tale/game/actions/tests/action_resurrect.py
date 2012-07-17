@@ -18,7 +18,7 @@ class ResurrectActionTest(TestCase):
         self.hero.kill()
 
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionResurrectPrototype.create(self.action_idl, TimePrototype.get_current_time()))
+        self.bundle.add_action(ActionResurrectPrototype.create(self.action_idl))
         self.action_resurrect = self.bundle.tests_get_last_action()
 
 
@@ -36,12 +36,12 @@ class ResurrectActionTest(TestCase):
 
         for i in xrange(c.TURNS_TO_RESURRECT-1):
 
-            self.bundle.process_turn(current_time)
+            self.bundle.process_turn()
             current_time.increment_turn()
             self.assertEqual(len(self.bundle.actions), 2)
             self.assertEqual(self.bundle.tests_get_last_action(), self.action_resurrect)
 
-        self.bundle.process_turn(current_time)
+        self.bundle.process_turn()
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
 
@@ -55,7 +55,7 @@ class ResurrectActionTest(TestCase):
 
         self.action_resurrect.fast_resurrect()
 
-        self.bundle.process_turn(TimePrototype.get_current_time())
+        self.bundle.process_turn()
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
 

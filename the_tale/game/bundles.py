@@ -104,23 +104,23 @@ class BundlePrototype(object):
     def save(self):
         self.model.save()
 
-    def process_turn(self, current_time):
+    def process_turn(self):
         next_turn = None
 
         for angel in self.angels.values():
-            next = angel.process_turn(current_time)
+            next = angel.process_turn()
             if next_turn is None and next or next < next_turn:
                 next_turn = next
 
         for hero in self.heroes.values():
-            next = hero.process_turn(current_time)
+            next = hero.process_turn()
             if next_turn is None and next or next < next_turn:
                 next_turn = next
 
         for action in self.actions.values():
             if not action.leader:
                 continue
-            next = action.process_turn(current_time)
+            next = action.process_turn()
             if next_turn is None and next or next < next_turn:
                 next_turn = next
 

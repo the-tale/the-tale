@@ -45,6 +45,6 @@ class GeneralTest(TestCase):
 
         # just test that quest will be ended
         while not self.action_idl.leader:
-            self.bundle.process_turn(current_time)
+            self.bundle.process_turn()
             current_time.increment_turn()
             self.assertEqual(self.bundle.tests_get_last_action().percents, self.hero.last_action_percents)

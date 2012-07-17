@@ -15,8 +15,8 @@ class QuestActionTest(TestCase):
         self.bundle = create_test_bundle('QuestActionTest')
         self.hero = self.bundle.tests_get_hero()
         self.action_idl = self.bundle.tests_get_last_action()
-        self.quest = create_random_quest_for_hero(TimePrototype.get_current_time(), self.hero)
-        self.bundle.add_action(ActionQuestPrototype.create(self.action_idl, TimePrototype.get_current_time(), quest=self.quest))
+        self.quest = create_random_quest_for_hero(self.hero)
+        self.bundle.add_action(ActionQuestPrototype.create(self.action_idl, quest=self.quest))
         self.action_quest = self.bundle.tests_get_last_action()
 
     def tearDown(self):
@@ -29,7 +29,7 @@ class QuestActionTest(TestCase):
         test_bundle_save(self, self.bundle)
 
     def test_one_step(self):
-        self.bundle.process_turn(TimePrototype.get_current_time())
+        self.bundle.process_turn()
         # quest can create new action on first step
         self.assertTrue(2 <= len(self.bundle.actions) <= 3)
         test_bundle_save(self, self.bundle)
@@ -41,7 +41,7 @@ class QuestActionTest(TestCase):
 
         # just test that quest will be ended
         while not self.action_idl.leader:
-            self.bundle.process_turn(current_time)
+            self.bundle.process_turn()
             current_time.increment_turn()
 
         test_bundle_save(self, self.bundle)

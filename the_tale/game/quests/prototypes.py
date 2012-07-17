@@ -3,6 +3,8 @@ import random
 
 from dext.utils import s11n
 
+from game.prototypes import TimePrototype
+
 from game.balance import constants as c, formulas as f
 
 from game.mobs.storage import MobsDatabase
@@ -121,7 +123,7 @@ class QuestPrototype(object):
         self.model.save(force_update=True)
 
     @classmethod
-    def create(cls, cur_time, hero, env):
+    def create(cls, hero, env):
 
         data = { 'pointer': env.get_start_pointer(),
                  'last_pointer': env.get_start_pointer()}
@@ -130,7 +132,7 @@ class QuestPrototype(object):
             raise Exception('Hero %s has already had quest' % hero.id)
 
         model = Quest.objects.create(env=s11n.to_json(env.serialize()),
-                                     created_at_turn=cur_time.turn_number,
+                                     created_at_turn=TimePrototype.get_current_turn_number(),
                                      data=s11n.to_json(data))
 
         QuestsHeroes.objects.create(quest=model, hero=hero.model)
@@ -142,9 +144,9 @@ class QuestPrototype(object):
         return quest
 
 
-    def process(self, cur_action, cur_time):
+    def process(self, cur_action):
 
-        if self.do_step(cur_action, cur_time):
+        if self.do_step(cur_action):
             percents = self.percents
             if percents >= 1:
                 raise QuestException('completed percents > 1 for not ended quest')
@@ -152,9 +154,9 @@ class QuestPrototype(object):
 
         return 1
 
-    def do_step(self, cur_action, cur_time):
+    def do_step(self, cur_action):
 
-        self.process_current_command(cur_action, cur_time)
+        self.process_current_command(cur_action)
 
         self.last_pointer = self.pointer
         self.pointer = self.env.increment_pointer(self.pointer, self.get_choices())
@@ -174,7 +176,7 @@ class QuestPrototype(object):
             from ..workers.environment import workers_environment
             workers_environment.highlevel.cmd_change_person_power(person_data['external_data']['id'], power * 100)
 
-    def process_current_command(self, cur_action, cur_time):
+    def process_current_command(self, cur_action):
 
         cmd = self.env.get_command(self.pointer)
 
@@ -183,7 +185,7 @@ class QuestPrototype(object):
         log_msg = writer.get_journal_msg(cmd.event)
 
         if log_msg:
-            cur_action.hero.push_message(HeroPrototype._prepair_message(cur_time, log_msg))
+            cur_action.hero.push_message(HeroPrototype._prepair_message(log_msg))
 
         {'description': self.cmd_description,
          'move': self.cmd_move,
@@ -195,53 +197,53 @@ class QuestPrototype(object):
          'choose': self.cmd_choose,
          'givepower': self.cmd_give_power,
          'battle': self.cmd_battle
-         }[cmd.type()](cmd, cur_action, cur_time)
+         }[cmd.type()](cmd, cur_action)
 
-    def cmd_description(self, cmd, cur_action, cur_time):
-        cur_action.hero.push_message(HeroPrototype._prepair_message(cur_time, cmd.msg))
+    def cmd_description(self, cmd, cur_action):
+        cur_action.hero.push_message(HeroPrototype._prepair_message(cmd.msg))
 
-    def cmd_move(self, cmd, cur_action, cur_time):
+    def cmd_move(self, cmd, cur_action):
         from ..actions.prototypes import ActionMoveToPrototype
         destination = self.env.get_game_place(cmd.place)
-        ActionMoveToPrototype.create(parent=cur_action, current_time=cur_time, destination=destination, break_at=cmd.break_at)
+        ActionMoveToPrototype.create(parent=cur_action, destination=destination, break_at=cmd.break_at)
 
-    def cmd_move_near(self, cmd, cur_action, cur_time):
+    def cmd_move_near(self, cmd, cur_action):
         from ..actions.prototypes import ActionMoveNearPlacePrototype
         destination = self.env.get_game_place(cmd.place)
-        ActionMoveNearPlacePrototype.create(parent=cur_action, current_time=cur_time, place=destination, back=cmd.back)
+        ActionMoveNearPlacePrototype.create(parent=cur_action, place=destination, back=cmd.back)
 
-    def cmd_get_item(self, cmd, cur_action, cur_time):
+    def cmd_get_item(self, cmd, cur_action):
         item = self.env.get_game_item(cmd.item)
         cur_action.hero.put_loot(item)
 
-    def cmd_give_item(self, cmd, cur_action, cur_time):
+    def cmd_give_item(self, cmd, cur_action):
         item = self.env.get_game_item(cmd.item)
         cur_action.hero.pop_quest_loot(item)
 
-    def cmd_get_reward(self, cmd, cur_action, cur_time):
+    def cmd_get_reward(self, cmd, cur_action):
 
         multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
         money = 1 + int(f.sell_artifact_price(cur_action.hero.level) * multiplier)
         money = cur_action.hero.abilities.update_quest_reward(cur_action.hero, money)
         cur_action.hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
-        cur_action.hero.add_message('action_quest_reward_money', cur_time, important=True, hero=cur_action.hero, coins=money)
+        cur_action.hero.add_message('action_quest_reward_money', important=True, hero=cur_action.hero, coins=money)
 
-    def cmd_quest(self, cmd, cur_action, cur_time):
+    def cmd_quest(self, cmd, cur_action):
         # TODO: move to quest generator environment
         pass
 
-    def cmd_choose(self, cmd, cur_action, cur_time):
+    def cmd_choose(self, cmd, cur_action):
         # TODO: move to quest generator environment
         pass
 
-    def cmd_give_power(self, cmd, cur_action, cur_time):
+    def cmd_give_power(self, cmd, cur_action):
         # TODO: move to quest generator environment
         if cmd.depends_on:
             self.env.persons_power_points[cmd.person] = self.env.persons_power_points[cmd.depends_on] * cmd.multiply
         else:
             self.env.persons_power_points[cmd.person] = cmd.power
 
-    def cmd_battle(self, cmd, cur_action, cur_time):
+    def cmd_battle(self, cmd, cur_action):
         from ..actions.prototypes import ActionBattlePvE1x1Prototype
 
         mob = None
@@ -250,7 +252,7 @@ class QuestPrototype(object):
         if mob is None:
             mob = MobsDatabase.storage().get_random_mob(cur_action.hero)
 
-        ActionBattlePvE1x1Prototype.create(parent=cur_action, current_time=cur_time, mob=mob)
+        ActionBattlePvE1x1Prototype.create(parent=cur_action, mob=mob)
 
     def ui_info(self, hero):
         choices = self.get_choices()

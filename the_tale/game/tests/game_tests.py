@@ -41,7 +41,7 @@ class GameTest(TestCase):
         current_time = TimePrototype.get_current_time()
 
         for i in xrange(10000):
-            self.bundle.process_turn(current_time)
+            self.bundle.process_turn()
             current_time.increment_turn()
 
         self.assertEqual(self.hero.money, self.hero.statistics.money_earned - self.hero.statistics.money_spend)
