@@ -9,7 +9,7 @@ from game.heroes.logic import create_mob_for_hero
 from game.heroes.bag import SLOTS_LIST
 from game.heroes.statistics import MONEY_SOURCE
 
-from game.map.places.prototypes import get_place_by_model
+from game.map.places.storage import places_storage
 from game.map.roads.prototypes import get_road_by_model, WaymarkPrototype
 
 from game.mobs.storage import MobsDatabase
@@ -134,10 +134,7 @@ class ActionPrototype(object):
     def place_id(self): return self.model.place_id
 
     @property
-    def place(self):
-        if not hasattr(self, '_place'):
-            self._place = get_place_by_model(model=self.model.place)
-        return self._place
+    def place(self): return places_storage[self.model.place_id]
 
     def get_road(self):
         if not hasattr(self, '_road'):

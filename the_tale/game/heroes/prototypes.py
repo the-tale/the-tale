@@ -10,7 +10,7 @@ from django.conf import settings as project_settings
 from dext.utils import s11n
 from dext.utils import database
 
-from game.map.places.prototypes import PlacePrototype
+from game.map.places.storage import places_storage
 from game.map.roads.prototypes import RoadPrototype
 
 from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, ITEMS_OF_EXPENDITURE, GENDER_DICT_USERFRIENDLY, RACE_DICT, ATTRIBUTES
@@ -480,7 +480,7 @@ class HeroPrototype(object):
 
         from game.actions.prototypes import ActionIdlenessPrototype
 
-        start_place = PlacePrototype.random_place()
+        start_place = places_storage.random_place()
 
         race = random.choice(RACE_CHOICES)[0]
 
@@ -541,10 +541,7 @@ class HeroPositionPrototype(object):
     def place_id(self): return self.hero_model.pos_place_id
 
     @property
-    def place(self):
-        if not hasattr(self, '_place'):
-            self._place = PlacePrototype(model=self.hero_model.pos_place) if self.hero_model.pos_place else None
-        return self._place
+    def place(self): return places_storage.get(self.hero_model.pos_place_id)
 
     def _reset_position(self):
         if hasattr(self, '_place'):

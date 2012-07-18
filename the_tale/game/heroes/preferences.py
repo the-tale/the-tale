@@ -4,8 +4,7 @@ from game.balance import calculated as calc
 
 from game.mobs.storage import MobsDatabase
 
-from game.map.places.models import Place
-from game.map.places.prototypes import PlacePrototype
+from game.map.places.storage import places_storage
 
 from game.persons.models import Person
 from game.persons.prototypes import PersonPrototype
@@ -33,9 +32,7 @@ class HeroPreferences(object):
     def set_place_id(self, value): self.hero_model.pref_place_id = value
     place_id = property(get_place_id, set_place_id)
 
-    def get_place(self):
-        return PlacePrototype(model=self.hero_model.pref_place) if self.hero_model.pref_place else None
-
+    def get_place(self): return places_storage.get(self.hero_model.pref_place_id)
 
     def get_friend_id(self): return self.hero_model.pref_friend_id
     def set_friend_id(self, value): self.hero_model.pref_friend_id = value
@@ -134,7 +131,7 @@ class ChoosePreferencesTaskPrototype(object):
                     self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
                     return
 
-                if not Place.objects.filter(id=place_id).exists():
+                if place_id not in places_storage:
                     self.model.comment = u'unknown place id: %s' % (place_id, )
                     self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
                     return

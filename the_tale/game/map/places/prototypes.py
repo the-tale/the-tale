@@ -11,19 +11,11 @@ from game.map.places.models import Place, PLACE_TYPE, RACE_TO_TERRAIN
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
 
-def get_place_by_id(model_id):
-    model = Place.objects.get(id=model_id)
-    return get_place_by_model(model)
-
-def get_place_by_model(model):
-    return PlacePrototype(model=model)
-
 class PlacePrototype(object):
 
     TYPE = 'BASE'
 
-    def __init__(self, model, *argv, **kwargs):
-        super(PlacePrototype, self).__init__(*argv, **kwargs)
+    def __init__(self, model):
         self.model = model
 
     @classmethod
@@ -179,15 +171,13 @@ class PlacePrototype(object):
     # Object operations
     ###########################################
 
-    @classmethod
-    def random_place(cls):
-        model = Place.objects.all().order_by('?')[0]
-        return cls(model=model)
-
     def remove(self): self.model.delete()
     def save(self):
         self.model.data = s11n.to_json(self.data)
         self.model.save(force_update=True)
+
+    def __eq__(self, other):
+        return self.id == other.id
 
     def map_info(self):
         return {'id': self.id,

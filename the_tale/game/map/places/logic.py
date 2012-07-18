@@ -2,25 +2,16 @@
 import math
 
 from game.map.conf import map_settings
+from game.map.places.storage import places_storage
 from game.map.places.conf import places_settings
-from game.map.places.models import Place
-from game.map.places.prototypes import get_place_by_model
 
 E = 0.01
 
 def dst(x, y, x2, y2):
     return math.sqrt((x-x2)**2 + (y-y2)**2)
 
-def get_places_info():
-    places = {}
-    for place_model in Place.objects.all():
-        place = get_place_by_model(place_model)
-        places[place.id] = place.map_info()
-
-    return places
-
 def update_nearest_cells():
-    places = [get_place_by_model(model) for model in Place.objects.all()]
+    places = places_storage.all()
 
     for place in places:
         place.nearest_cells = []
@@ -45,6 +36,4 @@ def update_nearest_cells():
             if nearest_place:
                 nearest_place.nearest_cells.append((x, y))
 
-
-    for place in places:
-        place.save()
+    places_storage.save_all()

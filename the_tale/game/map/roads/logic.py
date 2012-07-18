@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from ..places.models import Place
-from ..places.prototypes import get_place_by_model
-from .models import Road, Waymark
-from .prototypes import WaymarkPrototype, get_road_by_model, get_road_by_id
+from game.map.places.storage import places_storage
+from game.map.roads.models import Road, Waymark
+from game.map.roads.prototypes import WaymarkPrototype, get_road_by_model, get_road_by_id
 
 def update_roads():
     roads = [ get_road_by_model(road) for road in list(Road.objects.all()) ]
@@ -37,7 +36,7 @@ class Path(object):
 
 def update_waymarks():
 
-    places = [ get_place_by_model(place) for place in list(Place.objects.all()) ]
+    places = places_storage.all()
 
     roads = [ get_road_by_model(road) for road in list(Road.objects.all()) ]
 

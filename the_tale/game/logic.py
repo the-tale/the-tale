@@ -7,7 +7,7 @@ from game.heroes.bag import SLOTS
 from game.artifacts.storage import ArtifactsDatabase
 from game.bundles import BundlePrototype
 
-from game.map.places.prototypes import get_place_by_model, get_place_by_id
+from game.map.places.storage import places_storage
 from game.map.places.models import Place, TERRAIN, PLACE_TYPE
 from game.map.roads.prototypes import RoadPrototype
 from game.map.roads.logic import update_waymarks
@@ -21,36 +21,37 @@ def create_test_map():
     """
     map: p1-p2-p3
     """
-    p1 = get_place_by_model(Place.objects.create( x=1,
-                                                  y=1,
-                                                  name='1x1',
-                                                  terrain=TERRAIN.FOREST,
-                                                  type=PLACE_TYPE.CITY,
-                                                  subtype='UNDEFINED',
-                                                  size=1))
+    p1 = Place.objects.create( x=1,
+                               y=1,
+                               name='1x1',
+                               terrain=TERRAIN.FOREST,
+                               type=PLACE_TYPE.CITY,
+                               subtype='UNDEFINED',
+                               size=1)
 
-    p1.sync_persons()
+    p2 = Place.objects.create( x=10,
+                               y=10,
+                               name='10x10',
+                               terrain=TERRAIN.FOREST,
+                               type=PLACE_TYPE.CITY,
+                               subtype='UNDEFINED',
+                               size=3)
 
-    p2 = get_place_by_model(Place.objects.create( x=10,
-                                                  y=10,
-                                                  name='10x10',
-                                                  terrain=TERRAIN.FOREST,
-                                                  type=PLACE_TYPE.CITY,
-                                                  subtype='UNDEFINED',
-                                                  size=3))
-    p2.sync_persons()
+    p3 = Place.objects.create( x=1,
+                               y=10,
+                               name='1x10',
+                               terrain=TERRAIN.FOREST,
+                               type=PLACE_TYPE.CITY,
+                               subtype='UNDEFINED',
+                               size=3)
 
-    p3 = get_place_by_model(Place.objects.create( x=1,
-                                                  y=10,
-                                                  name='1x10',
-                                                  terrain=TERRAIN.FOREST,
-                                                  type=PLACE_TYPE.CITY,
-                                                  subtype='UNDEFINED',
-                                                  size=3))
-    p3.sync_persons()
+    places_storage.sync(force=True)
 
-    RoadPrototype.create(point_1=p1, point_2=p2)
-    RoadPrototype.create(point_1=p2, point_2=p3)
+    for place in places_storage.all():
+        place.sync_persons()
+
+    RoadPrototype.create(point_1=places_storage[p1.id], point_2=places_storage[p2.id])
+    RoadPrototype.create(point_1=places_storage[p2.id], point_2=places_storage[p3.id])
 
     update_waymarks()
 
@@ -61,7 +62,7 @@ def create_test_map():
 
     update_nearest_cells()
 
-    return (get_place_by_id(p1.id), get_place_by_id(p2.id), get_place_by_id(p3.id))
+    return (places_storage[p1.id], places_storage[p2.id], places_storage[p3.id])
 
 
 def create_test_bundle(uuid):

@@ -109,6 +109,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'dext.settings.middleware.SettingsMiddleware',
+    'portal.middleware.StorageMiddleware',
     'accounts.middleware.RegistrationMiddleware',
     'portal.middleware.ExceptionMiddleware'
 )

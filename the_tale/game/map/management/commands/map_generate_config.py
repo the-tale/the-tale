@@ -10,8 +10,8 @@ from ...conf import map_settings
 from ...roads.prototypes import get_road_by_model
 from ...roads.models import Road
 
-from ...places.prototypes import get_place_by_model
-from ...places.models import Place, PLACE_TYPE
+from game.map.places.storage import places_storage
+from game.map.places.models import PLACE_TYPE
 
 class Command(BaseCommand):
 
@@ -31,16 +31,13 @@ class Command(BaseCommand):
         map_width = map_settings.WIDTH
         map_height = map_settings.HEIGHT
 
-        places_list = [get_place_by_model(place_model)
-                       for place_model in list(Place.objects.all()) ]
-
         roads_list = [get_road_by_model(road_model)
                       for road_model in list(Road.objects.all()) ]
 
-        config_content = render('map/management/commands/config.py', 
+        config_content = render('map/management/commands/config.py',
                                 {'map_width': map_width,
                                  'map_height': map_height,
-                                 'places_list': places_list,
+                                 'places_list': places_storage.all(),
                                  'roads_list': roads_list,
                                  'PLACE_TYPE': PLACE_TYPE})
 

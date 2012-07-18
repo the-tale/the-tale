@@ -2,8 +2,7 @@
 
 from django.core.management.base import BaseCommand
 
-from ...models import Place
-from ...prototypes import get_place_by_model
+from game.map.places.storage import places_storage
 
 class Command(BaseCommand):
 
@@ -13,9 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        for place_model in Place.objects.all():
-            place = get_place_by_model(place_model)
+        for place in places_storage.all():
             place.sync_persons() # do first
             place.sync_terrain()
             place.save()
-

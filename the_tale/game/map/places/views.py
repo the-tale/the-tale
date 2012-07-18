@@ -3,7 +3,7 @@
 from dext.views.resources import handler
 from common.utils.resources import Resource
 
-from .prototypes import get_place_by_id
+from game.map.places.storage import places_storage
 
 class PlaceResource(Resource):
 
@@ -12,10 +12,7 @@ class PlaceResource(Resource):
         self.place_id = int(place_id)
 
     @property
-    def place(self):
-        if not hasattr(self, '_place'):
-            self._place= get_place_by_id(self.place_id)
-        return self._place
+    def place(self): return places_storage[self.place_id]
 
     @handler('#place_id', 'map-info', method='get')
     def map_info(self):

@@ -1,12 +1,8 @@
 # coding: utf-8
 
-from django.test import TestCase, client
-from django.core.urlresolvers import reverse
+from django.test import TestCase
 
-from game.logic import create_test_map
-from accounts.logic import register_user
-
-from game.map.places.prototypes import get_place_by_model
+from game.map.places.prototypes import PlacePrototype
 from game.map.places.models import Place, TERRAIN, PLACE_TYPE
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
@@ -22,7 +18,7 @@ class PlacePowerTest(TestCase):
                                           subtype='UNDEFINED',
                                           size=5 )
 
-        self.place = get_place_by_model(self.model)
+        self.place = PlacePrototype(self.model)
         self.place.sync_persons()
 
 
@@ -96,21 +92,3 @@ class PlacePowerTest(TestCase):
         self.place.sync_power(666, {persons[1]: 1,
                                     persons[2]: 10 })
         self.assertRaises(PlacesException, self.place.sync_power, 13, {persons[1]: 100})
-
-
-
-class TestPlaceRequests(TestCase):
-
-    def setUp(self):
-        self.place_1, self.place_2, self.place_3 = create_test_map()
-        register_user('test_user', 'test_user@test.com', '111111')
-        self.client = client.Client()
-
-    def test_place_info_anonimouse(self):
-        response = self.client.get(reverse('game:map:places:map-info', args=[self.place_1.id]))
-        self.assertEqual(response.status_code, 200)
-
-    def test_place_info_logined(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-        response = self.client.get(reverse('game:map:places:map-info', args=[self.place_1.id]))
-        self.assertEqual(response.status_code, 200)

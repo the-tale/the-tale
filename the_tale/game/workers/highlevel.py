@@ -11,8 +11,7 @@ from common.amqp_queues import BaseWorker
 
 from game.persons.models import Person, PERSON_STATE
 from game.persons.prototypes import get_person_by_model
-from game.map.places.models import Place
-from game.map.places.prototypes import get_place_by_model
+from game.map.places.storage import places_storage
 
 SYNC_DELTA = 300 # in turns
 
@@ -110,8 +109,7 @@ class Worker(BaseWorker):
 
         max_place_power = 0
 
-        for place_model in Place.objects.all():
-            place = get_place_by_model(place_model)
+        for place in places_storage.all():
             place.sync_power(self.turn_number, old_powers)
             place.sync_terrain()
             places.append(place)
@@ -121,7 +119,8 @@ class Worker(BaseWorker):
         for place in places:
             place.sync_size(max_place_power)
             place.sync_persons()
-            place.save()
+
+        places_storage.save_all()
 
 
     def cmd_change_person_power(self, person_id, power_delta):

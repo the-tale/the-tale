@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from game.map.places.prototypes import PlacePrototype
+from game.map.places.storage import places_storage
 from game.persons.prototypes import PersonPrototype
 
 from game.quests.quests_generator.environment import BaseEnvironment
@@ -30,9 +30,7 @@ class Environment(BaseEnvironment):
             artifact.set_quest_uuid(item_id)
             item_data['external_data']['artifact'] = artifact.serialize()
 
-    def get_game_place(self, place_id):
-        from ..map.places.prototypes import get_place_by_id
-        return get_place_by_id(self.places[place_id]['external_data']['id'])
+    def get_game_place(self, place_id): return places_storage[self.places[place_id]['external_data']['id']]
 
     def get_game_person(self, person_id):
         return self.persons['external_data']['name']
@@ -52,7 +50,7 @@ class Environment(BaseEnvironment):
 
         for key, value in list(subst.items()):
             if value in self.places:
-                result[key] = PlacePrototype.get_by_id(id_=self.places[value]['external_data']['id'])
+                result[key] = places_storage[self.places[value]['external_data']['id']]
             elif value in self.persons:
                 result[key] = PersonPrototype.get_by_id(id_=self.persons[value]['external_data']['id'])
             elif value in self.items:

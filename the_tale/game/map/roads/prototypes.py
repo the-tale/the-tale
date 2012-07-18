@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import math
 
-from ..conf import map_settings
+from game.map.conf import map_settings
+from game.map.places.storage import places_storage
 
-from .models import Road, Waymark
+from game.map.roads.models import Road, Waymark
 
 def get_road_by_id(model_id):
     model = Road.objects.get(id=model_id)
@@ -21,9 +22,6 @@ def get_waymark_by_id(model_id):
 def get_waymark_by_model(model):
     return WaymarkPrototype(model=model)
 
-def get_place_prototype(place_model):
-    from ..places.prototypes import PlacePrototype
-    return PlacePrototype(model=place_model)
 
 class RoadsException(Exception): pass
 
@@ -40,19 +38,13 @@ class RoadPrototype(object):
     def point_1_id(self): return self.model.point_1_id
 
     @property
-    def point_1(self):
-        if not hasattr(self, '_point_1'):
-            self._point_1 = get_place_prototype(self.model.point_1)
-        return self._point_1
+    def point_1(self): return places_storage[self.model.point_1_id]
 
     @property
     def point_2_id(self): return self.model.point_2_id
 
     @property
-    def point_2(self):
-        if not hasattr(self, '_point_2'):
-            self._point_2 = get_place_prototype(self.model.point_2)
-        return self._point_2
+    def point_2(self): return places_storage[self.model.point_2_id]
 
     def get_length(self): return self.model.length
     def set_length(self, value): self.model.length = value
@@ -122,19 +114,13 @@ class WaymarkPrototype(object):
     def point_from_id(self): return self.model.point_from_id
 
     @property
-    def point_from(self):
-        if not hasattr(self, '_point_from'):
-            self._point_from = get_place_prototype(self.model.point_from)
-        return self._point_1
+    def point_from(self): return places_storage[self.model.point_from_id]
 
     @property
     def point_to_id(self): return self.model.point_to_id
 
     @property
-    def point_to(self):
-        if not hasattr(self, '_point_to'):
-            self._point_to = get_place_prototype(self.model.point_to)
-        return self._point_to
+    def point_to(self): return places_storage[self.model.point_to_id]
 
     @property
     def road_id(self): return self.model.road_id

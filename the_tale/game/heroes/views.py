@@ -9,8 +9,7 @@ from common.utils.decorators import login_required
 
 from game.mobs.storage import MobsDatabase
 
-from game.map.places.models import Place
-from game.map.places.prototypes import PlacePrototype
+from game.map.places.storage import places_storage
 
 from game.persons.models import Person, PERSON_STATE
 from game.persons.prototypes import PersonPrototype
@@ -104,10 +103,8 @@ class HeroResource(Resource):
         friends = None
         enemies = None
 
-        all_places = []
-        for place_model in Place.objects.all().order_by('name'):
-                all_places.append(PlacePrototype(place_model))
-
+        all_places = places_storage.all()
+        all_places.sort(key=lambda x: x.name)
 
         if type == PREFERENCE_TYPE.MOB:
             hero = self.account.angel.get_hero()

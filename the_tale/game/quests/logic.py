@@ -5,8 +5,7 @@ from dext.utils.decorators import retry_on_exception
 
 from game.balance import constants as c
 
-from game.map.places.models import Place
-from game.map.places.prototypes import get_place_by_model
+from game.map.places.storage import places_storage
 
 from game.quests.quests_generator.lines import BaseQuestsSource
 from game.quests.quests_generator.knowlege_base import KnowlegeBase
@@ -20,8 +19,7 @@ def get_knowlege_base(hero):
     base = KnowlegeBase()
 
     # fill base
-    for place_model in Place.objects.all():
-        place = get_place_by_model(place_model)
+    for place in places_storage.all():
 
         place_uuid = 'place_%d' % place.id
 
