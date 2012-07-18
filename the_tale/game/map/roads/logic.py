@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 from game.map.places.storage import places_storage
-from game.map.roads.models import Road, Waymark
-from game.map.roads.prototypes import WaymarkPrototype, get_road_by_model, get_road_by_id
-
-def update_roads():
-    roads = [ get_road_by_model(road) for road in list(Road.objects.all()) ]
-    for road in roads:
-        road.update()
+from game.map.roads.models import Waymark
+from game.map.roads.storage import roads_storage
+from game.map.roads.prototypes import WaymarkPrototype
 
 def get_roads_info():
     roads = {}
-    for road_model in Road.objects.all():
-        road = get_road_by_model(road_model)
+    for road in roads_storage.all():
 
         road_info = road.map_info()
 
@@ -38,7 +33,7 @@ def update_waymarks():
 
     places = places_storage.all()
 
-    roads = [ get_road_by_model(road) for road in list(Road.objects.all()) ]
+    roads = roads_storage.all()
 
     places_len = len(places)
 
@@ -73,7 +68,7 @@ def update_waymarks():
     for i in xrange(places_len):
         for j in xrange(places_len):
             if paths[i][j].road_id is not None:
-                road = get_road_by_id(paths[i][j].road_id)
+                road = roads_storage[paths[i][j].road_id]
             else:
                 road = None
 

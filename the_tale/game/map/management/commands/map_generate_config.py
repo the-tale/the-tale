@@ -7,11 +7,10 @@ from dext.jinja2 import render
 
 from ...conf import map_settings
 
-from ...roads.prototypes import get_road_by_model
-from ...roads.models import Road
-
 from game.map.places.storage import places_storage
 from game.map.places.models import PLACE_TYPE
+
+from game.map.roads.storage import roads_storage
 
 class Command(BaseCommand):
 
@@ -31,8 +30,7 @@ class Command(BaseCommand):
         map_width = map_settings.WIDTH
         map_height = map_settings.HEIGHT
 
-        roads_list = [get_road_by_model(road_model)
-                      for road_model in list(Road.objects.all()) ]
+        roads_list = roads_storage.all()
 
         config_content = render('map/management/commands/config.py',
                                 {'map_width': map_width,

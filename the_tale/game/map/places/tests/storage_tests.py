@@ -19,11 +19,11 @@ class PlacesStorageTest(TestCase):
 
     def test_initialization(self):
         storage = PlacesStorage()
-        self.assertEqual(storage._places, {})
+        self.assertEqual(storage._data, {})
         self.assertEqual(storage._version, -1)
 
     def test_sync(self):
-        self.assertEqual(len(self.storage._places), 3)
+        self.assertEqual(len(self.storage._data), 3)
         self.assertTrue(self.storage._version > 0)
 
         place = Place.objects.get(id=self.p1.id)
@@ -37,7 +37,7 @@ class PlacesStorageTest(TestCase):
         self.assertTrue(self.storage[self.p1.id].name == '!!!')
 
     def test_sync_after_settings_update(self):
-        self.assertEqual(len(self.storage._places), 3)
+        self.assertEqual(len(self.storage._data), 3)
         self.assertTrue(self.storage._version > 0)
 
         place = Place.objects.get(id=self.p1.id)

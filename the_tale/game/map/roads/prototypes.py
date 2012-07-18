@@ -6,15 +6,6 @@ from game.map.places.storage import places_storage
 
 from game.map.roads.models import Road, Waymark
 
-def get_road_by_id(model_id):
-    model = Road.objects.get(id=model_id)
-    return get_road_by_model(model)
-
-def get_road_by_model(model):
-    if model is None:
-        return None
-    return RoadPrototype(model=model)
-
 def get_waymark_by_id(model_id):
     model = Waymark.objects.get(id=model_id)
     return get_waymark_by_model(model)
@@ -27,9 +18,15 @@ class RoadsException(Exception): pass
 
 class RoadPrototype(object):
 
-    def __init__(self, model, *argv, **kwargs):
-        super(RoadPrototype, self).__init__(*argv, **kwargs)
+    def __init__(self, model):
         self.model = model
+
+    @classmethod
+    def get_by_id(cls, id_):
+        try:
+            return cls(Road.objects.get(id=id_))
+        except Road.DoesNotExist:
+            return None
 
     @property
     def id(self): return self.model.id
@@ -127,9 +124,10 @@ class WaymarkPrototype(object):
 
     @property
     def road(self):
-        if not hasattr(self, '_road'):
-            self._road = get_road_by_model(self.model.road)
-        return self._road
+        if self.model.road_id is None:
+            return None
+        from game.map.roads.storage import roads_storage
+        return roads_storage[self.model.road_id]
 
     @property
     def length(self): return self.model.length

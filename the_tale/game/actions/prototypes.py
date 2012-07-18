@@ -10,7 +10,8 @@ from game.heroes.bag import SLOTS_LIST
 from game.heroes.statistics import MONEY_SOURCE
 
 from game.map.places.storage import places_storage
-from game.map.roads.prototypes import get_road_by_model, WaymarkPrototype
+from game.map.roads.storage import roads_storage
+from game.map.roads.prototypes import WaymarkPrototype
 
 from game.mobs.storage import MobsDatabase
 
@@ -136,14 +137,8 @@ class ActionPrototype(object):
     @property
     def place(self): return places_storage[self.model.place_id]
 
-    def get_road(self):
-        if not hasattr(self, '_road'):
-            self._road = get_road_by_model(model=self.model.road)
-        return self._road
-    def set_road(self, value):
-        if hasattr(self, '_road'):
-            delattr(self, '_road')
-        self.model.road = value.model
+    def get_road(self): return roads_storage.get(self.model.road_id)
+    def set_road(self, value): self.model.road = value.model
     road = property(get_road, set_road)
 
     @property

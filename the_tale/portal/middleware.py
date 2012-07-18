@@ -3,6 +3,7 @@
 from dext.utils.exceptions import ExceptionMiddleware as DextExceptionMiddleware
 
 from game.map.places.storage import places_storage
+from game.map.roads.storage import roads_storage
 
 from portal.views import PortalResource
 
@@ -17,3 +18,4 @@ class StorageMiddleware(object):
 
     def process_request(self, request):
         places_storage.sync()
+        roads_storage.sync()

@@ -11,7 +11,7 @@ from dext.utils import s11n
 from dext.utils import database
 
 from game.map.places.storage import places_storage
-from game.map.roads.prototypes import RoadPrototype
+from game.map.roads.storage import roads_storage
 
 from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, ITEMS_OF_EXPENDITURE, GENDER_DICT_USERFRIENDLY, RACE_DICT, ATTRIBUTES
 
@@ -565,10 +565,7 @@ class HeroPositionPrototype(object):
     def road_id(self): return self.hero_model.pos_road_id
 
     @property
-    def road(self):
-        if not hasattr(self, '_road'):
-            self._road = RoadPrototype(model=self.hero_model.pos_road) if self.hero_model.pos_road else None
-        return self._road
+    def road(self): return roads_storage.get(self.hero_model.pos_road_id)
 
     def set_road(self, road, percents=0, invert=False):
         self._reset_position()

@@ -9,6 +9,7 @@ from game.bundles import BundlePrototype
 
 from game.map.places.storage import places_storage
 from game.map.places.models import Place, TERRAIN, PLACE_TYPE
+from game.map.roads.storage import roads_storage
 from game.map.roads.prototypes import RoadPrototype
 from game.map.roads.logic import update_waymarks
 from game.map.prototypes import MapInfoPrototype
@@ -54,6 +55,8 @@ def create_test_map():
     RoadPrototype.create(point_1=places_storage[p2.id], point_2=places_storage[p3.id])
 
     update_waymarks()
+
+    roads_storage.sync()
 
     MapInfoPrototype.create(turn_number=0,
                             width=map_settings.WIDTH,
