@@ -10,8 +10,7 @@ from game.heroes.bag import SLOTS_LIST
 from game.heroes.statistics import MONEY_SOURCE
 
 from game.map.places.storage import places_storage
-from game.map.roads.storage import roads_storage
-from game.map.roads.prototypes import WaymarkPrototype
+from game.map.roads.storage import roads_storage, waymarks_storage
 
 from game.mobs.storage import MobsDatabase
 
@@ -549,7 +548,7 @@ class ActionMoveToPrototype(ActionPrototype):
 
             if self.hero.position.place_id:
                 if self.hero.position.place_id != self.destination_id:
-                    self.road, length = WaymarkPrototype.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
+                    self.road, length = waymarks_storage.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
                     self.hero.position.set_road(self.road, invert=(self.hero.position.place_id != self.road.point_1_id))
                     self.state = self.STATE.MOVING
                 else:
@@ -557,8 +556,8 @@ class ActionMoveToPrototype(ActionPrototype):
                     self.percents = 1
                     self.state = self.STATE.PROCESSED
             else:
-                road_left, length_left = WaymarkPrototype.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
-                road_right, length_right = WaymarkPrototype.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
+                road_left, length_left = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
+                road_right, length_right = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
 
                 if not self.hero.position.invert_direction:
                     delta_left = self.hero.position.percents * self.hero.position.road.length

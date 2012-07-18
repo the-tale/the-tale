@@ -5,16 +5,8 @@ from game.map.conf import map_settings
 from game.map.places.storage import places_storage
 
 from game.map.roads.models import Road, Waymark
+from game.map.roads.exceptions import RoadsException
 
-def get_waymark_by_id(model_id):
-    model = Waymark.objects.get(id=model_id)
-    return get_waymark_by_model(model)
-
-def get_waymark_by_model(model):
-    return WaymarkPrototype(model=model)
-
-
-class RoadsException(Exception): pass
 
 class RoadPrototype(object):
 
@@ -100,8 +92,7 @@ class RoadPrototype(object):
 
 class WaymarkPrototype(object):
 
-    def __init__(self, model, *argv, **kwargs):
-        super(WaymarkPrototype, self).__init__(*argv, **kwargs)
+    def __init__(self, model):
         self.model = model
 
     @property
@@ -155,14 +146,3 @@ class WaymarkPrototype(object):
                                        length=length)
 
         return cls(model)
-
-
-    @classmethod
-    def look_for_road(cls, point_from, point_to):
-        if not isinstance(point_from, int):
-            point_from = point_from.id
-        if not isinstance(point_to, int):
-            point_to = point_to.id
-
-        waymark = cls(Waymark.objects.get(point_from=point_from, point_to=point_to))
-        return waymark.road, waymark.length
