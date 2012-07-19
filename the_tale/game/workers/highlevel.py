@@ -9,11 +9,11 @@ from dext.utils.decorators import nested_commit_on_success
 
 from common.amqp_queues import BaseWorker
 
-from game.persons.models import Person, PERSON_STATE
+from game.balance import constants as c
+
+from game.persons.models import PERSON_STATE
 from game.persons.storage import persons_storage
 from game.map.places.storage import places_storage
-
-SYNC_DELTA = 300 # in turns
 
 class HighlevelException(Exception): pass
 
@@ -65,7 +65,7 @@ class Worker(BaseWorker):
             if turn_number != self.turn_number:
                 raise HighlevelException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
 
-            if self.turn_number % SYNC_DELTA == 0:
+            if self.turn_number % c.MAP_SYNC_TIME == 0:
                 self.sync_data()
                 map_update_needed = True
 
@@ -93,36 +93,33 @@ class Worker(BaseWorker):
 
     def sync_data(self):
 
-        persons_ids = Person.objects.filter(state=PERSON_STATE.IN_GAME).values_list('id', flat=True)
+        places_power_delta = {}
 
-        for person_id in persons_ids:
-            person = persons_storage[person_id]
+        for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
 
             if person.id in self.persons_power:
                 person.power = max(person.power + self.persons_power[person.id], 0)
 
-            person.save()
+                if person.place_id not in places_power_delta:
+                    places_power_delta[person.place_id] = 0
 
-        old_powers = self.persons_power
+                places_power_delta[person.place_id] += self.persons_power[person.id]
 
         self.persons_power = {}
-
-        places = []
 
         max_place_power = 0
 
         for place in places_storage.all():
-            place.sync_power(self.turn_number, old_powers)
-            place.sync_terrain()
-            places.append(place)
-
+            place.push_power(self.turn_number, places_power_delta.get(place.id, 0))
             max_place_power = max(max_place_power, place.power)
 
-        for place in places:
+        for place in places_storage.all():
+            place.sync_terrain()
             place.sync_size(max_place_power)
             place.sync_persons()
 
         places_storage.save_all()
+        persons_storage.save_all()
 
 
     def cmd_change_person_power(self, person_id, power_delta):
@@ -130,4 +127,4 @@ class Worker(BaseWorker):
 
     def process_change_person_power(self, person_id, power_delta):
         person_power = self.persons_power.get(person_id, 0)
-        self.persons_power[person_id] = max(person_power + power_delta, 0)
+        self.persons_power[person_id] = person_power + power_delta

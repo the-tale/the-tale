@@ -160,6 +160,8 @@ GAME_SECONDS_IN_TURN = int(GAME_SECONDS_IN_GAME_DAY / _TURNS_IN_GAME_DAY)
 # Карта
 MAP_CELL_LENGTH = float(3.0) # длина клетки в километрах
 
+MAP_SYNC_TIME = int(TURNS_IN_HOUR * 4) # синхронизируем карту раз в N часов
+
 
 # Задания
 QUESTS_SPECIAL_FRACTION = float(0.2) # вероятность получить "специальное" задание - задание обусловленное параметрами героя, а не внешним миром.

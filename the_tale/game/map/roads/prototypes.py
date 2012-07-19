@@ -87,8 +87,6 @@ class RoadPrototype(object):
         if self.point_1.id > self.point_2.id:
             self.model.point_1, self.model.point_2 = self.model.point_2, self.model.point_1
 
-        self.save()
-
 
 class WaymarkPrototype(object):
 
@@ -113,15 +111,22 @@ class WaymarkPrototype(object):
     @property
     def road_id(self): return self.model.road_id
 
-    @property
-    def road(self):
+    def get_road(self):
         if self.model.road_id is None:
             return None
         from game.map.roads.storage import roads_storage
         return roads_storage[self.model.road_id]
 
-    @property
-    def length(self): return self.model.length
+    def set_road(self, value):
+        if value is None:
+            self.model.road = None
+            return
+        self.model.road = value.model
+    road = property(get_road, set_road)
+
+    def get_length(self): return self.model.length
+    def set_length(self, value): self.model.length = value
+    length = property(get_length, set_length)
 
     ###########################################
     # Object operations

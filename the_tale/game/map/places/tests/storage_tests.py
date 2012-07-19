@@ -1,4 +1,5 @@
 # coding: utf-8
+import uuid
 
 from django.test import TestCase
 
@@ -47,7 +48,7 @@ class PlacesStorageTest(TestCase):
         self.storage.sync()
         self.assertFalse(self.storage[self.p1.id].name == '!!!')
 
-        settings[self.storage.SETTINGS_KEY] = str(self.storage._version + 1)
+        settings[self.storage.SETTINGS_KEY] = uuid.uuid4().hex
 
         self.storage.sync()
         self.assertTrue(self.storage[self.p1.id].name == '!!!')

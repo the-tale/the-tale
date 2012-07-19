@@ -260,7 +260,7 @@ LOGGING = {
         'the-tale.workers.game_highlevel': get_worker_logger('game_highlevel'),
         'the-tale.workers.game_turns_loop': get_worker_logger('game_turns_loop'),
         'accounts.workers.registration': get_worker_logger('accounts_registration'),
-    }
+    } if not TESTS_RUNNING else {}
 }
 
 try:

@@ -31,9 +31,7 @@ class WaymarksStorage(create_storage_class('waymarks change time', Waymark, Waym
         if not isinstance(point_to, int):
             point_to = point_to.id
 
-        waymark = self._waymarks_map[(point_from, point_to)]
-
-        return waymark.road, waymark.length
+        return  self._waymarks_map.get((point_from, point_to))
 
 
 waymarks_storage = WaymarksStorage()

@@ -41,7 +41,6 @@ class Environment(object):
         self.logic.close_queries()
         self.highlevel.close_queries()
         self.turns_loop.close_queries()
-        self.connection.close()
 
     def clean_queues(self):
         self.turns_loop.clean_queues()

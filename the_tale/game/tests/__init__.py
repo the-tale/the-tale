@@ -4,3 +4,4 @@ from game.tests.game_tests import *
 from game.tests.time_tests import *
 from game.tests.requests_tests import *
 from game.tests.bundle_tests import *
+from game.tests.highlevel_worker_test import *

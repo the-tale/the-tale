@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 import subprocess
+
 from django.core.management.base import BaseCommand
 
 from dext.utils.decorators import nested_commit_on_success
 
-from ...roads.models import Road
-from ...places.models import Place, TERRAIN, PLACE_TYPE
+from game.map.roads.models import Road
+from game.map.places.models import Place, TERRAIN, PLACE_TYPE
+from game.map.places.storage import places_storage
+from game.map.roads.storage import roads_storage
 
 class Command(BaseCommand):
 
@@ -23,7 +26,7 @@ class Command(BaseCommand):
         return Place.objects.create( x=x,
                                      y=y,
                                      name='%dx%d' % (x, y),
-                                     terrain=terrain, 
+                                     terrain=terrain,
                                      type=PLACE_TYPE.CITY,
                                      subtype='UNDEFINED',
                                      size=size)
@@ -79,6 +82,10 @@ class Command(BaseCommand):
         self.create_road(p20x8,  p17x12)
         self.create_road(p19x17, p24x13)
         self.create_road(p28x19, p24x13)
-        self.create_road(p28x19, p27x13)        
+        self.create_road(p28x19, p27x13)
 
-        
+        places_storage.update_version()
+        places_storage.sync(force=True)
+
+        roads_storage.update_version()
+        roads_storage.sync(force=True)

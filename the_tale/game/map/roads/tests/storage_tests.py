@@ -1,4 +1,5 @@
 # coding: utf-8
+import uuid
 
 from django.test import TestCase
 
@@ -24,7 +25,6 @@ class RoadsStorageTest(TestCase):
 
     def test_sync(self):
         self.assertEqual(len(self.storage._data), 2)
-        self.assertEqual(self.storage._version,  0)
 
         road = Road.objects.order_by('?')[0]
         road.length = 666
@@ -38,7 +38,6 @@ class RoadsStorageTest(TestCase):
 
     def test_sync_after_settings_update(self):
         self.assertEqual(len(self.storage._data), 2)
-        self.assertEqual(self.storage._version, 0)
 
         road = Road.objects.order_by('?')[0]
         road.length = 666
@@ -47,7 +46,7 @@ class RoadsStorageTest(TestCase):
         self.storage.sync()
         self.assertFalse(self.storage[road.id].length == 666)
 
-        settings[self.storage.SETTINGS_KEY] = str(self.storage._version + 1)
+        settings[self.storage.SETTINGS_KEY] = uuid.uuid4().hex
 
         self.storage.sync()
         self.assertTrue(self.storage[road.id].length == 666)

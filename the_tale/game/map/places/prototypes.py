@@ -61,11 +61,15 @@ class PlacePrototype(object):
     def total_persons_power(self): return sum([person.power for person in self.persons])
 
     def sync_persons(self):
+        '''
+        DO NOT SAVE CHANGES - this MUST do parent code
+        '''
         persons_count = len(self.persons)
 
-        from ...persons.prototypes import PersonPrototype
-        from ...persons.models import PERSON_TYPE_CHOICES
-        from ...game_info import RACE_CHOICES
+        from game.persons.prototypes import PersonPrototype
+        from game.persons.storage import persons_storage
+        from game.persons.models import PERSON_TYPE_CHOICES
+        from game.game_info import RACE_CHOICES
 
         expected_persons_number = places_settings.SIZE_TO_PERSONS_NUMBER[self.size]
 
@@ -73,11 +77,12 @@ class PlacePrototype(object):
             race = random.choice(RACE_CHOICES)[0]
             gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
-            PersonPrototype.create(place=self,
-                                   race=race,
-                                   gender=gender,
-                                   tp=random.choice(PERSON_TYPE_CHOICES)[0],
-                                   name=names.generator.get_name(race, gender))
+            new_person = PersonPrototype.create(place=self,
+                                                race=race,
+                                                gender=gender,
+                                                tp=random.choice(PERSON_TYPE_CHOICES)[0],
+                                                name=names.generator.get_name(race, gender))
+            persons_storage.add_item(new_person.id, new_person)
             persons_count += 1
 
         persons = sorted(self.persons, key=lambda x: -x.power)
@@ -85,7 +90,6 @@ class PlacePrototype(object):
         while persons_count > expected_persons_number:
             person = persons[persons_count-1]
             person.move_out_game()
-            person.save()
             persons_count -= 1
 
         if hasattr(self, '_persons'):
@@ -124,12 +128,6 @@ class PlacePrototype(object):
 
         while self.power_points and self.power_points[0][0] < turn - places_settings.POWER_HISTORY_LENGTH:
             self.power_points.pop(0)
-
-    def sync_power(self, turn, powers):
-        power = 0
-        for person in self.persons:
-            power += powers.get(person.id, 0)
-        self.push_power(turn, power)
 
     def sync_size(self, max_power):
         self.size = int(places_settings.MAX_SIZE * (float(self.power) / (max_power+1)) ) + 1

@@ -11,3 +11,5 @@ class Command(BaseCommand):
 
         for road in roads_storage.all():
             road.update()
+
+        roads_storage.save_all()

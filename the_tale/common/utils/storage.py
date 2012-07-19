@@ -1,6 +1,5 @@
 # coding: utf-8
-
-import time
+import uuid
 
 from dext.settings import settings
 
@@ -14,18 +13,18 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
             self.clear()
 
         def refresh(self):
-            self._version = int(settings[self.SETTINGS_KEY])
+            self._version = settings[self.SETTINGS_KEY]
 
             for model in Model.objects.all():
                 self._data[model.id] = Prototype(model)
 
         def sync(self, force=False):
             if self.SETTINGS_KEY not in settings:
-                settings[self.SETTINGS_KEY] = '0'
+                self.update_version()
                 self.refresh()
                 return
 
-            if self._version < int(settings[self.SETTINGS_KEY]):
+            if self._version != settings[self.SETTINGS_KEY]:
                 self.refresh()
                 return
 
@@ -40,6 +39,12 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
                 raise Exception_('wrong %r id: %s' % (Model, id_))
 
             return self._data[id_]
+
+        def add_item(self, id_, item):
+            '''
+            only for add new items, not for any other sort of management
+            '''
+            self._data[id_] = item
 
         def __contains__(self, id_):
             self.sync()
@@ -65,7 +70,11 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
             for road in self._data.values():
                 road.save()
 
-            self._version = int(time.time())
+            self.update_version()
+
+        def update_version(self):
+            self._version = uuid.uuid4().hex
             settings[self.SETTINGS_KEY] = str(self._version)
+
 
     return Storage

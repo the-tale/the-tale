@@ -548,7 +548,9 @@ class ActionMoveToPrototype(ActionPrototype):
 
             if self.hero.position.place_id:
                 if self.hero.position.place_id != self.destination_id:
-                    self.road, length = waymarks_storage.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
+                    waymark = waymarks_storage.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
+                    self.road = waymark.road
+                    length =  waymark.length
                     self.hero.position.set_road(self.road, invert=(self.hero.position.place_id != self.road.point_1_id))
                     self.state = self.STATE.MOVING
                 else:
@@ -556,8 +558,13 @@ class ActionMoveToPrototype(ActionPrototype):
                     self.percents = 1
                     self.state = self.STATE.PROCESSED
             else:
-                road_left, length_left = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
-                road_right, length_right = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
+                waymark = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
+                road_left = waymark.road
+                length_left = waymark.length
+
+                waymark = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
+                road_right = waymark.road
+                length_right = waymark.length
 
                 if not self.hero.position.invert_direction:
                     delta_left = self.hero.position.percents * self.hero.position.road.length
