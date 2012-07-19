@@ -6,9 +6,6 @@ from game.game_info import GENDER_ID_2_STR
 
 from .models import Person, PERSON_STATE
 
-def get_person_by_model(model):
-    return PersonPrototype(model=model)
-
 class PersonPrototype(object):
 
     def __init__(self, model):
@@ -66,10 +63,10 @@ class PersonPrototype(object):
         self.model.remove()
 
     @classmethod
-    def create(cls, place, race, tp, name, gender, power=0):
+    def create(cls, place, race, tp, name, gender, power=0, state=None):
 
         instance = Person.objects.create(place=place.model,
-                                         state=PERSON_STATE.IN_GAME,
+                                         state=state if state is not None else PERSON_STATE.IN_GAME,
                                          race=race,
                                          type=tp,
                                          gender=gender,

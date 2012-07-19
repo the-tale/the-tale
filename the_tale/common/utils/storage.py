@@ -11,8 +11,7 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
         SETTINGS_KEY = version_key
 
         def __init__(self):
-            self._data = {}
-            self._version = -1
+            self.clear()
 
         def refresh(self):
             self._version = int(settings[self.SETTINGS_KEY])
@@ -57,6 +56,10 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
             self.sync()
 
             return self._data.values()
+
+        def clear(self):
+            self._data = {}
+            self._version = -1
 
         def save_all(self):
             for road in self._data.values():

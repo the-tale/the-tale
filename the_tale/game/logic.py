@@ -7,6 +7,8 @@ from game.heroes.bag import SLOTS
 from game.artifacts.storage import ArtifactsDatabase
 from game.bundles import BundlePrototype
 
+from game.persons.storage import persons_storage
+
 from game.map.places.storage import places_storage
 from game.map.places.models import Place, TERRAIN, PLACE_TYPE
 from game.map.roads.storage import roads_storage
@@ -17,8 +19,11 @@ from game.map.places.logic import update_nearest_cells
 from game.map.conf import map_settings
 
 
-
 def create_test_map():
+    places_storage.clear()
+    persons_storage.clear()
+    roads_storage.clear()
+
     """
     map: p1-p2-p3
     """
@@ -51,12 +56,14 @@ def create_test_map():
     for place in places_storage.all():
         place.sync_persons()
 
+    persons_storage.sync(force=True)
+
     RoadPrototype.create(point_1=places_storage[p1.id], point_2=places_storage[p2.id])
     RoadPrototype.create(point_1=places_storage[p2.id], point_2=places_storage[p3.id])
 
     update_waymarks()
 
-    roads_storage.sync()
+    roads_storage.sync(force=True)
 
     MapInfoPrototype.create(turn_number=0,
                             width=map_settings.WIDTH,

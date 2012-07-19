@@ -6,6 +6,9 @@ from dext.utils.decorators import retry_on_exception
 from game.balance import constants as c
 
 from game.map.places.storage import places_storage
+from game.persons.storage import persons_storage
+
+from game.persons.models import PERSON_STATE
 
 from game.quests.quests_generator.lines import BaseQuestsSource
 from game.quests.quests_generator.knowlege_base import KnowlegeBase
@@ -20,19 +23,18 @@ def get_knowlege_base(hero):
 
     # fill base
     for place in places_storage.all():
-
         place_uuid = 'place_%d' % place.id
-
         base.add_place(place_uuid, terrain=place.terrain, external_data={'id': place.id})
 
-        for person in place.persons:
-            person_uuid = 'person_%d' % person.id
-            base.add_person(person_uuid, place=place_uuid, external_data={'id': person.id,
-                                                                          'name': person.name,
-                                                                          'type': person.type,
-                                                                          'gender': person.gender,
-                                                                          'race': person.race,
-                                                                          'place_id': person.place_id})
+    for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
+        person_uuid = 'person_%d' % person.id
+        place_uuid = 'place_%d' % person.place_id
+        base.add_person(person_uuid, place=place_uuid, external_data={'id': person.id,
+                                                                      'name': person.name,
+                                                                      'type': person.type,
+                                                                      'gender': person.gender,
+                                                                      'race': person.race,
+                                                                      'place_id': person.place_id})
 
     pref_mob = hero.preferences.mob
     if pref_mob:

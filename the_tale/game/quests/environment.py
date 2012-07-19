@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from game.map.places.storage import places_storage
-from game.persons.prototypes import PersonPrototype
+from game.persons.storage import persons_storage
 
 from game.quests.quests_generator.environment import BaseEnvironment
 
@@ -52,7 +52,7 @@ class Environment(BaseEnvironment):
             if value in self.places:
                 result[key] = places_storage[self.places[value]['external_data']['id']]
             elif value in self.persons:
-                result[key] = PersonPrototype.get_by_id(id_=self.persons[value]['external_data']['id'])
+                result[key] = persons_storage[self.persons[value]['external_data']['id']]
             elif value in self.items:
                 result[key] = self.get_game_item(value)
 

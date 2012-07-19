@@ -53,16 +53,9 @@ class PlacePrototype(object):
 
     @property
     def persons(self):
-        from ...persons.prototypes import get_person_by_model
-        from ...persons.models import PERSON_STATE
-
-        if not hasattr(self, '_persons'):
-            self._persons = []
-            for person_model in self.model.persons.filter(state=PERSON_STATE.IN_GAME).order_by('power'):
-                person = get_person_by_model(person_model)
-                self._persons.append(person)
-
-        return self._persons
+        from game.persons.storage import persons_storage
+        from game.persons.models import PERSON_STATE
+        return persons_storage.filter(place_id=self.id, state=PERSON_STATE.IN_GAME)
 
     @property
     def total_persons_power(self): return sum([person.power for person in self.persons])

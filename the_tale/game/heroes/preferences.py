@@ -7,7 +7,7 @@ from game.mobs.storage import MobsDatabase
 from game.map.places.storage import places_storage
 
 from game.persons.models import Person
-from game.persons.prototypes import PersonPrototype
+from game.persons.storage import persons_storage
 
 from game.heroes.models import ChoosePreferencesTask, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE
 
@@ -38,16 +38,13 @@ class HeroPreferences(object):
     def set_friend_id(self, value): self.hero_model.pref_friend_id = value
     friend_id = property(get_friend_id, set_friend_id)
 
-    def get_friend(self):
-        return PersonPrototype(model=self.hero_model.pref_friend) if self.hero_model.pref_friend else None
+    def get_friend(self): return persons_storage[self.hero_model.pref_friend_id] if self.hero_model.pref_friend_id else None
 
     def get_enemy_id(self): return self.hero_model.pref_enemy_id
     def set_enemy_id(self, value): self.hero_model.pref_enemy_id = value
     enemy_id = property(get_enemy_id, set_enemy_id)
 
-    def get_enemy(self):
-        return PersonPrototype(model=self.hero_model.pref_enemy) if self.hero_model.pref_enemy else None
-
+    def get_enemy(self): return persons_storage[self.hero_model.pref_enemy_id] if self.hero_model.pref_enemy_id else None
 
 
 class ChoosePreferencesTaskPrototype(object):

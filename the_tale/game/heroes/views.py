@@ -12,7 +12,7 @@ from game.mobs.storage import MobsDatabase
 from game.map.places.storage import places_storage
 
 from game.persons.models import Person, PERSON_STATE
-from game.persons.prototypes import PersonPrototype
+from game.persons.storage import persons_storage
 
 from game.workers.environment import workers_environment
 
@@ -116,15 +116,13 @@ class HeroResource(Resource):
             places = split_list(all_places)
 
         elif type == PREFERENCE_TYPE.FRIEND:
-            all_friends = []
-            for person_model in Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name'):
-                all_friends.append(PersonPrototype(person_model))
+            persons_ids = Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name').values_list('id', flat=True)
+            all_friends = [persons_storage[person_id] for person_id in persons_ids]
             friends = split_list(all_friends)
 
         elif type == PREFERENCE_TYPE.ENEMY:
-            all_enemys = []
-            for person_model in Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name'):
-                all_enemys.append(PersonPrototype(person_model))
+            persons_ids = Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name').values_list('id', flat=True)
+            all_enemys = [persons_storage[person_id] for person_id in persons_ids]
             enemies = split_list(all_enemys)
 
         return self.template('heroes/choose_preferences.html',

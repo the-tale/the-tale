@@ -10,7 +10,7 @@ from dext.utils.decorators import nested_commit_on_success
 from common.amqp_queues import BaseWorker
 
 from game.persons.models import Person, PERSON_STATE
-from game.persons.prototypes import get_person_by_model
+from game.persons.storage import persons_storage
 from game.map.places.storage import places_storage
 
 SYNC_DELTA = 300 # in turns
@@ -93,8 +93,10 @@ class Worker(BaseWorker):
 
     def sync_data(self):
 
-        for person_model in Person.objects.filter(state=PERSON_STATE.IN_GAME):
-            person = get_person_by_model(person_model)
+        persons_ids = Person.objects.filter(state=PERSON_STATE.IN_GAME).values_list('id', flat=True)
+
+        for person_id in persons_ids:
+            person = persons_storage[person_id]
 
             if person.id in self.persons_power:
                 person.power = max(person.power + self.persons_power[person.id], 0)

@@ -7,9 +7,15 @@ from game.map.places.models import Place, TERRAIN, PLACE_TYPE
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
 
+from game.map.places.storage import places_storage
+from game.persons.storage import persons_storage
+
 class PlacePowerTest(TestCase):
 
     def setUp(self):
+        places_storage.clear()
+        persons_storage.clear()
+
         self.model = Place.objects.create(x=0,
                                           y=0,
                                           name='power_test_place',
@@ -20,6 +26,9 @@ class PlacePowerTest(TestCase):
 
         self.place = PlacePrototype(self.model)
         self.place.sync_persons()
+
+        places_storage.sync(force=True)
+        persons_storage.sync(force=True)
 
 
     def test_initialization(self):
