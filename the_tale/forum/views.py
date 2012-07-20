@@ -127,8 +127,8 @@ class ForumResource(Resource):
 
         posts = Post.objects.filter(thread=self.thread).order_by('created_at')[post_from:post_to]
 
-        pages_count = self.thread.posts_count / forum_settings.POSTS_ON_PAGE
-        if self.thread.posts_count % forum_settings.POSTS_ON_PAGE:
+        pages_count = (self.thread.posts_count + 1) / forum_settings.POSTS_ON_PAGE
+        if (self.thread.posts_count + 1) % forum_settings.POSTS_ON_PAGE:
             pages_count += 1
 
         return self.template('forum/thread.html',
