@@ -2,7 +2,7 @@
 
 from dext.utils import s11n
 
-from .models import MapInfo
+from game.map.models import MapInfo
 
 class MapInfoPrototype(object):
 
@@ -13,19 +13,15 @@ class MapInfoPrototype(object):
     def turn_number(self): return self.model.turn_number
 
     @property
-    def terrain(self): 
+    def terrain(self):
         if not hasattr(self, '_terrain'):
-            self._terrain = s11n.from_json(self.model.terrain) 
+            self._terrain = s11n.from_json(self.model.terrain)
         return self._terrain
 
 
     ######################
     # object operations
     ######################
-    
-    @classmethod
-    def get_latest(self):
-        return MapInfoPrototype(MapInfo.objects.order_by('-turn_number')[0])
 
     @classmethod
     def create(cls, turn_number, width, height, terrain):

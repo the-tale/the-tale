@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 from dext.utils import s11n
 
 from game.prototypes import TimePrototype
+from game.map.storage import map_info_storage
 
 from .map import Map
 from . import places
@@ -60,10 +61,11 @@ class Command(BaseCommand):
 
         time = TimePrototype.get_current_time()
         terrain = game_map.get_terrain_map()
-        MapInfoPrototype.create(turn_number=time.turn_number,
-                                width=config['map_width'],
-                                height=config['map_height'],
-                                terrain=terrain)
+
+        map_info_storage.set_item(MapInfoPrototype.create(turn_number=time.turn_number,
+                                                          width=config['map_width'],
+                                                          height=config['map_height'],
+                                                          terrain=terrain))
 
 
         output_dir_name = os.path.dirname(map_settings.GEN_REGION_OUTPUT)

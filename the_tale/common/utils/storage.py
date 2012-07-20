@@ -78,3 +78,50 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
 
 
     return Storage
+
+
+def create_single_storage_class(version_key, Model, Prototype, Exception_):
+
+    class SingleStorage(object):
+
+        SETTINGS_KEY = version_key
+
+        def __init__(self):
+            self.clear()
+
+        def refresh(self):
+            raise NotImplementedError
+
+        def sync(self, force=False):
+            if self.SETTINGS_KEY not in settings:
+                self.update_version()
+                self.refresh()
+                return
+
+            if self._version != settings[self.SETTINGS_KEY]:
+                self.refresh()
+                return
+
+            if force:
+                self.refresh()
+                return
+
+        @property
+        def item(self):
+            self.sync()
+            return self._item
+
+        def set_item(self, item):
+            self._item = item
+            self.update_version()
+
+        def clear(self):
+            self._item = None
+            self._version = -1
+
+        def update_version(self):
+            self._version = uuid.uuid4().hex
+            settings[self.SETTINGS_KEY] = str(self._version)
+
+
+    return SingleStorage

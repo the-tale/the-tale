@@ -24,7 +24,7 @@ from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from game.heroes.habilities import AbilitiesPrototype, ABILITIES
 from game.heroes.conf import heroes_settings
 
-from game.map.prototypes import MapInfoPrototype
+from game.map.storage import map_info_storage
 
 from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 
@@ -643,7 +643,7 @@ class HeroPositionPrototype(object):
         return int(x), int(y)
 
     def get_terrain(self):
-        map_info = MapInfoPrototype.get_latest()
+        map_info = map_info_storage.item
         x, y = self.cell_coordinates
         return map_info.terrain[y][x]
 
