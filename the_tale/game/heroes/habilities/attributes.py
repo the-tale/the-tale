@@ -18,7 +18,7 @@ class EXTRA_SLOW(AbilityPrototype):
     DESCRIPTION = u'у обладателя этой способности наверняка в роду были ленивцы - в бою он движется очень медленно'
 
     @classmethod
-    def modify_attribute(cls, type_, value): return value*0.6 if type_ == ATTRIBUTES.INITIATIVE else value
+    def modify_attribute(cls, type_, value): return value*0.7 if type_ == ATTRIBUTES.INITIATIVE else value
 
 
 class SLOW(AbilityPrototype):
@@ -32,7 +32,7 @@ class SLOW(AbilityPrototype):
     DESCRIPTION = u'Не всем существам посчастливилось быть быстроногими, некоторых природа обделила и их скорость в бою обычно чуть меньше, чем у противников.'
 
     @classmethod
-    def modify_attribute(cls, type_, value): return value*0.8 if type_ == ATTRIBUTES.INITIATIVE else value
+    def modify_attribute(cls, type_, value): return value*0.85 if type_ == ATTRIBUTES.INITIATIVE else value
 
 
 class FAST(AbilityPrototype):
@@ -46,7 +46,7 @@ class FAST(AbilityPrototype):
     DESCRIPTION = u'Обладатель этой способности имеет хорошую реакцию и действует в бою быстрее.'
 
     @classmethod
-    def modify_attribute(cls, type_, value): return value*1.2 if type_ == ATTRIBUTES.INITIATIVE else value
+    def modify_attribute(cls, type_, value): return value*1.15 if type_ == ATTRIBUTES.INITIATIVE else value
 
 
 class EXTRA_FAST(AbilityPrototype):
@@ -60,7 +60,7 @@ class EXTRA_FAST(AbilityPrototype):
     DESCRIPTION = u'В столкновении со столь быстрым существом далеко не каждому удаётся устоять под градом стремительных атак.'
 
     @classmethod
-    def modify_attribute(cls, type_, value): return value*1.4 if type_ == ATTRIBUTES.INITIATIVE else value
+    def modify_attribute(cls, type_, value): return value*1.3 if type_ == ATTRIBUTES.INITIATIVE else value
 
 
 #######################
@@ -78,7 +78,7 @@ class EXTRA_THIN(AbilityPrototype):
     DESCRIPTION = u'Обладатель способности не может похвастаться хорошим запасом здоровья.'
 
     @classmethod
-    def modify_attribute(cls, type_, value): return value*0.6 if type_ == ATTRIBUTES.HEALTH else value
+    def modify_attribute(cls, type_, value): return value*0.7 if type_ == ATTRIBUTES.HEALTH else value
 
 
 class THIN(AbilityPrototype):
@@ -92,7 +92,7 @@ class THIN(AbilityPrototype):
     DESCRIPTION = u'Мир таков, что не все существа обладают крепкими мышцами и хорошим запасом здоровья. Кому-то приходится мириться с уменьшеным количеством HP.'
 
     @classmethod
-    def modify_attribute(cls, type_, value): return value*0.8 if type_ == ATTRIBUTES.HEALTH else value
+    def modify_attribute(cls, type_, value): return value*0.85 if type_ == ATTRIBUTES.HEALTH else value
 
 
 class THICK(AbilityPrototype):
@@ -106,7 +106,7 @@ class THICK(AbilityPrototype):
     DESCRIPTION = u'Герои и монстры, которые много кушали в детсве, становятся чуть здоровее остальных'
 
     @classmethod
-    def modify_attribute(cls, type_, value): return value*1.2 if type_ == ATTRIBUTES.HEALTH else value
+    def modify_attribute(cls, type_, value): return value*1.15 if type_ == ATTRIBUTES.HEALTH else value
 
 
 class EXTRA_THICK(AbilityPrototype):
@@ -120,7 +120,7 @@ class EXTRA_THICK(AbilityPrototype):
     DESCRIPTION = u'У этого монстра с этой способностью очень, очень много этого здоровья.'
 
     @classmethod
-    def modify_attribute(cls, type_, value): return value*1.4 if type_ == ATTRIBUTES.HEALTH else value
+    def modify_attribute(cls, type_, value): return value*1.3 if type_ == ATTRIBUTES.HEALTH else value
 
 
 #######################
@@ -138,7 +138,7 @@ class EXTRA_WEAK(AbilityPrototype):
     DESCRIPTION = u'Обычные атаки монстра наносят очень мало урона.'
 
     @classmethod
-    def modify_attribute(cls, type_, value): return value*0.6 if type_ == ATTRIBUTES.DAMAGE else value
+    def modify_attribute(cls, type_, value): return value*0.7 if type_ == ATTRIBUTES.DAMAGE else value
 
 
 class WEAK(AbilityPrototype):
@@ -152,7 +152,7 @@ class WEAK(AbilityPrototype):
     DESCRIPTION = u'Слабые монстры иногда страраются компенсировать небольшой недостаток урона за счёт хитрости, но мало у кого это получается.'
 
     @classmethod
-    def modify_attribute(cls, type_, value): return value*0.8 if type_ == ATTRIBUTES.DAMAGE else value
+    def modify_attribute(cls, type_, value): return value*0.85 if type_ == ATTRIBUTES.DAMAGE else value
 
 
 class STRONG(AbilityPrototype):
@@ -166,7 +166,7 @@ class STRONG(AbilityPrototype):
     DESCRIPTION = u'удары героев и монстров с этой способностью становятся немного сильнее.'
 
     @classmethod
-    def modify_attribute(cls, type_, value): return value*1.2 if type_ == ATTRIBUTES.DAMAGE else value
+    def modify_attribute(cls, type_, value): return value*1.15 if type_ == ATTRIBUTES.DAMAGE else value
 
 
 class EXTRA_STRONG(AbilityPrototype):
@@ -180,7 +180,7 @@ class EXTRA_STRONG(AbilityPrototype):
     DESCRIPTION = u'Лучше не попадать под удары этого монстра - громила наносит на много больший урон чем другие противники.'
 
     @classmethod
-    def modify_attribute(cls, type_, value): return value*1.4 if type_ == ATTRIBUTES.DAMAGE else value
+    def modify_attribute(cls, type_, value): return value*1.3 if type_ == ATTRIBUTES.DAMAGE else value
 
 
 ABILITIES = dict( (ability.get_id(), ability)
