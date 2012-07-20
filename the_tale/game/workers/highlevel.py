@@ -14,6 +14,7 @@ from game.balance import constants as c
 from game.persons.models import PERSON_STATE
 from game.persons.storage import persons_storage
 from game.map.places.storage import places_storage
+from game.map.places.conf import places_settings
 
 class HighlevelException(Exception): pass
 
@@ -109,13 +110,21 @@ class Worker(BaseWorker):
 
         max_place_power = 0
 
+        # calculate power
         for place in places_storage.all():
             place.push_power(self.turn_number, places_power_delta.get(place.id, 0))
             max_place_power = max(max_place_power, place.power)
 
+        # update size
+        places_by_power = sorted(places_storage.all(), key=lambda x: x.power)
+        places_number = len(places_by_power)
+        for i, place in enumerate(places_by_power):
+            place.size = int(places_settings.MAX_SIZE * float(i) / places_number) + 1
+            # print place.power, place.name, place.size
+
+        # update places
         for place in places_storage.all():
             place.sync_terrain()
-            place.sync_size(max_place_power)
             place.sync_persons()
 
         places_storage.save_all()

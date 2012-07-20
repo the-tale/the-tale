@@ -129,9 +129,6 @@ class PlacePrototype(object):
         while self.power_points and self.power_points[0][0] < turn - places_settings.POWER_HISTORY_LENGTH:
             self.power_points.pop(0)
 
-    def sync_size(self, max_power):
-        self.size = int(places_settings.MAX_SIZE * (float(self.power) / (max_power+1)) ) + 1
-
     def sync_terrain(self):
         race_power = {}
 
