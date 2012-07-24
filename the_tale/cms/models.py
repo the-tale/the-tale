@@ -35,5 +35,5 @@ class Page(models.Model):
         unique_together = (('section', 'slug'), ('section', 'order'))
 
     @property
-    def html_description(self):
-        return markdown.markdown(self.description)
+    def html_content(self):
+        return markdown.markdown(self.content)

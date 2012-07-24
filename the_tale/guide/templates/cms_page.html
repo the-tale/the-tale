@@ -4,6 +4,6 @@
 
 <h3>{{ resource.page.caption }}</h3>
 
-{{ resource.page.content }}
+{{ resource.page.html_content|safe }}
 
 {% endblock %}
