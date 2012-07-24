@@ -1,8 +1,8 @@
 
 {% macro news_record(news) -%}
 
-<li class="news-record" style="margin-bottom: 1em;">
-  <h3>{{ news.caption }}</h3>
+<li class="news-record">
+  <h4 class="caption">{{ news.caption }}</h4>
   <div class="">{{ news.html_description|safe }}</div>
   <div class="">
     <span class="publication-date">опубликовано: <span class="pgf-format-time" data-timestamp="{{ news.created_at|timestamp }}"></span></span>
