@@ -6,16 +6,16 @@
   <div class="span3">
     <div class="block">
       {% block guide_context %}
-        <h3 style="padding-left: 0.8em; color: #999">ПУТЕВОДИТЕЛЬ</h3>
-        <ul class="nav nav-list">
+        <h3 class="guide-navigation-caption">ПУТЕВОДИТЕЛЬ</h3>
+        <ul class="guide-navigation nav nav-list">
           <li class="nav-header {% if section=='' %}active{% endif %}">Общее</li>
-          <li style="padding-left: 1em;" class=" {% if section=='registration' %}active{% endif %}"><a href="{{ url('guide:registration') }}">Регистрация</a></li>
+          <li class="nav-element {% if section=='registration' %}active{% endif %}"><a href="{{ url('guide:registration') }}">Регистрация</a></li>
           <li class="nav-header {% if section=='' %}active{% endif %}">Игра</li>
-          <li style="padding-left: 1em;" class=" {% if section=='game' %}active{% endif %}"><a href="{{ url('guide:game') }}">Описание</a></li>
-          <li style="padding-left: 1em;" class=" {% if section=='hero-abilities' %}active{% endif %}"><a href="{{ url('guide:hero-abilities') }}">Способности героев</a></li>
+          <li class="nav-element {% if section=='game' %}active{% endif %}"><a href="{{ url('guide:game') }}">Описание</a></li>
+          <li class="nav-element {% if section=='hero-abilities' %}active{% endif %}"><a href="{{ url('guide:hero-abilities') }}">Способности героев</a></li>
           <li class="nav-header {% if section=='' %}active{% endif %}">Мифология</li>
           {% for menu_page in get_cms_section_pages('world') %}
-          <li class="{% if resource.page and menu_page.id==resource.page.id %}active{% endif %}" style="padding-left: 1em;">
+          <li class="nav-element {% if resource.page and menu_page.id==resource.page.id %}active{% endif %}">
             <a href="{{ url('cms:world:page', menu_page.slug) }}">{{menu_page.caption}}</a>
           </li>
           {% endfor %}
