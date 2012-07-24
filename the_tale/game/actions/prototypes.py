@@ -677,7 +677,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
 
         self.mob.strike_by(percents)
 
-        self.percents = 1 - self.mob.health_percents
+        self.percents = 1.0 - self.mob.health_percents
         self.hero.last_action_percents = self.percents
 
         self.updated = True
@@ -687,11 +687,14 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
     def process(self, ):
 
         if self.state == self.STATE.BATTLE_RUNNING:
-            battle.make_turn(battle.Actor(self.hero, self.context),
-                             battle.Actor(self.mob, self.mob_context ),
-                             self.hero)
 
-            self.percents = 1.0 - self.mob.health_percents
+            # make turn only if mob still alive (it can be killed by angel)
+            if self.mob.health > 0:
+                battle.make_turn(battle.Actor(self.hero, self.context),
+                                 battle.Actor(self.mob, self.mob_context ),
+                                 self.hero)
+
+                self.percents = 1.0 - self.mob.health_percents
 
             if self.hero.health <= 0:
                 self.hero.kill()
