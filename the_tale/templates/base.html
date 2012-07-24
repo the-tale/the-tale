@@ -110,8 +110,9 @@ jQuery(document).ready(function() {
             {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
             {{ base_macros.main_menu_item("game", url("game:"), "Игра") }}
             {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:registration"), "Регистрация"),
-                                                                         (url("guide:game"), "Игра"),
-                                                                         (url("guide:hero-abilities"), "Способности героев")]) }}
+                                                                         (url("guide:game"), "Описание игры"),
+                                                                         (url("guide:hero-abilities"), "Способности героев"),
+                                                                         (url("cms:world:"), "Мифология")]) }}
             {% if resource.account %}
             <li class="divider-vertical"></li>
             {{ base_macros.main_menu_item("profile", url("accounts:profile"), "Профиль игрока") }}

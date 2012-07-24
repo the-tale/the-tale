@@ -12,6 +12,7 @@ admin.autodiscover()
 jinja2_next.autodiscover()
 
 urlpatterns = patterns('',
+                       (r'^', include('cms.urls', namespace='cms') ),
                        (r'^admin/', include(admin.site.urls)),
                        (r'^accounts/', include('accounts.urls', namespace='accounts') ),
                        (r'^game/', include('game.urls', namespace='game') ),

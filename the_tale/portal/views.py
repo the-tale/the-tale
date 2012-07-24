@@ -26,7 +26,7 @@ class PortalResource(Resource):
 
     @handler('404', method='get')
     def handler404(self):
-        return self.template('portal/404.html')
+        return self.template('portal/404.html', status_code=404)
 
     @handler('500', method='get')
     def handler500(self):
