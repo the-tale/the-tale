@@ -15,7 +15,7 @@ class EXTRA_SLOW(AbilityPrototype):
 
     NAME = u'Неповоротливый'
     normalized_name = NAME
-    DESCRIPTION = u'у обладателя этой способности наверняка в роду были ленивцы - в бою он движется очень медленно'
+    DESCRIPTION = u'у обладателя этой способности наверняка в роду были ленивцы - в бою он движется очень медленно.'
 
     @classmethod
     def modify_attribute(cls, type_, value): return value*0.7 if type_ == ATTRIBUTES.INITIATIVE else value
@@ -89,7 +89,7 @@ class THIN(AbilityPrototype):
 
     NAME = u'Худой'
     normalized_name = NAME
-    DESCRIPTION = u'Мир таков, что не все существа обладают крепкими мышцами и хорошим запасом здоровья. Кому-то приходится мириться с уменьшеным количеством HP.'
+    DESCRIPTION = u'Мир таков, что не все существа обладают крепкими мышцами и хорошим запасом здоровья. Кому-то приходится мириться с уменьшенным количеством HP.'
 
     @classmethod
     def modify_attribute(cls, type_, value): return value*0.85 if type_ == ATTRIBUTES.HEALTH else value
@@ -103,7 +103,7 @@ class THICK(AbilityPrototype):
 
     NAME = u'Здоровяк'
     normalized_name = NAME
-    DESCRIPTION = u'Герои и монстры, которые много кушали в детсве, становятся чуть здоровее остальных'
+    DESCRIPTION = u'Герои и монстры, которые много кушали в детстве, становятся чуть здоровее остальных.'
 
     @classmethod
     def modify_attribute(cls, type_, value): return value*1.15 if type_ == ATTRIBUTES.HEALTH else value
@@ -149,7 +149,7 @@ class WEAK(AbilityPrototype):
 
     NAME = u'Слабый'
     normalized_name = NAME
-    DESCRIPTION = u'Слабые монстры иногда страраются компенсировать небольшой недостаток урона за счёт хитрости, но мало у кого это получается.'
+    DESCRIPTION = u'Слабые монстры иногда стараются компенсировать небольшой недостаток урона за счёт хитрости, но мало у кого это получается.'
 
     @classmethod
     def modify_attribute(cls, type_, value): return value*0.85 if type_ == ATTRIBUTES.DAMAGE else value

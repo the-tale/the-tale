@@ -30,10 +30,10 @@
         },
         "buying_artifact": {
             "description": "",
-            "variables": {"hero": "привидение", "coins": 13, "artifact": "пепельница"},
+            "variables": {"hero": "привидение", "coins": 1071, "artifact": "пепельница"},
             "phrases": [
-                ["Торговка впарила [[artifact|вн]] за [{целый|coins|}] [[coins]] [{монета|coins|}]",
-                 "Торговка впарила пепельницу за целых 13 монет"]
+                ["Торговка впарила [[artifact|вн]] за [{целый|coins|вн,жр}] [[coins]] [{монета|coins|вн}]",
+                 "Торговка впарила пепельницу за целую 1071 монету"]
             ]
         },
         "sharpening_artifact": {
