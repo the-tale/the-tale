@@ -7,6 +7,8 @@
 @import "news.css";
 
 @import "forms.css";
+
+@import "guide.css";
 html {
   height: 100%;
 }

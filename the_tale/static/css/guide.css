@@ -1,0 +1,11 @@
+.guide-navigation-caption {
+  cursor: default;
+  padding-left: 0.8em;
+  color: #999999;
+}
+.guide-navigation .nav-element {
+  padding-left: 1em;
+}
+.guide-navigation .nav-header {
+  cursor: default;
+}
