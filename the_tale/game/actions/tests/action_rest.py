@@ -13,8 +13,7 @@ class RestActionTest(TestCase):
 
         self.bundle = create_test_bundle('RestActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionRestPrototype.create(self.action_idl))
-        self.action_rest = self.bundle.tests_get_last_action()
+        self.action_rest = ActionRestPrototype.create(self.action_idl)
         self.hero = self.bundle.tests_get_hero()
 
     def tearDown(self):
@@ -52,4 +51,18 @@ class RestActionTest(TestCase):
                 break
 
         self.assertEqual(self.hero.health, self.hero.max_health)
+        test_bundle_save(self, self.bundle)
+
+    def test_full(self):
+        self.hero.health = 1
+
+        current_time = TimePrototype.get_current_time()
+
+        while len(self.bundle.actions) != 1:
+            self.bundle.process_turn()
+            current_time.increment_turn()
+
+        self.assertTrue(self.action_idl.leader)
+        self.assertEqual(self.hero.health, self.hero.max_health)
+
         test_bundle_save(self, self.bundle)

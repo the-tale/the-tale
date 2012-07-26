@@ -18,9 +18,7 @@ class ResurrectActionTest(TestCase):
         self.hero.kill()
 
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionResurrectPrototype.create(self.action_idl))
-        self.action_resurrect = self.bundle.tests_get_last_action()
-
+        self.action_resurrect = ActionResurrectPrototype.create(self.action_idl)
 
     def tearDown(self):
         pass
@@ -50,6 +48,19 @@ class ResurrectActionTest(TestCase):
 
         test_bundle_save(self, self.bundle)
 
+    def test_full(self):
+
+        current_time = TimePrototype.get_current_time()
+
+        while len(self.bundle.actions) != 1:
+            self.bundle.process_turn()
+            current_time.increment_turn()
+
+        self.assertTrue(self.action_idl.leader)
+        self.assertEqual(self.hero.health, self.hero.max_health)
+        self.assertEqual(self.hero.is_alive, True)
+
+        test_bundle_save(self, self.bundle)
 
     def test_fast_resurrect(self):
 

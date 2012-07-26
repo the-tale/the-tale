@@ -21,8 +21,7 @@ class MoveNearActionTest(TestCase):
         self.hero.position.set_place(self.p1)
 
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionMoveNearPlacePrototype.create(self.action_idl, self.p1, False))
-        self.action_move = self.bundle.tests_get_last_action()
+        self.action_move = ActionMoveNearPlacePrototype.create(self.action_idl, self.p1, False)
 
     def tearDown(self):
         pass
@@ -80,6 +79,17 @@ class MoveNearActionTest(TestCase):
         self.assertTrue(not self.hero.position.is_walking)
         test_bundle_save(self, self.bundle)
 
+    def test_full(self):
+
+        current_time = TimePrototype.get_current_time()
+
+        while len(self.bundle.actions) != 1:
+            self.bundle.process_turn()
+            current_time.increment_turn()
+
+        self.assertTrue(self.action_idl.leader)
+
+        test_bundle_save(self, self.bundle)
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 1.0)
     def test_battle(self):

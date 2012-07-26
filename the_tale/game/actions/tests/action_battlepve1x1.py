@@ -17,9 +17,7 @@ class BattlePvE1x1ActionTest(TestCase):
         self.hero = self.bundle.tests_get_hero()
 
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionBattlePvE1x1Prototype.create(self.action_idl, mob=create_mob_for_hero(self.hero)))
-        self.action_battle = self.bundle.tests_get_last_action()
-
+        self.action_battle = ActionBattlePvE1x1Prototype.create(self.action_idl, mob=create_mob_for_hero(self.hero))
 
     def tearDown(self):
         pass
@@ -82,6 +80,9 @@ class BattlePvE1x1ActionTest(TestCase):
         while len(self.bundle.actions) != 1:
             self.bundle.process_turn()
             current_time.increment_turn()
+
+        self.assertTrue(self.action_idl.leader)
+
         test_bundle_save(self, self.bundle)
 
     def test_bit_mob(self):

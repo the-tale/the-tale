@@ -7,6 +7,7 @@ from game.actions.prototypes import ActionEquippingPrototype
 
 from game.artifacts.storage import ArtifactsDatabase
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
+
 from game.prototypes import TimePrototype
 
 class ActionEquippingTest(TestCase):
@@ -81,5 +82,13 @@ class ActionEquippingTest(TestCase):
         equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
         self.assertEqual(self.hero.equipment.get(equip_slot), new_artifact)
         self.assertEqual(self.hero.equipment.get(equip_slot).power, 666)
+
+        current_time = TimePrototype.get_current_time()
+        current_time.increment_turn()
+
+        self.bundle.process_turn()
+        self.assertEqual(len(self.bundle.actions), 1)
+        self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
+
 
         test_bundle_save(self, self.bundle)

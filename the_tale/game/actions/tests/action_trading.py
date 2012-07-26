@@ -14,8 +14,7 @@ class TradingActionTest(TestCase):
 
         self.bundle = create_test_bundle('TradingActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionTradingPrototype.create(self.action_idl))
-        self.action_trade = self.bundle.tests_get_last_action()
+        self.action_trade = ActionTradingPrototype.create(self.action_idl)
         self.hero = self.bundle.tests_get_hero()
 
 

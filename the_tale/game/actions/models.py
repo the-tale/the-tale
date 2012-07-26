@@ -17,8 +17,6 @@ class Action(models.Model):
 
     state = models.CharField(max_length=50, null=False, default=UNINITIALIZED_STATE)
 
-    leader = models.BooleanField(null=False, default=True) #since we create only LEAD actions, leader option MUST be TRUE by default
-
     parent = models.ForeignKey('self', related_name='+', null=True, blank=True)
 
     context = models.TextField(null=False, default='{}')

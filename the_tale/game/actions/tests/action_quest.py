@@ -16,8 +16,7 @@ class QuestActionTest(TestCase):
         self.hero = self.bundle.tests_get_hero()
         self.action_idl = self.bundle.tests_get_last_action()
         self.quest = create_random_quest_for_hero(self.hero)
-        self.bundle.add_action(ActionQuestPrototype.create(self.action_idl, quest=self.quest))
-        self.action_quest = self.bundle.tests_get_last_action()
+        self.action_quest = ActionQuestPrototype.create(self.action_idl, quest=self.quest)
 
     def tearDown(self):
         pass

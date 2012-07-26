@@ -21,9 +21,7 @@ class MoveToActionTest(TestCase):
         self.hero.position.set_place(self.p1)
 
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionMoveToPrototype.create(self.action_idl, self.p3))
-        self.action_move = self.bundle.tests_get_last_action()
-
+        self.action_move = ActionMoveToPrototype.create(self.action_idl, self.p3)
 
     def tearDown(self):
         pass
@@ -62,6 +60,15 @@ class MoveToActionTest(TestCase):
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionInPlacePrototype.TYPE)
         test_bundle_save(self, self.bundle)
 
+    def test_full(self):
+
+        current_time = TimePrototype.get_current_time()
+
+        while not self.action_idl.leader:
+            self.bundle.process_turn()
+            current_time.increment_turn()
+
+        test_bundle_save(self, self.bundle)
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
     def test_short_teleport(self):

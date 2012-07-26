@@ -19,7 +19,7 @@ class MobPrototype(object):
         self.health_cooficient = self.abilities.modify_attribute(ATTRIBUTES.HEALTH, 1)
         self.damage_modifier = self.abilities.modify_attribute(ATTRIBUTES.DAMAGE, 1)
 
-        self.max_health = f.mob_hp_to_lvl(level) * self.health_cooficient
+        self.max_health = int(f.mob_hp_to_lvl(level) * self.health_cooficient)
 
         self.health = self.max_health if health is None else health
 

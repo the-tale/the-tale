@@ -62,6 +62,7 @@ class BundlePrototype(object):
             raise BundleException('try to remove action (%d - %r) from the middle of actions list, last action id: (%d - %r). Actions list: %r' % (action.id, action, last_action.id, last_action, self.heroes_to_actions[action.hero_id]))
         self.heroes_to_actions[action.hero_id].pop()
 
+
     def current_hero_action(self, hero_id): return self.heroes_to_actions[hero_id][-1]
 
     def load_data(self):
@@ -114,13 +115,14 @@ class BundlePrototype(object):
 
         for hero in self.heroes.values():
             next = hero.process_turn()
+
             if next_turn is None and next or next < next_turn:
                 next_turn = next
 
-        for action in self.actions.values():
-            if not action.leader:
-                continue
-            next = action.process_turn()
+            leader_action = self.heroes_to_actions[hero.id][-1]
+
+            next = leader_action.process_turn()
+
             if next_turn is None and next or next < next_turn:
                 next_turn = next
 

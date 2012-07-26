@@ -83,12 +83,12 @@ class ActionPrototype(object):
     @property
     def order(self): return self.model.order
 
+    @property
+    def leader(self):
+        return (not self.removed) and (self.bundle.current_hero_action(self.hero_id).id == self.id)
+
     def set_bundle(self, bundle):
         self.bundle = bundle
-
-    def get_leader(self): return self.model.leader
-    def set_leader(self, value): self.model.leader = value
-    leader = property(get_leader, set_leader)
 
     def get_percents(self): return self.model.percents
     def set_percents(self, value): self.model.percents = value
@@ -221,8 +221,6 @@ class ActionPrototype(object):
 
     def on_create(self, parent):
         if parent:
-            parent.updated = True
-            parent.leader = False
             parent.bundle.add_action(self)
         self.hero.push_action_description(self.get_description())
         self.hero.last_action_percents = self.percents
@@ -232,8 +230,6 @@ class ActionPrototype(object):
             return
 
         if self.parent:
-            self.parent.updated = True
-            self.parent.leader = True
             self.hero.last_action_percents = self.parent.percents
         else:
             self.hero.last_action_percents = 0
@@ -262,6 +258,7 @@ class ActionPrototype(object):
         '''
         force - if True, bundles will be ignored (need for full remove of angel & hero)
         '''
+
         self.on_remove(force=force)
 
         if self.bundle:
@@ -308,6 +305,7 @@ class ActionPrototype(object):
 
         self.process()
 
+        # if action is leader action
         if self.leader:
             self.hero.last_action_percents = self.percents
 
@@ -328,7 +326,6 @@ class ActionPrototype(object):
         # print self.removed == other.removed
         # print self.type == other.type
         # print self.order == other.order
-        # print self.leader == other.leader
         # print self.percents == other.percents
         # print self.state == other.state
         # print self.hero_id == other.hero_id
@@ -347,7 +344,6 @@ class ActionPrototype(object):
                 self.removed == other.removed and
                 self.type == other.type and
                 self.order == other.order and
-                self.leader == other.leader and
                 self.percents == other.percents and
                 self.state == other.state and
                 self.hero_id == other.hero_id and

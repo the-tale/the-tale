@@ -7,6 +7,7 @@ from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradingPrototype, ActionEquippingPrototype
 from game.artifacts.storage import ArtifactsDatabase
 from game.artifacts.conf import ITEM_TYPE
+from game.prototypes import TimePrototype
 
 from game.balance import constants as c, formulas as f
 
@@ -17,8 +18,7 @@ class InPlaceActionTest(TestCase):
 
         self.bundle = create_test_bundle('InPlaceActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionInPlacePrototype.create(self.action_idl))
-        self.action_inplace = self.bundle.tests_get_last_action()
+        self.action_inplace = ActionInPlacePrototype.create(self.action_idl)
         self.hero = self.bundle.tests_get_hero()
 
     def tearDown(self):
@@ -68,6 +68,18 @@ class InPlaceActionTest(TestCase):
         self.bundle.process_turn()
         self.assertEqual(len(self.bundle.actions), 3)
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionEquippingPrototype.TYPE)
+
+        test_bundle_save(self, self.bundle)
+
+    def test_full(self):
+
+        current_time = TimePrototype.get_current_time()
+
+        while len(self.bundle.actions) != 1:
+            self.bundle.process_turn()
+            current_time.increment_turn()
+
+        self.assertTrue(self.action_idl.leader)
 
         test_bundle_save(self, self.bundle)
 
