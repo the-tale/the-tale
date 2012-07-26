@@ -232,6 +232,7 @@ class ActionPrototype(object):
             return
 
         if self.parent:
+            self.parent.updated = True
             self.parent.leader = True
             self.hero.last_action_percents = self.parent.percents
         else:
