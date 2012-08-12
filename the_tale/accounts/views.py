@@ -42,16 +42,16 @@ class AccountsResource(Resource):
     def fast_registration(self):
 
         if not self.user.is_anonymous():
-            return self.json(status='error', error=u'Вы уже зарегистрированы')
+            return self.json_error('accounts.fast_registration.already_registered', u'Вы уже зарегистрированы')
 
         if accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY in self.request.session:
             task_id = self.request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
             task = RegistrationTaskPrototype.get_by_id(task_id)
             if task is not None:
                 if task.state == REGISTRATION_TASK_STATE.PROCESSED:
-                    return self.json(status='error', error=u'Ваша регистрация уже обработана, обновите страницу')
+                    return self.json_error('accounts.fast_registration.already_processed', u'Ваша регистрация уже обработана, обновите страницу')
                 if task.state == REGISTRATION_TASK_STATE.WAITING:
-                    return self.json(status='error', error=u'Ваша регистрация уже обрабатывается, пожалуйста, подождите')
+                    return self.json_error('accounts.fast_registration.is_processing', u'Ваша регистрация уже обрабатывается, пожалуйста, подождите')
 
         registration_task = RegistrationTaskPrototype.create()
 
@@ -59,7 +59,7 @@ class AccountsResource(Resource):
 
         infrastructure_workers_environment.registration.cmd_register(registration_task.id)
 
-        return self.json(status='processing', status_url=reverse('accounts:fast-registration-status') )
+        return self.json_processing(reverse('accounts:fast-registration-status'))
 
 
     @handler('fast-registration-status', method='get')
@@ -67,25 +67,25 @@ class AccountsResource(Resource):
 
         # if task already checked in middleware
         if not self.user.is_anonymous():
-            return self.json(status='ok')
+            return self.json_ok()
 
         if accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY not in self.request.session:
-            return self.json(status='error', error=u'Вы не пытались регистрироваться или уже зарегистрировались')
+            return self.json_error('accounts.fast_registration_status.wrong_request', u'Вы не пытались регистрироваться или уже зарегистрировались')
 
         task_id = self.request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
 
         registration_task = RegistrationTaskPrototype.get_by_id(int(task_id))
 
         if registration_task.state == REGISTRATION_TASK_STATE.WAITING:
-            return self.json(status='processing', status_url=reverse('accounts:fast-registration-status'))
+            return self.json_processing(reverse('accounts:fast-registration-status'))
 
         if registration_task.state == REGISTRATION_TASK_STATE.UNPROCESSED:
-            return self.json(status='error', error=u'Таймаут при обработке запроса, повторите попытку')
+            return self.json_error('accounts.fast_registration_status.timeout', u'Таймаут при обработке запроса, повторите попытку')
 
         if registration_task.state == REGISTRATION_TASK_STATE.PROCESSED:
-            return self.json(status='ok')
+            return self.json_ok()
 
-        return self.json(status='error', error=u'ошибка при регистрации, повторите попытку')
+        return self.json_error('accounts.fast_registration_status.error', u'ошибка при регистрации, повторите попытку')
 
     @login_required
     @handler('profile', method='get')

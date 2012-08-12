@@ -1,5 +1,5 @@
 # coding: utf-8
-from django.test import TestCase, client
+from django.test import client
 from django.core.urlresolvers import reverse
 from django.core import mail
 from django.contrib.auth import authenticate as django_authenticate
@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate as django_authenticate
 from dext.utils import s11n
 
 from common.utils.fake import FakeLogger
+from common.utils.testcase import TestCase
 
 from accounts.logic import register_user
 from accounts.models import RegistrationTask, REGISTRATION_TASK_STATE, CHANGE_CREDENTIALS_TASK_STATE, ChangeCredentialsTask
@@ -63,20 +64,18 @@ class TestRegistrationRequests(TestCase):
     def test_fast_registration_processing(self):
         response = self.client.post(reverse('accounts:fast-registration'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content), {'status': 'processing',
-                                                            'status_url': reverse('accounts:fast-registration-status')})
+        self.check_ajax_processing(response, reverse('accounts:fast-registration-status'))
         self.assertEqual(RegistrationTask.objects.all().count(), 1)
 
     def test_fast_registration_for_logged_in_user(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
         response = self.client.post(reverse('accounts:fast-registration'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+        self.check_ajax_error(response, 'accounts.fast_registration.already_registered')
 
     def test_fast_registration_second_request(self):
         response = self.client.post(reverse('accounts:fast-registration'))
         response = self.client.post(reverse('accounts:fast-registration'))
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+        self.check_ajax_error(response, 'accounts.fast_registration.is_processing')
         self.assertEqual(RegistrationTask.objects.all().count(), 1)
 
     def test_fast_registration_second_request_after_error(self):
@@ -86,40 +85,36 @@ class TestRegistrationRequests(TestCase):
         task.state = REGISTRATION_TASK_STATE.UNPROCESSED
         task.save()
         response = self.client.post(reverse('accounts:fast-registration'))
-        self.assertEqual(s11n.from_json(response.content)['status'], 'processing')
+        self.check_ajax_processing(response, reverse('accounts:fast-registration-status'))
         self.assertEqual(RegistrationTask.objects.all().count(), 2)
 
         task = RegistrationTask.objects.all().order_by('id')[1]
         task.state = REGISTRATION_TASK_STATE.ERROR
         task.save()
         response = self.client.post(reverse('accounts:fast-registration'))
-        self.assertEqual(s11n.from_json(response.content)['status'], 'processing')
+        self.check_ajax_processing(response, reverse('accounts:fast-registration-status'))
         self.assertEqual(RegistrationTask.objects.all().count(), 3)
 
         task = RegistrationTask.objects.all().order_by('id')[2]
         task.delete()
         response = self.client.post(reverse('accounts:fast-registration'))
-        self.assertEqual(s11n.from_json(response.content)['status'], 'processing')
+        self.check_ajax_processing(response, reverse('accounts:fast-registration-status'))
         self.assertEqual(RegistrationTask.objects.all().count(), 3)
 
     def test_fast_registration_status_after_login(self):
         response = self.client.post(reverse('accounts:fast-registration'))
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
         response = self.client.get(reverse('accounts:fast-registration-status'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content), {'status': 'ok'})
+        self.check_ajax_ok(response)
 
     def test_fast_registration_status_without_registration(self):
         response = self.client.get(reverse('accounts:fast-registration-status'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+        self.check_ajax_error(response, 'accounts.fast_registration_status.wrong_request')
 
     def test_fast_registration_status_waiting(self):
         response = self.client.post(reverse('accounts:fast-registration'))
         response = self.client.get(reverse('accounts:fast-registration-status'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content), {'status': 'processing',
-                                                            'status_url': reverse('accounts:fast-registration-status')})
+        self.check_ajax_processing(response, reverse('accounts:fast-registration-status'))
 
     def test_fast_registration_status_timeout(self):
         response = self.client.post(reverse('accounts:fast-registration'))
@@ -129,8 +124,7 @@ class TestRegistrationRequests(TestCase):
         task.save()
 
         response = self.client.get(reverse('accounts:fast-registration-status'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+        self.check_ajax_error(response, 'accounts.fast_registration_status.timeout')
 
     def test_fast_registration_status_error(self):
         response = self.client.post(reverse('accounts:fast-registration'))
@@ -140,9 +134,7 @@ class TestRegistrationRequests(TestCase):
         task.save()
 
         response = self.client.get(reverse('accounts:fast-registration-status'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
-
+        self.check_ajax_error(response, 'accounts.fast_registration_status.error')
 
     def test_fast_registration_status_ok(self):
         response = self.client.post(reverse('accounts:fast-registration'))
@@ -152,9 +144,7 @@ class TestRegistrationRequests(TestCase):
         task.process(FakeLogger())
 
         response = self.client.get(reverse('accounts:fast-registration-status'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content), {'status': 'ok'})
-
+        self.check_ajax_ok(response)
 
 class TestProfileRequests(TestCase):
 
