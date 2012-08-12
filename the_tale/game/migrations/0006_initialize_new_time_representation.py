@@ -12,9 +12,10 @@ class Migration(DataMigration):
 
 
     def forwards(self, orm):
-        turn_number = orm['game.Time'].objects.all()[0].turn_number
-        record = orm['settings.Setting'](key='turn number', value=str(turn_number))
-        record.save()
+        if orm['game.Time'].objects.all().exists():
+            turn_number = orm['game.Time'].objects.all()[0].turn_number
+            record = orm['settings.Setting'](key='turn number', value=str(turn_number))
+            record.save()
 
     def backwards(self, orm):
         pass
