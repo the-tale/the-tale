@@ -7,6 +7,11 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ("persons", "0001_initial"),
+        ("places", "0001_initial"),
+    )
+
     def forwards(self, orm):
         # Adding field 'Hero.pref_place'
         db.add_column('heroes_hero', 'pref_place',
