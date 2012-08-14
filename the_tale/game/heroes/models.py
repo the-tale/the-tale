@@ -12,6 +12,8 @@ class Hero(models.Model):
 
     angel = models.ForeignKey(Angel, related_name='heroes', default=None, null=True, blank=True)
 
+    is_fast = models.BooleanField(default=True, db_index=True) # copy from account.is_fast
+
     alive = models.BooleanField(default=True)
 
     #base

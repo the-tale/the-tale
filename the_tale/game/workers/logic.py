@@ -112,11 +112,16 @@ class Worker(BaseWorker):
 
         self.bundles[bundle.id] = bundle
 
-        for angel_id in bundle.angels.keys():
-            self.angels2bundles[angel_id] = bundle.id
+        # update info about fast accounts
+        angels_to_fast = {}
 
-        for hero_id in bundle.heroes.keys():
+        for angel_id, angel in bundle.angels.items():
+            self.angels2bundles[angel_id] = bundle.id
+            angels_to_fast[angel_id] = angel.get_account().is_fast
+
+        for hero_id, hero in bundle.heroes.items():
             self.heroes2bundles[hero_id] = bundle.id
+            hero.is_fast = angels_to_fast[hero.angel_id]
 
         heapq.heappush(self.queue, (0, bundle_id))
 
@@ -165,3 +170,9 @@ class Worker(BaseWorker):
             task.process(bundle)
             task.save()
             bundle.save_data()
+
+    def cmd_mark_hero_as_not_fast(self, hero_id):
+        self.send_cmd('mark_hero_as_not_fast', {'hero_id': hero_id})
+
+    def process_mark_hero_as_not_fast(self, hero_id):
+        self.bundles[self.heroes2bundles[hero_id]].heroes[hero_id].is_fast = False

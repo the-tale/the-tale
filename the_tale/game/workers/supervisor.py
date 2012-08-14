@@ -141,3 +141,9 @@ class Worker(BaseWorker):
 
     def process_choose_hero_preference(self, preference_task_id):
         self.logic_worker.cmd_choose_hero_preference(preference_task_id)
+
+    def cmd_mark_hero_as_not_fast(self, hero_id):
+        self.send_cmd('mark_hero_as_not_fast', {'hero_id': hero_id})
+
+    def process_mark_hero_as_not_fast(self, hero_id):
+        self.logic_worker.cmd_mark_hero_as_not_fast(hero_id)

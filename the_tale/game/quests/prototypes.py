@@ -164,12 +164,15 @@ class QuestPrototype(object):
         if self.pointer is not None:
             return True
 
-        self.end_quest()
+        self.end_quest(cur_action)
         cur_action.hero.statistics.change_quests_done(1)
 
         return False
 
-    def end_quest(self):
+    def end_quest(self, cur_action):
+
+        if not cur_action.hero.can_change_persons_power:
+            return
 
         for person_id, power in self.env.persons_power_points.items():
             person_data = self.env.persons[person_id]

@@ -26,6 +26,10 @@ class AngelPrototype(object):
     def get_by_account_id(cls, account_id):
         return cls(model=Angel.objects.get(account_id=account_id))
 
+    def get_account(self):
+        from accounts.prototypes import AccountPrototype
+        return AccountPrototype.get_by_id(self.model.account_id)
+
     @property
     def id(self): return self.model.id
 

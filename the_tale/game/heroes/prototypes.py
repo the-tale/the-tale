@@ -60,6 +60,11 @@ class HeroPrototype(object):
     def set_is_alive(self, value): self.model.alive = value
     is_alive = property(get_is_alive, set_is_alive)
 
+
+    def get_is_fast(self): return self.model.is_fast
+    def set_is_fast(self, value): self.model.is_fast = value
+    is_fast = property(get_is_fast, set_is_fast)
+
     @property
     def id(self): return self.model.id
 
@@ -241,6 +246,13 @@ class HeroPrototype(object):
     def max_bag_size(self): return c.MAX_BAG_SIZE
 
     ###########################################
+    # Permissions
+    ###########################################
+
+    @property
+    def can_change_persons_power(self): return not self.is_fast
+
+    ###########################################
     # Needs attributes
     ###########################################
 
@@ -411,6 +423,7 @@ class HeroPrototype(object):
 
         return (self.id == other.id and
                 self.is_alive == other.is_alive and
+                self.is_fast == other.is_fast and
                 self.angel_id == other.angel_id and
                 self.name == other.name and
                 self.gender == other.gender and
