@@ -21,6 +21,8 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.ARTIFACTS_PER_LVL, 4)
         self.assertEqual(c.EXP_PER_MOB, 1.0)
         self.assertEqual(c.EXP_MULTIPLICATOR, 10.0)
+        self.assertEqual(c.EXP_PENALTY_MULTIPLIER, 3.0)
+        self.assertEqual(c.EXP_ACTIVE_STATE_LENGTH, 360.0*2*24)
         self.assertEqual(c.BATTLE_LENGTH, 16)
         self.assertEqual(c.INTERVAL_BETWEEN_BATTLES, 5)
         self.assertEqual(c.BATTLES_BEFORE_HEAL, 8)
@@ -95,6 +97,8 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.MAP_SYNC_TIME, 1440)
 
         self.assertEqual(c.QUESTS_SPECIAL_FRACTION, 0.2)
+
+        self.assertEqual(c.PERSON_BASE_POWER_FOR_QUEST, 100)
 
     def test_calculated_values(self):
 
