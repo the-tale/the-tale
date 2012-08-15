@@ -124,7 +124,7 @@ class HeroPrototype(object):
 
 
     def get_health(self): return self.model.health
-    def set_health(self, value): self.model.health = value
+    def set_health(self, value): self.model.health = int(value)
     health = property(get_health, set_health)
 
     @property
@@ -383,7 +383,7 @@ class HeroPrototype(object):
 
     def heal(self, delta):
         old_health = self.health
-        self.health = min(self.health + int(delta), self.max_health)
+        self.health = int(min(self.health + delta, self.max_health))
         return self.health - old_health
 
     ###########################################
