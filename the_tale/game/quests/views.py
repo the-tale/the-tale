@@ -31,13 +31,13 @@ class QuestsResource(Resource):
 
         cmd = self.quest.env.get_nearest_quest_choice(self.quest.pointer)
 
-        if cmd.id != choice_point:
-            return self.json(status='error', errors=u'В данный момент вы не можете влиять на эту точку выбора')
+        if cmd is None or cmd.id != choice_point:
+            return self.json_error('quests.choose.wrong_point', u'В данный момент вы не можете влиять на эту точку выбора')
 
         if choice not in cmd.choices:
-            return self.json(status='error', errors=u'Не существует такого выбора')
+            return self.json_error('quests.choose.unknown_choice', u'Не существует такого выбора')
 
         if not self.quest.make_choice(choice_point, choice):
-            return self.json(status='error', errors=u'Вы уже сделали выбор')
+            return self.json_error('quests.choose.already_choosed', u'Вы уже сделали выбор')
 
         return self.json(status='ok')
