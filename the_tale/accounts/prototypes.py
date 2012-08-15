@@ -18,6 +18,7 @@ from accounts.exceptions import AccountsException
 
 from game.angels.prototypes import AngelPrototype
 from game.bundles import BundlePrototype
+from game.workers.environment import workers_environment as game_workers_environment
 
 class AccountPrototype(object):
 
@@ -82,6 +83,10 @@ class AccountPrototype(object):
             self.model.email = new_email
         if new_nick:
             self.user.username = new_nick
+
+        if self.is_fast:
+            game_workers_environment.supervisor.cmd_mark_hero_as_not_fast(self.angel.get_hero().id)
+
         self.is_fast = False
 
         self.user.save()
@@ -170,7 +175,6 @@ class RegistrationTaskPrototype(object):
     def process(self, logger):
         from accounts.logic import register_user, REGISTER_USER_RESULT
 
-        from game.workers.environment import workers_environment as game_workers_environment
         from game.models import Bundle
 
         if self.model.state != REGISTRATION_TASK_STATE.WAITING:

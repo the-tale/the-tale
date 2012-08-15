@@ -21,6 +21,8 @@ def fake_sync_data(self):
 class HighlevelTest(TestCase):
 
     def setUp(self):
+        settings.refresh()
+
         self.p1, self.p2, self.p3 = create_test_map()
 
         self.bundle = create_test_bundle('HeroTest')

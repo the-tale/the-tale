@@ -1,25 +1,19 @@
 # coding: utf-8
-import mock
-
 from django.test import TestCase
-
 from dext.settings import settings
 
 from game.angels.prototypes import AngelPrototype
 
-from game.persons.storage import persons_storage
-from game.persons.models import Person, PERSON_STATE
-
-from game.map.places.storage import places_storage
-
-from game.balance import constants as c
 from game.logic import create_test_bundle, create_test_map
 from game.workers.environment import workers_environment
 from game.prototypes import TimePrototype
 
+
 class LogicTest(TestCase):
 
     def setUp(self):
+        settings.refresh()
+
         self.p1, self.p2, self.p3 = create_test_map()
 
         self.bundle = create_test_bundle('HeroTest')

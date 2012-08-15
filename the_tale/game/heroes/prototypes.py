@@ -74,6 +74,14 @@ class HeroPrototype(object):
     @property
     def created_at_turn(self): return self.model.created_at_turn
 
+    @property
+    def is_active(self):
+        return TimePrototype.get_current_turn_number() < self.model.active_state_end_at
+
+    def mark_as_active(self):
+        self.model.active_state_end_at = TimePrototype.get_current_turn_number() + c.EXP_ACTIVE_STATE_LENGTH
+
+
     ###########################################
     # Base attributes
     ###########################################
@@ -99,7 +107,7 @@ class HeroPrototype(object):
     @property
     def experience(self): return self.model.experience
     def add_experience(self, value):
-        self.model.experience += value
+        self.model.experience += value * self.experience_modifier
         while f.exp_on_lvl(self.level) <= self.model.experience:
             self.model.experience -= f.exp_on_lvl(self.level)
             self.model.level += 1
@@ -244,6 +252,12 @@ class HeroPrototype(object):
 
     @property
     def max_bag_size(self): return c.MAX_BAG_SIZE
+
+    @property
+    def experience_modifier(self):
+        if self.is_active:
+            return 1
+        return 1.0 / c.EXP_PENALTY_MULTIPLIER
 
     ###########################################
     # Permissions
@@ -499,7 +513,10 @@ class HeroPrototype(object):
 
         gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
-        hero = Hero.objects.create(created_at_turn=TimePrototype.get_current_turn_number(),
+        current_turn_number = TimePrototype.get_current_turn_number()
+
+        hero = Hero.objects.create(created_at_turn=current_turn_number,
+                                   active_state_end_at=current_turn_number + c.EXP_ACTIVE_STATE_LENGTH,
                                    angel=angel.model,
                                    gender=gender,
                                    race=race,

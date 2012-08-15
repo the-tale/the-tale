@@ -176,3 +176,9 @@ class Worker(BaseWorker):
 
     def process_mark_hero_as_not_fast(self, hero_id):
         self.bundles[self.heroes2bundles[hero_id]].heroes[hero_id].is_fast = False
+
+    def cmd_mark_hero_as_active(self, hero_id):
+        self.send_cmd('mark_hero_as_active', {'hero_id': hero_id})
+
+    def process_mark_hero_as_active(self, hero_id):
+        self.bundles[self.heroes2bundles[hero_id]].heroes[hero_id].mark_as_active()

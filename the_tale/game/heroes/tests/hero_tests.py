@@ -9,6 +9,7 @@ from game.prototypes import TimePrototype
 from game.balance import formulas as f
 
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
+from game.balance import constants as c
 
 
 class HeroTest(TestCase):
@@ -19,6 +20,9 @@ class HeroTest(TestCase):
         self.bundle = create_test_bundle('HeroTest')
         self.action_idl = self.bundle.tests_get_last_action()
         self.hero = self.bundle.tests_get_hero()
+
+        # self.hero.mark_as_active()
+        # self.hero.save()
 
     def tearDown(self):
         pass
@@ -82,6 +86,7 @@ class HeroTest(TestCase):
 
     def test_lvl_up(self):
         self.assertEqual(self.hero.level, 1)
+        self.assertEqual(self.hero.experience_modifier, 1)
 
         self.hero.add_experience(f.exp_on_lvl(1)/2)
         self.assertEqual(self.hero.level, 1)
@@ -100,3 +105,17 @@ class HeroTest(TestCase):
         self.hero.add_experience(f.exp_on_lvl(4))
         self.assertEqual(self.hero.level, 5)
         self.assertEqual(self.hero.destiny_points, 2)
+
+    def test_set_active_inactive_state(self):
+        self.assertEqual(self.hero.experience_modifier, 1)
+
+        time = TimePrototype.get_current_time()
+        time.turn_number += 2 * c.EXP_ACTIVE_STATE_LENGTH
+        time.save()
+
+        self.assertTrue(self.hero.experience_modifier < 1)
+
+        self.hero.mark_as_active()
+        self.hero.save()
+
+        self.assertEqual(self.hero.experience_modifier, 1)

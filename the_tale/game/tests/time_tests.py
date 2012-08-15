@@ -13,6 +13,9 @@ class TimeTest(TestCase):
     def setUp(self):
         settings.refresh()
 
+    def tearDown(self):
+        settings.refresh()
+
     def test_creation(self):
         self.assertEqual(Setting.objects.all().count(), 0)
         time = TimePrototype.get_current_time()

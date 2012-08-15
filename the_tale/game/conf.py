@@ -8,6 +8,10 @@ APP_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 game_settings = app_settings('GAME',
+
+                             SESSION_REFRESH_TIME_KEY='session_refresh_time',
+                             SESSION_REFRESH_PERIOD=60*60,
+
                              TURN_DELAY=10,
 
                              ENABLE_WORKER_HIGHLEVEL=True,
