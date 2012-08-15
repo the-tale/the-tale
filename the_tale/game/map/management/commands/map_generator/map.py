@@ -24,6 +24,7 @@ class Cell(object):
 
     def update_terrain(self, terrain, power):
         self.terrains[terrain] = self.terrains.get(terrain, 0) + power
+        # self.terrains[terrain] = max(self.terrains.get(terrain, 0), power)
 
     def choose_terrain(self):
         self.terrain = self.nearest_place_terrain
@@ -70,7 +71,7 @@ class Map(object):
             for x in xrange(center_x - sig_radius, center_x + sig_radius):
                 distance = math.sqrt( math.pow(y - center_y, 2) + math.pow(x - center_x, 2))
                 if 0 <= y < self.h and 0 <= x < self.w:
-                    self.map[y][x].update_terrain(terrain, max(0, sig_radius - distance) )
+                    self.map[y][x].update_terrain(terrain, max(0, float(sig_radius)/(1+distance)) )
 
     def update_nearest_places(self, center_x, center_y, terrain):
         for row in self.map:
