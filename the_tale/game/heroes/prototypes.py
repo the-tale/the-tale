@@ -75,6 +75,13 @@ class HeroPrototype(object):
     def created_at_turn(self): return self.model.created_at_turn
 
     @property
+    def birthday(self): return TimePrototype(self.created_at_turn).game_time
+
+    @property
+    def age(self):
+        return TimePrototype(TimePrototype.get_current_turn_number() - self.created_at_turn).game_time
+
+    @property
     def is_active(self):
         return TimePrototype.get_current_turn_number() < self.model.active_state_end_at
 
