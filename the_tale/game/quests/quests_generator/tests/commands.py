@@ -6,6 +6,14 @@ from django.test import TestCase
 from game.quests.quests_generator import commands
 
 
+class MessageTest(TestCase):
+
+    def test_serialization(self):
+        cmd = commands.Message(event='event_1')
+        data = cmd.serialize()
+        self.assertEqual(cmd, commands.deserialize_command(data))
+
+
 class MoveTest(TestCase):
 
     def test_serialization(self):

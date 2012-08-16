@@ -30,6 +30,11 @@ class Command(object):
     def __eq__(self, other):
         return self.event == other.event
 
+class Message(Command):
+
+    def get_description(self, env):
+        return '<message> event: %s, important %s' % (self.event, self.important)
+
 
 class Move(Command):
 

@@ -3,6 +3,7 @@ from ..quest_line import Quest, Line, ACTOR_TYPE
 from .. import commands as cmd
 
 class EVENTS:
+    INTRO = 'intro'
     QUEST_DESCRIPTION = 'quest_description'
     MOVE_TO_POINT = 'move_to_point'
     BANDITS_ATTACK = 'bandits_attack'
@@ -45,7 +46,8 @@ class Caravan(Quest):
                                      cmd.GivePower(person=self.env_local.person_start, power=1, event=EVENTS.GOOD_GIVE_POWER),
                                      cmd.GivePower(person=self.env_local.person_end, power=1, event=EVENTS.GOOD_GIVE_POWER)])
 
-        main_line = Line(sequence=[cmd.Move(place=self.env_local.place_end, break_at=0.5, event=EVENTS.MOVE_TO_POINT),
+        main_line = Line(sequence=[cmd.Message(event=EVENTS.INTRO),
+                                   cmd.Move(place=self.env_local.place_end, break_at=0.5, event=EVENTS.MOVE_TO_POINT),
                                    cmd.Choose(id=self.env_local.choose_point_1,
                                               choices={'caravan': env.new_line(good_line_2),
                                                        'bandits': env.new_line(bad_line_1)},

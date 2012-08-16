@@ -20,6 +20,8 @@ class Writer(object):
 
     def get_msg_journal_id(self, event): return 'quest_%s_journal_%s' % (self.quest_type, event)
 
+    def get_msg_diary_id(self, event): return 'quest_%s_diary_%s' % (self.quest_type, event)
+
     def get_msg_choice_variant_id(self, choice, variant): return 'quest_%s_choice_%s_variant_%s' % (self.quest_type, choice, variant)
 
     def get_msg_choice_result_id(self, choice, answer): return 'quest_%s_choice_%s_result_%s' % (self.quest_type, choice, answer)
@@ -45,6 +47,9 @@ class Writer(object):
 
     def get_journal_msg(self, event):
         return self.get_message(self.get_msg_journal_id(event))
+
+    def get_diary_msg(self, event):
+        return self.get_message(self.get_msg_diary_id(event))
 
     def get_choice_variant_msg(self, choice, variant):
         return self.get_message(self.get_msg_choice_variant_id(choice, variant))

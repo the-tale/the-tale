@@ -4,6 +4,7 @@ from .. import commands as cmd
 
 
 class EVENTS:
+    INTRO = 'intro'
     QUEST_DESCRIPTION = 'quest_description'
     MOVE_TO_QUEST = 'move_to_quest'
     TRACK = 'track'
@@ -33,7 +34,9 @@ class Hunt(Quest):
     def create_line(self, env):
         mob = env.knowlege_base.get_special('hero_pref_mob')
 
-        main_line = Line(sequence=[cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
+        main_line = Line(sequence=[cmd.Message(event=EVENTS.INTRO),
+
+                                   cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
 
                                    cmd.MoveNear(place=self.env_local.place_end, back=False, event=EVENTS.TRACK),
                                    cmd.Battle(number=1, event=EVENTS.HUNT, mob_id=mob['id']),

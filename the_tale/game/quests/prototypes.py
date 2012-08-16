@@ -185,12 +185,16 @@ class QuestPrototype(object):
 
         writer = self.env.get_writer(cur_action.hero, self.pointer)
 
-        log_msg = writer.get_journal_msg(cmd.event)
+        journal_msg = writer.get_journal_msg(cmd.event)
+        if journal_msg:
+            cur_action.hero.push_message(HeroPrototype._prepair_message(journal_msg))
 
-        if log_msg:
-            cur_action.hero.push_message(HeroPrototype._prepair_message(log_msg))
+        diary_msg = writer.get_diary_msg(cmd.event)
+        if diary_msg:
+            cur_action.hero.push_message(HeroPrototype._prepair_message(diary_msg), important=True)
 
-        {'description': self.cmd_description,
+        {#'description': self.cmd_description,
+         'message': self.cmd_message,
          'move': self.cmd_move,
          'movenear': self.cmd_move_near,
          'getitem': self.cmd_get_item,
@@ -202,8 +206,12 @@ class QuestPrototype(object):
          'battle': self.cmd_battle
          }[cmd.type()](cmd, cur_action)
 
-    def cmd_description(self, cmd, cur_action):
-        cur_action.hero.push_message(HeroPrototype._prepair_message(cmd.msg))
+    # def cmd_description(self, cmd, cur_action):
+    #     cur_action.hero.push_message(HeroPrototype._prepair_message(cmd.msg))
+
+    def cmd_message(self, cmd, cur_action):
+        # do nothing, since messages will be created at
+        pass
 
     def cmd_move(self, cmd, cur_action):
         from ..actions.prototypes import ActionMoveToPrototype

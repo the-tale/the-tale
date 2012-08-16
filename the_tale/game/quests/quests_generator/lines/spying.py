@@ -3,6 +3,8 @@ from ..quest_line import Quest, Line, ACTOR_TYPE
 from .. import commands as cmd
 
 class EVENTS:
+    INTRO = 'intro'
+
     QUEST_DESCRIPTION = 'quest_description'
     MOVE_TO_QUEST = 'move_to_quest'
     MOVE_NEAR = 'move_near'
@@ -41,7 +43,8 @@ class Spying(Quest):
                                      cmd.GivePower(person=self.env_local.person_start, power=1, event=EVENTS.GOOD_GIVE_POWER),
                                      cmd.GivePower(person=self.env_local.person_end, power=-1, event=EVENTS.GOOD_GIVE_POWER)])
 
-        main_line = Line(sequence=[cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
+        main_line = Line(sequence=[cmd.Message(event=EVENTS.INTRO),
+                                   cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
                                    cmd.MoveNear(place=self.env_local.place_end, back=False, event=EVENTS.MOVE_NEAR),
                                    cmd.Choose(id=self.env_local.choose_point_1,
                                               choices={'spy': env.new_line(good_line_2),

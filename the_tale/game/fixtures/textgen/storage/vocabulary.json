@@ -1,4 +1,47 @@
 {
+  "quest_spying_diary_intro": [
+    {
+      "internals": [
+        [
+          "попросил", 
+          [
+            "person_start"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "попросил"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_start", 
+          [], 
+          "e_0", 
+          [], 
+          "person_start"
+        ], 
+        [
+          "person_end", 
+          [], 
+          "e_1", 
+          [], 
+          "person_end"
+        ], 
+        [
+          "place_end", 
+          [], 
+          "e_2", 
+          [
+            "пр"
+          ], 
+          "place_end"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s прошпионить за одной подозрительной личностью. Эта личность, %(e_1)s, живёт в %(e_2)s."
+    }
+  ], 
   "angel_ability_shortteleport": [
     {
       "internals": [], 
@@ -285,53 +328,28 @@
       "template": "%(e_0)s наблюдает за целью"
     }
   ], 
-  "action_movenearplace_walk": [
+  "quest_notmywork_action_move_to_quest": [
     {
       "internals": [], 
       "externals": [
         [
-          "place", 
+          "hero", 
           [], 
           "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "Оказывается, окрестности %(e_0)s очень живописны"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
           [], 
-          "e_0", 
-          [
-            "тв"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "Век живи - век учись, оказывается, рядом с %(e_0)s водятся гигантские многоножки"
-    }, 
-    {
-      "internals": [
+          "hero"
+        ], 
         [
-          "вступил", 
+          "place_end", 
+          [], 
+          "e_1", 
           [
-            "hero"
+            "вн"
           ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "вступил"
+          "place_end"
         ]
       ], 
-      "externals": [], 
-      "template": "'Ну и грязища - второй раз за день %(i_0)s в лужу'"
+      "template": "%(e_0)s направляется в %(e_1)s"
     }
   ], 
   "angel_ability_resurrect": [
@@ -763,6 +781,49 @@
       "template": "Напомнить о невыполненном обязательстве"
     }
   ], 
+  "quest_help_diary_intro": [
+    {
+      "internals": [
+        [
+          "попросил", 
+          [
+            "person_start"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "попросил"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_start", 
+          [], 
+          "e_0", 
+          [], 
+          "person_start"
+        ], 
+        [
+          "person_end", 
+          [], 
+          "e_1", 
+          [], 
+          "person_end"
+        ], 
+        [
+          "place_end", 
+          [], 
+          "e_2", 
+          [
+            "пр"
+          ], 
+          "place_end"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s помочь другу. %(e_1)s живёт в %(e_2)s."
+    }
+  ], 
   "action_trading_sell_item": [
     {
       "internals": [
@@ -883,30 +944,6 @@
       "template": "Глупый торговец, отдал %(e_0)s %(i_0)s за %(i_1)s-то %(e_1)s"
     }
   ], 
-  "quest_notmywork_action_move_to_quest": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ], 
-        [
-          "place_end", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "place_end"
-        ]
-      ], 
-      "template": "%(e_0)s направляется в %(e_1)s"
-    }
-  ], 
   "quest_caravan_description": [
     {
       "internals": [], 
@@ -942,6 +979,60 @@
         ]
       ], 
       "template": "%(e_0)s идёт к месту назначения"
+    }
+  ], 
+  "quest_caravan_diary_intro": [
+    {
+      "internals": [
+        [
+          "поручил", 
+          [
+            "person_start"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "поручил"
+        ], 
+        [
+          "должен", 
+          [
+            "person_end"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "должен"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_start", 
+          [], 
+          "e_0", 
+          [], 
+          "person_start"
+        ], 
+        [
+          "place_end", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "place_end"
+        ], 
+        [
+          "person_end", 
+          [], 
+          "e_2", 
+          [], 
+          "person_end"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s отвести караван в %(e_1)s. Там меня %(i_1)s встретить %(e_2)s."
     }
   ], 
   "quest_delivery_description": [
@@ -1245,6 +1336,58 @@
       "template": "%(e_0)s %(i_0)s продолжить шпионаж"
     }
   ], 
+  "quest_delivery_diary_intro": [
+    {
+      "internals": [
+        [
+          "попросил", 
+          [
+            "person_start"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "попросил"
+        ], 
+        [
+          "должен", 
+          [
+            "person_end"
+          ], 
+          "i_1", 
+          [], 
+          "должен"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_start", 
+          [], 
+          "e_0", 
+          [], 
+          "person_start"
+        ], 
+        [
+          "person_end", 
+          [], 
+          "e_1", 
+          [], 
+          "person_end"
+        ], 
+        [
+          "place_end", 
+          [], 
+          "e_2", 
+          [
+            "рд"
+          ], 
+          "place_end"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s доставить письмо. Его %(i_1)s получить %(e_1)s из %(e_2)s."
+    }
+  ], 
   "quest_delivery_journal_give_item": [
     {
       "internals": [
@@ -1342,80 +1485,47 @@
       "template": "поддаться укорам совести и раскрыться"
     }
   ], 
-  "action_rest_resring": [
+  "quest_notmywork_diary_intro": [
     {
       "internals": [
         [
-          "вылечил", 
+          "попросил", 
           [
-            "hero"
+            "person_start"
           ], 
           "i_0", 
           [
             "прш"
           ], 
-          "вылечил"
+          "попросил"
         ]
       ], 
       "externals": [
         [
-          "health", 
+          "person_start", 
           [], 
           "e_0", 
           [], 
-          "health"
-        ]
-      ], 
-      "template": "Ух ты, а подорожник помогает: %(i_0)s %(e_0)s HP"
-    }, 
-    {
-      "internals": [
-        [
-          "применил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "применил"
+          "person_start"
         ], 
         [
-          "исцелился", 
-          [
-            "hero"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "исцелился"
-        ]
-      ], 
-      "externals": [
+          "person_end", 
+          [], 
+          "e_1", 
+          [], 
+          "person_end"
+        ], 
         [
-          "health", 
+          "place_end", 
           [], 
-          "e_0", 
-          [], 
-          "health"
+          "e_2", 
+          [
+            "пр"
+          ], 
+          "place_end"
         ]
       ], 
-      "template": "%(i_0)s магию вуду и %(i_1)s на %(e_0)s HP"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "health", 
-          [], 
-          "e_0", 
-          [], 
-          "health"
-        ]
-      ], 
-      "template": "Проходящий мимо шаман кастанул чайник и исцелил на %(e_0)s HP"
+      "template": "%(e_0)s %(i_0)s добиться исполнения обещания одним должником. Должник, %(e_1)s, живёт в %(e_2)s."
     }
   ], 
   "quest_caravan_journal_get_reward": [
@@ -1892,6 +2002,82 @@
       "template": "украсть-украсть-украсть"
     }
   ], 
+  "action_rest_resring": [
+    {
+      "internals": [
+        [
+          "вылечил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "вылечил"
+        ]
+      ], 
+      "externals": [
+        [
+          "health", 
+          [], 
+          "e_0", 
+          [], 
+          "health"
+        ]
+      ], 
+      "template": "Ух ты, а подорожник помогает: %(i_0)s %(e_0)s HP"
+    }, 
+    {
+      "internals": [
+        [
+          "применил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "применил"
+        ], 
+        [
+          "исцелился", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "исцелился"
+        ]
+      ], 
+      "externals": [
+        [
+          "health", 
+          [], 
+          "e_0", 
+          [], 
+          "health"
+        ]
+      ], 
+      "template": "%(i_0)s магию вуду и %(i_1)s на %(e_0)s HP"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "health", 
+          [], 
+          "e_0", 
+          [], 
+          "health"
+        ]
+      ], 
+      "template": "Проходящий мимо шаман кастанул чайник и исцелил на %(e_0)s HP"
+    }
+  ], 
   "action_equipping_change_item": [
     {
       "internals": [
@@ -2006,6 +2192,13 @@
       "internals": [], 
       "externals": [], 
       "template": "'Чего смотришь? У меня перекур'"
+    }
+  ], 
+  "quest_hunt_diary_intro": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Всё надоело, пора отдыхать... Пора на охоту."
     }
   ], 
   "quest_hunt_action_track": [
@@ -2795,6 +2988,55 @@
         ]
       ], 
       "template": "Золото посыпалось с неба! %(i_0)s %(e_0)s %(i_1)s."
+    }
+  ], 
+  "action_movenearplace_walk": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "Оказывается, окрестности %(e_0)s очень живописны"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "тв"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "Век живи - век учись, оказывается, рядом с %(e_0)s водятся гигантские многоножки"
+    }, 
+    {
+      "internals": [
+        [
+          "вступил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "вступил"
+        ]
+      ], 
+      "externals": [], 
+      "template": "'Ну и грязища - второй раз за день %(i_0)s в лужу'"
     }
   ], 
   "hero_ability_regeneration": [

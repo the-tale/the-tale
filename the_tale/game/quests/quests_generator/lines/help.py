@@ -3,6 +3,7 @@ from ..quest_line import Quest, Line, ACTOR_TYPE
 from .. import commands as cmd
 
 class EVENTS:
+    INTRO = 'intro'
     QUEST_DESCRIPTION = 'quest_description'
     MOVE_TO_QUEST = 'move_to_quest'
     START_QUEST = 'start_quest'
@@ -25,7 +26,8 @@ class Help(Quest):
                                                             person_start=self.env_local.person_end) )
 
     def create_line(self, env):
-        main_line =  Line(sequence= [ cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
+        main_line =  Line(sequence= [ cmd.Message(event=EVENTS.INTRO),
+                                      cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
                                       cmd.Quest(quest=self.env_local.quest_help, event=EVENTS.START_QUEST),
                                       cmd.GivePower(person=self.env_local.person_start,
                                                     depends_on=self.env_local.person_end, multiply=0.25,

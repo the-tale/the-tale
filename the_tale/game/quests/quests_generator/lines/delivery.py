@@ -3,6 +3,7 @@ from ..quest_line import Quest, Line, ACTOR_TYPE
 from .. import commands as cmd
 
 class EVENTS:
+    INTRO = 'intro'
     QUEST_DESCRIPTION = 'quest_description'
     GET_ITEM = 'get_item'
     MOVE_TO_DESTINATION = 'move_to_destination'
@@ -42,7 +43,8 @@ class Delivery(Quest):
                                     cmd.GivePower(person=self.env_local.person_start, power=-1, event=EVENTS.EVIL_GIVE_POWER),
                                     cmd.GivePower(person=self.env_local.person_end, power=-1, event=EVENTS.EVIL_GIVE_POWER)])
 
-        main_line = Line(sequence=[ cmd.GetItem(self.env_local.item_to_deliver, event=EVENTS.GET_ITEM),
+        main_line = Line(sequence=[ cmd.Message(event=EVENTS.INTRO),
+                                    cmd.GetItem(self.env_local.item_to_deliver, event=EVENTS.GET_ITEM),
                                     cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_DESTINATION),
                                     cmd.Choose(id=self.env_local.steal_point,
                                                choices={'delivery': env.new_line(delivery_line),

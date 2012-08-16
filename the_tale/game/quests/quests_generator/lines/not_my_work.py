@@ -5,6 +5,7 @@ from ..quest_line import Quest, Line, ACTOR_TYPE
 from .. import commands as cmd
 
 class EVENTS:
+    INTRO = 'intro'
     QUEST_DESCRIPTION = 'quest_description'
     MOVE_TO_QUEST = 'move_to_quest'
     MOVE_TO_CUSTOMER = 'move_to_customer'
@@ -49,7 +50,8 @@ class NotMyWork(Quest):
                                        cmd.GetReward(person=self.env_local.person_start, event=EVENTS.GET_REWARD),
                                        ] )
 
-        main_line = Line(sequence=[cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
+        main_line = Line(sequence=[cmd.Message(event=EVENTS.INTRO),
+                                   cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
                                    cmd.Choose(id=self.env_local.choose_point_1,
                                               choices={'diplomacy': env.new_line(work_line),
                                                        'bruteforce': env.new_line(attack_line)},
