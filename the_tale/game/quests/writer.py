@@ -1,11 +1,6 @@
 # coding: utf-8
 
-# from django.utils.log import getLogger
-# from django.conf import settings as project_settings
-
 from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
-
-# logger=getLogger('the-tale.workers.game_logic')
 
 class Writer(object):
 
