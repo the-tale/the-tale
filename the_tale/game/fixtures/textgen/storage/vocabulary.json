@@ -313,21 +313,6 @@
       "template": "Впереди нелёгкий путь, о чём же меня попросят?"
     }
   ], 
-  "quest_spying_action_move_near": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s наблюдает за целью"
-    }
-  ], 
   "quest_notmywork_action_move_to_quest": [
     {
       "internals": [], 
@@ -376,13 +361,6 @@
       "internals": [], 
       "externals": [], 
       "template": "честно выполнить свои обязательства"
-    }
-  ], 
-  "quest_spying_journal_move_near": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "Итак, чем собралась заниматься моя цель?"
     }
   ], 
   "action_inplace_description": [
@@ -446,11 +424,11 @@
       "template": "%(e_0)s %(i_0)s награду"
     }
   ], 
-  "quest_help_description": [
+  "quest_caravan_diary_choice_attack": [
     {
       "internals": [], 
       "externals": [], 
-      "template": "Помочь другу"
+      "template": "Который час любуюсь на толстый кошель караванщика... Право, с него не убудет, если он не досчитается немного товара."
     }
   ], 
   "action_battlepve1x1_mob_killed": [
@@ -944,6 +922,25 @@
       "template": "Глупый торговец, отдал %(e_0)s %(i_0)s за %(i_1)s-то %(e_1)s"
     }
   ], 
+  "quest_delivery_diary_choice_steal": [
+    {
+      "internals": [
+        [
+          "потратил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "потратил"
+        ]
+      ], 
+      "externals": [], 
+      "template": "Слишком много сил я %(i_0)s на доставку этого письма, надо его украсть."
+    }
+  ], 
   "quest_caravan_description": [
     {
       "internals": [], 
@@ -1042,76 +1039,19 @@
       "template": "Доставить посылку"
     }
   ], 
-  "action_battlepve1x1_put_loot_no_space": [
-    {
-      "internals": [
-        [
-          "влазил", 
-          [
-            "artifact"
-          ], 
-          "i_0", 
-          [
-            "нст", 
-            "3л"
-          ], 
-          "влазил"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "им"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "%(e_0)s никак не %(i_0)s в рюкзак, придётся выкинуть"
-    }, 
-    {
-      "internals": [
-        [
-          "остался", 
-          [
-            "artifact"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "остался"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "им"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s валяться на обочине дороги"
-    }, 
+  "quest_notmywork_diary_choice_attack": [
     {
       "internals": [], 
       "externals": [
         [
-          "artifact", 
+          "person_end", 
           [], 
           "e_0", 
-          [
-            "вн"
-          ], 
-          "artifact"
+          [], 
+          "person_end"
         ]
       ], 
-      "template": "Оставлю я %(e_0)s здесь, может кому сгодится"
+      "template": "Что-то %(e_0)s юлит... придётся применить силовое воздействие."
     }
   ], 
   "quest_notmywork_choice_work_variant_diplomacy": [
@@ -1476,6 +1416,13 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s применить силу"
+    }
+  ], 
+  "quest_delivery_diary_choice_delivery": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Служит на почте трудно и даже опасно, но это почётная профессия! И пусть в дороге мнея ждут монстры и ужасная погода, письмо будет доставлено вовремя!"
     }
   ], 
   "quest_spying_choice_openup_variant_open_up": [
@@ -1929,6 +1876,13 @@
       "template": "%(e_0)s идёт к месту жительства цели"
     }
   ], 
+  "quest_help_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Помочь другу"
+    }
+  ], 
   "action_inplace_impact_good": [
     {
       "internals": [
@@ -1972,6 +1926,21 @@
         ]
       ], 
       "template": "%(i_0)s %(e_0)s %(i_1)s %(e_1)s - на благое дело"
+    }
+  ], 
+  "quest_spying_action_spying": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s наблюдает за целью"
     }
   ], 
   "quest_hunt_description": [
@@ -2199,6 +2168,105 @@
       "internals": [], 
       "externals": [], 
       "template": "Всё надоело, пора отдыхать... Пора на охоту."
+    }
+  ], 
+  "quest_spying_diary_choice_continue_spying": [
+    {
+      "internals": [
+        [
+          "Решил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "Решил"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_end", 
+          [], 
+          "e_0", 
+          [], 
+          "person_end"
+        ]
+      ], 
+      "template": "%(i_0)s довести разведку до конца - не пристало герою отказываться от заданий, да и %(e_0)s, действительно, ведёт себя подозрительно."
+    }
+  ], 
+  "action_battlepve1x1_put_loot_no_space": [
+    {
+      "internals": [
+        [
+          "влазил", 
+          [
+            "artifact"
+          ], 
+          "i_0", 
+          [
+            "нст", 
+            "3л"
+          ], 
+          "влазил"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "им"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "%(e_0)s никак не %(i_0)s в рюкзак, придётся выкинуть"
+    }, 
+    {
+      "internals": [
+        [
+          "остался", 
+          [
+            "artifact"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "остался"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "им"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s валяться на обочине дороги"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "Оставлю я %(e_0)s здесь, может кому сгодится"
     }
   ], 
   "quest_hunt_action_track": [
@@ -3228,6 +3296,25 @@
       "template": "%(e_0)s %(i_0)s, что %(e_1)s как нельзя лучше подойдёт геройскому образу"
     }
   ], 
+  "quest_caravan_diary_choice_defend": [
+    {
+      "internals": [
+        [
+          "готовый", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "тв"
+          ], 
+          "готовый"
+        ]
+      ], 
+      "externals": [], 
+      "template": "Уже который час за нами следят бандиты. Надо быть %(i_0)s к нападению."
+    }
+  ], 
   "action_battlepve1x1_description": [
     {
       "internals": [], 
@@ -3243,6 +3330,13 @@
         ]
       ], 
       "template": "сражается с %(e_0)s"
+    }
+  ], 
+  "quest_spying_diary_choice_open_up": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Больше не могу шпионить за таким достойным существом. Лучше расскажу всё как на духу."
     }
   ], 
   "action_quest_reward_money": [
@@ -3362,6 +3456,33 @@
       "template": "%(e_0)s %(i_0)s %(e_1)s"
     }
   ], 
+  "quest_notmywork_diary_choice_do_work": [
+    {
+      "internals": [
+        [
+          "завален", 
+          [
+            "person_end"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "завален"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_end", 
+          [], 
+          "e_0", 
+          [], 
+          "person_end"
+        ]
+      ], 
+      "template": "%(e_0)s говорит, что никак не может найти время - %(i_0)s делами по горло. Придётся помочь."
+    }
+  ], 
   "action_inplace_sharpening_artifact": [
     {
       "internals": [
@@ -3458,6 +3579,13 @@
         ]
       ], 
       "template": "%(e_0)s сопровождает караван"
+    }
+  ], 
+  "quest_spying_journal_spying": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Итак, чем собралась заниматься моя цель?"
     }
   ], 
   "action_rest_start": [

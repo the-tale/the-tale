@@ -16,6 +16,9 @@ class EVENTS:
     WORK_CHOICE = 'diplomacy_choice'
     GET_REWARD = 'get_reward'
 
+    CHOICE_DO_WORK = 'choice_do_work'
+    CHOICE_ATTACK = 'choice_attack'
+
 
 class NotMyWork(Quest):
 
@@ -37,13 +40,15 @@ class NotMyWork(Quest):
     def create_line(self, env):
         env.quests[self.env_local.others_work_quest].create_line(env)
 
-        work_line = Line(sequence=[ cmd.Quest(quest=self.env_local.others_work_quest, event=EVENTS.START_QUEST),
+        work_line = Line(sequence=[ cmd.Message(event=EVENTS.CHOICE_DO_WORK),
+                                    cmd.Quest(quest=self.env_local.others_work_quest, event=EVENTS.START_QUEST),
                                     cmd.Move(place=self.env_local.place_start, event=EVENTS.MOVE_TO_CUSTOMER),
                                     cmd.GivePower(person=self.env_local.person_start, power=1, event=EVENTS.GIVE_POWER_TO_CUSTOMER),
                                     cmd.GetReward(person=self.env_local.person_start, event=EVENTS.GET_REWARD),
                                     ] )
 
-        attack_line =  Line(sequence=[ cmd.Battle(number=random.randint(1, 5), event=EVENTS.ATTACK_PERFORMER),
+        attack_line =  Line(sequence=[ cmd.Message(event=EVENTS.CHOICE_ATTACK),
+                                       cmd.Battle(number=random.randint(1, 5), event=EVENTS.ATTACK_PERFORMER),
                                        cmd.GivePower(person=self.env_local.person_end, power=-1, event=EVENTS.GET_POWER_FROM_PERFORMER),
                                        cmd.Move(place=self.env_local.place_start, event=EVENTS.MOVE_TO_CUSTOMER),
                                        cmd.GivePower(person=self.env_local.person_start, power=1, event=EVENTS.GIVE_POWER_TO_CUSTOMER),

@@ -16,6 +16,10 @@ class EVENTS:
 
     BRING_CHOICE = 'bring_choice'
 
+    CHOICE_ATTACK = 'choice_attack'
+    CHOICE_DEFEND = 'choice_defend'
+
+
 class Caravan(Quest):
 
     ACTORS = [(u'отправил', 'person_start', ACTOR_TYPE.PERSON),
@@ -34,13 +38,15 @@ class Caravan(Quest):
 
     def create_line(self, env):
 
-        bad_line_1 = Line(sequence=[cmd.Battle(number=1, event=EVENTS.CARAVAN_ATTACK),
+        bad_line_1 = Line(sequence=[cmd.Message(event=EVENTS.CHOICE_ATTACK),
+                                    cmd.Battle(number=1, event=EVENTS.CARAVAN_ATTACK),
                                     cmd.Move(place=self.env_local.place_start, event=EVENTS.RUN_AWAY),
                                     cmd.GetReward(person=self.env_local.person_end, event=EVENTS.GET_REWARD),
                                     cmd.GivePower(person=self.env_local.person_start, power=-1, event=EVENTS.BAD_GIVE_POWER),
                                     cmd.GivePower(person=self.env_local.person_end, power=-1, event=EVENTS.BAD_GIVE_POWER)])
 
-        good_line_2 = Line(sequence=[cmd.Battle(number=2, event=EVENTS.BANDITS_ATTACK),
+        good_line_2 = Line(sequence=[cmd.Message(event=EVENTS.CHOICE_DEFEND),
+                                     cmd.Battle(number=2, event=EVENTS.BANDITS_ATTACK),
                                      cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_POINT),
                                      cmd.GetReward(person=self.env_local.person_end, event=EVENTS.GET_REWARD),
                                      cmd.GivePower(person=self.env_local.person_start, power=1, event=EVENTS.GOOD_GIVE_POWER),
