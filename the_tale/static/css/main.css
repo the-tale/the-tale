@@ -69,6 +69,9 @@ body .dl-record {
   position: relative;
   top: -70px;
 }
+.attention-link {
+  color: #faa732 !important;
+}
 .popover {
   z-index: 30000000 !important;
 }
