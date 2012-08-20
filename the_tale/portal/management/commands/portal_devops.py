@@ -9,8 +9,8 @@ from django.core.management.base import BaseCommand
 from meta_config import meta_config
 
 FABFILE = '/home/tie/repos/mine/devops/the_tale'
-SETUP_HOST = "tie@192.168.1.104"
-UPDATE_HOST = "the-tale@192.168.1.104"
+SETUP_HOST = "root@the-tale.org"
+UPDATE_HOST = "the-tale@the-tale.org"
 
 class Command(BaseCommand):
 
