@@ -33,11 +33,6 @@ class AccountsResource(Resource):
 
         return self._current_account
 
-    @handler('introduction', method='get')
-    def introduction(self):
-        return self.template('accounts/introduction.html')
-
-
     @handler('fast-registration', method='post')
     def fast_registration(self):
 

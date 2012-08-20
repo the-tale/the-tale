@@ -26,10 +26,6 @@ class TestRequests(TestCase):
         response = self.client.post(reverse('accounts:login'), {'email': email, 'password': password})
         self.assertEqual(response.status_code, 200)
 
-    def test_introduction_page(self):
-        response = self.client.get(reverse('accounts:introduction'))
-        self.assertEqual(response.status_code, 200)
-
     def test_login_page(self):
         response = self.client.get(reverse('accounts:login'))
         self.assertEqual(response.status_code, 200)

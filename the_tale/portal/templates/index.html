@@ -4,9 +4,15 @@
 
 {% block content %}
 
+{% if not resource.account %}
 <div class="row">
-  <div class="span8">
+  <div class="span12">
     <div class="block">
+      <a class="btn btn-danger pgf-fast-registration"
+         href="{{ url('accounts:fast-registration') }}"
+         style="width: 170px; height: 64px; font-size: 19pt; float: left; margin-right: 0.5em; margin-top: 0.3em;">
+        <span style="position: relative; top: 20px;">Создать героя</span>
+      </a>
 
       <h2>Здравствуйте!</h2>
 
@@ -43,20 +49,24 @@
         Хотите узнать больше? - <a href="{{ url('guide:') }}">Путеводитель по Сказке</a> к Вашим услугам.
       </p>
 
-      <p>
-        {% if not resource.account %}
-        Вы можете <a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration">начать игру без регистрации</a> или <a href="{{ url('accounts:login') }}">войти</a>, если уже имеете аккаунт.
-        {% else %}
-        <a href="{{ url('game:') }}">Перейти к игре</a>
-        {% endif %}
-      </p>
-
     </div>
   </div>
+</div>
 
-  <div class="span4">
+{% endif %}
+
+<div class="row">
+  <div class="span12">
     <div class="block">
-      <h2>Новости <small><a href="{{ url('news:') }}">ещё...</a></small></h2>
+
+      <h2 style="margin-bottom: 0.5em;">
+        Новости
+        <a href="{{ get_rss_link() }}" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss">
+          <img src="{{STATIC_URL}}images/rss.png" style="margin: 2px;"/>
+        </a>
+        <small><a href="{{ url('news:') }}">ещё...</a></small>
+      </h2>
+
 
       <ul class="unstyled">
         {% for record in news %}

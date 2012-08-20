@@ -85,7 +85,7 @@ jQuery(document).ready(function() {
         e.preventDefault();
         pgf.forms.Post({ OnSuccess: function(data)
                          {
-                             location.href = "{{ url('accounts:introduction') }}";
+                             location.href = "{{ url('game:') }}";
                          },
                          action: jQuery(e.currentTarget).attr('href')
                        });
@@ -106,7 +106,6 @@ jQuery(document).ready(function() {
           <a class="brand" href="{{ url('portal:') }}">Сказка</a>
 
           <ul class="nav">
-            {{ base_macros.main_menu_item("news", url("news:"), "Новости") }}
             {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
             {{ base_macros.main_menu_item("game", url("game:"), "Игра") }}
             {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:registration"), "Регистрация"),
@@ -132,7 +131,7 @@ jQuery(document).ready(function() {
             {% if request.user.is_authenticated() %}
             <li><a href="{{ url('accounts:logout') }}">выйти</a></li>
             {% else %}
-            <li><a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration"><strong>играть без регистрации</strong></a></li>
+            <li><a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration attention-link"><strong>создать героя</strong></a></li>
             <li><a href="{{ url('accounts:login') }}">войти</a></li>
             {% endif %}
           </ul>
