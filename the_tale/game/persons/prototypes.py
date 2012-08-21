@@ -25,7 +25,7 @@ class PersonPrototype(object):
     def name(self): return self.model.name
 
     @property
-    def normalized_name(self): return (Fake(self.model.name), GENDER_ID_2_STR[self.gender])
+    def normalized_name(self): return (Fake(self.model.name), (GENDER_ID_2_STR[self.gender], u'загл'))
 
     @property
     def gender(self): return self.model.gender

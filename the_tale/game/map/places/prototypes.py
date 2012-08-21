@@ -44,7 +44,7 @@ class PlacePrototype(object):
         if not hasattr(self, '_normalized_name'):
             self._normalized_name = words.WordBase.deserialize(s11n.from_json(self.model.name_forms))
 
-        return self._normalized_name
+        return (self._normalized_name, u'загл')
 
     @property
     def type(self): return self.model.type
