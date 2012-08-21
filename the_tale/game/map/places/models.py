@@ -38,6 +38,8 @@ class Place(models.Model):
 
     name = models.CharField(max_length=150, null=False, db_index=True)
 
+    name_forms = models.TextField(null=False, default=u'')
+
     terrain = models.CharField(max_length=1,
                                default=TERRAIN.GRASS,
                                choices=TERRAIN_CHOICES,

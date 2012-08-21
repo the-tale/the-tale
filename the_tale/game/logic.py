@@ -3,6 +3,9 @@ import os
 
 from django.conf import settings as project_settings
 
+from textgen import words
+from dext.utils import s11n
+
 from game.heroes.bag import SLOTS
 from game.artifacts.storage import ArtifactsDatabase
 from game.bundles import BundlePrototype
@@ -32,6 +35,7 @@ def create_test_map():
     p1 = Place.objects.create( x=1,
                                y=1,
                                name='1x1',
+                               name_forms=s11n.to_json(words.Noun('1x1').serialize()),
                                terrain=TERRAIN.FOREST,
                                type=PLACE_TYPE.CITY,
                                subtype='UNDEFINED',
@@ -40,6 +44,7 @@ def create_test_map():
     p2 = Place.objects.create( x=10,
                                y=10,
                                name='10x10',
+                               name_forms=s11n.to_json(words.Noun('10x10').serialize()),
                                terrain=TERRAIN.FOREST,
                                type=PLACE_TYPE.CITY,
                                subtype='UNDEFINED',
@@ -48,6 +53,7 @@ def create_test_map():
     p3 = Place.objects.create( x=1,
                                y=10,
                                name='1x10',
+                               name_forms=s11n.to_json(words.Noun('1x10').serialize()),
                                terrain=TERRAIN.FOREST,
                                type=PLACE_TYPE.CITY,
                                subtype='UNDEFINED',

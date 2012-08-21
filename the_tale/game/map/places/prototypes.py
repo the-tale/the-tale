@@ -4,7 +4,7 @@ import random
 from dext.utils import s11n
 
 from game.game_info import GENDER
-from textgen.words import Fake
+from textgen import words
 from game import names
 
 from game.map.places.models import Place, PLACE_TYPE, RACE_TO_TERRAIN
@@ -39,7 +39,12 @@ class PlacePrototype(object):
     def name(self): return self.model.name
 
     @property
-    def normalized_name(self): return Fake(self.model.name)
+    def normalized_name(self):
+
+        if not hasattr(self, '_normalized_name'):
+            self._normalized_name = words.WordBase.deserialize(s11n.from_json(self.model.name_forms))
+
+        return self._normalized_name
 
     @property
     def type(self): return self.model.type
