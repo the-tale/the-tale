@@ -1089,18 +1089,8 @@
   "quest_notmywork_journal_move_to_quest": [
     {
       "internals": [], 
-      "externals": [
-        [
-          "person_end", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "person_end"
-        ]
-      ], 
-      "template": "Пойдём, посмотрим на %(e_0)s."
+      "externals": [], 
+      "template": "Пойдём, посмотрим на должника."
     }
   ], 
   "action_battlepve1x1_put_loot": [
@@ -1971,13 +1961,11 @@
           "person", 
           [], 
           "e_1", 
-          [
-            "дт"
-          ], 
+          [], 
           "person"
         ]
       ], 
-      "template": "%(i_0)s %(e_0)s %(i_1)s %(e_1)s - на благое дело."
+      "template": "%(i_0)s %(e_0)s %(i_1)s на благое дело. Надеюсь, %(e_1)s применит их с пользой."
     }
   ], 
   "quest_spying_action_spying": [
@@ -3256,18 +3244,8 @@
   "quest_notmywork_journal_work_choice": [
     {
       "internals": [], 
-      "externals": [
-        [
-          "person_end", 
-          [], 
-          "e_0", 
-          [
-            "дт"
-          ], 
-          "person_end"
-        ]
-      ], 
-      "template": "Стоит помочь %(e_0)s."
+      "externals": [], 
+      "template": "Стоит помочь бедняге."
     }
   ], 
   "action_equipping_equip_item": [
@@ -3846,7 +3824,19 @@
   ], 
   "quest_notmywork_action_attack_performer": [
     {
-      "internals": [], 
+      "internals": [
+        [
+          "позвал", 
+          [
+            "person_end"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "позвал"
+        ]
+      ], 
       "externals": [
         [
           "hero", 
@@ -3859,13 +3849,11 @@
           "person_end", 
           [], 
           "e_1", 
-          [
-            "рд"
-          ], 
+          [], 
           "person_end"
         ]
       ], 
-      "template": "%(e_0)s сражается с прислужниками %(e_1)s"
+      "template": "%(e_0)s сражается с прислужниками, которых %(i_0)s %(e_1)s"
     }
   ], 
   "quest_caravan_choice_bring_variant_bandits": [
@@ -3913,12 +3901,12 @@
           [], 
           "e_1", 
           [
-            "дт"
+            "загл"
           ], 
           "person"
         ]
       ], 
-      "template": "%(i_0)s %(e_0)s %(i_1)s специально обученным людям - посмотрим, как это понравится %(e_1)s."
+      "template": "%(i_0)s %(e_0)s %(i_1)s специально обученным людям. %(e_1)s будет в ярости."
     }
   ], 
   "quest_caravan_journal_bandits_attack": [
