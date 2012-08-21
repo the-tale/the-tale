@@ -27,6 +27,11 @@ class Command(BaseCommand):
 
             subprocess.call(['./manage.py', 'places_sync'])
 
+        print
+        print 'UPDATE PLACES'
+        print
+
+        subprocess.call(['./manage.py', 'places_fill_name_forms'])
 
         print
         print 'UPDATE MAP'
