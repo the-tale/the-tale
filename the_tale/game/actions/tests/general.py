@@ -48,3 +48,15 @@ class GeneralTest(TestCase):
             self.bundle.process_turn()
             current_time.increment_turn()
             self.assertEqual(self.bundle.tests_get_last_action().percents, self.hero.last_action_percents)
+
+    def test_help_choice_heal_not_in_choices_for_dead_hero(self):
+
+        self.hero.health = 1
+        self.hero.save()
+
+        self.assertTrue(HELP_CHOICES.HEAL in self.action_idl.help_choices)
+
+        self.hero.kill()
+        self.hero.save()
+
+        self.assertFalse(HELP_CHOICES.HEAL in self.action_idl.help_choices)

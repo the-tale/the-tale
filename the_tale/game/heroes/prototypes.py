@@ -23,6 +23,7 @@ from game.heroes.preferences import HeroPreferences
 from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from game.heroes.habilities import AbilitiesPrototype, ABILITIES
 from game.heroes.conf import heroes_settings
+from game.heroes.exceptions import HeroException
 
 from game.map.storage import map_info_storage
 
@@ -395,9 +396,18 @@ class HeroPrototype(object):
 
 
     def heal(self, delta):
+        if delta < 0:
+            raise HeroException('can not heal hero for value less then 0')
         old_health = self.health
         self.health = int(min(self.health + delta, self.max_health))
         return self.health - old_health
+
+    # def kick(self, delta):
+    #     if delta < 0:
+    #         raise HeroException('can not kick hero for value less then 0')
+    #     old_health = self.health
+    #     self.health = int(max(self.health - delta, 0))
+    #     return old_health - self.health
 
     ###########################################
     # Object operations

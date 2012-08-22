@@ -185,14 +185,18 @@ class ActionPrototype(object):
     def set_percents_barier(self, value): self.model.percents_barier = value
     percents_barier = property(get_percents_barier, set_percents_barier)
 
-    def get_help_choice(self):
+    @property
+    def help_choices(self):
         choices = copy.copy(self.EXTRA_HELP_CHOICES)
         choices.add(HELP_CHOICES.MONEY)
 
-        if c.ANGEL_HELP_HEAL_IF_LOWER_THEN * self.hero.max_health > self.hero.health:
+        if self.hero.is_alive and c.ANGEL_HELP_HEAL_IF_LOWER_THEN * self.hero.max_health > self.hero.health:
             choices.add(HELP_CHOICES.HEAL)
 
-        return random.choice(list(choices))
+        return choices
+
+    def get_help_choice(self):
+        return random.choice(list(self.help_choices))
 
     def get_description(self):
         template_name = '%s_description' % self.TEXTGEN_TYPE

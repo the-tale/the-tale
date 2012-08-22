@@ -35,6 +35,7 @@ class Actor(object):
     def max_health(self): return self.actor.max_health
 
     def change_health(self, value):
+        # TODO: change for heal & kick methods?
         old_health = self.actor.health
         self.actor.health = int(max(0, min(self.actor.health + value, self.actor.max_health)))
         return int(self.actor.health - old_health)
