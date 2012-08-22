@@ -16,13 +16,13 @@ class AbilitiesResource(Resource):
         self.ability_type = ability_type
 
         if self.account is None:
-            raise Error(u'Вам необходимо войти на сайт')
+            raise Error('abilities.unlogined', u'Вам необходимо войти на сайт')
 
         if self.ability is None:
-            raise Error(u'У вас нет такой способности')
+            raise Error('abilities.wrong_ability', u'У вас нет такой способности')
 
         if self.ability.on_cooldown(self.time, self.account.angel.id):
-            raise Error(u'Вы пока не можете использовать эту способность')
+            raise Error('abilities.on_cooldown', u'Вы пока не можете использовать эту способность')
 
     @property
     def ability(self):

@@ -28,7 +28,6 @@ class QuestPrototypeTest(TestCase):
     def complete_quest(self):
         current_time = TimePrototype.get_current_time()
 
-        # just test that quest will be ended
         while not self.action_idl.leader:
             self.bundle.process_turn()
             current_time.increment_turn()

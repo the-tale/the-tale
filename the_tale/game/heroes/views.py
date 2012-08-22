@@ -38,10 +38,10 @@ class HeroResource(Resource):
         self.hero_id = int(hero_id)
 
         if self.hero is None:
-            raise Error(u'Вы не можете просматривать данные этого игрока')
+            raise Error('heroes.can_no_see_this_hero', u'Вы не можете просматривать данные этого игрока')
 
         if self.account is None or self.account.angel.id != self.hero.angel_id:
-            raise Error(u'Вы не можете просматривать данные этого игрока')
+            raise Error('heroes.can_no_see_this_account', u'Вы не можете просматривать данные этого игрока')
 
     @property
     def hero(self):

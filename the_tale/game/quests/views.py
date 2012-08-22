@@ -14,11 +14,14 @@ class QuestsResource(Resource):
 
         self.quest_id = int(quest_id)
 
-        if self.quest is None:
-            raise Error(u'Вы не можете работать с этим квестом')
+        if self.account is None:
+            raise Error('quests.unlogined', u'Вам необходимо войти на сайт')
 
-        if self.account is not None and self.account.angel.id not in self.quest.angels_ids():
-            raise Error(u'Вы не можете работать с этим квестом')
+        if self.quest is None:
+            raise Error('quests.no_quest', u'Вы не можете работать с этим квестом')
+
+        if self.account.angel.id not in self.quest.angels_ids():
+            raise Error('quests.wrong_account', u'Вы не можете работать с этим квестом')
 
     @property
     def quest(self):
@@ -27,15 +30,15 @@ class QuestsResource(Resource):
         return self._quest
 
     @handler('#quest_id', 'choose', method='post')
-    def choose(self, subquest, choice_point, choice):
+    def choose(self, choice_point, choice):
 
         cmd = self.quest.env.get_nearest_quest_choice(self.quest.pointer)
 
+        if cmd is None or choice not in cmd.choices:
+            return self.json_error('quests.choose.unknown_choice', u'Не существует такого выбора')
+
         if cmd is None or cmd.id != choice_point:
             return self.json_error('quests.choose.wrong_point', u'В данный момент вы не можете влиять на эту точку выбора')
-
-        if choice not in cmd.choices:
-            return self.json_error('quests.choose.unknown_choice', u'Не существует такого выбора')
 
         if not self.quest.make_choice(choice_point, choice):
             return self.json_error('quests.choose.already_choosed', u'Вы уже сделали выбор')

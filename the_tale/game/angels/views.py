@@ -12,7 +12,7 @@ class AngelsResource(Resource):
         super(AngelsResource, self).__init__(request, *argv, **kwargs)
 
         if self.account and  self.account.angel.id != int(angel_id):
-            raise Error(u'Вы не можете просматривать данные этого игрока')
+            raise Error('angels.wrong_account', u'Вы не можете просматривать данные этого игрока')
 
     @login_required
     @handler('#angel_id', 'info', method='get')

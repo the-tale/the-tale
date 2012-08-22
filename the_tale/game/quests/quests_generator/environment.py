@@ -142,6 +142,7 @@ class BaseEnvironment(object):
         tmp_pointer = copy.deepcopy(pointer)
 
         while tmp_pointer:
+
             cmd = self.get_command(tmp_pointer)
 
             if len(tmp_pointer) != len(pointer):

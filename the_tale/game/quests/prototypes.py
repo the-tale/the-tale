@@ -269,7 +269,6 @@ class QuestPrototype(object):
         choices = self.get_choices()
 
         cmd = self.env.get_nearest_quest_choice(self.pointer)
-        quest = self.env.get_quest(self.pointer)
         writer = self.env.get_writer(hero, self.pointer)
 
         cmd_id = None
@@ -288,5 +287,4 @@ class QuestPrototype(object):
                 'choice_id': cmd_id,
                 'choice_variants': choice_variants,
                 'future_choice': future_choice,
-                'id': self.model.id,
-                'subquest_id': quest.id}
+                'id': self.model.id}

@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import mock
+
 from game.quests.quests_generator.quest_line import Quest, Line
 from game.quests.quests_generator import commands as cmd
 
@@ -90,3 +92,75 @@ class JustQuest(Quest):
                                               choice='choice_id_1'),
                                    cmd.Battle(event='event_3_3', number=13) ])
         self.line = env.new_line(main_line)
+
+
+class QuestWith2ChoicePoints(Quest):
+
+    def initialize(self, identifier, env, place_start=None, person_start=None, place_end=None, person_end=None):
+        super(QuestWith2ChoicePoints, self).initialize(identifier, env)
+
+        self.env_local.register('place_start', place_start or env.new_place())
+        self.env_local.register('person_start', person_start or env.new_person(from_place=self.env_local.place_start))
+        self.env_local.register('place_end', place_end or env.new_place())
+        self.env_local.register('person_end', person_end or env.new_person(from_place=self.env_local.place_end))
+
+        self.env_local.register('quest_1', 'quest_1')
+
+    def create_line(self, env):
+        line_1 = Line(sequence=[cmd.Battle(event='event_1_1', number=1),
+                                cmd.GetReward(event='event_1_2', person='person_1'),
+                                cmd.GivePower(event='event_1_3', person='person_1', power=2)  ])
+
+        line_3 = Line(sequence=[cmd.Battle(event='event_3_1', number=1),
+                                cmd.GetReward(event='event_3_2', person='person_1'),
+                                cmd.GivePower(event='event_3_3', person='person_1', power=2)  ])
+
+        line_4 = Line(sequence=[cmd.Battle(event='event_4_1', number=1),
+                                cmd.GetReward(event='event_4_2', person='person_1'),
+                                cmd.GivePower(event='event_4_3', person='person_1', power=2)  ])
+
+        line_2 = Line(sequence=[cmd.Battle(event='event_2_1', number=1),
+                                cmd.Choose(id='choose_2',
+                                           default='choice_2_1',
+                                           choices={'choice_2_1': env.new_line(line_3),
+                                                    'choice_2_2': env.new_line(line_4) },
+                                            event='event_2_2',
+                                            choice='choice_id_2') ])
+
+        main_line = Line(sequence=[cmd.Battle(event='event_0_1', number=1),
+                                   cmd.Choose(id='choose_1',
+                                              default='choice_1_1',
+                                              choices={'choice_1_1': env.new_line(line_1),
+                                                       'choice_1_2': env.new_line(line_2) },
+                                              event='event_0_2',
+                                              choice='choice_id_1')  ])
+        self.line = env.new_line(main_line)
+
+
+class QuestNoChoice(Quest):
+
+    def initialize(self, identifier, env, place_start=None, person_start=None, place_end=None, person_end=None):
+        super(QuestNoChoice, self).initialize(identifier, env)
+
+        self.env_local.register('place_start', place_start or env.new_place())
+        self.env_local.register('person_start', person_start or env.new_person(from_place=self.env_local.place_start))
+        self.env_local.register('place_end', place_end or env.new_place())
+        self.env_local.register('person_end', person_end or env.new_person(from_place=self.env_local.place_end))
+
+        self.env_local.register('quest_1', 'quest_1')
+
+    def create_line(self, env):
+
+        main_line = Line(sequence=[cmd.Battle(event='event_0_1', number=1) ])
+        self.line = env.new_line(main_line)
+
+
+def patch_quests_list(quests_list):
+
+    def decorator(func):
+        func = mock.patch('game.quests.quests_generator.lines.QUESTS', quests_list)(func)
+        func = mock.patch('game.quests.quests_generator.lines.QUESTS_TYPES', [q.type() for q in quests_list])(func)
+        func = mock.patch('game.quests.quests_generator.lines.BaseQuestsSource.quests_list', quests_list)(func)
+        return func
+
+    return decorator

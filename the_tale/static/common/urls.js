@@ -10,6 +10,6 @@ pgf.urls = {
     'game:abilities:form': function(cardType){return '/game/abilities/'+cardType+'/form';},
     'game:abilities:activate': function(cardType){return '/game/abilities/'+cardType+'/activate';},
     'game:map:places:map_info': function(placeId){return '/game/map/places/'+placeId+'/map-info';},
-    'game:quests:choose': function(questId, subquestId, choicePoint, choice) {
-        return '/game/quests/'+questId+'/choose?subquest='+subquestId+'&choice_point='+choicePoint+'&choice='+choice;}
+    'game:quests:choose': function(questId, choicePoint, choice) {
+        return '/game/quests/'+questId+'/choose?choice_point='+choicePoint+'&choice='+choice;}
 };
