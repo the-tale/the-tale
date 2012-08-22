@@ -121,6 +121,8 @@ class HeroPrototype(object):
             if self.model.level % c.DESTINY_POINT_IN_LEVELS == 0:
                 self.model.destiny_points += 1
 
+            self.add_message('hero_common_level_up', hero=self, level=self.level)
+
     @property
     def next_destiny_point_lvl(self):
         return (self.model.level / c.DESTINY_POINT_IN_LEVELS + 1) * c.DESTINY_POINT_IN_LEVELS
