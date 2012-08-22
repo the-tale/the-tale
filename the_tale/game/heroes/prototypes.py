@@ -121,6 +121,10 @@ class HeroPrototype(object):
             if self.model.level % c.DESTINY_POINT_IN_LEVELS == 0:
                 self.model.destiny_points += 1
 
+    @property
+    def next_destiny_point_lvl(self):
+        return (self.model.level / c.DESTINY_POINT_IN_LEVELS + 1) * c.DESTINY_POINT_IN_LEVELS
+
     def get_destiny_points(self): return self.model.destiny_points
     def set_destiny_points(self, value): self.model.destiny_points = value
     destiny_points = property(get_destiny_points, set_destiny_points)
