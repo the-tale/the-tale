@@ -56,7 +56,7 @@ pgf.game.resources.ImageManager =  function(spritesSettins, params) {
                 tmpCanvas.height = data.h;
                 var tmpContext = tmpCanvas.getContext('2d');
 
-                tmpContext.drawImage(properties.image, 
+                tmpContext.drawImage(properties.image,
                                      data.x, data.y, data.w, data.h,
                                      0, 0, data.w, data.h);
 
@@ -66,7 +66,7 @@ pgf.game.resources.ImageManager =  function(spritesSettins, params) {
         }
 
         if (initializedSprites == totalSprites) {
-            jQuery(document).trigger(pgf.game.resources.events.SPRITES_LOADED);            
+            jQuery(document).trigger(pgf.game.resources.events.SPRITES_LOADED);
         }
     }
 
@@ -123,7 +123,7 @@ pgf.game.map.MapManager = function(params) {
             instance.mapWidth = data.width;
             instance.mapHeight = data.height;
 
-            jQuery(document).trigger(pgf.game.map.events.DATA_UPDATED);            
+            jQuery(document).trigger(pgf.game.map.events.DATA_UPDATED);
         },
         error: function() {
         },
@@ -134,7 +134,7 @@ pgf.game.map.MapManager = function(params) {
     function CalculateRoads(mapData) {
         var w = mapData.width;
         var h = mapData.height;
-        
+
         var roadsMap = [];
         for (var i=0; i<h; ++i) {
             var row = [];
@@ -146,6 +146,9 @@ pgf.game.map.MapManager = function(params) {
 
         for(var road_id in mapData.roads) {
             var road = mapData.roads[road_id];
+
+            if (!road.exists) continue;
+
             var point_1 = mapData.places[road.point_1_id];
             var x = point_1.x;
             var y = point_1.y;
@@ -158,22 +161,22 @@ pgf.game.map.MapManager = function(params) {
                 case 'u': y -= 1; break;
                 case 'd': y += 1; break;
                 }
-                
+
                 roadsMap[y][x] = 'r';
             }
         }
 
         return roadsMap;
     }
-    
+
     function RefreshHero(hero) {
         if (hero) {
-            dynamicData.heroes[hero.id] = hero;            
+            dynamicData.heroes[hero.id] = hero;
         }
     }
-    
+
     function GetMapDataForRect(x, y, w, h) {
-        return { mapData: mapData, 
+        return { mapData: mapData,
                  dynamicData: dynamicData,
                  calculatedData: calculatedData};
     }
@@ -193,7 +196,7 @@ pgf.game.map.MapManager = function(params) {
                 break;
             }
         }
-        
+
         return data;
     }
 
@@ -213,7 +216,7 @@ pgf.game.map.MapManager = function(params) {
     this.GetMapDataForRect = GetMapDataForRect;
     this.GetPlaceData = GetPlaceData;
     this.GetCellData = GetCellData;
-}; 
+};
 
 pgf.game.map.Map = function(selector, params) {
 
@@ -245,7 +248,7 @@ pgf.game.map.Map = function(selector, params) {
 
     var selectedTile = undefined;
 
-    var navigationLayer = new pgf.game.map.NavigationLayer(jQuery('.pgf-navigation-layer'), 
+    var navigationLayer = new pgf.game.map.NavigationLayer(jQuery('.pgf-navigation-layer'),
                                                            { OnDrag: OnMove,
                                                              OnMouseEnter: OnMouseEnter,
                                                              OnMove: OnMouseMove,
@@ -276,7 +279,7 @@ pgf.game.map.Map = function(selector, params) {
                                  });
         }
         else {
-            pgf.ui.dialog.Alert({ title: "пустая клетка", 
+            pgf.ui.dialog.Alert({ title: "пустая клетка",
                                   message: 'На это клетке нет ничего важного' });
         }
     }
@@ -326,7 +329,7 @@ pgf.game.map.Map = function(selector, params) {
             var hero = dynamicData.heroes[hero_id];
 
             var heroPosition = GetHeroPosition(data, hero);
-            
+
             var x = heroPosition.x * TILE_SIZE - canvasWidth / 2;
             var y = heroPosition.y * TILE_SIZE - canvasHeight / 2;
 
@@ -347,7 +350,7 @@ pgf.game.map.Map = function(selector, params) {
         var sum = l + r + u + d;
 
         if (sum==4)return {name: 'r4', rotate: 0};
-        
+
         if (sum==3) {
             if (!l) return {name: 'r3', rotate: 90};
             if (!r) return {name: 'r3', rotate: 270};
@@ -372,14 +375,12 @@ pgf.game.map.Map = function(selector, params) {
     }
 
     function GetHeroPosition(data, hero) {
-        var x = 0;
-        var y = 0;
 
         if (hero.position.place) {
             var place = data.places[hero.position.place.id];
             return {x: place.x, y: place.y};
         }
-        
+
         if (hero.position.road) {
             var road = data.roads[hero.position.road.id];
             var point_1 = data.places[road.point_1_id];
@@ -401,7 +402,7 @@ pgf.game.map.Map = function(selector, params) {
                 case 'd': y += 1; break;
                 }
             }
-            
+
             var delta = length - i;
             switch(path[i]) {
             case 'l': x -= delta; break;
@@ -417,7 +418,7 @@ pgf.game.map.Map = function(selector, params) {
             hero.position.coordinates.to.y ||
             hero.position.coordinates.from.x ||
             hero.position.coordinates.from.y) {
-            
+
             var to_x = hero.position.coordinates.to.x;
             var to_y = hero.position.coordinates.to.y;
             var from_x = hero.position.coordinates.from.x;
@@ -432,7 +433,7 @@ pgf.game.map.Map = function(selector, params) {
     }
 
     function Draw(fullData) {
-        
+
         if (!IsInitialized()) return;
 
         var data = fullData.mapData;
@@ -440,7 +441,7 @@ pgf.game.map.Map = function(selector, params) {
         var calculatedData = fullData.calculatedData;
 
         var context = canvas.get(0).getContext("2d");
-        
+
         context.save();
 
         var posX = Math.floor(pos.x);
@@ -449,7 +450,7 @@ pgf.game.map.Map = function(selector, params) {
         var h = data.height;
         var terrain = data.terrain;
 
-        for (var i=0; i<h; ++i) {               
+        for (var i=0; i<h; ++i) {
             for (var j=0; j<w; ++j) {
                 var image = undefined;
                 var rotate = 0;
@@ -483,10 +484,10 @@ pgf.game.map.Map = function(selector, params) {
         for (var place_id in data.places) {
             var place = data.places[place_id];
             var image = spritesManager.GetImage('place');
-            image.Draw(context, 
-                       posX + place.x * TILE_SIZE, 
+            image.Draw(context,
+                       posX + place.x * TILE_SIZE,
                        posY + place.y * TILE_SIZE);
-            context.fillText('('+place.size+') '+place.name, 
+            context.fillText('('+place.size+') '+place.name,
                              posX + place.x * TILE_SIZE + TILE_SIZE / 2,
                              posY + (place.y + 1) * TILE_SIZE);
         }
@@ -497,8 +498,8 @@ pgf.game.map.Map = function(selector, params) {
 
             var heroPosition = GetHeroPosition(data, hero);
 
-            image.Draw(context, 
-                       parseInt(posX + heroPosition.x * TILE_SIZE, 10), 
+            image.Draw(context,
+                       parseInt(posX + heroPosition.x * TILE_SIZE, 10),
                        parseInt(posY + heroPosition.y * TILE_SIZE, 10) );
         }
 
@@ -506,7 +507,7 @@ pgf.game.map.Map = function(selector, params) {
 
             var x = posX + selectedTile.x * TILE_SIZE;
             var y = posY + selectedTile.y * TILE_SIZE;
-            
+
             if (0 <= x && x < w * TILE_SIZE &&
                 0 <= y && y < h * TILE_SIZE) {
                 context.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
@@ -526,28 +527,28 @@ pgf.game.map.Map = function(selector, params) {
         OnMove(0, 0);
     }
 
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, 
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT,
                           function() {
-                              INITIALIZATION_INFO_LOADED = true;                         
+                              INITIALIZATION_INFO_LOADED = true;
 
                               if (IsInitialized() && !activated) Activate();
 
                               widgets.map.Refresh();
-                          }); 
+                          });
 
-    jQuery(document).bind(pgf.game.resources.events.SPRITES_LOADED, 
+    jQuery(document).bind(pgf.game.resources.events.SPRITES_LOADED,
                           function() {
                               INITIALIZATION_SPRITES_LOADED = true;
                               if (IsInitialized() && !activated) Activate();
-                          });   
+                          });
 
-    jQuery(document).bind(pgf.game.map.events.DATA_UPDATED, 
+    jQuery(document).bind(pgf.game.map.events.DATA_UPDATED,
                           function() {
                               INITIALIZATION_MAP_LOADED = true;
                               if (IsInitialized() && !activated) Activate();
 
                               widgets.map.Refresh();
-                          });   
+                          });
 
 
     this.Draw = Draw;

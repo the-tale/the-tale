@@ -8,7 +8,9 @@ from game.map.roads.exceptions import RoadsException
 
 
 class RoadsStorage(create_storage_class('roads change time', Road, RoadPrototype, RoadsException)):
-    pass
+
+    def all_exists_roads(self):
+        return [road for road in self.all() if road.exists]
 
 roads_storage = RoadsStorage()
 
