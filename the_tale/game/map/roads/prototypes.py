@@ -20,6 +20,15 @@ class RoadPrototype(object):
         except Road.DoesNotExist:
             return None
 
+    @classmethod
+    def get_by_places(cls, p1, p2):
+        if p1.id > p2.id:
+            p1, p2 = p2, p1
+        try:
+            return cls(Road.objects.get(point_1_id=p1.id, point_2_id=p2.id))
+        except Road.DoesNotExist:
+            return None
+
     @property
     def id(self): return self.model.id
 
@@ -38,6 +47,10 @@ class RoadPrototype(object):
     def get_length(self): return self.model.length
     def set_length(self, value): self.model.length = value
     length = property(get_length, set_length)
+
+    def get_exists(self): return self.model.exists
+    def set_exists(self, value): self.model.exists = value
+    exists = property(get_exists, set_exists)
 
     def __unicode__(self):
         return self.model.__unicode__()

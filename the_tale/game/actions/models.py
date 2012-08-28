@@ -24,7 +24,6 @@ class Action(models.Model):
     # action specific fields
     quest = models.ForeignKey('quests.Quest', related_name='+', null=True, blank=True)
     place = models.ForeignKey('places.Place', related_name='+', null=True, blank=True)
-    road = models.ForeignKey('roads.Road', related_name='+', null=True, blank=True)
     mob = models.TextField(null=False, default='{}')
     data = models.TextField(null=False, default='{}')
     break_at = models.FloatField(null=True, blank=True, default=None)

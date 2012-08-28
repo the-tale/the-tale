@@ -10,7 +10,7 @@ from game.heroes.bag import SLOTS_LIST
 from game.heroes.statistics import MONEY_SOURCE
 
 from game.map.places.storage import places_storage
-from game.map.roads.storage import roads_storage, waymarks_storage
+from game.map.roads.storage import waymarks_storage
 
 from game.mobs.storage import MobsDatabase
 
@@ -128,17 +128,10 @@ class ActionPrototype(object):
         return self._mob_context
 
     @property
-    def road_id(self): return self.model.road_id
-
-    @property
     def place_id(self): return self.model.place_id
 
     @property
     def place(self): return places_storage[self.model.place_id]
-
-    def get_road(self): return roads_storage.get(self.model.road_id)
-    def set_road(self, value): self.model.road = value.model
-    road = property(get_road, set_road)
 
     @property
     def mob(self):
@@ -298,7 +291,6 @@ class ActionPrototype(object):
                 'description': 'bla-bla-bla',
                 'percents': self.percents,
                 'specific': {'place_id': self.place_id,
-                             'road_id': self.road_id,
                              'mob': self.mob.ui_info() if self.mob else None},
                 'data': self.data #TODO: get json directly from self.model.data, without reloading it
                 }
@@ -335,7 +327,6 @@ class ActionPrototype(object):
         # print self.hero_id == other.hero_id
         # print self.context == other.context
         # print self.mob_context == other.mob_context
-        # print self.road_id == other.road_id
         # print self.place_id == other.place_id
         # print self.mob == other.mob
         # print self.model.quest_id == other.model.quest_id
@@ -353,7 +344,6 @@ class ActionPrototype(object):
                 self.hero_id == other.hero_id and
                 self.context == other.context and
                 self.mob_context == other.mob_context and
-                self.road_id == other.road_id and
                 self.place_id == other.place_id and
                 self.mob == other.mob and
                 self.model.quest_id == other.model.quest_id and # TODO: is that needed
@@ -504,11 +494,11 @@ class ActionMoveToPrototype(ActionPrototype):
         if self.state != self.STATE.MOVING:
             return False
 
-        self.hero.position.percents += distance / self.road.length
+        self.hero.position.percents += distance / self.hero.position.road.length
         self.percents += distance / self.length
 
         if self.hero.position.percents >= 1:
-            self.percents -= (self.hero.position.percents - 1) * self.road.length / self.length
+            self.percents -= (self.hero.position.percents - 1) * self.hero.position.road.length / self.length
             self.hero.position.percents = 1
 
         if self.percents >= 1:
@@ -521,7 +511,7 @@ class ActionMoveToPrototype(ActionPrototype):
         return True
 
     @property
-    def current_destination(self): return self.road.point_2 if not self.hero.position.invert_direction else self.road.point_1
+    def current_destination(self): return self.hero.position.road.point_2 if not self.hero.position.invert_direction else self.hero.position.road.point_1
 
     def process(self):
 
@@ -550,9 +540,8 @@ class ActionMoveToPrototype(ActionPrototype):
             if self.hero.position.place_id:
                 if self.hero.position.place_id != self.destination_id:
                     waymark = waymarks_storage.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
-                    self.road = waymark.road
                     length =  waymark.length
-                    self.hero.position.set_road(self.road, invert=(self.hero.position.place_id != self.road.point_1_id))
+                    self.hero.position.set_road(waymark.road, invert=(self.hero.position.place_id != waymark.road.point_1_id))
                     self.state = self.STATE.MOVING
                 else:
                     length = None
@@ -596,7 +585,6 @@ class ActionMoveToPrototype(ActionPrototype):
                     self.hero.position.set_place(current_destination)
                     self.state = self.STATE.IN_CITY
                 else:
-                    self.road = self.hero.position.road
                     self.hero.position.set_road(self.hero.position.road, invert=invert, percents=percents)
                     self.state = self.STATE.MOVING
 
@@ -620,7 +608,7 @@ class ActionMoveToPrototype(ActionPrototype):
                                           destination=self.destination,
                                           current_destination=self.current_destination)
 
-                delta = self.hero.move_speed / self.road.length
+                delta = self.hero.move_speed / self.hero.position.road.length
 
                 self.hero.position.percents += delta
 

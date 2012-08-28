@@ -32,7 +32,7 @@ def update_waymarks():
 
     places = places_storage.all()
 
-    roads = roads_storage.all()
+    roads = [road for road in roads_storage.all() if road.exists]
 
     places_len = len(places)
 
