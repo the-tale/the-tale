@@ -27,3 +27,17 @@ def create_thread(subcategory, caption, author, text, markup_method=MARKUP_METHO
     subcategory.save()
 
     return thread
+
+@nested_commit_on_success
+def create_post(subcategory, thread, author, text):
+
+    post = Post.objects.create(thread=thread, author=author, text=text)
+
+    thread.updated_at = post.created_at
+    thread.posts_count = Post.objects.filter(thread=thread).count() - 1
+    thread.last_poster = author
+    thread.save()
+
+    subcategory.updated_at = post.created_at
+    subcategory.posts_count = sum(Thread.objects.filter(subcategory=subcategory).values_list('posts_count', flat=True))
+    subcategory.save()

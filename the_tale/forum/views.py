@@ -12,7 +12,7 @@ from common.utils.resources import Resource
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm
 from forum.conf import forum_settings
-from forum.logic import create_thread
+from forum.logic import create_thread, create_post
 
 
 class ForumResource(Resource):
@@ -78,8 +78,14 @@ class ForumResource(Resource):
 
     @handler('#category', '#subcategory', 'new-thread', name='new_thread', method='get')
     def new_thread(self):
+
+        if self.account is None:
+            return self.template('error.html', {'msg': u'Вы должны войти на сайт, чтобы писать на форуме',
+                                                'error_code': 'forum.new_thread.unlogined'})
+
         if self.account.is_fast:
-            return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете писать на форуме'})
+            return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете писать на форуме',
+                                                'error_code': 'forum.new_thread.fast_account'})
 
         return self.template('forum/new_thread.html',
                              {'category': self.category,
@@ -89,16 +95,19 @@ class ForumResource(Resource):
     @handler('#category', '#subcategory', 'create-thread', name='create_thread', method='post')
     def create_thread(self):
 
+        if self.account is None:
+            return self.json_error('forum.create_thread.unlogined', u'Вы должны войти на сайт, чтобы писать на форуме')
+
         if self.account.is_fast:
-            return self.json(status='error', error=u'Вы не закончили регистрацию и не можете писать на форуме')
+            return self.json_error('forum.create_thread.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
 
         if self.subcategory.closed:
-            return self.json(status='error', error=u'Вы не можете создавать темы в данном разделе')
+            return self.json_error('forum.create_thread.closed_subcategory', u'Вы не можете создавать темы в данном разделе')
 
         new_thread_form = NewThreadForm(self.request.POST)
 
         if not new_thread_form.is_valid():
-            return self.json(status='error', errors=new_thread_form.errors)
+            return self.json_error('forum.create_thread.form_errors', new_thread_form.errors)
 
         thread = create_thread(self.subcategory,
                                caption=new_thread_form.c.caption,
@@ -107,7 +116,7 @@ class ForumResource(Resource):
 
 
 
-        return self.json(status='ok', data={'thread_id': thread.id})
+        return self.json_ok(data={'thread_id': thread.id})
 
 
     @handler('#category', '#subcategory', '#thread_id', name='show_thread', method='get')
@@ -120,8 +129,7 @@ class ForumResource(Resource):
         if post_from > self.thread.posts_count:
             last_page = self.thread.posts_count / forum_settings.POSTS_ON_PAGE + 1
             url = '%s?page=%d' % (reverse('forum:show_thread', args=[self.category.slug, self.subcategory.slug, self.thread.id]), last_page)
-            print url
-            return self.redirect(url, permanent=True)
+            return self.redirect(url, permanent=False)
 
         post_to = post_from + forum_settings.POSTS_ON_PAGE
 
@@ -146,28 +154,20 @@ class ForumResource(Resource):
     @nested_commit_on_success
     def create_post(self):
 
+        if self.account is None:
+            return self.json_error('forum.create_post.unlogined', u'Вы должны войти на сайт, чтобы писать на форуме')
+
         if self.account.is_fast:
-            return self.json(status='error', error=u'Вы не закончили регистрацию и не можете писать на форуме')
+            return self.json_error('forum.create_post.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
 
         new_post_form = NewPostForm(self.request.POST)
 
         if not new_post_form.is_valid():
-            return self.json(status='error', errors=new_post_form.errors)
+            return self.json_error('forum.create_post.form_errors', new_post_form.errors)
 
-        post = Post.objects.create(thread=self.thread,
-                                   author=self.account.user,
-                                   text=new_post_form.c.text)
+        create_post(self.subcategory, self.thread, self.account.user, new_post_form.c.text)
 
-        self.thread.updated_at = post.created_at
-        self.thread.posts_count = Post.objects.filter(thread=self.thread).count() - 1
-        self.thread.last_poster = self.account.user
-        self.thread.save()
-
-        self.subcategory.updated_at = post.created_at
-        self.subcategory.posts_count = sum(Thread.objects.filter(subcategory=self.subcategory).values_list('posts_count', flat=True))
-        self.subcategory.save()
-
-        return self.json(status='ok')
+        return self.json_ok()
 
     @handler('preview', name='preview', method='post')
     def preview(self):

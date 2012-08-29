@@ -12,6 +12,14 @@ class TestCase(DjangoTestCase):
     def tearDown(self):
         pass
 
+    def check_html_ok(self, response, texts=[], excluded_texts=[]):
+        self.assertEqual(response.status_code, 200)
+        for text in texts:
+            self.assertTrue(text in response.content)
+
+        for text in excluded_texts:
+            self.assertTrue(text not in response.content)
+
     def check_ajax_ok(self, response):
         self.assertEqual(response.status_code, 200)
         data = s11n.from_json(response.content)
