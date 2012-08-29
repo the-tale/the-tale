@@ -26,12 +26,12 @@ pgf.game.Updater = function(params) {
     this.data = {};
 
     this.Refresh = function() {
-        
+
         jQuery.ajax({
             dataType: 'json',
             type: 'get',
             url: params.url,
-            data: {turn_number: turnNumber}, 
+            data: {turn_number: turnNumber},
             success: function(data, request, status) {
 
                 instance.data = data;
@@ -136,7 +136,7 @@ pgf.game.widgets.Time = function(selector, updater, widgets, params) {
 // quests code
 
 pgf.game.widgets._RenderActor = function(index, actor, element) {
-  
+
     var nameElement = jQuery('.pgf-name', element);
 
     var data = actor[2];
@@ -163,7 +163,7 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         jQuery('.pgf-type', content).text(profeccion);
         popoverContent = content.html();
     }
-    
+
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.PLACE) {
 
         var place = widgets.mapManager.GetPlaceData(data.id);
@@ -176,7 +176,7 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         jQuery('.pgf-size', content).text(place.size);
         popoverContent = content.html();
     }
-    
+
     var popoverArgs = jQuery.extend(true, {}, pgf.base.popoverArgs, {title: popoverTitle,
                                                                      content: popoverContent});
     nameElement.toggleClass('pgf-has-popover', true).popover(popoverArgs);
@@ -193,30 +193,30 @@ pgf.game.widgets._RenderQuest = function(index, quest, element) {
         .addClass(quest.quest_type);
 
     jQuery('.pgf-quest-description', element).text(quest.quest_text);
-    jQuery('.pgf-quest-action-description', element).text(quest.action_text);        
+    jQuery('.pgf-quest-action-description', element).text(quest.action_text);
 
     var actorsElement = jQuery('.pgf-actors', element);
 
     if (quest.actors.length) {
         actorsElement.toggleClass('pgf-hidden', false);
-        pgf.base.RenderTemplateList(actorsElement, quest.actors, pgf.game.widgets._RenderActor, {});            
-    }    
+        pgf.base.RenderTemplateList(actorsElement, quest.actors, pgf.game.widgets._RenderActor, {});
+    }
     else {
         actorsElement.toggleClass('pgf-hidden', true);
     }
 
     if (quest.choices.length) {
         jQuery('.pgf-choices', element).removeClass('pgf-hidden');
-        pgf.base.RenderTemplateList(jQuery('.pgf-choices-container', element), quest.choices, pgf.game.widgets._RenderChoice, {});            
+        pgf.base.RenderTemplateList(jQuery('.pgf-choices-container', element), quest.choices, pgf.game.widgets._RenderChoice, {});
     }
 };
-  
+
 
 pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
     var instance = this;
 
     var widget = jQuery(selector);
-    
+
     var questsBlock = jQuery('.pgf-current-quests-block', widget);
 
     var currentQuest = jQuery('.pgf-current-quest', widget);
@@ -246,12 +246,12 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
 
         var variantLink = jQuery('.pgf-choice-link', element);
         variantLink.text(variant[1]);
-                                                                                                       
+
         var url = pgf.urls['game:quests:choose'](data.quests.id, data.quests.choice_id, variant[0]);
 
         variantLink.click( function(e){
                                e.preventDefault();
-                    
+
                                jQuery.ajax({   dataType: 'json',
                                                type: 'post',
                                                url: url,
@@ -285,13 +285,13 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
         noChoicesMsg.toggleClass('pgf-hidden', !!choiceId);
         choicesMsg.toggleClass('pgf-hidden', true);
         futureChoiceMsg.toggleClass('pgf-hidden', !futureChoice);
-       
+
         if (choiceId) {
             if (futureChoice) {
                 futureChoiceMsg.text(futureChoice);
             }
             else {
-                pgf.base.RenderTemplateList(choicesMsg, data.quests.choice_variants, RenderChoiceVariant, {});                            
+                pgf.base.RenderTemplateList(choicesMsg, data.quests.choice_variants, RenderChoiceVariant, {});
                 choicesMsg.toggleClass('pgf-hidden', false);
             }
         }
@@ -324,7 +324,7 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
     var instance = this;
 
     var widget = jQuery(selector);
-    
+
     var questsContainer = jQuery('.pgf-quests-line-container', widget);
     var noQuestsMsg = jQuery('.pgf-no-quests-message', widget);
 
@@ -369,14 +369,14 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
     var instance = this;
 
     var widget = jQuery(selector);
-    
+
     var actionBlock = jQuery('.pgf-current-action-block', widget);
     var actionInfo = jQuery('.pgf-action-info', widget);
 
     var data = {};
 
     function RenderAction() {
-        
+
         var action = data.action;
 
         if (!action) return;
@@ -416,7 +416,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     var instance = this;
 
     var widget = jQuery(selector);
-    
+
     var bagContainer = jQuery('.pgf-bag-container', widget);
     var tabButton = jQuery('.pgf-bag-tab-button');
 
@@ -443,7 +443,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
 
         if (hero) {
             data.bag = hero.bag;
-            data.quest_items_count = hero.secondary.quest_items_count; 
+            data.quest_items_count = hero.secondary.quest_items_count;
             data.loot_items_count = hero.secondary.loot_items_count;
             data.max_bag_size = hero.secondary.max_bag_size;
         }
@@ -477,8 +477,8 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
 
     var data = {};
 
-    var instance = this;   
-    
+    var instance = this;
+
     function RenderArtifact(element, data) {
         jQuery('.pgf-name', element).text(data.name);
         jQuery('.pgf-power', element).text(data.power);
@@ -521,57 +521,63 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     var messages = [];
 
-    var VISIBLE_MESSAGES_NUMBER = 10;
-
     var shortLogContainer = jQuery('.pgf-log-list', content);
 
-    function RenderDiaryMessage(index, data, element) {
-        jQuery('.pgf-time', element).text(data.message[2]);
-        jQuery('.pgf-date', element).text(data.message[1]);
-        jQuery('.pgf-message', element).text(data.message[3]);
+    function RenderDiaryMessage(index, message, element) {
+        jQuery('.pgf-time', element).text(message[2]);
+        jQuery('.pgf-date', element).text(message[1]);
+        jQuery('.pgf-message', element).text(message[3]);
     }
 
-    function RenderLogMessage(index, data, element) {
-        jQuery('.pgf-time', element).text(data.message[1]);
-        jQuery('.pgf-message', element).text(data.message[2]);
+    function RenderLogMessage(index, message, element) {
+        jQuery('.pgf-time', element).text(message[1]);
+        jQuery('.pgf-message', element).text(message[2]);
     }
 
     function RenderLog(data, widget) {
-        var shortLog = [];
-        for (var i=messages.length-1; i>=0 && i>messages.length-1-VISIBLE_MESSAGES_NUMBER; --i) {
-            shortLog.push(messages[i]);
-        }
 
         if (params.type == 'log') {
-            pgf.base.RenderTemplateList(shortLogContainer, shortLog, RenderLogMessage, {});
+            pgf.base.RenderTemplateList(shortLogContainer, messages, RenderLogMessage, {});
         }
         if (params.type == 'diary') {
-            pgf.base.RenderTemplateList(shortLogContainer, shortLog, RenderDiaryMessage, {});
-        }            
-
+            pgf.base.RenderTemplateList(shortLogContainer, messages, RenderDiaryMessage, {});
+        }
 
     }
 
     this.Refresh = function() {
-        var turnNumber = updater.data.data.turn.number;
-
         var hero = widgets.heroes.CurrentHero();
 
         var turnMessages = [];
         if (hero) {
             if (params.type == 'log') {
-                turnMessages = hero.messages;                
+                turnMessages = hero.messages;
             }
             if (params.type == 'diary') {
-                turnMessages = hero.diary;                
-            }            
+                turnMessages = hero.diary;
+            }
         }
 
-        messages = [];
-
-        for (var i=0; i<turnMessages.length; ++i) {
-            messages.push({turn: turnNumber, message: turnMessages[i]});
+        if (messages.length == 0) {
+            for (var i=0; i<=turnMessages.length-1; ++i) {
+                messages.unshift(turnMessages[i]);
+            }
         }
+        else {
+            var lastTimestamp = messages[0][0];
+
+            while (messages.length > 0 && messages[0][0] == lastTimestamp) {
+                messages.shift()
+            }
+
+            for (var i=0; i<=turnMessages.length-1; ++i) {
+
+                if (turnMessages[i][0] < lastTimestamp) continue;
+
+                messages.unshift(turnMessages[i]);
+            }
+        }
+
     };
 
     this.Render = function() {
