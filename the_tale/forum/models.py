@@ -33,6 +33,8 @@ class SubCategory(models.Model):
 
     threads_count = models.IntegerField(default=0, null=False)
 
+    last_poster = models.ForeignKey(User, null=True, related_name='+')
+
     posts_count = models.BigIntegerField(default=0, null=False)
 
     closed = models.BooleanField(default=False) # if True, only staff can create themes in this subcategory

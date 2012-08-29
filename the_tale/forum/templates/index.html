@@ -14,6 +14,7 @@
         <th class="caption">раздел</th>
         <th class="threads-count">тем</th>
         <th class="posts-count">ответов</th>
+        <th class="last-poster">последний</th>
         <th class="updated-at">обновлено</th>
       </tr>
     </thead>
@@ -27,6 +28,7 @@
         </td>
         <td class="threads-count">{{ subcategory.threads_count }}</td>
         <td class="posts-count">{{ subcategory.posts_count }}</td>
+        <td class="last-poster">{% if subcategory.last_poster %}{{ subcategory.last_poster.username }}{% else %} - {% endif %}</td>
         <td class="updated-at pgf-format-time" data-timestamp="{{ subcategory.updated_at|timestamp }}"></td>
       </tr>
       {% endfor %}

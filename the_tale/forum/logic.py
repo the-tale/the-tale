@@ -39,5 +39,6 @@ def create_post(subcategory, thread, author, text):
     thread.save()
 
     subcategory.updated_at = post.created_at
+    subcategory.last_poster = author
     subcategory.posts_count = sum(Thread.objects.filter(subcategory=subcategory).values_list('posts_count', flat=True))
     subcategory.save()
