@@ -24,7 +24,7 @@ pgf.ui.dialog.Create = function(params) {
         alert('one of the folowing parameters MUST be set: "fromSelector", "fromString", "fromUrl"');
         return;
     }
-    
+
     var closeOnEscape = 'closeOnEscape' in params ? params.closeOnEscape : true;
     var title = 'title' in params ? params.title : undefined;
 
@@ -34,7 +34,7 @@ pgf.ui.dialog.Create = function(params) {
 
     function CreateFromAjax(url) {
         jQuery.ajax({
-            dataType: 'html', 
+            dataType: 'html',
             type: 'get',
             url: url,
             success: function(data, request, status) {
@@ -53,13 +53,13 @@ pgf.ui.dialog.Create = function(params) {
     }
 
     function CreateFromString(string) {
-        
+
         var content = string;
-        
+
         content = jQuery(content);
 
         if (title) {
-            jQuery('.pgf-dialog-title', content).html(title);   
+            jQuery('.pgf-dialog-title', content).html(title);
         }
 
         var dialog = undefined;
@@ -74,7 +74,7 @@ pgf.ui.dialog.Create = function(params) {
             if (params.OnClose) {
                 params.OnClose(dialog);
             }
-            
+
             dialog.dialog('destroy');
         };
 
@@ -87,9 +87,20 @@ pgf.ui.dialog.Create = function(params) {
     }
 };
 
-pgf.ui.dialog.Alert = function(params) {
+pgf.ui.dialog.Question = function(params) {
 
-    var content = "<div><div class='modal hide'><div class='modal-header'><button type='button' class='close' data-dismiss='modal'>×</button><h3 class='pgf-dialog-title'></h3></div><div class='modal-body'></div><div class='modal-footer'><a href='#' class='btn' data-dismiss='modal'>Ok</a></div></div></div>";
+    var content = "<div><div class='modal hide'><div class='modal-header'><button type='button' class='close' data-dismiss='modal'>×</button><h3 class='pgf-dialog-title'></h3></div><div class='modal-body'></div><div class='modal-footer'>";
+
+    for (var i in params.buttons) {
+        var button = params.buttons[i];
+        button.classes = button.classes ? button.classes : '';
+
+        var html = "<a href='#' class='btn pgf-dialog-button-" + i + ' ' + button.classes + "' data-dismiss='modal'>" + button.text + "</a>";
+
+        content += html;
+    }
+
+    content += "</div></div></div>"
 
     var dialog = jQuery(content);
 
@@ -98,12 +109,35 @@ pgf.ui.dialog.Alert = function(params) {
     if (!params.message) {
         pgf.ui.dialog.Error({message: 'dialog.Alert: mesage does not specified'});
     }
-    
+
     jQuery('.modal-body', dialog).html(params.message);
 
-    // dialog.modal({});
     pgf.ui.dialog.Create({fromSelector: dialog,
-                          title: title});
+                          title: title,
+                          OnOpen: function(dialog){
+                              for (var i in params.buttons) {
+                                  var button = params.buttons[i];
+                                  if (button.callback) {
+                                      jQuery('.pgf-dialog-button-'+i, dialog).click(button.callback);
+                                  }
+                              }
+                          }
+                         });
+};
+
+pgf.ui.dialog.Alert = function(params) {
+
+    var title = 'title' in params ? params.title : 'Внимание!';
+
+    if (!params.message) {
+        pgf.ui.dialog.Error({message: 'dialog.Alert: mesage does not specified'});
+    }
+
+    pgf.ui.dialog.Question({message: params.message,
+                            title: title,
+                            buttons: [{text: 'Ok'}]
+                           });
+
 };
 
 pgf.ui.dialog.Error = function(params) {
@@ -114,16 +148,16 @@ pgf.ui.dialog.Error = function(params) {
 pgf.ui.dialog._wait_counter = 0;
 pgf.ui.dialog._wait_content = '<div class="pgf-wait-backdrop modal-backdrop wait-backdrop in" style=";"></div>';
 pgf.ui.dialog._wait_indicator_content = '<div class="wait-indicator-backdrop pgf-wait-indicator-backdrop"><div class="pgf-wait-indicator block wait-indicator"></div></div>';
-pgf.ui.dialog._WAIT_MINIMUM_LOCK_DELAY = 750; 
+pgf.ui.dialog._WAIT_MINIMUM_LOCK_DELAY = 750;
 pgf.ui.dialog._wait_start_time = undefined;
 pgf.ui.dialog._wait_close_timer = undefined;
 pgf.ui.dialog.closeWait = function() {
     jQuery('.pgf-wait-indicator').spin(false);
     jQuery('.pgf-wait-backdrop').remove();
-    jQuery('.pgf-wait-indicator-backdrop').remove();    
+    jQuery('.pgf-wait-indicator-backdrop').remove();
 };
 pgf.ui.dialog.wait = function(command) {
-    
+
     if (command == 'start') {
         pgf.ui.dialog._wait_counter += 1;
         if (pgf.ui.dialog._wait_counter > 1) {

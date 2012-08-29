@@ -29,6 +29,21 @@ def create_thread(subcategory, caption, author, text, markup_method=MARKUP_METHO
     return thread
 
 @nested_commit_on_success
+def delete_thread(subcategory, thread):
+
+    if isinstance(subcategory, int):
+        subcategory = SubCategory.objects.get(id=subcategory)
+
+    Post.objects.filter(thread=thread).delete()
+
+    thread.delete()
+
+    subcategory.threads_count = Thread.objects.filter(subcategory=subcategory).count()
+    subcategory.posts_count = sum(Thread.objects.filter(subcategory=subcategory).values_list('posts_count', flat=True))
+    subcategory.save()
+
+
+@nested_commit_on_success
 def create_post(subcategory, thread, author, text):
 
     post = Post.objects.create(thread=thread, author=author, text=text)

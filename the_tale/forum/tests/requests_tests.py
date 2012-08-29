@@ -2,18 +2,13 @@
 
 from django.test import client
 from django.core.urlresolvers import reverse
-from django.core import mail
 from django.contrib.auth import authenticate as django_authenticate
 
 from dext.utils import s11n
 
-from common.utils.fake import FakeLogger
 from common.utils.testcase import TestCase
 
 from accounts.logic import register_user
-from accounts.models import RegistrationTask, REGISTRATION_TASK_STATE, CHANGE_CREDENTIALS_TASK_STATE, ChangeCredentialsTask
-from accounts.prototypes import RegistrationTaskPrototype, AccountPrototype
-
 from game.logic import create_test_map
 
 from forum.models import Category, SubCategory, Thread, Post

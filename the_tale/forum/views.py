@@ -12,7 +12,7 @@ from common.utils.resources import Resource
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm
 from forum.conf import forum_settings
-from forum.logic import create_thread, create_post
+from forum.logic import create_thread, create_post, delete_thread
 
 
 class ForumResource(Resource):
@@ -23,6 +23,9 @@ class ForumResource(Resource):
         self.thread_id = int(thread_id) if thread_id is not None else None
         self.category_slug = category
         self.subcategory_slug = subcategory
+
+    def can_delete_thread(self, thread):
+        return self.user == thread.author or self.user.has_perm('forum.delete_thread')
 
     @property
     def category(self):
@@ -114,9 +117,23 @@ class ForumResource(Resource):
                                author=self.account.user,
                                text=new_thread_form.c.text)
 
-
-
         return self.json_ok(data={'thread_id': thread.id})
+
+    @handler('#category', '#subcategory', '#thread_id', 'delete', name='delete-thread', method='post')
+    def delete_thread(self):
+
+        if self.account is None:
+            return self.json_error('forum.delete_thread.unlogined', u'Вы должны войти на сайт, чтобы удалить тему')
+
+        if self.account.is_fast:
+            return self.json_error('forum.delete_thread.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
+
+        if not self.can_delete_thread(self.thread):
+            return self.json_error('forum.delete_thread.no_permissions', u'У Вас нет прав для удаления темы')
+
+        delete_thread(self.subcategory, self.thread)
+
+        return self.json_ok()
 
 
     @handler('#category', '#subcategory', '#thread_id', name='show_thread', method='get')
@@ -147,6 +164,7 @@ class ForumResource(Resource):
                               'posts': posts,
                               'pages_numbers': range(pages_count),
                               'start_posts_from': page * forum_settings.POSTS_ON_PAGE,
+                              'can_delete_thread': self.can_delete_thread(self.thread),
                               'current_page_number': page} )
 
 

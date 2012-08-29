@@ -30,6 +30,27 @@ jQuery(document).ready( function(e) {
     pgf.base.AddPreview('#pgf-new-post-form', 'textarea', "{{ url('forum:preview') }}");
     pgf.forum.InitPostFields();
     {% endif %}
+
+    {% if can_delete_thread %}
+    jQuery('.pgf-remove-thread-button').click(function(e) {
+
+        var DeleteRequest = function(e) {
+            e.preventDefault();
+
+            pgf.forms.Post({ action: "{{ url('forum:delete-thread', category.slug, subcategory.slug, thread.id) }}",
+                         OnSuccess: function(e){
+                             location.href = "{{ url('forum:subcategory', category.slug, subcategory.slug) }}";
+                         }
+                       });
+        };
+
+        pgf.ui.dialog.Question({message: 'Вы действительно хотите удалить эту тему?',
+                                title: 'Подтвердите удаление',
+                                buttons: [{text: 'Удалить', classes: 'btn-danger', callback: DeleteRequest},
+                                          {text: 'Отменить', classes: 'btn-success'}]
+                               })
+    });
+    {% endif %}
 });
 
 </script>
@@ -43,6 +64,9 @@ jQuery(document).ready( function(e) {
   <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
   <li><a href="{{ url('forum:subcategory', category.slug, subcategory.slug) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
   <li class="active">{{ thread.caption }}</li>
+  {% if can_delete_thread %}
+  <li class="pull-right"><a href="#" class="pgf-remove-thread-button">удалить тему</a></li>
+  {% endif %}
 </ul>
 
 {{ render_pages() }}
