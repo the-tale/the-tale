@@ -25,6 +25,7 @@ class Help(AbilityPrototype):
         if choice == HELP_CHOICES.HEAL:
             heal_amount = int(hero.heal(hero.max_health * random.uniform(*c.ANGEL_HELP_HEAL_FRACTION)))
             hero.add_message('angel_ability_healhero', hero=hero, health=heal_amount)
+            action.on_heal()
             return True
 
         if choice == HELP_CHOICES.START_QUEST:

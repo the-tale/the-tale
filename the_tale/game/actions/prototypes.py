@@ -212,6 +212,9 @@ class ActionPrototype(object):
     def get_description_arguments(self):
         return {'hero': self.hero}
 
+    def on_heal(self):
+        pass
+
     ###########################################
     # Object operations
     ###########################################
@@ -909,6 +912,10 @@ class ActionRestPrototype(ActionPrototype):
                                        state=cls.STATE.RESTING)
         parent.hero.add_message('action_rest_start', hero=parent.hero)
         return cls(model=model)
+
+    def on_heal(self):
+        self.percents = float(self.hero.health)/self.hero.max_health
+        self.hero.last_action_percents = self.percents
 
     def process(self):
 
