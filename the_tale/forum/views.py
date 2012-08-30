@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 
 from dext.views.resources import handler
-from dext.utils.decorators import nested_commit_on_success
 
 from common.utils.resources import Resource
 
@@ -30,6 +29,9 @@ class ForumResource(Resource):
 
     def can_delete_posts(self, thread):
         return self.user == thread.author or self.user.has_perm('forum.delete_post')
+
+    def can_change_posts(self):
+        return self.user.has_perm('forum.change_post')
 
     @property
     def category(self):
@@ -86,7 +88,7 @@ class ForumResource(Resource):
                              {'forum_structure': forum_structure} )
 
 
-    @handler('#category', '#subcategory', name='subcategory', method='get')
+    @handler('categories', '#subcategory', name='subcategory', method='get')
     def get_subcategory(self):
 
         threads = Thread.objects.filter(subcategory=self.subcategory).order_by('-updated_at')
@@ -97,7 +99,7 @@ class ForumResource(Resource):
                               'threads': threads} )
 
 
-    @handler('#category', '#subcategory', 'new-thread', name='new_thread', method='get')
+    @handler('categories', '#subcategory', 'new-thread', name='new-thread', method='get')
     def new_thread(self):
 
         if self.account is None:
@@ -113,7 +115,7 @@ class ForumResource(Resource):
                               'subcategory': self.subcategory,
                               'new_thread_form': NewThreadForm()} )
 
-    @handler('#category', '#subcategory', 'create-thread', name='create_thread', method='post')
+    @handler('categories', '#subcategory', 'create-thread', name='create-thread', method='post')
     def create_thread(self):
 
         if self.account is None:
@@ -137,7 +139,7 @@ class ForumResource(Resource):
 
         return self.json_ok(data={'thread_id': thread.id})
 
-    @handler('#category', '#subcategory', '#thread_id', 'delete', name='delete-thread', method='post')
+    @handler('threads', '#thread_id', 'delete', name='delete-thread', method='post')
     def delete_thread(self):
 
         if self.account is None:
@@ -153,7 +155,7 @@ class ForumResource(Resource):
 
         return self.json_ok()
 
-    @handler('#category', '#subcategory', '#thread_id', name='show_thread', method='get')
+    @handler('threads', '#thread_id', name='show-thread', method='get')
     def get_thread(self, page=1):
 
         page = int(page) - 1
@@ -162,7 +164,7 @@ class ForumResource(Resource):
 
         if post_from > self.thread.posts_count:
             last_page = self.thread.posts_count / forum_settings.POSTS_ON_PAGE + 1
-            url = '%s?page=%d' % (reverse('forum:show_thread', args=[self.category.slug, self.subcategory.slug, self.thread.id]), last_page)
+            url = '%s?page=%d' % (reverse('forum:show-thread', args=[self.thread.id]), last_page)
             return self.redirect(url, permanent=False)
 
         post_to = post_from + forum_settings.POSTS_ON_PAGE
@@ -188,11 +190,12 @@ class ForumResource(Resource):
                               'start_posts_from': page * forum_settings.POSTS_ON_PAGE,
                               'can_delete_thread': self.can_delete_thread(self.thread),
                               'can_delete_posts': self.can_delete_posts(self.thread),
+                              'can_change_posts': self.can_change_posts(),
                               'has_post_on_page': has_post_on_page,
                               'current_page_number': page} )
 
 
-    @handler('#category', '#subcategory', '#thread_id', 'create-post', name='create_post', method='post')
+    @handler('threads', '#thread_id', 'create-post', name='create-post', method='post')
     def create_post(self):
 
         if self.account is None:
@@ -229,7 +232,49 @@ class ForumResource(Resource):
 
         return self.json_ok()
 
+    @handler('posts', '#post_id', 'edit', name='edit-post', method='get')
+    def edit_post(self):
 
+        if self.account is None:
+            return self.template('error.html', {'msg': u'Вы должны войти на сайт, чтобы редактировать сообщения',
+                                                'error_code': 'forum.edit_thread.unlogined'})
+
+        if self.account.is_fast:
+            return self.template('error.html', {'msg': u'Вы не закончили регистрацию, чтобы редактировать сообщения',
+                                                'error_code': 'forum.edit_thread.fast_account'})
+
+        if not (self.can_change_posts() or self.post.author == self.user):
+            return self.template('error.html', {'msg': u'У Вас нет прав для редактирования сообщения',
+                                                'error_code': 'forum.edit_thread.no_permissions'})
+
+        return self.template('forum/edit_post.html',
+                             {'category': self.category,
+                              'subcategory': self.subcategory,
+                              'thread': self.thread,
+                              'post': self.post,
+                              'new_post_form': NewPostForm(initial={'text': self.post.text})} )
+
+    @handler('posts', '#post_id', 'update', name='update-post', method='post')
+    def update_post(self):
+
+        if self.account is None:
+            return self.json_error('forum.update_post.unlogined', u'Вы должны войти на сайт, чтобы редактировать сообщение')
+
+        if self.account.is_fast:
+            return self.json_error('forum.update_post.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
+
+        if not (self.can_change_posts() or self.post.author == self.user):
+            return self.json_error('forum.update_post.no_permissions', u'У Вас нет прав для редактирования сообщения')
+
+        edit_post_form = NewPostForm(self.request.POST)
+
+        if not edit_post_form.is_valid():
+            return self.json_error('forum.update_post.form_errors', edit_post_form.errors)
+
+        self.post.text = edit_post_form.c.text
+        self.post.save()
+
+        return self.json_ok()
 
     @handler('preview', name='preview', method='post')
     def preview(self):

@@ -7,7 +7,7 @@
       {% if page_number == current_page_number %}
       <li class="active"><a>{{ page_number+1 }}</a></li>
       {% else %}
-      <li><a href="{{ url('forum:show_thread', category.slug, subcategory.slug, thread.id) }}?page={{page_number+1}}">{{ page_number+1 }}</a></li>
+      <li><a href="{{ url('forum:show-thread', thread.id) }}?page={{page_number+1}}">{{ page_number+1 }}</a></li>
       {% endif %}
       {% endfor %}
   </ul>
@@ -37,9 +37,9 @@ jQuery(document).ready( function(e) {
         var DeleteRequest = function(e) {
             e.preventDefault();
 
-            pgf.forms.Post({ action: "{{ url('forum:delete-thread', category.slug, subcategory.slug, thread.id) }}",
+            pgf.forms.Post({ action: "{{ url('forum:delete-thread', thread.id) }}",
                              OnSuccess: function(e){
-                                 location.href = "{{ url('forum:subcategory', category.slug, subcategory.slug) }}";
+                                 location.href = "{{ url('forum:subcategory', subcategory.slug) }}";
                              }
                            });
         };
@@ -85,7 +85,7 @@ jQuery(document).ready( function(e) {
 
 <ul class="breadcrumb">
   <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
-  <li><a href="{{ url('forum:subcategory', category.slug, subcategory.slug) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
+  <li><a href="{{ url('forum:subcategory', subcategory.slug) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
   <li class="active">{{ thread.caption }}</li>
   {% if can_delete_thread %}
   <li class="pull-right"><a href="#" class="pgf-remove-thread-button">удалить тему</a></li>
@@ -104,6 +104,11 @@ jQuery(document).ready( function(e) {
         <tr class="head">
           <td class="index"><a href="#m{{message_id}}" >#{{message_id}}</a><div class="anchor" id="m{{message_id}}"></div></td>
           <td class="author">{{ post.author.username }}</td>
+          {% if can_change_posts or post.author == resource.user %}
+          <td class="change-post">
+            <a href="{{ url('forum:edit-post', post.id) }}" class="pgf-change-post-button">правка</a>
+          </td>
+          {% endif %}
           {% if (can_delete_posts or post.author == resource.user) and (loop.index!=1 or current_page_number!=0) %}
           <td class="delete-post">
             <a href="#" class="pgf-remove-post-button" data-delete-url="{{ url('forum:delete-post', post.id) }}">удалить</a>
@@ -113,7 +118,7 @@ jQuery(document).ready( function(e) {
         </tr>
 
         <tr class="body">
-          <td colspan="4">{{ post.html|safe }}</td>
+          <td colspan="5">{{ post.html|safe }}</td>
         </tr>
       </tbody>
     </table>
@@ -124,7 +129,7 @@ jQuery(document).ready( function(e) {
 {{ render_pages() }}
 
 {% if resource.account and not resource.account.is_fast %}
-<form action="{{ url('forum:create_post', category.slug, subcategory.slug, thread.id) }}"
+<form action="{{ url('forum:create-post', thread.id) }}"
       method="post"
       id="pgf-new-post-form"
       class="new-post-form">

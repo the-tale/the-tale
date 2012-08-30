@@ -21,7 +21,7 @@
     {% for thread in threads %}
     <tr>
       <td class="caption">
-        <a href="{{ url('forum:show_thread', category.slug, subcategory.slug, thread.id) }}">
+        <a href="{{ url('forum:show-thread', thread.id) }}">
           {{ thread.caption }}
         </a>
       </td>
@@ -35,7 +35,7 @@
 </table>
 
 {% if resource.account and not resource.account.is_fast and not subcategory.closed %}
-<form action="{{ url('forum:new_thread', category.slug, subcategory.slug) }}" method="get">
+<form action="{{ url('forum:new-thread', subcategory.slug) }}" method="get">
   <input type="submit" value="Добавить обсуждение"/>
 </form>
 {% endif %}

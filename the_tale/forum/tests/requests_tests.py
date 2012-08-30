@@ -74,46 +74,46 @@ class TestRequests(TestCase):
 
     def test_subcategory(self):
         texts=['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption']
-        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['cat1-slug', 'subcat1-slug'])), texts=texts)
+        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
         self.logout()
-        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['cat1-slug', 'subcat1-slug'])), texts=texts)
+        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
 
     def test_new_thread(self):
         texts=['cat1-caption', 'subcat1-caption']
-        self.check_html_ok(self.client.get(reverse('forum:new_thread', args=['cat1-slug', 'subcat1-slug'])), texts=texts)
+        self.check_html_ok(self.client.get(reverse('forum:new-thread', args=['subcat1-slug'])), texts=texts)
 
     def test_new_thread_unlogined(self):
         self.logout()
-        self.check_html_ok(self.client.get(reverse('forum:new_thread', args=['cat1-slug', 'subcat1-slug'])), texts=['pgf-error-forum.new_thread.unlogined'])
+        self.check_html_ok(self.client.get(reverse('forum:new-thread', args=['subcat1-slug'])), texts=['pgf-error-forum.new_thread.unlogined'])
 
     def test_new_thread_fast(self):
         account = self.user.get_profile()
         account.is_fast = True
         account.save()
-        self.check_html_ok(self.client.get(reverse('forum:new_thread', args=['cat1-slug', 'subcat1-slug'])), texts=['pgf-error-forum.new_thread.fast_account'])
+        self.check_html_ok(self.client.get(reverse('forum:new-thread', args=['subcat1-slug'])), texts=['pgf-error-forum.new_thread.fast_account'])
 
     def test_create_thread_unlogined(self):
         self.logout()
-        self.check_ajax_error(self.client.post(reverse('forum:create_thread', args=['cat1-slug', 'subcat1-slug'])),
+        self.check_ajax_error(self.client.post(reverse('forum:create-thread', args=['subcat1-slug'])),
                               code='forum.create_thread.unlogined')
 
     def test_create_thread_fast_account(self):
         account = self.user.get_profile()
         account.is_fast = True
         account.save()
-        self.check_ajax_error(self.client.post(reverse('forum:create_thread', args=['cat1-slug', 'subcat1-slug'])),
+        self.check_ajax_error(self.client.post(reverse('forum:create-thread', args=['subcat1-slug'])),
                               code='forum.create_thread.fast_account')
 
     def test_create_thread_closed_subcategory(self):
-        self.check_ajax_error(self.client.post(reverse('forum:create_thread', args=['cat1-slug', 'subcat2-slug'])),
+        self.check_ajax_error(self.client.post(reverse('forum:create-thread', args=['subcat2-slug'])),
                               code='forum.create_thread.closed_subcategory')
 
     def test_create_thread_form_errors(self):
-        self.check_ajax_error(self.client.post(reverse('forum:create_thread', args=['cat1-slug', 'subcat1-slug'])),
+        self.check_ajax_error(self.client.post(reverse('forum:create-thread', args=['subcat1-slug'])),
                               code='forum.create_thread.form_errors')
 
     def test_create_thread_success(self):
-        response = self.client.post(reverse('forum:create_thread', args=['cat1-slug', 'subcat1-slug']), {'caption': 'thread4-caption', 'text': 'thread4-text'})
+        response = self.client.post(reverse('forum:create-thread', args=['subcat1-slug']), {'caption': 'thread4-caption', 'text': 'thread4-text'})
         self.check_ajax_ok(response)
 
         thread_id = s11n.from_json(response.content)['data']['thread_id']
@@ -135,18 +135,18 @@ class TestRequests(TestCase):
     def test_get_thread_unlogined(self):
         excluded_texts = ['pgf-new-post-form']
         self.logout()
-        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat1-slug', 'subcat1-slug', self.thread1.id])), excluded_texts=excluded_texts)
+        self.check_html_ok(self.client.get(reverse('forum:show-thread', args=[self.thread1.id])), excluded_texts=excluded_texts)
 
     def test_get_thread_fast_account(self):
         excluded_texts = ['pgf-new-post-form']
         account = self.user.get_profile()
         account.is_fast = True
         account.save()
-        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat1-slug', 'subcat1-slug', self.thread1.id])), excluded_texts=excluded_texts)
+        self.check_html_ok(self.client.get(reverse('forum:show-thread', args=[self.thread1.id])), excluded_texts=excluded_texts)
 
     def test_get_thread_wrong_page(self):
-        response = self.client.get(reverse('forum:show_thread', args=['cat1-slug', 'subcat1-slug', self.thread1.id])+'?page=2')
-        self.assertRedirects(response, reverse('forum:show_thread', args=['cat1-slug', 'subcat1-slug', self.thread1.id])+'?page=1', status_code=302, target_status_code=200)
+        response = self.client.get(reverse('forum:show-thread', args=[self.thread1.id])+'?page=2')
+        self.assertRedirects(response, reverse('forum:show-thread', args=[self.thread1.id])+'?page=1', status_code=302, target_status_code=200)
 
     def test_get_thread_with_pagination(self):
 
@@ -157,18 +157,18 @@ class TestRequests(TestCase):
             create_post(self.subcat3, self.thread3, self.user, text)
             texts.append(text)
 
-        response = self.client.get(reverse('forum:show_thread', args=['cat3-slug', 'subcat3-slug', self.thread3.id])+'?page=2')
-        self.assertRedirects(response, reverse('forum:show_thread', args=['cat3-slug', 'subcat3-slug', self.thread3.id])+'?page=1', status_code=302, target_status_code=200)
+        response = self.client.get(reverse('forum:show-thread', args=[self.thread3.id])+'?page=2')
+        self.assertRedirects(response, reverse('forum:show-thread', args=[self.thread3.id])+'?page=1', status_code=302, target_status_code=200)
 
-        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat3-slug', 'subcat3-slug', self.thread3.id])), texts=texts)
+        self.check_html_ok(self.client.get(reverse('forum:show-thread', args=[self.thread3.id])), texts=texts)
 
         ++i
         text = 'subcat3-post%d-text' % i
         create_post(self.subcat3, self.thread3, self.user, text)
         texts.append(text)
 
-        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat3-slug', 'subcat3-slug', self.thread3.id])+'?page=1', texts=texts))
-        response = self.client.get(reverse('forum:show_thread', args=['cat3-slug', 'subcat3-slug', self.thread3.id])+'?page=2', texts=[text])
+        self.check_html_ok(self.client.get(reverse('forum:show-thread', args=[self.thread3.id])+'?page=1', texts=texts))
+        response = self.client.get(reverse('forum:show-thread', args=[self.thread3.id])+'?page=2', texts=[text])
 
     def test_posts_count(self):
         for i in xrange(4):
@@ -184,22 +184,22 @@ class TestRequests(TestCase):
 
     def test_create_post_unlogined(self):
         self.logout()
-        self.check_ajax_error(self.client.post(reverse('forum:create_post', args=['cat1-slug', 'subcat1-slug', self.thread3.id])),
+        self.check_ajax_error(self.client.post(reverse('forum:create-post', args=[self.thread3.id])),
                               code='forum.create_post.unlogined')
 
     def test_create_post_fast_account(self):
         account = self.user.get_profile()
         account.is_fast = True
         account.save()
-        self.check_ajax_error(self.client.post(reverse('forum:create_post', args=['cat1-slug', 'subcat1-slug', self.thread3.id])),
+        self.check_ajax_error(self.client.post(reverse('forum:create-post', args=[self.thread3.id])),
                               code='forum.create_post.fast_account')
 
     def test_create_post_form_errors(self):
-        self.check_ajax_error(self.client.post(reverse('forum:create_post', args=['cat1-slug', 'subcat1-slug', self.thread3.id])),
+        self.check_ajax_error(self.client.post(reverse('forum:create-post', args=[self.thread3.id])),
                               code='forum.create_post.form_errors')
 
     def test_create_post_success(self):
-        self.check_ajax_ok(self.client.post(reverse('forum:create_post', args=['cat1-slug', 'subcat1-slug', self.thread3.id]), {'text': 'thread3-test-post'}))
+        self.check_ajax_ok(self.client.post(reverse('forum:create-post', args=[self.thread3.id]), {'text': 'thread3-test-post'}))
         self.assertEqual(Post.objects.all().count(), 5)
 
     def test_preview(self):
