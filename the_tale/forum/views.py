@@ -12,14 +12,15 @@ from common.utils.resources import Resource
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm
 from forum.conf import forum_settings
-from forum.logic import create_thread, create_post, delete_thread
+from forum.logic import create_thread, create_post, delete_thread, delete_post
 
 
 class ForumResource(Resource):
 
-    def __init__(self, request, category=None, subcategory=None, thread_id=None, *args, **kwargs):
+    def __init__(self, request, category=None, subcategory=None, thread_id=None, post_id=None, *args, **kwargs):
         super(ForumResource, self).__init__(request, *args, **kwargs)
 
+        self.post_id = int(post_id) if post_id is not None else None
         self.thread_id = int(thread_id) if thread_id is not None else None
         self.category_slug = category
         self.subcategory_slug = subcategory
@@ -27,24 +28,41 @@ class ForumResource(Resource):
     def can_delete_thread(self, thread):
         return self.user == thread.author or self.user.has_perm('forum.delete_thread')
 
+    def can_delete_posts(self, thread):
+        return self.user == thread.author or self.user.has_perm('forum.delete_post')
+
     @property
     def category(self):
         if not hasattr(self, '_category'):
-            self._category = get_object_or_404(Category, slug=self.category_slug)
+            if self.category_slug:
+                self._category = get_object_or_404(Category, slug=self.category_slug)
+            else:
+                self._category = self.subcategory.category
         return self._category
 
     @property
     def subcategory(self):
         if not hasattr(self, '_subcategory'):
-            self._subcategory = get_object_or_404(SubCategory, slug=self.subcategory_slug)
+            if self.subcategory_slug:
+                self._subcategory = get_object_or_404(SubCategory, slug=self.subcategory_slug)
+            else:
+                self._subcategory = self.thread.subcategory
         return self._subcategory
 
     @property
     def thread(self):
         if not hasattr(self, '_thread'):
-            self._thread = get_object_or_404(Thread, id=self.thread_id)
+            if self.thread_id:
+                self._thread = get_object_or_404(Thread, id=self.thread_id)
+            else:
+                self._thread = self.post.thread
         return self._thread
 
+    @property
+    def post(self):
+        if not hasattr(self, '_post'):
+            self._post = get_object_or_404(Post, id=self.post_id)
+        return self._post
 
     @handler('', method='get')
     def index(self):
@@ -135,7 +153,6 @@ class ForumResource(Resource):
 
         return self.json_ok()
 
-
     @handler('#category', '#subcategory', '#thread_id', name='show_thread', method='get')
     def get_thread(self, page=1):
 
@@ -156,6 +173,11 @@ class ForumResource(Resource):
         if (self.thread.posts_count + 1) % forum_settings.POSTS_ON_PAGE:
             pages_count += 1
 
+        pages_on_page_slice = posts
+        if post_from == 0:
+            pages_on_page_slice = pages_on_page_slice[1:]
+        has_post_on_page = any([post.author == self.user for post in pages_on_page_slice])
+
         return self.template('forum/thread.html',
                              {'category': self.category,
                               'subcategory': self.subcategory,
@@ -165,11 +187,12 @@ class ForumResource(Resource):
                               'pages_numbers': range(pages_count),
                               'start_posts_from': page * forum_settings.POSTS_ON_PAGE,
                               'can_delete_thread': self.can_delete_thread(self.thread),
+                              'can_delete_posts': self.can_delete_posts(self.thread),
+                              'has_post_on_page': has_post_on_page,
                               'current_page_number': page} )
 
 
     @handler('#category', '#subcategory', '#thread_id', 'create-post', name='create_post', method='post')
-    @nested_commit_on_success
     def create_post(self):
 
         if self.account is None:
@@ -186,6 +209,27 @@ class ForumResource(Resource):
         create_post(self.subcategory, self.thread, self.account.user, new_post_form.c.text)
 
         return self.json_ok()
+
+    @handler('posts', '#post_id', 'delete', name='delete-post', method='post')
+    def delete_post(self):
+
+        if self.account is None:
+            return self.json_error('forum.delete_post.unlogined', u'Вы должны войти на сайт, чтобы удалить сообщение')
+
+        if self.account.is_fast:
+            return self.json_error('forum.delete_post.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
+
+        if not (self.can_delete_posts(self.thread) or self.post.author == self.user):
+            return self.json_error('forum.delete_post.no_permissions', u'У Вас нет прав для удаления сообщения')
+
+        if Post.objects.filter(thread=self.thread, created_at__lt=self.post.created_at).count() == 0:
+            return self.json_error('forum.delete_post.remove_first_post', u'Вы не можете удалить первое сообщение в теме')
+
+        delete_post(self.subcategory, self.thread, self.post)
+
+        return self.json_ok()
+
+
 
     @handler('preview', name='preview', method='post')
     def preview(self):

@@ -4,8 +4,6 @@ from django.test import client
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate as django_authenticate
 
-from dext.utils import s11n
-
 from common.utils.testcase import TestCase
 from common.utils.permissions import sync_group
 
@@ -14,7 +12,6 @@ from game.logic import create_test_map
 
 from forum.models import Category, SubCategory, Thread, Post
 from forum.logic import create_thread, create_post
-from forum.conf import forum_settings
 
 class TestModeration(TestCase):
 
@@ -39,11 +36,13 @@ class TestModeration(TestCase):
         self.subcategory = SubCategory.objects.create(category=self.category, caption='subcat-caption', slug='subcat-slug', order=0)
         self.thread = create_thread(self.subcategory, 'thread-caption', self.main_user, 'thread-text')
         self.post = create_post(self.subcategory, self.thread, self.main_user, 'post-text')
-        self.post = create_post(self.subcategory, self.thread, self.main_user, 'post2-text')
+        self.post2 = create_post(self.subcategory, self.thread, self.main_user, 'post2-text')
 
         self.thread2 = create_thread(self.subcategory, 'thread2-caption', self.main_user, 'thread2-text')
-        self.post2 = create_post(self.subcategory, self.thread2, self.main_user, 'post3-text')
+        self.post3 = create_post(self.subcategory, self.thread2, self.main_user, 'post3-text')
+        self.post4 = create_post(self.subcategory, self.thread2, self.second_user, 'post4-text')
 
+        self.thread3 = create_thread(self.subcategory, 'thread3-caption', self.second_user, 'thread2-text')
 
     def login(self, user_name):
         response = self.client.post(reverse('accounts:login'), {'email': '%s@test.com' % user_name, 'password': '111111'})
@@ -56,43 +55,47 @@ class TestModeration(TestCase):
     def test_initialization(self):
         self.assertEqual(Category.objects.all().count(), 1)
         self.assertEqual(SubCategory.objects.all().count(), 1)
-        self.assertEqual(Thread.objects.all().count(), 2)
-        self.assertEqual(Post.objects.all().count(), 5)
+        self.assertEqual(Thread.objects.all().count(), 3)
+        self.assertEqual(Post.objects.all().count(), 7)
+
+    ###############################
+    # thread moderation
+    ###############################
 
     def test_main_user_has_remove_thread_button(self):
         self.login('main_user')
-        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat-slug', 'subcat-slug', self.thread.id])), texts=['pgf-remove-thread-button'])
+        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat-slug', 'subcat-slug', self.thread.id])), texts=[('pgf-remove-thread-button', 2)])
 
     def test_moderator_has_remove_thread_button(self):
         self.login('moderator')
-        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat-slug', 'subcat-slug', self.thread.id])), texts=['pgf-remove-thread-button'])
+        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat-slug', 'subcat-slug', self.thread.id])), texts=[('pgf-remove-thread-button', 2)])
 
     def test_second_user_has_remove_thread_button(self):
         self.login('second_user')
-        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat-slug', 'subcat-slug', self.thread.id])), excluded_texts=['pgf-remove-thread-button'])
+        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat-slug', 'subcat-slug', self.thread.id])), texts=[('pgf-remove-thread-button', 0)])
 
     def test_main_user_remove_thread(self):
         self.login('main_user')
         self.check_ajax_ok(self.client.post(reverse('forum:delete-thread', args=['cat-slug', 'subcat-slug', self.thread.id])))
-        self.assertEqual(Thread.objects.all().count(), 1)
-        self.assertEqual(Post.objects.all().count(), 2)
+        self.assertEqual(Thread.objects.all().count(), 2)
+        self.assertEqual(Post.objects.all().count(), 4)
 
     def test_moderator_remove_thread(self):
         self.login('moderator')
         self.check_ajax_ok(self.client.post(reverse('forum:delete-thread', args=['cat-slug', 'subcat-slug', self.thread.id])))
-        self.assertEqual(Thread.objects.all().count(), 1)
-        self.assertEqual(Post.objects.all().count(), 2)
+        self.assertEqual(Thread.objects.all().count(), 2)
+        self.assertEqual(Post.objects.all().count(), 4)
 
     def test_second_user_remove_thread(self):
         self.login('second_user')
         self.check_ajax_error(self.client.post(reverse('forum:delete-thread', args=['cat-slug', 'subcat-slug', self.thread.id])), 'forum.delete_thread.no_permissions')
-        self.assertEqual(Thread.objects.all().count(), 2)
-        self.assertEqual(Post.objects.all().count(), 5)
+        self.assertEqual(Thread.objects.all().count(), 3)
+        self.assertEqual(Post.objects.all().count(), 7)
 
     def test_second_user_remove_unlogined(self):
         self.check_ajax_error(self.client.post(reverse('forum:delete-thread', args=['cat-slug', 'subcat-slug', self.thread.id])), 'forum.delete_thread.unlogined')
-        self.assertEqual(Thread.objects.all().count(), 2)
-        self.assertEqual(Post.objects.all().count(), 5)
+        self.assertEqual(Thread.objects.all().count(), 3)
+        self.assertEqual(Post.objects.all().count(), 7)
 
     def test_second_user_remove_fast_account(self):
         self.login('main_user')
@@ -102,5 +105,84 @@ class TestModeration(TestCase):
         account.save()
 
         self.check_ajax_error(self.client.post(reverse('forum:delete-thread', args=['cat-slug', 'subcat-slug', self.thread.id])), 'forum.delete_thread.fast_account')
-        self.assertEqual(Thread.objects.all().count(), 2)
-        self.assertEqual(Post.objects.all().count(), 5)
+        self.assertEqual(Thread.objects.all().count(), 3)
+        self.assertEqual(Post.objects.all().count(), 7)
+
+    ###############################
+    # post moderation
+    ###############################
+
+    def test_main_user_has_remove_post_button(self):
+        self.login('main_user')
+        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat-slug', 'subcat-slug', self.thread.id])), texts=[('pgf-remove-post-button', 3)])
+        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat-slug', 'subcat-slug', self.thread2.id])), texts=[('pgf-remove-post-button', 3)])
+
+    def test_moderator_has_remove_post_button(self):
+        self.login('moderator')
+        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat-slug', 'subcat-slug', self.thread.id])), texts=[('pgf-remove-post-button', 3)])
+        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat-slug', 'subcat-slug', self.thread2.id])), texts=[('pgf-remove-post-button', 3)])
+
+    def test_second_user_has_remove_post_button(self):
+        self.login('second_user')
+        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat-slug', 'subcat-slug', self.thread.id])), texts=[('pgf-remove-post-button', 0)])
+        self.check_html_ok(self.client.get(reverse('forum:show_thread', args=['cat-slug', 'subcat-slug', self.thread2.id])), texts=[('pgf-remove-post-button', 2)])
+
+    # main user
+    def test_main_user_remove_post(self):
+        self.login('main_user')
+        self.assertEqual(Thread.objects.get(id=self.thread.id).posts_count, 2)
+        self.assertEqual(SubCategory.objects.get(id=self.subcategory.id).posts_count, 4)
+
+        self.check_ajax_ok(self.client.post(reverse('forum:delete-post', args=[self.post.id])))
+        self.assertEqual(Post.objects.all().count(), 6)
+
+        self.assertEqual(Thread.objects.get(id=self.thread.id).posts_count, 1)
+        self.assertEqual(SubCategory.objects.get(id=self.subcategory.id).posts_count, 3)
+
+    def test_main_user_remove_post_of_second_user(self):
+        self.assertEqual(self.second_user, self.post4.author)
+        self.login('main_user')
+        self.check_ajax_ok(self.client.post(reverse('forum:delete-post', args=[self.post4.id])))
+        self.assertEqual(Post.objects.all().count(), 6)
+
+    def test_main_user_remove_first_post(self):
+        self.login('main_user')
+        post = Post.objects.filter(thread=self.thread.id).order_by('created_at')[0]
+        self.check_ajax_error(self.client.post(reverse('forum:delete-post', args=[post.id])), 'forum.delete_post.remove_first_post')
+        self.assertEqual(Post.objects.all().count(), 7)
+
+    # moderator
+    def test_moderator_remove_post(self):
+        self.login('moderator')
+        self.check_ajax_ok(self.client.post(reverse('forum:delete-post', args=[self.post.id])))
+        self.assertEqual(Post.objects.all().count(), 6)
+
+    def test_moderator_remove_post_of_second_user(self):
+        self.assertEqual(self.second_user, self.post4.author)
+        self.login('moderator')
+        self.check_ajax_ok(self.client.post(reverse('forum:delete-post', args=[self.post4.id])))
+        self.assertEqual(Post.objects.all().count(), 6)
+
+    def test_moderator_remove_first_post(self):
+        self.login('moderator')
+        post = Post.objects.filter(thread=self.thread.id).order_by('created_at')[0]
+        self.check_ajax_error(self.client.post(reverse('forum:delete-post', args=[post.id])), 'forum.delete_post.remove_first_post')
+        self.assertEqual(Post.objects.all().count(), 7)
+
+    # second user
+    def test_second_user_remove_post(self):
+        self.login('second_user')
+        self.check_ajax_error(self.client.post(reverse('forum:delete-post', args=[self.post.id])), 'forum.delete_post.no_permissions')
+        self.assertEqual(Post.objects.all().count(), 7)
+
+    def test_second_user_remove_post_of_second_user(self):
+        self.assertEqual(self.second_user, self.post4.author)
+        self.login('second_user')
+        self.check_ajax_ok(self.client.post(reverse('forum:delete-post', args=[self.post4.id])))
+        self.assertEqual(Post.objects.all().count(), 6)
+
+    def test_second_user_remove_first_post(self):
+        self.login('second_user')
+        post = Post.objects.filter(thread=self.thread3.id).order_by('created_at')[0]
+        self.check_ajax_error(self.client.post(reverse('forum:delete-post', args=[post.id])), 'forum.delete_post.remove_first_post')
+        self.assertEqual(Post.objects.all().count(), 7)

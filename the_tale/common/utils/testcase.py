@@ -15,10 +15,11 @@ class TestCase(DjangoTestCase):
     def check_html_ok(self, response, texts=[], excluded_texts=[]):
         self.assertEqual(response.status_code, 200)
         for text in texts:
-            self.assertTrue(text in response.content)
-
-        for text in excluded_texts:
-            self.assertTrue(text not in response.content)
+            if isinstance(text, tuple):
+                substr, number = text
+                self.assertEqual(response.content.count(substr), number)
+            else:
+                self.assertTrue(text in response.content)
 
     def check_ajax_ok(self, response):
         self.assertEqual(response.status_code, 200)

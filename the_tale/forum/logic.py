@@ -57,3 +57,17 @@ def create_post(subcategory, thread, author, text):
     subcategory.last_poster = author
     subcategory.posts_count = sum(Thread.objects.filter(subcategory=subcategory).values_list('posts_count', flat=True))
     subcategory.save()
+
+    return post
+
+
+@nested_commit_on_success
+def delete_post(subcategory, thread, post):
+
+    post.delete()
+
+    thread.posts_count = Post.objects.filter(thread=thread).count() - 1
+    thread.save()
+
+    subcategory.posts_count = sum(Thread.objects.filter(subcategory=subcategory).values_list('posts_count', flat=True))
+    subcategory.save()

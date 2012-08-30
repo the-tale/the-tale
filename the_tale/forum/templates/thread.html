@@ -38,13 +38,36 @@ jQuery(document).ready( function(e) {
             e.preventDefault();
 
             pgf.forms.Post({ action: "{{ url('forum:delete-thread', category.slug, subcategory.slug, thread.id) }}",
-                         OnSuccess: function(e){
-                             location.href = "{{ url('forum:subcategory', category.slug, subcategory.slug) }}";
-                         }
-                       });
+                             OnSuccess: function(e){
+                                 location.href = "{{ url('forum:subcategory', category.slug, subcategory.slug) }}";
+                             }
+                           });
         };
 
         pgf.ui.dialog.Question({message: 'Вы действительно хотите удалить эту тему?',
+                                title: 'Подтвердите удаление',
+                                buttons: [{text: 'Удалить', classes: 'btn-danger', callback: DeleteRequest},
+                                          {text: 'Отменить', classes: 'btn-success'}]
+                               })
+    });
+    {% endif %}
+
+    {% if can_delete_posts or has_post_on_page %}
+    jQuery('.pgf-remove-post-button').click(function(e) {
+
+        var deleteUrl = jQuery(e.target).data('delete-url');
+
+        var DeleteRequest = function(e) {
+            e.preventDefault();
+
+            pgf.forms.Post({ action: deleteUrl,
+                             OnSuccess: function(e){
+                                 location.reload();
+                             }
+                           });
+        };
+
+        pgf.ui.dialog.Question({message: 'Вы действительно хотите это сообщение?',
                                 title: 'Подтвердите удаление',
                                 buttons: [{text: 'Удалить', classes: 'btn-danger', callback: DeleteRequest},
                                           {text: 'Отменить', classes: 'btn-success'}]
@@ -81,11 +104,16 @@ jQuery(document).ready( function(e) {
         <tr class="head">
           <td class="index"><a href="#m{{message_id}}" >#{{message_id}}</a><div class="anchor" id="m{{message_id}}"></div></td>
           <td class="author">{{ post.author.username }}</td>
+          {% if (can_delete_posts or post.author == resource.user) and (loop.index!=1 or current_page_number!=0) %}
+          <td class="delete-post">
+            <a href="#" class="pgf-remove-post-button" data-delete-url="{{ url('forum:delete-post', post.id) }}">удалить</a>
+          </td>
+          {% endif %}
           <td class="created-at pgf-format-time" data-timestamp="{{ post.created_at|timestamp}}"></td>
         </tr>
 
         <tr class="body">
-          <td colspan="3">{{ post.html|safe }}</td>
+          <td colspan="4">{{ post.html|safe }}</td>
         </tr>
       </tbody>
     </table>
