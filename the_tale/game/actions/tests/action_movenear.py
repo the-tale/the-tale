@@ -4,7 +4,7 @@ import mock
 from django.test import TestCase
 
 from game.logic import create_test_bundle, create_test_map, test_bundle_save
-from game.actions.prototypes import ActionMoveNearPlacePrototype, ActionRestPrototype, ActionResurrectPrototype, ActionIdlenessPrototype, ActionBattlePvE1x1Prototype
+from game.actions.prototypes import ActionMoveNearPlacePrototype, ActionRestPrototype, ActionResurrectPrototype, ActionIdlenessPrototype, ActionBattlePvE1x1Prototype, ActionInPlacePrototype
 from game.prototypes import TimePrototype
 
 class MoveNearActionTest(TestCase):
@@ -71,11 +71,12 @@ class MoveNearActionTest(TestCase):
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionIdlenessPrototype.TYPE)
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place)  # can end in start place
 
-        self.bundle.add_action(ActionMoveNearPlacePrototype.create(self.action_idl, self.p1, True))
+        ActionMoveNearPlacePrototype.create(self.action_idl, self.p1, True)
         while self.hero.position.place is None or self.hero.position.place.id != self.p1.id:
             self.bundle.process_turn()
             current_time.increment_turn()
 
+        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionInPlacePrototype.TYPE)
         self.assertTrue(not self.hero.position.is_walking)
         test_bundle_save(self, self.bundle)
 
@@ -114,3 +115,17 @@ class MoveNearActionTest(TestCase):
 
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionResurrectPrototype.TYPE)
         test_bundle_save(self, self.bundle)
+
+    # @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
+    # def test_inplace(self):
+
+    #     current_time = TimePrototype.get_current_time()
+
+    #     self.bundle.process_turn()
+    #     self.hero.position.percents = 1
+
+    #     current_time.increment_turn()
+    #     self.bundle.process_turn()
+
+
+    #     test_bundle_save(self, self.bundle)

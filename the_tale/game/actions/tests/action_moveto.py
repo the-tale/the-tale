@@ -126,6 +126,8 @@ class MoveToActionTest(TestCase):
 
         self.bundle.process_turn()
         self.hero.position.percents = 1
+
+        current_time.increment_turn()
         self.bundle.process_turn()
 
         self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionInPlacePrototype.TYPE)

@@ -586,6 +586,7 @@ class ActionMoveToPrototype(ActionPrototype):
                 if length < 0.01:
                     current_destination = self.current_destination
                     self.hero.position.set_place(current_destination)
+                    ActionInPlacePrototype.create(parent=self)
                     self.state = self.STATE.IN_CITY
                 else:
                     self.hero.position.set_road(self.hero.position.road, invert=invert, percents=percents)
@@ -621,9 +622,7 @@ class ActionMoveToPrototype(ActionPrototype):
                 if self.hero.position.percents >= 1:
                     self.hero.position.percents = 1
                     self.hero.position.set_place(current_destination)
-
                     self.state = self.STATE.IN_CITY
-
                     ActionInPlacePrototype.create(parent=self)
 
                 elif self.break_at and self.percents >= 1:
@@ -1065,6 +1064,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
         BATTLE = 'BATTLE'
         RESTING = 'RESTING'
         RESURRECT = 'RESURRECT'
+        IN_CITY = 'IN_CITY'
 
     ###########################################
     # Object operations
@@ -1112,6 +1112,12 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
         if self.state == self.STATE.RESURRECT:
             self.state = self.STATE.MOVING
 
+        if self.state == self.STATE.IN_CITY:
+            if self.percents >= 1:
+                self.state = self.STATE.PROCESSED
+            else:
+                self.state = self.STATE.MOVING
+
         if self.state == self.STATE.BATTLE:
             if not self.hero.is_alive:
                 ActionResurrectPrototype.create(self)
@@ -1150,8 +1156,11 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                     to_x, to_y = self.hero.position.coordinates_to
                     if self.place.x == to_x and self.place.y == to_y:
                         self.hero.position.set_place(self.place)
+                        ActionInPlacePrototype.create(parent=self)
+                        self.state = self.STATE.IN_CITY
 
-                    self.state = self.STATE.PROCESSED
+                    else:
+                        self.state = self.STATE.PROCESSED
 
 
 ACTION_TYPES = get_actions_types()
