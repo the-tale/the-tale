@@ -114,11 +114,12 @@ class TestRequests(TestCase):
 
     def test_create_thread_success(self):
         response = self.client.post(reverse('forum:create-thread', args=['subcat1-slug']), {'caption': 'thread4-caption', 'text': 'thread4-text'})
-        self.check_ajax_ok(response)
 
-        thread_id = s11n.from_json(response.content)['data']['thread_id']
+        thread = Thread.objects.all().order_by('-created_at')[0]
 
-        thread = Thread.objects.get(id=thread_id)
+        self.check_ajax_ok(response, {'thread_id': thread.id,
+                                      'thread_url': reverse('forum:show-thread', args=[thread.id])})
+
         self.assertEqual(thread.posts_count, 0)
         self.assertEqual(thread.caption, 'thread4-caption')
         self.assertEqual(thread.author, self.user)

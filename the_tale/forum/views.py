@@ -137,7 +137,8 @@ class ForumResource(Resource):
                                author=self.account.user,
                                text=new_thread_form.c.text)
 
-        return self.json_ok(data={'thread_id': thread.id})
+        return self.json_ok(data={'thread_url': reverse('forum:show-thread', args=[thread.id]),
+                                  'thread_id': thread.id})
 
     @handler('threads', '#thread_id', 'delete', name='delete-thread', method='post')
     def delete_thread(self):
@@ -171,10 +172,6 @@ class ForumResource(Resource):
 
         posts = Post.objects.filter(thread=self.thread).order_by('created_at')[post_from:post_to]
 
-        pages_count = (self.thread.posts_count + 1) / forum_settings.POSTS_ON_PAGE
-        if (self.thread.posts_count + 1) % forum_settings.POSTS_ON_PAGE:
-            pages_count += 1
-
         pages_on_page_slice = posts
         if post_from == 0:
             pages_on_page_slice = pages_on_page_slice[1:]
@@ -186,7 +183,7 @@ class ForumResource(Resource):
                               'thread': self.thread,
                               'new_post_form': NewPostForm(),
                               'posts': posts,
-                              'pages_numbers': range(pages_count),
+                              'pages_numbers': range(self.thread.pages_count),
                               'start_posts_from': page * forum_settings.POSTS_ON_PAGE,
                               'can_delete_thread': self.can_delete_thread(self.thread),
                               'can_delete_posts': self.can_delete_posts(self.thread),

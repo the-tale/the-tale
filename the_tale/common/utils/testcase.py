@@ -21,10 +21,13 @@ class TestCase(DjangoTestCase):
             else:
                 self.assertTrue(text in response.content)
 
-    def check_ajax_ok(self, response):
+    def check_ajax_ok(self, response, data=None):
         self.assertEqual(response.status_code, 200)
-        data = s11n.from_json(response.content)
-        self.assertEqual(data['status'], 'ok')
+        content = s11n.from_json(response.content)
+        self.assertEqual(content['status'], 'ok')
+
+        if data is not None:
+            self.assertEqual(content['data'], data)
 
     def check_ajax_error(self, response, code):
         self.assertEqual(response.status_code, 200)

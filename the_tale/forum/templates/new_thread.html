@@ -9,7 +9,7 @@ jQuery(document).ready( function(e) {
     var newThreadForm = new pgf.forms.Form(jQuery('#pgf-new-thread-form'),
                                            { OnSuccess: function(form, data){
                                                var url = "{{ url('forum:subcategory', subcategory.slug) }}";
-                                               location.href = url + '/' + data.data.thread_id;
+                                               location.href = data.data.thread_url;
                                            }
                                            });
     pgf.base.AddPreview('#pgf-new-thread-form', 'textarea', "{{ url('forum:preview') }}");

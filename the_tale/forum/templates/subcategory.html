@@ -1,5 +1,27 @@
 {% extends "forum/base.html" %}
 
+{% macro pages_links(thread) %}
+
+{% set pages_count = thread.pages_count %}
+
+{% if pages_count == 1 %}
+{% elif pages_count < 7 %}
+<span class="thread-page-links">
+[{% for page_number in range(1, pages_count) %}
+  <a href="{{ url('forum:show-thread', thread.id) }}?page={{page_number+1}}">{{page_number+1}}</a>
+{% endfor %}]
+{% else %}
+[  <a href="{{ url('forum:show-thread', thread.id) }}?page=2">2</a>
+  <a href="{{ url('forum:show-thread', thread.id) }}?page=3">3</a>
+  <a href="{{ url('forum:show-thread', thread.id) }}?page=4">4</a>
+  &hellip;
+{% for page_number in range(pages_count-3, pages_count) %}
+  <a href="{{ url('forum:show-thread', thread.id) }}?page={{page_number+1}}">{{page_number+1}}</a>
+{% endfor %}]
+{% endif %}
+</span>
+{% endmacro %}
+
 {% block forum_content %}
 
 <ul class="breadcrumb">
@@ -21,9 +43,8 @@
     {% for thread in threads %}
     <tr>
       <td class="caption">
-        <a href="{{ url('forum:show-thread', thread.id) }}">
-          {{ thread.caption }}
-        </a>
+        <a href="{{ url('forum:show-thread', thread.id) }}">{{ thread.caption }}</a>
+        {{ pages_links(thread) }}
       </td>
       <td class="author">{{ thread.author.username }}</td>
       <td class="posts-count">{{ thread.posts_count }}</td>

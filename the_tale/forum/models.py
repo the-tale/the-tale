@@ -7,6 +7,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+from forum.conf import forum_settings
 
 class Category(models.Model):
 
@@ -20,6 +21,8 @@ class Category(models.Model):
 
 
 class SubCategory(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
 
     category = models.ForeignKey(Category, null=False)
 
@@ -44,6 +47,8 @@ class SubCategory(models.Model):
 
 class Thread(models.Model):
 
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
+
     subcategory = models.ForeignKey(SubCategory, null=False)
 
     caption = models.CharField(max_length=256, blank=False, null=False)
@@ -60,6 +65,13 @@ class Thread(models.Model):
         return reverse('forum:show_thread', args=[self.subcategory.category.slug,
                                                   self.subcategory.slug,
                                                   self.id])
+
+    @property
+    def pages_count(self):
+        pages_count = (self.posts_count + 1) / forum_settings.POSTS_ON_PAGE
+        if (self.posts_count + 1) % forum_settings.POSTS_ON_PAGE:
+            pages_count += 1
+        return pages_count
 
 class MARKUP_METHOD:
     POSTMARKUP = 0
