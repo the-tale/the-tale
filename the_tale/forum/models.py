@@ -22,7 +22,7 @@ class Category(models.Model):
 
 class SubCategory(models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
 
     category = models.ForeignKey(Category, null=False)
 
@@ -47,7 +47,7 @@ class SubCategory(models.Model):
 
 class Thread(models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
 
     subcategory = models.ForeignKey(SubCategory, null=False)
 
@@ -62,9 +62,7 @@ class Thread(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
 
     def get_absolute_url(self):
-        return reverse('forum:show_thread', args=[self.subcategory.category.slug,
-                                                  self.subcategory.slug,
-                                                  self.id])
+        return reverse('forum:show-thread', args=[self.id])
 
     @property
     def pages_count(self):
