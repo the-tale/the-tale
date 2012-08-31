@@ -18,7 +18,7 @@ from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, ITEMS_OF_EXPEN
 from game import names
 
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
-from game.heroes.statistics import HeroStatistics
+from game.heroes.statistics import HeroStatistics, MONEY_SOURCE
 from game.heroes.preferences import HeroPreferences
 from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from game.heroes.habilities import AbilitiesPrototype, ABILITIES
@@ -181,6 +181,22 @@ class HeroPrototype(object):
 
     def pop_quest_loot(self, artifact):
         self.bag.pop_quest_artifact(artifact)
+
+    def sell_artifact(self, artifact):
+        sell_price = artifact.get_sell_price()
+
+        sell_price = self.abilities.update_sell_price(self, sell_price)
+
+        if artifact.is_useless:
+            money_source = MONEY_SOURCE.EARNED_FROM_LOOT
+        else:
+            money_source = MONEY_SOURCE.EARNED_FROM_ARTIFACTS
+
+        self.change_money(money_source, sell_price)
+        self.bag.pop_artifact(artifact)
+
+        return sell_price
+
 
     def get_equip_canditates(self):
 

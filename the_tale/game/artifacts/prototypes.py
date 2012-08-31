@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
+import random
 
-from game.artifacts.conf import EQUIP_TYPE
+from game.balance import constants as c, formulas as f
+
+from game.artifacts.conf import EQUIP_TYPE, RARITY_TYPE
+from game.artifacts.exceptions import ArtifactsException
+
 
 class ArtifactPrototype(object):
 
@@ -49,6 +54,24 @@ class ArtifactPrototype(object):
     def set_quest_uuid(self, uuid): self.quest_uuid = uuid
 
     def set_bag_uuid(self, uuid): self.bag_uuid = uuid
+
+    def get_sell_price(self):
+
+        multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
+
+        if self.is_useless:
+            if self.rarity == RARITY_TYPE.NORMAL:
+                gold_amount = 1 + int(f.normal_loot_cost_at_lvl(self.level) * multiplier)
+            elif self.rarity == RARITY_TYPE.RARE:
+                gold_amount = 1 + int(f.rare_loot_cost_at_lvl(self.level) * multiplier)
+            elif self.rarity == RARITY_TYPE.EPIC:
+                gold_amount = 1 + int(f.epic_loot_cost_at_lvl(self.level) * multiplier)
+            else:
+                raise ArtifactsException('unknown artifact rarity type: %s' % self)
+        else:
+            gold_amount = 1 + int(f.sell_artifact_price(self.level) * multiplier)
+
+        return gold_amount
 
     def serialize(self):
         return {'id': self.id,

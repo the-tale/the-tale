@@ -36,6 +36,14 @@
                  "Торговка впарила пепельницу за целую 1071 монету."]
             ]
         },
+        "buying_artifact_and_change": {
+            "description": "",
+            "variables": {"hero": "привидение", "coins": 1071, "artifact": "пепельница", "old_artifact": "нож", "sell_price": 13},
+            "phrases": [
+                ["[[old_artifact|загл]] мне [{надоел|old_artifact|прш}], купил вместо него [[artifact|вн]] за [[coins]] [{монета|coins|вн}]. А [[old_artifact]] [{продал|hero|прш}] за [[sell_price]] [{монета|sell_price|вн}].",
+                 "Нож мне надоел, купил вместо него пепельницу за 1071 монету. А нож продало за 13 монет."]
+            ]
+        },
         "sharpening_artifact": {
             "description": "",
             "variables": {"hero": "привидение", "coins": 13, "artifact": "пепельница"},

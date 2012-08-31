@@ -6,7 +6,7 @@ from dext.utils import s11n
 from dext.utils import database
 
 from game.heroes.logic import create_mob_for_hero
-from game.heroes.bag import SLOTS_LIST
+from game.heroes.bag import SLOTS_LIST, ARTIFACT_TYPES_TO_SLOTS
 from game.heroes.statistics import MONEY_SOURCE
 
 from game.map.places.storage import places_storage
@@ -21,7 +21,6 @@ from game.balance import constants as c, formulas as f
 from game.game_info import ITEMS_OF_EXPENDITURE
 
 from game.artifacts.storage import ArtifactsDatabase
-from game.artifacts.conf import RARITY_TYPE
 
 from game.actions.exceptions import ActionException
 
@@ -823,9 +822,22 @@ class ActionInPlacePrototype(ActionPrototype):
             coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
             if coins is not None:
                 artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+
                 self.hero.bag.put_artifact(artifact)
+
+                slot = random.choice(ARTIFACT_TYPES_TO_SLOTS[artifact.type])
+                unequipped = self.hero.equipment.get(slot)
+                self.hero.change_equipment(slot, unequipped, artifact)
+
                 self.hero.statistics.change_artifacts_had(1)
                 self.hero.add_message('action_inplace_buying_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
+
+                if unequipped is not None:
+                    sell_price = self.hero.sell_artifact(unequipped)
+                    self.hero.add_message('action_inplace_buying_artifact_and_change',
+                                          hero=self.hero, artifact=artifact, coins=sell_price, old_artifact=unequipped, sell_price=sell_price)
+                else:
+                    self.hero.add_message('action_inplace_buying_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
 
         elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
             coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_SHARPENING)
@@ -1005,24 +1017,6 @@ class ActionTradingPrototype(ActionPrototype):
         parent.hero.add_message('action_trading_start', hero=parent.hero)
         return cls(model=model)
 
-
-    def get_sell_price(self, artifact):
-        multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
-        if artifact.is_useless:
-            if artifact.rarity == RARITY_TYPE.NORMAL:
-                gold_amount = 1 + int(f.normal_loot_cost_at_lvl(artifact.level) * multiplier)
-            elif artifact.rarity == RARITY_TYPE.RARE:
-                gold_amount = 1 + int(f.rare_loot_cost_at_lvl(artifact.level) * multiplier)
-            elif artifact.rarity == RARITY_TYPE.EPIC:
-                gold_amount = 1 + int(f.epic_loot_cost_at_lvl(artifact.level) * multiplier)
-            else:
-                raise ActionException('unknown artifact rarity type: %s' % artifact)
-        else:
-            gold_amount = 1 + int(f.sell_artifact_price(artifact.level) * multiplier)
-
-        return self.hero.abilities.update_sell_price(self.hero, gold_amount)
-
-
     def process(self):
 
         if self.state == self.STATE.TRADING:
@@ -1037,15 +1031,7 @@ class ActionTradingPrototype(ActionPrototype):
                     if not artifact.quest:
                         break
 
-                sell_price = self.get_sell_price(artifact)
-
-                if artifact.is_useless:
-                    money_source = MONEY_SOURCE.EARNED_FROM_LOOT
-                else:
-                    money_source = MONEY_SOURCE.EARNED_FROM_ARTIFACTS
-
-                self.hero.change_money(money_source, sell_price)
-                self.hero.bag.pop_artifact(artifact)
+                sell_price = self.hero.sell_artifact(artifact)
 
                 self.hero.add_message('action_trading_sell_item', hero=self.hero, artifact=artifact, coins=sell_price)
 

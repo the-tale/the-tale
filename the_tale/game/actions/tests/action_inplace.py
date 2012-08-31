@@ -125,22 +125,56 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_heal, money - self.hero.money)
         test_bundle_save(self, self.bundle)
 
-    def test_bying_artifact(self):
+    def test_bying_artifact_without_change(self):
         while self.hero.next_spending != ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             self.hero.switch_spending()
 
         money = f.buy_artifact_price(self.hero.level)
 
+        self.assertEqual(self.hero.statistics.money_spend, 0)
+        self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
+        self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
+
+        #unequip all arefact
+        self.hero.equipment.test_remove_all()
+        self.hero.save()
+
+        #buy artifact
         self.hero.model.money = money
+
         self.bundle.process_turn()
         self.assertTrue(self.hero.money < f.buy_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
-        self.assertEqual(len(self.hero.bag.items()), 1)
-        artifact_id, artifact = self.hero.bag.items()[0]
-        self.assertNotEqual(artifact.type, ITEM_TYPE.USELESS)
+        self.assertEqual(len(self.hero.bag.items()), 0)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
+        test_bundle_save(self, self.bundle)
+
+    def test_bying_artifact_with_change(self):
+        while self.hero.next_spending != ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+            self.hero.switch_spending()
+
+        # fill all slots with artifacts
+        self.hero.equipment.test_equip_in_all_slots(ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level))
+
+        money = f.buy_artifact_price(self.hero.level)
+
+        #buy artifact
+        self.hero.model.money = money
+
+        self.assertEqual(self.hero.statistics.money_spend, 0)
+        self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
+        self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
+
+        self.bundle.process_turn()
+        self.assertTrue(self.hero.money < f.buy_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
+        self.assertEqual(len(self.hero.bag.items()), 0)
+
+        self.assertTrue(self.hero.statistics.money_spend > money - self.hero.money)
+        self.assertTrue(self.hero.statistics.money_spend_for_artifacts > money - self.hero.money)
+        self.assertEqual(self.hero.statistics.artifacts_had, 1)
+        self.assertTrue(self.hero.statistics.money_earned_from_artifacts > 0)
         test_bundle_save(self, self.bundle)
 
     def test_sharpening_artifact(self):

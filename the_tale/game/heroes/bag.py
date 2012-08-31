@@ -158,5 +158,17 @@ class Equipment(object):
     def get(self, slot):
         return self.equipment.get(slot, None)
 
+    def test_remove_all(self):
+        for slot in SLOTS_LIST:
+            self.unequip(slot)
+        self.updated = True
+
+    def test_equip_in_all_slots(self, artifact):
+        for slot in SLOTS_LIST:
+            if self.get(slot) is not None:
+                self.unequip(slot)
+            self.equip(slot, artifact)
+        self.updated = True
+
     def __eq__(self, other):
         return (self.equipment == other.equipment)
