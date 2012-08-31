@@ -45,34 +45,39 @@ jQuery(document).ready(function(e){
 
 {% macro preferences_record(name, type, lvl_required, value) -%}
 
-<li>
-    <li class="hero-preferences-record">
-      <strong>{{ name }}:</strong>
-      {% if resource.hero.level >= lvl_required %}
+<li class="hero-preferences-record">
+  <strong>{{ name }}:</strong>
+  {% if resource.hero.level >= lvl_required %}
+  <br/>
+  <span class="" style="margin-left: 2em;">
 
-      {% if value %}
-      <a class="pull-right pgf-remove-preference-button" href="#" data-preference-type="{{ type }}" style="margin-left: 5px;">
-        <i class="icon-trash"></i>
-      </a>
-      {% endif %}
+    {% if value %}
+    <span class="" style="padding-right: 3px;">{{value}}</span>
+    {% else %}
+    <a class="pgf-choose-preference-button"
+       href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type}}"
+       data-preference-type="{{ type }}">
+      выбрать
+    </a>
+    {% endif %}
 
-      <a class="pull-right pgf-choose-preference-button"
-         href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type}}"
-         data-preference-type="{{ type }}">
-        {% if not value %}
-        выбрать
-        {% else %}
-        <i class="icon-pencil"></i>
-        {% endif %}
-      </a>
-      {% if value %}
-      <span class="pull-right" style="padding-right: 3px;">{{value}}</span>
-      {% endif %}
+  </span>
 
-      {% else %}
-      <span class="pull-right">необходим {{ lvl_required }} уровень</span>
-      {% endif %}
-    </li>
+  {% if value %}
+  <a class="pgf-remove-preference-button pull-right" href="#" data-preference-type="{{ type }}" style="margin-left: 5px;">
+    <i class="icon-trash"></i>
+  </a>
+
+  <a class="pgf-choose-preference-button pull-right"
+     href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type}}"
+     data-preference-type="{{ type }}">
+    <i class="icon-pencil"></i>
+  </a>
+  {% endif %}
+
+  {% else %}
+  <span class="pull-right">необходим {{ lvl_required }} уровень</span>
+  {% endif %}
 </li>
 
 {% endmacro %}
