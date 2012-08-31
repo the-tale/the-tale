@@ -2,7 +2,6 @@
 
 from django.test import TestCase
 
-from game.game_info import ITEMS_OF_EXPENDITURE
 from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradingPrototype, ActionEquippingPrototype
 from game.artifacts.storage import ArtifactsDatabase
@@ -109,7 +108,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
 
     def test_instant_heal(self):
-        while self.hero.next_spending != ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
+        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
             self.hero.switch_spending()
 
         money = f.instant_heal_price(self.hero.level)
@@ -125,7 +124,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         test_bundle_save(self, self.bundle)
 
     def test_bying_artifact_without_change(self):
-        while self.hero.next_spending != ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             self.hero.switch_spending()
 
         money = f.buy_artifact_price(self.hero.level)
@@ -151,7 +150,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         test_bundle_save(self, self.bundle)
 
     def test_bying_artifact_with_change(self):
-        while self.hero.next_spending != ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             self.hero.switch_spending()
 
         # fill all slots with artifacts
@@ -177,7 +176,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         test_bundle_save(self, self.bundle)
 
     def test_sharpening_artifact(self):
-        while self.hero.next_spending != ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
+        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
             self.hero.switch_spending()
 
         money = f.sharpening_artifact_price(self.hero.level)
@@ -194,7 +193,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         test_bundle_save(self, self.bundle)
 
     def test_useless(self):
-        while self.hero.next_spending != ITEMS_OF_EXPENDITURE.USELESS:
+        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.USELESS:
             self.hero.switch_spending()
 
         money = f.useless_price(self.hero.level)
@@ -208,7 +207,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
 
     def test_impact(self):
-        while self.hero.next_spending != ITEMS_OF_EXPENDITURE.IMPACT:
+        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.IMPACT:
             self.hero.switch_spending()
 
         money = f.impact_price(self.hero.level)

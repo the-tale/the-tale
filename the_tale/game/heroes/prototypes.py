@@ -10,10 +10,12 @@ from django.conf import settings as project_settings
 from dext.utils import s11n
 from dext.utils import database
 
+from common.utils.logic import random_value_by_priority
+
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage
 
-from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, ITEMS_OF_EXPENDITURE, GENDER_DICT_USERFRIENDLY, RACE_DICT, ATTRIBUTES
+from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, GENDER_DICT_USERFRIENDLY, RACE_DICT, ATTRIBUTES
 
 from game import names
 
@@ -261,7 +263,7 @@ class HeroPrototype(object):
     def next_spending(self): return self.model.next_spending
 
     def switch_spending(self):
-        self.model.next_spending = random.choice(ITEMS_OF_EXPENDITURE.ALL)
+        self.model.next_spending = random_value_by_priority(list(c.ITEMS_OF_EXPENDITURE_PRIORITY.items()))
 
 
     ###########################################

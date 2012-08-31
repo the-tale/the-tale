@@ -5,6 +5,8 @@ import random
 from dext.utils import s11n
 from dext.utils import database
 
+from common.utils.logic import random_value_by_priority
+
 from game.heroes.logic import create_mob_for_hero
 from game.heroes.bag import SLOTS_LIST, ARTIFACT_TYPES_TO_SLOTS
 from game.heroes.statistics import MONEY_SOURCE
@@ -18,7 +20,6 @@ from game.actions.models import Action, UNINITIALIZED_STATE
 from game.actions import battle, contexts
 
 from game.balance import constants as c, formulas as f
-from game.game_info import ITEMS_OF_EXPENDITURE
 
 from game.artifacts.storage import ArtifactsDatabase
 
@@ -179,7 +180,6 @@ class ActionPrototype(object):
         return choices
 
     def get_help_choice(self):
-        from common.utils.logic import random_value_by_priority
 
         choices = [(choice, c.HELP_CHOICES_PRIORITY[choice]) for choice in self.help_choices]
 
@@ -807,13 +807,13 @@ class ActionInPlacePrototype(ActionPrototype):
 
     def spend_money(self):
 
-        if self.hero.next_spending == ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
+        if self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
             coins = self.try_to_spend_money(f.instant_heal_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_HEAL)
             if coins is not None:
                 self.hero.health = self.hero.max_health
                 self.hero.add_message('action_inplace_instant_heal', important=True, hero=self.hero, coins=coins)
 
-        elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+        elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
             if coins is not None:
                 artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
@@ -834,7 +834,7 @@ class ActionInPlacePrototype(ActionPrototype):
                 else:
                     self.hero.add_message('action_inplace_buying_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
 
-        elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
+        elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
             coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_SHARPENING)
             if coins is not None:
                 # select filled slot
@@ -849,12 +849,12 @@ class ActionInPlacePrototype(ActionPrototype):
                         self.hero.add_message('action_inplace_sharpening_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
                         break
 
-        elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.USELESS:
+        elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.USELESS:
             coins = self.try_to_spend_money(f.useless_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_USELESS)
             if coins is not None:
                 self.hero.add_message('action_inplace_spend_useless', important=True, hero=self.hero, coins=coins)
 
-        elif self.hero.next_spending == ITEMS_OF_EXPENDITURE.IMPACT:
+        elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.IMPACT:
             coins = self.try_to_spend_money(f.impact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_IMPACT)
             if coins is not None:
                 impact = f.impact_value(self.hero.level, 1)

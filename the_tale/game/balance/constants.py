@@ -56,6 +56,23 @@ EPIC_LOOT_COST = float(250)
 MAX_BAG_SIZE = int(12) # максимальный размер рюкзака героя
 BAG_SIZE_TO_SELL_LOOT_FRACTION = float(0.33) # процент заполненности рюкзака, после которого герой начнёт продавать вещи
 
+# типы трат
+
+class ITEMS_OF_EXPENDITURE:
+    INSTANT_HEAL = 0
+    BUYING_ARTIFACT = 1
+    SHARPENING_ARTIFACT = 2
+    USELESS = 3
+    IMPACT = 4
+
+    ALL = [INSTANT_HEAL, BUYING_ARTIFACT, SHARPENING_ARTIFACT, USELESS, IMPACT]
+
+ITEMS_OF_EXPENDITURE_PRIORITY = { ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 6,
+                                  ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 2,
+                                  ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 2,
+                                  ITEMS_OF_EXPENDITURE.USELESS: 1,
+                                  ITEMS_OF_EXPENDITURE.IMPACT: 2,}
+
 # относительные размеры различных трат
 
 # эвристический мультипликатор для нормальной цены дейсвия, учитывающий стронние доходы
@@ -149,12 +166,12 @@ class HELP_CHOICES:
     MONEY = 4
     RESURRECT = 5
 
-HELP_CHOICES_PRIORITY = {    HELP_CHOICES.HEAL: 4,
-                             HELP_CHOICES.TELEPORT: 4,
-                             HELP_CHOICES.LIGHTING: 4,
-                             HELP_CHOICES.START_QUEST: 4,
-                             HELP_CHOICES.MONEY: 1,
-                             HELP_CHOICES.RESURRECT: 10,}
+HELP_CHOICES_PRIORITY = { HELP_CHOICES.HEAL: 4,
+                          HELP_CHOICES.TELEPORT: 4,
+                          HELP_CHOICES.LIGHTING: 4,
+                          HELP_CHOICES.START_QUEST: 4,
+                          HELP_CHOICES.MONEY: 1,
+                          HELP_CHOICES.RESURRECT: 10,}
 
 # игровое время из расчёта 1/4 дня в полчаса (считаем среднюю сессию в 15 минут, берём х2 запас), т.е. 1 игровой день == 2 часа реального времени
 

@@ -4,7 +4,9 @@ from django.db import models
 
 from game.angels.models import Angel
 
-from game.game_info import RACE, RACE_CHOICES, GENDER, GENDER_CHOICES, ITEMS_OF_EXPENDITURE
+from game.game_info import RACE, RACE_CHOICES, GENDER, GENDER_CHOICES
+
+from game.balance import constants as c
 
 class Hero(models.Model):
 
@@ -45,7 +47,7 @@ class Hero(models.Model):
 
     last_action_percents = models.FloatField(null=False, default=0)
 
-    next_spending = models.IntegerField(null=False, default=ITEMS_OF_EXPENDITURE.USELESS)
+    next_spending = models.IntegerField(null=False, default=c.ITEMS_OF_EXPENDITURE.USELESS)
 
     #position
     pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True)
