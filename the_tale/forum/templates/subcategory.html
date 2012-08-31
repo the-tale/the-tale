@@ -1,5 +1,7 @@
 {% extends "forum/base.html" %}
 
+{% block title %}{{subcategory.caption}} | {{ super() }}{% endblock %}
+
 {% macro pages_links(thread) %}
 
 {% set pages_count = thread.pages_count %}

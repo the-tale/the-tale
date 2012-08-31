@@ -10,6 +10,8 @@ from cms.conf import cms_settings
 
 SECTIONS_CHOICES = [(section.id, section.caption) for section in cms_settings.SECTIONS]
 
+SECTIONS_DICT = dict([(section.id, section) for section in cms_settings.SECTIONS])
+
 
 class Page(models.Model):
 
@@ -33,6 +35,9 @@ class Page(models.Model):
 
     class Meta:
         unique_together = (('section', 'slug'), ('section', 'order'))
+
+    def get_section(self):
+        return SECTIONS_DICT[self.section]
 
     @property
     def html_content(self):

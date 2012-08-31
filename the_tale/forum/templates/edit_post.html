@@ -1,5 +1,7 @@
 {% extends "forum/base.html" %}
 
+{% block title %}Редактирование сообщения | {{ super() }}{% endblock %}
+
 {% block head %}
 {{ super() }}
 <script src="{{ STATIC_URL }}forum/base.js" type="text/javascript"></script>

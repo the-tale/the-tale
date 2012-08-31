@@ -1,5 +1,7 @@
 {% extends "forum/base.html" %}
 
+{% block title %}{{ super() }}{% endblock %}
+
 {% block forum_content %}
 
 {% for category_data in forum_structure %}

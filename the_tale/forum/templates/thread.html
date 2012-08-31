@@ -1,5 +1,7 @@
 {% extends "forum/base.html" %}
 
+{% block title %}{{ thread.caption }} | {{subcategory.caption}} | {{ super() }}{% endblock %}
+
 {% macro render_pages() %}
 <div class="pagination pagination-right">
   <ul>

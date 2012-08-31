@@ -2,6 +2,8 @@
 
 {% import 'news/macros.html' as macros with context %}
 
+{% block title %}{{ super() }}{% endblock %}
+
 {% block news_content %}
 
 <ul class="unstyled">

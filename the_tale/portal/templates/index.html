@@ -2,6 +2,8 @@
 
 {% import 'news/macros.html' as news_macros with context %}
 
+{% block title %}{{ super() }}{% endblock %}
+
 {% block content %}
 
 {% if not resource.account %}

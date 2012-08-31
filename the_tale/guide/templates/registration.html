@@ -2,6 +2,8 @@
 
 {% block guide_content %}
 
+{% block title %}Регистрация | {{ super() }}{% endblock %}
+
 <h3>Регистрация</h3>
 
 {% if resource.account and resource.account.is_fast %}
