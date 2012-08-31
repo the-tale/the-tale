@@ -181,7 +181,7 @@ class CRITICAL_HIT(AbilityPrototype):
 
     NAME = u'Критический удар'
     normalized_name = NAME
-    DESCRIPTION = u'Удача благосклонна к герою - урон от любого удара может существенно увеличится.'
+    DESCRIPTION = u'Удача благосклонна к герою — урон от любого удара может существенно увеличится.'
 
     CRITICAL_CHANCE = 0.1
 

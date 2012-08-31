@@ -15,7 +15,7 @@ class EXTRA_SLOW(AbilityPrototype):
 
     NAME = u'Неповоротливый'
     normalized_name = NAME
-    DESCRIPTION = u'у обладателя этой способности наверняка в роду были ленивцы - в бою он движется очень медленно.'
+    DESCRIPTION = u'У обладателя этой способности наверняка в роду были ленивцы — в бою он движется очень медленно.'
 
     @classmethod
     def modify_attribute(cls, type_, value): return value*0.7 if type_ == ATTRIBUTES.INITIATIVE else value
@@ -163,7 +163,7 @@ class STRONG(AbilityPrototype):
 
     NAME = u'Боец'
     normalized_name = NAME
-    DESCRIPTION = u'удары героев и монстров с этой способностью становятся немного сильнее.'
+    DESCRIPTION = u'Удары героев и монстров с этой способностью становятся немного сильнее.'
 
     @classmethod
     def modify_attribute(cls, type_, value): return value*1.15 if type_ == ATTRIBUTES.DAMAGE else value
@@ -177,7 +177,7 @@ class EXTRA_STRONG(AbilityPrototype):
 
     NAME = u'Громила'
     normalized_name = NAME
-    DESCRIPTION = u'Лучше не попадать под удары этого монстра - громила наносит на много больший урон чем другие противники.'
+    DESCRIPTION = u'Лучше не попадать под удары этого монстра — громила наносит на много больший урон чем другие противники.'
 
     @classmethod
     def modify_attribute(cls, type_, value): return value*1.3 if type_ == ATTRIBUTES.DAMAGE else value
