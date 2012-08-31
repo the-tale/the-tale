@@ -79,6 +79,13 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.ANGEL_HELP_TELEPORT_DISTANCE, float(3.0))
         self.assertEqual(c.ANGEL_HELP_LIGHTING_FRACTION, (float(0.25), float(0.5)))
 
+        self.assertEqual(c.HELP_CHOICES_PRIORITY, { c.HELP_CHOICES.HEAL: 4,
+                                                    c.HELP_CHOICES.TELEPORT: 4,
+                                                    c.HELP_CHOICES.LIGHTING: 4,
+                                                    c.HELP_CHOICES.START_QUEST: 4,
+                                                    c.HELP_CHOICES.MONEY: 1,
+                                                    c.HELP_CHOICES.RESURRECT: 10,})
+
         self.assertEqual(c.GAME_SECONDS_IN_GAME_MINUTE, 60)
         self.assertEqual(c.GAME_MINUTES_IN_GAME_HOUR, 60)
         self.assertEqual(c.GAME_HOURSE_IN_GAME_DAY, 24)

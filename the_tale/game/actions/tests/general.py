@@ -2,10 +2,11 @@
 
 from django.test import TestCase
 
+from game.balance import constants as c
 from game.logic import create_test_bundle, create_test_map
 from game.prototypes import TimePrototype
 
-from game.actions.prototypes import ACTION_TYPES, HELP_CHOICES
+from game.actions.prototypes import ACTION_TYPES
 
 class GeneralTest(TestCase):
 
@@ -29,13 +30,13 @@ class GeneralTest(TestCase):
 
     def test_get_help_choice_has_heal(self):
         for i in xrange(100):
-            self.assertNotEqual(self.action_idl.get_help_choice(), HELP_CHOICES.HEAL)
+            self.assertNotEqual(self.action_idl.get_help_choice(), c.HELP_CHOICES.HEAL)
 
         self.hero.health = 1
 
         heal_found = False
         for i in xrange(100):
-            heal_found = heal_found or (self.action_idl.get_help_choice() == HELP_CHOICES.HEAL)
+            heal_found = heal_found or (self.action_idl.get_help_choice() == c.HELP_CHOICES.HEAL)
 
         self.assertTrue(heal_found)
 
@@ -54,9 +55,9 @@ class GeneralTest(TestCase):
         self.hero.health = 1
         self.hero.save()
 
-        self.assertTrue(HELP_CHOICES.HEAL in self.action_idl.help_choices)
+        self.assertTrue(c.HELP_CHOICES.HEAL in self.action_idl.help_choices)
 
         self.hero.kill()
         self.hero.save()
 
-        self.assertFalse(HELP_CHOICES.HEAL in self.action_idl.help_choices)
+        self.assertFalse(c.HELP_CHOICES.HEAL in self.action_idl.help_choices)

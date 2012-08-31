@@ -3,8 +3,9 @@ import mock
 
 from django.test import TestCase
 
+from game.balance import constants as c
 from game.logic import create_test_bundle, create_test_map, test_bundle_save
-from game.actions.prototypes import ActionRestPrototype, HELP_CHOICES
+from game.actions.prototypes import ActionRestPrototype
 from game.abilities.deck.help import Help
 from game.prototypes import TimePrototype
 from game.angels.prototypes import AngelPrototype
@@ -51,7 +52,7 @@ class RestActionTest(TestCase):
 
         old_percents = self.action_rest.percents
 
-        with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: HELP_CHOICES.HEAL):
+        with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: c.HELP_CHOICES.HEAL):
             self.assertTrue(ability.use(self.bundle, self.angel, self.hero, None))
             self.assertTrue(self.hero.health > 1)
             self.assertTrue(old_percents < self.action_rest.percents)

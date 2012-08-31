@@ -46,15 +46,6 @@ def get_action_by_model(model):
     return ACTION_TYPES[model.type](model=model)
 
 
-class HELP_CHOICES:
-    HEAL = 0
-    TELEPORT = 1
-    LIGHTING = 2
-    START_QUEST = 3
-    MONEY = 4
-    RESURRECT = 5
-
-
 class ActionPrototype(object):
 
     TYPE = 'BASE'
@@ -180,15 +171,19 @@ class ActionPrototype(object):
     @property
     def help_choices(self):
         choices = copy.copy(self.EXTRA_HELP_CHOICES)
-        choices.add(HELP_CHOICES.MONEY)
+        choices.add(c.HELP_CHOICES.MONEY)
 
         if self.hero.is_alive and c.ANGEL_HELP_HEAL_IF_LOWER_THEN * self.hero.max_health > self.hero.health:
-            choices.add(HELP_CHOICES.HEAL)
+            choices.add(c.HELP_CHOICES.HEAL)
 
         return choices
 
     def get_help_choice(self):
-        return random.choice(list(self.help_choices))
+        from common.utils.logic import random_value_by_priority
+
+        choices = [(choice, c.HELP_CHOICES_PRIORITY[choice]) for choice in self.help_choices]
+
+        return random_value_by_priority(choices)
 
     def get_description(self):
         template_name = '%s_description' % self.TEXTGEN_TYPE
@@ -360,7 +355,7 @@ class ActionIdlenessPrototype(ActionPrototype):
 
     TYPE = 'IDLENESS'
     TEXTGEN_TYPE = 'action_idleness'
-    EXTRA_HELP_CHOICES = set((HELP_CHOICES.START_QUEST,))
+    EXTRA_HELP_CHOICES = set((c.HELP_CHOICES.START_QUEST,))
 
     class STATE(ActionPrototype.STATE):
         QUEST = 'QUEST'
@@ -456,7 +451,7 @@ class ActionMoveToPrototype(ActionPrototype):
     TYPE = 'MOVE_TO'
     TEXTGEN_TYPE = 'action_moveto'
     SHORT_DESCRIPTION = u'путешествует'
-    EXTRA_HELP_CHOICES = set((HELP_CHOICES.TELEPORT,))
+    EXTRA_HELP_CHOICES = set((c.HELP_CHOICES.TELEPORT,))
 
     class STATE(ActionPrototype.STATE):
         CHOOSE_ROAD = 'choose_road'
@@ -634,7 +629,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
     TYPE = 'BATTLE_PVE1x1'
     TEXTGEN_TYPE = 'action_battlepve1x1'
     CONTEXT_MANAGER = contexts.BattleContext
-    EXTRA_HELP_CHOICES = set((HELP_CHOICES.LIGHTING,))
+    EXTRA_HELP_CHOICES = set((c.HELP_CHOICES.LIGHTING,))
 
     class STATE(ActionPrototype.STATE):
         BATTLE_RUNNING = 'battle_running'
@@ -727,7 +722,7 @@ class ActionResurrectPrototype(ActionPrototype):
 
     TYPE = 'RESURRECT'
     TEXTGEN_TYPE = 'action_resurrect'
-    EXTRA_HELP_CHOICES = set((HELP_CHOICES.RESURRECT,))
+    EXTRA_HELP_CHOICES = set((c.HELP_CHOICES.RESURRECT,))
 
     class STATE(ActionPrototype.STATE):
         RESURRECT = 'resurrect'

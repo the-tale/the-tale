@@ -141,6 +141,21 @@ ANGEL_HELP_HEAL_FRACTION = (float(0.25), float(0.5)) # (min, max) процент
 ANGEL_HELP_TELEPORT_DISTANCE = float(3.0) # расстяние на которое происходит телепорт
 ANGEL_HELP_LIGHTING_FRACTION = (float(0.25), float(0.5)) # (min, max) процент урона, который будет нанесён
 
+class HELP_CHOICES:
+    HEAL = 0
+    TELEPORT = 1
+    LIGHTING = 2
+    START_QUEST = 3
+    MONEY = 4
+    RESURRECT = 5
+
+HELP_CHOICES_PRIORITY = {    HELP_CHOICES.HEAL: 4,
+                             HELP_CHOICES.TELEPORT: 4,
+                             HELP_CHOICES.LIGHTING: 4,
+                             HELP_CHOICES.START_QUEST: 4,
+                             HELP_CHOICES.MONEY: 1,
+                             HELP_CHOICES.RESURRECT: 10,}
+
 # игровое время из расчёта 1/4 дня в полчаса (считаем среднюю сессию в 15 минут, берём х2 запас), т.е. 1 игровой день == 2 часа реального времени
 
 GAME_SECONDS_IN_GAME_MINUTE = int(60)
