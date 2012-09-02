@@ -5,12 +5,17 @@ from django.contrib.contenttypes.models import ContentType
 
 def add_permissions(group, permissions):
     for permission_string in permissions:
+
         app_label, permission =  permission_string.split('.')
         model_label = permission.split('_')[-1]
 
         content_type = ContentType.objects.get(app_label=app_label, model=model_label)
 
-        perm = Permission.objects.get(codename=permission, content_type=content_type)
+        try:
+            perm = Permission.objects.get(codename=permission, content_type=content_type)
+        except Permission.DoesNotExist:
+            perm = Permission.objects.create(codename=permission, content_type=content_type)
+
         group.permissions.add(perm)
 
 def sync_group(group_name, permissions):

@@ -25,8 +25,7 @@ class TestModeration(TestCase):
         self.moderator = django_authenticate(username='moderator', password='111111')
         self.second_user = django_authenticate(username='second_user', password='111111')
 
-        group = sync_group('forum moderators group', ['forum.add_thread', 'forum.change_thread', 'forum.delete_thread',
-                                                      'forum.add_post',  'forum.change_post', 'forum.delete_post'])
+        group = sync_group('forum moderators group', ['forum.moderate_post', 'forum.moderate_thread'])
 
         group.user_set.add(self.moderator)
 

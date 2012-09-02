@@ -61,6 +61,9 @@ class Thread(models.Model):
 
     updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
 
+    class Meta:
+        permissions = (("moderate_thread", "Может редактировать темы на форуме"), )
+
     def get_absolute_url(self):
         return reverse('forum:show-thread', args=[self.id])
 
@@ -92,6 +95,9 @@ class Post(models.Model):
     text = models.TextField(null=False, blank=True, default='')
 
     markup_method = models.IntegerField(default=MARKUP_METHOD.POSTMARKUP, choices=MARKUP_METHOD_CHOICES, null=False)
+
+    class Meta:
+        permissions = (("moderate_post", "Может редактировать сообщения пользователей"), )
 
     @property
     def html(self):

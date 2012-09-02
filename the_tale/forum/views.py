@@ -25,25 +25,25 @@ class ForumResource(Resource):
         self.subcategory_slug = subcategory
 
     def can_delete_thread(self, thread):
-        return self.user == thread.author or self.user.has_perm('forum.delete_thread')
+        return self.user == thread.author or self.user.has_perm('forum.moderate_thread')
 
     def can_change_thread(self, thread):
-        return self.user == thread.author or self.user.has_perm('forum.change_thread')
+        return self.user == thread.author or self.user.has_perm('forum.moderate_thread')
 
     def can_change_thread_category(self):
-        return self.user.has_perm('forum.change_thread')
+        return self.user.has_perm('forum.moderate_thread')
 
     def can_delete_posts(self, thread):
-        return self.user == thread.author or self.user.has_perm('forum.delete_post')
+        return self.user == thread.author or self.user.has_perm('forum.moderate_post')
 
     def can_create_thread(self, subcategory):
         if not subcategory.closed:
             return self.account and not self.account.is_fast
 
-        return self.user.has_perm('forum.add_thread')
+        return self.user.has_perm('forum.moderate_thread')
 
     def can_change_posts(self):
-        return self.user.has_perm('forum.change_post')
+        return self.user.has_perm('forum.moderate_post')
 
     @property
     def category(self):

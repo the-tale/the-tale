@@ -48,5 +48,4 @@ class Command(BaseCommand):
         sync_group('content group', ['cms.add_page', 'cms.change_page', 'cms.delete_page',
                                     'news.add_news', 'news.change_news', 'news.delete_news'])
 
-        sync_group('forum moderators group', ['forum.add_thread', 'forum.change_thread', 'forum.delete_thread',
-                                              'forum.add_post',  'forum.change_post', 'forum.delete_post'])
+        sync_group('forum moderators group', ['forum.moderate_thread', 'forum.moderate_post'])
