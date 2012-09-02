@@ -127,6 +127,68 @@ class TestModeration(TestCase):
 
 
     ###############################
+    # thread editing
+    ###############################
+
+    def test_unlogined_user_has_edit_theme_button(self):
+        self.check_html_ok(self.client.get(reverse('forum:show-thread', args=[self.thread.id])), texts=[('pgf-change-thread-button', 0)])
+
+    def test_main_user_has_edit_theme_button(self):
+        self.login('main_user')
+        self.check_html_ok(self.client.get(reverse('forum:show-thread', args=[self.thread.id])), texts=[('pgf-change-thread-button', 1)])
+
+    def test_second_user_has_edit_theme_button(self):
+        self.login('second_user')
+        self.check_html_ok(self.client.get(reverse('forum:show-thread', args=[self.thread.id])), texts=[('pgf-change-thread-button', 0)])
+
+    def test_moderator_user_has_edit_theme_button(self):
+        self.login('moderator')
+        self.check_html_ok(self.client.get(reverse('forum:show-thread', args=[self.thread.id])), texts=[('pgf-change-thread-button', 1)])
+
+    def test_unlogined_user_edit_theme_page(self):
+        self.check_html_ok(self.client.get(reverse('forum:edit-thread', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 0), ('forum.edit_thread.unlogined', 1)])
+
+    def test_main_user_edit_theme_page(self):
+        self.login('main_user')
+        self.check_html_ok(self.client.get(reverse('forum:edit-thread', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2)])
+
+    def test_second_user_edit_theme_button(self):
+        self.login('second_user')
+        self.check_html_ok(self.client.get(reverse('forum:edit-thread', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 0), ('forum.edit_thread.no_permissions', 1)])
+
+    def test_moderator_user_edit_theme_button(self):
+        self.login('moderator')
+        self.check_html_ok(self.client.get(reverse('forum:edit-thread', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2)])
+
+    def test_unlogined_user_update_theme(self):
+        self.check_ajax_error(self.client.post(reverse('forum:update-thread', args=[self.thread.id]), {'caption': 'edited caption'}),
+                              'forum.update_thread.unlogined')
+        self.assertEqual(self.thread.caption, Thread.objects.get(id=self.thread.id).caption)
+
+    def test_main_user_update_theme(self):
+        self.login('main_user')
+        self.check_ajax_ok(self.client.post(reverse('forum:update-thread', args=[self.thread.id]), {'caption': 'edited caption'}))
+        self.assertEqual(Thread.objects.get(id=self.thread.id).caption, 'edited caption')
+
+    def test_main_user_update_theme_with_form_errors(self):
+        self.login('main_user')
+        self.check_ajax_error(self.client.post(reverse('forum:update-thread', args=[self.thread.id]), {'caption': ''}),
+                              'forum.update_thread.form_errors')
+        self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
+
+    def test_second_user_update_theme(self):
+        self.login('second_user')
+        self.check_ajax_error(self.client.post(reverse('forum:update-thread', args=[self.thread.id]), {'caption': 'edited caption'}),
+                              'forum.update_thread.no_permissions')
+        self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
+
+    def test_moderator_user_update_theme(self):
+        self.login('moderator')
+        self.check_ajax_ok(self.client.post(reverse('forum:update-thread', args=[self.thread.id]), {'caption': 'edited caption'}))
+        self.assertEqual(Thread.objects.get(id=self.thread.id).caption, 'edited caption')
+
+
+    ###############################
     # thread deletion
     ###############################
 

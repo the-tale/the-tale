@@ -9,7 +9,7 @@ from dext.views.resources import handler
 from common.utils.resources import Resource
 
 from forum.models import Category, SubCategory, Thread, Post
-from forum.forms import NewPostForm, NewThreadForm
+from forum.forms import NewPostForm, NewThreadForm, EditThreadForm
 from forum.conf import forum_settings
 from forum.logic import create_thread, create_post, delete_thread, delete_post
 
@@ -26,6 +26,9 @@ class ForumResource(Resource):
 
     def can_delete_thread(self, thread):
         return self.user == thread.author or self.user.has_perm('forum.delete_thread')
+
+    def can_change_thread(self, thread):
+        return self.user == thread.author or self.user.has_perm('forum.change_thread')
 
     def can_delete_posts(self, thread):
         return self.user == thread.author or self.user.has_perm('forum.delete_post')
@@ -167,6 +170,50 @@ class ForumResource(Resource):
 
         return self.json_ok()
 
+    @handler('threads', '#thread_id', 'update', name='update-thread', method='post')
+    def update_thread(self):
+
+        if self.account is None:
+            return self.json_error('forum.update_thread.unlogined', u'Вы должны войти на сайт, чтобы редактировать тему')
+
+        if self.account.is_fast:
+            return self.json_error('forum.update_thread.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
+
+        if not self.can_change_thread(self.thread):
+            return self.json_error('forum.update_thread.no_permissions', u'У Вас нет прав для редактирования темы')
+
+        edit_thread_form = EditThreadForm(self.request.POST)
+
+        if not edit_thread_form.is_valid():
+            return self.json_error('forum.update_thread.form_errors', edit_thread_form.errors)
+
+        self.thread.caption = edit_thread_form.c.caption
+        self.thread.save()
+
+        return self.json_ok()
+
+    @handler('threads', '#thread_id', 'edit', name='edit-thread', method='get')
+    def edit_thread(self):
+
+        if self.account is None:
+            return self.template('error.html', {'msg': u'Вы должны войти на сайт, чтобы редактировать тему',
+                                                'error_code': 'forum.edit_thread.unlogined'})
+
+        if self.account.is_fast:
+            return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете работать с форумом',
+                                                'error_code': 'forum.edit_thread.fast_account'})
+
+        if not self.can_change_thread(self.thread):
+            return self.template('error.html', {'msg': u'Вы не можете редактировать эту тему',
+                                                'error_code': 'forum.edit_thread.no_permissions'})
+
+        return self.template('forum/edit_thread.html',
+                             {'category': self.category,
+                              'subcategory': self.subcategory,
+                              'thread': self.thread,
+                              'edit_thread_form': EditThreadForm()} )
+
+
     @handler('threads', '#thread_id', name='show-thread', method='get')
     def get_thread(self, page=1):
 
@@ -197,6 +244,7 @@ class ForumResource(Resource):
                               'pages_numbers': range(self.thread.pages_count),
                               'start_posts_from': page * forum_settings.POSTS_ON_PAGE,
                               'can_delete_thread': self.can_delete_thread(self.thread),
+                              'can_change_thread': self.can_change_thread(self.thread),
                               'can_delete_posts': self.can_delete_posts(self.thread),
                               'can_change_posts': self.can_change_posts(),
                               'has_post_on_page': has_post_on_page,

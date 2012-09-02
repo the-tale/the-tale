@@ -90,8 +90,12 @@ jQuery(document).ready( function(e) {
   <li><a href="{{ url('forum:subcategory', subcategory.slug) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
   <li class="active">{{ thread.caption }}</li>
   {% if can_delete_thread %}
-  <li class="pull-right"><a href="#" class="pgf-remove-thread-button">удалить тему</a></li>
+  <li class="pull-right"><a href="#" class="pgf-remove-thread-button">удалить</a></li>
   {% endif %}
+  {% if can_change_thread %}
+  <li class="pull-right" style="margin-right: 1em;"><a href="{{ url('forum:edit-thread', thread.id) }}" class="pgf-change-thread-button">редактировать</a></li>
+  {% endif %}
+
 </ul>
 
 {{ render_pages() }}

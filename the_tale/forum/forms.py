@@ -31,3 +31,8 @@ class NewPostForm(forms.Form):
 class NewThreadForm(NewPostForm):
 
     caption = fields.CharField(label=u'Название', max_length=256)
+
+
+class EditThreadForm(forms.Form):
+
+    caption = fields.CharField(label=u'Название', max_length=256)

@@ -10,7 +10,6 @@ jQuery(document).ready( function(e) {
 
     var newThreadForm = new pgf.forms.Form(jQuery('#pgf-new-thread-form'),
                                            { OnSuccess: function(form, data){
-                                               var url = "{{ url('forum:subcategory', subcategory.slug) }}";
                                                location.href = data.data.thread_url;
                                            }
                                            });
