@@ -130,6 +130,7 @@ class TestModeration(TestCase):
     # thread editing
     ###############################
 
+    # button
     def test_unlogined_user_has_edit_theme_button(self):
         self.check_html_ok(self.client.get(reverse('forum:show-thread', args=[self.thread.id])), texts=[('pgf-change-thread-button', 0)])
 
@@ -145,36 +146,66 @@ class TestModeration(TestCase):
         self.login('moderator')
         self.check_html_ok(self.client.get(reverse('forum:show-thread', args=[self.thread.id])), texts=[('pgf-change-thread-button', 1)])
 
+    # page
     def test_unlogined_user_edit_theme_page(self):
-        self.check_html_ok(self.client.get(reverse('forum:edit-thread', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 0), ('forum.edit_thread.unlogined', 1)])
+        self.check_html_ok(self.client.get(reverse('forum:edit-thread', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 0),
+                                                                                                        ('forum.edit_thread.unlogined', 1),
+                                                                                                        ('pgf-thread-subcategory', 0),
+                                                                                                        ('thread-caption', 0)])
 
     def test_main_user_edit_theme_page(self):
         self.login('main_user')
-        self.check_html_ok(self.client.get(reverse('forum:edit-thread', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2)])
+        self.check_html_ok(self.client.get(reverse('forum:edit-thread', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2),
+                                                                                                        ('pgf-thread-subcategory', 0),
+                                                                                                        ('thread-caption', 2)])
 
     def test_second_user_edit_theme_button(self):
         self.login('second_user')
-        self.check_html_ok(self.client.get(reverse('forum:edit-thread', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 0), ('forum.edit_thread.no_permissions', 1)])
+        self.check_html_ok(self.client.get(reverse('forum:edit-thread', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 0),
+                                                                                                        ('forum.edit_thread.no_permissions', 1),
+                                                                                                        ('pgf-thread-subcategory', 0),
+                                                                                                        ('thread-caption', 0)])
 
     def test_moderator_user_edit_theme_button(self):
         self.login('moderator')
-        self.check_html_ok(self.client.get(reverse('forum:edit-thread', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2)])
-
+        self.check_html_ok(self.client.get(reverse('forum:edit-thread', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2),
+                                                                                                        ('pgf-thread-subcategory', 1),
+                                                                                                        ('thread-caption', 2)])
+    # update request
     def test_unlogined_user_update_theme(self):
         self.check_ajax_error(self.client.post(reverse('forum:update-thread', args=[self.thread.id]), {'caption': 'edited caption'}),
-                              'forum.update_thread.unlogined')
-        self.assertEqual(self.thread.caption, Thread.objects.get(id=self.thread.id).caption)
+        'forum.update_thread.unlogined')
+        self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
 
     def test_main_user_update_theme(self):
         self.login('main_user')
         self.check_ajax_ok(self.client.post(reverse('forum:update-thread', args=[self.thread.id]), {'caption': 'edited caption'}))
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, 'edited caption')
 
+    def test_main_user_update_theme_with_subcategory(self):
+        self.assertEqual(self.subcategory.posts_count, 4)
+        self.assertEqual(self.subcategory.threads_count, 3)
+        self.assertEqual(self.subcategory2.posts_count, 0)
+        self.assertEqual(self.subcategory2.threads_count, 0)
+
+        self.login('main_user')
+        self.check_ajax_error(self.client.post(reverse('forum:update-thread', args=[self.thread.id]), {'caption': 'edited caption', 'subcategory': self.subcategory2.id}),
+                              'forum.update_thread.no_permissions_to_change_subcategory')
+        self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
+
+        self.assertEqual(self.subcategory.posts_count, 4)
+        self.assertEqual(self.subcategory.threads_count, 3)
+        self.assertEqual(self.subcategory2.posts_count, 0)
+        self.assertEqual(self.subcategory2.threads_count, 0)
+
+
     def test_main_user_update_theme_with_form_errors(self):
         self.login('main_user')
         self.check_ajax_error(self.client.post(reverse('forum:update-thread', args=[self.thread.id]), {'caption': ''}),
                               'forum.update_thread.form_errors')
-        self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
+        thread = Thread.objects.get(id=self.thread.id)
+        self.assertEqual(thread.caption, self.thread.caption)
+        self.assertEqual(thread.subcategory_id, self.subcategory.id)
 
     def test_second_user_update_theme(self):
         self.login('second_user')
@@ -186,6 +217,26 @@ class TestModeration(TestCase):
         self.login('moderator')
         self.check_ajax_ok(self.client.post(reverse('forum:update-thread', args=[self.thread.id]), {'caption': 'edited caption'}))
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, 'edited caption')
+
+    def test_moderator_user_update_theme_with_subcategory(self):
+        self.assertEqual(self.subcategory.posts_count, 4)
+        self.assertEqual(self.subcategory.threads_count, 3)
+        self.assertEqual(self.subcategory2.posts_count, 0)
+        self.assertEqual(self.subcategory2.threads_count, 0)
+
+        self.login('moderator')
+        self.check_ajax_ok(self.client.post(reverse('forum:update-thread', args=[self.thread.id]), {'caption': 'edited caption', 'subcategory': self.subcategory2.id}))
+        thread = Thread.objects.get(id=self.thread.id)
+        self.assertEqual(thread.caption, 'edited caption')
+        self.assertEqual(thread.subcategory_id, self.subcategory2.id)
+
+        subcategory = SubCategory.objects.get(id=self.subcategory.id)
+        subcategory2 = SubCategory.objects.get(id=self.subcategory2.id)
+
+        self.assertEqual(subcategory.posts_count, 2)
+        self.assertEqual(subcategory.threads_count, 2)
+        self.assertEqual(subcategory2.posts_count, 2)
+        self.assertEqual(subcategory2.threads_count, 1)
 
 
     ###############################

@@ -37,6 +37,12 @@ jQuery(document).ready( function(e) {
     {{ edit_thread_form.caption.widget}}
   </div>
 
+  {% if can_change_thread_category %}
+  <div class="pgf-thread-subcategory">
+    {{ edit_thread_form.subcategory.widget}}
+  </div>
+  {% endif %}
+
   <div class="widget">
     <input type="submit" value="Сохранить"/>
   </div>

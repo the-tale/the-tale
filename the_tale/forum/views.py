@@ -11,7 +11,7 @@ from common.utils.resources import Resource
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm, EditThreadForm
 from forum.conf import forum_settings
-from forum.logic import create_thread, create_post, delete_thread, delete_post
+from forum.logic import create_thread, create_post, delete_thread, delete_post, update_thread
 
 
 class ForumResource(Resource):
@@ -29,6 +29,9 @@ class ForumResource(Resource):
 
     def can_change_thread(self, thread):
         return self.user == thread.author or self.user.has_perm('forum.change_thread')
+
+    def can_change_thread_category(self):
+        return self.user.has_perm('forum.change_thread')
 
     def can_delete_posts(self, thread):
         return self.user == thread.author or self.user.has_perm('forum.delete_post')
@@ -182,13 +185,21 @@ class ForumResource(Resource):
         if not self.can_change_thread(self.thread):
             return self.json_error('forum.update_thread.no_permissions', u'У Вас нет прав для редактирования темы')
 
-        edit_thread_form = EditThreadForm(self.request.POST)
+        edit_thread_form = EditThreadForm(subcategories=SubCategory.objects.all(), data=self.request.POST )
 
         if not edit_thread_form.is_valid():
             return self.json_error('forum.update_thread.form_errors', edit_thread_form.errors)
 
-        self.thread.caption = edit_thread_form.c.caption
-        self.thread.save()
+        try:
+            new_subcategory_id = int(edit_thread_form.c.subcategory)
+        except ValueError:
+            new_subcategory_id = None
+
+        if new_subcategory_id is not None and self.thread.subcategory.id != edit_thread_form.c.subcategory:
+            if not self.can_change_thread_category():
+                return self.json_error('forum.update_thread.no_permissions_to_change_subcategory', u'У вас нет прав для переноса темы в другой раздел')
+
+        update_thread(self.subcategory, self.thread, edit_thread_form.c.caption, new_subcategory_id)
 
         return self.json_ok()
 
@@ -211,7 +222,9 @@ class ForumResource(Resource):
                              {'category': self.category,
                               'subcategory': self.subcategory,
                               'thread': self.thread,
-                              'edit_thread_form': EditThreadForm()} )
+                              'edit_thread_form': EditThreadForm(subcategories=SubCategory.objects.all(), initial={'subcategory': self.subcategory.id,
+                                                                                                                   'caption': self.thread.caption}),
+                              'can_change_thread_category': self.can_change_thread_category()} )
 
 
     @handler('threads', '#thread_id', name='show-thread', method='get')

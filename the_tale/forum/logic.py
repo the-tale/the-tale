@@ -42,6 +42,27 @@ def delete_thread(subcategory, thread):
     subcategory.posts_count = sum(Thread.objects.filter(subcategory=subcategory).values_list('posts_count', flat=True))
     subcategory.save()
 
+@nested_commit_on_success
+def update_thread(subcategory, thread, caption, new_subcategory_id):
+
+    thread.caption = caption
+
+    subcategory_changed = new_subcategory_id is not None and subcategory.id != new_subcategory_id
+
+    if subcategory_changed:
+        thread.subcategory = SubCategory.objects.get(id=new_subcategory_id)
+
+    thread.save()
+
+    if subcategory_changed:
+        subcategory.threads_count = Thread.objects.filter(subcategory=subcategory).count()
+        subcategory.posts_count = sum(Thread.objects.filter(subcategory=subcategory).values_list('posts_count', flat=True))
+        subcategory.save()
+
+        thread.subcategory.threads_count = Thread.objects.filter(subcategory=thread.subcategory).count()
+        thread.subcategory.posts_count = sum(Thread.objects.filter(subcategory=thread.subcategory).values_list('posts_count', flat=True))
+        thread.subcategory.save()
+
 
 @nested_commit_on_success
 def create_post(subcategory, thread, author, text):
