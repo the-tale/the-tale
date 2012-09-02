@@ -11,10 +11,7 @@ def add_permissions(group, permissions):
 
         content_type = ContentType.objects.get(app_label=app_label, model=model_label)
 
-        try:
-            perm = Permission.objects.get(codename=permission, content_type=content_type)
-        except Permission.DoesNotExist:
-            perm = Permission.objects.create(codename=permission, content_type=content_type)
+        perm = Permission.objects.get(codename=permission, content_type=content_type)
 
         group.permissions.add(perm)
 
