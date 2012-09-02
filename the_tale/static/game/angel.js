@@ -66,6 +66,8 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
     var deck = {};
     var turn = {};
 
+    var allowAbilityUnlock = {};
+
     function ChangeAbilityEnergyState(abilityType, energy) {
         jQuery('.pgf-ability-'+abilityType, widget).toggleClass('no-energy', energy);
     }
@@ -136,10 +138,8 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
                             ChangeAbilityWaitingState(ability.type, false);
                         },
                         OnSuccess: function(data) {
-                            ChangeAbilityWaitingState(ability.type, false);
-
+                            allowAbilityUnlock[ability.type] = true;
                             ability.available_at = data.data.available_at;
-
                             jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
                         }
                        });
@@ -176,5 +176,13 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
         Refresh(game_data);
         Render();
+
+        for (abilityType in allowAbilityUnlock) {
+            if (allowAbilityUnlock[abilityType]) {
+                allowAbilityUnlock[abilityType] = false;
+                ChangeAbilityWaitingState(abilityType, false);
+            }
+        }
+
     });
 };

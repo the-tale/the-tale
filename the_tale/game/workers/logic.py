@@ -136,8 +136,9 @@ class Worker(BaseWorker):
             task = AbilityTaskPrototype.get_by_id(ability_task_id)
             bundle = self.bundles[self.angels2bundles[task.angel_id]]
             task.process(bundle)
+            bundle.save_data() # just to enshure, that if syddenly transaction will be removed, bundle will be saved before task
             task.save()
-            bundle.save_data()
+
 
     def cmd_choose_hero_ability(self, ability_task_id):
         self.send_cmd('choose_hero_ability', {'ability_task_id': ability_task_id})

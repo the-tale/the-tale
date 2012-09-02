@@ -87,7 +87,7 @@ jQuery(document).ready(function(e){
 
     setTimeout(RefreshData, 0);
 
-    {% if settings.DEBUG %}
+    {% if not settings.DEBUG %}
     setInterval(RefreshData, {{ game_settings.TURN_DELAY*1000 }} );
     {% endif %}
 
