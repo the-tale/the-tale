@@ -34,6 +34,7 @@ class TestModeration(TestCase):
 
         self.category = Category.objects.create(caption='cat-caption', slug='cat-slug', order=0)
         self.subcategory = SubCategory.objects.create(category=self.category, caption='subcat-caption', slug='subcat-slug', order=0)
+        self.subcategory2 = SubCategory.objects.create(category=self.category, caption='subcat2-caption', slug='subcat2-slug', order=1, closed=True)
         self.thread = create_thread(self.subcategory, 'thread-caption', self.main_user, 'thread-text')
         self.post = create_post(self.subcategory, self.thread, self.main_user, 'post-text')
         self.post2 = create_post(self.subcategory, self.thread, self.main_user, 'post2-text')
@@ -43,6 +44,7 @@ class TestModeration(TestCase):
         self.post4 = create_post(self.subcategory, self.thread2, self.second_user, 'post4-text')
 
         self.thread3 = create_thread(self.subcategory, 'thread3-caption', self.second_user, 'thread2-text')
+
 
     def login(self, user_name):
         response = self.client.post(reverse('accounts:login'), {'email': '%s@test.com' % user_name, 'password': '111111'})
@@ -54,9 +56,75 @@ class TestModeration(TestCase):
 
     def test_initialization(self):
         self.assertEqual(Category.objects.all().count(), 1)
-        self.assertEqual(SubCategory.objects.all().count(), 1)
+        self.assertEqual(SubCategory.objects.all().count(), 2)
         self.assertEqual(Thread.objects.all().count(), 3)
         self.assertEqual(Post.objects.all().count(), 7)
+
+    ###############################
+    # add thread
+    ###############################
+
+    #button
+    def test_loggined_has_add_thread_button(self):
+        self.login('main_user')
+        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=[self.subcategory.slug])), texts=[('pgf-new-thread-button', 1)])
+
+    def test_unlogined_has_add_thread_button(self):
+        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=[self.subcategory.slug])), texts=[('pgf-new-thread-button', 0)])
+
+    def test_loggined_has_no_add_thread_button_in_closed_theme(self):
+        self.login('main_user')
+        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=[self.subcategory2.slug])), texts=[('pgf-new-thread-button', 0)])
+
+    def test_moderator_has_add_thread_button_in_closed_theme(self):
+        self.login('moderator')
+        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=[self.subcategory2.slug])), texts=[('pgf-new-thread-button', 1)])
+
+    #new page
+
+    def test_loggined_new_thread_page(self):
+        self.login('main_user')
+        self.check_html_ok(self.client.get(reverse('forum:new-thread', args=[self.subcategory.slug])), texts=[('pgf-new-thread-form', 3)])
+
+    def test_unlogined_new_thread_page(self):
+        self.check_html_ok(self.client.get(reverse('forum:new-thread', args=[self.subcategory.slug])), texts=[('pgf-new-thread-form', 0), ('forum.new_thread.unlogined', 1)])
+
+    def test_loggined_new_thread_page_in_closed_theme(self):
+        self.login('main_user')
+        self.check_html_ok(self.client.get(reverse('forum:new-thread', args=[self.subcategory2.slug])), texts=[('pgf-new-thread-form', 0), ('forum.new_thread.no_permissions', 1)])
+
+    def test_moderator_new_thread_page_in_closed_theme(self):
+        self.login('moderator')
+        self.check_html_ok(self.client.get(reverse('forum:new-thread', args=[self.subcategory2.slug])), texts=[('pgf-new-thread-form', 3)])
+
+    # create request
+    def test_loggined_create_thread_page(self):
+        self.login('main_user')
+        response = self.client.post(reverse('forum:create-thread', args=[self.subcategory.slug]), {'caption': 'thread5-caption', 'text': 'thread5-text'})
+
+        thread = Thread.objects.all().order_by('-created_at')[0]
+
+        self.check_ajax_ok(response, {'thread_id': thread.id,
+                                      'thread_url': reverse('forum:show-thread', args=[thread.id])})
+
+    def test_unlogined_create_thread_page(self):
+        self.check_ajax_error(self.client.post(reverse('forum:create-thread', args=[self.subcategory.slug]), {'caption': 'thread5-caption', 'text': 'thread5-text'}),
+                              'forum.create_thread.unlogined')
+
+    def test_loggined_create_thread_page_in_closed_theme(self):
+        self.login('main_user')
+        self.check_ajax_error(self.client.post(reverse('forum:create-thread', args=[self.subcategory2.slug]), {'caption': 'thread5-caption', 'text': 'thread5-text'}),
+                              'forum.create_thread.no_permissions')
+
+    def test_moderator_create_thread_page_in_closed_theme(self):
+        self.login('moderator')
+        response = self.client.post(reverse('forum:create-thread', args=[self.subcategory2.slug]), {'caption': 'thread5-caption', 'text': 'thread5-text'})
+
+        thread = Thread.objects.all().order_by('-created_at')[0]
+
+        self.check_ajax_ok(response, {'thread_id': thread.id,
+                                      'thread_url': reverse('forum:show-thread', args=[thread.id])})
+
 
     ###############################
     # thread deletion

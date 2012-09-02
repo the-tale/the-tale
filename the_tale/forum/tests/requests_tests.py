@@ -4,8 +4,6 @@ from django.test import client
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate as django_authenticate
 
-from dext.utils import s11n
-
 from common.utils.testcase import TestCase
 
 from accounts.logic import register_user
@@ -106,7 +104,7 @@ class TestRequests(TestCase):
 
     def test_create_thread_closed_subcategory(self):
         self.check_ajax_error(self.client.post(reverse('forum:create-thread', args=['subcat2-slug'])),
-                              code='forum.create_thread.closed_subcategory')
+                              code='forum.create_thread.no_permissions')
 
     def test_create_thread_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('forum:create-thread', args=['subcat1-slug'])),

@@ -57,9 +57,9 @@
   </tbody>
 </table>
 
-{% if resource.account and not resource.account.is_fast and not subcategory.closed %}
+{% if can_create_thread %}
 <form action="{{ url('forum:new-thread', subcategory.slug) }}" method="get">
-  <input type="submit" value="Добавить обсуждение"/>
+  <input type="submit" value="Добавить обсуждение" class="pgf-new-thread-button"/>
 </form>
 {% endif %}
 

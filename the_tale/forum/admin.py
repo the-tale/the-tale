@@ -17,8 +17,13 @@ class ThreadAdmin(admin.ModelAdmin):
 
     readonly_fields = ('posts_count', )
 
+
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('id', 'thread', 'author')
+    list_display = ('id', 'thread', 'author', 'created_at', 'updated_at')
+
+    fields = ('thread', 'author', 'created_at', 'updated_at', 'text', 'markup_method')
+
+    readonly_fields = ('thread', 'author', 'created_at', 'updated_at')
 
 
 admin.site.register(Category, CategoryAdmin)

@@ -30,6 +30,12 @@ class ForumResource(Resource):
     def can_delete_posts(self, thread):
         return self.user == thread.author or self.user.has_perm('forum.delete_post')
 
+    def can_create_thread(self, subcategory):
+        if not subcategory.closed:
+            return self.account and not self.account.is_fast
+
+        return self.user.has_perm('forum.add_thread')
+
     def can_change_posts(self):
         return self.user.has_perm('forum.change_post')
 
@@ -96,6 +102,7 @@ class ForumResource(Resource):
         return self.template('forum/subcategory.html',
                              {'category': self.category,
                               'subcategory': self.subcategory,
+                              'can_create_thread': self.can_create_thread(self.subcategory),
                               'threads': threads} )
 
 
@@ -109,6 +116,10 @@ class ForumResource(Resource):
         if self.account.is_fast:
             return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете писать на форуме',
                                                 'error_code': 'forum.new_thread.fast_account'})
+
+        if not self.can_create_thread(self.subcategory):
+            return self.template('error.html', {'msg': u'Вы не можете создавать темы в данном разделе',
+                                                'error_code': 'forum.new_thread.no_permissions'})
 
         return self.template('forum/new_thread.html',
                              {'category': self.category,
@@ -124,8 +135,8 @@ class ForumResource(Resource):
         if self.account.is_fast:
             return self.json_error('forum.create_thread.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
 
-        if self.subcategory.closed:
-            return self.json_error('forum.create_thread.closed_subcategory', u'Вы не можете создавать темы в данном разделе')
+        if not self.can_create_thread(self.subcategory):
+            return self.json_error('forum.create_thread.no_permissions', u'Вы не можете создавать темы в данном разделе')
 
         new_thread_form = NewThreadForm(self.request.POST)
 

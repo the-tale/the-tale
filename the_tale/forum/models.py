@@ -85,6 +85,8 @@ class Post(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 
+    updated_at = models.DateTimeField(auto_now=True, null=False, default=datetime.datetime(2000, 1, 1))
+
     author = models.ForeignKey(User, null=True)
 
     text = models.TextField(null=False, blank=True, default='')
