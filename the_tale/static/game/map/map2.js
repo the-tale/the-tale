@@ -200,9 +200,9 @@ pgf.game.map.MapManager = function(params) {
         return data;
     }
 
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
 
-        RefreshHero(updater.data.data.hero);
+        RefreshHero(game_data.hero);
 
         if (params.OnDataUpdated) {
             params.OnDataUpdated();
@@ -523,17 +523,17 @@ pgf.game.map.Map = function(selector, params) {
         CenterOnHero();
     }
 
-    function Refresh() {
+    function Refresh(game_data) {
         OnMove(0, 0);
     }
 
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT,
-                          function() {
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED,
+                          function(e, game_data) {
                               INITIALIZATION_INFO_LOADED = true;
 
                               if (IsInitialized() && !activated) Activate();
 
-                              widgets.map.Refresh();
+                              widgets.map.Refresh(game_data);
                           });
 
     jQuery(document).bind(pgf.game.resources.events.SPRITES_LOADED,

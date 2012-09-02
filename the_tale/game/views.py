@@ -30,18 +30,31 @@ class GameResource(Resource):
 
         data['turn'] = self.time.ui_info()
 
-        if self.account and self.account.angel:
+        is_own_angel = False
+
+        if self.account:
+            own_angel = self.account.angel
+
             if angel is None:
-                angel = self.account.angel.id
+                angel = own_angel
+                is_own_angel = True
+
+            else:
+                angel = AngelPrototype.get_by_id(int(angel))
+
+                if angel is None:
+                    return self.json(status='error', error=u'Вы запрашиваете информацию несуществующего игрока')
+
+                if own_angel.id == angel.id:
+                    is_own_angel = True
 
         if angel:
 
-            foreign_angel = AngelPrototype.get_by_id(int(angel))
+            hero = angel.get_hero()
 
-            if foreign_angel is None:
-                return self.json(status='error', error=u'Вы запрашиваете информацию несуществующего игрока')
+            if is_own_angel:
+                data['angel'] = angel.ui_info(turn_number=self.time.turn_number)
 
-            hero = foreign_angel.get_hero()
             data['hero'] = hero.ui_info()
 
             quest = QuestPrototype.get_for_hero(hero.id)

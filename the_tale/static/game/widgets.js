@@ -15,7 +15,7 @@ if (!pgf.game.events) {
     pgf.game.events = {};
 }
 
-pgf.game.events.DATA_REFRESHED_EVENT = 'pgf-data-refreshed';
+pgf.game.events.DATA_REFRESHED = 'pgf-data-refreshed';
 pgf.game.events.DATA_REFRESH_NEEDED = 'pgf-data-refresh-needed';
 
 pgf.game.Updater = function(params) {
@@ -34,10 +34,10 @@ pgf.game.Updater = function(params) {
             data: {turn_number: turnNumber},
             success: function(data, request, status) {
 
-                instance.data = data;
+                instance.data = data.data;
                 turnNumber = data.turn_number;
 
-                jQuery(document).trigger(pgf.game.events.DATA_REFRESHED_EVENT);
+                jQuery(document).trigger(pgf.game.events.DATA_REFRESHED, instance.data);
             },
             error: function() {
             },
@@ -89,16 +89,16 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         return data;
     };
 
-    this.Refresh = function() {
-        data = updater.data.data.hero;
+    this.Refresh = function(game_data) {
+        data = game_data.hero;
     };
 
     this.Render = function() {
         this.RenderHero(data, content);
     };
 
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
-        instance.Refresh();
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        instance.Refresh(game_data);
         instance.Render();
     });
 };
@@ -118,16 +118,16 @@ pgf.game.widgets.Time = function(selector, updater, widgets, params) {
         gameTime.text(data.date.verbose_time);
     }
 
-    this.Refresh = function() {
-        data.date = updater.data.data.turn;
+    this.Refresh = function(game_data) {
+        data.date = game_data.turn;
     };
 
     this.Render = function() {
         RenderTime(data, content);
     };
 
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
-        instance.Refresh();
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        instance.Refresh(game_data);
         instance.Render();
     });
 };
@@ -297,7 +297,7 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
         }
     }
 
-    this.Refresh = function() {
+    this.Refresh = function(game_data) {
 
         var hero = widgets.heroes.CurrentHero();
 
@@ -314,8 +314,8 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
         RenderChoices();
     };
 
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
-        instance.Refresh();
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        instance.Refresh(game_data);
         instance.Render();
     });
 };
@@ -343,7 +343,7 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
         }
     }
 
-    this.Refresh = function() {
+    this.Refresh = function(game_data) {
 
         var hero = widgets.heroes.CurrentHero();
 
@@ -359,8 +359,8 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
         RenderQuests();
     };
 
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
-        instance.Refresh();
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        instance.Refresh(game_data);
         instance.Render();
     });
 };
@@ -385,7 +385,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         jQuery('.pgf-action-percents', widget).width( (action.percents * 100) + '%');
     }
 
-    this.Refresh = function() {
+    this.Refresh = function(game_data) {
 
         var hero = widgets.heroes.CurrentHero();
 
@@ -405,8 +405,8 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         return data.action;
     };
 
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
-        instance.Refresh();
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        instance.Refresh(game_data);
         instance.Render();
     });
 };
@@ -437,7 +437,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
         pgf.base.RenderTemplateList(bagContainer, items, RenderItem, {});
     }
 
-    this.Refresh = function() {
+    this.Refresh = function(game_data) {
 
         var hero = widgets.heroes.CurrentHero();
 
@@ -464,8 +464,8 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
         jQuery('[rel="tooltip"]', widget).tooltip(pgf.base.tooltipsArgs);
     };
 
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
-        instance.Refresh();
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        instance.Refresh(game_data);
         instance.Render();
     });
 };
@@ -492,7 +492,7 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
         }
     }
 
-    this.Refresh = function() {
+    this.Refresh = function(game_data) {
 
         var hero = widgets.heroes.CurrentHero();
 
@@ -508,7 +508,7 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
         RenderEquipment();
     };
 
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
         instance.Refresh();
         instance.Render();
     });
@@ -545,7 +545,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     }
 
-    this.Refresh = function() {
+    this.Refresh = function(game_data) {
         var hero = widgets.heroes.CurrentHero();
 
         var turnMessages = [];
@@ -584,8 +584,8 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
         RenderLog();
     };
 
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED_EVENT, function(){
-        instance.Refresh();
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        instance.Refresh(game_data);
         instance.Render();
     });
 };

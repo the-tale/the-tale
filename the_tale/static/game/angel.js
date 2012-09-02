@@ -14,40 +14,6 @@ if (!pgf.game.events) {
     pgf.game.events = {};
 }
 
-pgf.game.events.ANGEL_DATA_REFRESHED = 'pgf-angel-data-refreshed';
-pgf.game.events.ANGEL_DATA_REFRESH_NEEDED = 'pgf-angel-data-refresh-needed';
-
-pgf.game.AngelUpdater = function(params) {
-
-    var instance = this;
-
-    this.data = {};
-
-    this.Refresh = function() {
-        
-        jQuery.ajax({
-            dataType: 'json',
-            type: 'get',
-            url: params.url,
-            data: {}, 
-            success: function(answer, request, status) {
-
-                instance.data = answer.data;
-
-                jQuery(document).trigger(pgf.game.events.ANGEL_DATA_REFRESHED, instance.data);
-            },
-            error: function() {
-            },
-            complete: function() {
-            }
-        });
-    };
-
-    jQuery(document).bind(pgf.game.events.ANGEL_DATA_REFRESH_NEEDED, function(e){
-        instance.Refresh();
-    });
-};
-
 pgf.game.widgets.Angel = function(selector, params) {
 
     var content = jQuery(selector);
@@ -62,16 +28,16 @@ pgf.game.widgets.Angel = function(selector, params) {
         jQuery('.pgf-energy-percents', content).width( (100 * data.energy.value / data.energy.max) + '%');
     };
 
-    function Refresh(angel_data) {
-        data = angel_data.angel;
+    function Refresh(game_data) {
+        data = game_data.angel;
     };
 
     function Render() {
         RenderAngel();
     };
 
-    jQuery(document).bind(pgf.game.events.ANGEL_DATA_REFRESHED, function(e, angel_data){
-        Refresh(angel_data);
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        Refresh(game_data);
         Render();
     });
 };
@@ -92,7 +58,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         //TODO: replace with some kind of api not related to widgets
         widgets.switcher.ShowMapWidget();
     });
-    var MINIMUM_LOCK_DELAY = 750; 
+    var MINIMUM_LOCK_DELAY = 750;
     var abilitiesWaitingStartTimes = {};
 
     var angelId = undefined;
@@ -106,7 +72,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
 
     function ToggleWait(ability, wait) {
         ability.spin(wait ? 'tiny' : false);
-        ability.toggleClass('wait', wait).toggleClass('pgf-wait', wait);                
+        ability.toggleClass('wait', wait).toggleClass('pgf-wait', wait);
     }
 
     function ChangeAbilityWaitingState(abilityType, wait) {
@@ -149,7 +115,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         }
 
         ChangeAbilityWaitingState(ability.type, true);
-        
+
         //TODO: replace with some kind of api not related to widgets
         var currentHero = widgets.heroes.CurrentHero();
 
@@ -167,14 +133,13 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
                         data: ajax_data,
                         wait: false,
                         OnError: function() {
-                            ChangeAbilityWaitingState(ability.type, false);                            
+                            ChangeAbilityWaitingState(ability.type, false);
                         },
                         OnSuccess: function(data) {
                             ChangeAbilityWaitingState(ability.type, false);
 
                             ability.available_at = data.data.available_at;
-                           
-                            jQuery(document).trigger(pgf.game.events.ANGEL_DATA_REFRESH_NEEDED);
+
                             jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
                         }
                        });
@@ -188,7 +153,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         ChangeAbilityEnergyState(ability.type, abilityInfo.cost > angelEnergy);
 
         element.click(function(e){
-            e.preventDefault();                          
+            e.preventDefault();
             ActivateAbility(ability);
         });
     }
@@ -197,21 +162,19 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         RenderAbility(deck[0]);
     };
 
-    function Refresh(event_data) {
-        deck = event_data.angel.abilities;
-        angelId = event_data.angel.id;
-        angelEnergy = event_data.angel.energy.value;
-        turn = event_data.turn;
+    function Refresh(game_data) {
+        deck = game_data.angel.abilities;
+        angelId = game_data.angel.id;
+        angelEnergy = game_data.angel.energy.value;
+        turn = game_data.turn;
     };
 
     function Render() {
         RenderDeck();
     };
 
-    jQuery(document).bind(pgf.game.events.ANGEL_DATA_REFRESHED, function(e, event_data){
-        Refresh(event_data);
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        Refresh(game_data);
         Render();
     });
 };
-
-
