@@ -10,7 +10,7 @@ jQuery(document).ready( function(e) {
 
     var updateThreadForm = new pgf.forms.Form(jQuery('#pgf-edit-thread-form'),
                                            { OnSuccess: function(form, data){
-                                               location.href = "{{ url('forum:show-thread', thread.id) }}";
+                                               location.href = "{{ url('forum:threads:show', thread.id) }}";
                                            }
                                            });
 });
@@ -25,11 +25,11 @@ jQuery(document).ready( function(e) {
 <ul class="breadcrumb">
   <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
   <li><a href="{{ url('forum:subcategory', subcategory.slug) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
-  <li><a href="{{ url('forum:show-thread', thread.id) }}">{{ thread.caption }}</a><span class="divider">/</span></li>
+  <li><a href="{{ url('forum:threads:show', thread.id) }}">{{ thread.caption }}</a><span class="divider">/</span></li>
   <li class="active">редактирование</li>
 </ul>
 
-<form id="pgf-edit-thread-form" method="post" action="{{ url('forum:update-thread', thread.id) }}">
+<form id="pgf-edit-thread-form" method="post" action="{{ url('forum:threads:update', thread.id) }}">
 
   {{ edit_thread_form.errors_container }}
 

@@ -10,7 +10,7 @@ jQuery(document).ready( function(e) {
 
     var newPostForm = new pgf.forms.Form(jQuery('#pgf-change-post-form'),
                                          { OnSuccess: function(form, data){
-                                             location.href = "{{ url('forum:show-thread', thread.id) }}";
+                                             location.href = "{{ url('forum:threads:show', thread.id) }}";
                                          }
                                          });
 
@@ -28,12 +28,12 @@ jQuery(document).ready( function(e) {
 <ul class="breadcrumb">
   <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
   <li><a href="{{ url('forum:subcategory', subcategory.slug) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
-  <li><a href="{{ url('forum:show-thread', thread.id) }}">{{ thread.caption }}</a><span class="divider">/</span></li>
+  <li><a href="{{ url('forum:threads:show', thread.id) }}">{{ thread.caption }}</a><span class="divider">/</span></li>
   <li class="active">редактирование сообщения</li>
 
 </ul>
 
-<form action="{{ url('forum:update-post', post.id) }}"
+<form action="{{ url('forum:posts:update', post.id) }}"
       method="post"
       id="pgf-change-post-form"
       class="change-post-form">
@@ -48,7 +48,7 @@ jQuery(document).ready( function(e) {
   </div>
 
   <div class="widget">
-    <input type="submit" value="Ответить"/>
+    <input type="submit" value="Сохранить"/>
     <input type="button" class="pgf-preview-button" value="Предпросмотр"/>
     <input type="button" class="pgf-edit-button pgf-hidden" value="Редактировать"/>
   </div>

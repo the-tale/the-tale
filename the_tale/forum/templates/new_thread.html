@@ -31,7 +31,7 @@ jQuery(document).ready( function(e) {
   <li class="active">новая тема</li>
 </ul>
 
-<form id="pgf-new-thread-form" method="post" action="{{ url('forum:create-thread', subcategory.slug) }}" class="new-post-form">
+<form id="pgf-new-thread-form" method="post" action="{{ url('forum:threads:create') }}?subcategory_id={{subcategory.id}}" class="new-post-form">
 
   {{ new_thread_form.errors_container }}
 

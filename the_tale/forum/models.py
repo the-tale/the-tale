@@ -65,7 +65,7 @@ class Thread(models.Model):
         permissions = (("moderate_thread", "Может редактировать темы на форуме"), )
 
     def get_absolute_url(self):
-        return reverse('forum:show-thread', args=[self.id])
+        return reverse('forum:threads:show', args=[self.id])
 
     @property
     def pages_count(self):
