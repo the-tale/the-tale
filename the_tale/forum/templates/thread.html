@@ -25,7 +25,7 @@ jQuery(document).ready( function(e) {
     {% if resource.account and not resource.account.is_fast %}
     var newPostForm = new pgf.forms.Form(jQuery('#pgf-new-post-form'),
                                          { OnSuccess: function(form, data){
-                                             location.reload();
+                                             location.href = data.data.thread_url;
                                          }
                                          });
 

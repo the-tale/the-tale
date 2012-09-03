@@ -98,7 +98,7 @@ class PostsResource(BaseForumResource):
 
         create_post(thread.subcategory, thread, self.account.user, new_post_form.c.text)
 
-        return self.json_ok()
+        return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]) + ('?page=%d' % thread.pages_count)})
 
     @handler('#post_id', 'delete', method='post')
     def delete_post(self):
