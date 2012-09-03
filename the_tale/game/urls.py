@@ -6,7 +6,6 @@ from dext.views.dispatcher import resource_patterns
 from .views import GameResource
 
 urlpatterns = patterns('',
-                       (r'^angels/', include('game.angels.urls', namespace='angels') ),
                        (r'^heroes/', include('game.heroes.urls', namespace='heroes') ),
                        (r'^abilities/', include('game.abilities.urls', namespace='abilities') ),
                        (r'^map/', include('game.map.urls', namespace='map') ),
