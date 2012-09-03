@@ -40,4 +40,4 @@ class Command(BaseCommand):
                                  'PLACE_TYPE': PLACE_TYPE})
 
         with open(CONFIG, 'w') as region_config_file:
-            region_config_file.write(config_content)
+            region_config_file.write(config_content.encode('utf-8'))
