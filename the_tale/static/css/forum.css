@@ -13,12 +13,22 @@
 .forum-table .last-poster {
   width: 10em;
 }
+.forum-table .thread-page-links {
+  color: #4A516B;
+}
 .post-table .index {
   width: 3em;
+}
+.post-table .change-post {
+  width: 4em;
+}
+.post-table .delete-post {
+  width: 4em;
 }
 .post-table .created-at {
   width: 15em;
 }
-.new-post-form {
+.new-post-form,
+.change-post-form {
   margin-top: 1em;
 }
