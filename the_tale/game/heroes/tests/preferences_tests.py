@@ -3,9 +3,6 @@ import mock
 
 from django.test import client
 from django.core.urlresolvers import reverse
-from django.utils.html import escape
-
-from dext.utils import s11n
 
 from common.utils.testcase import TestCase
 
@@ -25,6 +22,77 @@ from game.persons.models import Person, PERSON_STATE
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.heroes.models import ChoosePreferencesTask, CHOOSE_PREFERENCES_STATE, PREFERENCE_TYPE
 from game.heroes.exceptions import HeroException
+
+
+class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
+
+    def setUp(self):
+        place_1, place_2, place_3 = create_test_map()
+
+        self.bundle = create_test_bundle('HeroTest')
+        self.hero = self.bundle.tests_get_hero()
+
+        self.hero.model.level = c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED
+        self.hero.model.pref_energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero.model.save()
+
+    def tearDown(self):
+        pass
+
+    def test_create(self):
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.WAITING)
+        self.assertEqual(self.hero.preferences.place_id, None)
+
+    def test_reset_all(self):
+        ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
+        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 1)
+        ChoosePreferencesTaskPrototype.reset_all()
+        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 0)
+        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.RESET).count(), 1)
+
+    # can not test wrong level, since energy regeneration choice available on 1 level
+    def test_wrong_level(self):
+        self.assertEqual(c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED, 1)
+
+    def test_wrong_energy_regeneration_type(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+
+    # can not test set energy regeneration type, since it must be always selected
+    def test_set_energy_regeneration_typ(self):
+        self.assertNotEqual(self.hero.preferences.energy_regeneration_type, None)
+
+    def check_change_energy_regeneration_type(self, new_energy_regeneration_type, expected_energy_regeneration_type, expected_state):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, new_energy_regeneration_type)
+        self.assertNotEqual(self.hero.preferences.energy_regeneration_type, new_energy_regeneration_type)
+
+        if new_energy_regeneration_type is not None:
+            task.process(self.bundle)
+            self.assertEqual(task.state, expected_state)
+            self.assertEqual(self.hero.preferences.energy_regeneration_type, expected_energy_regeneration_type)
+        else:
+            self.assertRaises(HeroException, task.process, self.bundle)
+
+
+    def test_change_energy_regeneration_type(self):
+        self.check_change_energy_regeneration_type(c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, CHOOSE_PREFERENCES_STATE.PROCESSED)
+
+    def test_change_energy_regeneration_type_cooldown(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
+        task.process(self.bundle)
+
+        self.check_change_energy_regeneration_type(c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+
+    def test_remove_energy_regeneration_type(self):
+        self.check_change_energy_regeneration_type(None, None, CHOOSE_PREFERENCES_STATE.PROCESSED)
+
+    def test_remove_energy_regeneration_type_cooldown(self):
+        self.check_change_energy_regeneration_type(None, c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+
 
 class HeroPreferencesMobTest(TestCase):
 

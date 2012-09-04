@@ -9,6 +9,14 @@ from game.game_info import RACE, RACE_CHOICES, GENDER, GENDER_CHOICES
 
 from game.balance import constants as c
 
+ANGEL_ENERGY_REGENERATION_TYPES_CHOICES = ( (c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, u'молитва'),
+                                            (c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, u'жертвоприношение'),
+                                            (c.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE, u'благовония'),
+                                            (c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, u'символы'),
+                                            (c.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION, u'медитация')  )
+
+ANGEL_ENERGY_REGENERATION_TYPES_DICT  = dict(ANGEL_ENERGY_REGENERATION_TYPES_CHOICES)
+
 class Hero(models.Model):
 
     created_at_turn = models.IntegerField(null=False, default=0)
@@ -61,17 +69,20 @@ class Hero(models.Model):
     pos_to_y = models.IntegerField(null=True, blank=True, default=None)
 
     #character
+    pref_energy_regeneration_type = models.IntegerField(null=False, default=c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=ANGEL_ENERGY_REGENERATION_TYPES_CHOICES)
+    pref_energy_regeneration_type_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
+
     pref_mob_id = models.CharField(max_length=32, null=True, default=None)
-    pref_mob_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1), db_index=True)
+    pref_mob_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
     pref_place = models.ForeignKey('places.Place', null=True, default=None, related_name='+')
-    pref_place_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1), db_index=True)
+    pref_place_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
     pref_friend = models.ForeignKey('persons.Person', null=True, default=None, related_name='+')
-    pref_friend_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1), db_index=True)
+    pref_friend_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
     pref_enemy = models.ForeignKey('persons.Person', null=True, default=None, related_name='+')
-    pref_enemy_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1), db_index=True)
+    pref_enemy_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
     #statistics
     stat_pve_deaths = models.BigIntegerField(default=0, null=False)
@@ -145,11 +156,13 @@ class PREFERENCE_TYPE:
     PLACE = 1
     FRIEND = 2
     ENEMY = 3
+    ENERGY_REGENERATION_TYPE = 4
 
 PREFERENCE_TYPE_CHOICES = [ (PREFERENCE_TYPE.MOB, u'любимая добыча'),
                             (PREFERENCE_TYPE.PLACE, u'родной город'),
                             (PREFERENCE_TYPE.FRIEND, u'соратник'),
-                            (PREFERENCE_TYPE.ENEMY, u'враг')]
+                            (PREFERENCE_TYPE.ENEMY, u'враг'),
+                            (PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, u'религиозность')]
 
 
 class ChoosePreferencesTask(models.Model):

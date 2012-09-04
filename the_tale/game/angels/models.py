@@ -12,8 +12,6 @@ class Angel(models.Model):
 
      abilities = models.TextField(null=False, default='{}')
 
-     updated_at_turn = models.BigIntegerField(null=False, default=0)
-
      def __unicode__(self):
           return self.name
 

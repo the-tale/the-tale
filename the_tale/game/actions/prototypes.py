@@ -1143,4 +1143,63 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                         self.state = self.STATE.PROCESSED
 
 
+class ActionRestoreEnergyPrototype(ActionPrototype):
+
+    TYPE = 'RESTORE_ENERGY'
+    TEXTGEN_TYPE = 'action_restore_energy'
+    EXTRA_HELP_CHOICES = set()
+
+    class STATE(ActionPrototype.STATE):
+        RESTORE = 'RESTORE'
+
+    ###########################################
+    # Object operations
+    ###########################################
+
+    @classmethod
+    def _create(cls, parent):
+        model = Action.objects.create( type=cls.TYPE,
+                                       parent=parent.model,
+                                       hero=parent.hero.model,
+                                       order=parent.order+1,
+                                       state=cls.STATE.RESTING)
+        action = cls(model=model)
+
+        parent.hero.add_message('action_restore_energy_%s_start' % action.regeneration_slug, hero=parent.hero)
+
+        return action
+
+    @property
+    def regeneration_type(self):
+        return self.hero.preferences.energy_regeneration_type
+
+    @property
+    def regeneration_slug(self):
+        return { c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 'pray',
+                 c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 'sacrifice',
+                 c.ANGEL_ENERGY_REGENERATION_TYPES.SPICES: 'spices',
+                 c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 'symbols',
+                 c.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 'meditation' }[self.regeneration_type]
+
+    def step_percents(self):
+        return 1.0 / c.ANGEL_ENERGY_REGENERATION_STEPS[self.regeneration_type]
+
+    def process(self):
+
+        if self.state == self.STATE.RESTORE:
+
+            self.percents += self.step_percents()
+
+            if self.percents >= 1:
+                energy_delta = self.bundle.angels[self.hero.angel_id].change_energy(f.angel_energy_regeneration_period(self.regeneration_type))
+
+                if energy_delta:
+                    self.hero.add_message('action_restore_energy_%s_energy_received' % self.regeneration_slug, hero=self.hero, energy=energy_delta)
+                else:
+                    self.hero.add_message('action_restore_energy_%s_no_energy_received' % self.regeneration_slug, hero=self.hero)
+
+                self.state = self.STATE.PROCESSED
+
+
+
 ACTION_TYPES = get_actions_types()

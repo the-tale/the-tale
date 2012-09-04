@@ -74,6 +74,18 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD,  180)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_AMAUNT, 1)
 
+        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_DELAY, { c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 1,
+                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 2,
+                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 4,
+                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 3,
+                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 2 })
+
+        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_STEPS, { c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 3,
+                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 5,
+                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 6,
+                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 4,
+                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 4 })
+
         self.assertEqual(c.ANGEL_HELP_HEAL_IF_LOWER_THEN, float(0.8))
         self.assertEqual(c.ANGEL_HELP_HEAL_FRACTION,  (float(0.25), float(0.5)))
         self.assertEqual(c.ANGEL_HELP_TELEPORT_DISTANCE, float(3.0))
@@ -108,6 +120,7 @@ class ConstantsTest(TestCase):
 
         self.assertEqual(c.PERSON_BASE_POWER_FOR_QUEST, 100)
 
+        self.assertEqual(c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED, 1)
         self.assertEqual(c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED, 3)
         self.assertEqual(c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED, 7)
         self.assertEqual(c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED, 11)

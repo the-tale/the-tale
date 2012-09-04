@@ -11,7 +11,7 @@ from game.map.places.storage import places_storage
 from game.persons.models import Person
 from game.persons.storage import persons_storage
 
-from game.heroes.models import ChoosePreferencesTask, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE
+from game.heroes.models import ChoosePreferencesTask, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE, ANGEL_ENERGY_REGENERATION_TYPES_DICT
 
 from game.heroes.exceptions import HeroException
 
@@ -28,12 +28,26 @@ class HeroPreferences(object):
         return max(datetime.timedelta(seconds=0), (changed_at + datetime.timedelta(seconds=c.CHARACTER_PREFERENCES_CHANGE_DELAY) - current_time))
 
     def time_before_update(self, preferences_type, current_time):
+        if preferences_type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE: return self._time_before_update(self.energy_regeneration_type_changed_at, current_time)
         if preferences_type == PREFERENCE_TYPE.MOB: return self._time_before_update(self.mob_changed_at, current_time)
         if preferences_type == PREFERENCE_TYPE.PLACE: return self._time_before_update(self.place_changed_at, current_time)
         if preferences_type == PREFERENCE_TYPE.FRIEND: return self._time_before_update(self.friend_changed_at, current_time)
         if preferences_type == PREFERENCE_TYPE.ENEMY: return self._time_before_update(self.enemy_changed_at, current_time)
 
         raise HeroException('unknown preference type')
+
+    # energy_regeneration_type
+    def get_energy_regeneration_type(self): return self.hero_model.pref_energy_regeneration_type
+    def set_energy_regeneration_type(self, value): self.hero_model.pref_energy_regeneration_type = value
+    energy_regeneration_type = property(get_energy_regeneration_type, set_energy_regeneration_type)
+
+    @property
+    def energy_regeneration_type_name(self):
+        return ANGEL_ENERGY_REGENERATION_TYPES_DICT[self.energy_regeneration_type]
+
+    def get_energy_regeneration_type_changed_at(self): return self.hero_model.pref_energy_regeneration_type_changed_at
+    def set_energy_regeneration_type_changed_at(self, value): self.hero_model.pref_energy_regeneration_type_changed_at = value
+    energy_regeneration_type_changed_at = property(get_energy_regeneration_type_changed_at, set_energy_regeneration_type_changed_at)
 
 
     # mob
@@ -138,16 +152,37 @@ class ChoosePreferencesTaskPrototype(object):
             self.model.state = CHOOSE_PREFERENCES_STATE.COOLDOWN
             return
 
-        if self.model.preference_type == PREFERENCE_TYPE.MOB:
+        if self.model.preference_type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE:
 
-            if hero.level < c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED:
-                self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED)
+            if hero.level < c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED:
+                self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED)
                 self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
                 return
+
+            energy_regeneration_type = int(self.model.preference_id) if self.model.preference_id is not None else None
+
+            if energy_regeneration_type is None:
+                raise HeroException(u'energy_regeneration_type property is None, something go wrong, hero: %d' % hero.id)
+
+            if energy_regeneration_type not in c.ANGEL_ENERGY_REGENERATION_DELAY:
+                self.model.comment = u'unknown energy regeneration type: %s' % (energy_regeneration_type, )
+                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                return
+
+            hero.preferences.energy_regeneration_type = energy_regeneration_type
+            hero.preferences.energy_regeneration_type_changed_at = datetime.datetime.now()
+
+
+        elif self.model.preference_type == PREFERENCE_TYPE.MOB:
 
             mob_id = self.model.preference_id
 
             if mob_id is not None:
+
+                if hero.level < c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED:
+                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED)
+                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
 
                 if self.model.preference_id not in MobsDatabase.storage():
                     self.model.comment = u'unknown mob id: %s' % (self.model.preference_id, )

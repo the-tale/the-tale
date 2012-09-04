@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from game.balance import constants as c
+
 class RACE:
     HUMAN = 0
     ELF = 1
@@ -14,6 +16,12 @@ RACE_CHOICES = ( (RACE.HUMAN, u'человек'),
                  (RACE.DWARF, u'дворф') )
 
 RACE_DICT = dict(RACE_CHOICES)
+
+RACE_TO_ENERGY_REGENERATION_TYPE  = { RACE.HUMAN: c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY,
+                                      RACE.ELF: c.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE,
+                                      RACE.ORC: c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE,
+                                      RACE.GOBLIN: c.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION,
+                                      RACE.DWARF: c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS }
 
 
 class GENDER:

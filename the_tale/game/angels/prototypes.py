@@ -36,23 +36,22 @@ class AngelPrototype(object):
     @property
     def name(self): return self.model.name
 
-    def get_updated_at_turn(self): return self.model.updated_at_turn
-    def set_updated_at_turn(self, value): self.model.updated_at_turn = value
-    updated_at_turn = property(get_updated_at_turn, set_updated_at_turn)
-
     @property
     def energy_maximum(self): return c.ANGEL_ENERGY_MAX
 
-    def get_energy_at_turn(self, turn_number):
-        # return 10
-        # print turn_number, self.updated_at_turn, c.ANGEL_ENERGY_REGENERATION_PERIOD
-        regeneration_periods = int(turn_number - self.updated_at_turn) / c.ANGEL_ENERGY_REGENERATION_PERIOD
-        return min(self.energy_maximum, self.model.energy + c.ANGEL_ENERGY_REGENERATION_AMAUNT * regeneration_periods)
+    @property
+    def energy(self): return self.model.energy
 
-    def set_energy_at_turn(self, turn_number, energy):
-        self.updated_at_turn = turn_number
-        self.updated = True
-        self.model.energy = energy
+    def change_energy(self, value):
+        old_energy = self.model.energy
+
+        self.model.energy += value
+        if self.model.energy < 0:
+            self.model.energy = 0
+        elif self.model.energy > self.energy_maximum:
+            self.model.energy = self.energy_maximum
+
+        return self.model.energy - old_energy
 
     def get_hero(self):
         #TODO: now this code only works on bundle init phase
@@ -107,7 +106,7 @@ class AngelPrototype(object):
         return {'id': self.id,
                 'name': self.name,
                 'energy': { 'max': self.energy_maximum,
-                            'value': self.get_energy_at_turn(turn_number) },
+                            'value': self.energy },
                 'abilities': [ability.ui_info() for ability_type, ability in self.abilities.items()]
                 }
 
@@ -134,11 +133,9 @@ class AngelPrototype(object):
         # print 'angel'
         # print self.id == other.id
         # print self.name == other.name
-        # print self.updated_at_turn == other.updated_at_turn
         # print self.energy == other.energy
         # print self.abilities == other.abilities
         return (self.id == other.id and
                 self.name == other.name and
-                self.updated_at_turn == other.updated_at_turn and
                 self.model.energy == other.model.energy and
                 self.abilities == other.abilities)

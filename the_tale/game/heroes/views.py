@@ -106,6 +106,9 @@ class HeroResource(Resource):
         all_places = places_storage.all()
         all_places.sort(key=lambda x: x.name)
 
+        if type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE:
+            hero = self.account.angel.get_hero()
+
         if type == PREFERENCE_TYPE.MOB:
             hero = self.account.angel.get_hero()
             all_mobs = MobsDatabase.storage().get_available_mobs_list(level=hero.level)

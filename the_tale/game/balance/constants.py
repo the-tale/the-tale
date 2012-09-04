@@ -149,8 +149,28 @@ DESTINY_POINT_IN_LEVELS = 5 # раз в сколько уровней дават
 # енергия должна полностью регенериться за сутки, раз в 2 часа должна появляться новая мажка
 ANGEL_ENERGY_MAX = int(12) # всего энергии
 ANGEL_ENERGY_REGENERATION_TIME = float(0.5) # раз в сколько часов регенерируем
-ANGEL_ENERGY_REGENERATION_PERIOD = int(ANGEL_ENERGY_REGENERATION_TIME * TURNS_IN_HOUR) # раз в сколько ходов регенерируем
 ANGEL_ENERGY_REGENERATION_AMAUNT = int(1) # сколько восстанавливаем
+ANGEL_ENERGY_REGENERATION_PERIOD = int(ANGEL_ENERGY_REGENERATION_TIME * TURNS_IN_HOUR) # раз в сколько ходов
+
+class ANGEL_ENERGY_REGENERATION_TYPES:
+    PRAY = 0
+    SACRIFICE = 1
+    INCENSE = 2
+    SYMBOLS = 3
+    MEDITATION = 4
+
+ANGEL_ENERGY_REGENERATION_DELAY = { ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 1,
+                                    ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 2,
+                                    ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 4,
+                                    ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 3,
+                                    ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 2 }
+
+ANGEL_ENERGY_REGENERATION_STEPS = { ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 3,
+                                    ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 5,
+                                    ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 6,
+                                    ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 4,
+                                    ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 4 }
+
 
 # абилки ангела
 ANGEL_HELP_HEAL_IF_LOWER_THEN = float(0.8) # можем лечить если здоровья меньше чем
@@ -210,6 +230,7 @@ PERSON_BASE_POWER_FOR_QUEST = int(100) # базовое количество в�
 
 # предпочтения
 
+CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED = int(1)
 CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED = int(3)
 CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED = int(7)
 CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED = int(11)

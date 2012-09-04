@@ -186,3 +186,11 @@ def turns_to_game_time(turns):
     second = game_time
 
     return (year, month, day, hour, minute, second)
+
+# величина конкретного типа регенерации энергии
+def angel_energy_regeneration_amount(regeneration_type):
+    return c.ANGEL_ENERGY_REGENERATION_DELAY[regeneration_type] * c.ANGEL_ENERGY_REGENERATION_AMAUNT
+
+# периодичность конкретного типа регенерации энергии (в ходах)
+def angel_energy_regeneration_delay(regeneration_type):
+    return c.ANGEL_ENERGY_REGENERATION_DELAY[regeneration_type] * c.ANGEL_ENERGY_REGENERATION_PERIOD

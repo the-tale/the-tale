@@ -15,7 +15,7 @@ from common.utils.logic import random_value_by_priority
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage
 
-from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, GENDER_DICT_USERFRIENDLY, RACE_DICT, ATTRIBUTES
+from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, GENDER_DICT_USERFRIENDLY, RACE_DICT, ATTRIBUTES, RACE_TO_ENERGY_REGENERATION_TYPE
 
 from game import names
 
@@ -556,11 +556,14 @@ class HeroPrototype(object):
 
         current_turn_number = TimePrototype.get_current_turn_number()
 
+        energy_regeneration_type = RACE_TO_ENERGY_REGENERATION_TYPE[race]
+
         hero = Hero.objects.create(created_at_turn=current_turn_number,
                                    active_state_end_at=current_turn_number + c.EXP_ACTIVE_STATE_LENGTH,
                                    angel=angel.model,
                                    gender=gender,
                                    race=race,
+                                   pref_energy_regeneration_type=energy_regeneration_type,
                                    messages=s11n.to_json([cls._prepair_message(u'Тучи сгущаются (и как быстро!), к непогоде...', in_past=7),
                                                           cls._prepair_message(u'Аааааа, по всюду молниции, спрячусь ка я под этим большим дубом.', in_past=6),
                                                           cls._prepair_message(u'Бабах!!!', in_past=5),

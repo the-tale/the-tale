@@ -4,7 +4,9 @@
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal">×</button>
     <h3 class="pgf-dialog-title dialog-title">
-      {% if type == PREFERENCE_TYPE.MOB %}
+      {% if type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE %}
+      Выберите тип религиозности
+      {% elif type == PREFERENCE_TYPE.MOB %}
       Выберите любимую добычу
       {% elif type == PREFERENCE_TYPE.PLACE %}
       Выберите родной город
@@ -18,7 +20,9 @@
 
   <div class="modal-body">
 
-    {% if type == PREFERENCE_TYPE.MOB %}
+    {% if type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE %}
+    {% include "heroes/choose_preferences_energy_regeneration_type.html" with context %}
+    {% elif type == PREFERENCE_TYPE.MOB %}
     {% include "heroes/choose_preferences_mob.html" with context %}
     {% elif type == PREFERENCE_TYPE.PLACE %}
     {% include "heroes/choose_preferences_place.html" with context %}
