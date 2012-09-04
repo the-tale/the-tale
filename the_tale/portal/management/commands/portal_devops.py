@@ -35,6 +35,9 @@ class Command(BaseCommand):
 
         elif command == 'update':
             subprocess.call(['fab', '-f', FABFILE, 'update:static_data_version=%s,host=%s' % (meta_config.static_data_version, UPDATE_HOST)])
-        else:
 
+        elif command == 'backup':
+            subprocess.call(['fab', '-f', FABFILE, 'backup:host=%s' % (UPDATE_HOST)])
+
+        else:
             print 'unknown command'

@@ -820,17 +820,16 @@ class ActionInPlacePrototype(ActionPrototype):
 
                 self.hero.bag.put_artifact(artifact)
 
-                slot = random.choice(ARTIFACT_TYPES_TO_SLOTS[artifact.type])
+                slot = random.choice(ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type])
                 unequipped = self.hero.equipment.get(slot)
                 self.hero.change_equipment(slot, unequipped, artifact)
 
                 self.hero.statistics.change_artifacts_had(1)
-                self.hero.add_message('action_inplace_buying_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
 
                 if unequipped is not None:
                     sell_price = self.hero.sell_artifact(unequipped)
-                    self.hero.add_message('action_inplace_buying_artifact_and_change',
-                                          hero=self.hero, artifact=artifact, coins=sell_price, old_artifact=unequipped, sell_price=sell_price)
+                    self.hero.add_message('action_inplace_buying_artifact_and_change',important=True,
+                                          hero=self.hero, artifact=artifact, coins=coins, old_artifact=unequipped, sell_price=sell_price)
                 else:
                     self.hero.add_message('action_inplace_buying_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
 
