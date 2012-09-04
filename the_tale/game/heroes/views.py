@@ -160,12 +160,15 @@ class HeroResource(Resource):
         task = ChoosePreferencesTaskPrototype.get_by_id(int(task_id))
 
         if task is None:
-            return self.json(status='error', error=u'задачи не существует')
+            return self.json_error('heroes.choose_preferences_status.no_task', u'задачи не существует')
 
         if task.state == CHOOSE_PREFERENCES_STATE.WAITING:
-            return self.json(status='processing', status_url=reverse('game:heroes:choose-preferences-status', args=[self.hero_id]) + ('?task_id=%d' % task.id) )
+            return self.json_processing(reverse('game:heroes:choose-preferences-status', args=[self.hero_id]) + ('?task_id=%d' % task.id) )
 
         if task.state == CHOOSE_PREFERENCES_STATE.PROCESSED:
-            return self.json(status='ok')
+            return self.json_ok()
 
-        return self.json(status='error', error=u'Ошибка при выборе предпочтений героя, повторите попытку позже')
+        if task.state == CHOOSE_PREFERENCES_STATE.COOLDOWN:
+            return self.json_error('heroes.choose_preferences_status.cooldown', u'Вы пока не можете менять данное предпочтение')
+
+        return self.json_error('heroes.choose_preferences_status.error', u'Ошибка при выборе предпочтений героя, повторите попытку позже')

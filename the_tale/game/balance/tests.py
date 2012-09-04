@@ -3,7 +3,7 @@
 from django.test import TestCase
 
 
-from . import formulas as f, constants as c, calculated as calc
+from . import formulas as f, constants as c
 
 
 class ConstantsTest(TestCase):
@@ -108,12 +108,13 @@ class ConstantsTest(TestCase):
 
         self.assertEqual(c.PERSON_BASE_POWER_FOR_QUEST, 100)
 
-    def test_calculated_values(self):
+        self.assertEqual(c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED, 3)
+        self.assertEqual(c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED, 7)
+        self.assertEqual(c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED, 11)
+        self.assertEqual(c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED, 16)
 
-        self.assertEqual(calc.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED, 2)
-        self.assertEqual(calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED, 8)
-        self.assertEqual(calc.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED, 12)
-        self.assertEqual(calc.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED, 17)
+        self.assertEqual(c.CHARACTER_PREFERENCES_CHANGE_DELAY, 60*60*24*7)
+
 
 
 class FormulasTest(TestCase):

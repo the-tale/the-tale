@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from django.db import models
 
@@ -61,9 +62,16 @@ class Hero(models.Model):
 
     #character
     pref_mob_id = models.CharField(max_length=32, null=True, default=None)
+    pref_mob_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1), db_index=True)
+
     pref_place = models.ForeignKey('places.Place', null=True, default=None, related_name='+')
+    pref_place_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1), db_index=True)
+
     pref_friend = models.ForeignKey('persons.Person', null=True, default=None, related_name='+')
+    pref_friend_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1), db_index=True)
+
     pref_enemy = models.ForeignKey('persons.Person', null=True, default=None, related_name='+')
+    pref_enemy_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1), db_index=True)
 
     #statistics
     stat_pve_deaths = models.BigIntegerField(default=0, null=False)
@@ -123,12 +131,14 @@ class CHOOSE_PREFERENCES_STATE:
     TIMEOUT = 2
     RESET = 3
     ERROR = 4
+    COOLDOWN = 5
 
 CHOOSE_PREFERENCES_STATE_CHOICES = [(CHOOSE_PREFERENCES_STATE.WAITING, u'в очереди'),
-                                (CHOOSE_PREFERENCES_STATE.PROCESSED, u'обработана'),
-                                (CHOOSE_PREFERENCES_STATE.TIMEOUT, u'таймаут'),
-                                (CHOOSE_PREFERENCES_STATE.RESET, u'сброшена'),
-                                (CHOOSE_PREFERENCES_STATE.ERROR, u'ошибка')]
+                                    (CHOOSE_PREFERENCES_STATE.PROCESSED, u'обработана'),
+                                    (CHOOSE_PREFERENCES_STATE.TIMEOUT, u'таймаут'),
+                                    (CHOOSE_PREFERENCES_STATE.RESET, u'сброшена'),
+                                    (CHOOSE_PREFERENCES_STATE.ERROR, u'ошибка'),
+                                    (CHOOSE_PREFERENCES_STATE.COOLDOWN, u'заблокирована по времени') ]
 
 class PREFERENCE_TYPE:
     MOB = 0

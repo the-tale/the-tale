@@ -1,12 +1,15 @@
 # coding: utf-8
+import mock
 
-from django.test import TestCase, client
+from django.test import client
 from django.core.urlresolvers import reverse
 from django.utils.html import escape
 
 from dext.utils import s11n
 
-from game.balance import calculated as calc
+from common.utils.testcase import TestCase
+
+from game.balance import constants as c
 
 from accounts.logic import register_user
 
@@ -21,7 +24,7 @@ from game.persons.models import Person, PERSON_STATE
 
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.heroes.models import ChoosePreferencesTask, CHOOSE_PREFERENCES_STATE, PREFERENCE_TYPE
-
+from game.heroes.exceptions import HeroException
 
 class HeroPreferencesMobTest(TestCase):
 
@@ -31,7 +34,7 @@ class HeroPreferencesMobTest(TestCase):
         self.bundle = create_test_bundle('HeroTest')
         self.hero = self.bundle.tests_get_hero()
 
-        self.hero.model.level = calc.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED
+        self.hero.model.level = c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED
         self.hero.model.save()
 
         self.mob_id = MobsDatabase.storage().get_available_mobs_list(level=self.hero.level)[0].id
@@ -67,8 +70,7 @@ class HeroPreferencesMobTest(TestCase):
 
     def test_wrong_preference(self):
         task = ChoosePreferencesTaskPrototype.create(self.hero, 666, self.mob_id)
-        task.process(self.bundle)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        self.assertRaises(HeroException, task.process, self.bundle)
 
     def test_wrong_mob_level(self):
         wrong_mob_id = None
@@ -86,35 +88,39 @@ class HeroPreferencesMobTest(TestCase):
 
 
     def test_set_mob(self):
+        changed_at = self.hero.preferences.mob_changed_at
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_id)
         self.assertEqual(self.hero.preferences.mob_id, None)
         task.process(self.bundle)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.mob_id, self.mob_id)
+        self.assertTrue(changed_at < self.hero.preferences.mob_changed_at)
 
+    def check_change_mob(self, new_mob_id, expected_mob_id, expected_state):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_id)
+        task.process(self.bundle)
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, new_mob_id)
+        self.assertEqual(self.hero.preferences.mob_id, self.mob_id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, expected_state)
+        self.assertEqual(self.hero.preferences.mob_id, expected_mob_id)
+
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_mob(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_id)
-        task.process(self.bundle)
+        self.check_change_mob(self.mob_2_id, self.mob_2_id, CHOOSE_PREFERENCES_STATE.PROCESSED)
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_2_id)
-        self.assertEqual(self.hero.preferences.mob_id, self.mob_id)
-        task.process(self.bundle)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
-        self.assertEqual(self.hero.preferences.mob_id, self.mob_2_id)
+    def test_change_mob_cooldown(self):
+        self.check_change_mob(self.mob_2_id, self.mob_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
 
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
-
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_mob(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_id)
-        task.process(self.bundle)
+        self.check_change_mob(None, None, CHOOSE_PREFERENCES_STATE.PROCESSED)
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, None)
-        self.assertEqual(self.hero.preferences.mob_id, self.mob_id)
-        task.process(self.bundle)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
-        self.assertEqual(self.hero.preferences.mob_id, None)
-
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+    def test_remove_mob_cooldown(self):
+        self.check_change_mob(None, self.mob_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
 
 
 class HeroPreferencesPlaceTest(TestCase):
@@ -125,7 +131,7 @@ class HeroPreferencesPlaceTest(TestCase):
         self.bundle = create_test_bundle('HeroTest')
         self.hero = self.bundle.tests_get_hero()
 
-        self.hero.model.level = calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED
+        self.hero.model.level = c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED
         self.hero.model.save()
 
         self.place = place_1
@@ -160,35 +166,40 @@ class HeroPreferencesPlaceTest(TestCase):
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_set_place(self):
+        changed_at = self.hero.preferences.place_changed_at
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
         self.assertEqual(self.hero.preferences.place_id, None)
         task.process(self.bundle)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.place_id, self.place.id)
+        self.assertTrue(changed_at < self.hero.preferences.place_changed_at)
 
+
+    def check_change_place(self, new_place_id, expected_place_id, expected_state):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
+        task.process(self.bundle)
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, new_place_id)
+        self.assertEqual(self.hero.preferences.place_id, self.place.id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, expected_state)
+        self.assertEqual(self.hero.preferences.place_id, expected_place_id)
+
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_place(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
-        task.process(self.bundle)
+        self.check_change_place(self.place_2.id, self.place_2.id, CHOOSE_PREFERENCES_STATE.PROCESSED)
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place_2.id)
-        self.assertEqual(self.hero.preferences.place_id, self.place.id)
-        task.process(self.bundle)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
-        self.assertEqual(self.hero.preferences.place_id, self.place_2.id)
+    def test_change_place_cooldown(self):
+        self.check_change_place(self.place_2.id, self.place.id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
 
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
-
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_place(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
-        task.process(self.bundle)
+        self.check_change_place(None, None, CHOOSE_PREFERENCES_STATE.PROCESSED)
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, None)
-        self.assertEqual(self.hero.preferences.place_id, self.place.id)
-        task.process(self.bundle)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
-        self.assertEqual(self.hero.preferences.place_id, None)
-
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+    def test_remove_place_cooldown(self):
+        self.check_change_place(None, self.place.id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
 
 
 class HeroPreferencesFriendTest(TestCase):
@@ -199,7 +210,7 @@ class HeroPreferencesFriendTest(TestCase):
         self.bundle = create_test_bundle('HeroTest')
         self.hero = self.bundle.tests_get_hero()
 
-        self.hero.model.level = calc.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED
+        self.hero.model.level = c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED
         self.hero.model.save()
 
         self.friend_id = Person.objects.all()[0].id
@@ -234,35 +245,39 @@ class HeroPreferencesFriendTest(TestCase):
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_set_friend(self):
+        changed_at = self.hero.preferences.friend_changed_at
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
         self.assertEqual(self.hero.preferences.friend_id, None)
         task.process(self.bundle)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
+        self.assertTrue(changed_at < self.hero.preferences.friend_changed_at)
 
+    def check_change_friend(self, new_friend_id, expected_friend_id, expected_state):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
+        task.process(self.bundle)
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, new_friend_id)
+        self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, expected_state)
+        self.assertEqual(self.hero.preferences.friend_id, expected_friend_id)
+
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_friend(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
-        task.process(self.bundle)
+        self.check_change_friend(self.friend_2_id, self.friend_2_id, CHOOSE_PREFERENCES_STATE.PROCESSED)
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_2_id)
-        self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
-        task.process(self.bundle)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
-        self.assertEqual(self.hero.preferences.friend_id, self.friend_2_id)
+    def test_change_friend_cooldownd(self):
+        self.check_change_friend(self.friend_2_id, self.friend_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
 
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
-
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_friend(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
-        task.process(self.bundle)
+        self.check_change_friend(None, None, CHOOSE_PREFERENCES_STATE.PROCESSED)
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, None)
-        self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
-        task.process(self.bundle)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
-        self.assertEqual(self.hero.preferences.friend_id, None)
-
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+    def test_remove_friend_cooldown(self):
+        self.check_change_friend(None, self.friend_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
 
 
 class HeroPreferencesEnemyTest(TestCase):
@@ -273,7 +288,7 @@ class HeroPreferencesEnemyTest(TestCase):
         self.bundle = create_test_bundle('HeroTest')
         self.hero = self.bundle.tests_get_hero()
 
-        self.hero.model.level = calc.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED
+        self.hero.model.level = c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED
         self.hero.model.save()
 
         self.enemy_id = Person.objects.all()[0].id
@@ -308,35 +323,39 @@ class HeroPreferencesEnemyTest(TestCase):
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_set_enemy(self):
+        changed_at = self.hero.preferences.enemy_changed_at
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
         self.assertEqual(self.hero.preferences.enemy_id, None)
         task.process(self.bundle)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
+        self.assertTrue(changed_at < self.hero.preferences.enemy_changed_at)
 
+    def check_change_enemy(self, new_enemy_id, expected_enemy_id, expected_state):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
+        task.process(self.bundle)
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, new_enemy_id)
+        self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, expected_state)
+        self.assertEqual(self.hero.preferences.enemy_id, expected_enemy_id)
+
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_enemy(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        task.process(self.bundle)
+        self.check_change_enemy(self.enemy_2_id, self.enemy_2_id, CHOOSE_PREFERENCES_STATE.PROCESSED)
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_2_id)
-        self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
-        task.process(self.bundle)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
-        self.assertEqual(self.hero.preferences.enemy_id, self.enemy_2_id)
+    def test_change_enemy_cooldown(self):
+        self.check_change_enemy(self.enemy_2_id, self.enemy_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
 
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
-
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_enemy(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        task.process(self.bundle)
+        self.check_change_enemy(None, None, CHOOSE_PREFERENCES_STATE.PROCESSED)
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, None)
-        self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
-        task.process(self.bundle)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
-        self.assertEqual(self.hero.preferences.enemy_id, None)
-
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+    def test_remove_enemy_cooldown(self):
+        self.check_change_enemy(None, self.enemy_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
 
 
 class HeroPreferencesRequestsTest(TestCase):
@@ -348,7 +367,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.bundle = BundlePrototype.get_by_id(bundle_id)
         self.hero = self.bundle.tests_get_hero()
 
-        self.hero.model.level = calc.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED # maximum blocking level
+        self.hero.model.level = c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED # maximum blocking level
         self.hero.model.save()
 
         register_user('test_user_2', 'test_user_2@test.com', '222222')
@@ -368,64 +387,63 @@ class HeroPreferencesRequestsTest(TestCase):
     def test_preferences_dialog_mob(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
         response = self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.MOB))
-        self.assertEqual(response.status_code, 200)
 
-        content = response.content.decode('utf-8')
+        texts = []
 
         for mob_id, mob_record in MobsDatabase.storage().data.items():
             if mob_record.level <= self.hero.level:
-                self.assertTrue(mob_id in content)
+                texts.append(('"%s"' % mob_id, 1))
             else:
-                self.assertFalse(mob_id in content)
+                texts.append(('"%s"' % mob_id, 0))
+
+        self.check_html_ok(response, texts=texts)
+
 
     def test_preferences_dialog_place(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
         response = self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.PLACE))
-        self.assertEqual(response.status_code, 200)
 
-        content = response.content.decode('utf-8')
+        texts = []
 
         for place in Place.objects.all():
-            self.assertTrue(unicode(place.id) in content)
-            self.assertTrue(place.name in content)
+            texts.append(('"%d"' % place.id, 1))
+
+        self.check_html_ok(response, texts=texts)
 
     def test_preferences_dialog_friend(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
         response = self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.FRIEND))
-        self.assertEqual(response.status_code, 200)
 
-        content = response.content.decode('utf-8')
+        texts = []
 
         for person in Person.objects.filter(state=PERSON_STATE.IN_GAME):
-            self.assertTrue(unicode(person.id) in content)
-            self.assertTrue(escape(person.name) in content)
+            texts.append(('"%d"' % person.id, 1))
+
+        self.check_html_ok(response, texts=texts)
 
     def test_preferences_dialog_enemy(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
         response = self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY))
-        self.assertEqual(response.status_code, 200)
 
-        content = response.content.decode('utf-8')
+        texts = []
 
         for person in Person.objects.filter(state=PERSON_STATE.IN_GAME):
-            self.assertTrue(unicode(person.id) in content)
-            self.assertTrue(escape(person.name) in content)
+            texts.append(('"%d"' % person.id, 1))
+
+        self.check_html_ok(response, texts=texts)
 
     def test_choose_preferences_unlogined(self):
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+        self.check_ajax_error(response, 'heroes.can_no_see_this_account')
 
     def test_choose_preferences_success(self):
         self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-        self.assertEqual(response.status_code, 200)
 
         task = ChoosePreferencesTask.objects.all()[0]
+        self.check_ajax_processing(response, reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % task.id))
 
-        self.assertEqual(s11n.from_json(response.content), {'status': 'processing',
-                                                            'status_url': reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % task.id)})
         self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
 
     def test_choose_preferences_remove_success(self):
@@ -433,14 +451,11 @@ class HeroPreferencesRequestsTest(TestCase):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB})
 
-        self.assertEqual(response.status_code, 200)
-
         task = ChoosePreferencesTask.objects.all()[0]
-
         self.assertEqual(task.preference_id, None)
 
-        self.assertEqual(s11n.from_json(response.content), {'status': 'processing',
-                                                            'status_url': reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % task.id)})
+        self.check_ajax_processing(response, reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % task.id))
+
         self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
 
     def test_choose_preferences_status_unlogined(self):
@@ -450,8 +465,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
         task = ChoosePreferencesTask.objects.all()[0]
         response = self.client.post(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+        self.check_ajax_error(response, 'heroes.can_no_see_this_account')
 
     def test_choose_preferences_status_foreign_task(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
@@ -462,8 +476,8 @@ class HeroPreferencesRequestsTest(TestCase):
 
         task = ChoosePreferencesTask.objects.all()[0]
         response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+
+        self.check_ajax_error(response, 'heroes.can_no_see_this_account')
 
     def test_choose_preferences_status_error(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
@@ -474,8 +488,7 @@ class HeroPreferencesRequestsTest(TestCase):
         task.save()
 
         response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+        self.check_ajax_error(response, 'heroes.choose_preferences_status.error')
 
     def test_choose_preferences_status_success(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
@@ -486,5 +499,15 @@ class HeroPreferencesRequestsTest(TestCase):
         task.save()
 
         response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content), {'status': 'ok'})
+        self.check_ajax_ok(response)
+
+    def test_choose_preferences_status_cooldown(self):
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
+
+        task = ChoosePreferencesTask.objects.all()[0]
+        task.state = CHOOSE_PREFERENCES_STATE.COOLDOWN
+        task.save()
+
+        response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
+        self.check_ajax_error(response, 'heroes.choose_preferences_status.cooldown')

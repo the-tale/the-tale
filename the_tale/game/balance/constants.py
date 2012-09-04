@@ -203,3 +203,16 @@ QUESTS_SPECIAL_FRACTION = float(0.2) # вероятность получить "
 
 # Влияние персонажей
 PERSON_BASE_POWER_FOR_QUEST = int(100) # базовое количество влияния персонажу за задание
+
+
+##########################
+# Характер
+
+# предпочтения
+
+CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED = int(3)
+CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED = int(7)
+CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED = int(11)
+CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED = int(16)
+
+CHARACTER_PREFERENCES_CHANGE_DELAY = int(60*60*24*7) # время блокировки возможности изменять предпочтение

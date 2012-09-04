@@ -1,6 +1,8 @@
 # coding: utf-8
 
-from game.balance import calculated as calc
+import datetime
+
+from game.balance import constants as c
 
 from game.mobs.storage import MobsDatabase
 
@@ -11,12 +13,30 @@ from game.persons.storage import persons_storage
 
 from game.heroes.models import ChoosePreferencesTask, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE
 
+from game.heroes.exceptions import HeroException
+
 
 class HeroPreferences(object):
 
     def __init__(self, hero_model):
         self.hero_model = hero_model
 
+    def can_update(self, preferences_type, current_time):
+        return self.time_before_update(preferences_type, current_time).total_seconds() == 0
+
+    def _time_before_update(self, changed_at, current_time):
+        return max(datetime.timedelta(seconds=0), (changed_at + datetime.timedelta(seconds=c.CHARACTER_PREFERENCES_CHANGE_DELAY) - current_time))
+
+    def time_before_update(self, preferences_type, current_time):
+        if preferences_type == PREFERENCE_TYPE.MOB: return self._time_before_update(self.mob_changed_at, current_time)
+        if preferences_type == PREFERENCE_TYPE.PLACE: return self._time_before_update(self.place_changed_at, current_time)
+        if preferences_type == PREFERENCE_TYPE.FRIEND: return self._time_before_update(self.friend_changed_at, current_time)
+        if preferences_type == PREFERENCE_TYPE.ENEMY: return self._time_before_update(self.enemy_changed_at, current_time)
+
+        raise HeroException('unknown preference type')
+
+
+    # mob
     def get_mob_id(self): return self.hero_model.pref_mob_id
     def set_mob_id(self, value): self.hero_model.pref_mob_id = value
     mob_id = property(get_mob_id, set_mob_id)
@@ -27,24 +47,45 @@ class HeroPreferences(object):
             return None
         return MobsDatabase.storage()[self.mob_id]
 
+    def get_mob_changed_at(self): return self.hero_model.pref_mob_changed_at
+    def set_mob_changed_at(self, value): self.hero_model.pref_mob_changed_at = value
+    mob_changed_at = property(get_mob_changed_at, set_mob_changed_at)
 
+
+    # place
     def get_place_id(self): return self.hero_model.pref_place_id
     def set_place_id(self, value): self.hero_model.pref_place_id = value
     place_id = property(get_place_id, set_place_id)
 
     def get_place(self): return places_storage.get(self.hero_model.pref_place_id)
 
+    def get_place_changed_at(self): return self.hero_model.pref_place_changed_at
+    def set_place_changed_at(self, value): self.hero_model.pref_place_changed_at = value
+    place_changed_at = property(get_place_changed_at, set_place_changed_at)
+
+
+    # friend
     def get_friend_id(self): return self.hero_model.pref_friend_id
     def set_friend_id(self, value): self.hero_model.pref_friend_id = value
     friend_id = property(get_friend_id, set_friend_id)
 
     def get_friend(self): return persons_storage[self.hero_model.pref_friend_id] if self.hero_model.pref_friend_id else None
 
+    def get_friend_changed_at(self): return self.hero_model.pref_friend_changed_at
+    def set_friend_changed_at(self, value): self.hero_model.pref_friend_changed_at = value
+    friend_changed_at = property(get_friend_changed_at, set_friend_changed_at)
+
+    # enemy
     def get_enemy_id(self): return self.hero_model.pref_enemy_id
     def set_enemy_id(self, value): self.hero_model.pref_enemy_id = value
     enemy_id = property(get_enemy_id, set_enemy_id)
 
     def get_enemy(self): return persons_storage[self.hero_model.pref_enemy_id] if self.hero_model.pref_enemy_id else None
+
+    def get_enemy_changed_at(self): return self.hero_model.pref_enemy_changed_at
+    def set_enemy_changed_at(self, value): self.hero_model.pref_enemy_changed_at = value
+    enemy_changed_at = property(get_enemy_changed_at, set_enemy_changed_at)
+
 
 
 class ChoosePreferencesTaskPrototype(object):
@@ -92,10 +133,15 @@ class ChoosePreferencesTaskPrototype(object):
 
         hero = bundle.heroes[self.model.hero_id]
 
+        if not hero.preferences.can_update(self.model.preference_type, datetime.datetime.now()):
+            self.model.comment = u'blocked since time delay'
+            self.model.state = CHOOSE_PREFERENCES_STATE.COOLDOWN
+            return
+
         if self.model.preference_type == PREFERENCE_TYPE.MOB:
 
-            if hero.level < calc.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED:
-                self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, calc.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED)
+            if hero.level < c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED:
+                self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED)
                 self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
                 return
 
@@ -116,6 +162,7 @@ class ChoosePreferencesTaskPrototype(object):
                     return
 
             hero.preferences.mob_id = mob_id
+            hero.preferences.mob_changed_at = datetime.datetime.now()
 
         elif self.model.preference_type == PREFERENCE_TYPE.PLACE:
 
@@ -123,8 +170,8 @@ class ChoosePreferencesTaskPrototype(object):
 
             if place_id is not None:
 
-                if hero.level < calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED:
-                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED)
+                if hero.level < c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED:
+                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED)
                     self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
                     return
 
@@ -134,14 +181,15 @@ class ChoosePreferencesTaskPrototype(object):
                     return
 
             hero.preferences.place_id = place_id
+            hero.preferences.place_changed_at = datetime.datetime.now()
 
         elif self.model.preference_type == PREFERENCE_TYPE.FRIEND:
 
             friend_id = int(self.model.preference_id) if self.model.preference_id is not None else None
 
             if friend_id is not None:
-                if hero.level < calc.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED:
-                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, calc.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED)
+                if hero.level < c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED:
+                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED)
                     self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
                     return
 
@@ -151,14 +199,15 @@ class ChoosePreferencesTaskPrototype(object):
                     return
 
             hero.preferences.friend_id = friend_id
+            hero.preferences.friend_changed_at = datetime.datetime.now()
 
         elif self.model.preference_type == PREFERENCE_TYPE.ENEMY:
 
             enemy_id = int(self.model.preference_id) if self.model.preference_id is not None else None
 
             if enemy_id is not None:
-                if hero.level < calc.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED:
-                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, calc.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED)
+                if hero.level < c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED:
+                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED)
                     self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
                     return
 
@@ -168,6 +217,7 @@ class ChoosePreferencesTaskPrototype(object):
                     return
 
             hero.preferences.enemy_id = enemy_id
+            hero.preferences.enemy_changed_at = datetime.datetime.now()
 
         else:
             self.model.comment = u'unknown preference type: %s' % (self.model.preference_type, )

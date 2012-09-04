@@ -43,7 +43,7 @@ jQuery(document).ready(function(e){
 
 </script>
 
-{% macro preferences_record(name, type, lvl_required, value) -%}
+{% macro preferences_record(name, type, current_time, lvl_required, value) -%}
 
 <li class="hero-preferences-record">
   <strong>{{ name }}:</strong>
@@ -63,16 +63,25 @@ jQuery(document).ready(function(e){
 
   </span>
 
+  {% set time_before_update = resource.hero.preferences.time_before_update(type, current_time) %}
+
+  {% if time_before_update.total_seconds() == 0 %}
+
   {% if value %}
-  <a class="pgf-remove-preference-button pull-right" href="#" data-preference-type="{{ type }}" style="margin-left: 5px;">
+  <a class="pgf-remove-preference-button pull-right" href="#" data-preference-type="{{ type }}" style="margin-left: 5px;" rel="tooltip" title="удалить">
     <i class="icon-trash"></i>
   </a>
 
   <a class="pgf-choose-preference-button pull-right"
      href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type}}"
-     data-preference-type="{{ type }}">
+     data-preference-type="{{ type }}"
+     rel="tooltip" title="редактировать">
     <i class="icon-pencil"></i>
   </a>
+  {% endif %}
+
+  {% else %}
+  <i class="icon-time pull-right" rel="tooltip" title="предпочтение можно будет изменить через {{ time_before_update|verbose_timedelta }}"></i>
   {% endif %}
 
   {% else %}
@@ -94,10 +103,12 @@ jQuery(document).ready(function(e){
     {% set pref_friend = resource.hero.preferences.get_friend() and resource.hero.preferences.get_friend().name %}
     {% set pref_enemy = resource.hero.preferences.get_enemy() and resource.hero.preferences.get_enemy().name %}
 
-    {{ preferences_record("любимая добыча", PREFERENCE_TYPE.MOB, calc.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED, pref_mob) }}
-    {{ preferences_record("родной город", PREFERENCE_TYPE.PLACE, calc.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED, pref_place) }}
-    {{ preferences_record("соратник", PREFERENCE_TYPE.FRIEND, calc.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED, pref_friend) }}
-    {{ preferences_record("противник", PREFERENCE_TYPE.ENEMY, calc.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED, pref_enemy) }}
+    {% set current_time = now() %}
+
+    {{ preferences_record("любимая добыча", PREFERENCE_TYPE.MOB, current_time, c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED, pref_mob) }}
+    {{ preferences_record("родной город", PREFERENCE_TYPE.PLACE, current_time, c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED, pref_place) }}
+    {{ preferences_record("соратник", PREFERENCE_TYPE.FRIEND, current_time, c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED, pref_friend) }}
+    {{ preferences_record("противник", PREFERENCE_TYPE.ENEMY, current_time, c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED, pref_enemy) }}
   </ul>
 
 </div>

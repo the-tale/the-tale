@@ -9,8 +9,7 @@ def login_required(func):
             return func(resource, *argv, **kwargs)
         else:
             if resource.request.is_ajax() or resource.request.method.lower() == 'post':
-                return resource.json(status='error',
-                                     error=u'У Вас нет прав для проведения данной операции')
+                return resource.json_error('common.login_required', u'У Вас нет прав для проведения данной операции')
             return resource.redirect('accounts:login')
 
     return wrapper
