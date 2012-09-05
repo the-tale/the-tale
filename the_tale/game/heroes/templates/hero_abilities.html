@@ -23,18 +23,20 @@ jQuery(document).ready(function(e){
 
 </script>
 
-{% if resource.hero.destiny_points %}
-<div id="choose-ability-button" class="alert fade in pgf-choose-ability-button">
-  {{ resource.hero.name }} может выучить новую способность. <br/>
-  Нажмите на это сообщение что бы выбрать её.
-</div>
-{% else %}
-<div class="alert alert-info fade in pgf-choose-ability-button">
-  {{ resource.hero.name }} cможет выучить новую способность на&nbsp;уровне&nbsp;{{ resource.hero.next_destiny_point_lvl }}
-</div>
-{% endif %}
-
 <div class="block">
   <h2 style="cursor: default;">Способности</h2>
+
+  {% if resource.hero.destiny_points %}
+  <div id="choose-ability-button" class="alert fade in pgf-choose-ability-button">
+    {{ resource.hero.name }} может выучить новую способность. <br/>
+    Нажмите на это сообщение что бы выбрать её.
+  </div>
+  {% else %}
+  <div class="alert alert-info fade in pgf-choose-ability-button">
+    {{ resource.hero.name }} cможет выучить новую способность на&nbsp;уровне&nbsp;{{ resource.hero.next_destiny_point_lvl }}
+  </div>
+  {% endif %}
+
+
   {{ macros.abilities_list(abilities) }}
 </div>

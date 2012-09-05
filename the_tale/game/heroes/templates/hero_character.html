@@ -64,7 +64,7 @@ jQuery(document).ready(function(e){
       выбрать
     </a>
     {% else %}
-    выбор недоступен
+    нет
     {% endif %}
     {% endif %}
 
@@ -103,7 +103,7 @@ jQuery(document).ready(function(e){
   <h3>предпочтения</h3>
 
   <ul class="unstyled">
-    {% set pref_religion = resource.hero.preferences.energy_regeneration_type %}
+    {% set pref_religion = resource.hero.preferences.energy_regeneration_type_name %}
     {% set pref_mob = resource.hero.preferences.mob and resource.hero.preferences.mob.name %}
     {% set pref_place = resource.hero.preferences.get_place() and resource.hero.preferences.get_place().name %}
     {% set pref_friend = resource.hero.preferences.get_friend() and resource.hero.preferences.get_friend().name %}
