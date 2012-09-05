@@ -2,9 +2,11 @@
 
 from django.test import TestCase
 
+from dext.settings import settings
+
 from game.logic import create_test_bundle, create_test_map, test_bundle_save
-from game.actions.prototypes import ActionIdlenessPrototype, ActionQuestPrototype, ActionInPlacePrototype
-from game.balance import constants as c
+from game.actions.prototypes import ActionIdlenessPrototype, ActionQuestPrototype, ActionInPlacePrototype, ActionRegenerateEnergyPrototype
+from game.balance import constants as c, formulas as f
 from game.prototypes import TimePrototype
 
 class IdlenessActionTest(TestCase):
@@ -15,6 +17,8 @@ class IdlenessActionTest(TestCase):
         self.bundle = create_test_bundle('IdlenessActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
         self.hero = self.bundle.tests_get_hero()
+
+        settings.refresh()
 
     def tearDown(self):
         pass
@@ -48,6 +52,25 @@ class IdlenessActionTest(TestCase):
         self.assertEqual(len(self.bundle.actions), 1)
         self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.WAITING)
+        test_bundle_save(self, self.bundle)
+
+    def test_regenerate_energy_action_create(self):
+        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
+        self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
+                                                           for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
+        self.bundle.process_turn()
+        self.assertEqual(len(self.bundle.actions), 2)
+        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionRegenerateEnergyPrototype.TYPE)
+        test_bundle_save(self, self.bundle)
+
+    def test_regenerate_energy_action_not_create_for_sacrifice(self):
+        self.action_idl.percents = 0
+        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
+                                                           for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
+        self.bundle.process_turn()
+        self.assertEqual(len(self.bundle.actions), 1)
+        self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
         test_bundle_save(self, self.bundle)
 
 

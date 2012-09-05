@@ -156,7 +156,7 @@ class AbilityTaskPrototype(object):
 
         turn_number = TimePrototype.get_current_turn_number()
 
-        energy = angel.get_energy_at_turn(turn_number)
+        energy = angel.energy
 
         if energy < ability.COST:
             self.model.comment = 'energy < ability.COST'
@@ -180,6 +180,6 @@ class AbilityTaskPrototype(object):
             return
 
         self.state = ABILITY_STATE.PROCESSED
-        angel.set_energy_at_turn(turn_number, energy - ability.COST)
+        angel.change_energy(-ability.COST)
 
         ability.available_at = self.available_at

@@ -3,8 +3,13 @@ import mock
 
 from django.test import TestCase
 
+from dext.settings import settings
+
+from game.balance import constants as c, formulas as f
+
 from game.logic import create_test_bundle, create_test_map, test_bundle_save
-from game.actions.prototypes import ActionMoveToPrototype, ActionInPlacePrototype, ActionRestPrototype, ActionResurrectPrototype, ActionBattlePvE1x1Prototype
+from game.actions.prototypes import ActionMoveToPrototype, ActionInPlacePrototype, ActionRestPrototype
+from game.actions.prototypes import ActionResurrectPrototype, ActionBattlePvE1x1Prototype, ActionRegenerateEnergyPrototype
 from game.prototypes import TimePrototype
 
 class MoveToActionTest(TestCase):
@@ -22,6 +27,8 @@ class MoveToActionTest(TestCase):
 
         self.action_idl = self.bundle.tests_get_last_action()
         self.action_move = ActionMoveToPrototype.create(self.action_idl, self.p3)
+
+        settings.refresh()
 
     def tearDown(self):
         pass
@@ -109,6 +116,48 @@ class MoveToActionTest(TestCase):
 
         test_bundle_save(self, self.bundle)
 
+    def test_regenerate_energy_on_move(self):
+        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
+        self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
+                                                           for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
+        self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
+
+        self.bundle.process_turn()
+        current_time = TimePrototype.get_current_time()
+        current_time.increment_turn()
+        self.bundle.process_turn()
+
+        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionRegenerateEnergyPrototype.TYPE)
+
+        test_bundle_save(self, self.bundle)
+
+    def test_not_regenerate_energy_on_move_for_sacrifice(self):
+        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
+                                                           for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
+        self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
+
+        self.bundle.process_turn()
+        current_time = TimePrototype.get_current_time()
+        current_time.increment_turn()
+        self.bundle.process_turn()
+
+
+        self.assertNotEqual(self.bundle.tests_get_last_action().TYPE, ActionRegenerateEnergyPrototype.TYPE)
+
+        test_bundle_save(self, self.bundle)
+
+    def test_regenerate_energy_after_battle_for_sacrifice(self):
+        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
+                                                           for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
+        self.action_move.state = self.action_move.STATE.BATTLE
+
+        self.bundle.process_turn()
+
+        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionRegenerateEnergyPrototype.TYPE)
+
+        test_bundle_save(self, self.bundle)
 
     def test_resurrect(self):
         self.hero.kill()

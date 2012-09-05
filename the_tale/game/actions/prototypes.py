@@ -185,17 +185,20 @@ class ActionPrototype(object):
 
         return random_value_by_priority(choices)
 
+    @property
+    def description_text_name(self):
+        return '%s_description' % self.TEXTGEN_TYPE
+
     def get_description(self):
-        template_name = '%s_description' % self.TEXTGEN_TYPE
         args = prepair_substitution(self.get_description_arguments())
-        template = get_vocabulary().get_random_phrase(template_name)
+        template = get_vocabulary().get_random_phrase(self.description_text_name)
 
         # from django.utils.log import getLogger
         # logger=getLogger('the-tale.workers.game_logic')
         # logger.error(template_name)
 
         if template is None:
-            raise Exception(template_name)
+            raise Exception(self.description_text_name)
             # TODO: raise exception in production (not when tests running)
             # from textgen.exceptions import TextgenException
             # raise TextgenException(u'ERROR: unknown template type: %s' % type_)
@@ -361,6 +364,7 @@ class ActionIdlenessPrototype(ActionPrototype):
         QUEST = 'QUEST'
         IN_PLACE = 'IN_PLACE'
         WAITING = 'WAITING'
+        REGENERATE_ENERGY = 'regenerate_energy'
 
     ###########################################
     # Object operations
@@ -396,11 +400,18 @@ class ActionIdlenessPrototype(ActionPrototype):
             self.state = self.STATE.IN_PLACE
             ActionInPlacePrototype.create(self)
 
+        if self.state == self.STATE.REGENERATE_ENERGY:
+            self.state = self.STATE.WAITING
+
         if self.state == self.STATE.WAITING:
 
             self.percents += 1.0 / c.TURNS_TO_IDLE
 
-            if self.percents >= 1.0:
+            if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+                ActionRegenerateEnergyPrototype.create(self)
+                self.state = self.STATE.REGENERATE_ENERGY
+
+            elif self.percents >= 1.0:
                 self.state = self.STATE.QUEST
                 quest = create_random_quest_for_hero(self.hero)
                 ActionQuestPrototype.create(parent=self, quest=quest)
@@ -458,6 +469,7 @@ class ActionMoveToPrototype(ActionPrototype):
         MOVING = 'moving'
         IN_CITY = 'in_city'
         BATTLE = 'battle'
+        REGENERATE_ENERGY = 'regenerate_energy'
         RESTING = 'resting'
         RESURRECT = 'resurrect'
 
@@ -518,6 +530,9 @@ class ActionMoveToPrototype(ActionPrototype):
         if self.state == self.STATE.RESURRECT:
             self.state = self.STATE.MOVING
 
+        if self.state == self.STATE.REGENERATE_ENERGY:
+            self.state = self.STATE.MOVING
+
         if self.state == self.STATE.IN_CITY:
             self.state = self.STATE.CHOOSE_ROAD
 
@@ -529,6 +544,9 @@ class ActionMoveToPrototype(ActionPrototype):
                 if self.hero.need_rest_in_move:
                     ActionRestPrototype.create(self)
                     self.state = self.STATE.RESTING
+                elif self.hero.need_regenerate_energy:
+                    ActionRegenerateEnergyPrototype.create(self)
+                    self.state = self.STATE.REGENERATE_ENERGY
                 else:
                     self.state = self.STATE.MOVING
 
@@ -594,10 +612,15 @@ class ActionMoveToPrototype(ActionPrototype):
 
             current_destination = self.current_destination
 
-            if random.uniform(0, 1) <= c.BATTLES_PER_TURN:
+            if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+                ActionRegenerateEnergyPrototype.create(self)
+                self.state = self.STATE.REGENERATE_ENERGY
+
+            elif random.uniform(0, 1) <= c.BATTLES_PER_TURN:
                 mob = create_mob_for_hero(self.hero)
                 ActionBattlePvE1x1Prototype.create(parent=self, mob=mob)
                 self.state = self.STATE.BATTLE
+
             else:
 
                 if random.uniform(0, 1) < 0.33:
@@ -767,6 +790,7 @@ class ActionInPlacePrototype(ActionPrototype):
 
     class STATE(ActionPrototype.STATE):
         SPEND_MONEY = 'spend_money'
+        REGENERATE_ENERGY = 'regenerate_energy'
         CHOOSING = 'choosing'
         TRADING = 'trading'
         RESTING = 'resting'
@@ -875,11 +899,16 @@ class ActionInPlacePrototype(ActionPrototype):
             self.state = self.STATE.CHOOSING
             self.spend_money()
 
-        if self.state in [self.STATE.RESTING, self.STATE.EQUIPPING, self.STATE.TRADING]:
+        if self.state in [self.STATE.RESTING, self.STATE.EQUIPPING, self.STATE.TRADING, self.STATE.REGENERATE_ENERGY]:
             self.state = self.STATE.CHOOSING
 
         if self.state == self.STATE.CHOOSING:
-            if self.hero.need_rest_in_settlement:
+
+            if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+                self.STATE.REGENERATE_ENERGY
+                ActionRegenerateEnergyPrototype.create(self)
+
+            elif self.hero.need_rest_in_settlement:
                 self.state = self.STATE.RESTING
                 ActionRestPrototype.create(self)
 
@@ -1042,6 +1071,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
     class STATE(ActionPrototype.STATE):
         MOVING = 'MOVING'
         BATTLE = 'BATTLE'
+        REGENERATE_ENERGY = 'REGENERATE_ENERGY'
         RESTING = 'RESTING'
         RESURRECT = 'RESURRECT'
         IN_CITY = 'IN_CITY'
@@ -1092,6 +1122,9 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
         if self.state == self.STATE.RESURRECT:
             self.state = self.STATE.MOVING
 
+        if self.state == self.STATE.REGENERATE_ENERGY:
+            self.state = self.STATE.MOVING
+
         if self.state == self.STATE.IN_CITY:
             if self.percents >= 1:
                 self.state = self.STATE.PROCESSED
@@ -1106,12 +1139,19 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                 if self.hero.need_rest_in_move:
                     ActionRestPrototype.create(self)
                     self.state = self.STATE.RESTING
+                elif self.hero.need_regenerate_energy:
+                    ActionRegenerateEnergyPrototype.create(self)
+                    self.state = self.STATE.REGENERATE_ENERGY
                 else:
                     self.state = self.STATE.MOVING
 
         if self.state == self.STATE.MOVING:
 
-            if random.uniform(0, 1) <= c.BATTLES_PER_TURN:
+            if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+                ActionRegenerateEnergyPrototype.create(self)
+                self.state = self.STATE.REGENERATE_ENERGY
+
+            elif random.uniform(0, 1) <= c.BATTLES_PER_TURN:
                 mob = create_mob_for_hero(self.hero)
                 ActionBattlePvE1x1Prototype.create(parent=self, mob=mob)
                 self.state = self.STATE.BATTLE
@@ -1143,14 +1183,14 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                         self.state = self.STATE.PROCESSED
 
 
-class ActionRestoreEnergyPrototype(ActionPrototype):
+class ActionRegenerateEnergyPrototype(ActionPrototype):
 
-    TYPE = 'RESTORE_ENERGY'
-    TEXTGEN_TYPE = 'action_restore_energy'
+    TYPE = 'REGENERATE_ENERGY'
+    TEXTGEN_TYPE = 'action_regenerate_energy'
     EXTRA_HELP_CHOICES = set()
 
     class STATE(ActionPrototype.STATE):
-        RESTORE = 'RESTORE'
+        REGENERATE = 'REGENERATE'
 
     ###########################################
     # Object operations
@@ -1162,41 +1202,46 @@ class ActionRestoreEnergyPrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       state=cls.STATE.RESTING)
-        action = cls(model=model)
+                                       state=cls.STATE.REGENERATE)
 
-        parent.hero.add_message('action_restore_energy_%s_start' % action.regeneration_slug, hero=parent.hero)
+        parent.hero.add_message('action_regenerate_energy_start_%s' % cls.regeneration_slug(parent.hero.preferences.energy_regeneration_type), hero=parent.hero)
 
-        return action
+        return cls(model=model)
+
+    @property
+    def description_text_name(self):
+        return '%s_description_%s' % (self.TEXTGEN_TYPE, self.regeneration_slug(self.regeneration_type))
+
 
     @property
     def regeneration_type(self):
         return self.hero.preferences.energy_regeneration_type
 
-    @property
-    def regeneration_slug(self):
+    @classmethod
+    def regeneration_slug(cls, regeneration_type):
         return { c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 'pray',
                  c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 'sacrifice',
-                 c.ANGEL_ENERGY_REGENERATION_TYPES.SPICES: 'spices',
+                 c.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 'incense',
                  c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 'symbols',
-                 c.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 'meditation' }[self.regeneration_type]
+                 c.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 'meditation' }[regeneration_type]
 
     def step_percents(self):
         return 1.0 / c.ANGEL_ENERGY_REGENERATION_STEPS[self.regeneration_type]
 
     def process(self):
 
-        if self.state == self.STATE.RESTORE:
+        if self.state == self.STATE.REGENERATE:
 
             self.percents += self.step_percents()
 
             if self.percents >= 1:
-                energy_delta = self.bundle.angels[self.hero.angel_id].change_energy(f.angel_energy_regeneration_period(self.regeneration_type))
+                energy_delta = self.bundle.angels[self.hero.angel_id].change_energy(f.angel_energy_regeneration_amount(self.regeneration_type))
+                self.hero.last_energy_regeneration_at_turn = TimePrototype.get_current_turn_number()
 
                 if energy_delta:
-                    self.hero.add_message('action_restore_energy_%s_energy_received' % self.regeneration_slug, hero=self.hero, energy=energy_delta)
+                    self.hero.add_message('action_regenerate_energy_energy_received_%s' % self.regeneration_slug(self.regeneration_type), hero=self.hero, energy=energy_delta)
                 else:
-                    self.hero.add_message('action_restore_energy_%s_no_energy_received' % self.regeneration_slug, hero=self.hero)
+                    self.hero.add_message('action_regenerate_energy_no_energy_received_%s' % self.regeneration_slug(self.regeneration_type), hero=self.hero)
 
                 self.state = self.STATE.PROCESSED
 

@@ -265,6 +265,9 @@ class HeroPrototype(object):
     def switch_spending(self):
         self.model.next_spending = random_value_by_priority(list(c.ITEMS_OF_EXPENDITURE_PRIORITY.items()))
 
+    def get_last_energy_regeneration_at_turn(self): return self.model.last_energy_regeneration_at_turn
+    def set_last_energy_regeneration_at_turn(self, value): self.model.last_energy_regeneration_at_turn = value
+    last_energy_regeneration_at_turn = property(get_last_energy_regeneration_at_turn, set_last_energy_regeneration_at_turn)
 
     ###########################################
     # Secondary attributes
@@ -317,6 +320,11 @@ class HeroPrototype(object):
     def need_equipping_in_town(self):
         slot, unequipped, equipped = self.get_equip_canditates()
         return equipped is not None
+
+    @property
+    def need_regenerate_energy(self):
+        return TimePrototype.get_current_turn_number() > self.last_energy_regeneration_at_turn + f.angel_energy_regeneration_delay(self.preferences.energy_regeneration_type)
+
 
     ###########################################
     # actions

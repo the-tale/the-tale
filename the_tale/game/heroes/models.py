@@ -58,6 +58,8 @@ class Hero(models.Model):
 
     next_spending = models.IntegerField(null=False, default=c.ITEMS_OF_EXPENDITURE.USELESS)
 
+    last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
+
     #position
     pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True)
     pos_road = models.ForeignKey('roads.Road', related_name='+', null=True, default=None, blank=True)

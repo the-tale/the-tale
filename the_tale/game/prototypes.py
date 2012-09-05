@@ -48,6 +48,7 @@ class TimePrototype(object):
 
     def increment_turn(self):
         self.turn_number += 1
+        self.save()
 
     def save(self):
         settings['turn number'] = str(self.turn_number)

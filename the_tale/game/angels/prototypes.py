@@ -51,6 +51,9 @@ class AngelPrototype(object):
         elif self.model.energy > self.energy_maximum:
             self.model.energy = self.energy_maximum
 
+        if self.model.energy != old_energy:
+            self.updated = True
+
         return self.model.energy - old_energy
 
     def get_hero(self):
