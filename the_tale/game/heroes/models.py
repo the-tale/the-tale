@@ -50,6 +50,8 @@ class Hero(models.Model):
 
     abilities = models.TextField(null=False, default='[]')
 
+    quests_history = models.TextField(null=False, default='{}')
+
     messages = models.TextField(null=False, default='[]')
     diary = models.TextField(null=False, default='[]')
     actions_descriptions = models.TextField(null=False, default='[]')

@@ -3,6 +3,8 @@ import mock
 
 from django.test import TestCase
 
+from dext.settings import settings
+
 from game.heroes.logic import create_mob_for_hero
 from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionBattlePvE1x1Prototype
@@ -11,6 +13,8 @@ from game.prototypes import TimePrototype
 class BattlePvE1x1ActionTest(TestCase):
 
     def setUp(self):
+        settings.refresh()
+
         create_test_map()
 
         self.bundle = create_test_bundle('BattlePvE1x1ActionTest')

@@ -14,14 +14,14 @@ from game.balance import constants as c, formulas as f
 class InPlaceActionTest(TestCase):
 
     def setUp(self):
+        settings.refresh()
+
         create_test_map()
 
         self.bundle = create_test_bundle('InPlaceActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
         self.action_inplace = ActionInPlacePrototype.create(self.action_idl)
         self.hero = self.bundle.tests_get_hero()
-
-        settings.refresh()
 
     def tearDown(self):
         pass

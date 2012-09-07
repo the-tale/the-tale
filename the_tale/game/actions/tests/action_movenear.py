@@ -15,6 +15,8 @@ from game.prototypes import TimePrototype
 class MoveNearActionTest(TestCase):
 
     def setUp(self):
+        settings.refresh()
+
         p1, p2, p3 = create_test_map()
         self.p1 = p1
         self.p2 = p2
@@ -27,8 +29,6 @@ class MoveNearActionTest(TestCase):
 
         self.action_idl = self.bundle.tests_get_last_action()
         self.action_move = ActionMoveNearPlacePrototype.create(self.action_idl, self.p1, False)
-
-        settings.refresh()
 
     def tearDown(self):
         pass

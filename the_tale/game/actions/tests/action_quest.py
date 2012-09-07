@@ -2,6 +2,8 @@
 
 from django.test import TestCase
 
+from dext.settings import settings
+
 from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionQuestPrototype
 from game.quests.logic import create_random_quest_for_hero
@@ -10,6 +12,8 @@ from game.prototypes import TimePrototype
 class QuestActionTest(TestCase):
 
     def setUp(self):
+        settings.refresh()
+
         create_test_map()
 
         self.bundle = create_test_bundle('QuestActionTest')

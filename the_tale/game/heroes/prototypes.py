@@ -26,6 +26,7 @@ from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from game.heroes.habilities import AbilitiesPrototype, ABILITIES
 from game.heroes.conf import heroes_settings
 from game.heroes.exceptions import HeroException
+from game.heroes.logic import ValuesDict
 
 from game.map.storage import map_info_storage
 
@@ -158,6 +159,12 @@ class HeroPrototype(object):
 
     def get_abilities_for_choose(self):
         return self.abilities.get_for_choose(self)
+
+    @property
+    def quests_history(self):
+        if not hasattr(self, '_quests_history'):
+            self._quests_history = ValuesDict.deserialize(s11n.from_json(self.model.quests_history))
+        return self._quests_history
 
     @property
     def bag(self):
@@ -445,6 +452,7 @@ class HeroPrototype(object):
         self.model.delete()
 
     def save(self):
+
         if self.bag.updated:
             self.model.bag = s11n.to_json(self.bag.serialize())
             self.bag.updated = False
@@ -456,6 +464,10 @@ class HeroPrototype(object):
         if self.abilities.updated:
             self.model.abilities = s11n.to_json(self.abilities.serialize())
             self.abilities.updated = False
+
+        if self.quests_history.updated:
+            self.model.quests_history = s11n.to_json(self.quests_history.serialize())
+            self.quests_history.updated = False
 
         if self.messages_updated:
             self.model.messages = s11n.to_json(self.messages)

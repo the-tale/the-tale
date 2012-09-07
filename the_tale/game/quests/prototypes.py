@@ -141,6 +141,8 @@ class QuestPrototype(object):
 
         quest.save()
 
+        hero.quests_history[env.root_quest.type()] = TimePrototype.get_current_turn_number()
+
         return quest
 
 

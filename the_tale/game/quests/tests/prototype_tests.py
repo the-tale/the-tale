@@ -3,6 +3,8 @@ import mock
 
 from django.test import TestCase
 
+from dext.settings import settings
+
 from common.utils.fake import FakeWorkerCommand
 
 from game.logic import create_test_bundle, create_test_map
@@ -14,6 +16,11 @@ from game.prototypes import TimePrototype
 class QuestPrototypeTest(TestCase):
 
     def setUp(self):
+
+        settings.refresh()
+        current_time = TimePrototype.get_current_time()
+        current_time.increment_turn()
+
         create_test_map()
 
         self.bundle = create_test_bundle('QuestActionTest')
@@ -31,6 +38,10 @@ class QuestPrototypeTest(TestCase):
         while not self.action_idl.leader:
             self.bundle.process_turn()
             current_time.increment_turn()
+
+    def test_initialization(self):
+        self.assertEqual(TimePrototype.get_current_turn_number(), self.hero.quests_history[self.quest.env.root_quest.type()])
+
 
     def test_power_on_end_quest_for_fast_account_hero(self):
         fake_cmd = FakeWorkerCommand()

@@ -12,13 +12,13 @@ from game.prototypes import TimePrototype
 class IdlenessActionTest(TestCase):
 
     def setUp(self):
+        settings.refresh()
+
         create_test_map()
 
         self.bundle = create_test_bundle('IdlenessActionTest')
         self.action_idl = self.bundle.tests_get_last_action()
         self.hero = self.bundle.tests_get_hero()
-
-        settings.refresh()
 
     def tearDown(self):
         pass
