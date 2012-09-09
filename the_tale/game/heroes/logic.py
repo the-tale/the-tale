@@ -30,6 +30,9 @@ class ValuesDict(object):
     def serialize(self):
         return copy.copy(self.data)
 
+    def items(self):
+        return self.data.items()
+
     @classmethod
     def deserialize(cls, data):
         obj = cls()

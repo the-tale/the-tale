@@ -166,6 +166,21 @@ class HeroPrototype(object):
             self._quests_history = ValuesDict.deserialize(s11n.from_json(self.model.quests_history))
         return self._quests_history
 
+    def get_special_quests(self):
+        from game.quests.quests_builders import Hunt
+        from game.quests.quests_builders import Hometown
+        from game.quests.quests_builders import HelpFriend
+
+        allowed_quests = []
+        if self.preferences.mob_id is not None:
+            allowed_quests.append(Hunt.type())
+        if self.preferences.place_id is not None:
+            allowed_quests.append(Hometown.type())
+        if self.preferences.friend_id is not None:
+            allowed_quests.append(HelpFriend.type())
+
+        return allowed_quests
+
     @property
     def bag(self):
         if not hasattr(self, '_bag'):

@@ -36,6 +36,39 @@ class Message(Command):
         return '<message> event: %s, important %s' % (self.event, self.important)
 
 
+class DoNothing(Command):
+
+    def __init__(self, duration=None, messages_prefix=None, messages_probability=None, **kwargs): # if break_at is None, hero will be go to the road end
+        super(DoNothing, self).__init__(**kwargs)
+        self.messages_prefix = messages_prefix
+        self.duration = duration
+        self.messages_probability = messages_probability
+
+
+    def get_description(self, env):
+        return '<do nothing> event: %s, duration %s, messages_prefix %s, messages_probability %s' % (self.event, self.duration, self.messages_prefix, self.messages_probability)
+
+    def serialize(self):
+        data = super(DoNothing, self).serialize()
+        data.update({'duration': self.duration,
+                     'messages_prefix': self.messages_prefix,
+                     'messages_probability': self.messages_probability})
+        return data
+
+    def deserialize(self, data):
+        super(DoNothing, self).deserialize(data)
+        self.duration = data['duration']
+        self.messages_prefix = data['messages_prefix']
+        self.messages_probability = data['messages_probability']
+
+    def __eq__(self, other):
+        return (super(DoNothing, self).__eq__(other) and
+                self.duration == other.duration and
+                self.messages_prefix == other.messages_prefix and
+                self.messages_probability == other.messages_probability)
+
+
+
 class Move(Command):
 
     def __init__(self, place=None, break_at=None, **kwargs): # if break_at is None, hero will be go to the road end

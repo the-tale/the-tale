@@ -12,7 +12,7 @@ class ACTOR_TYPE:
 class Line(object):
 
     def __init__(self, sequence=[]):
-        self.sequence = sequence
+        self.sequence = [element for element in sequence if element is not None]
 
     def get_start_pointer(self):
         return [0]
@@ -127,9 +127,9 @@ class Quest(object):
     CHOICES = {}
 
     def __init__(self):
-        self.env_local = None
         self.id = None
         self.line = None
+        self.env_local = LocalEnvironment()
 
     @classmethod
     def can_be_used(cls, env):
@@ -137,7 +137,6 @@ class Quest(object):
 
     def initialize(self, identifier, env, place_start=None, person_start=None, place_end=None, person_end=None):
         self.id = identifier
-        self.env_local = LocalEnvironment()
 
     @classmethod
     def type(cls): return cls.__name__.lower()

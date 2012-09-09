@@ -5,15 +5,15 @@ from django.test import TestCase
 from game.quests.quests_generator import commands as cmd
 from game.quests.quests_generator.knowlege_base import KnowlegeBase
 from game.quests.quests_generator.environment import BaseEnvironment
-from game.quests.quests_generator.lines import BaseQuestsSource
+from game.quests.quests_generator.quests_source import BaseQuestsSource
 from game.quests.quests_generator.exceptions import QuestGeneratorException, RollBackException
-from game.quests.quests_generator.lines import Delivery
+# from game.quests.quests_generator.lines import Delivery
 from game.quests.quests_generator.quest_line import Line, Quest
 from game.quests.quests_generator.tests.helpers import JustQuest, FakeWriter, FakeQuest
 
 class QuestsSource(BaseQuestsSource):
 
-    quests_list = [Delivery]
+    quests_list = [JustQuest]
 
     def deserialize_quest(self, data):
         for quest in self.quests_list:

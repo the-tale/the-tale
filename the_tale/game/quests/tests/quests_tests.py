@@ -4,23 +4,26 @@ from common.utils.testcase import TestCase
 
 from game.logic import create_test_bundle, create_test_map
 from game.prototypes import TimePrototype
-from game.quests.quests_generator.lines import QUESTS
+from game.quests.quests_builders import QUESTS
 from game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
 from game.quests.quests_generator.tests.helpers import patch_quests_list
-from game.quests.quests_generator.lines.delivery import Delivery
-from game.quests.quests_generator.lines.not_my_work import NotMyWork
-from game.quests.quests_generator.lines.help import Help
+from game.quests.quests_builders.delivery import Delivery
+from game.quests.quests_builders.not_my_work import NotMyWork
+from game.quests.quests_builders.help import Help
+from game.quests.quests_builders.help_friend import HelpFriend
 
 class QuestsTest(TestCase):
 
     def setUp(self):
-        create_test_map()
+        p1, p2, p3 = create_test_map()
 
         self.bundle = create_test_bundle('QuestActionTest')
         self.hero = self.bundle.tests_get_hero()
         self.action_idl = self.bundle.tests_get_last_action()
 
         self.hero.preferences.set_mob_id('rat')
+        self.hero.preferences.set_place_id(p1.id)
+        self.hero.preferences.set_friend_id(p1.persons[0].id)
         self.hero.save()
 
     def tearDown(self):
@@ -38,10 +41,10 @@ for QuestClass in QUESTS:
 
     quests = [QuestClass]
 
-    if QuestClass in (Help, NotMyWork):
+    if QuestClass in (Help, HelpFriend, NotMyWork):
         quests.append(Delivery)
 
-    @patch_quests_list(quests)
+    @patch_quests_list('game.quests.logic.QuestsSource', quests)
     def quest_test_method(self):
 
         current_time = TimePrototype.get_current_time()

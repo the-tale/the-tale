@@ -814,6 +814,21 @@
       "template": "перебирает содержимое рюкзака"
     }
   ], 
+  "quest_hometown_action_search_old_friends": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s гуляет по городу"
+    }
+  ], 
   "action_regenerate_energy_energy_received_incense": [
     {
       "internals": [
@@ -841,6 +856,13 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
+    }
+  ], 
+  "quest_hometown_donothing_drunk_song_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "распевает разгульную песню, пьянствуя с друзьями в трактире"
     }
   ], 
   "action_regenerate_energy_energy_received_symbols": [
@@ -925,18 +947,11 @@
       "template": "Нет для героя ничего постыднее, чем безделье. Это безобразие надо немедленно прекратить!"
     }
   ], 
-  "action_regenerate_energy_description_pray": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "усердно молится поглядывая на небо"
-    }
-  ], 
-  "quest_delivery_journal_get_item": [
+  "quest_hometown_journal_move_to_quest": [
     {
       "internals": [
         [
-          "получил", 
+          "отправился", 
           [
             "hero"
           ], 
@@ -944,7 +959,7 @@
           [
             "прш"
           ], 
-          "получил"
+          "отправился"
         ]
       ], 
       "externals": [
@@ -956,18 +971,23 @@
             "загл"
           ], 
           "hero"
-        ], 
-        [
-          "item_to_deliver", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "item_to_deliver"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s %(e_1)s"
+      "template": "%(e_0)s %(i_0)s в родной город."
+    }
+  ], 
+  "action_regenerate_energy_description_pray": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "усердно молится поглядывая на небо"
+    }
+  ], 
+  "quest_notmywork_journal_move_to_customer": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "А теперь можно и за наградой."
     }
   ], 
   "quest_hunt_action_hunt": [
@@ -1045,6 +1065,44 @@
       "internals": [], 
       "externals": [], 
       "template": "Впереди нелёгкий путь, о чём же меня попросят?"
+    }
+  ], 
+  "quest_delivery_journal_get_item": [
+    {
+      "internals": [
+        [
+          "получил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "получил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ], 
+        [
+          "item_to_deliver", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "item_to_deliver"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s %(e_1)s"
     }
   ], 
   "action_trading_sell_item": [
@@ -1552,6 +1610,21 @@
       "template": "Лекарь содрал %(e_0)s %(i_0)s за лечение."
     }
   ], 
+  "quest_hometown_action_move_to_quest": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s возвращается в родной город"
+    }
+  ], 
   "quest_delivery_journal_steal_reward": [
     {
       "internals": [
@@ -1579,11 +1652,19 @@
       "template": "Теперь %(e_0)s будет %(i_0)s"
     }
   ], 
-  "quest_notmywork_journal_move_to_customer": [
+  "quest_hometown_action_remember_names": [
     {
       "internals": [], 
-      "externals": [], 
-      "template": "А теперь можно и за наградой."
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s гуляет по городу"
     }
   ], 
   "quest_spying_choice_openup_result_spy": [
@@ -1667,6 +1748,13 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s доставить письмо. Его %(i_1)s получить %(e_1)s из %(e_2)s."
+    }
+  ], 
+  "quest_hometown_donothing_chatting_start": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Ух ты! Старый знакомый!"
     }
   ], 
   "quest_delivery_journal_give_item": [
@@ -1765,6 +1853,45 @@
       "template": "%(e_0)s %(i_0)s применить силу."
     }
   ], 
+  "quest_hometown_action_stagger_streets": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s гуляет по городу"
+    }
+  ], 
+  "quest_hometown_diary_intro": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Давно что-то не было известий из родного дома, наверное стоит проверить на месте ли он."
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Бродячий торговец рассказал что в моем родном городе открылся новый магазинчик, видимо пора вернуться, а то без меня там и трактиров пооткрывают."
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Друзья, близкие, как они там без меня, соскучились наверное не меньше моего, самое время их проведать."
+    }
+  ], 
+  "quest_hometown_donothing_remember_names_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "вспоминает как зовут знакомого оружейника"
+    }
+  ], 
   "quest_delivery_diary_choice_delivery": [
     {
       "internals": [], 
@@ -1772,33 +1899,26 @@
       "template": "Служить на почте трудно и даже опасно, но это почётная профессия! И пусть в дороге меня ждут монстры и ужасная погода — письмо будет доставлено вовремя!"
     }
   ], 
-  "action_regenerate_energy_energy_no_received_meditation": [
+  "quest_hometown_action_drunk_song": [
     {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
+      "internals": [], 
       "externals": [
         [
           "hero", 
           [], 
           "e_0", 
-          [
-            "загл"
-          ], 
+          [], 
           "hero"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s обряд."
+      "template": "%(e_0)s гуляет по городу"
+    }
+  ], 
+  "quest_hometown_donothing_search_old_friends_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "разыскивает старых боевых товарищей"
     }
   ], 
   "quest_spying_choice_openup_variant_open_up": [
@@ -1948,6 +2068,23 @@
       "template": "сжигает останки павшего противника"
     }
   ], 
+  "quest_hometown_donothing_stagger_streets_donothing": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Как я люблю эту улицу, ее простор, знакомые лица, вот только запах…"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Странно, пока ты вдалеке от родного места, оно кажется таким замечательным, и тянет к себе, а как прибудешь на место — и шумно, и грязно, и лица какие-то все подозрительные."
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Ну вот, ничего не изменилось с моего последнего посещения, хотя может быть это и к лучшему?"
+    }
+  ], 
   "hero_ability_runuppush": [
     {
       "internals": [
@@ -2030,6 +2167,13 @@
       "internals": [], 
       "externals": [], 
       "template": "Рюкзак полон добычи, пора возвращаться в город."
+    }
+  ], 
+  "quest_hometown_donothing_drunk_song_start": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "А это что за трактир, в прошлый раз его не было, пожалуй стоит проверить чем тут потчуют."
     }
   ], 
   "action_regenerate_energy_description_incense": [
@@ -2154,6 +2298,42 @@
       "template": "%(e_0)s пытается скрыться с награбленным"
     }
   ], 
+  "quest_hometown_donothing_stagger_streets_start": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Пойду поброжу по родным улочкам."
+    }
+  ], 
+  "action_regenerate_energy_energy_no_received_meditation": [
+    {
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд."
+    }
+  ], 
   "action_rest_start": [
     {
       "internals": [
@@ -2205,6 +2385,13 @@
       "internals": [], 
       "externals": [], 
       "template": "Йод, касторка, спирт, теперь надо всё это смешать и выпить, глядишь — поможет"
+    }
+  ], 
+  "quest_hometown_donothing_stagger_streets_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Шатается по знакомым улочкам, пялясь на новые постройки."
     }
   ], 
   "quest_caravan_journal_run_away": [
@@ -2527,6 +2714,35 @@
       "template": "Поохотиться в удовольствие"
     }
   ], 
+  "quest_hometown_journal_get_reward": [
+    {
+      "internals": [
+        [
+          "получил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "получил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s подарок от друзей в благодарность за то, что не забывает о них."
+    }
+  ], 
   "action_resurrect_description": [
     {
       "internals": [], 
@@ -2834,6 +3050,13 @@
         ]
       ], 
       "template": "Что-то %(e_0)s юлит… придётся применить силовое воздействие."
+    }
+  ], 
+  "quest_hometown_donothing_chatting_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "болтает о жизни со знакомым лавочником"
     }
   ], 
   "quest_hunt_action_track": [
@@ -3892,6 +4115,21 @@
       "template": "%(e_0)s %(i_0)s %(e_1)s HP."
     }
   ], 
+  "quest_hometown_action_chatting": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s гуляет по городу"
+    }
+  ], 
   "quest_caravan_journal_move_to_point": [
     {
       "internals": [
@@ -4534,6 +4772,13 @@
       "template": "ограбить торговца"
     }
   ], 
+  "quest_hometown_donothing_search_old_friends_start": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "И куда запропастился мой старый боевой товарищ, всегда же тут ошивался…"
+    }
+  ], 
   "action_inplace_impact_bad": [
     {
       "internals": [
@@ -4678,6 +4923,13 @@
       "internals": [], 
       "externals": [], 
       "template": "Всё надоело, пора отдыхать… Пора на охоту."
+    }
+  ], 
+  "quest_hometown_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Посетить родной город"
     }
   ], 
   "quest_notmywork_choice_work_result_diplomacy": [

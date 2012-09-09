@@ -6,7 +6,7 @@ from game.quests.quests_generator.exceptions import QuestGeneratorException, Rol
 
 class BaseEnvironment(object):
 
-    def __init__(self, quests_source, writers_constructor, knowlege_base):
+    def __init__(self, writers_constructor, quests_source=None, knowlege_base=None):
         self.quests_source = quests_source
         self.writers_constructor = writers_constructor
         self.knowlege_base = knowlege_base
@@ -69,17 +69,17 @@ class BaseEnvironment(object):
         self.choices[choice] = {'external_data': {}}
         return choice
 
-    def new_quest(self, special=False, **kwargs):
+    def new_quest(self, from_list=None, excluded_list=[], **kwargs):
         self.quests_number += 1
         quest_id = 'quest_%d' % self.quests_number
 
         if self._root_quest is None:
             self._root_quest = quest_id
 
-        quests_list = self.quests_source.filter(self, special=special)
+        quests_list = self.quests_source.filter(self, from_list=from_list, excluded_list=excluded_list)
 
         if not quests_list:
-            raise RollBackException('can not find suitable quests with args: special=%r' % special)
+            raise RollBackException('can not find suitable quests')
 
         quest = random.choice(quests_list)()
 
@@ -181,6 +181,7 @@ class BaseEnvironment(object):
                  'persons_power_points': self.persons_power_points}
 
     def deserialize(self, data):
+
         from .quest_line import Line
 
         self.items_number = data['numbers']['items_number']

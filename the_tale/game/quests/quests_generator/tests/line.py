@@ -5,7 +5,7 @@ from django.test import TestCase
 from game.quests.quests_generator.quest_line import Line
 from game.quests.quests_generator import commands as cmd
 from game.quests.quests_generator.environment import BaseEnvironment, LocalEnvironment
-from game.quests.quests_generator.lines import BaseQuestsSource
+from game.quests.quests_generator.quests_source import BaseQuestsSource
 from game.quests.quests_generator.knowlege_base import KnowlegeBase
 from game.quests.quests_generator.exceptions import QuestGeneratorException
 from game.quests.quests_generator.tests.helpers import FakeQuest

@@ -1,6 +1,6 @@
 # coding: utf-8
-from ..quest_line import Quest, Line, ACTOR_TYPE
-from .. import commands as cmd
+from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE
+from game.quests.quests_generator import commands as cmd
 
 class EVENTS:
     INTRO = 'intro'

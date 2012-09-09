@@ -6,3 +6,4 @@ from game.quests.quests_generator.tests.local_environment import *
 from game.quests.quests_generator.tests.line import *
 from game.quests.quests_generator.tests.quest import *
 from game.quests.quests_generator.tests.environment import *
+from game.quests.quests_generator.tests.quests_source_tests import *

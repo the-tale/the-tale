@@ -1,6 +1,6 @@
 # coding: utf-8
-from ..quest_line import Quest, Line, ACTOR_TYPE
-from .. import commands as cmd
+from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE
+from game.quests.quests_generator import commands as cmd
 
 class EVENTS:
     INTRO = 'intro'
@@ -22,7 +22,8 @@ class Help(Quest):
         self.env_local.register('place_end', place_end or env.new_place())
         self.env_local.register('person_end', person_end or env.new_person(from_place=self.env_local.place_end))
 
-        self.env_local.register('quest_help', env.new_quest(place_start=self.env_local.place_end,
+        self.env_local.register('quest_help', env.new_quest(from_list=['delivery', 'caravan', 'spying', 'not_my_work'],
+                                                            place_start=self.env_local.place_end,
                                                             person_start=self.env_local.person_end) )
 
     def create_line(self, env):

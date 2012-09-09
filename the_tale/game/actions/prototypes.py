@@ -169,6 +169,14 @@ class ActionPrototype(object):
     def set_percents_barier(self, value): self.model.percents_barier = value
     percents_barier = property(get_percents_barier, set_percents_barier)
 
+    def get_extra_probability(self): return self.model.extra_probability
+    def set_extra_probability(self, value): self.model.extra_probability = value
+    extra_probability = property(get_extra_probability, set_extra_probability)
+
+    def get_textgen_id(self): return self.model.textgen_id
+    def set_textgen_id(self, value): self.model.textgen_id = value
+    textgen_id = property(get_textgen_id, set_textgen_id)
+
     @property
     def help_choices(self):
         choices = copy.copy(self.EXTRA_HELP_CHOICES)
@@ -317,24 +325,7 @@ class ActionPrototype(object):
 
 
     def __eq__(self, other):
-        # print 'action'
-        # print self.id == other.id
-        # print self.removed == other.removed
-        # print self.type == other.type
-        # print self.order == other.order
-        # print self.percents == other.percents
-        # print self.state == other.state
-        # print self.hero_id == other.hero_id
-        # print self.context == other.context
-        # print self.mob_context == other.mob_context
-        # print self.place_id == other.place_id
-        # print self.mob == other.mob
-        # print self.model.quest_id == other.model.quest_id
-        # print self.data == other.data
-        # print self.break_at == other.break_at
-        # print self.length == other.length
-        # print self.get_destination() == other.get_destination()
-        # print self.percents_barier == other.percents_barier
+
         return (self.id == other.id and
                 self.removed == other.removed and
                 self.type == other.type and
@@ -351,7 +342,9 @@ class ActionPrototype(object):
                 self.break_at == other.break_at and
                 self.length == other.length and
                 self.get_destination() == other.get_destination() and
-                self.percents_barier == other.percents_barier)
+                self.percents_barier == other.percents_barier and
+                self.extra_probability == other.extra_probability and
+                self.textgen_id == other.textgen_id)
 
 
 class ActionIdlenessPrototype(ActionPrototype):
@@ -1245,6 +1238,55 @@ class ActionRegenerateEnergyPrototype(ActionPrototype):
 
                 self.state = self.STATE.PROCESSED
 
+
+class ActionDoNothingPrototype(ActionPrototype):
+
+    TYPE = 'DO_NOTHING'
+    TEXTGEN_TYPE = 'no texgen type'
+    SHORT_DESCRIPTION = u'торгует'
+    EXTRA_HELP_CHOICES = set()
+
+    class STATE(ActionPrototype.STATE):
+        DO_NOTHING = 'DO_NOTHING'
+
+    @property
+    def description_text_name(self):
+        return '%s_description' % self.textgen_id
+
+    ###########################################
+    # Object operations
+    ###########################################
+
+    def ui_info(self):
+        # TODO: move to parent class
+        info = super(ActionDoNothingPrototype, self).ui_info()
+        info['data'] = {'hero_id': self.hero_id}
+        return info
+
+    @classmethod
+    def _create(cls, parent, duration, messages_prefix, messages_probability):
+        model = Action.objects.create( type=cls.TYPE,
+                                       parent=parent.model,
+                                       hero=parent.hero.model,
+                                       order=parent.order+1,
+                                       percents_barier=duration,
+                                       extra_probability=messages_probability,
+                                       textgen_id=messages_prefix,
+                                       state=cls.STATE.DO_NOTHING)
+        parent.hero.add_message('%s_start' % messages_prefix, hero=parent.hero)
+        return cls(model=model)
+
+    def process(self):
+
+        if self.state == self.STATE.DO_NOTHING:
+
+            self.percents += 1.0001 /  self.percents_barier
+
+            if self.extra_probability is not None and random.uniform(0, 1) < self.extra_probability:
+                self.hero.add_message('%s_donothing' % self.textgen_id, hero=self.hero)
+
+            if self.percents >= 1.0:
+                self.state = self.STATE.PROCESSED
 
 
 ACTION_TYPES = get_actions_types()

@@ -155,12 +155,12 @@ class QuestNoChoice(Quest):
         self.line = env.new_line(main_line)
 
 
-def patch_quests_list(quests_list):
+def patch_quests_list(prefix, quests_list):
 
     def decorator(func):
-        func = mock.patch('game.quests.quests_generator.lines.QUESTS', quests_list)(func)
-        func = mock.patch('game.quests.quests_generator.lines.QUESTS_TYPES', [q.type() for q in quests_list])(func)
-        func = mock.patch('game.quests.quests_generator.lines.BaseQuestsSource.quests_list', quests_list)(func)
+        # func = mock.patch('game.quests.quests_generator.lines.QUESTS', quests_list)(func)
+        # func = mock.patch('game.quests.quests_generator.lines.QUESTS_TYPES', [q.type() for q in quests_list])(func)
+        func = mock.patch('%s.quests_list' % prefix, quests_list)(func)
         return func
 
     return decorator

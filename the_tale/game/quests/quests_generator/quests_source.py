@@ -1,28 +1,20 @@
 # coding: utf-8
 
-from .help import Help
-from .delivery import Delivery
-from .caravan import Caravan
-from .spying import Spying
-from .not_my_work import NotMyWork
-from .hunt import Hunt
-
-QUESTS = [Help, Delivery, Caravan, Spying, NotMyWork, Hunt]
-QUESTS_TYPES = [quest.type() for quest in QUESTS]
-
-# TODO: WHY no all quest added here?
-__all__ = ['QUESTS', 'BaseQuestsSource']
 
 class BaseQuestsSource(object):
 
-    quests_list = QUESTS
+    quests_list = []
 
-    def filter(self, env, special=None):
+    def filter(self, env, from_list=None, excluded_list=[]):
+
         result = []
 
         for quest in self.quests_list:
 
-            if special is not None and quest.SPECIAL != special:
+            if quest.type() in excluded_list:
+                continue
+
+            if from_list is not None and quest.type() not in from_list:
                 continue
 
             if not quest.can_be_used(env):

@@ -10,22 +10,22 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'Hero.pref_mob_changed_at'
         db.add_column('heroes_hero', 'pref_mob_changed_at',
-                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2000, 1, 1, 0, 0), db_index=True),
+                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2000, 1, 1, 0, 0)),
                       keep_default=False)
 
         # Adding field 'Hero.pref_place_changed_at'
         db.add_column('heroes_hero', 'pref_place_changed_at',
-                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2000, 1, 1, 0, 0), db_index=True),
+                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2000, 1, 1, 0, 0)),
                       keep_default=False)
 
         # Adding field 'Hero.pref_friend_changed_at'
         db.add_column('heroes_hero', 'pref_friend_changed_at',
-                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2000, 1, 1, 0, 0), db_index=True),
+                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2000, 1, 1, 0, 0)),
                       keep_default=False)
 
         # Adding field 'Hero.pref_enemy_changed_at'
         db.add_column('heroes_hero', 'pref_enemy_changed_at',
-                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2000, 1, 1, 0, 0), db_index=True),
+                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2000, 1, 1, 0, 0)),
                       keep_default=False)
 
     def backwards(self, orm):
@@ -147,13 +147,13 @@ class Migration(SchemaMigration):
             'pos_to_x': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'pos_to_y': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'pref_enemy': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'+'", 'null': 'True', 'to': "orm['persons.Person']"}),
-            'pref_enemy_changed_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2000, 1, 1, 0, 0)', 'db_index': 'True'}),
+            'pref_enemy_changed_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2000, 1, 1, 0, 0)'}),
             'pref_friend': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'+'", 'null': 'True', 'to': "orm['persons.Person']"}),
-            'pref_friend_changed_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2000, 1, 1, 0, 0)', 'db_index': 'True'}),
+            'pref_friend_changed_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2000, 1, 1, 0, 0)'}),
             'pref_mob_changed_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2000, 1, 1, 0, 0)', 'db_index': 'True'}),
             'pref_mob_id': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '32', 'null': 'True'}),
             'pref_place': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'+'", 'null': 'True', 'to': "orm['places.Place']"}),
-            'pref_place_changed_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2000, 1, 1, 0, 0)', 'db_index': 'True'}),
+            'pref_place_changed_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2000, 1, 1, 0, 0)'}),
             'race': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'stat_artifacts_had': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_loot_had': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),

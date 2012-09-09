@@ -118,6 +118,9 @@ class ConstantsTest(TestCase):
 
         self.assertEqual(c.QUESTS_SPECIAL_FRACTION, 0.2)
 
+        self.assertEqual(c.QUESTS_LOCK_TIME, {'hunt': int(3*7*24*c.TURNS_IN_HOUR),
+                                              'hometown': int(2*7*24*c.TURNS_IN_HOUR)})
+
         self.assertEqual(c.PERSON_BASE_POWER_FOR_QUEST, 100)
 
         self.assertEqual(c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED, 1)

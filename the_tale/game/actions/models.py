@@ -31,7 +31,9 @@ class Action(models.Model):
     destination_x = models.IntegerField(null=True, blank=True, default=None)
     destination_y = models.IntegerField(null=True, blank=True, default=None)
     percents_barier = models.IntegerField(null=True, blank=True, default=None)
+    extra_probability = models.FloatField(null=True, blank=True, default=None)
     mob_context = models.TextField(null=False, default='{}')
+    textgen_id = models.CharField(max_length=128, null=True, blank=True, default=None)
 
     @classmethod
     def get_related_query(cls):

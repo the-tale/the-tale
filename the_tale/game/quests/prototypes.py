@@ -55,16 +55,13 @@ class QuestPrototype(object):
 
     @property
     def env(self):
-        from .logic import get_knowlege_base
         from .environment import Environment
-        from .quests_generator.lines import BaseQuestsSource
+        from .logic import QuestsSource
         from .writer import Writer
 
         if not hasattr(self, '_env'):
-            self._env = Environment(quests_source=BaseQuestsSource(),
-                                    writers_constructor=Writer,
-                                    # TODO: REWRITE TO remove database requests and heroes data duplication
-                                    knowlege_base=get_knowlege_base(hero=HeroPrototype.get_by_id(list(self.heroes_ids())[0])))
+            self._env = Environment(writers_constructor=Writer,
+                                    quests_source=QuestsSource() )
             self._env.deserialize(s11n.from_json(self.model.env))
         return self._env
 
@@ -205,35 +202,36 @@ class QuestPrototype(object):
          'quest': self.cmd_quest,
          'choose': self.cmd_choose,
          'givepower': self.cmd_give_power,
-         'battle': self.cmd_battle
-         }[cmd.type()](cmd, cur_action)
+         'battle': self.cmd_battle,
+         'donothing': self.cmd_donothing
+         }[cmd.type()](cmd, cur_action, writer)
 
     # def cmd_description(self, cmd, cur_action):
     #     cur_action.hero.push_message(HeroPrototype._prepair_message(cmd.msg))
 
-    def cmd_message(self, cmd, cur_action):
+    def cmd_message(self, cmd, cur_action, writer):
         # do nothing, since messages will be created at
         pass
 
-    def cmd_move(self, cmd, cur_action):
+    def cmd_move(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionMoveToPrototype
         destination = self.env.get_game_place(cmd.place)
         ActionMoveToPrototype.create(parent=cur_action, destination=destination, break_at=cmd.break_at)
 
-    def cmd_move_near(self, cmd, cur_action):
+    def cmd_move_near(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionMoveNearPlacePrototype
         destination = self.env.get_game_place(cmd.place)
         ActionMoveNearPlacePrototype.create(parent=cur_action, place=destination, back=cmd.back)
 
-    def cmd_get_item(self, cmd, cur_action):
+    def cmd_get_item(self, cmd, cur_action, writer):
         item = self.env.get_game_item(cmd.item)
         cur_action.hero.put_loot(item)
 
-    def cmd_give_item(self, cmd, cur_action):
+    def cmd_give_item(self, cmd, cur_action, writer):
         item = self.env.get_game_item(cmd.item)
         cur_action.hero.pop_quest_loot(item)
 
-    def cmd_get_reward(self, cmd, cur_action):
+    def cmd_get_reward(self, cmd, cur_action, writer):
 
         multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
         money = 1 + int(f.sell_artifact_price(cur_action.hero.level) * multiplier)
@@ -241,22 +239,22 @@ class QuestPrototype(object):
         cur_action.hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
         cur_action.hero.add_message('action_quest_reward_money', important=True, hero=cur_action.hero, coins=money)
 
-    def cmd_quest(self, cmd, cur_action):
+    def cmd_quest(self, cmd, cur_action, writer):
         # TODO: move to quest generator environment
         pass
 
-    def cmd_choose(self, cmd, cur_action):
+    def cmd_choose(self, cmd, cur_action, writer):
         # TODO: move to quest generator environment
         pass
 
-    def cmd_give_power(self, cmd, cur_action):
+    def cmd_give_power(self, cmd, cur_action, writer):
         # TODO: move to quest generator environment
         if cmd.depends_on:
             self.env.persons_power_points[cmd.person] = self.env.persons_power_points[cmd.depends_on] * cmd.multiply
         else:
             self.env.persons_power_points[cmd.person] = cmd.power
 
-    def cmd_battle(self, cmd, cur_action):
+    def cmd_battle(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionBattlePvE1x1Prototype
 
         mob = None
@@ -266,6 +264,10 @@ class QuestPrototype(object):
             mob = MobsDatabase.storage().get_random_mob(cur_action.hero)
 
         ActionBattlePvE1x1Prototype.create(parent=cur_action, mob=mob)
+
+    def cmd_donothing(self, cmd, cur_action, writer):
+        from ..actions.prototypes import ActionDoNothingPrototype
+        ActionDoNothingPrototype.create(parent=cur_action, duration=cmd.duration, messages_prefix=cmd.messages_prefix, messages_probability=cmd.messages_probability)
 
     def ui_info(self, hero):
         choices = self.get_choices()

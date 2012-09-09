@@ -8,23 +8,22 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Hero.pref_energy_regeneration_type'
-        db.add_column('heroes_hero', 'pref_energy_regeneration_type',
-                      self.gf('django.db.models.fields.IntegerField')(default=0),
+        # Adding field 'Action.extra_probability'
+        db.add_column('actions_action', 'extra_probability',
+                      self.gf('django.db.models.fields.FloatField')(default=None, null=True, blank=True),
                       keep_default=False)
 
-        # Adding field 'Hero.pref_energy_regeneration_type_changed_at'
-        db.add_column('heroes_hero', 'pref_energy_regeneration_type_changed_at',
-                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2000, 1, 1, 0, 0)),
+        # Adding field 'Action.textgen_id'
+        db.add_column('actions_action', 'textgen_id',
+                      self.gf('django.db.models.fields.CharField')(default=None, max_length=128, null=True, blank=True),
                       keep_default=False)
 
     def backwards(self, orm):
+        # Deleting field 'Action.extra_probability'
+        db.delete_column('actions_action', 'extra_probability')
 
-        # Deleting field 'Hero.pref_energy_regeneration_type'
-        db.delete_column('heroes_hero', 'pref_energy_regeneration_type')
-
-        # Deleting field 'Hero.pref_energy_regeneration_type_changed_at'
-        db.delete_column('heroes_hero', 'pref_energy_regeneration_type_changed_at')
+        # Deleting field 'Action.textgen_id'
+        db.delete_column('actions_action', 'textgen_id')
 
     models = {
         'accounts.account': {
@@ -35,6 +34,30 @@ class Migration(SchemaMigration):
             'is_fast': ('django.db.models.fields.BooleanField', [], {'default': 'True', 'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(1970, 1, 1, 0, 0)', 'auto_now': 'True', 'db_index': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True'})
+        },
+        'actions.action': {
+            'Meta': {'object_name': 'Action'},
+            'break_at': ('django.db.models.fields.FloatField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'context': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'data': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
+            'destination_x': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'destination_y': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'extra_probability': ('django.db.models.fields.FloatField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'hero': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'actions'", 'to': "orm['heroes.Hero']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'length': ('django.db.models.fields.FloatField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'mob': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
+            'mob_context': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
+            'order': ('django.db.models.fields.IntegerField', [], {}),
+            'parent': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'to': "orm['actions.Action']"}),
+            'percents': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'percents_barier': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'place': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'to': "orm['places.Place']"}),
+            'quest': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'to': "orm['quests.Quest']"}),
+            'state': ('django.db.models.fields.CharField', [], {'default': "'uninitialized'", 'max_length': '50'}),
+            'textgen_id': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'type': ('django.db.models.fields.CharField', [], {'max_length': '150'})
         },
         'angels.angel': {
             'Meta': {'object_name': 'Angel'},
@@ -80,24 +103,6 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        'heroes.chooseabilitytask': {
-            'Meta': {'object_name': 'ChooseAbilityTask'},
-            'ability_id': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'comment': ('django.db.models.fields.CharField', [], {'default': 'True', 'max_length': '256', 'blank': 'True'}),
-            'hero': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['heroes.Hero']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'state': ('django.db.models.fields.IntegerField', [], {'default': '0'})
-        },
-        'heroes.choosepreferencestask': {
-            'Meta': {'object_name': 'ChoosePreferencesTask'},
-            'comment': ('django.db.models.fields.CharField', [], {'default': 'True', 'max_length': '256', 'blank': 'True'}),
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'db_index': 'True', 'blank': 'True'}),
-            'hero': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['heroes.Hero']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'preference_id': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '32', 'null': 'True'}),
-            'preference_type': ('django.db.models.fields.IntegerField', [], {'db_index': 'True'}),
-            'state': ('django.db.models.fields.IntegerField', [], {'default': '0', 'db_index': 'True'})
-        },
         'heroes.hero': {
             'Meta': {'object_name': 'Hero'},
             'abilities': ('django.db.models.fields.TextField', [], {'default': "'[]'"}),
@@ -117,6 +122,7 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_fast': ('django.db.models.fields.BooleanField', [], {'default': 'True', 'db_index': 'True'}),
             'last_action_percents': ('django.db.models.fields.FloatField', [], {'default': '0'}),
+            'last_energy_regeneration_at_turn': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'level': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             'messages': ('django.db.models.fields.TextField', [], {'default': "'[]'"}),
             'money': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
@@ -140,6 +146,7 @@ class Migration(SchemaMigration):
             'pref_mob_id': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '32', 'null': 'True'}),
             'pref_place': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'+'", 'null': 'True', 'to': "orm['places.Place']"}),
             'pref_place_changed_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2000, 1, 1, 0, 0)'}),
+            'quests_history': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'race': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'stat_artifacts_had': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_loot_had': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
@@ -180,6 +187,22 @@ class Migration(SchemaMigration):
             'x': ('django.db.models.fields.BigIntegerField', [], {}),
             'y': ('django.db.models.fields.BigIntegerField', [], {})
         },
+        'quests.quest': {
+            'Meta': {'object_name': 'Quest'},
+            'cmd_number': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'created_at_turn': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
+            'data': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
+            'env': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
+            'heroes': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['heroes.Hero']", 'through': "orm['quests.QuestsHeroes']", 'symmetrical': 'False'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+        },
+        'quests.questsheroes': {
+            'Meta': {'object_name': 'QuestsHeroes'},
+            'hero': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['heroes.Hero']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'quest': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['quests.Quest']"})
+        },
         'roads.road': {
             'Meta': {'unique_together': "(('point_1', 'point_2'),)", 'object_name': 'Road'},
             'exists': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
@@ -190,4 +213,4 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['heroes']
+    complete_apps = ['actions']

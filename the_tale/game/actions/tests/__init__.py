@@ -2,6 +2,7 @@
 
 from game.actions.tests.action_regenerate_energy import *
 from game.actions.tests.action_rest import *
+from game.actions.tests.action_donothing import *
 from game.actions.tests.action_inplace import *
 from game.actions.tests.action_equipping import *
 from game.actions.tests.action_trading import *

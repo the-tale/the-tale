@@ -1,4 +1,5 @@
 # coding: utf-8
+import copy
 import random
 
 UNDEFINED_PLACE = 'undefined_place'
