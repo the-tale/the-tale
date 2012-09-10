@@ -195,6 +195,25 @@
    }
 }
 
+.choice-record {
+   &.disabled {
+
+      .choice-link {
+         color: @disabled-text-color;
+         margin-left: 1em;
+      }
+
+      .character-warning {
+         display: inline;
+      }
+
+   }
+
+   .character-warning {
+      display: none;
+   }
+}
+
 .log-block {
    overflow-y: scroll;
    overflow-x: hidden;

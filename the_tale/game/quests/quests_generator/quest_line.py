@@ -1,4 +1,5 @@
 # coding: utf-8
+import copy
 import random
 
 from game.quests.quests_generator.exceptions import QuestGeneratorException
@@ -13,9 +14,56 @@ class Line(object):
 
     def __init__(self, sequence=[]):
         self.sequence = [element for element in sequence if element is not None]
+        self.available = None
+
+        # temporary storage for real power changes (such changes, that necessary be at that line)
+        self._power_changes = {}
 
     def get_start_pointer(self):
         return [0]
+
+    def calculate_power_changes(self, env, powers):
+        powers = copy.copy(powers) + [cmd for cmd in reversed(self.sequence) if cmd.is_givepower]
+
+        for cmd in self.sequence:
+            if cmd.is_quest:
+                env.quests[cmd.quest].calculate_power_changes(env, powers)
+            elif cmd.is_choice:
+                for line in cmd.choices.values():
+                    env.lines[line].calculate_power_changes(env, powers)
+
+        for cmd in reversed(powers):
+            if cmd.depends_on is not None:
+                if cmd.depends_on not in self._power_changes:
+                    continue
+                self._power_changes[cmd.person] = self._power_changes.get(cmd.person,0) + self._power_changes[cmd.depends_on] * cmd.multiply
+            else:
+                self._power_changes[cmd.person] = self._power_changes.get(cmd.person,0) + cmd.power
+
+
+    def calculate_availability(self, env):
+        friend_data = env.knowlege_base.get_special('hero_pref_friend')
+        friend_uuid = friend_data['uuid'] if friend_data else None
+
+        if friend_uuid and self._power_changes.get(friend_uuid, 0) < 0:
+            self.available = False
+            return False
+
+        for cmd in self.sequence:
+            if cmd.is_quest:
+                if not env.quests[cmd.quest].calculate_availability(env):
+                    self.available = False
+                    return False
+            elif cmd.is_choice:
+                for line in cmd.choices.values():
+                    env.lines[line].calculate_availability(env)
+                if not any(env.lines[line].available for line in cmd.choices.values()):
+                    self.available = False
+                    return False
+
+        self.available = True
+        return True
+
 
     def get_commands_number(self, env, pointer=None):
 
@@ -107,10 +155,12 @@ class Line(object):
         return env.lines[pointer[1]].get_quest_command(env, pointer[2:], choices=choices)
 
     def serialize(self):
-        return {'sequence': [cmd.serialize() for cmd in self.sequence]}
+        return {'sequence': [cmd.serialize() for cmd in self.sequence],
+                'available': self.available}
 
     def deserialize(self, data):
         self.sequence = [ deserialize_command(cmd_data) for cmd_data in data['sequence']]
+        self.available = data.get('available', True)
 
     def get_description(self, env):
         return [cmd.get_description(env) for cmd in self.sequence]
@@ -130,6 +180,7 @@ class Quest(object):
         self.id = None
         self.line = None
         self.env_local = LocalEnvironment()
+        self.available = None
 
     @classmethod
     def can_be_used(cls, env):
@@ -143,6 +194,13 @@ class Quest(object):
 
     def create_line(self, env):
         raise NotImplementedError
+
+    def calculate_power_changes(self, env, powers):
+        return env.lines[self.line].calculate_power_changes(env, powers)
+
+    def calculate_availability(self, env):
+        self.available = env.lines[self.line].calculate_availability(env)
+        return self.available
 
     def get_command(self, env, pointer):
         return self.get_quest_action_chain(env, pointer)[-1][1]

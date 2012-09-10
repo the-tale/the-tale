@@ -31,10 +31,10 @@ class Hometown(Quest):
     def initialize(self, identifier, env, place_start=None, place_end=None):
         super(Hometown, self).initialize(identifier, env)
 
-        hometown_uuid = env.knowlege_base.get_special('hero_pref_place')
+        hometown_uuid = env.knowlege_base.get_special('hero_pref_hometown')['uuid']
 
         self.env_local.register('place_start', place_start or env.new_place())
-        self.env_local.register('place_end', env.new_place(hometown_uuid))
+        self.env_local.register('place_end', env.new_place(place_uuid=hometown_uuid))
 
 
     def create_line(self, env):

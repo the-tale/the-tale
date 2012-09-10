@@ -5,23 +5,10 @@ from django.test import TestCase
 from game.quests.quests_generator import commands as cmd
 from game.quests.quests_generator.knowlege_base import KnowlegeBase
 from game.quests.quests_generator.environment import BaseEnvironment
-from game.quests.quests_generator.quests_source import BaseQuestsSource
 from game.quests.quests_generator.exceptions import QuestGeneratorException, RollBackException
-# from game.quests.quests_generator.lines import Delivery
+from game.quests.quests_generator.tests.helpers import QuestsSource
 from game.quests.quests_generator.quest_line import Line, Quest
-from game.quests.quests_generator.tests.helpers import JustQuest, FakeWriter, FakeQuest
-
-class QuestsSource(BaseQuestsSource):
-
-    quests_list = [JustQuest]
-
-    def deserialize_quest(self, data):
-        for quest in self.quests_list:
-            if data['type'] == quest.type():
-                result = quest()
-                result.deserialize(data)
-                return result
-        return None
+from game.quests.quests_generator.tests.helpers import FakeWriter
 
 quests_source = QuestsSource()
 
@@ -116,10 +103,10 @@ class EnvironmentTest(TestCase):
         self.assertEqual(self.env.new_quest(place_start=place_1), 'quest_1')
         self.assertTrue(isinstance(self.env.root_quest, Quest))
 
-    def test_new_quest_with_person(self):
-        place_2 = self.env.new_place(place_uuid='place_2')
-        person_2 = self.env.new_person(place_2)
-        self.assertRaises(QuestGeneratorException, self.env.new_quest, person_start=person_2)
+    # def test_new_quest_with_person(self):
+    #     place_2 = self.env.new_place(place_uuid='place_2')
+    #     person_2 = self.env.new_person(place_2)
+    #     self.assertRaises(QuestGeneratorException, self.env.new_quest, person_start=person_2)
 
     def test_new_quest_with_place_and_person(self):
         place_2 = self.env.new_place(place_uuid='place_2')
@@ -146,19 +133,12 @@ class EnvironmentTest(TestCase):
         pass
 
     def test_get_writers_text_chain(self):
-        quest = JustQuest()
-        quest.initialize('quest', self.env)
-        quest.create_line(self.env)
-
-        fake_quest = FakeQuest(13)
-        fake_quest.initialize('fake_quest', self.env)
-        fake_quest.create_line(self.env)
+        self.env.new_quest(from_list=['justquest'])
+        self.env.create_lines()
 
         FIRST_CHOICE_LINE = 'line_1'
         SECOND_CHOICE_LINE = 'line_2'
 
-        self.env.quests[self.env._root_quest] = quest
-        self.env.quests['quest_1'] = fake_quest
 
         self.assertEqual(self.env.get_writers_text_chain('hero', [0]),
                          [{'quest_type': 'justquest',
@@ -235,19 +215,11 @@ class EnvironmentTest(TestCase):
 
 
     def test_get_nearest_quest_choice(self):
-        quest = JustQuest()
-        quest.initialize('quest', self.env)
-        quest.create_line(self.env)
-
-        fake_quest = FakeQuest(13)
-        fake_quest.initialize('fake_quest', self.env)
-        fake_quest.create_line(self.env)
+        self.env.new_quest(from_list=['justquest'])
+        self.env.create_lines()
 
         FIRST_CHOICE_LINE = 'line_1'
         SECOND_CHOICE_LINE = 'line_2'
-
-        self.env.quests[self.env._root_quest] = quest
-        self.env.quests['quest_1'] = fake_quest
 
         cmd_choose = cmd.Choose(id='choose_1',
                                 default='choice_1',
@@ -272,7 +244,7 @@ class EnvironmentTest(TestCase):
         self.assertRaises(QuestGeneratorException, self.env.get_nearest_quest_choice, [1, SECOND_CHOICE_LINE, 3])
 
     def test_serialization(self):
-        self.env.new_quest()
+        self.env.new_quest(from_list=['questnochoice'])
         self.env.create_lines()
 
         data = self.env.serialize()

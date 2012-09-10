@@ -40,6 +40,9 @@ class QuestsResource(Resource):
         if cmd is None or cmd.id != choice_point:
             return self.json_error('quests.choose.wrong_point', u'В данный момент вы не можете влиять на эту точку выбора')
 
+        if not self.quest.is_choice_available(cmd.choices[choice]):
+            return self.json_error('quests.choose.line_not_availbale', u'Характер не позволяет герою сделать такой выбор')
+
         if not self.quest.make_choice(choice_point, choice):
             return self.json_error('quests.choose.already_choosed', u'Вы уже сделали выбор')
 

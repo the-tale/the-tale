@@ -9,6 +9,7 @@ class Command(object):
 
     is_quest = False
     is_choice = False
+    is_givepower = False
 
     def __init__(self, event=None):
         self.event = event
@@ -194,6 +195,8 @@ class GetReward(Command):
 
 
 class GivePower(Command):
+
+    is_givepower = True
 
     def __init__(self, person=None, power=None, multiply=None, depends_on=None, **kwargs):
         super(GivePower, self).__init__(**kwargs)

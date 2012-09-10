@@ -105,6 +105,9 @@ def _create_random_quest_for_hero(hero, knowlege_base, special):
 
     env.create_lines()
 
+    if not env.root_quest.available:
+        raise RollBackException('quest is not available')
+
     env.sync()
 
     quest_prototype = QuestPrototype.create(hero, env)

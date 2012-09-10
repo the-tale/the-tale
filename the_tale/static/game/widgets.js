@@ -247,6 +247,11 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
         var variantLink = jQuery('.pgf-choice-link', element);
         variantLink.text(variant[1]);
 
+        if (variant[0] == null) {
+            element.addClass('disabled');
+            return;
+        }
+
         var url = pgf.urls['game:quests:choose'](data.quests.id, data.quests.choice_id, variant[0]);
 
         variantLink.click( function(e){

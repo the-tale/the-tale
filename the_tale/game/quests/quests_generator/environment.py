@@ -26,7 +26,13 @@ class BaseEnvironment(object):
 
         self._root_quest = None
 
-    def new_place(self, terrain=None, place_uuid=None):
+    def new_place(self, terrain=None, place_uuid=None, person_uuid=None):
+
+        if person_uuid is not None:
+            if person_uuid not in self.knowlege_base.persons:
+                raise QuestGeneratorException(u'person "%s" does not registered' % person_uuid)
+            place_uuid = self.knowlege_base.persons[person_uuid]['place']
+
         if not place_uuid:
             place_uuid = self.knowlege_base.get_random_place(terrain=terrain, exclude=self.places.keys())
         else:
@@ -40,11 +46,12 @@ class BaseEnvironment(object):
         self.places[place_uuid] = {'external_data': copy.deepcopy(place['external_data'])}
         return place_uuid
 
-    def new_person(self, from_place, person_uuid=None):
-        if from_place not in self.places:
-            raise QuestGeneratorException(u'place "%s" does not registered' % from_place)
+    def new_person(self, from_place=None, person_uuid=None):
 
-        if not person_uuid:
+        if person_uuid is None:
+            if from_place not in self.places:
+                raise QuestGeneratorException(u'place "%s" does not registered' % from_place)
+
             person_uuid = self.knowlege_base.get_random_person(place=from_place, exclude=self.persons.keys())
         else:
             if person_uuid not in self.knowlege_base.persons:
@@ -102,6 +109,8 @@ class BaseEnvironment(object):
 
     def create_lines(self):
         self.root_quest.create_line(self)
+        self.root_quest.calculate_power_changes(self, [])
+        self.root_quest.calculate_availability(self)
 
     def get_start_pointer(self):
         return self.root_quest.get_start_pointer(self)

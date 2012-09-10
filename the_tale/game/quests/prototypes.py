@@ -95,6 +95,9 @@ class QuestPrototype(object):
             choices[choice.choice_point] = choice.choice
         return choices
 
+    def is_choice_available(self, choice):
+        return self.env.lines[choice].available
+
     def make_choice(self, choice_point, choice):
         from .models import QuestChoice
 
@@ -282,8 +285,10 @@ class QuestPrototype(object):
         if cmd:
             cmd_id = cmd.id
             if cmd.id not in choices:
-                for variant in cmd.get_variants():
-                    choice_variants.append((variant, writer.get_choice_variant_msg(cmd.choice, variant)))
+                for variant, line_id in cmd.choices.items():
+                    line = self.env.lines[line_id]
+                    choice_variants.append((variant if line.available else None,
+                                            writer.get_choice_variant_msg(cmd.choice, variant)))
             else:
                 future_choice = writer.get_choice_result_msg(cmd.choice, choices[cmd.id])
 

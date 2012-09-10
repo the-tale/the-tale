@@ -2,6 +2,7 @@
 
 import mock
 
+from game.quests.quests_generator.quests_source import BaseQuestsSource
 from game.quests.quests_generator.quest_line import Quest, Line
 from game.quests.quests_generator import commands as cmd
 
@@ -33,12 +34,12 @@ class FakeLine(Line):
 
 class FakeQuest(Quest):
 
-    def __init__(self, commands_number):
+    def __init__(self, commands_number=13):
         super(FakeQuest, self).__init__()
         self.commands_number = commands_number
 
     def initialize(self, identifier, env, place_start=None, person_start=None, place_end=None, person_end=None):
-        pass
+        super(FakeQuest, self).initialize(identifier, env)
 
     def create_line(self, env):
         self.line = env.new_line(FakeLine())
@@ -67,7 +68,12 @@ class JustQuest(Quest):
         self.env_local.register('place_end', place_end or env.new_place())
         self.env_local.register('person_end', person_end or env.new_person(from_place=self.env_local.place_end))
 
-        self.env_local.register('quest_1', 'quest_1')
+        self.env_local.register('quest_1', env.new_quest(from_list=['fakequest'],
+                                                         place_start=self.env_local.place_start,
+                                                         place_end=self.env_local.place_end,
+                                                         person_start=self.env_local.person_start,
+                                                         person_end=self.env_local.person_end))
+
 
     def create_line(self, env):
         linear_line = Line(sequence=[cmd.Move(event='event_1_1', place='place_1'),
@@ -77,7 +83,7 @@ class JustQuest(Quest):
                                      cmd.GiveItem(event='event_1_5', item='item_1'),
                                      cmd.Battle(event='event_1_6', number=13),
                                      cmd.GetReward(event='event_1_7', person='person_1'),
-                                     cmd.GivePower(event='event_1_8', person='person_1', power=2, multiply=3, depends_on='person_2')  ])
+                                     cmd.GivePower(event='event_1_8', person='person_1', power=2) ])#, multiply=3, depends_on='person_2')  ])
 
         quest_line = Line(sequence=[cmd.Move(event='event_2_1', place='place_2'),
                                     cmd.Quest(event='event_2_2', quest=self.env_local.quest_1),
@@ -92,6 +98,7 @@ class JustQuest(Quest):
                                               choice='choice_id_1'),
                                    cmd.Battle(event='event_3_3', number=13) ])
         self.line = env.new_line(main_line)
+        env.quests[self.env_local.quest_1].create_line(env)
 
 
 class QuestWith2ChoicePoints(Quest):
@@ -147,8 +154,6 @@ class QuestNoChoice(Quest):
         self.env_local.register('place_end', place_end or env.new_place())
         self.env_local.register('person_end', person_end or env.new_person(from_place=self.env_local.place_end))
 
-        self.env_local.register('quest_1', 'quest_1')
-
     def create_line(self, env):
 
         main_line = Line(sequence=[cmd.Battle(event='event_0_1', number=1) ])
@@ -164,3 +169,16 @@ def patch_quests_list(prefix, quests_list):
         return func
 
     return decorator
+
+
+class QuestsSource(BaseQuestsSource):
+
+    quests_list = [JustQuest, QuestNoChoice, FakeQuest]
+
+    def deserialize_quest(self, data):
+        for quest in self.quests_list:
+            if data['type'] == quest.type():
+                result = quest()
+                result.deserialize(data)
+                return result
+        return None

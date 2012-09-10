@@ -4,12 +4,12 @@ from django.test import TestCase
 
 from game.quests.quests_generator import commands as cmd
 from game.quests.quests_generator.environment import BaseEnvironment
-from game.quests.quests_generator.quests_source import BaseQuestsSource
 from game.quests.quests_generator.knowlege_base import KnowlegeBase
 from game.quests.quests_generator.exceptions import QuestGeneratorException
-from game.quests.quests_generator.tests.helpers import FakeQuest, JustQuest, FakeCmd
+from game.quests.quests_generator.tests.helpers import QuestsSource
+from game.quests.quests_generator.tests.helpers import JustQuest, FakeCmd
 
-quests_source = BaseQuestsSource()
+quests_source = QuestsSource()
 writers_constructor = lambda hero, quest_type, env, quest_env_local: 0
 
 class QuestTest(TestCase):
@@ -22,25 +22,22 @@ class QuestTest(TestCase):
         self.knowlege_base.add_person('person_2', place='place_2', external_data={})
         self.knowlege_base.initialize()
 
-        self.FIRST_CHOICE_LINE = 'line_2'
-        self.SECOND_CHOICE_LINE = 'line_3'
+        self.FIRST_CHOICE_LINE = 'line_1'
+        self.SECOND_CHOICE_LINE = 'line_2'
 
         self.env = BaseEnvironment(quests_source=quests_source, writers_constructor=writers_constructor, knowlege_base=self.knowlege_base)
 
-        self.fake_quest = FakeQuest(commands_number=13)
-        self.fake_quest.initialize('fake_quest', self.env)
-        self.fake_quest.create_line(self.env)
-        self.env.quests['quest_1'] = self.fake_quest
+        self.env.new_quest(from_list=['justquest'])
+        self.env.create_lines()
 
-        self.quest = JustQuest()
-        self.quest.initialize('quest', self.env)
-        self.quest.create_line(self.env)
+        self.quest = self.env.root_quest
+        self.fake_quest = self.env.quests['quest_2']
 
         self.cmd_linear_move = cmd.Move(event='event_1_1', place='place_1')
-        self.cmd_linear_give_power = cmd.GivePower(event='event_1_8', person='person_1', power=2, multiply=3, depends_on='person_2')
+        self.cmd_linear_give_power = cmd.GivePower(event='event_1_8', person='person_1', power=2)
 
         self.cmd_quest_move = cmd.Move(event='event_2_1', place='place_2')
-        self.cmd_quest_quest = cmd.Quest(event='event_2_2', quest='quest_1')
+        self.cmd_quest_quest = cmd.Quest(event='event_2_2', quest='quest_2')
         self.cmd_quest_get_reward = cmd.GetReward(event='event_2_3', person='person_2')
 
         self.cmd_move = cmd.Move(event='event_3_1', place='place_3')
@@ -98,7 +95,7 @@ class QuestTest(TestCase):
         self.assertEqual(self.quest.get_quest_action_chain(self.env, [0]), [(self.quest, self.cmd_move, [])])
         self.assertEqual(self.quest.get_quest_action_chain(self.env, [1]), [(self.quest, self.cmd_choose, [])])
 
-        self.assertRaises(QuestGeneratorException, self.quest.get_quest_action_chain, self.env, [1, 'line_1', 0])
+        self.assertRaises(QuestGeneratorException, self.quest.get_quest_action_chain, self.env, [1, 'line_0', 0])
 
         self.assertEqual(self.quest.get_quest_action_chain(self.env, [1, self.FIRST_CHOICE_LINE, 0]),
                          [(self.quest, self.cmd_linear_move, [('choice_id_1', 'choice_1')])])

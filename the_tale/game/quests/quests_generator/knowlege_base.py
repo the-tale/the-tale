@@ -45,7 +45,6 @@ class KnowlegeBase(object):
         return self.specials.get(uuid, None)
 
     def get_random_place(self, terrain=None, exclude=[]):
-
         choices = [uuid
                    for uuid, data in self.places.items()
                    if (uuid not in exclude and

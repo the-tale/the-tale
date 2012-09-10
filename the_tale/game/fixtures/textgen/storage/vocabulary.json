@@ -497,6 +497,35 @@
       "template": "честно выполнить свои обязательства"
     }
   ], 
+  "hero_ability_magicmushroom": [
+    {
+      "internals": [
+        [
+          "воскликнул", 
+          [
+            "actor"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "воскликнул"
+        ]
+      ], 
+      "externals": [
+        [
+          "actor", 
+          [], 
+          "e_0", 
+          [
+            "им"
+          ], 
+          "actor"
+        ]
+      ], 
+      "template": "«Волшебный гриб!» — %(i_0)s %(e_0)s, запихивая в рот мухомор."
+    }
+  ], 
   "action_inplace_description": [
     {
       "internals": [], 
@@ -753,6 +782,21 @@
       "template": "%(e_0)s %(i_0)s и %(i_1)s мимо %(e_1)s."
     }
   ], 
+  "quest_helpfriend_action_move_to_quest": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s идёт в гости"
+    }
+  ], 
   "hero_ability_sidestep": [
     {
       "internals": [
@@ -894,33 +938,21 @@
       "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
     }
   ], 
-  "hero_ability_magicmushroom": [
+  "quest_helpfriend_diary_intro": [
     {
-      "internals": [
-        [
-          "воскликнул", 
-          [
-            "actor"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "воскликнул"
-        ]
-      ], 
+      "internals": [], 
       "externals": [
         [
-          "actor", 
+          "person_end", 
           [], 
           "e_0", 
           [
-            "им"
+            "загл"
           ], 
-          "actor"
+          "person_end"
         ]
       ], 
-      "template": "«Волшебный гриб!» — %(i_0)s %(e_0)s, запихивая в рот мухомор."
+      "template": "Как там поживает %(e_0)s? Стоит сходить, проверить."
     }
   ], 
   "quest_caravan_choice_bring_result_caravan": [
@@ -2817,26 +2849,6 @@
             "прш"
           ], 
           "принялся"
-        ], 
-        [
-          "он", 
-          [
-            "hero"
-          ], 
-          "i_2", 
-          [
-            "дт"
-          ], 
-          "он"
-        ], 
-        [
-          "его", 
-          [
-            "hero"
-          ], 
-          "i_3", 
-          [], 
-          "его"
         ]
       ], 
       "externals": [
@@ -2850,7 +2862,7 @@
           "hero"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s укромный уголок и %(i_1)s молиться за ниспослание %(i_2)s удачи на %(i_3)s нелегком пути."
+      "template": "%(e_0)s %(i_0)s укромный уголок и %(i_1)s молиться за ниспослание удачи на нелегком пути."
     }
   ], 
   "action_equipping_change_item": [
@@ -3679,6 +3691,13 @@
         ]
       ], 
       "template": "После длительного боя %(e_0)s %(i_0)s небольшой костерок, и в качестве жертвоприношения %(i_1)s сжигать останки противника."
+    }
+  ], 
+  "quest_helpfriend_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Навестить соратника"
     }
   ], 
   "quest_spying_choice_openup_variant_spy": [

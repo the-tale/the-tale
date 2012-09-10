@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from django.test import client
 from django.core.urlresolvers import reverse
@@ -93,6 +94,15 @@ class RequestsTests(TestCase):
         self.check_ajax_ok(response)
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=choose_1&choice=choice_1_1')
         self.check_ajax_error(response, 'quests.choose.already_choosed')
+
+    @patch_quests_list('game.quests.logic.QuestsSource', [QuestWith2ChoicePoints])
+    # TODO: patch not QuestPrototype, but Line
+    @mock.patch('game.quests.prototypes.QuestPrototype.is_choice_available', lambda self, choice: False)
+    def test_choose_not_allowed(self):
+        quest_id = self.create_quest_for_user(self.bundle_1)
+        self.login('test_user@test.com')
+        response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=choose_1&choice=choice_1_1')
+        self.check_ajax_error(response, 'quests.choose.line_not_availbale')
 
     @patch_quests_list('game.quests.logic.QuestsSource', [QuestWith2ChoicePoints])
     def test_choose_second_choice_before_first_completed(self):
