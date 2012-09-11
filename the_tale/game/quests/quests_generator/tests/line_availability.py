@@ -80,7 +80,7 @@ class LineAvailabilityTest(TestCase):
     def setUp(self):
         pass
 
-    def create_quest(self, person_1_power, person_2_power, person_3_power, friend=None):
+    def create_quest(self, person_1_power, person_2_power, person_3_power, friend=None, enemy=None):
         self.knowlege_base = KnowlegeBase()
 
         self.knowlege_base.add_place('place_1')
@@ -90,6 +90,9 @@ class LineAvailabilityTest(TestCase):
 
         if friend:
             self.knowlege_base.add_special('hero_pref_friend', {'uuid': friend})
+
+        if enemy:
+            self.knowlege_base.add_special('hero_pref_enemy', {'uuid': enemy})
 
         self.knowlege_base.initialize()
 
@@ -120,18 +123,35 @@ class LineAvailabilityTest(TestCase):
         self.check_quest([True, True],
                          [True, True, True, True])
 
-    def test_simple_power_quest_not_availability(self):
+    # test friend problems
+    def test_friend_simple_power_quest_not_availability(self):
         self.create_quest(1, 1, -1, friend='person_3')
         self.check_quest([False, False],
                          [None, None, False, False])
 
-    def test_choices_not_availability(self):
+    def test_friend_choices_not_availability(self):
         self.create_quest(-1, 1, 1, friend='person_1')
         self.check_quest([False, True],
                          [False, False, False, True])
 
 
-    def test_main_line_not_availability(self):
+    def test_friend_main_line_not_availability(self):
         self.create_quest(1, -1, 1, friend='person_2')
+        self.check_quest([False, None],
+                         [None, None, False, None])
+
+    # test enemy problems
+    def test_enemy_simple_power_quest_not_availability(self):
+        self.create_quest(-1, -1, 1, enemy='person_3')
+        self.check_quest([False, False],
+                         [None, None, False, False])
+
+    def test_enemy_choices_not_availability(self):
+        self.create_quest(1, -1, -1, enemy='person_1')
+        self.check_quest([False, True],
+                         [False, False, False, True])
+
+    def test_enemy_main_line_not_availability(self):
+        self.create_quest(-1, 1, -1, enemy='person_2')
         self.check_quest([False, None],
                          [None, None, False, None])

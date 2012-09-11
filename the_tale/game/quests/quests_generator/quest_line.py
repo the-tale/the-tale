@@ -49,6 +49,13 @@ class Line(object):
             self.available = False
             return False
 
+        enemy_data = env.knowlege_base.get_special('hero_pref_enemy')
+        enemy_uuid = enemy_data['uuid'] if enemy_data else None
+
+        if enemy_uuid and self._power_changes.get(enemy_uuid, 0) > 0:
+            self.available = False
+            return False
+
         for cmd in self.sequence:
             if cmd.is_quest:
                 if not env.quests[cmd.quest].calculate_availability(env):
