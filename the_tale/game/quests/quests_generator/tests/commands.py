@@ -21,6 +21,15 @@ class DoNothingTest(TestCase):
         data = cmd.serialize()
         self.assertEqual(cmd, commands.deserialize_command(data))
 
+
+class UpgradeEquipmentTest(TestCase):
+
+    def test_serialization(self):
+        cmd = commands.UpgradeEquipment(event='event_1', equipment_slot='slot_1')
+        data = cmd.serialize()
+        self.assertEqual(cmd, commands.deserialize_command(data))
+
+
 class MoveTest(TestCase):
 
     def test_serialization(self):

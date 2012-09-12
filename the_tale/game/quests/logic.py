@@ -39,12 +39,15 @@ def get_knowlege_base(hero):
     for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
         person_uuid = 'person_%d' % person.id
         place_uuid = 'place_%d' % person.place_id
-        base.add_person(person_uuid, place=place_uuid, external_data={'id': person.id,
-                                                                      'name': person.name,
-                                                                      'type': person.type,
-                                                                      'gender': person.gender,
-                                                                      'race': person.race,
-                                                                      'place_id': person.place_id})
+        base.add_person(person_uuid,
+                        place=place_uuid,
+                        profession=person.type,
+                        external_data={'id': person.id,
+                                       'name': person.name,
+                                       'type': person.type,
+                                       'gender': person.gender,
+                                       'race': person.race,
+                                       'place_id': person.place_id})
 
     pref_mob = hero.preferences.mob
     if pref_mob:
@@ -66,6 +69,9 @@ def get_knowlege_base(hero):
     if enemy_uuid in base.persons:
         base.add_special('hero_pref_enemy', {'uuid': enemy_uuid})
 
+    pref_equipment_slot = hero.preferences.equipment_slot
+    if pref_equipment_slot:
+        base.add_special('hero_pref_equipment_slot', pref_equipment_slot)
 
     base.initialize()
 

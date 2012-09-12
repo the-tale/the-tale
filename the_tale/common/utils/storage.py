@@ -67,8 +67,8 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
             self._version = -1
 
         def save_all(self):
-            for road in self._data.values():
-                road.save()
+            for record in self._data.values():
+                record.save()
 
             self.update_version()
 

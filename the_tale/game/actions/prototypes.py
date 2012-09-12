@@ -8,7 +8,6 @@ from dext.utils import database
 from common.utils.logic import random_value_by_priority
 
 from game.heroes.logic import create_mob_for_hero
-from game.heroes.bag import SLOTS_LIST, ARTIFACT_TYPES_TO_SLOTS, SLOTS_TO_ARTIFACT_TYPES
 from game.heroes.statistics import MONEY_SOURCE
 
 from game.map.places.storage import places_storage
@@ -20,8 +19,6 @@ from game.actions.models import Action, UNINITIALIZED_STATE
 from game.actions import battle, contexts
 
 from game.balance import constants as c, formulas as f
-
-from game.artifacts.storage import ArtifactsDatabase
 
 from game.actions.exceptions import ActionException
 
@@ -834,25 +831,9 @@ class ActionInPlacePrototype(ActionPrototype):
             coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
             if coins is not None:
 
-                artifacts_list = None
-                if self.hero.preferences.equipment_slot is not None:
-                    artifacts_list = ArtifactsDatabase.storage().artifacts_for_equip_type(SLOTS_TO_ARTIFACT_TYPES[self.hero.preferences.equipment_slot])
-
-                if not artifacts_list:
-                    artifacts_list = ArtifactsDatabase.storage().artifacts_ids
-
-                artifact = ArtifactsDatabase.storage().generate_artifact_from_list(artifacts_list, self.hero.level)
-
-                self.hero.bag.put_artifact(artifact)
-
-                slot = random.choice(ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type])
-                unequipped = self.hero.equipment.get(slot)
-                self.hero.change_equipment(slot, unequipped, artifact)
-
-                self.hero.statistics.change_artifacts_had(1)
+                artifact, unequipped, sell_price = self.hero.buy_artifact()
 
                 if unequipped is not None:
-                    sell_price = self.hero.sell_artifact(unequipped)
                     self.hero.add_message('action_inplace_buying_artifact_and_change',important=True,
                                           hero=self.hero, artifact=artifact, coins=coins, old_artifact=unequipped, sell_price=sell_price)
                 else:
@@ -861,21 +842,9 @@ class ActionInPlacePrototype(ActionPrototype):
         elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
             coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_SHARPENING)
             if coins is not None:
-                # select filled slot
-                choices = copy.copy(SLOTS_LIST)
-                random.shuffle(choices)
+                artifact = self.hero.sharp_artifact()
 
-                if self.hero.preferences.equipment_slot is not None:
-                    choices.insert(0, self.hero.preferences.equipment_slot)
-
-                for slot in choices:
-                    artifact = self.hero.equipment.get(slot)
-                    if artifact is not None:
-                        # sharpening artefact
-                        artifact.power += 1
-                        self.hero.equipment.updated = True
-                        self.hero.add_message('action_inplace_sharpening_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
-                        break
+                self.hero.add_message('action_inplace_sharpening_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
 
         elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.USELESS:
             coins = self.try_to_spend_money(f.useless_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_USELESS)

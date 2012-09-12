@@ -47,9 +47,9 @@ class KnowlegeBaseTest(TestCase):
         self.base.add_place('place_3', terrain='g', external_data={'id': 3, 'name': 'place_3_name'})
         self.base.add_place('place_4', external_data={'id': 3, 'name': 'place_3_name'})
 
-        self.base.add_person('person_2_1', place='place_2', external_data={'id': 1, 'name': 'person_2_1_name'})
+        self.base.add_person('person_2_1', place='place_2', profession='test_profession', external_data={'id': 1, 'name': 'person_2_1_name'})
         self.base.add_person('person_2_2', place='place_2', external_data={'id': 2, 'name': 'person_2_2_name'})
-        self.base.add_person('person_3', place='place_3', external_data={'id': 3, 'name': 'person_3_name'})
+        self.base.add_person('person_3', place='place_3', profession='test_profession', external_data={'id': 3, 'name': 'person_3_name'})
 
         self.base.initialize()
 
@@ -83,11 +83,23 @@ class KnowlegeBaseTest(TestCase):
         self.assertRaises(RollBackException, self.base.get_random_place, terrain=('d',))
 
     def test_get_random_person(self):
-        unchoosen_places = set(['person_2_1', 'person_2_2', 'person_3'])
-        unchoosen_places.discard(self.base.get_random_person(place='place_3'))
+        unchoosen_persons = set(['person_2_1', 'person_2_2', 'person_3'])
+        unchoosen_persons.discard(self.base.get_random_person(place='place_3'))
         for i in xrange(100):
-            unchoosen_places.discard(self.base.get_random_person(place='place_2'))
+            unchoosen_persons.discard(self.base.get_random_person(place='place_2'))
+        self.assertEqual(unchoosen_persons, set())
+
+    def test_get_random_person_without_place(self):
+        unchoosen_places = set(['person_2_1', 'person_2_2', 'person_3'])
+        for i in xrange(100):
+            unchoosen_places.discard(self.base.get_random_person())
         self.assertEqual(unchoosen_places, set())
+
+    def test_get_random_person_with_profession(self):
+        unchoosen_places = set(['person_2_1', 'person_2_2', 'person_3'])
+        for i in xrange(100):
+            unchoosen_places.discard(self.base.get_random_person(profession='test_profession'))
+        self.assertEqual(unchoosen_places, set(['person_2_2']))
 
     def test_get_random_person_rollback(self):
         self.assertRaises(RollBackException, self.base.get_random_person, place='place_1')

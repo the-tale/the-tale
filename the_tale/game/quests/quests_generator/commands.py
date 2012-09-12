@@ -69,6 +69,32 @@ class DoNothing(Command):
                 self.messages_probability == other.messages_probability)
 
 
+class UpgradeEquipment(Command):
+
+    def __init__(self, equipment_slot=None, messages_prefix=None, **kwargs):
+        super(UpgradeEquipment, self).__init__(**kwargs)
+        self.equipment_slot = equipment_slot
+        self.messages_prefix = messages_prefix
+
+    def get_description(self, env):
+        return '<upgrade equipment> slot: %s' % (self.equipment_slot)
+
+    def serialize(self):
+        data = super(UpgradeEquipment, self).serialize()
+        data.update({'equipment_slot': self.equipment_slot,
+                     'messages_prefix': self.messages_prefix})
+        return data
+
+    def deserialize(self, data):
+        super(UpgradeEquipment, self).deserialize(data)
+        self.equipment_slot = data['equipment_slot']
+        self.messages_prefix = data['messages_prefix']
+
+    def __eq__(self, other):
+        return (super(UpgradeEquipment, self).__eq__(other) and
+                self.equipment_slot == other.equipment_slot and
+                self.messages_prefix == other.messages_prefix)
+
 
 class Move(Command):
 

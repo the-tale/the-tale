@@ -197,6 +197,7 @@ class QuestPrototype(object):
 
         {#'description': self.cmd_description,
          'message': self.cmd_message,
+         'upgradeequipment': self.cmd_upgrade_equipment,
          'move': self.cmd_move,
          'movenear': self.cmd_move_near,
          'getitem': self.cmd_get_item,
@@ -215,6 +216,29 @@ class QuestPrototype(object):
     def cmd_message(self, cmd, cur_action, writer):
         # do nothing, since messages will be created at
         pass
+
+    def cmd_upgrade_equipment(self, cmd, cur_action, writer):
+
+        choices = ['buy']
+
+        if cur_action.hero.equipment.get(cmd.equipment_slot) is not None:
+            choices.append('sharp')
+
+        money_spend = cur_action.hero.money
+
+        if random.choice(choices) == 'buy':
+            cur_action.hero.change_money(MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -money_spend)
+            artifact, unequipped, sell_price = cur_action.hero.buy_artifact()
+            if unequipped:
+                message = writer.get_special_msg('%s_buy_and_change' % cmd.messages_prefix, coins=money_spend, artifact=artifact, unequipped=unequipped)
+            else:
+                message = writer.get_special_msg('%s_buy' % cmd.messages_prefix, coins=money_spend, artifact=artifact, sell_price=sell_price)
+        else:
+            cur_action.hero.change_money(MONEY_SOURCE.SPEND_FOR_SHARPENING, -money_spend)
+            artifact = cur_action.hero.sharp_artifact()
+            message = writer.get_special_msg('%s_sharp' % cmd.messages_prefix, coins=money_spend, artifact=artifact)
+
+        cur_action.hero.push_message(message, important=True)
 
     def cmd_move(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionMoveToPrototype

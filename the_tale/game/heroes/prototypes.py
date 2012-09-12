@@ -3,6 +3,7 @@ import math
 import time
 import datetime
 import random
+import copy
 
 from django.utils.log import getLogger
 from django.conf import settings as project_settings
@@ -19,7 +20,9 @@ from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, GENDER_DICT_US
 
 from game import names
 
-from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
+from game.artifacts.storage import ArtifactsDatabase
+
+from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS_LIST, SLOTS_TO_ARTIFACT_TYPES
 from game.heroes.statistics import HeroStatistics, MONEY_SOURCE
 from game.heroes.preferences import HeroPreferences
 from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
@@ -206,6 +209,32 @@ class HeroPrototype(object):
     def pop_quest_loot(self, artifact):
         self.bag.pop_quest_artifact(artifact)
 
+
+    def buy_artifact(self):
+        artifacts_list = None
+        if self.preferences.equipment_slot is not None:
+            artifacts_list = ArtifactsDatabase.storage().artifacts_for_equip_type(SLOTS_TO_ARTIFACT_TYPES[self.preferences.equipment_slot])
+
+        if not artifacts_list:
+            artifacts_list = ArtifactsDatabase.storage().artifacts_ids
+
+        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(artifacts_list, self.level)
+
+        self.bag.put_artifact(artifact)
+
+        slot = random.choice(ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type])
+        unequipped = self.equipment.get(slot)
+        self.change_equipment(slot, unequipped, artifact)
+
+        self.statistics.change_artifacts_had(1)
+
+        sell_price = None
+
+        if unequipped is not None:
+            sell_price = self.sell_artifact(unequipped)
+
+        return artifact, unequipped, sell_price
+
     def sell_artifact(self, artifact):
         sell_price = artifact.get_sell_price()
 
@@ -221,6 +250,22 @@ class HeroPrototype(object):
 
         return sell_price
 
+    def sharp_artifact(self):
+        choices = copy.copy(SLOTS_LIST)
+        random.shuffle(choices)
+
+        if self.preferences.equipment_slot is not None:
+            choices.insert(0, self.preferences.equipment_slot)
+
+        for slot in choices:
+            artifact = self.equipment.get(slot)
+            if artifact is not None:
+                # sharpening artefact
+                artifact.power += 1
+                self.equipment.updated = True
+                break
+
+        return artifact
 
     def get_equip_canditates(self):
 

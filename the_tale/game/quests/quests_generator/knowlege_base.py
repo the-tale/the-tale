@@ -2,8 +2,6 @@
 import copy
 import random
 
-UNDEFINED_PLACE = 'undefined_place'
-
 from game.quests.quests_generator.exceptions import QuestGeneratorException, RollBackException
 
 class KnowlegeBase(object):
@@ -34,10 +32,11 @@ class KnowlegeBase(object):
                              'external_data': external_data,
                              'persons': set()}
 
-    def add_person(self, uuid, place=UNDEFINED_PLACE, external_data={}):
+    def add_person(self, uuid, place=None, profession=None, external_data={}):
         if uuid in self.persons:
             raise QuestGeneratorException(u'person "%s" has already added to base' % uuid)
         self.persons[uuid] = {'uuid': uuid,
+                              'profession': profession,
                               'external_data': external_data,
                               'place': place}
 
@@ -55,13 +54,19 @@ class KnowlegeBase(object):
 
         return random.choice(choices)
 
-    def get_random_person(self, place=UNDEFINED_PLACE, exclude=[]):
+    def get_random_person(self, place=None, profession=None, exclude=[]):
 
         exclude = set(exclude)
 
-        choices = [ person_uuid for person_uuid in self.places[place]['persons'] if person_uuid not in exclude]
+        choices = [person_uuid for person_uuid in self.persons.keys() if person_uuid not in exclude]
+
+        if place is not None:
+            choices = [ person_uuid for person_uuid in self.places[place]['persons'] if person_uuid in choices]
+
+        if profession is not None:
+            choices = [ person_uuid for person_uuid in choices if self.persons[person_uuid]['profession'] == profession]
 
         if len(choices) == 0:
-            raise RollBackException('can not found suitable person for place: %s with excludes: %r' % (place, exclude))
+            raise RollBackException('can not found suitable person for place: %s with excludes: %r, profession: %s' % (place, exclude, profession))
 
         return random.choice(choices)

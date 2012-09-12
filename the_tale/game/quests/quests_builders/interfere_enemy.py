@@ -41,7 +41,7 @@ class InterfereEnemy(Quest):
         if self.env_local.place_start != self.env_local.place_end:
             sequence += [ cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST) ]
 
-        sequence += [ cmd.Quest(quest=self.env_local.quest_help, event=EVENTS.START_QUEST),
+        sequence += [ cmd.Quest(quest=self.env_local.quest_interfer, event=EVENTS.START_QUEST),
                       cmd.GivePower(person=self.env_local.person_end,
                                     depends_on=self.env_local.person_end, multiply=0.25,
                                     event=EVENTS.GIVE_POWER)]
@@ -50,4 +50,4 @@ class InterfereEnemy(Quest):
 
         self.line = env.new_line(main_line)
 
-        env.quests[self.env_local.quest_help].create_line(env)
+        env.quests[self.env_local.quest_interfer].create_line(env)

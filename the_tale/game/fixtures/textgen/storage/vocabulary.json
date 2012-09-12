@@ -1258,23 +1258,60 @@
       "template": "Глупый торговец, отдал %(e_0)s %(i_0)s за %(i_1)s-то %(e_1)s."
     }
   ], 
-  "quest_delivery_diary_choice_steal": [
+  "quest_searchsmith_special_upgrade_equipment_buy": [
     {
       "internals": [
         [
-          "потратил", 
+          "создал", 
           [
-            "hero"
+            "person_end"
           ], 
           "i_0", 
           [
             "прш"
           ], 
-          "потратил"
+          "создал"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
         ]
       ], 
-      "externals": [], 
-      "template": "Слишком много сил я %(i_0)s на доставку этого письма, надо его украсть."
+      "externals": [
+        [
+          "person_end", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "person_end"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_2", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s поистине чудесный артефакт — «%(e_1)s»! И всего за %(e_2)s %(i_1)s."
     }
   ], 
   "quest_caravan_description": [
@@ -1598,6 +1635,108 @@
         ]
       ], 
       "template": "путешествует в сторону %(e_0)s"
+    }
+  ], 
+  "quest_delivery_diary_choice_steal": [
+    {
+      "internals": [
+        [
+          "потратил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "потратил"
+        ]
+      ], 
+      "externals": [], 
+      "template": "Слишком много сил я %(i_0)s на доставку этого письма, надо его украсть."
+    }
+  ], 
+  "quest_searchsmith_special_upgrade_equipment_buy_and_change": [
+    {
+      "internals": [
+        [
+          "создал", 
+          [
+            "person_end"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "создал"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ], 
+        [
+          "монета", 
+          [
+            "sell_price"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_end", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "person_end"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_2", 
+          [], 
+          "coins"
+        ], 
+        [
+          "old_artifact", 
+          [], 
+          "e_3", 
+          [
+            "загл"
+          ], 
+          "old_artifact"
+        ], 
+        [
+          "sell_price", 
+          [], 
+          "e_4", 
+          [], 
+          "sell_price"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s поистине чудесный артефакт — «%(e_1)s»! И всего за %(e_2)s %(i_1)s. %(e_3)s пришлось продать за %(e_4)s %(i_2)s."
     }
   ], 
   "action_moveto_move": [
@@ -1931,19 +2070,33 @@
       "template": "Служить на почте трудно и даже опасно, но это почётная профессия! И пусть в дороге меня ждут монстры и ужасная погода — письмо будет доставлено вовремя!"
     }
   ], 
-  "quest_hometown_action_drunk_song": [
+  "action_regenerate_energy_energy_no_received_meditation": [
     {
-      "internals": [], 
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
       "externals": [
         [
           "hero", 
           [], 
           "e_0", 
-          [], 
+          [
+            "загл"
+          ], 
           "hero"
         ]
       ], 
-      "template": "%(e_0)s гуляет по городу"
+      "template": "%(e_0)s %(i_0)s обряд."
     }
   ], 
   "quest_hometown_donothing_search_old_friends_description": [
@@ -2091,6 +2244,23 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s награду."
+    }
+  ], 
+  "quest_searchsmith_diary_intro": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place_end", 
+          [], 
+          "e_0", 
+          [
+            "пр"
+          ], 
+          "place_end"
+        ]
+      ], 
+      "template": "На днях странствующий монах рассказал о чудном мастере, обитающем в %(e_0)s. По-моему мне стоит наведаться к нему, а то что-то экипировка совсем прохудилась."
     }
   ], 
   "action_regenerate_energy_description_sacrifice": [
@@ -2337,33 +2507,19 @@
       "template": "Пойду поброжу по родным улочкам."
     }
   ], 
-  "action_regenerate_energy_energy_no_received_meditation": [
+  "quest_hometown_action_drunk_song": [
     {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
+      "internals": [], 
       "externals": [
         [
           "hero", 
           [], 
           "e_0", 
-          [
-            "загл"
-          ], 
+          [], 
           "hero"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s обряд."
+      "template": "%(e_0)s гуляет по городу"
     }
   ], 
   "action_rest_start": [
@@ -2746,6 +2902,37 @@
       "template": "Поохотиться в удовольствие"
     }
   ], 
+  "quest_interfereenemy_diary_intro": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "person_end", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "person_end"
+        ]
+      ], 
+      "template": "Прошёл слух, что %(e_0)s собирается провернуть новое дельце, что же, настало время свести старые счёты."
+    }
+  ], 
+  "action_resurrect_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "проходит курс усиленного восстановления"
+    }
+  ], 
+  "action_quest_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "прилагает максимальные усилия, чтобы выполнить задание"
+    }
+  ], 
   "quest_hometown_journal_get_reward": [
     {
       "internals": [
@@ -2773,20 +2960,6 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s подарок от друзей в благодарность за то, что не забывает о них."
-    }
-  ], 
-  "action_resurrect_description": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "проходит курс усиленного восстановления"
-    }
-  ], 
-  "action_quest_description": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "прилагает максимальные усилия, чтобы выполнить задание"
     }
   ], 
   "quest_delivery_choice_steal_variant_steal": [
@@ -3019,6 +3192,13 @@
         ]
       ], 
       "template": "Заприметив невдалеке подходящий камень, %(e_0)s %(i_0)s инструменты и %(i_1)s изображать на нем символ удачи."
+    }
+  ], 
+  "quest_searchsmith_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Посетить кузнеца"
     }
   ], 
   "quest_spying_diary_choice_continue_spying": [
@@ -3500,6 +3680,44 @@
         ]
       ], 
       "template": "%(i_0)s билеты в цирк, всего-то %(e_0)s %(i_1)s."
+    }
+  ], 
+  "quest_notmywork_journal_get_reward": [
+    {
+      "internals": [
+        [
+          "наградил", 
+          [
+            "person_start"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "наградил"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_start", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "person_start"
+        ], 
+        [
+          "hero", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s %(e_1)s."
     }
   ], 
   "angel_ability_healhero": [
@@ -4423,42 +4641,11 @@
       "template": "%(e_0)s %(i_0)s прийти с повинной."
     }
   ], 
-  "quest_notmywork_journal_get_reward": [
+  "quest_interfereenemy_description": [
     {
-      "internals": [
-        [
-          "наградил", 
-          [
-            "person_start"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "наградил"
-        ]
-      ], 
-      "externals": [
-        [
-          "person_start", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "person_start"
-        ], 
-        [
-          "hero", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s %(e_1)s."
+      "internals": [], 
+      "externals": [], 
+      "template": "Сделать гадость противнику"
     }
   ], 
   "quest_notmywork_diary_choice_do_work": [
@@ -4574,6 +4761,62 @@
         ]
       ], 
       "template": "%(i_0)s %(e_0)s куда лучше %(i_1)s — надо их поменять"
+    }
+  ], 
+  "quest_searchsmith_special_upgrade_equipment_sharp": [
+    {
+      "internals": [
+        [
+          "улучшил", 
+          [
+            "person_end"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "улучшил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_end", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "person_end"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_2", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(e_0)s значительно %(i_0)s %(e_1)s! И всего за %(e_2)s %(i_1)s."
     }
   ], 
   "quest_caravan_action_move_to_point": [
@@ -4935,6 +5178,21 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
+    }
+  ], 
+  "quest_interfereenemy_action_move_to_quest": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s идёт на дело"
     }
   ], 
   "quest_hunt_diary_intro": [

@@ -111,8 +111,6 @@ jQuery(document).ready(function(e){
     {% set pref_enemy = resource.hero.preferences.get_enemy() and resource.hero.preferences.get_enemy().name %}
     {% set pref_equipment_slot = resource.hero.preferences.equipment_slot and resource.hero.preferences.equipment_slot_name %}
 
-    {{resource.hero.preferences.equipment_slot}}
-
     {% set current_time = now() %}
 
     {{ preferences_record("религиозность",
