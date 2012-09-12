@@ -103,6 +103,7 @@ class HeroResource(Resource):
         places = None
         friends = None
         enemies = None
+        equipment_slots = None
 
         all_places = places_storage.all()
         all_places.sort(key=lambda x: x.name)

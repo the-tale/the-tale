@@ -51,6 +51,24 @@ class ArtifactsDatabaseTest(TestCase):
         storage.load(artifacts_settings.TEST_STORAGE)
         self.assertRaises(ArtifactsException, storage.load, artifacts_settings.TEST_STORAGE)
 
+    def test_artifacts_ids(self):
+        storage = ArtifactsDatabase()
+        storage.load(artifacts_settings.TEST_STORAGE)
+        self.assertEqual(set(storage.artifacts_ids),
+                         set([u'antlers', u'wolfs_fangs', u'skin_of_a_wolf', u'skin_of_jackal', u'decrepit_plate', u'dead_tadpole', u'broken_sword', u'skin_of_a_deer']))
+
+    def test_loot_ids(self):
+        storage = ArtifactsDatabase()
+        storage.load(artifacts_settings.TEST_STORAGE)
+        self.assertEqual(set(storage.loot_ids),
+                         set([u'wolf_tail', u'deer_meat', u'dead_leach']))
+
+    def test_artifacts_for_equip_type(self):
+        storage = ArtifactsDatabase()
+        storage.load(artifacts_settings.TEST_STORAGE)
+        self.assertEqual(set(storage.artifacts_for_equip_type([EQUIP_TYPE.HELMET])), set([u'antlers']))
+        self.assertEqual(set(storage.artifacts_for_equip_type([EQUIP_TYPE.PLATE])), set([u'decrepit_plate']))
+
     def test_generate_artifact_from_list(self):
         storage = ArtifactsDatabase()
         storage.load(artifacts_settings.TEST_STORAGE)

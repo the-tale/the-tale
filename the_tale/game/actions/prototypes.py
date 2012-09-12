@@ -8,7 +8,7 @@ from dext.utils import database
 from common.utils.logic import random_value_by_priority
 
 from game.heroes.logic import create_mob_for_hero
-from game.heroes.bag import SLOTS_LIST, ARTIFACT_TYPES_TO_SLOTS
+from game.heroes.bag import SLOTS_LIST, ARTIFACT_TYPES_TO_SLOTS, SLOTS_TO_ARTIFACT_TYPES
 from game.heroes.statistics import MONEY_SOURCE
 
 from game.map.places.storage import places_storage
@@ -833,7 +833,15 @@ class ActionInPlacePrototype(ActionPrototype):
         elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
             if coins is not None:
-                artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+
+                artifacts_list = None
+                if self.hero.preferences.equipment_slot is not None:
+                    artifacts_list = ArtifactsDatabase.storage().artifacts_for_equip_type(SLOTS_TO_ARTIFACT_TYPES[self.hero.preferences.equipment_slot])
+
+                if not artifacts_list:
+                    artifacts_list = ArtifactsDatabase.storage().artifacts_ids
+
+                artifact = ArtifactsDatabase.storage().generate_artifact_from_list(artifacts_list, self.hero.level)
 
                 self.hero.bag.put_artifact(artifact)
 
@@ -856,6 +864,10 @@ class ActionInPlacePrototype(ActionPrototype):
                 # select filled slot
                 choices = copy.copy(SLOTS_LIST)
                 random.shuffle(choices)
+
+                if self.hero.preferences.equipment_slot is not None:
+                    choices.insert(0, self.hero.preferences.equipment_slot)
+
                 for slot in choices:
                     artifact = self.hero.equipment.get(slot)
                     if artifact is not None:

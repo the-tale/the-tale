@@ -40,6 +40,9 @@ class ArtifactsDatabase(object):
     def loot_ids(self):
         return [artifact_id for artifact_id, artifact_record in self.data.items() if artifact_record.type == ITEM_TYPE.USELESS]
 
+    def artifacts_for_equip_type(self, slots):
+        return [artifact_id for artifact_id, artifact_record in self.data.items() if artifact_record.slot in slots]
+
     def get_artifact_record(self, id_):  return self.data[id_]
 
     def load(self, filename):

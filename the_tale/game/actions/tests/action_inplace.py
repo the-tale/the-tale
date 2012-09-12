@@ -4,6 +4,7 @@ from django.test import TestCase
 
 from dext.settings import settings
 
+from game.heroes.bag import SLOTS
 from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradingPrototype, ActionEquippingPrototype, ActionRegenerateEnergyPrototype
 from game.artifacts.storage import ArtifactsDatabase
@@ -144,6 +145,36 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_heal, money - self.hero.money)
         test_bundle_save(self, self.bundle)
 
+    def test_bying_artifact_with_hero_preferences(self):
+        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+            self.hero.switch_spending()
+
+        money = f.buy_artifact_price(self.hero.level)
+
+        self.assertEqual(self.hero.statistics.money_spend, 0)
+        self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
+        self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
+
+        #unequip all arefact
+        self.hero.equipment.test_remove_all()
+        self.hero.preferences.equipment_slot = SLOTS.PLATE
+        self.hero.save()
+
+        #buy artifact
+        self.hero.model.money = money
+
+        self.bundle.process_turn()
+        self.assertTrue(self.hero.money < f.buy_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
+        self.assertEqual(len(self.hero.bag.items()), 0)
+
+        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.artifacts_had, 1)
+
+        self.assertNotEqual(self.hero.equipment.get(SLOTS.PLATE), None)
+        test_bundle_save(self, self.bundle)
+
+
     def test_bying_artifact_without_change(self):
         while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             self.hero.switch_spending()
@@ -212,6 +243,29 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)
         test_bundle_save(self, self.bundle)
+
+    def test_sharpening_artifact_with_hero_preferences(self):
+        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
+            self.hero.switch_spending()
+
+        self.hero.preferences.equipment_slot = SLOTS.PLATE
+        self.hero.save()
+
+        money = f.sharpening_artifact_price(self.hero.level)
+
+        old_power = self.hero.power
+        old_plate_power = self.hero.equipment.get(SLOTS.PLATE).power
+
+        self.hero.model.money = money
+        self.bundle.process_turn()
+        self.assertTrue(self.hero.money < f.sharpening_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
+        self.assertEqual(old_power + 1, self.hero.power)
+        self.assertEqual(old_plate_power + 1, self.hero.equipment.get(SLOTS.PLATE).power)
+
+        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)
+        test_bundle_save(self, self.bundle)
+
 
     def test_useless(self):
         while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.USELESS:
