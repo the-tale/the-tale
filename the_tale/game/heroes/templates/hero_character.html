@@ -49,12 +49,11 @@ jQuery(document).ready(function(e){
 
 <li class="hero-preferences-record">
   <strong>{{ name }}:</strong>
-  {% if resource.hero.level >= lvl_required %}
   <br/>
   <span class="" style="margin-left: 2em;">
-
+    {% if resource.hero.level >= lvl_required %}
     {% if value %}
-    <span class="" style="padding-right: 3px;">{{value}}</span>
+    {{value}}
     {% else %}
 
     {% if time_before_update.total_seconds() == 0 %}
@@ -68,30 +67,32 @@ jQuery(document).ready(function(e){
     {% endif %}
     {% endif %}
 
+
+
+    {% if time_before_update.total_seconds() == 0 %}
+
+    {% if value %}
+    <a class="pgf-remove-preference-button pull-right" href="#" data-preference-type="{{ type }}" style="margin-left: 5px;" rel="tooltip" title="удалить">
+      <i class="icon-trash"></i>
+    </a>
+
+    <a class="pgf-choose-preference-button pull-right"
+       href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type}}"
+       data-preference-type="{{ type }}"
+       rel="tooltip" title="редактировать">
+      <i class="icon-pencil"></i>
+    </a>
+    {% endif %}
+
+    {% else %}
+    <i class="icon-time pull-right" rel="tooltip" title="предпочтение можно будет изменить через {{ time_before_update|verbose_timedelta }}"></i>
+    {% endif %}
+
+    {% else %}
+    необходим {{ lvl_required }} уровень
+    {% endif %}
   </span>
 
-  {% if time_before_update.total_seconds() == 0 %}
-
-  {% if value %}
-  <a class="pgf-remove-preference-button pull-right" href="#" data-preference-type="{{ type }}" style="margin-left: 5px;" rel="tooltip" title="удалить">
-    <i class="icon-trash"></i>
-  </a>
-
-  <a class="pgf-choose-preference-button pull-right"
-     href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type}}"
-     data-preference-type="{{ type }}"
-     rel="tooltip" title="редактировать">
-    <i class="icon-pencil"></i>
-  </a>
-  {% endif %}
-
-  {% else %}
-  <i class="icon-time pull-right" rel="tooltip" title="предпочтение можно будет изменить через {{ time_before_update|verbose_timedelta }}"></i>
-  {% endif %}
-
-  {% else %}
-  <span class="pull-right">необходим {{ lvl_required }} уровень</span>
-  {% endif %}
 </li>
 
 {% endmacro %}
@@ -108,6 +109,9 @@ jQuery(document).ready(function(e){
     {% set pref_place = resource.hero.preferences.get_place() and resource.hero.preferences.get_place().name %}
     {% set pref_friend = resource.hero.preferences.get_friend() and resource.hero.preferences.get_friend().name %}
     {% set pref_enemy = resource.hero.preferences.get_enemy() and resource.hero.preferences.get_enemy().name %}
+    {% set pref_equipment_slot = resource.hero.preferences.equipment_slot and resource.hero.preferences.equipment_slot_name %}
+
+    {{resource.hero.preferences.equipment_slot}}
 
     {% set current_time = now() %}
 
@@ -117,6 +121,7 @@ jQuery(document).ready(function(e){
     {{ preferences_record("родной город", PREFERENCE_TYPE.PLACE, current_time, c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED, pref_place) }}
     {{ preferences_record("соратник", PREFERENCE_TYPE.FRIEND, current_time, c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED, pref_friend) }}
     {{ preferences_record("противник", PREFERENCE_TYPE.ENEMY, current_time, c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED, pref_enemy) }}
+    {{ preferences_record("экипировка", PREFERENCE_TYPE.EQUIPMENT_SLOT, current_time, c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED, pref_equipment_slot) }}
   </ul>
 
 </div>

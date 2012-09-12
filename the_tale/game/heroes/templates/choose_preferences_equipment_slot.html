@@ -1,0 +1,20 @@
+{% macro preference_record(item, choosen_id) %}
+<td class="hero-preference-choise {% if item == choosen_id %}choosen{% endif %}">
+  {% if item != choosen_id %}
+  <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item }}">{{ EQUIPMENT_SLOTS_DICT[item] }}</a>
+  {% else %}
+  <span style="cursor: default">{{ EQUIPMENT_SLOTS_DICT[item] }}</span>
+  {% endif %}
+</td>
+{% endmacro %}
+
+<table class="table table-bordered table-striped table-condensed">
+  {% for slot_left, slot_right in equipment_slots %}
+  <tr>
+    {{ preference_record(slot_left, resource.hero.preferences.equipment_slot) }}
+    {% if slot_right %}
+    {{ preference_record(slot_right, resource.hero.preferences.equipment_slot) }}
+    {% endif %}
+  </tr>
+  {% endfor %}
+</table>

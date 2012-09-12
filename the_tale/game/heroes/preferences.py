@@ -12,7 +12,7 @@ from game.persons.models import Person
 from game.persons.storage import persons_storage
 
 from game.heroes.models import ChoosePreferencesTask, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE, ANGEL_ENERGY_REGENERATION_TYPES_DICT
-
+from game.heroes.bag import SLOTS_LIST, SLOTS_DICT
 from game.heroes.exceptions import HeroException
 
 
@@ -33,6 +33,7 @@ class HeroPreferences(object):
         if preferences_type == PREFERENCE_TYPE.PLACE: return self._time_before_update(self.place_changed_at, current_time)
         if preferences_type == PREFERENCE_TYPE.FRIEND: return self._time_before_update(self.friend_changed_at, current_time)
         if preferences_type == PREFERENCE_TYPE.ENEMY: return self._time_before_update(self.enemy_changed_at, current_time)
+        if preferences_type == PREFERENCE_TYPE.EQUIPMENT_SLOT: return self._time_before_update(self.equipment_slot_changed_at, current_time)
 
         raise HeroException('unknown preference type')
 
@@ -51,7 +52,10 @@ class HeroPreferences(object):
 
 
     # mob
-    def get_mob_id(self): return self.hero_model.pref_mob_id
+    def get_mob_id(self):
+        if not self.hero_model.pref_mob_id:
+            return None
+        return self.hero_model.pref_mob_id
     def set_mob_id(self, value): self.hero_model.pref_mob_id = value
     mob_id = property(get_mob_id, set_mob_id)
 
@@ -100,6 +104,22 @@ class HeroPreferences(object):
     def set_enemy_changed_at(self, value): self.hero_model.pref_enemy_changed_at = value
     enemy_changed_at = property(get_enemy_changed_at, set_enemy_changed_at)
 
+    # equipment_slot
+    def get_equipment_slot(self):
+        if not self.hero_model.pref_equipment_slot:
+            return None
+        return self.hero_model.pref_equipment_slot
+    def set_equipment_slot(self, value): self.hero_model.pref_equipment_slot = value
+    equipment_slot = property(get_equipment_slot, set_equipment_slot)
+
+    def get_equipment_slot_changed_at(self): return self.hero_model.pref_equipment_slot_changed_at
+    def set_equipment_slot_changed_at(self, value): self.hero_model.pref_equipment_slot_changed_at = value
+    equipment_slot_changed_at = property(get_equipment_slot_changed_at, set_equipment_slot_changed_at)
+
+    @property
+    def equipment_slot_name(self):
+        print '!', SLOTS_DICT.get(self.equipment_slot)
+        return SLOTS_DICT.get(self.equipment_slot)
 
 
 class ChoosePreferencesTaskPrototype(object):
@@ -253,6 +273,25 @@ class ChoosePreferencesTaskPrototype(object):
 
             hero.preferences.enemy_id = enemy_id
             hero.preferences.enemy_changed_at = datetime.datetime.now()
+
+        elif self.model.preference_type == PREFERENCE_TYPE.EQUIPMENT_SLOT:
+
+            equipment_slot = self.model.preference_id
+
+            if equipment_slot is not None:
+
+                if hero.level < c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED:
+                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED)
+                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
+
+                if self.model.preference_id not in SLOTS_LIST:
+                    self.model.comment = u'unknown equipment slot: %s' % (equipment_slot, )
+                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
+
+            hero.preferences.equipment_slot = equipment_slot
+            hero.preferences.equipment_slot_changed_at = datetime.datetime.now()
 
         else:
             self.model.comment = u'unknown preference type: %s' % (self.model.preference_type, )

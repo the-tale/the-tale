@@ -128,6 +128,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED, 7)
         self.assertEqual(c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED, 11)
         self.assertEqual(c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED, 16)
+        self.assertEqual(c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED, 21)
 
         self.assertEqual(c.CHARACTER_PREFERENCES_CHANGE_DELAY, 60*60*24*7)
 

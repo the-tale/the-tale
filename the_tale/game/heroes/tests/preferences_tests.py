@@ -22,6 +22,7 @@ from game.persons.models import Person, PERSON_STATE
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.heroes.models import ChoosePreferencesTask, CHOOSE_PREFERENCES_STATE, PREFERENCE_TYPE
 from game.heroes.exceptions import HeroException
+from game.heroes.bag import SLOTS
 
 
 class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
@@ -424,6 +425,89 @@ class HeroPreferencesEnemyTest(TestCase):
 
     def test_remove_enemy_cooldown(self):
         self.check_change_enemy(None, self.enemy_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+
+
+class HeroPreferencesEquipmentSlotTest(TestCase):
+
+    def setUp(self):
+        create_test_map()
+
+        self.bundle = create_test_bundle('HeroTest')
+        self.hero = self.bundle.tests_get_hero()
+
+        self.hero.model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
+        self.hero.model.save()
+
+        self.slot_1 = SLOTS.HAND_PRIMARY
+        self.slot_2 = SLOTS.PLATE
+
+    def tearDown(self):
+        pass
+
+    def test_create(self):
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, 'wrong_equip_slot')
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.WAITING)
+        self.assertEqual(self.hero.preferences.mob_id, None)
+
+    def test_reset_all(self):
+        ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, 'wrong_equip_slot')
+        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 1)
+        ChoosePreferencesTaskPrototype.reset_all()
+        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 0)
+        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.RESET).count(), 1)
+
+    def test_wrong_level(self):
+        self.hero.model.level = 1
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+
+    def test_wrong_slot(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, 'wrong_equip_slot')
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+
+    def test_wrong_preference(self):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, '666', self.slot_1)
+        self.assertRaises(HeroException, task.process, self.bundle)
+
+    def test_set_equipment_slot(self):
+        changed_at = self.hero.preferences.equipment_slot_changed_at
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
+        self.assertEqual(self.hero.preferences.equipment_slot, None)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
+        self.assertTrue(changed_at < self.hero.preferences.equipment_slot_changed_at)
+
+    def check_change_equipment_slot(self, new_slot, expected_slot, expected_state):
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
+        task.process(self.bundle)
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, new_slot)
+        self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
+        task.process(self.bundle)
+        self.assertEqual(task.state, expected_state)
+        self.assertEqual(self.hero.preferences.equipment_slot, expected_slot)
+
+        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
+
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    def test_change_equipment_slot(self):
+        self.check_change_equipment_slot(self.slot_2, self.slot_2, CHOOSE_PREFERENCES_STATE.PROCESSED)
+
+    def test_change_equipment_slot_cooldown(self):
+        self.check_change_equipment_slot(self.slot_2, self.slot_1, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    def test_remove_equipment_slot(self):
+        self.check_change_equipment_slot(None, None, CHOOSE_PREFERENCES_STATE.PROCESSED)
+
+    def test_remove_equipment_slot_cooldown(self):
+        self.check_change_equipment_slot(None, self.slot_1, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+
 
 
 class HeroPreferencesRequestsTest(TestCase):

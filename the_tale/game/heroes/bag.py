@@ -85,6 +85,20 @@ class SLOTS:
 
     RINGS = 'rings'
 
+SLOTS_CHOICES = ( (SLOTS.HAND_PRIMARY, u'правая рука'),
+                  (SLOTS.HAND_SECONDARY, u'левая рука'),
+                  (SLOTS.HELMET, u'шлем'),
+                  (SLOTS.SHOULDERS, u'наплечники'),
+                  (SLOTS.PLATE, u'доспех'),
+                  (SLOTS.GLOVES, u'перчатки'),
+                  (SLOTS.CLOAK, u'плащ'),
+                  (SLOTS.PANTS, u'штаны'),
+                  (SLOTS.BOOTS, u'сапоги'),
+                  (SLOTS.AMULET, u'амулет'),
+                  (SLOTS.RINGS, u'кольца') )
+
+SLOTS_DICT = dict(SLOTS_CHOICES)
+
 SLOTS_LIST = [ value for name, value in  SLOTS.__dict__.items() if name.isupper()]
 
 SLOTS_TO_ARTIFACT_TYPES = {

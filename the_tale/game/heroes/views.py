@@ -20,6 +20,7 @@ from game.heroes.prototypes import HeroPrototype, ChooseAbilityTaskPrototype
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.heroes.models import CHOOSE_ABILITY_STATE, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE
 from game.heroes.forms import ChoosePreferencesForm
+from game.heroes.bag import SLOTS_LIST, SLOTS_DICT
 
 def split_list(items):
     half = (len(items)+1)/2
@@ -128,6 +129,9 @@ class HeroResource(Resource):
             all_enemys = [persons_storage[person_id] for person_id in persons_ids]
             enemies = split_list(all_enemys)
 
+        elif type == PREFERENCE_TYPE.EQUIPMENT_SLOT:
+            equipment_slots = split_list(SLOTS_LIST)
+
         return self.template('heroes/choose_preferences.html',
                              {'type': type,
                               'PREFERENCE_TYPE': PREFERENCE_TYPE,
@@ -135,7 +139,9 @@ class HeroResource(Resource):
                               'places': places,
                               'all_places': dict([ (place.id, place) for place in all_places]),
                               'friends': friends,
-                              'enemies': enemies} )
+                              'enemies': enemies,
+                              'equipment_slots': equipment_slots,
+                              'EQUIPMENT_SLOTS_DICT': SLOTS_DICT} )
 
     @login_required
     @handler('#hero_id', 'choose-preferences', method='post')

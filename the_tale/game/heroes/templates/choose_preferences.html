@@ -14,6 +14,8 @@
       Выберите соратника
       {% elif type == PREFERENCE_TYPE.ENEMY %}
       Выберите противника
+      {% elif type == PREFERENCE_TYPE.EQUIPMENT_SLOT %}
+      Выберите слот экипировки
       {% endif %}
     </h3>
   </div>
@@ -22,18 +24,25 @@
 
     {% if type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE %}
     {% include "heroes/choose_preferences_energy_regeneration_type.html" with context %}
+
     {% elif type == PREFERENCE_TYPE.MOB %}
     {% include "heroes/choose_preferences_mob.html" with context %}
+
     {% elif type == PREFERENCE_TYPE.PLACE %}
     {% include "heroes/choose_preferences_place.html" with context %}
+
     {% elif type == PREFERENCE_TYPE.FRIEND %}
     {% set persons = friends %}
     {% set person_id = resource.hero.preferences.friend_id %}
     {% include "heroes/choose_preferences_person.html" with context %}
+
     {% elif type == PREFERENCE_TYPE.ENEMY %}
     {% set persons = enemies %}
     {% set person_id = resource.hero.preferences.enemy_id %}
     {% include "heroes/choose_preferences_person.html" with context %}
+
+    {% elif type == PREFERENCE_TYPE.EQUIPMENT_SLOT %}
+    {% include "heroes/choose_preferences_equipment_slot.html" with context %}
     {% endif %}
 
   </div>
