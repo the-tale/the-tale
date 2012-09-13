@@ -36,7 +36,7 @@ class SubCategory(models.Model):
 
     threads_count = models.IntegerField(default=0, null=False)
 
-    last_poster = models.ForeignKey(User, null=True, related_name='+')
+    last_poster = models.ForeignKey(User, null=True, blank=True, related_name='+')
 
     posts_count = models.BigIntegerField(default=0, null=False)
 
