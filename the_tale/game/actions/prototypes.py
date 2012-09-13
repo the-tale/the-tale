@@ -24,8 +24,6 @@ from game.actions.exceptions import ActionException
 
 from game.quests.logic import create_random_quest_for_hero
 
-from game.workers.environment import workers_environment
-
 from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 from game.prototypes import TimePrototype
 
@@ -1109,7 +1107,11 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
         if self.state == self.STATE.MOVING:
 
-            if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+            if self.hero.need_rest_in_move:
+                ActionRestPrototype.create(self)
+                self.state = self.STATE.RESTING
+
+            elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
                 ActionRegenerateEnergyPrototype.create(self)
                 self.state = self.STATE.REGENERATE_ENERGY
 

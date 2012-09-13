@@ -483,7 +483,14 @@ pgf.game.map.Map = function(selector, params) {
         context.textBaseline = 'top';
         for (var place_id in data.places) {
             var place = data.places[place_id];
-            var image = spritesManager.GetImage('place');
+            var spriteName = 'place_medium';
+            if (place.size <= 3) {
+                spriteName = 'place_small';
+            }
+            if (place.size >= 8) {
+                spriteName = 'place_large';
+            }
+            var image = spritesManager.GetImage(spriteName);
             image.Draw(context,
                        posX + place.x * TILE_SIZE,
                        posY + place.y * TILE_SIZE);
@@ -499,13 +506,47 @@ pgf.game.map.Map = function(selector, params) {
 
         for (var hero_id in dynamicData.heroes) {
             var hero = dynamicData.heroes[hero_id];
-            var image = spritesManager.GetImage('hero');
 
             var heroPosition = GetHeroPosition(data, hero);
 
-            image.Draw(context,
-                       parseInt(posX + heroPosition.x * TILE_SIZE, 10),
-                       parseInt(posY + heroPosition.y * TILE_SIZE, 10) );
+            var heroImage = 'hero_right';
+
+            if (hero.position.road) {
+                var road = data.roads[hero.position.road.id];
+                var point_1 = data.places[road.point_1_id];
+                var point_2 = data.places[road.point_2_id];
+
+
+                if (hero.position.invert_direction) {
+                    var tmp = point_1;
+                    point_1 = point_2;
+                    point_2 = tmp;
+                }
+
+                if (point_1.x > point_2.x) {
+                    heroImage = 'hero_left';
+                }
+            }
+
+            if (hero.position.coordinates.to.x ||
+                hero.position.coordinates.to.y ||
+                hero.position.coordinates.from.x ||
+                hero.position.coordinates.from.y) {
+
+                var to_x = hero.position.coordinates.to.x;
+                var from_x = hero.position.coordinates.from.x;
+
+                if (from_x > to_x) {
+                    heroImage = 'hero_left';
+                }
+            }
+
+            var image = spritesManager.GetImage(heroImage);
+
+            var heroX = parseInt(posX + heroPosition.x * TILE_SIZE, 10);
+            var heroY = parseInt(posY + heroPosition.y * TILE_SIZE, 10) - 12;
+
+            image.Draw(context, heroX, heroY);
         }
 
         if (selectedTile) {

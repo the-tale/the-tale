@@ -80,17 +80,35 @@ pgf.tilesets = {
                    w: 32,
                    h: 32
                  },
-            'place': { src: "/tmp/map2.png",
-                       x: 4 * 32,
-                       y: 16 * 32,
+            'place_small': { src: "/tmp/city_small.png",
+                       x: 0,
+                       y: 0,
                        w: 32,
                        h: 32
                      },
-            'hero': { src: "/tmp/map2.png",
-                      x: 7 * 32,
-                      y: 19 * 32,
-                      w: 32,
-                      h: 32
+            'place_medium': { src: "/tmp/city_medium.png",
+                       x: 0,
+                       y: 0,
+                       w: 32,
+                       h: 32
+                     },
+            'place_large': { src: "/tmp/city_large.png",
+                       x: 0,
+                       y: 0,
+                       w: 32,
+                       h: 32
+                     },
+            'hero_right': { src: "/tmp/hero.png",
+                            x: 0,
+                            y: 0,
+                            w: 32,
+                            h: 32
+                    },
+            'hero_left': { src: "/tmp/hero.png",
+                           x: 32,
+                           y: 0,
+                           w: 32,
+                           h: 32
                     },
             'r4': { src: "/tmp/map_road.png",
                    x: 0 * 32,
