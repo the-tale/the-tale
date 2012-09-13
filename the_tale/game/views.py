@@ -47,6 +47,9 @@ class GameResource(Resource):
 
                 if own_angel.id == angel.id:
                     is_own_angel = True
+        else:
+            # temporaru solution, while hero info access for other players in implementation state
+            angel = None
 
         if angel:
 
