@@ -107,14 +107,13 @@ jQuery(document).ready(function() {
 
           <ul class="nav">
             {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
-            {{ base_macros.main_menu_item("game", url("game:"), "Игра") }}
             {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:registration"), "Регистрация"),
                                                                          (url("guide:game"), "Описание игры"),
                                                                          (url("guide:hero-abilities"), "Способности героев"),
                                                                          (url("cms:world:"), "Мифология")]) }}
+            {{ base_macros.main_menu_item("game", url("game:"), "Игра") }}
             {% if resource.account %}
             <li class="divider-vertical"></li>
-            {{ base_macros.main_menu_item("profile", url("accounts:profile"), "Профиль игрока") }}
             {{ base_macros.main_menu_item("hero", url("game:heroes:show", resource.account.angel.get_hero().id), "Страница героя") }}
             {% endif %}
           </ul>
@@ -129,10 +128,11 @@ jQuery(document).ready(function() {
             </li>
             <li class="divider-vertical"></li>
             {% if request.user.is_authenticated() %}
-            <li><a href="{{ url('accounts:logout') }}">выйти</a></li>
+            {{ base_macros.main_menu_item("profile", url("accounts:profile"), "Профиль") }}
+            <li><a href="{{ url('accounts:logout') }}">Выход</a></li>
             {% else %}
             <li><a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration attention-link"><strong>создать героя</strong></a></li>
-            <li><a href="{{ url('accounts:login') }}">войти</a></li>
+            <li><a href="{{ url('accounts:login') }}">Войти</a></li>
             {% endif %}
           </ul>
 
