@@ -63,15 +63,13 @@ class ITEMS_OF_EXPENDITURE:
     BUYING_ARTIFACT = 1
     SHARPENING_ARTIFACT = 2
     USELESS = 3
-    IMPACT = 4
 
-    ALL = [INSTANT_HEAL, BUYING_ARTIFACT, SHARPENING_ARTIFACT, USELESS, IMPACT]
+    ALL = [INSTANT_HEAL, BUYING_ARTIFACT, SHARPENING_ARTIFACT, USELESS]
 
 ITEMS_OF_EXPENDITURE_PRIORITY = { ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 6,
                                   ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 2,
                                   ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 2,
-                                  ITEMS_OF_EXPENDITURE.USELESS: 1,
-                                  ITEMS_OF_EXPENDITURE.IMPACT: 2,}
+                                  ITEMS_OF_EXPENDITURE.USELESS: 1}
 
 # относительные размеры различных трат
 
@@ -223,8 +221,11 @@ QUESTS_SPECIAL_FRACTION = float(0.2) # вероятность получить "
 
 # время блокировки указывается в ходах
 # если идентификатор задания тут не указан, считается, что блокировки нет (т.е. она равна 0)
-QUESTS_LOCK_TIME = {'hunt': int(3*7*24*TURNS_IN_HOUR),
-                    'hometown': int(2*7*24*TURNS_IN_HOUR)}
+QUESTS_LOCK_TIME = { 'hunt': int(1.5*12*TURNS_IN_HOUR),
+                     'hometown': int(12*TURNS_IN_HOUR),
+                     'helpfriend': int(12*TURNS_IN_HOUR),
+                     'interfereenemy': int(12*TURNS_IN_HOUR),
+                     'searchsmith': int(0.5*12*TURNS_IN_HOUR) }
 
 # Влияние персонажей
 PERSON_BASE_POWER_FOR_QUEST = int(100) # базовое количество влияния персонажу за задание

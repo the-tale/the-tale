@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from common.utils.testcase import TestCase
 
@@ -54,6 +55,7 @@ class QuestsTest(TestCase):
 def create_test_method(quest, quests):
 
     @patch_quests_list('game.quests.logic.QuestsSource', quests)
+    @mock.patch('game.balance.constants.QUESTS_SPECIAL_FRACTION', 1.1)
     def quest_test_method(self):
 
         current_time = TimePrototype.get_current_time()

@@ -96,8 +96,10 @@ def create_random_quest_for_hero(hero):
 @retry_on_exception(max_retries=quests_settings.MAX_QUEST_GENERATION_RETRIES, exceptions=[RollBackException])
 def _create_random_quest_for_hero(hero, knowlege_base, special):
 
+    quests_source = QuestsSource()
+
     env = Environment(writers_constructor=Writer,
-                      quests_source=QuestsSource(),
+                      quests_source=quests_source,
                       knowlege_base=knowlege_base)
 
     hero_position_uuid = 'place_%d' % hero.position.place.id # expecting place, not road
@@ -113,7 +115,8 @@ def _create_random_quest_for_hero(hero, knowlege_base, special):
     if special:
         env.new_quest(from_list=hero.get_special_quests(), excluded_list=excluded_quests, place_start=hero_position_uuid)
     else:
-        env.new_quest(excluded_list=excluded_quests, place_start=hero_position_uuid)
+        quests_list = set([quest.type() for quest in quests_source.quests_list]) - set(['hunt', 'hometown', 'helpfriend', 'interfereenemy', 'searchsmith'])
+        env.new_quest(from_list=quests_list, excluded_list=excluded_quests, place_start=hero_position_uuid)
 
     env.create_lines()
 

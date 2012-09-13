@@ -228,17 +228,20 @@ class QuestPrototype(object):
 
         if random.choice(choices) == 'buy':
             cur_action.hero.change_money(MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -money_spend)
-            artifact, unequipped, sell_price = cur_action.hero.buy_artifact()
-            if unequipped:
-                message = writer.get_special_msg('%s_buy_and_change' % cmd.messages_prefix, coins=money_spend, artifact=artifact, unequipped=unequipped)
+            artifact, unequipped, sell_price = cur_action.hero.buy_artifact(better=True)
+
+            if artifact is None:
+                message = writer.get_special_msg('%_fail' % cmd.messages_prefix, coins=money_spend)
+            elif unequipped:
+                message = writer.get_special_msg('%s_buy_and_change' % cmd.messages_prefix, coins=money_spend, artifact=artifact, unequipped=unequipped, sell_price=sell_price)
             else:
-                message = writer.get_special_msg('%s_buy' % cmd.messages_prefix, coins=money_spend, artifact=artifact, sell_price=sell_price)
+                message = writer.get_special_msg('%s_buy' % cmd.messages_prefix, coins=money_spend, artifact=artifact)
         else:
             cur_action.hero.change_money(MONEY_SOURCE.SPEND_FOR_SHARPENING, -money_spend)
             artifact = cur_action.hero.sharp_artifact()
             message = writer.get_special_msg('%s_sharp' % cmd.messages_prefix, coins=money_spend, artifact=artifact)
 
-        cur_action.hero.push_message(message, important=True)
+        cur_action.hero.push_message(HeroPrototype._prepair_message(message), important=True)
 
     def cmd_move(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionMoveToPrototype
@@ -294,7 +297,10 @@ class QuestPrototype(object):
 
     def cmd_donothing(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionDoNothingPrototype
-        ActionDoNothingPrototype.create(parent=cur_action, duration=cmd.duration, messages_prefix=cmd.messages_prefix, messages_probability=cmd.messages_probability)
+        ActionDoNothingPrototype.create(parent=cur_action,
+                                        duration=cmd.duration,
+                                        messages_prefix=writer.get_msg_special_id(cmd.messages_prefix),
+                                        messages_probability=cmd.messages_probability)
 
     def ui_info(self, hero):
         choices = self.get_choices()

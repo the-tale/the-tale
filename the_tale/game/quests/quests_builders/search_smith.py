@@ -37,7 +37,7 @@ class SearchSmith(Quest):
             sequence += [ cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST) ]
 
         sequence += [ cmd.UpgradeEquipment(equipment_slot=env.knowlege_base.get_special('hero_pref_equipment_slot'),
-                                           messages_prefix='quest_searchsmith_upgrade_equipment',
+                                           messages_prefix='upgrade_equipment', # this prefix used by writer
                                            event=EVENTS.UPGRADE_EQUIPMENT),
                       cmd.GivePower(person=self.env_local.person_end, power=1, event=EVENTS.GIVE_POWER)]
 

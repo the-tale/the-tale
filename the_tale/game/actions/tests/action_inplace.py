@@ -279,17 +279,3 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_useless, money - self.hero.money)
         test_bundle_save(self, self.bundle)
-
-
-    def test_impact(self):
-        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.IMPACT:
-            self.hero.switch_spending()
-
-        money = f.impact_price(self.hero.level)
-        self.hero.model.money = money
-        self.bundle.process_turn()
-        self.assertTrue(self.hero.money < f.impact_price(self.hero.level) * c.PRICE_DELTA + 1)
-
-        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
-        self.assertEqual(self.hero.statistics.money_spend_for_impact, money - self.hero.money)
-        test_bundle_save(self, self.bundle)

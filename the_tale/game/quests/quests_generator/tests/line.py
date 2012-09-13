@@ -34,10 +34,12 @@ class LineTest(TestCase):
                                           cmd.Battle(event='event_1_6', number=13),
                                           cmd.GetReward(event='event_1_7', person='person_1'),
                                           cmd.GivePower(event='event_1_8', person='person_1', power=2, multiply=3, depends_on='person_2')  ])
+        self.linear_line.available = True
 
         self.quest_line = Line(sequence=[cmd.Move(event='event_2_1', place='place_2'),
                                           cmd.Quest(event='event_2_2', quest=self.env_local.quest_1),
                                           cmd.GetReward(event='event_2_3', person='person_2')  ])
+        self.quest_line.available = True
 
         self.choice_line = Line(sequence=[cmd.Move(event='event_3_1', place='place_3'),
                                           cmd.Choose(id='choose_1',
@@ -47,6 +49,7 @@ class LineTest(TestCase):
                                                      event='event_3_2',
                                                      choice='choice_id_1'),
                                           cmd.Battle(event='event_3_3', number=13),                                            ])
+        self.choice_line.available = True
 
     def test_start_pointer(self):
         self.assertEqual(self.empty_line.get_start_pointer(), [0])
@@ -92,6 +95,21 @@ class LineTest(TestCase):
         self.assertRaises(QuestGeneratorException, self.quest_line.increment_pointer, self.env, [8], {})
 
         self.assertEqual(self.choice_line.increment_pointer(self.env, [0], {}), [1])
+
+        # check choice availability
+        self.linear_line.available = False
+        self.quest_line.available = False
+        self.assertRaises(QuestGeneratorException, self.choice_line.increment_pointer, self.env, [1], {})
+        self.linear_line.available = True
+        self.quest_line.available = False
+        self.assertRaises(QuestGeneratorException, self.choice_line.increment_pointer, self.env, [1], {'choose_1': 'choice_2'})
+        self.linear_line.available = False
+        self.quest_line.available = True
+        self.assertEqual(self.choice_line.increment_pointer(self.env, [1, 'line_2', 0], {'choose_1': 'choice_2'}), [1, 'line_2', 1])
+        self.linear_line.available = True
+        self.quest_line.available = True
+
+        # continue checking increment
         self.assertTrue(self.choice_line.increment_pointer(self.env, [1], {}) in ([1, 'line_1', 0], [1, 'line_2', 0]))
         self.assertEqual(self.choice_line.increment_pointer(self.env, [1, 'line_1', 0], {}), [1, 'line_1', 1])
         self.assertEqual(self.choice_line.increment_pointer(self.env, [1, 'line_1', 7], {}), [2])

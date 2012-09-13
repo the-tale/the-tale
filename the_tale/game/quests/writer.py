@@ -26,12 +26,12 @@ class Writer(object):
     def get_message(self, type_, **kwargs):
         template = get_vocabulary().get_random_phrase(type_, None)
         if template:
-            args = dict(self.substitution)
-            args.update(kwargs)
+            if kwargs:
+                args = dict(self.substitution)
+                args.update(prepair_substitution(kwargs))
+            else:
+                args = self.substitution
             return template.substitute(get_dictionary(), args)
-
-        # if not project_settings.TESTS_RUNNING:
-        #     logger.error('writer:get_message: unknown template type: %s' % type_)
 
         return None
 

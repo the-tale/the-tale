@@ -67,6 +67,11 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.MAX_BAG_SIZE, 12)
         self.assertEqual(c.BAG_SIZE_TO_SELL_LOOT_FRACTION, 0.33)
 
+        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY, { c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 6,
+                                                            c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 2,
+                                                            c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 2,
+                                                            c.ITEMS_OF_EXPENDITURE.USELESS: 1} )
+
         self.assertEqual(c.DESTINY_POINT_IN_LEVELS, 5)
 
         self.assertEqual(c.ANGEL_ENERGY_MAX, 12)
@@ -118,8 +123,11 @@ class ConstantsTest(TestCase):
 
         self.assertEqual(c.QUESTS_SPECIAL_FRACTION, 0.2)
 
-        self.assertEqual(c.QUESTS_LOCK_TIME, {'hunt': int(3*7*24*c.TURNS_IN_HOUR),
-                                              'hometown': int(2*7*24*c.TURNS_IN_HOUR)})
+        self.assertEqual(c.QUESTS_LOCK_TIME, { 'hunt': int(1.5*12*360),
+                                               'hometown': int(12*360),
+                                               'helpfriend': int(12*360),
+                                               'interfereenemy': int(12*360),
+                                               'searchsmith': int(0.5*12*360) })
 
         self.assertEqual(c.PERSON_BASE_POWER_FOR_QUEST, 100)
 

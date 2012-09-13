@@ -39,11 +39,13 @@ class Hometown(Quest):
 
     def create_line(self, env):
 
-        home_actions = [ cmd.DoNothing(event=EVENTS.DRUNK_SONG, duration=6, messages_prefix='quest_hometown_donothing_drunk_song', messages_probability=0.3),
-                         cmd.DoNothing(event=EVENTS.STAGGER_STREETS, duration=10, messages_prefix='quest_hometown_donothing_stagger_streets', messages_probability=0.3),
-                         cmd.DoNothing(event=EVENTS.CHATTING, duration=5, messages_prefix='quest_hometown_donothing_chatting', messages_probability=0.3),
-                         cmd.DoNothing(event=EVENTS.SEARCH_OLD_FRIENDS, duration=7, messages_prefix='quest_hometown_donothing_search_old_friends', messages_probability=0.3),
-                         cmd.DoNothing(event=EVENTS.REMEMBER_NAMES, duration=3, messages_prefix='quest_hometown_donothing_remember_names', messages_probability=0.3) ]
+        # this message prefixes used by action, not writer
+        # TODO: add writer support
+        home_actions = [ cmd.DoNothing(event=EVENTS.DRUNK_SONG, duration=6, messages_prefix='drunk_song', messages_probability=0.3),
+                         cmd.DoNothing(event=EVENTS.STAGGER_STREETS, duration=10, messages_prefix='stagger_streets', messages_probability=0.3),
+                         cmd.DoNothing(event=EVENTS.CHATTING, duration=5, messages_prefix='chatting', messages_probability=0.3),
+                         cmd.DoNothing(event=EVENTS.SEARCH_OLD_FRIENDS, duration=7, messages_prefix='search_old_friends', messages_probability=0.3),
+                         cmd.DoNothing(event=EVENTS.REMEMBER_NAMES, duration=3, messages_prefix='remember_names', messages_probability=0.3) ]
 
         sequence = [cmd.Message(event=EVENTS.INTRO)]
 

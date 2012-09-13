@@ -111,7 +111,18 @@ class Line(object):
             if cmd.is_quest:
                 return [pointer[0]] + self.get_start_pointer()
             if cmd.is_choice:
-                choice = choices.get(cmd.id, random.choice(cmd.get_variants()))
+                default_choices = [ choice
+                                    for choice, line_id in cmd.choices.items()
+                                    if env.lines[line_id].available ]
+                if not default_choices:
+                    raise QuestGeneratorException('no available lines in choices - quest must be rolled back on generation step')
+
+                player_choice = choices.get(cmd.id)
+                if player_choice is not None and player_choice not in default_choices:
+                    raise QuestGeneratorException('player chosen not available line')
+
+                choice = player_choice if player_choice is not None else random.choice(default_choices)
+
                 choosed_line = cmd.choices[choice]
                 return [pointer[0], choosed_line] + env.lines[choosed_line].get_start_pointer()
             if len(self.sequence) > pointer[0]+1:

@@ -851,18 +851,6 @@ class ActionInPlacePrototype(ActionPrototype):
             if coins is not None:
                 self.hero.add_message('action_inplace_spend_useless', important=True, hero=self.hero, coins=coins)
 
-        elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.IMPACT:
-            coins = self.try_to_spend_money(f.impact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_IMPACT)
-            if coins is not None:
-                impact = f.impact_value(self.hero.level, 1)
-                person = random.choice(self.hero.position.place.persons)
-                if random.choice([True, False]):
-                    workers_environment.highlevel.cmd_change_person_power(person.id, impact)
-                    self.hero.add_message('action_inplace_impact_good', important=True, hero=self.hero, coins=coins, person=person)
-                else:
-                    workers_environment.highlevel.cmd_change_person_power(person.id, -impact)
-                    self.hero.add_message('action_inplace_impact_bad', important=True, hero=self.hero, coins=coins, person=person)
-
         else:
             raise ActionException('wrong hero money spend type: %d' % self.hero.next_spending)
 

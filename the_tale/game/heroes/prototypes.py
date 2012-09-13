@@ -173,14 +173,21 @@ class HeroPrototype(object):
         from game.quests.quests_builders import Hunt
         from game.quests.quests_builders import Hometown
         from game.quests.quests_builders import HelpFriend
+        from game.quests.quests_builders import InterfereEnemy
+        from game.quests.quests_builders import SearchSmith
 
         allowed_quests = []
+
         if self.preferences.mob_id is not None:
             allowed_quests.append(Hunt.type())
         if self.preferences.place_id is not None:
             allowed_quests.append(Hometown.type())
         if self.preferences.friend_id is not None:
             allowed_quests.append(HelpFriend.type())
+        if self.preferences.enemy_id is not None:
+            allowed_quests.append(InterfereEnemy.type())
+        if self.preferences.equipment_slot is not None:
+            allowed_quests.append(SearchSmith.type())
 
         return allowed_quests
 
@@ -210,20 +217,28 @@ class HeroPrototype(object):
         self.bag.pop_quest_artifact(artifact)
 
 
-    def buy_artifact(self):
+    def buy_artifact(self, better=False):
         artifacts_list = None
         if self.preferences.equipment_slot is not None:
             artifacts_list = ArtifactsDatabase.storage().artifacts_for_equip_type(SLOTS_TO_ARTIFACT_TYPES[self.preferences.equipment_slot])
 
         if not artifacts_list:
+            # if hero has not preferences or can not get any item for preferences slot
             artifacts_list = ArtifactsDatabase.storage().artifacts_ids
 
         artifact = ArtifactsDatabase.storage().generate_artifact_from_list(artifacts_list, self.level)
+
+        if artifact is None:
+            return None, None, None
 
         self.bag.put_artifact(artifact)
 
         slot = random.choice(ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type])
         unequipped = self.equipment.get(slot)
+
+        if better and unequipped is not None and artifact.power < unequipped.power:
+            artifact.power = unequipped.power + 1
+
         self.change_equipment(slot, unequipped, artifact)
 
         self.statistics.change_artifacts_had(1)
