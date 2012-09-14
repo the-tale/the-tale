@@ -2,15 +2,18 @@
 
 {% macro preference_record(item, choosen_id) %}
 
-<td class="hero-preference-choise {% if item.id == choosen_id %}choosen{% endif %}">
-  {% if item.id != choosen_id %}
-  <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.id }}">{{ item.name }}</a>
-  {% else %}
-  <span style="cursor: default">{{ item.name }}</span>
-  {% endif %}
-  (город: {{ all_places[item.place_id].name }})
+<tr>
+  <td class="hero-preference-choise {% if item.id == choosen_id %}choosen{% endif %}">
+    {% if item.id not in (resource.hero.preferences.friend_id, resource.hero.preferences.enemy_id) %}
+    <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.id }}">{{ item.name }}</a>
+    {% else %}
+    <span style="cursor: default">{{ item.name }}</span>
+    {% if item.id == resource.hero.preferences.friend_id %}<span class="label label-success">соратник</span>{% endif %}
+    {% if item.id == resource.hero.preferences.enemy_id %}<span class="label label-important">противник</span>{% endif %}
+    {% endif %}
+  </td>
+</tr>
 
-</td>
 {% endmacro %}
 
 <p>
@@ -21,13 +24,33 @@
   {% endif %}
 </p>
 
-<table class="table table-bordered table-striped table-condensed">
-  {% for person_left, person_right in persons %}
-  <tr>
-    {{ preference_record(person_left, person_id) }}
-    {% if person_right %}
-    {{ preference_record(person_right, person_id) }}
-    {% endif %}
-  </tr>
+{% if resource.hero.preferences.friend_id is not none %}
+<label><strong>ваш соратник:</strong> {{ resource.hero.preferences.friend.name }}, город {{resource.hero.preferences.friend.place.name}}</label>
+{% endif %}
+
+{% if resource.hero.preferences.enemy_id is not none %}
+<label><strong>ваш противник:</strong> {{ resource.hero.preferences.enemy.name }}, город {{resource.hero.preferences.enemy.place.name}}</label>
+{% endif %}
+
+<label for="pgf-places-selector">Город</label>
+
+<select id="pgf-places-selector">
+  {% for place_id, place in all_places.items() %}
+  <option value="{{place_id}}" {% if person_place_id == place_id %}selected='selected'{% endif %}>{{place.name}}</option>
   {% endfor %}
+</select>
+
+
+<label>Персонажи</label>
+
+{% for place_id, place in all_places.items() %}
+<table class="{% if person_place_id != place_id %}pgf-hidden{% endif %} place-table place-table-{{place_id}} table table-bordered table-striped table-condensed">
+  <tbody>
+    {% for person in persons %}
+    {% if person.place_id == place_id %}
+    {{ preference_record(person, person_id) }}
+    {% endif %}
+    {% endfor %}
+  </tbody>
 </table>
+{% endfor %}

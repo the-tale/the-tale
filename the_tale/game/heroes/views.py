@@ -105,6 +105,7 @@ class HeroResource(Resource):
         enemies = None
         equipment_slots = None
 
+
         all_places = places_storage.all()
         all_places.sort(key=lambda x: x.name)
 
@@ -123,12 +124,12 @@ class HeroResource(Resource):
         elif type == PREFERENCE_TYPE.FRIEND:
             persons_ids = Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name').values_list('id', flat=True)
             all_friends = [persons_storage[person_id] for person_id in persons_ids]
-            friends = split_list(all_friends)
+            friends = all_friends
 
         elif type == PREFERENCE_TYPE.ENEMY:
             persons_ids = Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name').values_list('id', flat=True)
             all_enemys = [persons_storage[person_id] for person_id in persons_ids]
-            enemies = split_list(all_enemys)
+            enemies = all_enemys
 
         elif type == PREFERENCE_TYPE.EQUIPMENT_SLOT:
             equipment_slots = split_list(SLOTS_LIST)

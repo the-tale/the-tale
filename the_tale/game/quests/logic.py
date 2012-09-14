@@ -54,17 +54,17 @@ def get_knowlege_base(hero):
         base.add_special('hero_pref_mob', {'id': pref_mob.id,
                                            'terrain': pref_mob.terrain})
 
-    pref_place = hero.preferences.get_place()
+    pref_place = hero.preferences.place
     place_uuid = 'place_%d' % pref_place.id if pref_place is not None else None
     if place_uuid in base.places:
         base.add_special('hero_pref_hometown', {'uuid': place_uuid})
 
-    pref_friend = hero.preferences.get_friend()
+    pref_friend = hero.preferences.friend
     friend_uuid = 'person_%d' % pref_friend.id if pref_friend is not None else None
     if friend_uuid in base.persons:
         base.add_special('hero_pref_friend', {'uuid': friend_uuid})
 
-    pref_enemy = hero.preferences.get_enemy()
+    pref_enemy = hero.preferences.enemy
     enemy_uuid = 'person_%d' % pref_enemy.id if pref_enemy is not None else None
     if enemy_uuid in base.persons:
         base.add_special('hero_pref_enemy', {'uuid': enemy_uuid})

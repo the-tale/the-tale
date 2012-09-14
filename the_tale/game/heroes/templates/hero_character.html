@@ -20,7 +20,12 @@ jQuery(document).ready(function(e){
                                                                preference_type: preferenceType },
                                                         OnSuccess: function(data) { location.reload(); }
                                                       });
+                                   });
 
+                                   jQuery("#pgf-places-selector", dialog).change(function(){
+                                       var placeId = jQuery("#pgf-places-selector").val();
+                                       jQuery('.place-table').toggleClass('pgf-hidden', true);
+                                       jQuery('.place-table-'+placeId).removeClass('pgf-hidden');
                                    });
                                }
                              });
@@ -106,9 +111,9 @@ jQuery(document).ready(function(e){
   <ul class="unstyled">
     {% set pref_religion = resource.hero.preferences.energy_regeneration_type_name %}
     {% set pref_mob = resource.hero.preferences.mob and resource.hero.preferences.mob.name %}
-    {% set pref_place = resource.hero.preferences.get_place() and resource.hero.preferences.get_place().name %}
-    {% set pref_friend = resource.hero.preferences.get_friend() and resource.hero.preferences.get_friend().name %}
-    {% set pref_enemy = resource.hero.preferences.get_enemy() and resource.hero.preferences.get_enemy().name %}
+    {% set pref_place = resource.hero.preferences.place and resource.hero.preferences.place.name %}
+    {% set pref_friend = resource.hero.preferences.friend and resource.hero.preferences.friend.name %}
+    {% set pref_enemy = resource.hero.preferences.enemy and resource.hero.preferences.enemy.name %}
     {% set pref_equipment_slot = resource.hero.preferences.equipment_slot and resource.hero.preferences.equipment_slot_name %}
 
     {% set current_time = now() %}

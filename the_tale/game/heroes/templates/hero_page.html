@@ -11,7 +11,6 @@
 <script type="text/javascript">
 
 var updater = undefined;
-var angelUpdater
 var widgets = {};
 
 jQuery(document).ready(function(e){
@@ -20,7 +19,6 @@ jQuery(document).ready(function(e){
 
     setTimeout(function(){
         updater.Refresh();
-        angelUpdater.Refresh();
     }, 0);
 
     pgf.base.InitializeTabs('hero-tab-main', 'attributes', [['.pgf-attributes-tab-button', 'attributes'], ['.pgf-statistics-tab-button', 'statistics']]);

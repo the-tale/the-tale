@@ -75,7 +75,8 @@ class HeroPreferences(object):
     def set_place_id(self, value): self.hero_model.pref_place_id = value
     place_id = property(get_place_id, set_place_id)
 
-    def get_place(self): return places_storage.get(self.hero_model.pref_place_id)
+    @property
+    def place(self): return places_storage.get(self.hero_model.pref_place_id)
 
     def get_place_changed_at(self): return self.hero_model.pref_place_changed_at
     def set_place_changed_at(self, value): self.hero_model.pref_place_changed_at = value
@@ -87,7 +88,8 @@ class HeroPreferences(object):
     def set_friend_id(self, value): self.hero_model.pref_friend_id = value
     friend_id = property(get_friend_id, set_friend_id)
 
-    def get_friend(self): return persons_storage[self.hero_model.pref_friend_id] if self.hero_model.pref_friend_id else None
+    @property
+    def friend(self): return persons_storage[self.hero_model.pref_friend_id] if self.hero_model.pref_friend_id else None
 
     def get_friend_changed_at(self): return self.hero_model.pref_friend_changed_at
     def set_friend_changed_at(self, value): self.hero_model.pref_friend_changed_at = value
@@ -98,7 +100,8 @@ class HeroPreferences(object):
     def set_enemy_id(self, value): self.hero_model.pref_enemy_id = value
     enemy_id = property(get_enemy_id, set_enemy_id)
 
-    def get_enemy(self): return persons_storage[self.hero_model.pref_enemy_id] if self.hero_model.pref_enemy_id else None
+    @property
+    def enemy(self): return persons_storage[self.hero_model.pref_enemy_id] if self.hero_model.pref_enemy_id else None
 
     def get_enemy_changed_at(self): return self.hero_model.pref_enemy_changed_at
     def set_enemy_changed_at(self, value): self.hero_model.pref_enemy_changed_at = value
@@ -118,7 +121,6 @@ class HeroPreferences(object):
 
     @property
     def equipment_slot_name(self):
-        print '!', SLOTS_DICT.get(self.equipment_slot)
         return SLOTS_DICT.get(self.equipment_slot)
 
 

@@ -13,7 +13,7 @@ RACE_CHOICES = ( (RACE.HUMAN, u'человек'),
                  (RACE.ELF, u'эльф'),
                  (RACE.ORC, u'орк'),
                  (RACE.GOBLIN, u'гоблин'),
-                 (RACE.DWARF, u'дворф') )
+                 (RACE.DWARF, u'дварф') )
 
 RACE_DICT = dict(RACE_CHOICES)
 

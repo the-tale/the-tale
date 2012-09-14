@@ -15,7 +15,6 @@
 <script type="text/javascript">
 
 var updater = undefined;
-var angelUpdater
 var widgets = {};
 
 jQuery(document).ready(function(e){
@@ -31,7 +30,6 @@ jQuery(document).ready(function(e){
         if (number == 0) {
             setTimeout(function() {
                 updater.Refresh();
-                angelUpdater.Refresh();
             }, 1000 );
             return;
         }
@@ -79,9 +77,6 @@ jQuery(document).ready(function(e){
     function RefreshData() {
         if (updater) {
             updater.Refresh();
-        }
-        if (angelUpdater) {
-            angelUpdater.Refresh();
         }
     }
 

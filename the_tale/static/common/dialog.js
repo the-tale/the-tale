@@ -75,7 +75,7 @@ pgf.ui.dialog.Create = function(params) {
                 params.OnClose(dialog);
             }
 
-            dialog.dialog('destroy');
+            dialog.remove();
         };
 
         dialog = jQuery(content)

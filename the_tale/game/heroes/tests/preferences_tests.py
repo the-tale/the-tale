@@ -569,7 +569,7 @@ class HeroPreferencesRequestsTest(TestCase):
         texts = []
 
         for person in Person.objects.filter(state=PERSON_STATE.IN_GAME):
-            texts.append(('"%d"' % person.id, 1))
+            texts.append(('data-preference-id="%d"' % person.id, 1))
 
         self.check_html_ok(response, texts=texts)
 
@@ -580,7 +580,7 @@ class HeroPreferencesRequestsTest(TestCase):
         texts = []
 
         for person in Person.objects.filter(state=PERSON_STATE.IN_GAME):
-            texts.append(('"%d"' % person.id, 1))
+            texts.append(('data-preference-id="%d"' % person.id, 1))
 
         self.check_html_ok(response, texts=texts)
 
