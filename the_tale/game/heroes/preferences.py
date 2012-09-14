@@ -250,6 +250,11 @@ class ChoosePreferencesTaskPrototype(object):
                     self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
                     return
 
+                if hero.preferences.enemy_id == friend_id:
+                    self.model.comment = u'try set enemy as a friend (%d)' % (friend_id)
+                    self.model.state = CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON
+                    return
+
                 if not Person.objects.filter(id=friend_id).exists():
                     self.model.comment = u'unknown person id: %s' % (place_id, )
                     self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
@@ -266,6 +271,11 @@ class ChoosePreferencesTaskPrototype(object):
                 if hero.level < c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED:
                     self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED)
                     self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
+
+                if hero.preferences.friend_id == enemy_id:
+                    self.model.comment = u'try set friend as an enemy (%d)' % (enemy_id)
+                    self.model.state = CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON
                     return
 
                 if not Person.objects.filter(id=enemy_id).exists():

@@ -150,13 +150,15 @@ class CHOOSE_PREFERENCES_STATE:
     RESET = 3
     ERROR = 4
     COOLDOWN = 5
+    UNAVAILABLE_PERSON = 6
 
 CHOOSE_PREFERENCES_STATE_CHOICES = [(CHOOSE_PREFERENCES_STATE.WAITING, u'в очереди'),
                                     (CHOOSE_PREFERENCES_STATE.PROCESSED, u'обработана'),
                                     (CHOOSE_PREFERENCES_STATE.TIMEOUT, u'таймаут'),
                                     (CHOOSE_PREFERENCES_STATE.RESET, u'сброшена'),
                                     (CHOOSE_PREFERENCES_STATE.ERROR, u'ошибка'),
-                                    (CHOOSE_PREFERENCES_STATE.COOLDOWN, u'заблокирована по времени') ]
+                                    (CHOOSE_PREFERENCES_STATE.COOLDOWN, u'заблокирована по времени'),
+                                    (CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON, u'недоступный персонаж')]
 
 class PREFERENCE_TYPE:
     MOB = 0

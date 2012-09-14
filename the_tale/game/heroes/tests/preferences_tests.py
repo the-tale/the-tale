@@ -284,6 +284,7 @@ class HeroPreferencesFriendTest(TestCase):
 
         self.friend_id = Person.objects.all()[0].id
         self.friend_2_id = Person.objects.all()[1].id
+        self.enemy_id = Person.objects.all()[2].id
 
     def tearDown(self):
         pass
@@ -312,6 +313,14 @@ class HeroPreferencesFriendTest(TestCase):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 666)
         task.process(self.bundle)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+
+    def test_set_enemy_as_friend(self):
+        self.hero.preferences.enemy_id = self.enemy_id
+        self.hero.save()
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.enemy_id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON)
 
     def test_set_friend(self):
         changed_at = self.hero.preferences.friend_changed_at
@@ -362,6 +371,7 @@ class HeroPreferencesEnemyTest(TestCase):
 
         self.enemy_id = Person.objects.all()[0].id
         self.enemy_2_id = Person.objects.all()[1].id
+        self.friend_id = Person.objects.all()[2].id
 
     def tearDown(self):
         pass
@@ -399,6 +409,14 @@ class HeroPreferencesEnemyTest(TestCase):
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
         self.assertTrue(changed_at < self.hero.preferences.enemy_changed_at)
+
+    def test_set_friend_as_enemy(self):
+        self.hero.preferences.friend_id = self.friend_id
+        self.hero.save()
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.friend_id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON)
 
     def check_change_enemy(self, new_enemy_id, expected_enemy_id, expected_state):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
@@ -663,3 +681,15 @@ class HeroPreferencesRequestsTest(TestCase):
 
         response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
         self.check_ajax_error(response, 'heroes.choose_preferences_status.cooldown')
+
+
+    def test_choose_preferences_status_unavailable_person(self):
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
+
+        task = ChoosePreferencesTask.objects.all()[0]
+        task.state = CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON
+        task.save()
+
+        response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
+        self.check_ajax_error(response, 'heroes.choose_preferences_status.unavailable_person')

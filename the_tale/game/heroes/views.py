@@ -182,4 +182,7 @@ class HeroResource(Resource):
         if task.state == CHOOSE_PREFERENCES_STATE.COOLDOWN:
             return self.json_error('heroes.choose_preferences_status.cooldown', u'Вы пока не можете менять данное предпочтение')
 
+        if task.state == CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON:
+            return self.json_error('heroes.choose_preferences_status.unavailable_person', u'Вы не можете выбрать этого персонажа')
+
         return self.json_error('heroes.choose_preferences_status.error', u'Ошибка при выборе предпочтений героя, повторите попытку позже')
