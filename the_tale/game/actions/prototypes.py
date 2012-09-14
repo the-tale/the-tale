@@ -26,7 +26,7 @@ from game.quests.logic import create_random_quest_for_hero
 
 from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 from game.prototypes import TimePrototype
-
+from game.workers.environment import workers_environment
 
 def get_actions_types():
     actions = {}
@@ -848,6 +848,32 @@ class ActionInPlacePrototype(ActionPrototype):
             coins = self.try_to_spend_money(f.useless_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_USELESS)
             if coins is not None:
                 self.hero.add_message('action_inplace_spend_useless', important=True, hero=self.hero, coins=coins)
+
+        elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.IMPACT:
+            coins = self.try_to_spend_money(f.impact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_IMPACT)
+            if coins is not None:
+
+                choices = []
+
+                if self.hero.preferences.friend_id is not None and self.hero.preferences.get_friend().place.id == self.hero.position.place.id:
+                    choices.append((True, self.hero.preferences.get_friend()))
+
+                if self.hero.preferences.enemy_id is not None and self.hero.preferences.get_enemy().place.id == self.hero.position.place.id:
+                    choices.append((False, self.hero.preferences.get_enemy()))
+
+                if not choices:
+                    choices.append((random.choice([True, False]), random.choice(self.hero.position.place.persons)))
+
+                impact_type, person = random.choice(choices)
+
+                impact = f.impact_value(self.hero.level, 1)
+
+                if impact_type:
+                    workers_environment.highlevel.cmd_change_person_power(person.id, impact)
+                    self.hero.add_message('action_inplace_impact_good', important=True, hero=self.hero, coins=coins, person=person)
+                else:
+                    workers_environment.highlevel.cmd_change_person_power(person.id, -impact)
+                    self.hero.add_message('action_inplace_impact_bad', important=True, hero=self.hero, coins=coins, person=person)
 
         else:
             raise ActionException('wrong hero money spend type: %d' % self.hero.next_spending)

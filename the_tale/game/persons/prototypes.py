@@ -3,8 +3,9 @@
 from textgen.words import Fake
 
 from game.game_info import GENDER_ID_2_STR
+from game.map.places.storage import places_storage
 
-from .models import Person, PERSON_STATE
+from game.persons.models import Person, PERSON_STATE
 
 class PersonPrototype(object):
 
@@ -20,6 +21,9 @@ class PersonPrototype(object):
 
     @property
     def place_id(self): return self.model.place_id
+
+    @property
+    def place(self): return places_storage[self.model.place_id]
 
     @property
     def name(self): return self.model.name

@@ -70,7 +70,8 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY, { c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 6,
                                                             c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 2,
                                                             c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 2,
-                                                            c.ITEMS_OF_EXPENDITURE.USELESS: 1} )
+                                                            c.ITEMS_OF_EXPENDITURE.USELESS: 1,
+                                                            c.ITEMS_OF_EXPENDITURE.IMPACT: 2 } )
 
         self.assertEqual(c.DESTINY_POINT_IN_LEVELS, 5)
 
