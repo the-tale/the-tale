@@ -3,7 +3,7 @@
   {% if item != choosen_id %}
   <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item }}">{{ EQUIPMENT_SLOTS_DICT[item] }}</a>
   {% else %}
-  <span style="cursor: default">{{ EQUIPMENT_SLOTS_DICT[item] }}</span>
+  <a href="#" class="current-choice pgf-close-dialog">{{ EQUIPMENT_SLOTS_DICT[item] }}</a>
   {% endif %}
 </td>
 {% endmacro %}

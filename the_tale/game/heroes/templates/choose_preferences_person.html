@@ -7,7 +7,7 @@
     {% if item.id not in (resource.hero.preferences.friend_id, resource.hero.preferences.enemy_id) %}
     <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.id }}">{{ item.name }}</a>
     {% else %}
-    <span style="cursor: default">{{ item.name }}</span>
+    <a href="#" class="current-choice pgf-close-dialog">{{ item.name }}</a>
     {% if item.id == resource.hero.preferences.friend_id %}<span class="label label-success">соратник</span>{% endif %}
     {% if item.id == resource.hero.preferences.enemy_id %}<span class="label label-important">противник</span>{% endif %}
     {% endif %}

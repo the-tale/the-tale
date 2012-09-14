@@ -5,7 +5,7 @@
   {% if item.id != choosen_id %}
   <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.id }}">{{ item.name }}</a>
   {% else %}
-  <span style="cursor: default">{{ item.name }}</span>
+  <a href="#" class="current-choice pgf-close-dialog">{{ item.name }}</a>
   {% endif %}
 </td>
 {% endmacro %}

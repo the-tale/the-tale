@@ -65,6 +65,11 @@ pgf.ui.dialog.Create = function(params) {
         var dialog = undefined;
 
         var OnShow = function() {
+            jQuery('.pgf-close-dialog', dialog).click(function(e){
+                e.preventDefault()
+                dialog.modal('hide');
+            });
+
             if (params.OnOpen) {
                 params.OnOpen(dialog);
             }
