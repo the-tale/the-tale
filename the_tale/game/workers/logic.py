@@ -183,3 +183,12 @@ class Worker(BaseWorker):
 
     def process_mark_hero_as_active(self, hero_id):
         self.bundles[self.heroes2bundles[hero_id]].heroes[hero_id].mark_as_active()
+
+    def cmd_highlevel_data_updated(self):
+        self.send_cmd('highlevel_data_updated')
+
+    def process_highlevel_data_updated(self):
+        settings.refresh()
+
+        for bundle in self.bundles.items():
+            bundle.on_highlevel_data_updated()

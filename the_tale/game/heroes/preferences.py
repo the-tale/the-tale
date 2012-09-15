@@ -8,7 +8,6 @@ from game.mobs.storage import MobsDatabase
 
 from game.map.places.storage import places_storage
 
-from game.persons.models import Person
 from game.persons.storage import persons_storage
 
 from game.heroes.models import ChoosePreferencesTask, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE, ANGEL_ENERGY_REGENERATION_TYPES_DICT
@@ -251,13 +250,18 @@ class ChoosePreferencesTaskPrototype(object):
                     return
 
                 if hero.preferences.enemy_id == friend_id:
-                    self.model.comment = u'try set enemy as a friend (%d)' % (friend_id)
+                    self.model.comment = u'try set enemy as a friend (%d)' % (friend_id, )
                     self.model.state = CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON
                     return
 
-                if not Person.objects.filter(id=friend_id).exists():
-                    self.model.comment = u'unknown person id: %s' % (place_id, )
+                if friend_id not in persons_storage:
+                    self.model.comment = u'unknown person id: %s' % (friend_id, )
                     self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
+                    return
+
+                if persons_storage[friend_id].out_game:
+                    self.model.comment = u'person was moved out game: %s' % (friend_id, )
+                    self.model.state = CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON
                     return
 
             hero.preferences.friend_id = friend_id
@@ -274,14 +278,20 @@ class ChoosePreferencesTaskPrototype(object):
                     return
 
                 if hero.preferences.friend_id == enemy_id:
-                    self.model.comment = u'try set friend as an enemy (%d)' % (enemy_id)
+                    self.model.comment = u'try set friend as an enemy (%d)' % (enemy_id, )
                     self.model.state = CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON
                     return
 
-                if not Person.objects.filter(id=enemy_id).exists():
-                    self.model.comment = u'unknown person id: %s' % (place_id, )
+                if enemy_id not in persons_storage:
+                    self.model.comment = u'unknown person id: %s' % (enemy_id, )
                     self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
                     return
+
+                if persons_storage[enemy_id].out_game:
+                    self.model.comment = u'person was moved out game: %s' % (enemy_id, )
+                    self.model.state = CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON
+                    return
+
 
             hero.preferences.enemy_id = enemy_id
             hero.preferences.enemy_changed_at = datetime.datetime.now()

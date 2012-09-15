@@ -351,6 +351,15 @@ class HeroPrototype(object):
     def set_last_energy_regeneration_at_turn(self, value): self.model.last_energy_regeneration_at_turn = value
     last_energy_regeneration_at_turn = property(get_last_energy_regeneration_at_turn, set_last_energy_regeneration_at_turn)
 
+    def on_highlevel_data_updated(self):
+        if self.preferences.friend_id is not None and self.preferences.friend.out_game:
+            self.preferences.friend_id = None
+            self.preferences.friend_changed_at = datetime.datetime(2000, 1, 1)
+
+        if self.preferences.enemy_id is not None and self.preferences.enemy.out_game:
+            self.preferences.enemy_id = None
+            self.preferences.enemy_changed_at = datetime.datetime(2000, 1, 1)
+
     ###########################################
     # Secondary attributes
     ###########################################

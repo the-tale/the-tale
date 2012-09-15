@@ -52,6 +52,12 @@ class PersonPrototype(object):
     def move_in_game(self):  self.model.state = PERSON_STATE.IN_GAME
 
     @property
+    def out_game(self): return self.model.state == PERSON_STATE.OUT_GAME
+
+    @property
+    def in_game(self):  return self.model.state == PERSON_STATE.IN_GAME
+
+    @property
     def type_verbose(self):
         from .models import PERSON_TYPE_DICT
         return PERSON_TYPE_DICT[self.type]

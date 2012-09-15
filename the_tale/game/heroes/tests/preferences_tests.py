@@ -18,11 +18,48 @@ from game.mobs.storage import MobsDatabase
 from game.map.places.models import Place
 
 from game.persons.models import Person, PERSON_STATE
+from game.persons.storage import persons_storage
 
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.heroes.models import ChoosePreferencesTask, CHOOSE_PREFERENCES_STATE, PREFERENCE_TYPE
 from game.heroes.exceptions import HeroException
 from game.heroes.bag import SLOTS
+
+class HeroPreferencesCommonTests(TestCase):
+
+    def setUp(self):
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        self.bundle = create_test_bundle('HeroTest')
+        self.hero = self.bundle.tests_get_hero()
+
+
+    def test_reset_friend_on_highlevel_update(self):
+        friend = self.place_1.persons[0]
+
+        self.hero.preferences.friend_id = friend.id
+        self.hero.save()
+
+        friend.move_out_game()
+        friend.save()
+
+        self.bundle.on_highlevel_data_updated()
+
+        self.assertEqual(self.hero.preferences.friend_id, None)
+
+    def test_reset_enemy_on_highlevel_update(self):
+        enemy = self.place_1.persons[0]
+
+        self.hero.preferences.enemy_id = enemy.id
+        self.hero.save()
+
+        enemy.move_out_game()
+        enemy.save()
+
+        self.bundle.on_highlevel_data_updated()
+
+        self.assertEqual(self.hero.preferences.enemy_id, None)
+
 
 
 class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
@@ -322,6 +359,17 @@ class HeroPreferencesFriendTest(TestCase):
         task.process(self.bundle)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON)
 
+    def test_set_outgame_friend(self):
+        friend = persons_storage[self.friend_id]
+        friend.move_out_game()
+        friend.save()
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON)
+        self.assertEqual(self.hero.preferences.friend_id, None)
+
+
     def test_set_friend(self):
         changed_at = self.hero.preferences.friend_changed_at
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
@@ -400,6 +448,16 @@ class HeroPreferencesEnemyTest(TestCase):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 666)
         task.process(self.bundle)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+
+    def test_set_outgame_enemy(self):
+        enemy = persons_storage[self.enemy_id]
+        enemy.move_out_game()
+        enemy.save()
+
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
+        task.process(self.bundle)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON)
+        self.assertEqual(self.hero.preferences.enemy_id, None)
 
     def test_set_enemy(self):
         changed_at = self.hero.preferences.enemy_changed_at
@@ -693,3 +751,15 @@ class HeroPreferencesRequestsTest(TestCase):
 
         response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
         self.check_ajax_error(response, 'heroes.choose_preferences_status.unavailable_person')
+
+
+    def test_choose_preferences_status_outgame_person(self):
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
+
+        task = ChoosePreferencesTask.objects.all()[0]
+        task.state = CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON
+        task.save()
+
+        response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
+        self.check_ajax_error(response, 'heroes.choose_preferences_status.outgame_person')

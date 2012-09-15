@@ -73,6 +73,11 @@ class Worker(BaseWorker):
         if map_update_needed:
             subprocess.call(['./manage.py', 'map_update_map'])
 
+        # send command to main supervisor queue
+        from game.workers.environment import workers_environment as game_workers_environment
+        game_workers_environment.supervisor.cmd_highlevel_data_updated()
+
+        # send command to supervisor answer queue
         self.supervisor_worker.cmd_answer('next_turn', self.worker_id)
 
     def cmd_stop(self):

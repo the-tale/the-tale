@@ -128,6 +128,10 @@ class BundlePrototype(object):
 
         return next_turn
 
+    def on_highlevel_data_updated(self):
+        for hero in self.heroes.values():
+            hero.on_highlevel_data_updated()
+
     ##########################
     # methods for test purposes
     def tests_get_last_action(self):

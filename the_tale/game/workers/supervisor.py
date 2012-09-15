@@ -153,3 +153,9 @@ class Worker(BaseWorker):
 
     def process_mark_hero_as_active(self, hero_id):
         self.logic_worker.cmd_mark_hero_as_active(hero_id)
+
+    def cmd_highlevel_data_updated(self):
+        self.send_cmd('highlevel_data_updated')
+
+    def process_highlevel_data_updated(self):
+        self.logic_worker.cmd_highlevel_data_updated()
