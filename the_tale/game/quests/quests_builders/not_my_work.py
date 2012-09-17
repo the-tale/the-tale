@@ -34,7 +34,8 @@ class NotMyWork(Quest):
         self.env_local.register('person_end', person_end or env.new_person(from_place=self.env_local.place_end))
 
         self.env_local.register('choose_point_1', env.new_choice_point())
-        self.env_local.register('others_work_quest', env.new_quest(place_start=self.env_local.place_end,
+        self.env_local.register('others_work_quest', env.new_quest(from_list=['delivery', 'caravan', 'spying'],
+                                                                   place_start=self.env_local.place_end,
                                                                    person_start=self.env_local.person_end) )
 
     def create_line(self, env):
