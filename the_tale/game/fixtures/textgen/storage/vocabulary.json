@@ -578,6 +578,35 @@
       "template": "выбивает узоры на придорожном камне"
     }
   ], 
+  "action_regenerate_energy_no_energy_received_incense": [
+    {
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд."
+    }
+  ], 
   "quest_caravan_diary_choice_attack": [
     {
       "internals": [], 
@@ -874,35 +903,6 @@
       "template": "Пойду поброжу по родным улочкам."
     }
   ], 
-  "action_regenerate_energy_energy_no_energy_received_symbols": [
-    {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s обряд."
-    }
-  ], 
   "action_regenerate_energy_energy_received_symbols": [
     {
       "internals": [
@@ -1002,6 +1002,35 @@
       "template": "%(e_0)s %(i_0)s в родной город."
     }
   ], 
+  "action_regenerate_energy_no_energy_received_sacrifice": [
+    {
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд."
+    }
+  ], 
   "action_regenerate_energy_description_pray": [
     {
       "internals": [], 
@@ -1009,11 +1038,19 @@
       "template": "усердно молится поглядывая на небо"
     }
   ], 
-  "quest_notmywork_journal_move_to_customer": [
+  "quest_hometown_action_remember_names": [
     {
       "internals": [], 
-      "externals": [], 
-      "template": "А теперь можно и за наградой."
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s гуляет по городу"
     }
   ], 
   "quest_hunt_action_hunt": [
@@ -1846,35 +1883,6 @@
       "template": "И в мороз и в жару герой должен двигать ногами"
     }
   ], 
-  "action_regenerate_energy_energy_no_energy_received_meditation": [
-    {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s обряд."
-    }
-  ], 
   "action_inplace_instant_heal": [
     {
       "internals": [
@@ -1942,19 +1950,11 @@
       "template": "Теперь %(e_0)s будет %(i_0)s"
     }
   ], 
-  "quest_hometown_action_remember_names": [
+  "quest_notmywork_journal_move_to_customer": [
     {
       "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s гуляет по городу"
+      "externals": [], 
+      "template": "А теперь можно и за наградой."
     }
   ], 
   "quest_spying_choice_openup_result_spy": [
@@ -2540,35 +2540,6 @@
       "template": "«Ура! Ещё на один уровень больше! Я %(i_0)s сильнее! Умнее! Красивее! И… и… Героистее!!! Да!»"
     }
   ], 
-  "action_regenerate_energy_energy_no_energy_received_sacrifice": [
-    {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s обряд."
-    }
-  ], 
   "quest_spying_journal_get_reward": [
     {
       "internals": [
@@ -2611,6 +2582,35 @@
         ]
       ], 
       "template": "%(e_0)s пытается скрыться с награбленным"
+    }
+  ], 
+  "action_regenerate_energy_no_energy_received_symbols": [
+    {
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд."
     }
   ], 
   "action_rest_start": [
@@ -2988,11 +2988,33 @@
       "template": "проходит курс усиленного восстановления"
     }
   ], 
-  "action_quest_description": [
+  "action_regenerate_energy_no_energy_received_pray": [
     {
-      "internals": [], 
-      "externals": [], 
-      "template": "прилагает максимальные усилия, чтобы выполнить задание"
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд."
     }
   ], 
   "quest_hometown_journal_get_reward": [
@@ -3031,33 +3053,11 @@
       "template": "украсть-украсть-украсть"
     }
   ], 
-  "action_regenerate_energy_energy_no_energy_received_incense": [
+  "action_quest_description": [
     {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s обряд."
+      "internals": [], 
+      "externals": [], 
+      "template": "прилагает максимальные усилия, чтобы выполнить задание"
     }
   ], 
   "action_regenerate_energy_start_pray": [
@@ -3289,35 +3289,6 @@
         ]
       ], 
       "template": "%(i_0)s довести разведку до конца — не пристало герою отказываться от заданий, да и %(e_0)s действительно ведёт себя подозрительно."
-    }
-  ], 
-  "action_regenerate_energy_energy_no_energy_received_pray": [
-    {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s обряд."
     }
   ], 
   "quest_notmywork_diary_choice_attack": [
@@ -3640,6 +3611,35 @@
       "internals": [], 
       "externals": [], 
       "template": "А не взять ли мне свою долю пораньше?"
+    }
+  ], 
+  "action_regenerate_energy_no_energy_received_meditation": [
+    {
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд."
     }
   ], 
   "angel_ability_stimulate": [

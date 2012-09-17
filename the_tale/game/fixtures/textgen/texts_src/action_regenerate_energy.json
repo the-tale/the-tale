@@ -64,19 +64,19 @@
                          "Привидение закончило обряд. Ваша энергия восстанавливается."]]
         },
 
-        "energy_no_energy_received_pray": [["[[hero|загл]] [{закончил|hero|прш}] обряд.",
+        "no_energy_received_pray": [["[[hero|загл]] [{закончил|hero|прш}] обряд.",
                                             "Привидение закончило обряд."]],
 
-        "energy_no_energy_received_sacrifice": [["[[hero|загл]] [{закончил|hero|прш}] обряд.",
+        "no_energy_received_sacrifice": [["[[hero|загл]] [{закончил|hero|прш}] обряд.",
                                                  "Привидение закончило обряд."]],
 
-        "energy_no_energy_received_incense": [["[[hero|загл]] [{закончил|hero|прш}] обряд.",
+        "no_energy_received_incense": [["[[hero|загл]] [{закончил|hero|прш}] обряд.",
                                                "Привидение закончило обряд."]],
 
-        "energy_no_energy_received_symbols": [["[[hero|загл]] [{закончил|hero|прш}] обряд.",
+        "no_energy_received_symbols": [["[[hero|загл]] [{закончил|hero|прш}] обряд.",
                                                "Привидение закончило обряд."]],
 
-        "energy_no_energy_received_meditation": [["[[hero|загл]] [{закончил|hero|прш}] обряд.",
+        "no_energy_received_meditation": [["[[hero|загл]] [{закончил|hero|прш}] обряд.",
                                                   "Привидение закончило обряд."]]
     }
 }
