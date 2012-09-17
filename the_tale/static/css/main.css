@@ -62,8 +62,14 @@ body footer {
 body .dl-record {
   margin-bottom: 0.5em;
 }
+body .dl-record small {
+  font-weight: normal;
+}
 #time-block {
   cursor: default;
+}
+small {
+  color: #999999 !important;
 }
 .anchor {
   position: relative;
