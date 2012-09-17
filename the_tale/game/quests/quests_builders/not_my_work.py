@@ -1,24 +1,8 @@
 # coding: utf-8
 import random
 
-from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE
+from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE, DEFAULT_RESULTS
 from game.quests.quests_generator import commands as cmd
-
-class EVENTS:
-    INTRO = 'intro'
-    QUEST_DESCRIPTION = 'quest_description'
-    MOVE_TO_QUEST = 'move_to_quest'
-    MOVE_TO_CUSTOMER = 'move_to_customer'
-    START_QUEST = 'start_quest'
-    GIVE_POWER_TO_CUSTOMER = 'give_power_to_customer'
-    GET_POWER_FROM_PERFORMER = 'get_power_from_performer'
-    ATTACK_PERFORMER = 'brutforce_performer'
-    WORK_CHOICE = 'diplomacy_choice'
-    GET_REWARD = 'get_reward'
-
-    CHOICE_DO_WORK = 'choice_do_work'
-    CHOICE_ATTACK = 'choice_attack'
-
 
 class NotMyWork(Quest):
 
@@ -40,27 +24,32 @@ class NotMyWork(Quest):
     def create_line(self, env):
         env.quests[self.env_local.others_work_quest].create_line(env)
 
-        work_line = Line(sequence=[ cmd.Message(event=EVENTS.CHOICE_DO_WORK),
-                                    cmd.Quest(quest=self.env_local.others_work_quest, event=EVENTS.START_QUEST),
-                                    cmd.Move(place=self.env_local.place_start, event=EVENTS.MOVE_TO_CUSTOMER),
-                                    cmd.GivePower(person=self.env_local.person_start, power=1, event=EVENTS.GIVE_POWER_TO_CUSTOMER),
-                                    cmd.GetReward(person=self.env_local.person_start, event=EVENTS.GET_REWARD),
+        work_positive_line = Line(sequence=[cmd.Message(event='work_quest_successed')])
+
+        # ok, at that line we believe, that person satisfied on any result of child quest
+        work_negative_line = Line(sequence=[cmd.Message(event='work_quest_failed')])
+
+        work_line = Line(sequence=[ cmd.Message(event='choice_do_work'),
+                                    cmd.Quest(quest=self.env_local.others_work_quest, event='start_quest'),
+                                    cmd.Move(place=self.env_local.place_start, event='move_to_customer'),
+                                    cmd.Switch(choices=[((self.env_local.others_work_quest, DEFAULT_RESULTS.POSITIVE), env.new_line(work_positive_line)),
+                                                        ((self.env_local.others_work_quest, DEFAULT_RESULTS.NEGATIVE), env.new_line(work_negative_line))])
                                     ] )
 
-        attack_line =  Line(sequence=[ cmd.Message(event=EVENTS.CHOICE_ATTACK),
-                                       cmd.Battle(number=random.randint(1, 5), event=EVENTS.ATTACK_PERFORMER),
-                                       cmd.GivePower(person=self.env_local.person_end, power=-1, event=EVENTS.GET_POWER_FROM_PERFORMER),
-                                       cmd.Move(place=self.env_local.place_start, event=EVENTS.MOVE_TO_CUSTOMER),
-                                       cmd.GivePower(person=self.env_local.person_start, power=1, event=EVENTS.GIVE_POWER_TO_CUSTOMER),
-                                       cmd.GetReward(person=self.env_local.person_start, event=EVENTS.GET_REWARD),
-                                       ] )
+        attack_line =  Line(sequence=[ cmd.Message(event='choice_attack'),
+                                       cmd.Battle(number=random.randint(1, 5), event='attack_performer'),
+                                       cmd.GivePower(person=self.env_local.person_end, power=-1, event='get_power_from_performer') ])
 
-        main_line = Line(sequence=[cmd.Message(event=EVENTS.INTRO),
-                                   cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
-                                   cmd.Choose(id=self.env_local.choose_point_1,
-                                              choices={'diplomacy': env.new_line(work_line),
-                                                       'bruteforce': env.new_line(attack_line)},
-                                              event=EVENTS.WORK_CHOICE,
-                                              choice='work') ])
+        main_line = Line(sequence=[ cmd.Message(event='intro'),
+                                    cmd.Move(place=self.env_local.place_end, event='move_to_quest'),
+                                    cmd.Choose(id=self.env_local.choose_point_1,
+                                               choices={'diplomacy': env.new_line(work_line),
+                                                        'bruteforce': env.new_line(attack_line)},
+                                               event='work_choice',
+                                               choice='work'),
+                                    cmd.Move(place=self.env_local.place_start, event='move_to_customer'),
+                                    cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
+                                    cmd.GivePower(person=self.env_local.person_start, power=1),
+                                    cmd.GetReward(person=self.env_local.person_start, event='get_reward')] )
 
         self.line = env.new_line(main_line)

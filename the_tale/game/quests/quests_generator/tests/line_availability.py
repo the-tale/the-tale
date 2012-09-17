@@ -155,3 +155,139 @@ class LineAvailabilityTest(TestCase):
         self.create_quest(-1, 1, -1, enemy='person_2')
         self.check_quest([False, None],
                          [None, None, False, None])
+
+
+###########################
+# Switch checks tests
+###########################
+
+def get_quests_source_for_switch(cond1, cond2, cond3, disable_line_x=False):
+
+    class ResultQuest(Quest):
+
+        RESULT = None
+
+        def create_line(self, env):
+            main_line = Line(sequence=[cmd.QuestResult(event='event_', result=self.RESULT)])
+            self.line = env.new_line(main_line)
+
+    class ResultQuest1(ResultQuest):
+        RESULT = 'quest1_result1'
+
+    class ResultQuest2(ResultQuest):
+        RESULT = 'quest2_result1'
+
+    class ResultQuest3(ResultQuest):
+        RESULT = 'quest3_result1'
+
+
+    class SwitchQuest(Quest):
+
+        def initialize(self, identifier, env):
+            super(SwitchQuest, self).initialize(identifier, env)
+
+            self.env_local.register('quest1', env.new_quest(from_list=['resultquest1']))
+            self.env_local.register('quest2', env.new_quest(from_list=['resultquest2']))
+            self.env_local.register('quest3', env.new_quest(from_list=['resultquest3']))
+
+
+        def create_line(self, env):
+            line_x = Line(sequence=[cmd.QuestResult(event='event_', result='X') ])
+            line_y = Line(sequence=[cmd.QuestResult(event='event_', result='Y') ])
+            line_z = Line(sequence=[cmd.QuestResult(event='event_', result='Z') ])
+
+            if disable_line_x:
+                line_x.available = False
+
+            main_line = Line(sequence=[ cmd.Quest(event='event_', quest=self.env_local.quest1),
+                                        cmd.Quest(event='event_', quest=self.env_local.quest3),
+                                        cmd.Switch(choices=[(cond1, env.new_line(line_x)),
+                                                            (cond2, env.new_line(line_y)),
+                                                            (cond3, env.new_line(line_z))],
+                                                   event='event_'),
+                                        cmd.Quest(event='event_', quest=self.env_local.quest2) ])
+            self.line = env.new_line(main_line)
+            env.quests[self.env_local.quest1].create_line(env)
+            env.quests[self.env_local.quest2].create_line(env)
+            env.quests[self.env_local.quest3].create_line(env)
+
+
+    class QuestsSource(BaseQuestsSource):
+
+        quests_list = [ResultQuest1, ResultQuest2, ResultQuest3, SwitchQuest]
+
+        def deserialize_quest(self, data):
+            for quest in self.quests_list:
+                if data['type'] == quest.type():
+                    result = quest()
+                    result.deserialize(data)
+                    return result
+            return None
+
+    return QuestsSource()
+
+
+class LineAvailabilitySwitchTest(TestCase):
+
+    def setUp(self):
+        pass
+
+    def create_quest(self, cond1, cond2, cond3, disable_line_x=False):
+        self.knowlege_base = KnowlegeBase()
+
+        self.knowlege_base.initialize()
+
+        self.env = BaseEnvironment(quests_source=get_quests_source_for_switch(cond1, cond2, cond3, disable_line_x=disable_line_x),
+                                   writers_constructor=writers_constructor,
+                                   knowlege_base=self.knowlege_base)
+        self.env.new_quest(from_list=['switchquest'])
+
+        self.env.create_lines()
+
+    def check_quest(self, quests=[], lines=[]):
+
+        self.assertEqual(self.env.quests['quest_1'].available, quests[0]) # main quest
+        self.assertEqual(self.env.quests['quest_2'].available, quests[1]) # quest1
+        self.assertEqual(self.env.quests['quest_3'].available, quests[2]) # quest2
+        self.assertEqual(self.env.quests['quest_4'].available, quests[3]) # quest3
+
+        self.assertEqual(self.env.lines['line_1'].available, lines[0]) # line x
+        self.assertEqual(self.env.lines['line_2'].available, lines[1]) # line y
+        self.assertEqual(self.env.lines['line_3'].available, lines[2]) # line z
+
+        self.assertEqual(self.env.lines['line_4'].available, lines[3]) # main line
+        self.assertEqual(self.env.lines['line_5'].available, lines[4]) # quest1 line
+        self.assertEqual(self.env.lines['line_6'].available, lines[5]) # quest2 line
+
+
+    def test_second_quest_blocked(self):
+        self.create_quest(('quest_2', 'quest1_result1'),
+                          ('quest_2', 'quest1_resultx'),
+                          ('quest_3', 'quest2_result1')) # this choice blocke second quest
+        self.check_quest(quests=[False, True, False, True],
+                         lines=[True, False, False, False, True, False])
+
+
+    def test_available(self):
+        self.create_quest(('quest_2', 'quest1_result1'),
+                          ('quest_2', 'quest1_resultx'),
+                          ('quest_3', 'quest2_result2'))
+        self.check_quest(quests=[True, True, True, True],
+                         lines=[True, False, False, True, True, True])
+
+
+    def test_switch_anavailable(self):
+        self.create_quest(('quest_2', 'quest1_resulty'),
+                          ('quest_2', 'quest1_resultx'),
+                          ('quest_3', 'quest2_result2'))
+        self.check_quest(quests=[False, True, None, True],
+                         lines=[False, False, False, False, True, None])
+
+    def test_disable_quest_when_line_is_unavailable(self):
+        self.create_quest(('quest_2', 'quest1_result1'),
+                          ('quest_4', 'quest3_result1'),
+                          ('quest_3', 'quest2_result2'),
+                          disable_line_x=True)
+
+        self.check_quest(quests=[False, False, None, None],
+                         lines=[None, None, None, False, False, None])

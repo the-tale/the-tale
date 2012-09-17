@@ -1,13 +1,7 @@
 # coding: utf-8
-from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE
+from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE, DEFAULT_RESULTS
 from game.quests.quests_generator import commands as cmd
 
-class EVENTS:
-    INTRO = 'intro'
-    QUEST_DESCRIPTION = 'quest_description'
-    MOVE_TO_QUEST = 'move_to_quest'
-    START_QUEST = 'start_quest'
-    GIVE_POWER = 'give_power'
 
 class Help(Quest):
 
@@ -27,11 +21,18 @@ class Help(Quest):
                                                             person_start=self.env_local.person_end) )
 
     def create_line(self, env):
-        main_line =  Line(sequence= [ cmd.Message(event=EVENTS.INTRO),
-                                      cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST),
-                                      cmd.Quest(quest=self.env_local.quest_help, event=EVENTS.START_QUEST),
-                                      cmd.GivePower(person=self.env_local.person_start,
-                                                    depends_on=self.env_local.person_end, multiply=0.25,
-                                                    event=EVENTS.GIVE_POWER)])
+
+        positive_line = Line(sequence = [cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
+                                         cmd.GivePower(person=self.env_local.person_start, power=1)])
+
+        negative_line = Line(sequence = [cmd.QuestResult(result=DEFAULT_RESULTS.NEGATIVE),
+                                         cmd.GivePower(person=self.env_local.person_start, power=-1)])
+
+        main_line =  Line(sequence = [ cmd.Message(event='intro'),
+                                       cmd.Move(place=self.env_local.place_end, event='move_to_quest'),
+                                       cmd.Quest(quest=self.env_local.quest_help, event='start_quest'),
+                                       cmd.Switch(choices=[((self.env_local.quest_help, DEFAULT_RESULTS.POSITIVE), env.new_line(positive_line)),
+                                                           ((self.env_local.quest_help, DEFAULT_RESULTS.NEGATIVE), env.new_line(negative_line))]) ])
+
         self.line = env.new_line(main_line)
         env.quests[self.env_local.quest_help].create_line(env)

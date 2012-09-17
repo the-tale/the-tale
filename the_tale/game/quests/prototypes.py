@@ -172,14 +172,14 @@ class QuestPrototype(object):
         return False
 
     def end_quest(self, cur_action):
+        from game.workers.environment import workers_environment
 
         if not cur_action.hero.can_change_persons_power:
             return
 
         for person_id, power in self.env.persons_power_points.items():
             person_data = self.env.persons[person_id]
-            from ..workers.environment import workers_environment
-            workers_environment.highlevel.cmd_change_person_power(person_data['external_data']['id'], power * c.PERSON_BASE_POWER_FOR_QUEST)
+            workers_environment.highlevel.cmd_change_person_power(person_data['external_data']['id'], f.person_power_from_quest(power, cur_action.hero.level))
 
     def process_current_command(self, cur_action):
 
@@ -205,9 +205,11 @@ class QuestPrototype(object):
          'getreward': self.cmd_get_reward,
          'quest': self.cmd_quest,
          'choose': self.cmd_choose,
+         'switch': self.cmd_switch,
          'givepower': self.cmd_give_power,
          'battle': self.cmd_battle,
-         'donothing': self.cmd_donothing
+         'donothing': self.cmd_donothing,
+         'questresult': self.cmd_questresult,
          }[cmd.type()](cmd, cur_action, writer)
 
     # def cmd_description(self, cmd, cur_action):
@@ -270,19 +272,31 @@ class QuestPrototype(object):
         cur_action.hero.add_message('action_quest_reward_money', important=True, hero=cur_action.hero, coins=money)
 
     def cmd_quest(self, cmd, cur_action, writer):
-        # TODO: move to quest generator environment
+        # TODO: move to quest generator environment or make invisible for player
         pass
 
+    def cmd_questresult(self, cmd, cur_action, writer):
+        # TODO: move to quest generator environment or make invisible for player
+        current_quest = self.env.get_quest(self.pointer)
+
+        if current_quest.id not in self.env.quests_results:
+            self.env.quests_results[current_quest.id] = {}
+
+        self.env.quests_results[current_quest.id][cmd.result] = True
+
+
+
     def cmd_choose(self, cmd, cur_action, writer):
-        # TODO: move to quest generator environment
+        # TODO: move to quest generator environment or make invisible for player
+        pass
+
+    def cmd_switch(self, cmd, cur_action, writer):
+        # TODO: move to quest generator environment or make invisible for player
         pass
 
     def cmd_give_power(self, cmd, cur_action, writer):
         # TODO: move to quest generator environment
-        if cmd.depends_on:
-            self.env.persons_power_points[cmd.person] = self.env.persons_power_points[cmd.depends_on] * cmd.multiply
-        else:
-            self.env.persons_power_points[cmd.person] = cmd.power
+        self.env.persons_power_points[cmd.person] = self.env.persons_power_points.get(cmd.person, 0) + cmd.power
 
     def cmd_battle(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionBattlePvE1x1Prototype

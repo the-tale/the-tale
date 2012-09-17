@@ -230,7 +230,8 @@ QUESTS_LOCK_TIME = { 'hunt': int(1.5*12*TURNS_IN_HOUR),
                      'searchsmith': int(0.5*12*TURNS_IN_HOUR) }
 
 # Влияние персонажей
-PERSON_BASE_POWER_FOR_QUEST = int(100) # базовое количество влияния персонажу за задание
+PERSON_POWER_FOR_QUEST = int(100) # базовое количество влияния персонажу за задание
+PERSON_POWER_FOR_RANDOM_SPEND = int(10) # базовое количество влияния персонажу за случайную трату
 
 
 ##########################

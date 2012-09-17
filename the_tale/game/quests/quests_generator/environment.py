@@ -22,6 +22,7 @@ class BaseEnvironment(object):
         self.quests = {}
         self.lines = {}
         self.choices = {}
+        self.quests_results = {}
         self.persons_power_points = {}
 
         self._root_quest = None
@@ -109,8 +110,8 @@ class BaseEnvironment(object):
 
     def create_lines(self):
         self.root_quest.create_line(self)
-        self.root_quest.calculate_power_changes(self, [])
-        self.root_quest.calculate_availability(self)
+        self.root_quest.calculate_changes(self, [])
+        self.root_quest.calculate_availability(self, blocked_quests_results={}, current_quest_results=set())
 
     def get_start_pointer(self):
         return self.root_quest.get_start_pointer(self)
@@ -187,7 +188,8 @@ class BaseEnvironment(object):
                  'lines': dict( (line_id, line.serialize() )
                                  for line_id, line in self.lines.items() ),
                  'root_quest': self._root_quest,
-                 'persons_power_points': self.persons_power_points}
+                 'persons_power_points': self.persons_power_points,
+                 'quests_results': self.quests_results}
 
     def deserialize(self, data):
 
@@ -201,6 +203,7 @@ class BaseEnvironment(object):
         self.persons = data['persons']
         self.items = data['items']
         self.choices = data.get('choices', {})
+        self.quests_results = data.get('quests_results', {})
 
         self.quests = dict( (quest_id, self.quests_source.deserialize_quest(quest_data))
                             for quest_id, quest_data in data['quests'].items())
@@ -231,6 +234,7 @@ class BaseEnvironment(object):
                 self.lines == other.lines and
                 self.choices == other.choices and
                 self.persons_power_points == other.persons_power_points and
+                self.quests_results == other.quests_results and
 
                 self._root_quest == other._root_quest)
 

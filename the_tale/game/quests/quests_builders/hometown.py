@@ -2,21 +2,8 @@
 
 import random
 
-from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE
+from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE, DEFAULT_RESULTS
 from game.quests.quests_generator import commands as cmd
-
-
-class EVENTS:
-    INTRO = 'intro'
-    QUEST_DESCRIPTION = 'quest_description'
-    MOVE_TO_QUEST = 'move_to_quest'
-    DRUNK_SONG = 'drunk_song'
-    STAGGER_STREETS = 'stagger_streets'
-    CHATTING = 'chatting'
-    SEARCH_OLD_FRIENDS = 'search_old_friends'
-    REMEMBER_NAMES = 'remember_names'
-    GET_REWARD = 'get_reward'
-
 
 class Hometown(Quest):
 
@@ -39,22 +26,21 @@ class Hometown(Quest):
 
     def create_line(self, env):
 
-        # this message prefixes used by action, not writer
-        # TODO: add writer support
-        home_actions = [ cmd.DoNothing(event=EVENTS.DRUNK_SONG, duration=6, messages_prefix='drunk_song', messages_probability=0.3),
-                         cmd.DoNothing(event=EVENTS.STAGGER_STREETS, duration=10, messages_prefix='stagger_streets', messages_probability=0.3),
-                         cmd.DoNothing(event=EVENTS.CHATTING, duration=5, messages_prefix='chatting', messages_probability=0.3),
-                         cmd.DoNothing(event=EVENTS.SEARCH_OLD_FRIENDS, duration=7, messages_prefix='search_old_friends', messages_probability=0.3),
-                         cmd.DoNothing(event=EVENTS.REMEMBER_NAMES, duration=3, messages_prefix='remember_names', messages_probability=0.3) ]
+        home_actions = [ cmd.DoNothing(event='drunk_song', duration=6, messages_prefix='drunk_song', messages_probability=0.3),
+                         cmd.DoNothing(event='stagger_streets', duration=10, messages_prefix='stagger_streets', messages_probability=0.3),
+                         cmd.DoNothing(event='chatting', duration=5, messages_prefix='chatting', messages_probability=0.3),
+                         cmd.DoNothing(event='search_old_friends', duration=7, messages_prefix='search_old_friends', messages_probability=0.3),
+                         cmd.DoNothing(event='remember_names', duration=3, messages_prefix='remember_names', messages_probability=0.3) ]
 
-        sequence = [cmd.Message(event=EVENTS.INTRO)]
+        sequence = [cmd.Message(event='intro')]
 
         if self.env_local.place_start != self.env_local.place_end:
-            sequence.append(cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST))
+            sequence.append(cmd.Move(place=self.env_local.place_end, event='move_to_quest'))
 
         sequence += random.sample(home_actions, 3)
 
-        sequence += [cmd.GetReward(person=None, event=EVENTS.GET_REWARD) ]
+        sequence += [ cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
+                      cmd.GetReward(person=None, event='get_reward') ]
 
         main_line = Line(sequence=sequence)
 

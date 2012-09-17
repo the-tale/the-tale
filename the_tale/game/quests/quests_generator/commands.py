@@ -10,6 +10,8 @@ class Command(object):
     is_quest = False
     is_choice = False
     is_givepower = False
+    is_switch = False
+    is_quest_result = False
 
     def __init__(self, event=None):
         self.event = event
@@ -220,41 +222,58 @@ class GetReward(Command):
                 self.person == other.person)
 
 
+class QuestResult(Command):
+
+    is_quest_result = True
+
+    def __init__(self, result=None, **kwargs):
+        super(QuestResult, self).__init__(**kwargs)
+        self.result = result
+
+    def get_description(self, env):
+        return '<quest result> result: %s' % (self.result)
+
+    def serialize(self):
+        data = super(QuestResult, self).serialize()
+        data.update({'result': self.result})
+        return data
+
+    def deserialize(self, data):
+        super(QuestResult, self).deserialize(data)
+        self.result = data['result']
+
+    def __eq__(self, other):
+        return (super(QuestResult, self).__eq__(other) and
+                self.result == other.result)
+
+
 class GivePower(Command):
 
     is_givepower = True
 
-    def __init__(self, person=None, power=None, multiply=None, depends_on=None, **kwargs):
+    def __init__(self, person=None, power=None, **kwargs):
         super(GivePower, self).__init__(**kwargs)
         self.person = person
         self.power = power
-        self.multiply = multiply
-        self.depends_on = depends_on
 
     def get_description(self, env):
-        return '<give power> person: %s (power: %s, multiply: %s, depends_on: %s)' % (self.person, self.power, self.multiply, self.depends_on)
+        return '<give power> person: %s (power: %s, quest: %s)' % (self.person, self.power)
 
     def serialize(self):
         data = super(GivePower, self).serialize()
         data.update({'power': self.power,
-                     'person': self.person,
-                     'depends_on': self.depends_on,
-                     'multiply': self.multiply})
+                     'person': self.person})
         return data
 
     def deserialize(self, data):
         super(GivePower, self).deserialize(data)
         self.person = data['person']
-        self.depends_on = data['depends_on']
         self.power = data['power']
-        self.multiply = data['multiply']
 
     def __eq__(self, other):
         return (super(GivePower, self).__eq__(other) and
                 self.person == other.person and
-                self.power == other.power and
-                self.multiply == other.multiply and
-                self.depends_on == other.depends_on)
+                self.power == other.power)
 
 
 class Choose(Command):
@@ -304,6 +323,41 @@ class Choose(Command):
                 self.default == other.default and
                 self.id == other.id and
                 self.choice == other.choice)
+
+
+class Switch(Command):
+
+    is_switch = True
+
+    def __init__(self, choices=None, **kwargs):
+        super(Switch, self).__init__(**kwargs)
+        self.choices = choices
+
+        # if self.choices:
+
+        #     if self.choices[-1][0] is not None:
+        #         raise QuestGeneratorException('last choice in switch MUST be default')
+
+        #     for condition, line_id in self.choices[:-1]:
+        #         if condition is None:
+        #             raise QuestGeneratorException('default choice MUST be LAST in the sequence')
+
+    def get_description(self, env):
+        return { 'cmd': 'switch',
+                 'choices': self.choices}
+
+    def serialize(self):
+        data = super(Switch, self).serialize()
+        data.update({'choices': self.choices})
+        return data
+
+    def deserialize(self, data):
+        super(Switch, self).deserialize(data)
+        self.choices = data['choices']
+
+    def __eq__(self, other):
+        return (super(Switch, self).__eq__(other) and
+                self.choices == other.choices )
 
 
 class Quest(Command):

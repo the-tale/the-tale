@@ -130,7 +130,8 @@ class ConstantsTest(TestCase):
                                                'interfereenemy': int(12*360),
                                                'searchsmith': int(0.5*12*360) })
 
-        self.assertEqual(c.PERSON_BASE_POWER_FOR_QUEST, 100)
+        self.assertEqual(c.PERSON_POWER_FOR_QUEST, 100)
+        self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 10)
 
         self.assertEqual(c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED, 1)
         self.assertEqual(c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED, 3)

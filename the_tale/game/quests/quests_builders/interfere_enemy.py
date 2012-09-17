@@ -1,14 +1,7 @@
 # coding: utf-8
 
-from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE
+from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE, DEFAULT_RESULTS
 from game.quests.quests_generator import commands as cmd
-
-class EVENTS:
-    INTRO = 'intro'
-    QUEST_DESCRIPTION = 'quest_description'
-    MOVE_TO_QUEST = 'move_to_quest'
-    START_QUEST = 'start_quest'
-    GIVE_POWER = 'give_power'
 
 class InterfereEnemy(Quest):
 
@@ -36,15 +29,20 @@ class InterfereEnemy(Quest):
 
     def create_line(self, env):
 
-        sequence = [ cmd.Message(event=EVENTS.INTRO) ]
+        sequence = [ cmd.Message(event='intro') ]
 
         if self.env_local.place_start != self.env_local.place_end:
-            sequence += [ cmd.Move(place=self.env_local.place_end, event=EVENTS.MOVE_TO_QUEST) ]
+            sequence += [ cmd.Move(place=self.env_local.place_end, event='move_to_quest') ]
 
-        sequence += [ cmd.Quest(quest=self.env_local.quest_interfer, event=EVENTS.START_QUEST),
-                      cmd.GivePower(person=self.env_local.person_end,
-                                    depends_on=self.env_local.person_end, multiply=0.25,
-                                    event=EVENTS.GIVE_POWER)]
+        positive_line = Line(sequence = [cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
+                                         cmd.GivePower(person=self.env_local.person_end, power=-1)])
+
+        negative_line = Line(sequence = [cmd.QuestResult(result=DEFAULT_RESULTS.NEGATIVE),
+                                         cmd.GivePower(person=self.env_local.person_end, power=+1)])
+
+        sequence += [ cmd.Quest(quest=self.env_local.quest_interfer, event='start_quest'),
+                      cmd.Switch(choices=[((self.env_local.quest_interfer, DEFAULT_RESULTS.POSITIVE), env.new_line(negative_line)),
+                                          ((self.env_local.quest_interfer, DEFAULT_RESULTS.NEGATIVE), env.new_line(positive_line))]) ]
 
         main_line =  Line(sequence=sequence)
 

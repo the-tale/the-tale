@@ -71,10 +71,18 @@ class GetRewardTest(TestCase):
         self.assertEqual(cmd, commands.deserialize_command(data))
 
 
+class QuestResultTest(TestCase):
+
+    def test_serialization(self):
+        cmd = commands.QuestResult(event='event_1', result='success')
+        data = cmd.serialize()
+        self.assertEqual(cmd, commands.deserialize_command(data))
+
+
 class GivePowerTest(TestCase):
 
     def test_serialization(self):
-        cmd = commands.GivePower(event='event_1', person='person_1', power=2, multiply=3, depends_on='person_2')
+        cmd = commands.GivePower(event='event_1', person='person_1', power=2)
         data = cmd.serialize()
         self.assertEqual(cmd, commands.deserialize_command(data))
 
@@ -85,11 +93,36 @@ class ChooseTest(TestCase):
         cmd = commands.Choose(event='event_1',
                               id='choice_point_1',
                               default='choice_1',
-                              choices={'choice_1': [commands.GetReward(event='event_1', person='person_1')],
-                                       'choice_2': [commands.GetItem(event='event_1', item='item_1')] },
+                              choices={'choice_1': 'line_1',
+                                       'choice_2': 'line_2' },
                               choice='choice_marker')
         data = cmd.serialize()
         self.assertEqual(cmd, commands.deserialize_command(data))
+
+class SwitchTest(TestCase):
+
+    def test_serialization(self):
+        cmd = commands.Switch(event='event_1',
+                              choices=[ (('quest_1', 'result_1'), 'line_1'),
+                                        (('quest_1', 'result_2'), 'line_2') ] )
+        data = cmd.serialize()
+        self.assertEqual(cmd, commands.deserialize_command(data))
+
+    # def test_no_default_choice(self):
+    #     self.assertRaises(QuestGeneratorException,
+    #                       commands.Switch,
+    #                       event='event_1',
+    #                       choices=[ (('quest_1', 'result_1'), 'line_1'),
+    #                                 (('quest_1', 'result_2'), 'line_2') ] )
+
+    # def test_default_choice_in_middle(self):
+    #     self.assertRaises(QuestGeneratorException,
+    #                       commands.Switch,
+    #                       event='event_1',
+    #                       choices=[ (('quest_1', 'result_1'), 'line_1'),
+    #                                 (None, 'line_2'),
+    #                                 (('quest_1', 'result_2'), 'line_3'),
+    #                                 (None, 'line_4') ] )
 
 
 class QuestTest(TestCase):

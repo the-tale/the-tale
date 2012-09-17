@@ -83,7 +83,7 @@ class JustQuest(Quest):
                                      cmd.GiveItem(event='event_1_5', item='item_1'),
                                      cmd.Battle(event='event_1_6', number=13),
                                      cmd.GetReward(event='event_1_7', person='person_1'),
-                                     cmd.GivePower(event='event_1_8', person='person_1', power=2) ])#, multiply=3, depends_on='person_2')  ])
+                                     cmd.GivePower(event='event_1_8', person='person_1', power=2) ])
 
         quest_line = Line(sequence=[cmd.Move(event='event_2_1', place='place_2'),
                                     cmd.Quest(event='event_2_2', quest=self.env_local.quest_1),

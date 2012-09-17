@@ -33,7 +33,7 @@ class LineTest(TestCase):
                                           cmd.GiveItem(event='event_1_5', item='item_1'),
                                           cmd.Battle(event='event_1_6', number=13),
                                           cmd.GetReward(event='event_1_7', person='person_1'),
-                                          cmd.GivePower(event='event_1_8', person='person_1', power=2, multiply=3, depends_on='person_2')  ])
+                                          cmd.GivePower(event='event_1_8', person='person_1', power=2)  ])
         self.linear_line.available = True
 
         self.quest_line = Line(sequence=[cmd.Move(event='event_2_1', place='place_2'),
@@ -124,7 +124,7 @@ class LineTest(TestCase):
 
         cmd_linear_move = cmd.Move(event='event_1_1', place='place_1')
         cmd_linear_battle = cmd.Battle(event='event_1_6', number=13)
-        cmd_linear_give_power = cmd.GivePower(event='event_1_8', person='person_1', power=2, multiply=3, depends_on='person_2')
+        cmd_linear_give_power = cmd.GivePower(event='event_1_8', person='person_1', power=2)
 
         self.assertEqual(self.linear_line.get_quest_command(self.env, [0]), (cmd_linear_move, [], []))
         self.assertEqual(self.linear_line.get_quest_command(self.env, [5]), (cmd_linear_battle, [], []))
