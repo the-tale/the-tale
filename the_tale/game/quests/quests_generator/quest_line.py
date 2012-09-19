@@ -251,12 +251,6 @@ class Line(object):
                 for index, (condition, line_id) in enumerate(cmd.choices):
                     quest_id, result = condition
 
-                    if quest_id is None:
-                        # default branch
-                        switch_number = index
-                        switch_line_id = line_id
-                        break
-
                     if quest_id not in env.quests_results:
                         continue
 
