@@ -124,7 +124,21 @@ jQuery(document).ready( function(e) {
         </tr>
 
         <tr class="body">
-          <td colspan="5">{{ post.html|safe }}</td>
+          <td colspan="5">
+            {% if post.is_removed %}
+            <span class="post-removed-message">
+              {% if post.is_removed_by_author %}
+              Сообщение удалено автором
+              {% elif post.is_removed_by_thread_owner %}
+              Соообщение удалено владельцем темы
+              {% else %}
+              Сообщение удалено модератором
+              {% endif %}
+            </span>
+            {% else %}
+            {{ post.html|safe }}
+            {% endif %}
+          </td>
         </tr>
       </tbody>
     </table>

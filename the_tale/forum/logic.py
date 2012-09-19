@@ -2,7 +2,7 @@
 
 from dext.utils.decorators import nested_commit_on_success
 
-from forum.models import SubCategory, Thread, Post, MARKUP_METHOD
+from forum.models import SubCategory, Thread, Post, MARKUP_METHOD, POST_STATE, POST_REMOVED_BY
 
 @nested_commit_on_success
 def create_thread(subcategory, caption, author, text, markup_method=MARKUP_METHOD.POSTMARKUP):
@@ -84,12 +84,17 @@ def create_post(subcategory, thread, author, text):
 
 
 @nested_commit_on_success
-def delete_post(subcategory, thread, post):
+def delete_post(initiator, thread, post):
 
-    post.delete()
+    post.state = POST_STATE.REMOVED
 
-    thread.posts_count = Post.objects.filter(thread=thread).count() - 1
-    thread.save()
+    if post.author == initiator:
+        post.removed_by = POST_REMOVED_BY.AUTHOR
+    elif thread.author == initiator:
+        post.removed_by = POST_REMOVED_BY.THREAD_OWNER
+    else:
+        post.removed_by = POST_REMOVED_BY.MODERATOR
 
-    subcategory.posts_count = sum(Thread.objects.filter(subcategory=subcategory).values_list('posts_count', flat=True))
-    subcategory.save()
+    post.remove_initiator = initiator
+
+    post.save()

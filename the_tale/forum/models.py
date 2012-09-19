@@ -81,6 +81,22 @@ class MARKUP_METHOD:
 MARKUP_METHOD_CHOICES = ( (MARKUP_METHOD.POSTMARKUP, 'bb-code'),
                           (MARKUP_METHOD.MARKDOWN, 'markdown') )
 
+class POST_REMOVED_BY:
+    AUTHOR = 0
+    THREAD_OWNER = 1
+    MODERATOR = 2
+
+POST_REMOVED_BY_CHOICES = ( (POST_REMOVED_BY.AUTHOR, u'удалён автором'),
+                            (POST_REMOVED_BY.THREAD_OWNER, u'удалён владельцем темы'),
+                            (POST_REMOVED_BY.MODERATOR, u'удалён модератором') )
+
+class POST_STATE:
+    DEFAULT = 0
+    REMOVED = 1
+
+POST_STATE_CHOICES = ( (POST_STATE.DEFAULT, u'видим'),
+                       (POST_STATE.REMOVED, u'удалён') )
+
 
 class Post(models.Model):
 
@@ -90,11 +106,16 @@ class Post(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, null=False, default=datetime.datetime(2000, 1, 1))
 
-    author = models.ForeignKey(User, null=True)
+    author = models.ForeignKey(User, null=True, related_name='+')
 
     text = models.TextField(null=False, blank=True, default='')
 
     markup_method = models.IntegerField(default=MARKUP_METHOD.POSTMARKUP, choices=MARKUP_METHOD_CHOICES, null=False)
+
+    state = models.IntegerField(default=POST_STATE.DEFAULT, choices=POST_STATE_CHOICES)
+    removed_by = models.IntegerField(default=None, null=True, choices=POST_REMOVED_BY_CHOICES)
+    remove_initiator = models.ForeignKey(User, null=True, related_name='+')
+
 
     class Meta:
         permissions = (("moderate_post", "Может редактировать сообщения пользователей"), )
@@ -105,3 +126,15 @@ class Post(models.Model):
             return postmarkup.render_bbcode(self.text)
         elif self.markup_method == MARKUP_METHOD.MARKDOWN:
             return markdown.markdown(self.text)
+
+    @property
+    def is_removed(self): return self.state == POST_STATE.REMOVED
+
+    @property
+    def is_removed_by_author(self): return self.removed_by == POST_REMOVED_BY.AUTHOR
+
+    @property
+    def is_removed_by_thread_owner(self): return self.removed_by == POST_REMOVED_BY.THREAD_OWNER
+
+    @property
+    def is_removed_by_moderator(self): return self.removed_by == POST_REMOVED_BY.MODERATOR

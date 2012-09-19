@@ -322,16 +322,16 @@ class TestModeration(TestCase):
         self.assertEqual(SubCategory.objects.get(id=self.subcategory.id).posts_count, 4)
 
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post.id])))
-        self.assertEqual(Post.objects.all().count(), 6)
+        self.assertEqual(Post.objects.all().count(), 7)
 
-        self.assertEqual(Thread.objects.get(id=self.thread.id).posts_count, 1)
-        self.assertEqual(SubCategory.objects.get(id=self.subcategory.id).posts_count, 3)
+        self.assertEqual(Thread.objects.get(id=self.thread.id).posts_count, 2)
+        self.assertEqual(SubCategory.objects.get(id=self.subcategory.id).posts_count, 4)
 
     def test_main_user_remove_post_of_second_user(self):
         self.assertEqual(self.second_user, self.post4.author)
         self.login('main_user')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
-        self.assertEqual(Post.objects.all().count(), 6)
+        self.assertEqual(Post.objects.all().count(), 7)
 
     def test_main_user_remove_first_post(self):
         self.login('main_user')
@@ -343,13 +343,13 @@ class TestModeration(TestCase):
     def test_moderator_remove_post(self):
         self.login('moderator')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post.id])))
-        self.assertEqual(Post.objects.all().count(), 6)
+        self.assertEqual(Post.objects.all().count(), 7)
 
     def test_moderator_remove_post_of_second_user(self):
         self.assertEqual(self.second_user, self.post4.author)
         self.login('moderator')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
-        self.assertEqual(Post.objects.all().count(), 6)
+        self.assertEqual(Post.objects.all().count(), 7)
 
     def test_moderator_remove_first_post(self):
         self.login('moderator')
@@ -367,7 +367,7 @@ class TestModeration(TestCase):
         self.assertEqual(self.second_user, self.post4.author)
         self.login('second_user')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
-        self.assertEqual(Post.objects.all().count(), 6)
+        self.assertEqual(Post.objects.all().count(), 7)
 
     def test_second_user_remove_first_post(self):
         self.login('second_user')

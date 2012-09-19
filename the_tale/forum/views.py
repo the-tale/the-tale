@@ -115,7 +115,7 @@ class PostsResource(BaseForumResource):
         if Post.objects.filter(thread=self.thread, created_at__lt=self.post.created_at).count() == 0:
             return self.json_error('forum.delete_post.remove_first_post', u'Вы не можете удалить первое сообщение в теме')
 
-        delete_post(self.subcategory, self.thread, self.post)
+        delete_post(self.user, self.thread, self.post)
 
         return self.json_ok()
 
