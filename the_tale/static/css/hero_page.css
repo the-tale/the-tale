@@ -38,6 +38,9 @@
 .hero-preference-choise.choosen:hover {
   background-color: #72C1E7 !important;
 }
+.hero-preference-choise.choosen .current-choice {
+  color: black;
+}
 .hero-abilities-list {
   cursor: default;
 }

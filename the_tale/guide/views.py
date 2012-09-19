@@ -33,3 +33,7 @@ class GuideResource(Resource):
 
         return self.template('guide/hero-abilities.html', {'section': 'hero-abilities',
                                                            'abilities': abilities})
+
+    @handler('hero-preferences', method='get')
+    def hero_preferences(self):
+        return self.template('guide/hero-preferences.html', {'section': 'hero-preferences'})

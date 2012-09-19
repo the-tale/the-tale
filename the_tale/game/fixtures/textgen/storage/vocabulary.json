@@ -234,33 +234,19 @@
       "template": "Солнце ослепило %(e_0)s и %(i_0)s %(i_1)s по %(e_1)s."
     }
   ], 
-  "action_regenerate_energy_energy_no_received_incense": [
+  "quest_notmywork_action_move_to_customer": [
     {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
+      "internals": [], 
       "externals": [
         [
           "hero", 
           [], 
           "e_0", 
-          [
-            "загл"
-          ], 
+          [], 
           "hero"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s обряд."
+      "template": "%(e_0)s возвращается за наградой"
     }
   ], 
   "action_inplace_buying_artifact_and_change": [
@@ -278,11 +264,22 @@
           "надоел"
         ], 
         [
+          "он", 
+          [
+            "old_artifact"
+          ], 
+          "i_1", 
+          [
+            "рд"
+          ], 
+          "он"
+        ], 
+        [
           "монета", 
           [
             "coins"
           ], 
-          "i_1", 
+          "i_2", 
           [
             "вн"
           ], 
@@ -293,7 +290,7 @@
           [
             "hero"
           ], 
-          "i_2", 
+          "i_3", 
           [
             "прш"
           ], 
@@ -304,7 +301,7 @@
           [
             "sell_price"
           ], 
-          "i_3", 
+          "i_4", 
           [
             "вн"
           ], 
@@ -352,7 +349,7 @@
           "sell_price"
         ]
       ], 
-      "template": "%(e_0)s мне %(i_0)s, купил вместо него %(e_1)s за %(e_2)s %(i_1)s. А %(e_3)s %(i_2)s за %(e_4)s %(i_3)s."
+      "template": "%(e_0)s мне %(i_0)s, купил вместо %(i_1)s %(e_1)s за %(e_2)s %(i_2)s. А %(e_3)s %(i_3)s за %(e_4)s %(i_4)s."
     }
   ], 
   "action_inplace_buying_artifact": [
@@ -581,6 +578,35 @@
       "template": "выбивает узоры на придорожном камне"
     }
   ], 
+  "action_regenerate_energy_no_energy_received_incense": [
+    {
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд."
+    }
+  ], 
   "quest_caravan_diary_choice_attack": [
     {
       "internals": [], 
@@ -614,7 +640,7 @@
           "hero"
         ]
       ], 
-      "template": "«Фаталити!» — %(i_0)s %(e_0)s, нанося завершающий удар"
+      "template": "«Фаталити!» — %(i_0)s %(e_0)s, нанося завершающий удар."
     }, 
     {
       "internals": [
@@ -673,7 +699,7 @@
           "mob"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s оружие и %(i_1)s деловито обыскивать %(i_2)s %(e_1)s"
+      "template": "%(e_0)s %(i_0)s оружие и %(i_1)s деловито обыскивать %(i_2)s %(e_1)s."
     }, 
     {
       "internals": [
@@ -712,7 +738,7 @@
           "mob"
         ]
       ], 
-      "template": "%(e_0)s не %(i_0)s геройского напора и %(i_1)s жизнь самоубийством"
+      "template": "%(e_0)s не %(i_0)s геройского напора и %(i_1)s жизнь самоубийством."
     }
   ], 
   "hero_ability_runuppush_miss": [
@@ -817,21 +843,6 @@
         ]
       ], 
       "template": "%(e_0)s ловко %(i_0)s в сторону от %(e_1)s."
-    }
-  ], 
-  "quest_notmywork_action_move_to_customer": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s возвращается за наградой"
     }
   ], 
   "action_equipping_description": [
@@ -991,6 +1002,35 @@
       "template": "%(e_0)s %(i_0)s в родной город."
     }
   ], 
+  "action_regenerate_energy_no_energy_received_sacrifice": [
+    {
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд."
+    }
+  ], 
   "action_regenerate_energy_description_pray": [
     {
       "internals": [], 
@@ -998,11 +1038,19 @@
       "template": "усердно молится поглядывая на небо"
     }
   ], 
-  "quest_notmywork_journal_move_to_customer": [
+  "quest_hometown_action_remember_names": [
     {
       "internals": [], 
-      "externals": [], 
-      "template": "А теперь можно и за наградой."
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s гуляет по городу"
     }
   ], 
   "quest_hunt_action_hunt": [
@@ -1449,7 +1497,7 @@
           "artifact"
         ]
       ], 
-      "template": "%(e_0)s никак не %(i_0)s в рюкзак, придётся выкинуть"
+      "template": "%(e_0)s никак не %(i_0)s в рюкзак, придётся выкинуть."
     }, 
     {
       "internals": [
@@ -1477,7 +1525,7 @@
           "artifact"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s валяться на обочине дороги"
+      "template": "%(e_0)s %(i_0)s валяться на обочине дороги."
     }, 
     {
       "internals": [], 
@@ -1492,7 +1540,7 @@
           "artifact"
         ]
       ], 
-      "template": "Оставлю я %(e_0)s здесь, может кому сгодится"
+      "template": "Оставлю я %(e_0)s здесь, может кому сгодится."
     }
   ], 
   "quest_hometown_special_stagger_streets_description": [
@@ -1576,7 +1624,7 @@
           "artifact"
         ]
       ], 
-      "template": "%(e_0)s самое место у меня в рюкзаке"
+      "template": "%(e_0)s самое место у меня в рюкзаке."
     }, 
     {
       "internals": [
@@ -1613,7 +1661,7 @@
           "artifact"
         ]
       ], 
-      "template": "%(e_0)s, воровато озираясь, %(i_0)s %(e_1)s"
+      "template": "%(e_0)s, воровато озираясь, %(i_0)s %(e_1)s."
     }, 
     {
       "internals": [
@@ -1638,7 +1686,7 @@
           "artifact"
         ]
       ], 
-      "template": "Неплохая вещица, %(i_0)s %(e_0)s — надо оставить себе"
+      "template": "Неплохая вещица, %(i_0)s %(e_0)s — надо оставить себе."
     }
   ], 
   "quest_searchsmith_special_upgrade_equipment_fail": [
@@ -1902,19 +1950,11 @@
       "template": "Теперь %(e_0)s будет %(i_0)s"
     }
   ], 
-  "quest_hometown_action_remember_names": [
+  "quest_notmywork_journal_move_to_customer": [
     {
       "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s гуляет по городу"
+      "externals": [], 
+      "template": "А теперь можно и за наградой."
     }
   ], 
   "quest_spying_choice_openup_result_spy": [
@@ -2152,33 +2192,19 @@
       "template": "Служить на почте трудно и даже опасно, но это почётная профессия! И пусть в дороге меня ждут монстры и ужасная погода — письмо будет доставлено вовремя!"
     }
   ], 
-  "action_regenerate_energy_energy_no_received_meditation": [
+  "quest_hometown_action_drunk_song": [
     {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
+      "internals": [], 
       "externals": [
         [
           "hero", 
           [], 
           "e_0", 
-          [
-            "загл"
-          ], 
+          [], 
           "hero"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s обряд."
+      "template": "%(e_0)s гуляет по городу"
     }
   ], 
   "action_rest_description": [
@@ -2558,19 +2584,33 @@
       "template": "%(e_0)s пытается скрыться с награбленным"
     }
   ], 
-  "quest_hometown_action_drunk_song": [
+  "action_regenerate_energy_no_energy_received_symbols": [
     {
-      "internals": [], 
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
       "externals": [
         [
           "hero", 
           [], 
           "e_0", 
-          [], 
+          [
+            "загл"
+          ], 
           "hero"
         ]
       ], 
-      "template": "%(e_0)s гуляет по городу"
+      "template": "%(e_0)s %(i_0)s обряд."
     }
   ], 
   "action_rest_start": [
@@ -2640,35 +2680,6 @@
       "template": "А это что за трактир, в прошлый раз его не было, пожалуй стоит проверить чем тут потчуют."
     }
   ], 
-  "action_regenerate_energy_energy_no_received_symbols": [
-    {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s обряд."
-    }
-  ], 
   "quest_hometown_special_chatting_description": [
     {
       "internals": [], 
@@ -2713,7 +2724,7 @@
           "mob"
         ]
       ], 
-      "template": "%(i_0)s %(e_0)s %(i_1)s из кустов"
+      "template": "%(i_0)s %(e_0)s %(i_1)s из кустов."
     }, 
     {
       "internals": [
@@ -2977,11 +2988,33 @@
       "template": "проходит курс усиленного восстановления"
     }
   ], 
-  "action_quest_description": [
+  "action_regenerate_energy_no_energy_received_pray": [
     {
-      "internals": [], 
-      "externals": [], 
-      "template": "прилагает максимальные усилия, чтобы выполнить задание"
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд."
     }
   ], 
   "quest_hometown_journal_get_reward": [
@@ -3020,33 +3053,11 @@
       "template": "украсть-украсть-украсть"
     }
   ], 
-  "action_regenerate_energy_energy_no_received_sacrifice": [
+  "action_quest_description": [
     {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s обряд."
+      "internals": [], 
+      "externals": [], 
+      "template": "прилагает максимальные усилия, чтобы выполнить задание"
     }
   ], 
   "action_regenerate_energy_start_pray": [
@@ -3602,6 +3613,35 @@
       "template": "А не взять ли мне свою долю пораньше?"
     }
   ], 
+  "action_regenerate_energy_no_energy_received_meditation": [
+    {
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд."
+    }
+  ], 
   "angel_ability_stimulate": [
     {
       "internals": [], 
@@ -4087,7 +4127,7 @@
           "actor"
         ]
       ], 
-      "template": "%(e_0)s в шоке и не может атаковать"
+      "template": "%(e_0)s в шоке и не может атаковать."
     }, 
     {
       "internals": [
@@ -4116,7 +4156,7 @@
           "actor"
         ]
       ], 
-      "template": "%(e_0)s с увлечением %(i_0)s летающие вокруг головы звёздочки"
+      "template": "%(e_0)s с увлечением %(i_0)s летающие вокруг головы звёздочки."
     }, 
     {
       "internals": [
@@ -4155,7 +4195,7 @@
           "actor"
         ]
       ], 
-      "template": "%(e_0)s было %(i_0)s ударить, но %(i_1)s не в состоянии додумать мысль"
+      "template": "%(e_0)s было %(i_0)s ударить, но %(i_1)s не в состоянии додумать мысль."
     }
   ], 
   "action_moveto_start": [
@@ -4297,35 +4337,6 @@
       ], 
       "externals": [], 
       "template": "«Ну и грязища — второй раз за день %(i_0)s в лужу»"
-    }
-  ], 
-  "action_regenerate_energy_energy_no_received_pray": [
-    {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s обряд."
     }
   ], 
   "hero_ability_regeneration": [
@@ -4935,7 +4946,7 @@
           "hero"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s завершающий удар и тело %(e_1)s упало в овраг"
+      "template": "%(e_0)s %(i_0)s завершающий удар и тело %(e_1)s упало в овраг."
     }, 
     {
       "internals": [
@@ -4962,7 +4973,7 @@
           "mob"
         ]
       ], 
-      "template": "«Вот она! Справедливость!» — %(i_0)s %(e_0)s, пиная безжизненное тело своего противника"
+      "template": "«Вот она! Справедливость!» — %(i_0)s %(e_0)s, пиная безжизненное тело своего противника."
     }, 
     {
       "internals": [
@@ -5010,7 +5021,7 @@
           "mob"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s и %(i_1)s в ноги %(e_1)s"
+      "template": "%(e_0)s %(i_0)s и %(i_1)s в ноги %(e_1)s."
     }
   ], 
   "quest_notmywork_action_attack_performer": [
@@ -5169,9 +5180,31 @@
   ], 
   "action_battlepve1x1_no_loot": [
     {
-      "internals": [], 
+      "internals": [
+        [
+          "очередной", 
+          [
+            "mob"
+          ], 
+          "i_0", 
+          [
+            "загл", 
+            "мр"
+          ], 
+          "очередной"
+        ], 
+        [
+          "монстр", 
+          [
+            "mob"
+          ], 
+          "i_1", 
+          [], 
+          "монстр"
+        ]
+      ], 
       "externals": [], 
-      "template": "Очередной монстр без добычи, куда катится этот мир?"
+      "template": "%(i_0)s %(i_1)s без добычи, куда катится этот мир?"
     }, 
     {
       "internals": [
@@ -5185,6 +5218,28 @@
             "прш"
           ], 
           "нашёл"
+        ], 
+        [
+          "тушка", 
+          [
+            "mob"
+          ], 
+          "i_1", 
+          [
+            "пр"
+          ], 
+          "тушка"
+        ], 
+        [
+          "монстр", 
+          [
+            "mob"
+          ], 
+          "i_2", 
+          [
+            "рд"
+          ], 
+          "монстр"
         ]
       ], 
       "externals": [
@@ -5199,7 +5254,7 @@
           "hero"
         ]
       ], 
-      "template": "%(e_0)s не %(i_0)s ничего полезного на тушке монстра"
+      "template": "%(e_0)s не %(i_0)s ничего полезного на %(i_1)s %(i_2)s."
     }
   ], 
   "action_regenerate_energy_energy_received_pray": [

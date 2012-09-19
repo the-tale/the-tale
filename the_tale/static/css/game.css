@@ -1,5 +1,5 @@
 .second-row .block {
-  min-height: 350px;
+  min-height: 400px;
 }
 #hero-base-block .hero-level:hover {
   background-color: #BBB;
@@ -109,6 +109,18 @@
 .quest-icon.hunt {
   background: url('../game/images/quests.png') no-repeat scroll -384px 0 transparent;
 }
+.quest-icon.hometown {
+  background: url('../game/images/quests.png') no-repeat scroll -448px 0 transparent;
+}
+.quest-icon.searchsmith {
+  background: url('../game/images/quests.png') no-repeat scroll -512px 0 transparent;
+}
+.quest-icon.interfereenemy {
+  background: url('../game/images/quests.png') no-repeat scroll -576px 0 transparent;
+}
+.quest-icon.helpfriend {
+  background: url('../game/images/quests.png') no-repeat scroll -640px 0 transparent;
+}
 .quest-record {
   min-height: 64px;
   cursor: default;
@@ -129,10 +141,20 @@
 .quest-record .actors-container {
   margin: 0;
 }
+.choice-record.disabled .choice-link {
+  color: #999999;
+  margin-left: 1em;
+}
+.choice-record.disabled .character-warning {
+  display: inline;
+}
+.choice-record .character-warning {
+  display: none;
+}
 .log-block {
   overflow-y: scroll;
   overflow-x: hidden;
-  height: 350px;
+  height: 400px;
 }
 .log-record {
   margin: 0.75em 0;

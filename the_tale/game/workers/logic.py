@@ -190,5 +190,5 @@ class Worker(BaseWorker):
     def process_highlevel_data_updated(self):
         settings.refresh()
 
-        for bundle in self.bundles.items():
+        for bundle in self.bundles.values():
             bundle.on_highlevel_data_updated()

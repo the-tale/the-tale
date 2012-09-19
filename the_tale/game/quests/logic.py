@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import random
 
+from django.utils.log import getLogger
+
 from dext.utils.decorators import retry_on_exception
 
 from game.balance import constants as c
@@ -22,6 +24,7 @@ from game.quests.environment import Environment
 from game.quests.prototypes import QuestPrototype
 from game.quests.conf import quests_settings
 
+_quests_logger=getLogger('the-tale.quests')
 
 class QuestsSource(BaseQuestsSource):
     quests_list = QUESTS
@@ -126,5 +129,7 @@ def _create_random_quest_for_hero(hero, knowlege_base, special):
     env.sync()
 
     quest_prototype = QuestPrototype.create(hero, env)
+
+    _quests_logger.info('hero: %d\n\n\n%s' % (hero.id, quest_prototype.model.env))
 
     return quest_prototype

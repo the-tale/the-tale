@@ -716,11 +716,11 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
                             self.hero.statistics.change_loot_had(1)
                         else:
                             self.hero.statistics.change_artifacts_had(1)
-                        self.hero.add_message('action_battlepve1x1_put_loot', hero=self.hero, artifact=loot)
+                        self.hero.add_message('action_battlepve1x1_put_loot', hero=self.hero, artifact=loot, mob=self.mob)
                     else:
-                        self.hero.add_message('action_battlepve1x1_put_loot_no_space', hero=self.hero, artifact=loot)
+                        self.hero.add_message('action_battlepve1x1_put_loot_no_space', hero=self.hero, artifact=loot, mob=self.mob)
                 else:
-                    self.hero.add_message('action_battlepve1x1_no_loot', hero=self.hero)
+                    self.hero.add_message('action_battlepve1x1_no_loot', hero=self.hero, mob=self.mob)
 
                 self.percents = 1.0
                 self.state = self.STATE.PROCESSED
