@@ -111,6 +111,9 @@ class Worker(BaseWorker):
 
                 places_power_delta[person.place_id] += self.persons_power[person.id]
 
+            person.update_friends_number()
+            person.update_enemies_number()
+
         self.persons_power = {}
 
         max_place_power = 0
