@@ -867,10 +867,10 @@ class ActionInPlacePrototype(ActionPrototype):
                 impact_type, person = random.choice(choices)
 
                 if impact_type:
-                    workers_environment.highlevel.cmd_change_person_power(person.id, f.person_power_from_quest(1, self.hero.level))
+                    workers_environment.highlevel.cmd_change_person_power(person.id, f.person_power_from_random_spend(1, self.hero.level))
                     self.hero.add_message('action_inplace_impact_good', important=True, hero=self.hero, coins=coins, person=person)
                 else:
-                    workers_environment.highlevel.cmd_change_person_power(person.id, f.person_power_from_quest(-1, self.hero.level))
+                    workers_environment.highlevel.cmd_change_person_power(person.id, f.person_power_from_random_spend(-1, self.hero.level))
                     self.hero.add_message('action_inplace_impact_bad', important=True, hero=self.hero, coins=coins, person=person)
 
         else:

@@ -164,8 +164,8 @@ def sell_artifact_price(lvl):
 # расчёт изменения влияния песроанажа
 #########################################
 
-def person_power_from_quest(power_points, hero_lvl):
-    return power_points * hero_lvl * c.PERSON_POWER_FOR_QUEST
+def person_power_from_quest(power_points, hero_lvl, quest_length): # длительность задания указывается в ходах
+    return int(power_points * hero_lvl * c.HERO_POWER_PER_DAY * (quest_length / (24 * c.TURNS_IN_HOUR)))
 
 def person_power_from_random_spend(power_points, hero_lvl):
     return power_points * hero_lvl * c.PERSON_POWER_FOR_RANDOM_SPEND

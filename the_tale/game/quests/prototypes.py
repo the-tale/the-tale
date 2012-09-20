@@ -73,6 +73,13 @@ class QuestPrototype(object):
     def set_last_pointer(self, value):  self.data['last_pointer'] = value
     last_pointer = property(get_last_pointer, set_last_pointer)
 
+    def get_quests_start_turn(self):
+        if 'quests_start_turn'not in self.data:
+            self.data['quests_start_turn'] = {}
+        return self.data['quests_start_turn']
+    def set_quests_start_turn(self, value):  self.data['quests_start_turn'] = value
+    quests_start_turn = property(get_quests_start_turn, set_quests_start_turn)
+
     @property
     def line(self): return self.data['line']
 
@@ -139,6 +146,8 @@ class QuestPrototype(object):
 
         quest = QuestPrototype(model=model)
 
+        quest.quests_start_turn[quest.env.root_quest.id] = model.created_at_turn
+
         quest.save()
 
         hero.quests_history[env.root_quest.type()] = TimePrototype.get_current_turn_number()
@@ -179,7 +188,7 @@ class QuestPrototype(object):
 
         for person_id, power in self.env.persons_power_points.items():
             person_data = self.env.persons[person_id]
-            workers_environment.highlevel.cmd_change_person_power(person_data['external_data']['id'], f.person_power_from_quest(power, cur_action.hero.level))
+            workers_environment.highlevel.cmd_change_person_power(person_data['external_data']['id'], power)
 
     def process_current_command(self, cur_action):
 
@@ -272,8 +281,7 @@ class QuestPrototype(object):
         cur_action.hero.add_message('action_quest_reward_money', important=True, hero=cur_action.hero, coins=money)
 
     def cmd_quest(self, cmd, cur_action, writer):
-        # TODO: move to quest generator environment or make invisible for player
-        pass
+        self.quests_start_turn[cmd.quest] = TimePrototype.get_current_turn_number()
 
     def cmd_questresult(self, cmd, cur_action, writer):
         # TODO: move to quest generator environment or make invisible for player
@@ -284,8 +292,6 @@ class QuestPrototype(object):
 
         self.env.quests_results[current_quest.id][cmd.result] = True
 
-
-
     def cmd_choose(self, cmd, cur_action, writer):
         # TODO: move to quest generator environment or make invisible for player
         pass
@@ -295,8 +301,13 @@ class QuestPrototype(object):
         pass
 
     def cmd_give_power(self, cmd, cur_action, writer):
-        # TODO: move to quest generator environment
-        self.env.persons_power_points[cmd.person] = self.env.persons_power_points.get(cmd.person, 0) + cmd.power
+        current_quest_id = self.env.get_quest(self.pointer).id
+        quest_start_turn = self.quests_start_turn.get(current_quest_id)
+        if quest_start_turn is None:
+            return # temporary code for old quests (without all quests start turns)
+        real_power = f.person_power_from_quest(cmd.power, cur_action.hero.level, TimePrototype.get_current_turn_number() - quest_start_turn)
+
+        self.env.persons_power_points[cmd.person] = self.env.persons_power_points.get(cmd.person, 0) + real_power
 
     def cmd_battle(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionBattlePvE1x1Prototype
