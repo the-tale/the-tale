@@ -11,7 +11,8 @@ pgf.game.constants = {
 
     ACTOR_TYPE: {
         PERSON: 0,
-        PLACE: 1
+        PLACE: 1,
+        MONEY_SPENDING: 1000
     },
 
     GENDER_TO_STR: {

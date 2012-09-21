@@ -13,6 +13,11 @@ jQuery(document).ready(function(e) {
 
 <div id="quests-line-block">
 
+  <div class="pgf-hidden pgf-money-spent-info" style="min-height: 80px;">
+    {{ macros.quest_record_body(choices_list=true) }}
+  </div>
+
+
   <ul class="unstyled pgf-quests-line-container">
     <li class="pgf-template quest-record" style="min-height: 80px;">
       {{ macros.quest_record_body(choices_list=true) }}

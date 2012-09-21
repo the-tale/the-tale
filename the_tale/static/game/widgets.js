@@ -177,6 +177,14 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         popoverContent = content.html();
     }
 
+    if (actor[1] == pgf.game.constants.ACTOR_TYPE.MONEY_SPENDING) {
+        nameElement.text(data.goal);
+        popoverTitle = 'цель накопления';
+        var content = jQuery('#pgf-popover-money-spending').clone();
+        jQuery('.pgf-description', content).text(data.description);
+        popoverContent = content.html();
+    }
+
     var popoverArgs = jQuery.extend(true, {}, pgf.base.popoverArgs, {title: popoverTitle,
                                                                      content: popoverContent});
     nameElement.toggleClass('pgf-has-popover', true).popover(popoverArgs);
@@ -332,6 +340,7 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
 
     var questsContainer = jQuery('.pgf-quests-line-container', widget);
     var noQuestsMsg = jQuery('.pgf-no-quests-message', widget);
+    var moneySpentInfo = jQuery('.pgf-money-spent-info', widget);
 
     var data = {};
 
@@ -348,6 +357,33 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
         }
     }
 
+    function RenderMoneySpentInfo() {
+
+        var hero = widgets.heroes.CurrentHero();
+
+        moneySpentInfo.removeClass('pgf-hidden');
+
+        var goalText = {'heal': 'лечение',
+                        'useless': 'на себя',
+                        'artifact': 'новая экипировка',
+                        'sharpening': 'улучшение экипировки',
+                        'impact': 'изменение влияния'}[hero.next_spending];
+
+        descriptionText = {'heal': 'Собирает деньги, чтобы поправить здоровье, когда понадобится.',
+                           'useless': 'Копит золото для не очень полезных но безусловно необходимых трат.',
+                           'artifact': 'Планирует приобритение новой экипировки.',
+                           'sharpening': 'Собирает на улучшение экипировки.',
+                           'impact': 'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» персонажа.'}[hero.next_spending];;
+
+        var moneySpendData = {quest_type: 'next-spending',
+                              quest_text:  'Накопить золото',
+                              actors: [['цель', pgf.game.constants.ACTOR_TYPE.MONEY_SPENDING , {goal: goalText, description: descriptionText}]],
+                              choices: []
+                             };
+
+        pgf.game.widgets._RenderQuest(0, moneySpendData, moneySpentInfo);
+    }
+
     this.Refresh = function(game_data) {
 
         var hero = widgets.heroes.CurrentHero();
@@ -362,6 +398,7 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
 
     this.Render = function() {
         RenderQuests();
+        RenderMoneySpentInfo();
     };
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){

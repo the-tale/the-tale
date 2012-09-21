@@ -626,6 +626,11 @@ class HeroPrototype(object):
                 'bag': self.bag.ui_info(),
                 'equipment': self.equipment.ui_info(),
                 'money': self.money,
+                'next_spending': { c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 'heal',
+                                   c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 'artifact',
+                                   c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 'sharpening',
+                                   c.ITEMS_OF_EXPENDITURE.USELESS: 'useless',
+                                   c.ITEMS_OF_EXPENDITURE.IMPACT: 'impact'}[self.next_spending],
                 'action': { 'percents': self.last_action_percents,
                             'description': self.actions_descriptions[-1]},
                 'base': { 'name': self.name,
@@ -642,8 +647,7 @@ class HeroPrototype(object):
                                'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': loot_items_count,
-                               'quest_items_count': quest_items_count},
-                'accumulated': { }
+                               'quest_items_count': quest_items_count}
                 }
 
 

@@ -17,6 +17,12 @@ ANGEL_ENERGY_REGENERATION_TYPES_CHOICES = ( (c.ANGEL_ENERGY_REGENERATION_TYPES.P
 
 ANGEL_ENERGY_REGENERATION_TYPES_DICT  = dict(ANGEL_ENERGY_REGENERATION_TYPES_CHOICES)
 
+ITEMS_OF_EXPENDITURE_CHOICES = ( (c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL, u'лечение'),
+                                 (c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT, u'покупка артефакта'),
+                                 (c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT, u'заточка артефакта'),
+                                 (c.ITEMS_OF_EXPENDITURE.USELESS, u'бесполезные траты'),
+                                 (c.ITEMS_OF_EXPENDITURE.IMPACT, u'изменение влияния'), )
+
 class Hero(models.Model):
 
     created_at_turn = models.IntegerField(null=False, default=0)
@@ -58,7 +64,7 @@ class Hero(models.Model):
 
     last_action_percents = models.FloatField(null=False, default=0)
 
-    next_spending = models.IntegerField(null=False, default=c.ITEMS_OF_EXPENDITURE.USELESS)
+    next_spending = models.IntegerField(null=False, default=c.ITEMS_OF_EXPENDITURE.USELESS, choices=ITEMS_OF_EXPENDITURE_CHOICES)
 
     last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
 
