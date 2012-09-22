@@ -158,6 +158,7 @@ class CHOOSE_PREFERENCES_STATE:
     COOLDOWN = 5
     UNAVAILABLE_PERSON = 6
     OUTGAME_PERSON = 7
+    UNSPECIFIED_PREFERENCE = 8
 
 CHOOSE_PREFERENCES_STATE_CHOICES = [(CHOOSE_PREFERENCES_STATE.WAITING, u'в очереди'),
                                     (CHOOSE_PREFERENCES_STATE.PROCESSED, u'обработана'),
@@ -166,7 +167,8 @@ CHOOSE_PREFERENCES_STATE_CHOICES = [(CHOOSE_PREFERENCES_STATE.WAITING, u'в оч
                                     (CHOOSE_PREFERENCES_STATE.ERROR, u'ошибка'),
                                     (CHOOSE_PREFERENCES_STATE.COOLDOWN, u'заблокирована по времени'),
                                     (CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON, u'недоступный персонаж'),
-                                    (CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON, u'выведеный из игры персонаж')]
+                                    (CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON, u'выведеный из игры персонаж'),
+                                    (CHOOSE_PREFERENCES_STATE.UNSPECIFIED_PREFERENCE, u'неуказанное предпочтение')]
 
 class PREFERENCE_TYPE:
     MOB = 0

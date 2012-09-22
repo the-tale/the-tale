@@ -183,7 +183,10 @@ class ChoosePreferencesTaskPrototype(object):
             energy_regeneration_type = int(self.model.preference_id) if self.model.preference_id is not None else None
 
             if energy_regeneration_type is None:
-                raise HeroException(u'energy_regeneration_type property is None, something go wrong, hero: %d' % hero.id)
+                # log
+                self.model.comment = u'energy regeneration preference can not be None'
+                self.model.state = CHOOSE_PREFERENCES_STATE.UNSPECIFIED_PREFERENCE
+                return
 
             if energy_regeneration_type not in c.ANGEL_ENERGY_REGENERATION_DELAY:
                 self.model.comment = u'unknown energy regeneration type: %s' % (energy_regeneration_type, )

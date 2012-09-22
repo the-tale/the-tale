@@ -188,4 +188,7 @@ class HeroResource(Resource):
         if task.state == CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON:
             return self.json_error('heroes.choose_preferences_status.outgame_person', u'Нельзя выбрать данного персонажа - он выведен из игры')
 
+        if task.state == CHOOSE_PREFERENCES_STATE.UNSPECIFIED_PREFERENCE:
+            return self.json_error('heroes.choose_preferences_status.unspecified_preference', u'Вы не можете удалить данное предпочтение — оно должно быть заменено на аналогичное')
+
         return self.json_error('heroes.choose_preferences_status.error', u'Ошибка при выборе предпочтений героя, повторите попытку позже')

@@ -108,13 +108,9 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, new_energy_regeneration_type)
         self.assertNotEqual(self.hero.preferences.energy_regeneration_type, new_energy_regeneration_type)
 
-        if new_energy_regeneration_type is not None:
-            task.process(self.bundle)
-            self.assertEqual(task.state, expected_state)
-            self.assertEqual(self.hero.preferences.energy_regeneration_type, expected_energy_regeneration_type)
-        else:
-            self.assertRaises(HeroException, task.process, self.bundle)
-
+        task.process(self.bundle)
+        self.assertEqual(task.state, expected_state)
+        self.assertEqual(self.hero.preferences.energy_regeneration_type, expected_energy_regeneration_type)
 
     def test_change_energy_regeneration_type(self):
         self.check_change_energy_regeneration_type(c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, CHOOSE_PREFERENCES_STATE.PROCESSED)
@@ -126,10 +122,12 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
         self.check_change_energy_regeneration_type(c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_STATE.COOLDOWN)
 
     def test_remove_energy_regeneration_type(self):
-        self.check_change_energy_regeneration_type(None, None, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.check_change_energy_regeneration_type(None, c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, CHOOSE_PREFERENCES_STATE.UNSPECIFIED_PREFERENCE)
 
     def test_remove_energy_regeneration_type_cooldown(self):
-        self.check_change_energy_regeneration_type(None, c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
+        task.process(self.bundle)
+        self.check_change_energy_regeneration_type(None, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_STATE.COOLDOWN)
 
 
 class HeroPreferencesMobTest(TestCase):
@@ -763,3 +761,15 @@ class HeroPreferencesRequestsTest(TestCase):
 
         response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
         self.check_ajax_error(response, 'heroes.choose_preferences_status.outgame_person')
+
+
+    def test_choose_preferences_unspecified_preference(self):
+        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
+
+        task = ChoosePreferencesTask.objects.all()[0]
+        task.state = CHOOSE_PREFERENCES_STATE.UNSPECIFIED_PREFERENCE
+        task.save()
+
+        response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
+        self.check_ajax_error(response, 'heroes.choose_preferences_status.unspecified_preference')
