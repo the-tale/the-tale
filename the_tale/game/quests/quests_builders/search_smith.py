@@ -28,11 +28,9 @@ class SearchSmith(Quest):
         if self.env_local.place_start != self.env_local.place_end:
             sequence += [ cmd.Move(place=self.env_local.place_end, event='move_to_quest') ]
 
-        sequence += [ cmd.UpgradeEquipment(equipment_slot=env.knowlege_base.get_special('hero_pref_equipment_slot'),
-                                           messages_prefix='upgrade_equipment', # this prefix used by writer
-                                           event='upgrade_equipment'),
+        sequence += [ cmd.UpgradeEquipment(equipment_slot=env.knowlege_base.get_special('hero_pref_equipment_slot'), event='upgrade_equipment'),
                       cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
-                      cmd.GivePower(person=self.env_local.person_end, power=1, event='give_power')]
+                      cmd.GivePower(person=self.env_local.person_end, power=1)]
 
         main_line =  Line(sequence=sequence)
 

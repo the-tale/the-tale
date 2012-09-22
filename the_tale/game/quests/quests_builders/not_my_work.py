@@ -25,13 +25,13 @@ class NotMyWork(Quest):
     def create_line(self, env):
         env.quests[self.env_local.others_work_quest].create_line(env)
 
-        work_positive_line = Line(sequence=[cmd.Message(event='work_quest_successed')])
+        work_positive_line = Line(sequence=[cmd.Message()])
 
         # ok, at that line we believe, that person satisfied on any result of child quest
-        work_negative_line = Line(sequence=[cmd.Message(event='work_quest_failed')])
+        work_negative_line = Line(sequence=[cmd.Message()])
 
         work_line = Line(sequence=[ cmd.Message(event='choice_do_work'),
-                                    cmd.Quest(quest=self.env_local.others_work_quest, event='start_quest'),
+                                    cmd.Quest(quest=self.env_local.others_work_quest),
                                     cmd.Move(place=self.env_local.place_start, event='move_to_customer'),
                                     cmd.Switch(choices=[((self.env_local.others_work_quest, DEFAULT_RESULTS.POSITIVE), env.new_line(work_positive_line)),
                                                         ((self.env_local.others_work_quest, DEFAULT_RESULTS.NEGATIVE), env.new_line(work_negative_line))])
@@ -39,7 +39,7 @@ class NotMyWork(Quest):
 
         attack_line =  Line(sequence=[ cmd.Message(event='choice_attack'),
                                        cmd.Battle(number=random.randint(1, 5), event='attack_performer'),
-                                       cmd.GivePower(person=self.env_local.person_end, power=-1, event='get_power_from_performer') ])
+                                       cmd.GivePower(person=self.env_local.person_end, power=-1) ])
 
         main_line = Line(sequence=[ cmd.Message(event='intro'),
                                     cmd.Move(place=self.env_local.place_end, event='move_to_quest'),

@@ -17,7 +17,7 @@ class MessageTest(TestCase):
 class DoNothingTest(TestCase):
 
     def test_serialization(self):
-        cmd = commands.DoNothing(event='event_1', duration=13, messages_prefix='xxx', messages_probability=0.3)
+        cmd = commands.DoNothing(event='event_1', duration=13, messages_probability=0.3)
         data = cmd.serialize()
         self.assertEqual(cmd, commands.deserialize_command(data))
 

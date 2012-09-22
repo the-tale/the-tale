@@ -20,18 +20,18 @@ class Spying(Quest):
     def create_line(self, env):
 
         bad_line_1 = Line(sequence=[ cmd.Message(event='choice_open_up'),
-                                     cmd.MoveNear(place=self.env_local.place_end, back=True, event='return'),
+                                     cmd.MoveNear(place=self.env_local.place_end, back=True),
                                      cmd.QuestResult(result=DEFAULT_RESULTS.NEGATIVE),
                                      cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
-                                     cmd.GivePower(person=self.env_local.person_start, power=-1, event='bad_give_power'),
-                                     cmd.GivePower(person=self.env_local.person_end, power=1, event='bad_give_power')])
+                                     cmd.GivePower(person=self.env_local.person_start, power=-1),
+                                     cmd.GivePower(person=self.env_local.person_end, power=1)])
 
         good_line_2 = Line(sequence=[cmd.Message(event='choice_continue_spying'),
-                                     cmd.MoveNear(place=self.env_local.place_end, back=True, event='return'),
+                                     cmd.MoveNear(place=self.env_local.place_end, back=True),
                                      cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
                                      cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
-                                     cmd.GivePower(person=self.env_local.person_start, power=1, event='good_give_power'),
-                                     cmd.GivePower(person=self.env_local.person_end, power=-1, event='good_give_power')])
+                                     cmd.GivePower(person=self.env_local.person_start, power=1),
+                                     cmd.GivePower(person=self.env_local.person_end, power=-1)])
 
         main_line = Line(sequence=[cmd.Message(event='intro'),
                                    cmd.Move(place=self.env_local.place_end, event='move_to_quest'),

@@ -23,14 +23,16 @@ class Help(Quest):
     def create_line(self, env):
 
         positive_line = Line(sequence = [cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
-                                         cmd.GivePower(person=self.env_local.person_start, power=1)])
+                                         cmd.GivePower(person=self.env_local.person_start, power=1),
+                                         cmd.GetReward(person=self.env_local.person_end, event='get_reward')])
 
         negative_line = Line(sequence = [cmd.QuestResult(result=DEFAULT_RESULTS.NEGATIVE),
-                                         cmd.GivePower(person=self.env_local.person_start, power=-1)])
+                                         cmd.GivePower(person=self.env_local.person_start, power=-1),
+                                         cmd.GetReward(person=self.env_local.person_end, event='get_reward')])
 
         main_line =  Line(sequence = [ cmd.Message(event='intro'),
                                        cmd.Move(place=self.env_local.place_end, event='move_to_quest'),
-                                       cmd.Quest(quest=self.env_local.quest_help, event='start_quest'),
+                                       cmd.Quest(quest=self.env_local.quest_help),
                                        cmd.Switch(choices=[((self.env_local.quest_help, DEFAULT_RESULTS.POSITIVE), env.new_line(positive_line)),
                                                            ((self.env_local.quest_help, DEFAULT_RESULTS.NEGATIVE), env.new_line(negative_line))]) ])
 

@@ -9,7 +9,7 @@ class Hometown(Quest):
 
     SPECIAL = True
 
-    ACTORS = [(u'родной город', 'place_end', ACTOR_TYPE.PLACE)]
+    ACTORS = [(u'город', 'place_end', ACTOR_TYPE.PLACE)]
 
     @classmethod
     def can_be_used(cls, env):
@@ -26,11 +26,11 @@ class Hometown(Quest):
 
     def create_line(self, env):
 
-        home_actions = [ cmd.DoNothing(event='drunk_song', duration=6, messages_prefix='drunk_song', messages_probability=0.3),
-                         cmd.DoNothing(event='stagger_streets', duration=10, messages_prefix='stagger_streets', messages_probability=0.3),
-                         cmd.DoNothing(event='chatting', duration=5, messages_prefix='chatting', messages_probability=0.3),
-                         cmd.DoNothing(event='search_old_friends', duration=7, messages_prefix='search_old_friends', messages_probability=0.3),
-                         cmd.DoNothing(event='remember_names', duration=3, messages_prefix='remember_names', messages_probability=0.3) ]
+        home_actions = [ cmd.DoNothing(event='drunk_song', duration=6, messages_probability=0.3),
+                         cmd.DoNothing(event='stagger_streets', duration=10, messages_probability=0.3),
+                         cmd.DoNothing(event='chatting', duration=5, messages_probability=0.3),
+                         cmd.DoNothing(event='search_old_friends', duration=7, messages_probability=0.3),
+                         cmd.DoNothing(event='remember_names', duration=3, messages_probability=0.3) ]
 
         sequence = [cmd.Message(event='intro')]
 

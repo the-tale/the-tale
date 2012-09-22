@@ -190,22 +190,28 @@ class QuestPrototype(object):
             person_data = self.env.persons[person_id]
             workers_environment.highlevel.cmd_change_person_power(person_data['external_data']['id'], power)
 
+    def push_message(self, writer, messanger, event, **kwargs):
+
+        if event is None:
+            return
+
+        diary_msg = writer.get_diary_msg(event, **kwargs)
+        if diary_msg:
+            messanger.push_message(HeroPrototype._prepair_message(diary_msg), important=True)
+            return
+
+        journal_msg = writer.get_journal_msg(event, **kwargs)
+        if journal_msg:
+            messanger.push_message(HeroPrototype._prepair_message(journal_msg))
+
+
     def process_current_command(self, cur_action):
 
         cmd = self.env.get_command(self.pointer)
 
         writer = self.env.get_writer(cur_action.hero, self.pointer)
 
-        journal_msg = writer.get_journal_msg(cmd.event)
-        if journal_msg:
-            cur_action.hero.push_message(HeroPrototype._prepair_message(journal_msg))
-
-        diary_msg = writer.get_diary_msg(cmd.event)
-        if diary_msg:
-            cur_action.hero.push_message(HeroPrototype._prepair_message(diary_msg), important=True)
-
-        {#'description': self.cmd_description,
-         'message': self.cmd_message,
+        {'message': self.cmd_message,
          'upgradeequipment': self.cmd_upgrade_equipment,
          'move': self.cmd_move,
          'movenear': self.cmd_move_near,
@@ -221,12 +227,10 @@ class QuestPrototype(object):
          'questresult': self.cmd_questresult,
          }[cmd.type()](cmd, cur_action, writer)
 
-    # def cmd_description(self, cmd, cur_action):
-    #     cur_action.hero.push_message(HeroPrototype._prepair_message(cmd.msg))
 
     def cmd_message(self, cmd, cur_action, writer):
-        # do nothing, since messages will be created at
-        pass
+        self.push_message(writer, cur_action.hero, cmd.event)
+
 
     def cmd_upgrade_equipment(self, cmd, cur_action, writer):
 
@@ -242,49 +246,61 @@ class QuestPrototype(object):
             artifact, unequipped, sell_price = cur_action.hero.buy_artifact(better=True)
 
             if artifact is None:
-                message = writer.get_special_msg('%_fail' % cmd.messages_prefix, coins=money_spend)
+                self.push_message(writer, cur_action.hero, '%_fail' % cmd.event,
+                                  coins=money_spend)
             elif unequipped:
-                message = writer.get_special_msg('%s_buy_and_change' % cmd.messages_prefix, coins=money_spend, artifact=artifact, unequipped=unequipped, sell_price=sell_price)
+                self.push_message(writer, cur_action.hero, '%s_buy_and_change' % cmd.event,
+                                  coins=money_spend, artifact=artifact, unequipped=unequipped, sell_price=sell_price)
             else:
-                message = writer.get_special_msg('%s_buy' % cmd.messages_prefix, coins=money_spend, artifact=artifact)
+                self.push_message(writer, cur_action.hero, '%s_buy' % cmd.event,
+                                  coins=money_spend, artifact=artifact)
         else:
             cur_action.hero.change_money(MONEY_SOURCE.SPEND_FOR_SHARPENING, -money_spend)
             artifact = cur_action.hero.sharp_artifact()
-            message = writer.get_special_msg('%s_sharp' % cmd.messages_prefix, coins=money_spend, artifact=artifact)
+            self.push_message(writer, cur_action.hero, '%s_sharp' % cmd.event,
+                              coins=money_spend, artifact=artifact)
 
-        cur_action.hero.push_message(HeroPrototype._prepair_message(message), important=True)
 
     def cmd_move(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionMoveToPrototype
+
+        self.push_message(writer, cur_action.hero, cmd.event)
+
         destination = self.env.get_game_place(cmd.place)
         ActionMoveToPrototype.create(parent=cur_action, destination=destination, break_at=cmd.break_at)
 
     def cmd_move_near(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionMoveNearPlacePrototype
+
+        self.push_message(writer, cur_action.hero, cmd.event)
+
         destination = self.env.get_game_place(cmd.place)
         ActionMoveNearPlacePrototype.create(parent=cur_action, place=destination, back=cmd.back)
 
     def cmd_get_item(self, cmd, cur_action, writer):
+        self.push_message(writer, cur_action.hero, cmd.event)
         item = self.env.get_game_item(cmd.item)
         cur_action.hero.put_loot(item)
 
     def cmd_give_item(self, cmd, cur_action, writer):
+        self.push_message(writer, cur_action.hero, cmd.event)
         item = self.env.get_game_item(cmd.item)
         cur_action.hero.pop_quest_loot(item)
 
     def cmd_get_reward(self, cmd, cur_action, writer):
-
         multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
         money = 1 + int(f.sell_artifact_price(cur_action.hero.level) * multiplier)
         money = cur_action.hero.abilities.update_quest_reward(cur_action.hero, money)
         cur_action.hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
-        cur_action.hero.add_message('action_quest_reward_money', important=True, hero=cur_action.hero, coins=money)
+
+        self.push_message(writer, cur_action.hero, cmd.event, hero=cur_action.hero, coins=money)
 
     def cmd_quest(self, cmd, cur_action, writer):
+        self.push_message(writer, cur_action.hero, cmd.event)
         self.quests_start_turn[cmd.quest] = TimePrototype.get_current_turn_number()
 
     def cmd_questresult(self, cmd, cur_action, writer):
-        # TODO: move to quest generator environment or make invisible for player
+        self.push_message(writer, cur_action.hero, cmd.event)
         current_quest = self.env.get_quest(self.pointer)
 
         if current_quest.id not in self.env.quests_results:
@@ -293,14 +309,13 @@ class QuestPrototype(object):
         self.env.quests_results[current_quest.id][cmd.result] = True
 
     def cmd_choose(self, cmd, cur_action, writer):
-        # TODO: move to quest generator environment or make invisible for player
-        pass
+        self.push_message(writer, cur_action.hero, cmd.event)
 
     def cmd_switch(self, cmd, cur_action, writer):
-        # TODO: move to quest generator environment or make invisible for player
-        pass
+        self.push_message(writer, cur_action.hero, cmd.event)
 
     def cmd_give_power(self, cmd, cur_action, writer):
+        self.push_message(writer, cur_action.hero, cmd.event)
         current_quest_id = self.env.get_quest(self.pointer).id
         quest_start_turn = self.quests_start_turn.get(current_quest_id)
         if quest_start_turn is None:
@@ -312,6 +327,8 @@ class QuestPrototype(object):
     def cmd_battle(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionBattlePvE1x1Prototype
 
+        self.push_message(writer, cur_action.hero, cmd.event)
+
         mob = None
         if cmd.mob_id:
             mob = MobsDatabase.storage().get_mob(cur_action.hero, cmd.mob_id)
@@ -322,9 +339,10 @@ class QuestPrototype(object):
 
     def cmd_donothing(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionDoNothingPrototype
+        self.push_message(writer, cur_action.hero, cmd.event)
         ActionDoNothingPrototype.create(parent=cur_action,
                                         duration=cmd.duration,
-                                        messages_prefix=writer.get_msg_special_id(cmd.messages_prefix),
+                                        messages_prefix=writer.get_msg_journal_id(cmd.event),
                                         messages_probability=cmd.messages_probability)
 
     def ui_info(self, hero):

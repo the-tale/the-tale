@@ -26,22 +26,21 @@ class Caravan(Quest):
                                     cmd.Move(place=self.env_local.place_start, event='run_away'),
                                     cmd.QuestResult(result=DEFAULT_RESULTS.NEGATIVE),
                                     cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
-                                    cmd.GivePower(person=self.env_local.person_start, power=-1, event='bad_give_power'),
-                                    cmd.GivePower(person=self.env_local.person_end, power=-1, event='bad_give_power')])
+                                    cmd.GivePower(person=self.env_local.person_start, power=-1),
+                                    cmd.GivePower(person=self.env_local.person_end, power=-1)])
 
         good_line_2 = Line(sequence=[cmd.Message(event='choice_defend'),
                                      cmd.Battle(number=2, event='bandits_attack'),
                                      cmd.Move(place=self.env_local.place_end, event='move_to_point'),
                                      cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
                                      cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
-                                     cmd.GivePower(person=self.env_local.person_start, power=1, event='good_give_power'),
-                                     cmd.GivePower(person=self.env_local.person_end, power=1, event='good_give_power')])
+                                     cmd.GivePower(person=self.env_local.person_start, power=1),
+                                     cmd.GivePower(person=self.env_local.person_end, power=1)])
 
         main_line = Line(sequence=[cmd.Message(event='intro'),
                                    cmd.Move(place=self.env_local.place_end, break_at=0.5, event='move_to_point'),
                                    cmd.Choose(id=self.env_local.choose_point_1,
                                               choices={'caravan': env.new_line(good_line_2),
                                                        'bandits': env.new_line(bad_line_1)},
-                                              event='bring_choice',
                                               choice='bring') ])
         self.line = env.new_line(main_line)

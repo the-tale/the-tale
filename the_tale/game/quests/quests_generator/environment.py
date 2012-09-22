@@ -137,10 +137,14 @@ class BaseEnvironment(object):
             for choice_id, choosen_line in choices:
                 quest_choices.append(writer.get_choice_result_msg(choice_id, choosen_line))
 
+            action_text = None
+            if command.event is not None:
+                action_text = writer.get_action_msg(command.event)
+
             writers_chain.append({'quest_type': quest.type(),
                                   'quest_text': writer.get_description_msg(),
                                   'action_type': command.type(),
-                                  'action_text': writer.get_action_msg(command.event),
+                                  'action_text':  action_text if action_text else u'занимается чем-то полезным',
                                   'choices': quest_choices,
                                   'actors': quest.get_actors(self)})
 

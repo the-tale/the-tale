@@ -23,14 +23,14 @@ class Delivery(Quest):
                                        cmd.GiveItem(self.env_local.item_to_deliver, event='give_item'),
                                        cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
                                        cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
-                                       cmd.GivePower(person=self.env_local.person_start, power=1, event='good_give_power'),
-                                       cmd.GivePower(person=self.env_local.person_end, power=1, event='good_give_power')])
+                                       cmd.GivePower(person=self.env_local.person_start, power=1),
+                                       cmd.GivePower(person=self.env_local.person_end, power=1)])
         steal_line = Line(sequence=[cmd.Message(event='choice_steal'),
-                                    cmd.GetReward(event='steal_reward'),
+                                    cmd.GetReward(event='get_reward'),
                                     cmd.GiveItem(self.env_local.item_to_deliver, event='steal_item'),
                                     cmd.QuestResult(result=DEFAULT_RESULTS.NEGATIVE),
-                                    cmd.GivePower(person=self.env_local.person_start, power=-1, event='evil_give_power'),
-                                    cmd.GivePower(person=self.env_local.person_end, power=-1, event='evil_give_power')])
+                                    cmd.GivePower(person=self.env_local.person_start, power=-1),
+                                    cmd.GivePower(person=self.env_local.person_end, power=-1)])
 
         main_line = Line(sequence=[ cmd.Message(event='intro'),
                                     cmd.GetItem(self.env_local.item_to_deliver, event='get_item'),
@@ -38,7 +38,6 @@ class Delivery(Quest):
                                     cmd.Choose(id=self.env_local.steal_point,
                                                choices={'delivery': env.new_line(delivery_line),
                                                         'steal': env.new_line(steal_line)},
-                                                        event='steal_choice',
                                                         choice='steal') ])
 
         self.line = env.new_line(main_line)

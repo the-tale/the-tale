@@ -3,13 +3,6 @@
 from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE, DEFAULT_RESULTS
 from game.quests.quests_generator import commands as cmd
 
-# class EVENTS:
-#     INTRO = 'intro'
-#     QUEST_DESCRIPTION = 'quest_description'
-#     MOVE_TO_QUEST = 'move_to_quest'
-#     START_QUEST = 'start_quest'
-#     GIVE_POWER = 'give_power'
-
 
 class HelpFriend(Quest):
 
@@ -42,12 +35,14 @@ class HelpFriend(Quest):
             sequence += [ cmd.Move(place=self.env_local.place_end, event='move_to_quest') ]
 
         positive_line = Line(sequence = [cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
+                                         cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
                                          cmd.GivePower(person=self.env_local.person_end, power=1)])
 
         negative_line = Line(sequence = [cmd.QuestResult(result=DEFAULT_RESULTS.NEGATIVE),
+                                         cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
                                          cmd.GivePower(person=self.env_local.person_end, power=-1)])
 
-        sequence += [ cmd.Quest(quest=self.env_local.quest_help, event='start_quest'),
+        sequence += [ cmd.Quest(quest=self.env_local.quest_help),
                       cmd.Switch(choices=[((self.env_local.quest_help, DEFAULT_RESULTS.POSITIVE), env.new_line(positive_line)),
                                           ((self.env_local.quest_help, DEFAULT_RESULTS.NEGATIVE), env.new_line(negative_line))]) ]
 

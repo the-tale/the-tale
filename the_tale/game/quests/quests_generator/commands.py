@@ -41,61 +41,53 @@ class Message(Command):
 
 class DoNothing(Command):
 
-    def __init__(self, duration=None, messages_prefix=None, messages_probability=None, **kwargs): # if break_at is None, hero will be go to the road end
+    def __init__(self, duration=None, messages_probability=None, **kwargs): # if break_at is None, hero will be go to the road end
         super(DoNothing, self).__init__(**kwargs)
-        self.messages_prefix = messages_prefix
         self.duration = duration
         self.messages_probability = messages_probability
 
 
     def get_description(self, env):
-        return '<do nothing> event: %s, duration %s, messages_prefix %s, messages_probability %s' % (self.event, self.duration, self.messages_prefix, self.messages_probability)
+        return '<do nothing> event: %s, duration %s, messages_probability %s' % (self.event, self.duration, self.messages_probability)
 
     def serialize(self):
         data = super(DoNothing, self).serialize()
         data.update({'duration': self.duration,
-                     'messages_prefix': self.messages_prefix,
                      'messages_probability': self.messages_probability})
         return data
 
     def deserialize(self, data):
         super(DoNothing, self).deserialize(data)
         self.duration = data['duration']
-        self.messages_prefix = data['messages_prefix']
         self.messages_probability = data['messages_probability']
 
     def __eq__(self, other):
         return (super(DoNothing, self).__eq__(other) and
                 self.duration == other.duration and
-                self.messages_prefix == other.messages_prefix and
                 self.messages_probability == other.messages_probability)
 
 
 class UpgradeEquipment(Command):
 
-    def __init__(self, equipment_slot=None, messages_prefix=None, **kwargs):
+    def __init__(self, equipment_slot=None, **kwargs):
         super(UpgradeEquipment, self).__init__(**kwargs)
         self.equipment_slot = equipment_slot
-        self.messages_prefix = messages_prefix
 
     def get_description(self, env):
         return '<upgrade equipment> slot: %s' % (self.equipment_slot)
 
     def serialize(self):
         data = super(UpgradeEquipment, self).serialize()
-        data.update({'equipment_slot': self.equipment_slot,
-                     'messages_prefix': self.messages_prefix})
+        data.update({'equipment_slot': self.equipment_slot})
         return data
 
     def deserialize(self, data):
         super(UpgradeEquipment, self).deserialize(data)
         self.equipment_slot = data['equipment_slot']
-        self.messages_prefix = data['messages_prefix']
 
     def __eq__(self, other):
         return (super(UpgradeEquipment, self).__eq__(other) and
-                self.equipment_slot == other.equipment_slot and
-                self.messages_prefix == other.messages_prefix)
+                self.equipment_slot == other.equipment_slot)
 
 
 class Move(Command):
