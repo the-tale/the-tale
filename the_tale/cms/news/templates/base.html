@@ -8,13 +8,6 @@
   <div class="span12">
     <div class="block">
 
-      <h2 style="margin-bottom: 0.5em;">
-        Новости
-        <a href="{{ get_rss_link() }}" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss">
-          <img src="{{STATIC_URL}}images/rss.png" style="margin: 2px;"/>
-        </a>
-      </h2>
-
       {% block news_content %}
       {% endblock %}
 

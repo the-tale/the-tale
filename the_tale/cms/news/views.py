@@ -39,6 +39,11 @@ class NewsResource(Resource):
                              {'news': news} )
 
 
+    @handler('#news_id', name='show', method='get')
+    def show(self):
+        return self.template('news/show.html', {'news': self.news} )
+
+
     @handler('#news_id', 'publish-on-forum', method='get') #TODO: change to post
     @staff_required()
     @nested_commit_on_success
@@ -47,13 +52,16 @@ class NewsResource(Resource):
         if news_settings.FORUM_CATEGORY_SLUG is None:
             return self.json_error('news.publish_on_forum.forum_category_not_specified', u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
 
+        if not SubCategory.objects.filter(slug=news_settings.FORUM_CATEGORY_SLUG).exists():
+            return self.json_error('news.publish_on_forum.forum_category_not_exists', u'try to publish news on forum when FORUM_CATEGORY_ID has not exists')
+
         if self.news.forum_thread is not None:
-            raise self.json_error('news.publish_on_forum.forum_category_not_specified', u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
+            return self.json_error('news.publish_on_forum.forum_thread_already_exists', u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
 
         thread = create_thread(get_object_or_404(SubCategory, slug=news_settings.FORUM_CATEGORY_SLUG ),
                                caption=self.news.caption,
                                author=self.request.user,
-                               text=self.news.description,
+                               text=self.news.content,
                                markup_method=MARKUP_METHOD.MARKDOWN)
 
         self.news.forum_thread = thread
@@ -75,7 +83,7 @@ class NewsResource(Resource):
         for news_item in news:
             feed.add_item(title=news_item.caption,
                           link=self.request.build_absolute_uri(reverse('news:')),
-                          description=news_item.html_description,
+                          description=news_item.html_content,
                           pubdate=news_item.created_at,
                           comments=news_item.forum_thread.get_absolute_url() if news_item.forum_thread else None,
                           unique_id=str(news_item.id))
