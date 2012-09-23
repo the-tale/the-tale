@@ -28,6 +28,9 @@
 .post-table .created-at {
   width: 15em;
 }
+.post-table .post-removed-message {
+  color: #b94a48;
+}
 .new-post-form,
 .change-post-form {
   margin-top: 1em;

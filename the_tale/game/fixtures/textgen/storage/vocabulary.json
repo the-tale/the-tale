@@ -1740,6 +1740,7 @@
       "template": "Вытащив из своих необъятных карманов очередную палочку благовоний, %(e_0)s %(i_0)s ее и %(i_1)s клубами ароматного дыма."
     }
   ], 
+  "quest_hometown_journal_remember_names": [], 
   "quest_spying_journal_open_up_choice": [], 
   "quest_hunt_journal_hunt": [], 
   "quest_notmywork_choice_work_variant_diplomacy": [
@@ -2262,46 +2263,6 @@
       "template": "поддаться укорам совести и раскрыться"
     }
   ], 
-  "action_equipping_change_equal_items": [
-    {
-      "internals": [
-        [
-          "новый", 
-          [
-            "item"
-          ], 
-          "i_0", 
-          [
-            "загл"
-          ], 
-          "новый"
-        ], 
-        [
-          "старый", 
-          [
-            "item"
-          ], 
-          "i_1", 
-          [
-            "рд"
-          ], 
-          "старый"
-        ]
-      ], 
-      "externals": [
-        [
-          "item", 
-          [], 
-          "e_0", 
-          [
-            "им"
-          ], 
-          "item"
-        ]
-      ], 
-      "template": "%(i_0)s %(e_0)s куда лучше %(i_1)s — надо их поменять"
-    }
-  ], 
   "action_rest_resring": [
     {
       "internals": [
@@ -2379,6 +2340,7 @@
       "template": "Проходящий мимо шаман кастанул чайник и исцелил на %(e_0)s HP"
     }
   ], 
+  "quest_hometown_journal_search_old_friends": [], 
   "action_trading_sell_item": [
     {
       "internals": [
@@ -5209,7 +5171,46 @@
     }
   ], 
   "quest_hometown_journal_search_old_friends_donothing": [], 
-  "quest_hometown_diary_search_old_friends_description": [], 
+  "action_equipping_change_equal_items": [
+    {
+      "internals": [
+        [
+          "новый", 
+          [
+            "item"
+          ], 
+          "i_0", 
+          [
+            "загл"
+          ], 
+          "новый"
+        ], 
+        [
+          "старый", 
+          [
+            "item"
+          ], 
+          "i_1", 
+          [
+            "рд"
+          ], 
+          "старый"
+        ]
+      ], 
+      "externals": [
+        [
+          "item", 
+          [], 
+          "e_0", 
+          [
+            "им"
+          ], 
+          "item"
+        ]
+      ], 
+      "template": "%(i_0)s %(e_0)s куда лучше %(i_1)s — надо их поменять"
+    }
+  ], 
   "quest_caravan_action_move_to_point": [
     {
       "internals": [], 
@@ -5551,6 +5552,7 @@
     }
   ], 
   "quest_searchsmith_action_intro": [], 
+  "quest_hometown_diary_search_old_friends": [], 
   "quest_notmywork_diary_attack_performer": [], 
   "quest_caravan_choice_bring_variant_bandits": [
     {

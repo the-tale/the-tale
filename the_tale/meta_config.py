@@ -5,13 +5,13 @@ import os
 from dext.utils import s11n
 
 class MetaConfig(object):
-    
+
     def __init__(self):
         self.config_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'meta_config.json')
         self.config = {}
         self.load_config()
 
-        
+
     def load_config(self):
 
         if os.path.exists(self.config_path):
@@ -20,7 +20,6 @@ class MetaConfig(object):
 
 
     def save_config(self):
-        
         with open(self.config_path, 'w') as f:
             f.write(s11n.to_json(self.config))
 
@@ -28,6 +27,10 @@ class MetaConfig(object):
     def static_data_version(self):
         return str(self.config.get('static_data_version', ''))
 
+    def get_game_version(self): return self.config['game_version']
+    def set_game_verstion(self, value):
+        self.config['game_version'] = value
+    game_version = property(get_game_version, set_game_verstion)
 
     def increment_static_data_version(self):
         static_data_version = self.config.get('static_data_version', 0)

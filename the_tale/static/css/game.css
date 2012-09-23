@@ -121,6 +121,9 @@
 .quest-icon.helpfriend {
   background: url('../game/images/quests.png') no-repeat scroll -640px 0 transparent;
 }
+.quest-icon.next-spending {
+  background: url('../game/images/quests.png') no-repeat scroll -704px 0 transparent;
+}
 .quest-record {
   min-height: 64px;
   cursor: default;
@@ -235,6 +238,8 @@
   width: 100px;
   display: inline-block;
   margin: 0;
+  vertical-align: middle;
+  margin-bottom: 1px;
 }
 #abilities-block {
   text-align: center;
