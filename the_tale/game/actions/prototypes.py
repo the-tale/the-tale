@@ -829,7 +829,7 @@ class ActionInPlacePrototype(ActionPrototype):
             coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
             if coins is not None:
 
-                artifact, unequipped, sell_price = self.hero.buy_artifact()
+                artifact, unequipped, sell_price = self.hero.buy_artifact(with_preferences=False)
 
                 if unequipped is not None:
                     self.hero.add_message('action_inplace_buying_artifact_and_change',important=True,

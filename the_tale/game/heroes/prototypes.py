@@ -187,7 +187,11 @@ class HeroPrototype(object):
         if self.preferences.enemy_id is not None:
             allowed_quests.append(InterfereEnemy.type())
         if self.preferences.equipment_slot is not None:
-            allowed_quests.append(SearchSmith.type())
+            equipped_artifact = self.equipment.get(self.preferences.equipment_slot)
+            equipped_power = equipped_artifact.power if equipped_artifact else -1
+            min_power, max_power = f.power_to_artifact_interval(self.level)
+            if equipped_power <= max_power:
+                allowed_quests.append(SearchSmith.type())
 
         return allowed_quests
 
@@ -217,10 +221,16 @@ class HeroPrototype(object):
         self.bag.pop_quest_artifact(artifact)
 
 
-    def buy_artifact(self, better=False):
+    def buy_artifact(self, better=False, with_preferences=True):
         artifacts_list = None
         if self.preferences.equipment_slot is not None:
-            artifacts_list = ArtifactsDatabase.storage().artifacts_for_equip_type(SLOTS_TO_ARTIFACT_TYPES[self.preferences.equipment_slot])
+            if with_preferences:
+                slots = SLOTS_TO_ARTIFACT_TYPES[self.preferences.equipment_slot]
+            else:
+                slots = reduce(lambda x, y: x | set(y), SLOTS_TO_ARTIFACT_TYPES.values(), set())
+                slots -= set(SLOTS_TO_ARTIFACT_TYPES[self.preferences.equipment_slot])
+
+            artifacts_list = ArtifactsDatabase.storage().artifacts_for_equip_type(slots)
 
         if not artifacts_list:
             # if hero has not preferences or can not get any item for preferences slot

@@ -94,7 +94,7 @@ POWER_TO_LVL = float(EQUIP_SLOTS_NUMBER) # бонус к ожидаемой си
 # Разброс силы артефактов делаем от -ItemPowerDelta до +ItemPowerDelta.
 # за базу берём количество слотов, т.е., теоретически, может не быть предметов с повторяющейся силой
 # что бы не вводить дизбаланса, надо на маленьких уровнях уменьшать делту, что бу разница уровня предмета и дельты была неменьше единицы
-ARTIFACT_POWER_DELTA = int(6) # дельта, на которую может изменяться сила артифакта
+ARTIFACT_POWER_DELTA = float(0.2) # дельта, на которую может изменяться сила артифакта
 
 # ходов - длинна непрерывной цепочки боёв до остановки на лечение
 BATTLES_LINE_LENGTH = int(BATTLES_BEFORE_HEAL * (BATTLE_LENGTH + INTERVAL_BETWEEN_BATTLES ) - INTERVAL_BETWEEN_BATTLES)

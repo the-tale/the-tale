@@ -42,11 +42,15 @@ def power_to_lvl(lvl): return int(lvl * c.POWER_TO_LVL)
 def power_to_artifact(lvl): return power_to_lvl(lvl) / c.EQUIP_SLOTS_NUMBER
 
 # функция, для получения случайного значения силы артефакта
-def power_to_artifact_randomized(lvl):
+def power_to_artifact_interval(lvl):
     base_power = power_to_artifact(lvl)
-    min_power = max(base_power-c.ARTIFACT_POWER_DELTA, 1)
-    max_power = base_power + (base_power - min_power)
-    return random.randint(min_power, max_power)
+    delta = int(base_power * c.ARTIFACT_POWER_DELTA)
+    min_power = max(base_power - delta, 1)
+    max_power = base_power + delta
+    return min_power, max_power
+
+def power_to_artifact_randomized(lvl):
+    return random.randint(*power_to_artifact_interval(lvl))
 
 
 # Предполагаем, что мобы различаются по инициативе (скорости), здоровью и урону. Каждый из этих параметров высчитывается как процент от среднего (ожидаемого) значения.

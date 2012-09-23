@@ -6,11 +6,10 @@ from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.artifacts.storage import ArtifactsDatabase
 from game.prototypes import TimePrototype
 
-from game.balance import formulas as f
+from game.balance import formulas as f, constants as c
 
-from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
-from game.balance import constants as c
-
+from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS
+from game.quests.quests_builders import SearchSmith
 
 class HeroTest(TestCase):
 
@@ -119,3 +118,31 @@ class HeroTest(TestCase):
         self.hero.save()
 
         self.assertEqual(self.hero.experience_modifier, 1)
+
+
+class HeroGetSpecialQuestsTest(TestCase):
+
+    def setUp(self):
+        create_test_map()
+
+        self.bundle = create_test_bundle('HeroTest')
+        self.action_idl = self.bundle.tests_get_last_action()
+        self.hero = self.bundle.tests_get_hero()
+
+
+    def test_special_quests_searchsmith_without_preferences(self):
+        self.assertFalse(SearchSmith.type() in self.hero.get_special_quests())
+
+    def test_special_quests_searchsmith_with_preferences_without_artifact(self):
+        self.hero.equipment.test_remove_all()
+        self.hero.preferences.equipment_slot = SLOTS.PLATE
+        self.hero.save()
+
+        self.assertTrue(SearchSmith.type() in self.hero.get_special_quests())
+
+    def test_special_quests_searchsmith_with_preferences_with_artifact(self):
+        self.hero.preferences.equipment_slot = SLOTS.PLATE
+        self.hero.save()
+
+        self.assertTrue(self.hero.equipment.get(SLOTS.PLATE) is not None)
+        self.assertTrue(SearchSmith.type() in self.hero.get_special_quests())

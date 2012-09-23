@@ -52,7 +52,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.SELL_ARTIFACT_PRICE_FRACTION, 0.1)
         self.assertEqual(c.PRICE_DELTA, 0.2)
         self.assertEqual(c.POWER_TO_LVL, 12.0)
-        self.assertEqual(c.ARTIFACT_POWER_DELTA, 6)
+        self.assertEqual(c.ARTIFACT_POWER_DELTA, 0.2)
         self.assertEqual(c.BATTLES_LINE_LENGTH, 8*(16+5)-5)
         self.assertEqual(c.BATTLES_PER_TURN, 1.0 / 5 )
         self.assertEqual(c.HEAL_LENGTH, int((8*(16+5)-5) * 0.2))

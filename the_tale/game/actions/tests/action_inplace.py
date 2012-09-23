@@ -171,7 +171,8 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
 
-        self.assertNotEqual(self.hero.equipment.get(SLOTS.PLATE), None)
+        # hero must not buy artifact in preferences slot, he has special quest for this
+        self.assertEqual(self.hero.equipment.get(SLOTS.PLATE), None)
         test_bundle_save(self, self.bundle)
 
 
