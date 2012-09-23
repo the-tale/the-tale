@@ -11,76 +11,81 @@ jQuery(document).ready(function(e) {
 
 <div id="hero-equipment-block">
 
-  <div class="equip-record pgf-hand_primary" rel="tooltip" title="правая рука">
-    <img class="icon" src="{{ STATIC_URL }}/game/images/equip/main-hand.gif"/>
-    <span class="name pgf-name"></span>
-    <span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span>
-  </div>
+<table style="width: 100%;">
+  <tbody>
+    <tr class="equip-record pgf-hand_primary" rel="tooltip" title="правая рука">
+      <td><img class="icon" src="{{ STATIC_URL }}/game/images/equip/main-hand.gif"/></td>
+      <td><div class="name pgf-name"></div></td>
+      <td><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
+    </tr>
 
-  <div class="equip-record pgf-hand_secondary" rel="tooltip" title="левая рука">
-    <img class="icon" src="{{ STATIC_URL }}/game/images/equip/off-hand.gif"/>
-    <span class="name pgf-name"></span>
-    <span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span>
-  </div>
+    <tr class="equip-record pgf-hand_secondary" rel="tooltip" title="левая рука">
+      <td><img class="icon" src="{{ STATIC_URL }}/game/images/equip/off-hand.gif"/></td>
+      <td><div class="name pgf-name"></div></td>
+      <td><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
+    </tr>
 
-  <div class="equip-record pgf-helmet" rel="tooltip" title="шлем">
-    <img class="icon" src="{{ STATIC_URL }}/game/images/equip/helmet.gif"/>
-    <span class="name pgf-name"></span>
-    <span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span>
-  </div>
+    <tr class="equip-record pgf-helmet" rel="tooltip" title="шлем">
+      <td><img class="icon" src="{{ STATIC_URL }}/game/images/equip/helmet.gif"/></td>
+      <td><div class="name pgf-name"></div></td>
+      <td><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
+    </tr>
 
-  <div class="equip-record  pgf-amulet" rel="tooltip" title="амулет">
-    <img class="icon" src="{{ STATIC_URL }}/game/images/equip/amulet.gif"/>
-    <span class="name pgf-name"></span>
-    <span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span>
-  </div>
+    <tr class="equip-record  pgf-amulet" rel="tooltip" title="амулет">
+      <td><img class="icon" src="{{ STATIC_URL }}/game/images/equip/amulet.gif"/></td>
+      <td><div class="name pgf-name"></div></td>
+      <td><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
+    </tr>
 
-  <div class="equip-record pgf-shoulders" rel="tooltip" title="наплечники">
-    <img class="icon" src="{{ STATIC_URL }}/game/images/equip/shoulders.gif"/>
-    <span class="name pgf-name"></span>
-    <span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span>
-  </div>
+    <tr class="equip-record pgf-shoulders" rel="tooltip" title="наплечники">
+      <td><img class="icon" src="{{ STATIC_URL }}/game/images/equip/shoulders.gif"/></td>
+      <td><div class="name pgf-name"></div></td>
+      <td><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
+    </tr>
 
-  <div class="equip-record pgf-plate" rel="tooltip" title="доспех">
-    <img class="icon" src="{{ STATIC_URL }}/game/images/equip/plate.gif"/>
-    <span class="name pgf-name"></span>
-    <span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span>
-  </div>
+    <tr class="equip-record pgf-plate" rel="tooltip" title="доспех">
+      <td><img class="icon" src="{{ STATIC_URL }}/game/images/equip/plate.gif"/></td>
+      <td><div class="name pgf-name"></div></td>
+      <td><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
+    </tr>
 
-  <div class="equip-record pgf-gloves" rel="tooltip" title="перчатки">
-    <img class="icon" src="{{ STATIC_URL }}/game/images/equip/gloves.gif"/>
-    <span class="name pgf-name"></span>
-    <span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span>
-  </div>
+    <tr class="equip-record pgf-gloves" rel="tooltip" title="перчатки">
+      <td><img class="icon" src="{{ STATIC_URL }}/game/images/equip/gloves.gif"/></td>
+      <td><div class="name pgf-name"></div></td>
+      <td><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
+    </tr>
 
-  <div class="equip-record pgf-cloak" rel="tooltip" title="плащ">
-    <img class="icon" src="{{ STATIC_URL }}/game/images/equip/cloak.gif"/>
-    <span class="name pgf-name"></span>
-    <span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span>
-  </div>
+    <tr class="equip-record pgf-cloak" rel="tooltip" title="плащ">
+      <td><img class="icon" src="{{ STATIC_URL }}/game/images/equip/cloak.gif"/></td>
+      <td><div class="name pgf-name"></div></td>
+      <td><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
+    </tr>
 
-  <div class="equip-record pgf-pants" rel="tooltip" title="штаны">
-    <img class="icon" src="{{ STATIC_URL }}/game/images/equip/pants.png"/>
-    <span class="name pgf-name"></span>
-    <span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span>
-  </div>
+    <tr class="equip-record pgf-pants" rel="tooltip" title="штаны">
+      <td><img class="icon" src="{{ STATIC_URL }}/game/images/equip/pants.png"/></td>
+      <td><div class="name pgf-name"></div></td>
+      <td><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
+    </tr>
 
-  <div class="equip-record pgf-boots" rel="tooltip" title="обувь">
-    <img class="icon" src="{{ STATIC_URL }}/game/images/equip/boots.gif"/>
-    <span class="name pgf-name"></span>
-    <span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span>
-  </div>
+    <tr class="equip-record pgf-boots" rel="tooltip" title="обувь">
+      <td><img class="icon" src="{{ STATIC_URL }}/game/images/equip/boots.gif"/></td>
+      <td><div class="name pgf-name"></div></td>
+      <td><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
+    </tr>
 
-  <div class="equip-record pgf-ring-first" rel="tooltip" title="кольцо">
-    <img class="icon" src="{{ STATIC_URL }}/game/images/equip/ring-first.gif"/>
-    <span class="name pgf-name"></span>
-    <span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span>
-  </div>
+    <tr class="equip-record pgf-ring-first" rel="tooltip" title="кольцо">
+      <td><img class="icon" src="{{ STATIC_URL }}/game/images/equip/ring-first.gif"/></td>
+      <td><div class="name pgf-name"></div></td>
+      <td><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
+    </tr>
 
-  <div class="equip-record pgf-ring-second" rel="tooltip" title="кольцо">
-    <img class="icon" src="{{ STATIC_URL }}/game/images/equip/ring-second.gif"/>
-    <span class="name pgf-name"></span>
-    <span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span>
-  </div>
+    <tr class="equip-record pgf-ring-second" rel="tooltip" title="кольцо">
+      <td><img class="icon" src="{{ STATIC_URL }}/game/images/equip/ring-second.gif"/></td>
+      <td><div class="name pgf-name"></div></td>
+      <td><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
+    </tr>
+
+  </tbody>
+</table>
 
 </div>
