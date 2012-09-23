@@ -1,10 +1,11 @@
 {% extends "guide/base.html" %}
+{% import 'guide/macros.html' as guide_macros with context %}
 
 {% block title %}Игра | {{ super() }}{% endblock %}
 
 {% block guide_content %}
 
-<h3>Игра</h3>
+{{ guide_macros.page_caption("Игра", "Введение в игру") }}
 
 <p><strong>Сказка</strong> это:</p>
 

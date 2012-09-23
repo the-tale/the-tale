@@ -12,9 +12,7 @@ from game.logic import create_test_map
 from cms.news.models import News
 from cms.news.conf import news_settings
 
-from forum.models import Category, SubCategory, Thread, Post
-from forum.logic import create_thread, create_post
-from forum.conf import forum_settings
+from forum.models import Category, SubCategory, Thread
 
 class TestRequests(TestCase):
 
@@ -47,8 +45,8 @@ class TestRequests(TestCase):
 
 
     def test_show_page(self):
-        self.check_html_ok(self.client.get(reverse('news:show', args=[self.news1.id])), texts=(('news1-caption', 2),
-                                                                                               ('news1-description', 0),
+        self.check_html_ok(self.client.get(reverse('news:show', args=[self.news1.id])), texts=(('news1-caption', 3), # third caption in addthis widget
+                                                                                               ('news1-description', 1), # description in addthis widget
                                                                                                ('news1-content', 1)))
 
     def prepair_forum(self):

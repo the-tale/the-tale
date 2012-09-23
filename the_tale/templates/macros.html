@@ -16,3 +16,38 @@
 </li>
 
 {%- endmacro %}
+
+
+{% macro addthis(title, description, url=none) %}
+
+{% if url is none %}
+{% set url = resource.request.build_absolute_uri()%}
+{% endif %}
+
+  <div class="addthis_toolbox addthis_default_style"
+       addthis:ui_language="ru"
+       addthis:title="«Сказка»: {{title}}"
+       addthis:description="{{description}}"
+       addthis:services_exclude="print"
+       addthis:url="{{url}}"
+
+       addthis:data_track_addressbar="false"
+       addthis:data_track_clickback="false"
+       addthis:track_addressbar="false"
+       addthis:track_clickback="false"
+
+       {% if settings.GA_CODE %}
+       addthis:ga_property="{{settings.GA_CODE}}"
+       addthis:ga_social="true"
+       {% endif %}
+       >
+    <span class="invitation">поделиться с друзьями</span>
+    <a class="addthis_button_vk"></a>
+    <a class="addthis_button_preferred_2"></a>
+    <a class="addthis_button_preferred_3"></a>
+    <a class="addthis_button_preferred_4"></a>
+    <a class="addthis_button_compact"></a>
+    <a class="addthis_counter addthis_bubble_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-505d67570062215a"></script>
+{% endmacro %}

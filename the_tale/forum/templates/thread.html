@@ -1,4 +1,5 @@
 {% extends "forum/base.html" %}
+{% import 'macros.html' as base_macros with context %}
 
 {% block title %}{{ thread.caption }} | {{subcategory.caption}} | {{ super() }}{% endblock %}
 
@@ -89,13 +90,13 @@ jQuery(document).ready( function(e) {
   <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
   <li><a href="{{ url('forum:subcategory', subcategory.slug) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
   <li class="active">{{ thread.caption }}</li>
+  <li class="pull-right" style="margin-top: 1px; margin-left: 1em;">{{ base_macros.addthis("Форум: "+ thread.caption, posts[0].html, url=full_url('http', 'forum:threads:show', thread.id)) }}</li>
   {% if can_delete_thread %}
   <li class="pull-right"><a href="#" class="pgf-remove-thread-button">удалить</a></li>
   {% endif %}
   {% if can_change_thread %}
   <li class="pull-right" style="margin-right: 1em;"><a href="{{ url('forum:threads:edit', thread.id) }}" class="pgf-change-thread-button">редактировать</a></li>
   {% endif %}
-
 </ul>
 
 {{ render_pages() }}

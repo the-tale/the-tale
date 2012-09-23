@@ -2,6 +2,7 @@
 
 from django.test import TestCase, client
 from django.db import IntegrityError
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from cms.models import Page
@@ -12,9 +13,10 @@ class TestCMSRequests(TestCase):
 
     def setUp(self):
         self.client = client.Client()
-        self.p1 = Page.objects.create(section='test', slug='slug1', caption='caption1', content='content1', order=0, active=False)
-        self.p1 = Page.objects.create(section='test', slug='slug2', caption='caption2', content='content2', order=1, active=True)
-        self.p1 = Page.objects.create(section='test', slug='slug3', caption='caption3', content='content3', order=2, active=True)
+        self.staff_user = User.objects.create_user('test_user', 'test_user@test.com', '111111')
+        self.p1 = Page.objects.create(section='test', slug='slug1', caption='caption1', content='content1', order=0, active=False, author=self.staff_user)
+        self.p1 = Page.objects.create(section='test', slug='slug2', caption='caption2', content='content2', order=1, active=True, author=self.staff_user)
+        self.p1 = Page.objects.create(section='test', slug='slug3', caption='caption3', content='content3', order=2, active=True, author=self.staff_user)
 
     def test_sections_list(self):
         for section in cms_settings.SECTIONS:
@@ -43,7 +45,7 @@ class TestCMSRequests(TestCase):
         self.assertEqual(response['location'], 'http://testserver%s' % reverse('cms:test:page', args=['slug2']))
 
     def test_index_page(self):
-        Page.objects.create(section='test', slug='', caption='caption4', content='content4', order=4, active=True)
+        Page.objects.create(section='test', slug='', caption='caption4', content='content4', order=4, active=True, author=self.staff_user)
         response = self.client.get(reverse('cms:test:'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('caption4' in response.content)

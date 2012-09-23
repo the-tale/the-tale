@@ -24,8 +24,10 @@ class Page(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False, db_index=True)
     updated_at = models.DateTimeField(auto_now=True, null=False, db_index=True)
 
-    author = models.ForeignKey(User, null=True, related_name='+')
+    author = models.ForeignKey(User, null=False, related_name='+')
     editor = models.ForeignKey(User, null=True, default=None, related_name='+')
+
+    description = models.TextField(null=False, blank=False, default='')
 
     content = models.TextField(null=False, blank=False, default='')
 

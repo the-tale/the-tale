@@ -1,11 +1,11 @@
 {% extends "guide/base.html" %}
+{% import 'guide/macros.html' as guide_macros with context %}
 
 {% block title %}{{ resource.page.caption }} | {{resource.page.get_section().caption}}  | {{ super() }}{% endblock %}
 
 {% block guide_content %}
 
-<h3>{{ resource.page.caption }}</h3>
-
+{{ guide_macros.page_caption(resource.page.caption, resource.page.description) }}
 {{ resource.page.html_content|safe }}
 
 {% endblock %}

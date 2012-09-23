@@ -1,10 +1,11 @@
 {% extends "guide/base.html" %}
-
-{% block guide_content %}
+{% import 'guide/macros.html' as guide_macros with context %}
 
 {% block title %}Регистрация | {{ super() }}{% endblock %}
 
-<h3>Регистрация</h3>
+{% block guide_content %}
+
+{{ guide_macros.page_caption("Регистрация", "Руководство по регистрации") }}
 
 {% if resource.account and resource.account.is_fast %}
 <p class="alert alert-info">
