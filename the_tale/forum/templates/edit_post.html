@@ -51,6 +51,7 @@ jQuery(document).ready( function(e) {
     <input type="submit" value="Сохранить"/>
     <input type="button" class="pgf-preview-button" value="Предпросмотр"/>
     <input type="button" class="pgf-edit-button pgf-hidden" value="Редактировать"/>
+    <input type="button" class="" value="Отмена" onclick="location.href='{{ url('forum:threads:show', thread.id) }}';"/>
   </div>
 
 </form>
