@@ -43,7 +43,7 @@
         "diary_upgrade_equipment_buy_and_change": {
             "variables": {"hero": "привидение", "coins": 13, "artifact": "пепельница", "unequipped": "нож", "sell_price": 2},
             "phrases": [
-                ["[[person_end|загл]] [{создал|person_end|прш}] поистине чудесный артефакт — «[[artifact|вн]]»! И всего за [[coins]] [{монета|coins|вн}]. [[unequipped|загл]] пришлось продать за [[sell_price]] [{монета|sell_price|вн}].",
+                ["[[person_end|загл]] [{создал|person_end|прш}] поистине чудесный артефакт — «[[artifact|вн]]»! И всего за [[coins]] [{монета|coins|вн}]. [[unequipped|вн,загл]] пришлось продать за [[sell_price]] [{монета|sell_price|вн}].",
                  "Свинья создала поистине чудесный артефакт — «пепельницу»! И всего за 13 монет. Нож пришлось продать за 2 монеты."]
             ]
         },

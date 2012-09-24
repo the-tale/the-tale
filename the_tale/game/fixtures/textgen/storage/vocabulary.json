@@ -355,7 +355,9 @@
           "old_artifact", 
           [], 
           "e_3", 
-          [], 
+          [
+            "вн"
+          ], 
           "old_artifact"
         ], 
         [
@@ -1001,6 +1003,21 @@
       "template": "перебирает содержимое рюкзака"
     }
   ], 
+  "quest_notmywork_action_choice_attack": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s настаивает на своём"
+    }
+  ], 
   "quest_hometown_action_search_old_friends": [
     {
       "internals": [], 
@@ -1429,7 +1446,7 @@
           "hero"
         ]
       ], 
-      "template": "Отстранившись от мира и забот насущных, %(e_0)s приняв позу лотоса %(i_0)s в медитацию, постигая основы мироздания и приводя в порядок внутренний мир."
+      "template": "От мира и забот насущных отстранившись, позу лотоса приняв, в медитацию %(i_0)s %(e_0)s, основы мироздания постигая и мир внутренний в порядок приводя."
     }
   ], 
   "quest_notmywork_diary_move_to_quest": [], 
@@ -2263,6 +2280,7 @@
       "template": "поддаться укорам совести и раскрыться"
     }
   ], 
+  "quest_interfereenemy_journal_move_to_quest": [], 
   "action_rest_resring": [
     {
       "internals": [
@@ -2734,6 +2752,21 @@
     }
   ], 
   "quest_searchsmith_journal_intro": [], 
+  "quest_notmywork_action_choice_do_work": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s выслушивает объяснения"
+    }
+  ], 
   "quest_hometown_diary_drunk_song": [], 
   "quest_caravan_action_run_away": [
     {
@@ -2840,6 +2873,7 @@
       "template": "Йод, касторка, спирт, теперь надо всё это смешать и выпить, глядишь — поможет"
     }
   ], 
+  "quest_interfereenemy_diary_move_to_quest": [], 
   "quest_caravan_journal_run_away": [
     {
       "internals": [], 
@@ -3206,6 +3240,7 @@
       "template": "%(e_0)s %(i_0)s обряд."
     }
   ], 
+  "quest_hometown_diary_remember_names": [], 
   "quest_caravan_diary_get_reward": [
     {
       "internals": [
@@ -5388,6 +5423,7 @@
           [], 
           "e_3", 
           [
+            "вн", 
             "загл"
           ], 
           "unequipped"

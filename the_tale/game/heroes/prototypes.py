@@ -511,13 +511,21 @@ class HeroPrototype(object):
         return (TimePrototype.get_current_turn_number()-in_past, time.mktime(datetime.datetime.now().timetuple())-in_past*c.TURN_DELTA, msg)
 
     def add_message(self, type_, important=False, **kwargs):
-        args = prepair_substitution(kwargs)
-        template = get_vocabulary().get_random_phrase(type_)
 
-        if template is None:
+        vocabulary = get_vocabulary()
+
+        if type_ not in vocabulary:
             if not project_settings.TESTS_RUNNING:
                 logger.error('hero:add_message: unknown template type: %s' % type_)
+            return None
+
+        args = prepair_substitution(kwargs)
+        template = vocabulary.get_random_phrase(type_)
+
+        if template is None:
+            # if template type exists but empty
             return
+
         msg = template.substitute(get_dictionary(), args)
         self.push_message(self._prepair_message(msg), important=important)
 

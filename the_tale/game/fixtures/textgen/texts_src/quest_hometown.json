@@ -33,7 +33,6 @@
 
 
         "journal_drunk_song": [],
-
         "journal_drunk_song_description": [["распевает разгульную песню, пьянствуя с друзьями в трактире",
                                               "распевает разгульную песню, пьянствуя с друзьями в трактире"]],
         "journal_drunk_song_start": [["А это что за трактир, в прошлый раз его не было, пожалуй стоит проверить чем тут потчуют.",
@@ -42,7 +41,6 @@
 
 
         "journal_stagger_streets": [],
-
         "journal_stagger_streets_description": [["Шатается по знакомым улочкам, пялясь на новые постройки.",
                                                    "Шатается по знакомым улочкам, пялясь на новые постройки."]],
         "journal_stagger_streets_start": [["Пойду поброжу по родным улочкам.",
@@ -55,7 +53,6 @@
                                                  "Ну вот, ничего не изменилось с моего последнего посещения, хотя может быть это и к лучшему?"]],
 
         "journal_chatting": [],
-
         "journal_chatting_description": [["болтает о жизни со знакомым лавочником",
                                             "болтает о жизни со знакомым лавочником"]],
         "journal_chatting_start": [["Ух ты! Старый знакомый!",
@@ -64,7 +61,6 @@
 
 
         "journal_search_old_friends": [],
-
         "journal_search_old_friends_description": [["разыскивает старых боевых товарищей",
                                                       "разыскивает старых боевых товарищей"]],
         "journal_search_old_friends_start": [["И куда запропастился мой старый боевой товарищ, всегда же тут ошивался…",
@@ -72,6 +68,7 @@
         "journal_search_old_friends_donothing": [],
 
 
+        "journal_remember_names": [],
         "journal_remember_names_description": [["вспоминает как зовут знакомого оружейника",
                                                   "вспоминает как зовут знакомого оружейника"]],
         "journal_remember_names_start": [],
@@ -92,7 +89,7 @@
         "diary_stagger_streets": [],
         "diary_chatting": [],
         "diary_search_old_friends": [],
-        "journal_remember_names": [],
+        "diary_remember_names": [],
 
         "diary_get_reward": {
             "variables": {"hero": "привидение", "coins": 13},

@@ -42,7 +42,7 @@ class InterfereEnemy(Quest):
                                          cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
                                          cmd.GivePower(person=self.env_local.person_end, power=+1)])
 
-        sequence += [ cmd.Quest(quest=self.env_local.quest_interfer, event='start_quest'),
+        sequence += [ cmd.Quest(quest=self.env_local.quest_interfer),
                       cmd.Switch(choices=[((self.env_local.quest_interfer, DEFAULT_RESULTS.POSITIVE), env.new_line(negative_line)),
                                           ((self.env_local.quest_interfer, DEFAULT_RESULTS.NEGATIVE), env.new_line(positive_line))]) ]
 
