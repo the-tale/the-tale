@@ -77,9 +77,9 @@ class TestRequests(TestCase):
 
         self.assertRedirects(response, reverse('forum:threads:show', args=[thread.id]), status_code=302, target_status_code=200)
 
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[thread.id])), texts=(('news1-caption', 2),
+        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[thread.id])), texts=(('news1-caption', 3),
                                                                                                     ('news1-description', 0),
-                                                                                                    ('news1-content', 1)))
+                                                                                                    ('news1-content', 2)))
 
         self.check_html_ok(self.client.get(reverse('news:show', args=[self.news1.id])), texts=(('pgf-forum-link', 1), ))
         self.check_html_ok(self.client.get(reverse('news:')), texts=(('pgf-forum-link', 1), ))
