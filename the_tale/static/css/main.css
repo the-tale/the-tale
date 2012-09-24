@@ -124,3 +124,13 @@ table.table-striped tbody tr:nth-child(odd):hover td {
 blockquote {
   font-style: italic;
 }
+.addthis_toolbox {
+  display: inline-block;
+  float: right;
+  width: 300px;
+}
+.addthis_toolbox .invitation {
+  float: left;
+  color: #999999;
+  margin-right: 0.5em;
+}

@@ -9,3 +9,6 @@
 .guide-navigation .nav-header {
   cursor: default;
 }
+.guide-page-title .addthis_toolbox {
+  margin-top: 5px;
+}
