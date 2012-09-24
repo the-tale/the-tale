@@ -90,7 +90,7 @@ jQuery(document).ready( function(e) {
   <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
   <li><a href="{{ url('forum:subcategory', subcategory.slug) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
   <li class="active">{{ thread.caption }}</li>
-  <li class="pull-right" style="margin-top: 1px; margin-left: 1em;">{{ base_macros.addthis("Форум: "+ thread.caption, posts[0].html, url=full_url('http', 'forum:threads:show', thread.id)) }}</li>
+  <li class="pull-right" style="margin-top: 1px; margin-left: 1em;">{{ base_macros.addthis("Форум: "+ thread.caption, posts[0].html|striptags, url=full_url('http', 'forum:threads:show', thread.id)) }}</li>
   {% if can_delete_thread %}
   <li class="pull-right"><a href="#" class="pgf-remove-thread-button">удалить</a></li>
   {% endif %}
