@@ -10,11 +10,11 @@ from common.utils.resources import Resource
 from cms.models import Page
 
 
-
 class CMSResource(Resource):
 
-    def __init__(self, request, slug='', section=None, *args, **kwargs):
-        super(CMSResource, self).__init__(request, *args, **kwargs)
+    def initialize(self, slug='', section=None, *args, **kwargs):
+        super(CMSResource, self).initialize(*args, **kwargs)
+
         if section is None:
             raise Http404
 

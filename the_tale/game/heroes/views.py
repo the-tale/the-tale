@@ -33,16 +33,16 @@ def split_list(items):
 
 class HeroResource(Resource):
 
-    def __init__(self, request, hero_id, *args, **kwargs):
-        super(HeroResource, self).__init__(request, *args, **kwargs)
+    def initialize(self, hero_id, *args, **kwargs):
+        super(HeroResource, self).initialize(*args, **kwargs)
 
         self.hero_id = int(hero_id)
 
         if self.hero is None:
-            raise Error('heroes.can_no_see_this_hero', u'Вы не можете просматривать данные этого игрока')
+            return self.json_error('heroes.can_no_see_this_hero', u'Вы не можете просматривать данные этого игрока')
 
         if self.account is None or self.account.angel.id != self.hero.angel_id:
-            raise Error('heroes.can_no_see_this_account', u'Вы не можете просматривать данные этого игрока')
+            return self.json_error('heroes.can_no_see_this_account', u'Вы не можете просматривать данные этого игрока')
 
     @property
     def hero(self):

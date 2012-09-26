@@ -4,7 +4,6 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.utils.feedgenerator import Atom1Feed
 
-from dext.utils.exceptions import Error
 from dext.views.resources import handler
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.decorators import staff_required
@@ -18,8 +17,8 @@ from forum.logic import create_thread
 from forum.models import SubCategory, MARKUP_METHOD
 class NewsResource(Resource):
 
-    def __init__(self, request, news_id=None, *args, **kwargs):
-        super(NewsResource, self).__init__(request, *args, **kwargs)
+    def initialize(self, news_id=None, *args, **kwargs):
+        super(NewsResource, self).initialize(*args, **kwargs)
 
         self.news_id = int(news_id) if news_id is not None else None
 

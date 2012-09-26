@@ -33,10 +33,12 @@ PLACE_CHOICES = ( (PLACE_TYPE.CITY, 'city'), )
 
 class Place(models.Model):
 
+    MAX_NAME_LENGTH = 150
+
     x = models.BigIntegerField(null=False)
     y = models.BigIntegerField(null=False)
 
-    name = models.CharField(max_length=150, null=False, db_index=True)
+    name = models.CharField(max_length=MAX_NAME_LENGTH, null=False, db_index=True)
 
     name_forms = models.TextField(null=False, default=u'')
 

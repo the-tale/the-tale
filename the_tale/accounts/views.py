@@ -22,9 +22,9 @@ logger = getLogger('django.request')
 
 class AccountsResource(Resource):
 
-    def __init__(self, request, account_id=None, *args, **kwargs):
+    def initialize(self, account_id=None, *args, **kwargs):
+        super(AccountsResource, self).initialize(*args, **kwargs)
         self.current_account_id = account_id
-        super(AccountsResource, self).__init__(request, *args, **kwargs)
 
     @property
     def current_account(self):

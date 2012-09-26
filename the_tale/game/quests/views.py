@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from dext.views.resources import handler
-from dext.utils.exceptions import Error
 
 from common.utils.resources import Resource
 
@@ -9,19 +8,19 @@ from .prototypes import get_quest_by_id
 
 class QuestsResource(Resource):
 
-    def __init__(self, request, quest_id=None, *argv, **kwargs):
-        super(QuestsResource, self).__init__(request, *argv, **kwargs)
+    def initialize(self, quest_id=None, *argv, **kwargs):
+        super(QuestsResource, self).initialize(*argv, **kwargs)
 
         self.quest_id = int(quest_id)
 
         if self.account is None:
-            raise Error('quests.unlogined', u'Вам необходимо войти на сайт')
+            return self.json_error('quests.unlogined', u'Вам необходимо войти на сайт')
 
         if self.quest is None:
-            raise Error('quests.no_quest', u'Вы не можете работать с этим квестом')
+            return self.json_error('quests.no_quest', u'Вы не можете работать с этим квестом')
 
         if self.account.angel.id not in self.quest.angels_ids():
-            raise Error('quests.wrong_account', u'Вы не можете работать с этим квестом')
+            return self.json_error('quests.wrong_account', u'Вы не можете работать с этим квестом')
 
     @property
     def quest(self):

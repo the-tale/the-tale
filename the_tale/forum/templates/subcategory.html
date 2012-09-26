@@ -4,7 +4,7 @@
 
 {% macro pages_links(thread) %}
 
-{% set pages_count = thread.pages_count %}
+{% set pages_count = thread.paginator.pages_count %}
 
 {% if pages_count == 1 %}
 {% elif pages_count < 7 %}

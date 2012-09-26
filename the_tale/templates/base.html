@@ -111,7 +111,12 @@ jQuery(document).ready(function() {
                                                                          (url("guide:game"), "Описание игры"),
                                                                          (url("guide:hero-abilities"), "Способности героев"),
                                                                          (url("guide:hero-preferences"), "Предпочтения героев"),
+                                                                         (url("guide:politics"), "Политика"),
                                                                          (url("cms:world:"), get_cms_section_info("world").caption)]) }}
+            {% if request.user.is_authenticated() %}
+            {{ base_macros.main_menu_item("bills", url("game:bills:"), "Политика") }}
+            {% endif %}
+
             {{ base_macros.main_menu_item("game", url("game:"), "Игра") }}
             {% if resource.account %}
             {{ base_macros.main_menu_item("hero", url("game:heroes:show", resource.account.angel.get_hero().id), "Страница героя") }}

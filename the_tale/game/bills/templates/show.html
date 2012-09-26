@@ -1,0 +1,41 @@
+{% extends "bills/base.html" %}
+
+{% import 'bills/macros.html' as bills_macros with context %}
+
+{% block title %} {{ bill.caption }} | Законопроекты | {{ super() }}{% endblock %}
+
+{% block bills_content %}
+
+<h2>{{ bill.caption }}</h2>
+
+{{ bills_macros.bill_info(bill) }}
+
+{% if bill.state.is_proposal %}
+
+{% elif bill.state.is_voting %}
+
+{% endif %}
+
+{% include bill.data.SHOW_TEMPLATE with context %}
+
+{% if bill.state.is_proposal %}
+<h3>Закон накодится на стадии предложения</h3>
+
+<ul>
+  <li>Cтадия предложения предназначена для отсеивания некачественных законов и законов не интересных сообществу.</li>
+  <li>На данной стадии принимаются только голоса «за». Закон считается принятым на голосование, если количество поддержавших его игроков превышает установленый лимит.</li>
+  <li>Стадия предложения - это стадия обсуждения закона - автор может редактировать описание закона, но следует помнить, что при любом редактировании закон теряет все набраные голоса.</li>
+</ul>
+
+<button class="btn btn-success">поддержать закон</button>
+
+{% endif %}
+
+<br/><br/>
+
+<p>
+  {{ bill.rationale }}
+</p>
+
+
+{% endblock %}

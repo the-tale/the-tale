@@ -1,0 +1,87 @@
+
+{% macro _proposal_results(bill) %}
+{% if bill.state.is_proposal %}
+<span class="">«за» {{ bill.votes_for }} из {{ bills_settings.VOTES_FOR_CONFIRM_PROPOSAL}}</span>
+{% else %}
+<span class="">«за» {{ bill.votes_on_proposal_required }} из {{ bill.votes_on_proposal_required}}</span>
+{% endif %}
+{% endmacro %}
+
+{% macro _voting_results(bill) %}
+<span class="">«за» {{ bill.votes_for }}</span>,
+<span class="">«против» {{ bill.votes_against }}</span>
+(итого «за» {{ bill.votes_for_percents|percents }} из
+
+{% if bill.state.is_voting %}
+{{bills_settings.VOTES_FOR_ACCEPT_BILL_PERCENT|percents}})
+{% else %}
+{{ bill.votes_fraction_on_voting_required }}
+{% endif %}
+{% endmacro %}
+
+{% macro bill_info(bill) %}
+
+<table class="table table-condensed" style="background-color: whiteSmoke;">
+
+  <tbody>
+    <tr>
+      <th style="width: 150px;">автор</th>
+      <td style="width: 150px;">{{ bill.owner.username }}</td>
+      <th style="width: 150px;">тип</th>
+      <td>{{ bill.data.CAPTION }}</td>
+    </tr>
+
+    <tr>
+      <th>содан</th>
+      <td><span class="pgf-format-time" data-timestamp="{{ bill.created_at|timestamp }}"></span></td>
+      <th>стадия</th>
+      <td>
+        {% if bill.state.is_proposal %} предложение
+        {% elif bill.state.is_voting %} голосование
+        {% elif bill.state.is_accepted %} принят
+        {% elif bill.state.is_rejected %}
+
+        {% if bill.rejected_state.is_blocked_by_moderator %}
+        отклонено модератором
+
+        {% elif bill.rejected_state.is_proposal_timeout %}
+        истекло время выдвижения
+
+        {% elif bill.rejected_state.is_voting_failed %}
+        не хватило голосов
+
+        {% endif %}
+
+        {% endif %}
+      </td>
+    </tr>
+
+    <tr>
+      <th>обновлён</th>
+      <td><span class="pgf-format-time" data-timestamp="{{ bill.updated_at|timestamp }}"></span></td>
+      <th>стадия предложения</th>
+      <td>{{ _proposal_results(bill) }}</td>
+    </tr>
+
+    <tr style="">
+      <th>до конца стадии</th>
+      <td>
+        {% if bill.state.is_proposal or bill.state.is_voting %}
+        {{ bill.time_before_end_step|verbose_timedelta }}
+        {% else %}
+        —
+        {% endif %}
+      </td>
+      <th>стадия голосования</th>
+      <td>
+        {% if not bill.state.is_proposal %}
+        {{ _voting_results(bill) }}
+        {% else %}
+        —
+        {% endif %}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+{% endmacro %}

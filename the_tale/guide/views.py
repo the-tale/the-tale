@@ -10,8 +10,8 @@ from game.heroes.habilities import ABILITIES
 
 class GuideResource(Resource):
 
-    def __init__(self, request, *args, **kwargs):
-        super(GuideResource, self).__init__(request, *args, **kwargs)
+    def initialize(self, *args, **kwargs):
+        super(GuideResource, self).initialize(*args, **kwargs)
 
     @handler('', method='get')
     def index(self):
@@ -26,6 +26,9 @@ class GuideResource(Resource):
     def game(self):
         return self.template('guide/game.html', {'section': 'game'})
 
+    @handler('politics', method='get')
+    def politics(self):
+        pass
 
     @handler('hero-abilities', method='get')
     def hero_abilities(self):

@@ -1,0 +1,44 @@
+{% extends "bills/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+{% import 'bills/macros.html' as bills_macros with context %}
+
+{% block title %}Законопроекты | {{ super() }}{% endblock %}
+
+
+{% macro bill_record(bill) %}
+
+<h4 style="margin-bottom: 0.5em;"><a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a></h4>
+
+{{ bills_macros.bill_info(bill) }}
+
+{% endmacro %}
+
+{% block bills_content %}
+
+<p>
+  <a class="btn btn-danger"
+     href="{{ url('game:bills:new') }}?type=place_renaming">Предложить закон</a>
+
+  Жизнью Пандоры управляют игроки. В этом разделе Вы можете напрямую принять участие в управлении миром, жизни его городов и персонажей.
+</p>
+
+<!-- TODO: inser filter here (and paginator) -->
+
+<h2 style="margin-bottom: 0.5em;">список законов</h2>
+
+{{ base_macros.render_paginator(pages_count, current_page_number, url('game:bills:') + "?page=%d") }}
+
+{% if bills %}
+<ul class="unstyled">
+  {% for bill in bills %}
+  <li style="margin-bottom: 1em;">
+    {{ bill_record(bill) }}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<span class="pgf-no-bills-message">На текущий момент не создано ни одного закона, Вы можете создать первый!</span>
+{% endif %}
+
+{% endblock %}

@@ -11,8 +11,8 @@ from .models import ABILITY_STATE
 
 class AbilitiesResource(Resource):
 
-    def __init__(self, request, ability_type=None, *argv, **kwargs):
-        super(AbilitiesResource, self).__init__(request, *argv, **kwargs)
+    def initialize(self, ability_type=None, *argv, **kwargs):
+        super(AbilitiesResource, self).initialize(*argv, **kwargs)
         self.ability_type = ability_type
 
         if self.account is None:

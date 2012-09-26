@@ -3,20 +3,6 @@
 
 {% block title %}{{ thread.caption }} | {{subcategory.caption}} | {{ super() }}{% endblock %}
 
-{% macro render_pages() %}
-<div class="pagination pagination-right">
-  <ul>
-      {% for page_number in pages_numbers %}
-      {% if page_number == current_page_number %}
-      <li class="active"><a>{{ page_number+1 }}</a></li>
-      {% else %}
-      <li><a href="{{ url('forum:threads:show', thread.id) }}?page={{page_number+1}}">{{ page_number+1 }}</a></li>
-      {% endif %}
-      {% endfor %}
-  </ul>
-</div>
-{% endmacro %}
-
 {% block head %}
 {{ super() }}
 <script src="{{ STATIC_URL }}forum/base.js" type="text/javascript"></script>
@@ -99,7 +85,7 @@ jQuery(document).ready( function(e) {
   {% endif %}
 </ul>
 
-{{ render_pages() }}
+{{ base_macros.render_paginator(pages_numbers, current_page_number, url("forum:threads:show", thread.id) + "?page=%d") }}
 
 <ul class="unstyled">
   {% for post in posts %}
@@ -147,7 +133,7 @@ jQuery(document).ready( function(e) {
   {% endfor %}
 </ul>
 
-{{ render_pages() }}
+{{ base_macros.render_paginator(pages_numbers, current_page_number, url("forum:threads:show", thread.id) + "?page=%d") }}
 
 {% if resource.account and not resource.account.is_fast %}
 <form action="{{ url('forum:posts:create') }}?thread_id={{thread.id}}"

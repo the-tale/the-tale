@@ -7,6 +7,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+from common.utils.pagination import Paginator
+
 from forum.conf import forum_settings
 
 class Category(models.Model):
@@ -68,11 +70,9 @@ class Thread(models.Model):
         return reverse('forum:threads:show', args=[self.id])
 
     @property
-    def pages_count(self):
-        pages_count = (self.posts_count + 1) / forum_settings.POSTS_ON_PAGE
-        if (self.posts_count + 1) % forum_settings.POSTS_ON_PAGE:
-            pages_count += 1
-        return pages_count
+    def paginator(self):
+        return Paginator(self.posts_count, forum_settings.POSTS_ON_PAGE)
+
 
 class MARKUP_METHOD:
     POSTMARKUP = 0

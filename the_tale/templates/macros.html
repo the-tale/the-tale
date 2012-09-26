@@ -51,3 +51,17 @@
   </div>
   <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-505d67570062215a"></script>
 {% endmacro %}
+
+{% macro render_paginator(pages_numbers, current_page, base_url) %}
+<div class="pagination pagination-right">
+  <ul>
+      {% for page_number in pages_numbers %}
+      {% if page_number == current_page %}
+      <li class="active"><a>{{ page_number+1 }}</a></li>
+      {% else %}
+      <li><a href="{{ base_url % (page_number+1) }}">{{ page_number+1 }}</a></li>
+      {% endif %}
+      {% endfor %}
+  </ul>
+</div>
+{% endmacro %}

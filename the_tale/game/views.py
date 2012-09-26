@@ -14,8 +14,8 @@ from game.conf import game_settings
 
 class GameResource(Resource):
 
-    def __init__(self, request, *args, **kwargs):
-        super(GameResource, self).__init__(request, *args, **kwargs)
+    def initialize(self, *args, **kwargs):
+        super(GameResource, self).initialize(*args, **kwargs)
 
     @handler('', method='get')
     def game_page(self):

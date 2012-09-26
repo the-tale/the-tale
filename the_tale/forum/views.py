@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from dext.views.resources import handler
 
 from common.utils.resources import Resource
+from common.utils.pagination import Paginator
 
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm, EditThreadForm
@@ -15,8 +16,8 @@ from forum.logic import create_thread, create_post, delete_thread, delete_post, 
 
 class BaseForumResource(Resource):
 
-    def __init__(self, request, category=None, subcategory=None, thread_id=None, post_id=None, *args, **kwargs):
-        super(BaseForumResource, self).__init__(request, *args, **kwargs)
+    def initialize(self, category=None, subcategory=None, thread_id=None, post_id=None, *args, **kwargs):
+        super(BaseForumResource, self).initialize(*args, **kwargs)
 
         self.post_id = int(post_id) if post_id is not None else None
         self.thread_id = int(thread_id) if thread_id is not None else None
@@ -98,7 +99,7 @@ class PostsResource(BaseForumResource):
 
         create_post(thread.subcategory, thread, self.account.user, new_post_form.c.text)
 
-        return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]) + ('?page=%d' % thread.pages_count)})
+        return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]) + ('?page=%d' % thread.paginator.pages_count)})
 
     @handler('#post_id', 'delete', method='post')
     def delete_post(self):
@@ -287,17 +288,15 @@ class ThreadsResource(BaseForumResource):
 
     @handler('#thread_id', name='show', method='get')
     def get_thread(self, page=1):
+        paginator = Paginator(self.thread.posts_count, forum_settings.POSTS_ON_PAGE)
 
         page = int(page) - 1
 
-        post_from = page * forum_settings.POSTS_ON_PAGE
-
-        if post_from > self.thread.posts_count:
-            last_page = self.thread.posts_count / forum_settings.POSTS_ON_PAGE + 1
-            url = '%s?page=%d' % (reverse('forum:threads:show', args=[self.thread.id]), last_page)
+        if page >= self.thread.paginator.pages_count:
+            url = '%s?page=%d' % (reverse('forum:threads:show', args=[self.thread.id]), self.thread.paginator.pages_count)
             return self.redirect(url, permanent=False)
 
-        post_to = post_from + forum_settings.POSTS_ON_PAGE
+        post_from, post_to = paginator.page_borders(page)
 
         posts = Post.objects.filter(thread=self.thread).order_by('created_at')[post_from:post_to]
 
@@ -312,7 +311,7 @@ class ThreadsResource(BaseForumResource):
                               'thread': self.thread,
                               'new_post_form': NewPostForm(),
                               'posts': posts,
-                              'pages_numbers': range(self.thread.pages_count),
+                              'pages_numbers': range(self.thread.paginator.pages_count),
                               'start_posts_from': page * forum_settings.POSTS_ON_PAGE,
                               'can_delete_thread': self.can_delete_thread(self.thread),
                               'can_change_thread': self.can_change_thread(self.thread),

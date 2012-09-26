@@ -132,16 +132,14 @@ class TestRequests(TestCase):
         self.assertEqual(SubCategory.objects.get(id=self.subcat1.id).posts_count, 1)
 
     def test_get_thread_unlogined(self):
-        excluded_texts = ['pgf-new-post-form']
         self.logout()
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), excluded_texts=excluded_texts)
+        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
 
     def test_get_thread_fast_account(self):
-        excluded_texts = ['pgf-new-post-form']
         account = self.user.get_profile()
         account.is_fast = True
         account.save()
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), excluded_texts=excluded_texts)
+        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
 
     def test_get_thread_wrong_page(self):
         response = self.client.get(reverse('forum:threads:show', args=[self.thread1.id])+'?page=2')

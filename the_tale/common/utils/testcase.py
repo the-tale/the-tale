@@ -12,16 +12,16 @@ class TestCase(DjangoTestCase):
     def tearDown(self):
         pass
 
-    def check_html_ok(self, response, texts=[], excluded_texts=[]):
-        self.assertEqual(response.status_code, 200)
+    def check_html_ok(self, response, status_code=200, texts=[]):
+        self.assertEqual(response.status_code, status_code)
 
         content = response.content.decode('utf-8')
         for text in texts:
             if isinstance(text, tuple):
                 substr, number = text
-                self.assertEqual(content.count(substr), number)
+                self.assertEqual((substr, content.count(substr)), (substr, number))
             else:
-                self.assertTrue(text in content)
+                self.assertEqual((text, text in content), (text, True))
 
     def check_ajax_ok(self, response, data=None):
         self.assertEqual(response.status_code, 200)

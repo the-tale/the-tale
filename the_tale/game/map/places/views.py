@@ -7,8 +7,8 @@ from game.map.places.storage import places_storage
 
 class PlaceResource(Resource):
 
-    def __init__(self, request, place_id, *args, **kwargs):
-        super(PlaceResource, self).__init__(request, *args, **kwargs)
+    def initialize(self, place_id, *args, **kwargs):
+        super(PlaceResource, self).initialize(*args, **kwargs)
         self.place_id = int(place_id)
 
     @property
