@@ -1,7 +1,7 @@
 
 {% extends "bills/base.html" %}
 
-{% block title %}Создание нового проекта | Законопроекты | {{ super() }}{% endblock %}
+{% block title %}Создание нового законопроекта | Законопроекты | {{ super() }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -29,15 +29,15 @@ jQuery(document).ready( function(e) {
 
 <br/>
 
-<h3>{{ bill.CAPTION }}</h3>
+<h3>{{ bill_class.CAPTION }}</h3>
 
-<form id="pgf-new-bill-form" method="post" action="{{ url('game:bills:create') }}?type={{bill.type_str}}">
+<form id="pgf-new-bill-form" method="post" action="{{ url('game:bills:create') }}?type={{bill_class.type_str}}">
 
   {{ form.errors_container }}
 
   {{ form.caption.widget }}
 
-  {% include bill.USER_FORM_TEMPLATE with context %}
+  {% include bill_class.USER_FORM_TEMPLATE with context %}
 
   {{ form.rationale.widget }}
 

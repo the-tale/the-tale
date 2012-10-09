@@ -6,7 +6,9 @@ from dext.utils.decorators import nested_commit_on_success
 
 from game.prototypes import TimePrototype
 
-from game.bills.models import Bill, BILL_STATE, BILL_REJECTED_REASONS
+from forum.logic import create_post
+
+from game.bills.models import Bill, Vote, BILL_STATE, BILL_REJECTED_REASONS
 from game.bills.bills import deserialize_bill
 from game.bills.conf import bills_settings
 
@@ -25,11 +27,14 @@ class BillPrototype(object):
     @property
     def id(self): return self.model.id
 
-    @property
-    def state(self):
+    def get_state(self):
         if not hasattr(self, '_state'):
             self._state = BILL_STATE(self.model.state)
         return self._state
+    def set_state(self, value):
+        self.state.update(value)
+        self.model.state = self.state.value
+    state = property(get_state, set_state)
 
     @property
     def created_at(self): return self.model.created_at
@@ -60,7 +65,7 @@ class BillPrototype(object):
 
     @property
     def votes_for_percents(self):
-        if self.votes_against == 0:
+        if self.votes_against + self.votes_for == 0:
             return 0
         return float(self.votes_for / (self.votes_for + self.votes_against))
 
@@ -71,13 +76,57 @@ class BillPrototype(object):
     def owner(self): return self.model.owner
 
     @property
+    def user_form_initials(self):
+        special_initials = self.data.user_form_initials
+        special_initials.update({'caption': self.caption,
+                                 'rationale': self.rationale})
+        return special_initials
+
+    @property
     def time_before_end_step(self):
-        if self.state.is_proposal:
-            return max(datetime.timedelta(seconds=0),
-                       (self.model.step_started_at + datetime.timedelta(seconds=bills_settings.PROPOSAL_LIVE_TIME) - datetime.datetime.now()))
-        elif self.state.is_voting:
-            return max(datetime.timedelta(seconds=0),
-                       (self.model.step_started_at + datetime.timedelta(seconds=bills_settings.VOTING_LIVE_TIME) - datetime.datetime.now()))
+        return max(datetime.timedelta(seconds=0),
+                   (self.model.step_started_at + datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME) - datetime.datetime.now()))
+
+    @property
+    def forum_thread_id(self): return self.model.forum_thread_id
+
+    @property
+    def min_votes_required(self): return self.model.min_votes_required
+
+    @property
+    def min_votes_percents_required(self): return self.model.min_votes_percents_required
+
+
+    def get_approved_by_moderator(self): return self.model.approved_by_moderator
+    def set_approved_by_moderator(self, value): self.model.approved_by_moderator = value
+    approved_by_moderator = property(get_approved_by_moderator, set_approved_by_moderator)
+
+    def recalculate_votes(self):
+        self.model.votes_for = Vote.objects.filter(bill=self.model, value=True).count()
+        self.model.votes_against = Vote.objects.filter(bill=self.model, value=False).count()
+
+    @nested_commit_on_success
+    def update(self, form):
+
+        Vote.objects.filter(bill_id=self.id).delete()
+
+        self.data.initialize_with_user_data(form)
+        self.model.updated_at = datetime.datetime.now()
+        self.model.caption = form.c.caption
+        self.model.rationale = form.c.rationale
+        self.model.votes_for = 1
+        self.model.votes_against = 0
+        self.model.approved_by_moderator = False
+
+        self.save()
+
+        VotePrototype.create(self.owner, self, True)
+
+        create_post(self.model.forum_thread.subcategory,
+                    self.model.forum_thread,
+                    self.owner,
+                    u'Законопроект был отредактирован, все голоса сброшены.')
+
 
     @classmethod
     @nested_commit_on_success
@@ -85,7 +134,7 @@ class BillPrototype(object):
         from forum.logic import create_thread
         from forum.models import SubCategory, MARKUP_METHOD
 
-        thread = create_thread(SubCategory.objects.get(slug=bills_settings.FORUM_PROPOSAL_CATEGORY_SLUG),
+        thread = create_thread(SubCategory.objects.get(slug=bills_settings.FORUM_CATEGORY_SLUG),
                                caption=caption,
                                author=owner,
                                text=rationale,# TODO: replace by special
@@ -98,6 +147,48 @@ class BillPrototype(object):
                                     rationale=rationale,
                                     created_at_turn=TimePrototype.get_current_turn_number(),
                                     technical_data=s11n.to_json(bill.serialize()),
-                                    forum_proposal_thread=thread)
+                                    votes_for=1, # author always wote for bill
+                                    # min_votes_required=bills_settings.MIN_VOTES_NUMBER, # must be setup on voting end
+                                    # min_votes_percents_required=bills_settings.MIN_VOTES_PERCENT,
+                                    forum_thread=thread)
+
+        bill = cls(model)
+
+        VotePrototype.create(owner, bill, True)
+
+        return bill
+
+    def save(self):
+        self.model.technical_data=s11n.to_json(self.data.serialize())
+        self.model.save()
+
+
+class VotePrototype(object):
+
+    def __init__(self, model=None):
+        self.model = model
+
+    @classmethod
+    def get_for(cls, owner, bill):
+        try:
+            return Vote.objects.get(owner=owner, bill=bill.model)
+        except Vote.DoesNotExist:
+            return None
+
+    @property
+    def owner(self): return self.model.owner
+
+    @property
+    def value(self): return self.model.value
+
+    @classmethod
+    def create(cls, owner, bill, value):
+
+        model = Vote.objects.create(owner=owner,
+                                    bill=bill.model,
+                                    value=value)
 
         return cls(model)
+
+    def save(self):
+        self.model.save()

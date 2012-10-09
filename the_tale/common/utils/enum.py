@@ -1,7 +1,7 @@
 # coding: utf-8
 
 def _create_state_checker(value):
-    return lambda self: self._value == value
+    return lambda self: self.value == value
 
 def create_enum(class_name, records):
     '''
@@ -21,7 +21,15 @@ def create_enum(class_name, records):
         STR_2_ID = {}
 
         def __init__(self, value):
-            self._value = value
+            self.value = value
+
+        def update(self, value):
+            self.value = value.value if isinstance(value, self.__class__) else value
+
+        def __eq__(self, other):
+            if isinstance(other, self.__class__):
+                return self.value == other.value
+            return self.value == other
 
     for field_name, field_id, help_text in records:
         setattr(Enum, field_name, field_id)

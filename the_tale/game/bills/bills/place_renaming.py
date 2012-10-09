@@ -42,6 +42,11 @@ class PlaceRenaming(object):
     def place(self):
         return places_storage[self.place_id]
 
+    @property
+    def user_form_initials(self):
+        return {'place': self.place_id,
+                'new_name': self.base_name}
+
     def initialize_with_user_data(self, user_form):
         self.place_id = int(user_form.c.place)
         self.base_name = user_form.c.new_name

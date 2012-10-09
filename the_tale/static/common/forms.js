@@ -285,42 +285,6 @@ pgf.forms.Post = function(params) {
     });
 };
 
-pgf.forms.PostSimple = function(url) {
-    jQuery.ajax({
-        url: url,
-        type: 'post',
-        dataType: 'json',
-        error: function(data) {
-            pgf.ui.Alert({message: "unknown error",
-                          OnConfirm: function(){location.reload();}
-                         });
-        },
-        success: function(data) {
-            if (data) {
-                if (data.status === 'error') {
-                    if (data.error) {
-                        pgf.ui.Alert({message: "Error occured:\n" + data.error,
-                                      OnClose: function(){location.reload();}
-                                     });
-                        return;
-                    }
-                    if (data.errors) {
-                        pgf.ui.Alert({message: "Errors occured:\n" + data.errors,
-                                      OnClose: function(){location.reload();}
-                                     });
-                        return;
-                    }
-                }
-                else {
-                    location.reload();
-                }
-            }
-            else {
-                location.reload();
-            }
-        }
-    });
-};
 
 jQuery('.pgf-forms-post-simple').live('click', function(e) {
     e.preventDefault();
@@ -328,7 +292,11 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
     var el = jQuery(this);
 
     if (el.attr('href')) {
-        pgf.forms.PostSimple(el.attr('href'));
+        pgf.forms.Post({ action: el.attr('href'),
+                         OnSuccess: function(data){
+                             location.reload(true);
+                         }
+                       });
     }
 });
 

@@ -9,8 +9,7 @@ from common.utils.enum import create_enum
 
 from forum.models import Thread
 
-BILL_STATE = create_enum('BILL_STATE', (('PROPOSAL', 0, u'предложение'),
-                                        ('VOTING', 1, u'на голосовании'),
+BILL_STATE = create_enum('BILL_STATE', (('VOTING', 1, u'на голосовании'),
                                         ('ACCEPTED', 2, u'принят'),
                                         ('REJECTED', 3, u'отклонён'), ))
 
@@ -38,7 +37,7 @@ class Bill(models.Model):
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
 
     type = models.IntegerField(null=False, choices=BILL_TYPE.CHOICES, db_index=True)
-    state = models.IntegerField(null=False, default=BILL_STATE.PROPOSAL, choices=BILL_STATE.CHOICES, db_index=True)
+    state = models.IntegerField(null=False, default=BILL_STATE.VOTING, choices=BILL_STATE.CHOICES, db_index=True)
     rejected_state = models.IntegerField(null=True, default=None, choices=BILL_REJECTED_REASONS.CHOICES)
 
     approved_by_moderator = models.BooleanField(default=False, db_index=True)
@@ -47,15 +46,14 @@ class Bill(models.Model):
     technical_data = models.TextField(null=False, blank=True, default={})
     reject_reason = models.TextField(null=False, blank=True)
 
-    forum_proposal_thread = models.ForeignKey(Thread, null=False, related_name='+')
-    forum_voting_thread = models.ForeignKey(Thread, null=True, blank=True, related_name='+')
+    forum_thread = models.ForeignKey(Thread, null=False, blank=True, related_name='+')
 
     votes_for = models.IntegerField(default=0)
     votes_against = models.IntegerField(default=0)
 
     # fields to store config values after processing state (since they can be changed in future)
-    votes_on_proposal_required = models.IntegerField(default=0)
-    votes_fraction_on_voting_required = models.FloatField(default=0.0)
+    min_votes_required = models.IntegerField(default=0)
+    min_votes_percents_required = models.FloatField(default=0.0)
 
 
 class Vote(models.Model):
