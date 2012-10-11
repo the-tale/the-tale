@@ -64,7 +64,7 @@ class Thread(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
 
     class Meta:
-        permissions = (("moderate_thread", "Может редактировать темы на форуме"), )
+        permissions = (("moderate_thread", u"Может редактировать темы на форуме"), )
 
     def get_absolute_url(self):
         return reverse('forum:threads:show', args=[self.id])
@@ -118,7 +118,7 @@ class Post(models.Model):
 
 
     class Meta:
-        permissions = (("moderate_post", "Может редактировать сообщения пользователей"), )
+        permissions = (("moderate_post", u"Может редактировать сообщения пользователей"), )
 
     @property
     def html(self):

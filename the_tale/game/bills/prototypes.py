@@ -82,6 +82,13 @@ class BillPrototype(object):
                                  'rationale': self.rationale})
         return special_initials
 
+
+    @property
+    def moderator_form_initials(self):
+        special_initials = self.data.moderator_form_initials
+        special_initials.update({'approved': self.approved_by_moderator})
+        return special_initials
+
     @property
     def time_before_end_step(self):
         return max(datetime.timedelta(seconds=0),
@@ -127,6 +134,12 @@ class BillPrototype(object):
                     self.owner,
                     u'Законопроект был отредактирован, все голоса сброшены.')
 
+    @nested_commit_on_success
+    def update_by_moderator(self, form):
+        self.data.initialize_with_moderator_data(form)
+        self.model.approved_by_moderator = form.c.approved
+        self.save()
+
 
     @classmethod
     @nested_commit_on_success
@@ -161,6 +174,11 @@ class BillPrototype(object):
     def save(self):
         self.model.technical_data=s11n.to_json(self.data.serialize())
         self.model.save()
+
+    @nested_commit_on_success
+    def remove(self):
+        self.model.forum_thread.delete()
+        self.model.delete()
 
 
 class VotePrototype(object):

@@ -1,0 +1,59 @@
+
+{% extends "bills/base.html" %}
+
+{% block title %}Администрирование законопроекта | Законопроекты | {{ super() }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var editForm = new pgf.forms.Form(jQuery('#pgf-edit-bill-form'),
+                                      {OnSuccess: function(instance, data){location.href = "{{ url('game:bills:show', bill.id) }}";}});
+
+    jQuery('.pgf-remove-button').click(function(e) {
+        e.preventDefault();
+        var DeleteRequest = function(e) {
+            e.preventDefault();
+
+            pgf.forms.Post({ action: "{{ url('game:bills:delete', bill.id) }}",
+                             OnSuccess: function(e){
+                                 location.href = "{{ url('game:bills:') }}";
+                             }
+                           });
+        };
+
+        pgf.ui.dialog.Question({message: 'Вы действительно хотите удалить этот законопроект?',
+                                title: 'Подтвердите удаление',
+                                buttons: [{text: 'Удалить', classes: 'btn-danger', callback: DeleteRequest},
+                                          {text: 'Отменить', classes: 'btn-success'}]
+                               })
+    });
+
+});
+
+</script>
+
+{% endblock %}
+
+{% block bills_content %}
+
+<h2>Администрирование законопроекта «{{ bill.data.CAPTION }}»</h2>
+
+<a href="#" class="pull-right pgf-remove-button">удалить</a>
+
+<h3>Настройка игровых параметров</h3>
+
+<form id="pgf-edit-bill-form" method="post" action="">
+
+  {{ form.errors_container }}
+
+  {{ form.approved.widget }}
+
+  {% include bill.data.MODERATOR_FORM_TEMPLATE with context %}
+
+  <input type="submit" value="Сохранить"/>
+
+</form>
+
+{% endblock %}

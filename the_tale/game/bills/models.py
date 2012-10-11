@@ -13,9 +13,8 @@ BILL_STATE = create_enum('BILL_STATE', (('VOTING', 1, u'на голосован�
                                         ('ACCEPTED', 2, u'принят'),
                                         ('REJECTED', 3, u'отклонён'), ))
 
-BILL_REJECTED_REASONS = create_enum('BILL_REJECTED_REASONS', (('BLOCKED_BY_MODERATOR', 0, u'заблокировано модератором'),
-                                                              ('PROPOSAL_TIMEOUT', 1, u'истекло время выдвижения'),
-                                                              ('VOTING_FAILED', 2, u'не прошло голосование'), ) )
+BILL_REJECTED_REASONS = create_enum('BILL_REJECTED_REASONS', (('PROPOSAL_TIMEOUT', 0, u'истекло время выдвижения'),
+                                                              ('VOTING_FAILED', 1, u'не хватило голосов'), ) )
 
 BILL_TYPE = create_enum('BILL_TYPE', (('PLACE_RENAMING', 0, u'переименование места'),))
 
@@ -54,6 +53,9 @@ class Bill(models.Model):
     # fields to store config values after processing state (since they can be changed in future)
     min_votes_required = models.IntegerField(default=0)
     min_votes_percents_required = models.FloatField(default=0.0)
+
+    class Meta:
+        permissions = (("moderate_bill", u"Может администрировать законопроекты"), )
 
 
 class Vote(models.Model):

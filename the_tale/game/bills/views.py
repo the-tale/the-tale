@@ -46,6 +46,9 @@ class BillResource(Resource):
             self.bill_id = None
             self.bill = None
 
+    def can_moderate_bill(self, bill):
+        return self.user.has_perm('bills.moderate_bill')
+
 
     @handler('', method='get')
     def index(self, page=1):
@@ -115,10 +118,12 @@ class BillResource(Resource):
     def edit(self):
 
         if self.user.id != self.bill.owner.id:
-            return self.json_error('bills.edit.no_permissions', u'Вы не являетесь владельцем данного законопроекта')
+            return self.template('error.html', {'msg': u'Вы не являетесь владельцем данного законопроекта',
+                                                'error_code': 'bills.edit.no_permissions' })
 
         if not self.bill.state.is_voting:
-            return self.json_error('bills.edit.wrong_state', u'Можно редактировать только заокнопроекты в стадии голосования')
+            return self.template('error.html', {'msg': u'Можно редактировать только заокнопроекты в стадии голосования',
+                                                'error_code': 'bills.edit.wrong_state' })
 
         user_form = self.bill.data.UserForm(initial=self.bill.user_form_initials)
         return self.template('bills/edit.html', {'bill': self.bill,
@@ -144,6 +149,50 @@ class BillResource(Resource):
 
         return self.json_error('bills.update.form_errors', user_form.errors)
 
+    @handler('#bill_id', 'delete', name='delete', method='post')
+    def delete(self):
+        if not self.can_moderate_bill(self.bill):
+            return self.json_error('bills.delete.no_permissions', u'Вы не являетесь модератором')
+
+        if not self.bill.state.is_voting:
+            return self.json_error('bills.delete.wrong_state', u'Можно редактировать только заокнопроекты в стадии голосования')
+
+        self.bill.remove()
+
+        return self.json_ok()
+
+    @handler('#bill_id', 'moderate', name='moderate', method='get')
+    def moderation_page(self):
+
+        if not self.can_moderate_bill(self.bill):
+            return self.template('error.html', {'msg': u'Вы не являетесь модератором',
+                                                'error_code': 'bills.moderation_page.no_permissions' })
+
+        if not self.bill.state.is_voting:
+            return self.template('error.html', {'msg': u'Можно редактировать только заокнопроекты в стадии голосования',
+                                                'error_code': 'bills.moderation_page.wrong_state' })
+
+        moderation_form = self.bill.data.ModeratorForm(initial=self.bill.moderator_form_initials)
+        return self.template('bills/moderate.html', {'bill': self.bill,
+                                                     'form': moderation_form,
+                                                     'bills_settings': bills_settings} )
+
+    @handler('#bill_id', 'moderate', name='moderate', method='post')
+    def moderate(self):
+        if not self.can_moderate_bill(self.bill):
+            return self.json_error('bills.moderate.no_permissions', u'Вы не являетесь модератором')
+
+        if not self.bill.state.is_voting:
+            return self.json_error('bills.moderation.wrong_state', u'Можно редактировать только заокнопроекты в стадии голосования')
+
+        moderator_form = self.bill.data.ModeratorForm(self.request.POST)
+
+        if moderator_form.is_valid():
+            self.bill.update_by_moderator(moderator_form)
+
+            return self.json_ok()
+
+        return self.json_error('bills.moderate.form_errors', moderator_form.errors)
 
     @nested_commit_on_success
     @handler('#bill_id', 'vote', name='vote', method='post')

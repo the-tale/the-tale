@@ -49,3 +49,5 @@ class Command(BaseCommand):
                                     'news.add_news', 'news.change_news', 'news.delete_news'])
 
         sync_group('forum moderators group', ['forum.moderate_thread', 'forum.moderate_post'])
+
+        sync_group('bills moderators group', ['bills.moderate_bill'])

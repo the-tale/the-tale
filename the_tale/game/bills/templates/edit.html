@@ -8,7 +8,7 @@
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
 
-    var loginForm = new pgf.forms.Form(jQuery('#pgf-new-bill-form'),
+    var loginForm = new pgf.forms.Form(jQuery('#pgf-edit-bill-form'),
                                                {OnSuccess: function(instance, data){location.href = "{{ url('game:bills:show', bill.id) }}";}});
 });
 
@@ -26,7 +26,7 @@ jQuery(document).ready( function(e) {
 
 <h3>{{ bill.data.CAPTION }}</h3>
 
-<form id="pgf-new-bill-form" method="post" action="{{ url('game:bills:update', bill.id) }}">
+<form id="pgf-edit-bill-form" method="post" action="{{ url('game:bills:update', bill.id) }}">
 
   {{ form.errors_container }}
 
@@ -36,7 +36,7 @@ jQuery(document).ready( function(e) {
 
   {{ form.rationale.widget }}
 
-  <input type="submit" value="Создать"/>
+  <input type="submit" value="Сохранить"/>
 
 </form>
 
