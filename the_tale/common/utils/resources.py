@@ -12,6 +12,8 @@ from game.workers.environment import workers_environment
 
 class Resource(BaseResource):
 
+    ERROR_TEMPLATE = 'error.html'
+
     def initialize(self, *args, **kwargs):
         super(Resource, self).initialize(*args, **kwargs)
 

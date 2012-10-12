@@ -1,8 +1,10 @@
 # coding: utf-8
 
+import functools
+
 from django.core.urlresolvers import reverse
 
-from dext.views.resources import handler
+from dext.views.resources import handler, validator
 from dext.utils.decorators import nested_commit_on_success
 
 from common.utils.resources import Resource
@@ -19,35 +21,36 @@ class BillResource(Resource):
         super(BillResource, self).initialize(*args, **kwargs)
 
         if self.account is None:
-            if self.request.method == 'GET':
-                return self.template('error.html', {'msg': u'Вам необходимо войти в игру. чтобы просматривать данный раздел',
-                                                    'error_code': 'bills.unlogined' })
-            else:
-                return self.json_error('bills.unlogined', u'Вам необходимо войти в игру. чтобы просматривать данный раздел')
+            return self.auto_error('bills.unlogined', u'Вам необходимо войти в игру. чтобы просматривать данный раздел')
 
         if self.account.is_fast:
-            if self.request.method == 'GET':
-                return self.template('error.html', {'msg': u'Вам необходимо завершить регистрацию, чтобы просматривать данный раздел',
-                                                    'error_code': 'bills.is_fast' })
-            else:
-                return self.json_error('bills.is_fast', u'Вам необходимо войти в игру. чтобы просматривать данный раздел')
+            return self.auto_error('bills.is_fast', u'Вам необходимо завершить регистрацию, чтобы просматривать данный раздел')
 
         if bill_id is not None:
             self.bill_id = int(bill_id)
             try:
                 self.bill = BillPrototype(Bill.objects.get(id=self.bill_id))
             except Bill.DoesNotExist:
-                if self.request.method == 'GET':
-                    return self.template('portal/404.html', {'msg': u'Закон не найден',
-                                                             'error_code': 'bills.wrong_bill_id' }, status_code=404)
-                else:
-                    return self.json_error('bills.wrong_bill_id', u'Закон не найден')
+                return self.auto_error('bills.wrong_bill_id', u'Закон не найден', status_code=404)
         else:
             self.bill_id = None
             self.bill = None
 
     def can_moderate_bill(self, bill):
         return self.user.has_perm('bills.moderate_bill')
+
+
+    @validator(code='bills.voting_state_required')
+    def validate_voting_state(self, *args, **kwargs): return self.bill.state.is_voting
+
+    @validator(code='bills.wrong_type', message=u'Неверный тип закона')
+    def validate_bill_type(self, type): return type in BILLS_BY_STR
+
+    @validator(code='bills.not_owner', message=u'Вы не являетесь владельцем данного законопроекта')
+    def validate_onwership(self, *args, **kwargs): return self.user.id == self.bill.owner.id
+
+    @validator(code='bills.moderator_rights_required', message=u'Вы не являетесь модератором')
+    def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_bill(self.bill)
 
 
     @handler('', method='get')
@@ -74,35 +77,25 @@ class BillResource(Resource):
                               'bills_settings': bills_settings} )
 
 
+    @validate_bill_type()
     @handler('new', method='get')
     def new(self, type):
-
-        if type not in BILLS_BY_STR:
-                return self.template('error.html', {'msg': u'Неверный тип закона',
-                                                    'error_code': 'bills.new.wrong_type' })
-
         bill_class = BILLS_BY_STR[type]
-
         return self.template('bills/new.html', {'bill_class': bill_class,
                                                 'form': bill_class.UserForm(),
                                                 'bills_settings': bills_settings})
 
+    @validate_bill_type()
     @handler('create', method='post')
     def create(self, type):
-
-        if type not in BILLS_BY_STR:
-            return self.json_error('bills.create.wrong_type', u'Неверный тип закона')
 
         bill_data = BILLS_BY_STR[type]()
 
         user_form = bill_data.UserForm(self.request.POST)
 
         if user_form.is_valid():
-
             bill_data.initialize_with_user_data(user_form)
-
             bill = BillPrototype.create(self.user, user_form.c.caption, user_form.c.rationale, bill_data)
-
             return self.json_ok(data={'next_url': reverse('game:bills:show', args=[bill.id])})
 
         return self.json_error('bills.create.form_errors', errors=user_form.errors)
@@ -114,87 +107,57 @@ class BillResource(Resource):
                                                  'vote': VotePrototype.get_for(self.user, self.bill),
                                                  'bills_settings': bills_settings})
 
+    @validate_onwership()
+    @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill_id', 'edit', name='edit', method='get')
     def edit(self):
-
-        if self.user.id != self.bill.owner.id:
-            return self.template('error.html', {'msg': u'Вы не являетесь владельцем данного законопроекта',
-                                                'error_code': 'bills.edit.no_permissions' })
-
-        if not self.bill.state.is_voting:
-            return self.template('error.html', {'msg': u'Можно редактировать только заокнопроекты в стадии голосования',
-                                                'error_code': 'bills.edit.wrong_state' })
-
         user_form = self.bill.data.UserForm(initial=self.bill.user_form_initials)
         return self.template('bills/edit.html', {'bill': self.bill,
                                                  'form': user_form,
                                                  'bills_settings': bills_settings} )
 
+    @validate_onwership()
+    @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill_id', 'update', name='update', method='post')
     def update(self):
-
-        if self.user.id != self.bill.owner.id:
-            return self.json_error('bills.update.no_permissions', u'Вы не являетесь владельцем данного законопроекта')
-
-        if not self.bill.state.is_voting:
-            return self.json_error('bills.update.wrong_state', u'Можно редактировать только заокнопроекты в стадии голосования')
-
         user_form = self.bill.data.UserForm(self.request.POST)
 
         if user_form.is_valid():
-
             self.bill.update(user_form)
-
             return self.json_ok()
 
         return self.json_error('bills.update.form_errors', user_form.errors)
 
+
+    @validate_moderator_rights()
     @handler('#bill_id', 'delete', name='delete', method='post')
     def delete(self):
-        if not self.can_moderate_bill(self.bill):
-            return self.json_error('bills.delete.no_permissions', u'Вы не являетесь модератором')
-
-        if not self.bill.state.is_voting:
-            return self.json_error('bills.delete.wrong_state', u'Можно редактировать только заокнопроекты в стадии голосования')
-
         self.bill.remove()
-
         return self.json_ok()
 
+    @validate_moderator_rights()
+    @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill_id', 'moderate', name='moderate', method='get')
     def moderation_page(self):
-
-        if not self.can_moderate_bill(self.bill):
-            return self.template('error.html', {'msg': u'Вы не являетесь модератором',
-                                                'error_code': 'bills.moderation_page.no_permissions' })
-
-        if not self.bill.state.is_voting:
-            return self.template('error.html', {'msg': u'Можно редактировать только заокнопроекты в стадии голосования',
-                                                'error_code': 'bills.moderation_page.wrong_state' })
-
         moderation_form = self.bill.data.ModeratorForm(initial=self.bill.moderator_form_initials)
         return self.template('bills/moderate.html', {'bill': self.bill,
                                                      'form': moderation_form,
                                                      'bills_settings': bills_settings} )
 
+    @validate_moderator_rights()
+    @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill_id', 'moderate', name='moderate', method='post')
     def moderate(self):
-        if not self.can_moderate_bill(self.bill):
-            return self.json_error('bills.moderate.no_permissions', u'Вы не являетесь модератором')
-
-        if not self.bill.state.is_voting:
-            return self.json_error('bills.moderate.wrong_state', u'Можно редактировать только заокнопроекты в стадии голосования')
-
         moderator_form = self.bill.data.ModeratorForm(self.request.POST)
 
         if moderator_form.is_valid():
             self.bill.update_by_moderator(moderator_form)
-
             return self.json_ok()
 
         return self.json_error('bills.moderate.form_errors', moderator_form.errors)
 
     @nested_commit_on_success
+    @validate_voting_state(message=u'На данной стадии за закон нельзя голосовать')
     @handler('#bill_id', 'vote', name='vote', method='post')
     def vote(self, value):
 
@@ -202,9 +165,6 @@ class BillResource(Resource):
 
         if value is None:
             return self.json_error('bills.vote.wrong_value', u'Неверно указан тип голоса')
-
-        if not self.bill.state.is_voting:
-            return self.json_error('bills.vote.wrong_bill_state', u'На данной стадии за закон нельзя голосовать')
 
         if VotePrototype.get_for(self.user, self.bill):
             return self.json_error('bills.vote.vote_exists', u'Вы уже проголосовали')

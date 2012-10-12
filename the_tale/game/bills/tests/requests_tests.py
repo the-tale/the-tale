@@ -128,7 +128,7 @@ class TestNewRequests(BaseTestRequests):
         self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?type=%s' % PlaceRenaming.type_str)), texts=(('bills.is_fast', 1),))
 
     def test_wrong_type(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + '?type=xxx'), texts=(('bills.new.wrong_type', 1),))
+        self.check_html_ok(self.client.get(reverse('game:bills:new') + '?type=xxx'), texts=(('bills.wrong_type', 1),))
 
     def test_success(self):
         self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?type=%s' % PlaceRenaming.type_str)))
@@ -206,7 +206,7 @@ class TestCreateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('game:bills:create'), self.get_post_data()), 'bills.is_fast')
 
     def test_type_not_exist(self):
-        self.check_ajax_error(self.client.post(reverse('game:bills:create') + '?type=xxx', self.get_post_data()), 'bills.create.wrong_type')
+        self.check_ajax_error(self.client.post(reverse('game:bills:create') + '?type=xxx', self.get_post_data()), 'bills.wrong_type')
 
     def test_success(self):
         response = self.client.post(reverse('game:bills:create') + ('?type=%s' % PlaceRenaming.type_str), self.get_post_data())
@@ -260,13 +260,13 @@ class TestVoteRequests(BaseTestRequests):
     def test_bill_accepted(self):
         self.bill.state = BILL_STATE.ACCEPTED
         self.bill.save()
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'bills.vote.wrong_bill_state')
+        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'bills.voting_state_required')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_bill_rejected(self):
         self.bill.state = BILL_STATE.REJECTED
         self.bill.save()
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'bills.vote.wrong_bill_state')
+        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'bills.voting_state_required')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_success_for(self):
@@ -314,12 +314,12 @@ class TestEditRequests(BaseTestRequests):
     def test_no_permissions(self):
         self.logout()
         self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.edit.no_permissions', 1),))
+        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.not_owner', 1),))
 
     def test_wrong_state(self):
         self.bill.state = BILL_STATE.ACCEPTED
         self.bill.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.edit.wrong_state', 1),))
+        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.voting_state_required', 1),))
 
     def test_success(self):
         self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])))
@@ -363,12 +363,12 @@ class TestUpdateRequests(BaseTestRequests):
     def test_no_permissions(self):
         self.logout()
         self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
-        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'bills.update.no_permissions')
+        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'bills.not_owner')
 
     def test_wrong_state(self):
         self.bill.state = BILL_STATE.ACCEPTED
         self.bill.save()
-        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'bills.update.wrong_state')
+        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'bills.voting_state_required')
 
     def test_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), {}), 'bills.update.form_errors')
@@ -419,12 +419,12 @@ class TestModerationPageRequests(BaseTestRequests):
     def test_no_permissions(self):
         self.logout()
         self.client.post(reverse('accounts:login'), {'email': 'test_user1@test.com', 'password': '111111'})
-        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.moderation_page.no_permissions', 1),))
+        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.moderator_rights_required', 1),))
 
     def test_wrong_state(self):
         self.bill.state = BILL_STATE.ACCEPTED
         self.bill.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.moderation_page.wrong_state', 1),))
+        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.voting_state_required', 1),))
 
     def test_success(self):
         self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])))
@@ -486,12 +486,12 @@ class TestModerateRequests(BaseTestRequests):
     def test_no_permissions(self):
         self.logout()
         self.client.post(reverse('accounts:login'), {'email': 'test_user1@test.com', 'password': '111111'})
-        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.moderate.no_permissions')
+        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.moderator_rights_required')
 
     def test_wrong_state(self):
         self.bill.state = BILL_STATE.ACCEPTED
         self.bill.save()
-        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.moderate.wrong_state')
+        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.voting_state_required')
 
     def test_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), {}), 'bills.moderate.form_errors')
@@ -532,7 +532,7 @@ class TestDeleteRequests(BaseTestRequests):
     def test_no_permissions(self):
         self.logout()
         self.client.post(reverse('accounts:login'), {'email': 'test_user1@test.com', 'password': '111111'})
-        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'bills.delete.no_permissions')
+        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'bills.moderator_rights_required')
 
     def test_delete_success(self):
         self.check_ajax_ok(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}))
