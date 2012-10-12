@@ -8,9 +8,10 @@ from game.prototypes import TimePrototype
 
 from forum.logic import create_post
 
-from game.bills.models import Bill, Vote, BILL_STATE, BILL_REJECTED_REASONS
+from game.bills.models import Bill, Vote, BILL_STATE
 from game.bills.bills import deserialize_bill
 from game.bills.conf import bills_settings
+from game.bills.exceptions import BillException
 
 class BillPrototype(object):
 
@@ -43,12 +44,6 @@ class BillPrototype(object):
     def updated_at(self): return self.model.updated_at
 
     @property
-    def rejected_state(self):
-        if not hasattr(self, '_rejected_state'):
-            self._rejected_state = BILL_REJECTED_REASONS(self.model.rejected_state)
-        return self._rejected_state
-
-    @property
     def data(self):
         if not hasattr(self, '_data'):
             self._data = deserialize_bill(s11n.from_json(self.model.technical_data))
@@ -67,7 +62,7 @@ class BillPrototype(object):
     def votes_for_percents(self):
         if self.votes_against + self.votes_for == 0:
             return 0
-        return float(self.votes_for / (self.votes_for + self.votes_against))
+        return float(self.votes_for) / (self.votes_for + self.votes_against)
 
     @property
     def votes_against(self): return self.model.votes_against
@@ -92,7 +87,7 @@ class BillPrototype(object):
     @property
     def time_before_end_step(self):
         return max(datetime.timedelta(seconds=0),
-                   (self.model.step_started_at + datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME) - datetime.datetime.now()))
+                   (self.model.updated_at + datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME) - datetime.datetime.now()))
 
     @property
     def forum_thread_id(self): return self.model.forum_thread_id
@@ -103,7 +98,6 @@ class BillPrototype(object):
     @property
     def min_votes_percents_required(self): return self.model.min_votes_percents_required
 
-
     def get_approved_by_moderator(self): return self.model.approved_by_moderator
     def set_approved_by_moderator(self, value): self.model.approved_by_moderator = value
     approved_by_moderator = property(get_approved_by_moderator, set_approved_by_moderator)
@@ -111,6 +105,37 @@ class BillPrototype(object):
     def recalculate_votes(self):
         self.model.votes_for = Vote.objects.filter(bill=self.model, value=True).count()
         self.model.votes_against = Vote.objects.filter(bill=self.model, value=False).count()
+
+    @nested_commit_on_success
+    def apply(self):
+        if not self.state.is_voting:
+            raise BillException('trying to apply bill in not voting state')
+
+        if not self.approved_by_moderator:
+            raise BillException('trying to apply bill which did not approved by moderator')
+
+        if self.time_before_end_step != datetime.timedelta(seconds=0):
+            raise BillException('trying to apply bill before voting period was end')
+
+        self.recalculate_votes()
+
+        self.model.min_votes_required = bills_settings.MIN_VOTES_NUMBER
+        self.model.min_votes_percents_required = bills_settings.MIN_VOTES_PERCENT
+
+
+        if (self.votes_for_percents < bills_settings.MIN_VOTES_PERCENT or
+            self.votes_for < bills_settings.MIN_VOTES_NUMBER):
+            self.model.state = BILL_STATE.REJECTED
+            self.save()
+            return False
+
+        self.data.apply()
+
+        self.model.state = BILL_STATE.ACCEPTED
+        self.save()
+
+        return True
+
 
     @nested_commit_on_success
     def update(self, form):

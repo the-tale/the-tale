@@ -16,6 +16,8 @@ from game.persons.storage import persons_storage
 from game.map.places.storage import places_storage
 from game.map.places.conf import places_settings
 
+from game.bills.conf import bills_settings
+
 class HighlevelException(Exception): pass
 
 class Worker(BaseWorker):
@@ -69,6 +71,10 @@ class Worker(BaseWorker):
             if self.turn_number % c.MAP_SYNC_TIME == 0:
                 self.sync_data()
                 map_update_needed = True
+
+            if self.turn_number % (bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA) == 0:
+                if self.apply_bills():
+                    map_update_needed = True
 
         if map_update_needed:
             subprocess.call(['./manage.py', 'map_update_map'])
@@ -138,6 +144,26 @@ class Worker(BaseWorker):
 
         places_storage.save_all()
         persons_storage.save_all()
+
+    def apply_bills(self):
+        import datetime
+        from game.bills.models import Bill, BILL_STATE
+        from game.bills.prototypes import BillPrototype
+
+        bills_models = Bill.objects.filter(state=BILL_STATE.VOTING,
+                                           approved_by_moderator=True,
+                                           updated_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME))
+
+        applied = False
+
+        for bill_model in bills_models:
+            bill = BillPrototype(bill_model)
+            applied = applied or bill.apply()
+
+        if applied:
+            places_storage.save_all()
+
+        return applied
 
 
     def cmd_change_person_power(self, person_id, power_delta):

@@ -14,9 +14,16 @@ from game.balance import constants as c
 from game.logic import create_test_bundle, create_test_map
 from game.workers.environment import workers_environment
 from game.prototypes import TimePrototype
+from game.bills.conf import bills_settings
+
 
 def fake_sync_data(self):
     self._data_synced = True
+
+def fake_apply_bills(self):
+    if not hasattr(self, '_bills_applied'):
+        self._bills_applied = 0
+    self._bills_applied += 1
 
 class HighlevelTest(TestCase):
 
@@ -54,6 +61,7 @@ class HighlevelTest(TestCase):
         self.assertEqual(self.worker.persons_power, {0: -99, 1: 10})
 
     @mock.patch('game.workers.highlevel.Worker.sync_data', fake_sync_data)
+    @mock.patch('game.workers.highlevel.Worker.apply_bills', fake_apply_bills)
     @mock.patch('subprocess.call', lambda x: None)
     @mock.patch('game.balance.constants.MAP_SYNC_TIME', 10)
     def test_process_next_turn(self):
@@ -67,11 +75,18 @@ class HighlevelTest(TestCase):
         for i in xrange(c.MAP_SYNC_TIME-1):
             self.worker.process_next_turn(time.turn_number)
             self.assertFalse(hasattr(self.worker, '_data_synced'))
+
+            if time.turn_number < bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA:
+                self.assertFalse(hasattr(self.worker, '_bills_applied'))
+            else:
+                self.assertEqual(self.worker._bills_applied, time.turn_number / (bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA))
+
             time.increment_turn()
             time.save()
 
         self.worker.process_next_turn(time.turn_number)
         self.assertTrue(self.worker._data_synced)
+
 
     @mock.patch('game.workers.highlevel.Worker.sync_data', fake_sync_data)
     @mock.patch('subprocess.call', lambda x: None)

@@ -35,8 +35,9 @@ class PlacePrototype(object):
     def set_terrain(self, value): self.model.terrain = value
     terrain = property(get_terrain, set_terrain)
 
-    @property
-    def name(self): return self.model.name
+    def get_name(self): return self.model.name
+    def set_name(self, value): self.model.name = value
+    name = property(get_name, set_name)
 
     @property
     def normalized_name(self):
@@ -45,6 +46,11 @@ class PlacePrototype(object):
             self._normalized_name = words.WordBase.deserialize(s11n.from_json(self.model.name_forms))
 
         return (self._normalized_name, u'загл')
+
+    def set_name_forms(self, name_forms):
+        self.model.name_forms = s11n.to_json(name_forms.serialize())
+        if hasattr(self, '_normalized_name'):
+            delattr(self, '_normalized_name')
 
     @property
     def type(self): return self.model.type

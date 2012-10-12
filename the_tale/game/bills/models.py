@@ -13,9 +13,6 @@ BILL_STATE = create_enum('BILL_STATE', (('VOTING', 1, u'на голосован�
                                         ('ACCEPTED', 2, u'принят'),
                                         ('REJECTED', 3, u'отклонён'), ))
 
-BILL_REJECTED_REASONS = create_enum('BILL_REJECTED_REASONS', (('PROPOSAL_TIMEOUT', 0, u'истекло время выдвижения'),
-                                                              ('VOTING_FAILED', 1, u'не хватило голосов'), ) )
-
 BILL_TYPE = create_enum('BILL_TYPE', (('PLACE_RENAMING', 0, u'переименование места'),))
 
 
@@ -27,7 +24,6 @@ class Bill(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
-    step_started_at = models.DateTimeField(auto_now_add=True, null=False)
 
     created_at_turn = models.IntegerField(null=False)
 
@@ -37,7 +33,6 @@ class Bill(models.Model):
 
     type = models.IntegerField(null=False, choices=BILL_TYPE.CHOICES, db_index=True)
     state = models.IntegerField(null=False, default=BILL_STATE.VOTING, choices=BILL_STATE.CHOICES, db_index=True)
-    rejected_state = models.IntegerField(null=True, default=None, choices=BILL_REJECTED_REASONS.CHOICES)
 
     approved_by_moderator = models.BooleanField(default=False, db_index=True)
 
