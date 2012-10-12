@@ -117,7 +117,12 @@ jQuery(document).ready(function() {
             {{ base_macros.main_menu_item("bills", url("game:bills:"), "Политика") }}
             {% endif %}
 
+            {% if request.user.is_authenticated() %}
             {{ base_macros.main_menu_item("game", url("game:"), "Игра") }}
+            {% else %}
+            <li><a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration attention-link"><strong>создать героя</strong></a></li>
+            {% endif %}
+
             {% if resource.account %}
             {{ base_macros.main_menu_item("hero", url("game:heroes:show", resource.account.angel.get_hero().id), "Страница героя") }}
             {% endif %}
@@ -136,7 +141,6 @@ jQuery(document).ready(function() {
             {{ base_macros.main_menu_item("profile", url("accounts:profile"), "Профиль") }}
             <li><a href="{{ url('accounts:logout') }}">Выход</a></li>
             {% else %}
-            <li><a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration attention-link"><strong>создать героя</strong></a></li>
             <li><a href="{{ url('accounts:login') }}">Войти</a></li>
             {% endif %}
           </ul>
