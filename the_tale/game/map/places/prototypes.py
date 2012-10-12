@@ -6,6 +6,10 @@ from dext.utils import s11n
 from game.game_info import GENDER
 from textgen import words
 from game import names
+from game.prototypes import TimePrototype, GameTime
+from game.balance import formulas as f
+
+from game.heroes.models import Hero
 
 from game.map.places.models import Place, PLACE_TYPE, RACE_TO_TERRAIN
 from game.map.places.conf import places_settings
@@ -40,6 +44,9 @@ class PlacePrototype(object):
     name = property(get_name, set_name)
 
     @property
+    def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self.model.updated_at_turn))
+
+    @property
     def normalized_name(self):
 
         if not hasattr(self, '_normalized_name'):
@@ -63,6 +70,10 @@ class PlacePrototype(object):
     size = property(get_size, set_size)
 
     @property
+    def heroes_number(self): return self.model.heroes_number
+    def update_heroes_number(self): self.model.heroes_number = Hero.objects.filter(pref_place_id=self.id).count()
+
+    @property
     def persons(self):
         from game.persons.storage import persons_storage
         from game.persons.models import PERSON_STATE
@@ -70,6 +81,8 @@ class PlacePrototype(object):
 
     @property
     def total_persons_power(self): return sum([person.power for person in self.persons])
+
+    def mark_as_updated(self): self.model.updated_at_turn = TimePrototype.get_current_turn_number()
 
     def sync_persons(self):
         '''

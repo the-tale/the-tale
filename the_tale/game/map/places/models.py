@@ -38,6 +38,8 @@ class Place(models.Model):
     x = models.BigIntegerField(null=False)
     y = models.BigIntegerField(null=False)
 
+    updated_at_turn = models.BigIntegerField(default=0)
+
     name = models.CharField(max_length=MAX_NAME_LENGTH, null=False, db_index=True)
 
     name_forms = models.TextField(null=False, default=u'')
@@ -58,6 +60,8 @@ class Place(models.Model):
     size = models.IntegerField(null=False) # specify size of the place
 
     data = models.TextField(null=False, default={})
+
+    heroes_number = models.IntegerField(default=0)
 
     class Meta:
         ordering = ('name', )

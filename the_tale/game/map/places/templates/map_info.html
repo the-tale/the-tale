@@ -20,6 +20,15 @@
       Здесь должно быть или не должно крутое или не очень описание этого замечательного/волшебного/ужасного важного/не важного места.
     </div>
 
+    <ul class="unstyled">
+      <li>время обновления статистики:
+        {% set game_time = place.updated_at_game_time %}
+        <span class="pgf-game-date">{{ game_time.verbose_date}}</span>
+        <span class="pgf-game-time">{{ game_time.verbose_time }}</span>
+      </li>
+      <li>прописано героев: {{place.heroes_number}}</li>
+    </ul>
+
     <h3>персонажи</h3>
 
     <ul class="unstyled">

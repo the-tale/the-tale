@@ -140,7 +140,8 @@ class Worker(BaseWorker):
         for place in places_storage.all():
             place.sync_persons() # MUST BE BEFORE TERRAIN, becouse some valueble persons can be removed
             place.sync_terrain()
-
+            place.update_heroes_number()
+            place.mark_as_updated()
 
         places_storage.save_all()
         persons_storage.save_all()
