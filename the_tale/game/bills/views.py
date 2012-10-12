@@ -183,7 +183,7 @@ class BillResource(Resource):
             return self.json_error('bills.moderate.no_permissions', u'Вы не являетесь модератором')
 
         if not self.bill.state.is_voting:
-            return self.json_error('bills.moderation.wrong_state', u'Можно редактировать только заокнопроекты в стадии голосования')
+            return self.json_error('bills.moderate.wrong_state', u'Можно редактировать только заокнопроекты в стадии голосования')
 
         moderator_form = self.bill.data.ModeratorForm(self.request.POST)
 

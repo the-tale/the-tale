@@ -3,7 +3,12 @@
 from django.test import client
 from django.core.urlresolvers import reverse
 
+from dext.utils import s11n
+
+from textgen.words import Noun
+
 from common.utils.testcase import TestCase
+from common.utils.permissions import sync_group
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -379,3 +384,155 @@ class TestUpdateRequests(BaseTestRequests):
         self.assertTrue(old_updated_at < self.bill.updated_at)
 
         self.assertEqual(Post.objects.all().count(), 2)
+
+
+class TestModerationPageRequests(BaseTestRequests):
+
+    def setUp(self):
+        super(TestModerationPageRequests, self).setUp()
+
+        self.client.post(reverse('game:bills:create') + ('?type=%s' % PlaceRenaming.type_str), {'caption': 'bill-caption',
+                                                                                                'rationale': 'bill-rationale',
+                                                                                                'place': self.place1.id,
+                                                                                                'new_name': 'new-name'})
+        self.bill = BillPrototype(Bill.objects.all()[0])
+
+        self.logout()
+        self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
+
+        group = sync_group('bills moderators group', ['bills.moderate_bill'])
+        group.user_set.add(self.account2.user)
+
+
+    def test_unlogined(self):
+        self.logout()
+        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.unlogined', 1),))
+
+    def test_is_fast(self):
+        self.account2.is_fast = True
+        self.account2.save()
+        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.is_fast', 1),))
+
+    def test_unexsists(self):
+        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[666])), status_code=404)
+
+    def test_no_permissions(self):
+        self.logout()
+        self.client.post(reverse('accounts:login'), {'email': 'test_user1@test.com', 'password': '111111'})
+        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.moderation_page.no_permissions', 1),))
+
+    def test_wrong_state(self):
+        self.bill.state = BILL_STATE.ACCEPTED
+        self.bill.save()
+        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.moderation_page.wrong_state', 1),))
+
+    def test_success(self):
+        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])))
+
+
+class TestModerateRequests(BaseTestRequests):
+
+    def setUp(self):
+        super(TestModerateRequests, self).setUp()
+
+        self.client.post(reverse('game:bills:create') + ('?type=%s' % PlaceRenaming.type_str), {'caption': 'bill-caption',
+                                                                                                'rationale': 'bill-rationale',
+                                                                                                'place': self.place1.id,
+                                                                                                'new_name': 'new-name'})
+        self.bill = BillPrototype(Bill.objects.all()[0])
+
+        self.logout()
+        self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
+
+        group = sync_group('bills moderators group', ['bills.moderate_bill'])
+        group.user_set.add(self.account2.user)
+
+
+    def get_post_data(self):
+
+        name_forms = ['new_name_1',
+                      'new_name_2',
+                      'new_name_3',
+                      'new_name_4',
+                      'new_name_5',
+                      'new_name_6',
+                      'new_name_7',
+                      'new_name_8',
+                      'new_name_9',
+                      'new_name_10',
+                      'new_name_11',
+                      'new_name_12']
+
+        noun = Noun(normalized=self.bill.data.base_name.lower(),
+                    forms=name_forms,
+                    properties=(u'мр',))
+
+        return {'approved': True,
+                'name_forms': s11n.to_json(noun.serialize()) }
+
+
+    def test_unlogined(self):
+        self.logout()
+        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.unlogined')
+
+    def test_is_fast(self):
+        self.account2.is_fast = True
+        self.account2.save()
+        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.is_fast')
+
+    def test_type_not_exist(self):
+        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[666]), self.get_post_data()), 'bills.wrong_bill_id')
+
+    def test_no_permissions(self):
+        self.logout()
+        self.client.post(reverse('accounts:login'), {'email': 'test_user1@test.com', 'password': '111111'})
+        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.moderate.no_permissions')
+
+    def test_wrong_state(self):
+        self.bill.state = BILL_STATE.ACCEPTED
+        self.bill.save()
+        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.moderate.wrong_state')
+
+    def test_form_errors(self):
+        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), {}), 'bills.moderate.form_errors')
+
+    def test_moderate_success(self):
+        self.check_ajax_ok(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()))
+
+
+class TestDeleteRequests(BaseTestRequests):
+
+    def setUp(self):
+        super(TestDeleteRequests, self).setUp()
+
+        self.client.post(reverse('game:bills:create') + ('?type=%s' % PlaceRenaming.type_str), {'caption': 'bill-caption',
+                                                                                                'rationale': 'bill-rationale',
+                                                                                                'place': self.place1.id,
+                                                                                                'new_name': 'new-name'})
+        self.bill = BillPrototype(Bill.objects.all()[0])
+
+        self.logout()
+        self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
+
+        group = sync_group('bills moderators group', ['bills.moderate_bill'])
+        group.user_set.add(self.account2.user)
+
+    def test_unlogined(self):
+        self.logout()
+        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'bills.unlogined')
+
+    def test_is_fast(self):
+        self.account2.is_fast = True
+        self.account2.save()
+        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'bills.is_fast')
+
+    def test_type_not_exist(self):
+        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[666]), {}), 'bills.wrong_bill_id')
+
+    def test_no_permissions(self):
+        self.logout()
+        self.client.post(reverse('accounts:login'), {'email': 'test_user1@test.com', 'password': '111111'})
+        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'bills.delete.no_permissions')
+
+    def test_delete_success(self):
+        self.check_ajax_ok(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}))

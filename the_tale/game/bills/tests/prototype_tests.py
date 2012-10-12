@@ -1,14 +1,15 @@
 # coding: utf-8
 
-from django.test import client
-from django.core.urlresolvers import reverse
+from dext.utils import s11n
+
+from textgen.words import Noun
 
 from common.utils.testcase import TestCase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
-from forum.models import Post
+from forum.models import Post, Thread
 
 from game.logic import create_test_map
 
@@ -98,3 +99,45 @@ class TestPrototype(BaseTestPrototypes):
         self.assertEqual(self.bill.data.base_name, 'new-new-name')
         self.assertEqual(self.bill.data.place_id, self.place2.id)
         self.assertEqual(Post.objects.all().count(), 2)
+
+    def test_update_by_moderator(self):
+        self.assertEqual(self.bill.approved_by_moderator, False)
+        self.assertEqual(self.bill.data.name_forms, ['new_name_1']*12)
+
+        name_forms = ['new_name_1',
+                      'new_name_2',
+                      'new_name_3',
+                      'new_name_4',
+                      'new_name_5',
+                      'new_name_6',
+                      'new_name_7',
+                      'new_name_8',
+                      'new_name_9',
+                      'new_name_10',
+                      'new_name_11',
+                      'new_name_12']
+
+        noun = Noun(normalized=self.bill.data.base_name.lower(),
+                    forms=name_forms,
+                    properties=(u'мр',))
+
+        form = PlaceRenaming.ModeratorForm({'approved': True,
+                                            'name_forms': s11n.to_json(noun.serialize()) })
+
+        self.assertTrue(form.is_valid())
+
+        self.bill.update_by_moderator(form)
+
+        self.bill = BillPrototype.get_by_id(self.bill.id)
+
+        self.assertEqual(self.bill.approved_by_moderator, True)
+        self.assertEqual(self.bill.data.name_forms, name_forms)
+
+    def test_remove(self):
+        self.assertEqual(Thread.objects.all().count(), 1)
+        self.assertEqual(Bill.objects.all().count(), 1)
+
+        self.bill.remove()
+
+        self.assertEqual(Thread.objects.all().count(), 0)
+        self.assertEqual(Bill.objects.all().count(), 0)
