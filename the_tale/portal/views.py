@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import postmarkup
+
 from dext.views.resources import handler
 
 from common.utils.resources import Resource
@@ -31,3 +33,7 @@ class PortalResource(Resource):
     @handler('500', method='get')
     def handler500(self):
         return self.template('portal/500.html')
+
+    @handler('preview', name='preview', method='post')
+    def preview(self):
+        return self.string(postmarkup.render_bbcode(self.request.POST.get('text', '')))

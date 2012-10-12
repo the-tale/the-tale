@@ -98,7 +98,7 @@ class BillResource(Resource):
             bill = BillPrototype.create(self.user, user_form.c.caption, user_form.c.rationale, bill_data)
             return self.json_ok(data={'next_url': reverse('game:bills:show', args=[bill.id])})
 
-        return self.json_error('bills.create.form_errors', errors=user_form.errors)
+        return self.json_error('bills.create.form_errors', user_form.errors)
 
 
     @handler('#bill_id', name='show', method='get')

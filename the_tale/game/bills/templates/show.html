@@ -11,12 +11,16 @@
 
 {{ bills_macros.bill_info(bill) }}
 
+{% if bill.state.is_voting %}
+
 {% if resource.user == bill.owner %}
 <a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('game:bills:edit', bill.id) }}">редактировать</a>
 {% endif %}
 
 {% if resource.can_moderate_bill(bill) %}
 <a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('game:bills:moderate', bill.id) }}">администрировать</a>
+{% endif %}
+
 {% endif %}
 
 {% if vote is not none %}
@@ -56,7 +60,7 @@
 <h3>Обоснование</h3>
 
 <p>
-  {{ bill.rationale }}
+  {{ bill.rationale_html|safe }}
 </p>
 
 

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import postmarkup
 
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
@@ -356,7 +355,3 @@ class ForumResource(BaseForumResource):
                               'subcategory': self.subcategory,
                               'can_create_thread': self.can_create_thread(self.subcategory),
                               'threads': threads} )
-
-    @handler('preview', name='preview', method='post')
-    def preview(self):
-        return self.string(postmarkup.render_bbcode(self.request.POST.get('text', '')))

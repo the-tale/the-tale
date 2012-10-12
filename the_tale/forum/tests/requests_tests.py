@@ -199,7 +199,3 @@ class TestRequests(TestCase):
         self.check_ajax_ok(self.client.post(reverse('forum:posts:create') + ('?thread_id=%d' % self.thread3.id), {'text': 'thread3-test-post'}),
                            data={'thread_url': reverse('forum:threads:show', args=[self.thread3.id]) + '?page=1'})
         self.assertEqual(Post.objects.all().count(), 5)
-
-    def test_preview(self):
-        text = 'simple test text'
-        self.check_html_ok(self.client.post(reverse('forum:preview'), {'text': text}), texts=[text])

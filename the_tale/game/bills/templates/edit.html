@@ -8,8 +8,11 @@
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
 
-    var loginForm = new pgf.forms.Form(jQuery('#pgf-edit-bill-form'),
+    var editForm = new pgf.forms.Form(jQuery('#pgf-edit-bill-form'),
                                                {OnSuccess: function(instance, data){location.href = "{{ url('game:bills:show', bill.id) }}";}});
+
+    pgf.base.AddPreview('#pgf-edit-bill-form', 'textarea', "{{ url('portal:preview') }}");
+    pgf.base.InitBBFields();
 });
 
 </script>
@@ -34,9 +37,18 @@ jQuery(document).ready( function(e) {
 
   {% include bill.data.USER_FORM_TEMPLATE with context %}
 
-  {{ form.rationale.widget }}
+  <div class="pgf-edit-content">
+    {{ form.rationale.widget }}
+  </div>
 
-  <input type="submit" value="Сохранить"/>
+  <div class="pgf-preview-content pgf-hidden">
+  </div>
+
+  <div class="widget">
+    <input type="submit" value="Сохранить"/>
+    <input type="button" class="pgf-preview-button" value="Предпросмотр"/>
+    <input type="button" class="pgf-edit-button pgf-hidden" value="Редактировать"/>
+  </div>
 
 </form>
 

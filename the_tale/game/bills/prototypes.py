@@ -1,5 +1,6 @@
 # coding: utf-8
 import datetime
+import postmarkup
 
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
@@ -54,6 +55,9 @@ class BillPrototype(object):
 
     @property
     def rationale(self): return self.model.rationale
+
+    @property
+    def rationale_html(self): return postmarkup.render_bbcode(self.model.rationale)
 
     @property
     def votes_for(self): return self.model.votes_for
