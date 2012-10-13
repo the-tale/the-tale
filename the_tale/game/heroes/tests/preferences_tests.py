@@ -660,7 +660,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
     def test_choose_preferences_unlogined(self):
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-        self.check_ajax_error(response, 'heroes.can_no_see_this_account')
+        self.check_ajax_error(response, 'heroes.can_not_see_this_account')
 
     def test_choose_preferences_success(self):
         self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
@@ -691,7 +691,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
         task = ChoosePreferencesTask.objects.all()[0]
         response = self.client.post(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
-        self.check_ajax_error(response, 'heroes.can_no_see_this_account')
+        self.check_ajax_error(response, 'heroes.can_not_see_this_account')
 
     def test_choose_preferences_status_foreign_task(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
@@ -703,7 +703,7 @@ class HeroPreferencesRequestsTest(TestCase):
         task = ChoosePreferencesTask.objects.all()[0]
         response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
-        self.check_ajax_error(response, 'heroes.can_no_see_this_account')
+        self.check_ajax_error(response, 'heroes.can_not_see_this_account')
 
     def test_choose_preferences_status_error(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})

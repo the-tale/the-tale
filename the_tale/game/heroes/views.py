@@ -2,7 +2,6 @@
 from django.core.urlresolvers import reverse
 
 from dext.views.resources import handler
-from dext.utils.exceptions import Error
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
@@ -33,16 +32,20 @@ def split_list(items):
 
 class HeroResource(Resource):
 
-    def initialize(self, hero_id, *args, **kwargs):
+    def initialize(self, hero_id=None, *args, **kwargs):
         super(HeroResource, self).initialize(*args, **kwargs)
 
-        self.hero_id = int(hero_id)
+        if hero_id:
+            try:
+                self.hero_id = int(hero_id)
+            except:
+                return self.auto_error('heroes.wrong_hero_id', u'Неверный идентификатор героя', status_code=404)
 
-        if self.hero is None:
-            return self.json_error('heroes.can_no_see_this_hero', u'Вы не можете просматривать данные этого игрока')
+            if self.hero is None:
+                return self.json_error('heroes.can_not_see_this_hero', u'Вы не можете просматривать данные этого игрока')
 
-        if self.account is None or self.account.angel.id != self.hero.angel_id:
-            return self.json_error('heroes.can_no_see_this_account', u'Вы не можете просматривать данные этого игрока')
+            if self.account is None or self.account.angel.id != self.hero.angel_id:
+                return self.json_error('heroes.can_not_see_this_account', u'Вы не можете просматривать данные этого игрока')
 
     @property
     def hero(self):
@@ -50,6 +53,10 @@ class HeroResource(Resource):
             self._hero = HeroPrototype.get_by_id(self.hero_id)
         return self._hero
 
+    @login_required
+    @handler('', method='get')
+    def index(self):
+        return self.redirect('/')
 
     @login_required
     @handler('#hero_id', name='show', method='get')

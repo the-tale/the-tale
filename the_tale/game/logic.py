@@ -87,7 +87,7 @@ def create_test_map():
 
 def create_test_bundle(uuid):
     from accounts.logic import register_user
-    result, account_id, bundle_id = register_user(uuid, uuid + '@' + uuid + '.com', '111111')
+    result, account_id, bundle_id = register_user(uuid, uuid + '@test.com', '111111')
     return BundlePrototype.get_by_id(bundle_id)
 
 
