@@ -21,14 +21,17 @@ class GuideResource(Resource):
     def registration(self):
         return self.template('guide/registration.html', {'section': 'registration'})
 
-
     @handler('game', method='get')
     def game(self):
         return self.template('guide/game.html', {'section': 'game'})
 
     @handler('politics', method='get')
     def politics(self):
-        pass
+        from game.bills.conf import bills_settings
+        from game.bills.bills import BILLS_BY_ID
+        return self.template('guide/politics.html', {'section': 'politics',
+                                                     'bills_settings': bills_settings,
+                                                     'BILLS_BY_ID': BILLS_BY_ID})
 
     @handler('hero-abilities', method='get')
     def hero_abilities(self):

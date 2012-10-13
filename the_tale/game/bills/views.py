@@ -1,7 +1,5 @@
 # coding: utf-8
 
-import functools
-
 from django.core.urlresolvers import reverse
 
 from dext.views.resources import handler, validator
