@@ -2,6 +2,10 @@
 import random
 
 def random_value_by_priority(values):
+
+    if not values:
+        return None
+
     domain = 0
 
     for value, priority in values:
