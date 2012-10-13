@@ -271,7 +271,13 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
                                                success: function(data, request, status) {
 
                                                    if (data.status == 'error') {
-                                                       pgf.ui.dialog.Error({ message: data.errors });
+                                                       if (data.error) {
+                                                           pgf.ui.dialog.Error({ message: data.error });                                                           
+                                                       }
+                                                       else{
+                                                           pgf.ui.dialog.Error({ message: data.errors });                                                               
+                                                       }
+
                                                        return;
                                                    }
 

@@ -105,14 +105,14 @@ pgf.ui.dialog.Question = function(params) {
         content += html;
     }
 
-    content += "</div></div></div>"
+    content += "</div></div></div>";
 
     var dialog = jQuery(content);
 
     var title = 'title' in params ? params.title : 'Внимание!';
 
     if (!params.message) {
-        pgf.ui.dialog.Error({message: 'dialog.Alert: mesage does not specified'});
+        pgf.ui.dialog.Error({message: 'dialog.Question: message does not specified'});
     }
 
     jQuery('.modal-body', dialog).html(params.message);
@@ -135,7 +135,7 @@ pgf.ui.dialog.Alert = function(params) {
     var title = 'title' in params ? params.title : 'Внимание!';
 
     if (!params.message) {
-        pgf.ui.dialog.Error({message: 'dialog.Alert: mesage does not specified'});
+        pgf.ui.dialog.Error({message: 'dialog.Alert: message does not specified'});
     }
 
     pgf.ui.dialog.Question({message: params.message,
