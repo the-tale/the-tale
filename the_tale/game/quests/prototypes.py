@@ -348,8 +348,8 @@ class QuestPrototype(object):
     def ui_info(self, hero):
         choices = self.get_choices()
 
-        cmd = self.env.get_nearest_quest_choice(self.pointer)
-        writer = self.env.get_writer(hero, self.pointer)
+        cmd = self.env.get_nearest_quest_choice(self.last_pointer)
+        writer = self.env.get_writer(hero, self.last_pointer)
 
         cmd_id = None
         choice_variants = []
