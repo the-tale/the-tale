@@ -81,7 +81,7 @@ class NewsResource(Resource):
 
         for news_item in news:
             feed.add_item(title=news_item.caption,
-                          link=self.request.build_absolute_uri(reverse('news:')),
+                          link=self.request.build_absolute_uri(reverse('news:show', args=[news_item.id])),
                           description=news_item.html_content,
                           pubdate=news_item.created_at,
                           comments=news_item.forum_thread.get_absolute_url() if news_item.forum_thread else None,
