@@ -177,8 +177,10 @@ class ActionPrototype(object):
         choices = copy.copy(self.EXTRA_HELP_CHOICES)
         choices.add(c.HELP_CHOICES.MONEY)
 
-        if self.hero.is_alive and c.ANGEL_HELP_HEAL_IF_LOWER_THEN * self.hero.max_health > self.hero.health:
-            choices.add(c.HELP_CHOICES.HEAL)
+        if self.hero.is_alive:
+            if ((c.ANGEL_HELP_HEAL_IF_LOWER_THEN * self.hero.max_health > self.hero.health) or
+                (self.hero.health < self.hero.max_health and len(choices) == 1 and c.HELP_CHOICES.MONEY in choices)):
+                choices.add(c.HELP_CHOICES.HEAL)
 
         return choices
 
