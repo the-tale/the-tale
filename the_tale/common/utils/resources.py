@@ -19,13 +19,14 @@ class Resource(BaseResource):
 
         self.user = self.request.user
 
-        if self.account:
-            last_session_refresh_time = self.request.session.get(game_settings.SESSION_REFRESH_TIME_KEY, None)
+        last_session_refresh_time = self.request.session.get(game_settings.SESSION_REFRESH_TIME_KEY, None)
 
-            current_timestamp = time.time()
+        current_timestamp = time.time()
 
-            if last_session_refresh_time is None or last_session_refresh_time + game_settings.SESSION_REFRESH_PERIOD < current_timestamp:
-                self.request.session[game_settings.SESSION_REFRESH_TIME_KEY] = current_timestamp
+        if last_session_refresh_time is None or last_session_refresh_time + game_settings.SESSION_REFRESH_PERIOD < current_timestamp:
+            self.request.session[game_settings.SESSION_REFRESH_TIME_KEY] = current_timestamp
+
+            if self.account:
                 workers_environment.supervisor.cmd_mark_hero_as_active(self.account.angel.get_hero().id)
 
 
