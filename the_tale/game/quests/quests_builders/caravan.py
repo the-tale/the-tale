@@ -25,7 +25,7 @@ class Caravan(Quest):
                                     cmd.Battle(number=1, event='caravan_attack'),
                                     cmd.Move(place=self.env_local.place_start, event='run_away'),
                                     cmd.QuestResult(result=DEFAULT_RESULTS.NEGATIVE),
-                                    cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
+                                    cmd.GetReward(person=self.env_local.person_end, event='bad_get_reward'),
                                     cmd.GivePower(person=self.env_local.person_start, power=-1),
                                     cmd.GivePower(person=self.env_local.person_end, power=-1)])
 
@@ -33,7 +33,7 @@ class Caravan(Quest):
                                      cmd.Battle(number=2, event='bandits_attack'),
                                      cmd.Move(place=self.env_local.place_end, event='move_to_point'),
                                      cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
-                                     cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
+                                     cmd.GetReward(person=self.env_local.person_end, event='good_get_reward'),
                                      cmd.GivePower(person=self.env_local.person_start, power=1),
                                      cmd.GivePower(person=self.env_local.person_end, power=1)])
 

@@ -22,12 +22,12 @@ class Delivery(Quest):
         delivery_line = Line(sequence=[cmd.Message(event='choice_delivery'),
                                        cmd.GiveItem(self.env_local.item_to_deliver, event='give_item'),
                                        cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
-                                       cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
+                                       cmd.GetReward(person=self.env_local.person_end, event='delivery_get_reward'),
                                        cmd.GivePower(person=self.env_local.person_start, power=1),
                                        cmd.GivePower(person=self.env_local.person_end, power=1)])
         steal_line = Line(sequence=[cmd.Message(event='choice_steal'),
-                                    cmd.GetReward(event='get_reward'),
                                     cmd.GiveItem(self.env_local.item_to_deliver, event='steal_item'),
+                                    cmd.GetReward(event='steal_get_reward'),
                                     cmd.QuestResult(result=DEFAULT_RESULTS.NEGATIVE),
                                     cmd.GivePower(person=self.env_local.person_start, power=-1),
                                     cmd.GivePower(person=self.env_local.person_end, power=-1)])
