@@ -84,6 +84,9 @@ class PlacePrototype(object):
 
     def mark_as_updated(self): self.model.updated_at_turn = TimePrototype.get_current_turn_number()
 
+    @property
+    def max_persons_number(self): return places_settings.SIZE_TO_PERSONS_NUMBER[self.size]
+
     def sync_persons(self):
         '''
         DO NOT SAVE CHANGES - this MUST do parent code
@@ -95,9 +98,7 @@ class PlacePrototype(object):
         from game.persons.models import PERSON_TYPE_CHOICES
         from game.game_info import RACE_CHOICES
 
-        expected_persons_number = places_settings.SIZE_TO_PERSONS_NUMBER[self.size]
-
-        while persons_count < expected_persons_number:
+        while persons_count < self.max_persons_number:
             race = random.choice(RACE_CHOICES)[0]
             gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
@@ -108,13 +109,6 @@ class PlacePrototype(object):
                                                 name=names.generator.get_name(race, gender))
             persons_storage.add_item(new_person.id, new_person)
             persons_count += 1
-
-        persons = sorted(self.persons, key=lambda x: -x.power)
-
-        while persons_count > expected_persons_number:
-            person = persons[persons_count-1]
-            person.move_out_game()
-            persons_count -= 1
 
         if hasattr(self, '_persons'):
             delattr(self, '_persons')

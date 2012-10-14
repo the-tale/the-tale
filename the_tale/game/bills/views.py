@@ -70,6 +70,7 @@ class BillResource(Resource):
 
         return self.template('bills/index.html',
                              {'bills': bills,
+                              'BILLS_BY_STR': BILLS_BY_STR,
                               'current_page_number': page,
                               'pages_count': range(paginator.pages_count),
                               'bills_settings': bills_settings} )
@@ -80,7 +81,7 @@ class BillResource(Resource):
     def new(self, type):
         bill_class = BILLS_BY_STR[type]
         return self.template('bills/new.html', {'bill_class': bill_class,
-                                                'form': bill_class.UserForm(),
+                                                'form': bill_class.get_user_form_create(),
                                                 'bills_settings': bills_settings})
 
     @validate_bill_type()
@@ -89,7 +90,7 @@ class BillResource(Resource):
 
         bill_data = BILLS_BY_STR[type]()
 
-        user_form = bill_data.UserForm(self.request.POST)
+        user_form = bill_data.get_user_form_create(self.request.POST)
 
         if user_form.is_valid():
             bill_data.initialize_with_user_data(user_form)
@@ -109,7 +110,7 @@ class BillResource(Resource):
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill_id', 'edit', name='edit', method='get')
     def edit(self):
-        user_form = self.bill.data.UserForm(initial=self.bill.user_form_initials)
+        user_form = self.bill.data.get_user_form_update(initial=self.bill.user_form_initials)
         return self.template('bills/edit.html', {'bill': self.bill,
                                                  'form': user_form,
                                                  'bills_settings': bills_settings} )
@@ -118,7 +119,7 @@ class BillResource(Resource):
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill_id', 'update', name='update', method='post')
     def update(self):
-        user_form = self.bill.data.UserForm(self.request.POST)
+        user_form = self.bill.data.get_user_form_update(post=self.request.POST)
 
         if user_form.is_valid():
             self.bill.update(user_form)

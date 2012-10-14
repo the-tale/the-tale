@@ -150,7 +150,6 @@ class TestPrototype(BaseTestPrototypes):
 
 
 
-
 class TestPrototypeApply(BaseTestPrototypes):
 
     def setUp(self):

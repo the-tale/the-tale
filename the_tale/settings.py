@@ -173,6 +173,13 @@ AMQP_BROKER_USER = 'the-tale'
 AMQP_BROKER_PASSWORD = 'the-tale'
 AMQP_BROKER_VHOST = '/the-tale'
 
+##############################
+# code coverage tests
+##############################
+
+# TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
+
+
 try:
     from settings_local import *
 except:

@@ -33,14 +33,11 @@
         {% elif bill.state.is_accepted %} принят
         {% elif bill.state.is_rejected %}
 
-        {% if bill.rejected_state.is_blocked_by_moderator %}
-        отклонено модератором
+        {% if bill.is_votes_baries_passed %}
+        не набрано достаточно голосов
 
-        {% elif bill.rejected_state.is_proposal_timeout %}
-        истекло время выдвижения
-
-        {% elif bill.rejected_state.is_voting_failed %}
-        не хватило голосов
+        {% elif bill.is_percents_baries_passed %}
+        не набран необходимый процент поддержки
 
         {% endif %}
 

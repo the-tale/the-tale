@@ -20,7 +20,7 @@ class UserForm(BaseUserForm):
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['place'].choices = [(place.id, place.name) for place in places_storage.all()]
+        self.fields['place'].choices = [(place.id, place.name) for place in sorted(places_storage.all(), key=lambda p: p.name)]
 
 
 class ModeratorForm(BaseModeratorForm):
@@ -87,12 +87,23 @@ class PlaceRenaming(object):
     def initialize_with_moderator_data(self, moderator_form):
         self.name_forms = moderator_form.c.name_forms
 
-    def apply(self):
-        place = places_storage[self.place_id]
-        place.name= self.base_name
-        place.set_name_forms(self.name_forms)
+    @classmethod
+    def get_user_form_create(cls, post=None):
+        return cls.UserForm(post)
 
-        place.save() # no need to sync places_storage - will be synced in higlevel worker
+    def get_user_form_update(self, post=None, initial=None):
+        if initial:
+            return self.UserForm(initial=initial)
+        return  self.UserForm(post)
+
+
+    def apply(self):
+        self.place.name= self.base_name
+        self.place.set_name_forms(self.name_forms)
+
+        self.place.save()
+        places_storage.update_version()
+
 
     def serialize(self):
         return {'type': self.type_str,

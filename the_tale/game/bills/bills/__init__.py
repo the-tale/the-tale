@@ -1,8 +1,10 @@
 # coding: utf-8
 
 from game.bills.bills.place_renaming import PlaceRenaming
+from game.bills.bills.person_remove import PersonRemove
 
-BILLS = [PlaceRenaming]
+
+BILLS = [PlaceRenaming, PersonRemove]
 
 def deserialize_bill(data):
     return BILLS_BY_STR[data['type']].deserialize(data)

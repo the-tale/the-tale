@@ -17,8 +17,16 @@
 {% block bills_content %}
 
 <p>
-  <a class="btn btn-danger"
-     href="{{ url('game:bills:new') }}?type=place_renaming">Предложить закон</a>
+  <div class="btn-group" style="display: inline-block; vertical-align: middle;">
+    <a class="btn btn-danger btn-primary dropdown-toggle" data-toggle="dropdown">
+      Предложить закон <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+      {% for bill_id, bill_type in BILLS_BY_STR.items() %}
+      <li><a href="{{ url('game:bills:new') }}?type={{bill_id}}">{{bill_type.CAPTION}}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
 
   Жизнью Пандоры управляют игроки. В этом разделе Вы можете напрямую принять участие в управлении миром, жизни его городов и персонажей.
 </p>

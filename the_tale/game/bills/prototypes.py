@@ -110,6 +110,12 @@ class BillPrototype(object):
         self.model.votes_for = Vote.objects.filter(bill=self.model, value=True).count()
         self.model.votes_against = Vote.objects.filter(bill=self.model, value=False).count()
 
+    @property
+    def is_votes_baries_passed(self): return self.votes_for < bills_settings.MIN_VOTES_NUMBER
+
+    @property
+    def is_percents_baries_passed(self): return self.votes_for_percents < bills_settings.MIN_VOTES_PERCENT
+
     @nested_commit_on_success
     def apply(self):
         if not self.state.is_voting:
@@ -127,8 +133,7 @@ class BillPrototype(object):
         self.model.min_votes_percents_required = bills_settings.MIN_VOTES_PERCENT
 
 
-        if (self.votes_for_percents < bills_settings.MIN_VOTES_PERCENT or
-            self.votes_for < bills_settings.MIN_VOTES_NUMBER):
+        if (self.is_percents_baries_passed or self.is_votes_baries_passed ):
             self.model.state = BILL_STATE.REJECTED
             self.save()
             return False

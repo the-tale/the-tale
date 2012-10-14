@@ -161,9 +161,6 @@ class Worker(BaseWorker):
             bill = BillPrototype(bill_model)
             applied = applied or bill.apply()
 
-        if applied:
-            places_storage.save_all()
-
         return applied
 
 

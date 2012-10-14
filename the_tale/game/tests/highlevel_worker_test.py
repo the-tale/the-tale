@@ -104,10 +104,10 @@ class HighlevelTest(TestCase):
         persons_version_0 = persons_storage._version
         places_version_0 = places_storage._version
 
-        self.assertEqual(Person.objects.filter(place_id=self.p1.id).count(), 1)
-        self.assertEqual(Person.objects.filter(place_id=self.p2.id).count(), 2)
-        self.assertEqual(Person.objects.filter(place_id=self.p3.id).count(), 2)
-        self.assertEqual(len(persons_storage.all()), 5)
+        self.assertEqual(Person.objects.filter(place_id=self.p1.id).count(), 2)
+        self.assertEqual(Person.objects.filter(place_id=self.p2.id).count(), 3)
+        self.assertEqual(Person.objects.filter(place_id=self.p3.id).count(), 3)
+        self.assertEqual(len(persons_storage.all()), 8)
 
         self.worker.process_change_person_power(person_id=self.p1.persons[0].id, power_delta=1)
         self.worker.process_change_person_power(person_id=self.p2.persons[0].id, power_delta=100)
@@ -150,15 +150,15 @@ class HighlevelTest(TestCase):
         self.assertTrue(self.p1.size < self.p3.size < self.p2.size)
 
         # test resulting persons list
-        self.assertEqual(len(persons_storage.filter(state=PERSON_STATE.OUT_GAME)), 1)
-        self.assertEqual(Person.objects.filter(state=PERSON_STATE.OUT_GAME).count(), 1)
-        self.assertEqual(len(persons_storage.filter(state=PERSON_STATE.IN_GAME)), 6)
-        self.assertEqual(Person.objects.filter(state=PERSON_STATE.IN_GAME).count(), 6)
+        self.assertEqual(len(persons_storage.filter(state=PERSON_STATE.OUT_GAME)), 0) # now, persons removed by players throught bills
+        self.assertEqual(Person.objects.filter(state=PERSON_STATE.OUT_GAME).count(), 0)
+        self.assertEqual(len(persons_storage.filter(state=PERSON_STATE.IN_GAME)), 10)
+        self.assertEqual(Person.objects.filter(state=PERSON_STATE.IN_GAME).count(), 10)
 
         # test persons by places
-        self.assertEqual(Person.objects.filter(place_id=self.p1.id).count(), 1)
-        self.assertEqual(Person.objects.filter(place_id=self.p2.id).count(), 3)
-        self.assertEqual(Person.objects.filter(place_id=self.p3.id).count(), 3)
+        self.assertEqual(Person.objects.filter(place_id=self.p1.id).count(), 2)
+        self.assertEqual(Person.objects.filter(place_id=self.p2.id).count(), 4)
+        self.assertEqual(Person.objects.filter(place_id=self.p3.id).count(), 4)
 
         self.assertTrue(len(set((persons_version_0, persons_version_1, persons_version_2))), 3)
         self.assertTrue(len(set((places_version_0, places_version_1, places_version_2))), 3)
