@@ -1,8 +1,10 @@
 # coding: utf-8
-from django.test import TestCase, client
+from django.test import client
 from django.core.urlresolvers import reverse
 
 from dext.utils import s11n
+
+from common.utils.testcase import TestCase
 
 from accounts.logic import register_user
 
@@ -33,10 +35,7 @@ class TestRequests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_info_unlogined(self):
-        response = self.client.get(reverse('game:info'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'ok')
-        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn',)))
+        self.check_ajax_error(self.client.get(reverse('game:info')), 'game.info.no_angel_id_for_anonimouse_request')
 
     def test_info_logined(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})

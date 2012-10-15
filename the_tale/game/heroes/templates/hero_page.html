@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% import 'heroes/hero_short.html' as hero_short_macros with context %}
+
 {% block title %}Страница героя | {{ super() }}{% endblock %}
 
 {% block head %}
@@ -15,7 +17,7 @@ var widgets = {};
 
 jQuery(document).ready(function(e){
 
-    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?angel={{ resource.account.angel.id }}"});
+    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?angel={{ master_angel.id }}"});
 
     setTimeout(function(){
         updater.Refresh();
@@ -33,8 +35,8 @@ jQuery(document).ready(function(e){
 <div id="hero-page-content" class="row">
 
   <div class="span3">
-    {% set is_hero_page = true %} {# say hero_short that we on hero page #}
-    {% include "heroes/hero_short.html" with context %}
+
+    {{ hero_short_macros.hero_short(is_owner, false) }}
 
     <div class="block">
       {% include "heroes/hero_equipment.html" %}

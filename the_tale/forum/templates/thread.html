@@ -95,7 +95,9 @@ jQuery(document).ready( function(e) {
       <tbody>
         <tr class="head">
           <td class="index"><a href="#m{{message_id}}" >#{{message_id}}</a><div class="anchor" id="m{{message_id}}"></div></td>
-          <td class="author">{{ post.author.username }}</td>
+          <td class="author">
+            <a href="{{url('forum:users:show', post.author.id)}}">{{ post.author.username }}</a>
+          </td>
           {% if can_change_posts or post.author == resource.user %}
           <td class="change-post">
             <a href="{{ url('forum:posts:edit', post.id) }}" class="pgf-change-post-button">правка</a>

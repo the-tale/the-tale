@@ -33,6 +33,10 @@ body li.block {
   margin-top: 0;
   margin-bottom: 10px;
 }
+body div.block.white,
+body li.block.white {
+  background-color: white;
+}
 body hr {
   border-top-color: #cccccc;
   margin: 0;
@@ -133,4 +137,10 @@ blockquote {
   float: left;
   color: #999999;
   margin-right: 0.5em;
+}
+.rss-link {
+  text-decoration: none !important;
+}
+.rss-link:hover {
+  text-decoration: none !important;
 }

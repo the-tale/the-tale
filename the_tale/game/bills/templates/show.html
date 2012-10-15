@@ -2,7 +2,7 @@
 
 {% import 'bills/macros.html' as bills_macros with context %}
 
-{% block title %} {{ bill.caption }} | Законопроекты | {{ super() }}{% endblock %}
+{% block title %} {{ bill.caption }} | {{ super() }}{% endblock %}
 
 
 {% block bills_content %}

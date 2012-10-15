@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% import 'heroes/hero_short.html' as hero_short_macros with context %}
+
 {% block title %}Игра | {{ super() }}{% endblock %}
 
 {% block head %}
@@ -114,7 +116,7 @@ jQuery(document).ready(function(e){
 {% if angel %}
 <div class="row">
   <div class="span3">
-    {% include "heroes/hero_short.html" %}
+    {{ hero_short_macros.hero_short(true, true) }}
   </div>
   <div class="span5">
     {% include "game/current_action.html" %}

@@ -73,6 +73,16 @@ class Thread(models.Model):
     def paginator(self):
         return Paginator(self.posts_count, forum_settings.POSTS_ON_PAGE)
 
+    @classmethod
+    def get_threads_with_last_users_posts(cls, user, limit=None):
+
+        threads = Thread.objects.filter(post__author=user).annotate(last_user_post_time=models.Max('post__updated_at')).order_by('-last_user_post_time')
+
+        if limit:
+            threads = threads[:limit]
+
+        return threads
+
 
 class MARKUP_METHOD:
     POSTMARKUP = 0

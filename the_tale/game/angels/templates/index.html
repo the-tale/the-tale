@@ -1,0 +1,61 @@
+{% extends "angels/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+
+
+{% block angels_content %}
+
+<h2 style="margin-bottom: 0.5em;">Игроки</h2>
+
+<p>
+  На этой странице представлен список всех игроков завершивших регистрацию.
+<p>
+
+{% if angels %}
+
+{{ base_macros.render_paginator(pages_count, current_page_number, url('game:angels:') + "?page=%d") }}
+
+<table class="table">
+
+  <thead>
+    <tr>
+      <th>имя</th>
+      <th>пол</th>
+      <th>раса</th>
+      <th>герой</th>
+      <th>уровень</th>
+      <th>сила</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for angel in angels %}
+
+    {% set hero = heroes[angel.id] %}
+    {% set account = accounts[angel.account_id] %}
+
+    <tr class="pgf-angel-record">
+
+      <td><a href="{{ url('game:angels:show', angel.id) }}">{{ account.user.username }}</a></td>
+      <td>{{ hero.gender_verbose }}</td>
+      <td>{{ hero.race_verbose }}</td>
+      <td><a href="{{ url('game:heroes:show', hero.id) }}">{{ hero.name }}</a></td>
+      <td>{{ hero.level }}</td>
+      <td>{{ hero.power }}</td>
+    </tr>
+
+    {% endfor %}
+
+  </tbody>
+
+</table>
+
+{{ base_macros.render_paginator(pages_count, current_page_number, url('game:angels:') + "?page=%d") }}
+
+{% else %}
+
+<span class="pgf-no-bills-message">Игроки не найдены</span>
+
+{% endif %}
+
+{% endblock %}

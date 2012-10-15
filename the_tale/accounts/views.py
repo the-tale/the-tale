@@ -164,6 +164,8 @@ class AccountsResource(Resource):
 
         force_login_user(self.request, task.account.user)
 
+        self._account = task.account
+
         return self.template('accounts/confirm_email.html',
                              {'task': task} )
 

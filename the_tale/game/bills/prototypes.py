@@ -26,6 +26,18 @@ class BillPrototype(object):
         except Bill.DoesNotExist:
             return None
 
+    @classmethod
+    def get_bills_for_user(cls, user, limit=None, order_by=None):
+        query = Bill.objects.filter(owner=user)
+
+        if order_by:
+            query = query.order_by(order_by)
+
+        if limit:
+            query = query[:limit]
+
+        return [cls(model) for model in query]
+
     @property
     def id(self): return self.model.id
 

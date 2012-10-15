@@ -117,15 +117,14 @@ jQuery(document).ready(function() {
             {{ base_macros.main_menu_item("bills", url("game:bills:"), "Политика") }}
             {% endif %}
 
+            {{ base_macros.main_menu_item("angels", url("game:angels:"), "Игроки") }}
+
             {% if request.user.is_authenticated() %}
             {{ base_macros.main_menu_item("game", url("game:"), "Игра") }}
             {% else %}
             <li><a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration attention-link"><strong>создать героя</strong></a></li>
             {% endif %}
 
-            {% if resource.account %}
-            {{ base_macros.main_menu_item("hero", url("game:heroes:show", resource.account.angel.get_hero().id), "Страница героя") }}
-            {% endif %}
           </ul>
 
           <ul class="nav pull-right">
@@ -137,9 +136,14 @@ jQuery(document).ready(function() {
               </p>
             </li>
             <li class="divider-vertical"></li>
+
             {% if request.user.is_authenticated() %}
-            {{ base_macros.main_menu_item("profile", url("accounts:profile"), "Профиль") }}
-            <li><a href="{{ url('accounts:logout') }}">Выход</a></li>
+
+            {{ base_macros.main_menu_item("profile", "#", resource.user.username, [(url("accounts:profile"), "Мой профиль"),
+                                                                                   (url("game:heroes:show", resource.account.angel.get_hero().id), "Страница героя"),
+                                                                                   ('-', '<li class="divider"></li>'),
+                                                                                   (url("accounts:logout"), "Выход")] ) }}
+
             {% else %}
             <li><a href="{{ url('accounts:login') }}">Войти</a></li>
             {% endif %}

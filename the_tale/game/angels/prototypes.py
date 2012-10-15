@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from dext.utils import s11n
 from dext.utils import database
 
@@ -31,10 +32,10 @@ class AngelPrototype(object):
         return AccountPrototype.get_by_id(self.model.account_id)
 
     @property
-    def id(self): return self.model.id
+    def account_id(self): return self.model.account_id
 
     @property
-    def name(self): return self.model.name
+    def id(self): return self.model.id
 
     @property
     def energy_maximum(self): return c.ANGEL_ENERGY_MAX
@@ -107,17 +108,16 @@ class AngelPrototype(object):
 
     def ui_info(self, turn_number, ignore_actions=False, ignore_quests=False):
         return {'id': self.id,
-                'name': self.name,
                 'energy': { 'max': self.energy_maximum,
                             'value': self.energy },
                 'abilities': [ability.ui_info() for ability_type, ability in self.abilities.items()]
                 }
 
     @classmethod
-    def create(cls, account, name):
+    def create(cls, account):
         # from ..abilities import deck
         # TODO: rewrite from create-change-save to save
-        angel_model = Angel.objects.create(account=account.model, name=name, energy=c.ANGEL_ENERGY_MAX)
+        angel_model = Angel.objects.create(account=account.model, energy=c.ANGEL_ENERGY_MAX)
         angel = AngelPrototype(model=angel_model)
         # angel.abilities.update({deck.Help.get_type(): deck.Help()})
         # angel.save()
@@ -139,6 +139,5 @@ class AngelPrototype(object):
         # print self.energy == other.energy
         # print self.abilities == other.abilities
         return (self.id == other.id and
-                self.name == other.name and
                 self.model.energy == other.model.energy and
                 self.abilities == other.abilities)

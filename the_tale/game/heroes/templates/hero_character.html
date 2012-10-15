@@ -2,6 +2,8 @@
 <script type="text/javascript">
 
 jQuery(document).ready(function(e){
+
+  {% if is_owner %}
     jQuery('.pgf-choose-preference-button').click(function(e){
         e.preventDefault();
         var target = jQuery(e.currentTarget);
@@ -44,6 +46,8 @@ jQuery(document).ready(function(e){
 
     });
 
+{% endif %}
+
 });
 
 </script>
@@ -57,11 +61,12 @@ jQuery(document).ready(function(e){
   <br/>
   <span class="" style="margin-left: 2em;">
     {% if resource.hero.level >= lvl_required %}
+
     {% if value %}
     {{value}}
     {% else %}
 
-    {% if time_before_update.total_seconds() == 0 %}
+    {% if is_owner and time_before_update.total_seconds() == 0 %}
     <a class="pgf-choose-preference-button"
        href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type}}"
        data-preference-type="{{ type }}">
@@ -72,7 +77,7 @@ jQuery(document).ready(function(e){
     {% endif %}
     {% endif %}
 
-
+    {% if is_owner %}
 
     {% if time_before_update.total_seconds() == 0 %}
 
@@ -93,9 +98,12 @@ jQuery(document).ready(function(e){
     <i class="icon-time pull-right" rel="tooltip" title="предпочтение можно будет изменить через {{ time_before_update|verbose_timedelta }}"></i>
     {% endif %}
 
+    {% endif %}
+
     {% else %}
     необходим {{ lvl_required }} уровень
     {% endif %}
+
   </span>
 
 </li>

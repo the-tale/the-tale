@@ -42,7 +42,7 @@ class TestModeration(TestCase):
         self.post3 = create_post(self.subcategory, self.thread2, self.main_user, 'post3-text')
         self.post4 = create_post(self.subcategory, self.thread2, self.second_user, 'post4-text')
 
-        self.thread3 = create_thread(self.subcategory, 'thread3-caption', self.second_user, 'thread2-text')
+        self.thread3 = create_thread(self.subcategory, 'thread3-caption', self.second_user, 'thread3-text')
 
 
     def login(self, user_name):

@@ -4,6 +4,8 @@ import uuid
 import datetime
 import traceback
 
+import postmarkup
+
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 
@@ -27,7 +29,7 @@ class AccountPrototype(object):
 
     @classmethod
     def get_by_id(cls, model_id):
-        return AccountPrototype(model=Account.objects.get(id=model_id))
+        return AccountPrototype(model=Account.objects.select_related().get(id=model_id))
 
     @classmethod
     def get_by_email(cls, email):
@@ -66,6 +68,13 @@ class AccountPrototype(object):
     def get_is_fast(self): return self.model.is_fast
     def set_is_fast(self, value): self.model.is_fast = value
     is_fast = property(get_is_fast, set_is_fast)
+
+    def get_description(self): return self.model.description
+    def set_description(self, value): self.model.description = value
+    description = property(get_description, set_description)
+
+    @property
+    def description_html(self): return postmarkup.render_bbcode(self.model.description)
 
     def reset_password(self):
         new_password = generate_password(len_=accounts_settings.RESET_PASSWORD_LENGTH)

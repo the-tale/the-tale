@@ -12,6 +12,7 @@ SITE_SECTIONS = ( (re.compile(r'^/$'), 'index'),
                   (re.compile(r'^/accounts/profile.*$'), 'profile'),
                   (re.compile(r'^/game/heroes.*$'), 'hero'),
                   (re.compile(r'^/game/bills.*$'), 'bills'),
+                  (re.compile(r'^/game/angels.*$'), 'angels'),
                   (re.compile(r'^/game.*$'), 'game'),
                   (re.compile(r'^/guide.*$'), 'guide') )
 

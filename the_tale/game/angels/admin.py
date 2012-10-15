@@ -7,6 +7,9 @@ from .models import Angel
 class AngelAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
 
+    def name(self, obj):
+        return unicode(obj)
+
     def angel_id(self, obj): return obj.angel_id
 
 

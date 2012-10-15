@@ -42,7 +42,7 @@ def register_user(nick, email=None, password=None):
 
     account = AccountPrototype.create(user=user, is_fast=not (email and password))
 
-    angel = AngelPrototype.create(account=account, name=user.username)
+    angel = AngelPrototype.create(account=account)
 
     bundle = BundlePrototype.create(angel)
 

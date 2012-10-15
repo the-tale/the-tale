@@ -3,17 +3,6 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'bills/macros.html' as bills_macros with context %}
 
-{% block title %}Законопроекты | {{ super() }}{% endblock %}
-
-
-{% macro bill_record(bill) %}
-
-<h4 style="margin-bottom: 0.5em;"><a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a></h4>
-
-{{ bills_macros.bill_info(bill) }}
-
-{% endmacro %}
-
 {% block bills_content %}
 
 <p>
@@ -41,7 +30,7 @@
 <ul class="unstyled">
   {% for bill in bills %}
   <li style="margin-bottom: 1em;">
-    {{ bill_record(bill) }}
+    {{ bills_macros.bill_record(bill) }}
   </li>
   {% endfor %}
 </ul>

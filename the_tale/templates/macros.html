@@ -9,7 +9,12 @@
   {% if submenus %}
   <ul class="dropdown-menu">
     {% for sub_link, sub_name in submenus %}
+
+    {% if sub_link == '-' %}
+    {{ sub_name|safe }}
+    {% else %}
     {{ main_menu_item("", sub_link, sub_name) }}
+    {% endif %}
     {% endfor %}
   </ul>
   {% endif %}

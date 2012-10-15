@@ -41,7 +41,7 @@ class TestRequests(TestCase):
                           ('news%d-description' %i, 0),
                           ('news%d-content' %i, 1)])
 
-        self.check_html_ok(self.client.get(reverse('news:feed')), texts=texts)
+        self.check_html_ok(self.client.get(reverse('news:feed')), texts=texts, content_type='application/atom+xml')
 
 
     def test_show_page(self):

@@ -93,7 +93,7 @@ class TestIndexRequests(BaseTestRequests):
                  ('caption-a2-0', 1), ('rationale-a2-0', 0),
                  ('caption-a2-1', 1), ('rationale-a2-1', 0),
                  ('caption-a2-2', 1), ('rationale-a2-2', 0),
-                 ('test_user1', 2),
+                 ('test_user1', 3),
                  ('test_user2', 3)]
 
         self.check_html_ok(self.client.get(reverse('game:bills:')), texts=texts)
@@ -111,9 +111,13 @@ class TestIndexRequests(BaseTestRequests):
                  ('caption-a1-3', 0), ('rationale-a1-3', 0),
                  ('caption-a2-0', 0), ('rationale-a2-0', 0),
                  ('caption-a2-2', 0), ('rationale-a2-2', 0),
-                 ('test_user1', 3), ('test_user2', 0)]
+                 ('test_user1', 4), ('test_user2', 0)]
 
         self.check_html_ok(self.client.get(reverse('game:bills:')+'?page=2'), texts=texts)
+
+    def test_index_redirect_from_large_page(self):
+        self.assertRedirects(self.client.get(reverse('game:bills:')+'?page=2'),
+                             reverse('game:bills:')+'?page=1', status_code=302, target_status_code=200)
 
 
 class TestNewRequests(BaseTestRequests):

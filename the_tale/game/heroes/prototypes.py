@@ -107,6 +107,10 @@ class HeroPrototype(object):
     def gender(self): return self.model.gender
 
     @property
+    def gender_verbose(self):
+        return GENDER_DICT_USERFRIENDLY[self.gender]
+
+    @property
     def power(self): return f.clean_power_to_lvl(self.level) + self.equipment.get_power()
 
     @property
@@ -114,6 +118,10 @@ class HeroPrototype(object):
 
     @property
     def race(self): return self.model.race
+
+    @property
+    def race_verbose(self):
+        return RACE_DICT[self.race]
 
     @property
     def level(self): return self.model.level

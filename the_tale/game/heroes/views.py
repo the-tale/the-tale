@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.urlresolvers import reverse
 
-from dext.views.resources import handler
+from dext.views.resources import handler, validator
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
@@ -14,6 +14,8 @@ from game.persons.models import Person, PERSON_STATE
 from game.persons.storage import persons_storage
 
 from game.workers.environment import workers_environment
+
+from game.angels.prototypes import AngelPrototype
 
 from game.heroes.prototypes import HeroPrototype, ChooseAbilityTaskPrototype
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
@@ -42,10 +44,13 @@ class HeroResource(Resource):
                 return self.auto_error('heroes.wrong_hero_id', u'Неверный идентификатор героя', status_code=404)
 
             if self.hero is None:
-                return self.json_error('heroes.can_not_see_this_hero', u'Вы не можете просматривать данные этого игрока')
+                return self.auto_error('heroes.hero_not_exists', u'Вы не можете просматривать данные этого игрока')
 
-            if self.account is None or self.account.angel.id != self.hero.angel_id:
-                return self.json_error('heroes.can_not_see_this_account', u'Вы не можете просматривать данные этого игрока')
+    @property
+    def is_owner(self): return self.account and self.account.angel.id == self.hero.angel_id
+
+    @validator(code='heroes.not_owner', message=u'Вы не являетесь владельцем данного аккаунта')
+    def validate_ownership(self, *args, **kwargs): return self.is_owner
 
     @property
     def hero(self):
@@ -53,26 +58,28 @@ class HeroResource(Resource):
             self._hero = HeroPrototype.get_by_id(self.hero_id)
         return self._hero
 
-    @login_required
     @handler('', method='get')
     def index(self):
         return self.redirect('/')
 
-    @login_required
     @handler('#hero_id', name='show', method='get')
     def hero_page(self):
         abilities = sorted(self.hero.abilities.all, key=lambda x: x.NAME)
         return self.template('heroes/hero_page.html',
                              {'abilities': abilities,
+                              'is_owner': self.is_owner,
+                              'master_angel': self.account.angel if self.is_owner else AngelPrototype.get_by_id(self.hero.angel_id),
                               'PREFERENCE_TYPE': PREFERENCE_TYPE} )
 
     @login_required
+    @validate_ownership()
     @handler('#hero_id', 'choose-ability-dialog', method='get')
     def choose_ability_dialog(self):
         return self.template('heroes/choose_ability.html',
                              {} )
 
     @login_required
+    @validate_ownership()
     @handler('#hero_id', 'choose-ability', method='post')
     def choose_ability(self, ability_id):
 
@@ -84,6 +91,7 @@ class HeroResource(Resource):
                          status_url=reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % task.id )
 
     @login_required
+    @validate_ownership(response_type='json')
     @handler('#hero_id', 'choose-ability-status', method='get')
     def choose_ability_status(self, task_id):
         ability_task = ChooseAbilityTaskPrototype.get_by_id(task_id)
@@ -101,6 +109,7 @@ class HeroResource(Resource):
 
 
     @login_required
+    @validate_ownership()
     @handler('#hero_id', 'choose-preferences-dialog', method='get')
     def choose_preferences_dialog(self, type):
 
@@ -153,6 +162,7 @@ class HeroResource(Resource):
                               'EQUIPMENT_SLOTS_DICT': SLOTS_DICT} )
 
     @login_required
+    @validate_ownership()
     @handler('#hero_id', 'choose-preferences', method='post')
     def choose_preferences(self):
 
@@ -172,6 +182,7 @@ class HeroResource(Resource):
         return self.json(status='processing', status_url=reverse('game:heroes:choose-preferences-status', args=[hero.id]) + ('?task_id=%d' % task.id) )
 
     @login_required
+    @validate_ownership(response_type='json')
     @handler('#hero_id', 'choose-preferences-status', method='get')
     def choose_preferences_status(self, task_id):
 

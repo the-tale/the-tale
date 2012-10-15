@@ -83,3 +83,11 @@
 </table>
 
 {% endmacro %}
+
+{% macro bill_record(bill) %}
+
+<h4 style="margin-bottom: 0.5em;"><a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a></h4>
+
+{{ bill_info(bill) }}
+
+{% endmacro %}

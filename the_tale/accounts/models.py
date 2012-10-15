@@ -19,7 +19,6 @@ class Account(models.Model):
     email = models.EmailField(max_length=254, null=True, unique=True)
 
 
-
 class REGISTRATION_TASK_STATE:
     WAITING = 0
     PROCESSED = 1

@@ -1,0 +1,79 @@
+{% extends "angels/base.html" %}
+
+{% import 'bills/macros.html' as bills_macros with context %}
+
+{% block title %} {{ master_account.user.username }} | {{ super() }}{% endblock %}
+
+
+{% block angels_content %}
+
+<h2>{{ master_account.user.username }}</h2>
+
+<h3>Герой</h3>
+
+<ul class="unstyled">
+
+  <li><strong>имя:</strong> <a href="{{ url('game:heroes:show', master_hero.id) }}">{{ master_hero.name }}</a></li>
+
+  <li><strong>пол:</strong> {{ master_hero.gender_verbose }}</li>
+
+  <li><strong>раса:</strong> {{ master_hero.race_verbose }}</li>
+
+  <li><strong>уровень:</strong> {{ master_hero.level }}</li>
+
+  <li><strong>сила:</strong> {{ master_hero.power }}</li>
+
+</ul>
+
+<h3>Политика</h3>
+
+{% if bills %}
+
+<p>
+  Последние законопроекты, вынесененые игроком на голосование
+</p>
+
+<ul class="unstyled">
+  {% for bill in bills %}
+  <li>
+    {{ bills_macros.bill_record(bill) }}
+  </li>
+  {% endfor %}
+</ul>
+
+{% else %}
+
+<p>
+  Игрок не является автором каких-либо законов.
+</p>
+
+{% endif %}
+
+<h3>Форум</h3>
+
+{% if threads %}
+
+<p>
+  Последние темы с сообщениями игрока
+</p>
+
+<table class="table table-striped forum-table">
+  <tbody>
+  {% for thread in threads %}
+  <tr>
+    <td class="caption"><a href="{{ url('forum:threads:show', thread.id) }}">{{ thread.caption }}</a></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+
+<p>
+  Игрок ничего не писал на форуме
+</p>
+
+{% endif %}
+
+
+{% endblock %}

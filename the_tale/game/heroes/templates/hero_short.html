@@ -1,9 +1,14 @@
 
+{% macro hero_short(is_owner, show_hero_link) %}
+
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
     widgets.heroes = new pgf.game.widgets.Hero('#hero-base-block', updater, widgets, {});
+
+    {% if is_owner %}
     widgets.angel = new pgf.game.widgets.Angel('#hero-base-block', updater, widgets, {});
+    {% endif %}
 
 });
 </script>
@@ -16,15 +21,18 @@ jQuery(document).ready(function(e) {
     </small>
     <span class="badge pgf-level hero-level" style="vertical-align: middle;" rel="tooltip" title="уровень героя"></span>
 
-    {% if is_hero_page %}
-    <span href="" class="pgf-name" style="vertical-align: middle;"></span>
-    {% else %}
+    {% if show_hero_link %}
     <a href="" class="pgf-hero-page-link pgf-name" style="vertical-align: middle;"></a>
+    {% else %}
+    <span href="" class="pgf-name" style="vertical-align: middle;"></span>
     {% endif %}
 
+    {% if is_owner %}
     <a href="" class="badge pgf-free-destiny-points free-destiny-points pull-right pgf-hidden"  rel="tooltip" title="доступна новая способность"><i class="icon-arrow-up"></i></a>
+    {% endif %}
   </h3>
 
+  {% if is_owner %}
   <div class="record-with-progress" rel="tooltip" title="здоровье героя">
     <img src="{{ STATIC_URL }}game/images/attrs/hp.png"/>
     <div class="progress progress-danger" style="">
@@ -48,19 +56,32 @@ jQuery(document).ready(function(e) {
     </div>
     <span class="text-values"><span class="pgf-energy"></span>/<span class="pgf-max-energy"></span></span>
   </div>
+  {% endif %}
 
   <div>
+
+    {% if not is_owner %}
+    <div class="attribute-record" rel="tooltip" title="здоровье">
+      <img src="{{ STATIC_URL }}game/images/attrs/hp.png"/>
+      <span class="pgf-max-health"></span>
+    </div>
+    {% endif %}
+
 
     <div class="attribute-record" rel="tooltip" title="сила">
       <img src="{{ STATIC_URL }}game/images/attrs/damage.png"/>
       <span class="pgf-power value"></span>
     </div>
 
+    {% if is_owner %}
     <div class="attribute-record" rel="tooltip" title="собранное золото">
       <img src="{{ STATIC_URL }}game/images/attrs/gold.png"/>
       <span class="pgf-money"></span>
     </div>
+    {% endif %}
 
   </div>
 
 </div>
+
+{% endmacro %}

@@ -26,6 +26,7 @@ class GameResource(Resource):
 
     @handler('info', method='get')
     def info(self, angel=None):
+
         data = {}
 
         data['turn'] = self.time.ui_info()
@@ -43,13 +44,16 @@ class GameResource(Resource):
                 angel = AngelPrototype.get_by_id(int(angel))
 
                 if angel is None:
-                    return self.json(status='error', error=u'Вы запрашиваете информацию несуществующего игрока')
+                    return self.json_error('game.info.no_angel_id_for_anonimouse_request', u'Вы не указали идентификатор игрока, информацию которого хотите получить')
 
                 if own_angel.id == angel.id:
                     is_own_angel = True
         else:
-            # temporaru solution, while hero info access for other players in implementation state
-            angel = None
+
+            if angel is None:
+                return self.json_error('game.info.no_angel_id_for_anonimouse_request', u'Вы не указали идентификатор игрока, информацию которого хотите получить')
+
+            angel = AngelPrototype.get_by_id(int(angel))
 
         if angel:
 

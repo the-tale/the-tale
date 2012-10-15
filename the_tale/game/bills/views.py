@@ -61,7 +61,7 @@ class BillResource(Resource):
         page = int(page) - 1
 
         if page >= paginator.pages_count:
-            url = '%s?page=%d' % (reverse('game:bills:'), paginator.pages_count - 1)
+            url = '%s?page=%d' % (reverse('game:bills:'), paginator.pages_count)
             return self.redirect(url, permanent=False)
 
         bill_from, bill_to = paginator.page_borders(page)
