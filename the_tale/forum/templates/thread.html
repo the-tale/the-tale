@@ -98,16 +98,23 @@ jQuery(document).ready( function(e) {
           <td class="author">
             <a href="{{url('forum:users:show', post.author.id)}}">{{ post.author.username }}</a>
           </td>
+
+          {% if not post.is_removed %}
+
           {% if can_change_posts or post.author == resource.user %}
           <td class="change-post">
             <a href="{{ url('forum:posts:edit', post.id) }}" class="pgf-change-post-button">правка</a>
           </td>
           {% endif %}
+
           {% if (can_delete_posts or post.author == resource.user) and (loop.index!=1 or current_page_number!=0) %}
           <td class="delete-post">
             <a href="#" class="pgf-remove-post-button" data-delete-url="{{ url('forum:posts:delete', post.id) }}">удалить</a>
           </td>
           {% endif %}
+
+          {% endif %}
+
           <td class="created-at pgf-format-time" data-timestamp="{{ post.created_at|timestamp}}"></td>
         </tr>
 

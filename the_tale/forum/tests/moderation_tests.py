@@ -297,7 +297,7 @@ class TestModeration(TestCase):
         self.assertEqual(Post.objects.all().count(), 7)
 
     ###############################
-    # post delettion
+    # post deletion
     ###############################
 
     def test_main_user_has_remove_post_button(self):
@@ -322,10 +322,12 @@ class TestModeration(TestCase):
         self.assertEqual(SubCategory.objects.get(id=self.subcategory.id).posts_count, 4)
 
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post.id])))
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertTrue(Post.objects.get(id=self.post.id).is_removed)
 
-        self.assertEqual(Thread.objects.get(id=self.thread.id).posts_count, 2)
-        self.assertEqual(SubCategory.objects.get(id=self.subcategory.id).posts_count, 4)
+        # check if edit & remove buttons has dissapeared
+        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 2),
+                                                                                                         ('pgf-change-post-button', 2)])
+
 
     def test_main_user_remove_post_of_second_user(self):
         self.assertEqual(self.second_user, self.post4.author)
@@ -344,6 +346,10 @@ class TestModeration(TestCase):
         self.login('moderator')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post.id])))
         self.assertEqual(Post.objects.all().count(), 7)
+
+        # check if edit & remove buttons has dissapeared
+        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 2),
+                                                                                                         ('pgf-change-post-button', 2)])
 
     def test_moderator_remove_post_of_second_user(self):
         self.assertEqual(self.second_user, self.post4.author)
