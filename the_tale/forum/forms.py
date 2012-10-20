@@ -6,7 +6,7 @@ from common.utils.forms import BBField
 
 class NewPostForm(forms.Form):
 
-    text = BBField(label=u'Текст')
+    text = BBField(label=u'Сообщение')
 
 
 class NewThreadForm(NewPostForm):

@@ -197,7 +197,7 @@ class BillPrototype(object):
                                caption=caption,
                                author=owner,
                                text=rationale,# TODO: replace by special
-                               markup_method=MARKUP_METHOD.MARKDOWN)
+                               markup_method=MARKUP_METHOD.POSTMARKUP)
 
 
         model = Bill.objects.create(owner=owner,

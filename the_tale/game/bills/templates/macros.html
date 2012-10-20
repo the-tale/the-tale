@@ -46,7 +46,7 @@
     </tr>
 
     <tr>
-      <th>до конца стадии</th>
+      <th>до конца голосования</th>
       <td>
         {% if bill.state.is_proposal or bill.state.is_voting %}
         {{ bill.time_before_end_step|verbose_timedelta }}

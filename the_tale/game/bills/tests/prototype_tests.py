@@ -11,7 +11,7 @@ from common.utils.testcase import TestCase
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
-from forum.models import Post, Thread
+from forum.models import Post, Thread, MARKUP_METHOD
 
 from game.logic import create_test_map
 
@@ -78,6 +78,7 @@ class TestPrototype(BaseTestPrototypes):
         self.assertEqual(self.bill.votes_for, 1)
         self.assertEqual(self.bill.votes_against, 0)
         self.assertEqual(Post.objects.all().count(), 1)
+        self.assertEqual(Post.objects.all()[0].markup_method, MARKUP_METHOD.POSTMARKUP)
 
 
     def test_update(self):
