@@ -77,7 +77,7 @@ class PlacePrototype(object):
     def persons(self):
         from game.persons.storage import persons_storage
         from game.persons.models import PERSON_STATE
-        return persons_storage.filter(place_id=self.id, state=PERSON_STATE.IN_GAME)
+        return sorted(persons_storage.filter(place_id=self.id, state=PERSON_STATE.IN_GAME), key=lambda p: -p.power)
 
     @property
     def total_persons_power(self): return sum([person.power for person in self.persons])

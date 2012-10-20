@@ -56,3 +56,16 @@ class PlacePowerTest(TestCase):
     def test_push_power_exceptions(self):
         self.place.push_power(666, 10)
         self.assertRaises(PlacesException, self.place.push_power, 13, 1)
+
+    def test_persons_sorting(self):
+        person_1 = self.place.persons[0]
+        person_2 = self.place.persons[1]
+
+        person_1.power = 1
+        person_1.save()
+
+        person_2.power = 10
+        person_2.save()
+
+        self.assertEqual([person.id for person in self.place.persons][:2],
+                         [person_2.id, person_1.id])
