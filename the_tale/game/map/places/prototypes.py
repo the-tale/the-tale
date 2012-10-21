@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
+import postmarkup
 
 from dext.utils import s11n
 
@@ -58,6 +59,13 @@ class PlacePrototype(object):
         self.model.name_forms = s11n.to_json(name_forms.serialize())
         if hasattr(self, '_normalized_name'):
             delattr(self, '_normalized_name')
+
+    def get_descriotion(self): return self.model.description
+    def set_description(self, value): self.model.description = value
+    description = property(get_descriotion, set_description)
+
+    @property
+    def description_html(self): return postmarkup.render_bbcode(self.model.description)
 
     @property
     def type(self): return self.model.type

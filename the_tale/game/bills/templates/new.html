@@ -11,7 +11,7 @@ jQuery(document).ready( function(e) {
     var newForm = new pgf.forms.Form(jQuery('#pgf-new-bill-form'),
                                                {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
 
-    pgf.base.AddPreview('#pgf-new-bill-form', 'textarea', "{{ url('portal:preview') }}");
+    pgf.base.AddPreview('#pgf-bill-rationale', 'textarea', "{{ url('portal:preview') }}");
     pgf.base.InitBBFields();
 });
 
@@ -45,17 +45,24 @@ jQuery(document).ready( function(e) {
 
   {% include bill_class.USER_FORM_TEMPLATE with context %}
 
-  <div class="pgf-edit-content">
-    {{ form.rationale.widget }}
-  </div>
+  <div id="pgf-bill-rationale">
+    <div class="pgf-edit-content">
+      {{ form.rationale.widget }}
+    </div>
 
-  <div class="pgf-preview-content pgf-hidden">
+    <div class="pgf-preview-content pgf-hidden">
+    </div>
+
+    <div class="widget">
+      <input type="button" class="pgf-preview-button" value="Предпросмотр"/>
+      <input type="button" class="pgf-edit-button pgf-hidden" value="Редактировать"/>
+    </div>
+
+    <br/>
   </div>
 
   <div class="widget">
     <input type="submit" value="Создать"/>
-    <input type="button" class="pgf-preview-button" value="Предпросмотр"/>
-    <input type="button" class="pgf-edit-button pgf-hidden" value="Редактировать"/>
   </div>
 
 </form>

@@ -1,0 +1,7 @@
+
+
+<ul class="unstyled" style="font-size: 14px;">
+  <li><strong>название города</strong>: {{bill.data.place.name}}</li>
+  <li><strong>старое описание</strong>: {{bill.data.place.description}}</li>
+  <li><strong>новое описание</strong>: {{ bill.data.description }}</li>
+</ul>

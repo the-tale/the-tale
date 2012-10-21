@@ -3,26 +3,8 @@
 import mock
 import datetime
 
-from dext.utils import s11n
-
-from textgen.words import Noun
-
-from common.utils.testcase import TestCase
-
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
-
-from forum.models import Post, Thread
-
-from game.logic import create_test_map
-
-from game.bills.models import Bill, Vote, BILL_STATE
 from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.bills import PersonRemove
-from game.bills.conf import bills_settings
-from game.bills.exceptions import BillException
-
-from game.map.places.storage import places_storage
 
 from game.persons.models import Person, PERSON_STATE
 

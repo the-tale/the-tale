@@ -17,7 +17,11 @@
 
     <div class="description">
       <img src="{{ STATIC_URL }}tmp/city.png"/>
-      Здесь должно быть или не должно крутое или не очень описание этого замечательного/волшебного/ужасного важного/не важного места.
+      {% if place.description %}
+      {{ place.description_html|safe }}
+      {% else %}
+      У этого места пока нет описания
+      {% endif %}
     </div>
 
     <ul class="unstyled">
