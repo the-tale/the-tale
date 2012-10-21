@@ -240,6 +240,9 @@ class VotePrototype(object):
             return None
 
     @property
+    def id(self): return self.model.id
+
+    @property
     def owner(self): return self.model.owner
 
     @property

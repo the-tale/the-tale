@@ -8,10 +8,13 @@ from dext.utils.decorators import nested_commit_on_success
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
 
+from accounts.models import Account
+from accounts.prototypes import AccountPrototype
+
 from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.conf import bills_settings
-from game.bills.models import Bill
-from game.bills.bills import BILLS_BY_STR
+from game.bills.models import Bill, Vote, BILL_STATE, BILL_TYPE
+from game.bills.bills import BILLS_BY_ID
 
 class BillResource(Resource):
 
@@ -42,7 +45,11 @@ class BillResource(Resource):
     def validate_voting_state(self, *args, **kwargs): return self.bill.state.is_voting
 
     @validator(code='bills.wrong_type', message=u'Неверный тип закона')
-    def validate_bill_type(self, type): return type in BILLS_BY_STR
+    def validate_bill_type(self, type):
+        try:
+            return int(type) in BILLS_BY_ID
+        except:
+            return False
 
     @validator(code='bills.not_owner', message=u'Вы не являетесь владельцем данного законопроекта')
     def validate_onwership(self, *args, **kwargs): return self.user.id == self.bill.owner.id
@@ -52,9 +59,32 @@ class BillResource(Resource):
 
 
     @handler('', method='get')
-    def index(self, page=1):
+    def index(self, page=1, owner_id=None, state=None, bill_type=None):
 
-        bills_count = Bill.objects.count()
+        bills_query = Bill.objects.all()
+
+        is_filtering = False
+
+        owner_account = None
+
+        if owner_id is not None:
+            owner_id = int(owner_id)
+            try:
+                owner_account = AccountPrototype.get_by_id(owner_id)
+                bills_query = bills_query.filter(owner_id=owner_account.user.id)
+                is_filtering = True
+            except Account.DoesNotExist:
+                bills_query = Bill.objects.none()
+
+        if state is not None:
+            state = int(state)
+            bills_query = bills_query.filter(state=state)
+
+        if bill_type is not None:
+            bill_type = int(bill_type)
+            bills_query = bills_query.filter(type=bill_type)
+
+        bills_count = bills_query.count()
 
         paginator = Paginator(bills_count, bills_settings.BILLS_ON_PAGE)
 
@@ -66,29 +96,53 @@ class BillResource(Resource):
 
         bill_from, bill_to = paginator.page_borders(page)
 
-        bills = [ BillPrototype(bill) for bill in Bill.objects.all().select_related().order_by('-updated_at')[bill_from:bill_to]]
+        bills = [ BillPrototype(bill) for bill in bills_query.select_related().order_by('-updated_at')[bill_from:bill_to]]
+
+        votes = dict( (vote.bill_id, VotePrototype(vote)) for vote in Vote.objects.filter(bill_id__in=[bill.id for bill in bills], owner=self.account.user) )
+
+        base_url = reverse('game:bills:')
+
+        def filter_url_constructor(owner_id=owner_id, state=state, bill_type=bill_type):
+            url = base_url + '?'
+
+            if owner_id is not None:
+                url += 'owner_id=%d&' % owner_id
+
+            if state is not None:
+                url += 'state=%d&' % state
+
+            if bill_type is not None:
+                url += 'bill_type=%d&' % bill_type
+
+            return url
 
         return self.template('bills/index.html',
                              {'bills': bills,
-                              'BILLS_BY_STR': BILLS_BY_STR,
+                              'votes': votes,
+                              'is_filtering': is_filtering,
+                              'BILLS_BY_ID': BILLS_BY_ID,
+                              'BILL_STATE': BILL_STATE,
+                              'BILL_TYPE': BILL_TYPE,
                               'current_page_number': page,
-                              'pages_count': range(paginator.pages_count),
-                              'bills_settings': bills_settings} )
+                              'owner_account': owner_account,
+                              'state': state,
+                              'bill_type': bill_type,
+                              'filter_url_constructor': filter_url_constructor,
+                              'pages_count': range(paginator.pages_count)} )
 
 
     @validate_bill_type()
     @handler('new', method='get')
     def new(self, type):
-        bill_class = BILLS_BY_STR[type]
+        bill_class = BILLS_BY_ID[int(type)]
         return self.template('bills/new.html', {'bill_class': bill_class,
-                                                'form': bill_class.get_user_form_create(),
-                                                'bills_settings': bills_settings})
+                                                'form': bill_class.get_user_form_create()})
 
     @validate_bill_type()
     @handler('create', method='post')
     def create(self, type):
 
-        bill_data = BILLS_BY_STR[type]()
+        bill_data = BILLS_BY_ID[int(type)]()
 
         user_form = bill_data.get_user_form_create(self.request.POST)
 
@@ -103,8 +157,7 @@ class BillResource(Resource):
     @handler('#bill_id', name='show', method='get')
     def show(self):
         return self.template('bills/show.html', {'bill': self.bill,
-                                                 'vote': VotePrototype.get_for(self.user, self.bill),
-                                                 'bills_settings': bills_settings})
+                                                 'vote': VotePrototype.get_for(self.user, self.bill)})
 
     @validate_onwership()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
@@ -112,8 +165,7 @@ class BillResource(Resource):
     def edit(self):
         user_form = self.bill.data.get_user_form_update(initial=self.bill.user_form_initials)
         return self.template('bills/edit.html', {'bill': self.bill,
-                                                 'form': user_form,
-                                                 'bills_settings': bills_settings} )
+                                                 'form': user_form} )
 
     @validate_onwership()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
@@ -140,8 +192,7 @@ class BillResource(Resource):
     def moderation_page(self):
         moderation_form = self.bill.data.ModeratorForm(initial=self.bill.moderator_form_initials)
         return self.template('bills/moderate.html', {'bill': self.bill,
-                                                     'form': moderation_form,
-                                                     'bills_settings': bills_settings} )
+                                                     'form': moderation_form} )
 
     @validate_moderator_rights()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')

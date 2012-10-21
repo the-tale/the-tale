@@ -32,7 +32,7 @@
         <td class="posts-count">{{ subcategory.posts_count }}</td>
         <td class="last-poster">
           {% if subcategory.last_poster %}
-          <a href="{{url('forum:users:show', subcategory.last_poster.id)}}">{{ subcategory.last_poster.username }}</a>
+          <a href="{{url('portal:users:show', subcategory.last_poster.id)}}">{{ subcategory.last_poster.username }}</a>
           {% else %}
           —
           {% endif %}

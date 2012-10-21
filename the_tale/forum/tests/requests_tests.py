@@ -199,8 +199,3 @@ class TestRequests(TestCase):
         self.check_ajax_ok(self.client.post(reverse('forum:posts:create') + ('?thread_id=%d' % self.thread3.id), {'text': 'thread3-test-post'}),
                            data={'thread_url': reverse('forum:threads:show', args=[self.thread3.id]) + '?page=1'})
         self.assertEqual(Post.objects.all().count(), 5)
-
-    def test_user_redirect(self):
-        from accounts.prototypes import AccountPrototype
-        response = self.client.get(reverse('forum:users:show', args=[self.thread1.author.id]))
-        self.assertRedirects(response, reverse('game:angels:show', args=[AccountPrototype(self.thread1.author.get_profile()).angel.id]), status_code=301, target_status_code=200)

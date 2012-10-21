@@ -58,6 +58,9 @@
 {% endmacro %}
 
 {% macro render_paginator(pages_numbers, current_page, base_url) %}
+
+{% if pages_numbers|length > 1 %}
+
 <div class="pagination pagination-right">
   <ul>
       {% for page_number in pages_numbers %}
@@ -69,4 +72,7 @@
       {% endfor %}
   </ul>
 </div>
+
+{% endif %}
+
 {% endmacro %}

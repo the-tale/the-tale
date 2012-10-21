@@ -139,8 +139,9 @@ jQuery(document).ready(function() {
 
             {% if request.user.is_authenticated() %}
 
-            {{ base_macros.main_menu_item("profile", "#", resource.user.username, [(url("accounts:profile"), "Мой профиль"),
-                                                                                   (url("game:heroes:show", resource.account.angel.get_hero().id), "Страница героя"),
+            {{ base_macros.main_menu_item("profile", "#", resource.user.username, [(url("accounts:profile"), "Профиль"),
+                                                                                   (url("game:angels:show", resource.account.angel.id), "Моя страница"),
+                                                                                   (url("game:heroes:show", resource.account.angel.get_hero().id), "Мой герой"),
                                                                                    ('-', '<li class="divider"></li>'),
                                                                                    (url("accounts:logout"), "Выход")] ) }}
 

@@ -11,7 +11,7 @@
       Предложить закон <span class="caret"></span>
     </a>
     <ul class="dropdown-menu">
-      {% for bill_id, bill_type in BILLS_BY_STR.items() %}
+      {% for bill_id, bill_type in BILLS_BY_ID.items() %}
       <li><a href="{{ url('game:bills:new') }}?type={{bill_id}}">{{bill_type.CAPTION}}</a></li>
       {% endfor %}
     </ul>
@@ -24,18 +24,71 @@
 
 <h2 style="margin-bottom: 0.5em;">список законов</h2>
 
+<div>
+  <div class="btn-toolbar">
+
+    {% if is_filtering %}
+    <div class="btn-group">
+      <a class="btn" href="{{ url('game:bills:') }}">сбросить фильтрацию</a>
+    </div>
+    {% endif %}
+
+    {% if owner_account %}
+    <div class="btn-group">
+      <a class="btn disabled" href="#">автор: {{owner_account.user.username}}</a>
+    </div>
+    {% endif %}
+
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        состояние:
+        {% if state == BILL_STATE.VOTING %} голосование
+        {% elif state == BILL_STATE.ACCEPTED %} принятые
+        {% elif state == BILL_STATE.REJECTED %} отклонённые
+        {% else %} все
+        {% endif %}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="{{ filter_url_constructor(state=none) }}">все</a></li>
+        <li><a href="{{ filter_url_constructor(state=BILL_STATE.VOTING) }}">голосование</a></li>
+        <li><a href="{{ filter_url_constructor(state=BILL_STATE.ACCEPTED) }}">принятые</a></li>
+        <li><a href="{{ filter_url_constructor(state=BILL_STATE.REJECTED) }}">отклонённые</a></li>
+      </ul>
+    </div>
+
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        тип:
+        {% if bill_type is not none %} {{BILLS_BY_ID[bill_type].CAPTION}}
+        {% else %} все
+        {% endif %}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="{{ filter_url_constructor(bill_type=none) }}">все</a></li>
+        {% for bill_id, bill_type_ in BILLS_BY_ID.items() %}
+        <li><a href="{{ filter_url_constructor(bill_type=bill_type_.type) }}">{{bill_type_.CAPTION}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+
 {{ base_macros.render_paginator(pages_count, current_page_number, url('game:bills:') + "?page=%d") }}
 
 {% if bills %}
 <ul class="unstyled">
   {% for bill in bills %}
   <li style="margin-bottom: 1em;">
-    {{ bills_macros.bill_record(bill) }}
+    {{ bills_macros.bill_record(bill, votes.get(bill.id)) }}
   </li>
   {% endfor %}
 </ul>
 {% else %}
-<span class="pgf-no-bills-message">На текущий момент не создано ни одного закона, Вы можете создать первый!</span>
+<span class="pgf-no-bills-message">Не найдено законопроектов, отвечающих условиям поиска</span>
 {% endif %}
 
 {% endblock %}

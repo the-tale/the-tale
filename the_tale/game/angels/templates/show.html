@@ -41,6 +41,10 @@
   {% endfor %}
 </ul>
 
+<p>
+  <a href="{{ url('game:bills:') }}?owner_id={{master_account.id}}">все законопроекты игрока</a>
+<p>
+
 {% else %}
 
 <p>
@@ -61,7 +65,7 @@
   <tbody>
   {% for thread in threads %}
   <tr>
-    <td class="caption"><a href="{{ url('forum:threads:show', thread.id) }}">{{ thread.caption }}</a></td>
+    <td class="caption"><a href="{{ url('forum:threads:show' , thread.id) }}">{{ thread.caption }}</a></td>
   </tr>
   {% endfor %}
   </tbody>

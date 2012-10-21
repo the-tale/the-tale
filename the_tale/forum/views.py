@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 
@@ -77,26 +76,6 @@ class BaseForumResource(Resource):
         if not hasattr(self, '_post'):
             self._post = get_object_or_404(Post, id=self.post_id)
         return self._post
-
-class UsersResource(BaseForumResource):
-
-    def initialize(self, user_id=None, *args, **kwargs):
-        super(UsersResource, self).initialize(*args, **kwargs)
-
-        self.requested_user_id = int(user_id) if user_id is not None else None
-
-    @property
-    def requested_user(self):
-        if not hasattr(self, '_requested_user'):
-            self._requested_user = User.objects.get(id=self.requested_user_id)
-        return self._requested_user
-
-    @handler('#user_id', name='show', method='get')
-    def show(self):
-        from accounts.prototypes import AccountPrototype
-        account = AccountPrototype(self.requested_user.get_profile())
-        return self.redirect(reverse('game:angels:show', args=[account.angel.id]), permanent=True)
-
 
 class PostsResource(BaseForumResource):
 

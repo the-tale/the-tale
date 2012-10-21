@@ -1,13 +1,19 @@
 {% extends "bills/base.html" %}
 
+{% import 'macros.html' as base_macros with context %}
 {% import 'bills/macros.html' as bills_macros with context %}
 
 {% block title %} {{ bill.caption }} | {{ super() }}{% endblock %}
 
+{% import 'macros.html' as base_macros with context %}
+
 
 {% block bills_content %}
 
-<h2>{{ bill.caption }}</h2>
+<div class="bills-page-title">
+  {{ base_macros.addthis(title="Закон «%s»" % bill.caption, description=bill.rationale_html|safe) }}
+  <h2 style="display: inline-block;">{{ bill.caption }}</h2>
+</div>
 
 {{ bills_macros.bill_info(bill) }}
 

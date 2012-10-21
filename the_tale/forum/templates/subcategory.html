@@ -48,13 +48,13 @@
         <a href="{{ url('forum:threads:show', thread.id) }}">{{ thread.caption }}</a>
         {{ pages_links(thread) }}
       </td>
-      <td class="author"><a href="{{url('forum:users:show', thread.author.id)}}">{{ thread.author.username }}</a></td>
+      <td class="author"><a href="{{url('portal:users:show', thread.author.id)}}">{{ thread.author.username }}</a></td>
       <td class="posts-count">{{ thread.posts_count }}</td>
       <td class="last-poster">
         {% if thread.last_poster %}
-        <a href="{{url('forum:users:show', thread.last_poster.id)}}">{{ thread.last_poster.username }}</a>
+        <a href="{{url('portal:users:show', thread.last_poster.id)}}">{{ thread.last_poster.username }}</a>
         {% else %}
-        <a href="{{url('forum:users:show', thread.author.id)}}">{{ thread.author.username }}</a>
+        <a href="{{url('portal:users:show', thread.author.id)}}">{{ thread.author.username }}</a>
         {% endif %}
       </td>
       <td class="updated-at pgf-format-time" data-timestamp="{{ thread.updated_at|timestamp }}"></td>

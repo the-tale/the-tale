@@ -6,14 +6,14 @@
 <span>(итого {{ bill.votes_for_percents|percents }} «за»)</span>
 {% endmacro %}
 
-{% macro bill_info(bill) %}
+{% macro bill_info(bill, vote=none) %}
 
 <table class="table table-condensed" style="background-color: whiteSmoke;">
 
   <tbody>
     <tr>
       <th style="width: 150px;">автор</th>
-      <td style="width: 150px;">{{ bill.owner.username }}</td>
+      <td style="width: 150px;"><a href="{{ url('portal:users:show', bill.owner.id) }}">{{ bill.owner.username }}</a></td>
       <th style="width: 150px;">тип</th>
       <td>{{ bill.data.CAPTION }}</td>
     </tr>
@@ -70,7 +70,7 @@
     <tr style="">
       <th>обсуждение</th>
       <td><a href="{{ url('forum:threads:show', bill.forum_thread_id) }}">форум</a></td>
-      <th>стадия голосования</th>
+      <th>результаты</th>
       <td>
         {% if not bill.state.is_proposal %}
         {{ _voting_results(bill) }}
@@ -84,10 +84,18 @@
 
 {% endmacro %}
 
-{% macro bill_record(bill) %}
+{% macro bill_record(bill, vote=none) %}
 
-<h4 style="margin-bottom: 0.5em;"><a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a></h4>
+<h4 style="margin-bottom: 0.5em; display: inline-block;"><a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a></h4>
 
-{{ bill_info(bill) }}
+{% if vote %}
+{% if vote.value %}
+<span class="label label-success" style="cursor: default;" rel="tooltip" title="Вы поддержали закон">«за»</span>
+{% else %}
+<span class="label label-important" style="cursor: default;" rel="tooltip" title="Вы выступили против закона">«против»</span>
+{% endif %}
+{% endif %}
+
+{{ bill_info(bill, vote) }}
 
 {% endmacro %}
