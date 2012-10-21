@@ -282,109 +282,33 @@
       "template": "%(e_0)s возвращается за наградой"
     }
   ], 
-  "action_inplace_buying_artifact_and_change": [
+  "action_regenerate_energy_energy_received_symbols": [
     {
       "internals": [
         [
-          "надоел", 
+          "закончил", 
           [
-            "old_artifact"
+            "hero"
           ], 
           "i_0", 
           [
             "прш"
           ], 
-          "надоел"
-        ], 
-        [
-          "он", 
-          [
-            "old_artifact"
-          ], 
-          "i_1", 
-          [
-            "рд"
-          ], 
-          "он"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_2", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ], 
-        [
-          "продал", 
-          [
-            "hero"
-          ], 
-          "i_3", 
-          [
-            "прш"
-          ], 
-          "продал"
-        ], 
-        [
-          "монета", 
-          [
-            "sell_price"
-          ], 
-          "i_4", 
-          [
-            "вн"
-          ], 
-          "монета"
+          "закончил"
         ]
       ], 
       "externals": [
         [
-          "old_artifact", 
+          "hero", 
           [], 
           "e_0", 
           [
             "загл"
           ], 
-          "old_artifact"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_2", 
-          [], 
-          "coins"
-        ], 
-        [
-          "old_artifact", 
-          [], 
-          "e_3", 
-          [
-            "вн"
-          ], 
-          "old_artifact"
-        ], 
-        [
-          "sell_price", 
-          [], 
-          "e_4", 
-          [], 
-          "sell_price"
+          "hero"
         ]
       ], 
-      "template": "%(e_0)s мне %(i_0)s, купил вместо %(i_1)s %(e_1)s за %(e_2)s %(i_2)s. А %(e_3)s %(i_3)s за %(e_4)s %(i_4)s."
+      "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
     }
   ], 
   "quest_notmywork_diary_get_reward": [
@@ -527,30 +451,7 @@
       "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
     }
   ], 
-  "quest_notmywork_action_move_to_quest": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ], 
-        [
-          "place_end", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "place_end"
-        ]
-      ], 
-      "template": "%(e_0)s направляется в %(e_1)s"
-    }
-  ], 
+  "quest_spying_action_choice_open_up": [], 
   "angel_ability_resurrect": [
     {
       "internals": [
@@ -1295,19 +1196,109 @@
       "template": "Ну вот, ничего не изменилось с моего последнего посещения, хотя может быть это и к лучшему?"
     }
   ], 
-  "quest_hometown_action_move_to_quest": [
+  "action_inplace_buying_artifact_and_change": [
     {
-      "internals": [], 
-      "externals": [
+      "internals": [
         [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
+          "надоел", 
+          [
+            "old_artifact"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "надоел"
+        ], 
+        [
+          "он", 
+          [
+            "old_artifact"
+          ], 
+          "i_1", 
+          [
+            "рд"
+          ], 
+          "он"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ], 
+        [
+          "продал", 
+          [
+            "hero"
+          ], 
+          "i_3", 
+          [
+            "прш"
+          ], 
+          "продал"
+        ], 
+        [
+          "монета", 
+          [
+            "sell_price"
+          ], 
+          "i_4", 
+          [
+            "вн"
+          ], 
+          "монета"
         ]
       ], 
-      "template": "%(e_0)s возвращается в родной город"
+      "externals": [
+        [
+          "old_artifact", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "old_artifact"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_2", 
+          [], 
+          "coins"
+        ], 
+        [
+          "old_artifact", 
+          [], 
+          "e_3", 
+          [
+            "вн"
+          ], 
+          "old_artifact"
+        ], 
+        [
+          "sell_price", 
+          [], 
+          "e_4", 
+          [], 
+          "sell_price"
+        ]
+      ], 
+      "template": "%(e_0)s мне %(i_0)s, купил вместо %(i_1)s %(e_1)s за %(e_2)s %(i_2)s. А %(e_3)s %(i_3)s за %(e_4)s %(i_4)s."
     }
   ], 
   "quest_helpfriend_diary_intro": [
@@ -1587,6 +1578,30 @@
     }
   ], 
   "quest_notmywork_diary_move_to_quest": [], 
+  "quest_notmywork_action_move_to_quest": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ], 
+        [
+          "place_end", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "place_end"
+        ]
+      ], 
+      "template": "%(e_0)s направляется в %(e_1)s"
+    }
+  ], 
   "quest_searchsmith_diary_upgrade_equipment_sharp": [
     {
       "internals": [
@@ -2066,6 +2081,89 @@
       "template": "%(e_0)s %(i_0)s ограбить караван."
     }
   ], 
+  "action_inplace_spend_useless": [
+    {
+      "internals": [
+        [
+          "Рассыпал", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "Рассыпал"
+        ], 
+        [
+          "недосчитался", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "недосчитался"
+        ], 
+        [
+          "штука", 
+          [
+            "coins"
+          ], 
+          "i_2", 
+          [], 
+          "штука"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(i_0)s монеты по мостовой, собрав, %(i_1)s %(e_0)s %(i_2)s."
+    }, 
+    {
+      "internals": [
+        [
+          "Купил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "Купил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(i_0)s билеты в цирк, всего-то %(e_0)s %(i_1)s."
+    }
+  ], 
   "quest_spying_diary_get_reward": [
     {
       "internals": [
@@ -2139,7 +2237,21 @@
       "template": "Лекарь содрал %(e_0)s %(i_0)s за лечение."
     }
   ], 
-  "quest_delivery_diary_give_item": [], 
+  "quest_hometown_action_move_to_quest": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s возвращается в родной город"
+    }
+  ], 
   "quest_hometown_action_remember_names": [
     {
       "internals": [], 
@@ -2204,7 +2316,9 @@
             "person_end"
           ], 
           "i_1", 
-          [], 
+          [
+            "прш"
+          ], 
           "должен"
         ]
       ], 
@@ -2380,6 +2494,7 @@
       "template": "%(e_0)s гуляет по городу"
     }
   ], 
+  "quest_spying_action_get_reward": [], 
   "quest_hometown_diary_intro": [
     {
       "internals": [], 
@@ -2441,40 +2556,20 @@
       "template": "Неизвестный прислал %(e_0)s %(i_0)s, похоже у %(e_1)s есть ещё враги кроме меня"
     }
   ], 
-  "quest_spying_choice_openup_variant_open_up": [
+  "quest_delivery_action_steal_get_reward": [], 
+  "quest_delivery_action_intro": [
     {
       "internals": [], 
-      "externals": [], 
-      "template": "поддаться укорам совести и раскрыться"
-    }
-  ], 
-  "action_regenerate_energy_energy_received_symbols": [
-    {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
       "externals": [
         [
           "hero", 
           [], 
           "e_0", 
-          [
-            "загл"
-          ], 
+          [], 
           "hero"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
+      "template": "%(e_0)s обсуждает условия доставки"
     }
   ], 
   "quest_delivery_diary_steal_get_reward": [
@@ -3655,21 +3750,7 @@
       "template": "%(e_0)s %(i_0)s укромный уголок и %(i_1)s молиться за ниспослание удачи на нелегком пути."
     }
   ], 
-  "quest_caravan_action_choice_defend": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s защищает караван от бандитов"
-    }
-  ], 
+  "quest_delivery_diary_give_item": [], 
   "quest_help_diary_move_to_quest": [], 
   "action_equipping_change_item": [
     {
@@ -4392,89 +4473,7 @@
       "template": "%(i_0)s поспать, но %(i_1)s с кровати — придётся идти на подвиги"
     }
   ], 
-  "action_inplace_spend_useless": [
-    {
-      "internals": [
-        [
-          "Рассыпал", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш", 
-            "загл"
-          ], 
-          "Рассыпал"
-        ], 
-        [
-          "недосчитался", 
-          [
-            "hero"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "недосчитался"
-        ], 
-        [
-          "штука", 
-          [
-            "coins"
-          ], 
-          "i_2", 
-          [], 
-          "штука"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(i_0)s монеты по мостовой, собрав, %(i_1)s %(e_0)s %(i_2)s."
-    }, 
-    {
-      "internals": [
-        [
-          "Купил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш", 
-            "загл"
-          ], 
-          "Купил"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(i_0)s билеты в цирк, всего-то %(e_0)s %(i_1)s."
-    }
-  ], 
+  "quest_delivery_action_delivery_get_reward": [], 
   "quest_delivery_diary_choice_steal": [
     {
       "internals": [
@@ -4712,7 +4711,37 @@
       "template": "Прошпионить"
     }
   ], 
+  "quest_caravan_action_choice_defend": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s защищает караван от бандитов"
+    }
+  ], 
   "quest_delivery_action_choice_intro": [], 
+  "quest_caravan_action_bad_get_reward": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s изучает добычу"
+    }
+  ], 
   "quest_helpfriend_description": [
     {
       "internals": [], 
@@ -4816,21 +4845,6 @@
         ]
       ], 
       "template": "После длительного боя %(e_0)s %(i_0)s небольшой костерок, и в качестве жертвоприношения %(i_1)s сжигать останки противника."
-    }
-  ], 
-  "quest_caravan_action_bag_get_reward": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s изучает добычу"
     }
   ], 
   "angel_ability_lightning": [
@@ -4977,21 +4991,7 @@
       "template": "%(e_0)s было %(i_0)s ударить, но %(i_1)s не в состоянии додумать мысль."
     }
   ], 
-  "quest_spying_action_choice_continue_spying": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s наблюдает за целью"
-    }
-  ], 
+  "quest_spying_action_choice_continue_spying": [], 
   "action_moveto_start": [
     {
       "internals": [], 
@@ -5486,6 +5486,13 @@
   ], 
   "quest_hometown_journal_remember_names_start": [], 
   "quest_hometown_journal_drunk_song": [], 
+  "quest_spying_choice_openup_variant_open_up": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "поддаться укорам совести и раскрыться"
+    }
+  ], 
   "quest_spying_journal_spying": [
     {
       "internals": [], 

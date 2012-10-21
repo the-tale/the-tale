@@ -20,6 +20,9 @@
                                            "привидение наблюдает за целью"]],
 
         "action_open_up_choice": [],
+        "action_choice_open_up": [],
+        "action_choice_continue_spying": [],
+        "action_get_reward": [],
 
         "journal_move_to_quest": [],
 
