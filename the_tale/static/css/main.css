@@ -9,6 +9,8 @@
 @import "forms.css";
 
 @import "guide.css";
+
+@import "politics.css";
 html {
   height: 100%;
 }
