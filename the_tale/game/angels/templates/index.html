@@ -20,8 +20,7 @@
   <thead>
     <tr>
       <th>имя</th>
-      <th>пол</th>
-      <th>раса</th>
+      <th>зарегистрирован</th>
       <th>герой</th>
       <th>уровень</th>
       <th>сила</th>
@@ -37,9 +36,12 @@
     <tr class="pgf-angel-record">
 
       <td><a href="{{ url('game:angels:show', angel.id) }}">{{ account.user.username }}</a></td>
-      <td>{{ hero.gender_verbose }}</td>
-      <td>{{ hero.race_verbose }}</td>
-      <td><a href="{{ url('game:heroes:show', hero.id) }}">{{ hero.name }}</a></td>
+      <td class="updated-at pgf-format-date" data-timestamp="{{ account.created_at|timestamp }}"></td>
+      <td>
+        {{ hero.gender_verbose }}
+        {{ hero.race_verbose }}
+        <a href="{{ url('game:heroes:show', hero.id) }}">{{ hero.name }}</a>
+      </td>
       <td>{{ hero.level }}</td>
       <td>{{ hero.power }}</td>
     </tr>

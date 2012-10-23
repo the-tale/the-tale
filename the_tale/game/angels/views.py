@@ -52,7 +52,7 @@ class AngelResource(Resource):
 
         angels_from, angels_to = paginator.page_borders(page)
 
-        angels_models = Angel.objects.filter(account__is_fast=False).select_related().order_by('id')[angels_from:angels_to]
+        angels_models = Angel.objects.filter(account__is_fast=False).select_related().order_by('account__user__username')[angels_from:angels_to]
 
         angels = [AngelPrototype(model) for model in angels_models]
 

@@ -65,6 +65,9 @@ class AccountPrototype(object):
     @property
     def user(self): return self.model.user
 
+    @property
+    def created_at(self): return self.model.created_at
+
     def get_is_fast(self): return self.model.is_fast
     def set_is_fast(self, value): self.model.is_fast = value
     is_fast = property(get_is_fast, set_is_fast)

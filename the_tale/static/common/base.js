@@ -120,6 +120,13 @@ pgf.base.AutoFormatTime = function() {
         var text = Globalize.format( new Date(timestamp), "d" ) + ' ' + Globalize.format( new Date(timestamp), "t" ) + ' UTC';
         el.text(text);
     });
+
+    jQuery('.pgf-format-date').each(function(i, v){
+        var el = jQuery(v);
+        var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
+        var text = Globalize.format( new Date(timestamp), "d" ) + ' UTC';
+        el.text(text);
+    });
 };
 
 pgf.base.AddPreview = function(blockSelector, contentSourceSelector, previewUrl) {
