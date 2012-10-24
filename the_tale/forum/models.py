@@ -7,6 +7,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+from dext.utils.urls import UrlBuilder
+
 from common.utils.pagination import Paginator
 
 from forum.conf import forum_settings
@@ -71,7 +73,9 @@ class Thread(models.Model):
 
     @property
     def paginator(self):
-        return Paginator(self.posts_count, forum_settings.POSTS_ON_PAGE)
+        url_builder = UrlBuilder(reverse('forum:threads:show', args=[self.id]))
+        # +1 since first post does not counted
+        return Paginator(1, self.posts_count+1, forum_settings.POSTS_ON_PAGE, url_builder)
 
     @classmethod
     def get_threads_with_last_users_posts(cls, user, limit=None):

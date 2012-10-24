@@ -13,7 +13,7 @@
 
 {% if angels %}
 
-{{ base_macros.render_paginator(pages_count, current_page_number, url('game:angels:') + "?page=%d") }}
+{{ base_macros.render_paginator(paginator) }}
 
 <table class="table">
 
@@ -52,7 +52,7 @@
 
 </table>
 
-{{ base_macros.render_paginator(pages_count, current_page_number, url('game:angels:') + "?page=%d") }}
+{{ base_macros.render_paginator(paginator) }}
 
 {% else %}
 

@@ -1,0 +1,43 @@
+
+{% macro pages_links(thread) %}
+
+{% set paginator = thread.paginator %}
+
+{% if paginator.pages_count == 1 %}
+{% elif paginator.pages_count < 7 %}
+<span class="thread-page-links">
+[{% for page_number in range(1, paginator.pages_count) %}
+  <a href="{{ url('forum:threads:show', thread.id) }}?page={{page_number+1}}">{{page_number+1}}</a>
+{% endfor %}]
+{% else %}
+[ <a href="{{ url('forum:threads:show', thread.id) }}?page=2">2</a>
+  <a href="{{ url('forum:threads:show', thread.id) }}?page=3">3</a>
+  <a href="{{ url('forum:threads:show', thread.id) }}?page=4">4</a>
+  &hellip;
+{% for page_number in range(paginator.pages_count-3, paginator.pages_count) %}
+  <a href="{{ url('forum:threads:show', thread.id) }}?page={{page_number+1}}">{{page_number+1}}</a>
+{% endfor %}]
+{% endif %}
+</span>
+{% endmacro %}
+
+
+{% macro thread_record(thread) %}
+
+<td class="caption">
+  <a href="{{ url('forum:threads:show', thread.id) }}">{{ thread.caption }}</a>
+  {{ pages_links(thread) }}
+</td>
+<td class="author"><a href="{{url('portal:users:show', thread.author.id)}}">{{ thread.author.username }}</a></td>
+<td class="posts-count">{{ thread.posts_count }}</td>
+<td class="last-poster">
+  {% if thread.last_poster %}
+  <a href="{{url('portal:users:show', thread.last_poster.id)}}">{{ thread.last_poster.username }}</a>
+  {% else %}
+  <a href="{{url('portal:users:show', thread.author.id)}}">{{ thread.author.username }}</a>
+  {% endif %}
+</td>
+<td class="updated-at pgf-format-time" data-timestamp="{{ thread.updated_at|timestamp }}"></td>
+
+
+{% endmacro %}

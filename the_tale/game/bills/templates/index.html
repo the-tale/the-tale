@@ -20,8 +20,6 @@
   Жизнью Пандоры управляют игроки. В этом разделе Вы можете напрямую принять участие в управлении миром, жизни его городов и персонажей.
 </p>
 
-<!-- TODO: inser filter here (and paginator) -->
-
 <h2 style="margin-bottom: 0.5em;">список законов</h2>
 
 <div>
@@ -50,10 +48,10 @@
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="{{ filter_url_constructor(state=none) }}">все</a></li>
-        <li><a href="{{ filter_url_constructor(state=BILL_STATE.VOTING) }}">голосование</a></li>
-        <li><a href="{{ filter_url_constructor(state=BILL_STATE.ACCEPTED) }}">принятые</a></li>
-        <li><a href="{{ filter_url_constructor(state=BILL_STATE.REJECTED) }}">отклонённые</a></li>
+        <li><a href="{{ url_builder(state=none) }}">все</a></li>
+        <li><a href="{{ url_builder(state=BILL_STATE.VOTING) }}">голосование</a></li>
+        <li><a href="{{ url_builder(state=BILL_STATE.ACCEPTED) }}">принятые</a></li>
+        <li><a href="{{ url_builder(state=BILL_STATE.REJECTED) }}">отклонённые</a></li>
       </ul>
     </div>
 
@@ -66,9 +64,9 @@
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="{{ filter_url_constructor(bill_type=none) }}">все</a></li>
+        <li><a href="{{ url_builder(bill_type=none) }}">все</a></li>
         {% for bill_id, bill_type_ in BILLS_BY_ID.items() %}
-        <li><a href="{{ filter_url_constructor(bill_type=bill_type_.type) }}">{{bill_type_.CAPTION}}</a></li>
+        <li><a href="{{ url_builder(bill_type=bill_type_.type) }}">{{bill_type_.CAPTION}}</a></li>
         {% endfor %}
       </ul>
     </div>
@@ -77,9 +75,10 @@
 
 </div>
 
-{{ base_macros.render_paginator(pages_count, current_page_number, url('game:bills:') + "?page=%d") }}
-
 {% if bills %}
+
+{{ base_macros.render_paginator(paginator) }}
+
 <ul class="unstyled">
   {% for bill in bills %}
   <li style="margin-bottom: 1em;">
@@ -87,6 +86,9 @@
   </li>
   {% endfor %}
 </ul>
+
+{{ base_macros.render_paginator(paginator) }}
+
 {% else %}
 <span class="pgf-no-bills-message">Не найдено законопроектов, отвечающих условиям поиска</span>
 {% endif %}

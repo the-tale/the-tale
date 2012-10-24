@@ -84,7 +84,7 @@ jQuery(document).ready( function(e) {
   {% endif %}
 </ul>
 
-{{ base_macros.render_paginator(pages_numbers, current_page_number, url("forum:threads:show", thread.id) + "?page=%d") }}
+{{ base_macros.render_paginator(paginator) }}
 
 <ul class="unstyled">
   {% for post in posts %}
@@ -141,7 +141,7 @@ jQuery(document).ready( function(e) {
   {% endfor %}
 </ul>
 
-{{ base_macros.render_paginator(pages_numbers, current_page_number, url("forum:threads:show", thread.id) + "?page=%d") }}
+{{ base_macros.render_paginator(paginator) }}
 
 {% if resource.account and not resource.account.is_fast %}
 <form action="{{ url('forum:posts:create') }}?thread_id={{thread.id}}"

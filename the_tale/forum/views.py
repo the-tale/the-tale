@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 
 from dext.views.resources import handler
+from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
@@ -165,6 +166,60 @@ class PostsResource(BaseForumResource):
 
 class ThreadsResource(BaseForumResource):
 
+    @handler('', method='get')
+    def index(self, author_id=None, page=1, participant_id=None):
+        from accounts.models import Account
+        from accounts.prototypes import AccountPrototype
+
+        threads_query = Thread.objects.all().order_by('-updated_at')
+
+        is_filtering = False
+        author_account = None
+        participant_account = None
+
+        if author_id is not None:
+            author_id = int(author_id)
+            try:
+                author_account = AccountPrototype.get_by_id(author_id)
+                threads_query = threads_query.filter(author_id=author_account.user.id)
+                is_filtering = True
+            except Account.DoesNotExist:
+                threads_query = Thread.objects.none()
+
+        if participant_id is not None:
+            participant_id = int(participant_id)
+            try:
+                participant_account = AccountPrototype.get_by_id(participant_id)
+                threads_query = threads_query.filter(post__author__id=participant_account.user.id).distinct()
+                is_filtering = True
+            except Account.DoesNotExist:
+                threads_query = Thread.objects.none()
+
+        url_builder = UrlBuilder(reverse('forum:threads:'), arguments={'author_id': author_id,
+                                                                       'participant_id': participant_id,
+                                                                       'page': page})
+
+        page = int(page) - 1
+
+        paginator = Paginator(page, threads_query.count(), forum_settings.THREADS_ON_PAGE, url_builder)
+
+        if paginator.wrong_page_number:
+            return self.redirect(paginator.last_page_url, permanent=False)
+
+        thread_from, thread_to = paginator.page_borders(page)
+
+        threads = list(threads_query.select_related().order_by('-updated_at')[thread_from:thread_to])
+
+        return self.template('forum/threads_list.html',
+                             {'is_filtering': is_filtering,
+                              'pages_count': range(paginator.pages_count),
+                              'current_page_number': page,
+                              'author_account': author_account,
+                              'participant_account': participant_account,
+                              'paginator': paginator,
+                              'threads': threads} )
+
+
     @handler('new', method='get')
     def new_thread(self, subcategory_id):
 
@@ -286,13 +341,16 @@ class ThreadsResource(BaseForumResource):
 
     @handler('#thread_id', name='show', method='get')
     def get_thread(self, page=1):
-        paginator = Paginator(self.thread.posts_count, forum_settings.POSTS_ON_PAGE)
+
+        url_builder = UrlBuilder(reverse('forum:threads:show', args=[self.thread.id]),
+                                 arguments={'page': page})
 
         page = int(page) - 1
 
-        if page >= self.thread.paginator.pages_count:
-            url = '%s?page=%d' % (reverse('forum:threads:show', args=[self.thread.id]), self.thread.paginator.pages_count)
-            return self.redirect(url, permanent=False)
+        paginator = Paginator(page, self.thread.posts_count, forum_settings.POSTS_ON_PAGE, url_builder)
+
+        if paginator.wrong_page_number:
+            return self.redirect(paginator.last_page_url, permanent=False)
 
         post_from, post_to = paginator.page_borders(page)
 
@@ -309,7 +367,7 @@ class ThreadsResource(BaseForumResource):
                               'thread': self.thread,
                               'new_post_form': NewPostForm(),
                               'posts': posts,
-                              'pages_numbers': range(self.thread.paginator.pages_count),
+                              'paginator': paginator,
                               'start_posts_from': page * forum_settings.POSTS_ON_PAGE,
                               'can_delete_thread': self.can_delete_thread(self.thread),
                               'can_change_thread': self.can_change_thread(self.thread),
@@ -345,12 +403,26 @@ class ForumResource(BaseForumResource):
 
 
     @handler('categories', '#subcategory', name='subcategory', method='get')
-    def get_subcategory(self):
+    def get_subcategory(self, page=1):
 
-        threads = Thread.objects.filter(subcategory=self.subcategory).order_by('-updated_at')
+        threads_query = Thread.objects.filter(subcategory=self.subcategory)
+
+        url_builder = UrlBuilder(reverse('forum:subcategory', args=[self.subcategory.slug]), arguments={'page': page})
+
+        page = int(page) - 1
+
+        paginator = Paginator(page, threads_query.count(), forum_settings.THREADS_ON_PAGE, url_builder)
+
+        if paginator.wrong_page_number:
+            return self.redirect(paginator.last_page_url, permanent=False)
+
+        thread_from, thread_to = paginator.page_borders(page)
+
+        threads = list(threads_query.select_related().order_by('-updated_at')[thread_from:thread_to])
 
         return self.template('forum/subcategory.html',
                              {'category': self.category,
                               'subcategory': self.subcategory,
                               'can_create_thread': self.can_create_thread(self.subcategory),
+                              'paginator': paginator,
                               'threads': threads} )

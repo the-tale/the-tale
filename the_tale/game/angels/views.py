@@ -2,6 +2,7 @@
 from django.core.urlresolvers import reverse
 
 from dext.views.resources import handler
+from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
@@ -42,13 +43,14 @@ class AngelResource(Resource):
 
         angels_count = Angel.objects.filter(account__is_fast=False).count()
 
-        paginator = Paginator(angels_count, angels_settings.ANGELS_ON_PAGE)
+        url_builder = UrlBuilder(reverse('game:angels:'), arguments={'page': page})
 
         page = int(page) - 1
 
-        if page >= paginator.pages_count:
-            url = '%s?page=%d' % (reverse('game:angels:'), paginator.pages_count)
-            return self.redirect(url, permanent=False)
+        paginator = Paginator(page, angels_count, angels_settings.ANGELS_ON_PAGE, url_builder)
+
+        if paginator.wrong_page_number:
+            return self.redirect(paginator.last_page_url, permanent=False)
 
         angels_from, angels_to = paginator.page_borders(page)
 
@@ -69,22 +71,25 @@ class AngelResource(Resource):
                               'heroes': heroes,
                               'accounts': accounts,
                               'current_page_number': page,
-                              'pages_count': range(paginator.pages_count)  } )
+                              'paginator': paginator  } )
 
     @handler('#angel_id', name='show', method='get')
     def show(self):
         from forum.models import Thread
-        from game.bills.prototypes import BillPrototype
+        from game.bills.models import Bill
 
         master_account = self.angel.get_account()
 
-        bills = BillPrototype.get_bills_for_user(master_account.user, limit=angels_settings.BILLS_ON_SHOW_PAGE, order_by='-updated_at')
+        bills_count = Bill.objects.filter(owner=master_account.user).count()
 
-        threads = Thread.get_threads_with_last_users_posts(master_account.user, limit=angels_settings.FORUM_THREADS_ON_SHOW_PAGE)
+        threads_count = Thread.objects.filter(author=master_account.user).count()
+
+        threads_with_posts = Thread.objects.filter(post__author=master_account.user).distinct().count()
 
         return self.template('angels/show.html',
                              {'master_angel': self.angel,
                               'master_hero': self.angel.get_hero(),
                               'master_account': master_account,
-                              'bills': bills,
-                              'threads': threads} )
+                              'bills_count': bills_count,
+                              'threads_with_posts': threads_with_posts,
+                              'threads_count': threads_count} )

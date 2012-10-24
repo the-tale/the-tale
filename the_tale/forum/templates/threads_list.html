@@ -3,14 +3,26 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'forum/macros.html' as forum_macros with context %}
 
-{% block title %}{{subcategory.caption}} | {{ super() }}{% endblock %}
+{% block title %}{{ super() }}{% endblock %}
 
 {% block forum_content %}
 
 <ul class="breadcrumb">
   <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
-  <li class="active">{{ subcategory.caption }}</li>
+  <li>
+    {% if author_account %}
+    автор: {{author_account.user.username}}
+    {% endif %}
+
+    {% if participant_account %}
+    участник: {{participant_account.user.username}}
+    {% endif %}
+
+  </li>
 </ul>
+
+
+{% if paginator.records_number %}
 
 {{ base_macros.render_paginator(paginator) }}
 
@@ -35,11 +47,12 @@
 
 {{ base_macros.render_paginator(paginator) }}
 
-{% if can_create_thread %}
-<form action="{{ url('forum:threads:new')}}" method="get">
-  <input type="hidden" name="subcategory_id" value="{{subcategory.id}}" />
-  <input type="submit" value="Добавить обсуждение" class="pgf-new-thread-button"/>
-</form>
+{% else %}
+
+<p>
+  Обсуждения не найдены
+</p>
+
 {% endif %}
 
 {% endblock %}

@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 
 from dext.views.resources import handler, validator
 from dext.utils.decorators import nested_commit_on_success
+from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
@@ -78,43 +79,33 @@ class BillResource(Resource):
 
         if state is not None:
             state = int(state)
+            is_filtering = True
             bills_query = bills_query.filter(state=state)
 
         if bill_type is not None:
             bill_type = int(bill_type)
+            is_filtering = True
             bills_query = bills_query.filter(type=bill_type)
+
+        url_builder = UrlBuilder(reverse('game:bills:'), arguments={'owner_id': owner_id,
+                                                                    'state': state,
+                                                                    'bill_type': bill_type,
+                                                                    'page': page})
 
         bills_count = bills_query.count()
 
-        paginator = Paginator(bills_count, bills_settings.BILLS_ON_PAGE)
-
         page = int(page) - 1
 
-        if page >= paginator.pages_count:
-            url = '%s?page=%d' % (reverse('game:bills:'), paginator.pages_count)
-            return self.redirect(url, permanent=False)
+        paginator = Paginator(page, bills_count, bills_settings.BILLS_ON_PAGE, url_builder)
+
+        if paginator.wrong_page_number:
+            return self.redirect(paginator.last_page_url, permanent=False)
 
         bill_from, bill_to = paginator.page_borders(page)
 
         bills = [ BillPrototype(bill) for bill in bills_query.select_related().order_by('-updated_at')[bill_from:bill_to]]
 
         votes = dict( (vote.bill_id, VotePrototype(vote)) for vote in Vote.objects.filter(bill_id__in=[bill.id for bill in bills], owner=self.account.user) )
-
-        base_url = reverse('game:bills:')
-
-        def filter_url_constructor(owner_id=owner_id, state=state, bill_type=bill_type):
-            url = base_url + '?'
-
-            if owner_id is not None:
-                url += 'owner_id=%d&' % owner_id
-
-            if state is not None:
-                url += 'state=%d&' % state
-
-            if bill_type is not None:
-                url += 'bill_type=%d&' % bill_type
-
-            return url
 
         return self.template('bills/index.html',
                              {'bills': bills,
@@ -127,8 +118,8 @@ class BillResource(Resource):
                               'owner_account': owner_account,
                               'state': state,
                               'bill_type': bill_type,
-                              'filter_url_constructor': filter_url_constructor,
-                              'pages_count': range(paginator.pages_count)} )
+                              'paginator': paginator,
+                              'url_builder': url_builder} )
 
 
     @validate_bill_type()

@@ -152,22 +152,6 @@ class TestPrototype(BaseTestPrototypes):
         self.assertEqual(Thread.objects.all().count(), 0)
         self.assertEqual(Bill.objects.all().count(), 0)
 
-    def test_get_bills_for_user_none(self):
-        self.assertEqual(list(BillPrototype.get_bills_for_user(self.account2.user)), [])
-        self.assertEqual(list(BillPrototype.get_bills_for_user(self.account2.user, limit=3)), [])
-
-    def test_get_bills_for_user_success(self):
-        bill_2 = self.create_place_renaming_bill(2)
-        bill_3 = self.create_place_renaming_bill(3)
-        bill_4 = self.create_place_renaming_bill(4)
-
-        self.assertEqual(set([bill.id for bill in BillPrototype.get_bills_for_user(self.account1.user)]),
-                         set([self.bill.id, bill_2.id, bill_3.id, bill_4.id]))
-
-        self.assertEqual([bill.id for bill in BillPrototype.get_bills_for_user(self.account1.user, limit=3, order_by='-updated_at')],
-                         [bill_4.id, bill_3.id, bill_2.id])
-
-
 
 class TestPrototypeApply(BaseTestPrototypes):
 
