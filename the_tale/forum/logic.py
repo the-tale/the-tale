@@ -66,9 +66,9 @@ def update_thread(subcategory, thread, caption, new_subcategory_id):
 
 
 @nested_commit_on_success
-def create_post(subcategory, thread, author, text):
+def create_post(subcategory, thread, author, text, technical=False):
 
-    post = Post.objects.create(thread=thread, author=author, text=text)
+    post = Post.objects.create(thread=thread, author=author, text=text, technical=technical)
 
     thread.updated_at = post.created_at
     thread.posts_count = Post.objects.filter(thread=thread).count() - 1

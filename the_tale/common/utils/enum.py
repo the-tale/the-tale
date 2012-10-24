@@ -19,6 +19,7 @@ def create_enum(class_name, records):
         CHOICES = []
         ID_2_STR = {}
         STR_2_ID = {}
+        ID_2_TEXT = {}
 
         def __init__(self, value):
             self.value = value
@@ -36,6 +37,7 @@ def create_enum(class_name, records):
         Enum.CHOICES.append((field_id, help_text))
         Enum.STR_2_ID[field_name] = field_id
         Enum.ID_2_STR[field_id] = field_name
+        Enum.ID_2_TEXT[field_id] = help_text
 
         setattr(Enum, 'is_%s' % field_name.lower(), property(_create_state_checker(field_id)))
 

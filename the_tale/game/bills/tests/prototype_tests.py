@@ -199,7 +199,11 @@ class TestPrototypeApply(BaseTestPrototypes):
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_not_enough_voices(self):
 
+        self.assertEqual(Post.objects.all().count(), 1)
+
         self.assertFalse(self.bill.apply())
+
+        self.assertEqual(Post.objects.all().count(), 2)
 
         bill = BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_rejected)
@@ -215,7 +219,11 @@ class TestPrototypeApply(BaseTestPrototypes):
     def test_not_enough_voices_percents(self):
         VotePrototype.create(self.account2.user, self.bill, False)
 
+        self.assertEqual(Post.objects.all().count(), 1)
+
         self.assertFalse(self.bill.apply())
+
+        self.assertEqual(Post.objects.all().count(), 2)
 
         bill = BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_rejected)
@@ -244,7 +252,11 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.bill.update_by_moderator(form)
         ##################################
 
+        self.assertEqual(Post.objects.all().count(), 1)
+
         self.assertTrue(self.bill.apply())
+
+        self.assertEqual(Post.objects.all().count(), 2)
 
         bill = BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_accepted)

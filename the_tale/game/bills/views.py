@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.core.urlresolvers import reverse
+from django.db import models
 
 from dext.views.resources import handler, validator
 from dext.utils.decorators import nested_commit_on_success
@@ -8,6 +9,7 @@ from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
+from common.utils.enum import create_enum
 
 from accounts.models import Account
 from accounts.prototypes import AccountPrototype
@@ -16,6 +18,13 @@ from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.conf import bills_settings
 from game.bills.models import Bill, Vote, BILL_STATE, BILL_TYPE
 from game.bills.bills import BILLS_BY_ID
+
+
+VOTED_TYPE = create_enum('VOTED_TYPE', (('NO', 0, u'воздержался'),
+                                        ('YES', 1, u'проголосовал'),
+                                        ('FOR', 2, u'«за»'),
+                                        ('AGAINST', 3, u'«против»')))
+
 
 class BillResource(Resource):
 
@@ -60,7 +69,7 @@ class BillResource(Resource):
 
 
     @handler('', method='get')
-    def index(self, page=1, owner_id=None, state=None, bill_type=None):
+    def index(self, page=1, owner_id=None, state=None, bill_type=None, voted=None):
 
         bills_query = Bill.objects.all()
 
@@ -87,10 +96,25 @@ class BillResource(Resource):
             is_filtering = True
             bills_query = bills_query.filter(type=bill_type)
 
+        if voted is not None:
+
+            is_filtering = True
+
+            voted = int(voted)
+
+            if voted == VOTED_TYPE.NO:
+                bills_query = bills_query.filter(~models.Q(vote__owner=self.account.user)).distinct()
+            if voted == VOTED_TYPE.YES:
+                bills_query = bills_query.filter(vote__owner=self.account.user).distinct()
+            elif voted == VOTED_TYPE.FOR:
+                bills_query = bills_query.filter(vote__owner=self.account.user, vote__value=True).distinct()
+            elif voted == VOTED_TYPE.AGAINST:
+                bills_query = bills_query.filter(vote__owner=self.account.user, vote__value=False).distinct()
+
         url_builder = UrlBuilder(reverse('game:bills:'), arguments={'owner_id': owner_id,
                                                                     'state': state,
                                                                     'bill_type': bill_type,
-                                                                    'page': page})
+                                                                    'voted': voted})
 
         bills_count = bills_query.count()
 
@@ -114,9 +138,11 @@ class BillResource(Resource):
                               'BILLS_BY_ID': BILLS_BY_ID,
                               'BILL_STATE': BILL_STATE,
                               'BILL_TYPE': BILL_TYPE,
+                              'VOTED_TYPE': VOTED_TYPE,
                               'current_page_number': page,
                               'owner_account': owner_account,
                               'state': state,
+                              'voted': voted,
                               'bill_type': bill_type,
                               'paginator': paginator,
                               'url_builder': url_builder} )

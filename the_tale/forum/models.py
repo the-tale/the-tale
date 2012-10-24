@@ -130,6 +130,7 @@ class Post(models.Model):
     removed_by = models.IntegerField(default=None, null=True, choices=POST_REMOVED_BY_CHOICES)
     remove_initiator = models.ForeignKey(User, null=True, related_name='+')
 
+    technical = models.BooleanField(default=False)
 
     class Meta:
         permissions = (("moderate_post", u"Может редактировать сообщения пользователей"), )

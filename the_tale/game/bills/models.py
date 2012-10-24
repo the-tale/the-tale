@@ -61,6 +61,6 @@ class Vote(models.Model):
 
     owner = models.ForeignKey(User, null=False, related_name='+')
 
-    bill = models.ForeignKey(Bill, null=False, related_name='+')
+    bill = models.ForeignKey(Bill, null=False)
 
     value = models.BooleanField(null=False, db_index=True)

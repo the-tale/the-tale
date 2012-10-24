@@ -25,11 +25,9 @@
 <div>
   <div class="btn-toolbar">
 
-    {% if is_filtering %}
     <div class="btn-group">
       <a class="btn" href="{{ url('game:bills:') }}">сбросить фильтрацию</a>
     </div>
-    {% endif %}
 
     {% if owner_account %}
     <div class="btn-group">
@@ -52,6 +50,22 @@
         <li><a href="{{ url_builder(state=BILL_STATE.VOTING) }}">голосование</a></li>
         <li><a href="{{ url_builder(state=BILL_STATE.ACCEPTED) }}">принятые</a></li>
         <li><a href="{{ url_builder(state=BILL_STATE.REJECTED) }}">отклонённые</a></li>
+      </ul>
+    </div>
+
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        голосование:
+        {% if voted is not none %} {{ VOTED_TYPE.ID_2_TEXT[voted] }}
+        {% else %} все
+        {% endif %}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="{{ url_builder(voted=none) }}">все</a></li>
+        {% for voted_id, voted_text in VOTED_TYPE.ID_2_TEXT.items() %}
+        <li><a href="{{ url_builder(voted=voted_id) }}">{{voted_text}}</a></li>
+        {% endfor %}
       </ul>
     </div>
 

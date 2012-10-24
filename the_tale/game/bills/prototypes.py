@@ -7,7 +7,8 @@ from dext.utils.decorators import nested_commit_on_success
 
 from game.prototypes import TimePrototype
 
-from forum.logic import create_post
+from forum.logic import create_post, create_thread
+from forum.models import SubCategory, MARKUP_METHOD
 
 from game.bills.models import Bill, Vote, BILL_STATE
 from game.bills.bills import deserialize_bill
@@ -136,12 +137,25 @@ class BillPrototype(object):
         if (self.is_percents_baries_passed or self.is_votes_baries_passed ):
             self.model.state = BILL_STATE.REJECTED
             self.save()
+
+            create_post(self.model.forum_thread.subcategory,
+                        self.model.forum_thread,
+                        self.owner,
+                        u'Законопроект отклонён.',
+                        technical=True)
+
             return False
 
         self.data.apply()
 
         self.model.state = BILL_STATE.ACCEPTED
         self.save()
+
+        create_post(self.model.forum_thread.subcategory,
+                    self.model.forum_thread,
+                    self.owner,
+                    u'Законопроект принят. Изменения вступят в силу в ближайшее время.',
+                    technical=True)
 
         return True
 
@@ -166,7 +180,8 @@ class BillPrototype(object):
         create_post(self.model.forum_thread.subcategory,
                     self.model.forum_thread,
                     self.owner,
-                    u'Законопроект был отредактирован, все голоса сброшены.')
+                    u'Законопроект был отредактирован, все голоса сброшены.',
+                    technical=True)
 
     @nested_commit_on_success
     def update_by_moderator(self, form):
@@ -178,8 +193,6 @@ class BillPrototype(object):
     @classmethod
     @nested_commit_on_success
     def create(cls, owner, caption, rationale, bill):
-        from forum.logic import create_thread
-        from forum.models import SubCategory, MARKUP_METHOD
 
         thread = create_thread(SubCategory.objects.get(slug=bills_settings.FORUM_CATEGORY_SLUG),
                                caption=caption,

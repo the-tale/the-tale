@@ -99,7 +99,7 @@ jQuery(document).ready( function(e) {
             <a href="{{url('portal:users:show', post.author.id)}}">{{ post.author.username }}</a>
           </td>
 
-          {% if not post.is_removed %}
+          {% if not (post.is_removed or post.technical) %}
 
           {% if can_change_posts or post.author == resource.user %}
           <td class="change-post">

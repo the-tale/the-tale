@@ -37,6 +37,7 @@ class TestModeration(TestCase):
         self.thread = create_thread(self.subcategory, 'thread-caption', self.main_user, 'thread-text')
         self.post = create_post(self.subcategory, self.thread, self.main_user, 'post-text')
         self.post2 = create_post(self.subcategory, self.thread, self.main_user, 'post2-text')
+        self.post5 = create_post(self.subcategory, self.thread, self.main_user, 'post5-text', technical=True)
 
         self.thread2 = create_thread(self.subcategory, 'thread2-caption', self.main_user, 'thread2-text')
         self.post3 = create_post(self.subcategory, self.thread2, self.main_user, 'post3-text')
@@ -57,7 +58,7 @@ class TestModeration(TestCase):
         self.assertEqual(Category.objects.all().count(), 1)
         self.assertEqual(SubCategory.objects.all().count(), 2)
         self.assertEqual(Thread.objects.all().count(), 3)
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertEqual(Post.objects.all().count(), 8)
 
     ###############################
     # add thread
@@ -190,7 +191,7 @@ class TestModeration(TestCase):
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, 'edited caption')
 
     def test_main_user_update_theme_with_subcategory(self):
-        self.assertEqual(self.subcategory.posts_count, 4)
+        self.assertEqual(self.subcategory.posts_count, 5)
         self.assertEqual(self.subcategory.threads_count, 3)
         self.assertEqual(self.subcategory2.posts_count, 0)
         self.assertEqual(self.subcategory2.threads_count, 0)
@@ -200,7 +201,7 @@ class TestModeration(TestCase):
                               'forum.update_thread.no_permissions_to_change_subcategory')
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
 
-        self.assertEqual(self.subcategory.posts_count, 4)
+        self.assertEqual(self.subcategory.posts_count, 5)
         self.assertEqual(self.subcategory.threads_count, 3)
         self.assertEqual(self.subcategory2.posts_count, 0)
         self.assertEqual(self.subcategory2.threads_count, 0)
@@ -226,7 +227,7 @@ class TestModeration(TestCase):
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, 'edited caption')
 
     def test_moderator_user_update_theme_with_subcategory(self):
-        self.assertEqual(self.subcategory.posts_count, 4)
+        self.assertEqual(self.subcategory.posts_count, 5)
         self.assertEqual(self.subcategory.threads_count, 3)
         self.assertEqual(self.subcategory2.posts_count, 0)
         self.assertEqual(self.subcategory2.threads_count, 0)
@@ -242,7 +243,7 @@ class TestModeration(TestCase):
 
         self.assertEqual(subcategory.posts_count, 2)
         self.assertEqual(subcategory.threads_count, 2)
-        self.assertEqual(subcategory2.posts_count, 2)
+        self.assertEqual(subcategory2.posts_count, 3)
         self.assertEqual(subcategory2.threads_count, 1)
 
 
@@ -278,12 +279,12 @@ class TestModeration(TestCase):
         self.login('second_user')
         self.check_ajax_error(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])), 'forum.delete_thread.no_permissions')
         self.assertEqual(Thread.objects.all().count(), 3)
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertEqual(Post.objects.all().count(), 8)
 
     def test_second_user_remove_unlogined(self):
         self.check_ajax_error(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])), 'forum.delete_thread.unlogined')
         self.assertEqual(Thread.objects.all().count(), 3)
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertEqual(Post.objects.all().count(), 8)
 
     def test_second_user_remove_fast_account(self):
         self.login('main_user')
@@ -294,7 +295,7 @@ class TestModeration(TestCase):
 
         self.check_ajax_error(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])), 'forum.delete_thread.fast_account')
         self.assertEqual(Thread.objects.all().count(), 3)
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertEqual(Post.objects.all().count(), 8)
 
     ###############################
     # post deletion
@@ -318,8 +319,8 @@ class TestModeration(TestCase):
     # main user
     def test_main_user_remove_post(self):
         self.login('main_user')
-        self.assertEqual(Thread.objects.get(id=self.thread.id).posts_count, 2)
-        self.assertEqual(SubCategory.objects.get(id=self.subcategory.id).posts_count, 4)
+        self.assertEqual(Thread.objects.get(id=self.thread.id).posts_count, 3)
+        self.assertEqual(SubCategory.objects.get(id=self.subcategory.id).posts_count, 5)
 
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post.id])))
         self.assertTrue(Post.objects.get(id=self.post.id).is_removed)
@@ -333,19 +334,19 @@ class TestModeration(TestCase):
         self.assertEqual(self.second_user, self.post4.author)
         self.login('main_user')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertEqual(Post.objects.all().count(), 8)
 
     def test_main_user_remove_first_post(self):
         self.login('main_user')
         post = Post.objects.filter(thread=self.thread.id).order_by('created_at')[0]
         self.check_ajax_error(self.client.post(reverse('forum:posts:delete', args=[post.id])), 'forum.delete_post.remove_first_post')
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertEqual(Post.objects.all().count(), 8)
 
     # moderator
     def test_moderator_remove_post(self):
         self.login('moderator')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post.id])))
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertEqual(Post.objects.all().count(), 8)
 
         # check if edit & remove buttons has dissapeared
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 2),
@@ -355,31 +356,31 @@ class TestModeration(TestCase):
         self.assertEqual(self.second_user, self.post4.author)
         self.login('moderator')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertEqual(Post.objects.all().count(), 8)
 
     def test_moderator_remove_first_post(self):
         self.login('moderator')
         post = Post.objects.filter(thread=self.thread.id).order_by('created_at')[0]
         self.check_ajax_error(self.client.post(reverse('forum:posts:delete', args=[post.id])), 'forum.delete_post.remove_first_post')
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertEqual(Post.objects.all().count(), 8)
 
     # second user
     def test_second_user_remove_post(self):
         self.login('second_user')
         self.check_ajax_error(self.client.post(reverse('forum:posts:delete', args=[self.post.id])), 'forum.delete_post.no_permissions')
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertEqual(Post.objects.all().count(), 8)
 
     def test_second_user_remove_post_of_second_user(self):
         self.assertEqual(self.second_user, self.post4.author)
         self.login('second_user')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertEqual(Post.objects.all().count(), 8)
 
     def test_second_user_remove_first_post(self):
         self.login('second_user')
         post = Post.objects.filter(thread=self.thread3.id).order_by('created_at')[0]
         self.check_ajax_error(self.client.post(reverse('forum:posts:delete', args=[post.id])), 'forum.delete_post.remove_first_post')
-        self.assertEqual(Post.objects.all().count(), 7)
+        self.assertEqual(Post.objects.all().count(), 8)
 
     ###############################
     # post editing
