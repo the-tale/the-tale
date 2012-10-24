@@ -40,12 +40,17 @@ class PlaceDescripton(object):
     CAPTION = u'Закон об изменении описания города'
     DESCRIPTION = u'Изменяет описание города. При создании нового описания постарайтесь учесть какой расе принадлежит город, кто является его жителями и в какую сторону он развивается. Также не забывайте, что описание должно соответствовать названию города. Описание должно быть небольшим по размеру.'
 
-    def __init__(self, place_id=None, description=None):
+    def __init__(self, place_id=None, description=None, old_name=None, old_description=None):
         self.place_id = place_id
         self.description = description
+        self.old_name = old_name
+        self.old_description = old_description
 
     @property
     def description_html(self): return postmarkup.render_bbcode(self.description)
+
+    @property
+    def old_description_html(self): return postmarkup.render_bbcode(self.old_description)
 
     @property
     def place(self):
@@ -63,6 +68,8 @@ class PlaceDescripton(object):
     def initialize_with_user_data(self, user_form):
         self.place_id = int(user_form.c.place)
         self.description = user_form.c.new_description
+        self.old_name = self.place.name
+        self.old_description = self.place.description
 
     def initialize_with_moderator_data(self, moderator_form):
         pass
@@ -85,12 +92,16 @@ class PlaceDescripton(object):
     def serialize(self):
         return {'type': self.type_str,
                 'description': self.description,
-                'place_id': self.place_id}
+                'place_id': self.place_id,
+                'old_name': self.old_name,
+                'old_description': self.old_description}
 
     @classmethod
     def deserialize(cls, data):
         obj = cls()
         obj.description = data['description']
         obj.place_id = data['place_id']
+        obj.old_name = data.get('old_name', u'неизвестно')
+        obj.old_description = data.get('old_description', u'неизвестно')
 
         return obj

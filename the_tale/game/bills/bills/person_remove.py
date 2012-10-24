@@ -63,7 +63,8 @@ class PersonRemove(object):
     CAPTION = u'Закон об изгнании персонажа'
     DESCRIPTION = u'В случае если персонаж утратил доверие духов-хранителей, его можно изгнать из города. Изгонять можно только наименее влиятельных персонажей.'
 
-    def __init__(self, person_id=None):
+    def __init__(self, person_id=None, old_place_name=None):
+        self.old_place_name = old_place_name
         self.person_id = person_id
 
     @property
@@ -80,6 +81,7 @@ class PersonRemove(object):
 
     def initialize_with_user_data(self, user_form):
         self.person_id = int(user_form.c.person)
+        self.old_place_name = self.person.place.name
 
     def initialize_with_moderator_data(self, moderator_form):
         pass
@@ -102,11 +104,13 @@ class PersonRemove(object):
 
     def serialize(self):
         return {'type': self.type_str,
-                'person_id': self.person_id}
+                'person_id': self.person_id,
+                'old_place_name': self.old_place_name}
 
     @classmethod
     def deserialize(cls, data):
         obj = cls()
         obj.person_id = data['person_id']
+        obj.old_place_name = data.get('old_place_name', u'неизвестно')
 
         return obj

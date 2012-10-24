@@ -53,9 +53,10 @@ class PlaceRenaming(object):
     CAPTION = u'Закон о переименовании города'
     DESCRIPTION = u'Изменяет название города. При выборе нового названия постарайтесь учесть какой расе принадлежит город, кто является его жителями и в какую сторону он развивается.'
 
-    def __init__(self, place_id=None, base_name=None, name_forms=None):
+    def __init__(self, place_id=None, base_name=None, name_forms=None, old_name=None):
         self.place_id = place_id
         self.base_name = base_name
+        self.old_name = old_name
         self.name_forms = name_forms
 
         if self.name_forms is None and self.base_name is not None:
@@ -79,6 +80,7 @@ class PlaceRenaming(object):
     def initialize_with_user_data(self, user_form):
         self.place_id = int(user_form.c.place)
         self.base_name = user_form.c.new_name
+        self.old_name = self.place.name
 
         self.name_forms = Noun(normalized=self.base_name.lower(),
                                forms=[self.base_name] * Noun.FORMS_NUMBER,
@@ -108,6 +110,7 @@ class PlaceRenaming(object):
     def serialize(self):
         return {'type': self.type_str,
                 'base_name': self.base_name,
+                'old_name': self.old_name,
                 'name_forms': self.name_forms.serialize(),
                 'place_id': self.place_id}
 
@@ -115,6 +118,7 @@ class PlaceRenaming(object):
     def deserialize(cls, data):
         obj = cls()
         obj.base_name = data['base_name']
+        obj.old_name = data.get('old_name', u'неизвестно')
         obj.name_forms = Noun.deserialize(data['name_forms'])
         obj.place_id = data['place_id']
 
