@@ -8,7 +8,7 @@
 jQuery(document).ready( function(e) {
 
     var loginForm = new pgf.forms.Form(jQuery('#pgf-login-form'),
-                                               {OnSuccess: function(e){location.href = "{{ url('game:') }}";}});
+                                               {OnSuccess: function(form, data){location.href = data.data.next_url;}});
 });
 
 </script>
@@ -23,7 +23,7 @@ jQuery(document).ready( function(e) {
 
     <div class="block">
 
-      <form id="pgf-login-form" method="post" action="{{ url('accounts:login') }}" class="block">
+      <form id="pgf-login-form" method="post" action="{{ url('accounts:login', next_url=next_url)}}" class="block">
 
         {{ login_form.errors_container }}
 

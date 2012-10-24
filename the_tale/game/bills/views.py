@@ -10,6 +10,7 @@ from dext.utils.urls import UrlBuilder
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
 from common.utils.enum import create_enum
+from common.utils.decorators import login_required
 
 from accounts.models import Account
 from accounts.prototypes import AccountPrototype
@@ -28,11 +29,9 @@ VOTED_TYPE = create_enum('VOTED_TYPE', (('NO', 0, u'воздержался'),
 
 class BillResource(Resource):
 
+    @login_required
     def initialize(self, bill_id=None, *args, **kwargs):
         super(BillResource, self).initialize(*args, **kwargs)
-
-        if self.account is None:
-            return self.auto_error('bills.unlogined', u'Вам необходимо войти в игру. чтобы просматривать данный раздел')
 
         if self.account.is_fast:
             return self.auto_error('bills.is_fast', u'Вам необходимо завершить регистрацию, чтобы просматривать данный раздел')

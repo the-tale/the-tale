@@ -8,7 +8,7 @@ from common.utils.testcase import TestCase
 
 from game.balance import constants as c
 
-from accounts.logic import register_user
+from accounts.logic import register_user, login_url
 
 from game.logic import create_test_bundle, create_test_map
 from game.bundles import BundlePrototype
@@ -659,8 +659,9 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_html_ok(response, texts=texts)
 
     def test_preferences_dialog_unlogined(self):
-        response = self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY))
-        self.assertRedirects(response, reverse('accounts:login'), status_code=302, target_status_code=200)
+        request_url = reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY)
+        response = self.client.get(request_url)
+        self.assertRedirects(response, login_url(request_url), status_code=302, target_status_code=200)
 
     def test_preferences_dialog_wrong_user(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user_2@test.com', 'password': '222222'})
@@ -704,8 +705,9 @@ class HeroPreferencesRequestsTest(TestCase):
         response = self.client.post(reverse('accounts:logout'))
 
         task = ChoosePreferencesTask.objects.all()[0]
-        response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
-        self.assertRedirects(response, reverse('accounts:login'), status_code=302, target_status_code=200)
+        request_url = reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,))
+        response = self.client.get(request_url)
+        self.assertRedirects(response, login_url(request_url), status_code=302, target_status_code=200)
 
     def test_choose_preferences_status_foreign_task(self):
         response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})

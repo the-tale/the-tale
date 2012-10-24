@@ -207,16 +207,17 @@ class AccountsResource(Resource):
 
 
     @handler('login', method='get')
-    def login_page(self):
+    def login_page(self, next_url='/'):
         if not self.user.is_anonymous():
-            return self.redirect('/')
+            return self.redirect(next_url)
 
         login_form = forms.LoginForm()
         return self.template('accounts/login.html',
-                             {'login_form': login_form} )
+                             {'login_form': login_form,
+                              'next_url': next_url} )
 
     @handler('login', method='post')
-    def login(self):
+    def login(self, next_url='/'):
         login_form = forms.LoginForm(self.request.POST)
 
         if login_form.is_valid():
@@ -231,7 +232,7 @@ class AccountsResource(Resource):
 
             login_user(self.request, username=user.username, password=login_form.c.password)
 
-            return self.json(status='ok')
+            return self.json_ok(data={'next_url': next_url})
 
         return self.json(status='error', errors=login_form.errors)
 

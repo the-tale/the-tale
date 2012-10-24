@@ -14,10 +14,13 @@ class Resource(BaseResource):
 
     ERROR_TEMPLATE = 'error.html'
 
+    def __init__(self, request, *args, **kwargs):
+        super(Resource, self).__init__(request, *args, **kwargs)
+        self.user = self.request.user
+
+
     def initialize(self, *args, **kwargs):
         super(Resource, self).initialize(*args, **kwargs)
-
-        self.user = self.request.user
 
         last_session_refresh_time = self.request.session.get(game_settings.SESSION_REFRESH_TIME_KEY, None)
 

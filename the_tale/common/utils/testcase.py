@@ -3,6 +3,7 @@
 from dext.utils import s11n
 
 from django.test import TestCase as DjangoTestCase
+from accounts.logic import login_url
 
 class TestCase(DjangoTestCase):
 
@@ -51,3 +52,6 @@ class TestCase(DjangoTestCase):
         self.assertEqual(data['status'], 'processing')
         if status_url:
             self.assertEqual(data['status_url'], status_url)
+
+    def check_redirect(self, url, status_code=302, target_status_code=200):
+        self.assertRedirects(self.client.get(url), login_url(url), status_code=status_code, target_status_code=target_status_code)

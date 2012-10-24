@@ -56,7 +56,7 @@ class RequestsTests(TestCase):
     def test_choose_no_account(self):
         quest_id = self.create_quest_for_user(self.bundle_1)
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=some_point&choice=some_choice')
-        self.check_ajax_error(response, 'quests.unlogined')
+        self.check_ajax_error(response, 'common.login_required')
 
     @patch_quests_list('game.quests.logic.QuestsSource', [QuestWith2ChoicePoints])
     def test_choose_wrong_account(self):

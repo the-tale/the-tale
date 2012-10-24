@@ -5,18 +5,17 @@ from dext.views.resources import handler
 from dext.utils.exceptions import Error
 
 from common.utils.resources import Resource
+from common.utils.decorators import login_required
 
 from .prototypes import AbilityTaskPrototype
 from .models import ABILITY_STATE
 
 class AbilitiesResource(Resource):
 
+    @login_required
     def initialize(self, ability_type=None, *argv, **kwargs):
         super(AbilitiesResource, self).initialize(*argv, **kwargs)
         self.ability_type = ability_type
-
-        if self.account is None:
-            raise Error('abilities.unlogined', u'Вам необходимо войти на сайт')
 
         if self.ability is None:
             raise Error('abilities.wrong_ability', u'У вас нет такой способности')

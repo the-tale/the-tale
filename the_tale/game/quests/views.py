@@ -3,18 +3,17 @@
 from dext.views.resources import handler
 
 from common.utils.resources import Resource
+from common.utils.decorators import login_required
 
 from .prototypes import get_quest_by_id
 
 class QuestsResource(Resource):
 
+    @login_required
     def initialize(self, quest_id=None, *argv, **kwargs):
         super(QuestsResource, self).initialize(*argv, **kwargs)
 
         self.quest_id = int(quest_id)
-
-        if self.account is None:
-            return self.json_error('quests.unlogined', u'Вам необходимо войти на сайт')
 
         if self.quest is None:
             return self.json_error('quests.no_quest', u'Вы не можете работать с этим квестом')

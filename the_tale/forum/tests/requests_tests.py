@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate as django_authenticate
 
 from common.utils.testcase import TestCase
 
-from accounts.logic import register_user
+from accounts.logic import register_user, login_url
 from game.logic import create_test_map
 
 from forum.models import Category, SubCategory, Thread, Post
@@ -82,7 +82,8 @@ class TestRequests(TestCase):
 
     def test_new_thread_unlogined(self):
         self.logout()
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcat1.id)), texts=['pgf-error-forum.new_thread.unlogined'])
+        request_url = reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcat1.id)
+        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_new_thread_fast(self):
         account = self.user.get_profile()
@@ -93,7 +94,7 @@ class TestRequests(TestCase):
     def test_create_thread_unlogined(self):
         self.logout()
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcat1.id)),
-                              code='forum.create_thread.unlogined')
+                              code='common.login_required')
 
     def test_create_thread_fast_account(self):
         account = self.user.get_profile()
@@ -182,7 +183,7 @@ class TestRequests(TestCase):
     def test_create_post_unlogined(self):
         self.logout()
         self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread_id=%d' % self.thread3.id)),
-                              code='forum.create_post.unlogined')
+                              code='common.login_required')
 
     def test_create_post_fast_account(self):
         account = self.user.get_profile()

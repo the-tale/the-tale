@@ -11,7 +11,7 @@ from common.utils.testcase import TestCase
 from common.utils.permissions import sync_group
 
 from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from accounts.logic import register_user, login_url
 
 from game.logic import create_test_map
 
@@ -69,7 +69,8 @@ class TestIndexRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.logout()
-        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('bills.unlogined', 1),))
+        request_url = reverse('game:bills:')
+        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_is_fast(self):
         self.account1.is_fast = True
@@ -206,7 +207,7 @@ class TestNewRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.logout()
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?type=%s' % PlaceRenaming.type)), texts=(('bills.unlogined', 1),))
+        self.check_redirect(reverse('game:bills:new') + ('?type=%s' % PlaceRenaming.type))
 
     def test_is_fast(self):
         self.account1.is_fast = True
@@ -232,7 +233,8 @@ class TestShowRequests(BaseTestRequests):
         bill = Bill.objects.all()[0]
 
         self.logout()
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('bills.unlogined', 1),))
+        self.check_redirect(reverse('game:bills:show', args=[bill.id]))
+
 
     def test_is_fast(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
@@ -284,7 +286,7 @@ class TestCreateRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.logout()
-        self.check_ajax_error(self.client.post(reverse('game:bills:create'), self.get_post_data()), 'bills.unlogined')
+        self.check_ajax_error(self.client.post(reverse('game:bills:create'), self.get_post_data()), 'common.login_required')
 
     def test_is_fast(self):
         self.account1.is_fast = True
@@ -328,7 +330,7 @@ class TestVoteRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.logout()
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'bills.unlogined')
+        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'common.login_required')
 
     def test_is_fast(self):
         self.account2.is_fast = True
@@ -387,7 +389,7 @@ class TestEditRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.logout()
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.unlogined', 1),))
+        self.check_redirect(reverse('game:bills:edit', args=[self.bill.id]))
 
     def test_is_fast(self):
         self.account1.is_fast = True
@@ -436,7 +438,7 @@ class TestUpdateRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.logout()
-        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'bills.unlogined')
+        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'common.login_required')
 
     def test_is_fast(self):
         self.account1.is_fast = True
@@ -492,7 +494,7 @@ class TestModerationPageRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.logout()
-        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.unlogined', 1),))
+        self.check_redirect(reverse('game:bills:moderate', args=[self.bill.id]))
 
     def test_is_fast(self):
         self.account2.is_fast = True
@@ -559,7 +561,7 @@ class TestModerateRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.logout()
-        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.unlogined')
+        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'common.login_required')
 
     def test_is_fast(self):
         self.account2.is_fast = True
@@ -605,7 +607,7 @@ class TestDeleteRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.logout()
-        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'bills.unlogined')
+        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'common.login_required')
 
     def test_is_fast(self):
         self.account2.is_fast = True

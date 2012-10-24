@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate as django_authenticate
 from common.utils.testcase import TestCase
 from common.utils.permissions import sync_group
 
-from accounts.logic import register_user
+from accounts.logic import register_user, login_url
 from game.logic import create_test_map
 
 from forum.models import Category, SubCategory, Thread, Post
@@ -88,8 +88,8 @@ class TestModeration(TestCase):
                            texts=[('pgf-new-thread-form', 3)])
 
     def test_unlogined_new_thread_page(self):
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcategory.id)),
-                           texts=[('pgf-new-thread-form', 0), ('forum.new_thread.unlogined', 1)])
+        request_url = reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcategory.id)
+        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_loggined_new_thread_page_in_closed_theme(self):
         self.login('main_user')
@@ -115,7 +115,7 @@ class TestModeration(TestCase):
     def test_unlogined_create_thread_page(self):
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcategory.id),
                                                {'caption': 'thread5-caption', 'text': 'thread5-text'}),
-                              'forum.create_thread.unlogined')
+                              'common.login_required')
 
     def test_loggined_create_thread_page_in_closed_theme(self):
         self.login('main_user')
@@ -156,10 +156,8 @@ class TestModeration(TestCase):
 
     # page
     def test_unlogined_user_edit_theme_page(self):
-        self.check_html_ok(self.client.get(reverse('forum:threads:edit', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 0),
-                                                                                                        ('forum.edit_thread.unlogined', 1),
-                                                                                                        ('pgf-thread-subcategory', 0),
-                                                                                                        ('thread-caption', 0)])
+        request_url = reverse('forum:threads:edit', args=[self.thread.id])
+        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_main_user_edit_theme_page(self):
         self.login('main_user')
@@ -182,7 +180,7 @@ class TestModeration(TestCase):
     # update request
     def test_unlogined_user_update_theme(self):
         self.check_ajax_error(self.client.post(reverse('forum:threads:update', args=[self.thread.id]), {'caption': 'edited caption'}),
-        'forum.update_thread.unlogined')
+                              'common.login_required')
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
 
     def test_main_user_update_theme(self):
@@ -282,7 +280,7 @@ class TestModeration(TestCase):
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_second_user_remove_unlogined(self):
-        self.check_ajax_error(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])), 'forum.delete_thread.unlogined')
+        self.check_ajax_error(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])), 'common.login_required')
         self.assertEqual(Thread.objects.all().count(), 3)
         self.assertEqual(Post.objects.all().count(), 8)
 
@@ -405,7 +403,8 @@ class TestModeration(TestCase):
 
     # edit post page
     def test_edit_page_unlogined(self):
-        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=['forum.edit_thread.unlogined'])
+        request_url = reverse('forum:posts:edit', args=[self.post.id])
+        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_edit_page_fast_account(self):
         self.login('main_user')
@@ -431,7 +430,7 @@ class TestModeration(TestCase):
     # update post
 
     def test_update_post_unlogined(self):
-        self.check_ajax_error(self.client.post(reverse('forum:posts:update', args=[self.post.id])), 'forum.update_post.unlogined')
+        self.check_ajax_error(self.client.post(reverse('forum:posts:update', args=[self.post.id])), 'common.login_required')
         self.assertEqual(self.post.text, Post.objects.get(id=self.post.id).text)
 
     def test_update_post_fast_account(self):

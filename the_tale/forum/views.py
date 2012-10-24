@@ -8,6 +8,7 @@ from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
+from common.utils.decorators import login_required
 
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm, EditThreadForm
@@ -80,13 +81,11 @@ class BaseForumResource(Resource):
 
 class PostsResource(BaseForumResource):
 
+    @login_required
     @handler('create', method='post')
     def create_post(self, thread_id):
 
         thread = Thread.objects.get(id=thread_id)
-
-        if self.account is None:
-            return self.json_error('forum.create_post.unlogined', u'Вы должны войти на сайт, чтобы писать на форуме')
 
         if self.account.is_fast:
             return self.json_error('forum.create_post.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
@@ -100,11 +99,9 @@ class PostsResource(BaseForumResource):
 
         return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]) + ('?page=%d' % thread.paginator.pages_count)})
 
+    @login_required
     @handler('#post_id', 'delete', method='post')
     def delete_post(self):
-
-        if self.account is None:
-            return self.json_error('forum.delete_post.unlogined', u'Вы должны войти на сайт, чтобы удалить сообщение')
 
         if self.account.is_fast:
             return self.json_error('forum.delete_post.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
@@ -119,12 +116,9 @@ class PostsResource(BaseForumResource):
 
         return self.json_ok()
 
+    @login_required
     @handler('#post_id', 'edit', method='get')
     def edit_post(self):
-
-        if self.account is None:
-            return self.template('error.html', {'msg': u'Вы должны войти на сайт, чтобы редактировать сообщения',
-                                                'error_code': 'forum.edit_thread.unlogined'})
 
         if self.account.is_fast:
             return self.template('error.html', {'msg': u'Вы не закончили регистрацию, чтобы редактировать сообщения',
@@ -141,11 +135,9 @@ class PostsResource(BaseForumResource):
                               'post': self.post,
                               'new_post_form': NewPostForm(initial={'text': self.post.text})} )
 
+    @login_required
     @handler('#post_id', 'update', method='post')
     def update_post(self):
-
-        if self.account is None:
-            return self.json_error('forum.update_post.unlogined', u'Вы должны войти на сайт, чтобы редактировать сообщение')
 
         if self.account.is_fast:
             return self.json_error('forum.update_post.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
@@ -220,14 +212,11 @@ class ThreadsResource(BaseForumResource):
                               'threads': threads} )
 
 
+    @login_required
     @handler('new', method='get')
     def new_thread(self, subcategory_id):
 
         subcategory = get_object_or_404(SubCategory, id=subcategory_id)
-
-        if self.account is None:
-            return self.template('error.html', {'msg': u'Вы должны войти на сайт, чтобы писать на форуме',
-                                                'error_code': 'forum.new_thread.unlogined'})
 
         if self.account.is_fast:
             return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете писать на форуме',
@@ -242,13 +231,11 @@ class ThreadsResource(BaseForumResource):
                               'subcategory': subcategory,
                               'new_thread_form': NewThreadForm()} )
 
+    @login_required
     @handler('create', method='post')
     def create_thread(self, subcategory_id):
 
         subcategory = get_object_or_404(SubCategory, id=subcategory_id)
-
-        if self.account is None:
-            return self.json_error('forum.create_thread.unlogined', u'Вы должны войти на сайт, чтобы писать на форуме')
 
         if self.account.is_fast:
             return self.json_error('forum.create_thread.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
@@ -269,11 +256,9 @@ class ThreadsResource(BaseForumResource):
         return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]),
                                   'thread_id': thread.id})
 
+    @login_required
     @handler('#thread_id', 'delete', method='post')
     def delete_thread(self):
-
-        if self.account is None:
-            return self.json_error('forum.delete_thread.unlogined', u'Вы должны войти на сайт, чтобы удалить тему')
 
         if self.account.is_fast:
             return self.json_error('forum.delete_thread.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
@@ -285,11 +270,9 @@ class ThreadsResource(BaseForumResource):
 
         return self.json_ok()
 
+    @login_required
     @handler('#thread_id', 'update', method='post')
     def update_thread(self):
-
-        if self.account is None:
-            return self.json_error('forum.update_thread.unlogined', u'Вы должны войти на сайт, чтобы редактировать тему')
 
         if self.account.is_fast:
             return self.json_error('forum.update_thread.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
@@ -315,12 +298,9 @@ class ThreadsResource(BaseForumResource):
 
         return self.json_ok()
 
+    @login_required
     @handler('#thread_id', 'edit', method='get')
     def edit_thread(self):
-
-        if self.account is None:
-            return self.template('error.html', {'msg': u'Вы должны войти на сайт, чтобы редактировать тему',
-                                                'error_code': 'forum.edit_thread.unlogined'})
 
         if self.account.is_fast:
             return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете работать с форумом',

@@ -8,14 +8,14 @@ from django.core.urlresolvers import reverse
 
 from common.utils.testcase import TestCase
 
-from accounts.logic import register_user
+from accounts.logic import register_user, login_url
 
 from game.actions.fake import FakeActor
 
 from game.heroes.fake import FakeMessanger
-from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
+from game.heroes.models import ChooseAbilityTask, CHOOSE_ABILITY_STATE
 from game.bundles import BundlePrototype
-from game.heroes.prototypes import HeroPrototype, ChooseAbilityTaskPrototype
+from game.heroes.prototypes import ChooseAbilityTaskPrototype
 from game.heroes.habilities import prototypes as common_abilities
 from game.heroes.habilities import ABILITIES
 from game.heroes.habilities.prototypes import ABILITIES_LOGIC_TYPE
@@ -182,8 +182,9 @@ class HabilitiesViewsTest(TestCase):
         self.assertEqual(response.status_code, 200) #here is real page
 
     def test_choose_ability_dialog_anonymous(self):
-        response = self.client.get(reverse('game:heroes:choose-ability-dialog', args=[self.hero.id]))
-        self.assertRedirects(response, reverse('accounts:login'), status_code=302, target_status_code=200)
+        request_url = reverse('game:heroes:choose-ability-dialog', args=[self.hero.id])
+        response = self.client.get(request_url)
+        self.assertRedirects(response, login_url(request_url), status_code=302, target_status_code=200)
 
     def test_choose_ability_dialog_wrong_user(self):
         self.client.post(reverse('accounts:login'), {'email': 'test_user_2@test.com', 'password': '111111'})

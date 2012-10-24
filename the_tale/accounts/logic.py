@@ -1,9 +1,11 @@
 # coding: utf-8
+import urllib
 import datetime
 
 from django.conf import settings as project_settings
 from django.contrib.auth.models import User
 from django.contrib.auth import login as django_login, authenticate as django_authenticate, logout as django_logout
+from django.core.urlresolvers import reverse
 
 from dext.utils.decorators import nested_commit_on_success
 
@@ -22,6 +24,10 @@ class REGISTER_USER_RESULT:
     OK = 0
     DUPLICATE_USERNAME = 1
     DUPLICATE_EMAIL = 2
+
+
+def login_url(target_url='/'):
+    return reverse('accounts:login') + '?next_url=' + urllib.quote(target_url)
 
 
 def register_user(nick, email=None, password=None):
