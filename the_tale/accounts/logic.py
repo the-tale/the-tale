@@ -46,7 +46,7 @@ def register_user(nick, email=None, password=None):
 
     user = User.objects.create_user(nick, email, password)
 
-    account = AccountPrototype.create(user=user, is_fast=not (email and password))
+    account = AccountPrototype.create(user=user, nick=nick, email=email, is_fast=not (email and password))
 
     angel = AngelPrototype.create(account=account)
 

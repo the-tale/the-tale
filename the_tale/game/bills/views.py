@@ -61,7 +61,7 @@ class BillResource(Resource):
             return False
 
     @validator(code='bills.not_owner', message=u'Вы не являетесь владельцем данного законопроекта')
-    def validate_onwership(self, *args, **kwargs): return self.user.id == self.bill.owner.id
+    def validate_ownership(self, *args, **kwargs): return self.account.id == self.bill.owner.id
 
     @validator(code='bills.moderator_rights_required', message=u'Вы не являетесь модератором')
     def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_bill(self.bill)
@@ -80,7 +80,7 @@ class BillResource(Resource):
             owner_id = int(owner_id)
             try:
                 owner_account = AccountPrototype.get_by_id(owner_id)
-                bills_query = bills_query.filter(owner_id=owner_account.user.id)
+                bills_query = bills_query.filter(owner_id=owner_account.id)
                 is_filtering = True
             except Account.DoesNotExist:
                 bills_query = Bill.objects.none()
@@ -102,13 +102,13 @@ class BillResource(Resource):
             voted = int(voted)
 
             if voted == VOTED_TYPE.NO:
-                bills_query = bills_query.filter(~models.Q(vote__owner=self.account.user)).distinct()
+                bills_query = bills_query.filter(~models.Q(vote__owner=self.account.model)).distinct()
             if voted == VOTED_TYPE.YES:
-                bills_query = bills_query.filter(vote__owner=self.account.user).distinct()
+                bills_query = bills_query.filter(vote__owner=self.account.model).distinct()
             elif voted == VOTED_TYPE.FOR:
-                bills_query = bills_query.filter(vote__owner=self.account.user, vote__value=True).distinct()
+                bills_query = bills_query.filter(vote__owner=self.account.model, vote__value=True).distinct()
             elif voted == VOTED_TYPE.AGAINST:
-                bills_query = bills_query.filter(vote__owner=self.account.user, vote__value=False).distinct()
+                bills_query = bills_query.filter(vote__owner=self.account.model, vote__value=False).distinct()
 
         url_builder = UrlBuilder(reverse('game:bills:'), arguments={'owner_id': owner_id,
                                                                     'state': state,
@@ -128,7 +128,7 @@ class BillResource(Resource):
 
         bills = [ BillPrototype(bill) for bill in bills_query.select_related().order_by('-updated_at')[bill_from:bill_to]]
 
-        votes = dict( (vote.bill_id, VotePrototype(vote)) for vote in Vote.objects.filter(bill_id__in=[bill.id for bill in bills], owner=self.account.user) )
+        votes = dict( (vote.bill_id, VotePrototype(vote)) for vote in Vote.objects.filter(bill_id__in=[bill.id for bill in bills], owner=self.account.model) )
 
         return self.template('bills/index.html',
                              {'bills': bills,
@@ -164,7 +164,7 @@ class BillResource(Resource):
 
         if user_form.is_valid():
             bill_data.initialize_with_user_data(user_form)
-            bill = BillPrototype.create(self.user, user_form.c.caption, user_form.c.rationale, bill_data)
+            bill = BillPrototype.create(self.account, user_form.c.caption, user_form.c.rationale, bill_data)
             return self.json_ok(data={'next_url': reverse('game:bills:show', args=[bill.id])})
 
         return self.json_error('bills.create.form_errors', user_form.errors)
@@ -173,9 +173,9 @@ class BillResource(Resource):
     @handler('#bill_id', name='show', method='get')
     def show(self):
         return self.template('bills/show.html', {'bill': self.bill,
-                                                 'vote': VotePrototype.get_for(self.user, self.bill)})
+                                                 'vote': VotePrototype.get_for(self.account, self.bill)})
 
-    @validate_onwership()
+    @validate_ownership()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill_id', 'edit', name='edit', method='get')
     def edit(self):
@@ -183,7 +183,7 @@ class BillResource(Resource):
         return self.template('bills/edit.html', {'bill': self.bill,
                                                  'form': user_form} )
 
-    @validate_onwership()
+    @validate_ownership()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill_id', 'update', name='update', method='post')
     def update(self):
@@ -232,10 +232,10 @@ class BillResource(Resource):
         if value is None:
             return self.json_error('bills.vote.wrong_value', u'Неверно указан тип голоса')
 
-        if VotePrototype.get_for(self.user, self.bill):
+        if VotePrototype.get_for(self.account, self.bill):
             return self.json_error('bills.vote.vote_exists', u'Вы уже проголосовали')
 
-        VotePrototype.create(self.user, self.bill, value)
+        VotePrototype.create(self.account, self.bill, value)
         self.bill.recalculate_votes()
         self.bill.save()
 

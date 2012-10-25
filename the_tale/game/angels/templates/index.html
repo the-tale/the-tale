@@ -35,7 +35,7 @@
 
     <tr class="pgf-angel-record">
 
-      <td><a href="{{ url('game:angels:show', angel.id) }}">{{ account.user.username }}</a></td>
+      <td><a href="{{ url('game:angels:show', angel.id) }}">{{ account.nick }}</a></td>
       <td class="updated-at pgf-format-date" data-timestamp="{{ account.created_at|timestamp }}"></td>
       <td>
         {{ hero.gender_verbose }}

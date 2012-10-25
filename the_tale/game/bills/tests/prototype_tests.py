@@ -69,7 +69,7 @@ class TestPrototype(BaseTestPrototypes):
 
     def create_place_renaming_bill(self, index):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_%d' % index)
-        return BillPrototype.create(self.account1.user, 'bill-%d-caption' % index, 'bill-%d-rationale' % index, bill_data)
+        return BillPrototype.create(self.account1, 'bill-%d-caption' % index, 'bill-%d-rationale' % index, bill_data)
 
     def test_create(self):
         self.assertEqual(self.bill.caption, 'bill-1-caption')
@@ -82,8 +82,8 @@ class TestPrototype(BaseTestPrototypes):
 
 
     def test_update(self):
-        VotePrototype.create(self.account2.user, self.bill, True)
-        VotePrototype.create(self.account3.user, self.bill, False)
+        VotePrototype.create(self.account2, self.bill, True)
+        VotePrototype.create(self.account3, self.bill, False)
         self.bill.recalculate_votes()
         self.bill.approved_by_moderator = True
         self.bill.save()
@@ -159,7 +159,7 @@ class TestPrototypeApply(BaseTestPrototypes):
         super(TestPrototypeApply, self).setUp()
 
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
-        self.bill = BillPrototype.create(self.account1.user, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
         self.bill.approved_by_moderator = True
         self.bill.save()
@@ -217,7 +217,7 @@ class TestPrototypeApply(BaseTestPrototypes):
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.51)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_not_enough_voices_percents(self):
-        VotePrototype.create(self.account2.user, self.bill, False)
+        VotePrototype.create(self.account2, self.bill, False)
 
         self.assertEqual(Post.objects.all().count(), 1)
 
@@ -236,8 +236,8 @@ class TestPrototypeApply(BaseTestPrototypes):
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_approved(self):
-        VotePrototype.create(self.account2.user, self.bill, False)
-        VotePrototype.create(self.account3.user, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
 
         ##################################
         # set name forms

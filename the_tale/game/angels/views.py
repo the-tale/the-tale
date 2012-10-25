@@ -54,7 +54,7 @@ class AngelResource(Resource):
 
         angels_from, angels_to = paginator.page_borders(page)
 
-        angels_models = Angel.objects.filter(account__is_fast=False).select_related().order_by('account__user__username')[angels_from:angels_to]
+        angels_models = Angel.objects.filter(account__is_fast=False).select_related().order_by('account__nick')[angels_from:angels_to]
 
         angels = [AngelPrototype(model) for model in angels_models]
 
@@ -80,11 +80,11 @@ class AngelResource(Resource):
 
         master_account = self.angel.get_account()
 
-        bills_count = Bill.objects.filter(owner=master_account.user).count()
+        bills_count = Bill.objects.filter(owner=master_account.model).count()
 
-        threads_count = Thread.objects.filter(author=master_account.user).count()
+        threads_count = Thread.objects.filter(author=master_account.model).count()
 
-        threads_with_posts = Thread.objects.filter(post__author=master_account.user).distinct().count()
+        threads_with_posts = Thread.objects.filter(post__author=master_account.model).distinct().count()
 
         return self.template('angels/show.html',
                              {'master_angel': self.angel,

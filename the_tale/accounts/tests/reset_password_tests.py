@@ -1,11 +1,12 @@
 # coding: utf-8
 
-from django.test import TestCase, client
+from django.test import client
 from django.contrib.auth import authenticate as django_authenticate
 from django.core.urlresolvers import reverse
 from django.core import mail
 
 from dext.utils import s11n
+from common.utils.testcase import TestCase
 
 from game.logic import create_test_map
 
@@ -46,9 +47,7 @@ class TestResetPassword(TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_reset_password_success(self):
-        response = self.client.post(reverse('accounts:reset-password'), {'email': 'test_user@test.com'})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content), {'status': 'ok'})
+        self.check_ajax_ok(self.client.post(reverse('accounts:reset-password'), {'email': 'test_user@test.com'}))
         self.assertEqual(django_authenticate(username='test_user', password='111111'), None)
         self.assertEqual(len(mail.outbox), 1)
 

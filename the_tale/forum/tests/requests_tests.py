@@ -2,24 +2,24 @@
 
 from django.test import client
 from django.core.urlresolvers import reverse
-from django.contrib.auth import authenticate as django_authenticate
 
 from common.utils.testcase import TestCase
 
+from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user, login_url
 from game.logic import create_test_map
 
 from forum.models import Category, SubCategory, Thread, Post
-from forum.logic import create_thread, create_post
+from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype, CategoryPrototype
 from forum.conf import forum_settings
 
 class TestRequests(TestCase):
 
     def setUp(self):
         create_test_map()
-        register_user('test_user', 'test_user@test.com', '111111')
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 
-        self.user = django_authenticate(username='test_user', password='111111')
+        self.account = AccountPrototype.get_by_id(account_id)
 
         self.client = client.Client()
         self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
@@ -35,19 +35,19 @@ class TestRequests(TestCase):
         # | |- thread3
         # cat3
 
-        self.cat1 = Category.objects.create(caption='cat1-caption', slug='cat1-slug', order=0)
+        self.cat1 = CategoryPrototype.create(caption='cat1-caption', slug='cat1-slug', order=0)
         # to test, that subcat.id not correlate with order
-        self.subcat2 = SubCategory.objects.create(category=self.cat1, caption='subcat2-caption', slug='subcat2-slug', order=1, closed=True)
-        self.subcat1 = SubCategory.objects.create(category=self.cat1, caption='subcat1-caption', slug='subcat1-slug', order=0)
-        self.cat2 = Category.objects.create(caption='cat2-caption', slug='cat2-slug', order=0)
-        self.subcat3 = SubCategory.objects.create(category=self.cat2, caption='subcat3-caption', slug='subcat3-slug', order=0)
-        self.cat3 = Category.objects.create(caption='cat3-caption', slug='cat3-slug', order=0)
+        self.subcat2 = SubCategoryPrototype.create(category=self.cat1, caption='subcat2-caption', slug='subcat2-slug', order=1, closed=True)
+        self.subcat1 = SubCategoryPrototype.create(category=self.cat1, caption='subcat1-caption', slug='subcat1-slug', order=0)
+        self.cat2 = CategoryPrototype.create(caption='cat2-caption', slug='cat2-slug', order=0)
+        self.subcat3 = SubCategoryPrototype.create(category=self.cat2, caption='subcat3-caption', slug='subcat3-slug', order=0)
+        self.cat3 = CategoryPrototype.create(caption='cat3-caption', slug='cat3-slug', order=0)
 
-        self.thread1 = create_thread(self.subcat1, 'thread1-caption', self.user, 'thread1-text')
-        self.thread2 = create_thread(self.subcat1, 'thread2-caption', self.user, 'thread2-text')
-        self.thread3 = create_thread(self.subcat3, 'thread3-caption', self.user, 'thread3-text')
+        self.thread1 = ThreadPrototype.create(self.subcat1, 'thread1-caption', self.account, 'thread1-text')
+        self.thread2 = ThreadPrototype.create(self.subcat1, 'thread2-caption', self.account, 'thread2-text')
+        self.thread3 = ThreadPrototype.create(self.subcat3, 'thread3-caption', self.account, 'thread3-text')
 
-        self.post1 = create_post(self.subcat1, self.thread1, self.user, 'post1-text')
+        self.post1 = PostPrototype.create(self.thread1, self.account, 'post1-text')
 
 
     def logout(self):
@@ -86,9 +86,8 @@ class TestRequests(TestCase):
         self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_new_thread_fast(self):
-        account = self.user.get_profile()
-        account.is_fast = True
-        account.save()
+        self.account.is_fast = True
+        self.account.save()
         self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcat1.id)), texts=['pgf-error-forum.new_thread.fast_account'])
 
     def test_create_thread_unlogined(self):
@@ -97,9 +96,8 @@ class TestRequests(TestCase):
                               code='common.login_required')
 
     def test_create_thread_fast_account(self):
-        account = self.user.get_profile()
-        account.is_fast = True
-        account.save()
+        self.account.is_fast = True
+        self.account.save()
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcat1.id)),
                               code='forum.create_thread.fast_account')
 
@@ -121,11 +119,11 @@ class TestRequests(TestCase):
 
         self.assertEqual(thread.posts_count, 0)
         self.assertEqual(thread.caption, 'thread4-caption')
-        self.assertEqual(thread.author, self.user)
+        self.assertEqual(thread.author, self.account.model)
 
         post = Post.objects.filter(thread=thread)[0]
         self.assertEqual(post.text, 'thread4-text')
-        self.assertEqual(post.author, self.user)
+        self.assertEqual(post.author, self.account.model)
 
         self.assertEqual(Thread.objects.all().count(), 4)
         self.assertEqual(Post.objects.all().count(), 5)
@@ -137,9 +135,8 @@ class TestRequests(TestCase):
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
 
     def test_get_thread_fast_account(self):
-        account = self.user.get_profile()
-        account.is_fast = True
-        account.save()
+        self.account.is_fast = True
+        self.account.save()
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
 
     def test_get_thread_wrong_page(self):
@@ -152,7 +149,7 @@ class TestRequests(TestCase):
 
         for i in xrange(forum_settings.POSTS_ON_PAGE-1):
             text = 'subcat3-post%d-text' % i
-            create_post(self.subcat3, self.thread3, self.user, text)
+            PostPrototype.create(self.thread3, self.account, text)
             texts.append(text)
 
         response = self.client.get(reverse('forum:threads:show', args=[self.thread3.id])+'?page=2')
@@ -162,7 +159,7 @@ class TestRequests(TestCase):
 
         ++i
         text = 'subcat3-post%d-text' % i
-        create_post(self.subcat3, self.thread3, self.user, text)
+        PostPrototype.create(self.thread3, self.account, text)
         texts.append(text)
 
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread3.id])+'?page=1', texts=texts))
@@ -170,10 +167,10 @@ class TestRequests(TestCase):
 
     def test_posts_count(self):
         for i in xrange(4):
-            create_post(self.subcat1, self.thread1, self.user, 'subcat1-thread1-post%d-text' % i)
+            PostPrototype.create(self.thread1, self.account, 'subcat1-thread1-post%d-text' % i)
 
         for i in xrange(7):
-            create_post(self.subcat1, self.thread2, self.user, 'subcat1-thread2-post%d-text' % i)
+            PostPrototype.create(self.thread2, self.account, 'subcat1-thread2-post%d-text' % i)
 
         # first post in thread does not count
         self.assertEqual(SubCategory.objects.get(id=self.subcat1.id).posts_count, 12)
@@ -186,9 +183,8 @@ class TestRequests(TestCase):
                               code='common.login_required')
 
     def test_create_post_fast_account(self):
-        account = self.user.get_profile()
-        account.is_fast = True
-        account.save()
+        self.account.is_fast = True
+        self.account.save()
         self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread_id=%d' % self.thread3.id)),
                               code='forum.create_post.fast_account')
 

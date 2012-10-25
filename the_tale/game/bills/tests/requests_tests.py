@@ -51,7 +51,7 @@ class BaseTestRequests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def create_bills(self, number, owner, caption_template, rationale_template, bill_data):
-        return [BillPrototype.create(owner.user, caption_template % i, rationale_template % i, bill_data) for i in xrange(number) ]
+        return [BillPrototype.create(owner, caption_template % i, rationale_template % i, bill_data) for i in xrange(number) ]
 
     def check_bill_votes(self, bill_id, votes_for, votes_against):
         bill = Bill.objects.get(id=bill_id)
@@ -308,7 +308,7 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(bill.votes_against, 0)
 
         vote = VotePrototype(Vote.objects.all()[0])
-        self.check_vote(vote, self.account1.user, True, bill.id)
+        self.check_vote(vote, self.account1, True, bill.id)
 
         self.check_ajax_ok(response, data={'next_url': reverse('game:bills:show', args=[bill.id])})
 
@@ -360,13 +360,13 @@ class TestVoteRequests(BaseTestRequests):
     def test_success_for(self):
         self.check_ajax_ok(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}))
         vote = VotePrototype(Vote.objects.all()[1])
-        self.check_vote(vote, self.account2.user, True, self.bill.id)
+        self.check_vote(vote, self.account2, True, self.bill.id)
         self.check_bill_votes(self.bill.id, 2, 0)
 
     def test_success_agains(self):
         self.check_ajax_ok(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=against', {}))
         vote = VotePrototype(Vote.objects.all()[1])
-        self.check_vote(vote, self.account2.user, False, self.bill.id)
+        self.check_vote(vote, self.account2, False, self.bill.id)
         self.check_bill_votes(self.bill.id, 1, 1)
 
     def test_already_exists(self):

@@ -20,7 +20,7 @@ class PersonRemoveTests(BaseTestPrototypes):
         self.person2 = sorted(self.place2.persons, key=lambda p: -p.power)[-1]
 
         bill_data = PersonRemove(person_id=self.person1.id)
-        self.bill = BillPrototype.create(self.account1.user, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
 
     def test_create(self):
@@ -68,8 +68,8 @@ class PersonRemoveTests(BaseTestPrototypes):
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_apply(self):
-        VotePrototype.create(self.account2.user, self.bill, False)
-        VotePrototype.create(self.account3.user, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
 
         form = PersonRemove.ModeratorForm({'approved': True})
         self.assertTrue(form.is_valid())

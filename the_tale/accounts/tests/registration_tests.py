@@ -33,7 +33,9 @@ class TestRegistration(TestCase):
         user = User.objects.get(username='test_user')
 
         self.assertEqual(user.username, 'test_user')
+        self.assertEqual(user.get_profile().nick, 'test_user')
         self.assertEqual(user.email, 'test_user@test.com')
+        self.assertEqual(user.get_profile().email, 'test_user@test.com')
 
         account = AccountPrototype(user.get_profile())
 

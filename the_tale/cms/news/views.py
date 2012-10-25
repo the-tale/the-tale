@@ -13,8 +13,8 @@ from common.utils.resources import Resource
 from cms.news.models import News
 from cms.news.conf import news_settings
 
-from forum.logic import create_thread
-from forum.models import SubCategory, MARKUP_METHOD
+from forum.prototypes import ThreadPrototype, SubCategoryPrototype
+from forum.models import MARKUP_METHOD
 class NewsResource(Resource):
 
     def initialize(self, news_id=None, *args, **kwargs):
@@ -51,22 +51,22 @@ class NewsResource(Resource):
         if news_settings.FORUM_CATEGORY_SLUG is None:
             return self.json_error('news.publish_on_forum.forum_category_not_specified', u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
 
-        if not SubCategory.objects.filter(slug=news_settings.FORUM_CATEGORY_SLUG).exists():
+        if SubCategoryPrototype.get_by_slug(news_settings.FORUM_CATEGORY_SLUG) is None:
             return self.json_error('news.publish_on_forum.forum_category_not_exists', u'try to publish news on forum when FORUM_CATEGORY_ID has not exists')
 
         if self.news.forum_thread is not None:
             return self.json_error('news.publish_on_forum.forum_thread_already_exists', u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
 
-        thread = create_thread(get_object_or_404(SubCategory, slug=news_settings.FORUM_CATEGORY_SLUG ),
-                               caption=self.news.caption,
-                               author=self.request.user,
-                               text=self.news.content,
-                               markup_method=MARKUP_METHOD.MARKDOWN)
+        thread = ThreadPrototype.create(SubCategoryPrototype.get_by_slug(news_settings.FORUM_CATEGORY_SLUG ),
+                                        caption=self.news.caption,
+                                        author=self.account,
+                                        text=self.news.content,
+                                        markup_method=MARKUP_METHOD.MARKDOWN)
 
-        self.news.forum_thread = thread
+        self.news.forum_thread = thread.model
         self.news.save()
 
-        return self.redirect(thread.get_absolute_url())
+        return self.redirect(reverse('forum:threads:show', args=[thread.id]))
 
 
     @handler('feed', method='get')

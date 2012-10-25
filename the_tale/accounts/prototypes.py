@@ -7,7 +7,6 @@ import traceback
 import postmarkup
 
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import User
 
 from dext.utils.decorators import nested_commit_on_success
 
@@ -37,9 +36,8 @@ class AccountPrototype(object):
             return None
 
         try:
-            user = User.objects.get(email=email)
-            return cls(user.get_profile())
-        except User.DoesNotExist:
+            return cls(Account.objects.select_related().get(email=email))
+        except Account.DoesNotExist:
             return None
 
     @classmethod
@@ -48,9 +46,8 @@ class AccountPrototype(object):
             return None
 
         try:
-            user = User.objects.get(username=nick)
-            return cls(user.get_profile())
-        except User.DoesNotExist:
+            return cls(Account.objects.select_related().get(nick=nick))
+        except Account.DoesNotExist:
             return None
 
     @property
@@ -76,6 +73,14 @@ class AccountPrototype(object):
     def set_description(self, value): self.model.description = value
     description = property(get_description, set_description)
 
+    def get_nick(self): return self.model.nick
+    def set_nick(self, value): self.model.nick = value
+    nick = property(get_nick, set_nick)
+
+    def get_email(self): return self.model.email
+    def set_email(self, value): self.model.email = value
+    email = property(get_email, set_email)
+
     @property
     def description_html(self): return postmarkup.render_bbcode(self.model.description)
 
@@ -95,6 +100,7 @@ class AccountPrototype(object):
             self.model.email = new_email
         if new_nick:
             self.user.username = new_nick
+            self.nick = new_nick
 
         if self.is_fast:
             game_workers_environment.supervisor.cmd_mark_hero_as_not_fast(self.angel.get_hero().id)
@@ -127,9 +133,12 @@ class AccountPrototype(object):
         return {}
 
     @classmethod
-    def create(cls, user, is_fast):
-        account_model = Account.objects.create(user=user, is_fast=is_fast)
+    def create(cls, user, nick, email, is_fast):
+        account_model = Account.objects.create(user=user, nick=nick, email=email, is_fast=is_fast)
         return AccountPrototype(model=account_model)
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.model == other.model
 
 
 class RegistrationTaskPrototype(object):
@@ -178,7 +187,7 @@ class RegistrationTaskPrototype(object):
         return uuid.uuid4().hex[:30] # 30 - is django user len limitation
 
     def unbind_from_account(self):
-        self.model.comment = u'unbind from account "%s"' % self.account.user.username
+        self.model.comment = u'unbind from account "%s"' % self.account.nick
         if hasattr(self, '_account'):
             delattr(self, '_account')
         self.model.account = None

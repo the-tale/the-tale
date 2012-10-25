@@ -11,7 +11,7 @@ class Angel(models.Model):
      abilities = models.TextField(null=False, default='{}')
 
      def __unicode__(self):
-          return self.account.user.username
+          return self.account.nick
 
      @classmethod
      def get_related_query(cls):

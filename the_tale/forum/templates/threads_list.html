@@ -11,11 +11,11 @@
   <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
   <li>
     {% if author_account %}
-    автор: {{author_account.user.username}}
+    автор: {{author_account.nick}}
     {% endif %}
 
     {% if participant_account %}
-    участник: {{participant_account.user.username}}
+    участник: {{participant_account.nick}}
     {% endif %}
 
   </li>

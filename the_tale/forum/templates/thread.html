@@ -96,18 +96,18 @@ jQuery(document).ready( function(e) {
         <tr class="head">
           <td class="index"><a href="#m{{message_id}}" >#{{message_id}}</a><div class="anchor" id="m{{message_id}}"></div></td>
           <td class="author">
-            <a href="{{url('portal:users:show', post.author.id)}}">{{ post.author.username }}</a>
+            <a href="{{url('game:angels:show', post.author.id)}}">{{ post.author.nick }}</a>
           </td>
 
           {% if not (post.is_removed or post.technical) %}
 
-          {% if can_change_posts or post.author == resource.user %}
+          {% if can_change_posts or post.author == resource.account %}
           <td class="change-post">
             <a href="{{ url('forum:posts:edit', post.id) }}" class="pgf-change-post-button">правка</a>
           </td>
           {% endif %}
 
-          {% if (can_delete_posts or post.author == resource.user) and (loop.index!=1 or current_page_number!=0) %}
+          {% if (can_delete_posts or post.author == resource.account) and (loop.index!=1 or current_page_number!=0) %}
           <td class="delete-post">
             <a href="#" class="pgf-remove-post-button" data-delete-url="{{ url('forum:posts:delete', post.id) }}">удалить</a>
           </td>

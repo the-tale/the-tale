@@ -139,11 +139,14 @@ jQuery(document).ready(function() {
 
             {% if request.user.is_authenticated() %}
 
-            {{ base_macros.main_menu_item("profile", "#", resource.user.username, [(url("accounts:profile"), "Профиль"),
-                                                                                   (url("game:angels:show", resource.account.angel.id), "Моя страница"),
-                                                                                   (url("game:heroes:show", resource.account.angel.get_hero().id), "Мой герой"),
-                                                                                   ('-', '<li class="divider"></li>'),
-                                                                                   (url("accounts:logout"), "Выход")] ) }}
+            {{ base_macros.main_menu_item("profile",
+                                          "#",
+                                          resource.account.nick if not resource.account.is_fast else "Настройки",
+                                          [(url("accounts:profile"), "Профиль"),
+                                           (url("game:angels:show", resource.account.angel.id), "Моя страница"),
+                                           (url("game:heroes:show", resource.account.angel.get_hero().id), "Мой герой"),
+                                           ('-', '<li class="divider"></li>'),
+                                           (url("accounts:logout"), "Выход")] ) }}
 
             {% else %}
             <li><a href="{{ url('accounts:login', next_url=resource.request.get_full_path())}}">Войти</a></li>

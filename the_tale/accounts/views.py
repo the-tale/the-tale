@@ -85,8 +85,8 @@ class AccountsResource(Resource):
     @login_required
     @handler('profile', method='get')
     def profile(self):
-        data = {'email': self.account.user.email if self.account.user.email else u'укажите email',
-                'nick': self.account.user.username if not self.account.is_fast and self.account.user.username else u'укажите ваше имя'}
+        data = {'email': self.account.email if self.account.email else u'укажите email',
+                'nick': self.account.nick if not self.account.is_fast and self.account.nick else u'укажите ваше имя'}
         edit_profile_form = forms.EditProfileForm(data)
         return self.template('accounts/profile.html',
                              {'edit_profile_form': edit_profile_form} )
@@ -189,6 +189,7 @@ class AccountsResource(Resource):
 
     @handler('reset-password', method='post')
     def reset_password(self):
+
         if not self.user.is_anonymous():
             return self.json(status='error', error=u'Вы уже вошли на сайт и можете просто изменить пароль')
 
@@ -222,15 +223,14 @@ class AccountsResource(Resource):
 
         if login_form.is_valid():
 
-            try:
-                user = User.objects.get(email=login_form.c.email)
-            except User.DoesNotExist:
+            account = AccountPrototype.get_by_email(login_form.c.email)
+            if account is None:
                 return self.json(status='error', error=u'Неверный логин или пароль')
 
-            if not user.check_password(login_form.c.password):
+            if not account.user.check_password(login_form.c.password):
                 return self.json(status='error', error=u'Неверный логин или пароль')
 
-            login_user(self.request, username=user.username, password=login_form.c.password)
+            login_user(self.request, username=account.nick, password=login_form.c.password)
 
             return self.json_ok(data={'next_url': next_url})
 

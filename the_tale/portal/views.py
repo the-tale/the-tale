@@ -40,23 +40,3 @@ class PortalResource(Resource):
     @handler('preview', name='preview', method='post')
     def preview(self):
         return self.string(postmarkup.render_bbcode(self.request.POST.get('text', '')))
-
-
-class UserResource(Resource):
-
-    def initialize(self, user_id=None, *args, **kwargs):
-        super(UserResource, self).initialize(*args, **kwargs)
-
-        self.requested_user_id = int(user_id) if user_id is not None else None
-
-    @property
-    def requested_user(self):
-        if not hasattr(self, '_requested_user'):
-            self._requested_user = User.objects.get(id=self.requested_user_id)
-        return self._requested_user
-
-    @handler('#user_id', name='show', method='get')
-    def show(self):
-        from accounts.prototypes import AccountPrototype
-        account = AccountPrototype(self.requested_user.get_profile())
-        return self.redirect(reverse('game:angels:show', args=[account.angel.id]), permanent=True)

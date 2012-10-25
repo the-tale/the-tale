@@ -94,7 +94,7 @@ class TestChangeCredentialsTask(TestCase):
 
         self.assertFalse(fake_cmd.commands)
 
-        self.assertEqual(task.account.user.username, 'test_nick')
+        self.assertEqual(task.account.nick, 'test_nick')
         user = django_authenticate(username='test_nick', password='111111')
         self.assertEqual(user.id, task.account.user.id)
 
@@ -103,8 +103,10 @@ class TestChangeCredentialsTask(TestCase):
         task.change_credentials()
 
         self.assertEqual(task.account.user.email, 'test_user@test.ru')
+        self.assertEqual(task.account.email, 'test_user@test.ru')
         self.assertEqual(django_authenticate(username='test_user', password='111111').id, task.account.user.id)
         self.assertEqual(django_authenticate(username='test_user', password='111111').username, 'test_user')
+        self.assertEqual(django_authenticate(username='test_user', password='111111').get_profile().nick, 'test_user')
 
     def test_request_email_confirmation_exceptions(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_password='222222')

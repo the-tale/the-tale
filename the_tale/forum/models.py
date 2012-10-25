@@ -1,17 +1,8 @@
 # coding: utf-8
 import datetime
-import postmarkup
-import markdown
 
 from django.db import models
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-
-from dext.utils.urls import UrlBuilder
-
-from common.utils.pagination import Paginator
-
-from forum.conf import forum_settings
 
 class Category(models.Model):
 
@@ -40,7 +31,7 @@ class SubCategory(models.Model):
 
     threads_count = models.IntegerField(default=0, null=False)
 
-    last_poster = models.ForeignKey(User, null=True, blank=True, related_name='+')
+    last_poster = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+')
 
     posts_count = models.BigIntegerField(default=0, null=False)
 
@@ -57,9 +48,9 @@ class Thread(models.Model):
 
     caption = models.CharField(max_length=256, blank=False, null=False)
 
-    author =  models.ForeignKey(User, null=True, related_name='+')
+    author =  models.ForeignKey('accounts.Account', null=True, related_name='+')
 
-    last_poster = models.ForeignKey(User, null=True, related_name='+')
+    last_poster = models.ForeignKey('accounts.Account', null=True, related_name='+')
 
     posts_count = models.BigIntegerField(default=0, null=False)
 
@@ -70,22 +61,6 @@ class Thread(models.Model):
 
     def get_absolute_url(self):
         return reverse('forum:threads:show', args=[self.id])
-
-    @property
-    def paginator(self):
-        url_builder = UrlBuilder(reverse('forum:threads:show', args=[self.id]))
-        # +1 since first post does not counted
-        return Paginator(1, self.posts_count+1, forum_settings.POSTS_ON_PAGE, url_builder)
-
-    @classmethod
-    def get_threads_with_last_users_posts(cls, user, limit=None):
-
-        threads = Thread.objects.filter(post__author=user).annotate(last_user_post_time=models.Max('post__updated_at')).order_by('-last_user_post_time')
-
-        if limit:
-            threads = threads[:limit]
-
-        return threads
 
 
 class MARKUP_METHOD:
@@ -120,7 +95,7 @@ class Post(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, null=False, default=datetime.datetime(2000, 1, 1))
 
-    author = models.ForeignKey(User, null=True, related_name='+')
+    author = models.ForeignKey('accounts.Account', null=True, related_name='+')
 
     text = models.TextField(null=False, blank=True, default='')
 
@@ -128,28 +103,9 @@ class Post(models.Model):
 
     state = models.IntegerField(default=POST_STATE.DEFAULT, choices=POST_STATE_CHOICES)
     removed_by = models.IntegerField(default=None, null=True, choices=POST_REMOVED_BY_CHOICES)
-    remove_initiator = models.ForeignKey(User, null=True, related_name='+')
+    remove_initiator = models.ForeignKey('accounts.Account', null=True, related_name='+')
 
     technical = models.BooleanField(default=False)
 
     class Meta:
         permissions = (("moderate_post", u"Может редактировать сообщения пользователей"), )
-
-    @property
-    def html(self):
-        if self.markup_method == MARKUP_METHOD.POSTMARKUP:
-            return postmarkup.render_bbcode(self.text)
-        elif self.markup_method == MARKUP_METHOD.MARKDOWN:
-            return markdown.markdown(self.text)
-
-    @property
-    def is_removed(self): return self.state == POST_STATE.REMOVED
-
-    @property
-    def is_removed_by_author(self): return self.removed_by == POST_REMOVED_BY.AUTHOR
-
-    @property
-    def is_removed_by_thread_owner(self): return self.removed_by == POST_REMOVED_BY.THREAD_OWNER
-
-    @property
-    def is_removed_by_moderator(self): return self.removed_by == POST_REMOVED_BY.MODERATOR

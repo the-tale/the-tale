@@ -5,10 +5,12 @@ import postmarkup
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
 
+from accounts.prototypes import AccountPrototype
+
 from game.prototypes import TimePrototype
 
-from forum.logic import create_post, create_thread
-from forum.models import SubCategory, MARKUP_METHOD
+from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype
+from forum.models import MARKUP_METHOD
 
 from game.bills.models import Bill, Vote, BILL_STATE
 from game.bills.bills import deserialize_bill
@@ -73,7 +75,7 @@ class BillPrototype(object):
     def votes_against(self): return self.model.votes_against
 
     @property
-    def owner(self): return self.model.owner
+    def owner(self): return AccountPrototype(self.model.owner)
 
     @property
     def user_form_initials(self):
@@ -138,11 +140,10 @@ class BillPrototype(object):
             self.model.state = BILL_STATE.REJECTED
             self.save()
 
-            create_post(self.model.forum_thread.subcategory,
-                        self.model.forum_thread,
-                        self.owner,
-                        u'Законопроект отклонён.',
-                        technical=True)
+            PostPrototype.create(ThreadPrototype(self.model.forum_thread),
+                                 self.owner,
+                                 u'Законопроект отклонён.',
+                                 technical=True)
 
             return False
 
@@ -151,11 +152,10 @@ class BillPrototype(object):
         self.model.state = BILL_STATE.ACCEPTED
         self.save()
 
-        create_post(self.model.forum_thread.subcategory,
-                    self.model.forum_thread,
-                    self.owner,
-                    u'Законопроект принят. Изменения вступят в силу в ближайшее время.',
-                    technical=True)
+        PostPrototype.create(ThreadPrototype(self.model.forum_thread),
+                             self.owner,
+                             u'Законопроект принят. Изменения вступят в силу в ближайшее время.',
+                             technical=True)
 
         return True
 
@@ -177,11 +177,10 @@ class BillPrototype(object):
 
         VotePrototype.create(self.owner, self, True)
 
-        create_post(self.model.forum_thread.subcategory,
-                    self.model.forum_thread,
-                    self.owner,
-                    u'Законопроект был отредактирован, все голоса сброшены.',
-                    technical=True)
+        PostPrototype.create(ThreadPrototype(self.model.forum_thread),
+                             self.owner,
+                             u'Законопроект был отредактирован, все голоса сброшены.',
+                             technical=True)
 
     @nested_commit_on_success
     def update_by_moderator(self, form):
@@ -194,14 +193,14 @@ class BillPrototype(object):
     @nested_commit_on_success
     def create(cls, owner, caption, rationale, bill):
 
-        thread = create_thread(SubCategory.objects.get(slug=bills_settings.FORUM_CATEGORY_SLUG),
-                               caption=caption,
-                               author=owner,
-                               text=rationale,# TODO: replace by special
-                               markup_method=MARKUP_METHOD.POSTMARKUP)
+        thread = ThreadPrototype.create(SubCategoryPrototype.get_by_slug(bills_settings.FORUM_CATEGORY_SLUG),
+                                        caption=caption,
+                                        author=owner,
+                                        text=rationale,# TODO: replace by special
+                                        markup_method=MARKUP_METHOD.POSTMARKUP)
 
 
-        model = Bill.objects.create(owner=owner,
+        model = Bill.objects.create(owner=owner.model,
                                     type=bill.type,
                                     caption=caption,
                                     rationale=rationale,
@@ -210,7 +209,7 @@ class BillPrototype(object):
                                     votes_for=1, # author always wote for bill
                                     # min_votes_required=bills_settings.MIN_VOTES_NUMBER, # must be setup on voting end
                                     # min_votes_percents_required=bills_settings.MIN_VOTES_PERCENT,
-                                    forum_thread=thread)
+                                    forum_thread=thread.model)
 
         bill = cls(model)
 
@@ -236,7 +235,7 @@ class VotePrototype(object):
     @classmethod
     def get_for(cls, owner, bill):
         try:
-            return Vote.objects.get(owner=owner, bill=bill.model)
+            return Vote.objects.get(owner=owner.model, bill=bill.model)
         except Vote.DoesNotExist:
             return None
 
@@ -244,7 +243,7 @@ class VotePrototype(object):
     def id(self): return self.model.id
 
     @property
-    def owner(self): return self.model.owner
+    def owner(self): return AccountPrototype(self.model.owner)
 
     @property
     def value(self): return self.model.value
@@ -252,7 +251,7 @@ class VotePrototype(object):
     @classmethod
     def create(cls, owner, bill, value):
 
-        model = Vote.objects.create(owner=owner,
+        model = Vote.objects.create(owner=owner.model,
                                     bill=bill.model,
                                     value=value)
 

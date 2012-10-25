@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 
 from dext.views.resources import handler
@@ -13,7 +12,7 @@ from common.utils.decorators import login_required
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm, EditThreadForm
 from forum.conf import forum_settings
-from forum.logic import create_thread, create_post, delete_thread, delete_post, update_thread
+from forum.prototypes import CategoryPrototype, SubCategoryPrototype, ThreadPrototype, PostPrototype
 
 class BaseForumResource(Resource):
 
@@ -26,16 +25,16 @@ class BaseForumResource(Resource):
         self.subcategory_slug = subcategory
 
     def can_delete_thread(self, thread):
-        return self.user == thread.author or self.user.has_perm('forum.moderate_thread')
+        return self.account == thread.author or self.user.has_perm('forum.moderate_thread')
 
     def can_change_thread(self, thread):
-        return self.user == thread.author or self.user.has_perm('forum.moderate_thread')
+        return self.account == thread.author or self.user.has_perm('forum.moderate_thread')
 
     def can_change_thread_category(self):
         return self.user.has_perm('forum.moderate_thread')
 
     def can_delete_posts(self, thread):
-        return self.user == thread.author or self.user.has_perm('forum.moderate_post')
+        return self.account == thread.author or self.user.has_perm('forum.moderate_post')
 
     def can_create_thread(self, subcategory):
         if not subcategory.closed:
@@ -50,7 +49,7 @@ class BaseForumResource(Resource):
     def category(self):
         if not hasattr(self, '_category'):
             if self.category_slug:
-                self._category = get_object_or_404(Category, slug=self.category_slug)
+                self._category = CategoryPrototype.get_by_slug(self.category_slug)
             else:
                 self._category = self.subcategory.category
         return self._category
@@ -59,7 +58,7 @@ class BaseForumResource(Resource):
     def subcategory(self):
         if not hasattr(self, '_subcategory'):
             if self.subcategory_slug:
-                self._subcategory = get_object_or_404(SubCategory, slug=self.subcategory_slug)
+                self._subcategory = SubCategoryPrototype.get_by_slug(self.subcategory_slug)
             else:
                 self._subcategory = self.thread.subcategory
         return self._subcategory
@@ -68,7 +67,7 @@ class BaseForumResource(Resource):
     def thread(self):
         if not hasattr(self, '_thread'):
             if self.thread_id:
-                self._thread = get_object_or_404(Thread, id=self.thread_id)
+                self._thread = ThreadPrototype.get_by_id(self.thread_id)
             else:
                 self._thread = self.post.thread
         return self._thread
@@ -76,7 +75,7 @@ class BaseForumResource(Resource):
     @property
     def post(self):
         if not hasattr(self, '_post'):
-            self._post = get_object_or_404(Post, id=self.post_id)
+            self._post = PostPrototype.get_by_id(self.post_id)
         return self._post
 
 class PostsResource(BaseForumResource):
@@ -85,7 +84,7 @@ class PostsResource(BaseForumResource):
     @handler('create', method='post')
     def create_post(self, thread_id):
 
-        thread = Thread.objects.get(id=thread_id)
+        thread = ThreadPrototype.get_by_id(thread_id)
 
         if self.account.is_fast:
             return self.json_error('forum.create_post.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
@@ -95,7 +94,7 @@ class PostsResource(BaseForumResource):
         if not new_post_form.is_valid():
             return self.json_error('forum.create_post.form_errors', new_post_form.errors)
 
-        create_post(thread.subcategory, thread, self.account.user, new_post_form.c.text)
+        PostPrototype.create(thread, self.account, new_post_form.c.text)
 
         return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]) + ('?page=%d' % thread.paginator.pages_count)})
 
@@ -106,13 +105,13 @@ class PostsResource(BaseForumResource):
         if self.account.is_fast:
             return self.json_error('forum.delete_post.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
 
-        if not (self.can_delete_posts(self.thread) or self.post.author == self.user):
+        if not (self.can_delete_posts(self.thread) or self.post.author == self.account):
             return self.json_error('forum.delete_post.no_permissions', u'У Вас нет прав для удаления сообщения')
 
-        if Post.objects.filter(thread=self.thread, created_at__lt=self.post.created_at).count() == 0:
+        if Post.objects.filter(thread=self.thread.model, created_at__lt=self.post.created_at).count() == 0:
             return self.json_error('forum.delete_post.remove_first_post', u'Вы не можете удалить первое сообщение в теме')
 
-        delete_post(self.user, self.thread, self.post)
+        self.post.delete(self.account, self.thread)
 
         return self.json_ok()
 
@@ -124,7 +123,7 @@ class PostsResource(BaseForumResource):
             return self.template('error.html', {'msg': u'Вы не закончили регистрацию, чтобы редактировать сообщения',
                                                 'error_code': 'forum.edit_thread.fast_account'})
 
-        if not (self.can_change_posts() or self.post.author == self.user):
+        if not (self.can_change_posts() or self.post.author == self.account):
             return self.template('error.html', {'msg': u'У Вас нет прав для редактирования сообщения',
                                                 'error_code': 'forum.edit_thread.no_permissions'})
 
@@ -142,7 +141,7 @@ class PostsResource(BaseForumResource):
         if self.account.is_fast:
             return self.json_error('forum.update_post.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
 
-        if not (self.can_change_posts() or self.post.author == self.user):
+        if not (self.can_change_posts() or self.post.author == self.account):
             return self.json_error('forum.update_post.no_permissions', u'У Вас нет прав для редактирования сообщения')
 
         edit_post_form = NewPostForm(self.request.POST)
@@ -150,8 +149,7 @@ class PostsResource(BaseForumResource):
         if not edit_post_form.is_valid():
             return self.json_error('forum.update_post.form_errors', edit_post_form.errors)
 
-        self.post.text = edit_post_form.c.text
-        self.post.save()
+        self.post.update(edit_post_form.c.text)
 
         return self.json_ok()
 
@@ -173,7 +171,7 @@ class ThreadsResource(BaseForumResource):
             author_id = int(author_id)
             try:
                 author_account = AccountPrototype.get_by_id(author_id)
-                threads_query = threads_query.filter(author_id=author_account.user.id)
+                threads_query = threads_query.filter(author_id=author_account.id)
                 is_filtering = True
             except Account.DoesNotExist:
                 threads_query = Thread.objects.none()
@@ -182,7 +180,7 @@ class ThreadsResource(BaseForumResource):
             participant_id = int(participant_id)
             try:
                 participant_account = AccountPrototype.get_by_id(participant_id)
-                threads_query = threads_query.filter(post__author__id=participant_account.user.id).distinct()
+                threads_query = threads_query.filter(post__author__id=participant_account.id).distinct()
                 is_filtering = True
             except Account.DoesNotExist:
                 threads_query = Thread.objects.none()
@@ -200,7 +198,7 @@ class ThreadsResource(BaseForumResource):
 
         thread_from, thread_to = paginator.page_borders(page)
 
-        threads = list(threads_query.select_related().order_by('-updated_at')[thread_from:thread_to])
+        threads = list(ThreadPrototype(thread_model) for thread_model in threads_query.select_related().order_by('-updated_at')[thread_from:thread_to])
 
         return self.template('forum/threads_list.html',
                              {'is_filtering': is_filtering,
@@ -216,7 +214,10 @@ class ThreadsResource(BaseForumResource):
     @handler('new', method='get')
     def new_thread(self, subcategory_id):
 
-        subcategory = get_object_or_404(SubCategory, id=subcategory_id)
+        subcategory = SubCategoryPrototype.get_by_id(subcategory_id)
+
+        if subcategory is None:
+            return self.auto_error('forum.threads.new.wrong_category_id', u'Категория не найдена', status_code=404)
 
         if self.account.is_fast:
             return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете писать на форуме',
@@ -235,7 +236,10 @@ class ThreadsResource(BaseForumResource):
     @handler('create', method='post')
     def create_thread(self, subcategory_id):
 
-        subcategory = get_object_or_404(SubCategory, id=subcategory_id)
+        subcategory = SubCategoryPrototype.get_by_id(subcategory_id)
+
+        if subcategory is None:
+            return self.auto_error('forum.threads.create.wrong_category_id', u'Категория не найдена', status_code=404)
 
         if self.account.is_fast:
             return self.json_error('forum.create_thread.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
@@ -248,10 +252,10 @@ class ThreadsResource(BaseForumResource):
         if not new_thread_form.is_valid():
             return self.json_error('forum.create_thread.form_errors', new_thread_form.errors)
 
-        thread = create_thread(subcategory,
-                               caption=new_thread_form.c.caption,
-                               author=self.account.user,
-                               text=new_thread_form.c.text)
+        thread = ThreadPrototype.create(subcategory,
+                                        caption=new_thread_form.c.caption,
+                                        author=self.account,
+                                        text=new_thread_form.c.text)
 
         return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]),
                                   'thread_id': thread.id})
@@ -266,7 +270,7 @@ class ThreadsResource(BaseForumResource):
         if not self.can_delete_thread(self.thread):
             return self.json_error('forum.delete_thread.no_permissions', u'У Вас нет прав для удаления темы')
 
-        delete_thread(self.subcategory, self.thread)
+        self.thread.delete()
 
         return self.json_ok()
 
@@ -280,7 +284,8 @@ class ThreadsResource(BaseForumResource):
         if not self.can_change_thread(self.thread):
             return self.json_error('forum.update_thread.no_permissions', u'У Вас нет прав для редактирования темы')
 
-        edit_thread_form = EditThreadForm(subcategories=SubCategory.objects.all(), data=self.request.POST )
+        edit_thread_form = EditThreadForm(subcategories=[SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all()],
+                                          data=self.request.POST )
 
         if not edit_thread_form.is_valid():
             return self.json_error('forum.update_thread.form_errors', edit_thread_form.errors)
@@ -294,7 +299,7 @@ class ThreadsResource(BaseForumResource):
             if not self.can_change_thread_category():
                 return self.json_error('forum.update_thread.no_permissions_to_change_subcategory', u'У вас нет прав для переноса темы в другой раздел')
 
-        update_thread(self.subcategory, self.thread, edit_thread_form.c.caption, new_subcategory_id)
+        self.thread.update(caption=edit_thread_form.c.caption, new_subcategory_id=new_subcategory_id)
 
         return self.json_ok()
 
@@ -314,8 +319,9 @@ class ThreadsResource(BaseForumResource):
                              {'category': self.category,
                               'subcategory': self.subcategory,
                               'thread': self.thread,
-                              'edit_thread_form': EditThreadForm(subcategories=SubCategory.objects.all(), initial={'subcategory': self.subcategory.id,
-                                                                                                                   'caption': self.thread.caption}),
+                              'edit_thread_form': EditThreadForm(subcategories=[SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all()],
+                                                                 initial={'subcategory': self.subcategory.id,
+                                                                          'caption': self.thread.caption}),
                               'can_change_thread_category': self.can_change_thread_category()} )
 
 
@@ -334,12 +340,12 @@ class ThreadsResource(BaseForumResource):
 
         post_from, post_to = paginator.page_borders(page)
 
-        posts = Post.objects.filter(thread=self.thread).order_by('created_at')[post_from:post_to]
+        posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread.model).order_by('created_at')[post_from:post_to]]
 
         pages_on_page_slice = posts
         if post_from == 0:
             pages_on_page_slice = pages_on_page_slice[1:]
-        has_post_on_page = any([post.author == self.user for post in pages_on_page_slice])
+        has_post_on_page = any([post.author == self.account for post in pages_on_page_slice])
 
         return self.template('forum/thread.html',
                              {'category': self.category,
@@ -362,9 +368,9 @@ class ForumResource(BaseForumResource):
 
     @handler('', method='get')
     def index(self):
-        categories = list(Category.objects.all().order_by('order', 'id'))
+        categories = list(CategoryPrototype(category_model) for category_model in Category.objects.all().order_by('order', 'id'))
 
-        subcategories = list(SubCategory.objects.all().order_by('order', 'id'))
+        subcategories=[SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all().order_by('order', 'id')]
 
         forum_structure = []
 
@@ -385,7 +391,7 @@ class ForumResource(BaseForumResource):
     @handler('categories', '#subcategory', name='subcategory', method='get')
     def get_subcategory(self, page=1):
 
-        threads_query = Thread.objects.filter(subcategory=self.subcategory)
+        threads_query = Thread.objects.filter(subcategory=self.subcategory.model)
 
         url_builder = UrlBuilder(reverse('forum:subcategory', args=[self.subcategory.slug]), arguments={'page': page})
 
@@ -398,7 +404,7 @@ class ForumResource(BaseForumResource):
 
         thread_from, thread_to = paginator.page_borders(page)
 
-        threads = list(threads_query.select_related().order_by('-updated_at')[thread_from:thread_to])
+        threads = list(ThreadPrototype(thread_model) for thread_model in threads_query.select_related().order_by('-updated_at')[thread_from:thread_to])
 
         return self.template('forum/subcategory.html',
                              {'category': self.category,

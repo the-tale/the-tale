@@ -7,7 +7,11 @@ from django.contrib.auth.models import User
 
 class Account(models.Model):
 
+    MAX_NICK_LENGTH = 128
+
     user = models.OneToOneField(User, unique=True, null=False)
+
+    nick = models.CharField(null=False, default=u'', max_length=MAX_NICK_LENGTH)
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, default=datetime.datetime.fromtimestamp(0))
 
@@ -17,6 +21,8 @@ class Account(models.Model):
 
     # duplicate django user email - add unique constraints
     email = models.EmailField(max_length=254, null=True, unique=True)
+
+    def __unicode__(self): return self.nick
 
 
 class REGISTRATION_TASK_STATE:

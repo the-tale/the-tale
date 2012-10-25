@@ -15,7 +15,7 @@ class SubCategoryAdmin(admin.ModelAdmin):
     list_filter = ('category',)
 
 class ThreadAdmin(admin.ModelAdmin):
-    list_display = ('id', 'caption', 'author', 'subcategory')
+    list_display = ('id', 'caption', 'subcategory', 'author', 'last_poster')
 
     readonly_fields = ('posts_count', )
 
@@ -23,9 +23,9 @@ class ThreadAdmin(admin.ModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('id', 'state', 'thread', 'author', 'created_at', 'updated_at')
+    list_display = ('id', 'state', 'technical', 'thread', 'author', 'created_at', 'updated_at')
 
-    fields = ('thread', 'author', 'created_at', 'updated_at', 'text', 'markup_method')
+    fields = ('thread', 'author', 'created_at', 'updated_at', 'text', 'markup_method', 'technical')
 
     readonly_fields = ('thread', 'author', 'created_at', 'updated_at')
 

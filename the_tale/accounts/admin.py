@@ -7,7 +7,7 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from accounts.models import Account, RegistrationTask, ChangeCredentialsTask
 
 class AccountAdmin(admin.ModelAdmin):
-    list_display = ('id', 'is_fast', 'email')
+    list_display = ('id', 'nick', 'is_fast', 'email')
 
     def email(self, obj):
         return obj.user.email

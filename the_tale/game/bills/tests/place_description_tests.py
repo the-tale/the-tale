@@ -23,7 +23,7 @@ class PlaceDescriptionTests(BaseTestPrototypes):
         self.place_2 = places_storage.all()[1]
 
         bill_data = PlaceDescripton(place_id=self.place.id, description='new description')
-        self.bill = BillPrototype.create(self.account1.user, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
     def test_create(self):
         self.assertEqual(self.bill.data.place_id, self.place.id)
@@ -55,8 +55,8 @@ class PlaceDescriptionTests(BaseTestPrototypes):
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_apply(self):
-        VotePrototype.create(self.account2.user, self.bill, False)
-        VotePrototype.create(self.account3.user, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
 
         form = PlaceDescripton.ModeratorForm({'approved': True})
         self.assertTrue(form.is_valid())

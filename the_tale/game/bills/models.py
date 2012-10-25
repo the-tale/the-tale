@@ -29,7 +29,7 @@ class Bill(models.Model):
 
     created_at_turn = models.IntegerField(null=False)
 
-    owner = models.ForeignKey(User, null=False, related_name='+')
+    owner = models.ForeignKey('accounts.Account', null=False, related_name='+')
 
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
 
@@ -59,7 +59,7 @@ class Vote(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    owner = models.ForeignKey(User, null=False, related_name='+')
+    owner = models.ForeignKey('accounts.Account', null=False, related_name='+')
 
     bill = models.ForeignKey(Bill, null=False)
 

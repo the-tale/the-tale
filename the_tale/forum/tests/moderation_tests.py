@@ -2,16 +2,17 @@
 
 from django.test import client
 from django.core.urlresolvers import reverse
-from django.contrib.auth import authenticate as django_authenticate
 
 from common.utils.testcase import TestCase
 from common.utils.permissions import sync_group
 
+from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user, login_url
 from game.logic import create_test_map
 
 from forum.models import Category, SubCategory, Thread, Post
-from forum.logic import create_thread, create_post
+from forum.prototypes import ThreadPrototype, PostPrototype, CategoryPrototype, SubCategoryPrototype
+
 
 class TestModeration(TestCase):
 
@@ -21,29 +22,29 @@ class TestModeration(TestCase):
         register_user('moderator', 'moderator@test.com', '111111')
         register_user('second_user', 'second_user@test.com', '111111')
 
-        self.main_user = django_authenticate(username='main_user', password='111111')
-        self.moderator = django_authenticate(username='moderator', password='111111')
-        self.second_user = django_authenticate(username='second_user', password='111111')
+        self.main_account = AccountPrototype.get_by_nick('main_user')
+        self.moderator = AccountPrototype.get_by_nick('moderator')
+        self.second_account = AccountPrototype.get_by_nick('second_user')
 
         group = sync_group('forum moderators group', ['forum.moderate_post', 'forum.moderate_thread'])
 
-        group.user_set.add(self.moderator)
+        group.user_set.add(self.moderator.user)
 
         self.client = client.Client()
 
-        self.category = Category.objects.create(caption='cat-caption', slug='cat-slug', order=0)
-        self.subcategory = SubCategory.objects.create(category=self.category, caption='subcat-caption', slug='subcat-slug', order=0)
-        self.subcategory2 = SubCategory.objects.create(category=self.category, caption='subcat2-caption', slug='subcat2-slug', order=1, closed=True)
-        self.thread = create_thread(self.subcategory, 'thread-caption', self.main_user, 'thread-text')
-        self.post = create_post(self.subcategory, self.thread, self.main_user, 'post-text')
-        self.post2 = create_post(self.subcategory, self.thread, self.main_user, 'post2-text')
-        self.post5 = create_post(self.subcategory, self.thread, self.main_user, 'post5-text', technical=True)
+        self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
+        self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', slug='subcat-slug', order=0)
+        self.subcategory2 = SubCategoryPrototype.create(category=self.category, caption='subcat2-caption', slug='subcat2-slug', order=1, closed=True)
+        self.thread = ThreadPrototype.create(self.subcategory, 'thread-caption', self.main_account, 'thread-text')
+        self.post = PostPrototype.create(self.thread, self.main_account, 'post-text')
+        self.post2 = PostPrototype.create(self.thread, self.main_account, 'post2-text')
+        self.post5 = PostPrototype.create(self.thread, self.main_account, 'post5-text', technical=True)
 
-        self.thread2 = create_thread(self.subcategory, 'thread2-caption', self.main_user, 'thread2-text')
-        self.post3 = create_post(self.subcategory, self.thread2, self.main_user, 'post3-text')
-        self.post4 = create_post(self.subcategory, self.thread2, self.second_user, 'post4-text')
+        self.thread2 = ThreadPrototype.create(self.subcategory, 'thread2-caption', self.main_account, 'thread2-text')
+        self.post3 = PostPrototype.create(self.thread2, self.main_account, 'post3-text')
+        self.post4 = PostPrototype.create(self.thread2, self.second_account, 'post4-text')
 
-        self.thread3 = create_thread(self.subcategory, 'thread3-caption', self.second_user, 'thread3-text')
+        self.thread3 = ThreadPrototype.create(self.subcategory, 'thread3-caption', self.second_account, 'thread3-text')
 
 
     def login(self, user_name):
@@ -287,9 +288,8 @@ class TestModeration(TestCase):
     def test_second_user_remove_fast_account(self):
         self.login('main_user')
 
-        account = self.main_user.get_profile()
-        account.is_fast = True
-        account.save()
+        self.main_account.is_fast = True
+        self.main_account.save()
 
         self.check_ajax_error(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])), 'forum.delete_thread.fast_account')
         self.assertEqual(Thread.objects.all().count(), 3)
@@ -321,7 +321,7 @@ class TestModeration(TestCase):
         self.assertEqual(SubCategory.objects.get(id=self.subcategory.id).posts_count, 5)
 
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post.id])))
-        self.assertTrue(Post.objects.get(id=self.post.id).is_removed)
+        self.assertTrue(PostPrototype.get_by_id(self.post.id).is_removed)
 
         # check if edit & remove buttons has dissapeared
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 2),
@@ -329,7 +329,7 @@ class TestModeration(TestCase):
 
 
     def test_main_user_remove_post_of_second_user(self):
-        self.assertEqual(self.second_user, self.post4.author)
+        self.assertEqual(self.second_account, self.post4.author)
         self.login('main_user')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
         self.assertEqual(Post.objects.all().count(), 8)
@@ -351,7 +351,7 @@ class TestModeration(TestCase):
                                                                                                          ('pgf-change-post-button', 2)])
 
     def test_moderator_remove_post_of_second_user(self):
-        self.assertEqual(self.second_user, self.post4.author)
+        self.assertEqual(self.second_account, self.post4.author)
         self.login('moderator')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
         self.assertEqual(Post.objects.all().count(), 8)
@@ -369,7 +369,7 @@ class TestModeration(TestCase):
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_second_user_remove_post_of_second_user(self):
-        self.assertEqual(self.second_user, self.post4.author)
+        self.assertEqual(self.second_account, self.post4.author)
         self.login('second_user')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
         self.assertEqual(Post.objects.all().count(), 8)
@@ -409,9 +409,8 @@ class TestModeration(TestCase):
     def test_edit_page_fast_account(self):
         self.login('main_user')
 
-        account = self.main_user.get_profile()
-        account.is_fast = True
-        account.save()
+        self.main_account.is_fast = True
+        self.main_account.save()
 
         self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=['forum.edit_thread.fast_account'])
 
@@ -436,9 +435,8 @@ class TestModeration(TestCase):
     def test_update_post_fast_account(self):
         self.login('main_user')
 
-        account = self.main_user.get_profile()
-        account.is_fast = True
-        account.save()
+        self.main_account.is_fast = True
+        self.main_account.save()
 
         self.check_ajax_error(self.client.post(reverse('forum:posts:update', args=[self.post.id])), 'forum.update_post.fast_account')
         self.assertEqual(self.post.text, Post.objects.get(id=self.post.id).text)
