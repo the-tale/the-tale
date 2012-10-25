@@ -133,7 +133,12 @@ class Worker(BaseWorker):
         places_by_power = sorted(places_storage.all(), key=lambda x: x.power)
         places_number = len(places_by_power)
         for i, place in enumerate(places_by_power):
-            place.size = int(places_settings.MAX_SIZE * float(i) / places_number) + 1
+            new_size = int(places_settings.MAX_SIZE * float(i) / places_number) + 1
+
+            if new_size > place.size:
+                place.size += 1
+            elif new_size < place.size:
+                place.size -= 1
             # print place.power, place.name, place.size
 
         # update places
