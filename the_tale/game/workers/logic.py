@@ -1,5 +1,6 @@
 # coding: utf-8
 import heapq
+import datetime
 
 from dext.settings import settings
 
@@ -192,3 +193,19 @@ class Worker(BaseWorker):
 
         for bundle in self.bundles.values():
             bundle.on_highlevel_data_updated()
+
+    def cmd_set_might(self, angel_id, might):
+        self.send_cmd('set_might', {'angel_id': angel_id, 'might': might})
+
+    def process_set_might(self, angel_id, might):
+        bundle = self.bundles[self.angels2bundles[angel_id]]
+
+        angel = bundle.angels[angel_id]
+        angel.might = might
+        angel.might_updated_time = datetime.datetime.now()
+        angel.save()
+
+        for hero in bundle.heroes.values():
+            if hero.angel_id == angel_id:
+                hero.might = might
+                hero.save()

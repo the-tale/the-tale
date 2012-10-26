@@ -68,6 +68,8 @@ class Hero(models.Model):
 
     last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
 
+    might = models.FloatField(null=False, default=0.0)
+
     #position
     pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True)
     pos_road = models.ForeignKey('roads.Road', related_name='+', null=True, default=None, blank=True)

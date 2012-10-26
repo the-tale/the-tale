@@ -3,8 +3,6 @@ import datetime
 
 from django.db import models
 
-from django.contrib.auth.models import User
-
 from common.utils.enum import create_enum
 
 from forum.models import Thread

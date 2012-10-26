@@ -90,8 +90,6 @@ pgf.base.RenderTemplateList = function(selector, data, newElementCallback, param
     var template = jQuery('.pgf-template', container).eq(0);
     var emptyTemplate = jQuery('.pgf-empty-template', container).eq(0);
 
-    // pgf.tooltips.Hide(container);
-
     container.children().not('.pgf-template').not('.pgf-empty-template').remove();
 
     for (var i in data) {
@@ -108,9 +106,6 @@ pgf.base.RenderTemplateList = function(selector, data, newElementCallback, param
             newElementCallback(i, elementData, newElement);
         }
     }
-
-    // pgf.tooltips.Refresh(container);
-
 };
 
 pgf.base.AutoFormatTime = function() {

@@ -23,6 +23,9 @@ def start():
         if game_settings.ENABLE_WORKER_TURNS_LOOP:
             subprocess.Popen(['./manage.py', 'game_turns_loop'], stdin=devnull, stdout=devnull, stderr=devnull)
 
+        if game_settings.ENABLE_WORKER_MIGHT_CALCULATOR:
+            subprocess.Popen(['./manage.py', 'game_might_calculator'], stdin=devnull, stdout=devnull, stderr=devnull)
+
     print 'game started'
 
 def stop():
@@ -37,7 +40,8 @@ def stop():
     while (pid.check('game_supervisor') or
            pid.check('game_logic') or
            pid.check('game_highlevel') or
-           pid.check('game_turns_loop') ):
+           pid.check('game_turns_loop') or
+           pid.check('game_might_calculator')):
         time.sleep(0.1)
 
     print 'game stopped'
@@ -45,7 +49,7 @@ def stop():
 
 class Command(BaseCommand):
 
-    help = 'run game turns loop'
+    help = 'run game logic'
 
     requires_model_validation = False
 
@@ -69,6 +73,7 @@ class Command(BaseCommand):
             pid.force_kill('game_logic')
             pid.force_kill('game_highlevel')
             pid.force_kill('game_turns_loop')
+            pid.force_kill('game_might_calculator')
 
             print 'game stopped'
 

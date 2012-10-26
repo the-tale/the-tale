@@ -1,5 +1,4 @@
 # coding: utf-8
-# coding: utf-8
 from django.test import TestCase, client
 from django.core.urlresolvers import reverse
 
@@ -15,6 +14,10 @@ class TestRequests(TestCase):
 
     def test_game(self):
         response = self.client.get(reverse('guide:game'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_might(self):
+        response = self.client.get(reverse('guide:might'))
         self.assertEqual(response.status_code, 200)
 
     def test_hero_abilities(self):

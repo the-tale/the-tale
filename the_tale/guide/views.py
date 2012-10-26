@@ -25,6 +25,10 @@ class GuideResource(Resource):
     def game(self):
         return self.template('guide/game.html', {'section': 'game'})
 
+    @handler('might', method='get')
+    def might(self):
+        return self.template('guide/might.html', {'section': 'might'})
+
     @handler('politics', method='get')
     def politics(self):
         from game.bills.conf import bills_settings

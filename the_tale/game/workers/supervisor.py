@@ -18,14 +18,16 @@ class SupervisorException(Exception): pass
 
 class Worker(BaseWorker):
 
-    def __init__(self, supervisor_queue, answers_queue, turns_loop_queue, stop_queue):
+    def __init__(self, supervisor_queue, answers_queue, stop_queue):
         super(Worker, self).__init__(logger=getLogger('the-tale.workers.game_supervisor'), command_queue=supervisor_queue)
         self.answers_queue = connection.SimpleQueue(answers_queue)
-        self.turns_loop_queue = connection.SimpleQueue(turns_loop_queue)
         self.stop_queue = connection.SimpleQueue(stop_queue)
 
     def set_turns_loop_worker(self, turns_loop_worker):
         self.turns_loop_worker = turns_loop_worker
+
+    def set_might_calculator_worker(self, might_calculator_worker):
+        self.might_calculator_worker = might_calculator_worker
 
     def set_logic_worker(self, logic_worker):
         self.logic_worker = logic_worker
@@ -37,7 +39,6 @@ class Worker(BaseWorker):
         super(Worker, self).clean_queues()
         self.answers_queue.queue.purge()
         self.stop_queue.queue.purge()
-        self.turns_loop_queue.queue.purge()
 
     def run(self):
 
@@ -65,6 +66,10 @@ class Worker(BaseWorker):
         if game_settings.ENABLE_WORKER_TURNS_LOOP:
             self.turns_loop_worker.cmd_initialize(worker_id='turns_loop')
             self.wait_answers_from('initialize', workers=['turns_loop'])
+
+        if game_settings.ENABLE_WORKER_MIGHT_CALCULATOR:
+            self.might_calculator_worker.cmd_initialize(worker_id='might_calculator')
+            self.wait_answers_from('initialize', workers=['might_calculator'])
 
         for bundle_model in Bundle.objects.all():
             bundle = BundlePrototype(bundle_model)
@@ -105,6 +110,10 @@ class Worker(BaseWorker):
         if game_settings.ENABLE_WORKER_TURNS_LOOP:
             self.turns_loop_worker.cmd_stop()
             self.wait_answers_from('stop', workers=['turns_loop'])
+
+        if game_settings.ENABLE_WORKER_MIGHT_CALCULATOR:
+            self.might_calculator_worker.cmd_stop()
+            self.wait_answers_from('stop', workers=['might_calculator'])
 
         self.stop_queue.put({'code': 'stopped', 'worker': 'supervisor'}, serializer='json', compression=None)
 
@@ -159,3 +168,9 @@ class Worker(BaseWorker):
 
     def process_highlevel_data_updated(self):
         self.logic_worker.cmd_highlevel_data_updated()
+
+    def cmd_set_might(self, angel_id, might):
+        self.send_cmd('set_might', {'angel_id': angel_id, 'might': might})
+
+    def process_set_might(self, angel_id, might):
+        self.logic_worker.cmd_set_might(angel_id, might)

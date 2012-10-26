@@ -58,6 +58,9 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
     var data = undefined;
 
+    var tooltipArgs = jQuery.extend(true, {}, pgf.base.popoverArgs, {title: function(){return jQuery('#pgf-might-tooltip').html();} });
+    jQuery('.pgf-might-record', content).tooltip(tooltipArgs);
+
     this.RenderHero = function(data, widget) {
 
         if (!data) return;
@@ -83,6 +86,8 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
         jQuery('.pgf-power', widget).text(data.secondary.power);
         jQuery('.pgf-money', widget).text(data.money);
+        jQuery('.pgf-might', widget).text(data.might);
+        jQuery('.pgf-might-crit-chance', widget).text(data.might_crit_chance);
     };
 
     this.CurrentHero = function() {

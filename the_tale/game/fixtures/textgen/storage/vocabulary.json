@@ -58,17 +58,17 @@
           "hero"
         ]
       ], 
-      "template": "Порыв ветра поднял %(e_0)s в воздух и пронёс до ближайшего дерева"
+      "template": "Порыв ветра поднял %(e_0)s в воздух и пронёс до ближайшего дерева."
     }, 
     {
       "internals": [], 
       "externals": [], 
-      "template": "«Дырка в пространстве — единственный достойный героя способ передвижения»"
+      "template": "«Дырка в пространстве — единственный достойный героя способ передвижения»."
     }, 
     {
       "internals": [], 
       "externals": [], 
-      "template": "«Хранитель, зачем так пинаться-то?»"
+      "template": "«Хранитель, зачем так пинаться-то?»."
     }
   ], 
   "quest_spying_action_intro": [
@@ -977,6 +977,30 @@
       "template": "болтает о жизни со знакомым лавочником"
     }
   ], 
+  "angel_ability_healhero_crit": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "hero"
+        ], 
+        [
+          "health", 
+          [], 
+          "e_1", 
+          [], 
+          "health"
+        ]
+      ], 
+      "template": "Зелёный луч ударил с небес, исцеляя %(e_0)s на %(e_1)s HP."
+    }
+  ], 
   "action_equipping_description": [
     {
       "internals": [], 
@@ -1462,60 +1486,21 @@
       "template": "%(e_0)s %(i_0)s %(e_1)s"
     }
   ], 
-  "quest_searchsmith_diary_upgrade_equipment_buy": [
+  "angel_ability_lightning_crit": [
     {
-      "internals": [
-        [
-          "создал", 
-          [
-            "person_end"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "создал"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
+      "internals": [], 
       "externals": [
         [
-          "person_end", 
+          "mob", 
           [], 
           "e_0", 
           [
-            "загл"
+            "дт"
           ], 
-          "person_end"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_2", 
-          [], 
-          "coins"
+          "mob"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s поистине чудесный артефакт — «%(e_1)s»! И всего за %(e_2)s %(i_1)s."
+      "template": "На горизонте показалась яркая точка, стремительно приближающаяся к %(e_0)s. Мгновение и шар огня выжег аккуратный круг там, где находился противник."
     }
   ], 
   "quest_hunt_action_hunt": [
@@ -1577,7 +1562,62 @@
       "template": "От мира и забот насущных отстранившись, позу лотоса приняв, в медитацию %(i_0)s %(e_0)s, основы мироздания постигая и мир внутренний в порядок приводя."
     }
   ], 
-  "quest_notmywork_diary_move_to_quest": [], 
+  "quest_searchsmith_diary_upgrade_equipment_buy": [
+    {
+      "internals": [
+        [
+          "создал", 
+          [
+            "person_end"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "создал"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_end", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "person_end"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_2", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s поистине чудесный артефакт — «%(e_1)s»! И всего за %(e_2)s %(i_1)s."
+    }
+  ], 
   "quest_notmywork_action_move_to_quest": [
     {
       "internals": [], 
@@ -2923,7 +2963,7 @@
       "template": "%(e_0)s %(i_0)s и %(i_1)s %(e_1)s в дерево, %(i_2)s не %(i_3)s %(e_2)s HP."
     }
   ], 
-  "quest_caravan_diary_move_to_point": [], 
+  "quest_notmywork_diary_move_to_quest": [], 
   "action_regenerate_energy_description_incense": [
     {
       "internals": [], 
@@ -4436,12 +4476,12 @@
     {
       "internals": [], 
       "externals": [], 
-      "template": "Что-то совестно мне стало без дела сидеть"
+      "template": "Что-то совестно мне стало без дела сидеть."
     }, 
     {
       "internals": [], 
       "externals": [], 
-      "template": "Опять шило в заднице колоть начало"
+      "template": "Опять шило в заднице колоть начало."
     }, 
     {
       "internals": [
@@ -4470,7 +4510,7 @@
         ]
       ], 
       "externals": [], 
-      "template": "%(i_0)s поспать, но %(i_1)s с кровати — придётся идти на подвиги"
+      "template": "%(i_0)s поспать, но %(i_1)s с кровати — придётся идти на подвиги."
     }
   ], 
   "quest_delivery_action_delivery_get_reward": [], 
@@ -4529,7 +4569,7 @@
           "health"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s на %(e_1)s HP"
+      "template": "%(e_0)s %(i_0)s на %(e_1)s HP."
     }, 
     {
       "internals": [], 
@@ -4657,6 +4697,55 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
+    }
+  ], 
+  "angel_ability_money_crit": [
+    {
+      "internals": [
+        [
+          "почувствовал", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "почувствовал"
+        ], 
+        [
+          "нашёл", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "нашёл"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "Внезапно %(i_0)s сильный позыв копать. На глубине двух метров %(i_1)s сундук, а в нём %(e_0)s %(i_2)s."
     }
   ], 
   "quest_hunt_action_move_to_city": [
@@ -4802,13 +4891,36 @@
       "template": "%(e_0)s %(i_0)s добиться исполнения обещания одним должником. Должник, %(e_1)s, живёт в %(e_2)s."
     }
   ], 
-  "quest_hunt_journal_move_to_city": [
+  "angel_ability_shortteleport_crit": [
     {
-      "internals": [], 
-      "externals": [], 
-      "template": "Рюкзак полон добычи, пора возвращаться в город."
+      "internals": [
+        [
+          "тот", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "вн"
+          ], 
+          "тот"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "дт"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "Аккуратное белое облачко метнулось под ноги %(e_0)s и унесло %(i_0)s за горизонт."
     }
   ], 
+  "quest_caravan_diary_move_to_point": [], 
   "action_regenerate_energy_start_sacrifice": [
     {
       "internals": [
@@ -4861,7 +4973,7 @@
           "mob"
         ]
       ], 
-      "template": "Молния существенно поджарила %(e_0)s"
+      "template": "Молния существенно поджарила %(e_0)s."
     }, 
     {
       "internals": [], 
@@ -4902,7 +5014,7 @@
           "mob"
         ]
       ], 
-      "template": "Бабочка неудачно приземлилась на %(e_0)s, выведя %(i_0)s из равновесия, результат — серьёзная шишка у %(e_1)s"
+      "template": "Бабочка неудачно приземлилась на %(e_0)s, выведя %(i_0)s из равновесия, результат — серьёзная шишка у %(e_1)s."
     }
   ], 
   "action_battlepve1x1_battle_stun": [
@@ -6158,6 +6270,13 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s уговорить должника."
+    }
+  ], 
+  "quest_hunt_journal_move_to_city": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Рюкзак полон добычи, пора возвращаться в город."
     }
   ]
 }

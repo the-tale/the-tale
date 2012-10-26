@@ -93,9 +93,16 @@ class ConstantsTest(TestCase):
                                                               c.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 4 })
 
         self.assertEqual(c.ANGEL_HELP_HEAL_IF_LOWER_THEN, float(0.8))
+
         self.assertEqual(c.ANGEL_HELP_HEAL_FRACTION,  (float(0.25), float(0.5)))
         self.assertEqual(c.ANGEL_HELP_TELEPORT_DISTANCE, float(3.0))
         self.assertEqual(c.ANGEL_HELP_LIGHTING_FRACTION, (float(0.25), float(0.5)))
+
+        self.assertEqual(c.ANGEL_HELP_CRIT_HEAL_FRACTION,  (float(0.5), float(0.75)))
+        self.assertEqual(c.ANGEL_HELP_CRIT_TELEPORT_DISTANCE, float(9.0))
+        self.assertEqual(c.ANGEL_HELP_CRIT_LIGHTING_FRACTION, (float(0.5), float(0.75)))
+        self.assertEqual(c.ANGEL_HELP_CRIT_MONEY_MULTIPLIER, int(10))
+
 
         self.assertEqual(c.HELP_CHOICES_PRIORITY, { c.HELP_CHOICES.HEAL: 4,
                                                     c.HELP_CHOICES.TELEPORT: 4,

@@ -4,6 +4,8 @@ import datetime
 from django.db import models
 from django.contrib.auth.models import User
 
+from common.utils.enum import create_enum
+
 
 class Account(models.Model):
 
@@ -23,6 +25,28 @@ class Account(models.Model):
     email = models.EmailField(max_length=254, null=True, unique=True)
 
     def __unicode__(self): return self.nick
+
+
+AWARD_TYPE = create_enum('AWARD_TYPE', (('BUG_MINOR', 0, u'найдена ошибка: небольшая'),
+                                        ('BUG_NORMAL', 1, u'найдена ошибка: обычная'),
+                                        ('BUG_MAJOR', 2, u'найдена ошибка: существенная'),
+                                        ('CONTEST_1_PLACE', 3, u'конкурс: 1-ое место'),
+                                        ('CONTEST_2_PLACE', 4, u'конкурс: 2-ое место'),
+                                        ('CONTEST_3_PLACE', 5, u'конкурс: 3-е место'),
+                                        ('STANDARD_MINOR', 6, u'стандартная награда: небольшая'),
+                                        ('STANDARD_NORMAL', 7, u'стандартная награда: обычная'),
+                                        ('STANDARD_MAJOR', 8, u'стандартная награда: существенная'),))
+
+class Award(models.Model):
+
+    account = models.ForeignKey(Account,  related_name='+', null=False)
+
+    type = models.IntegerField(choices=AWARD_TYPE.CHOICES, null=False)
+
+    description = models.TextField(default='', blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
 
 class REGISTRATION_TASK_STATE:

@@ -57,6 +57,17 @@ class AngelPrototype(object):
 
         return self.model.energy - old_energy
 
+    def get_might(self): return self.model.might
+    def set_might(self, value):
+        if self.model.might != value:
+            self.model.might = value
+            self.updated = True
+    might = property(get_might, set_might)
+
+    def get_might_updated_time(self): return self.model.might_updated_time
+    def set_might_updated_time(self, value): self.model.might_updated_time = value
+    might_updated_time = property(get_might_updated_time, set_might_updated_time)
+
     def get_hero(self):
         #TODO: now this code only works on bundle init phase
         #      using it from another places is dangerouse becouse of
@@ -110,6 +121,7 @@ class AngelPrototype(object):
         return {'id': self.id,
                 'energy': { 'max': self.energy_maximum,
                             'value': self.energy },
+                'might': self.might,
                 'abilities': [ability.ui_info() for ability_type, ability in self.abilities.items()]
                 }
 
@@ -133,11 +145,41 @@ class AngelPrototype(object):
         return TimePrototype.get_current_turn_number() + 1
 
     def __eq__(self, other):
-        # print 'angel'
-        # print self.id == other.id
-        # print self.name == other.name
-        # print self.energy == other.energy
-        # print self.abilities == other.abilities
         return (self.id == other.id and
                 self.model.energy == other.model.energy and
                 self.abilities == other.abilities)
+
+
+    def calculate_might(self):
+        from accounts.models import Award, AWARD_TYPE
+        from forum.models import Post, Thread, POST_STATE
+        from game.bills.models import Bill, Vote, BILL_STATE
+
+        MIGHT_FOR_FORUM_POST = 0.3
+        MIGHT_FOR_FORUM_THREAD = 3
+        MIGHT_FOR_BILL_VOTE = 1
+        MIGHT_FOR_BILL_ACCEPTED = 33
+
+        MIGHT_FOR_AWARD = { AWARD_TYPE.BUG_MINOR: 111,
+                            AWARD_TYPE.BUG_NORMAL: 222,
+                            AWARD_TYPE.BUG_MAJOR: 333,
+                            AWARD_TYPE.CONTEST_1_PLACE: 1000,
+                            AWARD_TYPE.CONTEST_2_PLACE: 666,
+                            AWARD_TYPE.CONTEST_3_PLACE: 333,
+                            AWARD_TYPE.STANDARD_MINOR: 333,
+                            AWARD_TYPE.STANDARD_NORMAL: 666,
+                            AWARD_TYPE.STANDARD_MAJOR: 1000 }
+
+
+        might = 0
+
+        might += Post.objects.filter(author_id=self.account_id, state=POST_STATE.DEFAULT).count() * MIGHT_FOR_FORUM_POST
+        might += Thread.objects.filter(author_id=self.account_id).count() * MIGHT_FOR_FORUM_THREAD
+
+        might += Vote.objects.filter(owner_id=self.account_id).count() * MIGHT_FOR_BILL_VOTE
+        might += Bill.objects.filter(owner_id=self.account_id, state=BILL_STATE.ACCEPTED).count() * MIGHT_FOR_BILL_ACCEPTED
+
+        for award_state, might_cooficient in MIGHT_FOR_AWARD.items():
+            might += Award.objects.filter(account_id=self.account_id).count() * might_cooficient
+
+        return might

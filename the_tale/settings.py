@@ -254,6 +254,7 @@ LOGGING = {
         'file_game_logic': get_worker_log_file_handler('game_logic'),
         'file_game_highlevel': get_worker_log_file_handler('game_highlevel'),
         'file_game_turns_loop': get_worker_log_file_handler('game_turns_loop'),
+        'file_game_might_calculator': get_worker_log_file_handler('game_might_calculator'),
         'file_accounts_registration': get_worker_log_file_handler('accounts_registration')
     },
     'loggers': {
@@ -272,6 +273,7 @@ LOGGING = {
         'the-tale.workers.game_logic': get_worker_logger('game_logic'),
         'the-tale.workers.game_highlevel': get_worker_logger('game_highlevel'),
         'the-tale.workers.game_turns_loop': get_worker_logger('game_turns_loop'),
+        'the-tale.workers.game_might_calculator': get_worker_logger('game_might_calculator'),
         'accounts.workers.registration': get_worker_logger('accounts_registration'),
     } if not TESTS_RUNNING else {}
 }

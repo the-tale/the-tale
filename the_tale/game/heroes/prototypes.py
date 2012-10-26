@@ -369,6 +369,16 @@ class HeroPrototype(object):
     def set_last_energy_regeneration_at_turn(self, value): self.model.last_energy_regeneration_at_turn = value
     last_energy_regeneration_at_turn = property(get_last_energy_regeneration_at_turn, set_last_energy_regeneration_at_turn)
 
+    def get_might(self): return self.model.might
+    def set_might(self, value): self.model.might = value
+    might = property(get_might, set_might)
+
+    @property
+    def might_crit_chance(self):
+        if self.might < 1:
+            return 0
+        return math.log(self.might, 10) / 10.0
+
     def on_highlevel_data_updated(self):
         if self.preferences.friend_id is not None and self.preferences.friend.out_game:
             self.preferences.friend_id = None
@@ -652,6 +662,8 @@ class HeroPrototype(object):
                 'bag': self.bag.ui_info(),
                 'equipment': self.equipment.ui_info(),
                 'money': self.money,
+                'might': self.might,
+                'might_crit_chance': '%.2f' % (self.might_crit_chance*100),
                 'next_spending': { c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 'heal',
                                    c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 'artifact',
                                    c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 'sharpening',

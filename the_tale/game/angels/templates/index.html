@@ -20,6 +20,7 @@
   <thead>
     <tr>
       <th>имя</th>
+      <th>могущество</th>
       <th>зарегистрирован</th>
       <th>герой</th>
       <th>уровень</th>
@@ -36,6 +37,7 @@
     <tr class="pgf-angel-record">
 
       <td><a href="{{ url('game:angels:show', angel.id) }}">{{ account.nick }}</a></td>
+      <td>{{ angel.might|int }}</td>
       <td class="updated-at pgf-format-date" data-timestamp="{{ account.created_at|timestamp }}"></td>
       <td>
         {{ hero.gender_verbose }}
