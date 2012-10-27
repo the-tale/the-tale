@@ -16,10 +16,12 @@ game_settings = app_settings('GAME',
 
                              TURN_DELAY=c.TURN_DELTA,
                              MIGHT_CALCULATOR_DELAY=7,
+                             RATINGS_SYNC_TIME=4*60*60,
 
                              ENABLE_WORKER_HIGHLEVEL=True,
                              ENABLE_WORKER_TURNS_LOOP=True,
                              ENABLE_WORKER_MIGHT_CALCULATOR=True,
+                             ENABLE_WORKER_LONG_COMMANDS=True,
 
                              JS_CONSTNATS_FILE_LOCATION='./static/game/data/constants.js',
 

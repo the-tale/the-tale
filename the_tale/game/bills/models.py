@@ -27,7 +27,7 @@ class Bill(models.Model):
 
     created_at_turn = models.IntegerField(null=False)
 
-    owner = models.ForeignKey('accounts.Account', null=False, related_name='+')
+    owner = models.ForeignKey('accounts.Account', null=False)
 
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
 

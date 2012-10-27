@@ -75,7 +75,10 @@ class BillPrototype(object):
     def votes_against(self): return self.model.votes_against
 
     @property
-    def owner(self): return AccountPrototype(self.model.owner)
+    def owner(self):
+        if not hasattr(self, '_owner'):
+            self._owner = AccountPrototype(self.model.owner)
+        return self._owner
 
     @property
     def user_form_initials(self):

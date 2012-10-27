@@ -77,6 +77,9 @@ class AccountPrototype(object):
     def set_nick(self, value): self.model.nick = value
     nick = property(get_nick, set_nick)
 
+    @property
+    def nick_verbose(self): return self.model.nick if not self.model.is_fast else u'Игрок'
+
     def get_email(self): return self.model.email
     def set_email(self, value): self.model.email = value
     email = property(get_email, set_email)

@@ -13,6 +13,8 @@ from accounts.models import Account
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.models import Hero
 
+from game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
+
 from game.angels.prototypes import AngelPrototype
 from game.angels.conf import angels_settings
 from game.angels.models import Angel
@@ -86,10 +88,16 @@ class AngelResource(Resource):
 
         threads_with_posts = Thread.objects.filter(post__author=master_account.model).distinct().count()
 
+        rating_places = RatingPlacesPrototype.get_for_account(master_account)
+
+        rating_values = RatingValuesPrototype.get_for_account(master_account)
+
         return self.template('angels/show.html',
                              {'master_angel': self.angel,
                               'master_hero': self.angel.get_hero(),
                               'master_account': master_account,
+                              'rating_places': rating_places,
+                              'rating_values': rating_values,
                               'bills_count': bills_count,
                               'threads_with_posts': threads_with_posts,
                               'threads_count': threads_count} )

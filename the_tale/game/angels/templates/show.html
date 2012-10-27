@@ -7,16 +7,17 @@
 
 {% block angels_content %}
 
-<h2>{{ master_account.nick }} <small>могущество: {{ master_angel.might|int }}</small></h2>
+<h2>{{ master_account.nick_verbose }} <small>могущество: {{ master_angel.might|int }}</small></h2>
 
 <table class="angel-info-table table table-condensed table-striped table-bordered">
   <tbody>
     <tr>
-      <th>Герой</th>
+      <th>герой</th>
+      <th>рейтинги</th>
       <th>форум</th>
     </tr>
     <tr>
-      <td rowspan=3 width="200px">
+      <td rowspan="3" width="150px">
         <ul class="unstyled">
           <li><strong>имя:</strong> <a href="{{ url('game:heroes:show', master_hero.id) }}">{{ master_hero.name }}</a></li>
           <li><strong>пол:</strong> {{ master_hero.gender_verbose }}</li>
@@ -24,6 +25,21 @@
           <li><strong>уровень:</strong> {{ master_hero.level }}</li>
           <li><strong>сила:</strong> {{ master_hero.power }}</li>
         </ul>
+      </td>
+
+      <td rowspan="3" width="220px">
+
+        {% if rating_values %}
+        <ul class="unstyled">
+          <li><strong>могущество:</strong> {% if rating_values.might > 0 %}{{ rating_places.might_place }} место{% else %}не участвует{% endif %}</li>
+          <li><strong>принятые законы:</strong> {% if rating_values.might > 0 %}{{ rating_places.bills_count_place }} место{% else %}не участвует{% endif %}</li>
+          <li><strong>сила героя:</strong> {{ rating_places.power_place }} место</li>
+          <li><strong>уровень героя:</strong> {{ rating_places.level_place }} место</li>
+        </ul>
+        {% else %}
+        игрок пока не участвует в рейтингах
+        {% endif %}
+
       </td>
 
       <td>

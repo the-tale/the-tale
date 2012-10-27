@@ -119,6 +119,7 @@ jQuery(document).ready(function() {
             {% endif %}
 
             {{ base_macros.main_menu_item("angels", url("game:angels:"), "Игроки") }}
+            {{ base_macros.main_menu_item("ratings", url("game:ratings:"), "Рейтинги") }}
 
             {% if request.user.is_authenticated() %}
             {{ base_macros.main_menu_item("game", url("game:"), "Игра") }}

@@ -1,0 +1,50 @@
+{% extends "ratings/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+
+{% block title %} {{ RATING_TYPE.ID_2_TEXT[rating_type] }} | {{ super() }}{% endblock %}
+
+
+{% block ratings_content %}
+
+<h2>Рейтинги</h2>
+
+<ul class="nav nav-pills">
+  <li {% if rating_type == RATING_TYPE.MIGHT %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.MIGHT) }}">Могущество</a></li>
+  <li {% if rating_type == RATING_TYPE.BILLS %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.BILLS) }}">Принятые законы</a></li>
+  <li {% if rating_type == RATING_TYPE.POWER %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.POWER) }}">Сила героя</a></li>
+  <li {% if rating_type == RATING_TYPE.LEVEL %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.LEVEL) }}">Уровень героя</a></li>
+</ul>
+
+{{ base_macros.render_paginator(paginator) }}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>место</th>
+      <th>ангел</th>
+      <th>герой</th>
+      <th>{{RATING_TYPE.ID_2_TEXT[rating_type]|lower}}</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    {% for rating in ratings %}
+
+    {% set hero = heroes[rating.account_id] %}
+
+    <tr>
+      <td>{{ place_getter(rating) }}</td>
+      <td><a href="{{url('game:angels:show', rating.account_id)}}">{{ rating.account.nick }}</a></td>
+      <td>{{ hero.gender_verbose}} {{ hero.race_verbose }} <a href="{{url('game:heroes:show', hero.id)}}">{{ hero.name }}</a></td>
+      <td>{{ value_getter(values[rating.account_id]) }}</td>
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+
+{{ base_macros.render_paginator(paginator) }}
+
+
+{% endblock %}

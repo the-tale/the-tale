@@ -579,6 +579,7 @@ class HeroPrototype(object):
 
         if self.equipment.updated:
             self.model.equipment = s11n.to_json(self.equipment.serialize())
+            self.model.raw_power = self.power
             self.equipment.updated = False
 
         if self.abilities.updated:
@@ -707,6 +708,7 @@ class HeroPrototype(object):
         hero = Hero.objects.create(created_at_turn=current_turn_number,
                                    active_state_end_at=current_turn_number + c.EXP_ACTIVE_STATE_LENGTH,
                                    angel=angel.model,
+                                   account=angel.get_account().model,
                                    gender=gender,
                                    race=race,
                                    pref_energy_regeneration_type=energy_regeneration_type,

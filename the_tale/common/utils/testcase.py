@@ -53,5 +53,5 @@ class TestCase(DjangoTestCase):
         if status_url:
             self.assertEqual(data['status_url'], status_url)
 
-    def check_redirect(self, url, status_code=302, target_status_code=200):
-        self.assertRedirects(self.client.get(url), login_url(url), status_code=status_code, target_status_code=target_status_code)
+    def check_redirect(self, requested_url, test_url, status_code=302, target_status_code=200):
+        self.assertRedirects(self.client.get(requested_url), test_url, status_code=status_code, target_status_code=target_status_code)

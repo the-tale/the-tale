@@ -26,6 +26,9 @@ class RequestsTests(TestCase):
         result, account_id, bundle_id = register_user('test_user3', 'test_user3@test.com', '111111')
         self.account3 = AccountPrototype.get_by_id(account_id)
 
+        result, account_id, bundle_id = register_user('test_user4')
+        self.account4 = AccountPrototype.get_by_id(account_id)
+
 
 class IndexRequestsTests(RequestsTests):
 
@@ -50,6 +53,9 @@ class ShowRequestsTests(RequestsTests):
 
     def test_show(self):
         self.check_html_ok(self.client.get(reverse('game:angels:show', args=[self.account1.angel.id])))
+
+    def test_fast_account(self):
+        self.check_html_ok(self.client.get(reverse('game:angels:show', args=[self.account4.angel.id])))
 
     def test_404(self):
         self.check_html_ok(self.client.get(reverse('game:angels:show', args=['adasd'])), status_code=404)

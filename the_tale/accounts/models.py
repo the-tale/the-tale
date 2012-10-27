@@ -13,7 +13,7 @@ class Account(models.Model):
 
     user = models.OneToOneField(User, unique=True, null=False)
 
-    nick = models.CharField(null=False, default=u'', max_length=MAX_NICK_LENGTH)
+    nick = models.CharField(null=False, default=u'', max_length=MAX_NICK_LENGTH, db_index=True)
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, default=datetime.datetime.fromtimestamp(0))
 

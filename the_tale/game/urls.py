@@ -13,6 +13,7 @@ urlpatterns = patterns('',
                        (r'^balance/', include('game.balance.urls', namespace='balance') ),
                        (r'^bills/', include('game.bills.urls', namespace='bills') ),
                        (r'^angels/', include('game.angels.urls', namespace='angels') ),
+                       (r'^ratings/', include('game.ratings.urls', namespace='ratings') ),
 )
 
 urlpatterns += resource_patterns(GameResource)

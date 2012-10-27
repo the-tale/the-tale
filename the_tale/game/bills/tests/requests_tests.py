@@ -207,7 +207,8 @@ class TestNewRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.logout()
-        self.check_redirect(reverse('game:bills:new') + ('?type=%s' % PlaceRenaming.type))
+        url = reverse('game:bills:new') + ('?type=%s' % PlaceRenaming.type)
+        self.check_redirect(url, login_url(url))
 
     def test_is_fast(self):
         self.account1.is_fast = True
@@ -233,7 +234,8 @@ class TestShowRequests(BaseTestRequests):
         bill = Bill.objects.all()[0]
 
         self.logout()
-        self.check_redirect(reverse('game:bills:show', args=[bill.id]))
+        url = reverse('game:bills:show', args=[bill.id])
+        self.check_redirect(url, login_url(url))
 
 
     def test_is_fast(self):
@@ -389,7 +391,8 @@ class TestEditRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.logout()
-        self.check_redirect(reverse('game:bills:edit', args=[self.bill.id]))
+        url = reverse('game:bills:edit', args=[self.bill.id])
+        self.check_redirect(url, login_url(url))
 
     def test_is_fast(self):
         self.account1.is_fast = True
@@ -494,7 +497,8 @@ class TestModerationPageRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.logout()
-        self.check_redirect(reverse('game:bills:moderate', args=[self.bill.id]))
+        url = reverse('game:bills:moderate', args=[self.bill.id])
+        self.check_redirect(url, login_url(url))
 
     def test_is_fast(self):
         self.account2.is_fast = True

@@ -35,6 +35,9 @@ class Worker(BaseWorker):
     def set_highlevel_worker(self, highlevel_worker):
         self.highlevel_worker = highlevel_worker
 
+    def set_long_commands_worker(self, long_commands):
+        self.long_commands_worker = long_commands
+
     def clean_queues(self):
         super(Worker, self).clean_queues()
         self.answers_queue.queue.purge()
@@ -70,6 +73,10 @@ class Worker(BaseWorker):
         if game_settings.ENABLE_WORKER_MIGHT_CALCULATOR:
             self.might_calculator_worker.cmd_initialize(worker_id='might_calculator')
             self.wait_answers_from('initialize', workers=['might_calculator'])
+
+        if game_settings.ENABLE_WORKER_LONG_COMMANDS:
+            self.long_commands_worker.cmd_initialize(worker_id='long_commands')
+            self.wait_answers_from('initialize', workers=['long_commands'])
 
         for bundle_model in Bundle.objects.all():
             bundle = BundlePrototype(bundle_model)
@@ -114,6 +121,11 @@ class Worker(BaseWorker):
         if game_settings.ENABLE_WORKER_MIGHT_CALCULATOR:
             self.might_calculator_worker.cmd_stop()
             self.wait_answers_from('stop', workers=['might_calculator'])
+
+        if game_settings.ENABLE_WORKER_LONG_COMMANDS:
+            self.long_commands_worker.cmd_stop()
+            self.wait_answers_from('stop', workers=['long_commands'])
+
 
         self.stop_queue.put({'code': 'stopped', 'worker': 'supervisor'}, serializer='json', compression=None)
 
@@ -174,3 +186,9 @@ class Worker(BaseWorker):
 
     def process_set_might(self, angel_id, might):
         self.logic_worker.cmd_set_might(angel_id, might)
+
+    def cmd_recalculate_ratings(self):
+        return self.send_cmd('recalculate_ratings')
+
+    def process_recalculate_ratings(self):
+        self.long_commands_worker.cmd_recalculate_ratings()

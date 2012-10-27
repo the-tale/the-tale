@@ -9,24 +9,24 @@ from dext.utils import pid
 
 from game.workers.environment import workers_environment
 
-logger = getLogger('the-tale.workers.game_might_calculator')
+logger = getLogger('the-tale.workers.game_long_commands')
 
 class Command(BaseCommand):
 
-    help = 'run game might calculator'
+    help = 'run long time commands'
 
     requires_model_validation = False
 
-    @pid.protector('game_might_calculator')
+    @pid.protector('game_long_commands')
     def handle(self, *args, **options):
 
         try:
-            workers_environment.might_calculator.run()
+            workers_environment.long_commands.run()
         except KeyboardInterrupt:
             pass
         except Exception:
             traceback.print_exc()
-            logger.error('Game worker exception: might_calculator',
+            logger.error('Game worker exception: long_commands',
                          exc_info=sys.exc_info(),
                          extra={} )
 

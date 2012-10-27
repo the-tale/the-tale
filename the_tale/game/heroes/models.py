@@ -28,6 +28,7 @@ class Hero(models.Model):
     created_at_turn = models.IntegerField(null=False, default=0)
 
     angel = models.ForeignKey(Angel, related_name='heroes', default=None, null=True, blank=True)
+    account = models.ForeignKey('accounts.Account', related_name='heroes', default=None, null=True, blank=True)
 
     is_fast = models.BooleanField(default=True, db_index=True) # copy from account.is_fast
 
@@ -48,6 +49,8 @@ class Hero(models.Model):
     destiny_points_spend = models.IntegerField(null=False, default=0) # for random.seed
 
     health = models.FloatField(null=False, default=0.0)
+
+    raw_power = models.BigIntegerField(null=False, default=0) # special field for ratings
 
     money = models.BigIntegerField(null=False, default=0)
 
