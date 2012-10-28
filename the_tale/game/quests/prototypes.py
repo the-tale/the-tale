@@ -33,7 +33,9 @@ class QuestPrototype(object):
 
     @classmethod
     def get_for_hero(cls, hero_id):
-        quests_models = list(QuestsHeroes.objects.filter(hero_id=hero_id))
+        # use select_related to get quest_hero & quest model in one request
+        # since can be situation, when we get QuestsHeroes model just before quest removing
+        quests_models = list(QuestsHeroes.objects.select_related().filter(hero_id=hero_id))
         if len(quests_models) > 1:
             raise QuestException(u'more then one quest found fo hero: %d (quests: %r)' % (hero_id, [quest.id for quest in quests_models]))
         if quests_models:
