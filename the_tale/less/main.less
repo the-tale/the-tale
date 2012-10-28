@@ -32,7 +32,7 @@ body {
    }
 
    div.block, li.block {
-      background-color: @background-color;
+      background-color: @block-background-color;
       border: 1px solid @border-color;
       border-radius: 8px;
       padding: 0.75em;
@@ -148,10 +148,12 @@ small {
 table {
 
    &.table-no-highlighting {
-      &.table tbody tr:hover {
-         td, th {
-            background-color: transparent;
-         }
+      &.table tbody tr:hover td {
+         background-color: white;
+      }
+
+      &.table tbody tr:hover th {
+         background-color: #F9F9F9;
       }
    }
 

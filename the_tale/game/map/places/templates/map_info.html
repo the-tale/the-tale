@@ -15,17 +15,19 @@
 
   <div class="modal-body">
 
-    <div class="description">
+    <p class="description">
       <img src="{{ STATIC_URL }}tmp/city.png"/>
       {% if place.description %}
       {{ place.description_html|safe }}
       {% else %}
       У этого места пока нет описания
       {% endif %}
-    </div>
+    </p>
+
+    <hr/>
 
     <ul class="unstyled">
-      <li>время обновления статистики:
+      <li class="data-updated-time">время обновления статистики:
         {% set game_time = place.updated_at_game_time %}
         <span class="pgf-game-date">{{ game_time.verbose_date}}</span>
         <span class="pgf-game-time">{{ game_time.verbose_time }}</span>
@@ -39,37 +41,50 @@
       {% for person in place.persons %}
       <li class="person-record">
 
-        <img src="{{ STATIC_URL }}tmp/profession.gif"/>
+        <table class="person-table table table-striped table-condensed table-no-highlighting">
+          <tbody>
+            <tr>
+              <td class="profession-icon" rowspan="2">
+                <img src="{{ STATIC_URL }}tmp/profession.gif"/>
+              </td>
 
-        {% if place.total_persons_power %}
-        {% set power = (person.power/place.total_persons_power) %}
-        {% else %}
-        {% set power = 0 %}
-        {% endif %}
+              <th>
+                {{ person.name }}
+                <small>{{ person.race_verbose }}-{{ person.type_verbose }}</small>
+                {% if hero and hero.preferences.friend_id == person.id %}
+                <span class="badge badge-success">соратник</span>
+                {% endif %}
+                {% if hero and hero.preferences.enemy_id == person.id %}
+                <span class="badge badge-important">противник</span>
+                {% endif %}
+              </th>
+              <th class="person-power">
+                влиятельность
+              </th>
+            </tr>
 
-        <h4>
-          {{ person.name }}
-          <small>{{ person.race_verbose }}-{{ person.type_verbose }}</small>
-          {% if hero and hero.preferences.friend_id == person.id %}
-          <span class="badge badge-success">соратник</span>
-          {% endif %}
-          {% if hero and hero.preferences.enemy_id == person.id %}
-          <span class="badge badge-important">противник</span>
-          {% endif %}
-        </h4>
+            <tr>
+              <td>
+                соратников/противников: {{person.friends_number}}/{{person.enemies_number}}
+              </td>
+              <td class="person-power">
+                {% if place.total_persons_power %}
+                {% set power = (person.power/place.total_persons_power) %}
+                {% else %}
+                {% set power = 0 %}
+                {% endif %}
 
-        <ul class="unstyled" style="margin-left: 40px;">
-          <li>
-            влиятельность:
-            <div class="progress progress-warning">
-              <div class="bar pgf-health-percents" style="width: {{ power|percents }};"></div>
-            </div>
-            <span class="pgf-power">{{ power|percents }}</span>
-          </li>
-          <li>
-            соратников/противников: {{person.friends_number}}/{{person.enemies_number}}
-          </li>
-        </ul>
+                <div class="progress progress-warning">
+                  <div class="bar pgf-health-percents" style="width: {{ power|percents }};"></div>
+                </div>
+                <span class="pgf-power">{{ power|percents }}</span>
+              </td>
+
+            </tr>
+          </tbody>
+
+        </table>
+
       </li>
       {% endfor %}
     </ul>

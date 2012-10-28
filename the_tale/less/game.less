@@ -285,7 +285,7 @@
       right: -1px;
       top: 0;
       z-index: 1001;
-      background-color: @background-color;
+      background-color: @block-background-color;
       /* margin: 2px; */
 
       border: 1px solid @border-color;
@@ -309,25 +309,34 @@
 
    .description {
       min-height: 70px;
+      text-align: justify;
 
       img {
          float: left;
       }
    }
 
+   .data-updated-time {
+      color: @disabled-text-color;
+   }
+
+   .person-table {
+      margin-bottom: 0;
+
+      .profession-icon {
+         width: 32px;
+         vertical-align: middle;
+      }
+
+      .person-power {
+         width: 150px;
+      }
+   }
+
    .person-record {
-      min-height: 40px;
-      margin-top: 0.5em;
+      min-height: 32px;
+      margin-top: 1em;
       cursor: default;
-
-      &:hover {
-         background-color: @hover-color;
-      }
-
-      img {
-         float: left;
-         margin: 4px;
-      }
 
       .progress {
          width: 100px;

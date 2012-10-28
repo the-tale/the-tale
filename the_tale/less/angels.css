@@ -1,13 +1,2 @@
 
 @import "constants.less";
-
-.angel-info-table {
-
-   &.table tbody tr:hover td {
-      background-color: white;
-   }
-
-   &.table tbody tr:hover th {
-      background-color: #F9F9F9;
-   }
-}
