@@ -23,6 +23,9 @@ game_settings = app_settings('GAME',
                              ENABLE_WORKER_MIGHT_CALCULATOR=True,
                              ENABLE_WORKER_LONG_COMMANDS=True,
 
+                             SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY = 'prev real day started',
+                             REAL_DAY_STARTED_TIME=8, # UTC hourse
+
                              JS_CONSTNATS_FILE_LOCATION='./static/game/data/constants.js',
 
                              TEXTGEN_SOURCES_DIR=os.path.join(APP_DIR, 'fixtures', 'textgen', 'texts_src'),

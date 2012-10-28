@@ -141,6 +141,7 @@ INSTALLED_APPS = (
     'guide',
 
     'portal',
+    'portal.newspaper',
 
     'game',
     'game.angels',

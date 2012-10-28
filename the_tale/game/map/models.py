@@ -12,3 +12,4 @@ class MapInfo(models.Model):
 
     terrain = models.TextField(null=False, default='[]')
 
+    terrain_percents = models.TextField(null=False, default='{}')

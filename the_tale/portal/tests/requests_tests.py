@@ -4,10 +4,13 @@ from django.core.urlresolvers import reverse
 
 from common.utils.testcase import TestCase
 
+from game.logic import create_test_map
+
 
 class TestRequests(TestCase):
 
     def setUp(self):
+        create_test_map()
         self.client = client.Client()
 
     def test_index(self):

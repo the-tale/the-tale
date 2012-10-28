@@ -37,7 +37,7 @@
   <a href="{{url('game:angels:show', thread.author.id)}}">{{ thread.author.nick }}</a>
   {% endif %}
 </td>
-<td class="updated-at pgf-format-time" data-timestamp="{{ thread.updated_at|timestamp }}"></td>
+<td class="updated-at pgf-format-datetime" data-timestamp="{{ thread.updated_at|timestamp }}"></td>
 
 
 {% endmacro %}

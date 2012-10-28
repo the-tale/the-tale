@@ -109,7 +109,7 @@ pgf.base.RenderTemplateList = function(selector, data, newElementCallback, param
 };
 
 pgf.base.AutoFormatTime = function() {
-    jQuery('.pgf-format-time').each(function(i, v){
+    jQuery('.pgf-format-datetime').each(function(i, v){
         var el = jQuery(v);
         var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
         var text = Globalize.format( new Date(timestamp), "d" ) + ' ' + Globalize.format( new Date(timestamp), "t" ) + ' UTC';
@@ -120,6 +120,13 @@ pgf.base.AutoFormatTime = function() {
         var el = jQuery(v);
         var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
         var text = Globalize.format( new Date(timestamp), "d" ) + ' UTC';
+        el.text(text);
+    });
+
+    jQuery('.pgf-format-time').each(function(i, v){
+        var el = jQuery(v);
+        var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
+        var text = Globalize.format( new Date(timestamp), "t" ) + ' UTC';
         el.text(text);
     });
 };

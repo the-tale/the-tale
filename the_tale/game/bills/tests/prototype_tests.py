@@ -112,6 +112,7 @@ class TestPrototype(BaseTestPrototypes):
         self.bill = BillPrototype.get_by_id(self.bill.id)
 
         self.assertTrue(old_updated_at < self.bill.updated_at)
+        self.assertTrue(self.bill.state.is_voting)
         self.assertEqual(self.bill.votes_for, 1)
         self.assertEqual(self.bill.votes_against, 0)
         self.assertEqual(Vote.objects.all().count(), 1)
@@ -139,7 +140,7 @@ class TestPrototype(BaseTestPrototypes):
         self.bill.update_by_moderator(form)
 
         self.bill = BillPrototype.get_by_id(self.bill.id)
-
+        self.assertTrue(self.bill.state.is_voting)
         self.assertEqual(self.bill.approved_by_moderator, True)
         self.assertEqual(self.bill.data.name_forms.forms, self.NAME_FORMS)
 
@@ -202,8 +203,10 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.assertEqual(Post.objects.all().count(), 1)
 
         self.assertFalse(self.bill.apply())
+        self.assertTrue(self.bill.state.is_rejected)
 
         self.assertEqual(Post.objects.all().count(), 2)
+
 
         bill = BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_rejected)
@@ -222,6 +225,7 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.assertEqual(Post.objects.all().count(), 1)
 
         self.assertFalse(self.bill.apply())
+        self.assertTrue(self.bill.state.is_rejected)
 
         self.assertEqual(Post.objects.all().count(), 2)
 
@@ -255,6 +259,7 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.assertEqual(Post.objects.all().count(), 1)
 
         self.assertTrue(self.bill.apply())
+        self.assertTrue(self.bill.state.is_accepted)
 
         self.assertEqual(Post.objects.all().count(), 2)
 

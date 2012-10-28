@@ -1,0 +1,25 @@
+
+<ul class="unstyled">
+  <li>
+    <h4>
+      <a href="{{ url('game:heroes:show', hero_of_the_day.data.hero_id) }}">{{ hero_of_the_day.data.hero_name }}</a>
+      <small>{{ hero_of_the_day.data.gender_verbose }} {{ hero_of_the_day.data.race_verbose}}</small>
+    </h4>
+  </li>
+
+  <li>
+    <strong>уровень:</strong> {{ hero_of_the_day.data.level}}
+  </li>
+
+  <li>
+    <strong>сила:</strong> {{ hero_of_the_day.data.power }}
+  </li>
+
+  <li>
+    <strong>покровитель:</strong> <a href="{{ url('game:angels:show', hero_of_the_day.data.account_id) }}">{{ hero_of_the_day.data.nick}}</a>
+  </li>
+
+  <li>
+    <strong>могущество:</strong> {{ hero_of_the_day.data.might }}
+  </li>
+</ul>

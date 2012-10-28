@@ -1,4 +1,6 @@
 # coding: utf-8
+import time
+import datetime
 import subprocess
 
 from dext.settings import settings
@@ -18,6 +20,7 @@ from game.map.places.conf import places_settings
 
 from game.bills.conf import bills_settings
 from game.conf import game_settings
+from game import signals as game_signals
 
 class HighlevelException(Exception): pass
 
@@ -63,6 +66,12 @@ class Worker(BaseWorker):
         from game.workers.environment import workers_environment as game_workers_environment
 
         settings.refresh()
+
+        # check if new real day started
+        if (time.time() - float(settings.get(game_settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY, 0)) > 23.5*60*60 and
+            datetime.datetime.now().hour >= game_settings.REAL_DAY_STARTED_TIME):
+            game_signals.day_started.send(self.__class__)
+            settings[game_settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY] = str(time.time())
 
         map_update_needed = False
         with nested_commit_on_success():

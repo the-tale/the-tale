@@ -7,16 +7,10 @@ from django.core.urlresolvers import reverse
 
 from common.utils.fake import FakeWorkerCommand
 
-
-from common.utils.fake import FakeWorkerCommand
-
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
-from game.logic import create_test_bundle, create_test_map
-from game.actions.prototypes import ActionQuestPrototype
-from game.quests.logic import create_random_quest_for_hero
-from game.prototypes import TimePrototype
+from game.logic import create_test_map
 from game.bundles import BundlePrototype
 from game.conf import game_settings
 

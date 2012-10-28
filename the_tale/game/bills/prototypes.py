@@ -16,6 +16,7 @@ from game.bills.models import Bill, Vote, BILL_STATE
 from game.bills.bills import deserialize_bill
 from game.bills.conf import bills_settings
 from game.bills.exceptions import BillException
+from game.bills import signals
 
 class BillPrototype(object):
 
@@ -31,6 +32,9 @@ class BillPrototype(object):
 
     @property
     def id(self): return self.model.id
+
+    @property
+    def type(self): return self.model.type
 
     def get_state(self):
         if not hasattr(self, '_state'):
@@ -140,7 +144,7 @@ class BillPrototype(object):
 
 
         if (self.is_percents_baries_passed or self.is_votes_baries_passed ):
-            self.model.state = BILL_STATE.REJECTED
+            self.set_state(BILL_STATE.REJECTED)
             self.save()
 
             PostPrototype.create(ThreadPrototype(self.model.forum_thread),
@@ -148,11 +152,12 @@ class BillPrototype(object):
                                  u'Законопроект отклонён.',
                                  technical=True)
 
+            signals.bill_processed.send(self.__class__, bill=self)
             return False
 
         self.data.apply()
 
-        self.model.state = BILL_STATE.ACCEPTED
+        self.set_state(BILL_STATE.ACCEPTED)
         self.save()
 
         PostPrototype.create(ThreadPrototype(self.model.forum_thread),
@@ -160,6 +165,7 @@ class BillPrototype(object):
                              u'Законопроект принят. Изменения вступят в силу в ближайшее время.',
                              technical=True)
 
+        signals.bill_processed.send(self.__class__, bill=self)
         return True
 
 
@@ -184,6 +190,8 @@ class BillPrototype(object):
                              self.owner,
                              u'Законопроект был отредактирован, все голоса сброшены.',
                              technical=True)
+
+        signals.bill_edited.send(self.__class__, bill=self)
 
     @nested_commit_on_success
     def update_by_moderator(self, form):
@@ -214,11 +222,13 @@ class BillPrototype(object):
                                     # min_votes_percents_required=bills_settings.MIN_VOTES_PERCENT,
                                     forum_thread=thread.model)
 
-        bill = cls(model)
+        bill_prototype = cls(model)
 
-        VotePrototype.create(owner, bill, True)
+        VotePrototype.create(owner, bill_prototype, True)
 
-        return bill
+        signals.bill_created.send(sender=cls, bill=bill_prototype)
+
+        return bill_prototype
 
     def save(self):
         self.model.technical_data=s11n.to_json(self.data.serialize())

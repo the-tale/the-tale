@@ -3,7 +3,7 @@
 
 <li class="{% if type == SECTION %}active{% endif %} {% if submenus %}dropdown{% endif %}">
   <a href="{{ url }}" {% if submenus %}class="dropdown-toggle" data-toggle="dropdown"{% endif %}>
-    {{ name }} {% if submenus %}<b class="caret"></b>{% endif %}
+    {{ name|safe }} {% if submenus %}<b class="caret"></b>{% endif %}
   </a>
 
   {% if submenus %}

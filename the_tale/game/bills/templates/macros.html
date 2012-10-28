@@ -20,7 +20,7 @@
 
     <tr>
       <th>обновлён</th>
-      <td><span class="pgf-format-time" data-timestamp="{{ bill.updated_at|timestamp }}"></span></td>
+      <td><span class="pgf-format-datetime" data-timestamp="{{ bill.updated_at|timestamp }}"></span></td>
       <th>состояние</th>
       <td>
         {% if bill.state.is_voting %}

@@ -6,7 +6,7 @@
   <div class="">{{ news.html_description|safe }}</div>
 
   <div class="news-info">
-    <span class="publication-date">опубликовано: <span class="pgf-format-time" data-timestamp="{{ news.created_at|timestamp }}"></span></span>
+    <span class="publication-date"><span class="pgf-format-datetime" data-timestamp="{{ news.created_at|timestamp }}"></span></span>
     {% if news.forum_thread %}
     <a class="pgf-forum-link" href="{{ news.forum_thread.get_absolute_url() }}">комментарии</a>
     {% endif %}
