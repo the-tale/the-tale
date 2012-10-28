@@ -1977,6 +1977,52 @@
     }
   ], 
   "quest_spying_diary_open_up_choice": [], 
+  "action_inplace_impact_bad": [
+    {
+      "internals": [
+        [
+          "Заплатил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "Заплатил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "person", 
+          [], 
+          "e_1", 
+          [
+            "загл"
+          ], 
+          "person"
+        ]
+      ], 
+      "template": "%(i_0)s %(e_0)s %(i_1)s специально обученным людям. %(e_1)s будет в ярости."
+    }
+  ], 
   "quest_notmywork_journal_move_to_quest": [
     {
       "internals": [], 
@@ -2336,6 +2382,7 @@
       "template": "%(e_0)s %(i_0)s продолжить шпионаж."
     }
   ], 
+  "quest_helpfriend_action_negative_get_reward": [], 
   "quest_delivery_diary_intro": [
     {
       "internals": [
@@ -2979,70 +3026,7 @@
       "template": "защищать торговца"
     }
   ], 
-  "hero_common_level_up": [
-    {
-      "internals": [
-        [
-          "великий", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "загл"
-          ], 
-          "великий"
-        ], 
-        [
-          "получил", 
-          [
-            "hero"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "получил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ], 
-        [
-          "level", 
-          [], 
-          "e_1", 
-          [], 
-          "level"
-        ]
-      ], 
-      "template": "«В этот знаменательный день %(i_0)s %(e_0)s милостью богов %(i_1)s %(e_1)s уровень.» — Без сомнения, именно так и запишут в летопесях."
-    }, 
-    {
-      "internals": [
-        [
-          "стал", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "стал"
-        ]
-      ], 
-      "externals": [], 
-      "template": "«Ура! Ещё на один уровень больше! Я %(i_0)s сильнее! Умнее! Красивее! И… и… Героистее!!! Да!»"
-    }
-  ], 
+  "quest_helpfriend_action_positive_get_reward": [], 
   "quest_searchsmith_journal_intro": [], 
   "quest_helpfriend_diary_positive_get_reward": [
     {
@@ -4393,50 +4377,68 @@
     }
   ], 
   "quest_caravan_diary_bandits_attack": [], 
-  "action_inplace_impact_bad": [
+  "hero_common_level_up": [
     {
       "internals": [
         [
-          "Заплатил", 
+          "великий", 
           [
             "hero"
           ], 
           "i_0", 
           [
-            "прш", 
             "загл"
           ], 
-          "Заплатил"
+          "великий"
         ], 
         [
-          "монета", 
+          "получил", 
           [
-            "coins"
+            "hero"
           ], 
           "i_1", 
-          [], 
-          "монета"
+          [
+            "прш"
+          ], 
+          "получил"
         ]
       ], 
       "externals": [
         [
-          "coins", 
+          "hero", 
           [], 
           "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "person", 
-          [], 
-          "e_1", 
           [
             "загл"
           ], 
-          "person"
+          "hero"
+        ], 
+        [
+          "level", 
+          [], 
+          "e_1", 
+          [], 
+          "level"
         ]
       ], 
-      "template": "%(i_0)s %(e_0)s %(i_1)s специально обученным людям. %(e_1)s будет в ярости."
+      "template": "«В этот знаменательный день %(i_0)s %(e_0)s милостью богов %(i_1)s %(e_1)s уровень.» — Без сомнения, именно так и запишут в летопесях."
+    }, 
+    {
+      "internals": [
+        [
+          "стал", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "стал"
+        ]
+      ], 
+      "externals": [], 
+      "template": "«Ура! Ещё на один уровень больше! Я %(i_0)s сильнее! Умнее! Красивее! И… и… Героистее!!! Да!»"
     }
   ], 
   "quest_hometown_action_intro": [

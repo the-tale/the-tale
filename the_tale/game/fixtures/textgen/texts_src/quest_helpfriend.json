@@ -13,6 +13,9 @@
         "action_move_to_quest": [["[[hero]] идёт в гости",
                                   "привидение идёт в гости"]],
 
+        "action_positive_get_reward": [],
+        "action_negative_get_reward": [],
+
         "journal_move_to_quest": [],
 
         "diary_move_to_quest": [],
