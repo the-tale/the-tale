@@ -87,6 +87,30 @@ class MoveNearActionTest(TestCase):
         self.assertTrue(not self.hero.position.is_walking)
         test_bundle_save(self, self.bundle)
 
+    def test_move_change_place_coordinates_and_back(self):
+
+        current_time = TimePrototype.get_current_time()
+
+        while len(self.bundle.actions) != 1:
+            self.bundle.process_turn()
+            current_time.increment_turn()
+
+        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionIdlenessPrototype.TYPE)
+        self.assertTrue(self.hero.position.is_walking or self.hero.position.place)  # can end in start place
+
+        ActionMoveNearPlacePrototype.create(self.action_idl, self.p1, True)
+        self.p1.model.x = self.p1.x + 1
+        self.p1.model.y = self.p1.y + 1
+        self.p1.save()
+
+        while self.hero.position.place is None or self.hero.position.place.id != self.p1.id:
+            self.bundle.process_turn()
+            current_time.increment_turn()
+
+        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionInPlacePrototype.TYPE)
+        self.assertTrue(not self.hero.position.is_walking)
+        test_bundle_save(self, self.bundle)
+
     def test_full(self):
 
         current_time = TimePrototype.get_current_time()

@@ -44,7 +44,7 @@ class Place(models.Model):
 
     name_forms = models.TextField(null=False, default=u'')
 
-    description = models.TextField(null=False, default=u'')
+    description = models.TextField(null=False, default=u'', blank=True)
 
     terrain = models.CharField(max_length=1,
                                default=TERRAIN.GRASS,

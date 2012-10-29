@@ -173,6 +173,9 @@ class ActionPrototype(object):
     textgen_id = property(get_textgen_id, set_textgen_id)
 
     @property
+    def back(self): return self.model.back
+
+    @property
     def help_choices(self):
         choices = copy.copy(self.EXTRA_HELP_CHOICES)
         choices.add(c.HELP_CHOICES.MONEY)
@@ -1085,7 +1088,8 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                                        place=place.model,
                                        destination_x=x,
                                        destination_y=y,
-                                       state=cls.STATE.MOVING)
+                                       state=cls.STATE.MOVING,
+                                       back=back)
 
         if parent.hero.position.is_walking:
             from_x, from_y = parent.hero.position.coordinates_to
@@ -1160,10 +1164,18 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                 self.percents = self.hero.position.percents
 
                 if self.hero.position.percents >= 1:
+
+                    to_x, to_y = self.hero.position.coordinates_to
+
+                    if self.back and not (self.place.x == to_x and self.place.y == to_y):
+                        # if place was moved
+                        from_x, from_y = self.hero.position.coordinates_to
+                        self.hero.position.set_coordinates(from_x, from_y, self.place.x, self.place.y, percents=0)
+                        return
+
                     self.hero.position.percents = 1
                     self.percents = 1
 
-                    to_x, to_y = self.hero.position.coordinates_to
                     if self.place.x == to_x and self.place.y == to_y:
                         self.hero.position.set_place(self.place)
                         ActionInPlacePrototype.create(parent=self)

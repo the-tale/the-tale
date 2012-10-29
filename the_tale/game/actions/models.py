@@ -34,6 +34,7 @@ class Action(models.Model):
     extra_probability = models.FloatField(null=True, blank=True, default=None)
     mob_context = models.TextField(null=False, default='{}')
     textgen_id = models.CharField(max_length=128, null=True, blank=True, default=None)
+    back = models.BooleanField(null=False, default=False)
 
     @classmethod
     def get_related_query(cls):
