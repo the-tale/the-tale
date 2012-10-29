@@ -114,15 +114,15 @@ jQuery(document).ready(function() {
                                                                          (url("guide:hero-preferences"), "Предпочтения героев"),
                                                                          (url("guide:politics"), "Политика"),
                                                                          (url("cms:world:"), get_cms_section_info("world").caption)]) }}
-            {% if request.user.is_authenticated() %}
-            {{ base_macros.main_menu_item("bills", url("game:bills:"), "Политика") }}
-            {% endif %}
-
             {{ base_macros.main_menu_item("angels", url("game:angels:"), "Игроки") }}
             {{ base_macros.main_menu_item("ratings", url("game:ratings:"), "Рейтинги") }}
 
             {% if request.user.is_authenticated() %}
-            {{ base_macros.main_menu_item("game", url("game:"), "Игра") }}
+            {{ base_macros.main_menu_item("bills", url("game:bills:"), "Политика") }}
+            {% endif %}
+
+            {% if request.user.is_authenticated() %}
+            {{ base_macros.main_menu_item("game", url("game:"), "<span class='game-link'>Игра</span>") }}
             {% else %}
             <li><a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration attention-link"><strong>создать героя</strong></a></li>
             {% endif %}
