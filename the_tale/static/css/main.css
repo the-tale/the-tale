@@ -11,6 +11,10 @@
 @import "guide.css";
 
 @import "politics.css";
+
+@import "angels.css";
+
+@import "newspaper.css";
 html {
   height: 100%;
 }
@@ -28,7 +32,7 @@ body #main-container #content {
 }
 body div.block,
 body li.block {
-  background-color: whiteSmoke;
+  background-color: WhiteSmoke;
   border: 1px solid #cccccc;
   border-radius: 8px;
   padding: 0.75em;
@@ -120,9 +124,11 @@ small {
   width: 32px;
 }
 /* remove table row highlighting */
-table.table-no-highlighting.table tbody tr:hover td,
+table.table-no-highlighting.table tbody tr:hover td {
+  background-color: white;
+}
 table.table-no-highlighting.table tbody tr:hover th {
-  background-color: transparent;
+  background-color: #F9F9F9;
 }
 table.table-striped tbody tr:nth-child(odd):hover td {
   background-color: #F9F9F9;
@@ -145,4 +151,12 @@ blockquote {
 }
 .rss-link:hover {
   text-decoration: none !important;
+}
+li .game-link {
+  color: #AAA;
+  font-weight: bold;
+}
+li.active .game-link {
+  color: white;
+  font-weight: normal;
 }

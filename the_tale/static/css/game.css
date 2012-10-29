@@ -34,7 +34,7 @@
 }
 #hero-base-block .attribute-record {
   display: inline-block;
-  width: 49%;
+  width: 32%;
 }
 #hero-base-block .attribute-record:hover {
   background-color: #dddddd;
@@ -200,7 +200,7 @@
   right: -1px;
   top: 0;
   z-index: 1001;
-  background-color: whiteSmoke;
+  background-color: WhiteSmoke;
   /* margin: 2px; */
 
   border: 1px solid #cccccc;
@@ -211,28 +211,35 @@
 }
 .place-description-dialog {
   cursor: default;
-  background-color: whiteSmoke !important;
+  background-color: #ffffff !important;
 }
 .place-description-dialog .dialog-title span {
   vertical-align: middle;
 }
 .place-description-dialog .description {
   min-height: 70px;
+  text-align: justify;
 }
 .place-description-dialog .description img {
   float: left;
 }
+.place-description-dialog .data-updated-time {
+  color: #999999;
+}
+.place-description-dialog .person-table {
+  margin-bottom: 0;
+}
+.place-description-dialog .person-table .profession-icon {
+  width: 32px;
+  vertical-align: middle;
+}
+.place-description-dialog .person-table .person-power {
+  width: 150px;
+}
 .place-description-dialog .person-record {
-  min-height: 40px;
-  margin-top: 0.5em;
+  min-height: 32px;
+  margin-top: 1em;
   cursor: default;
-}
-.place-description-dialog .person-record:hover {
-  background-color: #dddddd;
-}
-.place-description-dialog .person-record img {
-  float: left;
-  margin: 4px;
 }
 .place-description-dialog .person-record .progress {
   width: 100px;

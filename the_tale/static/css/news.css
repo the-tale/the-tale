@@ -1,8 +1,18 @@
 .news-record {
-  margin-bottom: 1.5em;
+  margin-bottom: 1em;
 }
 .news-record .caption {
-  margin-bottom: 0.5em;
+  margin-bottom: 0.15em;
+}
+.news-record .news-info {
+  margin-top: -0.5em;
+  font-size: 10pt;
+}
+.news-record .news-info .publication-date {
+  font-size: 8pt;
+}
+.news-info {
+  margin-top: -0.5em;
 }
 .news-info .publication-date {
   color: #999999;
