@@ -21,11 +21,7 @@ var widgets = {};
 
 jQuery(document).ready(function(e){
 
-    {% if angel %}
-    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?angel={{ angel.id }}"});
-    {% else %}
     updater = new pgf.game.Updater({url: "{{ url('game:info') }}"});
-    {% endif %}
 
     {% if settings.DEBUG %}
     function DoTurns(number) {
@@ -113,7 +109,6 @@ jQuery(document).ready(function(e){
 
 {% block content %}
 
-{% if angel %}
 <div class="row">
   <div class="span3">
     {{ hero_short_macros.hero_short(true, true) }}
@@ -214,20 +209,5 @@ jQuery(document).ready(function(e){
   </div>
 
 </div>
-{% else %}
-
-<div class="alert fade in">
-  <button type="button" class="close" data-dismiss="alert">×</button>
-  Вы можете <a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration">создать героя</a> или <a href="{{ url('accounts:login') }}">войти</a>, если уже его имеете.
-</div>
-
-<div class="row">
-  <div class="tab-pane span12" id="pgf-map-container">
-    {% include "game/map.html" %}
-  </div>
-</div>
-
-
-{% endif %}
 
 {% endblock %}

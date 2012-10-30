@@ -7,7 +7,11 @@ from dext.settings import settings
 
 from common.utils.fake import FakeWorkerCommand
 
-from game.logic import create_test_bundle, create_test_map
+from accounts.logic import register_user
+
+from game.bundles import BundlePrototype
+
+from game.logic import create_test_map
 from game.actions.prototypes import ActionQuestPrototype
 from game.quests.logic import create_random_quest_for_hero
 from game.prototypes import TimePrototype
@@ -23,7 +27,9 @@ class QuestPrototypeTest(TestCase):
 
         create_test_map()
 
-        self.bundle = create_test_bundle('QuestActionTest')
+        result, account_id, bundle_id = register_user('test_user')
+        self.bundle = BundlePrototype.get_by_id(bundle_id)
+
         self.hero = self.bundle.tests_get_hero()
         self.action_idl = self.bundle.tests_get_last_action()
         self.quest = create_random_quest_for_hero(self.hero)

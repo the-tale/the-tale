@@ -2,8 +2,9 @@
 import math
 
 from dext.views.resources import handler
-from dext.utils.decorators import staff_required, debug_required
+from dext.utils.decorators import debug_required
 
+from common.utils.decorators import staff_required
 from common.utils.resources import Resource
 
 from . import constants as c, formulas as f

@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from dext.views.resources import handler
-from dext.utils.decorators import staff_required, debug_required
+from dext.utils.decorators import debug_required
 
+from common.utils.decorators import staff_required, login_required
 from common.utils.resources import Resource
 
-from game.angels.prototypes import AngelPrototype
+from accounts.prototypes import AccountPrototype
+
+from game.abilities.models import AbilitiesData
+from game.abilities.deck import ABILITIES
+
+from game.heroes.prototypes import HeroPrototype
 
 from game.map.conf import map_settings
 from game.quests.prototypes import QuestPrototype
@@ -17,52 +23,40 @@ class GameResource(Resource):
     def initialize(self, *args, **kwargs):
         super(GameResource, self).initialize(*args, **kwargs)
 
+    @login_required
     @handler('', method='get')
     def game_page(self):
         return self.template('game/game_page.html',
                              {'map_settings': map_settings,
-                              'game_settings': game_settings,
-                              'angel': self.account.angel if self.account else None } )
+                              'game_settings': game_settings } )
 
+    @login_required
     @handler('info', method='get')
-    def info(self, angel=None):
+    def info(self, account=None):
+
+        if account is None:
+            account = self.account
+        else:
+            try:
+                account = int(account)
+            except ValueError:
+                return self.json_error('game.info.wrong_account_id', u'Неверный идентификатор аккаунта')
+
+            account = AccountPrototype.get_by_id(account)
+
+            if account is None:
+                return self.json_error('game.info.account_not_exists', u'Аккаунт не найден')
 
         data = {}
 
         data['turn'] = self.time.ui_info()
 
-        is_own_angel = False
+        hero = HeroPrototype.get_by_account_id(account.id)
+        data['hero'] = hero.ui_info()
 
-        if self.account:
-            own_angel = self.account.angel
-
-            if angel is None:
-                angel = own_angel
-                is_own_angel = True
-
-            else:
-                angel = AngelPrototype.get_by_id(int(angel))
-
-                if angel is None:
-                    return self.json_error('game.info.no_angel_id_for_anonimouse_request', u'Вы не указали идентификатор игрока, информацию которого хотите получить')
-
-                if own_angel.id == angel.id:
-                    is_own_angel = True
-        else:
-
-            if angel is None:
-                return self.json_error('game.info.no_angel_id_for_anonimouse_request', u'Вы не указали идентификатор игрока, информацию которого хотите получить')
-
-            angel = AngelPrototype.get_by_id(int(angel))
-
-        if angel:
-
-            hero = angel.get_hero()
-
-            if is_own_angel:
-                data['angel'] = angel.ui_info(turn_number=self.time.turn_number)
-
-            data['hero'] = hero.ui_info()
+        if self.account.id == account.id:
+            abilities_data = AbilitiesData.objects.get(hero_id=hero.id)
+            data['abilities'] = [ability(abilities_data).ui_info() for ability_type, ability in ABILITIES.items()]
 
             quest = QuestPrototype.get_for_hero(hero.id)
             if quest:
@@ -70,7 +64,7 @@ class GameResource(Resource):
             else:
                 data['hero']['quests'] = {}
 
-        return self.json(status='ok', data=data)
+        return self.json_ok(data=data)
 
     @debug_required
     @staff_required()

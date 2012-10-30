@@ -6,8 +6,8 @@ from django.utils.feedgenerator import Atom1Feed
 
 from dext.views.resources import handler
 from dext.utils.decorators import nested_commit_on_success
-from dext.utils.decorators import staff_required
 
+from common.utils.decorators import staff_required
 from common.utils.resources import Resource
 
 from cms.news.models import News

@@ -6,10 +6,9 @@ from dext.utils import s11n
 
 from common.utils.testcase import TestCase
 
-from accounts.logic import register_user
+from accounts.logic import register_user, login_url
 
 from game.logic import create_test_map
-from game.angels.prototypes import AngelPrototype
 
 class TestRequests(TestCase):
 
@@ -26,31 +25,34 @@ class TestRequests(TestCase):
 
 
     def test_game_page_unlogined(self):
-        response = self.client.get(reverse('game:'))
-        self.assertEqual(response.status_code, 200)
+        self.check_redirect(reverse('game:'), login_url(reverse('game:')))
 
     def test_game_page_logined(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.get(reverse('game:'))
         self.assertEqual(response.status_code, 200)
 
     def test_info_unlogined(self):
-        self.check_ajax_error(self.client.get(reverse('game:info')), 'game.info.no_angel_id_for_anonimouse_request')
+        self.check_redirect(reverse('game:info'), login_url(reverse('game:info')))
 
     def test_info_logined(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.get(reverse('game:info'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'angel')))
+        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'abilities')))
 
-    def test_info_other_angel(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-        response = self.client.get(reverse('game:info') + ('?angel=%s' % AngelPrototype.get_by_account_id(self.account_2_id).id))
+    def test_info_other_account(self):
+        self.request_login('test_user@test.com')
+        response = self.client.get(reverse('game:info') + ('?account=%s' % self.account_2_id))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero',)))
 
-    def test_info_wrong_angel(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
-        response = self.client.get(reverse('game:info') + '?angel=666')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+    def test_info_account_not_exists(self):
+        self.request_login('test_user@test.com')
+        response = self.client.get(reverse('game:info') + '?account=666')
+        self.check_ajax_error(response, 'game.info.account_not_exists')
+
+    def test_info_wrong_account_id(self):
+        self.request_login('test_user@test.com')
+        response = self.client.get(reverse('game:info') + '?account=sdsd')
+        self.check_ajax_error(response, 'game.info.wrong_account_id')

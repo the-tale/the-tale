@@ -9,10 +9,11 @@ from dext.utils.app_settings import app_settings
 SITE_SECTIONS = ( (re.compile(r'^/$'), 'index'),
                   (re.compile(r'^/news.*$'), 'news'),
                   (re.compile(r'^/forum.*$'), 'forum'),
+                  (re.compile(r'^/accounts/auth.*$'), 'auth'),
                   (re.compile(r'^/accounts/profile.*$'), 'profile'),
+                  (re.compile(r'^/accounts/.*$'), 'accounts'),
                   (re.compile(r'^/game/heroes.*$'), 'hero'),
                   (re.compile(r'^/game/bills.*$'), 'bills'),
-                  (re.compile(r'^/game/angels.*$'), 'angels'),
                   (re.compile(r'^/game/ratings.*$'), 'ratings'),
                   (re.compile(r'^/game.*$'), 'game'),
                   (re.compile(r'^/guide.*$'), 'guide') )

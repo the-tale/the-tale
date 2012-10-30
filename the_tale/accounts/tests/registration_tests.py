@@ -12,7 +12,10 @@ from accounts.logic import register_user, REGISTER_USER_RESULT
 from accounts.prototypes import RegistrationTaskPrototype, AccountPrototype
 from accounts.models import Account, RegistrationTask, REGISTRATION_TASK_STATE
 
+from game.heroes.prototypes import HeroPrototype
+
 from game.heroes.bag import SLOTS
+from game.abilities.models import AbilitiesData
 from game.logic import create_test_map
 
 def raise_exception(*argv, **kwargs): raise Exception('unknown error')
@@ -41,9 +44,9 @@ class TestRegistration(TestCase):
 
         self.assertTrue(not account.is_fast)
 
-        self.assertTrue(account.angel.get_hero())
+        hero = HeroPrototype.get_by_account_id(account.id)
 
-        hero = account.angel.get_hero()
+        self.assertTrue(AbilitiesData.objects.get(hero_id=hero.id))
 
         # test hero equipment
         self.assertEqual(hero.equipment.get(SLOTS.PANTS).id, 'default_pants')

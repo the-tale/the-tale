@@ -1,15 +1,15 @@
-{% extends "angels/base.html" %}
+{% extends "accounts/base.html" %}
 
 {% import 'bills/macros.html' as bills_macros with context %}
 
 {% block title %} {{ master_account.nick }} | {{ super() }}{% endblock %}
 
 
-{% block angels_content %}
+{% block accounts_content %}
 
-<h2>{{ master_account.nick_verbose }} <small>могущество: {{ master_angel.might|int }}</small></h2>
+<h2>{{ master_account.nick_verbose }} <small>могущество: {{ master_hero.might|int }}</small></h2>
 
-<table class="angel-info-table table table-condensed table-striped table-bordered table-no-highlighting">
+<table class="account-info-table table table-condensed table-striped table-bordered table-no-highlighting">
   <tbody>
     <tr>
       <th>герой</th>

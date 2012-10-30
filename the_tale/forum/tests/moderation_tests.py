@@ -46,15 +46,6 @@ class TestModeration(TestCase):
 
         self.thread3 = ThreadPrototype.create(self.subcategory, 'thread3-caption', self.second_account, 'thread3-text')
 
-
-    def login(self, user_name):
-        response = self.client.post(reverse('accounts:login'), {'email': '%s@test.com' % user_name, 'password': '111111'})
-        self.assertEqual(response.status_code, 200)
-
-    def logout(self):
-        response = self.client.post(reverse('accounts:logout'))
-        self.assertEqual(response.status_code, 200)
-
     def test_initialization(self):
         self.assertEqual(Category.objects.all().count(), 1)
         self.assertEqual(SubCategory.objects.all().count(), 2)
@@ -67,24 +58,24 @@ class TestModeration(TestCase):
 
     #button
     def test_loggined_has_add_thread_button(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:subcategory', args=[self.subcategory.slug])), texts=[('pgf-new-thread-button', 1)])
 
     def test_unlogined_has_add_thread_button(self):
         self.check_html_ok(self.client.get(reverse('forum:subcategory', args=[self.subcategory.slug])), texts=[('pgf-new-thread-button', 0)])
 
     def test_loggined_has_no_add_thread_button_in_closed_theme(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:subcategory', args=[self.subcategory2.slug])), texts=[('pgf-new-thread-button', 0)])
 
     def test_moderator_has_add_thread_button_in_closed_theme(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_html_ok(self.client.get(reverse('forum:subcategory', args=[self.subcategory2.slug])), texts=[('pgf-new-thread-button', 1)])
 
     #new page
 
     def test_loggined_new_thread_page(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcategory.id)),
                            texts=[('pgf-new-thread-form', 3)])
 
@@ -93,18 +84,18 @@ class TestModeration(TestCase):
         self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_loggined_new_thread_page_in_closed_theme(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcategory2.id)),
                            texts=[('pgf-new-thread-form', 0), ('forum.new_thread.no_permissions', 1)])
 
     def test_moderator_new_thread_page_in_closed_theme(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcategory2.id)),
                                            texts=[('pgf-new-thread-form', 3)])
 
     # create request
     def test_loggined_create_thread_page(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         response = self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcategory.id),
                                     {'caption': 'thread5-caption', 'text': 'thread5-text'})
 
@@ -119,13 +110,13 @@ class TestModeration(TestCase):
                               'common.login_required')
 
     def test_loggined_create_thread_page_in_closed_theme(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcategory2.id),
                                                {'caption': 'thread5-caption', 'text': 'thread5-text'}),
                               'forum.create_thread.no_permissions')
 
     def test_moderator_create_thread_page_in_closed_theme(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         response = self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcategory2.id),
                                     {'caption': 'thread5-caption', 'text': 'thread5-text'})
 
@@ -144,15 +135,15 @@ class TestModeration(TestCase):
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 0)])
 
     def test_main_user_has_edit_theme_button(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 1)])
 
     def test_second_user_has_edit_theme_button(self):
-        self.login('second_user')
+        self.request_login('second_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 0)])
 
     def test_moderator_user_has_edit_theme_button(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 1)])
 
     # page
@@ -161,20 +152,20 @@ class TestModeration(TestCase):
         self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_main_user_edit_theme_page(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:edit', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2),
                                                                                                         ('pgf-thread-subcategory', 0),
                                                                                                         ('thread-caption', 2)])
 
     def test_second_user_edit_theme_button(self):
-        self.login('second_user')
+        self.request_login('second_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:edit', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 0),
                                                                                                         ('forum.edit_thread.no_permissions', 1),
                                                                                                         ('pgf-thread-subcategory', 0),
                                                                                                         ('thread-caption', 0)])
 
     def test_moderator_user_edit_theme_button(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:edit', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2),
                                                                                                         ('pgf-thread-subcategory', 1),
                                                                                                         ('thread-caption', 2)])
@@ -185,7 +176,7 @@ class TestModeration(TestCase):
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
 
     def test_main_user_update_theme(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:threads:update', args=[self.thread.id]), {'caption': 'edited caption'}))
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, 'edited caption')
 
@@ -195,7 +186,7 @@ class TestModeration(TestCase):
         self.assertEqual(self.subcategory2.posts_count, 0)
         self.assertEqual(self.subcategory2.threads_count, 0)
 
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_ajax_error(self.client.post(reverse('forum:threads:update', args=[self.thread.id]), {'caption': 'edited caption', 'subcategory': self.subcategory2.id}),
                               'forum.update_thread.no_permissions_to_change_subcategory')
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
@@ -207,7 +198,7 @@ class TestModeration(TestCase):
 
 
     def test_main_user_update_theme_with_form_errors(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_ajax_error(self.client.post(reverse('forum:threads:update', args=[self.thread.id]), {'caption': ''}),
                               'forum.update_thread.form_errors')
         thread = Thread.objects.get(id=self.thread.id)
@@ -215,13 +206,13 @@ class TestModeration(TestCase):
         self.assertEqual(thread.subcategory_id, self.subcategory.id)
 
     def test_second_user_update_theme(self):
-        self.login('second_user')
+        self.request_login('second_user@test.com')
         self.check_ajax_error(self.client.post(reverse('forum:threads:update', args=[self.thread.id]), {'caption': 'edited caption'}),
                               'forum.update_thread.no_permissions')
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
 
     def test_moderator_user_update_theme(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:threads:update', args=[self.thread.id]), {'caption': 'edited caption'}))
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, 'edited caption')
 
@@ -231,7 +222,7 @@ class TestModeration(TestCase):
         self.assertEqual(self.subcategory2.posts_count, 0)
         self.assertEqual(self.subcategory2.threads_count, 0)
 
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:threads:update', args=[self.thread.id]), {'caption': 'edited caption', 'subcategory': self.subcategory2.id}))
         thread = Thread.objects.get(id=self.thread.id)
         self.assertEqual(thread.caption, 'edited caption')
@@ -251,31 +242,31 @@ class TestModeration(TestCase):
     ###############################
 
     def test_main_user_has_remove_thread_button(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 2)])
 
     def test_moderator_has_remove_thread_button(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 2)])
 
     def test_second_user_has_remove_thread_button(self):
-        self.login('second_user')
+        self.request_login('second_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 0)])
 
     def test_main_user_remove_thread(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])))
         self.assertEqual(Thread.objects.all().count(), 2)
         self.assertEqual(Post.objects.all().count(), 4)
 
     def test_moderator_remove_thread(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])))
         self.assertEqual(Thread.objects.all().count(), 2)
         self.assertEqual(Post.objects.all().count(), 4)
 
     def test_second_user_remove_thread(self):
-        self.login('second_user')
+        self.request_login('second_user@test.com')
         self.check_ajax_error(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])), 'forum.delete_thread.no_permissions')
         self.assertEqual(Thread.objects.all().count(), 3)
         self.assertEqual(Post.objects.all().count(), 8)
@@ -286,7 +277,7 @@ class TestModeration(TestCase):
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_second_user_remove_fast_account(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
 
         self.main_account.is_fast = True
         self.main_account.save()
@@ -300,23 +291,23 @@ class TestModeration(TestCase):
     ###############################
 
     def test_main_user_has_remove_post_button(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 3)])
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 3)])
 
     def test_moderator_has_remove_post_button(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 3)])
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 3)])
 
     def test_second_user_has_remove_post_button(self):
-        self.login('second_user')
+        self.request_login('second_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 0)])
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 2)])
 
     # main user
     def test_main_user_remove_post(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.assertEqual(Thread.objects.get(id=self.thread.id).posts_count, 3)
         self.assertEqual(SubCategory.objects.get(id=self.subcategory.id).posts_count, 5)
 
@@ -330,19 +321,19 @@ class TestModeration(TestCase):
 
     def test_main_user_remove_post_of_second_user(self):
         self.assertEqual(self.second_account, self.post4.author)
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_main_user_remove_first_post(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         post = Post.objects.filter(thread=self.thread.id).order_by('created_at')[0]
         self.check_ajax_error(self.client.post(reverse('forum:posts:delete', args=[post.id])), 'forum.delete_post.remove_first_post')
         self.assertEqual(Post.objects.all().count(), 8)
 
     # moderator
     def test_moderator_remove_post(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post.id])))
         self.assertEqual(Post.objects.all().count(), 8)
 
@@ -352,30 +343,30 @@ class TestModeration(TestCase):
 
     def test_moderator_remove_post_of_second_user(self):
         self.assertEqual(self.second_account, self.post4.author)
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_moderator_remove_first_post(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         post = Post.objects.filter(thread=self.thread.id).order_by('created_at')[0]
         self.check_ajax_error(self.client.post(reverse('forum:posts:delete', args=[post.id])), 'forum.delete_post.remove_first_post')
         self.assertEqual(Post.objects.all().count(), 8)
 
     # second user
     def test_second_user_remove_post(self):
-        self.login('second_user')
+        self.request_login('second_user@test.com')
         self.check_ajax_error(self.client.post(reverse('forum:posts:delete', args=[self.post.id])), 'forum.delete_post.no_permissions')
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_second_user_remove_post_of_second_user(self):
         self.assertEqual(self.second_account, self.post4.author)
-        self.login('second_user')
+        self.request_login('second_user@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_second_user_remove_first_post(self):
-        self.login('second_user')
+        self.request_login('second_user@test.com')
         post = Post.objects.filter(thread=self.thread3.id).order_by('created_at')[0]
         self.check_ajax_error(self.client.post(reverse('forum:posts:delete', args=[post.id])), 'forum.delete_post.remove_first_post')
         self.assertEqual(Post.objects.all().count(), 8)
@@ -386,17 +377,17 @@ class TestModeration(TestCase):
 
     # button
     def test_main_user_has_edit_post_button(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 3)])
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 2)])
 
     def test_moderator_has_edit_post_button(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 3)])
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 3)])
 
     def test_second_user_has_edit_post_button(self):
-        self.login('second_user')
+        self.request_login('second_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 0)])
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 1)])
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread3.id])), texts=[('pgf-change-post-button', 1)])
@@ -407,7 +398,7 @@ class TestModeration(TestCase):
         self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_edit_page_fast_account(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
 
         self.main_account.is_fast = True
         self.main_account.save()
@@ -415,15 +406,15 @@ class TestModeration(TestCase):
         self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=['forum.edit_thread.fast_account'])
 
     def test_edit_page_no_permissions(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post4.id])), texts=['forum.edit_thread.no_permissions'])
 
     def test_edit_page_moderator_access(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=[('pgf-change-post-form', 3), ('post-text', 1)])
 
     def test_edit_page_author_access(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=[('pgf-change-post-form', 3), ('post-text', 1)])
 
     # update post
@@ -433,7 +424,7 @@ class TestModeration(TestCase):
         self.assertEqual(self.post.text, Post.objects.get(id=self.post.id).text)
 
     def test_update_post_fast_account(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
 
         self.main_account.is_fast = True
         self.main_account.save()
@@ -442,20 +433,20 @@ class TestModeration(TestCase):
         self.assertEqual(self.post.text, Post.objects.get(id=self.post.id).text)
 
     def test_update_post_no_permissions(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_ajax_error(self.client.post(reverse('forum:posts:update', args=[self.post4.id])), 'forum.update_post.no_permissions')
         self.assertEqual(self.post4.text, Post.objects.get(id=self.post4.id).text)
 
     def test_update_post_form_errors(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_ajax_error(self.client.post(reverse('forum:posts:update', args=[self.post.id])), 'forum.update_post.form_errors')
 
     def test_update_post_moderator_access(self):
-        self.login('moderator')
+        self.request_login('moderator@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:update', args=[self.post.id]), {'text': 'new text'}))
         self.assertEqual(Post.objects.get(id=self.post.id).text, 'new text')
 
     def test_update_post_author_access(self):
-        self.login('main_user')
+        self.request_login('main_user@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:update', args=[self.post.id]), {'text': 'new text'}))
         self.assertEqual(Post.objects.get(id=self.post.id).text, 'new text')

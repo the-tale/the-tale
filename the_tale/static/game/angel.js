@@ -14,33 +14,6 @@ if (!pgf.game.events) {
     pgf.game.events = {};
 }
 
-pgf.game.widgets.Angel = function(selector, params) {
-
-    var content = jQuery(selector);
-    var data = undefined;
-
-    function RenderAngel() {
-        if (!data) return;
-
-        jQuery('.pgf-energy', content).text(data.energy.value);
-        jQuery('.pgf-max-energy', content).text(data.energy.max);
-
-        jQuery('.pgf-energy-percents', content).width( (100 * data.energy.value / data.energy.max) + '%');
-    };
-
-    function Refresh(game_data) {
-        data = game_data.angel;
-    };
-
-    function Render() {
-        RenderAngel();
-    };
-
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
-        Refresh(game_data);
-        Render();
-    });
-};
 
 pgf.game.widgets.Abilities = function(selector, widgets, params) {
     var instance = this;
@@ -61,7 +34,6 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
     var MINIMUM_LOCK_DELAY = 750;
     var abilitiesWaitingStartTimes = {};
 
-    var angelId = undefined;
     var angelEnergy = 0;
     var deck = {};
     var turn = {};
@@ -129,7 +101,6 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         var ajax_data = {};
         if (heroId !== undefined) {
             ajax_data.hero_id = heroId;
-            ajax_data.angel_id = angelId;
         }
         pgf.forms.Post({action: pgf.urls['game:abilities:activate'](ability.type),
                         data: ajax_data,
@@ -163,9 +134,8 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
     };
 
     function Refresh(game_data) {
-        deck = game_data.angel.abilities;
-        angelId = game_data.angel.id;
-        angelEnergy = game_data.angel.energy.value;
+        deck = game_data.abilities;
+        angelEnergy = game_data.hero.energy.value;
         turn = game_data.turn;
     };
 

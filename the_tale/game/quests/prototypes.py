@@ -92,8 +92,8 @@ class QuestPrototype(object):
     def heroes_ids(self):
         return set(self.model.heroes.values_list('id', flat=True))
 
-    def angels_ids(self):
-        return set(self.model.heroes.values_list('angel_id', flat=True))
+    def accounts_ids(self):
+        return set(self.model.heroes.values_list('account_id', flat=True))
 
 
     def get_choices(self):

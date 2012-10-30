@@ -40,7 +40,8 @@ class Bill(models.Model):
     technical_data = models.TextField(null=False, blank=True, default={})
     reject_reason = models.TextField(null=False, blank=True)
 
-    forum_thread = models.ForeignKey(Thread, null=False, blank=True, related_name='+')
+    # we should not remove bill when ocasionally remove forum thread
+    forum_thread = models.ForeignKey(Thread, null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
 
     votes_for = models.IntegerField(default=0)
     votes_against = models.IntegerField(default=0)

@@ -181,11 +181,11 @@ class Worker(BaseWorker):
     def process_highlevel_data_updated(self):
         self.logic_worker.cmd_highlevel_data_updated()
 
-    def cmd_set_might(self, angel_id, might):
-        self.send_cmd('set_might', {'angel_id': angel_id, 'might': might})
+    def cmd_set_might(self, hero_id, might):
+        self.send_cmd('set_might', {'hero_id': hero_id, 'might': might})
 
-    def process_set_might(self, angel_id, might):
-        self.logic_worker.cmd_set_might(angel_id, might)
+    def process_set_might(self, hero_id, might):
+        self.logic_worker.cmd_set_might(hero_id, might)
 
     def cmd_recalculate_ratings(self):
         return self.send_cmd('recalculate_ratings')

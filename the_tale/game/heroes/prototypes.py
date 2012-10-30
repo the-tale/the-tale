@@ -56,9 +56,9 @@ class HeroPrototype(object):
             return None
 
     @classmethod
-    def get_by_angel_id(cls, angel_id):
+    def get_by_account_id(cls, account_id):
         try:
-            return cls(model=Hero.objects.get(angel_id=angel_id))
+            return cls(model=Hero.objects.get(account_id=account_id))
         except Hero.DoesNotExist:
             return None
 
@@ -76,7 +76,7 @@ class HeroPrototype(object):
     def id(self): return self.model.id
 
     @property
-    def angel_id(self): return self.model.angel_id
+    def account_id(self): return self.model.account_id
 
     @property
     def created_at_turn(self): return self.model.created_at_turn
@@ -365,6 +365,27 @@ class HeroPrototype(object):
     def switch_spending(self):
         self.model.next_spending = random_value_by_priority(list(c.ITEMS_OF_EXPENDITURE_PRIORITY.items()))
 
+    @property
+    def energy_maximum(self): return c.ANGEL_ENERGY_MAX
+
+    @property
+    def energy(self): return self.model.energy
+
+    def change_energy(self, value):
+        old_energy = self.model.energy
+
+        self.model.energy += value
+        if self.model.energy < 0:
+            self.model.energy = 0
+        elif self.model.energy > self.energy_maximum:
+            self.model.energy = self.energy_maximum
+
+        if self.model.energy != old_energy:
+            self.updated = True
+
+        return self.model.energy - old_energy
+
+
     def get_last_energy_regeneration_at_turn(self): return self.model.last_energy_regeneration_at_turn
     def set_last_energy_regeneration_at_turn(self, value): self.model.last_energy_regeneration_at_turn = value
     last_energy_regeneration_at_turn = property(get_last_energy_regeneration_at_turn, set_last_energy_regeneration_at_turn)
@@ -373,11 +394,13 @@ class HeroPrototype(object):
     def set_might(self, value): self.model.might = value
     might = property(get_might, set_might)
 
+    def get_might_updated_time(self): return self.model.might_updated_time
+    def set_might_updated_time(self, value): self.model.might_updated_time = value
+    might_updated_time = property(get_might_updated_time, set_might_updated_time)
+
     @property
-    def might_crit_chance(self):
-        if self.might < 1:
-            return 0
-        return math.log(self.might, 10) / 10.0
+    def might_crit_chance(self): return f.might_crit_chance(self.might)
+
 
     def on_highlevel_data_updated(self):
         if self.preferences.friend_id is not None and self.preferences.friend.out_game:
@@ -620,7 +643,6 @@ class HeroPrototype(object):
         return (self.id == other.id and
                 self.is_alive == other.is_alive and
                 self.is_fast == other.is_fast and
-                self.angel_id == other.angel_id and
                 self.name == other.name and
                 self.gender == other.gender and
                 self.race == other.race and
@@ -655,7 +677,6 @@ class HeroPrototype(object):
             diary.append((timestamp, game_time.verbose_date, game_time.verbose_time, msg))
 
         return {'id': self.id,
-                'angel': self.angel_id,
                 'messages': messages,
                 'diary': diary,
                 'position': self.position.ui_info(),
@@ -665,6 +686,8 @@ class HeroPrototype(object):
                 'money': self.money,
                 'might': self.might,
                 'might_crit_chance': '%.2f' % (self.might_crit_chance*100),
+                'energy': { 'max': self.energy_maximum,
+                            'value': self.energy },
                 'next_spending': { c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 'heal',
                                    c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 'artifact',
                                    c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 'sharpening',
@@ -691,7 +714,7 @@ class HeroPrototype(object):
 
 
     @classmethod
-    def create(cls, angel, bundle):
+    def create(cls, account, bundle, is_fast=False):
 
         from game.actions.prototypes import ActionIdlenessPrototype
 
@@ -707,10 +730,10 @@ class HeroPrototype(object):
 
         hero = Hero.objects.create(created_at_turn=current_turn_number,
                                    active_state_end_at=current_turn_number + c.EXP_ACTIVE_STATE_LENGTH,
-                                   angel=angel.model,
-                                   account=angel.get_account().model,
+                                   account=account.model,
                                    gender=gender,
                                    race=race,
+                                   is_fast=is_fast,
                                    pref_energy_regeneration_type=energy_regeneration_type,
                                    messages=s11n.to_json([cls._prepair_message(u'Тучи сгущаются (и как быстро!), к непогоде...', in_past=7),
                                                           cls._prepair_message(u'Аааааа, по всюду молниции, спрячусь ка я под этим большим дубом.', in_past=6),
@@ -723,6 +746,7 @@ class HeroPrototype(object):
                                    diary=s11n.to_json([cls._prepair_message(u'Вот жеж угораздило. У всех ангелы-хранители нормальные, сидят себе и попаданию подопечных в загробный мир не мешают. А у моего, значит, шило в заднице! Где ты был, когда я лотерейные билеты покупал?! Молнию отвести он значит не может, а воскресить - запросто. Как же всё болит, кажется теперь у меня две печёнки (это, конечно, тебе спасибо, всегда пригодится). Ну ничего, рано или поздно я к твоему начальству попаду и там уж всё расскажу! А пока буду записывать в свой дневник.')]),
                                    name=names.generator.get_name(race, gender),
                                    health=f.hp_on_lvl(1),
+                                   energy=c.ANGEL_ENERGY_MAX,
                                    pos_place = start_place.model)
 
         hero = cls(model=hero)

@@ -23,7 +23,7 @@ jQuery(document).ready( function(e) {
 
     <div class="block">
 
-      <form id="pgf-login-form" method="post" action="{{ url('accounts:login', next_url=next_url)}}" class="block">
+      <form id="pgf-login-form" method="post" action="{{ login_url(next_url=next_url)}}" class="block">
 
         {{ login_form.errors_container }}
 
@@ -45,12 +45,12 @@ jQuery(document).ready( function(e) {
 
         <div class="dl-record">
           <dt>Не зарегистрированы?</dt>
-          <dd>Вы можете <a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration">создать героя</a> прямо сейчас, а зарегистрироваться позже.</dd>
+          <dd>Вы можете <a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration">создать героя</a> прямо сейчас, а зарегистрироваться позже.</dd>
         </div>
 
         <div class="dl-record">
           <dt>Забыли пароль?</dt>
-          <dd>Перейдите на <a href="{{ url('accounts:reset-password') }}">страницу восстановления пароля</a> — это быстрая операция.</dd>
+          <dd>Перейдите на <a href="{{ url('accounts:profile:reset-password') }}">страницу восстановления пароля</a> — это быстрая операция.</dd>
         </div>
 
         <div class="dl-record">

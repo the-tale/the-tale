@@ -15,8 +15,6 @@ from game.persons.storage import persons_storage
 
 from game.workers.environment import workers_environment
 
-from game.angels.prototypes import AngelPrototype
-
 from game.heroes.prototypes import HeroPrototype, ChooseAbilityTaskPrototype
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.heroes.models import CHOOSE_ABILITY_STATE, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE
@@ -47,7 +45,7 @@ class HeroResource(Resource):
                 return self.auto_error('heroes.hero_not_exists', u'Вы не можете просматривать данные этого игрока')
 
     @property
-    def is_owner(self): return self.account and self.account.angel.id == self.hero.angel_id
+    def is_owner(self): return self.account and self.account.id == self.hero.account_id
 
     @validator(code='heroes.not_owner', message=u'Вы не являетесь владельцем данного аккаунта')
     def validate_ownership(self, *args, **kwargs): return self.is_owner
@@ -68,7 +66,7 @@ class HeroResource(Resource):
         return self.template('heroes/hero_page.html',
                              {'abilities': abilities,
                               'is_owner': self.is_owner,
-                              'master_angel': self.account.angel if self.is_owner else AngelPrototype.get_by_id(self.hero.angel_id),
+                              'master_account_id': self.hero.account_id,
                               'PREFERENCE_TYPE': PREFERENCE_TYPE} )
 
     @login_required
@@ -126,10 +124,10 @@ class HeroResource(Resource):
         all_places.sort(key=lambda x: x.name)
 
         if type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE:
-            hero = self.account.angel.get_hero()
+            hero = HeroPrototype.get_by_account_id(self.account.id)
 
         if type == PREFERENCE_TYPE.MOB:
-            hero = self.account.angel.get_hero()
+            hero = HeroPrototype.get_by_account_id(self.account.id)
             all_mobs = MobsDatabase.storage().get_available_mobs_list(level=hero.level)
             all_mobs = sorted(all_mobs, key=lambda x: x.name)
             mobs = split_list(all_mobs)
@@ -171,7 +169,7 @@ class HeroResource(Resource):
         if not choose_preferences_form.is_valid():
             return self.json(status='error', errors=choose_preferences_form.errors)
 
-        hero = self.account.angel.get_hero()
+        hero = HeroPrototype.get_by_account_id(self.account.id)
 
         task = ChoosePreferencesTaskPrototype.create(hero,
                                                      preference_type=choose_preferences_form.c.preference_type,

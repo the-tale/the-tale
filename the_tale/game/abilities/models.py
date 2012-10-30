@@ -2,24 +2,26 @@
 
 from django.db import models
 
-class ABILITY_STATE:
-    WAITING = 0
-    PROCESSED = 1
-    UNPROCESSED = 2
-    RESET = 3
-    ERROR = 4
+from common.utils.enum import create_enum
 
-ABILITY_STATE_CHOICES = [(ABILITY_STATE.WAITING, u'в очереди'),
-                         (ABILITY_STATE.PROCESSED, u'обработана'),
-                         (ABILITY_STATE.UNPROCESSED, u'нельзя применить'),
-                         (ABILITY_STATE.RESET, u'сброшена'),
-                         (ABILITY_STATE.ERROR, u'ошибка')]
+
+class AbilitiesData(models.Model):
+
+    hero = models.ForeignKey('heroes.Hero', null=False)
+
+    help_available_at = models.BigIntegerField(null=False, default=0)
+
+
+ABILITY_TASK_STATE = create_enum('ABILITY_TASK_STATE', (('WAITING', 0, u'в очереди'),
+                                                        ('PROCESSED', 1, u'обработана'),
+                                                        ('UNPROCESSED', 2, u'нельзя применить'),
+                                                        ('RESET', 3, u'сброшена'),
+                                                        ('ERROR', 4, u'ошибка'), ))
 
 class AbilityTask(models.Model):
 
-    state = models.IntegerField(default=ABILITY_STATE.WAITING, choices=ABILITY_STATE_CHOICES)
+    state = models.IntegerField(default=ABILITY_TASK_STATE.WAITING, choices=ABILITY_TASK_STATE.CHOICES)
 
-    angel = models.ForeignKey('angels.Angel', related_name='abilities_in_use')
     hero = models.ForeignKey('heroes.Hero',  related_name='abilities_in_use')
 
     type = models.CharField(max_length=64)

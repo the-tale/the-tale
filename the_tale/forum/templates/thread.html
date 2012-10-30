@@ -96,7 +96,7 @@ jQuery(document).ready( function(e) {
         <tr class="head">
           <td class="index"><a href="#m{{message_id}}" >#{{message_id}}</a><div class="anchor" id="m{{message_id}}"></div></td>
           <td class="author">
-            <a href="{{url('game:angels:show', post.author.id)}}">{{ post.author.nick }}</a>
+            <a href="{{url('accounts:show', post.author.id)}}">{{ post.author.nick }}</a>
           </td>
 
           {% if not (post.is_removed or post.technical) %}

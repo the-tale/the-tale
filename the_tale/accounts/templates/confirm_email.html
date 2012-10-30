@@ -20,11 +20,13 @@ jQuery(document).ready( function(e) {
       {% if already_processed or timeout or error_occured %}
       <p class="alert alert-error">
         {% if already_processed %}
-        Запрос на изменение email уже был обработан ранее, если Вы утратили пароль, перейдите на <a href="{{ url('accounts:reset-password') }}">страницу восстановления пароля</a>.
+        Запрос на изменение email уже был обработан ранее, если Вы утратили пароль, перейдите на <a href="{{ url('accounts:profile:reset-password') }}">
+          страницу восстановления пароля
+        </a>.
         {% elif timeout %}
-        Запрос на изменение email был сделан слишком давно и более не активен. Вы можете повторить изменения на <a href="url('accounts:profile)">странице профиля</a>.
+        Запрос на изменение email был сделан слишком давно и более не активен. Вы можете повторить изменения на <a href="url('accounts:profile:show)">странице профиля</a>.
         {% elif error_occured %}
-        Во время изменения email произошла ошибка. Мы уже работаем над её исправлением. Вы можете повторить изменения позже на <a href="url('accounts:profile)">странице профиля</a>.
+        Во время изменения email произошла ошибка. Мы уже работаем над её исправлением. Вы можете повторить изменения позже на <a href="url('accounts:profile:show)">странице профиля</a>.
         {% endif %}
       </p>
 

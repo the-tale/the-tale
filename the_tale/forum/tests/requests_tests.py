@@ -22,7 +22,7 @@ class TestRequests(TestCase):
         self.account = AccountPrototype.get_by_id(account_id)
 
         self.client = client.Client()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
 
         # cat1
         # |-subcat1
@@ -49,11 +49,6 @@ class TestRequests(TestCase):
 
         self.post1 = PostPrototype.create(self.thread1, self.account, 'post1-text')
 
-
-    def logout(self):
-        response = self.client.post(reverse('accounts:logout'))
-        self.assertEqual(response.status_code, 200)
-
     def test_initialization(self):
         self.assertEqual(Category.objects.all().count(), 3)
         self.assertEqual(SubCategory.objects.all().count(), 3)
@@ -67,13 +62,13 @@ class TestRequests(TestCase):
         texts = ['cat1-caption', 'cat1-slug', 'cat2-caption', 'cat2-slug', 'cat3-caption', 'cat3-slug',
                  'subcat1-caption', 'subcat1-slug', 'subcat2-caption', 'subcat2-slug', 'subcat3-caption', 'subcat3-slug',]
         self.check_html_ok(self.client.get(reverse('forum:')), texts=texts)
-        self.logout()
+        self.request_logout()
         self.check_html_ok(self.client.get(reverse('forum:')), texts=texts)
 
     def test_subcategory(self):
         texts=['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption']
         self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
-        self.logout()
+        self.request_logout()
         self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
 
     def test_new_thread(self):
@@ -81,7 +76,7 @@ class TestRequests(TestCase):
         self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcat1.id)), texts=texts)
 
     def test_new_thread_unlogined(self):
-        self.logout()
+        self.request_logout()
         request_url = reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcat1.id)
         self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
@@ -91,7 +86,7 @@ class TestRequests(TestCase):
         self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcat1.id)), texts=['pgf-error-forum.new_thread.fast_account'])
 
     def test_create_thread_unlogined(self):
-        self.logout()
+        self.request_logout()
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcat1.id)),
                               code='common.login_required')
 
@@ -131,7 +126,7 @@ class TestRequests(TestCase):
         self.assertEqual(SubCategory.objects.get(id=self.subcat1.id).posts_count, 1)
 
     def test_get_thread_unlogined(self):
-        self.logout()
+        self.request_logout()
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
 
     def test_get_thread_fast_account(self):
@@ -178,7 +173,7 @@ class TestRequests(TestCase):
         self.assertEqual(Thread.objects.get(id=self.thread2.id).posts_count, 7)
 
     def test_create_post_unlogined(self):
-        self.logout()
+        self.request_logout()
         self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread_id=%d' % self.thread3.id)),
                               code='common.login_required')
 

@@ -5,12 +5,10 @@ from django.test import TestCase
 
 from dext.settings import settings
 
-from game.balance import constants as c
 from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionDoNothingPrototype
-from game.abilities.deck.help import Help
 from game.prototypes import TimePrototype
-from game.angels.prototypes import AngelPrototype
+
 
 class DoNothingActionTest(TestCase):
 
@@ -24,7 +22,6 @@ class DoNothingActionTest(TestCase):
         self.action_idl = self.bundle.tests_get_last_action()
         self.action_donothing = ActionDoNothingPrototype.create(self.action_idl, duration=7, messages_prefix='abrakadabra', messages_probability=0.3)
         self.hero = self.bundle.tests_get_hero()
-        self.angel = AngelPrototype.get_by_id(self.hero.angel_id)
 
     def tearDown(self):
         pass

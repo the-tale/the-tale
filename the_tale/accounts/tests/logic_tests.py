@@ -6,7 +6,6 @@ from django.test import TestCase
 
 from common.utils.fake import FakeLogger
 
-from game.angels.models import Angel
 from game.heroes.models import Hero
 from game.quests.models import Quest
 from game.actions.models import Action
@@ -33,7 +32,6 @@ class TestLogic(TestCase):
 
         block_expired_accounts()
 
-        self.assertEqual(Angel.objects.all().count(), 0)
         self.assertEqual(Hero.objects.all().count(), 0)
         self.assertEqual(Quest.objects.all().count(), 0)
         self.assertEqual(Action.objects.all().count(), 0)

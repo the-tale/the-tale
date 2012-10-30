@@ -88,6 +88,10 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-money', widget).text(data.money);
         jQuery('.pgf-might', widget).text(data.might);
         jQuery('.pgf-might-crit-chance', widget).text(data.might_crit_chance);
+
+        jQuery('.pgf-energy', content).text(data.energy.value);
+        jQuery('.pgf-max-energy', content).text(data.energy.max);
+        jQuery('.pgf-energy-percents', content).width( (100 * data.energy.value / data.energy.max) + '%');
     };
 
     this.CurrentHero = function() {

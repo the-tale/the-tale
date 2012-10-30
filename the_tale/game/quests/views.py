@@ -18,7 +18,7 @@ class QuestsResource(Resource):
         if self.quest is None:
             return self.json_error('quests.no_quest', u'Вы не можете работать с этим квестом')
 
-        if self.account.angel.id not in self.quest.angels_ids():
+        if self.account.id not in self.quest.accounts_ids():
             return self.json_error('quests.wrong_account', u'Вы не можете работать с этим квестом')
 
     @property

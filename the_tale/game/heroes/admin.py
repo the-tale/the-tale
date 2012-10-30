@@ -5,9 +5,7 @@ from django.contrib import admin
 from game.heroes.models import Hero, ChooseAbilityTask, ChoosePreferencesTask
 
 class HeroAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'alive', 'health', 'angel_id')
-
-    def angel_id(self, obj): return obj.angel_id
+    list_display = ('id', 'name', 'alive', 'health', 'account')
 
 class ChooseAbilityTaskAdmin(admin.ModelAdmin):
     list_display = ('id', 'state', 'ability_id', 'comment')

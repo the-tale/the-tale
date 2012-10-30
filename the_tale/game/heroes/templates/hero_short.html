@@ -5,11 +5,6 @@
 jQuery(document).ready(function(e) {
 
     widgets.heroes = new pgf.game.widgets.Hero('#hero-base-block', updater, widgets, {});
-
-    {% if is_owner %}
-    widgets.angel = new pgf.game.widgets.Angel('#hero-base-block', updater, widgets, {});
-    {% endif %}
-
 });
 </script>
 

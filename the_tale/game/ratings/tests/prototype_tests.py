@@ -7,6 +7,8 @@ from accounts.logic import register_user
 
 from game.logic import create_test_map
 
+from game.heroes.prototypes import HeroPrototype
+
 from game.ratings.models import RatingValues
 from game.ratings.prototypes import RatingValuesPrototype
 
@@ -43,11 +45,7 @@ class RatingPrototypeTests(PrototypeTestsBase):
                          [self.account_1.id, self.account_2.id, self.account_3.id, self.account_4.id, ])
 
     def set_values(self, account, might=0, level=0, power=0):
-        angel = account.angel
-        angel.might = might
-        angel.save()
-
-        hero = angel.get_hero()
+        hero = HeroPrototype.get_by_account_id(account.id)
         hero.model.might = might
         hero.model.level = level
         hero.model.raw_power = power

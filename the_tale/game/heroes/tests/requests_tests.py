@@ -17,7 +17,7 @@ class HeroRequestsTest(TestCase):
         self.hero = self.bundle.tests_get_hero()
 
         self.client = client.Client()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
 
     def test_index(self):
         response = self.client.get(reverse('game:heroes:'))
@@ -58,10 +58,10 @@ class HeroPageRequestsTests(HeroRequestsTest):
                                   ('pgf-choose-preference-button', 0),
                                   ('pgf-free-destiny-points', 0))
 
-        self.client.post(reverse('accounts:logout'))
+        self.request_logout()
         self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=texts)
 
         create_test_bundle('test_user_2')
 
-        self.client.post(reverse('accounts:login'), {'email': 'test_user_2@test.com', 'password': '111111'})
+        self.request_login('test_user_2@test.com')
         self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=texts)

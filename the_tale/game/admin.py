@@ -8,7 +8,7 @@ class BundleAdmin(admin.ModelAdmin):
     list_display = ('id','owner', 'type')
 
 class BundleMemberAdmin(admin.ModelAdmin):
-    list_display = ('id','angel')
+    list_display = ('id','account')
 
 admin.site.register(Bundle, BundleAdmin)
 admin.site.register(BundleMember, BundleMemberAdmin)

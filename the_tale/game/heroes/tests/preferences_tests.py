@@ -596,7 +596,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.hero.model.level = c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED # maximum blocking level
         self.hero.model.save()
 
-        register_user('test_user_2', 'test_user_2@test.com', '222222')
+        register_user('test_user_2', 'test_user_2@test.com', '111111')
 
         self.client = client.Client()
 
@@ -611,7 +611,7 @@ class HeroPreferencesRequestsTest(TestCase):
         pass
 
     def test_preferences_dialog_mob(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.MOB))
 
         texts = []
@@ -626,7 +626,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
 
     def test_preferences_dialog_place(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.PLACE))
 
         texts = []
@@ -637,7 +637,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_html_ok(response, texts=texts)
 
     def test_preferences_dialog_friend(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.FRIEND))
 
         texts = []
@@ -648,7 +648,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_html_ok(response, texts=texts)
 
     def test_preferences_dialog_enemy(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY))
 
         texts = []
@@ -664,7 +664,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.assertRedirects(response, login_url(request_url), status_code=302, target_status_code=200)
 
     def test_preferences_dialog_wrong_user(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user_2@test.com', 'password': '222222'})
+        self.request_login('test_user_2@test.com')
         response = self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY))
         self.check_html_ok(response, texts=(('heroes.not_owner', 1),))
 
@@ -673,13 +673,13 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_ajax_error(response, 'common.login_required')
 
     def test_choose_preferences_wrong_user(self):
-        self.client.post(reverse('accounts:login'), {'email': 'test_user_2@test.com', 'password': '222222'})
+        self.request_login('test_user_2@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
         self.check_ajax_error(response, 'heroes.not_owner')
 
     def test_choose_preferences_success(self):
         self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
 
         task = ChoosePreferencesTask.objects.all()[0]
@@ -689,7 +689,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
     def test_choose_preferences_remove_success(self):
         self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB})
 
         task = ChoosePreferencesTask.objects.all()[0]
@@ -700,9 +700,9 @@ class HeroPreferencesRequestsTest(TestCase):
         self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
 
     def test_choose_preferences_status_unlogined(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-        response = self.client.post(reverse('accounts:logout'))
+        self.request_logout()
 
         task = ChoosePreferencesTask.objects.all()[0]
         request_url = reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,))
@@ -710,11 +710,11 @@ class HeroPreferencesRequestsTest(TestCase):
         self.assertRedirects(response, login_url(request_url), status_code=302, target_status_code=200)
 
     def test_choose_preferences_status_foreign_task(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-        response = self.client.post(reverse('accounts:logout'))
+        self.request_logout()
 
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user_2@test.com', 'password': '222222'})
+        self.request_login('test_user_2@test.com')
 
         task = ChoosePreferencesTask.objects.all()[0]
         response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -722,7 +722,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_ajax_error(response, 'heroes.not_owner')
 
     def test_choose_preferences_status_error(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
 
         task = ChoosePreferencesTask.objects.all()[0]
@@ -733,7 +733,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_ajax_error(response, 'heroes.choose_preferences_status.error')
 
     def test_choose_preferences_status_success(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
 
         task = ChoosePreferencesTask.objects.all()[0]
@@ -744,7 +744,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_ajax_ok(response)
 
     def test_choose_preferences_status_cooldown(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
 
         task = ChoosePreferencesTask.objects.all()[0]
@@ -756,7 +756,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
 
     def test_choose_preferences_status_unavailable_person(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
 
         task = ChoosePreferencesTask.objects.all()[0]
@@ -768,7 +768,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
 
     def test_choose_preferences_status_outgame_person(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
 
         task = ChoosePreferencesTask.objects.all()[0]
@@ -780,7 +780,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
 
     def test_choose_preferences_unspecified_preference(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
 
         task = ChoosePreferencesTask.objects.all()[0]

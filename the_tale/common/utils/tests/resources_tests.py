@@ -2,9 +2,9 @@
 import mock
 import time
 
-from django.test import TestCase, client
-from django.core.urlresolvers import reverse
+from django.test import client
 
+from common.utils.testcase import TestCase
 from common.utils.fake import FakeWorkerCommand
 
 from accounts.prototypes import AccountPrototype
@@ -44,7 +44,7 @@ class ResourceTest(TestCase):
         fake_cmd = FakeWorkerCommand()
 
         with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_mark_hero_as_active', fake_cmd):
-            self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+            self.request_login('test_user@test.com')
             self.client.get('/')
 
         self.assertEqual(len(fake_cmd.commands), 1)
@@ -53,7 +53,7 @@ class ResourceTest(TestCase):
         fake_cmd = FakeWorkerCommand()
 
         with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_mark_hero_as_active', fake_cmd):
-            self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+            self.request_login('test_user@test.com')
             self.client.get('/')
             self.client.get('/')
 
@@ -63,7 +63,7 @@ class ResourceTest(TestCase):
         fake_cmd = FakeWorkerCommand()
 
         with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_mark_hero_as_active', fake_cmd):
-            self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+            self.request_login('test_user@test.com')
             self.client.get('/')
 
             session = self.client.session

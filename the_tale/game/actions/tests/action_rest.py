@@ -10,7 +10,6 @@ from game.logic import create_test_bundle, create_test_map, test_bundle_save
 from game.actions.prototypes import ActionRestPrototype
 from game.abilities.deck.help import Help
 from game.prototypes import TimePrototype
-from game.angels.prototypes import AngelPrototype
 
 class RestActionTest(TestCase):
 
@@ -23,7 +22,6 @@ class RestActionTest(TestCase):
         self.action_idl = self.bundle.tests_get_last_action()
         self.action_rest = ActionRestPrototype.create(self.action_idl)
         self.hero = self.bundle.tests_get_hero()
-        self.angel = AngelPrototype.get_by_id(self.hero.angel_id)
 
     def tearDown(self):
         pass
@@ -50,14 +48,14 @@ class RestActionTest(TestCase):
 
     def test_ability_heal(self):
 
-        ability = Help()
+        ability = Help.get_by_hero_id(self.hero.id)
 
         self.hero.health = 1
 
         old_percents = self.action_rest.percents
 
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: c.HELP_CHOICES.HEAL):
-            self.assertTrue(ability.use(self.bundle, self.angel, self.hero, None))
+            self.assertTrue(ability.use(self.bundle, self.hero, None))
             self.assertTrue(self.hero.health > 1)
             self.assertTrue(old_percents < self.action_rest.percents)
             self.assertEqual(self.hero.last_action_percents, self.action_rest.percents)

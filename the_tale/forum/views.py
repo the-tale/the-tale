@@ -158,7 +158,6 @@ class ThreadsResource(BaseForumResource):
 
     @handler('', method='get')
     def index(self, author_id=None, page=1, participant_id=None):
-        from accounts.models import Account
         from accounts.prototypes import AccountPrototype
 
         threads_query = Thread.objects.all().order_by('-updated_at')
@@ -169,20 +168,20 @@ class ThreadsResource(BaseForumResource):
 
         if author_id is not None:
             author_id = int(author_id)
-            try:
-                author_account = AccountPrototype.get_by_id(author_id)
+            author_account = AccountPrototype.get_by_id(author_id)
+            if author_account:
                 threads_query = threads_query.filter(author_id=author_account.id)
                 is_filtering = True
-            except Account.DoesNotExist:
+            else:
                 threads_query = Thread.objects.none()
 
         if participant_id is not None:
             participant_id = int(participant_id)
-            try:
-                participant_account = AccountPrototype.get_by_id(participant_id)
+            participant_account = AccountPrototype.get_by_id(participant_id)
+            if participant_account:
                 threads_query = threads_query.filter(post__author__id=participant_account.id).distinct()
                 is_filtering = True
-            except Account.DoesNotExist:
+            else:
                 threads_query = Thread.objects.none()
 
         url_builder = UrlBuilder(reverse('forum:threads:'), arguments={'author_id': author_id,

@@ -12,7 +12,6 @@ from common.utils.pagination import Paginator
 from common.utils.enum import create_enum
 from common.utils.decorators import login_required
 
-from accounts.models import Account
 from accounts.prototypes import AccountPrototype
 
 from game.bills.prototypes import BillPrototype, VotePrototype
@@ -78,11 +77,11 @@ class BillResource(Resource):
 
         if owner_id is not None:
             owner_id = int(owner_id)
-            try:
-                owner_account = AccountPrototype.get_by_id(owner_id)
+            owner_account = AccountPrototype.get_by_id(owner_id)
+            if owner_account:
                 bills_query = bills_query.filter(owner_id=owner_account.id)
                 is_filtering = True
-            except Account.DoesNotExist:
+            else:
                 bills_query = Bill.objects.none()
 
         if state is not None:

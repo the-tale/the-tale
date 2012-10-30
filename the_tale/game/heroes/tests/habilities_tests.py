@@ -177,7 +177,7 @@ class HabilitiesViewsTest(TestCase):
         pass
 
     def test_choose_ability_dialog(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.get(reverse('game:heroes:choose-ability-dialog', args=[self.hero.id]))
         self.assertEqual(response.status_code, 200) #here is real page
 
@@ -187,7 +187,7 @@ class HabilitiesViewsTest(TestCase):
         self.assertRedirects(response, login_url(request_url), status_code=302, target_status_code=200)
 
     def test_choose_ability_dialog_wrong_user(self):
-        self.client.post(reverse('accounts:login'), {'email': 'test_user_2@test.com', 'password': '111111'})
+        self.request_login('test_user_2@test.com')
         self.check_html_ok(self.client.get(reverse('game:heroes:choose-ability-dialog', args=[self.hero.id])), texts=(('heroes.not_owner', 1),))
 
     def test_choose_ability_request_anonymous(self):
@@ -196,23 +196,23 @@ class HabilitiesViewsTest(TestCase):
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
 
     def test_choose_ability_request_hero_not_exist(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[666]) + '?ability_id=' + self.get_new_ability_id())
         self.check_ajax_error(response, 'heroes.hero_not_exists')
 
     def test_choose_ability_request_wrong_user(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user_2@test.com', 'password': '111111'})
+        self.request_login('test_user_2@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
         self.check_ajax_error(response, 'heroes.not_owner')
 
     def test_choose_ability_request_wrong_ability(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id+1]) + '?ability_id=xxxyyy')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
 
     def test_choose_ability_request_ok(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content), {'status': 'processing',
@@ -220,9 +220,9 @@ class HabilitiesViewsTest(TestCase):
         self.assertEqual(ChooseAbilityTask.objects.all().count(), 1)
 
     def test_choose_ability_status_anonimouse(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
-        response = self.client.get(reverse('accounts:logout'))
+        self.request_logout()
         response = self.client.get(reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % self.task.id, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
@@ -230,18 +230,18 @@ class HabilitiesViewsTest(TestCase):
     def test_choose_ability_status_from_other_account(self):
         register_user('test_user2', 'test_user2@test.com', '111111')
 
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
-        response = self.client.get(reverse('accounts:logout'))
+        self.request_logout()
 
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
+        self.request_login('test_user2@test.com')
         response = self.client.get(reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % self.task.id, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         self.check_ajax_error(response, 'heroes.not_owner')
 
 
     def test_choose_ability_status_processing(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
         response = self.client.get(reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % self.task.id, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
@@ -251,7 +251,7 @@ class HabilitiesViewsTest(TestCase):
 
 
     def test_choose_ability_status_processed(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
 
         self.task.process(self.bundle)
@@ -264,7 +264,7 @@ class HabilitiesViewsTest(TestCase):
 
 
     def test_choose_ability_status_error(self):
-        response = self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
 
         self.task.state = CHOOSE_ABILITY_STATE.ERROR

@@ -3,6 +3,8 @@
 from dext.views.resources import handler
 from common.utils.resources import Resource
 
+from game.heroes.prototypes import HeroPrototype
+
 from game.map.places.storage import places_storage
 
 class PlaceResource(Resource):
@@ -18,4 +20,4 @@ class PlaceResource(Resource):
     def map_info(self):
         return self.template('places/map_info.html',
                              {'place': self.place,
-                              'hero': self.account.angel.get_hero() if self.account else None} )
+                              'hero': HeroPrototype.get_by_account_id(self.account.id) if self.account else None} )

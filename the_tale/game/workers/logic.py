@@ -45,7 +45,6 @@ class Worker(BaseWorker):
         self.turn_number = turn_number
         self.bundles = {}
         self.queue = []
-        self.angels2bundles = {}
         self.heroes2bundles = {}
         self.worker_id = worker_id
 
@@ -105,6 +104,8 @@ class Worker(BaseWorker):
         return self.send_cmd('register_bundle', {'bundle_id': bundle_id})
 
     def process_register_bundle(self, bundle_id):
+        from accounts.prototypes import AccountPrototype
+
         bundle = BundlePrototype.get_by_id(bundle_id)
 
         if bundle.id in self.bundles:
@@ -114,15 +115,9 @@ class Worker(BaseWorker):
         self.bundles[bundle.id] = bundle
 
         # update info about fast accounts
-        angels_to_fast = {}
-
-        for angel_id, angel in bundle.angels.items():
-            self.angels2bundles[angel_id] = bundle.id
-            angels_to_fast[angel_id] = angel.get_account().is_fast
-
         for hero_id, hero in bundle.heroes.items():
             self.heroes2bundles[hero_id] = bundle.id
-            hero.is_fast = angels_to_fast[hero.angel_id]
+            hero.is_fast = AccountPrototype.get_by_id(hero.account_id).is_fast
 
         heapq.heappush(self.queue, (0, bundle_id))
 
@@ -135,7 +130,7 @@ class Worker(BaseWorker):
             from ..abilities.prototypes import AbilityTaskPrototype
 
             task = AbilityTaskPrototype.get_by_id(ability_task_id)
-            bundle = self.bundles[self.angels2bundles[task.angel_id]]
+            bundle = self.bundles[self.heroes2bundles[task.hero_id]]
             task.process(bundle)
             bundle.save_data() # just to enshure, that if syddenly transaction will be removed, bundle will be saved before task
             task.save()
@@ -194,18 +189,13 @@ class Worker(BaseWorker):
         for bundle in self.bundles.values():
             bundle.on_highlevel_data_updated()
 
-    def cmd_set_might(self, angel_id, might):
-        self.send_cmd('set_might', {'angel_id': angel_id, 'might': might})
+    def cmd_set_might(self, hero_id, might):
+        self.send_cmd('set_might', {'hero_id': hero_id, 'might': might})
 
-    def process_set_might(self, angel_id, might):
-        bundle = self.bundles[self.angels2bundles[angel_id]]
+    def process_set_might(self, hero_id, might):
+        bundle = self.bundles[self.heroes2bundles[hero_id]]
 
-        angel = bundle.angels[angel_id]
-        angel.might = might
-        angel.might_updated_time = datetime.datetime.now()
-        angel.save()
-
-        for hero in bundle.heroes.values():
-            if hero.angel_id == angel_id:
-                hero.might = might
-                hero.save()
+        hero = bundle.heroes[hero_id]
+        hero.might = might
+        hero.might_updated_time = datetime.datetime.now()
+        hero.save()

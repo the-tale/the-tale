@@ -14,8 +14,8 @@ from accounts.prototypes import AccountPrototype
 from accounts.exceptions  import AccountsException
 from accounts.conf import accounts_settings
 
-from game.angels.prototypes import AngelPrototype
 from game.heroes.prototypes import HeroPrototype
+from game.abilities.prototypes import AbilityPrototype
 from game.bundles import BundlePrototype
 from game.logic import dress_new_hero
 
@@ -27,7 +27,7 @@ class REGISTER_USER_RESULT:
 
 
 def login_url(target_url='/'):
-    return reverse('accounts:login') + '?next_url=' + urllib.quote(target_url)
+    return reverse('accounts:auth:login') + '?next_url=' + urllib.quote(target_url)
 
 
 def register_user(nick, email=None, password=None):
@@ -48,13 +48,13 @@ def register_user(nick, email=None, password=None):
 
     account = AccountPrototype.create(user=user, nick=nick, email=email, is_fast=not (email and password))
 
-    angel = AngelPrototype.create(account=account)
+    bundle = BundlePrototype.create(account)
 
-    bundle = BundlePrototype.create(angel)
-
-    hero = HeroPrototype.create(angel=angel, bundle=bundle)
+    hero = HeroPrototype.create(account=account, bundle=bundle, is_fast=account.is_fast)
     dress_new_hero(hero)
     hero.save()
+
+    AbilityPrototype.create(hero)
 
     return REGISTER_USER_RESULT.OK, account.id, bundle.id
 
@@ -92,7 +92,7 @@ def block_expired_accounts():
         account = AccountPrototype(account_model)
         if account.can_be_removed():
             with nested_commit_on_success():
-                bundle = BundlePrototype.get_by_angel(account.angel)
+                bundle = BundlePrototype.get_by_account_id(account.id)
                 user = account.user
 
                 account.remove()

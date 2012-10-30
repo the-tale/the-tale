@@ -32,7 +32,7 @@
         <td class="posts-count">{{ subcategory.posts_count }}</td>
         <td class="last-poster">
           {% if subcategory.last_poster %}
-          <a href="{{url('game:angels:show', subcategory.last_poster.id)}}">{{ subcategory.last_poster.nick }}</a>
+          <a href="{{url('accounts:show', subcategory.last_poster.id)}}">{{ subcategory.last_poster.nick }}</a>
           {% else %}
           —
           {% endif %}

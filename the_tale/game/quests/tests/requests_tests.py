@@ -26,14 +26,9 @@ class RequestsTests(TestCase):
         register_user('test_user_2', 'test_user_2@test.com', '111111')
 
         account = AccountPrototype.get_by_email('test_user@test.com')
-        angel = account.angel
-        self.bundle_1 = BundlePrototype.get_by_angel(angel)
+        self.bundle_1 = BundlePrototype.get_by_account_id(account.id)
 
         self.client = client.Client()
-
-    def login(self, email):
-        response = self.client.post(reverse('accounts:login'), {'email': email, 'password': '111111'})
-        self.assertEqual(response.status_code, 200)
 
     def create_quest_for_user(self, bundle):
 
@@ -48,7 +43,7 @@ class RequestsTests(TestCase):
 
 
     def test_choose_no_quest(self):
-        self.login('test_user@test.com')
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:quests:choose', args=[666]) + '?choice_point=some_point&choice=some_choice')
         self.check_ajax_error(response, 'quests.no_quest')
 
@@ -61,35 +56,35 @@ class RequestsTests(TestCase):
     @patch_quests_list('game.quests.logic.QuestsSource', [QuestWith2ChoicePoints])
     def test_choose_wrong_account(self):
         quest_id = self.create_quest_for_user(self.bundle_1)
-        self.login('test_user_2@test.com')
+        self.request_login('test_user_2@test.com')
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=some_point&choice=some_choice')
         self.check_ajax_error(response, 'quests.wrong_account')
 
     @patch_quests_list('game.quests.logic.QuestsSource', [QuestWith2ChoicePoints])
     def test_choose_wrong_choice(self):
         quest_id = self.create_quest_for_user(self.bundle_1)
-        self.login('test_user@test.com')
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=some_point&choice=some_choice')
         self.check_ajax_error(response, 'quests.choose.unknown_choice')
 
     @patch_quests_list('game.quests.logic.QuestsSource', [QuestWith2ChoicePoints])
     def test_choose_not_first_choice_point(self):
         quest_id = self.create_quest_for_user(self.bundle_1)
-        self.login('test_user@test.com')
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=choose_2&choice=choice_1_1')
         self.check_ajax_error(response, 'quests.choose.wrong_point')
 
     @patch_quests_list('game.quests.logic.QuestsSource', [QuestWith2ChoicePoints])
     def test_choose_success(self):
         quest_id = self.create_quest_for_user(self.bundle_1)
-        self.login('test_user@test.com')
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=choose_1&choice=choice_1_1')
         self.check_ajax_ok(response)
 
     @patch_quests_list('game.quests.logic.QuestsSource', [QuestWith2ChoicePoints])
     def test_choose_already_choosen(self):
         quest_id = self.create_quest_for_user(self.bundle_1)
-        self.login('test_user@test.com')
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=choose_1&choice=choice_1_1')
         self.check_ajax_ok(response)
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=choose_1&choice=choice_1_1')
@@ -100,14 +95,14 @@ class RequestsTests(TestCase):
     @mock.patch('game.quests.prototypes.QuestPrototype.is_choice_available', lambda self, choice: False)
     def test_choose_not_allowed(self):
         quest_id = self.create_quest_for_user(self.bundle_1)
-        self.login('test_user@test.com')
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=choose_1&choice=choice_1_1')
         self.check_ajax_error(response, 'quests.choose.line_not_availbale')
 
     @patch_quests_list('game.quests.logic.QuestsSource', [QuestWith2ChoicePoints])
     def test_choose_second_choice_before_first_completed(self):
         quest_id = self.create_quest_for_user(self.bundle_1)
-        self.login('test_user@test.com')
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=choose_1&choice=choice_1_2')
         self.check_ajax_ok(response)
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=choose_2&choice=choice_2_1')
@@ -116,7 +111,7 @@ class RequestsTests(TestCase):
     @patch_quests_list('game.quests.logic.QuestsSource', [QuestWith2ChoicePoints])
     def test_choose_second_choice_after_first_completed(self):
         quest_id = self.create_quest_for_user(self.bundle_1)
-        self.login('test_user@test.com')
+        self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=choose_1&choice=choice_1_2')
         self.check_ajax_ok(response)
 

@@ -1,7 +1,8 @@
 # coding utf-8
-from game.angels.prototypes import AngelPrototype
 
 from game.models import Bundle, BundleMember, BUNDLE_TYPE
+
+from game.heroes.prototypes import HeroPrototype
 
 class BundleException(Exception): pass
 
@@ -10,7 +11,6 @@ class BundlePrototype(object):
     def __init__(self, model):
         self.model = model
 
-        self.angels = {}
         self.heroes = {}
         self.actions = {}
 
@@ -20,12 +20,17 @@ class BundlePrototype(object):
 
     @classmethod
     def get_by_id(cls, model_id):
-        return cls(model=Bundle.objects.get(id=model_id))
+        try:
+            return cls(model=Bundle.objects.get(id=model_id))
+        except Bundle.DoesNotExist:
+            return None
 
     @classmethod
-    def get_by_angel(cls, angel):
-        member = BundleMember.objects.get(angel_id=angel.id)
-        return cls(member.bundle)
+    def get_by_account_id(cls, account_id):
+        try:
+            return cls(BundleMember.objects.select_related().get(account_id=account_id).bundle)
+        except BundleMember.DoesNotExist:
+            return None
 
     @property
     def id(self): return self.model.id
@@ -68,19 +73,12 @@ class BundlePrototype(object):
     def load_data(self):
 
         for member in self.model.members.all():
-            angel = AngelPrototype.get_by_id(member.angel_id)
-            self.angels[angel.id] = angel
-
-            hero = angel.get_hero()
+            hero = HeroPrototype.get_by_account_id(member.account_id)
 
             if hero: # hero can be None if we at process of creating account
                 self.add_hero(hero)
 
     def save_data(self):
-
-        for angel in self.angels.values():
-            if angel.updated:
-                angel.save()
 
         for hero in self.heroes.values():
             hero.save()
@@ -92,10 +90,10 @@ class BundlePrototype(object):
 
 
     @classmethod
-    def create(cls, angel):
+    def create(cls, account):
 
         bundle = Bundle.objects.create(type=BUNDLE_TYPE.BASIC)
-        BundleMember.objects.create(angel=angel.model, bundle=bundle)
+        BundleMember.objects.create(account=account.model, bundle=bundle)
 
         return BundlePrototype(model=bundle)
 
@@ -107,11 +105,6 @@ class BundlePrototype(object):
 
     def process_turn(self):
         next_turn = None
-
-        for angel in self.angels.values():
-            next = angel.process_turn()
-            if next_turn is None and next or next < next_turn:
-                next_turn = next
 
         for hero in self.heroes.values():
             next = hero.process_turn()
@@ -140,16 +133,7 @@ class BundlePrototype(object):
     def tests_get_hero(self):
         return self.heroes.values()[0]
 
-    def tests_get_angel(self):
-        return self.angels.values()[0]
-
-
     def __eq__(self, other):
-        # print self.angels == other.angels
-        # print self.heroes == other.heroes
-        # print self.actions == other.actions
-        # print self.model == other.model
-        return (self.angels == other.angels and
-                self.heroes == other.heroes and
+        return (self.heroes == other.heroes and
                 self.actions == other.actions and
                 self.model == other.model)

@@ -2,9 +2,12 @@
 from django.test import TestCase
 from dext.settings import settings
 
-from game.angels.prototypes import AngelPrototype
+from accounts.prototypes import AccountPrototype
+from accounts.logic import register_user
 
-from game.logic import create_test_bundle, create_test_map
+from game.bundles import BundlePrototype
+
+from game.logic import create_test_map
 from game.workers.environment import workers_environment
 from game.prototypes import TimePrototype
 
@@ -16,11 +19,13 @@ class LogicTest(TestCase):
 
         self.p1, self.p2, self.p3 = create_test_map()
 
-        self.bundle = create_test_bundle('HeroTest')
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.bundle = BundlePrototype.get_by_id(bundle_id)
         self.action_idl = self.bundle.tests_get_last_action()
         self.hero = self.bundle.tests_get_hero()
 
-        self.account = AngelPrototype.get_by_id(self.hero.angel_id).get_account()
+        self.account = AccountPrototype.get_by_id(self.hero.account_id)
 
         workers_environment.deinitialize()
         workers_environment.initialize()
@@ -37,7 +42,6 @@ class LogicTest(TestCase):
         self.assertEqual(self.worker.turn_number, 0)
         self.assertEqual(self.worker.bundles, {})
         self.assertEqual(self.worker.queue, [])
-        self.assertEqual(self.worker.angels2bundles, {})
         self.assertEqual(self.worker.heroes2bundles, {})
 
     def test_process_mark_hero_as_not_fast(self):
@@ -54,9 +58,12 @@ class LogicTest(TestCase):
 
         self.assertTrue(self.hero.is_fast)
 
+        self.account.is_fast = False
+        self.account.save()
+
         self.worker.process_register_bundle(self.bundle.id)
+
         self.assertTrue(self.bundle.id in self.worker.bundles)
         self.assertEqual(self.worker.heroes2bundles[self.hero.id], self.bundle.id)
-        self.assertEqual(self.worker.angels2bundles[self.hero.angel_id], self.bundle.id)
 
         self.assertFalse(self.worker.bundles[self.worker.heroes2bundles[self.hero.id]].heroes[self.hero.id].is_fast)

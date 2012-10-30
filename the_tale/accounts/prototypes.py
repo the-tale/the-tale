@@ -17,7 +17,6 @@ from accounts.conf import accounts_settings
 from accounts.email import ChangeEmailNotification, ResetPasswordNotification
 from accounts.exceptions import AccountsException
 
-from game.angels.prototypes import AngelPrototype
 from game.bundles import BundlePrototype
 from game.workers.environment import workers_environment as game_workers_environment
 
@@ -28,7 +27,10 @@ class AccountPrototype(object):
 
     @classmethod
     def get_by_id(cls, model_id):
-        return AccountPrototype(model=Account.objects.select_related().get(id=model_id))
+        try:
+            return AccountPrototype(model=Account.objects.select_related().get(id=model_id))
+        except Account.DoesNotExist:
+            return None
 
     @classmethod
     def get_by_email(cls, email):
@@ -50,11 +52,9 @@ class AccountPrototype(object):
         except Account.DoesNotExist:
             return None
 
-    @property
-    def angel(self):
-        if not hasattr(self, '_angel'):
-            self._angel = AngelPrototype.get_by_account_id(self.id)
-        return self._angel
+    def get_hero(self):
+        from game.heroes.prototypes import HeroPrototype
+        return HeroPrototype.get_by_account_id(self.id)
 
     @property
     def id(self): return self.model.id
@@ -96,6 +96,8 @@ class AccountPrototype(object):
 
     @nested_commit_on_success
     def change_credentials(self, new_email=None, new_password=None, new_nick=None):
+        from game.heroes.prototypes import HeroPrototype
+
         if new_password:
             self.user.password = new_password
         if new_email:
@@ -106,7 +108,7 @@ class AccountPrototype(object):
             self.nick = new_nick
 
         if self.is_fast:
-            game_workers_environment.supervisor.cmd_mark_hero_as_not_fast(self.angel.get_hero().id)
+            game_workers_environment.supervisor.cmd_mark_hero_as_not_fast(HeroPrototype.get_by_account_id(self.id).id)
 
         self.is_fast = False
 
@@ -119,7 +121,7 @@ class AccountPrototype(object):
     ###########################################
 
     def can_be_removed(self):
-        bundle = BundlePrototype.get_by_angel(self.angel)
+        bundle = BundlePrototype.get_by_account_id(self.id)
         return bundle.is_single
 
     def remove(self):
@@ -127,7 +129,6 @@ class AccountPrototype(object):
         if registration_task:
             registration_task.unbind_from_account()
 
-        self.angel.remove()
         return self.model.delete()
 
     def save(self): self.model.save(force_update=True)

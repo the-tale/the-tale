@@ -3,7 +3,6 @@ import datetime
 
 from django.db import models
 
-from game.angels.models import Angel
 
 from game.game_info import RACE, RACE_CHOICES, GENDER, GENDER_CHOICES
 
@@ -27,7 +26,6 @@ class Hero(models.Model):
 
     created_at_turn = models.IntegerField(null=False, default=0)
 
-    angel = models.ForeignKey(Angel, related_name='heroes', default=None, null=True, blank=True)
     account = models.ForeignKey('accounts.Account', related_name='heroes', default=None, null=True, blank=True)
 
     is_fast = models.BooleanField(default=True, db_index=True) # copy from account.is_fast
@@ -69,9 +67,11 @@ class Hero(models.Model):
 
     next_spending = models.IntegerField(null=False, default=c.ITEMS_OF_EXPENDITURE.USELESS, choices=ITEMS_OF_EXPENDITURE_CHOICES)
 
+    energy = models.FloatField(null=False, default=0.0)
     last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
 
     might = models.FloatField(null=False, default=0.0)
+    might_updated_time = models.DateTimeField(auto_now_add=True, db_index=True, default=datetime.datetime(2000, 1, 1))
 
     #position
     pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True)

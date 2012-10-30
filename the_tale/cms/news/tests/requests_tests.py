@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate as django_authenticate
 
 from common.utils.testcase import TestCase
 
-from accounts.logic import register_user
+from accounts.logic import register_user, login_url
 from game.logic import create_test_map
 
 from cms.news.models import News
@@ -67,7 +67,7 @@ class TestRequests(TestCase):
 
     def test_post_on_forum_success(self):
         self.prepair_forum()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
 
         response = self.client.get(reverse('news:publish-on-forum', args=[self.news1.id]))
 
@@ -87,8 +87,7 @@ class TestRequests(TestCase):
     def test_post_on_forum_unloggined(self):
         self.prepair_forum()
 
-        self.assertRedirects(self.client.get(reverse('news:publish-on-forum', args=[self.news1.id])),
-                             reverse('accounts:login'), status_code=302, target_status_code=200)
+        self.check_redirect(reverse('news:publish-on-forum', args=[self.news1.id]), login_url(reverse('news:publish-on-forum', args=[self.news1.id])))
 
         self.assertEqual(Thread.objects.all().count(), 0)
 
@@ -98,7 +97,7 @@ class TestRequests(TestCase):
 
     def test_post_on_forum_unexisting_category(self):
         self.prepair_forum()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
 
         SubCategory.objects.all().delete()
 
@@ -112,7 +111,7 @@ class TestRequests(TestCase):
 
     def test_post_on_forum_already_publish(self):
         self.prepair_forum()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user@test.com', 'password': '111111'})
+        self.request_login('test_user@test.com')
         self.client.get(reverse('news:publish-on-forum', args=[self.news1.id]))
 
         self.check_ajax_error(self.client.get(reverse('news:publish-on-forum', args=[self.news1.id])),

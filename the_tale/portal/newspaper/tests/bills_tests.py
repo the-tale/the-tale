@@ -2,26 +2,16 @@
 import mock
 import datetime
 
-from dext.utils import s11n
-
-from textgen.words import Noun
-
 from common.utils.testcase import TestCase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
-from forum.models import Post, Thread, MARKUP_METHOD
-
 from game.logic import create_test_map
 
-from game.bills.models import Bill, Vote, BILL_STATE
 from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.bills import PlaceRenaming
 from game.bills.conf import bills_settings
-from game.bills.exceptions import BillException
-
-from game.map.places.storage import places_storage
 
 from portal.newspaper.models import NewspaperEvent, NEWSPAPER_EVENT_TYPE
 from portal.newspaper.prototypes import NewspaperEventPrototype

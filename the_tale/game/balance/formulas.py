@@ -204,3 +204,10 @@ def angel_energy_regeneration_amount(regeneration_type):
 # периодичность конкретного типа регенерации энергии (в ходах)
 def angel_energy_regeneration_delay(regeneration_type):
     return c.ANGEL_ENERGY_REGENERATION_DELAY[regeneration_type] * c.ANGEL_ENERGY_REGENERATION_PERIOD
+
+
+# могущество
+def might_crit_chance(might):
+    if might < 1:
+        return 0
+    return math.log(might, 10) / 10.0

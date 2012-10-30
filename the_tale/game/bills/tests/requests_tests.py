@@ -37,7 +37,7 @@ class BaseTestRequests(TestCase):
 
         self.client = client.Client()
 
-        self.client.post(reverse('accounts:login'), {'email': 'test_user1@test.com', 'password': '111111'})
+        self.request_login('test_user1@test.com')
 
         from forum.models import Category, SubCategory
 
@@ -45,10 +45,6 @@ class BaseTestRequests(TestCase):
         SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_SLUG + '-caption',
                                    slug=bills_settings.FORUM_CATEGORY_SLUG,
                                    category=forum_category)
-
-    def logout(self):
-        response = self.client.post(reverse('accounts:logout'))
-        self.assertEqual(response.status_code, 200)
 
     def create_bills(self, number, owner, caption_template, rationale_template, bill_data):
         return [BillPrototype.create(owner, caption_template % i, rationale_template % i, bill_data) for i in xrange(number) ]
@@ -68,7 +64,7 @@ class BaseTestRequests(TestCase):
 class TestIndexRequests(BaseTestRequests):
 
     def test_unlogined(self):
-        self.logout()
+        self.request_logout()
         request_url = reverse('game:bills:')
         self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
@@ -206,7 +202,7 @@ class TestIndexRequests(BaseTestRequests):
 class TestNewRequests(BaseTestRequests):
 
     def test_unlogined(self):
-        self.logout()
+        self.request_logout()
         url = reverse('game:bills:new') + ('?type=%s' % PlaceRenaming.type)
         self.check_redirect(url, login_url(url))
 
@@ -233,7 +229,7 @@ class TestShowRequests(BaseTestRequests):
         self.create_bills(1, self.account1, 'caption-a1-%d', 'rationale-a1-%d', bill_data)
         bill = Bill.objects.all()[0]
 
-        self.logout()
+        self.request_logout()
         url = reverse('game:bills:show', args=[bill.id])
         self.check_redirect(url, login_url(url))
 
@@ -272,8 +268,8 @@ class TestShowRequests(BaseTestRequests):
                  ('test-already-voted-block', 0),
                  (self.place2.name, 1)]
 
-        self.logout()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
+        self.request_logout()
+        self.request_login('test_user2@test.com')
 
         self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
@@ -287,7 +283,7 @@ class TestCreateRequests(BaseTestRequests):
                 'new_name': 'new-name'}
 
     def test_unlogined(self):
-        self.logout()
+        self.request_logout()
         self.check_ajax_error(self.client.post(reverse('game:bills:create'), self.get_post_data()), 'common.login_required')
 
     def test_is_fast(self):
@@ -327,11 +323,11 @@ class TestVoteRequests(BaseTestRequests):
                                                                                             'new_name': 'new-name'})
         self.bill = BillPrototype(Bill.objects.all()[0])
 
-        self.logout()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
+        self.request_logout()
+        self.request_login('test_user2@test.com')
 
     def test_unlogined(self):
-        self.logout()
+        self.request_logout()
         self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'common.login_required')
 
     def test_is_fast(self):
@@ -390,7 +386,7 @@ class TestEditRequests(BaseTestRequests):
 
 
     def test_unlogined(self):
-        self.logout()
+        self.request_logout()
         url = reverse('game:bills:edit', args=[self.bill.id])
         self.check_redirect(url, login_url(url))
 
@@ -403,8 +399,8 @@ class TestEditRequests(BaseTestRequests):
         self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[666])), status_code=404)
 
     def test_no_permissions(self):
-        self.logout()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
+        self.request_logout()
+        self.request_login('test_user2@test.com')
         self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.not_owner', 1),))
 
     def test_wrong_state(self):
@@ -440,7 +436,7 @@ class TestUpdateRequests(BaseTestRequests):
 
 
     def test_unlogined(self):
-        self.logout()
+        self.request_logout()
         self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'common.login_required')
 
     def test_is_fast(self):
@@ -452,8 +448,8 @@ class TestUpdateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[666]), self.get_post_data()), 'bills.wrong_bill_id')
 
     def test_no_permissions(self):
-        self.logout()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
+        self.request_logout()
+        self.request_login('test_user2@test.com')
         self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'bills.not_owner')
 
     def test_wrong_state(self):
@@ -488,15 +484,15 @@ class TestModerationPageRequests(BaseTestRequests):
                                                                                                 'new_name': 'new-name'})
         self.bill = BillPrototype(Bill.objects.all()[0])
 
-        self.logout()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
+        self.request_logout()
+        self.request_login('test_user2@test.com')
 
         group = sync_group('bills moderators group', ['bills.moderate_bill'])
         group.user_set.add(self.account2.user)
 
 
     def test_unlogined(self):
-        self.logout()
+        self.request_logout()
         url = reverse('game:bills:moderate', args=[self.bill.id])
         self.check_redirect(url, login_url(url))
 
@@ -509,8 +505,8 @@ class TestModerationPageRequests(BaseTestRequests):
         self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[666])), status_code=404)
 
     def test_no_permissions(self):
-        self.logout()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user1@test.com', 'password': '111111'})
+        self.request_logout()
+        self.request_login('test_user1@test.com')
         self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.moderator_rights_required', 1),))
 
     def test_wrong_state(self):
@@ -533,8 +529,8 @@ class TestModerateRequests(BaseTestRequests):
                                                                                                 'new_name': 'new-name'})
         self.bill = BillPrototype(Bill.objects.all()[0])
 
-        self.logout()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
+        self.request_logout()
+        self.request_login('test_user2@test.com')
 
         group = sync_group('bills moderators group', ['bills.moderate_bill'])
         group.user_set.add(self.account2.user)
@@ -564,7 +560,7 @@ class TestModerateRequests(BaseTestRequests):
 
 
     def test_unlogined(self):
-        self.logout()
+        self.request_logout()
         self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'common.login_required')
 
     def test_is_fast(self):
@@ -576,8 +572,8 @@ class TestModerateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[666]), self.get_post_data()), 'bills.wrong_bill_id')
 
     def test_no_permissions(self):
-        self.logout()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user1@test.com', 'password': '111111'})
+        self.request_logout()
+        self.request_login('test_user1@test.com')
         self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.moderator_rights_required')
 
     def test_wrong_state(self):
@@ -603,14 +599,14 @@ class TestDeleteRequests(BaseTestRequests):
                                                                                                 'new_name': 'new-name'})
         self.bill = BillPrototype(Bill.objects.all()[0])
 
-        self.logout()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user2@test.com', 'password': '111111'})
+        self.request_logout()
+        self.request_login('test_user2@test.com')
 
         group = sync_group('bills moderators group', ['bills.moderate_bill'])
         group.user_set.add(self.account2.user)
 
     def test_unlogined(self):
-        self.logout()
+        self.request_logout()
         self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'common.login_required')
 
     def test_is_fast(self):
@@ -622,8 +618,8 @@ class TestDeleteRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[666]), {}), 'bills.wrong_bill_id')
 
     def test_no_permissions(self):
-        self.logout()
-        self.client.post(reverse('accounts:login'), {'email': 'test_user1@test.com', 'password': '111111'})
+        self.request_logout()
+        self.request_login('test_user1@test.com')
         self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'bills.moderator_rights_required')
 
     def test_delete_success(self):

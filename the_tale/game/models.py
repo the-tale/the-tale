@@ -18,5 +18,5 @@ class Bundle(models.Model):
 
 class BundleMember(models.Model):
 
-    angel = models.ForeignKey('angels.Angel', null=False, related_name='+', unique=True)
+    account = models.ForeignKey('accounts.Account', null=False, related_name='+', unique=True)
     bundle = models.ForeignKey(Bundle, null=False, related_name='members')

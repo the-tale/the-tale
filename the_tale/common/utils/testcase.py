@@ -1,9 +1,10 @@
 # coding: utf-8
 
+from django.test import TestCase as DjangoTestCase
+from django.core.urlresolvers import reverse
+
 from dext.utils import s11n
 
-from django.test import TestCase as DjangoTestCase
-from accounts.logic import login_url
 
 class TestCase(DjangoTestCase):
 
@@ -12,6 +13,14 @@ class TestCase(DjangoTestCase):
 
     def tearDown(self):
         pass
+
+    def request_login(self, email, password='111111'):
+        response = self.client.post(reverse('accounts:auth:login'), {'email': email, 'password': password})
+        self.check_ajax_ok(response)
+
+    def request_logout(self):
+        response = self.client.post(reverse('accounts:auth:logout'))
+        self.check_ajax_ok(response)
 
     def check_html_ok(self, response, status_code=200, texts=[], content_type='text/html'):
         self.assertEqual(response.status_code, status_code)

@@ -26,9 +26,9 @@ def newspaper_bill_processed(sender, bill, **kwargs):
 
 @receiver(game_signals.day_started, dispatch_uid='newspaper_day_started')
 def newspaper_day_started(sender, **kwargs):
+    from accounts.prototypes import AccountPrototype
     from game.heroes.prototypes import HeroPrototype
     from game.heroes.models import Hero
-    from game.angels.prototypes import AngelPrototype
 
     heroes_number = Hero.objects.filter(is_fast=False).count()
 
@@ -38,9 +38,8 @@ def newspaper_day_started(sender, **kwargs):
     hero_model = Hero.objects.filter(is_fast=False)[random.randint(0, heroes_number-1)]
 
     hero = HeroPrototype(hero_model)
-    angel = AngelPrototype.get_by_id(hero.angel_id)
-    account = angel.get_account()
+    account = AccountPrototype.get_by_id(hero.account_id)
 
     NewspaperEventPrototype.create(events.EventHeroOfTheDay(hero_id=hero.id, hero_name=hero.name, race=hero.race,
                                                             gender=hero.gender, level=hero.level, power=hero.power,
-                                                            account_id=angel.id, nick=account.nick, might=hero.might))
+                                                            account_id=account.id, nick=account.nick, might=hero.might))

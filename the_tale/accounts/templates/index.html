@@ -1,9 +1,9 @@
-{% extends "angels/base.html" %}
+{% extends "accounts/base.html" %}
 
 {% import 'macros.html' as base_macros with context %}
 
 
-{% block angels_content %}
+{% block accounts_content %}
 
 <h2 style="margin-bottom: 0.5em;">Игроки</h2>
 
@@ -11,7 +11,7 @@
   На этой странице представлен список всех игроков завершивших регистрацию.
 <p>
 
-{% if angels %}
+{% if accounts %}
 
 {{ base_macros.render_paginator(paginator) }}
 
@@ -29,15 +29,14 @@
   </thead>
 
   <tbody>
-    {% for angel in angels %}
+    {% for account in accounts %}
 
-    {% set hero = heroes[angel.id] %}
-    {% set account = accounts[angel.account_id] %}
+    {% set hero = heroes[account.id] %}
 
-    <tr class="pgf-angel-record">
+    <tr class="pgf-account-record">
 
-      <td><a href="{{ url('game:angels:show', angel.id) }}">{{ account.nick }}</a></td>
-      <td>{{ angel.might|int }}</td>
+      <td><a href="{{ url('accounts:show', account.id) }}">{{ account.nick }}</a></td>
+      <td>{{ hero.might|int }}</td>
       <td class="updated-at pgf-format-date" data-timestamp="{{ account.created_at|timestamp }}"></td>
       <td>
         {{ hero.gender_verbose }}

@@ -1237,7 +1237,7 @@ class ActionRegenerateEnergyPrototype(ActionPrototype):
             self.percents += self.step_percents()
 
             if self.percents >= 1:
-                energy_delta = self.bundle.angels[self.hero.angel_id].change_energy(f.angel_energy_regeneration_amount(self.regeneration_type))
+                energy_delta = self.bundle.heroes[self.hero.id].change_energy(f.angel_energy_regeneration_amount(self.regeneration_type))
                 self.hero.last_energy_regeneration_at_turn = TimePrototype.get_current_turn_number()
 
                 if energy_delta:

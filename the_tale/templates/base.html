@@ -114,7 +114,7 @@ jQuery(document).ready(function() {
                                                                          (url("guide:hero-preferences"), "Предпочтения героев"),
                                                                          (url("guide:politics"), "Политика"),
                                                                          (url("cms:world:"), get_cms_section_info("world").caption)]) }}
-            {{ base_macros.main_menu_item("angels", url("game:angels:"), "Игроки") }}
+            {{ base_macros.main_menu_item("accounts", url("accounts:"), "Игроки") }}
             {{ base_macros.main_menu_item("ratings", url("game:ratings:"), "Рейтинги") }}
 
             {% if request.user.is_authenticated() %}
@@ -124,7 +124,7 @@ jQuery(document).ready(function() {
             {% if request.user.is_authenticated() %}
             {{ base_macros.main_menu_item("game", url("game:"), "<span class='game-link'>Игра</span>") }}
             {% else %}
-            <li><a href="{{ url('accounts:fast-registration') }}" class="pgf-fast-registration attention-link"><strong>создать героя</strong></a></li>
+            <li><a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link"><strong>создать героя</strong></a></li>
             {% endif %}
 
           </ul>
@@ -144,14 +144,14 @@ jQuery(document).ready(function() {
             {{ base_macros.main_menu_item("profile",
                                           "#",
                                           resource.account.nick if not resource.account.is_fast else "Настройки",
-                                          [(url("accounts:profile"), "Профиль"),
-                                           (url("game:angels:show", resource.account.angel.id), "Моя страница"),
-                                           (url("game:heroes:show", resource.account.angel.get_hero().id), "Мой герой"),
+                                          [(url("accounts:profile:show"), "Профиль"),
+                                           (url("accounts:show", resource.account.id), "Моя страница"),
+                                           (url("game:heroes:show", resource.account.get_hero().id), "Мой герой"),
                                            ('-', '<li class="divider"></li>'),
-                                           (url("accounts:logout"), "Выход")] ) }}
+                                           (logout_url(), "Выход")] ) }}
 
             {% else %}
-            <li><a href="{{ url('accounts:login', next_url=resource.request.get_full_path())}}">Войти</a></li>
+            <li><a href="{{ login_url(resource.request.get_full_path()) }}">Войти</a></li>
             {% endif %}
           </ul>
 
@@ -174,7 +174,7 @@ jQuery(document).ready(function() {
         {% if resource.account and resource.account.is_fast %}
         <div class="alert alert-info">
           {% block fast_account_warning %}
-          ВНИМАНИЕ! Ваша игра доступна только с этого компьютера. Для игры из другого места необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile') }}">профиле</a> (подробнее о быстрой регистрации можно почитать в <a href="{{ url('guide:') }}">Путеводителе по Сказке</a>).
+          ВНИМАНИЕ! Ваша игра доступна только с этого компьютера. Для игры из другого места необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile:show') }}">профиле</a> (подробнее о быстрой регистрации можно почитать в <a href="{{ url('guide:') }}">Путеводителе по Сказке</a>).
           {% endblock %}
         </div>
         {% endif %}
