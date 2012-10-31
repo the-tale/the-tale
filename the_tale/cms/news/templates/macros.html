@@ -1,7 +1,7 @@
 
-{% macro news_record(news) -%}
+{% macro news_record(news, in_block=False) -%}
 
-<li class="news-record">
+<li class="news-record {% if in_block %}block{% endif %}">
   <h4 class="caption"><a href="{{ url('news:show', news.id) }}">{{ news.caption }}</a></h4>
   <div class="">{{ news.html_description|safe }}</div>
 

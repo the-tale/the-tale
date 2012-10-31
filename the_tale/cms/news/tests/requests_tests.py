@@ -33,6 +33,27 @@ class TestRequests(TestCase):
 
         self.check_html_ok(self.client.get(reverse('news:')), texts=texts)
 
+    def create_news(self, index):
+        return News.objects.create(caption='caption-%d' % index, description='description-%d' % index, content='content-%d' % index)
+
+    def test_second_page(self):
+        for i in xrange(news_settings.NEWS_ON_PAGE):
+            self.create_news(i)
+
+        first_page_texts = []
+
+        for i in xrange(news_settings.NEWS_ON_PAGE):
+            first_page_texts.extend([('caption-%d' % i, 1), ('description-%d' % i, 1)])
+
+        self.check_html_ok(self.client.get(reverse('news:')+'?page=1'), texts=first_page_texts)
+
+        self.check_html_ok(self.client.get(reverse('news:')+'?page=2'), texts=[('news1-caption', 1), ('news1-description', 1),
+                                                                               ('news2-caption', 1), ('news2-description', 1),
+                                                                               ('news3-caption', 1), ('news3-description', 1) ])
+
+    def test_big_page_number(self):
+        self.check_redirect(reverse('news:')+'?page=666', reverse('news:')+'?page=1')
+
     def test_feed_page(self):
         texts = []
 

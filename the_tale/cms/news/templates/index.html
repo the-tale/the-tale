@@ -1,24 +1,33 @@
 {% extends "news/base.html" %}
 
+{% import 'macros.html' as base_macros with context %}
 {% import 'news/macros.html' as macros with context %}
 
 {% block title %}{{ super() }}{% endblock %}
 
 {% block news_content %}
 
-<h2 style="margin-bottom: 0.5em;">
-  Новости
-  <a href="{{ get_rss_link() }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss">
-    <img src="{{STATIC_URL}}images/rss.png" style="margin: 2px;"/>
-  </a>
-</h2>
+<div class="block white">
 
-<ul class="unstyled">
+  <h2 style="margin-bottom: 0.5em;">
+    Новости
+    <a href="{{ get_rss_link() }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss">
+      <img src="{{STATIC_URL}}images/rss.png" style="margin: 2px;"/>
+    </a>
+  </h2>
 
-  {% for record in news %}
-  {{ macros.news_record(record) }}
-  {% endfor %}
+  {{ base_macros.render_paginator(paginator) }}
 
-</ul>
+  <ul class="unstyled">
+
+    {% for record in news %}
+    {{ macros.news_record(record, in_block=true) }}
+    {% endfor %}
+
+  </ul>
+
+  {{ base_macros.render_paginator(paginator) }}
+
+</div>
 
 {% endblock %}

@@ -77,7 +77,7 @@ class TestModeration(TestCase):
     def test_loggined_new_thread_page(self):
         self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcategory.id)),
-                           texts=[('pgf-new-thread-form', 3)])
+                           texts=[('pgf-new-thread-form', 4)])
 
     def test_unlogined_new_thread_page(self):
         request_url = reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcategory.id)
@@ -91,7 +91,7 @@ class TestModeration(TestCase):
     def test_moderator_new_thread_page_in_closed_theme(self):
         self.request_login('moderator@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcategory2.id)),
-                                           texts=[('pgf-new-thread-form', 3)])
+                                           texts=[('pgf-new-thread-form', 4)])
 
     # create request
     def test_loggined_create_thread_page(self):
@@ -411,11 +411,11 @@ class TestModeration(TestCase):
 
     def test_edit_page_moderator_access(self):
         self.request_login('moderator@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=[('pgf-change-post-form', 3), ('post-text', 1)])
+        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=[('pgf-change-post-form', 4), ('post-text', 1)])
 
     def test_edit_page_author_access(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=[('pgf-change-post-form', 3), ('post-text', 1)])
+        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=[('pgf-change-post-form', 4), ('post-text', 1)])
 
     # update post
 

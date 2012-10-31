@@ -6,15 +6,18 @@ from django.utils.feedgenerator import Atom1Feed
 
 from dext.views.resources import handler
 from dext.utils.decorators import nested_commit_on_success
+from dext.utils.urls import UrlBuilder
 
 from common.utils.decorators import staff_required
 from common.utils.resources import Resource
+from common.utils.pagination import Paginator
 
 from cms.news.models import News
 from cms.news.conf import news_settings
 
 from forum.prototypes import ThreadPrototype, SubCategoryPrototype
 from forum.models import MARKUP_METHOD
+
 class NewsResource(Resource):
 
     def initialize(self, news_id=None, *args, **kwargs):
@@ -30,12 +33,26 @@ class NewsResource(Resource):
 
 
     @handler('', method='get')
-    def index(self):
+    def index(self, page=1):
 
-        news = list(News.objects.all().order_by('-created_at'))
+        url_builder = UrlBuilder(reverse('news:'), arguments={'page': page})
+
+        news_count = News.objects.all().count()
+
+        page = int(page) - 1
+
+        paginator = Paginator(page, news_count, news_settings.NEWS_ON_PAGE, url_builder)
+
+        if paginator.wrong_page_number:
+            return self.redirect(paginator.last_page_url, permanent=False)
+
+        news_from, news_to = paginator.page_borders(page)
+
+        news = [ news for news in News.objects.all().order_by('-created_at')[news_from:news_to]]
 
         return self.template('news/index.html',
-                             {'news': news} )
+                             {'news': news,
+                              'paginator': paginator} )
 
 
     @handler('#news_id', name='show', method='get')

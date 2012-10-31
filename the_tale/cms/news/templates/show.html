@@ -6,17 +6,21 @@
 
 {% block news_content %}
 
-<h2>{{news.caption}}</h2>
+<div class="block">
 
-<div class="news-info" style="margin-bottom: 1em;">
-  {{ base_macros.addthis(title=news.caption, description=news.html_description|striptags) }}
-  <span class="publication-date">опубликовано: <span class="pgf-format-datetime" data-timestamp="{{ news.created_at|timestamp }}"></span></span>
-  {% if news.forum_thread %}
-  <a class="pgf-forum-link" href="{{ news.forum_thread.get_absolute_url() }}">комментарии</a>
-  {% endif %}
+  <h2>{{news.caption}}</h2>
+
+  <div class="news-info" style="margin-bottom: 1em;">
+    {{ base_macros.addthis(title=news.caption, description=news.html_description|striptags) }}
+    <span class="publication-date">опубликовано: <span class="pgf-format-datetime" data-timestamp="{{ news.created_at|timestamp }}"></span></span>
+    {% if news.forum_thread %}
+    <a class="pgf-forum-link" href="{{ news.forum_thread.get_absolute_url() }}">комментарии</a>
+    {% endif %}
+  </div>
+
+  {{ news.html_content|safe }}
+
 </div>
-
-{{ news.html_content|safe }}
 
 
 {% endblock %}
