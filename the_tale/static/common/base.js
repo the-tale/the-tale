@@ -178,8 +178,9 @@ pgf.base.UpdateStatsBar = function(selector) {
     }
 };
 
-pgf.base.InitBBFields = function() {
-    jQuery('.pgf-command').click(function(e){
+pgf.base.InitBBFields = function(containerSelector) {
+    var container = jQuery(containerSelector);
+    jQuery('.pgf-bb-command', container).click(function(e){
         e.preventDefault();
 
         var target = jQuery(e.currentTarget);

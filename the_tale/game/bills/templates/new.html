@@ -12,7 +12,7 @@ jQuery(document).ready( function(e) {
                                                {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
 
     pgf.base.AddPreview('#pgf-bill-rationale', 'textarea', "{{ url('portal:preview') }}");
-    pgf.base.InitBBFields();
+    pgf.base.InitBBFields('#pgf-bill-rationale');
 });
 
 </script>
