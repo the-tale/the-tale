@@ -109,24 +109,27 @@ pgf.base.RenderTemplateList = function(selector, data, newElementCallback, param
 };
 
 pgf.base.AutoFormatTime = function() {
+    var date = new Date();
+    var timezoneOffset = -date.getTimezoneOffset() * 60000;
+
     jQuery('.pgf-format-datetime').each(function(i, v){
         var el = jQuery(v);
-        var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
-        var text = Globalize.format( new Date(timestamp), "d" ) + ' ' + Globalize.format( new Date(timestamp), "t" ) + ' UTC';
+        var timestamp = parseInt(el.data('timestamp'), 10) * 1000 + timezoneOffset;
+        var text = Globalize.format( new Date(timestamp), "d" ) + ' ' + Globalize.format( new Date(timestamp), "t" );
         el.text(text);
     });
 
     jQuery('.pgf-format-date').each(function(i, v){
         var el = jQuery(v);
-        var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
-        var text = Globalize.format( new Date(timestamp), "d" ) + ' UTC';
+        var timestamp = parseInt(el.data('timestamp'), 10) * 1000 + timezoneOffset;
+        var text = Globalize.format( new Date(timestamp), "d" );
         el.text(text);
     });
 
     jQuery('.pgf-format-time').each(function(i, v){
         var el = jQuery(v);
-        var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
-        var text = Globalize.format( new Date(timestamp), "t" ) + ' UTC';
+        var timestamp = parseInt(el.data('timestamp'), 10) * 1000 + timezoneOffset;
+        var text = Globalize.format( new Date(timestamp), "t" );
         el.text(text);
     });
 };
