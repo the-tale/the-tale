@@ -24,6 +24,8 @@ class Account(models.Model):
     # duplicate django user email - add unique constraints
     email = models.EmailField(max_length=254, null=True, unique=True)
 
+    new_messages_number = models.IntegerField(null=False, default=0)
+
     def __unicode__(self): return self.nick
 
 

@@ -7,6 +7,7 @@ import traceback
 import postmarkup
 
 from django.contrib.auth.hashers import make_password
+from django.db import models
 
 from dext.utils.decorators import nested_commit_on_success
 
@@ -83,6 +84,15 @@ class AccountPrototype(object):
     def get_email(self): return self.model.email
     def set_email(self, value): self.model.email = value
     email = property(get_email, set_email)
+
+    @property
+    def new_messages_number(self): return self.model.new_messages_number
+    def reset_new_messages_number(self):
+        Account.objects.filter(id=self.id).update(new_messages_number=0)
+        self.model.new_messages_number = 0
+    def increment_new_messages_number(self):
+        Account.objects.filter(id=self.id).update(new_messages_number=models.F('new_messages_number')+1)
+        self.model.new_messages_number = self.model.new_messages_number + 1
 
     @property
     def description_html(self): return postmarkup.render_bbcode(self.model.description)

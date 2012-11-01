@@ -1,0 +1,61 @@
+{% extends "personal_messages/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+
+{% block messages_content %}
+
+<h2 style="margin-bottom: 0.5em;">Сообщения</h2>
+
+<ul class="nav nav-pills">
+  <li {% if incoming %}class="active"{% endif %}><a href="{{ url('accounts:messages:') }}">входящие</a></li>
+  <li {% if not incoming %}class="active"{% endif %}><a href="{{ url('accounts:messages:sent') }}">исходящие</a></li>
+</ul>
+
+{% if messages %}
+
+{{ base_macros.render_paginator(paginator) }}
+
+<ul class="unstyled">
+  {% for message in messages %}
+  <li style="margin-bottom: 1em;">
+
+    <table class="table table-striped table-no-highlighting">
+      <tbody>
+        <tr class="head">
+          <td class="author">
+            <a href="{{url('accounts:show', message.sender.id)}}">{{ message.sender.nick }}</a> ⟶
+            <a href="{{url('accounts:show', message.recipient.id)}}">{{ message.recipient.nick }}</a>
+          </td>
+
+          <td style="width: 4em;">
+            <a href="{{ url('accounts:messages:new', recipient=message.sender.id, answer_to=message.id) }}">ответить</a>
+          </td>
+
+          <td style="width: 4em;">
+            <a href="{{ url('accounts:messages:delete', message.id) }}" class="pgf-forms-post-simple">удалить</a>
+          </td>
+
+          <td class="created-at pgf-format-datetime" data-timestamp="{{ message.created_at|timestamp}}" style="width: 15em;"></td>
+        </tr>
+
+        <tr class="body">
+          <td colspan="4">
+            {{ message.text_html|safe }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </li>
+  {% endfor %}
+</ul>
+
+{{ base_macros.render_paginator(paginator) }}
+
+{% else %}
+
+<p class="pgf-no-messages">Нет сообщений</p>
+
+{% endif %}
+
+{% endblock %}

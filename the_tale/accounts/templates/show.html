@@ -7,7 +7,11 @@
 
 {% block accounts_content %}
 
-<h2>{{ master_account.nick_verbose }} <small>могущество: {{ master_hero.might|int }}</small></h2>
+<h2 style="display: inline-block;">{{ master_account.nick_verbose }} <small>могущество: {{ master_hero.might|int }}</small></h2>
+
+{% if resource.account and master_account.id != resource.account.id %}
+&nbsp;<a href="{{ url('accounts:messages:new', recipient=master_account.id) }}">отправить сообщение</a>
+{% endif %}
 
 <table class="account-info-table table table-condensed table-striped table-bordered table-no-highlighting">
   <tbody>

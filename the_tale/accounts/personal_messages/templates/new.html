@@ -1,0 +1,50 @@
+{% extends "personal_messages/base.html" %}
+
+{% block title %} Новое сообщение | {{ super() }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form'),
+                                           { OnSuccess: function(form, data){
+                                               location.href = "{{ url('accounts:messages:sent') }}";
+                                           }
+                                         });
+
+    pgf.base.AddPreview('#pgf-new-message-form', 'textarea', "{{ url('portal:preview') }}");
+    pgf.base.InitBBFields('#pgf-new-message-form');
+});
+
+</script>
+
+{% endblock %}
+
+{% block messages_content %}
+
+<h2>Сообщение для игрока <a href="{{ url('accounts:show', recipient.id) }}">{{recipient.nick}}</a></h2>
+
+<form action="{{ url('accounts:messages:create', recipient=recipient.id) }}"
+      method="post"
+      id="pgf-new-message-form">
+
+  {{ form.errors_container }}
+
+  <div class="pgf-edit-content">
+    {{ form.text.widget }}
+  </div>
+
+  <div class="pgf-preview-content pgf-hidden">
+  </div>
+
+  <div class="widget">
+    <input type="submit" value="Сохранить"/>
+    <input type="button" class="pgf-preview-button" value="Предпросмотр"/>
+    <input type="button" class="pgf-edit-button pgf-hidden" value="Редактировать"/>
+    <input type="button" class="" value="Отмена" onclick="location.href='{{ url('accounts:show', recipient.id) }}';"/>
+  </div>
+
+</form>
+
+{% endblock %}

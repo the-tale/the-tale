@@ -137,6 +137,7 @@ INSTALLED_APPS = (
     'common.utils',
 
     'accounts',
+    'accounts.personal_messages',
 
     'guide',
 

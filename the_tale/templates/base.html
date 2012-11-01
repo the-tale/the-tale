@@ -141,10 +141,19 @@ jQuery(document).ready(function() {
 
             {% if request.user.is_authenticated() %}
 
+            {% if resource.account.new_messages_number > 0 %}
+            <li rel="tooltip"  title="У вас есть новые сообщения">
+              <a href="{{ url('accounts:messages:') }}">
+                <i class="icon-white icon-envelope" style="vertical-align: middle;"></i> ({{resource.account.new_messages_number}})
+              </a>
+            </li>
+            {% endif %}
+
             {{ base_macros.main_menu_item("profile",
                                           "#",
                                           resource.account.nick if not resource.account.is_fast else "Настройки",
                                           [(url("accounts:profile:show"), "Профиль"),
+                                           (url("accounts:messages:"), "Сообщения"),
                                            (url("accounts:show", resource.account.id), "Моя страница"),
                                            (url("game:heroes:show", resource.account.get_hero().id), "Мой герой"),
                                            ('-', '<li class="divider"></li>'),
