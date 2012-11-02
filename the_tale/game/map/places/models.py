@@ -9,22 +9,25 @@ class TERRAIN:
     FOREST = 'f'
     GRASS = '.'
     SWAMP = 'w'
+    MOUNTAINS = 'm'
 
-TERRAIN_CHOICES = ( (TERRAIN.DESERT, 'пустыня' ),
-                    (TERRAIN.FOREST, 'лес'),
-                    (TERRAIN.GRASS, 'луга'),
-                    (TERRAIN.SWAMP, 'болото') )
+TERRAIN_CHOICES = ( (TERRAIN.DESERT, u'пустыня' ),
+                    (TERRAIN.FOREST, u'лес'),
+                    (TERRAIN.GRASS, u'луга'),
+                    (TERRAIN.SWAMP, u'болото'),
+                    (TERRAIN.MOUNTAINS, u'горы'))
 
 RACE_TO_TERRAIN = { RACE.HUMAN: TERRAIN.GRASS,
                     RACE.ELF: TERRAIN.FOREST,
                     RACE.ORC: TERRAIN.DESERT,
                     RACE.GOBLIN: TERRAIN.SWAMP,
-                    RACE.DWARF: TERRAIN.GRASS }
+                    RACE.DWARF: TERRAIN.MOUNTAINS }
 
 TERRAIN_STR_2_ID = { 'desert': TERRAIN.DESERT,
                      'forest': TERRAIN.FOREST,
                      'grass': TERRAIN.GRASS,
-                     'swamp': TERRAIN.SWAMP }
+                     'swamp': TERRAIN.SWAMP,
+                     'mountains': TERRAIN.MOUNTAINS}
 
 class PLACE_TYPE:
     CITY = 'city'

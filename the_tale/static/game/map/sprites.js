@@ -80,6 +80,12 @@ pgf.tilesets = {
                    w: 32,
                    h: 32
                  },
+            'm': { src: "/tmp/rocks.png",
+                   x: 0 * 32,
+                   y: 0 * 32,
+                   w: 32,
+                   h: 32
+                 },
             'place_small': { src: "/tmp/city_small.png",
                        x: 0,
                        y: 0,
