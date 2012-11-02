@@ -11,9 +11,10 @@ from forum.prototypes import ThreadPrototype
 
 from cms.news.models import News
 
+from game.game_info import RACE
+
 from game.map.prototypes import MapInfoPrototype
 from game.map.models import MapInfo
-
 from game.map.places.models import TERRAIN
 
 from portal.conf import portal_settings
@@ -53,7 +54,8 @@ class PortalResource(Resource):
                               'bills_events': bills_events,
                               'hero_of_the_day': hero_of_the_day,
                               'map_info': map_info,
-                              'TERRAIN': TERRAIN})
+                              'TERRAIN': TERRAIN,
+                              'RACE': RACE})
 
     @handler('404', method='get')
     def handler404(self):

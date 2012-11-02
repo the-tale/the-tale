@@ -93,40 +93,66 @@
   </div>
 
   <div class="span6">
-    <div class="block">
+    <div class="row">
+      <div class="span6">
+        <div class="block">
 
-      <h4 class="newspaper-column-header">
-        Новости
-        <a href="{{ get_rss_link() }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss">
-          <img src="{{STATIC_URL}}images/rss.png" style="margin: 2px;"/>
-        </a>
-        <small><a href="{{ url('news:') }}">ещё…</a></small>
-      </h4>
+          <h4 class="newspaper-column-header">
+            Новости
+            <a href="{{ get_rss_link() }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss">
+              <img src="{{STATIC_URL}}images/rss.png" style="margin: 2px;"/>
+            </a>
+            <small><a href="{{ url('news:') }}">ещё…</a></small>
+          </h4>
 
-      <ul class="unstyled">
-        {% for record in news %}
-        {{ news_macros.news_record(record) }}
-        {% endfor %}
-      </ul>
+          <ul class="unstyled">
+            {% for record in news %}
+            {{ news_macros.news_record(record) }}
+            {% endfor %}
+          </ul>
+        </div>
+
+      </div>
     </div>
+
+    <div class="row">
+
+      <div class="span3">
+        <div class="block">
+          <h4 class="newspaper-column-header">Географический уголок</h4>
+          <span style="font-size: 8pt;">от Гоблинского Географического Общества.</span>
+          <ul class="unstyled">
+            <li><strong>равнины:</strong> {{ map_info.terrain_percents.get(TERRAIN.GRASS, 0)|percents }}</li>
+            <li><strong>болота:</strong> {{ map_info.terrain_percents.get(TERRAIN.SWAMP, 0)|percents }}</li>
+            <li><strong>леса:</strong> {{ map_info.terrain_percents.get(TERRAIN.FOREST, 0)|percents }}</li>
+            <li><strong>пустыни:</strong> {{ map_info.terrain_percents.get(TERRAIN.DESERT, 0)|percents }}</li>
+            <li><strong>горы:</strong> {{ map_info.terrain_percents.get(TERRAIN.MOUNTAINS, 0)|percents }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="span3">
+        <div class="block">
+          <h4 class="newspaper-column-header">Политический обзор</h4>
+          <span style="font-size: 8pt;">от ПандораСтат</span>
+          <ul class="unstyled">
+            <li><strong>люди:</strong> {{ map_info.race_percents.get(RACE.HUMAN, 0)|percents }}</li>
+            <li><strong>гоблины:</strong> {{ map_info.race_percents.get(RACE.GOBLIN, 0)|percents }}</li>
+            <li><strong>эльфы:</strong> {{ map_info.race_percents.get(RACE.ELF, 0)|percents }}</li>
+            <li><strong>орки:</strong> {{ map_info.race_percents.get(RACE.ORC, 0)|percents }}</li>
+            <li><strong>дварфы:</strong> {{ map_info.race_percents.get(RACE.DWARF, 0)|percents }}</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 
   <div class="span3">
 
     <div class="block">
-      <h4 class="newspaper-column-header">Географический уголок</h4>
-      <span style="font-size: 8pt;">от Гоблинского Географического Общества.</span>
-      <ul class="unstyled">
-        <li><strong>равнины:</strong> {{ map_info.terrain_percents.get(TERRAIN.GRASS, 0)|percents }}</li>
-        <li><strong>болота:</strong> {{ map_info.terrain_percents.get(TERRAIN.SWAMP, 0)|percents }}</li>
-        <li><strong>леса:</strong> {{ map_info.terrain_percents.get(TERRAIN.FOREST, 0)|percents }}</li>
-        <li><strong>пустыни:</strong> {{ map_info.terrain_percents.get(TERRAIN.DESERT, 0)|percents }}</li>
-        <li><strong>горы:</strong> {{ map_info.terrain_percents.get(TERRAIN.MOUNTAINS, 0)|percents }}</li>
-      </ul>
-    </div>
-
-    <div class="block">
-      <h4 class="newspaper-column-header">Политический обзор</h4>
+      <h4 class="newspaper-column-header">Законотворчество</h4>
 
       <ul class="unstyled">
         {% for bill_event in bills_events %}

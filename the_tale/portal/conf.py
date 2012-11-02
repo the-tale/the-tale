@@ -22,6 +22,6 @@ SITE_SECTIONS = ( (re.compile(r'^/$'), 'index'),
 portal_settings = app_settings('PORTAL',
                                DUMP_EMAIL='admin@the-tale.org',
                                META_CONFIG=os.path.join(project_settings.PROJECT_DIR, 'meta_config.json'),
-                               BILLS_ON_INDEX=4,
+                               BILLS_ON_INDEX=8,
                                FORUM_THREADS_ON_INDEX=5,
                                NEWS_ON_INDEX=3)
