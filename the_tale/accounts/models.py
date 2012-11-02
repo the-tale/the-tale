@@ -26,6 +26,9 @@ class Account(models.Model):
 
     new_messages_number = models.IntegerField(null=False, default=0)
 
+    class Meta:
+        ordering = ['nick']
+
     def __unicode__(self): return self.nick
 
 
