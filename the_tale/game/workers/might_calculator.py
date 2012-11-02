@@ -71,8 +71,8 @@ class Worker(BaseWorker):
         might += Vote.objects.filter(owner_id=hero.account_id).count() * MIGHT_FOR_BILL_VOTE
         might += Bill.objects.filter(owner_id=hero.account_id, state=BILL_STATE.ACCEPTED).count() * MIGHT_FOR_BILL_ACCEPTED
 
-        for award_state, might_cooficient in MIGHT_FOR_AWARD.items():
-            might += Award.objects.filter(account_id=hero.account_id).count() * might_cooficient
+        for award_type, might_cooficient in MIGHT_FOR_AWARD.items():
+            might += Award.objects.filter(account_id=hero.account_id, type=award_type).count() * might_cooficient
 
         return might
 

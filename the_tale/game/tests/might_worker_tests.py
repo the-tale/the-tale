@@ -5,14 +5,7 @@ from django.test import TestCase
 from accounts.logic import register_user
 from accounts.prototypes import AccountPrototype
 
-from game.logic import create_test_bundle, create_test_map, test_bundle_save
-from game.artifacts.storage import ArtifactsDatabase
-from game.prototypes import TimePrototype
-
-from game.balance import formulas as f, constants as c
-
-from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS
-from game.quests.quests_builders import SearchSmith
+from game.logic import create_test_map
 
 from game.heroes.prototypes import HeroPrototype
 
