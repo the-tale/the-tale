@@ -63,3 +63,5 @@ class Worker(BaseWorker):
                                          '-d "%s"' % project_settings.DATABASES['default']['NAME']])
         if vacuum_result:
             self.logger.error('VACUUM COMMAND ENDED WITH CODE %d' % vacuum_result)
+        else:
+            self.logger.info('vacuum command was processed correctly')
