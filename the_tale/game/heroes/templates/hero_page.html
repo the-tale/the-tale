@@ -17,7 +17,7 @@ var widgets = {};
 
 jQuery(document).ready(function(e){
 
-    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?account={{ master_account_id }}"});
+    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?account={{ master_account.id }}"});
 
     setTimeout(function(){
         updater.Refresh();
@@ -36,7 +36,7 @@ jQuery(document).ready(function(e){
 
   <div class="span3">
 
-    {{ hero_short_macros.hero_short(is_owner, false) }}
+    {{ hero_short_macros.hero_short(is_owner, false, master_account) }}
 
     <div class="block">
       {% include "heroes/hero_equipment.html" %}

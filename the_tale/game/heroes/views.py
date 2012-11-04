@@ -6,6 +6,8 @@ from dext.views.resources import handler, validator
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
 
+from accounts.prototypes import AccountPrototype
+
 from game.mobs.storage import MobsDatabase
 
 from game.map.places.storage import places_storage
@@ -66,7 +68,7 @@ class HeroResource(Resource):
         return self.template('heroes/hero_page.html',
                              {'abilities': abilities,
                               'is_owner': self.is_owner,
-                              'master_account_id': self.hero.account_id,
+                              'master_account': AccountPrototype.get_by_id(self.hero.account_id),
                               'PREFERENCE_TYPE': PREFERENCE_TYPE} )
 
     @login_required

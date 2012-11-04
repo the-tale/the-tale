@@ -1,5 +1,5 @@
 
-{% macro hero_short(is_owner, show_hero_link) %}
+{% macro hero_short(is_owner, show_hero_link, master_account=none) %}
 
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
@@ -80,6 +80,13 @@ jQuery(document).ready(function(e) {
     {% endif %}
 
   </div>
+
+  {% if master_account and not is_owner %}
+  <div>
+    <strong>покровитель:</strong> <a href="{{ url('accounts:show', master_account.id) }}">{{master_account.nick}}</a>
+  </div>
+  {% endif %}
+
 
   <div id="pgf-might-tooltip" class="pgf-hidden">
     могущество <br/>
