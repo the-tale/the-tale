@@ -170,10 +170,10 @@ def sell_artifact_price(lvl):
 
 def person_power_from_quest(power_points, hero_lvl, quest_length): # длительность задания указывается в ходах
     # do not give any power for heroes on first level
-    return int(power_points * math.log(hero_lvl, 3) * c.HERO_POWER_PER_DAY * (quest_length / (24 * c.TURNS_IN_HOUR)))
+    return int(power_points * math.log(hero_lvl, 2) * c.HERO_POWER_PER_DAY * (quest_length / (24 * c.TURNS_IN_HOUR)))
 
 def person_power_from_random_spend(power_points, hero_lvl):
-    return power_points * hero_lvl * c.PERSON_POWER_FOR_RANDOM_SPEND
+    return power_points * math.log(hero_lvl, 2) * c.PERSON_POWER_FOR_RANDOM_SPEND
 
 
 def turns_to_game_time(turns):
