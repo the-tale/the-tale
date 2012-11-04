@@ -161,3 +161,11 @@ class ProfileRequestsTests(TestCase):
 
         # check if we loggined - there will be redirect from login page
         self.check_redirect(reverse('accounts:auth:login'), '/')
+
+    def test_update_last_news_reminder_time(self):
+
+        self.request_login('test_user@test.com')
+
+        self.check_ajax_ok(self.client.post(reverse('accounts:profile:update-last-news-reminder-time')))
+
+        self.assertTrue(self.account.last_news_remind_time < AccountPrototype.get_by_id(self.account.id).last_news_remind_time)

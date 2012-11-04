@@ -11,7 +11,7 @@ if (!pgf.forms) {
 pgf.widgets = {
 
     'static-value': function(name, widget, owner, form) {
-        
+
         var value = jQuery('.pgf-value', widget);
 
         var displayedValue = jQuery('.pgf-displayed-value', widget);
@@ -81,12 +81,12 @@ pgf.forms.Form = function(selector, params) {
         this.selector = selector;
         this.defaults = {};
 
-        this.params = jQuery.extend({}, 
+        this.params = jQuery.extend({},
                                     this.defaults,
                                     params);
 
         var form = jQuery(selector);
-        
+
         this.ClearErrors();
 
         form.submit(function(e){
@@ -195,7 +195,7 @@ pgf.forms.Form = function(selector, params) {
             dataType: 'json',
             type: 'post',
             url: instance.params.action,
-            data: jQuery(this.selector).serialize(), 
+            data: jQuery(this.selector).serialize(),
             success: OnSuccess,
             error: OnError,
             complete: OnComplete
@@ -231,7 +231,7 @@ pgf.forms.Post = function(params) {
                 else {
                     alert('Произошла ошибка, мы уже работаем над её устранением, повторите попытку через некоторое время');
                 }
-            } 
+            }
             if (params.OnError) {
                 params.OnError(data);
             }
@@ -239,7 +239,7 @@ pgf.forms.Post = function(params) {
 
         if (data.status == 'processing') {
             if (params.wait) {
-                pgf.ui.dialog.wait("start");                
+                pgf.ui.dialog.wait("start");
             }
 
             setTimeout(function() {
@@ -291,12 +291,23 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
 
     var el = jQuery(this);
 
+    var actionType = el.data('action-type');
+
+    if (!actionType) {
+        actionType = 'redirect';
+    }
+
     if (el.attr('href')) {
         pgf.forms.Post({ action: el.attr('href'),
                          OnSuccess: function(data){
-                             location.reload(true);
+                             if (actionType == 'quietly') {
+                             }
+                             else {
+                                 if (actionType == 'redirect') {
+                                     location.reload(true);
+                                 }
+                             }
                          }
                        });
     }
 });
-

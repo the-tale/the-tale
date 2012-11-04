@@ -22,7 +22,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.EXP_PER_MOB, 1.0)
         self.assertEqual(c.EXP_MULTIPLICATOR, 10.0)
         self.assertEqual(c.EXP_PENALTY_MULTIPLIER, 4.0)
-        self.assertEqual(c.EXP_ACTIVE_STATE_LENGTH, 360.0*2*24)
+        self.assertEqual(c.EXP_ACTIVE_STATE_LENGTH, 360.0*3*24)
         self.assertEqual(c.BATTLE_LENGTH, 16)
         self.assertEqual(c.INTERVAL_BETWEEN_BATTLES, 5)
         self.assertEqual(c.BATTLES_BEFORE_HEAL, 8)

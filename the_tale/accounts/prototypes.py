@@ -4,8 +4,6 @@ import uuid
 import datetime
 import traceback
 
-import postmarkup
-
 from django.contrib.auth.hashers import make_password
 from django.db import models
 
@@ -70,10 +68,6 @@ class AccountPrototype(object):
     def set_is_fast(self, value): self.model.is_fast = value
     is_fast = property(get_is_fast, set_is_fast)
 
-    def get_description(self): return self.model.description
-    def set_description(self, value): self.model.description = value
-    description = property(get_description, set_description)
-
     def get_nick(self): return self.model.nick
     def set_nick(self, value): self.model.nick = value
     nick = property(get_nick, set_nick)
@@ -85,6 +79,10 @@ class AccountPrototype(object):
     def set_email(self, value): self.model.email = value
     email = property(get_email, set_email)
 
+    def get_last_news_remind_time(self): return self.model.last_news_remind_time
+    def set_last_news_remind_time(self, value): self.model.last_news_remind_time = value
+    last_news_remind_time = property(get_last_news_remind_time, set_last_news_remind_time)
+
     @property
     def new_messages_number(self): return self.model.new_messages_number
     def reset_new_messages_number(self):
@@ -93,9 +91,6 @@ class AccountPrototype(object):
     def increment_new_messages_number(self):
         Account.objects.filter(id=self.id).update(new_messages_number=models.F('new_messages_number')+1)
         self.model.new_messages_number = self.model.new_messages_number + 1
-
-    @property
-    def description_html(self): return postmarkup.render_bbcode(self.model.description)
 
     def reset_password(self):
         new_password = generate_password(len_=accounts_settings.RESET_PASSWORD_LENGTH)

@@ -26,6 +26,8 @@ class Account(models.Model):
 
     new_messages_number = models.IntegerField(null=False, default=0)
 
+    last_news_remind_time = models.DateTimeField(default=datetime.datetime.fromtimestamp(0))
+
     class Meta:
         ordering = ['nick']
 

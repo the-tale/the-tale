@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout
@@ -244,6 +245,14 @@ class ProfileResource(Resource):
             return self.json_ok()
 
         return self.json_error('accounts.profile.reset_password.form_errors', reset_password_form.errors)
+
+    @handler('update-last-news-reminder-time', method='post')
+    def update_last_news_reminder_time(self):
+
+        self.account.last_news_remind_time = datetime.datetime.now()
+        self.account.save()
+
+        return self.json_ok()
 
 
 class AccountResource(Resource):
