@@ -1,6 +1,7 @@
 # coding: utf-8
 import subprocess
 
+from django.conf import settings as project_settings
 from django.utils.log import getLogger
 
 from common.amqp_queues import BaseWorker
@@ -52,3 +53,13 @@ class Worker(BaseWorker):
 
     def process_recalculate_ratings(self):
         subprocess.call(['./manage.py', 'ratings_recalculate_ratings'])
+
+    def cmd_run_vacuum(self):
+        return self.send_cmd('recalculate_ratings')
+
+    def process_run_vacuum(self):
+        vacuum_result = subprocess.call(['vacuumdb', '-q',
+                                         '-U "%s"' % project_settings.DATABASES['default']['USER'],
+                                         '-d "%s"' % project_settings.DATABASES['default']['NAME']])
+        if vacuum_result:
+            self.logger.error('VACUUM COMMAND ENDED WITH CODE %d' % vacuum_result)

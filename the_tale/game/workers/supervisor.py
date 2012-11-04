@@ -192,3 +192,9 @@ class Worker(BaseWorker):
 
     def process_recalculate_ratings(self):
         self.long_commands_worker.cmd_recalculate_ratings()
+
+    def cmd_run_vacuum(self):
+        return self.send_cmd('recalculate_ratings')
+
+    def process_run_vacuum(self):
+        self.long_commands_worker.cmd_run_vacuum()
