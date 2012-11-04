@@ -21,7 +21,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.ARTIFACTS_PER_LVL, 4)
         self.assertEqual(c.EXP_PER_MOB, 1.0)
         self.assertEqual(c.EXP_MULTIPLICATOR, 10.0)
-        self.assertEqual(c.EXP_PENALTY_MULTIPLIER, 3.0)
+        self.assertEqual(c.EXP_PENALTY_MULTIPLIER, 4.0)
         self.assertEqual(c.EXP_ACTIVE_STATE_LENGTH, 360.0*2*24)
         self.assertEqual(c.BATTLE_LENGTH, 16)
         self.assertEqual(c.INTERVAL_BETWEEN_BATTLES, 5)

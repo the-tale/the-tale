@@ -441,7 +441,7 @@ class HeroPrototype(object):
     ###########################################
 
     @property
-    def can_change_persons_power(self): return not self.is_fast
+    def can_change_persons_power(self): return not self.is_fast and self.is_active
 
     ###########################################
     # Needs attributes

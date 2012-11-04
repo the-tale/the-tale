@@ -32,7 +32,7 @@ class Hero(models.Model):
 
     alive = models.BooleanField(default=True)
 
-    active_state_end_at = models.BigIntegerField(default=0)
+    active_state_end_at = models.BigIntegerField(default=0, db_index=True)
 
     #base
     name = models.CharField(max_length=150, null=False)

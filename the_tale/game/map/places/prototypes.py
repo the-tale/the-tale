@@ -79,7 +79,9 @@ class PlacePrototype(object):
 
     @property
     def heroes_number(self): return self.model.heroes_number
-    def update_heroes_number(self): self.model.heroes_number = Hero.objects.filter(pref_place_id=self.id).count()
+    def update_heroes_number(self):
+        current_turn = TimePrototype.get_current_turn_number()
+        self.model.heroes_number = Hero.objects.filter(pref_place_id=self.id, active_state_end_at__gte=current_turn).count()
 
     @property
     def persons(self):

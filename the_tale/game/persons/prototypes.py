@@ -5,6 +5,7 @@ from textgen.words import Fake
 from game.game_info import GENDER_ID_2_STR
 from game.map.places.storage import places_storage
 from game.heroes.models import Hero
+from game.prototypes import TimePrototype
 
 from game.persons.models import Person, PERSON_STATE
 
@@ -71,11 +72,15 @@ class PersonPrototype(object):
 
     @property
     def friends_number(self): return self.model.friends_number
-    def update_friends_number(self): self.model.friends_number = Hero.objects.filter(pref_friend_id=self.id).count()
+    def update_friends_number(self):
+        current_turn = TimePrototype.get_current_turn_number()
+        self.model.friends_number = Hero.objects.filter(pref_friend_id=self.id, active_state_end_at__gte=current_turn).count()
 
     @property
     def enemies_number(self): return self.model.enemies_number
-    def update_enemies_number(self): self.model.enemies_number = Hero.objects.filter(pref_enemy_id=self.id).count()
+    def update_enemies_number(self):
+        current_turn = TimePrototype.get_current_turn_number()
+        self.model.enemies_number = Hero.objects.filter(pref_enemy_id=self.id, active_state_end_at__gte=current_turn).count()
 
     def save(self):
         self.model.save()
