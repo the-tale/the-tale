@@ -210,7 +210,7 @@ jQuery(document).ready(function() {
 
         <div class="alert pgf-last-news-reminder">
           <button class="close pgf-close-last-news-reminder">×</button>
-          <h4>{{ news_record.caption }}</h4>
+          <h4><a href="{{url('news:show', news_record.id)}}" style="color: #C09853;">{{ news_record.caption }}</a></h4>
           {{ news_record.html_description|safe }}
         </div>
         {% endif %}
