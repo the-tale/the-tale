@@ -202,7 +202,7 @@ jQuery(document).ready(function() {
               jQuery('.pgf-close-last-news-reminder').click(function(e){
                   pgf.forms.Post({ action:  "{{url('accounts:profile:update-last-news-reminder-time')}}",
                                    wait: false});
-                  jQuery('.x').remove();
+                  jQuery('.pgf-last-news-reminder').remove();
               });
 
           });
@@ -211,7 +211,7 @@ jQuery(document).ready(function() {
         <div class="alert pgf-last-news-reminder">
           <button class="close pgf-close-last-news-reminder">×</button>
           <h4>{{ news_record.caption }}</h4>
-          {{ news_record.description }}
+          {{ news_record.html_description|safe }}
         </div>
         {% endif %}
 

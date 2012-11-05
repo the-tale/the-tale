@@ -51,7 +51,7 @@ class NewsAlertsTests(TestCase):
         self.check_reminder(reverse('guide:game'), 0, 0, 0)
 
     def test_news_alert(self):
-        self.check_reminder(reverse('guide:game'), 1, 1, 1)
+        self.check_reminder(reverse('guide:game'), 1, 1, 2)
 
     def test_no_news_alert(self):
         self.account.last_news_remind_time = datetime.datetime.now()
