@@ -12,8 +12,6 @@
 
 @import "politics.css";
 
-@import "angels.css";
-
 @import "newspaper.css";
 html {
   height: 100%;
@@ -145,6 +143,9 @@ blockquote {
   float: left;
   color: #999999;
   margin-right: 0.5em;
+}
+.tooltip {
+  z-index: 2000 !important;
 }
 .rss-link {
   text-decoration: none !important;
