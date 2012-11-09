@@ -332,7 +332,7 @@ class ThreadsResource(BaseForumResource):
 
         page = int(page) - 1
 
-        paginator = Paginator(page, self.thread.posts_count, forum_settings.POSTS_ON_PAGE, url_builder)
+        paginator = Paginator(page, self.thread.posts_count+1, forum_settings.POSTS_ON_PAGE, url_builder)
 
         if paginator.wrong_page_number:
             return self.redirect(paginator.last_page_url, permanent=False)

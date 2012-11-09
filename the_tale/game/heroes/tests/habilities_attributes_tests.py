@@ -2,7 +2,10 @@
 
 from django.test import TestCase
 
-from game.logic import create_test_bundle, create_test_map
+from accounts.logic import register_user
+from game.heroes.prototypes import HeroPrototype
+
+from game.logic import create_test_map
 
 from game.mobs.storage import MobRecord
 from game.mobs.prototypes import MobPrototype
@@ -14,8 +17,8 @@ class AttributeAbiliesForHeroTest(TestCase):
     def setUp(self):
         create_test_map()
 
-        self.bundle = create_test_bundle('HeroTest')
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user')
+        self.hero = HeroPrototype.get_by_account_id(account_id)
 
     def tearDown(self):
         pass

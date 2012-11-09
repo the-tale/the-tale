@@ -4,8 +4,12 @@ from django.test import TestCase
 
 from dext.settings import settings
 
+from accounts.logic import register_user
+from game.heroes.prototypes import HeroPrototype
+from game.logic_storage import LogicStorage
+
 from game.heroes.bag import SLOTS
-from game.logic import create_test_bundle, create_test_map, test_bundle_save
+from game.logic import create_test_map
 from game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradingPrototype, ActionEquippingPrototype, ActionRegenerateEnergyPrototype
 from game.artifacts.storage import ArtifactsDatabase
 from game.prototypes import TimePrototype
@@ -18,11 +22,14 @@ class InPlaceActionTest(TestCase):
         settings.refresh()
 
         create_test_map()
+        result, account_id, bundle_id = register_user('test_user')
 
-        self.bundle = create_test_bundle('InPlaceActionTest')
-        self.action_idl = self.bundle.tests_get_last_action()
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+
         self.action_inplace = ActionInPlacePrototype.create(self.action_idl)
-        self.hero = self.bundle.tests_get_hero()
 
     def tearDown(self):
         pass
@@ -31,39 +38,39 @@ class InPlaceActionTest(TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_inplace.leader, True)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
 
     def test_processed(self):
-        self.bundle.process_turn()
-        self.assertEqual(len(self.bundle.actions), 1)
-        self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
-        test_bundle_save(self, self.bundle)
+        self.storage.process_turn()
+        self.assertEqual(len(self.storage.actions), 1)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.storage._test_save()
 
     def test_regenerate_energy_action_create(self):
         self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
-        self.bundle.process_turn()
-        self.assertEqual(len(self.bundle.actions), 3)
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionRegenerateEnergyPrototype.TYPE)
-        test_bundle_save(self, self.bundle)
+        self.storage.process_turn()
+        self.assertEqual(len(self.storage.actions), 3)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRegenerateEnergyPrototype.TYPE)
+        self.storage._test_save()
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
         self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
-        self.bundle.process_turn()
-        self.assertEqual(len(self.bundle.actions), 1)
-        self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
-        test_bundle_save(self, self.bundle)
+        self.storage.process_turn()
+        self.assertEqual(len(self.storage.actions), 1)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.storage._test_save()
 
     def test_heal_action_create(self):
         self.hero.health = 1
-        self.bundle.process_turn()
-        self.assertEqual(len(self.bundle.actions), 3)
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionRestPrototype.TYPE)
-        test_bundle_save(self, self.bundle)
+        self.storage.process_turn()
+        self.assertEqual(len(self.storage.actions), 3)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRestPrototype.TYPE)
+        self.storage._test_save()
 
     def test_trade_action_create(self):
         storage = ArtifactsDatabase.storage()
@@ -72,11 +79,11 @@ class InPlaceActionTest(TestCase):
             artifact = storage.generate_artifact_from_list(storage.loot_ids, 1)
             self.hero.bag.put_artifact(artifact)
 
-        self.bundle.process_turn()
-        self.assertEqual(len(self.bundle.actions), 3)
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionTradingPrototype.TYPE)
+        self.storage.process_turn()
+        self.assertEqual(len(self.storage.actions), 3)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionTradingPrototype.TYPE)
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     def test_equip_action_create(self):
         storage = ArtifactsDatabase.storage()
@@ -85,23 +92,23 @@ class InPlaceActionTest(TestCase):
         artifact.power = 666
         self.hero.bag.put_artifact(artifact)
 
-        self.bundle.process_turn()
-        self.assertEqual(len(self.bundle.actions), 3)
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionEquippingPrototype.TYPE)
+        self.storage.process_turn()
+        self.assertEqual(len(self.storage.actions), 3)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionEquippingPrototype.TYPE)
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     def test_full(self):
 
         current_time = TimePrototype.get_current_time()
 
-        while len(self.bundle.actions) != 1:
-            self.bundle.process_turn()
+        while len(self.storage.actions) != 1:
+            self.storage.process_turn()
             current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
 
 class InPlaceActionSpendMoneyTest(TestCase):
@@ -109,11 +116,14 @@ class InPlaceActionSpendMoneyTest(TestCase):
     def setUp(self):
         create_test_map()
 
-        self.bundle = create_test_bundle('InPlaceActionTest')
-        self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionInPlacePrototype.create(self.action_idl))
-        self.action_inplace = self.bundle.tests_get_last_action()
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+
+        self.action_inplace = ActionInPlacePrototype.create(self.action_idl)
 
 
     def tearDown(self):
@@ -123,10 +133,10 @@ class InPlaceActionSpendMoneyTest(TestCase):
     def test_no_money(self):
 
         self.hero.model.money = 1
-        self.bundle.process_turn()
+        self.storage.process_turn()
         self.assertEqual(self.hero.money, 1)
         self.assertEqual(self.hero.statistics.money_spend, 0)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
 
     def test_instant_heal(self):
@@ -137,13 +147,13 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         self.hero.model.money = money
         self.hero.health = 1
-        self.bundle.process_turn()
+        self.storage.process_turn()
         self.assertTrue(self.hero.money < f.instant_heal_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(self.hero.health, self.hero.max_health)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_heal, money - self.hero.money)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     def test_bying_artifact_with_hero_preferences(self):
         while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
@@ -163,7 +173,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         #buy artifact
         self.hero.model.money = money
 
-        self.bundle.process_turn()
+        self.storage.process_turn()
         self.assertTrue(self.hero.money < f.buy_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(len(self.hero.bag.items()), 0)
 
@@ -173,7 +183,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         # hero must not buy artifact in preferences slot, he has special quest for this
         self.assertEqual(self.hero.equipment.get(SLOTS.PLATE), None)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
 
     def test_bying_artifact_without_change(self):
@@ -193,14 +203,14 @@ class InPlaceActionSpendMoneyTest(TestCase):
         #buy artifact
         self.hero.model.money = money
 
-        self.bundle.process_turn()
+        self.storage.process_turn()
         self.assertTrue(self.hero.money < f.buy_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(len(self.hero.bag.items()), 0)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     def test_bying_artifact_with_change(self):
         while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
@@ -218,7 +228,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
         self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
 
-        self.bundle.process_turn()
+        self.storage.process_turn()
         self.assertTrue(self.hero.money > 0)
         self.assertEqual(len(self.hero.bag.items()), 0)
 
@@ -226,7 +236,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.assertTrue(self.hero.statistics.money_spend_for_artifacts > money - self.hero.money)
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
         self.assertTrue(self.hero.statistics.money_earned_from_artifacts > 0)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     def test_sharpening_artifact(self):
         while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
@@ -237,13 +247,13 @@ class InPlaceActionSpendMoneyTest(TestCase):
         old_power = self.hero.power
 
         self.hero.model.money = money
-        self.bundle.process_turn()
+        self.storage.process_turn()
         self.assertTrue(self.hero.money < f.sharpening_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(old_power + 1, self.hero.power)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     def test_sharpening_artifact_with_hero_preferences(self):
         while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
@@ -258,14 +268,14 @@ class InPlaceActionSpendMoneyTest(TestCase):
         old_plate_power = self.hero.equipment.get(SLOTS.PLATE).power
 
         self.hero.model.money = money
-        self.bundle.process_turn()
+        self.storage.process_turn()
         self.assertTrue(self.hero.money < f.sharpening_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(old_power + 1, self.hero.power)
         self.assertEqual(old_plate_power + 1, self.hero.equipment.get(SLOTS.PLATE).power)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
 
     def test_useless(self):
@@ -274,12 +284,12 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         money = f.useless_price(self.hero.level)
         self.hero.model.money = money
-        self.bundle.process_turn()
+        self.storage.process_turn()
         self.assertTrue(self.hero.money < f.useless_price(self.hero.level) * c.PRICE_DELTA + 1)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_useless, money - self.hero.money)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
 
     def test_impact(self):
@@ -288,9 +298,9 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         money = f.impact_price(self.hero.level)
         self.hero.model.money = money
-        self.bundle.process_turn()
+        self.storage.process_turn()
         self.assertTrue(self.hero.money < f.impact_price(self.hero.level) * c.PRICE_DELTA + 1)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_impact, money - self.hero.money)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()

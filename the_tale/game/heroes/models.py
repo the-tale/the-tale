@@ -122,10 +122,6 @@ class Hero(models.Model):
 
     stat_quests_done = models.BigIntegerField(default=0, null=False)
 
-    @classmethod
-    def get_related_query(cls):
-        return cls.objects.select_related('pos_place', 'pos_road')
-
     def __unicode__(self):
         return u'hero[%d] - %s' % (self.id, self.name)
 

@@ -26,7 +26,6 @@ from game.quests.logic import create_random_quest_for_hero
 
 from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 from game.prototypes import TimePrototype
-from game.workers.environment import workers_environment
 
 def get_actions_types():
     actions = {}
@@ -57,7 +56,7 @@ class ActionPrototype(object):
         super(ActionPrototype, self).__init__(*argv, **kwargs)
         self.model = model
         self.removed = False
-        self.bundle = None
+        self.storage = None
         self.updated = False
 
     @property
@@ -71,10 +70,10 @@ class ActionPrototype(object):
 
     @property
     def leader(self):
-        return (not self.removed) and (self.bundle.current_hero_action(self.hero_id).id == self.id)
+        return (not self.removed) and (self.storage.current_hero_action(self.hero_id).id == self.id)
 
-    def set_bundle(self, bundle):
-        self.bundle = bundle
+    def set_storage(self, storage):
+        self.storage = storage
 
     def get_percents(self): return self.model.percents
     def set_percents(self, value): self.model.percents = value
@@ -89,12 +88,12 @@ class ActionPrototype(object):
 
     @property
     def hero(self):
-        return self.bundle.heroes[self.hero_id]
+        return self.storage.heroes[self.hero_id]
 
     @property
     def parent(self):
         if self.model.parent_id is not None:
-            return self.bundle.actions[self.model.parent_id]
+            return self.storage.actions[self.model.parent_id]
         return None
 
     @property
@@ -175,6 +174,13 @@ class ActionPrototype(object):
     @property
     def back(self): return self.model.back
 
+
+    @property
+    def meta_action_id(self): return self.model.meta_action_id
+
+    @property
+    def meta_action(self): return self.storage.meta_actions[self.model.meta_action_id] if self.model.meta_action_id else None
+
     @property
     def help_choices(self):
         choices = copy.copy(self.EXTRA_HELP_CHOICES)
@@ -226,7 +232,7 @@ class ActionPrototype(object):
 
     def on_create(self, parent):
         if parent:
-            parent.bundle.add_action(self)
+            parent.storage.add_action(self)
         self.hero.push_action_description(self.get_description())
         self.hero.last_action_percents = self.percents
 
@@ -244,30 +250,30 @@ class ActionPrototype(object):
     @classmethod
     def create(cls, parent, *argv, **kwargs):
         '''
-        _bundle argument used only in creating hero step
+        _storage argument used only in creating hero step
         '''
-        _bundle = None
-        if '_bundle' in kwargs:
-            _bundle = kwargs['_bundle']
-            del kwargs['_bundle']
+        _storage = None
+        if '_storage' in kwargs:
+            _storage = kwargs['_storage']
+            del kwargs['_storage']
 
         action = cls._create(parent, *argv, **kwargs)
 
-        if _bundle:
-            _bundle.add_action(action)
+        if _storage:
+            _storage.add_action(action)
 
         action.on_create(parent)
         return action
 
     def remove(self, force=False):
         '''
-        force - if True, bundles will be ignored (need for full remove of angel & hero)
+        force - if True, storages will be ignored (need for full remove of angel & hero)
         '''
 
         self.on_remove(force=force)
 
-        if self.bundle:
-            self.bundle.remove_action(self)
+        if self.storage:
+            self.storage.remove_action(self)
 
         if self.quest:
             self.quest.remove()
@@ -289,6 +295,9 @@ class ActionPrototype(object):
 
         database.raw_save(self.model)
         # self.model.save(force_update=True)
+
+        if self.meta_action_id is not None and self.meta_action.updated:
+            self.meta_action.save()
 
         self.updated = False
 
@@ -685,7 +694,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
 
         return True
 
-    def process(self, ):
+    def process(self):
 
         if self.state == self.STATE.BATTLE_RUNNING:
 
@@ -823,6 +832,8 @@ class ActionInPlacePrototype(ActionPrototype):
         return None
 
     def spend_money(self):
+
+        from game.workers.environment import workers_environment
 
         if self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
             coins = self.try_to_spend_money(f.instant_heal_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_HEAL)
@@ -1237,7 +1248,7 @@ class ActionRegenerateEnergyPrototype(ActionPrototype):
             self.percents += self.step_percents()
 
             if self.percents >= 1:
-                energy_delta = self.bundle.heroes[self.hero.id].change_energy(f.angel_energy_regeneration_amount(self.regeneration_type))
+                energy_delta = self.storage.heroes[self.hero.id].change_energy(f.angel_energy_regeneration_amount(self.regeneration_type))
                 self.hero.last_energy_regeneration_at_turn = TimePrototype.get_current_turn_number()
 
                 if energy_delta:
@@ -1296,6 +1307,46 @@ class ActionDoNothingPrototype(ActionPrototype):
 
             if self.percents >= 1.0:
                 self.state = self.STATE.PROCESSED
+
+
+class ActionMetaProxyPrototype(ActionPrototype):
+
+    TYPE = 'META_PROXY'
+    TEXTGEN_TYPE = 'no texgen type'
+    SHORT_DESCRIPTION = u'торгует'
+    EXTRA_HELP_CHOICES = set()
+
+    @property
+    def description_text_name(self):
+        return self.meta_action.description_text_name
+
+    ###########################################
+    # Object operations
+    ###########################################
+
+    def ui_info(self):
+        # TODO: move to parent class
+        info = super(ActionDoNothingPrototype, self).ui_info()
+        info['data'] = {'hero_id': self.hero_id}
+        return info
+
+    @classmethod
+    def _create(cls, parent, meta_action):
+        model = Action.objects.create( type=cls.TYPE,
+                                       parent=parent.model,
+                                       hero=parent.hero.model,
+                                       order=parent.order+1,
+                                       meta_action=meta_action.model,
+                                       state=meta_action.state)
+        return cls(model=model)
+
+    def process(self):
+
+        self.meta_action.process()
+
+        self.state = self.meta_action.state
+        self.percents = self.meta_action.percents
+
 
 
 ACTION_TYPES = get_actions_types()

@@ -91,14 +91,6 @@ def create_test_bundle(uuid):
     return BundlePrototype.get_by_id(bundle_id)
 
 
-def test_bundle_save(test, bundle):
-    bundle.save_data()
-    bundle.save()
-
-    saved_bundel = BundlePrototype.get_by_id(bundle.id)
-    test.assertEqual(bundle, saved_bundel)
-
-
 def dress_new_hero(hero):
     storage = ArtifactsDatabase.storage()
 

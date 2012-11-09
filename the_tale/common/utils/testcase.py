@@ -5,7 +5,6 @@ from django.core.urlresolvers import reverse
 
 from dext.utils import s11n
 
-
 class TestCase(DjangoTestCase):
 
     def setUp(self):
@@ -64,3 +63,12 @@ class TestCase(DjangoTestCase):
 
     def check_redirect(self, requested_url, test_url, status_code=302, target_status_code=200):
         self.assertRedirects(self.client.get(requested_url), test_url, status_code=status_code, target_status_code=target_status_code)
+
+
+class CallCounter(object):
+
+    def __init__(self):
+        self.count = 0
+
+    def __call__(self, *argv, **kwargs):
+        self.count += 1

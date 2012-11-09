@@ -1,13 +1,13 @@
 # coding: utf-8
 from django.utils.log import getLogger
 
-from dext.utils.decorators import nested_commit_on_success
-
 from common.amqp_queues import connection, BaseWorker
 
-from game.prototypes import TimePrototype
+from accounts.models import Account
+
+from game.prototypes import TimePrototype, SupervisorTaskPrototype
 from game.bundles import BundlePrototype
-from game.models import Bundle
+from game.models import Bundle, SupervisorTask, SUPERVISOR_TASK_STATE
 from game.abilities.prototypes import AbilityTaskPrototype
 from game.heroes.prototypes import ChooseAbilityTaskPrototype
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
@@ -37,6 +37,9 @@ class Worker(BaseWorker):
 
     def set_long_commands_worker(self, long_commands):
         self.long_commands_worker = long_commands
+
+    def set_pvp_balancer(self, pvp_balancer):
+        self.pvp_balancer = pvp_balancer
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -78,16 +81,64 @@ class Worker(BaseWorker):
             self.long_commands_worker.cmd_initialize(worker_id='long_commands')
             self.wait_answers_from('initialize', workers=['long_commands'])
 
+        if game_settings.ENABLE_PVP:
+            self.pvp_balancer.cmd_initialize(worker_id='pvp_balancer')
+            self.wait_answers_from('initialize', workers=['pvp_balancer'])
+
+        ####################################
+        # register all tasks
+        self.tasks = {}
+        self.accounts_for_tasks = {}
+
+        for task_model in SupervisorTask.objects.filter(state=SUPERVISOR_TASK_STATE.WAITING):
+            task = SupervisorTaskPrototype(task_model)
+            self.register_task(task, release_accounts=False)
+
+        ####################################
+        # load accounts
+
+        # distribute bundles
         for bundle_model in Bundle.objects.all():
             bundle = BundlePrototype(bundle_model)
             bundle.owner = 'worker'
             bundle.save()
-            self.logic_worker.cmd_register_bundle(bundle.id)
+
+        # distribute accounts
+        for account_id in Account.objects.all().values_list('id', flat=True):
+            self.register_account(account_id)
 
         self.initialized = True
 
         self.logger.info('SUPERVISOR INITIALIZED')
 
+    def register_task(self, task, release_accounts=True):
+        if task.id in self.tasks:
+            raise SupervisorException('task %d has been registered already' % task.id)
+
+        self.tasks[task.id] = task
+
+        for account_id in task.members:
+            if account_id in self.accounts_for_tasks:
+                raise SupervisorException('account %d already register for task %d (second task: %d)' % (account_id, self.accounts_for_tasks[account_id], task.id))
+            self.accounts_for_tasks[account_id] = task.id
+
+            if release_accounts:
+                self.logic_worker.cmd_release_account(account_id)
+
+
+    def register_account(self, account_id):
+        if account_id in self.accounts_for_tasks:
+            task = self.tasks[self.accounts_for_tasks[account_id]]
+            task.capture_member(account_id)
+
+            if task.all_members_captured:
+                task.process()
+                for member_id in task.members:
+                    del self.accounts_for_tasks[member_id]
+                    self.logic_worker.cmd_register_account(account_id)
+            return
+
+        self.logic_worker.cmd_register_account(account_id)
 
     def cmd_next_turn(self):
         return self.send_cmd('next_turn')
@@ -126,6 +177,10 @@ class Worker(BaseWorker):
             self.long_commands_worker.cmd_stop()
             self.wait_answers_from('stop', workers=['long_commands'])
 
+        if game_settings.ENABLE_PVP:
+            self.pvp_balancer.cmd_stop()
+            self.wait_answers_from('stop', workers=['pvp_balancer'])
+
 
         self.stop_queue.put({'code': 'stopped', 'worker': 'supervisor'}, serializer='json', compression=None)
 
@@ -138,12 +193,12 @@ class Worker(BaseWorker):
         self.send_cmd('register_bundle', {'bundle_id': bundle_id})
 
     def process_register_bundle(self, bundle_id):
-        with nested_commit_on_success():
-            bundle = BundlePrototype.get_by_id(bundle_id)
-            bundle.owner = 'worker'
-            bundle.save()
+        bundle = BundlePrototype.get_by_id(bundle_id)
+        bundle.owner = 'worker'
+        bundle.save()
 
-        self.logic_worker.cmd_register_bundle(bundle_id)
+        for account_id in bundle.get_accounts_ids():
+            self.register_account(account_id)
 
     def cmd_activate_ability(self, ability_task_id):
         self.send_cmd('activate_ability', {'ability_task_id': ability_task_id})
@@ -198,3 +253,15 @@ class Worker(BaseWorker):
 
     def process_run_vacuum(self):
         self.long_commands_worker.cmd_run_vacuum()
+
+    def cmd_account_released(self, account_id):
+        return self.send_cmd('account_released', {'account_id': account_id})
+
+    def process_account_released(self, account_id):
+        self.register_account(account_id)
+
+    def cmd_add_task(self, task_id):
+        return self.send_cmd('add_task', {'task_id': task_id})
+
+    def process_add_task(self, task_id):
+        self.register_task(SupervisorTaskPrototype.get_by_id(task_id))

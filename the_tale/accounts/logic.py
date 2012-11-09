@@ -15,7 +15,6 @@ from accounts.exceptions  import AccountsException
 from accounts.conf import accounts_settings
 
 from game.heroes.prototypes import HeroPrototype
-from game.abilities.prototypes import AbilityPrototype
 from game.bundles import BundlePrototype
 from game.logic import dress_new_hero
 
@@ -31,6 +30,8 @@ def login_url(target_url='/'):
 
 
 def register_user(nick, email=None, password=None):
+
+    from game.logic_storage import LogicStorage
 
     if User.objects.filter(username=nick).exists():
         return REGISTER_USER_RESULT.DUPLICATE_USERNAME, None, None
@@ -50,11 +51,11 @@ def register_user(nick, email=None, password=None):
 
     bundle = BundlePrototype.create(account)
 
-    hero = HeroPrototype.create(account=account, bundle=bundle, is_fast=account.is_fast)
+    storage = LogicStorage()
+
+    hero = HeroPrototype.create(account=account, storage=storage, is_fast=account.is_fast)
     dress_new_hero(hero)
     hero.save()
-
-    AbilityPrototype.create(hero)
 
     return REGISTER_USER_RESULT.OK, account.id, bundle.id
 

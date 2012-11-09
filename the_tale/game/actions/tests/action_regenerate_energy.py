@@ -3,8 +3,12 @@ from django.test import TestCase
 
 from dext.settings import settings
 
+from accounts.logic import register_user
+from game.heroes.prototypes import HeroPrototype
+from game.logic_storage import LogicStorage
+
 from game.balance import formulas as f
-from game.logic import create_test_bundle, create_test_map, test_bundle_save
+from game.logic import create_test_map
 from game.actions.prototypes import ActionRegenerateEnergyPrototype
 from game.prototypes import TimePrototype
 
@@ -16,33 +20,36 @@ class RegenerateEnergyActionTest(TestCase):
 
         create_test_map()
 
-        self.bundle = create_test_bundle('RegenerateActionTest')
-        self.action_idl = self.bundle.tests_get_last_action()
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+
         self.action_regenerate = ActionRegenerateEnergyPrototype.create(self.action_idl)
-        self.hero = self.bundle.tests_get_hero()
 
     def tearDown(self):
         pass
 
-
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_regenerate.leader, True)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     def test_not_ready(self):
-        self.bundle.process_turn()
-        self.assertEqual(len(self.bundle.actions), 2)
-        self.assertEqual(self.bundle.tests_get_last_action(), self.action_regenerate)
-        test_bundle_save(self, self.bundle)
+        self.storage.process_turn()
+        self.assertEqual(len(self.storage.actions), 2)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_regenerate)
+        self.storage._test_save()
 
     def test_full(self):
         self.hero.change_energy(-self.hero.energy)
 
         current_time = TimePrototype.get_current_time()
 
-        while len(self.bundle.actions) != 1:
-            self.bundle.process_turn()
+        while len(self.storage.actions) != 1:
+            self.storage.process_turn()
             current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)
@@ -50,4 +57,4 @@ class RegenerateEnergyActionTest(TestCase):
         self.assertEqual(self.hero.need_regenerate_energy, False)
         self.assertEqual(self.hero.last_energy_regeneration_at_turn, TimePrototype.get_current_turn_number()-1)
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()

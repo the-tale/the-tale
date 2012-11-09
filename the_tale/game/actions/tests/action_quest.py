@@ -4,7 +4,12 @@ from django.test import TestCase
 
 from dext.settings import settings
 
-from game.logic import create_test_bundle, create_test_map, test_bundle_save
+from accounts.logic import register_user
+from game.heroes.prototypes import HeroPrototype
+from game.logic_storage import LogicStorage
+
+
+from game.logic import create_test_map
 from game.actions.prototypes import ActionQuestPrototype
 from game.quests.logic import create_random_quest_for_hero
 from game.prototypes import TimePrototype
@@ -16,9 +21,13 @@ class QuestActionTest(TestCase):
 
         create_test_map()
 
-        self.bundle = create_test_bundle('QuestActionTest')
-        self.hero = self.bundle.tests_get_hero()
-        self.action_idl = self.bundle.tests_get_last_action()
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+
         self.quest = create_random_quest_for_hero(self.hero)
         self.action_quest = ActionQuestPrototype.create(self.action_idl, quest=self.quest)
 
@@ -29,13 +38,13 @@ class QuestActionTest(TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_quest.leader, True)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     def test_one_step(self):
-        self.bundle.process_turn()
+        self.storage.process_turn()
         # quest can create new action on first step
-        self.assertTrue(2 <= len(self.bundle.actions) <= 3)
-        test_bundle_save(self, self.bundle)
+        self.assertTrue(2 <= len(self.storage.actions) <= 3)
+        self.storage._test_save()
 
 
     def test_full_quest(self):
@@ -44,7 +53,7 @@ class QuestActionTest(TestCase):
 
         # just test that quest will be ended
         while not self.action_idl.leader:
-            self.bundle.process_turn()
+            self.storage.process_turn()
             current_time.increment_turn()
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()

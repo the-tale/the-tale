@@ -10,6 +10,7 @@ class AbilitiesData(models.Model):
     hero = models.ForeignKey('heroes.Hero', null=False)
 
     help_available_at = models.BigIntegerField(null=False, default=0)
+    arena_pvp_1x1_available_at = models.BigIntegerField(null=False, default=0)
 
 
 ABILITY_TASK_STATE = create_enum('ABILITY_TASK_STATE', (('WAITING', 0, u'в очереди'),

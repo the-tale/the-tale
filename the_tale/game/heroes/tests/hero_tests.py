@@ -2,26 +2,29 @@
 
 from django.test import TestCase
 
-from game.logic import create_test_bundle, create_test_map, test_bundle_save
+from accounts.logic import register_user
+
+from game.logic import create_test_map
 from game.artifacts.storage import ArtifactsDatabase
 from game.prototypes import TimePrototype
 
 from game.balance import formulas as f, constants as c
-
+from game.logic_storage import LogicStorage
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS
 from game.quests.quests_builders import SearchSmith
+
+from game.heroes.prototypes import HeroPrototype
 
 class HeroTest(TestCase):
 
     def setUp(self):
         create_test_map()
 
-        self.bundle = create_test_bundle('HeroTest')
-        self.action_idl = self.bundle.tests_get_last_action()
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user')
 
-        # self.hero.mark_as_active()
-        # self.hero.save()
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
 
     def tearDown(self):
         pass
@@ -38,8 +41,10 @@ class HeroTest(TestCase):
         time.increment_turn()
         time.save()
 
-        bundle = create_test_bundle('CreatedAtTurnHeroTest')
-        hero = bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user_2')
+
+        hero = HeroPrototype.get_by_account_id(account_id)
+
         self.assertEqual(hero.created_at_turn, TimePrototype.get_current_time().turn_number)
 
         self.assertTrue(hero.created_at_turn != self.hero.created_at_turn)
@@ -80,7 +85,7 @@ class HeroTest(TestCase):
         self.assertEqual(len(self.hero.bag.items()), 1)
         self.assertEqual(self.hero.equipment.get(slot), new_artifact)
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
 
     def test_lvl_up(self):
@@ -125,9 +130,9 @@ class HeroGetSpecialQuestsTest(TestCase):
     def setUp(self):
         create_test_map()
 
-        self.bundle = create_test_bundle('HeroTest')
-        self.action_idl = self.bundle.tests_get_last_action()
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
 
 
     def test_special_quests_searchsmith_without_preferences(self):

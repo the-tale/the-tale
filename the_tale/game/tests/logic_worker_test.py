@@ -5,12 +5,12 @@ from dext.settings import settings
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
-from game.bundles import BundlePrototype
+from game.heroes.prototypes import HeroPrototype
 
 from game.logic import create_test_map
 from game.workers.environment import workers_environment
 from game.prototypes import TimePrototype
-
+from game.logic_storage import LogicStorage
 
 class LogicTest(TestCase):
 
@@ -21,9 +21,10 @@ class LogicTest(TestCase):
 
         result, account_id, bundle_id = register_user('test_user')
 
-        self.bundle = BundlePrototype.get_by_id(bundle_id)
-        self.action_idl = self.bundle.tests_get_last_action()
-        self.hero = self.bundle.tests_get_hero()
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
 
         self.account = AccountPrototype.get_by_id(self.hero.account_id)
 
@@ -40,30 +41,17 @@ class LogicTest(TestCase):
         self.assertTrue(self.worker.initialized)
         self.assertEqual(self.worker.worker_id, 'logic')
         self.assertEqual(self.worker.turn_number, 0)
-        self.assertEqual(self.worker.bundles, {})
+        self.assertEqual(self.worker.storage.heroes, {})
+        self.assertEqual(self.worker.storage.actions, {})
+        self.assertEqual(self.worker.storage.heroes_to_actions, {})
         self.assertEqual(self.worker.queue, [])
-        self.assertEqual(self.worker.heroes2bundles, {})
 
     def test_process_mark_hero_as_not_fast(self):
 
         self.account.is_fast = True
         self.account.save()
 
-        self.worker.process_register_bundle(self.bundle.id)
-        self.assertTrue(self.worker.bundles[self.worker.heroes2bundles[self.hero.id]].heroes[self.hero.id].is_fast)
+        self.worker.process_register_account(self.account.id)
+        self.assertTrue(self.worker.storage.heroes[self.hero.id].is_fast)
         self.worker.process_mark_hero_as_not_fast(self.hero.id)
-        self.assertFalse(self.worker.bundles[self.worker.heroes2bundles[self.hero.id]].heroes[self.hero.id].is_fast)
-
-    def test_process_register_bundle(self):
-
-        self.assertTrue(self.hero.is_fast)
-
-        self.account.is_fast = False
-        self.account.save()
-
-        self.worker.process_register_bundle(self.bundle.id)
-
-        self.assertTrue(self.bundle.id in self.worker.bundles)
-        self.assertEqual(self.worker.heroes2bundles[self.hero.id], self.bundle.id)
-
-        self.assertFalse(self.worker.bundles[self.worker.heroes2bundles[self.hero.id]].heroes[self.hero.id].is_fast)
+        self.assertFalse(self.worker.storage.heroes[self.hero.id].is_fast)

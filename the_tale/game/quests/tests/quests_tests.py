@@ -7,7 +7,11 @@ from game.heroes.bag import SLOTS
 from game.persons.models import PERSON_TYPE
 from game.persons.storage import persons_storage
 
-from game.logic import create_test_bundle, create_test_map
+from accounts.logic import register_user
+from game.heroes.prototypes import HeroPrototype
+from game.logic_storage import LogicStorage
+
+from game.logic import create_test_map
 from game.prototypes import TimePrototype
 from game.quests.quests_builders import QUESTS
 from game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
@@ -25,9 +29,12 @@ class QuestsTest(TestCase):
     def setUp(self):
         p1, p2, p3 = create_test_map()
 
-        self.bundle = create_test_bundle('QuestActionTest')
-        self.hero = self.bundle.tests_get_hero()
-        self.action_idl = self.bundle.tests_get_last_action()
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
 
         self.hero.model.money += 1
         self.hero.preferences.set_mob_id('rat')
@@ -48,7 +55,7 @@ class QuestsTest(TestCase):
         current_time = TimePrototype.get_current_time()
 
         while not self.action_idl.leader:
-            self.bundle.process_turn()
+            self.storage.process_turn()
             current_time.increment_turn()
 
 
@@ -60,18 +67,17 @@ def create_test_method(quest, quests):
 
         current_time = TimePrototype.get_current_time()
 
-        while self.bundle.tests_get_last_action().TYPE != ActionQuestPrototype.TYPE:
-            self.bundle.process_turn()
+        while self.storage.heroes_to_actions[self.hero.id][-1].TYPE != ActionQuestPrototype.TYPE:
+            self.storage.process_turn()
             current_time.increment_turn()
 
         self.complete_quest()
 
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionIdlenessPrototype.TYPE)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionIdlenessPrototype.TYPE)
 
         if quest == SearchSmith:
-            hero = self.bundle.tests_get_hero()
-            self.assertTrue(hero.statistics.money_spend_for_artifacts > 0 or
-                            hero.statistics.money_spend_for_sharpening > 0)
+            self.assertTrue(self.hero.statistics.money_spend_for_artifacts > 0 or
+                            self.hero.statistics.money_spend_for_sharpening > 0)
 
     return quest_test_method
 

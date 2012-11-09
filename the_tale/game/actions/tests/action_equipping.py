@@ -4,7 +4,12 @@ from django.test import TestCase
 
 from dext.settings import settings
 
-from game.logic import create_test_bundle, create_test_map, test_bundle_save
+from accounts.logic import register_user
+from game.heroes.prototypes import HeroPrototype
+from game.logic_storage import LogicStorage
+
+
+from game.logic import create_test_map
 from game.actions.prototypes import ActionEquippingPrototype
 
 from game.artifacts.storage import ArtifactsDatabase
@@ -19,11 +24,14 @@ class ActionEquippingTest(TestCase):
 
         create_test_map()
 
-        self.bundle = create_test_bundle('EquippingActionTest')
-        self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionEquippingPrototype.create(self.action_idl))
-        self.action_equipping = self.bundle.tests_get_last_action()
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+
+        self.action_equipping = ActionEquippingPrototype.create(self.action_idl)
 
 
     def tearDown(self):
@@ -33,14 +41,14 @@ class ActionEquippingTest(TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_equipping.leader, True)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
 
     def test_processed(self):
-        self.bundle.process_turn()
-        self.assertEqual(len(self.bundle.actions), 1)
-        self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
-        test_bundle_save(self, self.bundle)
+        self.storage.process_turn()
+        self.assertEqual(len(self.storage.actions), 1)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.storage._test_save()
 
 
     def test_equip(self):
@@ -52,15 +60,15 @@ class ActionEquippingTest(TestCase):
 
         self.hero.bag.put_artifact(artifact)
 
-        self.bundle.process_turn()
-        self.assertEqual(len(self.bundle.actions), 2)
-        self.assertEqual(self.bundle.tests_get_last_action(), self.action_equipping)
+        self.storage.process_turn()
+        self.assertEqual(len(self.storage.actions), 2)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_equipping)
         self.assertEqual(len(self.hero.bag.items()), 0)
 
         equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
         self.assertEqual(self.hero.equipment.get(equip_slot), artifact)
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
 
     def test_switch_artifact(self):
@@ -75,10 +83,10 @@ class ActionEquippingTest(TestCase):
 
         self.hero.bag.put_artifact(new_artifact)
 
-        self.bundle.process_turn()
+        self.storage.process_turn()
 
-        self.assertEqual(len(self.bundle.actions), 2)
-        self.assertEqual(self.bundle.tests_get_last_action(), self.action_equipping)
+        self.assertEqual(len(self.storage.actions), 2)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_equipping)
 
         self.assertEqual(len(self.hero.bag.items()), 1)
         self.assertEqual(self.hero.bag.items()[0][1].power, 13)
@@ -90,9 +98,9 @@ class ActionEquippingTest(TestCase):
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()
 
-        self.bundle.process_turn()
-        self.assertEqual(len(self.bundle.actions), 1)
-        self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
+        self.storage.process_turn()
+        self.assertEqual(len(self.storage.actions), 1)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
 
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()

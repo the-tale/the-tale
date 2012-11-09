@@ -14,7 +14,6 @@ class AbilityPrototype(object):
 
     NAME = None
     DESCRIPTION = None
-    ARTISTIC = None
 
     FORM = None
     TEMPLATE = None
@@ -151,10 +150,10 @@ class AbilityTaskPrototype(object):
         self.model.data = s11n.to_json(self.data)
         self.model.save()
 
-    def process(self, bundle):
+    def process(self, storage):
         from game.abilities.deck import ABILITIES
 
-        hero = bundle.heroes[self.hero_id]
+        hero = storage.heroes[self.hero_id]
 
         ability = ABILITIES[self.type](AbilitiesData.objects.get(hero_id=hero.id))
 
@@ -172,7 +171,7 @@ class AbilityTaskPrototype(object):
             self.model.comment = 'available_at (%d) > turn_number (%d)' % (ability.available_at, turn_number)
             return
 
-        result = ability.use(bundle, hero, self.data)
+        result = ability.use(storage, hero, self.data)
 
         if not result:
             self.model.comment = 'result is False'

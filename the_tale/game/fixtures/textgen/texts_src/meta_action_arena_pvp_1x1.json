@@ -1,0 +1,14 @@
+{
+    "description": "",
+    "prefix": "meta_action_arena_pvp_1x1",
+    "types": {
+        "description": {
+            "description": "",
+            "variables": {"hero": "привидение"},
+            "phrases": [
+                ["сражается на арене",
+                 "сражается на арене"]
+            ]
+        }
+    }
+}

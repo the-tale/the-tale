@@ -36,9 +36,30 @@ class Action(models.Model):
     textgen_id = models.CharField(max_length=128, null=True, blank=True, default=None)
     back = models.BooleanField(null=False, default=False)
 
-    @classmethod
-    def get_related_query(cls):
-        return cls.objects.select_related('hero', 'hero__pos_place', 'hero__pos_road', 'quest', 'place', 'road', 'npc')
+    meta_action = models.ForeignKey('actions.MetaAction', null=True, default=None)
 
     def __unicode__(self):
         return '%s(%d, %s)' % (self.type, self.id, self.state)
+
+
+
+class MetaAction(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    type = models.CharField(max_length=150, null=False)
+
+    percents = models.FloatField(default=0.0, null=False)
+
+    state = models.CharField(max_length=50, null=False, default=UNINITIALIZED_STATE)
+
+
+class MetaActionMember(models.Model):
+
+    hero = models.ForeignKey('heroes.Hero', related_name='+')
+
+    action = models.ForeignKey(MetaAction, related_name='+')
+
+    context = models.TextField(null=False, default='{}')
+
+    role = models.CharField(null=False, max_length=32)

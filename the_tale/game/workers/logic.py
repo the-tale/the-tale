@@ -1,5 +1,5 @@
 # coding: utf-8
-import heapq
+
 import datetime
 
 from dext.settings import settings
@@ -11,11 +11,12 @@ from dext.utils.decorators import nested_commit_on_success
 
 from common.amqp_queues import BaseWorker
 
-from game.bundles import BundlePrototype
 from game.prototypes import TimePrototype
-
+from game.logic_storage import LogicStorage
 
 class LogicException(Exception): pass
+
+
 
 class Worker(BaseWorker):
 
@@ -41,11 +42,11 @@ class Worker(BaseWorker):
         if self.initialized:
             self.logger.warn('WARNING: game already initialized, do reinitialization')
 
+        self.storage = LogicStorage()
+
         self.initialized = True
         self.turn_number = turn_number
-        self.bundles = {}
         self.queue = []
-        self.heroes2bundles = {}
         self.worker_id = worker_id
 
         self.logger.info('GAME INITIALIZED')
@@ -70,20 +71,9 @@ class Worker(BaseWorker):
             if TimePrototype.get_current_turn_number() != self.turn_number:
                 raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number, TimePrototype.get_current_turn_number()))
 
-            while self.queue:
-                turn_number, bundle_id = self.queue[0]
+            self.storage.process_turn()
+            self.save_changed_data()
 
-                if turn_number > self.turn_number:
-                    break
-
-                bundle = self.bundles[bundle_id]
-                next_turn_number = bundle.process_turn()
-
-                if next_turn_number <= self.turn_number:
-                    raise LogicException('bundle try to process itself twice on one turn')
-
-                heapq.heappushpop(self.queue, (next_turn_number, bundle.id) )
-                bundle.save_data()
 
         if project_settings.DEBUG_DATABASE_USAGE:
             log_sql_queries(turn_number)
@@ -94,33 +84,26 @@ class Worker(BaseWorker):
         return self.send_cmd('stop')
 
     def process_stop(self):
-        # no need to save bundles, since they automaticaly saved on every turn
+        # no need to save data, since they automaticaly saved on every turn
         self.initialized = False
         self.supervisor_worker.cmd_answer('stop', self.worker_id)
         self.stop_required = True
         self.logger.info('LOGIC STOPPED')
 
-    def cmd_register_bundle(self, bundle_id):
-        return self.send_cmd('register_bundle', {'bundle_id': bundle_id})
+    def cmd_register_account(self, account_id):
+        return self.send_cmd('register_account', {'account_id': account_id})
 
-    def process_register_bundle(self, bundle_id):
+    def process_register_account(self, account_id):
         from accounts.prototypes import AccountPrototype
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
 
-        bundle = BundlePrototype.get_by_id(bundle_id)
+    def cmd_release_account(self, account_id):
+        return self.send_cmd('release_account', {'account_id': account_id})
 
-        if bundle.id in self.bundles:
-            self.logger.warn('WARNING: bundle with id "%d" has already registerd in worker, probably on initialization step' % bundle.id)
-            return
-
-        self.bundles[bundle.id] = bundle
-
-        # update info about fast accounts
-        for hero_id, hero in bundle.heroes.items():
-            self.heroes2bundles[hero_id] = bundle.id
-            hero.is_fast = AccountPrototype.get_by_id(hero.account_id).is_fast
-
-        heapq.heappush(self.queue, (0, bundle_id))
-
+    def process_release_account(self, account_id):
+        from accounts.prototypes import AccountPrototype
+        self.storage.release_account_data(AccountPrototype.get_by_id(account_id))
+        self.supervisor_worker.cmd_account_released(account_id)
 
     def cmd_activate_ability(self, ability_task_id):
         return self.send_cmd('activate_ability', {'ability_task_id': ability_task_id})
@@ -130,9 +113,8 @@ class Worker(BaseWorker):
             from ..abilities.prototypes import AbilityTaskPrototype
 
             task = AbilityTaskPrototype.get_by_id(ability_task_id)
-            bundle = self.bundles[self.heroes2bundles[task.hero_id]]
-            task.process(bundle)
-            bundle.save_data() # just to enshure, that if syddenly transaction will be removed, bundle will be saved before task
+            task.process(self.storage)
+            self.storage.save_hero_data(task.hero_id) # just to enshure, that if syddenly transaction will be removed, hero will be saved before task
             task.save()
 
 
@@ -145,12 +127,9 @@ class Worker(BaseWorker):
             from ..heroes.prototypes import ChooseAbilityTaskPrototype
 
             task = ChooseAbilityTaskPrototype.get_by_id(ability_task_id)
-
-            bundle = self.bundles[self.heroes2bundles[task.hero_id]]
-
-            task.process(bundle)
+            task.process(self.storage)
+            self.storage.save_hero_data(task.hero_id)
             task.save()
-            bundle.save_data()
 
     def cmd_choose_hero_preference(self, preference_task_id):
         self.send_cmd('choose_hero_preference', {'preference_task_id': preference_task_id})
@@ -161,24 +140,21 @@ class Worker(BaseWorker):
             from ..heroes.preferences import ChoosePreferencesTaskPrototype
 
             task = ChoosePreferencesTaskPrototype.get_by_id(preference_task_id)
-
-            bundle = self.bundles[self.heroes2bundles[task.hero_id]]
-
-            task.process(bundle)
+            task.process(self.storage)
+            self.storage.save_hero_data(task.hero_id)
             task.save()
-            bundle.save_data()
 
     def cmd_mark_hero_as_not_fast(self, hero_id):
         self.send_cmd('mark_hero_as_not_fast', {'hero_id': hero_id})
 
     def process_mark_hero_as_not_fast(self, hero_id):
-        self.bundles[self.heroes2bundles[hero_id]].heroes[hero_id].is_fast = False
+        self.storage.heroes[hero_id].is_fast = False
 
     def cmd_mark_hero_as_active(self, hero_id):
         self.send_cmd('mark_hero_as_active', {'hero_id': hero_id})
 
     def process_mark_hero_as_active(self, hero_id):
-        self.bundles[self.heroes2bundles[hero_id]].heroes[hero_id].mark_as_active()
+        self.storage.heroes[hero_id].mark_as_active()
 
     def cmd_highlevel_data_updated(self):
         self.send_cmd('highlevel_data_updated')
@@ -186,16 +162,14 @@ class Worker(BaseWorker):
     def process_highlevel_data_updated(self):
         settings.refresh()
 
-        for bundle in self.bundles.values():
-            bundle.on_highlevel_data_updated()
+        self.storage.on_highlevel_data_updated()
 
     def cmd_set_might(self, hero_id, might):
         self.send_cmd('set_might', {'hero_id': hero_id, 'might': might})
 
     def process_set_might(self, hero_id, might):
-        bundle = self.bundles[self.heroes2bundles[hero_id]]
 
-        hero = bundle.heroes[hero_id]
+        hero = self.storage.heroes[hero_id]
         hero.might = might
         hero.might_updated_time = datetime.datetime.now()
         hero.save()

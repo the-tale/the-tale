@@ -3,8 +3,12 @@ import mock
 
 from django.test import TestCase
 
+from accounts.logic import register_user
+from game.heroes.prototypes import HeroPrototype
+from game.logic_storage import LogicStorage
+
 from game.balance import constants as c
-from game.logic import create_test_bundle, create_test_map
+from game.logic import create_test_map
 from game.prototypes import TimePrototype
 
 from game.heroes.logic import create_mob_for_hero
@@ -16,9 +20,12 @@ class GeneralTest(TestCase):
     def setUp(self):
         create_test_map()
 
-        self.bundle = create_test_bundle('IdlenessActionTest')
-        self.action_idl = self.bundle.tests_get_last_action()
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
 
     def tearDown(self):
         pass
@@ -80,9 +87,9 @@ class GeneralTest(TestCase):
 
         # just test that quest will be ended
         while not self.action_idl.leader:
-            self.bundle.process_turn()
+            self.storage.process_turn()
             current_time.increment_turn()
-            self.assertEqual(self.bundle.tests_get_last_action().percents, self.hero.last_action_percents)
+            self.assertEqual(self.storage.tests_get_last_action().percents, self.hero.last_action_percents)
 
     def test_help_choice_heal_not_in_choices_for_dead_hero(self):
 

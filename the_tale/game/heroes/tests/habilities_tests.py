@@ -10,11 +10,15 @@ from common.utils.testcase import TestCase
 
 from accounts.logic import register_user, login_url
 
+from game.heroes.prototypes import HeroPrototype
+from game.logic_storage import LogicStorage
+
+
 from game.actions.fake import FakeActor
 
 from game.heroes.fake import FakeMessanger
 from game.heroes.models import ChooseAbilityTask, CHOOSE_ABILITY_STATE
-from game.bundles import BundlePrototype
+
 from game.heroes.prototypes import ChooseAbilityTaskPrototype
 from game.heroes.habilities import prototypes as common_abilities
 from game.heroes.habilities import ABILITIES
@@ -95,9 +99,9 @@ class ChooseAbilityTaskTest(TestCase):
     def setUp(self):
         create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-
-        self.bundle = BundlePrototype.get_by_id(bundle_id)
-        self.hero = self.bundle.tests_get_hero()
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
 
     def get_new_ability_id(self, hero=None):
         if hero is None:
@@ -125,27 +129,27 @@ class ChooseAbilityTaskTest(TestCase):
 
     def test_process_wrong_id(self):
         task = ChooseAbilityTaskPrototype.create('ssadasda', self.hero.id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_ABILITY_STATE.ERROR)
 
     def test_process_id_not_in_choices(self):
         task = ChooseAbilityTaskPrototype.create(self.get_unchoosed_ability_id(), self.hero.id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_ABILITY_STATE.ERROR)
 
     def test_process_not_for_heroes(self):
         task = ChooseAbilityTaskPrototype.create(self.get_only_for_mobs_ability_id(), self.hero.id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_ABILITY_STATE.ERROR)
 
     def test_process_already_choosen(self):
         task = ChooseAbilityTaskPrototype.create(common_abilities.HIT.get_id(), self.hero.id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_ABILITY_STATE.ERROR)
 
     def test_process_success(self):
         task = ChooseAbilityTaskPrototype.create(self.get_new_ability_id(), self.hero.id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_ABILITY_STATE.PROCESSED)
 
 
@@ -154,9 +158,10 @@ class HabilitiesViewsTest(TestCase):
     def setUp(self):
         create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
 
-        self.bundle = BundlePrototype.get_by_id(bundle_id)
-        self.hero = self.bundle.tests_get_hero()
 
         register_user('test_user_2', 'test_user_2@test.com', '111111')
 
@@ -254,7 +259,7 @@ class HabilitiesViewsTest(TestCase):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
 
-        self.task.process(self.bundle)
+        self.task.process(self.storage)
         self.task.save()
 
         response = self.client.get(reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % self.task.id, HTTP_X_REQUESTED_WITH='XMLHttpRequest')

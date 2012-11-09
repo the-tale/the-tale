@@ -1,10 +1,14 @@
 # coding: utf-8
 
 from dext.settings import settings
+from dext.utils.decorators import nested_commit_on_success
 
 from collections import namedtuple
 
 from game.balance import formulas as f
+
+from game.models import SupervisorTask, SupervisorTaskMember, SUPERVISOR_TASK_TYPE
+from game.exceptions import GameException
 
 class GameTime(namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'minute', 'second'))):
 
@@ -58,3 +62,96 @@ class TimePrototype(object):
         return { 'number': self.turn_number,
                  'verbose_date': game_time.verbose_date,
                  'verbose_time': game_time.verbose_time }
+
+
+
+class SupervisorTaskPrototype(object):
+
+    def __init__(self, model):
+        self.model = model
+        self.captured_members = set()
+
+
+    @classmethod
+    def get_by_id(cls, id_):
+        try:
+            return cls(SupervisorTask.objects.get(id=id_))
+        except SupervisorTask.DoesNotExist:
+            return None
+
+
+    @property
+    def id(self): return self.model.id
+
+    @property
+    def type(self): return self.model.type
+
+
+    @property
+    def members(self):
+        if not hasattr(self, '_members'):
+            self._members = set(SupervisorTaskMember.objects.filter(task=self.model).values_list('account_id', flat=True))
+        return self._members
+
+    def capture_member(self, account_id):
+        self.captured_members.add(account_id)
+
+    @property
+    def all_members_captured(self): return self.members == self.captured_members
+
+    @classmethod
+    @nested_commit_on_success
+    def create_arena_pvp_1x1(cls, account_1, account_2):
+
+        model = SupervisorTask.objects.create(type=SUPERVISOR_TASK_TYPE.ARENA_PVP_1X1)
+
+        SupervisorTaskMember.objects.create(task=model, account=account_1.model)
+        SupervisorTaskMember.objects.create(task=model, account=account_2.model)
+
+        return cls(model)
+
+
+    @nested_commit_on_success
+    def process(self):
+
+        if not self.all_members_captured:
+            raise GameException('try process supervisor task %d when not all members captured members: %r, captured members: %r' % (self.id, self.members, self.captured_members))
+
+        if self.type == SUPERVISOR_TASK_TYPE.ARENA_PVP_1X1:
+            return self.process_arena_pvp_1x1()
+
+
+    def process_arena_pvp_1x1(self):
+        from accounts.prototypes import AccountPrototype
+        from game.heroes.prototypes import HeroPrototype
+        from game.actions.prototypes import ActionMetaProxyPrototype
+        from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
+        from game.logic_storage import LogicStorage
+        from game.pvp.prototypes import Battle1x1Prototype
+        from game.pvp.models import BATTLE_1X1_STATE
+
+        storage = LogicStorage()
+
+        account_1_id, account_2_id = list(self.members)
+
+        account_1 = AccountPrototype.get_by_id(account_1_id)
+        account_2 = AccountPrototype.get_by_id(account_2_id)
+
+        hero_1 = HeroPrototype.get_by_account_id(account_1_id)
+        hero_2 = HeroPrototype.get_by_account_id(account_2_id)
+
+        storage.load_account_data(account_1)
+        storage.load_account_data(account_2)
+
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(account_1, account_2)
+
+        ActionMetaProxyPrototype.create(storage.heroes_to_actions[hero_1.id][-1], meta_action_battle)
+        ActionMetaProxyPrototype.create(storage.heroes_to_actions[hero_2.id][-1], meta_action_battle)
+
+        battle_1 = Battle1x1Prototype.get_by_account_id(account_1_id)
+        battle_1.state = BATTLE_1X1_STATE.PROCESSING
+        battle_1.save()
+
+        battle_2 = Battle1x1Prototype.get_by_account_id(account_2_id)
+        battle_2.state = BATTLE_1X1_STATE.PROCESSING
+        battle_2.save()

@@ -156,6 +156,9 @@ class HeroPrototype(object):
     health = property(get_health, set_health)
 
     @property
+    def health_percents(self): return float(self.health) / self.max_health
+
+    @property
     def money(self): return self.model.money
 
     def change_money(self, source, value):
@@ -467,26 +470,6 @@ class HeroPrototype(object):
     def need_regenerate_energy(self):
         return TimePrototype.get_current_turn_number() > self.last_energy_regeneration_at_turn + f.angel_energy_regeneration_delay(self.preferences.energy_regeneration_type)
 
-
-    ###########################################
-    # actions
-    ###########################################p
-
-    def get_actions(self):
-        #TODO: now this code only works on bundle init phase
-        #      using it from another places is dangerouse becouse of
-        #      desinchronization between workers and database
-        from game.actions.models import Action
-        from game.actions.prototypes import ACTION_TYPES
-
-        actions = []
-        actions_models = list(Action.objects.filter(hero=self.model).order_by('order'))
-        for action in actions_models:
-            action_object = ACTION_TYPES[action.type](model=action)
-            actions.append(action_object)
-
-        return actions
-
     @property
     def position(self):
         if not hasattr(self, '_position'):
@@ -577,13 +560,6 @@ class HeroPrototype(object):
         old_health = self.health
         self.health = int(min(self.health + delta, self.max_health))
         return self.health - old_health
-
-    # def kick(self, delta):
-    #     if delta < 0:
-    #         raise HeroException('can not kick hero for value less then 0')
-    #     old_health = self.health
-    #     self.health = int(max(self.health - delta, 0))
-    #     return old_health - self.health
 
     ###########################################
     # Object operations
@@ -714,8 +690,9 @@ class HeroPrototype(object):
 
 
     @classmethod
-    def create(cls, account, bundle, is_fast=False):
+    def create(cls, account, storage, is_fast=False):
 
+        from game.abilities.prototypes import AbilityPrototype
         from game.actions.prototypes import ActionIdlenessPrototype
 
         start_place = places_storage.random_place()
@@ -751,9 +728,11 @@ class HeroPrototype(object):
 
         hero = cls(model=hero)
 
-        bundle.add_hero(hero)
+        AbilityPrototype.create(hero)
 
-        ActionIdlenessPrototype.create(parent=None, hero=hero, _bundle=bundle)
+        storage.add_hero(hero)
+
+        ActionIdlenessPrototype.create(parent=None, hero=hero, _storage=storage)
 
         return hero
 
@@ -962,9 +941,9 @@ class ChooseAbilityTaskPrototype(object):
     def save(self):
         self.model.save()
 
-    def process(self, bundle):
+    def process(self, storage):
 
-        hero = bundle.heroes[self.hero_id]
+        hero = storage.heroes[self.hero_id]
 
         if self.ability_id not in ABILITIES:
             self.state = CHOOSE_ABILITY_STATE.ERROR

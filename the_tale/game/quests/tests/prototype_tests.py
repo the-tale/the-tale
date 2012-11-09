@@ -8,8 +8,9 @@ from dext.settings import settings
 from common.utils.fake import FakeWorkerCommand
 
 from accounts.logic import register_user
+from game.heroes.prototypes import HeroPrototype
+from game.logic_storage import LogicStorage
 
-from game.bundles import BundlePrototype
 
 from game.logic import create_test_map
 from game.actions.prototypes import ActionQuestPrototype
@@ -28,10 +29,12 @@ class QuestPrototypeTest(TestCase):
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
-        self.bundle = BundlePrototype.get_by_id(bundle_id)
 
-        self.hero = self.bundle.tests_get_hero()
-        self.action_idl = self.bundle.tests_get_last_action()
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+
         self.quest = create_random_quest_for_hero(self.hero)
         self.action_quest = ActionQuestPrototype.create(self.action_idl, quest=self.quest)
 
@@ -42,7 +45,7 @@ class QuestPrototypeTest(TestCase):
         current_time = TimePrototype.get_current_time()
 
         while not self.action_idl.leader:
-            self.bundle.process_turn()
+            self.storage.process_turn()
             current_time.increment_turn()
 
     def test_initialization(self):

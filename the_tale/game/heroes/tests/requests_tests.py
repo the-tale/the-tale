@@ -5,16 +5,23 @@ from django.core.urlresolvers import reverse
 
 from common.utils.testcase import TestCase
 
-from game.logic import create_test_bundle, create_test_map
+from accounts.logic import register_user
+from game.heroes.prototypes import HeroPrototype
+from game.logic_storage import LogicStorage
+
+from game.logic import create_test_map
 
 class HeroRequestsTest(TestCase):
 
     def setUp(self):
         create_test_map()
 
-        self.bundle = create_test_bundle('test_user')
-        self.action_idl = self.bundle.tests_get_last_action()
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+
 
         self.client = client.Client()
         self.request_login('test_user@test.com')
@@ -61,7 +68,7 @@ class HeroPageRequestsTests(HeroRequestsTest):
         self.request_logout()
         self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=texts)
 
-        create_test_bundle('test_user_2')
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
 
         self.request_login('test_user_2@test.com')
         self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=texts)

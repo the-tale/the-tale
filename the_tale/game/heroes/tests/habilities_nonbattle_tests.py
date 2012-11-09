@@ -2,7 +2,10 @@
 
 from django.test import TestCase
 
-from game.logic import create_test_map, create_test_bundle
+from accounts.logic import register_user
+from game.heroes.prototypes import HeroPrototype
+
+from game.logic import create_test_map
 
 from game.heroes.habilities import nonbattle
 
@@ -11,9 +14,9 @@ class HabilitiesNonBattleTest(TestCase):
 
     def setUp(self):
         create_test_map()
-        self.bundle = create_test_bundle('nonbattle')
-        self.hero = self.bundle.tests_get_hero()
 
+        result, account_id, bundle_id = register_user('test_user')
+        self.hero = HeroPrototype.get_by_account_id(account_id)
 
     def tearDown(self):
         pass

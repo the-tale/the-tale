@@ -3381,6 +3381,13 @@
       "template": "А теперь можно и за наградой."
     }
   ], 
+  "meta_action_arena_pvp_1x1_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "сражается на арене"
+    }
+  ], 
   "action_trading_start": [
     {
       "internals": [], 

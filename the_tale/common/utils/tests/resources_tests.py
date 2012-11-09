@@ -7,11 +7,11 @@ from django.test import client
 from common.utils.testcase import TestCase
 from common.utils.fake import FakeWorkerCommand
 
-from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
+from game.heroes.prototypes import HeroPrototype
+
 from game.logic import create_test_map
-from game.bundles import BundlePrototype
 from game.conf import game_settings
 
 class ResourceTest(TestCase):
@@ -21,9 +21,7 @@ class ResourceTest(TestCase):
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 
-        self.bundle = BundlePrototype.get_by_id(bundle_id)
-        self.account = AccountPrototype.get_by_id(account_id)
-        self.hero = self.bundle.tests_get_hero()
+        self.hero = HeroPrototype.get_by_account_id(account_id)
 
         self.client = client.Client()
 

@@ -63,8 +63,6 @@ class Worker(BaseWorker):
 
     def process_next_turn(self, turn_number):
 
-        from game.workers.environment import workers_environment as game_workers_environment
-
         settings.refresh()
 
         # check if new real day started
@@ -90,7 +88,7 @@ class Worker(BaseWorker):
                 map_update_needed = True
 
             if self.turn_number % (game_settings.RATINGS_SYNC_TIME / c.TURN_DELTA) == 0:
-                game_workers_environment.supervisor.cmd_recalculate_ratings()
+                self.supervisor_worker.cmd_recalculate_ratings()
 
             if self.turn_number % (bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA) == 0:
                 if self.apply_bills():
@@ -100,7 +98,7 @@ class Worker(BaseWorker):
             subprocess.call(['./manage.py', 'map_update_map'])
 
             # send command to main supervisor queue
-            game_workers_environment.supervisor.cmd_highlevel_data_updated()
+            self.supervisor_worker.cmd_highlevel_data_updated()
 
         # send command to supervisor answer queue
         self.supervisor_worker.cmd_answer('next_turn', self.worker_id)

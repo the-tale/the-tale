@@ -5,9 +5,14 @@ from django.test import TestCase
 
 from dext.settings import settings
 
+from accounts.logic import register_user
+from game.heroes.prototypes import HeroPrototype
+from game.logic_storage import LogicStorage
+
+
 from game.balance import constants as c, formulas as f
 
-from game.logic import create_test_bundle, create_test_map, test_bundle_save
+from game.logic import create_test_map
 from game.actions.prototypes import ActionMoveToPrototype, ActionInPlacePrototype, ActionRestPrototype
 from game.actions.prototypes import ActionResurrectPrototype, ActionBattlePvE1x1Prototype, ActionRegenerateEnergyPrototype
 from game.prototypes import TimePrototype
@@ -17,17 +22,17 @@ class MoveToActionTest(TestCase):
     def setUp(self):
         settings.refresh()
 
-        p1, p2, p3 = create_test_map()
-        self.p1 = p1
-        self.p2 = p2
-        self.p3 = p3
+        self.p1, self.p2, self.p3 = create_test_map()
 
-        self.bundle = create_test_bundle('MoveToActionTest')
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
 
         self.hero.position.set_place(self.p1)
 
-        self.action_idl = self.bundle.tests_get_last_action()
         self.action_move = ActionMoveToPrototype.create(self.action_idl, self.p3)
 
 
@@ -37,24 +42,24 @@ class MoveToActionTest(TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_move.leader, True)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
 
     def test_processed(self):
         self.hero.position.set_place(self.p3)
-        self.bundle.process_turn()
-        self.assertEqual(len(self.bundle.actions), 1)
-        self.assertEqual(self.bundle.tests_get_last_action(), self.action_idl)
-        test_bundle_save(self, self.bundle)
+        self.storage.process_turn()
+        self.assertEqual(len(self.storage.actions), 1)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.storage._test_save()
 
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
     def test_not_ready(self):
-        self.bundle.process_turn()
-        self.assertEqual(len(self.bundle.actions), 2)
-        self.assertEqual(self.bundle.tests_get_last_action(), self.action_move)
+        self.storage.process_turn()
+        self.assertEqual(len(self.storage.actions), 2)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_move)
         self.assertTrue(self.hero.position.road)
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
 
     def test_full_move(self):
@@ -62,28 +67,28 @@ class MoveToActionTest(TestCase):
         current_time = TimePrototype.get_current_time()
 
         while self.hero.position.place is None or self.hero.position.place.id != self.p3.id:
-            self.bundle.process_turn()
+            self.storage.process_turn()
             current_time.increment_turn()
 
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionInPlacePrototype.TYPE)
-        test_bundle_save(self, self.bundle)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionInPlacePrototype.TYPE)
+        self.storage._test_save()
 
     def test_full(self):
 
         current_time = TimePrototype.get_current_time()
 
         while not self.action_idl.leader:
-            self.bundle.process_turn()
+            self.storage.process_turn()
             current_time.increment_turn()
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
     def test_short_teleport(self):
 
         current_time = TimePrototype.get_current_time()
 
-        self.bundle.process_turn()
+        self.storage.process_turn()
 
         old_road_percents = self.hero.position.percents
         self.action_move.short_teleport(1)
@@ -94,28 +99,28 @@ class MoveToActionTest(TestCase):
         self.assertTrue(self.action_move.updated)
 
         current_time.increment_turn()
-        self.bundle.process_turn()
+        self.storage.process_turn()
 
         self.assertEqual(self.hero.position.place.id, self.p2.id)
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 1.0)
     def test_battle(self):
-        self.bundle.process_turn()
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionBattlePvE1x1Prototype.TYPE)
-        test_bundle_save(self, self.bundle)
+        self.storage.process_turn()
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionBattlePvE1x1Prototype.TYPE)
+        self.storage._test_save()
 
 
     def test_rest(self):
         self.hero.health = 1
         self.action_move.state = self.action_move.STATE.BATTLE
-        self.bundle.process_turn()
+        self.storage.process_turn()
 
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionRestPrototype.TYPE)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRestPrototype.TYPE)
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     def test_regenerate_energy_on_move(self):
         self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
@@ -123,14 +128,14 @@ class MoveToActionTest(TestCase):
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
 
-        self.bundle.process_turn()
+        self.storage.process_turn()
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()
-        self.bundle.process_turn()
+        self.storage.process_turn()
 
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionRegenerateEnergyPrototype.TYPE)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRegenerateEnergyPrototype.TYPE)
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     def test_not_regenerate_energy_on_move_for_sacrifice(self):
         self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
@@ -138,15 +143,15 @@ class MoveToActionTest(TestCase):
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
 
-        self.bundle.process_turn()
+        self.storage.process_turn()
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()
-        self.bundle.process_turn()
+        self.storage.process_turn()
 
 
-        self.assertNotEqual(self.bundle.tests_get_last_action().TYPE, ActionRegenerateEnergyPrototype.TYPE)
+        self.assertNotEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRegenerateEnergyPrototype.TYPE)
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     def test_regenerate_energy_after_battle_for_sacrifice(self):
         self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
@@ -154,19 +159,19 @@ class MoveToActionTest(TestCase):
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_move.state = self.action_move.STATE.BATTLE
 
-        self.bundle.process_turn()
+        self.storage.process_turn()
 
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionRegenerateEnergyPrototype.TYPE)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRegenerateEnergyPrototype.TYPE)
 
-        test_bundle_save(self, self.bundle)
+        self.storage._test_save()
 
     def test_resurrect(self):
         self.hero.kill()
         self.action_move.state = self.action_move.STATE.BATTLE
-        self.bundle.process_turn()
+        self.storage.process_turn()
 
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionResurrectPrototype.TYPE)
-        test_bundle_save(self, self.bundle)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionResurrectPrototype.TYPE)
+        self.storage._test_save()
 
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
@@ -174,57 +179,56 @@ class MoveToActionTest(TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        self.bundle.process_turn()
+        self.storage.process_turn()
         self.hero.position.percents = 1
 
         current_time.increment_turn()
-        self.bundle.process_turn()
+        self.storage.process_turn()
 
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionInPlacePrototype.TYPE)
-        test_bundle_save(self, self.bundle)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionInPlacePrototype.TYPE)
+        self.storage._test_save()
 
 
 class MoveToActionWithBreaksTest(TestCase):
 
     def setUp(self):
-        p1, p2, p3 = create_test_map()
-        self.p1 = p1
-        self.p2 = p2
-        self.p3 = p3
+        self.p1, self.p2, self.p3 = create_test_map()
 
-        self.bundle = create_test_bundle('MoveToActionTest')
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+
 
         self.hero.position.set_place(self.p1)
 
-        self.action_idl = self.bundle.tests_get_last_action()
-        self.bundle.add_action(ActionMoveToPrototype.create(self.action_idl, self.p3, 0.75))
-        self.action_move = self.bundle.tests_get_last_action()
-
+        self.action_move = ActionMoveToPrototype.create(self.action_idl, self.p3, 0.75)
 
     def test_sequence_move(self):
 
         current_time = TimePrototype.get_current_time()
 
-        while self.bundle.tests_get_last_action() != self.action_idl:
-            self.bundle.process_turn()
+        while self.storage.heroes_to_actions[self.hero.id][-1] != self.action_idl:
+            self.storage.process_turn()
             current_time.increment_turn()
 
         self.assertEqual(self.hero.position.road.point_1_id, self.p2.id)
         self.assertEqual(self.hero.position.road.point_2_id, self.p3.id)
 
-        self.bundle.add_action(ActionMoveToPrototype.create(self.action_idl, self.p1, 0.9))
-        while self.bundle.tests_get_last_action() != self.action_idl:
-            self.bundle.process_turn()
+        ActionMoveToPrototype.create(self.action_idl, self.p1, 0.9)
+        while self.storage.heroes_to_actions[self.hero.id][-1] != self.action_idl:
+            self.storage.process_turn()
             current_time.increment_turn()
 
         self.assertEqual(self.hero.position.road.point_1_id, self.p1.id)
         self.assertEqual(self.hero.position.road.point_2_id, self.p2.id)
 
-        self.bundle.add_action(ActionMoveToPrototype.create(self.action_idl, self.p2))
+        ActionMoveToPrototype.create(self.action_idl, self.p2)
         while self.hero.position.place is None or self.hero.position.place.id != self.p2.id:
-            self.bundle.process_turn()
+            self.storage.process_turn()
             current_time.increment_turn()
 
-        self.assertEqual(self.bundle.tests_get_last_action().TYPE, ActionInPlacePrototype.TYPE)
-        test_bundle_save(self, self.bundle)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionInPlacePrototype.TYPE)
+        self.storage._test_save()

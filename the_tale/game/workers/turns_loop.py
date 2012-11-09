@@ -50,7 +50,6 @@ class Worker(BaseWorker):
         return self.send_cmd('stop')
 
     def process_stop(self):
-        # no need to save bundles, since they automaticaly saved on every turn
         self.initialized = False
         self.supervisor_worker.cmd_answer('stop', self.worker_id)
         self.stop_required = True

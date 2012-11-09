@@ -11,16 +11,18 @@ from game.mobs.exceptions import MobsException
 from game.artifacts.storage import ArtifactsDatabase
 from game.artifacts.conf import ITEM_TYPE
 from game.map.places.models import TERRAIN
-from game.logic import create_test_bundle, create_test_map
+from game.logic import create_test_map
 from game.balance import formulas as f
+from accounts.logic import register_user
+from game.heroes.prototypes import HeroPrototype
 
 class MobsDatabaseTest(TestCase):
 
     def setUp(self):
         create_test_map()
 
-        self.bundle = create_test_bundle('MobsDatabaseTest')
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user')
+        self.hero = HeroPrototype.get_by_account_id(account_id)
 
 
     def test_load_real_data(self):

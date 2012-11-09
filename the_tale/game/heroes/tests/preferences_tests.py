@@ -10,8 +10,9 @@ from game.balance import constants as c
 
 from accounts.logic import register_user, login_url
 
-from game.logic import create_test_bundle, create_test_map
-from game.bundles import BundlePrototype
+from game.heroes.prototypes import HeroPrototype
+
+from game.logic import create_test_map
 
 from game.mobs.storage import MobsDatabase
 
@@ -19,6 +20,8 @@ from game.map.places.models import Place
 
 from game.persons.models import Person, PERSON_STATE
 from game.persons.storage import persons_storage
+
+from game.logic_storage import LogicStorage
 
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.heroes.models import ChoosePreferencesTask, CHOOSE_PREFERENCES_STATE, PREFERENCE_TYPE
@@ -30,9 +33,10 @@ class HeroPreferencesCommonTests(TestCase):
     def setUp(self):
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        self.bundle = create_test_bundle('HeroTest')
-        self.hero = self.bundle.tests_get_hero()
-
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
 
     def test_reset_friend_on_highlevel_update(self):
         friend = self.place_1.persons[0]
@@ -43,7 +47,7 @@ class HeroPreferencesCommonTests(TestCase):
         friend.move_out_game()
         friend.save()
 
-        self.bundle.on_highlevel_data_updated()
+        self.storage.on_highlevel_data_updated()
 
         self.assertEqual(self.hero.preferences.friend_id, None)
 
@@ -56,7 +60,7 @@ class HeroPreferencesCommonTests(TestCase):
         enemy.move_out_game()
         enemy.save()
 
-        self.bundle.on_highlevel_data_updated()
+        self.storage.on_highlevel_data_updated()
 
         self.assertEqual(self.hero.preferences.enemy_id, None)
 
@@ -67,8 +71,10 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
     def setUp(self):
         place_1, place_2, place_3 = create_test_map()
 
-        self.bundle = create_test_bundle('HeroTest')
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
 
         self.hero.model.level = c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED
         self.hero.model.pref_energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
@@ -97,7 +103,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 
     def test_wrong_energy_regeneration_type(self):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     # can not test set energy regeneration type, since it must be always selected
@@ -108,7 +114,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, new_energy_regeneration_type)
         self.assertNotEqual(self.hero.preferences.energy_regeneration_type, new_energy_regeneration_type)
 
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.energy_regeneration_type, expected_energy_regeneration_type)
 
@@ -117,7 +123,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 
     def test_change_energy_regeneration_type_cooldown(self):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
-        task.process(self.bundle)
+        task.process(self.storage)
 
         self.check_change_energy_regeneration_type(c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_STATE.COOLDOWN)
 
@@ -126,7 +132,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 
     def test_remove_energy_regeneration_type_cooldown(self):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.check_change_energy_regeneration_type(None, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_STATE.COOLDOWN)
 
 
@@ -135,8 +141,10 @@ class HeroPreferencesMobTest(TestCase):
     def setUp(self):
         create_test_map()
 
-        self.bundle = create_test_bundle('HeroTest')
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
 
         self.hero.model.level = c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED
         self.hero.model.save()
@@ -164,17 +172,17 @@ class HeroPreferencesMobTest(TestCase):
     def test_wrong_level(self):
         self.hero.model.level = 1
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_wrong_mob(self):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 'wrong_mob_id')
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_wrong_preference(self):
         task = ChoosePreferencesTaskPrototype.create(self.hero, 666, self.mob_id)
-        self.assertRaises(HeroException, task.process, self.bundle)
+        self.assertRaises(HeroException, task.process, self.storage)
 
     def test_wrong_mob_level(self):
         wrong_mob_id = None
@@ -186,7 +194,7 @@ class HeroPreferencesMobTest(TestCase):
         self.assertTrue(wrong_mob_id)
 
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, wrong_mob_id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
         self.assertEqual(self.hero.preferences.mob_id, None)
 
@@ -195,18 +203,18 @@ class HeroPreferencesMobTest(TestCase):
         changed_at = self.hero.preferences.mob_changed_at
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_id)
         self.assertEqual(self.hero.preferences.mob_id, None)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.mob_id, self.mob_id)
         self.assertTrue(changed_at < self.hero.preferences.mob_changed_at)
 
     def check_change_mob(self, new_mob_id, expected_mob_id, expected_state):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_id)
-        task.process(self.bundle)
+        task.process(self.storage)
 
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, new_mob_id)
         self.assertEqual(self.hero.preferences.mob_id, self.mob_id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.mob_id, expected_mob_id)
 
@@ -232,8 +240,10 @@ class HeroPreferencesPlaceTest(TestCase):
     def setUp(self):
         place_1, place_2, place_3 = create_test_map()
 
-        self.bundle = create_test_bundle('HeroTest')
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
 
         self.hero.model.level = c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED
         self.hero.model.save()
@@ -261,19 +271,19 @@ class HeroPreferencesPlaceTest(TestCase):
     def test_wrong_level(self):
         self.hero.model.level = 1
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_wrong_place(self):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 666)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_set_place(self):
         changed_at = self.hero.preferences.place_changed_at
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
         self.assertEqual(self.hero.preferences.place_id, None)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.place_id, self.place.id)
         self.assertTrue(changed_at < self.hero.preferences.place_changed_at)
@@ -281,11 +291,11 @@ class HeroPreferencesPlaceTest(TestCase):
 
     def check_change_place(self, new_place_id, expected_place_id, expected_state):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
-        task.process(self.bundle)
+        task.process(self.storage)
 
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, new_place_id)
         self.assertEqual(self.hero.preferences.place_id, self.place.id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.place_id, expected_place_id)
 
@@ -311,8 +321,10 @@ class HeroPreferencesFriendTest(TestCase):
     def setUp(self):
         place_1, place_2, place_3 = create_test_map()
 
-        self.bundle = create_test_bundle('HeroTest')
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
 
         self.hero.model.level = c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED
         self.hero.model.save()
@@ -341,12 +353,12 @@ class HeroPreferencesFriendTest(TestCase):
     def test_wrong_level(self):
         self.hero.model.level = 1
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_wrong_friend(self):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 666)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_set_enemy_as_friend(self):
@@ -354,7 +366,7 @@ class HeroPreferencesFriendTest(TestCase):
         self.hero.save()
 
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.enemy_id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON)
 
     def test_set_outgame_friend(self):
@@ -363,7 +375,7 @@ class HeroPreferencesFriendTest(TestCase):
         friend.save()
 
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON)
         self.assertEqual(self.hero.preferences.friend_id, None)
 
@@ -372,18 +384,18 @@ class HeroPreferencesFriendTest(TestCase):
         changed_at = self.hero.preferences.friend_changed_at
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
         self.assertEqual(self.hero.preferences.friend_id, None)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
         self.assertTrue(changed_at < self.hero.preferences.friend_changed_at)
 
     def check_change_friend(self, new_friend_id, expected_friend_id, expected_state):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
-        task.process(self.bundle)
+        task.process(self.storage)
 
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, new_friend_id)
         self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.friend_id, expected_friend_id)
 
@@ -409,8 +421,10 @@ class HeroPreferencesEnemyTest(TestCase):
     def setUp(self):
         place_1, place_2, place_3 = create_test_map()
 
-        self.bundle = create_test_bundle('HeroTest')
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
 
         self.hero.model.level = c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED
         self.hero.model.save()
@@ -439,12 +453,12 @@ class HeroPreferencesEnemyTest(TestCase):
     def test_wrong_level(self):
         self.hero.model.level = 1
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_wrong_enemy(self):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 666)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_set_outgame_enemy(self):
@@ -453,7 +467,7 @@ class HeroPreferencesEnemyTest(TestCase):
         enemy.save()
 
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON)
         self.assertEqual(self.hero.preferences.enemy_id, None)
 
@@ -461,7 +475,7 @@ class HeroPreferencesEnemyTest(TestCase):
         changed_at = self.hero.preferences.enemy_changed_at
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
         self.assertEqual(self.hero.preferences.enemy_id, None)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
         self.assertTrue(changed_at < self.hero.preferences.enemy_changed_at)
@@ -471,16 +485,16 @@ class HeroPreferencesEnemyTest(TestCase):
         self.hero.save()
 
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.friend_id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON)
 
     def check_change_enemy(self, new_enemy_id, expected_enemy_id, expected_state):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        task.process(self.bundle)
+        task.process(self.storage)
 
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, new_enemy_id)
         self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.enemy_id, expected_enemy_id)
 
@@ -506,8 +520,10 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
     def setUp(self):
         create_test_map()
 
-        self.bundle = create_test_bundle('HeroTest')
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
 
         self.hero.model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
         self.hero.model.save()
@@ -535,34 +551,34 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
     def test_wrong_level(self):
         self.hero.model.level = 1
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_wrong_slot(self):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, 'wrong_equip_slot')
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
 
     def test_wrong_preference(self):
         task = ChoosePreferencesTaskPrototype.create(self.hero, '666', self.slot_1)
-        self.assertRaises(HeroException, task.process, self.bundle)
+        self.assertRaises(HeroException, task.process, self.storage)
 
     def test_set_equipment_slot(self):
         changed_at = self.hero.preferences.equipment_slot_changed_at
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
         self.assertEqual(self.hero.preferences.equipment_slot, None)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
         self.assertTrue(changed_at < self.hero.preferences.equipment_slot_changed_at)
 
     def check_change_equipment_slot(self, new_slot, expected_slot, expected_state):
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
-        task.process(self.bundle)
+        task.process(self.storage)
 
         task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, new_slot)
         self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
-        task.process(self.bundle)
+        task.process(self.storage)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.equipment_slot, expected_slot)
 
@@ -590,8 +606,9 @@ class HeroPreferencesRequestsTest(TestCase):
         place_1, place_2, place_3 = create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 
-        self.bundle = BundlePrototype.get_by_id(bundle_id)
-        self.hero = self.bundle.tests_get_hero()
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
 
         self.hero.model.level = c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED # maximum blocking level
         self.hero.model.save()

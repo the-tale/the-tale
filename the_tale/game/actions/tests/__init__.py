@@ -12,8 +12,11 @@ from game.actions.tests.action_quest import *
 from game.actions.tests.action_battlepve1x1 import *
 from game.actions.tests.action_moveto import *
 from game.actions.tests.action_movenear import *
+from game.actions.tests.action_meta_proxy import *
 
 from game.actions.tests.context_battle import *
 
 from game.actions.tests.battle import *
 from game.actions.tests.general import *
+
+from game.actions.tests.meta_action_arena_pvp_1x1 import *

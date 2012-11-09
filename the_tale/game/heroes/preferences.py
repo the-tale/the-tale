@@ -161,12 +161,12 @@ class ChoosePreferencesTaskPrototype(object):
     def is_unprocessed(self):
         return self.model.state == CHOOSE_PREFERENCES_STATE.WAITING
 
-    def process(self, bundle):
+    def process(self, storage):
 
         if not self.is_unprocessed:
             return
 
-        hero = bundle.heroes[self.model.hero_id]
+        hero = storage.heroes[self.model.hero_id]
 
         if not hero.preferences.can_update(self.model.preference_type, datetime.datetime.now()):
             self.model.comment = u'blocked since time delay'

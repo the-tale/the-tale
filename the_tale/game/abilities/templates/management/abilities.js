@@ -20,7 +20,6 @@ pgf.game.data.abilities = {
         "use_form": {% if ability.need_form() %}true{% else %}false{% endif %},
         "name": "{{ ability.NAME }}",
         "description": "{{ ability.DESCRIPTION }}",
-        "artistic": "{{ ability.ARTISTIC }}",
         "cost": {{ ability.COST }}
     }{%- if not loop.last -%},{%- endif -%}
     

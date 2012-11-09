@@ -15,10 +15,9 @@ class Help(AbilityPrototype):
 
     NAME = u'Помочь'
     DESCRIPTION = u'Попытаться помочь герою, чем бы тот не занимался'
-    ARTISTIC = u'Помощь, конечно, хорошо, но главное - не переусердствовать'
 
-    def use(self, bundle, hero, form):
-        action = bundle.current_hero_action(hero.id)
+    def use(self, storage, hero, form):
+        action = storage.current_hero_action(hero.id)
 
         choice = action.get_help_choice()
 

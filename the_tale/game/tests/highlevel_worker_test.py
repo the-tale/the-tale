@@ -5,17 +5,21 @@ from django.test import TestCase
 
 from dext.settings import settings
 
+from accounts.logic import register_user
+
 from game.persons.storage import persons_storage
 from game.persons.models import Person, PERSON_STATE
+
+from game.heroes.prototypes import HeroPrototype
 
 from game.map.places.storage import places_storage
 
 from game.balance import constants as c
-from game.logic import create_test_bundle, create_test_map
+from game.logic import create_test_map
 from game.workers.environment import workers_environment
 from game.prototypes import TimePrototype
 from game.bills.conf import bills_settings
-
+from game.logic_storage import LogicStorage
 
 def fake_sync_data(self):
     self._data_synced = True
@@ -32,9 +36,12 @@ class HighlevelTest(TestCase):
 
         self.p1, self.p2, self.p3 = create_test_map()
 
-        self.bundle = create_test_bundle('HeroTest')
-        self.action_idl = self.bundle.tests_get_last_action()
-        self.hero = self.bundle.tests_get_hero()
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.add_hero(self.hero)
+        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
 
         workers_environment.deinitialize()
         workers_environment.initialize()

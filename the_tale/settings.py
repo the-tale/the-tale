@@ -159,6 +159,7 @@ INSTALLED_APPS = (
     'game.balance',
     'game.bills',
     'game.ratings',
+    'game.pvp',
 
     'cms',
     'cms.news',
@@ -259,6 +260,7 @@ LOGGING = {
         'file_game_turns_loop': get_worker_log_file_handler('game_turns_loop'),
         'file_game_might_calculator': get_worker_log_file_handler('game_might_calculator'),
         'file_game_long_commands': get_worker_log_file_handler('game_long_commands'),
+        'file_game_pvp_balancer': get_worker_log_file_handler('game_pvp_balancer'),
         'file_accounts_registration': get_worker_log_file_handler('accounts_registration')
     },
     'loggers': {
@@ -279,6 +281,7 @@ LOGGING = {
         'the-tale.workers.game_turns_loop': get_worker_logger('game_turns_loop'),
         'the-tale.workers.game_might_calculator': get_worker_logger('game_might_calculator'),
         'the-tale.workers.game_long_commands': get_worker_logger('game_long_commands'),
+        'the-tale.workers.game_pvp_balancer': get_worker_logger('game_pvp_balancer'),
         'accounts.workers.registration': get_worker_logger('accounts_registration'),
     } if not TESTS_RUNNING else {}
 }

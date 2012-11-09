@@ -7,3 +7,6 @@ from game.tests.bundle_tests import *
 from game.tests.highlevel_worker_test import *
 from game.tests.logic_worker_test import *
 from game.tests.might_worker_tests import *
+from game.tests.logic_storage_tests import *
+from game.tests.supervisor_worker_tests import *
+from game.tests.supervisor_task_tests import *
