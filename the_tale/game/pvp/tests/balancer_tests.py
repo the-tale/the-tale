@@ -19,6 +19,8 @@ from game.pvp.models import Battle1x1
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.workers.balancer import QueueRecord
 
+from game.pvp.conf import pvp_settings
+
 class BalancerTestsBase(TestCase):
 
     def setUp(self):
@@ -114,6 +116,21 @@ class BalancerBalancingTests(BalancerTestsBase):
         record = records[0]
         self.assertEqual(record[2], self.battle_1_record)
         self.assertTrue(record[0] <= record[1])
+
+    def test_get_prepaired_queue_one_record_test_time_delta(self):
+        self.battle_1.model.created_at -= datetime.timedelta(seconds=float(pvp_settings.BALANCING_TIMEOUT) / pvp_settings.BALANCING_MAX_LEVEL_DELTA * 2)
+        self.battle_1.save()
+
+        self.worker.process_add_to_arena_queue(self.battle_1.id)
+
+        records, records_to_remove = self.worker._get_prepaired_queue()
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records_to_remove, [])
+
+        record = records[0]
+        self.assertEqual(record[2], self.battle_1_record)
+        self.assertEqual(record[0], -1)
+        self.assertEqual(record[1], 3)
 
     def test_get_prepaired_queue_one_record_timeout(self):
 

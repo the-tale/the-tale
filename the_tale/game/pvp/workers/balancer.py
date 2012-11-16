@@ -111,7 +111,7 @@ class Worker(BaseWorker):
                 continue
 
             records.append((math.floor(record.hero_level - time_delta / time_in_level),
-                            math.ceil(record.hero_level - time_delta / time_in_level),
+                            math.ceil(record.hero_level + time_delta / time_in_level),
                             record))
 
         return sorted(records, key=lambda r: r[0]), records_to_remove
