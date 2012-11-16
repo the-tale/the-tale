@@ -29,6 +29,9 @@ def start():
         if game_settings.ENABLE_WORKER_LONG_COMMANDS:
             subprocess.Popen(['./manage.py', 'game_long_commands'], stdin=devnull, stdout=devnull, stderr=devnull)
 
+        if game_settings.ENABLE_PVP:
+            subprocess.Popen(['./manage.py', 'pvp_balancer'], stdin=devnull, stdout=devnull, stderr=devnull)
+
     print 'game started'
 
 def stop():
@@ -45,6 +48,7 @@ def stop():
            pid.check('game_highlevel') or
            pid.check('game_turns_loop') or
            pid.check('game_might_calculator') or
+           pid.check('game_pvp_balancer') or
            pid.check('game_long_commands') ):
         time.sleep(0.1)
 
@@ -79,6 +83,7 @@ class Command(BaseCommand):
             pid.force_kill('game_turns_loop')
             pid.force_kill('game_might_calculator')
             pid.force_kill('game_long_commands')
+            pid.force_kill('game_pvp_balancer')
 
             print 'game stopped'
 

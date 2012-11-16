@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% import 'heroes/hero_short.html' as hero_short_macros with context %}
+{% import 'heroes/hero_equipment.html' as hero_equipment_macros with context %}
 
 {% block title %}Страница героя | {{ super() }}{% endblock %}
 
@@ -36,10 +37,10 @@ jQuery(document).ready(function(e){
 
   <div class="span3">
 
-    {{ hero_short_macros.hero_short(is_owner, false, master_account) }}
+    {{ hero_short_macros.hero_short("hero-short-data", is_owner, false, master_account=master_account, health_bar=false or is_owner) }}
 
     <div class="block">
-      {% include "heroes/hero_equipment.html" %}
+      {{ hero_equipment_macros.hero_equipment("hero-equipment", data_mode="pve") }}
     </div>
   </div>
 

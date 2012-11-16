@@ -14,7 +14,7 @@ class LogicStorage(object):
         self.heroes_to_actions = {}
         self.meta_actions = {}
         self.meta_actions_to_actions = {}
-        self.save_requered = set()
+        self.save_required = set()
 
     def load_account_data(self, account):
 
@@ -115,13 +115,13 @@ class LogicStorage(object):
 
             leader_action.process_turn()
 
-            self.save_requered.add(hero.id)
+            self.save_required.add(hero.id)
 
     def save_changed_data(self):
-        for hero_id in self.save_requered:
+        for hero_id in self.save_required:
             self.save_hero_data(hero_id)
 
-        self.save_requered.clear()
+        self.save_required.clear()
 
 
     def _test_save(self):

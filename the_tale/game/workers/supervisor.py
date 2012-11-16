@@ -132,10 +132,12 @@ class Worker(BaseWorker):
             task.capture_member(account_id)
 
             if task.all_members_captured:
+                del self.tasks[self.accounts_for_tasks[account_id]]
                 task.process()
                 for member_id in task.members:
                     del self.accounts_for_tasks[member_id]
-                    self.logic_worker.cmd_register_account(account_id)
+                    self.logic_worker.cmd_register_account(member_id)
+                task.remove()
             return
 
         self.logic_worker.cmd_register_account(account_id)

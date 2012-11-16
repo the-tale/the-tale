@@ -10,6 +10,7 @@ from accounts.logic import register_user
 
 from game.heroes.prototypes import HeroPrototype
 
+from game.models import SupervisorTask
 from game.logic import create_test_map
 from game.workers.environment import workers_environment
 from game.logic_storage import LogicStorage
@@ -97,7 +98,7 @@ class SupervisorWorkerTests(TestCase):
         self.worker.process_account_released(self.account_1.id)
         self.worker.process_account_released(self.account_2.id)
 
-        self.assertTrue(self.worker.tasks.values()[0].all_members_captured)
+        self.assertEqual(self.worker.tasks.values(), [])
 
         self.assertEqual(release_accounts_counter.count, 0)
 
@@ -179,4 +180,5 @@ class SupervisorWorkerTests(TestCase):
 
         self.assertEqual(register_account_counter.count, 2)
         self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set())
-        self.assertEqual(self.worker.tasks.values()[0].captured_members, set([self.account_1.id, self.account_2.id]))
+        self.assertEqual(self.worker.tasks.values(), [])
+        self.assertEqual(SupervisorTask.objects.all().count(), 0)

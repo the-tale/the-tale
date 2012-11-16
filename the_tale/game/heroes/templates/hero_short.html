@@ -1,14 +1,14 @@
 
-{% macro hero_short(is_owner, show_hero_link, master_account=none) %}
+{% macro hero_short(block_id, is_owner, show_hero_link, master_account=none, health_bar=true, data_mode='pve') %}
 
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
-    widgets.heroes = new pgf.game.widgets.Hero('#hero-base-block', updater, widgets, {});
+    widgets.heroes = new pgf.game.widgets.Hero("#{{block_id}}", updater, widgets, {dataMode: "{{data_mode}}"});
 });
 </script>
 
-<div id="hero-base-block" class="block" style="cursor: default;">
+<div id="{{block_id}}" class="block hero-base-block" style="cursor: default;">
 
   <h3 class="" style="">
     <small class="pgf-hidden pgf-race-gender" style="vertical-align: bottom; line-height: 0px; display: block;">
@@ -27,7 +27,7 @@ jQuery(document).ready(function(e) {
     {% endif %}
   </h3>
 
-  {% if is_owner %}
+  {% if health_bar %}
   <div class="record-with-progress" rel="tooltip" title="здоровье героя">
     <img src="{{ STATIC_URL }}game/images/attrs/hp.png"/>
     <div class="progress progress-danger" style="">
@@ -35,7 +35,9 @@ jQuery(document).ready(function(e) {
     </div>
     <span class="text-values"><span class="pgf-health"></span>/<span class="pgf-max-health"></span></span>
   </div>
+  {% endif %}
 
+  {% if is_owner %}
   <div class="record-with-progress" rel="tooltip" title="опыта до следующего уровня">
     <img src="{{ STATIC_URL }}game/images/attrs/exp.png"/>
     <div class="progress progress-warning" style="">
@@ -55,7 +57,7 @@ jQuery(document).ready(function(e) {
 
   <div>
 
-    {% if not is_owner %}
+    {% if not is_owner and not health_bar %}
     <div class="attribute-record" rel="tooltip" title="здоровье">
       <img src="{{ STATIC_URL }}game/images/attrs/hp.png"/>
       <span class="pgf-max-health"></span>

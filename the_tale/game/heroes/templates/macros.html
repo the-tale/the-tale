@@ -1,18 +1,22 @@
 
-{% macro abilities_list(abilities) -%}
+{% macro abilities_list(abilities, show_description=true, show_type=true) -%}
 
 <dl class="hero-abilities-list">
   {% for ability in abilities %}
   <div class="hero-ability-record pgf-hero-ability-record" data-ability-id="{{ability.get_id()}}">
     <dt class="ability-name">
       {{ ability.NAME }}
+      {% if show_type %}
       <small class="ability-type">
         {%- if ability.is_battle() -%}боевая способность
         {%- elif ability.is_nonbattle() -%}социальная способность{% endif -%}
         {%- if not ability.AVAILABLE_TO_PLAYERS %}, только для монстров{% endif %}
       </small>
+      {% endif %}
     </dt>
+    {% if show_description %}
     <dd>{{ ability.DESCRIPTION }}</dd>
+    {% endif %}
   </div>
   {% endfor %}
 </dl>

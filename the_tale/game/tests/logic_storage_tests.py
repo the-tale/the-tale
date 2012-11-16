@@ -34,7 +34,7 @@ class LogicStorageTestsBasic(TestCase):
         self.assertEqual(self.storage.heroes_to_actions, {})
         self.assertEqual(self.storage.meta_actions, {})
         self.assertEqual(self.storage.meta_actions_to_actions, {})
-        self.assertEqual(self.storage.save_requered, set())
+        self.assertEqual(self.storage.save_required, set())
 
 
 class LogicStorageTests(TestCase):
@@ -65,7 +65,7 @@ class LogicStorageTests(TestCase):
         self.assertEqual(len(self.storage.heroes), 2)
         self.assertEqual(len(self.storage.actions), 2)
         self.assertEqual(len(self.storage.heroes_to_actions), 2)
-        self.assertEqual(len(self.storage.save_requered), 0)
+        self.assertEqual(len(self.storage.save_required), 0)
 
         action_regenerate = ActionRegenerateEnergyPrototype.create(self.action_idl_1)
 
@@ -177,8 +177,8 @@ class LogicStorageTests(TestCase):
 
 
     def test_process_turn(self):
-        self.assertEqual(len(self.storage.save_requered), 0)
+        self.assertEqual(len(self.storage.save_required), 0)
 
         self.storage.process_turn()
 
-        self.assertEqual(len(self.storage.save_requered), 2)
+        self.assertEqual(len(self.storage.save_required), 2)

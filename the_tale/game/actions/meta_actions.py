@@ -11,6 +11,8 @@ from game.actions import battle, contexts
 
 from game.prototypes import TimePrototype
 
+from game.pvp.prototypes import Battle1x1Prototype
+
 
 def get_meta_actions_types():
     actions = {}
@@ -58,6 +60,12 @@ class MetaActionPrototype(object):
     def type(self): return self.model.type
 
     @property
+    def data(self):
+        if not hasattr(self, '_data'):
+            self._data = s11n.from_json(self.model.data)
+        return self._data
+
+    @property
     def description_text_name(self):
         return '%s_description' % self.TEXTGEN_TYPE
 
@@ -88,6 +96,8 @@ class MetaActionPrototype(object):
         self.model.delete()
 
     def save(self):
+        if hasattr(self, '_data'):
+            self.model.data = s11n.to_json(self._data)
         self.model.save()
         self.updated = False
 
@@ -134,6 +144,10 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
     @property
     def hero_1(self): return self.storage.heroes[self.members_by_roles[self.ROLES.HERO_1].hero_id]
 
+    def get_hero_1_old_health(self): return self.data.get('hero_1_old_health')
+    def set_hero_1_old_health(self, value): self.data['hero_1_old_health'] = value
+    hero_1_old_health = property(get_hero_1_old_health, set_hero_1_old_health)
+
     @property
     def hero_1_context(self):
         if not hasattr(self, '_hero_1_context'):
@@ -142,6 +156,10 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
     @property
     def hero_2(self): return self.storage.heroes[self.members_by_roles[self.ROLES.HERO_2].hero_id]
+
+    def get_hero_2_old_health(self): return self.data.get('hero_2_old_health')
+    def set_hero_2_old_health(self, value): self.data['hero_2_old_health'] = value
+    hero_2_old_health = property(get_hero_2_old_health, set_hero_2_old_health)
 
     @property
     def hero_2_context(self):
@@ -167,9 +185,8 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         return cls(model, members=[member_1, member_2])
 
 
-    def _check_hero_health(self, hero):
+    def _check_hero_health(self, hero, enemy):
         if hero.health <= 0:
-            hero.kill()
             # hero.statistics.change_pve_deaths(1)
             # hero.add_message('action_battlepve1x1_hero_killed', important=True, hero=self.hero, mob=self.mob)
             self.state = self.STATE.PROCESSED
@@ -179,7 +196,13 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
     def _process(self):
 
         if self.state == self.STATE.BATTLE_RUNNING:
-            # make turn only if mob still alive (it can be killed by angel)
+
+            if self.hero_1_old_health is None:
+                self.hero_1_old_health = self.hero_1.health
+
+            if self.hero_2_old_health is None:
+                self.hero_2_old_health = self.hero_2.health
+
             if self.hero_1.health > 0 and self.hero_2.health > 0:
                 battle.make_turn(battle.Actor(self.hero_1, self.hero_1_context),
                                  battle.Actor(self.hero_2, self.hero_2_context ),
@@ -187,7 +210,14 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
                 self.percents = 1.0 - min(self.hero_1.health_percents, self.hero_2.health_percents)
 
-            self._check_hero_health(self.hero_1)
-            self._check_hero_health(self.hero_2)
+            self._check_hero_health(self.hero_1, self.hero_2)
+            self._check_hero_health(self.hero_2, self.hero_1)
+
+        if self.state == self.STATE.PROCESSED:
+            Battle1x1Prototype.get_by_account_id(self.hero_1.account_id).remove()
+            Battle1x1Prototype.get_by_account_id(self.hero_2.account_id).remove()
+
+            self.hero_1.health = self.hero_1_old_health
+            self.hero_2.health = self.hero_2_old_health
 
 META_ACTION_TYPES = get_meta_actions_types()

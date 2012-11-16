@@ -1,10 +1,13 @@
 
+{% macro log(data_mode="pve") %}
+
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
     widgets.log = new pgf.game.widgets.Log('#log-block',
                                                updater, widgets,
-                                               {type: 'log'} );
+                                               {type: 'log',
+                                                dataMode: "{{data_mode}}" } );
 
 });
 </script>
@@ -16,3 +19,5 @@ jQuery(document).ready(function(e) {
     </li>
   </ul>
 </div>
+
+{% endmacro %}

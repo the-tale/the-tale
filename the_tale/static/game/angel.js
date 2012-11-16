@@ -130,13 +130,16 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
     }
 
     function RenderDeck() {
-        RenderAbility(deck[0]);
+        for (var i in deck) {
+            RenderAbility(deck[i]);
+        }
     };
 
     function Refresh(game_data) {
+        turn = game_data.turn;
+
         deck = game_data.abilities;
         angelEnergy = game_data.hero.energy.value;
-        turn = game_data.turn;
     };
 
     function Render() {

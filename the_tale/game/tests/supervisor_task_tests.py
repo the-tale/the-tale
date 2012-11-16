@@ -13,6 +13,8 @@ from game.logic import create_test_map
 from game.prototypes import SupervisorTaskPrototype
 from game.exceptions import GameException
 
+from game.heroes.prototypes import HeroPrototype
+
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 
@@ -48,7 +50,17 @@ class SupervisorTaskTests(TestCase):
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.PREPAIRING).count(), 2)
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.PROCESSING).count(), 0)
 
+        old_hero = HeroPrototype.get_by_account_id(self.account_1.id)
+        old_hero.health = 1
+        old_hero.save()
+
         task.process()
+
+        new_hero = HeroPrototype.get_by_account_id(self.account_1.id)
+
+        self.assertNotEqual(old_hero, new_hero)
+        self.assertTrue(len(old_hero.actions_descriptions) < len(new_hero.actions_descriptions))
+        self.assertEqual(new_hero.health, new_hero.max_health)
 
         self.assertEqual(Action.objects.all().count(), 4)
         self.assertEqual(MetaAction.objects.all().count(), 1)

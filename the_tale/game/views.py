@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+
+from django.core.urlresolvers import reverse
 
 from dext.views.resources import handler
 from dext.utils.decorators import debug_required
@@ -17,6 +19,7 @@ from game.map.conf import map_settings
 from game.quests.prototypes import QuestPrototype
 
 from game.conf import game_settings
+from game.pvp.prototypes import Battle1x1Prototype
 
 class GameResource(Resource):
 
@@ -26,6 +29,12 @@ class GameResource(Resource):
     @login_required
     @handler('', method='get')
     def game_page(self):
+
+        battle = Battle1x1Prototype.get_by_account_id(self.account.id)
+
+        if battle and battle.state.is_processing:
+            return self.redirect(reverse('game:pvp:'))
+
         return self.template('game/game_page.html',
                              {'map_settings': map_settings,
                               'game_settings': game_settings } )
@@ -48,6 +57,10 @@ class GameResource(Resource):
                 return self.json_error('game.info.account_not_exists', u'Аккаунт не найден')
 
         data = {}
+
+
+        battle = Battle1x1Prototype.get_by_account_id(account.id)
+        data['mode'] = 'pve' if battle is None or not battle.state.is_processing else 'pvp'
 
         data['turn'] = self.time.ui_info()
 

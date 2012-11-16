@@ -29,10 +29,9 @@ SUPERVISOR_TASK_TYPE = create_enum('SUPERVISOR_TASK_TYPE', (('ARENA_PVP_1X1', 0,
                                                             ) )
 
 SUPERVISOR_TASK_STATE = create_enum('SUPERVISOR_TASK_STATE', (('WAITING', 0, u'ожидает ресурсы'),
-                                                              ('PROCESSED', 0, u'обработана'),
-                                                              ('ERROR', 0, u'ошибка при обработке'),
+                                                              ('PROCESSED', 1, u'обработана'),
+                                                              ('ERROR', 2, u'ошибка при обработке^^'),
                                                               ) )
-
 
 class SupervisorTask(models.Model):
 

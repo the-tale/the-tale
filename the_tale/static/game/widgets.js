@@ -99,7 +99,15 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
     };
 
     this.Refresh = function(game_data) {
-        data = game_data.hero;
+        if (params.dataMode == 'pve') {
+            data = game_data.hero;
+        }
+        if (params.dataMode == 'pvp_account') {
+            data = game_data.account.hero;
+        }
+        if (params.dataMode == 'pvp_enemy') {
+            data = game_data.enemy.hero;
+        }
     };
 
     this.Render = function() {
@@ -444,13 +452,19 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
     this.Refresh = function(game_data) {
 
-        var hero = widgets.heroes.CurrentHero();
 
-        if (hero) {
-            data.action = hero.action;
+        data.actions = [];
+
+        if (params.dataMode == 'pve') {
+            if (game_data.hero) {
+                data.action = game_data.hero.action;                            
+            }
         }
-        else {
-            data.actions = [];
+
+        if (params.dataMode == 'pvp') {
+            if (game_data.account.hero) {
+                data.action = game_data.account.hero.action;                            
+            }
         }
     };
 
@@ -534,8 +548,6 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
 
     var data = {};
 
-    var instance = this;
-
     function RenderArtifact(element, data) {
         jQuery('.pgf-name', element).text(data.name);
         jQuery('.pgf-power', element).text(data.power);
@@ -551,13 +563,24 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
 
     this.Refresh = function(game_data) {
 
-        var hero = widgets.heroes.CurrentHero();
+        data = {};
 
-        if (hero) {
-            data = hero.equipment;
+        if (params.dataMode == 'pve') {
+            if (game_data.hero) {
+                data = game_data.hero.equipment;                            
+            }
         }
-        else {
-            data = {};
+
+        if (params.dataMode == 'pvp_account') {
+            if (game_data.account.hero) {
+                data = game_data.account.hero.equipment;                            
+            }
+        }
+
+        if (params.dataMode == 'pvp_enemy') {
+            if (game_data.account.hero) {
+                data = game_data.enemy.hero.equipment;                            
+            }
         }
     };
 
@@ -566,7 +589,7 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
     };
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
-        instance.Refresh();
+        instance.Refresh(game_data);
         instance.Render();
     });
 };
@@ -603,15 +626,24 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
     }
 
     this.Refresh = function(game_data) {
-        var hero = widgets.heroes.CurrentHero();
+
+        var heroData = undefined;
+
+        if (params.dataMode == "pve") {
+            heroData = game_data.hero;
+        }
+
+        if (params.dataMode == "pvp") {
+            heroData = game_data.account.hero;
+        }
 
         var turnMessages = [];
-        if (hero) {
+        if (heroData) {
             if (params.type == 'log') {
-                turnMessages = hero.messages;
+                turnMessages = heroData.messages;
             }
             if (params.type == 'diary') {
-                turnMessages = hero.diary;
+                turnMessages = heroData.diary;
             }
         }
 
@@ -624,7 +656,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
             var lastTimestamp = messages[0][0];
 
             while (messages.length > 0 && messages[0][0] == lastTimestamp) {
-                messages.shift()
+                messages.shift();
             }
 
             for (var i=0; i<=turnMessages.length-1; ++i) {

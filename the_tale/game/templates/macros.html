@@ -22,3 +22,54 @@
 
 
 {%- endmacro %}
+
+
+{% macro game_debug_javascript() %}
+
+    function DoTurns(number) {
+        if (number == 0) {
+            setTimeout(function() {
+                updater.Refresh();
+            }, 1000 );
+            return;
+        }
+
+        pgf.forms.Post({ action: "{{ url('game:next-turn') }}",
+                         OnSuccess: function(e){
+                             DoTurns(number-1);
+                         },
+                         wait: false
+                       });
+    }
+
+    jQuery('.pgf-next-turn').click(function(e){
+        e.preventDefault();
+        DoTurns(1);
+    });
+
+    jQuery('.pgf-next-10-turns').click(function(e){
+        e.preventDefault();
+        DoTurns(10);
+    });
+
+    jQuery('.pgf-next-100-turns').click(function(e){
+        e.preventDefault();
+        DoTurns(100);
+    });
+
+    jQuery('.pgf-next-1000-turns').click(function(e){
+        e.preventDefault();
+        DoTurns(1000);
+    });
+
+    jQuery('.pgf-next-10000-turns').click(function(e){
+        e.preventDefault();
+        DoTurns(10000);
+    });
+
+    jQuery('.pgf-next-60000-turns').click(function(e){
+        e.preventDefault();
+        DoTurns(60000);
+    });
+
+{% endmacro %}

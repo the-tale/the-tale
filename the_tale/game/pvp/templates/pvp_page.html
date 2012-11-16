@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% import 'heroes/hero_short.html' as hero_short_macros with context %}
+{% import 'heroes/hero_equipment.html' as hero_equipment_macros with context %}
+{% import 'game/macros.html' as game_macros with context %}
+{% import 'game/current_action.html' as current_action_macros with context %}
+{% import 'game/log.html' as log_macros with context %}
+
+{% macro render_abilities(abilities) %}
+<h4>Способности</h4>
+<ul class="pvp-abilities-list unstyled">
+  {% for ability in abilities%}
+  <li rel="tooltip" title="{{ability.DESCRIPTION}}">
+    {{ ability.NAME }}
+  </li>
+  {% endfor %}
+</ul>
+{% endmacro %}
+
+{% block title %}Игра | {{ super() }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+
+<script src="{{ STATIC_URL }}game/constants.js" type="text/javascript"></script>
+<script src="{{ STATIC_URL }}game/widgets.js" type="text/javascript"></script>
+<script src="{{ STATIC_URL }}game/angel.js" type="text/javascript"></script>
+<script src="{{ STATIC_URL }}game/map/map2.js" type="text/javascript"></script>
+<script src="{{ STATIC_URL }}game/map/sprites.js" type="text/javascript"></script>
+<script src="{{ STATIC_URL }}game/data/abilities.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+var updater = undefined;
+var widgets = {};
+
+jQuery(document).ready(function(e){
+
+    updater = new pgf.game.Updater({url: "{{ url('game:pvp:info') }}"});
+
+    {% if settings.DEBUG %}
+    {{ game_macros.game_debug_javascript() }}
+    {% endif %}
+
+    function RefreshData() {
+        if (updater) {
+            updater.Refresh();
+        }
+    }
+
+    setTimeout(RefreshData, 0);
+
+    {% if not settings.DEBUG %}
+    setInterval(RefreshData, {{ game_settings.TURN_DELAY*1000 }} );
+    {% endif %}
+
+    // pgf.base.InitializeTabs('game-tab-main', 'journal', [['.pgf-journal-tab-button', 'journal'], ['.pgf-map-tab-button', 'map']]);
+    // pgf.base.InitializeTabs('game-tab-second', 'diary', [['.pgf-diary-tab-button', 'diary'], ['.pgf-quests-tab-button', 'quests']]);
+    // pgf.base.InitializeTabs('game-tab-equipment', 'equipment', [['.pgf-equipment-tab-button', 'equipment'], ['.pgf-bag-tab-button', 'bag']]);
+
+    widgets.placeAndTime = new pgf.game.widgets.Time('#time-block', updater, widgets, {} );
+
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        if (game_data.mode == "pve") {
+            location.href = "{{ url('game:') }}";
+        }
+    });
+
+});
+
+</script>
+{% endblock %}
+
+{% block debug_menu %}
+{{ super() }}
+<li><a href="#" class="pgf-next-turn">next turn</a></li>
+<li><a href="#" class="pgf-next-10-turns">10 turns</a></li>
+<li><a href="#" class="pgf-next-100-turns">100 turns</a></li>
+<li><a href="#" class="pgf-next-1000-turns">1000 turns</a></li>
+<li><a href="#" class="pgf-next-10000-turns">10000 turns</a></li>
+<li><a href="#" class="pgf-next-60000-turns">60000 turns</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="span3">
+    {{ hero_short_macros.hero_short("hero-short-pvp-account", false, true, master_account=resource.account, data_mode="pvp_account") }}
+  </div>
+  <div class="span6">
+    {{ current_action_macros.current_action(show_abilities=false, data_mode='pvp') }}
+  </div>
+  <div class="span3">
+    {{ hero_short_macros.hero_short("hero-short-pvp-enemy", false, true, master_account=enemy_account, data_mode="pvp_enemy") }}
+  </div>
+</div>
+
+<div class="row">
+  <div class="span3">
+    <div class="block">
+      {{ hero_equipment_macros.hero_equipment("own-equipment", data_mode="pvp_account") }}
+    </div>
+
+    <div class="block">
+      {{ render_abilities(own_abilities) }}
+    </div>
+
+  </div>
+  <div class="span6">
+    {{ log_macros.log(data_mode="pvp") }}
+  </div>
+  <div class="span3">
+    <div class="block">
+      {{ hero_equipment_macros.hero_equipment("enemy-equipment", data_mode="pvp_enemy") }}
+    </div>
+
+    <div class="block">
+      {{ render_abilities(enemy_abilities) }}
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

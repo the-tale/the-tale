@@ -148,6 +148,13 @@ class SupervisorTaskPrototype(object):
         ActionMetaProxyPrototype.create(storage.heroes_to_actions[hero_1.id][-1], meta_action_battle)
         ActionMetaProxyPrototype.create(storage.heroes_to_actions[hero_2.id][-1], meta_action_battle)
 
+        storage.heroes[hero_1.id].health = hero_1.max_health
+        storage.heroes[hero_2.id].health = hero_2.max_health
+
+        storage.save_required.add(hero_1.id)
+        storage.save_required.add(hero_2.id)
+        storage.save_changed_data()
+
         battle_1 = Battle1x1Prototype.get_by_account_id(account_1_id)
         battle_1.state = BATTLE_1X1_STATE.PROCESSING
         battle_1.save()
@@ -155,3 +162,6 @@ class SupervisorTaskPrototype(object):
         battle_2 = Battle1x1Prototype.get_by_account_id(account_2_id)
         battle_2.state = BATTLE_1X1_STATE.PROCESSING
         battle_2.save()
+
+    def remove(self):
+        self.model.delete()

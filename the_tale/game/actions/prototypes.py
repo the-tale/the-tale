@@ -233,6 +233,7 @@ class ActionPrototype(object):
     def on_create(self, parent):
         if parent:
             parent.storage.add_action(self)
+
         self.hero.push_action_description(self.get_description())
         self.hero.last_action_percents = self.percents
 

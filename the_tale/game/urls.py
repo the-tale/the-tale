@@ -3,7 +3,7 @@
 from django.conf.urls.defaults import patterns, include
 from dext.views.dispatcher import resource_patterns
 
-from .views import GameResource
+from game.views import GameResource
 
 urlpatterns = patterns('',
                        (r'^heroes/', include('game.heroes.urls', namespace='heroes') ),
@@ -13,6 +13,7 @@ urlpatterns = patterns('',
                        (r'^balance/', include('game.balance.urls', namespace='balance') ),
                        (r'^bills/', include('game.bills.urls', namespace='bills') ),
                        (r'^ratings/', include('game.ratings.urls', namespace='ratings') ),
+                       (r'^pvp/', include('game.pvp.urls', namespace='pvp') ),
 )
 
 urlpatterns += resource_patterns(GameResource)

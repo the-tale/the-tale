@@ -14,7 +14,10 @@ from game.prototypes import TimePrototype
 from game.actions.prototypes import ActionMetaProxyPrototype
 from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
 
-class MetaProxyActionForArenaPvP1x1Tests(TestCase):
+from game.pvp.models import BATTLE_1X1_STATE
+from game.pvp.tests.helpers import PvPTestsMixin
+
+class MetaProxyActionForArenaPvP1x1Tests(TestCase, PvPTestsMixin):
 
     @mock.patch('game.actions.prototypes.ActionPrototype.get_description', lambda self: 'abrakadabra')
     def setUp(self):
@@ -38,6 +41,9 @@ class MetaProxyActionForArenaPvP1x1Tests(TestCase):
         self.action_idl_1 = self.storage.heroes_to_actions[self.hero_1.id][-1]
         self.action_idl_2 = self.storage.heroes_to_actions[self.hero_2.id][-1]
 
+        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
+        self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
+
         meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.account_1, self.account_2)
 
         self.action_proxy_1 = ActionMetaProxyPrototype.create(self.action_idl_1, meta_action_battle)
@@ -54,6 +60,8 @@ class MetaProxyActionForArenaPvP1x1Tests(TestCase):
         self.assertFalse(self.action_idl_2.leader)
         self.assertTrue(self.action_proxy_1.leader)
         self.assertTrue(self.action_proxy_2.leader)
+        self.assertEqual(len(self.hero_1.actions_descriptions), 2)
+        self.assertEqual(len(self.hero_2.actions_descriptions), 2)
 
         self.assertEqual(self.action_proxy_1.meta_action, self.action_proxy_2.meta_action)
         self.assertEqual(self.action_proxy_1.meta_action, self.meta_action_battle)

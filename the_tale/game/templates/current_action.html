@@ -1,14 +1,17 @@
 
+{% macro current_action(show_abilities=true, data_mode='pve') %}
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
     widgets.actions = new pgf.game.widgets.Action('#current-action-block',
                                                    updater, widgets,
-                                                   { } );
+                                                   {dataMode: "{{data_mode}}" } );
 
+    {% if show_abilities %}
     widgets.abilities = new pgf.game.widgets.Abilities('#abilities-block',
                                                        widgets,
                                                        {tooltipTemplate: '#pgf-ability-tooltip-template'});
+    {% endif %}
 
 
 });
@@ -22,11 +25,24 @@ jQuery(document).ready(function(e) {
     <div class="bar pgf-action-percents"></div>
   </div>
 
+  {% if show_abilities %}
   <div id="abilities-block">
+
     <a href="#" class="pgf-ability-help">
       <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
       помочь
     </a>
+
+    <span style="width: 5em; display: inline-block;"></span>
+
+    <a href="#" class="pgf-ability-arenapvp1x1">
+      <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
+      на арену
+    </a>
+
   </div>
+  {% endif %}
 
 </div>
+
+{% endmacro %}

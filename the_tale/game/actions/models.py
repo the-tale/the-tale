@@ -53,6 +53,8 @@ class MetaAction(models.Model):
 
     state = models.CharField(max_length=50, null=False, default=UNINITIALIZED_STATE)
 
+    data = models.TextField(null=False, default='{}')
+
 
 class MetaActionMember(models.Model):
 

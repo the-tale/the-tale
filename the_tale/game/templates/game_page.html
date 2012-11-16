@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 
 {% import 'heroes/hero_short.html' as hero_short_macros with context %}
+{% import 'heroes/hero_equipment.html' as hero_equipment_macros with context %}
+{% import 'game/macros.html' as game_macros with context %}
+{% import 'game/current_action.html' as current_action_macros with context %}
+{% import 'game/log.html' as log_macros with context %}
 
 {% block title %}Игра | {{ super() }}{% endblock %}
 
@@ -24,52 +28,7 @@ jQuery(document).ready(function(e){
     updater = new pgf.game.Updater({url: "{{ url('game:info') }}"});
 
     {% if settings.DEBUG %}
-    function DoTurns(number) {
-        if (number == 0) {
-            setTimeout(function() {
-                updater.Refresh();
-            }, 1000 );
-            return;
-        }
-
-        pgf.forms.Post({ action: "{{ url('game:next-turn') }}",
-                         OnSuccess: function(e){
-                             DoTurns(number-1);
-                         },
-                         wait: false
-                       });
-    }
-
-    jQuery('.pgf-next-turn').click(function(e){
-        e.preventDefault();
-        DoTurns(1);
-    });
-
-    jQuery('.pgf-next-10-turns').click(function(e){
-        e.preventDefault();
-        DoTurns(10);
-    });
-
-    jQuery('.pgf-next-100-turns').click(function(e){
-        e.preventDefault();
-        DoTurns(100);
-    });
-
-    jQuery('.pgf-next-1000-turns').click(function(e){
-        e.preventDefault();
-        DoTurns(1000);
-    });
-
-    jQuery('.pgf-next-10000-turns').click(function(e){
-        e.preventDefault();
-        DoTurns(10000);
-    });
-
-    jQuery('.pgf-next-60000-turns').click(function(e){
-        e.preventDefault();
-        DoTurns(60000);
-    });
-
+    {{ game_macros.game_debug_javascript() }}
     {% endif %}
 
     function RefreshData() {
@@ -92,6 +51,12 @@ jQuery(document).ready(function(e){
                                                      updater, widgets,
                                                      {} );
 
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        if (game_data.mode == "pvp") {
+            location.href = "{{ url('game:pvp:') }}";
+        }
+    });
+
 });
 
 </script>
@@ -111,10 +76,10 @@ jQuery(document).ready(function(e){
 
 <div class="row">
   <div class="span3">
-    {{ hero_short_macros.hero_short(true, true) }}
+    {{ hero_short_macros.hero_short("hero-short-data", true, true) }}
   </div>
   <div class="span5">
-    {% include "game/current_action.html" %}
+    {{ current_action_macros.current_action(show_abilities=true, data_mode='pve') }}
   </div>
   <div class="span4">
     {% include "game/current_quest.html" %}
@@ -151,7 +116,7 @@ jQuery(document).ready(function(e){
 
             <div class="tab-content">
               <div class="tab-pane" id="pgf-equipment-container">
-                {% include "heroes/hero_equipment.html" %}
+                {{ hero_equipment_macros.hero_equipment("hero-equipment", data_mode="pve") }}
               </div>
               <div class="tab-pane" id="pgf-bag-container">
                 {% include "heroes/hero_bag.html" %}
@@ -161,7 +126,7 @@ jQuery(document).ready(function(e){
         </div>
 
         <div class="span5">
-          {% include "game/log.html" %}
+          {{ log_macros.log(data_mode="pve") }}
         </div>
       </div>
 
@@ -181,7 +146,7 @@ jQuery(document).ready(function(e){
 
     <div class="tab-content">
       <div class="tab-pane block log-block" id="pgf-diary-container">
-          {% include "game/diary.html" %}
+        {% include "game/diary.html" %}
       </div>
 
       <div class="tab-pane block" id="pgf-quests-container">

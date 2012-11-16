@@ -69,10 +69,11 @@ class Worker(BaseWorker):
 
 
             if TimePrototype.get_current_turn_number() != self.turn_number:
-                raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number, TimePrototype.get_current_turn_number()))
+                raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number,
+                                                                                                                          TimePrototype.get_current_turn_number()))
 
             self.storage.process_turn()
-            self.save_changed_data()
+            self.storage.save_changed_data()
 
 
         if project_settings.DEBUG_DATABASE_USAGE:

@@ -65,6 +65,9 @@ class Battle1x1Prototype(object):
     def save(self):
         self.model.save()
 
+    def remove(self):
+        self.model.delete()
+
     @classmethod
     def create(cls, account):
 
