@@ -38,6 +38,8 @@ class Action(models.Model):
 
     meta_action = models.ForeignKey('actions.MetaAction', null=True, default=None)
 
+    bundle = models.ForeignKey('game.Bundle', null=False)
+
     def __unicode__(self):
         return '%s(%d, %s)' % (self.type, self.id, self.state)
 

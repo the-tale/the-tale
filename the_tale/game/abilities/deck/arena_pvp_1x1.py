@@ -19,6 +19,9 @@ class ArenaPvP1x1(AbilityPrototype):
 
     def use(self, storage, hero, form):
 
+        if not hero.can_participate_in_pvp:
+            return False
+
         battle = Battle1x1Prototype.create(AccountPrototype.get_by_id(hero.account_id))
 
         workers_environment.pvp_balancer.cmd_add_to_arena_queue(battle.id)

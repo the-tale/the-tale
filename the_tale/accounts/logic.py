@@ -49,11 +49,11 @@ def register_user(nick, email=None, password=None):
 
     account = AccountPrototype.create(user=user, nick=nick, email=email, is_fast=not (email and password))
 
-    bundle = BundlePrototype.create(account)
+    bundle = BundlePrototype.create()
 
     storage = LogicStorage()
 
-    hero = HeroPrototype.create(account=account, storage=storage, is_fast=account.is_fast)
+    hero = HeroPrototype.create(account=account, bundle=bundle, storage=storage, is_fast=account.is_fast)
     dress_new_hero(hero)
     hero.save()
 

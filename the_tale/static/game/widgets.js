@@ -452,7 +452,6 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
     this.Refresh = function(game_data) {
 
-
         data.actions = [];
 
         if (params.dataMode == 'pve') {

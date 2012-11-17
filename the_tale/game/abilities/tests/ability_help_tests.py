@@ -3,8 +3,8 @@ import mock
 
 from django.test import TestCase
 
+from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
 from game.logic_storage import LogicStorage
 
 
@@ -15,17 +15,21 @@ from game.logic import create_test_map
 from game.abilities.deck.help import Help
 from game.prototypes import TimePrototype
 
+from game.pvp.prototypes import Battle1x1Prototype
+from game.pvp.models import BATTLE_1X1_STATE
+
 class HelpAbilityTest(TestCase):
 
     def setUp(self):
         self.p1, self.p2, self.p3 = create_test_map()
 
 
-        result, account_id, bundle_id = register_user('test_user')
+        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
 
-        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.account = AccountPrototype.get_by_id(account_id)
         self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
 
         self.ability = Help.get_by_hero_id(self.hero.id)
@@ -37,6 +41,19 @@ class HelpAbilityTest(TestCase):
     def test_none(self):
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: None):
             self.assertFalse(self.ability.use(self.storage, self.hero, None))
+
+    def test_help_when_battle_waiting(self):
+        battle = Battle1x1Prototype.create(self.account)
+        self.assertTrue(battle.state.is_waiting)
+        self.assertTrue(self.ability.use(self.storage, self.hero, None))
+
+    def test_help_when_battle_not_waiting(self):
+        battle = Battle1x1Prototype.create(self.account)
+        battle.state = BATTLE_1X1_STATE.PREPAIRING
+        battle.save()
+
+        self.assertFalse(battle.state.is_waiting)
+        self.assertFalse(self.ability.use(self.storage, self.hero, None))
 
     def test_heal(self):
         self.hero.health = 1

@@ -7,6 +7,8 @@ from game.abilities.prototypes import AbilityPrototype
 
 from game.balance import constants as c, formulas as f
 
+from game.pvp.prototypes import Battle1x1Prototype
+
 class Help(AbilityPrototype):
 
     COST = 4
@@ -17,6 +19,12 @@ class Help(AbilityPrototype):
     DESCRIPTION = u'Попытаться помочь герою, чем бы тот не занимался'
 
     def use(self, storage, hero, form):
+
+        battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
+
+        if battle and not battle.state.is_waiting:
+            return False
+
         action = storage.current_hero_action(hero.id)
 
         choice = action.get_help_choice()

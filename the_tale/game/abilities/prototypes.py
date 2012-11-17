@@ -6,6 +6,8 @@ from game.prototypes import TimePrototype
 from game.abilities.forms import AbilityForm
 from game.abilities.models import AbilitiesData, AbilityTask, ABILITY_TASK_STATE
 
+from game.heroes.prototypes import HeroPrototype
+
 
 class AbilityPrototype(object):
 
@@ -62,17 +64,19 @@ class AbilityPrototype(object):
         return form()
 
     def activate(self, form, time):
-        from ..workers.environment import workers_environment
+        from game.workers.environment import workers_environment
 
         available_at = time.turn_number + (self.COOLDOWN if self.COOLDOWN else 0)
 
+        hero = HeroPrototype.get_by_id(form.c.hero_id)
+
         task = AbilityTaskPrototype.create(task_type=self.get_type(),
-                                           hero_id=form.c.hero_id,
+                                           hero_id=hero.id,
                                            activated_at=time.turn_number,
                                            available_at=available_at,
                                            data=form.data)
 
-        workers_environment.supervisor.cmd_activate_ability(task.id)
+        workers_environment.supervisor.cmd_activate_ability(hero.account_id, task.id)
 
         return task
 

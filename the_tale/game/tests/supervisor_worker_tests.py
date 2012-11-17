@@ -13,7 +13,6 @@ from game.heroes.prototypes import HeroPrototype
 from game.models import SupervisorTask
 from game.logic import create_test_map
 from game.workers.environment import workers_environment
-from game.logic_storage import LogicStorage
 from game.prototypes import SupervisorTaskPrototype
 from game.workers.supervisor import SupervisorException
 
@@ -31,10 +30,8 @@ class SupervisorWorkerTests(TestCase):
         result, account_1_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         result, account_2_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
 
-        self.hero = HeroPrototype.get_by_account_id(account_1_id)
-        self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.hero_1 = HeroPrototype.get_by_account_id(account_1_id)
+        self.hero_2 = HeroPrototype.get_by_account_id(account_2_id)
 
         self.account_1 = AccountPrototype.get_by_id(account_1_id)
         self.account_2 = AccountPrototype.get_by_id(account_2_id)
@@ -53,9 +50,9 @@ class SupervisorWorkerTests(TestCase):
         from game.heroes.habilities.attributes import EXTRA_SLOW
         from game.heroes.preferences import ChoosePreferencesTaskPrototype
 
-        AbilityTaskPrototype.create(Help.get_type(), self.hero.id, 0, 0, {})
-        ChooseAbilityTaskPrototype.create(EXTRA_SLOW.TYPE, self.hero.id)
-        ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, None)
+        AbilityTaskPrototype.create(Help.get_type(), self.hero_1.id, 0, 0, {})
+        ChooseAbilityTaskPrototype.create(EXTRA_SLOW.TYPE, self.hero_1.id)
+        ChoosePreferencesTaskPrototype.create(self.hero_1, PREFERENCE_TYPE.MOB, None)
 
         self.assertEqual(AbilityTask.objects.filter(state=ABILITY_TASK_STATE.WAITING).count(), 1)
         self.assertEqual(ChooseAbilityTask.objects.filter(state=CHOOSE_ABILITY_STATE.WAITING).count(), 1)
@@ -73,6 +70,8 @@ class SupervisorWorkerTests(TestCase):
 
         self.assertEqual(self.worker.tasks, {})
         self.assertEqual(self.worker.accounts_for_tasks, {})
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: 'logic'})
+        self.assertEqual(self.worker.accounts_queues, {})
         self.assertTrue(self.worker.initialized)
 
     def test_register_task(self):
@@ -89,18 +88,31 @@ class SupervisorWorkerTests(TestCase):
         release_accounts_counter = CallCounter()
 
         with mock.patch('game.workers.logic.Worker.cmd_release_account', release_accounts_counter):
-            self.worker.register_task(task, release_accounts=False)
+            self.worker.register_task(task, release_accounts=True)
 
         self.assertEqual(len(self.worker.tasks), 1)
         self.assertEqual(len(self.worker.accounts_for_tasks), 2)
         self.assertFalse(self.worker.tasks.values()[0].all_members_captured)
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: None, self.account_2.id: None})
+        self.assertEqual(self.worker.accounts_queues, {})
 
         self.worker.process_account_released(self.account_1.id)
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'supervisor', self.account_2.id: None})
+
+        #test commands queue
+        self.worker.process_set_might(self.account_1.id, self.hero_1.id, 0)
+        self.worker.process_set_might(self.account_2.id, self.hero_2.id, 1)
+        self.worker.process_set_might(self.account_1.id, self.hero_1.id, 2)
+        self.assertEqual(self.worker.accounts_queues, { self.account_1.id: [('set_might', {'account_id': self.account_1.id, 'hero_id': self.hero_1.id, 'might': 0}),
+                                                                            ('set_might', {'account_id': self.account_1.id, 'hero_id': self.hero_1.id, 'might': 2}),],
+                                                        self.account_2.id: [('set_might', {'account_id': self.account_2.id, 'hero_id': self.hero_2.id, 'might': 1})]})
+
         self.worker.process_account_released(self.account_2.id)
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: 'logic'})
 
-        self.assertEqual(self.worker.tasks.values(), [])
+        self.assertEqual(len(self.worker.tasks), 0)
 
-        self.assertEqual(release_accounts_counter.count, 0)
+        self.assertEqual(release_accounts_counter.count, 2)
 
     def test_register_task_release_account(self):
         self.worker.initialize()
@@ -141,10 +153,18 @@ class SupervisorWorkerTests(TestCase):
         self.worker.register_task(task)
 
         register_account_counter = CallCounter()
+        set_might_counter = CallCounter()
+
+        # for test pending account cmd queue
+        self.worker.accounts_queues[account_id] = [('set_might', {'account_id': self.account_1.id, 'hero_id': self.hero_1.id, 'might': 0}),
+                                                   ('set_might', {'account_id': self.account_1.id, 'hero_id': self.hero_1.id, 'might': 2}),
+                                                   ('set_might', {'account_id': self.account_1.id, 'hero_id': self.hero_1.id, 'might': 4}) ]
 
         with mock.patch('game.workers.logic.Worker.cmd_register_account', register_account_counter):
-            self.worker.register_account(account_id)
+            with mock.patch('game.workers.logic.Worker.cmd_set_might', set_might_counter):
+                self.worker.register_account(account_id)
 
+        self.assertEqual(set_might_counter.count, 3)
         self.assertEqual(register_account_counter.count, 1)
         self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set([self.account_1.id, self.account_2.id]))
         self.assertEqual(self.worker.tasks.values()[0].captured_members, set())

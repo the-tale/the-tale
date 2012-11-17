@@ -17,25 +17,38 @@ class ArenaPvP1x1AbilityTest(TestCase):
         self.p1, self.p2, self.p3 = create_test_map()
 
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', 1)
+        result, account_1_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        result, account_2_id, bundle_id = register_user('test_user_2')
 
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account_1 = AccountPrototype.get_by_id(account_1_id)
+        self.account_2 = AccountPrototype.get_by_id(account_2_id)
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(self.account)
+        self.storage.load_account_data(self.account_1)
+        self.storage.load_account_data(self.account_2)
 
-        self.hero = self.storage.heroes.values()[0]
+        self.hero_1 = self.storage.accounts_to_heroes[self.account_1.id]
+        self.hero_2 = self.storage.accounts_to_heroes[self.account_2.id]
 
-        self.ability = ArenaPvP1x1.get_by_hero_id(self.hero.id)
+        self.ability_1 = ArenaPvP1x1.get_by_hero_id(self.hero_1.id)
+        self.ability_2 = ArenaPvP1x1.get_by_hero_id(self.hero_2.id)
 
 
-    def test_(self):
+    def test_use(self):
         self.assertEqual(Battle1x1.objects.all().count(), 0)
 
-        self.ability.use(self.storage, self.hero, None)
+        self.assertTrue(self.ability_1.use(self.storage, self.hero_1, None))
 
         self.assertEqual(Battle1x1.objects.all().count(), 1)
 
         battle = Battle1x1.objects.all()[0]
-        self.assertEqual(battle.account.id, self.account.id)
+        self.assertEqual(battle.account.id, self.account_1.id)
         self.assertEqual(battle.enemy, None)
+
+
+    def test_use_for_fast_account(self):
+        self.assertEqual(Battle1x1.objects.all().count(), 0)
+
+        self.assertFalse(self.ability_2.use(self.storage, self.hero_2, None))
+
+        self.assertEqual(Battle1x1.objects.all().count(), 0)

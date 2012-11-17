@@ -446,6 +446,9 @@ class HeroPrototype(object):
     @property
     def can_change_persons_power(self): return not self.is_fast and self.is_active
 
+    @property
+    def can_participate_in_pvp(self): return not self.is_fast and self.is_active
+
     ###########################################
     # Needs attributes
     ###########################################
@@ -662,6 +665,7 @@ class HeroPrototype(object):
                 'money': self.money,
                 'might': self.might,
                 'might_crit_chance': '%.2f' % (self.might_crit_chance*100),
+                'can_participate_in_pvp': self.can_participate_in_pvp,
                 'energy': { 'max': self.energy_maximum,
                             'value': self.energy },
                 'next_spending': { c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 'heal',
@@ -690,7 +694,7 @@ class HeroPrototype(object):
 
 
     @classmethod
-    def create(cls, account, storage, is_fast=False):
+    def create(cls, account, bundle, storage, is_fast=False):
 
         from game.abilities.prototypes import AbilityPrototype
         from game.actions.prototypes import ActionIdlenessPrototype
@@ -732,7 +736,7 @@ class HeroPrototype(object):
 
         storage.add_hero(hero)
 
-        ActionIdlenessPrototype.create(parent=None, hero=hero, _storage=storage)
+        ActionIdlenessPrototype.create(parent=None, _bundle_id=bundle.id, hero=hero, _storage=storage)
 
         return hero
 
@@ -753,7 +757,7 @@ class HeroPrototype(object):
     ###########################################
 
     def process_turn(self):
-        return TimePrototype.get_current_turn_number() + 1
+        pass
 
 
 

@@ -35,6 +35,8 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
     var abilitiesWaitingStartTimes = {};
 
     var angelEnergy = 0;
+    var pvpWaiting = false;
+    var canParticipateInPvp = true;
     var deck = {};
     var turn = {};
 
@@ -76,6 +78,10 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         return jQuery('.pgf-ability-'+abilityType, widget).hasClass('pgf-wait');
     }
 
+    function IsDisablingAbility(abilityType) {
+        return jQuery('.pgf-ability-'+abilityType, widget).hasClass('pgf-disable');
+    }
+
     function ActivateAbility(ability) {
 
         var abilityInfo = abilities[ability.type];
@@ -85,6 +91,10 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         }
 
         if (IsProcessingAbility(ability.type)) {
+            return;
+        }
+
+        if (IsDisablingAbility(ability.type)) {
             return;
         }
 
@@ -129,10 +139,20 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         });
     }
 
+    function UpdateButtons() {
+        jQuery('.pgf-ability-help', widget).toggleClass('pgf-hidden', false);
+
+        jQuery('.pgf-ability-arenapvp1x1', widget).toggleClass('pgf-hidden', pvpWaiting);
+        jQuery('.pgf-in-pvp-queue-message', widget).toggleClass('pgf-hidden', !pvpWaiting);
+
+        jQuery('.pgf-ability-arenapvp1x1', widget).toggleClass('no-registration', !canParticipateInPvp).toggleClass('pgf-disable', !canParticipateInPvp);
+    }
+
     function RenderDeck() {
         for (var i in deck) {
             RenderAbility(deck[i]);
         }
+        UpdateButtons();
     };
 
     function Refresh(game_data) {
@@ -140,6 +160,8 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
 
         deck = game_data.abilities;
         angelEnergy = game_data.hero.energy.value;
+        pvpWaiting = game_data.pvp.waiting;
+        canParticipateInPvp = game_data.hero.can_participate_in_pvp;
     };
 
     function Render() {

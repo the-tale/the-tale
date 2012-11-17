@@ -45,7 +45,7 @@ class TestRequests(TestCase, PvPTestsMixin):
         self.request_login('test_user@test.com')
         response = self.client.get(reverse('game:info'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'abilities', 'mode')))
+        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'abilities', 'mode', 'pvp')))
 
     def test_info_other_account(self):
         self.request_login('test_user@test.com')

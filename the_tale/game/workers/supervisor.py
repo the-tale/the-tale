@@ -16,6 +16,7 @@ from game.conf import game_settings
 
 class SupervisorException(Exception): pass
 
+
 class Worker(BaseWorker):
 
     def __init__(self, supervisor_queue, answers_queue, stop_queue):
@@ -89,6 +90,8 @@ class Worker(BaseWorker):
         # register all tasks
         self.tasks = {}
         self.accounts_for_tasks = {}
+        self.accounts_owners = {}
+        self.accounts_queues = {}
 
         for task_model in SupervisorTask.objects.filter(state=SUPERVISOR_TASK_STATE.WAITING):
             task = SupervisorTaskPrototype(task_model)
@@ -123,10 +126,12 @@ class Worker(BaseWorker):
             self.accounts_for_tasks[account_id] = task.id
 
             if release_accounts:
-                self.logic_worker.cmd_release_account(account_id)
+                self.send_release_account_cmd(account_id)
 
 
     def register_account(self, account_id):
+        self.accounts_owners[account_id] = 'supervisor'
+
         if account_id in self.accounts_for_tasks:
             task = self.tasks[self.accounts_for_tasks[account_id]]
             task.capture_member(account_id)
@@ -136,11 +141,33 @@ class Worker(BaseWorker):
                 task.process()
                 for member_id in task.members:
                     del self.accounts_for_tasks[member_id]
-                    self.logic_worker.cmd_register_account(member_id)
+                    self.send_register_account_cmd(member_id)
                 task.remove()
             return
 
+        self.send_register_account_cmd(account_id)
+
+    def send_register_account_cmd(self, account_id):
+        self.accounts_owners[account_id] = 'logic'
+
         self.logic_worker.cmd_register_account(account_id)
+
+        if account_id in self.accounts_queues:
+            for cmd_name, kwargs in self.accounts_queues[account_id]:
+                getattr(self.logic_worker, 'cmd_' + cmd_name)(**kwargs)
+            del self.accounts_queues[account_id]
+
+    def send_release_account_cmd(self, account_id):
+        self.accounts_owners[account_id] = None
+        self.logic_worker.cmd_release_account(account_id)
+
+    def dispatch_logic_cmd(self, account_id, cmd_name, kwargs):
+        if self.accounts_owners[account_id] == 'logic':
+            getattr(self.logic_worker, 'cmd_' + cmd_name)(**kwargs)
+        else:
+            if account_id not in self.accounts_queues:
+                self.accounts_queues[account_id] = []
+            self.accounts_queues[account_id].append((cmd_name, kwargs))
 
     def cmd_next_turn(self):
         return self.send_cmd('next_turn')
@@ -191,46 +218,55 @@ class Worker(BaseWorker):
         self.logger.info('SUPERVISOR STOPPED')
 
 
-    def cmd_register_bundle(self, bundle_id):
-        self.send_cmd('register_bundle', {'bundle_id': bundle_id})
+    def cmd_register_new_account(self, account_id):
+        self.send_cmd('register_bundle', {'account_id': account_id})
 
-    def process_register_bundle(self, bundle_id):
-        bundle = BundlePrototype.get_by_id(bundle_id)
+    def process_register_new_account(self, account_id):
+        bundle = BundlePrototype.get_by_account_id(account_id)
         bundle.owner = 'worker'
         bundle.save()
+        self.register_account(account_id)
 
-        for account_id in bundle.get_accounts_ids():
-            self.register_account(account_id)
+    def cmd_activate_ability(self, account_id, ability_task_id):
+        self.send_cmd('activate_ability', {'ability_task_id': ability_task_id,
+                                           'account_id': account_id })
 
-    def cmd_activate_ability(self, ability_task_id):
-        self.send_cmd('activate_ability', {'ability_task_id': ability_task_id})
+    def process_activate_ability(self, account_id, ability_task_id):
+        self.dispatch_logic_cmd(account_id, 'activate_ability', {'account_id': account_id,
+                                                                 'ability_task_id': ability_task_id} )
 
-    def process_activate_ability(self, ability_task_id):
-        self.logic_worker.cmd_activate_ability(ability_task_id)
+    def cmd_choose_hero_ability(self, account_id, ability_task_id):
+        self.send_cmd('choose_hero_ability', {'ability_task_id': ability_task_id,
+                                              'account_id': account_id})
 
-    def cmd_choose_hero_ability(self, ability_task_id):
-        self.send_cmd('choose_hero_ability', {'ability_task_id': ability_task_id})
+    def process_choose_hero_ability(self, account_id, ability_task_id):
+        self.dispatch_logic_cmd(account_id, 'choose_hero_ability', {'account_id': account_id,
+                                                                    'ability_task_id': ability_task_id} )
 
-    def process_choose_hero_ability(self, ability_task_id):
-        self.logic_worker.cmd_choose_hero_ability(ability_task_id)
+    def cmd_choose_hero_preference(self, account_id, preference_task_id):
+        self.send_cmd('choose_hero_preference', {'preference_task_id': preference_task_id,
+                                                 'account_id': account_id})
 
-    def cmd_choose_hero_preference(self, preference_task_id):
-        self.send_cmd('choose_hero_preference', {'preference_task_id': preference_task_id})
+    def process_choose_hero_preference(self, account_id, preference_task_id):
+        self.dispatch_logic_cmd(account_id, 'choose_hero_preference', {'account_id': account_id,
+                                                                       'preference_task_id': preference_task_id} )
 
-    def process_choose_hero_preference(self, preference_task_id):
-        self.logic_worker.cmd_choose_hero_preference(preference_task_id)
 
-    def cmd_mark_hero_as_not_fast(self, hero_id):
-        self.send_cmd('mark_hero_as_not_fast', {'hero_id': hero_id})
+    def cmd_mark_hero_as_not_fast(self, account_id, hero_id):
+        self.send_cmd('mark_hero_as_not_fast', {'hero_id': hero_id,
+                                                'account_id': account_id})
 
-    def process_mark_hero_as_not_fast(self, hero_id):
-        self.logic_worker.cmd_mark_hero_as_not_fast(hero_id)
+    def process_mark_hero_as_not_fast(self, account_id, hero_id):
+        self.dispatch_logic_cmd(account_id, 'mark_hero_as_not_fast', {'account_id': account_id,
+                                                                       'hero_id': hero_id} )
 
-    def cmd_mark_hero_as_active(self, hero_id):
-        self.send_cmd('mark_hero_as_active', {'hero_id': hero_id})
+    def cmd_mark_hero_as_active(self, account_id, hero_id):
+        self.send_cmd('mark_hero_as_active', {'hero_id': hero_id,
+                                              'account_id': account_id})
 
-    def process_mark_hero_as_active(self, hero_id):
-        self.logic_worker.cmd_mark_hero_as_active(hero_id)
+    def process_mark_hero_as_active(self, account_id, hero_id):
+        self.dispatch_logic_cmd(account_id, 'mark_hero_as_active', {'account_id': account_id,
+                                                                    'hero_id': hero_id} )
 
     def cmd_highlevel_data_updated(self):
         self.send_cmd('highlevel_data_updated')
@@ -238,11 +274,13 @@ class Worker(BaseWorker):
     def process_highlevel_data_updated(self):
         self.logic_worker.cmd_highlevel_data_updated()
 
-    def cmd_set_might(self, hero_id, might):
-        self.send_cmd('set_might', {'hero_id': hero_id, 'might': might})
+    def cmd_set_might(self, account_id, hero_id, might):
+        self.send_cmd('set_might', {'hero_id': hero_id, 'might': might, 'account_id': account_id})
 
-    def process_set_might(self, hero_id, might):
-        self.logic_worker.cmd_set_might(hero_id, might)
+    def process_set_might(self, account_id, hero_id, might):
+        self.dispatch_logic_cmd(account_id, 'set_might', {'account_id': account_id,
+                                                          'hero_id': hero_id,
+                                                          'might': might} )
 
     def cmd_recalculate_ratings(self):
         return self.send_cmd('recalculate_ratings')
@@ -255,6 +293,12 @@ class Worker(BaseWorker):
 
     def process_run_vacuum(self):
         self.long_commands_worker.cmd_run_vacuum()
+
+    def cmd_account_release_required(self, account_id):
+        return self.send_cmd('account_release_required', {'account_id': account_id})
+
+    def process_account_release_required(self, account_id):
+        self.send_release_account_cmd(account_id)
 
     def cmd_account_released(self, account_id):
         return self.send_cmd('account_released', {'account_id': account_id})

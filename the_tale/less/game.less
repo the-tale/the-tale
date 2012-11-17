@@ -353,7 +353,7 @@
    text-align: center;
    font-size: 14pt;
 
-   .wait, .no-energy {
+   .wait, .no-energy, .no-registration {
       color: @disabled-text-color;
       text-decoration: none;
    }
@@ -362,7 +362,16 @@
       display: none;
    }
 
+   .icon-ban-circle {
+      display: none;
+   }
+
    .no-energy .icon-tint {
+      display: inline-block;
+      vertical-align: middle;
+   }
+
+   .no-registration .icon-ban-circle {
       display: inline-block;
       vertical-align: middle;
    }

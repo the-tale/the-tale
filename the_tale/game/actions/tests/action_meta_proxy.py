@@ -35,8 +35,8 @@ class MetaProxyActionForArenaPvP1x1Tests(TestCase, PvPTestsMixin):
         self.storage.load_account_data(AccountPrototype.get_by_id(self.account_1.id))
         self.storage.load_account_data(AccountPrototype.get_by_id(self.account_2.id))
 
-        self.hero_1 = self.storage._test_get_hero_by_account_id(account_1_id)
-        self.hero_2 = self.storage._test_get_hero_by_account_id(account_2_id)
+        self.hero_1 = self.storage.accounts_to_heroes[account_1_id]
+        self.hero_2 = self.storage.accounts_to_heroes[account_2_id]
 
         self.action_idl_1 = self.storage.heroes_to_actions[self.hero_1.id][-1]
         self.action_idl_2 = self.storage.heroes_to_actions[self.hero_2.id][-1]
@@ -44,7 +44,7 @@ class MetaProxyActionForArenaPvP1x1Tests(TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.account_1, self.account_2)
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.hero_1, self.hero_2)
 
         self.action_proxy_1 = ActionMetaProxyPrototype.create(self.action_idl_1, meta_action_battle)
         self.action_proxy_2 = ActionMetaProxyPrototype.create(self.action_idl_2, meta_action_battle)
@@ -62,6 +62,10 @@ class MetaProxyActionForArenaPvP1x1Tests(TestCase, PvPTestsMixin):
         self.assertTrue(self.action_proxy_2.leader)
         self.assertEqual(len(self.hero_1.actions_descriptions), 2)
         self.assertEqual(len(self.hero_2.actions_descriptions), 2)
+
+        # here we not test creating of new bundle (it processed and tested in supervisor tasks)
+        self.assertEqual(self.action_proxy_1.bundle_id, self.action_idl_1.bundle_id)
+        self.assertEqual(self.action_proxy_2.bundle_id, self.action_idl_2.bundle_id)
 
         self.assertEqual(self.action_proxy_1.meta_action, self.action_proxy_2.meta_action)
         self.assertEqual(self.action_proxy_1.meta_action, self.meta_action_battle)
@@ -107,7 +111,7 @@ class MetaProxyActionForArenaPvP1x1Tests(TestCase, PvPTestsMixin):
             current_time.increment_turn()
 
         self.assertEqual(self.meta_action_battle.state, MetaActionArenaPvP1x1Prototype.STATE.PROCESSED)
-        self.assertTrue((not self.hero_1.is_alive) or (not self.hero_2.is_alive))
+        self.assertTrue(self.hero_1.is_alive and self.hero_2.is_alive)
 
         self.assertTrue(self.action_idl_1.leader)
         self.assertTrue(self.action_idl_2.leader)

@@ -37,6 +37,7 @@ class BattlePvE1x1ActionTest(TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_battle.leader, True)
+        self.assertEqual(self.action_battle.bundle_id, self.action_idl.bundle_id)
         self.storage._test_save()
 
     @mock.patch('game.actions.prototypes.battle.make_turn', lambda a, b, c: None)

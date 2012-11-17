@@ -9,7 +9,7 @@ from common.utils.fake import FakeLogger
 from game.heroes.models import Hero
 from game.quests.models import Quest
 from game.actions.models import Action
-from game.models import Bundle, BundleMember
+from game.models import Bundle
 from game.logic import create_test_map
 
 from accounts.logic import block_expired_accounts
@@ -36,7 +36,6 @@ class TestLogic(TestCase):
         self.assertEqual(Quest.objects.all().count(), 0)
         self.assertEqual(Action.objects.all().count(), 0)
 
-        self.assertEqual(BundleMember.objects.all().count(), 0)
         self.assertEqual(Bundle.objects.all().count(), 0)
 
         self.assertEqual(Account.objects.all().count(), 0)

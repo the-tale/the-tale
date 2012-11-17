@@ -173,14 +173,22 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, account_1, account_2):
+    def create(cls, hero_1, hero_2):
+
+        hero_1_old_health = hero_1.health
+        hero_2_old_health = hero_2.health
+
+        hero_1.health = hero_1.max_health
+        hero_2.health = hero_2.max_health
 
         model = MetaAction.objects.create(type=cls.TYPE,
                                           percents=0,
+                                          data=s11n.to_json({'hero_1_old_health': hero_1_old_health,
+                                                             'hero_2_old_health': hero_2_old_health}),
                                           state=cls.STATE.BATTLE_RUNNING )
 
-        member_1 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=HeroPrototype.get_by_account_id(account_1.id).model, role=cls.ROLES.HERO_1)
-        member_2 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=HeroPrototype.get_by_account_id(account_2.id).model, role=cls.ROLES.HERO_2)
+        member_1 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_1.model, role=cls.ROLES.HERO_1)
+        member_2 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_2.model, role=cls.ROLES.HERO_2)
 
         return cls(model, members=[member_1, member_2])
 
@@ -196,12 +204,6 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
     def _process(self):
 
         if self.state == self.STATE.BATTLE_RUNNING:
-
-            if self.hero_1_old_health is None:
-                self.hero_1_old_health = self.hero_1.health
-
-            if self.hero_2_old_health is None:
-                self.hero_2_old_health = self.hero_2.health
 
             if self.hero_1.health > 0 and self.hero_2.health > 0:
                 battle.make_turn(battle.Actor(self.hero_1, self.hero_1_context),

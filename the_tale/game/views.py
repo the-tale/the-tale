@@ -58,9 +58,7 @@ class GameResource(Resource):
 
         data = {}
 
-
-        battle = Battle1x1Prototype.get_by_account_id(account.id)
-        data['mode'] = 'pve' if battle is None or not battle.state.is_processing else 'pvp'
+        data['mode'] = 'pve'
 
         data['turn'] = self.time.ui_info()
 
@@ -76,6 +74,15 @@ class GameResource(Resource):
                 data['hero']['quests'] = quest.ui_info(hero)
             else:
                 data['hero']['quests'] = {}
+
+            data['pvp'] = {'waiting': False}
+
+            battle = Battle1x1Prototype.get_by_account_id(account.id)
+
+            if battle:
+                data['pvp']['waiting'] = True
+                if battle.state.is_processing:
+                    data['mode'] = 'pvp'
 
         return self.json_ok(data=data)
 

@@ -11,7 +11,7 @@ from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.models import Hero
 from game.actions.models import Action
-from game.models import Bundle, BundleMember
+from game.models import Bundle
 from game.prototypes import TimePrototype
 from game.logic_storage import LogicStorage
 
@@ -45,7 +45,6 @@ class BundleTest(TestCase):
         bundle.remove()
 
         self.assertEqual(Hero.objects.all().count(), 1)
-        self.assertTrue(Action.objects.all().count() > 0)
+        self.assertEqual(Action.objects.all().count(), 0)
 
-        self.assertEqual(BundleMember.objects.all().count(), 0)
         self.assertEqual(Bundle.objects.all().count(), 0)

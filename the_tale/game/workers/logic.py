@@ -75,6 +75,9 @@ class Worker(BaseWorker):
             self.storage.process_turn()
             self.storage.save_changed_data()
 
+            for hero_id in self.storage.skipped_heroes:
+                self.supervisor_worker.cmd_account_release_required(self.storage.heroes[hero_id].account_id)
+
 
         if project_settings.DEBUG_DATABASE_USAGE:
             log_sql_queries(turn_number)
@@ -106,12 +109,13 @@ class Worker(BaseWorker):
         self.storage.release_account_data(AccountPrototype.get_by_id(account_id))
         self.supervisor_worker.cmd_account_released(account_id)
 
-    def cmd_activate_ability(self, ability_task_id):
-        return self.send_cmd('activate_ability', {'ability_task_id': ability_task_id})
+    def cmd_activate_ability(self, account_id, ability_task_id):
+        return self.send_cmd('activate_ability', {'ability_task_id': ability_task_id,
+                                                  'account_id': account_id})
 
-    def process_activate_ability(self, ability_task_id):
+    def process_activate_ability(self, account_id, ability_task_id):
         with nested_commit_on_success():
-            from ..abilities.prototypes import AbilityTaskPrototype
+            from game.abilities.prototypes import AbilityTaskPrototype
 
             task = AbilityTaskPrototype.get_by_id(ability_task_id)
             task.process(self.storage)
@@ -119,42 +123,45 @@ class Worker(BaseWorker):
             task.save()
 
 
-    def cmd_choose_hero_ability(self, ability_task_id):
-        self.send_cmd('choose_hero_ability', {'ability_task_id': ability_task_id})
+    def cmd_choose_hero_ability(self, account_id, ability_task_id):
+        self.send_cmd('choose_hero_ability', {'ability_task_id': ability_task_id,
+                                              'account_id': account_id})
 
-
-    def process_choose_hero_ability(self, ability_task_id):
+    def process_choose_hero_ability(self, account_id, ability_task_id):
         with nested_commit_on_success():
-            from ..heroes.prototypes import ChooseAbilityTaskPrototype
+            from game.heroes.prototypes import ChooseAbilityTaskPrototype
 
             task = ChooseAbilityTaskPrototype.get_by_id(ability_task_id)
             task.process(self.storage)
             self.storage.save_hero_data(task.hero_id)
             task.save()
 
-    def cmd_choose_hero_preference(self, preference_task_id):
-        self.send_cmd('choose_hero_preference', {'preference_task_id': preference_task_id})
 
+    def cmd_choose_hero_preference(self, account_id, preference_task_id):
+        self.send_cmd('choose_hero_preference', {'preference_task_id': preference_task_id,
+                                                 'account_id': account_id})
 
-    def process_choose_hero_preference(self, preference_task_id):
+    def process_choose_hero_preference(self, account_id, preference_task_id):
         with nested_commit_on_success():
-            from ..heroes.preferences import ChoosePreferencesTaskPrototype
+            from game.heroes.preferences import ChoosePreferencesTaskPrototype
 
             task = ChoosePreferencesTaskPrototype.get_by_id(preference_task_id)
             task.process(self.storage)
             self.storage.save_hero_data(task.hero_id)
             task.save()
 
-    def cmd_mark_hero_as_not_fast(self, hero_id):
-        self.send_cmd('mark_hero_as_not_fast', {'hero_id': hero_id})
+    def cmd_mark_hero_as_not_fast(self, account_id, hero_id):
+        self.send_cmd('mark_hero_as_not_fast', {'hero_id': hero_id,
+                                                'account_id': account_id})
 
-    def process_mark_hero_as_not_fast(self, hero_id):
+    def process_mark_hero_as_not_fast(self, account_id, hero_id):
         self.storage.heroes[hero_id].is_fast = False
 
-    def cmd_mark_hero_as_active(self, hero_id):
-        self.send_cmd('mark_hero_as_active', {'hero_id': hero_id})
+    def cmd_mark_hero_as_active(self, account_id, hero_id):
+        self.send_cmd('mark_hero_as_active', {'hero_id': hero_id,
+                                              'account_id': account_id})
 
-    def process_mark_hero_as_active(self, hero_id):
+    def process_mark_hero_as_active(self, account_id, hero_id):
         self.storage.heroes[hero_id].mark_as_active()
 
     def cmd_highlevel_data_updated(self):
@@ -165,10 +172,10 @@ class Worker(BaseWorker):
 
         self.storage.on_highlevel_data_updated()
 
-    def cmd_set_might(self, hero_id, might):
-        self.send_cmd('set_might', {'hero_id': hero_id, 'might': might})
+    def cmd_set_might(self, account_id, hero_id, might):
+        self.send_cmd('set_might', {'hero_id': hero_id, 'might': might, 'account_id': account_id})
 
-    def process_set_might(self, hero_id, might):
+    def process_set_might(self, account_id, hero_id, might):
 
         hero = self.storage.heroes[hero_id]
         hero.might = might

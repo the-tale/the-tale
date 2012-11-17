@@ -10,10 +10,12 @@ class LogicStorage(object):
 
     def __init__(self=None):
         self.heroes = {}
+        self.accounts_to_heroes = {}
         self.actions = {}
         self.heroes_to_actions = {}
         self.meta_actions = {}
         self.meta_actions_to_actions = {}
+        self.skipped_heroes = set()
         self.save_required = set()
 
     def load_account_data(self, account):
@@ -27,14 +29,18 @@ class LogicStorage(object):
         self.add_hero(hero)
 
     def release_account_data(self, account):
-        hero = HeroPrototype.get_by_account_id(account.id)
+        hero = self.accounts_to_heroes[account.id]
         self.save_hero_data(hero.id)
 
         for action_id in Action.objects.filter(hero_id=hero.id).values_list('id', flat=True):
             del self.actions[action_id]
 
+        if hero.id in self.skipped_heroes:
+            self.skipped_heroes.remove(hero.id)
+
         del self.heroes[hero.id]
         del self.heroes_to_actions[hero.id]
+        del self.accounts_to_heroes[account.id]
 
 
     def save_hero_data(self, hero_id):
@@ -57,6 +63,7 @@ class LogicStorage(object):
 
         self.heroes[hero.id] = hero
         self.heroes_to_actions[hero.id] = []
+        self.accounts_to_heroes[hero.account_id] = hero
 
         for action_model in list(Action.objects.filter(hero_id=hero.id).order_by('order')):
             self.add_action(ACTION_TYPES[action_model.type](model=action_model))
@@ -109,11 +116,18 @@ class LogicStorage(object):
     def process_turn(self):
 
         for hero in self.heroes.values():
+
+            if hero.id in self.skipped_heroes:
+                continue
+
             hero.process_turn()
 
             leader_action = self.heroes_to_actions[hero.id][-1]
 
             leader_action.process_turn()
+
+            if leader_action.removed and leader_action.bundle_id != self.heroes_to_actions[hero.id][-1].bundle_id:
+                self.skipped_heroes.add(hero.id)
 
             self.save_required.add(hero.id)
 
@@ -134,10 +148,8 @@ class LogicStorage(object):
 
         return self == test_storage
 
-    def _test_get_hero_by_account_id(self, account_id):
-        return self.heroes[HeroPrototype.get_by_account_id(account_id).id]
-
     def __eq__(self, other):
         return (self.heroes == other.heroes and
+                self.accounts_to_heroes == other.accounts_to_heroes and
                 self.actions == other.actions and
                 self.heroes_to_actions == other.heroes_to_actions)

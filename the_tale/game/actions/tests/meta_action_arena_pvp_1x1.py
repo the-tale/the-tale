@@ -39,13 +39,15 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
         self.storage.load_account_data(self.account_1)
         self.storage.load_account_data(self.account_2)
 
-        self.hero_1 = self.storage._test_get_hero_by_account_id(self.account_1.id)
-        self.hero_2 = self.storage._test_get_hero_by_account_id(self.account_2.id)
+        self.hero_1 = self.storage.accounts_to_heroes[self.account_1.id]
+        self.hero_2 = self.storage.accounts_to_heroes[self.account_2.id]
+
+        self.hero_1.health = self.hero_1.max_health / 2
 
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        self.meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.account_1, self.account_2)
+        self.meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.hero_1, self.hero_2)
         self.meta_action_battle.set_storage(self.storage)
 
 
@@ -61,14 +63,11 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
         self.assertEqual(self.meta_action_battle.hero_2, self.hero_2)
 
     def test_one_hero_killed(self):
-        current_time = TimePrototype.get_current_time()
-        self.meta_action_battle.process() # save old healthes
-        current_time.increment_turn()
         self.hero_1.health = 0
         self.meta_action_battle.process()
         self.assertEqual(self.meta_action_battle.state, MetaActionArenaPvP1x1Prototype.STATE.PROCESSED)
         self.assertTrue(self.hero_1.is_alive and self.hero_2.is_alive)
-        self.assertEqual(self.hero_1.health, self.hero_1.max_health)
+        self.assertEqual(self.hero_1.health, self.hero_1.max_health / 2)
         self.assertEqual(self.hero_2.health, self.hero_2.max_health)
 
     def test_second_process_call_in_one_turn(self):
@@ -92,7 +91,7 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
 
         self.assertEqual(self.meta_action_battle.state, MetaActionArenaPvP1x1Prototype.STATE.PROCESSED)
         self.assertTrue(self.hero_1.is_alive and self.hero_2.is_alive)
-        self.assertEqual(self.hero_1.health, self.hero_1.max_health)
+        self.assertEqual(self.hero_1.health, self.hero_1.max_health / 2)
         self.assertEqual(self.hero_2.health, self.hero_2.max_health)
 
         self.assertEqual(Battle1x1.objects.all().count(), 0)

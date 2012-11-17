@@ -85,7 +85,7 @@ class HeroResource(Resource):
 
         task = ChooseAbilityTaskPrototype.create(ability_id, self.hero.id)
 
-        workers_environment.supervisor.cmd_choose_hero_ability(task.id)
+        workers_environment.supervisor.cmd_choose_hero_ability(self.account.id, task.id)
 
         return self.json(status='processing',
                          status_url=reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % task.id )
@@ -177,7 +177,7 @@ class HeroResource(Resource):
                                                      preference_type=choose_preferences_form.c.preference_type,
                                                      preference_id=choose_preferences_form.c.preference_id if choose_preferences_form.c.preference_id else None)
 
-        workers_environment.supervisor.cmd_choose_hero_preference(task.id)
+        workers_environment.supervisor.cmd_choose_hero_preference(self.account.id, task.id)
 
         return self.json(status='processing', status_url=reverse('game:heroes:choose-preferences-status', args=[hero.id]) + ('?task_id=%d' % task.id) )
 

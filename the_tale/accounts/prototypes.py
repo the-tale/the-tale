@@ -16,7 +16,6 @@ from accounts.conf import accounts_settings
 from accounts.email import ChangeEmailNotification, ResetPasswordNotification
 from accounts.exceptions import AccountsException
 
-from game.bundles import BundlePrototype
 from game.workers.environment import workers_environment as game_workers_environment
 
 class AccountPrototype(object):
@@ -113,7 +112,7 @@ class AccountPrototype(object):
             self.nick = new_nick
 
         if self.is_fast:
-            game_workers_environment.supervisor.cmd_mark_hero_as_not_fast(HeroPrototype.get_by_account_id(self.id).id)
+            game_workers_environment.supervisor.cmd_mark_hero_as_not_fast(self.id, HeroPrototype.get_by_account_id(self.id).id)
 
         self.is_fast = False
 
@@ -126,8 +125,7 @@ class AccountPrototype(object):
     ###########################################
 
     def can_be_removed(self):
-        bundle = BundlePrototype.get_by_account_id(self.id)
-        return bundle.is_single
+        return self.is_fast
 
     def remove(self):
         registration_task = RegistrationTaskPrototype.get_by_account_id(self.id)
@@ -237,7 +235,7 @@ class RegistrationTaskPrototype(object):
                 self.model.save()
                 return
 
-            game_workers_environment.supervisor.cmd_register_bundle(bundle_id)
+            game_workers_environment.supervisor.cmd_register_new_account(account_id)
 
             self.model.state = REGISTRATION_TASK_STATE.PROCESSED
             self.model.comment = 'success'

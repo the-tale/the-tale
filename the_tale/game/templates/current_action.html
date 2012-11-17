@@ -28,17 +28,21 @@ jQuery(document).ready(function(e) {
   {% if show_abilities %}
   <div id="abilities-block">
 
-    <a href="#" class="pgf-ability-help">
+    <a href="#" class="pgf-ability-help pgf-hidden">
       <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
+      <i class="icon-ban-circle" rel="tooltip" title="необходимо завершить регистрацию"></i>
       помочь
     </a>
 
     <span style="width: 5em; display: inline-block;"></span>
 
-    <a href="#" class="pgf-ability-arenapvp1x1">
+    <a href="#" class="pgf-ability-arenapvp1x1 pgf-hidden">
       <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
+      <i class="icon-ban-circle" rel="tooltip" title="необходимо завершить регистрацию"></i>
       на арену
     </a>
+
+    <span class="pgf-in-pvp-queue-message pgf-hidden" rel="tooltip" title="идёт поиск противника для битвы на арене">в очереди…</span>
 
   </div>
   {% endif %}

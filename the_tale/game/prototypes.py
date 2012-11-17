@@ -123,12 +123,12 @@ class SupervisorTaskPrototype(object):
 
     def process_arena_pvp_1x1(self):
         from accounts.prototypes import AccountPrototype
-        from game.heroes.prototypes import HeroPrototype
         from game.actions.prototypes import ActionMetaProxyPrototype
         from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
         from game.logic_storage import LogicStorage
         from game.pvp.prototypes import Battle1x1Prototype
         from game.pvp.models import BATTLE_1X1_STATE
+        from game.bundles import BundlePrototype
 
         storage = LogicStorage()
 
@@ -137,19 +137,18 @@ class SupervisorTaskPrototype(object):
         account_1 = AccountPrototype.get_by_id(account_1_id)
         account_2 = AccountPrototype.get_by_id(account_2_id)
 
-        hero_1 = HeroPrototype.get_by_account_id(account_1_id)
-        hero_2 = HeroPrototype.get_by_account_id(account_2_id)
-
         storage.load_account_data(account_1)
         storage.load_account_data(account_2)
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(account_1, account_2)
+        hero_1 = storage.accounts_to_heroes[account_1_id]
+        hero_2 = storage.accounts_to_heroes[account_2_id]
 
-        ActionMetaProxyPrototype.create(storage.heroes_to_actions[hero_1.id][-1], meta_action_battle)
-        ActionMetaProxyPrototype.create(storage.heroes_to_actions[hero_2.id][-1], meta_action_battle)
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(hero_1, hero_2)
 
-        storage.heroes[hero_1.id].health = hero_1.max_health
-        storage.heroes[hero_2.id].health = hero_2.max_health
+        bundle = BundlePrototype.create()
+
+        ActionMetaProxyPrototype.create(parent=storage.heroes_to_actions[hero_1.id][-1], _bundle_id=bundle.id, meta_action=meta_action_battle)
+        ActionMetaProxyPrototype.create(parent=storage.heroes_to_actions[hero_2.id][-1], _bundle_id=bundle.id, meta_action=meta_action_battle)
 
         storage.save_required.add(hero_1.id)
         storage.save_required.add(hero_2.id)

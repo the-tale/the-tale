@@ -32,7 +32,7 @@ class Resource(BaseResource):
             self.request.session[game_settings.SESSION_REFRESH_TIME_KEY] = current_timestamp
 
             if self.account:
-                workers_environment.supervisor.cmd_mark_hero_as_active(HeroPrototype.get_by_account_id(self.account.id).id)
+                workers_environment.supervisor.cmd_mark_hero_as_active(self.account.id, HeroPrototype.get_by_account_id(self.account.id).id)
 
 
     @property

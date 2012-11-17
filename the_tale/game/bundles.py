@@ -1,6 +1,6 @@
 # coding utf-8
 
-from game.models import Bundle, BundleMember, BUNDLE_TYPE
+from game.models import Bundle, BUNDLE_TYPE
 
 class BundleException(Exception): pass
 
@@ -18,9 +18,12 @@ class BundlePrototype(object):
 
     @classmethod
     def get_by_account_id(cls, account_id):
+        from game.actions.models import Action
+        from game.heroes.prototypes import HeroPrototype
+
         try:
-            return cls(BundleMember.objects.select_related().get(account_id=account_id).bundle)
-        except BundleMember.DoesNotExist:
+            return cls(Action.objects.filter(hero_id=HeroPrototype.get_by_account_id(account_id).id).select_related().order_by('-order')[0].bundle)
+        except IndexError:
             return None
 
     @property
@@ -33,18 +36,9 @@ class BundlePrototype(object):
     def set_owner(self, value): self.model.owner = value
     owner = property(get_owner, set_owner)
 
-    @property
-    def is_single(self):
-        if not hasattr(self, '_is_single'):
-            self._is_single = self.model.members.all().count()
-        return self._is_single
-
     @classmethod
-    def create(cls, account):
-
+    def create(cls):
         bundle = Bundle.objects.create(type=BUNDLE_TYPE.BASIC)
-        BundleMember.objects.create(account=account.model, bundle=bundle)
-
         return BundlePrototype(model=bundle)
 
     def remove(self):
@@ -52,20 +46,6 @@ class BundlePrototype(object):
 
     def save(self):
         self.model.save()
-
-    def get_accounts_ids(self):
-        return BundleMember.objects.filter(bundle_id=self.id).values_list('account_id', flat=True)
-
-    ##########################
-    # methods for test purposes
-
-    # DEPRECATED
-
-    # def tests_get_last_action(self):
-    #     return self.actions[sorted(self.actions.keys())[-1]]
-
-    # def tests_get_hero(self):
-    #     return self.heroes.values()[0]
 
     def __eq__(self, other):
         return self.model == other.model

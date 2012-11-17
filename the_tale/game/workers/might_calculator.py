@@ -39,7 +39,7 @@ class Worker(BaseWorker):
         except IndexError:
             return
         self.logger.info('calculate might of hero %d' % hero.id)
-        self.supervisor_worker.cmd_set_might(hero.id, self.calculate_might(hero))
+        self.supervisor_worker.cmd_set_might(hero.account_id, hero.id, self.calculate_might(hero))
 
 
     def calculate_might(self, hero):

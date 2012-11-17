@@ -42,6 +42,7 @@ class DoNothingActionTest(TestCase):
         self.assertEqual(self.action_donothing.textgen_id, 'abrakadabra')
         self.assertEqual(self.action_donothing.percents_barier, 7)
         self.assertEqual(self.action_donothing.extra_probability, 0.3)
+        self.assertEqual(self.action_donothing.bundle_id, self.action_idl.bundle_id)
         self.storage._test_save()
 
     def test_not_ready(self):

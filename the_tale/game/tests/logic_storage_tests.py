@@ -35,6 +35,8 @@ class LogicStorageTestsBasic(TestCase):
         self.assertEqual(self.storage.meta_actions, {})
         self.assertEqual(self.storage.meta_actions_to_actions, {})
         self.assertEqual(self.storage.save_required, set())
+        self.assertEqual(self.storage.skipped_heroes, set())
+        self.assertEqual(self.storage.accounts_to_heroes, {})
 
 
 class LogicStorageTests(TestCase):
@@ -55,14 +57,15 @@ class LogicStorageTests(TestCase):
         self.storage.load_account_data(AccountPrototype.get_by_id(account_1_id))
         self.storage.load_account_data(AccountPrototype.get_by_id(account_2_id))
 
-        self.hero_1 = self.storage.heroes.values()[0]
-        self.hero_2 = self.storage.heroes.values()[1]
+        self.hero_1 = self.storage.accounts_to_heroes[account_1_id]
+        self.hero_2 = self.storage.accounts_to_heroes[account_2_id]
 
         self.action_idl_1 = self.storage.heroes_to_actions[self.hero_1.id][-1]
         self.action_idl_2 = self.storage.heroes_to_actions[self.hero_2.id][-1]
 
     def test_load_account_data(self):
         self.assertEqual(len(self.storage.heroes), 2)
+        self.assertEqual(len(self.storage.accounts_to_heroes), 2)
         self.assertEqual(len(self.storage.actions), 2)
         self.assertEqual(len(self.storage.heroes_to_actions), 2)
         self.assertEqual(len(self.storage.save_required), 0)
@@ -81,6 +84,7 @@ class LogicStorageTests(TestCase):
         storage.load_account_data(AccountPrototype.get_by_id(self.account_1.id))
         storage.load_account_data(AccountPrototype.get_by_id(self.account_2.id))
         self.assertEqual(len(storage.heroes), 2)
+        self.assertEqual(len(storage.accounts_to_heroes), 2)
         self.assertEqual(len(storage.actions), 3)
         self.assertEqual(len(storage.heroes_to_actions), 2)
         self.assertEqual(len(storage.heroes_to_actions[self.hero_1.id]), 2)
@@ -91,7 +95,7 @@ class LogicStorageTests(TestCase):
         self.assertEqual(storage.heroes_to_actions[self.hero_1.id][1].TYPE, ActionRegenerateEnergyPrototype.TYPE)
 
     def test_load_account_data_with_meta_action(self):
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.account_1, self.account_2)
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.hero_1, self.hero_2)
 
         proxy_action_1 = ActionMetaProxyPrototype.create(self.action_idl_1, meta_action_battle)
         proxy_action_2 = ActionMetaProxyPrototype.create(self.action_idl_2, meta_action_battle)
@@ -119,12 +123,16 @@ class LogicStorageTests(TestCase):
 
         ActionRegenerateEnergyPrototype.create(self.action_idl_1)
 
+        self.storage.skipped_heroes.add(self.hero_1.id)
+
         self.storage.release_account_data(AccountPrototype.get_by_id(self.account_1.id))
 
         self.assertEqual(len(self.storage.heroes), 1)
+        self.assertEqual(len(self.storage.accounts_to_heroes), 1)
         self.assertEqual(self.storage.heroes.values()[0].id, self.hero_2.id)
         self.assertEqual(len(self.storage.actions), 1)
         self.assertEqual(len(self.storage.heroes_to_actions), 1)
+        self.assertFalse(self.storage.skipped_heroes)
 
     def test_save_hero_data(self):
 
@@ -146,7 +154,7 @@ class LogicStorageTests(TestCase):
 
     def test_save_hero_data_with_meta_action(self):
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.account_1, self.account_2)
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.hero_1, self.hero_2)
 
         ActionMetaProxyPrototype.create(self.action_idl_1, meta_action_battle)
         ActionMetaProxyPrototype.create(self.action_idl_2, meta_action_battle)
@@ -182,3 +190,16 @@ class LogicStorageTests(TestCase):
         self.storage.process_turn()
 
         self.assertEqual(len(self.storage.save_required), 2)
+
+
+    def test_process_turn_with_skipped_hero(self):
+        self.assertEqual(len(self.storage.save_required), 0)
+
+        self.storage.skipped_heroes.add(self.hero_1.id)
+
+        release_required_counter = CallCounter()
+
+        with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required', release_required_counter):
+            self.storage.process_turn()
+
+        self.assertEqual(len(self.storage.save_required), 1)

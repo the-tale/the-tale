@@ -1,6 +1,9 @@
 # coding: utf-8
-from django.test import TestCase
+import mock
+
 from dext.settings import settings
+
+from common.utils.testcase import TestCase, CallCounter
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -10,9 +13,9 @@ from game.heroes.prototypes import HeroPrototype
 from game.logic import create_test_map
 from game.workers.environment import workers_environment
 from game.prototypes import TimePrototype
-from game.logic_storage import LogicStorage
 
-class LogicTest(TestCase):
+
+class LogicWorkerTests(TestCase):
 
     def setUp(self):
         settings.refresh()
@@ -22,10 +25,6 @@ class LogicTest(TestCase):
         result, account_id, bundle_id = register_user('test_user')
 
         self.hero = HeroPrototype.get_by_account_id(account_id)
-        self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
-
         self.account = AccountPrototype.get_by_id(self.hero.account_id)
 
         workers_environment.deinitialize()
@@ -53,5 +52,44 @@ class LogicTest(TestCase):
 
         self.worker.process_register_account(self.account.id)
         self.assertTrue(self.worker.storage.heroes[self.hero.id].is_fast)
-        self.worker.process_mark_hero_as_not_fast(self.hero.id)
+        self.worker.process_mark_hero_as_not_fast(self.hero.account_id, self.hero.id)
         self.assertFalse(self.worker.storage.heroes[self.hero.id].is_fast)
+
+    def test_process_next_turn(self):
+
+        current_time = TimePrototype.get_current_time()
+        current_time.increment_turn()
+        current_time.save()
+
+        self.worker.process_register_account(self.account.id)
+
+        release_required_counter = CallCounter()
+        save_counter = CallCounter()
+
+        with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required', release_required_counter):
+            with mock.patch('game.heroes.prototypes.HeroPrototype.save', save_counter):
+                self.worker.process_next_turn(current_time.turn_number)
+
+        self.assertEqual(save_counter.count, 1)
+        self.assertEqual(release_required_counter.count, 0)
+
+
+    def test_process_next_turn_with_skipped_hero(self):
+
+        current_time = TimePrototype.get_current_time()
+        current_time.increment_turn()
+        current_time.save()
+
+        self.worker.process_register_account(self.account.id)
+
+        self.worker.storage.skipped_heroes.add(self.hero.id)
+
+        release_required_counter = CallCounter()
+        save_counter = CallCounter()
+
+        with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required', release_required_counter):
+            with mock.patch('game.heroes.prototypes.HeroPrototype.save', save_counter):
+                self.worker.process_next_turn(TimePrototype.get_current_turn_number())
+
+        self.assertEqual(save_counter.count, 0)
+        self.assertEqual(release_required_counter.count, 1)

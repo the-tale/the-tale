@@ -84,6 +84,9 @@ class ActionPrototype(object):
     state = property(get_state, set_state)
 
     @property
+    def bundle_id(self): return self.model.bundle_id
+
+    @property
     def hero_id(self): return self.model.hero_id
 
     @property
@@ -253,12 +256,22 @@ class ActionPrototype(object):
         '''
         _storage argument used only in creating hero step
         '''
+
+        bundle_id = None
+
+        if parent:
+            bundle_id = parent.bundle_id
+
         _storage = None
         if '_storage' in kwargs:
             _storage = kwargs['_storage']
             del kwargs['_storage']
 
-        action = cls._create(parent, *argv, **kwargs)
+        if '_bundle_id' in kwargs:
+            bundle_id = kwargs['_bundle_id']
+            del kwargs['_bundle_id']
+
+        action = cls._create(parent, bundle_id, *argv, **kwargs)
 
         if _storage:
             _storage.add_action(action)
@@ -331,7 +344,6 @@ class ActionPrototype(object):
 
     def process_turn(self):
         self.process_action()
-        return TimePrototype.get_current_turn_number() + 1
 
 
     def __eq__(self, other):
@@ -374,11 +386,11 @@ class ActionIdlenessPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent=None, hero=None):
+    def _create(cls, parent=None, bundle_id=None, hero=None):
         if parent:
-            model = Action.objects.create( type=cls.TYPE, parent=parent.model, hero=parent.hero.model, order=parent.order+1, state=cls.STATE.WAITING)
+            model = Action.objects.create( type=cls.TYPE, bundle_id=bundle_id, parent=parent.model, hero=parent.hero.model, order=parent.order+1, state=cls.STATE.WAITING)
         else:
-            model = Action.objects.create( type=cls.TYPE, hero=hero.model, order=0, percents=1.0, state=cls.STATE.WAITING)
+            model = Action.objects.create( type=cls.TYPE, bundle_id=bundle_id, hero=hero.model, order=0, percents=1.0, state=cls.STATE.WAITING)
         return cls(model=model)
 
     def init_quest(self):
@@ -439,8 +451,9 @@ class ActionQuestPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent, quest):
+    def _create(cls, parent, bundle_id, quest):
         model = Action.objects.create( type=cls.TYPE,
+                                       bundle_id=bundle_id,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -485,8 +498,9 @@ class ActionMoveToPrototype(ActionPrototype):
 
 
     @classmethod
-    def _create(cls, parent, destination, break_at=None):
+    def _create(cls, parent, bundle_id, destination, break_at=None):
         model = Action.objects.create( type=cls.TYPE,
+                                       bundle_id=bundle_id,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -665,9 +679,10 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent, mob):
+    def _create(cls, parent, bundle_id, mob):
 
         model = Action.objects.create( type=cls.TYPE,
+                                       bundle_id=bundle_id,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -754,8 +769,9 @@ class ActionResurrectPrototype(ActionPrototype):
         RESURRECT = 'resurrect'
 
     @classmethod
-    def _create(cls, parent):
+    def _create(cls, parent, bundle_id):
         model = Action.objects.create( type=cls.TYPE,
+                                       bundle_id=bundle_id,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -804,8 +820,9 @@ class ActionInPlacePrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent):
+    def _create(cls, parent, bundle_id):
         model = Action.objects.create( type=cls.TYPE,
+                                       bundle_id=bundle_id,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -939,8 +956,9 @@ class ActionRestPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent):
+    def _create(cls, parent, bundle_id):
         model = Action.objects.create( type=cls.TYPE,
+                                       bundle_id=bundle_id,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -982,8 +1000,9 @@ class ActionEquippingPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent):
+    def _create(cls, parent, bundle_id):
         model = Action.objects.create( type=cls.TYPE,
+                                       bundle_id=bundle_id,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -1031,8 +1050,9 @@ class ActionTradingPrototype(ActionPrototype):
         return info
 
     @classmethod
-    def _create(cls, parent):
+    def _create(cls, parent, bundle_id):
         model = Action.objects.create( type=cls.TYPE,
+                                       bundle_id=bundle_id,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -1086,7 +1106,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
         return info
 
     @classmethod
-    def _create(cls, parent, place, back):
+    def _create(cls, parent, bundle_id, place, back):
 
         if back:
             x, y = place.x, place.y
@@ -1094,6 +1114,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
             x, y = random.choice(place.nearest_cells)
 
         model = Action.objects.create( type=cls.TYPE,
+                                       bundle_id=bundle_id,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -1211,8 +1232,9 @@ class ActionRegenerateEnergyPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent):
+    def _create(cls, parent, bundle_id):
         model = Action.objects.create( type=cls.TYPE,
+                                       bundle_id=bundle_id,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -1285,8 +1307,9 @@ class ActionDoNothingPrototype(ActionPrototype):
         return info
 
     @classmethod
-    def _create(cls, parent, duration, messages_prefix, messages_probability):
+    def _create(cls, parent, bundle_id, duration, messages_prefix, messages_probability):
         model = Action.objects.create( type=cls.TYPE,
+                                       bundle_id=bundle_id,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
@@ -1332,8 +1355,9 @@ class ActionMetaProxyPrototype(ActionPrototype):
         return info
 
     @classmethod
-    def _create(cls, parent, meta_action):
+    def _create(cls, parent, bundle_id, meta_action):
         model = Action.objects.create( type=cls.TYPE,
+                                       bundle_id=bundle_id,
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,

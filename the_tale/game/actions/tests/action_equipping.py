@@ -41,6 +41,7 @@ class ActionEquippingTest(TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_equipping.leader, True)
+        self.assertEqual(self.action_equipping.bundle_id, self.action_idl.bundle_id)
         self.storage._test_save()
 
 

@@ -18,6 +18,8 @@ from game.heroes.prototypes import HeroPrototype
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 
+from game.models import Bundle
+
 class SupervisorTaskTests(TestCase):
 
     def setUp(self):
@@ -54,7 +56,15 @@ class SupervisorTaskTests(TestCase):
         old_hero.health = 1
         old_hero.save()
 
+        self.assertEqual(Bundle.objects.all().count(), 2)
+
         task.process()
+
+        self.assertEqual(Bundle.objects.all().count(), 3)
+
+        self.assertEqual(Action.objects.all().order_by('created_at')[2].bundle_id, Bundle.objects.all().order_by('created_at')[2].id)
+        self.assertNotEqual(Action.objects.all().order_by('created_at')[0].bundle_id, Action.objects.all().order_by('created_at')[2].bundle_id)
+        self.assertNotEqual(Action.objects.all().order_by('created_at')[1].bundle_id, Action.objects.all().order_by('created_at')[2].bundle_id)
 
         new_hero = HeroPrototype.get_by_account_id(self.account_1.id)
 
