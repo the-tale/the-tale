@@ -5,6 +5,8 @@ import datetime
 import random
 import copy
 
+from textgen.words import Noun
+
 from django.utils.log import getLogger
 from django.conf import settings as project_settings
 
@@ -16,7 +18,7 @@ from common.utils.logic import random_value_by_priority
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage
 
-from game.game_info import GENDER, RACE_CHOICES, GENDER_ID_2_STR, GENDER_DICT_USERFRIENDLY, RACE_DICT, ATTRIBUTES, RACE_TO_ENERGY_REGENERATION_TYPE
+from game.game_info import GENDER, RACE, GENDER_ID_2_STR, ATTRIBUTES, RACE_TO_ENERGY_REGENERATION_TYPE
 
 from game import names
 
@@ -25,7 +27,7 @@ from game.artifacts.storage import ArtifactsDatabase
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS_LIST, SLOTS_TO_ARTIFACT_TYPES
 from game.heroes.statistics import HeroStatistics, MONEY_SOURCE
 from game.heroes.preferences import HeroPreferences
-from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE
+from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE, ChangeHeroTask, CHANGE_HERO_STATE
 from game.heroes.habilities import AbilitiesPrototype, ABILITIES
 from game.heroes.conf import heroes_settings
 from game.heroes.exceptions import HeroException
@@ -46,6 +48,7 @@ class HeroPrototype(object):
         self.model = model
         self.messages_updated = False
         self.diary_updated = False
+        self.name_updated = False
         self.actions_descriptions_updated = False
 
     @classmethod
@@ -103,12 +106,13 @@ class HeroPrototype(object):
     @property
     def name(self): return self.model.name
 
-    @property
-    def gender(self): return self.model.gender
+    def get_gender(self): return self.model.gender
+    def set_gender(self, value): self.model.gender = value
+    gender = property(get_gender, set_gender)
 
     @property
     def gender_verbose(self):
-        return GENDER_DICT_USERFRIENDLY[self.gender]
+        return GENDER.ID_2_TEXT[self.gender]
 
     @property
     def power(self): return f.clean_power_to_lvl(self.level) + self.equipment.get_power()
@@ -116,12 +120,13 @@ class HeroPrototype(object):
     @property
     def basic_damage(self): return f.damage_from_power(self.power) * self.damage_modifier
 
-    @property
-    def race(self): return self.model.race
+    def get_race(self): return self.model.race
+    def set_race(self, value): self.model.race = value
+    race = property(get_race, set_race)
 
     @property
     def race_verbose(self):
-        return RACE_DICT[self.race]
+        return RACE.ID_2_TEXT[self.race]
 
     @property
     def level(self): return self.model.level
@@ -356,11 +361,29 @@ class HeroPrototype(object):
         return self._equipment
 
     @property
-    def normalized_name(self):
-        if self.gender == GENDER.MASCULINE:
-            return (u'герой', GENDER_ID_2_STR[self.gender])
-        elif self.gender == GENDER.FEMININE:
-            return (u'героиня', GENDER_ID_2_STR[self.gender])
+    def flags(self): return self.model.flags
+
+    @property
+    def is_name_changed(self):
+        return bool(self.model.name_forms)
+
+    def get_normalized_name(self):
+        if not hasattr(self, '_normalized_name'):
+            if not self.is_name_changed:
+                if self.gender == GENDER.MASCULINE:
+                    self._normalized_name = get_dictionary().get_word(u'герой')
+                elif self.gender == GENDER.FEMININE:
+                    self._normalized_name = get_dictionary().get_word(u'героиня')
+            else:
+                self._normalized_name = Noun.deserialize(s11n.from_json(self.model.name_forms))
+        return self._normalized_name
+    def set_normalized_name(self, word):
+        self._normalized_name = word
+        self.model.name = word.normalized
+        self.model.name_forms = s11n.to_json(word.serialize()) # need to correct work of is_name_changed
+        self.name_updated = True
+
+    normalized_name = property(get_normalized_name, set_normalized_name)
 
     @property
     def next_spending(self): return self.model.next_spending
@@ -604,6 +627,10 @@ class HeroPrototype(object):
             self.model.actions_descriptions = s11n.to_json(self.actions_descriptions)
             self.actions_descriptions_updated = False
 
+        if self.name_updated:
+            self.model.name_forms = s11n.to_json(self.normalized_name.serialize())
+            self.name_updated = False
+
         database.raw_save(self.model)
 
     @staticmethod
@@ -682,8 +709,8 @@ class HeroPrototype(object):
                           'max_health': self.max_health,
                           'experience': self.experience * c.EXP_MULTIPLICATOR,
                           'experience_to_level': f.exp_on_lvl(self.level) * c.EXP_MULTIPLICATOR,
-                          'gender': GENDER_DICT_USERFRIENDLY[self.gender],
-                          'race': RACE_DICT[self.race] },
+                          'gender': self.gender_verbose,
+                          'race': self.race_verbose },
                 'secondary': { 'power': math.floor(self.power),
                                'move_speed': self.move_speed,
                                'initiative': self.initiative,
@@ -701,13 +728,15 @@ class HeroPrototype(object):
 
         start_place = places_storage.random_place()
 
-        race = random.choice(RACE_CHOICES)[0]
+        race = random.choice(RACE.ALL)
 
         gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
         current_turn_number = TimePrototype.get_current_turn_number()
 
         energy_regeneration_type = RACE_TO_ENERGY_REGENERATION_TYPE[race]
+
+        name = names.generator.get_name(race, gender)
 
         hero = Hero.objects.create(created_at_turn=current_turn_number,
                                    active_state_end_at=current_turn_number + c.EXP_ACTIVE_STATE_LENGTH,
@@ -725,7 +754,7 @@ class HeroPrototype(object):
                                                           cls._prepair_message(u'Приказано идти обратно и геройствовать, как именно геройствовать - не уточняется', in_past=1),
                                                           cls._prepair_message(u'Эх, опять в этом мире, в том было хотя бы чисто и сухо. Голова болит. Палец болит. Тянет на подвиги.', in_past=0)]),
                                    diary=s11n.to_json([cls._prepair_message(u'Вот жеж угораздило. У всех ангелы-хранители нормальные, сидят себе и попаданию подопечных в загробный мир не мешают. А у моего, значит, шило в заднице! Где ты был, когда я лотерейные билеты покупал?! Молнию отвести он значит не может, а воскресить - запросто. Как же всё болит, кажется теперь у меня две печёнки (это, конечно, тебе спасибо, всегда пригодится). Ну ничего, рано или поздно я к твоему начальству попаду и там уж всё расскажу! А пока буду записывать в свой дневник.')]),
-                                   name=names.generator.get_name(race, gender),
+                                   name=name,
                                    health=f.hp_on_lvl(1),
                                    energy=c.ANGEL_ENERGY_MAX,
                                    pos_place = start_place.model)
@@ -985,3 +1014,67 @@ class ChooseAbilityTaskPrototype(object):
         hero.destiny_points_spend += 1
 
         self.state = CHOOSE_ABILITY_STATE.PROCESSED
+
+
+class ChangeHeroTaskPrototype(object):
+
+    def __init__(self, model):
+        self.model = model
+
+    @classmethod
+    def get_by_id(cls, task_id):
+        try:
+            return cls(ChangeHeroTask.objects.get(id=task_id))
+        except ChangeHeroTask.DoesNotExist:
+            return None
+
+    @classmethod
+    def reset_all(cls):
+        ChangeHeroTask.objects.filter(state=CHANGE_HERO_STATE.WAITING).update(state=CHANGE_HERO_STATE.RESET)
+
+    @property
+    def id(self): return self.model.id
+
+    def get_state(self): return self.model.state
+    def set_state(self, value): self.model.state = value
+    state = property(get_state, set_state)
+
+    def get_comment(self): return self.model.comment
+    def set_comment(self, value): self.model.comment = value
+    comment = property(get_comment, set_comment)
+
+    @property
+    def hero_id(self): return self.model.hero_id
+
+    @property
+    def name(self):
+        if not hasattr(self, '_name'):
+            self._name = Noun.deserialize(s11n.from_json(self.model.data))
+        return self._name
+
+    @property
+    def race(self): return self.model.race
+
+    @property
+    def gender(self): return self.model.gender
+
+    @classmethod
+    def create(cls, hero, forms, race, gender):
+        model = ChangeHeroTask.objects.create(hero=hero.model,
+                                              race=race,
+                                              gender=gender,
+                                              data=s11n.to_json(Noun(normalized=forms[0], forms=forms*2, properties=(GENDER_ID_2_STR[gender], )).serialize()))
+        return cls(model)
+
+    def save(self):
+        self.model.save()
+
+    def process(self, storage):
+
+        hero = storage.heroes[self.hero_id]
+
+        hero.normalized_name = self.name
+        hero.gender = self.gender
+        hero.race = self.race
+
+        self.state = CHANGE_HERO_STATE.PROCESSED

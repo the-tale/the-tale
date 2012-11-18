@@ -18,6 +18,8 @@ from game.workers.supervisor import SupervisorException
 
 from game.pvp.prototypes import Battle1x1Prototype
 
+from game.game_info import RACE, GENDER
+
 
 @mock.patch('game.workers.supervisor.Worker.wait_answers_from', lambda self, name, workers: None)
 class SupervisorWorkerTests(TestCase):
@@ -45,27 +47,30 @@ class SupervisorWorkerTests(TestCase):
         from game.abilities.models import AbilityTask, ABILITY_TASK_STATE
         from game.abilities.prototypes import AbilityTaskPrototype
         from game.abilities.deck.help import Help
-        from game.heroes.models import ChoosePreferencesTask, ChooseAbilityTask, PREFERENCE_TYPE, CHOOSE_ABILITY_STATE, CHOOSE_PREFERENCES_STATE
-        from game.heroes.prototypes import ChooseAbilityTaskPrototype
+        from game.heroes.models import ChoosePreferencesTask, ChooseAbilityTask, PREFERENCE_TYPE, CHOOSE_ABILITY_STATE, CHOOSE_PREFERENCES_STATE, ChangeHeroTask, CHANGE_HERO_STATE
+        from game.heroes.prototypes import ChooseAbilityTaskPrototype, ChangeHeroTaskPrototype
         from game.heroes.habilities.attributes import EXTRA_SLOW
         from game.heroes.preferences import ChoosePreferencesTaskPrototype
-
         AbilityTaskPrototype.create(Help.get_type(), self.hero_1.id, 0, 0, {})
         ChooseAbilityTaskPrototype.create(EXTRA_SLOW.TYPE, self.hero_1.id)
+        ChangeHeroTaskPrototype.create(self.hero_1, forms=['norm']*6, race=RACE.ELF, gender=GENDER.MASCULINE)
         ChoosePreferencesTaskPrototype.create(self.hero_1, PREFERENCE_TYPE.MOB, None)
 
         self.assertEqual(AbilityTask.objects.filter(state=ABILITY_TASK_STATE.WAITING).count(), 1)
         self.assertEqual(ChooseAbilityTask.objects.filter(state=CHOOSE_ABILITY_STATE.WAITING).count(), 1)
+        self.assertEqual(ChangeHeroTask.objects.filter(state=CHANGE_HERO_STATE.WAITING).count(), 1)
         self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 1)
 
         self.worker.initialize()
 
         self.assertEqual(AbilityTask.objects.filter(state=ABILITY_TASK_STATE.WAITING).count(), 0)
         self.assertEqual(ChooseAbilityTask.objects.filter(state=CHOOSE_ABILITY_STATE.WAITING).count(), 0)
+        self.assertEqual(ChangeHeroTask.objects.filter(state=CHANGE_HERO_STATE.WAITING).count(), 0)
         self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 0)
 
         self.assertEqual(AbilityTask.objects.filter(state=ABILITY_TASK_STATE.RESET).count(), 1)
         self.assertEqual(ChooseAbilityTask.objects.filter(state=CHOOSE_ABILITY_STATE.RESET).count(), 1)
+        self.assertEqual(ChangeHeroTask.objects.filter(state=CHANGE_HERO_STATE.RESET).count(), 1)
         self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.RESET).count(), 1)
 
         self.assertEqual(self.worker.tasks, {})

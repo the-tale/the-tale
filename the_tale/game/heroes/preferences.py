@@ -10,7 +10,7 @@ from game.map.places.storage import places_storage
 
 from game.persons.storage import persons_storage
 
-from game.heroes.models import ChoosePreferencesTask, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE, ANGEL_ENERGY_REGENERATION_TYPES_DICT
+from game.heroes.models import ChoosePreferencesTask, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE
 from game.heroes.bag import SLOTS_LIST, SLOTS_DICT
 from game.heroes.exceptions import HeroException
 
@@ -43,7 +43,7 @@ class HeroPreferences(object):
 
     @property
     def energy_regeneration_type_name(self):
-        return ANGEL_ENERGY_REGENERATION_TYPES_DICT[self.energy_regeneration_type]
+        return c.ANGEL_ENERGY_REGENERATION_TYPES.ID_2_TEXT[self.energy_regeneration_type]
 
     def get_energy_regeneration_type_changed_at(self): return self.hero_model.pref_energy_regeneration_type_changed_at
     def set_energy_regeneration_type_changed_at(self, value): self.hero_model.pref_energy_regeneration_type_changed_at = value

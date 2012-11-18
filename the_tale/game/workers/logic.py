@@ -150,6 +150,19 @@ class Worker(BaseWorker):
             self.storage.save_hero_data(task.hero_id)
             task.save()
 
+    def cmd_change_hero_name(self, account_id, task_id):
+        self.send_cmd('change_hero_name', {'task_id': task_id,
+                                           'account_id': account_id})
+
+    def process_change_hero_name(self, account_id, task_id):
+        with nested_commit_on_success():
+            from game.heroes.prototypes import ChangeHeroTaskPrototype
+
+            task = ChangeHeroTaskPrototype.get_by_id(task_id)
+            task.process(self.storage)
+            self.storage.save_hero_data(task.hero_id)
+            task.save()
+
     def cmd_mark_hero_as_not_fast(self, account_id, hero_id):
         self.send_cmd('mark_hero_as_not_fast', {'hero_id': hero_id,
                                                 'account_id': account_id})

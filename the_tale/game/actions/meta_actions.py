@@ -171,7 +171,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, hero_1, hero_2):
+    def create(cls, storage, hero_1, hero_2):
 
         hero_1_old_health = hero_1.health
         hero_2_old_health = hero_2.health
@@ -188,13 +188,18 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         member_1 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_1.model, role=cls.ROLES.HERO_1)
         member_2 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_2.model, role=cls.ROLES.HERO_2)
 
-        return cls(model, members=[member_1, member_2])
+        meta_action = cls(model, members=[member_1, member_2])
+        meta_action.set_storage(storage)
+
+        meta_action.add_message('meta_action_arena_pvp_1x1_start', duelist_1=hero_1, duelist_2=hero_2)
+
+        return meta_action
 
 
     def _check_hero_health(self, hero, enemy):
         if hero.health <= 0:
             # hero.statistics.change_pve_deaths(1)
-            # hero.add_message('action_battlepve1x1_hero_killed', important=True, hero=self.hero, mob=self.mob)
+            self.add_message('meta_action_arena_pvp_1x1_kill', important=True, victim=hero, killer=enemy)
             self.state = self.STATE.PROCESSED
             self.percents = 1.0
 

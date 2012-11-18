@@ -17,7 +17,7 @@ from game.models import SupervisorTask
 
 from game.pvp.models import Battle1x1
 from game.pvp.prototypes import Battle1x1Prototype
-from game.pvp.workers.balancer import QueueRecord
+from game.pvp.workers.balancer import QueueRecord, BalancingRecord
 
 from game.pvp.conf import pvp_settings
 
@@ -86,6 +86,9 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.battle_1 = Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_1.id))
         self.battle_2 = Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_2.id))
 
+        self.test_record_1 = QueueRecord(account_id=0, created_at=0, battle_id=0, hero_level=1)
+        self.test_record_2 = QueueRecord(account_id=1, created_at=1, battle_id=0, hero_level=4)
+
     @property
     def battle_1_record(self):
         return QueueRecord(account_id=self.account_1.id,
@@ -129,8 +132,8 @@ class BalancerBalancingTests(BalancerTestsBase):
 
         record = records[0]
         self.assertEqual(record[2], self.battle_1_record)
-        self.assertEqual(record[0], -1)
-        self.assertEqual(record[1], 3)
+        self.assertEqual(record[0], -6)
+        self.assertEqual(record[1], 8)
 
     def test_get_prepaired_queue_one_record_timeout(self):
 
@@ -196,17 +199,27 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.assertEqual(battle_pairs, [])
         self.assertEqual(records_to_exclude, [])
 
+    def test_has_intersections_false(self):
+        record_1 = BalancingRecord(min_level=0, max_level=3, record=self.test_record_1)
+        record_2 = BalancingRecord(min_level=3, max_level=5, record=self.test_record_2)
+        self.assertFalse(record_1.has_intersections(record_2))
+
+    def test_has_intersections_true(self):
+        record_1 = BalancingRecord(min_level=0, max_level=4, record=self.test_record_1)
+        record_2 = BalancingRecord(min_level=1, max_level=5, record=self.test_record_2)
+        self.assertTrue(record_1.has_intersections(record_2))
+
     def test_search_battles_two_records_unsuitable(self):
-        battle_pairs, records_to_exclude = self.worker._search_battles([(1, 2, 'record_1'),
-                                                                        (3, 4, 'record_2')])
+        battle_pairs, records_to_exclude = self.worker._search_battles([BalancingRecord(min_level=0, max_level=3, record=self.test_record_1),
+                                                                        BalancingRecord(min_level=3, max_level=5, record=self.test_record_2)])
         self.assertEqual(battle_pairs, [])
         self.assertEqual(records_to_exclude, [])
 
     def test_search_battles_two_records_suitable(self):
-        battle_pairs, records_to_exclude = self.worker._search_battles([(1, 3, 'record_1'),
-                                                                        (3, 4, 'record_2')])
-        self.assertEqual(battle_pairs, [('record_1', 'record_2')])
-        self.assertEqual(records_to_exclude, ['record_1', 'record_2'])
+        battle_pairs, records_to_exclude = self.worker._search_battles([BalancingRecord(min_level=0, max_level=4, record=self.test_record_1),
+                                                                        BalancingRecord(min_level=1, max_level=5, record=self.test_record_2)])
+        self.assertEqual(battle_pairs, [(self.test_record_1, self.test_record_2)])
+        self.assertEqual(records_to_exclude, [self.test_record_1, self.test_record_2])
 
 
     def test_clean_queue(self):

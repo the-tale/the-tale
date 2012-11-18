@@ -4,7 +4,7 @@ from django.db import models
 
 from dext.utils import s11n
 
-from game.game_info import RACE_CHOICES
+from game.game_info import RACE
 
 from game.persons.models import Person, PERSON_STATE
 
@@ -55,7 +55,7 @@ class MapInfoPrototype(object):
         terrain_percents = dict( (cell, float(square) / total_cells) for cell, square in terrain_squares.items())
 
         race_powers = {}
-        for race_id, race_name in RACE_CHOICES:
+        for race_id, race_name in RACE.CHOICES:
             power = Person.objects.filter(race=race_id, state=PERSON_STATE.IN_GAME).aggregate(models.Sum('power'))['power__sum']
             race_powers[race_id] = power if power is not None else 0
 

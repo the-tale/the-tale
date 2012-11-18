@@ -4,13 +4,13 @@ import random
 
 from game import names
 
-from game.game_info import RACE_CHOICES, GENDER
+from game.game_info import RACE, GENDER
 
 from game.persons.prototypes import PersonPrototype
 from game.persons.models import PERSON_TYPE_CHOICES
 
 def create_person(place, state):
-    race = random.choice(RACE_CHOICES)[0]
+    race = random.choice(RACE.CHOICES)[0]
     gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
     return PersonPrototype.create(place,
                                   state=state,

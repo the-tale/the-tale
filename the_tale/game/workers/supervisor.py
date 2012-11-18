@@ -9,7 +9,7 @@ from game.prototypes import TimePrototype, SupervisorTaskPrototype
 from game.bundles import BundlePrototype
 from game.models import Bundle, SupervisorTask, SUPERVISOR_TASK_STATE
 from game.abilities.prototypes import AbilityTaskPrototype
-from game.heroes.prototypes import ChooseAbilityTaskPrototype
+from game.heroes.prototypes import ChooseAbilityTaskPrototype, ChangeHeroTaskPrototype
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.conf import game_settings
 
@@ -60,6 +60,7 @@ class Worker(BaseWorker):
         #clearing
         AbilityTaskPrototype.reset_all()
         ChooseAbilityTaskPrototype.reset_all()
+        ChangeHeroTaskPrototype.reset_all()
         ChoosePreferencesTaskPrototype.reset_all()
 
         #initialization
@@ -250,6 +251,14 @@ class Worker(BaseWorker):
     def process_choose_hero_preference(self, account_id, preference_task_id):
         self.dispatch_logic_cmd(account_id, 'choose_hero_preference', {'account_id': account_id,
                                                                        'preference_task_id': preference_task_id} )
+
+    def cmd_change_hero_name(self, account_id, task_id):
+        self.send_cmd('change_hero_name', {'task_id': task_id,
+                                           'account_id': account_id})
+
+    def process_change_hero_name(self, account_id, task_id):
+        self.dispatch_logic_cmd(account_id, 'change_hero_name', {'account_id': account_id,
+                                                                 'task_id': task_id} )
 
 
     def cmd_mark_hero_as_not_fast(self, account_id, hero_id):

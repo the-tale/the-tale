@@ -95,7 +95,7 @@ class LogicStorageTests(TestCase):
         self.assertEqual(storage.heroes_to_actions[self.hero_1.id][1].TYPE, ActionRegenerateEnergyPrototype.TYPE)
 
     def test_load_account_data_with_meta_action(self):
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.hero_1, self.hero_2)
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2)
 
         proxy_action_1 = ActionMetaProxyPrototype.create(self.action_idl_1, meta_action_battle)
         proxy_action_2 = ActionMetaProxyPrototype.create(self.action_idl_2, meta_action_battle)
@@ -154,7 +154,7 @@ class LogicStorageTests(TestCase):
 
     def test_save_hero_data_with_meta_action(self):
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.hero_1, self.hero_2)
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2)
 
         ActionMetaProxyPrototype.create(self.action_idl_1, meta_action_battle)
         ActionMetaProxyPrototype.create(self.action_idl_2, meta_action_battle)

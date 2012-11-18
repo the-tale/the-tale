@@ -1,4 +1,6 @@
 # coding: utf-8
+import mock
+
 from django.test import client
 from django.core.urlresolvers import reverse
 
@@ -39,7 +41,14 @@ class TestRequests(TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
         self.request_login('test_user@test.com')
-        self.check_html_ok(self.client.get(reverse('game:pvp:')))
+        self.check_html_ok(self.client.get(reverse('game:pvp:')), texts=[('pgf-change-name-warning', 1)])
+
+    @mock.patch('game.heroes.prototypes.HeroPrototype.is_name_changed', True)
+    def test_game_page_when_pvp_processing_change_name_warning_hiden(self):
+        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
+        self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
+        self.request_login('test_user@test.com')
+        self.check_html_ok(self.client.get(reverse('game:pvp:')), texts=[('pgf-change-name-warning', 0)])
 
     def test_game_info_when_pvp_in_queue(self):
         self.pvp_create_battle(self.account_1, self.account_2)

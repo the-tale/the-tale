@@ -106,10 +106,10 @@ class PlacePrototype(object):
         from game.persons.prototypes import PersonPrototype
         from game.persons.storage import persons_storage
         from game.persons.models import PERSON_TYPE_CHOICES
-        from game.game_info import RACE_CHOICES
+        from game.game_info import RACE
 
         while persons_count < self.max_persons_number:
-            race = random.choice(RACE_CHOICES)[0]
+            race = random.choice(RACE.ALL)
             gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
             new_person = PersonPrototype.create(place=self,

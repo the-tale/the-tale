@@ -143,7 +143,7 @@ class SupervisorTaskPrototype(object):
         hero_1 = storage.accounts_to_heroes[account_1_id]
         hero_2 = storage.accounts_to_heroes[account_2_id]
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(hero_1, hero_2)
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2)
 
         bundle = BundlePrototype.create()
 

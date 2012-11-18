@@ -83,6 +83,12 @@ jQuery(document).ready(function(e){
 
 {% block content %}
 
+{% if not own_hero.is_name_changed %}
+<div class="alert alert-info pgf-change-name-warning">
+  <strong>ВНИМАНИЕ!</strong> Вы не указали формы имени героя, из-за этого описание сражения может быть недостаточно информативным. Указать формы имени героя можно на его <a href="{{url('game:heroes:show', own_hero.id)}}">странице</a>.
+</div>
+{% endif %}
+
 <div class="row">
   <div class="span3">
     {{ hero_short_macros.hero_short("hero-short-pvp-account", false, true, master_account=resource.account, data_mode="pvp_account") }}

@@ -44,31 +44,23 @@
       "template": "%(e_0)s %(i_0)s прошпионить за одной подозрительной личностью. Эта личность — %(e_1)s, живёт в %(e_2)s."
     }
   ], 
-  "angel_ability_shortteleport": [
+  "angel_ability_arena_pvp_1x1": [
     {
-      "internals": [], 
-      "externals": [
+      "internals": [
         [
-          "hero", 
-          [], 
-          "e_0", 
+          "записан", 
           [
-            "вн"
+            "hero"
           ], 
-          "hero"
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "записан"
         ]
       ], 
-      "template": "Порыв ветра поднял %(e_0)s в воздух и пронёс до ближайшего дерева."
-    }, 
-    {
-      "internals": [], 
       "externals": [], 
-      "template": "«Дырка в пространстве — единственный достойный героя способ передвижения»."
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "«Хранитель, зачем так пинаться-то?»."
+      "template": "Голос в голове сообщил, что я %(i_0)s в очередь на гладиаторскую арену. Что-то мне не по себе…"
     }
   ], 
   "quest_spying_action_intro": [
@@ -104,6 +96,33 @@
     }
   ], 
   "quest_delivery_action_choice_delivery": [], 
+  "angel_ability_shortteleport": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "Порыв ветра поднял %(e_0)s в воздух и пронёс до ближайшего дерева."
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "«Дырка в пространстве — единственный достойный героя способ передвижения»."
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "«Хранитель, зачем так пинаться-то?»."
+    }
+  ], 
   "hero_ability_hit_miss": [
     {
       "internals": [
@@ -623,33 +642,11 @@
       "template": "%(e_0)s %(i_0)s и %(i_1)s %(e_1)s %(i_2)s в награду за быструю доставку"
     }
   ], 
-  "hero_ability_magicmushroom": [
+  "quest_hometown_journal_drunk_song_description": [
     {
-      "internals": [
-        [
-          "воскликнул", 
-          [
-            "actor"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "воскликнул"
-        ]
-      ], 
-      "externals": [
-        [
-          "actor", 
-          [], 
-          "e_0", 
-          [
-            "им"
-          ], 
-          "actor"
-        ]
-      ], 
-      "template": "«Волшебный гриб!» — %(i_0)s %(e_0)s, запихивая в рот мухомор."
+      "internals": [], 
+      "externals": [], 
+      "template": "распевает разгульную песню, пьянствуя с друзьями в трактире"
     }
   ], 
   "action_inplace_description": [
@@ -660,6 +657,55 @@
     }
   ], 
   "quest_caravan_diary_caravan_attack": [], 
+  "meta_action_arena_pvp_1x1_start": [
+    {
+      "internals": [
+        [
+          "могучий", 
+          [
+            "duelist_1"
+          ], 
+          "i_0", 
+          [
+            "тв"
+          ], 
+          "могучий"
+        ], 
+        [
+          "знаменитый", 
+          [
+            "duelist_2"
+          ], 
+          "i_1", 
+          [
+            "тв"
+          ], 
+          "знаменитый"
+        ]
+      ], 
+      "externals": [
+        [
+          "duelist_1", 
+          [], 
+          "e_0", 
+          [
+            "тв"
+          ], 
+          "duelist_1"
+        ], 
+        [
+          "duelist_2", 
+          [], 
+          "e_1", 
+          [
+            "тв"
+          ], 
+          "duelist_2"
+        ]
+      ], 
+      "template": "Начинается бой между %(i_0)s %(e_0)s и %(i_1)s %(e_1)s!"
+    }
+  ], 
   "quest_hometown_journal_chatting_start": [
     {
       "internals": [], 
@@ -1008,65 +1054,6 @@
       "template": "перебирает содержимое рюкзака"
     }
   ], 
-  "quest_notmywork_action_choice_attack": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s настаивает на своём"
-    }
-  ], 
-  "quest_hometown_action_search_old_friends": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s гуляет по городу"
-    }
-  ], 
-  "action_regenerate_energy_energy_received_incense": [
-    {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
-    }
-  ], 
   "action_equipping_equip_item": [
     {
       "internals": [
@@ -1170,6 +1157,103 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s, что %(e_1)s как нельзя лучше подойдёт геройскому образу"
+    }
+  ], 
+  "quest_notmywork_action_choice_attack": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s настаивает на своём"
+    }
+  ], 
+  "quest_hometown_action_search_old_friends": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s гуляет по городу"
+    }
+  ], 
+  "action_regenerate_energy_energy_received_incense": [
+    {
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
+    }
+  ], 
+  "meta_action_arena_pvp_1x1_kill": [
+    {
+      "internals": [
+        [
+          "пал", 
+          [
+            "victim"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "пал"
+        ]
+      ], 
+      "externals": [
+        [
+          "victim", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "victim"
+        ], 
+        [
+          "killer", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "killer"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s от удара %(e_1)s. Толпа ликует!"
     }
   ], 
   "quest_interfereenemy_action_intro": [
@@ -1325,21 +1409,33 @@
       "template": "%(e_0)s мне %(i_0)s, купил вместо %(i_1)s %(e_1)s за %(e_2)s %(i_2)s. А %(e_3)s %(i_3)s за %(e_4)s %(i_4)s."
     }
   ], 
-  "quest_helpfriend_diary_intro": [
+  "hero_ability_magicmushroom": [
     {
-      "internals": [], 
+      "internals": [
+        [
+          "воскликнул", 
+          [
+            "actor"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "воскликнул"
+        ]
+      ], 
       "externals": [
         [
-          "person_end", 
+          "actor", 
           [], 
           "e_0", 
           [
-            "загл"
+            "им"
           ], 
-          "person_end"
+          "actor"
         ]
       ], 
-      "template": "Как там поживает %(e_0)s? Стоит сходить, проверить."
+      "template": "«Волшебный гриб!» — %(i_0)s %(e_0)s, запихивая в рот мухомор."
     }
   ], 
   "quest_searchsmith_action_upgrade_equipment": [], 
@@ -2110,31 +2206,36 @@
       "template": "Неплохая вещица, %(i_0)s %(e_0)s — надо оставить себе."
     }
   ], 
-  "quest_caravan_diary_bad_get_reward": [
+  "quest_caravan_action_choice_attack": [
     {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
+      "internals": [], 
       "externals": [
         [
-          "coins", 
+          "hero", 
           [], 
           "e_0", 
           [], 
-          "coins"
+          "hero"
         ]
       ], 
-      "template": "Караванщик оказался не таким богатым — за добычу удалось выручить всего %(e_0)s %(i_0)s"
+      "template": "%(e_0)s грабит караван"
+    }
+  ], 
+  "quest_helpfriend_diary_intro": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "person_end", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "person_end"
+        ]
+      ], 
+      "template": "Как там поживает %(e_0)s? Стоит сходить, проверить."
     }
   ], 
   "quest_hunt_diary_move_to_quest": [], 
@@ -2296,6 +2397,33 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s %(e_1)s %(i_1)s в награду за выполнение задания"
+    }
+  ], 
+  "quest_caravan_diary_bad_get_reward": [
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "Караванщик оказался не таким богатым — за добычу удалось выручить всего %(e_0)s %(i_0)s"
     }
   ], 
   "action_inplace_instant_heal": [
@@ -3652,23 +3780,6 @@
     }
   ], 
   "quest_notmywork_diary_work_choice": [], 
-  "action_movenearplace_description": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "Бродит в окрестностях %(e_0)s"
-    }
-  ], 
   "quest_delivery_choice_steal_variant_steal": [
     {
       "internals": [], 
@@ -4011,21 +4122,7 @@
       "template": "Что-то %(e_0)s юлит… придётся применить силовое воздействие."
     }
   ], 
-  "quest_caravan_action_choice_attack": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s грабит караван"
-    }
-  ], 
+  "quest_helpfriend_journal_move_to_quest": [], 
   "quest_notmywork_journal_attack_performer": [], 
   "quest_hunt_action_track": [
     {
@@ -4795,11 +4892,21 @@
       "template": "И куда запропастился мой старый боевой товарищ, всегда же тут ошивался…"
     }
   ], 
-  "quest_hometown_journal_drunk_song_description": [
+  "action_movenearplace_description": [
     {
       "internals": [], 
-      "externals": [], 
-      "template": "распевает разгульную песню, пьянствуя с друзьями в трактире"
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "Бродит в окрестностях %(e_0)s"
     }
   ], 
   "quest_spying_description": [
@@ -5844,7 +5951,6 @@
       "template": "%(e_0)s %(i_0)s поистине чудесный артефакт — «%(e_1)s»! И всего за %(e_2)s %(i_1)s. %(e_3)s пришлось продать за %(e_4)s %(i_2)s."
     }
   ], 
-  "quest_helpfriend_journal_move_to_quest": [], 
   "action_battlepve1x1_hero_killed": [
     {
       "internals": [

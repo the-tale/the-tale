@@ -3,24 +3,11 @@ import datetime
 
 from django.db import models
 
+from common.utils.enum import create_enum
 
-from game.game_info import RACE, RACE_CHOICES, GENDER, GENDER_CHOICES
+from game.game_info import RACE, GENDER
 
 from game.balance import constants as c
-
-ANGEL_ENERGY_REGENERATION_TYPES_CHOICES = ( (c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, u'молитва'),
-                                            (c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, u'жертвоприношение'),
-                                            (c.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE, u'благовония'),
-                                            (c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, u'символы'),
-                                            (c.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION, u'медитация')  )
-
-ANGEL_ENERGY_REGENERATION_TYPES_DICT  = dict(ANGEL_ENERGY_REGENERATION_TYPES_CHOICES)
-
-ITEMS_OF_EXPENDITURE_CHOICES = ( (c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL, u'лечение'),
-                                 (c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT, u'покупка артефакта'),
-                                 (c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT, u'заточка артефакта'),
-                                 (c.ITEMS_OF_EXPENDITURE.USELESS, u'бесполезные траты'),
-                                 (c.ITEMS_OF_EXPENDITURE.IMPACT, u'изменение влияния'), )
 
 class Hero(models.Model):
 
@@ -37,9 +24,9 @@ class Hero(models.Model):
     #base
     name = models.CharField(max_length=150, null=False)
 
-    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER_CHOICES)
+    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER.CHOICES)
 
-    race = models.IntegerField(choices=RACE_CHOICES, default=RACE.HUMAN)
+    race = models.IntegerField(choices=RACE.CHOICES, default=RACE.HUMAN)
 
     level = models.IntegerField(null=False, default=1)
     experience = models.FloatField(null=False, default=0)
@@ -63,9 +50,11 @@ class Hero(models.Model):
     diary = models.TextField(null=False, default='[]')
     actions_descriptions = models.TextField(null=False, default='[]')
 
+    name_forms = models.TextField(null=False, default='')
+
     last_action_percents = models.FloatField(null=False, default=0)
 
-    next_spending = models.IntegerField(null=False, default=c.ITEMS_OF_EXPENDITURE.USELESS, choices=ITEMS_OF_EXPENDITURE_CHOICES)
+    next_spending = models.IntegerField(null=False, default=c.ITEMS_OF_EXPENDITURE.USELESS, choices=c.ITEMS_OF_EXPENDITURE.CHOICES)
 
     energy = models.FloatField(null=False, default=0.0)
     last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
@@ -84,7 +73,7 @@ class Hero(models.Model):
     pos_to_y = models.IntegerField(null=True, blank=True, default=None)
 
     #character
-    pref_energy_regeneration_type = models.IntegerField(null=False, default=c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=ANGEL_ENERGY_REGENERATION_TYPES_CHOICES, blank=True)
+    pref_energy_regeneration_type = models.IntegerField(null=False, default=c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=c.ANGEL_ENERGY_REGENERATION_TYPES.CHOICES, blank=True)
     pref_energy_regeneration_type_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
     pref_mob_id = models.CharField(max_length=32, null=True, default=None, blank=True)
@@ -126,22 +115,17 @@ class Hero(models.Model):
         return u'hero[%d] - %s' % (self.id, self.name)
 
 
-class CHOOSE_ABILITY_STATE:
-    WAITING = 0
-    PROCESSED = 1
-    UNPROCESSED = 2
-    RESET = 3
-    ERROR = 4
-
-CHOOSE_ABILITY_STATE_CHOICES = [(CHOOSE_ABILITY_STATE.WAITING, u'в очереди'),
-                                (CHOOSE_ABILITY_STATE.PROCESSED, u'обработана'),
-                                (CHOOSE_ABILITY_STATE.UNPROCESSED, u'нельзя выбрать'),
-                                (CHOOSE_ABILITY_STATE.RESET, u'сброшена'),
-                                (CHOOSE_ABILITY_STATE.ERROR, u'ошибка')]
+CHOOSE_ABILITY_STATE = create_enum('CHOOSE_ABILITY_STATE', ( ('WAITING', 0, u'в очереди'),
+                                                             ('PROCESSED', 1, u'обработана'),
+                                                             ('UNPROCESSED', 2, u'нельзя выбрать'),
+                                                             ('RESET', 3, u'сброшена'),
+                                                             ('ERROR', 4, u'ошибка'),) )
 
 class ChooseAbilityTask(models.Model):
 
-    state = models.IntegerField(default=CHOOSE_ABILITY_STATE.WAITING, choices=CHOOSE_ABILITY_STATE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True, default=datetime.datetime(2000, 1, 1))
+
+    state = models.IntegerField(default=CHOOSE_ABILITY_STATE.WAITING, choices=CHOOSE_ABILITY_STATE.CHOICES)
 
     hero = models.ForeignKey(Hero,  related_name='+')
 
@@ -150,52 +134,56 @@ class ChooseAbilityTask(models.Model):
     comment = models.CharField(max_length=256, blank=True, null=False, default=True)
 
 
-class CHOOSE_PREFERENCES_STATE:
-    WAITING = 0
-    PROCESSED = 1
-    TIMEOUT = 2
-    RESET = 3
-    ERROR = 4
-    COOLDOWN = 5
-    UNAVAILABLE_PERSON = 6
-    OUTGAME_PERSON = 7
-    UNSPECIFIED_PREFERENCE = 8
+CHOOSE_PREFERENCES_STATE = create_enum('CHOOSE_PREFERENCES_STATE', ( ('WAITING', 0, u'в очереди'),
+                                                                     ('PROCESSED', 1, u'обработана'),
+                                                                     ('TIMEOUT', 2, u'таймаут'),
+                                                                     ('RESET', 3, u'сброшена'),
+                                                                     ('ERROR', 4, u'ошибка'),
+                                                                     ('COOLDOWN', 5, u'заблокирована по времени'),
+                                                                     ('UNAVAILABLE_PERSON', 6, u'недоступный персонаж'),
+                                                                     ('OUTGAME_PERSON', 7, u'выведеный из игры персонаж'),
+                                                                     ('UNSPECIFIED_PREFERENCE', 8, u'неуказанное предпочтение'), ) )
 
-CHOOSE_PREFERENCES_STATE_CHOICES = [(CHOOSE_PREFERENCES_STATE.WAITING, u'в очереди'),
-                                    (CHOOSE_PREFERENCES_STATE.PROCESSED, u'обработана'),
-                                    (CHOOSE_PREFERENCES_STATE.TIMEOUT, u'таймаут'),
-                                    (CHOOSE_PREFERENCES_STATE.RESET, u'сброшена'),
-                                    (CHOOSE_PREFERENCES_STATE.ERROR, u'ошибка'),
-                                    (CHOOSE_PREFERENCES_STATE.COOLDOWN, u'заблокирована по времени'),
-                                    (CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON, u'недоступный персонаж'),
-                                    (CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON, u'выведеный из игры персонаж'),
-                                    (CHOOSE_PREFERENCES_STATE.UNSPECIFIED_PREFERENCE, u'неуказанное предпочтение')]
 
-class PREFERENCE_TYPE:
-    MOB = 0
-    PLACE = 1
-    FRIEND = 2
-    ENEMY = 3
-    ENERGY_REGENERATION_TYPE = 4
-    EQUIPMENT_SLOT = 5
-
-PREFERENCE_TYPE_CHOICES = [ (PREFERENCE_TYPE.MOB, u'любимая добыча'),
-                            (PREFERENCE_TYPE.PLACE, u'родной город'),
-                            (PREFERENCE_TYPE.FRIEND, u'соратник'),
-                            (PREFERENCE_TYPE.ENEMY, u'враг'),
-                            (PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, u'религиозность'),
-                            (PREFERENCE_TYPE.EQUIPMENT_SLOT, u'экипировка')]
+PREFERENCE_TYPE = create_enum('PREFERENCE_TYPE', ( ('MOB', 0, u'любимая добыча'),
+                                                   ('PLACE', 1, u'родной город'),
+                                                   ('FRIEND', 2, u'соратник'),
+                                                   ('ENEMY', 3, u'враг'),
+                                                   ('ENERGY_REGENERATION_TYPE', 4, u'религиозность'),
+                                                   ('EQUIPMENT_SLOT', 5, u'экипировка'),) )
 
 
 class ChoosePreferencesTask(models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    state = models.IntegerField(default=CHOOSE_PREFERENCES_STATE.WAITING, choices=CHOOSE_PREFERENCES_STATE_CHOICES, db_index=True)
+    state = models.IntegerField(default=CHOOSE_PREFERENCES_STATE.WAITING, choices=CHOOSE_PREFERENCES_STATE.CHOICES, db_index=True)
 
     hero = models.ForeignKey(Hero,  related_name='+')
 
-    preference_type = models.IntegerField(choices=PREFERENCE_TYPE_CHOICES, db_index=True)
+    preference_type = models.IntegerField(choices=PREFERENCE_TYPE.CHOICES, db_index=True)
     preference_id = models.CharField(default=None, max_length=32, null=True) # id can be either number nor strong
 
     comment = models.CharField(max_length=256, blank=True, null=False, default=True)
+
+
+CHANGE_HERO_STATE = create_enum('CHANGE_HERO_STATE', ( ('WAITING', 0, u'в очереди'),
+                                                       ('PROCESSED', 1, u'обработана'),
+                                                       ('RESET', 2, u'сброшена'),
+                                                       ('ERROR', 3, u'ошибка') ) )
+
+class ChangeHeroTask(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    state = models.IntegerField(default=CHANGE_HERO_STATE.WAITING, choices=CHANGE_HERO_STATE.CHOICES, db_index=True)
+
+    hero = models.ForeignKey(Hero,  related_name='+')
+
+    comment = models.CharField(max_length=256, blank=True, null=False, default=True)
+
+    data = models.TextField(null=False, default='{}')
+
+    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER.CHOICES)
+
+    race = models.IntegerField(choices=RACE.CHOICES, default=RACE.HUMAN)

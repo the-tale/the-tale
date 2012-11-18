@@ -24,7 +24,9 @@ jQuery(document).ready(function(e){
         updater.Refresh();
     }, 0);
 
-    pgf.base.InitializeTabs('hero-tab-main', 'attributes', [['.pgf-attributes-tab-button', 'attributes'], ['.pgf-statistics-tab-button', 'statistics']]);
+    pgf.base.InitializeTabs('hero-tab-main', 'attributes', [['.pgf-attributes-tab-button', 'attributes'],
+                                                            ['.pgf-statistics-tab-button', 'statistics'],
+                                                            ['.pgf-settings-tab-button', 'settings']]);
 });
 
 </script>
@@ -49,6 +51,11 @@ jQuery(document).ready(function(e){
     <ul class="nav nav-tabs">
       <li class=""><a href="#pgf-attributes-container" class="pgf-attributes-tab-button" data-toggle="tab">Атрибуты</a></li>
       <li class=""><a href="#pgf-statistics-container" class="pgf-statistics-tab-button" data-toggle="tab">Статистика</a></li>
+      <li class="">
+        <a href="#pgf-settings-container" class="pgf-settings-tab-button" data-toggle="tab">
+          Настройки {% if not resource.hero.is_name_changed %}<span class="label label-important pgf-change-name-warning">укажите формы имени героя</span>{% endif %}
+        </a>
+      </li>
     </ul>
 
     <div class="row tab-content">
@@ -68,6 +75,13 @@ jQuery(document).ready(function(e){
           {% include "heroes/hero_statistics.html" with context %}
         </div>
       </div>
+
+      <div class="tab-pane" id="pgf-settings-container">
+        <div class="span8">
+          {% include "heroes/hero_settings.html" with context %}
+        </div>
+      </div>
+
     </div>
 
 </div>

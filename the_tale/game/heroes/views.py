@@ -17,10 +17,10 @@ from game.persons.storage import persons_storage
 
 from game.workers.environment import workers_environment
 
-from game.heroes.prototypes import HeroPrototype, ChooseAbilityTaskPrototype
+from game.heroes.prototypes import HeroPrototype, ChooseAbilityTaskPrototype, ChangeHeroTaskPrototype
 from game.heroes.preferences import ChoosePreferencesTaskPrototype
-from game.heroes.models import CHOOSE_ABILITY_STATE, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE
-from game.heroes.forms import ChoosePreferencesForm
+from game.heroes.models import CHOOSE_ABILITY_STATE, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE, CHANGE_HERO_STATE
+from game.heroes.forms import ChoosePreferencesForm, EditNameForm
 from game.heroes.bag import SLOTS_LIST, SLOTS_DICT
 
 def split_list(items):
@@ -65,9 +65,13 @@ class HeroResource(Resource):
     @handler('#hero_id', name='show', method='get')
     def hero_page(self):
         abilities = sorted(self.hero.abilities.all, key=lambda x: x.NAME)
+        edit_name_form = EditNameForm(initial={'name_forms': self.hero.normalized_name.forms[:6] if self.hero.is_name_changed else [self.hero.name]*6,
+                                               'gender': self.hero.gender,
+                                               'race': self.hero.race} )
         return self.template('heroes/hero_page.html',
                              {'abilities': abilities,
                               'is_owner': self.is_owner,
+                              'edit_name_form': edit_name_form,
                               'master_account': AccountPrototype.get_by_id(self.hero.account_id),
                               'PREFERENCE_TYPE': PREFERENCE_TYPE} )
 
@@ -77,6 +81,44 @@ class HeroResource(Resource):
     def choose_ability_dialog(self):
         return self.template('heroes/choose_ability.html',
                              {} )
+
+    @login_required
+    @validate_ownership()
+    @handler('#hero_id', 'change-hero', method='post')
+    def change_hero(self):
+        edit_name_form = EditNameForm(self.request.POST)
+
+        if not edit_name_form.is_valid():
+            return self.json_error('heroes.change_name.form_errors', edit_name_form.errors)
+
+        task = ChangeHeroTaskPrototype.create(self.hero,
+                                              forms=edit_name_form.c.name_forms,
+                                              race=edit_name_form.c.race,
+                                              gender=edit_name_form.c.gender)
+
+        workers_environment.supervisor.cmd_change_hero_name(self.account.id, task.id)
+
+        return self.json_processing(reverse('game:heroes:change-hero-status', args=[self.hero.id]) + ('?task_id=%d' % task.id))
+
+    @login_required
+    @validate_ownership(response_type='json')
+    @handler('#hero_id', 'change-hero-status', method='get')
+    def change_hero_status(self, task_id):
+
+        task = ChangeHeroTaskPrototype.get_by_id(int(task_id))
+
+        if task is None:
+            return self.json_error('heroes.change_hero_status.no_task', u'задачи не существует')
+
+        if task.state == CHANGE_HERO_STATE.WAITING:
+            return self.json_processing(reverse('game:heroes:change-hero-status', args=[self.hero_id]) + ('?task_id=%d' % task.id) )
+
+        if task.state == CHANGE_HERO_STATE.PROCESSED:
+            return self.json_ok()
+
+        return self.json_error('heroes.change_hero_status.error', u'Ошибка при редактировании имени героя, повторите попытку позже')
+
+
 
     @login_required
     @validate_ownership()
@@ -126,11 +168,10 @@ class HeroResource(Resource):
         all_places.sort(key=lambda x: x.name)
 
         if type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE:
-            hero = HeroPrototype.get_by_account_id(self.account.id)
+            pass
 
         if type == PREFERENCE_TYPE.MOB:
-            hero = HeroPrototype.get_by_account_id(self.account.id)
-            all_mobs = MobsDatabase.storage().get_available_mobs_list(level=hero.level)
+            all_mobs = MobsDatabase.storage().get_available_mobs_list(level=self.hero.level)
             all_mobs = sorted(all_mobs, key=lambda x: x.name)
             mobs = split_list(all_mobs)
 
@@ -171,15 +212,13 @@ class HeroResource(Resource):
         if not choose_preferences_form.is_valid():
             return self.json(status='error', errors=choose_preferences_form.errors)
 
-        hero = HeroPrototype.get_by_account_id(self.account.id)
-
-        task = ChoosePreferencesTaskPrototype.create(hero,
+        task = ChoosePreferencesTaskPrototype.create(self.hero,
                                                      preference_type=choose_preferences_form.c.preference_type,
                                                      preference_id=choose_preferences_form.c.preference_id if choose_preferences_form.c.preference_id else None)
 
         workers_environment.supervisor.cmd_choose_hero_preference(self.account.id, task.id)
 
-        return self.json(status='processing', status_url=reverse('game:heroes:choose-preferences-status', args=[hero.id]) + ('?task_id=%d' % task.id) )
+        return self.json(status='processing', status_url=reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % task.id) )
 
     @login_required
     @validate_ownership(response_type='json')

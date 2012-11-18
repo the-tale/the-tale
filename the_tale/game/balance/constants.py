@@ -2,6 +2,8 @@
 
 import math
 
+from common.utils.enum import create_enum
+
 TIME_TO_LVL_DELTA = float(5) # разница во времени получения двух соседних уровней
 
 INITIAL_HP = int(500) # начальное здоровье героя
@@ -58,14 +60,12 @@ BAG_SIZE_TO_SELL_LOOT_FRACTION = float(0.33) # процент заполненн
 
 # типы трат
 
-class ITEMS_OF_EXPENDITURE:
-    INSTANT_HEAL = 0
-    BUYING_ARTIFACT = 1
-    SHARPENING_ARTIFACT = 2
-    USELESS = 3
-    IMPACT = 4
-
-    ALL = [INSTANT_HEAL, BUYING_ARTIFACT, SHARPENING_ARTIFACT, USELESS, IMPACT]
+ITEMS_OF_EXPENDITURE = create_enum('ITEMS_OF_EXPENDITURE',
+                                   ( ('INSTANT_HEAL', 0, u'лечение'),
+                                     ('BUYING_ARTIFACT', 1, u'покупка артефакта'),
+                                     ('SHARPENING_ARTIFACT', 2, u'заточка артефакта'),
+                                     ('USELESS', 3, u'бесполезные траты'),
+                                     ('IMPACT', 4, u'изменение влияния'), ) )
 
 ITEMS_OF_EXPENDITURE_PRIORITY = { ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 6,
                                   ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 2,
@@ -152,12 +152,12 @@ ANGEL_ENERGY_REGENERATION_TIME = float(0.5) # раз в сколько часо�
 ANGEL_ENERGY_REGENERATION_AMAUNT = int(1) # сколько восстанавливаем
 ANGEL_ENERGY_REGENERATION_PERIOD = int(ANGEL_ENERGY_REGENERATION_TIME * TURNS_IN_HOUR) # раз в сколько ходов
 
-class ANGEL_ENERGY_REGENERATION_TYPES:
-    PRAY = 0
-    SACRIFICE = 1
-    INCENSE = 2
-    SYMBOLS = 3
-    MEDITATION = 4
+ANGEL_ENERGY_REGENERATION_TYPES = create_enum('ANGEL_ENERGY_REGENERATION_TYPES',
+                                              ( ('PRAY', 0, u'молитва'),
+                                                ('SACRIFICE', 1, u'жертвоприношение'),
+                                                ('INCENSE', 2, u'благовония'),
+                                                ('SYMBOLS', 3, u'символы'),
+                                                ('MEDITATION', 4, u'медитация') ))
 
 ANGEL_ENERGY_REGENERATION_DELAY = { ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 1,
                                     ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 2,

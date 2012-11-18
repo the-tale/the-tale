@@ -27,6 +27,17 @@ class PvPBalancerException(Exception): pass
 class QueueRecord(namedtuple('QueueRecord', ('account_id', 'created_at', 'battle_id', 'hero_level'))):
     __slots__ = ()
 
+class BalancingRecord(namedtuple('BalancingRecord', ('min_level', 'max_level', 'record'))):
+    __slots__ = ()
+
+
+    def in_interval(self, level):
+        return self.min_level <= level <= self.max_level
+
+    def has_intersections(self, other):
+        return self.in_interval(other.record.hero_level) and other.in_interval(self.record.hero_level)
+
+
 
 class Worker(BaseWorker):
 
@@ -81,7 +92,12 @@ class Worker(BaseWorker):
 
     def process_add_to_arena_queue(self, battle_id):
 
-        battle = Battle1x1Prototype.get_by_id(battle_id)
+        battle = None
+
+        while battle is None:
+            # wait while model appear in base, since command was sent from transaction
+            battle = Battle1x1Prototype.get_by_id(battle_id)
+
 
         hero = HeroPrototype.get_by_account_id(battle.account_id)
 
@@ -110,11 +126,13 @@ class Worker(BaseWorker):
                 records_to_remove.append(record)
                 continue
 
-            records.append((math.floor(record.hero_level - time_delta / time_in_level),
-                            math.ceil(record.hero_level + time_delta / time_in_level),
-                            record))
+            balancing_record = BalancingRecord(min_level=math.floor(record.hero_level - pvp_settings.BALANCING_MIN_LEVEL_DELTA - time_delta / time_in_level),
+                                               max_level=math.ceil(record.hero_level + pvp_settings.BALANCING_MIN_LEVEL_DELTA + time_delta / time_in_level),
+                                               record=record)
 
-        return sorted(records, key=lambda r: r[0]), records_to_remove
+            records.append(balancing_record)
+
+        return sorted(records, key=lambda r: r.record.created_at), records_to_remove
 
     def _search_battles(self, records):
 
@@ -129,11 +147,11 @@ class Worker(BaseWorker):
 
             for index, record in enumerate(records):
 
-                if current_record[1] >= record[0]:
-                    battle_pairs.append((current_record[2], record[2]))
+                if current_record.has_intersections(record):
+                    battle_pairs.append((current_record.record, record.record))
                     records.pop(index)
-                    records_to_exclude.append(current_record[2])
-                    records_to_exclude.append(record[2])
+                    records_to_exclude.append(current_record.record)
+                    records_to_exclude.append(record.record)
                     break
 
         return battle_pairs, records_to_exclude

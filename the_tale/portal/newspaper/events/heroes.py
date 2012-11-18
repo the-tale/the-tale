@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from game.game_info import GENDER_DICT_USERFRIENDLY, RACE_DICT
+from game.game_info import GENDER, RACE
 
 from portal.newspaper.models import NEWSPAPER_EVENT_SECTION, NEWSPAPER_EVENT_TYPE
 
@@ -25,11 +25,11 @@ class EventHeroOfTheDay(object):
 
     @property
     def gender_verbose(self):
-        return GENDER_DICT_USERFRIENDLY[self.gender]
+        return GENDER.ID_2_TEXT[self.gender]
 
     @property
     def race_verbose(self):
-        return RACE_DICT[self.race]
+        return RACE.ID_2_TEXT[self.race]
 
     def serialize(self):
         return {'type': self.TYPE,

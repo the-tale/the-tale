@@ -40,6 +40,7 @@ class PvPResource(Resource):
         enemy_abilities = sorted(enemy_hero.abilities.all, key=lambda x: x.NAME)
         return self.template('pvp/pvp_page.html',
                              {'enemy_account': AccountPrototype.get_by_id(battle.enemy_id),
+                              'own_hero': own_hero,
                               'own_abilities': own_abilities,
                               'enemy_abilities': enemy_abilities,
                               'game_settings': game_settings} )

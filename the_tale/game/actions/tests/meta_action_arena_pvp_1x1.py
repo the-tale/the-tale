@@ -47,7 +47,7 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        self.meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.hero_1, self.hero_2)
+        self.meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2)
         self.meta_action_battle.set_storage(self.storage)
 
 
