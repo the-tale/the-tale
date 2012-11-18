@@ -3,8 +3,6 @@
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
 
-from game.heroes.prototypes import HeroPrototype
-
 from game.actions.models import MetaAction, MetaActionMember, UNINITIALIZED_STATE
 
 from game.actions import battle, contexts
@@ -221,5 +219,6 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
             self.hero_1.health = self.hero_1_old_health
             self.hero_2.health = self.hero_2_old_health
+
 
 META_ACTION_TYPES = get_meta_actions_types()

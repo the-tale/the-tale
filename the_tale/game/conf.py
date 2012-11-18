@@ -27,8 +27,8 @@ game_settings = app_settings('GAME',
                              SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY = 'prev real day started',
                              REAL_DAY_STARTED_TIME=8, # UTC hourse
 
-                             SETTINGS_PREV_VACUUM_RUN_TIME_KEY = 'prev vacuum run time',
-                             VACUUM_RUN_TIME=2, # UTC time
+                             SETTINGS_PREV_CLEANING_RUN_TIME_KEY = 'prev cleaning run time',
+                             CLEANING_RUN_TIME=2, # UTC time
 
                              JS_CONSTNATS_FILE_LOCATION='./static/game/data/constants.js',
 

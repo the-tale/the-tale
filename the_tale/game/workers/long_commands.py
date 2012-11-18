@@ -54,10 +54,10 @@ class Worker(BaseWorker):
     def process_recalculate_ratings(self):
         subprocess.call(['./manage.py', 'ratings_recalculate_ratings'])
 
-    def cmd_run_vacuum(self):
+    def cmd_run_cleaning(self):
         return self.send_cmd('recalculate_ratings')
 
-    def process_run_vacuum(self):
+    def process_run_cleaning(self):
         vacuum_result = subprocess.call(['vacuumdb', '-q',
                                          '-U "%s"' % project_settings.DATABASES['default']['USER'],
                                          '-d "%s"' % project_settings.DATABASES['default']['NAME']])
@@ -65,3 +65,9 @@ class Worker(BaseWorker):
             self.logger.error('VACUUM COMMAND ENDED WITH CODE %d' % vacuum_result)
         else:
             self.logger.info('vacuum command was processed correctly')
+
+        clean_result = subprocess.call(['./manage.py', 'game_clean'])
+        if clean_result:
+            self.logger.error('CLEAN COMMAND ENDED WITH CODE %d' % clean_result)
+        else:
+            self.logger.info('clean command was processed correctly')

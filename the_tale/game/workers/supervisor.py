@@ -288,11 +288,11 @@ class Worker(BaseWorker):
     def process_recalculate_ratings(self):
         self.long_commands_worker.cmd_recalculate_ratings()
 
-    def cmd_run_vacuum(self):
+    def cmd_run_cleaning(self):
         return self.send_cmd('recalculate_ratings')
 
-    def process_run_vacuum(self):
-        self.long_commands_worker.cmd_run_vacuum()
+    def process_run_cleaning(self):
+        self.long_commands_worker.cmd_run_cleaning()
 
     def cmd_account_release_required(self, account_id):
         return self.send_cmd('account_release_required', {'account_id': account_id})

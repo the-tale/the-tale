@@ -71,10 +71,10 @@ class Worker(BaseWorker):
             game_signals.day_started.send(self.__class__)
             settings[game_settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY] = str(time.time())
 
-        # check if vacuum run needed
-        if (time.time() - float(settings.get(game_settings.SETTINGS_PREV_VACUUM_RUN_TIME_KEY, 0)) > 23.5*60*60 and
-            datetime.datetime.now().hour >= game_settings.VACUUM_RUN_TIME):
-            settings[game_settings.SETTINGS_PREV_VACUUM_RUN_TIME_KEY] = str(time.time())
+        # check if cleaning run needed
+        if (time.time() - float(settings.get(game_settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY, 0)) > 23.5*60*60 and
+            datetime.datetime.now().hour >= game_settings.CLEANING_RUN_TIME):
+            settings[game_settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY] = str(time.time())
 
         map_update_needed = False
         with nested_commit_on_success():
