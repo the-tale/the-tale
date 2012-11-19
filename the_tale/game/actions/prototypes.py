@@ -972,7 +972,11 @@ class ActionRestPrototype(ActionPrototype):
 
     def process(self):
 
+        if self.hero.health >= self.hero.max_health:
+            self.state = self.STATE.PROCESSED
+
         if self.state == self.STATE.RESTING:
+
             heal_amount = int(round(float(self.hero.max_health) / c.HEAL_LENGTH * (1 + random.uniform(-c.HEAL_STEP_FRACTION, c.HEAL_STEP_FRACTION))))
 
             heal_amount = self.hero.heal(heal_amount)
@@ -982,8 +986,13 @@ class ActionRestPrototype(ActionPrototype):
 
             self.percents = float(self.hero.health)/self.hero.max_health
 
-            if self.hero.health == self.hero.max_health:
+            if self.hero.health >= self.hero.max_health:
                 self.state = self.STATE.PROCESSED
+
+        if self.state == self.STATE.PROCESSED:
+            self.hero.health = self.hero.max_health
+
+
 
 
 class ActionEquippingPrototype(ActionPrototype):
