@@ -26,7 +26,8 @@
   <div class="btn-toolbar">
 
     <div class="btn-group">
-      <a class="btn" href="{{ url('game:bills:') }}">сбросить фильтрацию</a>
+      <a class="btn {% if not is_filtering %}disabled{% endif %}"
+         href="{% if is_filtering %}{{ url('game:bills:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
     </div>
 
     {% if owner_account %}
