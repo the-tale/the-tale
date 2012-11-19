@@ -85,7 +85,7 @@
         {% for thread in forum_threads %}
         <li class="newspaper-link-list">
           <span class="pgf-format-time newspaper-link-time" data-timestamp="{{ thread.updated_at|timestamp }}"></span><br/>
-          {{ thread.caption }}&nbsp;<a style="font-size: 10pt;" href="{{ url('forum:threads:show', thread.id) }}">➔</a>
+          {{ thread.caption }}&nbsp;<a style="font-size: 10pt;" href="{{ thread.paginator.last_page_url }}">➔</a>
         </li>
         {% endfor %}
       </ul>
