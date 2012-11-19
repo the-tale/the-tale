@@ -24,7 +24,6 @@ DATABASES = {
     }
 }
 
-#TODO: UTC
 TIME_ZONE = 'UTC'
 
 LANGUAGE_CODE = 'ru'
