@@ -46,7 +46,7 @@ jQuery(document).ready(function(e) {
     <span class="text-values"><span class="pgf-experience"></span>/<span class="pgf-experience-to-level"></span></span>
   </div>
 
-  <div class="record-with-progress" rel="tooltip">
+  <div class="record-with-progress" rel="tooltip" title="запас энергии (примерно +{{ (c.ANGEL_ENERGY_REGENERATION_AMAUNT/c.ANGEL_ENERGY_REGENERATION_TIME)|int}} в час)">
     <img src="{{ STATIC_URL }}game/images/attrs/energy.png"/>
     <div class="progress progress-info" style="">
       <div class="bar pgf-energy-percents"></div>
