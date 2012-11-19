@@ -25,11 +25,12 @@ class ThreadAdmin(admin.ModelAdmin):
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'state', 'technical', 'thread', 'author', 'created_at', 'updated_at')
 
-    fields = ('thread', 'author', 'created_at', 'updated_at', 'text', 'markup_method', 'technical')
+    fields = ('thread', 'author', 'created_at', 'updated_at', 'text', 'markup_method', 'technical', 'state', 'removed_by', 'remove_initiator')
 
     readonly_fields = ('thread', 'author', 'created_at', 'updated_at')
 
     list_filter= ('state',)
+
 
 
 admin.site.register(Category, CategoryAdmin)
