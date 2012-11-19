@@ -1,4 +1,6 @@
 # coding: utf-8
+import datetime
+
 from django.test import client
 from django.core.urlresolvers import reverse
 
@@ -13,6 +15,8 @@ from game.logic import create_test_map
 from game.pvp.models import BATTLE_1X1_STATE
 
 from game.pvp.tests.helpers import PvPTestsMixin
+
+from cms.news.models import News
 
 class TestRequests(TestCase, PvPTestsMixin):
 
@@ -87,3 +91,31 @@ class TestRequests(TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
         self.request_login('test_user@test.com')
         self.assertEqual(s11n.from_json(self.client.get(reverse('game:info')).content)['data']['mode'], 'pvp')
+
+
+class NewsAlertsTests(TestCase):
+
+    def setUp(self):
+        create_test_map()
+        self.client = client.Client()
+
+        self.news = News.objects.create(caption='news-caption', description='news-description', content='news-content')
+
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.account = AccountPrototype.get_by_id(account_id)
+
+        self.request_login('test_user@test.com')
+
+    def check_reminder(self, url, caption, description, block):
+        self.check_html_ok(self.client.get(url), texts=[('news-caption', caption),
+                                                        ('news-description', description),
+                                                        ('news-content', 0),
+                                                        ('pgf-last-news-reminder', block)])
+
+    def test_news_alert(self):
+        self.check_reminder(reverse('game:'), 1, 1, 2)
+
+    def test_no_news_alert(self):
+        self.account.last_news_remind_time = datetime.datetime.now()
+        self.account.save()
+        self.check_reminder(reverse('game:'), 0, 0, 0)

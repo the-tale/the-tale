@@ -180,6 +180,8 @@ jQuery(document).ready(function() {
     <div id="main-container">
       <div id="content" class="container">
 
+        {% block content_header %}
+
         {% if resource.account and resource.account.is_fast %}
         <div class="alert alert-info">
           {% block fast_account_warning %}
@@ -187,36 +189,6 @@ jQuery(document).ready(function() {
           {% endblock %}
         </div>
         {% endif %}
-
-        {% block news_reminder_block %}
-
-        {% if resource.account %}
-
-        {% set news_record = get_last_news() %}
-
-        {% if news_record and news_record.created_at > resource.account.last_news_remind_time %}
-
-        <script type="text/javascript">
-          jQuery(document).ready(function(){
-
-              jQuery('.pgf-close-last-news-reminder').click(function(e){
-                  pgf.forms.Post({ action:  "{{url('accounts:profile:update-last-news-reminder-time')}}",
-                                   wait: false});
-                  jQuery('.pgf-last-news-reminder').remove();
-              });
-
-          });
-        </script>
-
-        <div class="alert pgf-last-news-reminder">
-          <button class="close pgf-close-last-news-reminder">×</button>
-          <h4><a href="{{url('news:show', news_record.id)}}" style="color: #C09853;">{{ news_record.caption }}</a></h4>
-          {{ news_record.html_description|safe }}
-        </div>
-        {% endif %}
-
-        {% endif %}
-
         {% endblock %}
 
         {% block content %}
