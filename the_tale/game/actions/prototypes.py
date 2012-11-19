@@ -669,7 +669,12 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
     TYPE = 'BATTLE_PVE1x1'
     TEXTGEN_TYPE = 'action_battlepve1x1'
     CONTEXT_MANAGER = contexts.BattleContext
-    EXTRA_HELP_CHOICES = set((c.HELP_CHOICES.LIGHTING,))
+
+    @property
+    def EXTRA_HELP_CHOICES(self):
+        if self.mob.health <= 0:
+            return set()
+        return set((c.HELP_CHOICES.LIGHTING,))
 
     class STATE(ActionPrototype.STATE):
         BATTLE_RUNNING = 'battle_running'

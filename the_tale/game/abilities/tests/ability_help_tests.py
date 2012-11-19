@@ -108,12 +108,26 @@ class HelpAbilityTest(TestCase):
         old_mob_health = action_battle.mob.health
         old_percents = action_battle.percents
 
+        self.assertTrue(c.HELP_CHOICES.LIGHTING in action_battle.help_choices)
+
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: c.HELP_CHOICES.LIGHTING):
             self.assertTrue(self.ability.use(self.storage, self.hero, None))
 
         self.assertTrue(old_mob_health > action_battle.mob.health)
         self.assertEqual(self.hero.last_action_percents, action_battle.percents)
         self.assertTrue(old_percents < action_battle.percents)
+
+    def test_lighting_when_mob_killed(self):
+        current_time = TimePrototype.get_current_time()
+        actions_prototypes.ActionBattlePvE1x1Prototype.create(self.action_idl, mob=create_mob_for_hero(self.hero))
+        action_battle = self.storage.heroes_to_actions[self.hero.id][-1]
+
+        current_time.increment_turn()
+        self.storage.process_turn()
+
+        action_battle.mob.health = 0
+
+        self.assertFalse(c.HELP_CHOICES.LIGHTING in action_battle.help_choices)
 
     def test_resurrect(self):
         current_time = TimePrototype.get_current_time()
