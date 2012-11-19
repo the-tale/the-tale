@@ -27,9 +27,11 @@
             <a href="{{url('accounts:show', message.recipient.id)}}">{{ message.recipient.nick }}</a>
           </td>
 
+          {% if incoming %}
           <td style="width: 4em;">
             <a href="{{ url('accounts:messages:new', recipient=message.sender.id, answer_to=message.id) }}">ответить</a>
           </td>
+          {% endif %}
 
           <td style="width: 4em;">
             <a href="{{ url('accounts:messages:delete', message.id) }}" class="pgf-forms-post-simple">удалить</a>

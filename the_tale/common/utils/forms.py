@@ -12,13 +12,13 @@ class BBField(fields.TextField):
     def command_line(self):
         return u'''
 <div class="pgf-bb-command-line command-line">
-<a class="pgf-bb-command" href="#" data-tag="b" data-tooltip="[b]<strong>жирный</strong>[/b]">[b]</a>
-<a class="pgf-bb-command" href="#" data-tag="i" data-tooltip="[i]<i>курсив</i>[/i]">[i]</a>
-<a class="pgf-bb-command" href="#" data-tag="u" data-tooltip="[u]<u>подчёрнутый</u>[/u]">[u]</a>
-<a class="pgf-bb-command" href="#" data-tag="s" data-tooltip="[s]<strike>зачёркнутый</strike>[/s]">[s]</a>
-<a class="pgf-bb-command" href="#" data-tag="quote" data-tooltip="[quote]<blockquote>цитата</blockquote>[/quote]">[quote]</a>
-<a class="pgf-bb-command" href="#" data-tag="img" data-tooltip="[img]http://адрес картинки[/img]">[img]</a>
-<a class="pgf-bb-command" href="#" data-tag="url" data-tooltip='[url="http://адрес"]текст[/url]'>[url]</a>
+<a class="pgf-bb-command" href="#" data-tag="b" rel="tooltip" title="<strong>жирный</strong>">[b]</a>
+<a class="pgf-bb-command" href="#" data-tag="i" rel="tooltip" title="<i>курсив</i>">[i]</a>
+<a class="pgf-bb-command" href="#" data-tag="u" rel="tooltip" title="<u>подчёрнутый</u>">[u]</a>
+<a class="pgf-bb-command" href="#" data-tag="s" rel="tooltip" title="<strike>зачёркнутый</strike>">[s]</a>
+<a class="pgf-bb-command" href="#" data-tag="quote" rel="tooltip" title="<blockquote>цитата</blockquote>">[quote]</a>
+<a class="pgf-bb-command" href="#" data-tag="img" rel="tooltip" title="[img]http://адрес картинки[/img]">[img]</a>
+<a class="pgf-bb-command" href="#" data-tag="url" rel="tooltip" title='[url="http://адрес"]текст[/url]'>[url]</a>
 </div>
 '''
 
