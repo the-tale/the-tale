@@ -1,62 +1,62 @@
 .second-row .block {
   min-height: 400px;
 }
-#hero-base-block .hero-level:hover {
+.hero-base-block .hero-level:hover {
   background-color: #BBB;
 }
-#hero-base-block .free-destiny-points:hover {
+.hero-base-block .free-destiny-points:hover {
   background-color: #bbbbbb;
 }
-#hero-base-block .record-with-progress {
+.hero-base-block .record-with-progress {
   margin: 6px 0;
   position: relative;
   padding-left: 20px;
   padding-right: 5.3em;
 }
-#hero-base-block .record-with-progress:hover {
+.hero-base-block .record-with-progress:hover {
   background-color: #dddddd;
 }
-#hero-base-block .record-with-progress img {
+.hero-base-block .record-with-progress img {
   position: absolute;
   left: 0px;
 }
-#hero-base-block .record-with-progress .progress {
+.hero-base-block .record-with-progress .progress {
   display: inline-block;
   width: 100%;
   margin-top: 0;
   margin-bottom: 0;
 }
-#hero-base-block .record-with-progress .text-values {
+.hero-base-block .record-with-progress .text-values {
   font-size: 11px;
   position: absolute;
   right: 0px;
   top: 0px;
 }
-#hero-base-block .attribute-record {
+.hero-base-block .attribute-record {
   display: inline-block;
   width: 32%;
 }
-#hero-base-block .attribute-record:hover {
+.hero-base-block .attribute-record:hover {
   background-color: #dddddd;
 }
-#hero-base-block .attribute-record img {
+.hero-base-block .attribute-record img {
   vertical-align: middle;
 }
-#hero-base-block .attribute-record .value {
+.hero-base-block .attribute-record .value {
   vertical-align: middle;
 }
-#hero-equipment-block .equip-record {
-  margin-top: 5px;
+.hero-equipment-block .equip-record {
+  padding-top: 0.1em;
   cursor: default;
 }
-#hero-equipment-block .equip-record:hover {
+.hero-equipment-block .equip-record:hover {
   background-color: #dddddd;
 }
-#hero-equipment-block .equip-record .name {
+.hero-equipment-block .equip-record .name {
   font-size: 10pt;
   margin-left: 0.25em;
 }
-#hero-equipment-block .equip-record .power-container {
+.hero-equipment-block .equip-record .power-container {
   float: right;
 }
 #equipment-tabs a {
@@ -253,14 +253,22 @@
   font-size: 14pt;
 }
 #abilities-block .wait,
-#abilities-block .no-energy {
+#abilities-block .no-energy,
+#abilities-block .no-registration {
   color: #999999;
   text-decoration: none;
 }
 #abilities-block .icon-tint {
   display: none;
 }
+#abilities-block .icon-ban-circle {
+  display: none;
+}
 #abilities-block .no-energy .icon-tint {
+  display: inline-block;
+  vertical-align: middle;
+}
+#abilities-block .no-registration .icon-ban-circle {
   display: inline-block;
   vertical-align: middle;
 }

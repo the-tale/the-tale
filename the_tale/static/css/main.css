@@ -13,6 +13,8 @@
 @import "politics.css";
 
 @import "newspaper.css";
+
+@import "pvp.css";
 html {
   height: 100%;
 }
@@ -154,10 +156,8 @@ blockquote {
   text-decoration: none !important;
 }
 li .game-link {
-  color: #AAA;
   font-weight: bold;
 }
 li.active .game-link {
-  color: white;
   font-weight: normal;
 }

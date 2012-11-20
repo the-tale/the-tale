@@ -1,0 +1,7 @@
+.pvp-abilities-list li {
+  padding: 0.1em;
+  cursor: default;
+}
+.pvp-abilities-list li:hover {
+  background-color: #dddddd;
+}
