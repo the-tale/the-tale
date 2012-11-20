@@ -220,7 +220,7 @@ class Worker(BaseWorker):
 
 
     def cmd_register_new_account(self, account_id):
-        self.send_cmd('register_bundle', {'account_id': account_id})
+        self.send_cmd('register_new_account', {'account_id': account_id})
 
     def process_register_new_account(self, account_id):
         bundle = BundlePrototype.get_by_account_id(account_id)
