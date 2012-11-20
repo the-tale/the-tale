@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     'portal.newspaper',
 
     'game',
+    'game.angels',
     'game.abilities',
     'game.heroes',
     'game.actions',
