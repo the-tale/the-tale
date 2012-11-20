@@ -265,6 +265,9 @@ class HeroPrototype(object):
         if better and unequipped is not None and artifact.power < unequipped.power:
             artifact.power = unequipped.power + 1
 
+        min_power, max_power = f.power_to_artifact_interval(self.level)
+        artifact.power = min(artifact.power, max_power)
+
         self.change_equipment(slot, unequipped, artifact)
 
         self.statistics.change_artifacts_had(1)
@@ -298,15 +301,24 @@ class HeroPrototype(object):
         if self.preferences.equipment_slot is not None:
             choices.insert(0, self.preferences.equipment_slot)
 
+        min_power, max_power = f.power_to_artifact_interval(self.level)
+
+        for slot in choices:
+            artifact = self.equipment.get(slot)
+            if artifact is not None and artifact.power < max_power:
+                artifact.power += 1
+                self.equipment.updated = True
+                return artifact
+
+        # if all artifacts are on maximum level
+        random.shuffle(choices)
         for slot in choices:
             artifact = self.equipment.get(slot)
             if artifact is not None:
-                # sharpening artefact
                 artifact.power += 1
                 self.equipment.updated = True
-                break
+                return artifact
 
-        return artifact
 
     def get_equip_canditates(self):
 

@@ -6,7 +6,9 @@ from accounts.logic import register_user
 
 from game.logic import create_test_map
 from game.artifacts.storage import ArtifactsDatabase
+from game.artifacts.conf import EQUIP_TYPE
 from game.prototypes import TimePrototype
+
 
 from game.balance import formulas as f, constants as c
 from game.logic_storage import LogicStorage
@@ -151,3 +153,53 @@ class HeroGetSpecialQuestsTest(TestCase):
 
         self.assertTrue(self.hero.equipment.get(SLOTS.PLATE) is not None)
         self.assertTrue(SearchSmith.type() in self.hero.get_special_quests())
+
+
+class HeroEquipmentTests(TestCase):
+
+    def setUp(self):
+        create_test_map()
+
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.hero.model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
+        self.hero.model.save()
+
+    def test_sharp_artifact(self):
+        old_power = self.hero.power
+        artifact = self.hero.sharp_artifact()
+        self.assertEqual(self.hero.power, old_power+1)
+        self.assertEqual(artifact.power, 1)
+        self.assertTrue(self.hero.equipment.updated)
+
+
+    def test_sharp_artifact_when_all_artifacts_has_max_power(self):
+        min_power, max_power = f.power_to_artifact_interval(self.hero.level)
+
+        for artifact in self.hero.equipment.equipment.values():
+            artifact.power = max_power
+
+        old_power = self.hero.power
+        artifact = self.hero.sharp_artifact()
+        self.assertEqual(self.hero.power, old_power+1)
+        self.assertEqual(artifact.power, max_power + 1)
+        self.assertTrue(self.hero.equipment.updated)
+
+    def test_sharp_preferences(self):
+        self.hero.preferences.equipment_slot = SLOTS.HAND_PRIMARY
+
+        artifact = self.hero.sharp_artifact()
+        self.assertEqual(artifact.equip_type, EQUIP_TYPE.WEAPON)
+
+
+    def test_sharp_preferences_with_max_power(self):
+        min_power, max_power = f.power_to_artifact_interval(self.hero.level)
+
+        self.hero.preferences.equipment_slot = SLOTS.HAND_PRIMARY
+
+        artifact = self.hero.equipment.get(SLOTS.HAND_PRIMARY)
+        artifact.power = max_power
+
+        artifact = self.hero.sharp_artifact()
+        self.assertNotEqual(artifact.equip_type, EQUIP_TYPE.WEAPON)
