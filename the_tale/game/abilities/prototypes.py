@@ -1,12 +1,18 @@
 # coding: utf-8
-from dext.utils import s11n
+
+from django.utils.log import getLogger
+
+from dext.utils.decorators import nested_commit_on_success
+
+from common.postponed_tasks import postponed_task, PostponedTaskPrototype
+from common.utils.enum import create_enum
 
 from game.prototypes import TimePrototype
 
-from game.abilities.forms import AbilityForm
-from game.abilities.models import AbilitiesData, AbilityTask, ABILITY_TASK_STATE
-
 from game.heroes.prototypes import HeroPrototype
+
+from game.abilities.forms import AbilityForm
+from game.abilities.models import AbilitiesData
 
 
 class AbilityPrototype(object):
@@ -48,8 +54,9 @@ class AbilityPrototype(object):
             return False
         if self.available_at < time.turn_number:
             return False
-        if AbilityTaskPrototype.check_if_used(self.get_type(), hero_id):
+        if PostponedTaskPrototype.check_if_used(self.get_type(), hero_id):
             return True
+        return False
 
     def ui_info(self):
         return {'type': self.__class__.__name__.lower(),
@@ -70,11 +77,13 @@ class AbilityPrototype(object):
 
         hero = HeroPrototype.get_by_id(form.c.hero_id)
 
-        task = AbilityTaskPrototype.create(task_type=self.get_type(),
-                                           hero_id=hero.id,
-                                           activated_at=time.turn_number,
-                                           available_at=available_at,
-                                           data=form.data)
+        ability_task = UseAbilityTask(ability_type=self.get_type(),
+                                      hero_id=hero.id,
+                                      activated_at=time.turn_number,
+                                      available_at=available_at,
+                                      data=form.data)
+
+        task = PostponedTaskPrototype.create(ability_task)
 
         workers_environment.supervisor.cmd_activate_ability(hero.account_id, task.id)
 
@@ -95,95 +104,89 @@ class AbilityPrototype(object):
                  self.__class__ == other.__class__ )
 
 
-class AbilityTaskPrototype(object):
+ABILITY_TASK_STATE = create_enum('ABILITY_TASK_STATE', (('UNPROCESSED', 0, u'в очереди'),
+                                                        ('PROCESSED', 1, u'обработана'),
+                                                        ('NO_ENERGY', 2, u'не хватает энергии'),
+                                                        ('COOLDOWN', 3, u'способность не готова'),
+                                                        ('CAN_NOT_PROCESS', 4, u'способность нельзя применить'), ))
 
-    def __init__(self, model):
-        self.model = model
+@postponed_task
+class UseAbilityTask(object):
 
-    @classmethod
-    def get_by_id(cls, task_id):
-        return cls(AbilityTask.objects.get(id=task_id))
+    TYPE = 'use-ability'
+    INITIAL_STATE = ABILITY_TASK_STATE.UNPROCESSED
+    LOGGER = getLogger('the-tale.workers.game_logic')
 
-    @classmethod
-    def reset_all(cls):
-        AbilityTask.objects.filter(state=ABILITY_TASK_STATE.WAITING).update(state=ABILITY_TASK_STATE.RESET)
+    def __init__(self, ability_type, hero_id, activated_at, available_at, data, state=INITIAL_STATE):
+        self.ability_type = ability_type
+        self.hero_id = hero_id
+        self.activated_at = activated_at
+        self.available_at = available_at
+        self.data = data
+        self.state = state
 
-    @classmethod
-    def check_if_used(cls, ability_type, hero_id):
-        return AbilityTask.objects.filter(type=ability_type,
-                                          hero__id=hero_id,
-                                          state=ABILITY_TASK_STATE.WAITING).exists()
+    def __eq__(self, other):
+        return ( self.ability_type == other.ability_type and
+                 self.hero_id == other.hero_id and
+                 self.activated_at == other.activated_at and
+                 self.available_at == other.available_at and
+                 self.data == other.data and
+                 self.state == other.state )
 
-    @property
-    def id(self): return self.model.id
-
-    def get_state(self): return self.model.state
-    def set_state(self, value): self.model.state = value
-    state = property(get_state, set_state)
-
-    @property
-    def type(self): return self.model.type
-
-    @property
-    def hero_id(self): return self.model.hero_id
-
-    def get_activated_at(self): return self.model.activated_at
-    def set_activated_at(self, value): self.model.activated_at = value
-    activated_at = property(get_activated_at, set_activated_at)
-
-    def get_available_at(self): return self.model.available_at
-    def set_available_at(self, value): self.model.available_at = value
-    available_at = property(get_available_at, set_available_at)
-
-    @property
-    def data(self):
-        if not hasattr(self, '_data'):
-            self._data = s11n.from_json(self.model.data)
-        return self._data
+    def serialize(self):
+        return { 'ability_type': self.ability_type,
+                 'hero_id': self.hero_id,
+                 'activated_at': self.activated_at,
+                 'available_at': self.available_at,
+                 'data': self.data,
+                 'state': self.state}
 
     @classmethod
-    def create(cls, task_type, hero_id, activated_at, available_at, data):
-        model = AbilityTask.objects.create(hero_id=hero_id,
-                                           type=task_type,
-                                           activated_at=activated_at,
-                                           available_at=available_at,
-                                           data=s11n.to_json(data))
-        return cls(model)
+    def deserialize(cls, data):
+        return cls(**data)
 
-    def save(self):
-        self.model.data = s11n.to_json(self.data)
-        self.model.save()
+    @property
+    def uuid(self): return self.hero_id
 
-    def process(self, storage):
+    @property
+    def response_data(self): return {'available_at': self.available_at}
+
+    @property
+    def error_message(self): return ABILITY_TASK_STATE.CHOICES[self.state]
+
+    @nested_commit_on_success
+    def process(self, main_task, storage):
         from game.abilities.deck import ABILITIES
 
         hero = storage.heroes[self.hero_id]
 
-        ability = ABILITIES[self.type](AbilitiesData.objects.get(hero_id=hero.id))
+        ability = ABILITIES[self.ability_type](AbilitiesData.objects.get(hero_id=hero.id))
 
         turn_number = TimePrototype.get_current_turn_number()
 
         energy = hero.energy
 
         if energy < ability.COST:
-            self.model.comment = 'energy < ability.COST'
-            self.state = ABILITY_TASK_STATE.ERROR
-            return
+            main_task.comment = 'energy < ability.COST'
+            self.state = ABILITY_TASK_STATE.NO_ENERGY
+            return False
 
         if ability.available_at > turn_number:
-            self.state = ABILITY_TASK_STATE.ERROR
-            self.model.comment = 'available_at (%d) > turn_number (%d)' % (ability.available_at, turn_number)
-            return
+            main_task.comment = 'available_at (%d) > turn_number (%d)' % (ability.available_at, turn_number)
+            self.state = ABILITY_TASK_STATE.COOLDOWN
+            return False
 
         result = ability.use(storage, hero, self.data)
 
         if not result:
-            self.model.comment = 'result is False'
-            self.state = ABILITY_TASK_STATE.ERROR
-            return
+            main_task.comment = 'result is False'
+            self.state = ABILITY_TASK_STATE.CAN_NOT_PROCESS
+            return False
 
         self.state = ABILITY_TASK_STATE.PROCESSED
         hero.change_energy(-ability.COST)
 
         ability.available_at = self.available_at
         ability.save()
+
+        return True

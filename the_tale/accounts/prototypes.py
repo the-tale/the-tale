@@ -5,13 +5,16 @@ import datetime
 import traceback
 
 from django.contrib.auth.hashers import make_password
+from django.utils.log import getLogger
 from django.db import models
 
 from dext.utils.decorators import nested_commit_on_success
 
+from common.postponed_tasks import postponed_task
 from common.utils.password import generate_password
+from common.utils.enum import create_enum
 
-from accounts.models import Account, RegistrationTask, REGISTRATION_TASK_STATE, ChangeCredentialsTask, CHANGE_CREDENTIALS_TASK_STATE
+from accounts.models import Account, ChangeCredentialsTask, CHANGE_CREDENTIALS_TASK_STATE
 from accounts.conf import accounts_settings
 from accounts.email import ChangeEmailNotification, ResetPasswordNotification
 from accounts.exceptions import AccountsException
@@ -128,9 +131,9 @@ class AccountPrototype(object):
         return self.is_fast
 
     def remove(self):
-        registration_task = RegistrationTaskPrototype.get_by_account_id(self.id)
-        if registration_task:
-            registration_task.unbind_from_account()
+        # registration_task = RegistrationTaskPrototype.get_by_account_id(self.id)
+        # if registration_task:
+        #     registration_task.unbind_from_account()
 
         return self.model.delete()
 
@@ -148,46 +151,47 @@ class AccountPrototype(object):
         return isinstance(other, self.__class__) and self.model == other.model
 
 
-class RegistrationTaskPrototype(object):
+REGISTRATION_TASK_STATE = create_enum('REGISTRATION_TASK_STATE', ( ('UNPROCESSED', 0, u'ожидает обработки'),
+                                                                   ('PROCESSED', 1, u'обработкана'),
+                                                                   ('UNKNOWN_ERROR', 2, u'неизвестная ошибка'),
+                                                                   ('BUNDLE_NOT_FOUND', 3, u'аккаунт не создан'),))
 
-    def __init__(self, model=None):
-        self.model = model
+@postponed_task
+class RegistrationTask(object):
 
-    @classmethod
-    def get_by_id(cls, task_id):
-        try:
-            model = RegistrationTask.objects.get(id=task_id)
-            return cls(model=model)
-        except RegistrationTask.DoesNotExist:
-            return None
+    TYPE = 'registration'
+    INITIAL_STATE = REGISTRATION_TASK_STATE.UNPROCESSED
+    LOGGER = getLogger('accounts.workers.registration')
 
-    @classmethod
-    def get_by_account_id(cls, account_id):
-        try:
-            model = RegistrationTask.objects.get(account_id=account_id)
-            return cls(model=model)
-        except RegistrationTask.DoesNotExist:
-            return None
+    def __init__(self, account_id, state=INITIAL_STATE):
+        self.account_id = account_id
+        self.state = state
 
-    @classmethod
-    def create(cls):
-        model = RegistrationTask.objects.create()
-        return cls(model=model)
+    def __eq__(self, other):
+        return (self.state == other.state and
+                self.account_id == other.account_id)
+
+    def serialize(self):
+        return { 'state': self.state,
+                 'account_id': self.account_id }
 
     @classmethod
-    def stop_old_tasks(cls):
-        RegistrationTask.objects.filter(state=REGISTRATION_TASK_STATE.WAITING).update(state=REGISTRATION_TASK_STATE.ERROR, comment='stop old tasks')
+    def deserialize(cls, data):
+        return cls(**data)
 
     @property
-    def id(self): return self.model.id
+    def uuid(self): return 0
 
     @property
-    def state(self): return self.model.state
+    def response_data(self): return {}
+
+    @property
+    def error_message(self): return REGISTRATION_TASK_STATE.CHOICES[self.state]
 
     @property
     def account(self):
         if not hasattr(self, '_account'):
-            self._account = AccountPrototype.get_by_id(self.model.account_id) if self.model.account_id is not None else None
+            self._account = AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
         return self._account
 
     def get_unique_nick(self):
@@ -200,60 +204,30 @@ class RegistrationTaskPrototype(object):
         self.model.account = None
         self.model.save()
 
-    def process(self, logger):
+    def process(self, main_task):
         from accounts.logic import register_user, REGISTER_USER_RESULT
-
         from game.models import Bundle
 
-        if self.model.state != REGISTRATION_TASK_STATE.WAITING:
-            return
+        with nested_commit_on_success():
 
-        if self.model.created_at + datetime.timedelta(seconds=accounts_settings.REGISTRATION_TIMEOUT) < datetime.datetime.now():
-            self.model.state = REGISTRATION_TASK_STATE.UNPROCESSED
-            self.model.comment = 'timeout'
-            self.model.save()
-            return
+            result, account_id, bundle_id = register_user(nick=self.get_unique_nick())
 
-        try:
-            with nested_commit_on_success():
+            if result != REGISTER_USER_RESULT.OK:
+                main_task.comment = 'unknown error'
+                self.state = REGISTRATION_TASK_STATE.UNKNOWN_ERROR
+                return False
 
-                result, account_id, bundle_id = register_user(nick=self.get_unique_nick())
+        if not Bundle.objects.filter(id=bundle_id).exists():
+            main_task.comment = 'bundle %d does not found' % bundle_id
+            self.state = REGISTRATION_TASK_STATE.BUNDLE_NOT_FOUND
+            return False
 
-                if result == REGISTER_USER_RESULT.OK:
-                    pass
-                else:
-                    self.model.state = REGISTRATION_TASK_STATE.ERROR
-                    self.model.comment = 'unknown error'
-                    self.model.save()
-                    return
+        game_workers_environment.supervisor.cmd_register_new_account(account_id)
 
-            # send command to supervisor after success commit
+        self.state = REGISTRATION_TASK_STATE.PROCESSED
+        self.account_id = int(account_id)
 
-            if not Bundle.objects.filter(id=bundle_id).exists():
-                self.model.state = REGISTRATION_TASK_STATE.ERROR
-                self.model.comment = 'bundle %d does not found' % bundle_id
-                self.model.save()
-                return
-
-            game_workers_environment.supervisor.cmd_register_new_account(account_id)
-
-            self.model.state = REGISTRATION_TASK_STATE.PROCESSED
-            self.model.comment = 'success'
-            self.model.account_id = int(account_id)
-            self.model.save()
-
-        except Exception, e:
-            logger.error('EXCEPTION: %s' % e)
-
-            exception_info = sys.exc_info()
-
-            logger.error('Worker exception: %r' % self,
-                         exc_info=exception_info,
-                         extra={} )
-
-            self.model.state = REGISTRATION_TASK_STATE.ERROR
-            self.model.comment = u'%s\n\n%s\n\n %s' % exception_info
-            self.model.save()
+        return True
 
 
 class ChangeCredentialsTaskPrototype(object):

@@ -2,15 +2,13 @@
 from django.utils.log import getLogger
 
 from common.amqp_queues import connection, BaseWorker
+from common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from accounts.models import Account
 
 from game.prototypes import TimePrototype, SupervisorTaskPrototype
 from game.bundles import BundlePrototype
 from game.models import Bundle, SupervisorTask, SUPERVISOR_TASK_STATE
-from game.abilities.prototypes import AbilityTaskPrototype
-from game.heroes.prototypes import ChooseAbilityTaskPrototype, ChangeHeroTaskPrototype
-from game.heroes.preferences import ChoosePreferencesTaskPrototype
 from game.conf import game_settings
 
 
@@ -58,10 +56,7 @@ class Worker(BaseWorker):
         self.time = TimePrototype.get_current_time()
 
         #clearing
-        AbilityTaskPrototype.reset_all()
-        ChooseAbilityTaskPrototype.reset_all()
-        ChangeHeroTaskPrototype.reset_all()
-        ChoosePreferencesTaskPrototype.reset_all()
+        PostponedTaskPrototype.reset_all()
 
         #initialization
         self.logic_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='logic')

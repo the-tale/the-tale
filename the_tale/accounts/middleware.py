@@ -1,8 +1,8 @@
 # coding: utf-8
 
+from common.postponed_tasks import PostponedTaskPrototype
+
 from accounts.conf import accounts_settings
-from accounts.prototypes import RegistrationTaskPrototype
-from accounts.models import REGISTRATION_TASK_STATE
 from accounts.logic import login_user
 
 class RegistrationMiddleware(object):
@@ -13,12 +13,11 @@ class RegistrationMiddleware(object):
             return
 
         task_id = request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
-        task = RegistrationTaskPrototype.get_by_id(task_id)
+        task = PostponedTaskPrototype.get_by_id(task_id)
 
         if task is None:
+            # del request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
             return
 
-        request.session[accounts_settings.SESSION_REGISTRATION_TASK_STATE_KEY] = task.state
-
-        if task.state == REGISTRATION_TASK_STATE.PROCESSED:
-            login_user(request, username=task.account.nick, password=accounts_settings.FAST_REGISTRATION_USER_PASSWORD)
+        if task.state.is_processed:
+            login_user(request, username=task.internal_logic.account.nick, password=accounts_settings.FAST_REGISTRATION_USER_PASSWORD)

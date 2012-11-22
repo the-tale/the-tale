@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from django.core.urlresolvers import reverse
 
 from dext.views.resources import handler, validator
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
+from common.postponed_tasks import PostponedTaskPrototype
 
 from accounts.prototypes import AccountPrototype
 
@@ -17,9 +17,9 @@ from game.persons.storage import persons_storage
 
 from game.workers.environment import workers_environment
 
-from game.heroes.prototypes import HeroPrototype, ChooseAbilityTaskPrototype, ChangeHeroTaskPrototype
-from game.heroes.preferences import ChoosePreferencesTaskPrototype
-from game.heroes.models import CHOOSE_ABILITY_STATE, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE, CHANGE_HERO_STATE
+from game.heroes.prototypes import HeroPrototype, ChangeHeroTask, ChooseHeroAbilityTask
+from game.heroes.preferences import ChoosePreferencesTask
+from game.heroes.models import PREFERENCE_TYPE
 from game.heroes.forms import ChoosePreferencesForm, EditNameForm
 from game.heroes.bag import SLOTS_LIST, SLOTS_DICT
 
@@ -86,38 +86,27 @@ class HeroResource(Resource):
     @validate_ownership()
     @handler('#hero_id', 'change-hero', method='post')
     def change_hero(self):
+        from textgen.words import Noun
+        from game.game_info import GENDER_ID_2_STR
+
         edit_name_form = EditNameForm(self.request.POST)
 
         if not edit_name_form.is_valid():
             return self.json_error('heroes.change_name.form_errors', edit_name_form.errors)
 
-        task = ChangeHeroTaskPrototype.create(self.hero,
-                                              forms=edit_name_form.c.name_forms,
-                                              race=edit_name_form.c.race,
-                                              gender=edit_name_form.c.gender)
+        forms = edit_name_form.c.name_forms
+        gender = edit_name_form.c.gender
+
+        change_task = ChangeHeroTask(hero_id=self.hero.id,
+                                     name=Noun(normalized=forms[0], forms=forms*2, properties=(GENDER_ID_2_STR[gender], )),
+                                     race=edit_name_form.c.race,
+                                     gender=gender)
+
+        task = PostponedTaskPrototype.create(change_task)
 
         workers_environment.supervisor.cmd_change_hero_name(self.account.id, task.id)
 
-        return self.json_processing(reverse('game:heroes:change-hero-status', args=[self.hero.id]) + ('?task_id=%d' % task.id))
-
-    @login_required
-    @validate_ownership(response_type='json')
-    @handler('#hero_id', 'change-hero-status', method='get')
-    def change_hero_status(self, task_id):
-
-        task = ChangeHeroTaskPrototype.get_by_id(int(task_id))
-
-        if task is None:
-            return self.json_error('heroes.change_hero_status.no_task', u'задачи не существует')
-
-        if task.state == CHANGE_HERO_STATE.WAITING:
-            return self.json_processing(reverse('game:heroes:change-hero-status', args=[self.hero_id]) + ('?task_id=%d' % task.id) )
-
-        if task.state == CHANGE_HERO_STATE.PROCESSED:
-            return self.json_ok()
-
-        return self.json_error('heroes.change_hero_status.error', u'Ошибка при редактировании имени героя, повторите попытку позже')
-
+        return self.json_processing(task.status_url)
 
 
     @login_required
@@ -125,30 +114,13 @@ class HeroResource(Resource):
     @handler('#hero_id', 'choose-ability', method='post')
     def choose_ability(self, ability_id):
 
-        task = ChooseAbilityTaskPrototype.create(ability_id, self.hero.id)
+        choose_task = ChooseHeroAbilityTask(hero_id=self.hero.id, ability_id=ability_id)
+
+        task = PostponedTaskPrototype.create(choose_task)
 
         workers_environment.supervisor.cmd_choose_hero_ability(self.account.id, task.id)
 
-        return self.json(status='processing',
-                         status_url=reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % task.id )
-
-    @login_required
-    @validate_ownership(response_type='json')
-    @handler('#hero_id', 'choose-ability-status', method='get')
-    def choose_ability_status(self, task_id):
-        ability_task = ChooseAbilityTaskPrototype.get_by_id(task_id)
-
-        if ability_task.hero_id != self.hero.id:
-            return self.json(status='error', errors='Вы пытаетесь получить данные о способностях другого героя!')
-
-        if ability_task.state == CHOOSE_ABILITY_STATE.WAITING:
-            return self.json(status='processing',
-                             status_url=reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % task_id )
-        if ability_task.state == CHOOSE_ABILITY_STATE.PROCESSED:
-            return self.json(status='ok')
-
-        return self.json(status='error', error='ошибка при выборе способности')
-
+        return self.json_processing(task.status_url)
 
     @login_required
     @validate_ownership()
@@ -210,42 +182,14 @@ class HeroResource(Resource):
         choose_preferences_form = ChoosePreferencesForm(self.request.POST)
 
         if not choose_preferences_form.is_valid():
-            return self.json(status='error', errors=choose_preferences_form.errors)
+            return self.json_error('heroes.choose_preferences.form_errors', choose_preferences_form.errors)
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero,
-                                                     preference_type=choose_preferences_form.c.preference_type,
-                                                     preference_id=choose_preferences_form.c.preference_id if choose_preferences_form.c.preference_id else None)
+        choose_task = ChoosePreferencesTask(hero_id=self.hero.id,
+                                            preference_type=choose_preferences_form.c.preference_type,
+                                            preference_id=choose_preferences_form.c.preference_id if choose_preferences_form.c.preference_id else None)
+
+        task = PostponedTaskPrototype.create(choose_task)
 
         workers_environment.supervisor.cmd_choose_hero_preference(self.account.id, task.id)
 
-        return self.json(status='processing', status_url=reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % task.id) )
-
-    @login_required
-    @validate_ownership(response_type='json')
-    @handler('#hero_id', 'choose-preferences-status', method='get')
-    def choose_preferences_status(self, task_id):
-
-        task = ChoosePreferencesTaskPrototype.get_by_id(int(task_id))
-
-        if task is None:
-            return self.json_error('heroes.choose_preferences_status.no_task', u'задачи не существует')
-
-        if task.state == CHOOSE_PREFERENCES_STATE.WAITING:
-            return self.json_processing(reverse('game:heroes:choose-preferences-status', args=[self.hero_id]) + ('?task_id=%d' % task.id) )
-
-        if task.state == CHOOSE_PREFERENCES_STATE.PROCESSED:
-            return self.json_ok()
-
-        if task.state == CHOOSE_PREFERENCES_STATE.COOLDOWN:
-            return self.json_error('heroes.choose_preferences_status.cooldown', u'Вы пока не можете менять данное предпочтение')
-
-        if task.state == CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON:
-            return self.json_error('heroes.choose_preferences_status.unavailable_person', u'Вы не можете выбрать этого персонажа')
-
-        if task.state == CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON:
-            return self.json_error('heroes.choose_preferences_status.outgame_person', u'Нельзя выбрать данного персонажа - он выведен из игры')
-
-        if task.state == CHOOSE_PREFERENCES_STATE.UNSPECIFIED_PREFERENCE:
-            return self.json_error('heroes.choose_preferences_status.unspecified_preference', u'Вы не можете удалить данное предпочтение — оно должно быть заменено на аналогичное')
-
-        return self.json_error('heroes.choose_preferences_status.error', u'Ошибка при выборе предпочтений героя, повторите попытку позже')
+        return self.json_processing(status_url=task.status_url)

@@ -1,16 +1,15 @@
 # coding: utf-8
-import datetime
 
 import mock
 
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from common.utils.fake import FakeLogger
+from common.postponed_tasks import FakePostpondTaskPrototype
 
 from accounts.logic import register_user, REGISTER_USER_RESULT
-from accounts.prototypes import RegistrationTaskPrototype, AccountPrototype
-from accounts.models import Account, RegistrationTask, REGISTRATION_TASK_STATE
+from accounts.prototypes import AccountPrototype, RegistrationTask, REGISTRATION_TASK_STATE
+from accounts.models import Account
 
 from game.heroes.prototypes import HeroPrototype
 
@@ -83,61 +82,34 @@ class TestRegistrationTask(TestCase):
 
     def setUp(self):
         create_test_map()
-        self.task = RegistrationTaskPrototype.create()
+        self.task = RegistrationTask(account_id=None)
 
     def test_create(self):
-        self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.WAITING)
-        self.assertEqual(RegistrationTask.objects.all().count(), 1)
-
-        task = RegistrationTaskPrototype.create()
-        self.assertEqual(task.state, REGISTRATION_TASK_STATE.WAITING)
-        self.assertEqual(RegistrationTask.objects.all().count(), 2)
-
-    def test_get_by_id(self):
-        self.assertEqual(self.task.id, RegistrationTaskPrototype.get_by_id(self.task.id).id)
+        self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.UNPROCESSED)
 
     def test_get_unique_nick(self):
         self.assertTrue(self.task.get_unique_nick() != self.task.get_unique_nick())
 
     def test_process_success(self):
-        self.task.process(FakeLogger())
+        self.task.process(FakePostpondTaskPrototype())
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.PROCESSED)
         self.assertTrue(self.task.account)
-
         self.assertTrue(self.task.account.is_fast)
-
         self.assertEqual(Account.objects.all().count(), 1)
-
-    def test_process_processed(self):
-        self.task.process(FakeLogger())
-        self.task.process(FakeLogger())
-        self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.PROCESSED)
-        self.assertEqual(Account.objects.all().count(), 1)
-
-    def test_process_timeout(self):
-        self.task.model.created_at = datetime.datetime.fromtimestamp(0)
-        self.task.process(FakeLogger())
-        self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.UNPROCESSED)
-        self.assertEqual(self.task.model.comment, 'timeout')
-        self.assertEqual(Account.objects.all().count(), 0)
 
     @mock.patch('accounts.logic.register_user', lambda nick: (REGISTER_USER_RESULT.OK+1, None, None))
     def test_process_unknown_error(self):
-        self.task.process(FakeLogger())
-        self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.ERROR)
-        self.assertEqual(self.task.model.comment, 'unknown error')
+        self.task.process(FakePostpondTaskPrototype())
+        self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.UNKNOWN_ERROR)
         self.assertEqual(Account.objects.all().count(), 0)
 
     @mock.patch('accounts.logic.register_user', lambda nick: (REGISTER_USER_RESULT.OK, 1, 1))
     def test_process_bundle_not_foud(self):
-        self.task.process(FakeLogger())
-        self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.ERROR)
-        self.assertEqual(self.task.model.comment, 'bundle 1 does not found')
+        self.task.process(FakePostpondTaskPrototype())
+        self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.BUNDLE_NOT_FOUND)
         self.assertEqual(Account.objects.all().count(), 0)
 
-    @mock.patch('accounts.logic.register_user', lambda nick, password: raise_exception())
+    @mock.patch('accounts.logic.register_user', lambda nick: raise_exception())
     def test_process_exceptin(self):
-        self.task.process(FakeLogger())
-        self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.ERROR)
-        self.assertTrue(self.task.model.comment)
+        self.assertRaises(Exception, self.task.process, FakePostpondTaskPrototype())
         self.assertEqual(Account.objects.all().count(), 0)

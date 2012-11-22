@@ -1,5 +1,4 @@
 # coding: utf-8
-from django.core.urlresolvers import reverse
 
 from dext.views.resources import handler
 from dext.utils.exceptions import Error
@@ -9,8 +8,6 @@ from common.utils.decorators import login_required
 
 from game.heroes.prototypes import HeroPrototype
 
-from game.abilities.prototypes import AbilityTaskPrototype
-from game.abilities.models import ABILITY_TASK_STATE
 from game.abilities.deck import ABILITIES
 
 class AbilitiesResource(Resource):
@@ -49,25 +46,10 @@ class AbilitiesResource(Resource):
         if form.is_valid():
 
             if form.c.hero_id != HeroPrototype.get_by_account_id(self.account.id).id:
-                return self.json_error('abilities.activate.not_owner', error='Вы пытаетесь провести операцию для чужого героя, ай-яй-яй, как нехорошо!')
+                return self.json_error('abilities.activate.not_owner', u'Вы пытаетесь провести операцию для чужого героя, ай-яй-яй, как нехорошо!')
 
             task = self.ability.activate(form, self.time)
 
-            return self.json(status='processing',
-                             status_url=reverse('game:abilities:activate_status', args=[self.ability_type]) + '?task_id=%s' % task.id )
+            return self.json_processing(task.status_url)
 
-        return self.json(status='error', errors=form.errors)
-
-    @handler('#ability_type', 'activate_status', method='get')
-    def activate_status(self, task_id):
-        ability_task = AbilityTaskPrototype.get_by_id(task_id)
-
-        if ability_task.type != self.ability_type or ability_task.hero_id != HeroPrototype.get_by_account_id(self.account.id).id:
-            return self.json(status='error', errors='Вы пытаетесь получить данные о способностях другого игрока!')
-
-        if ability_task.state == ABILITY_TASK_STATE.WAITING:
-            return self.json(status='processing', status_url=reverse('game:abilities:activate_status', args=[self.ability_type]) + '?task_id=%s' % task_id )
-        if ability_task.state == ABILITY_TASK_STATE.PROCESSED:
-            return self.json(status='ok', data={'available_at': ability_task.available_at} )
-
-        return self.json(status='error', error='Сейчас нельзя применить эту способность')
+        return self.json_error('abilities.form_errors', form.errors)

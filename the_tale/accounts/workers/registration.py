@@ -3,8 +3,7 @@
 from django.utils.log import getLogger
 
 from common.amqp_queues import connection, BaseWorker
-
-from accounts.prototypes import RegistrationTaskPrototype
+from common.postponed_tasks import PostponedTaskPrototype
 
 class RegistrationException(Exception): pass
 
@@ -21,7 +20,7 @@ class Worker(BaseWorker):
         self.stop_queue.queue.purge()
 
     def initialize(self):
-        RegistrationTaskPrototype.stop_old_tasks()
+        PostponedTaskPrototype.reset_all()
         self.logger.info('REGISTRATION INITIALIZED')
 
     def run(self):
@@ -35,9 +34,9 @@ class Worker(BaseWorker):
         return self.send_cmd('register', {'task_id': task_id})
 
     def process_register(self, task_id):
-        task = RegistrationTaskPrototype.get_by_id(task_id)
+        task = PostponedTaskPrototype.get_by_id(task_id)
         if task:
-            task.process(self.logger)
+            task.process()
 
     def cmd_stop(self):
         return self.send_cmd('stop')

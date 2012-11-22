@@ -12,13 +12,16 @@ from django.conf import settings as project_settings
 
 from dext.utils import s11n
 from dext.utils import database
+from dext.utils.decorators import nested_commit_on_success
 
+from common.postponed_tasks import postponed_task
 from common.utils.logic import random_value_by_priority
+from common.utils.enum import create_enum
 
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage
 
-from game.game_info import GENDER, RACE, GENDER_ID_2_STR, ATTRIBUTES, RACE_TO_ENERGY_REGENERATION_TYPE
+from game.game_info import GENDER, RACE, ATTRIBUTES, RACE_TO_ENERGY_REGENERATION_TYPE
 
 from game import names
 
@@ -27,7 +30,7 @@ from game.artifacts.storage import ArtifactsDatabase
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS_LIST, SLOTS_TO_ARTIFACT_TYPES
 from game.heroes.statistics import HeroStatistics, MONEY_SOURCE
 from game.heroes.preferences import HeroPreferences
-from game.heroes.models import Hero, ChooseAbilityTask, CHOOSE_ABILITY_STATE, ChangeHeroTask, CHANGE_HERO_STATE
+from game.heroes.models import Hero
 from game.heroes.habilities import AbilitiesPrototype, ABILITIES
 from game.heroes.conf import heroes_settings
 from game.heroes.exceptions import HeroException
@@ -947,141 +950,143 @@ class HeroPositionPrototype(object):
                  self.coordinates_to == other.coordinates_to)
 
 
-class ChooseAbilityTaskPrototype(object):
+CHOOSE_HERO_ABILITY_STATE = create_enum('CHOOSE_HERO_ABILITY_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
+                                                                       ('PROCESSED', 1, u'обработана'),
+                                                                       ('WRONG_ID', 2, u'неверный идентификатор способности'),
+                                                                       ('NOT_IN_CHOICE_LIST', 3, u'способность недоступна для выбора'),
+                                                                       ('NOT_FOR_PLAYERS', 4, u'способность не для игроков'),
+                                                                       ('NO_DESTINY_POINTS', 5, u'нехватает очков'),
+                                                                       ('ALREADY_CHOOSEN', 6, u'способность уже выбрана') ) )
 
-    def __init__(self, model):
-        self.model = model
+@postponed_task
+class ChooseHeroAbilityTask(object):
+
+    TYPE = 'choose-hero-ability'
+    INITIAL_STATE = CHOOSE_HERO_ABILITY_STATE.UNPROCESSED
+    LOGGER = getLogger('the-tale.workers.game_logic')
+
+    def __init__(self, hero_id, ability_id, state=INITIAL_STATE):
+        self.hero_id = hero_id
+        self.ability_id = ability_id
+        self.state = state
+
+    def __eq__(self, other):
+        return (self.hero_id == other.hero_id and
+                self.ability_id == other.ability_id and
+                self.state == other.state )
+
+    def serialize(self):
+        return { 'hero_id': self.hero_id,
+                 'ability_id': self.ability_id,
+                 'state': self.state}
 
     @classmethod
-    def get_by_id(cls, task_id):
-        return cls(ChooseAbilityTask.objects.get(id=task_id))
-
-    @classmethod
-    def reset_all(cls):
-        ChooseAbilityTask.objects.filter(state=CHOOSE_ABILITY_STATE.WAITING).update(state=CHOOSE_ABILITY_STATE.RESET)
+    def deserialize(cls, data):
+        return cls(**data)
 
     @property
-    def id(self): return self.model.id
-
-    def get_state(self): return self.model.state
-    def set_state(self, value): self.model.state = value
-    state = property(get_state, set_state)
-
-    def get_comment(self): return self.model.comment
-    def set_comment(self, value): self.model.comment = value
-    comment = property(get_comment, set_comment)
+    def uuid(self): return self.hero_id
 
     @property
-    def hero_id(self): return self.model.hero_id
+    def response_data(self): return {}
 
     @property
-    def ability_id(self): return self.model.ability_id
+    def error_message(self): return CHOOSE_HERO_ABILITY_STATE.CHOICES[self.state]
 
-    @classmethod
-    def create(cls, ability_id, hero_id):
-        model = ChooseAbilityTask.objects.create(hero_id=hero_id,
-                                                 ability_id=ability_id)
-        return cls(model)
 
-    def save(self):
-        self.model.save()
-
-    def process(self, storage):
+    @nested_commit_on_success
+    def process(self, main_task, storage):
 
         hero = storage.heroes[self.hero_id]
 
         if self.ability_id not in ABILITIES:
-            self.state = CHOOSE_ABILITY_STATE.ERROR
-            self.comment = u'no ability with id "%s"' % self.ability_id
-            return
+            self.state = CHOOSE_HERO_ABILITY_STATE.WRONG_ID
+            main_task.comment = u'no ability with id "%s"' % self.ability_id
+            return False
 
         choices = hero.get_abilities_for_choose()
 
         if self.ability_id not in [choice.get_id() for choice in choices]:
-            self.state = CHOOSE_ABILITY_STATE .ERROR
-            self.comment = u'ability not in choices list: %s' % self.ability_id
-            return
+            self.state = CHOOSE_HERO_ABILITY_STATE.NOT_IN_CHOICE_LIST
+            main_task.comment = u'ability not in choices list: %s' % self.ability_id
+            return False
 
         ability = ABILITIES[self.ability_id]
 
         if not ability.AVAILABLE_TO_PLAYERS:
-            self.state = CHOOSE_ABILITY_STATE.ERROR
-            self.comment = u'ability "%s" does not available to players' % self.ability_id
-            return
+            self.state = CHOOSE_HERO_ABILITY_STATE.NOT_FOR_PLAYERS
+            main_task.comment = u'ability "%s" does not available to players' % self.ability_id
+            return False
 
         if hero.destiny_points <= 0:
-            self.state = CHOOSE_ABILITY_STATE.ERROR
-            self.comment = 'no destiny points'
-            return
+            self.state = CHOOSE_HERO_ABILITY_STATE.NO_DESTINY_POINTS
+            main_task.comment = 'no destiny points'
+            return False
 
         if hero.abilities.has(self.ability_id):
-            self.state = CHOOSE_ABILITY_STATE.ERROR
-            self.comment = 'ability has been already choosen'
-            return
+            self.state = CHOOSE_HERO_ABILITY_STATE.ALREADY_CHOOSEN
+            main_task.comment = 'ability has been already choosen'
+            return False
 
-        else:
-            hero.abilities.add(self.ability_id)
+        hero.abilities.add(self.ability_id)
 
         hero.destiny_points -= 1
         hero.destiny_points_spend += 1
 
-        self.state = CHOOSE_ABILITY_STATE.PROCESSED
+        self.state = CHOOSE_HERO_ABILITY_STATE.PROCESSED
+
+        return True
 
 
-class ChangeHeroTaskPrototype(object):
+CHANGE_HERO_TASK_STATE = create_enum('CHANGE_HERO_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
+                                                                 ('PROCESSED', 1, u'обработана') ) )
 
-    def __init__(self, model):
-        self.model = model
+@postponed_task
+class ChangeHeroTask(object):
 
-    @classmethod
-    def get_by_id(cls, task_id):
-        try:
-            return cls(ChangeHeroTask.objects.get(id=task_id))
-        except ChangeHeroTask.DoesNotExist:
-            return None
+    TYPE = 'change-hero'
+    INITIAL_STATE = CHANGE_HERO_TASK_STATE.UNPROCESSED
+    LOGGER = getLogger('the-tale.workers.game_logic')
 
-    @classmethod
-    def reset_all(cls):
-        ChangeHeroTask.objects.filter(state=CHANGE_HERO_STATE.WAITING).update(state=CHANGE_HERO_STATE.RESET)
 
-    @property
-    def id(self): return self.model.id
+    def __init__(self, hero_id, name, race, gender, state=INITIAL_STATE):
+        self.hero_id = hero_id
+        self.name = name
+        self.race = race
+        self.gender = gender
+        self.state = state
 
-    def get_state(self): return self.model.state
-    def set_state(self, value): self.model.state = value
-    state = property(get_state, set_state)
+    def __eq__(self, other):
+        return (self.hero_id == other.hero_id and
+                self.name == other.name and
+                self.race == other.race and
+                self.gender == other.gender and
+                self.state == other.state )
 
-    def get_comment(self): return self.model.comment
-    def set_comment(self, value): self.model.comment = value
-    comment = property(get_comment, set_comment)
-
-    @property
-    def hero_id(self): return self.model.hero_id
-
-    @property
-    def name(self):
-        if not hasattr(self, '_name'):
-            self._name = Noun.deserialize(s11n.from_json(self.model.data))
-        return self._name
-
-    @property
-    def race(self): return self.model.race
-
-    @property
-    def gender(self): return self.model.gender
+    def serialize(self):
+        return { 'hero_id': self.hero_id,
+                 'name': self.name.serialize(),
+                 'race': self.race,
+                 'gender': self.gender,
+                 'state': self.state}
 
     @classmethod
-    def create(cls, hero, forms, race, gender):
-        model = ChangeHeroTask.objects.create(hero=hero.model,
-                                              race=race,
-                                              gender=gender,
-                                              data=s11n.to_json(Noun(normalized=forms[0], forms=forms*2, properties=(GENDER_ID_2_STR[gender], )).serialize()))
-        return cls(model)
+    def deserialize(cls, data):
+        kwargs = copy.deepcopy(data)
+        kwargs['name'] = Noun.deserialize(kwargs['name'])
+        return cls(**kwargs)
 
-    def save(self):
-        self.model.save()
+    @property
+    def uuid(self): return self.hero_id
 
-    def process(self, storage):
+    @property
+    def response_data(self): return {}
+
+    @property
+    def error_message(self): return CHANGE_HERO_TASK_STATE.CHOICES[self.state]
+
+    @nested_commit_on_success
+    def process(self, main_task, storage):
 
         hero = storage.heroes[self.hero_id]
 
@@ -1089,4 +1094,5 @@ class ChangeHeroTaskPrototype(object):
         hero.gender = self.gender
         hero.race = self.race
 
-        self.state = CHANGE_HERO_STATE.PROCESSED
+        self.state = CHANGE_HERO_TASK_STATE.PROCESSED
+        return True

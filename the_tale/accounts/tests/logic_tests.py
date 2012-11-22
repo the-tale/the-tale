@@ -4,7 +4,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from common.utils.fake import FakeLogger
+from common.postponed_tasks import FakePostpondTaskPrototype
 
 from game.heroes.models import Hero
 from game.quests.models import Quest
@@ -13,8 +13,8 @@ from game.models import Bundle
 from game.logic import create_test_map
 
 from accounts.logic import block_expired_accounts
-from accounts.prototypes import RegistrationTaskPrototype
-from accounts.models import Account, RegistrationTask
+from accounts.models import Account
+from accounts.prototypes import RegistrationTask
 
 
 class TestLogic(TestCase):
@@ -24,8 +24,8 @@ class TestLogic(TestCase):
 
 
     def test_block_expired_accounts(self):
-        task = RegistrationTaskPrototype.create()
-        task.process(FakeLogger())
+        task = RegistrationTask(account_id=None)
+        task.process(FakePostpondTaskPrototype())
 
         task.account.model.created_at = datetime.datetime.fromtimestamp(0)
         task.account.model.save()
@@ -40,5 +40,3 @@ class TestLogic(TestCase):
 
         self.assertEqual(Account.objects.all().count(), 0)
         self.assertEqual(User.objects.all().count(), 0)
-
-        self.assertEqual(RegistrationTask.objects.all().count(), 1)

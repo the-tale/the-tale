@@ -3,6 +3,7 @@
 from textgen.words import Noun
 
 from common.utils.testcase import TestCase
+from common.postponed_tasks import FakePostpondTaskPrototype
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -11,8 +12,7 @@ from game.logic import create_test_map
 from game.game_info import RACE, GENDER
 from game.logic_storage import LogicStorage
 
-from game.heroes.prototypes import ChangeHeroTaskPrototype
-from game.heroes.models import ChangeHeroTask, CHANGE_HERO_STATE
+from game.heroes.prototypes import ChangeHeroTask, CHANGE_HERO_TASK_STATE
 
 
 class ChangeHeroTest(TestCase):
@@ -38,33 +38,28 @@ class ChangeHeroTest(TestCase):
         pass
 
     def test_create(self):
-        self.assertEqual(ChangeHeroTask.objects.all().count(), 0)
-        task = ChangeHeroTaskPrototype.create(self.hero, forms=self.forms, race=self.race, gender=self.gender)
-        self.assertEqual(ChangeHeroTask.objects.all().count(), 1)
-        self.assertEqual(task.state, CHANGE_HERO_STATE.WAITING)
+        task = ChangeHeroTask(self.hero.id, name=self.noun, race=self.race, gender=self.gender)
+        self.assertEqual(task.state, CHANGE_HERO_TASK_STATE.UNPROCESSED)
         self.assertEqual(self.hero.preferences.place_id, None)
 
         self.assertEqual(task.name, self.noun)
         self.assertEqual(task.race, self.race)
         self.assertEqual(task.gender, self.gender)
 
-    def test_reset_all(self):
-        ChangeHeroTaskPrototype.create(self.hero, forms=self.forms, race=self.race, gender=self.gender)
-        self.assertEqual(ChangeHeroTask.objects.filter(state=CHANGE_HERO_STATE.WAITING).count(), 1)
-        ChangeHeroTaskPrototype.reset_all()
-        self.assertEqual(ChangeHeroTask.objects.filter(state=CHANGE_HERO_STATE.WAITING).count(), 0)
-        self.assertEqual(ChangeHeroTask.objects.filter(state=CHANGE_HERO_STATE.RESET).count(), 1)
+    def test_serializatino(self):
+        task = ChangeHeroTask(self.hero.id, name=self.noun, race=self.race, gender=self.gender)
+        self.assertEqual(task, ChangeHeroTask.deserialize(task.serialize()))
 
     def test_check_change(self):
-        task = ChangeHeroTaskPrototype.create(self.hero, forms=self.forms, race=self.race, gender=self.gender)
+        task = ChangeHeroTask(self.hero.id, name=self.noun, race=self.race, gender=self.gender)
         self.assertNotEqual(self.hero.normalized_name, self.noun)
         self.assertNotEqual(self.hero.gender, self.gender)
         self.assertNotEqual(self.hero.race, self.race)
         self.assertFalse(self.hero.is_name_changed)
 
-        task.process(self.storage)
+        task.process(FakePostpondTaskPrototype(), self.storage)
 
-        self.assertEqual(task.state, CHANGE_HERO_STATE.PROCESSED)
+        self.assertEqual(task.state, CHANGE_HERO_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.normalized_name, self.noun)
         self.assertEqual(self.hero.name, self.noun.normalized)
         self.assertEqual(self.hero.race, self.race)

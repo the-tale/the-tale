@@ -1,5 +1,4 @@
 # coding: utf-8
-import mock
 
 from django.test import client
 from django.core.urlresolvers import reverse
@@ -7,6 +6,7 @@ from django.core.urlresolvers import reverse
 from textgen.words import Noun
 
 from common.utils.testcase import TestCase
+from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
 
 from accounts.logic import register_user
 
@@ -14,8 +14,7 @@ from game.game_info import RACE, GENDER, GENDER_ID_2_STR
 from game.logic_storage import LogicStorage
 from game.logic import create_test_map
 
-from game.heroes.prototypes import HeroPrototype, ChangeHeroTaskPrototype
-from game.heroes.models import ChangeHeroTask, CHANGE_HERO_STATE
+from game.heroes.prototypes import HeroPrototype, ChangeHeroTask, CHANGE_HERO_TASK_STATE
 
 class HeroRequestsTestBase(TestCase):
 
@@ -126,40 +125,14 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
 
     def test_change_hero(self):
-        self.assertEqual(ChangeHeroTask.objects.all().count(), 0)
+        self.assertEqual(PostponedTask.objects.all().count(), 0)
         response = self.client.post(reverse('game:heroes:change-hero', args=[self.hero.id]), self.get_post_data())
-        self.assertEqual(ChangeHeroTask.objects.all().count(), 1)
+        self.assertEqual(PostponedTask.objects.all().count(), 1)
 
-        task = ChangeHeroTaskPrototype(ChangeHeroTask.objects.all()[0])
-        self.check_ajax_processing(response, status_url=reverse('game:heroes:change-hero-status', args=[self.hero.id]) + ('?task_id=%d' % task.id))
+        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
 
-        self.assertEqual(task.name, self.get_name())
-        self.assertEqual(task.gender, GENDER.MASCULINE)
-        self.assertEqual(task.race, RACE.DWARF)
+        self.check_ajax_processing(response, task.status_url)
 
-    def test_change_hero_status_no_task(self):
-        self.client.post(reverse('game:heroes:change-hero', args=[self.hero.id]), self.get_post_data())
-        self.check_ajax_error(self.client.get(reverse('game:heroes:change-hero-status', args=[self.hero.id]) + '?task_id=666'),
-                              'heroes.change_hero_status.no_task')
-
-
-    def test_change_hero_status_waiting(self):
-        self.client.post(reverse('game:heroes:change-hero', args=[self.hero.id]), self.get_post_data())
-        task = ChangeHeroTaskPrototype(ChangeHeroTask.objects.all()[0])
-        self.check_ajax_processing(self.client.get(reverse('game:heroes:change-hero-status', args=[self.hero.id]) + ('?task_id=%d' % task.id)),
-                                   reverse('game:heroes:change-hero-status', args=[self.hero.id]) + ('?task_id=%d' % task.id))
-
-    def test_change_hero_status_processed(self):
-        self.client.post(reverse('game:heroes:change-hero', args=[self.hero.id]), self.get_post_data())
-        task = ChangeHeroTaskPrototype(ChangeHeroTask.objects.all()[0])
-        task.model.state = CHANGE_HERO_STATE.PROCESSED
-        task.save()
-        self.check_ajax_ok(self.client.get(reverse('game:heroes:change-hero-status', args=[self.hero.id]) + ('?task_id=%d' % task.id)))
-
-    def test_change_hero_status_unknown_error(self):
-        self.client.post(reverse('game:heroes:change-hero', args=[self.hero.id]), self.get_post_data())
-        task = ChangeHeroTaskPrototype(ChangeHeroTask.objects.all()[0])
-        task.model.state = 666
-        task.save()
-        self.check_ajax_error(self.client.get(reverse('game:heroes:change-hero-status', args=[self.hero.id]) + ('?task_id=%d' % task.id)),
-                              'heroes.change_hero_status.error')
+        self.assertEqual(task.internal_logic.name, self.get_name())
+        self.assertEqual(task.internal_logic.gender, GENDER.MASCULINE)
+        self.assertEqual(task.internal_logic.race, RACE.DWARF)

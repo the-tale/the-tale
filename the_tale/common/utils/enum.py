@@ -43,6 +43,12 @@ def create_enum(class_name, records):
 
         setattr(Enum, 'is_%s' % field_name.lower(), property(_create_state_checker(field_id)))
 
+    if len(records) != len(Enum.STR_2_ID):
+        raise Exception('enum "%s" has duplicate field names' % class_name)
+
+    if len(records) != len(Enum.ID_2_STR):
+        raise Exception('enum "%s" has duplicate field ids' % class_name)
+
     Enum.__name__ = class_name
 
     return Enum

@@ -7,24 +7,23 @@ from django.test import client
 from django.core.urlresolvers import reverse
 
 from common.utils.testcase import TestCase
+from common.postponed_tasks import PostponedTask, PostponedTaskPrototype, FakePostpondTaskPrototype
 
 from accounts.logic import register_user, login_url
 
-from game.heroes.prototypes import HeroPrototype
 from game.logic_storage import LogicStorage
-
+from game.logic import create_test_map
 
 from game.actions.fake import FakeActor
 
 from game.heroes.fake import FakeMessanger
-from game.heroes.models import ChooseAbilityTask, CHOOSE_ABILITY_STATE
 
-from game.heroes.prototypes import ChooseAbilityTaskPrototype
+from game.heroes.prototypes import HeroPrototype, ChooseHeroAbilityTask, CHOOSE_HERO_ABILITY_STATE
 from game.heroes.habilities import prototypes as common_abilities
 from game.heroes.habilities import ABILITIES
 from game.heroes.habilities.prototypes import ABILITIES_LOGIC_TYPE
 
-from game.logic import create_test_map
+
 
 
 class HabilitiesTest(TestCase):
@@ -123,34 +122,49 @@ class ChooseAbilityTaskTest(TestCase):
                 return ability_key
 
     def test_create(self):
-        task = ChooseAbilityTaskPrototype.create(self.get_new_ability_id(), self.hero.id)
+        task = ChooseHeroAbilityTask(self.hero.id, self.get_new_ability_id())
         self.assertEqual(task.hero_id, self.hero.id)
-        self.assertEqual(task.state, CHOOSE_ABILITY_STATE.WAITING)
+        self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.UNPROCESSED)
+
+    def test_serialization(self):
+        task = ChooseHeroAbilityTask(self.hero.id, self.get_new_ability_id())
+        self.assertEqual(task, ChooseHeroAbilityTask.deserialize(task.serialize()))
 
     def test_process_wrong_id(self):
-        task = ChooseAbilityTaskPrototype.create('ssadasda', self.hero.id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_ABILITY_STATE.ERROR)
+        task = ChooseHeroAbilityTask(self.hero.id, 'ssadasda')
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.WRONG_ID)
 
     def test_process_id_not_in_choices(self):
-        task = ChooseAbilityTaskPrototype.create(self.get_unchoosed_ability_id(), self.hero.id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_ABILITY_STATE.ERROR)
+        task = ChooseHeroAbilityTask(self.hero.id, self.get_unchoosed_ability_id())
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.NOT_IN_CHOICE_LIST)
 
     def test_process_not_for_heroes(self):
-        task = ChooseAbilityTaskPrototype.create(self.get_only_for_mobs_ability_id(), self.hero.id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_ABILITY_STATE.ERROR)
+        task = ChooseHeroAbilityTask(self.hero.id, self.get_only_for_mobs_ability_id())
+
+        with mock.patch('game.heroes.prototypes.HeroPrototype.get_abilities_for_choose', lambda x: [ABILITIES[task.ability_id]]):
+            self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+
+        self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.NOT_FOR_PLAYERS)
 
     def test_process_already_choosen(self):
-        task = ChooseAbilityTaskPrototype.create(common_abilities.HIT.get_id(), self.hero.id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_ABILITY_STATE.ERROR)
+        task = ChooseHeroAbilityTask(self.hero.id, common_abilities.HIT.get_id())
+
+        with mock.patch('game.heroes.prototypes.HeroPrototype.get_abilities_for_choose', lambda x: [ABILITIES[task.ability_id]]):
+            self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.ALREADY_CHOOSEN)
 
     def test_process_success(self):
-        task = ChooseAbilityTaskPrototype.create(self.get_new_ability_id(), self.hero.id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_ABILITY_STATE.PROCESSED)
+        task = ChooseHeroAbilityTask(self.hero.id, self.get_new_ability_id())
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.PROCESSED)
+
+    def test_process_no_destiny_points(self):
+        self.hero.destiny_points = 0
+        task = ChooseHeroAbilityTask(self.hero.id, self.get_new_ability_id())
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.NO_DESTINY_POINTS)
 
 
 class HabilitiesViewsTest(TestCase):
@@ -219,63 +233,5 @@ class HabilitiesViewsTest(TestCase):
     def test_choose_ability_request_ok(self):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content), {'status': 'processing',
-                                                            'status_url': '/game/heroes/1/choose-ability-status?task_id=1'})
-        self.assertEqual(ChooseAbilityTask.objects.all().count(), 1)
-
-    def test_choose_ability_status_anonimouse(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
-        self.request_logout()
-        response = self.client.get(reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % self.task.id, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
-
-    def test_choose_ability_status_from_other_account(self):
-        register_user('test_user2', 'test_user2@test.com', '111111')
-
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
-        self.request_logout()
-
-        self.request_login('test_user2@test.com')
-        response = self.client.get(reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % self.task.id, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-
-        self.check_ajax_error(response, 'heroes.not_owner')
-
-
-    def test_choose_ability_status_processing(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
-        response = self.client.get(reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % self.task.id, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content), {'status': 'processing',
-                                                            'status_url': '/game/heroes/1/choose-ability-status?task_id=1'})
-
-
-    def test_choose_ability_status_processed(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
-
-        self.task.process(self.storage)
-        self.task.save()
-
-        response = self.client.get(reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % self.task.id, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content), {'status': 'ok'})
-
-
-    def test_choose_ability_status_error(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
-
-        self.task.state = CHOOSE_ABILITY_STATE.ERROR
-        self.task.save()
-
-        response = self.client.get(reverse('game:heroes:choose-ability-status', args=[self.hero.id]) + '?task_id=%s' % self.task.id, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+        self.check_ajax_processing(response, task.status_url)

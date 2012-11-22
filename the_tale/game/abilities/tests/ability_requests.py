@@ -5,6 +5,8 @@ from django.core.urlresolvers import reverse
 from dext.utils import s11n
 
 from common.utils.testcase import TestCase
+from common.postponed_tasks.models import PostponedTask
+from common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from accounts.logic import register_user
 from accounts.prototypes import AccountPrototype
@@ -13,8 +15,6 @@ from game.logic import create_test_map
 
 from game.heroes.prototypes import HeroPrototype
 
-from game.abilities.models import AbilityTask
-from game.abilities.prototypes import AbilityTaskPrototype
 from game.abilities.deck.help import Help
 
 class AbilityRequests(TestCase):
@@ -33,10 +33,8 @@ class AbilityRequests(TestCase):
     def test_activate_ability(self):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:abilities:activate', args=[Help.get_type()]), {'hero_id': HeroPrototype.get_by_account_id(self.account.id).id})
-        self.assertEqual(response.status_code, 200)
-        task = AbilityTaskPrototype(AbilityTask.objects.all()[0])
-        self.assertEqual(s11n.from_json(response.content), {'status': 'processing',
-                                                            'status_url':  reverse('game:abilities:activate_status', args=[task.type]) + '?task_id=%s' % task.id} )
+        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+        self.check_ajax_processing(response, task.status_url)
 
 
     def test_activate_abiliy_status(self):
@@ -47,16 +45,3 @@ class AbilityRequests(TestCase):
         response = self.client.get(status_url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content), {'status': 'processing', 'status_url':  status_url})
-
-
-    def test_activate_abiliy_status_unlogined(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:abilities:activate', args=[Help.get_type()]), {'hero_id': HeroPrototype.get_by_account_id(self.account.id).id})
-        status_url = s11n.from_json(response.content)['status_url']
-
-        self.request_logout()
-
-        response = self.client.get(status_url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')

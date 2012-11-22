@@ -9,6 +9,14 @@ from game.game_info import RACE, GENDER
 
 from game.balance import constants as c
 
+PREFERENCE_TYPE = create_enum('PREFERENCE_TYPE', ( ('MOB', 0, u'любимая добыча'),
+                                                   ('PLACE', 1, u'родной город'),
+                                                   ('FRIEND', 2, u'соратник'),
+                                                   ('ENEMY', 3, u'враг'),
+                                                   ('ENERGY_REGENERATION_TYPE', 4, u'религиозность'),
+                                                   ('EQUIPMENT_SLOT', 5, u'экипировка'),) )
+
+
 class Hero(models.Model):
 
     created_at_turn = models.IntegerField(null=False, default=0)
@@ -113,77 +121,3 @@ class Hero(models.Model):
 
     def __unicode__(self):
         return u'hero[%d] - %s' % (self.id, self.name)
-
-
-CHOOSE_ABILITY_STATE = create_enum('CHOOSE_ABILITY_STATE', ( ('WAITING', 0, u'в очереди'),
-                                                             ('PROCESSED', 1, u'обработана'),
-                                                             ('UNPROCESSED', 2, u'нельзя выбрать'),
-                                                             ('RESET', 3, u'сброшена'),
-                                                             ('ERROR', 4, u'ошибка'),) )
-
-class ChooseAbilityTask(models.Model):
-
-    created_at = models.DateTimeField(auto_now_add=True, default=datetime.datetime(2000, 1, 1))
-
-    state = models.IntegerField(default=CHOOSE_ABILITY_STATE.WAITING, choices=CHOOSE_ABILITY_STATE.CHOICES)
-
-    hero = models.ForeignKey(Hero,  related_name='+')
-
-    ability_id = models.CharField(max_length=64)
-
-    comment = models.CharField(max_length=256, blank=True, null=False, default=True)
-
-
-CHOOSE_PREFERENCES_STATE = create_enum('CHOOSE_PREFERENCES_STATE', ( ('WAITING', 0, u'в очереди'),
-                                                                     ('PROCESSED', 1, u'обработана'),
-                                                                     ('TIMEOUT', 2, u'таймаут'),
-                                                                     ('RESET', 3, u'сброшена'),
-                                                                     ('ERROR', 4, u'ошибка'),
-                                                                     ('COOLDOWN', 5, u'заблокирована по времени'),
-                                                                     ('UNAVAILABLE_PERSON', 6, u'недоступный персонаж'),
-                                                                     ('OUTGAME_PERSON', 7, u'выведеный из игры персонаж'),
-                                                                     ('UNSPECIFIED_PREFERENCE', 8, u'неуказанное предпочтение'), ) )
-
-
-PREFERENCE_TYPE = create_enum('PREFERENCE_TYPE', ( ('MOB', 0, u'любимая добыча'),
-                                                   ('PLACE', 1, u'родной город'),
-                                                   ('FRIEND', 2, u'соратник'),
-                                                   ('ENEMY', 3, u'враг'),
-                                                   ('ENERGY_REGENERATION_TYPE', 4, u'религиозность'),
-                                                   ('EQUIPMENT_SLOT', 5, u'экипировка'),) )
-
-
-class ChoosePreferencesTask(models.Model):
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    state = models.IntegerField(default=CHOOSE_PREFERENCES_STATE.WAITING, choices=CHOOSE_PREFERENCES_STATE.CHOICES, db_index=True)
-
-    hero = models.ForeignKey(Hero,  related_name='+')
-
-    preference_type = models.IntegerField(choices=PREFERENCE_TYPE.CHOICES, db_index=True)
-    preference_id = models.CharField(default=None, max_length=32, null=True) # id can be either number nor strong
-
-    comment = models.CharField(max_length=256, blank=True, null=False, default=True)
-
-
-CHANGE_HERO_STATE = create_enum('CHANGE_HERO_STATE', ( ('WAITING', 0, u'в очереди'),
-                                                       ('PROCESSED', 1, u'обработана'),
-                                                       ('RESET', 2, u'сброшена'),
-                                                       ('ERROR', 3, u'ошибка') ) )
-
-class ChangeHeroTask(models.Model):
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    state = models.IntegerField(default=CHANGE_HERO_STATE.WAITING, choices=CHANGE_HERO_STATE.CHOICES, db_index=True)
-
-    hero = models.ForeignKey(Hero,  related_name='+')
-
-    comment = models.CharField(max_length=256, blank=True, null=False, default=True)
-
-    data = models.TextField(null=False, default='{}')
-
-    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER.CHOICES)
-
-    race = models.IntegerField(choices=RACE.CHOICES, default=RACE.HUMAN)

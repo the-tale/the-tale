@@ -2,6 +2,11 @@
 
 import datetime
 
+from django.utils.log import getLogger
+
+from common.utils.enum import create_enum
+from common.postponed_tasks import postponed_task
+
 from game.balance import constants as c
 
 from game.mobs.storage import MobsDatabase
@@ -10,7 +15,7 @@ from game.map.places.storage import places_storage
 
 from game.persons.storage import persons_storage
 
-from game.heroes.models import ChoosePreferencesTask, PREFERENCE_TYPE, CHOOSE_PREFERENCES_STATE
+from game.heroes.models import PREFERENCE_TYPE
 from game.heroes.bag import SLOTS_LIST, SLOTS_DICT
 from game.heroes.exceptions import HeroException
 
@@ -123,209 +128,219 @@ class HeroPreferences(object):
         return SLOTS_DICT.get(self.equipment_slot)
 
 
-class ChoosePreferencesTaskPrototype(object):
+CHOOSE_PREFERENCES_TASK_STATE = create_enum('CHOOSE_PREFERENCES_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
+                                                                               ('PROCESSED', 1, u'обработана'),
+                                                                               ('COOLDOWN', 2, u'смена способности недоступна'),
+                                                                               ('LOW_LEVEL', 3, u'низкий уровень героя'),
+                                                                               ('UNAVAILABLE_PERSON', 4, u'персонаж недоступен'),
+                                                                               ('OUTGAME_PERSON', 5, u'персонаж выведен из игры'),
+                                                                               ('UNSPECIFIED_PREFERENCE', 6, u'предпочтение неуказано'),
+                                                                               ('UNKNOWN_ENERGY_REGENERATION_TYPE', 7, u'неизвестный тип восстановления энергии'),
+                                                                               ('UNKNOWN_MOB', 8, u'неизвестный тип монстра'),
+                                                                               ('LARGE_MOB_LEVEL', 9, u'слишком сильный монстр'),
+                                                                               ('UNKNOWN_PLACE', 10, u'неизвестное место'),
+                                                                               ('ENEMY_AND_FRIEND', 11, u'персонаж одновременно и друг и враг'),
+                                                                               ('UNKNOWN_PERSON', 12, u'неизвестный персонаж'),
+                                                                               ('UNKNOWN_EQUIPMENT_SLOT', 13, u'неизвестный тип экипировки'),
+                                                                               ('UNKNOWN_PREFERENCE', 14, u'неизвестный тип предпочтения'),) )
 
-    def __init__(self, model):
-        self.model = model
+
+@postponed_task
+class ChoosePreferencesTask(object):
+
+    TYPE = 'choose-hero-preferences'
+    INITIAL_STATE = CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED
+    LOGGER = getLogger('the-tale.workers.game_logic')
+
+    def __init__(self, hero_id, preference_type, preference_id, state=INITIAL_STATE):
+        self.hero_id = hero_id
+        self.preference_type = preference_type
+        self.preference_id = preference_id
+        self.state = state
+
+    def __eq__(self, other):
+        return (self.hero_id == other.hero_id and
+                self.preference_type == other.preference_type and
+                self.preference_id == other.preference_id and
+                self.state == other.state )
+
+    def serialize(self):
+        return { 'hero_id': self.hero_id,
+                 'preference_type': self.preference_type,
+                 'preference_id': self.preference_id,
+                 'state': self.state }
 
     @classmethod
-    def get_by_id(cls, id_):
-        try:
-            return cls(ChoosePreferencesTask.objects.get(id=id_))
-        except ChoosePreferencesTask.DoesNotExist:
-            return None
-
-    @classmethod
-    def create(cls, hero, preference_type, preference_id):
-
-        model = ChoosePreferencesTask.objects.create(hero=hero.model,
-                                                     preference_type=preference_type,
-                                                     preference_id=str(preference_id) if preference_id is not None else None)
-
-        return cls(model)
-
-    @classmethod
-    def reset_all(cls):
-        ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).update(state=CHOOSE_PREFERENCES_STATE.RESET)
+    def deserialize(cls, data):
+        return cls(**data)
 
     @property
-    def state(self): return self.model.state
+    def uuid(self): return self.hero_id
 
     @property
-    def id(self): return self.model.id
+    def response_data(self): return {}
 
     @property
-    def hero_id(self): return self.model.hero_id
+    def error_message(self): return CHOOSE_PREFERENCES_TASK_STATE.CHOICES[self.state]
 
-    @property
-    def is_unprocessed(self):
-        return self.model.state == CHOOSE_PREFERENCES_STATE.WAITING
+    def process(self, main_task, storage):
 
-    def process(self, storage):
+        hero = storage.heroes[self.hero_id]
 
-        if not self.is_unprocessed:
-            return
+        if not hero.preferences.can_update(self.preference_type, datetime.datetime.now()):
+            main_task.comment = u'blocked since time delay'
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN
+            return False
 
-        hero = storage.heroes[self.model.hero_id]
-
-        if not hero.preferences.can_update(self.model.preference_type, datetime.datetime.now()):
-            self.model.comment = u'blocked since time delay'
-            self.model.state = CHOOSE_PREFERENCES_STATE.COOLDOWN
-            return
-
-        if self.model.preference_type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE:
+        if self.preference_type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE:
 
             if hero.level < c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED:
-                self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED)
-                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                return
+                main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED)
+                self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
+                return False
 
-            energy_regeneration_type = int(self.model.preference_id) if self.model.preference_id is not None else None
+            energy_regeneration_type = int(self.preference_id) if self.preference_id is not None else None
 
             if energy_regeneration_type is None:
-                # log
-                self.model.comment = u'energy regeneration preference can not be None'
-                self.model.state = CHOOSE_PREFERENCES_STATE.UNSPECIFIED_PREFERENCE
-                return
+                main_task.comment = u'energy regeneration preference can not be None'
+                self.state = CHOOSE_PREFERENCES_TASK_STATE.UNSPECIFIED_PREFERENCE
+                return False
 
             if energy_regeneration_type not in c.ANGEL_ENERGY_REGENERATION_DELAY:
-                self.model.comment = u'unknown energy regeneration type: %s' % (energy_regeneration_type, )
-                self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                return
+                main_task.comment = u'unknown energy regeneration type: %s' % (energy_regeneration_type, )
+                self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ENERGY_REGENERATION_TYPE
+                return False
 
             hero.preferences.energy_regeneration_type = energy_regeneration_type
             hero.preferences.energy_regeneration_type_changed_at = datetime.datetime.now()
 
 
-        elif self.model.preference_type == PREFERENCE_TYPE.MOB:
+        elif self.preference_type == PREFERENCE_TYPE.MOB:
 
-            mob_id = self.model.preference_id
+            mob_id = self.preference_id
 
             if mob_id is not None:
 
                 if hero.level < c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED:
-                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED)
-                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                    return
+                    main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED)
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
+                    return False
 
-                if self.model.preference_id not in MobsDatabase.storage():
-                    self.model.comment = u'unknown mob id: %s' % (self.model.preference_id, )
-                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                    return
+                if self.preference_id not in MobsDatabase.storage():
+                    main_task.comment = u'unknown mob id: %s' % (self.preference_id, )
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_MOB
+                    return False
 
-                mob = MobsDatabase.storage()[self.model.preference_id]
+                mob = MobsDatabase.storage()[self.preference_id]
 
                 if hero.level < mob.level:
-                    self.model.comment = u'hero level < mob level (%d < %d)' % (hero.level, mob.level)
-                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                    return
+                    main_task.comment = u'hero level < mob level (%d < %d)' % (hero.level, mob.level)
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.LARGE_MOB_LEVEL
+                    return False
 
             hero.preferences.mob_id = mob_id
             hero.preferences.mob_changed_at = datetime.datetime.now()
 
-        elif self.model.preference_type == PREFERENCE_TYPE.PLACE:
+        elif self.preference_type == PREFERENCE_TYPE.PLACE:
 
-            place_id = int(self.model.preference_id) if self.model.preference_id is not None else None
+            place_id = int(self.preference_id) if self.preference_id is not None else None
 
             if place_id is not None:
 
                 if hero.level < c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED:
-                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED)
-                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                    return
+                    main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED)
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
+                    return False
 
                 if place_id not in places_storage:
-                    self.model.comment = u'unknown place id: %s' % (place_id, )
-                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                    return
+                    main_task.comment = u'unknown place id: %s' % (place_id, )
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE
+                    return False
 
             hero.preferences.place_id = place_id
             hero.preferences.place_changed_at = datetime.datetime.now()
 
-        elif self.model.preference_type == PREFERENCE_TYPE.FRIEND:
+        elif self.preference_type == PREFERENCE_TYPE.FRIEND:
 
-            friend_id = int(self.model.preference_id) if self.model.preference_id is not None else None
+            friend_id = int(self.preference_id) if self.preference_id is not None else None
 
             if friend_id is not None:
                 if hero.level < c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED:
-                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED)
-                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                    return
+                    main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED)
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
+                    return False
 
                 if hero.preferences.enemy_id == friend_id:
-                    self.model.comment = u'try set enemy as a friend (%d)' % (friend_id, )
-                    self.model.state = CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON
-                    return
+                    main_task.comment = u'try set enemy as a friend (%d)' % (friend_id, )
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND
+                    return False
 
                 if friend_id not in persons_storage:
-                    self.model.comment = u'unknown person id: %s' % (friend_id, )
-                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                    return
+                    main_task.comment = u'unknown person id: %s' % (friend_id, )
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
+                    return False
 
                 if persons_storage[friend_id].out_game:
-                    self.model.comment = u'person was moved out game: %s' % (friend_id, )
-                    self.model.state = CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON
-                    return
+                    main_task.comment = u'person was moved out game: %s' % (friend_id, )
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON
+                    return False
 
             hero.preferences.friend_id = friend_id
             hero.preferences.friend_changed_at = datetime.datetime.now()
 
-        elif self.model.preference_type == PREFERENCE_TYPE.ENEMY:
+        elif self.preference_type == PREFERENCE_TYPE.ENEMY:
 
-            enemy_id = int(self.model.preference_id) if self.model.preference_id is not None else None
+            enemy_id = int(self.preference_id) if self.preference_id is not None else None
 
             if enemy_id is not None:
                 if hero.level < c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED:
-                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED)
-                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                    return
+                    main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED)
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
+                    return False
 
                 if hero.preferences.friend_id == enemy_id:
-                    self.model.comment = u'try set friend as an enemy (%d)' % (enemy_id, )
-                    self.model.state = CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON
-                    return
+                    main_task.comment = u'try set friend as an enemy (%d)' % (enemy_id, )
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND
+                    return False
 
                 if enemy_id not in persons_storage:
-                    self.model.comment = u'unknown person id: %s' % (enemy_id, )
-                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                    return
+                    main_task.comment = u'unknown person id: %s' % (enemy_id, )
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
+                    return False
 
                 if persons_storage[enemy_id].out_game:
-                    self.model.comment = u'person was moved out game: %s' % (enemy_id, )
-                    self.model.state = CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON
-                    return
+                    main_task.comment = u'person was moved out game: %s' % (enemy_id, )
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON
+                    return False
 
 
             hero.preferences.enemy_id = enemy_id
             hero.preferences.enemy_changed_at = datetime.datetime.now()
 
-        elif self.model.preference_type == PREFERENCE_TYPE.EQUIPMENT_SLOT:
+        elif self.preference_type == PREFERENCE_TYPE.EQUIPMENT_SLOT:
 
-            equipment_slot = self.model.preference_id
+            equipment_slot = self.preference_id
 
             if equipment_slot is not None:
 
                 if hero.level < c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED:
-                    self.model.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED)
-                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                    return
+                    main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED)
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
+                    return False
 
-                if self.model.preference_id not in SLOTS_LIST:
-                    self.model.comment = u'unknown equipment slot: %s' % (equipment_slot, )
-                    self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-                    return
+                if self.preference_id not in SLOTS_LIST:
+                    main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
+                    return False
 
             hero.preferences.equipment_slot = equipment_slot
             hero.preferences.equipment_slot_changed_at = datetime.datetime.now()
 
         else:
-            self.model.comment = u'unknown preference type: %s' % (self.model.preference_type, )
-            self.model.state = CHOOSE_PREFERENCES_STATE.ERROR
-            return
+            main_task.comment = u'unknown preference type: %s' % (self.preference_type, )
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PREFERENCE
+            return False
 
 
-        self.model.state = CHOOSE_PREFERENCES_STATE.PROCESSED
-
-
-    def save(self):
-        self.model.save()
+        self.state = CHOOSE_PREFERENCES_TASK_STATE.PROCESSED
+        return True

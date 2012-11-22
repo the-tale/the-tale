@@ -2,9 +2,9 @@
 
 from django.contrib import admin
 
-from .models import AbilityTask
+from game.abilities.models import AbilitiesData
 
-class AbilityTaskAdmin(admin.ModelAdmin):
-    list_display = ('id', 'type', 'state', 'hero', 'activated_at', 'available_at')
+class AbilitiesDataAdmin(admin.ModelAdmin):
+    list_display = ('id', 'hero', 'help_available_at', 'arena_pvp_1x1_available_at')
 
-admin.site.register(AbilityTask, AbilityTaskAdmin)
+admin.site.register(AbilitiesData, AbilitiesDataAdmin)

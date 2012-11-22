@@ -5,12 +5,9 @@ from django.test import client
 from django.core.urlresolvers import reverse
 
 from common.utils.testcase import TestCase
-
-from game.balance import constants as c
+from common.postponed_tasks import PostponedTask, PostponedTaskPrototype, FakePostpondTaskPrototype
 
 from accounts.logic import register_user, login_url
-
-from game.heroes.prototypes import HeroPrototype
 
 from game.logic import create_test_map
 
@@ -18,13 +15,16 @@ from game.mobs.storage import MobsDatabase
 
 from game.map.places.models import Place
 
+from game.logic_storage import LogicStorage
+
+from game.balance import constants as c
+
 from game.persons.models import Person, PERSON_STATE
 from game.persons.storage import persons_storage
 
-from game.logic_storage import LogicStorage
-
-from game.heroes.preferences import ChoosePreferencesTaskPrototype
-from game.heroes.models import ChoosePreferencesTask, CHOOSE_PREFERENCES_STATE, PREFERENCE_TYPE
+from game.heroes.prototypes import HeroPrototype
+from game.heroes.preferences import ChoosePreferencesTask, CHOOSE_PREFERENCES_TASK_STATE
+from game.heroes.models import PREFERENCE_TYPE
 from game.heroes.exceptions import HeroException
 from game.heroes.bag import SLOTS
 
@@ -84,56 +84,52 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
         pass
 
     def test_create(self):
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.WAITING)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
         self.assertEqual(self.hero.preferences.place_id, None)
 
-    def test_reset_all(self):
-        ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 1)
-        ChoosePreferencesTaskPrototype.reset_all()
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 0)
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.RESET).count(), 1)
+    def test_serialization(self):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
+        self.assertEqual(task, ChoosePreferencesTask.deserialize(task.serialize()))
 
     # can not test wrong level, since energy regeneration choice available on 1 level
     def test_wrong_level(self):
         self.assertEqual(c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED, 1)
 
     def test_wrong_energy_regeneration_type(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ENERGY_REGENERATION_TYPE)
 
     # can not test set energy regeneration type, since it must be always selected
     def test_set_energy_regeneration_typ(self):
         self.assertNotEqual(self.hero.preferences.energy_regeneration_type, None)
 
     def check_change_energy_regeneration_type(self, new_energy_regeneration_type, expected_energy_regeneration_type, expected_state):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, new_energy_regeneration_type)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, new_energy_regeneration_type)
         self.assertNotEqual(self.hero.preferences.energy_regeneration_type, new_energy_regeneration_type)
 
-        task.process(self.storage)
+        process_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED, process_result)
+
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.energy_regeneration_type, expected_energy_regeneration_type)
 
     def test_change_energy_regeneration_type(self):
-        self.check_change_energy_regeneration_type(c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.check_change_energy_regeneration_type(c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_energy_regeneration_type_cooldown(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
-        task.process(self.storage)
-
-        self.check_change_energy_regeneration_type(c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.check_change_energy_regeneration_type(c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
     def test_remove_energy_regeneration_type(self):
-        self.check_change_energy_regeneration_type(None, c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, CHOOSE_PREFERENCES_STATE.UNSPECIFIED_PREFERENCE)
+        self.check_change_energy_regeneration_type(None, c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, CHOOSE_PREFERENCES_TASK_STATE.UNSPECIFIED_PREFERENCE)
 
     def test_remove_energy_regeneration_type_cooldown(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
-        task.process(self.storage)
-        self.check_change_energy_regeneration_type(None, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.check_change_energy_regeneration_type(None, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
 class HeroPreferencesMobTest(TestCase):
@@ -156,33 +152,24 @@ class HeroPreferencesMobTest(TestCase):
         pass
 
     def test_create(self):
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 'wrong_mob_id')
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.WAITING)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, 'wrong_mob_id')
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
         self.assertEqual(self.hero.preferences.mob_id, None)
-
-    def test_reset_all(self):
-        ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 'wrong_mob_id')
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 1)
-        ChoosePreferencesTaskPrototype.reset_all()
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 0)
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.RESET).count(), 1)
 
     def test_wrong_level(self):
         self.hero.model.level = 1
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, self.mob_id)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
 
     def test_wrong_mob(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 'wrong_mob_id')
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, 'wrong_mob_id')
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_MOB)
 
     def test_wrong_preference(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, 666, self.mob_id)
-        self.assertRaises(HeroException, task.process, self.storage)
+        task = ChoosePreferencesTask(self.hero.id, 666, self.mob_id)
+        self.assertRaises(HeroException, task.process, FakePostpondTaskPrototype(), self.storage)
 
     def test_wrong_mob_level(self):
         wrong_mob_id = None
@@ -193,46 +180,48 @@ class HeroPreferencesMobTest(TestCase):
 
         self.assertTrue(wrong_mob_id)
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, wrong_mob_id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, wrong_mob_id)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LARGE_MOB_LEVEL)
         self.assertEqual(self.hero.preferences.mob_id, None)
 
 
     def test_set_mob(self):
         changed_at = self.hero.preferences.mob_changed_at
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_id)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, self.mob_id)
         self.assertEqual(self.hero.preferences.mob_id, None)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.mob_id, self.mob_id)
         self.assertTrue(changed_at < self.hero.preferences.mob_changed_at)
 
     def check_change_mob(self, new_mob_id, expected_mob_id, expected_state):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, self.mob_id)
-        task.process(self.storage)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, self.mob_id)
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, new_mob_id)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, new_mob_id)
         self.assertEqual(self.hero.preferences.mob_id, self.mob_id)
-        task.process(self.storage)
+
+        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED, task_result)
+
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.mob_id, expected_mob_id)
 
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
 
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_mob(self):
-        self.check_change_mob(self.mob_2_id, self.mob_2_id, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.check_change_mob(self.mob_2_id, self.mob_2_id, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_mob_cooldown(self):
-        self.check_change_mob(self.mob_2_id, self.mob_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        self.check_change_mob(self.mob_2_id, self.mob_id, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_mob(self):
-        self.check_change_mob(None, None, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.check_change_mob(None, None, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_remove_mob_cooldown(self):
-        self.check_change_mob(None, self.mob_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        self.check_change_mob(None, self.mob_id, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
 class HeroPreferencesPlaceTest(TestCase):
@@ -246,7 +235,7 @@ class HeroPreferencesPlaceTest(TestCase):
         self.storage.add_hero(self.hero)
 
         self.hero.model.level = c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED
-        self.hero.model.save()
+        self.hero.save()
 
         self.place = place_1
         self.place_2 = place_2
@@ -255,65 +244,57 @@ class HeroPreferencesPlaceTest(TestCase):
         pass
 
     def test_create(self):
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, 666)
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.WAITING)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, 666)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
         self.assertEqual(self.hero.preferences.place_id, None)
-
-    def test_reset_all(self):
-        ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, 666)
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 1)
-        ChoosePreferencesTaskPrototype.reset_all()
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 0)
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.RESET).count(), 1)
 
     def test_wrong_level(self):
         self.hero.model.level = 1
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, self.place.id)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
 
     def test_wrong_place(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 666)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, 666)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE)
 
     def test_set_place(self):
         changed_at = self.hero.preferences.place_changed_at
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, self.place.id)
         self.assertEqual(self.hero.preferences.place_id, None)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.place_id, self.place.id)
         self.assertTrue(changed_at < self.hero.preferences.place_changed_at)
 
 
     def check_change_place(self, new_place_id, expected_place_id, expected_state):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, self.place.id)
-        task.process(self.storage)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, self.place.id)
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.PLACE, new_place_id)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, new_place_id)
         self.assertEqual(self.hero.preferences.place_id, self.place.id)
-        task.process(self.storage)
+
+        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result)
+
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.place_id, expected_place_id)
 
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
-
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_place(self):
-        self.check_change_place(self.place_2.id, self.place_2.id, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.check_change_place(self.place_2.id, self.place_2.id, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_place_cooldown(self):
-        self.check_change_place(self.place_2.id, self.place.id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        self.check_change_place(self.place_2.id, self.place.id, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_place(self):
-        self.check_change_place(None, None, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.check_change_place(None, None, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_remove_place_cooldown(self):
-        self.check_change_place(None, self.place.id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        self.check_change_place(None, self.place.id, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
 class HeroPreferencesFriendTest(TestCase):
@@ -337,83 +318,73 @@ class HeroPreferencesFriendTest(TestCase):
         pass
 
     def test_create(self):
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, 666)
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.WAITING)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, 666)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
         self.assertEqual(self.hero.preferences.friend_id, None)
-
-    def test_reset_all(self):
-        ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, 666)
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 1)
-        ChoosePreferencesTaskPrototype.reset_all()
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 0)
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.RESET).count(), 1)
 
     def test_wrong_level(self):
         self.hero.model.level = 1
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
 
     def test_wrong_friend(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 666)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, 666)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON)
 
     def test_set_enemy_as_friend(self):
         self.hero.preferences.enemy_id = self.enemy_id
         self.hero.save()
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.enemy_id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.enemy_id)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND)
 
     def test_set_outgame_friend(self):
         friend = persons_storage[self.friend_id]
         friend.move_out_game()
         friend.save()
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON)
         self.assertEqual(self.hero.preferences.friend_id, None)
 
 
     def test_set_friend(self):
         changed_at = self.hero.preferences.friend_changed_at
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
         self.assertEqual(self.hero.preferences.friend_id, None)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
         self.assertTrue(changed_at < self.hero.preferences.friend_changed_at)
 
     def check_change_friend(self, new_friend_id, expected_friend_id, expected_state):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, self.friend_id)
-        task.process(self.storage)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.FRIEND, new_friend_id)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, new_friend_id)
         self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
-        task.process(self.storage)
+        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.friend_id, expected_friend_id)
 
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
-
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_friend(self):
-        self.check_change_friend(self.friend_2_id, self.friend_2_id, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.check_change_friend(self.friend_2_id, self.friend_2_id, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_friend_cooldownd(self):
-        self.check_change_friend(self.friend_2_id, self.friend_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        self.check_change_friend(self.friend_2_id, self.friend_id, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_friend(self):
-        self.check_change_friend(None, None, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.check_change_friend(None, None, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_remove_friend_cooldown(self):
-        self.check_change_friend(None, self.friend_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        self.check_change_friend(None, self.friend_id, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
 class HeroPreferencesEnemyTest(TestCase):
@@ -437,46 +408,37 @@ class HeroPreferencesEnemyTest(TestCase):
         pass
 
     def test_create(self):
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, 666)
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.WAITING)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, 666)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
         self.assertEqual(self.hero.preferences.enemy_id, None)
-
-    def test_reset_all(self):
-        ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, 666)
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 1)
-        ChoosePreferencesTaskPrototype.reset_all()
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 0)
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.RESET).count(), 1)
 
     def test_wrong_level(self):
         self.hero.model.level = 1
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.enemy_id)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
 
     def test_wrong_enemy(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.MOB, 666)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, 666)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON)
 
     def test_set_outgame_enemy(self):
         enemy = persons_storage[self.enemy_id]
         enemy.move_out_game()
         enemy.save()
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.enemy_id)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON)
         self.assertEqual(self.hero.preferences.enemy_id, None)
 
     def test_set_enemy(self):
         changed_at = self.hero.preferences.enemy_changed_at
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.enemy_id)
         self.assertEqual(self.hero.preferences.enemy_id, None)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
         self.assertTrue(changed_at < self.hero.preferences.enemy_changed_at)
 
@@ -484,35 +446,34 @@ class HeroPreferencesEnemyTest(TestCase):
         self.hero.preferences.friend_id = self.friend_id
         self.hero.save()
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.friend_id)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.friend_id)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND)
 
     def check_change_enemy(self, new_enemy_id, expected_enemy_id, expected_state):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        task.process(self.storage)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.enemy_id)
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.ENEMY, new_enemy_id)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, new_enemy_id)
         self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
-        task.process(self.storage)
+        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.enemy_id, expected_enemy_id)
 
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
-
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_enemy(self):
-        self.check_change_enemy(self.enemy_2_id, self.enemy_2_id, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.check_change_enemy(self.enemy_2_id, self.enemy_2_id, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_enemy_cooldown(self):
-        self.check_change_enemy(self.enemy_2_id, self.enemy_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        self.check_change_enemy(self.enemy_2_id, self.enemy_id, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_enemy(self):
-        self.check_change_enemy(None, None, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.check_change_enemy(None, None, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_remove_enemy_cooldown(self):
-        self.check_change_enemy(None, self.enemy_id, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        self.check_change_enemy(None, self.enemy_id, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
 class HeroPreferencesEquipmentSlotTest(TestCase):
@@ -535,68 +496,58 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
         pass
 
     def test_create(self):
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, 'wrong_equip_slot')
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.WAITING)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, 'wrong_equip_slot')
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
         self.assertEqual(self.hero.preferences.mob_id, None)
-
-    def test_reset_all(self):
-        ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, 'wrong_equip_slot')
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 1)
-        ChoosePreferencesTaskPrototype.reset_all()
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.WAITING).count(), 0)
-        self.assertEqual(ChoosePreferencesTask.objects.filter(state=CHOOSE_PREFERENCES_STATE.RESET).count(), 1)
 
     def test_wrong_level(self):
         self.hero.model.level = 1
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
 
     def test_wrong_slot(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, 'wrong_equip_slot')
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.ERROR)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, 'wrong_equip_slot')
+        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT)
 
     def test_wrong_preference(self):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, '666', self.slot_1)
-        self.assertRaises(HeroException, task.process, self.storage)
+        task = ChoosePreferencesTask(self.hero.id, '666', self.slot_1)
+        self.assertRaises(HeroException, task.process, FakePostpondTaskPrototype(), self.storage)
 
     def test_set_equipment_slot(self):
         changed_at = self.hero.preferences.equipment_slot_changed_at
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
         self.assertEqual(self.hero.preferences.equipment_slot, None)
-        task.process(self.storage)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
         self.assertTrue(changed_at < self.hero.preferences.equipment_slot_changed_at)
 
     def check_change_equipment_slot(self, new_slot, expected_slot, expected_state):
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
-        task.process(self.storage)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
+        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
 
-        task = ChoosePreferencesTaskPrototype.create(self.hero, PREFERENCE_TYPE.EQUIPMENT_SLOT, new_slot)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, new_slot)
         self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
-        task.process(self.storage)
+        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.equipment_slot, expected_slot)
 
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 2)
-
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_equipment_slot(self):
-        self.check_change_equipment_slot(self.slot_2, self.slot_2, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.check_change_equipment_slot(self.slot_2, self.slot_2, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_equipment_slot_cooldown(self):
-        self.check_change_equipment_slot(self.slot_2, self.slot_1, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        self.check_change_equipment_slot(self.slot_2, self.slot_1, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_equipment_slot(self):
-        self.check_change_equipment_slot(None, None, CHOOSE_PREFERENCES_STATE.PROCESSED)
+        self.check_change_equipment_slot(None, None, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_remove_equipment_slot_cooldown(self):
-        self.check_change_equipment_slot(None, self.slot_1, CHOOSE_PREFERENCES_STATE.COOLDOWN)
+        self.check_change_equipment_slot(None, self.slot_1, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
 
@@ -695,114 +646,25 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_ajax_error(response, 'heroes.not_owner')
 
     def test_choose_preferences_success(self):
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
+        self.assertEqual(PostponedTask.objects.all().count(), 0)
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
 
-        task = ChoosePreferencesTask.objects.all()[0]
-        self.check_ajax_processing(response, reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % task.id))
+        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
 
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
+        self.check_ajax_processing(response, task.status_url)
+
+        self.assertEqual(PostponedTask.objects.all().count(), 1)
 
     def test_choose_preferences_remove_success(self):
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 0)
+        self.assertEqual(PostponedTask.objects.all().count(), 0)
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB})
 
-        task = ChoosePreferencesTask.objects.all()[0]
-        self.assertEqual(task.preference_id, None)
+        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
 
-        self.check_ajax_processing(response, reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % task.id))
+        self.check_ajax_processing(response, task.status_url)
 
-        self.assertEqual(ChoosePreferencesTask.objects.all().count(), 1)
+        self.assertEqual(task.internal_logic.preference_id, None)
 
-    def test_choose_preferences_status_unlogined(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-        self.request_logout()
-
-        task = ChoosePreferencesTask.objects.all()[0]
-        request_url = reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,))
-        response = self.client.get(request_url)
-        self.assertRedirects(response, login_url(request_url), status_code=302, target_status_code=200)
-
-    def test_choose_preferences_status_foreign_task(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-        self.request_logout()
-
-        self.request_login('test_user_2@test.com')
-
-        task = ChoosePreferencesTask.objects.all()[0]
-        response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-
-        self.check_ajax_error(response, 'heroes.not_owner')
-
-    def test_choose_preferences_status_error(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-
-        task = ChoosePreferencesTask.objects.all()[0]
-        task.state = CHOOSE_PREFERENCES_STATE.ERROR
-        task.save()
-
-        response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
-        self.check_ajax_error(response, 'heroes.choose_preferences_status.error')
-
-    def test_choose_preferences_status_success(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-
-        task = ChoosePreferencesTask.objects.all()[0]
-        task.state = CHOOSE_PREFERENCES_STATE.PROCESSED
-        task.save()
-
-        response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
-        self.check_ajax_ok(response)
-
-    def test_choose_preferences_status_cooldown(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-
-        task = ChoosePreferencesTask.objects.all()[0]
-        task.state = CHOOSE_PREFERENCES_STATE.COOLDOWN
-        task.save()
-
-        response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
-        self.check_ajax_error(response, 'heroes.choose_preferences_status.cooldown')
-
-
-    def test_choose_preferences_status_unavailable_person(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-
-        task = ChoosePreferencesTask.objects.all()[0]
-        task.state = CHOOSE_PREFERENCES_STATE.UNAVAILABLE_PERSON
-        task.save()
-
-        response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
-        self.check_ajax_error(response, 'heroes.choose_preferences_status.unavailable_person')
-
-
-    def test_choose_preferences_status_outgame_person(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-
-        task = ChoosePreferencesTask.objects.all()[0]
-        task.state = CHOOSE_PREFERENCES_STATE.OUTGAME_PERSON
-        task.save()
-
-        response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
-        self.check_ajax_error(response, 'heroes.choose_preferences_status.outgame_person')
-
-
-    def test_choose_preferences_unspecified_preference(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_id})
-
-        task = ChoosePreferencesTask.objects.all()[0]
-        task.state = CHOOSE_PREFERENCES_STATE.UNSPECIFIED_PREFERENCE
-        task.save()
-
-        response = self.client.get(reverse('game:heroes:choose-preferences-status', args=[self.hero.id]) + ('?task_id=%d' % (task.id,)) )
-        self.check_ajax_error(response, 'heroes.choose_preferences_status.unspecified_preference')
+        self.assertEqual(PostponedTask.objects.all().count(), 1)

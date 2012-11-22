@@ -134,6 +134,7 @@ INSTALLED_APPS = (
     'dext.settings',
 
     'common.utils',
+    'common.postponed_tasks',
 
     'accounts',
     'accounts.personal_messages',

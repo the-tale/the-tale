@@ -8,12 +8,13 @@ from django.utils.log import getLogger
 from dext.views.resources import handler
 from dext.utils.urls import UrlBuilder
 
+from common.postponed_tasks import PostponedTaskPrototype
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
 from common.utils.decorators import login_required
 
-from accounts.prototypes import AccountPrototype, RegistrationTaskPrototype, ChangeCredentialsTaskPrototype
-from accounts.models import REGISTRATION_TASK_STATE, CHANGE_CREDENTIALS_TASK_STATE, Account
+from accounts.prototypes import AccountPrototype, RegistrationTask, ChangeCredentialsTaskPrototype
+from accounts.models import CHANGE_CREDENTIALS_TASK_STATE, Account
 from accounts import forms
 from accounts.conf import accounts_settings
 from accounts.logic import logout_user, login_user, force_login_user
@@ -34,47 +35,27 @@ class RegistrationResource(Resource):
             return self.json_error('accounts.registration.fast.already_registered', u'Вы уже зарегистрированы')
 
         if accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY in self.request.session:
+
             task_id = self.request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
-            task = RegistrationTaskPrototype.get_by_id(task_id)
+            task = PostponedTaskPrototype.get_by_id(task_id)
+
             if task is not None:
-                if task.state == REGISTRATION_TASK_STATE.PROCESSED:
-                    return self.json_error('accounts.registration.fast.already_processed', u'Ваша регистрация уже обработана, обновите страницу')
-                if task.state == REGISTRATION_TASK_STATE.WAITING:
-                    return self.json_error('accounts.registration.fast.is_processing', u'Ваша регистрация уже обрабатывается, пожалуйста, подождите')
+                if task.state.is_processed:
+                    return self.json_error('accounts.registration.fast.already_processed', u'Вы уже зарегистрированы, обновите страницу')
+                if task.state.is_waiting:
+                    return self.json_processing(task.status_url)
+                # in other case create new task
 
-        registration_task = RegistrationTaskPrototype.create()
+        registration_task = RegistrationTask(account_id=None)
 
-        self.request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY] = registration_task.id
+        task = PostponedTaskPrototype.create(registration_task,
+                                             live_time=accounts_settings.REGISTRATION_TIMEOUT)
 
-        infrastructure_workers_environment.registration.cmd_register(registration_task.id)
+        self.request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY] = task.id
 
-        return self.json_processing(reverse('accounts:registration:fast-status'))
+        infrastructure_workers_environment.registration.cmd_register(task.id)
 
-
-    @handler('fast-status', method='get')
-    def fast_status(self):
-
-        # if task already checked in middleware
-        if not self.user.is_anonymous():
-            return self.json_ok()
-
-        if accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY not in self.request.session:
-            return self.json_error('accounts.registration.fast_status.wrong_request', u'Вы не пытались регистрироваться или уже зарегистрировались')
-
-        task_id = self.request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
-
-        registration_task = RegistrationTaskPrototype.get_by_id(int(task_id))
-
-        if registration_task.state == REGISTRATION_TASK_STATE.WAITING:
-            return self.json_processing(reverse('accounts:registration:fast-status'))
-
-        if registration_task.state == REGISTRATION_TASK_STATE.UNPROCESSED:
-            return self.json_error('accounts.registration.fast_status.timeout', u'Таймаут при обработке запроса, повторите попытку')
-
-        if registration_task.state == REGISTRATION_TASK_STATE.PROCESSED:
-            return self.json_ok()
-
-        return self.json_error('accounts.registration.fast_status.error', u'ошибка при регистрации, повторите попытку')
+        return self.json_processing(task.status_url)
 
 
 class AuthResource(Resource):

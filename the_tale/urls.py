@@ -19,6 +19,7 @@ urlpatterns = patterns('',
                        (r'^guide/', include('guide.urls', namespace='guide') ),
                        (r'^forum/', include('forum.urls', namespace='forum') ),
                        (r'^news/', include('cms.news.urls', namespace='news') ),
+                       (r'^postponed-tasks/', include('common.postponed_tasks.urls', namespace='postponed-tasks') ),
                        (r'^', include('portal.urls', namespace='portal') ),
 )
 
