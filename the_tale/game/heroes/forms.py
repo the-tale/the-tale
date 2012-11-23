@@ -11,7 +11,7 @@ from game.game_info import RACE, GENDER
 class ChoosePreferencesForm(forms.Form):
 
     preference_id = fields.CharField(max_length=32, required=False)
-    preference_type = fields.ChoiceField(choices=PREFERENCE_TYPE.CHOICES)
+    preference_type = fields.TypedChoiceField(choices=PREFERENCE_TYPE.CHOICES, coerce=int)
 
 
 class EditNameForm(forms.Form):

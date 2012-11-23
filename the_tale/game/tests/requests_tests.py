@@ -112,7 +112,13 @@ class NewsAlertsTests(TestCase):
                                                         ('news-content', 0),
                                                         ('pgf-last-news-reminder', block)])
 
+    def test_news_alert_for_new_account(self):
+        self.check_reminder(reverse('game:'), 0, 0, 0)
+
     def test_news_alert(self):
+        self.account.last_news_remind_time -= datetime.timedelta(seconds=666)
+        self.account.save()
+
         self.check_reminder(reverse('game:'), 1, 1, 2)
 
     def test_no_news_alert(self):

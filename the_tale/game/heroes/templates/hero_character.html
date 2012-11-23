@@ -82,9 +82,12 @@ jQuery(document).ready(function(e){
     {% if time_before_update.total_seconds() == 0 %}
 
     {% if value %}
+
+    {% if type != PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE %}
     <a class="pgf-remove-preference-button pull-right" href="#" data-preference-type="{{ type }}" style="margin-left: 5px;" rel="tooltip" title="удалить">
       <i class="icon-trash"></i>
     </a>
+    {% endif %}
 
     <a class="pgf-choose-preference-button pull-right"
        href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type}}"

@@ -186,7 +186,7 @@ class HeroResource(Resource):
 
         choose_task = ChoosePreferencesTask(hero_id=self.hero.id,
                                             preference_type=choose_preferences_form.c.preference_type,
-                                            preference_id=choose_preferences_form.c.preference_id if choose_preferences_form.c.preference_id else None)
+                                            preference_id=choose_preferences_form.c.preference_id if choose_preferences_form.c.preference_id != '' else None)
 
         task = PostponedTaskPrototype.create(choose_task)
 

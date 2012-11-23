@@ -22,7 +22,7 @@ class PostponedTask(models.Model):
 
     state = models.IntegerField(default=POSTPONED_TASK_STATE.WAITING, db_index=True, choices=POSTPONED_TASK_STATE.CHOICES)
 
-    comment = models.CharField(max_length=64, blank=True, default='')
+    comment = models.CharField(max_length=256, blank=True, default='')
 
     internal_type = models.CharField(max_length=64, db_index=True)
 

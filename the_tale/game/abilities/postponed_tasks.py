@@ -56,7 +56,7 @@ class UseAbilityTask(object):
     def response_data(self): return {'available_at': self.available_at}
 
     @property
-    def error_message(self): return ABILITY_TASK_STATE.CHOICES[self.state]
+    def error_message(self): return ABILITY_TASK_STATE.CHOICES[self.state][1]
 
     @nested_commit_on_success
     def process(self, main_task, storage):
