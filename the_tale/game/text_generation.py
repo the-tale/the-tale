@@ -23,13 +23,6 @@ def prepair_substitution(args):
             result[k] = v
         else:
             result[k] = v.normalized_name
-
-    # x = ['---------------']
-    # for k,v in result.items():
-    #     x.append('%s: %r' % (k, v))
-    # from django.utils.log import getLogger
-    # getLogger('the-tale.workers.game_logic').error('\n'.join(x))
-
     return result
 
 

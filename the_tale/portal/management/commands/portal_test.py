@@ -10,24 +10,16 @@ from game.text_generation import get_vocabulary, get_dictionary, prepair_substit
 from textgen.conf import textgen_settings
 from textgen.logic import efication, get_gram_info, PROPERTIES
 
+from game.heroes.prototypes import HeroPrototype
+
 morph = pymorphy.get_morph(textgen_settings.PYMORPHY_DICTS_DIRECTORY)
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        runa = PersonPrototype(Person.objects.get(name='Runa'))
+        hero = HeroPrototype.get_by_id(1)
 
-        print runa.normalized_name[1]
+        print hero.gender_verbose
 
-        # print get_vocabulary().data.keys()
-
-        template = get_vocabulary().get_random_phrase('quest_notmywork_diary_choice_do_work', None)
-        substitution = prepair_substitution({'person_end': runa})
-
-        # template = get_vocabulary().get_random_phrase('angel_ability_healhero', None)
-        # substitution = {"hero": (u"привидение", u"жр"), "health": 13}
-
-        result = template.substitute(get_dictionary(), substitution)
-
-        print result
+        hero.add_message('action_regenerate_energy_start_pray', hero=hero)
