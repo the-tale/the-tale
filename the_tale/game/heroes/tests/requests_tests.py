@@ -56,20 +56,24 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                                   ('pgf-max-health', 1),
                                   ('pgf-choose-ability-button', 1),
                                   ('pgf-choose-preference-button', 2),
-                                  ('pgf-free-destiny-points', 1))) # in script and in 1 lvl preference
+                                  ('pgf-free-destiny-points', 1),
+                                  ('pgf-settings-container',2),
+                                  ('pgf-settings-tab-button', 2)))
 
 
     def test_other_hero_page(self):
         texts = (('pgf-health-percents', 0),
-                                  ('pgf-experience-percents', 0),
-                                  ('pgf-energy-percents', 0),
-                                  ('pgf-power value', 1),
-                                  ('pgf-money', 0),
-                                  ('"pgf-health"', 0),
-                                  ('pgf-max-health', 1),
-                                  ('pgf-choose-ability-button', 0),
-                                  ('pgf-choose-preference-button', 0),
-                                  ('pgf-free-destiny-points', 0))
+                 ('pgf-experience-percents', 0),
+                 ('pgf-energy-percents', 0),
+                 ('pgf-power value', 1),
+                 ('pgf-money', 0),
+                 ('"pgf-health"', 0),
+                 ('pgf-max-health', 1),
+                 ('pgf-choose-ability-button', 0),
+                 ('pgf-choose-preference-button', 0),
+                 ('pgf-free-destiny-points', 0),
+                 ('pgf-settings-container',0),
+                 ('pgf-settings-tab-button', 1))
 
         self.request_logout()
         self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=texts)

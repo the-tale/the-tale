@@ -51,11 +51,13 @@ jQuery(document).ready(function(e){
     <ul class="nav nav-tabs">
       <li class=""><a href="#pgf-attributes-container" class="pgf-attributes-tab-button" data-toggle="tab">Атрибуты</a></li>
       <li class=""><a href="#pgf-statistics-container" class="pgf-statistics-tab-button" data-toggle="tab">Статистика</a></li>
+      {% if is_owner %}
       <li class="">
         <a href="#pgf-settings-container" class="pgf-settings-tab-button" data-toggle="tab">
           Настройки {% if not resource.hero.is_name_changed %}<span class="label label-important pgf-change-name-warning">укажите формы имени героя</span>{% endif %}
         </a>
       </li>
+      {% endif %}
     </ul>
 
     <div class="row tab-content">
@@ -76,11 +78,13 @@ jQuery(document).ready(function(e){
         </div>
       </div>
 
+      {% if is_owner %}
       <div class="tab-pane" id="pgf-settings-container">
         <div class="span8">
           {% include "heroes/hero_settings.html" with context %}
         </div>
       </div>
+      {% endif %}
 
     </div>
 

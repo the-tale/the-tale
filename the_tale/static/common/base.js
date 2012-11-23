@@ -33,12 +33,20 @@ else {
 
 pgf.base.InitializeTabs = function(settingName, def, tabs) {
 
+    var tabShowed = false;
+
     for (var i in tabs) {
         var selector = jQuery(tabs[i][0]);
+        
+        if (selector.length == 0) {
+            continue;
+        }
+
         var id = tabs[i][1];
 
         if (pgf.base.settings.get(settingName, def) == id) {
             selector.tab('show');
+            tabShowed = true;
         }
         
         (function(id) {
@@ -46,7 +54,17 @@ pgf.base.InitializeTabs = function(settingName, def, tabs) {
                                pgf.base.settings.set(settingName, id);
                            });            
         })(id);
+    }
 
+    if (!tabShowed) {
+        for (var i in tabs) {
+            var selector = jQuery(tabs[i][0]);
+        
+            if (selector.length) {
+                selector.tab('show');
+                break;
+            }
+        }
     }
 };
 
