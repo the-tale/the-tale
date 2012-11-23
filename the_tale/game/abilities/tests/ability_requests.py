@@ -35,13 +35,3 @@ class AbilityRequests(TestCase):
         response = self.client.post(reverse('game:abilities:activate', args=[Help.get_type()]), {'hero_id': HeroPrototype.get_by_account_id(self.account.id).id})
         task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
         self.check_ajax_processing(response, task.status_url)
-
-
-    def test_activate_abiliy_status(self):
-        self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:abilities:activate', args=[Help.get_type()]), {'hero_id': HeroPrototype.get_by_account_id(self.account.id).id})
-        status_url = s11n.from_json(response.content)['status_url']
-
-        response = self.client.get(status_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content), {'status': 'processing', 'status_url':  status_url})

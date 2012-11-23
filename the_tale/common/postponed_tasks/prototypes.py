@@ -16,16 +16,40 @@ _INTERNAL_LOGICS = {}
 
 
 def postponed_task(internal_logic_class):
+    internal_logic_class._is_postponed_task = True
+    return internal_logic_class
+
+
+def _register_postponed_tasks(objects):
+    global _INTERNAL_LOGICS
+
+    for obj in objects:
+        if getattr(obj, '_is_postponed_task', False):
+            if obj.TYPE in _INTERNAL_LOGICS:
+                raise PostponedTaskException(u'interanl logic "%s" for postponed task has being registered already' % obj.TYPE)
+            _INTERNAL_LOGICS[obj.TYPE] = obj
+
+
+def autodiscover():
 
     global _INTERNAL_LOGICS
 
-    if internal_logic_class.TYPE in _INTERNAL_LOGICS:
-        raise PostponedTaskException(u'interanl logic "%s" for postponed task has being registered already' % internal_logic_class.TYPE)
+    _INTERNAL_LOGICS = {}
 
-    _INTERNAL_LOGICS[internal_logic_class.TYPE] = internal_logic_class
+    from django.conf import settings as project_settings
+    from django.utils.importlib import import_module
+    from django.utils.module_loading import module_has_submodule
 
-    return internal_logic_class
+    for app in project_settings.INSTALLED_APPS:
+        mod = import_module(app)
 
+        try:
+            module = import_module('%s.postponed_tasks' % app)
+
+            _register_postponed_tasks([getattr(module, name) for name in dir(module)])
+        except:
+            if module_has_submodule(mod, 'postponed_tasks'):
+                raise
 
 
 class PostponedTaskPrototype(object):
@@ -103,13 +127,13 @@ class PostponedTaskPrototype(object):
     def create(cls, task_logic, live_time=None):
         model = PostponedTask.objects.create(internal_type=task_logic.TYPE,
                                              internal_uuid=task_logic.uuid,
-                                             internal_state=task_logic.INITIAL_STATE,
+                                             internal_state=task_logic.state,
                                              internal_data=s11n.to_json(task_logic.serialize()),
                                              live_time=live_time)
         return cls(model=model)
 
 
-    def process(self, **kwargs):
+    def process(self, logger, **kwargs):
 
         if not self.state.is_waiting:
             return
@@ -129,13 +153,13 @@ class PostponedTaskPrototype(object):
             self.save()
 
         except Exception, e:
-            self.internal_logic.LOGGER.error('EXCEPTION: %s' % e)
+            logger.error('EXCEPTION: %s' % e)
 
             exception_info = sys.exc_info()
 
-            self.internal_logic.LOGGER.error('Worker exception: %r' % self,
-                                             exc_info=exception_info,
-                                             extra={} )
+            logger.error('Worker exception: %r' % self,
+                         exc_info=exception_info,
+                         extra={} )
 
             self.state = POSTPONED_TASK_STATE.EXCEPTION
             self.comment = u'%s\n\n%s\n\n %s' % exception_info

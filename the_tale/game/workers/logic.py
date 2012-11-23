@@ -2,14 +2,14 @@
 
 import datetime
 
-from dext.settings import settings
-
 from django.utils.log import getLogger
 from django.conf import settings as project_settings
 
+from dext.settings import settings
 from dext.utils.decorators import nested_commit_on_success
 
 from common.amqp_queues import BaseWorker
+from common import postponed_tasks
 
 from game.prototypes import TimePrototype
 from game.logic_storage import LogicStorage
@@ -41,6 +41,8 @@ class Worker(BaseWorker):
 
         if self.initialized:
             self.logger.warn('WARNING: game already initialized, do reinitialization')
+
+        postponed_tasks.autodiscover()
 
         self.storage = LogicStorage()
 
@@ -109,58 +111,15 @@ class Worker(BaseWorker):
         self.storage.release_account_data(AccountPrototype.get_by_id(account_id))
         self.supervisor_worker.cmd_account_released(account_id)
 
-    def cmd_activate_ability(self, account_id, ability_task_id):
-        return self.send_cmd('activate_ability', {'ability_task_id': ability_task_id,
-                                                  'account_id': account_id})
+    def cmd_logic_task(self, account_id, task_id):
+        return self.send_cmd('logic_task', {'task_id': task_id,
+                                            'account_id': account_id})
 
-    def process_activate_ability(self, account_id, ability_task_id):
+    def process_logic_task(self, account_id, task_id):
         with nested_commit_on_success():
-            from game.abilities.prototypes import AbilityTaskPrototype
-
-            task = AbilityTaskPrototype.get_by_id(ability_task_id)
-            task.process(self.storage)
-            self.storage.save_hero_data(task.hero_id) # just to enshure, that if syddenly transaction will be removed, hero will be saved before task
-            task.save()
-
-
-    def cmd_choose_hero_ability(self, account_id, ability_task_id):
-        self.send_cmd('choose_hero_ability', {'ability_task_id': ability_task_id,
-                                              'account_id': account_id})
-
-    def process_choose_hero_ability(self, account_id, ability_task_id):
-        with nested_commit_on_success():
-            from game.heroes.prototypes import ChooseAbilityTaskPrototype
-
-            task = ChooseAbilityTaskPrototype.get_by_id(ability_task_id)
-            task.process(self.storage)
-            self.storage.save_hero_data(task.hero_id)
-            task.save()
-
-
-    def cmd_choose_hero_preference(self, account_id, preference_task_id):
-        self.send_cmd('choose_hero_preference', {'preference_task_id': preference_task_id,
-                                                 'account_id': account_id})
-
-    def process_choose_hero_preference(self, account_id, preference_task_id):
-        with nested_commit_on_success():
-            from game.heroes.preferences import ChoosePreferencesTaskPrototype
-
-            task = ChoosePreferencesTaskPrototype.get_by_id(preference_task_id)
-            task.process(self.storage)
-            self.storage.save_hero_data(task.hero_id)
-            task.save()
-
-    def cmd_change_hero_name(self, account_id, task_id):
-        self.send_cmd('change_hero_name', {'task_id': task_id,
-                                           'account_id': account_id})
-
-    def process_change_hero_name(self, account_id, task_id):
-        with nested_commit_on_success():
-            from game.heroes.prototypes import ChangeHeroTaskPrototype
-
-            task = ChangeHeroTaskPrototype.get_by_id(task_id)
-            task.process(self.storage)
-            self.storage.save_hero_data(task.hero_id)
+            task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
+            task.process(self.logger, storage=self.storage)
+            self.storage.save_account_data(account_id)
             task.save()
 
     def cmd_mark_hero_as_not_fast(self, account_id, hero_id):

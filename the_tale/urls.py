@@ -8,8 +8,11 @@ from dext.views.dispatcher import create_handler_view
 
 from portal.views import PortalResource
 
+from common import postponed_tasks
+
 admin.autodiscover()
 jinja2_next.autodiscover()
+postponed_tasks.autodiscover()
 
 urlpatterns = patterns('',
                        (r'^', include('cms.urls', namespace='cms') ),

@@ -23,10 +23,10 @@ from game.persons.models import Person, PERSON_STATE
 from game.persons.storage import persons_storage
 
 from game.heroes.prototypes import HeroPrototype
-from game.heroes.preferences import ChoosePreferencesTask, CHOOSE_PREFERENCES_TASK_STATE
 from game.heroes.models import PREFERENCE_TYPE
 from game.heroes.exceptions import HeroException
 from game.heroes.bag import SLOTS
+from game.heroes.postponed_tasks import ChoosePreferencesTask, CHOOSE_PREFERENCES_TASK_STATE
 
 class HeroPreferencesCommonTests(TestCase):
 

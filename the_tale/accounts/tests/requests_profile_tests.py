@@ -96,7 +96,7 @@ class ProfileRequestsTests(TestCase):
 
     def test_profile_update_fast_errors(self):
         response = self.client.post(reverse('accounts:registration:fast'))
-        PostponedTaskPrototype(PostponedTask.objects.all()[0]).process()
+        PostponedTaskPrototype(PostponedTask.objects.all()[0]).process(FakeLogger())
 
         response = self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru'})
         self.check_ajax_error(response, 'accounts.profile.update.form_errors')
@@ -136,7 +136,7 @@ class ProfileRequestsTests(TestCase):
 
     def test_fast_profile_confirm_email(self):
         response = self.client.post(reverse('accounts:registration:fast'))
-        PostponedTaskPrototype(PostponedTask.objects.all()[0]).process()
+        PostponedTaskPrototype(PostponedTask.objects.all()[0]).process(FakeLogger())
 
         response = self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick', 'password': '123456'})
 

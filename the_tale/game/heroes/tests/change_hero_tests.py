@@ -12,7 +12,7 @@ from game.logic import create_test_map
 from game.game_info import RACE, GENDER
 from game.logic_storage import LogicStorage
 
-from game.heroes.prototypes import ChangeHeroTask, CHANGE_HERO_TASK_STATE
+from game.heroes.postponed_tasks import ChangeHeroTask, CHANGE_HERO_TASK_STATE
 
 
 class ChangeHeroTest(TestCase):

@@ -17,8 +17,8 @@ from game.persons.storage import persons_storage
 
 from game.workers.environment import workers_environment
 
-from game.heroes.prototypes import HeroPrototype, ChangeHeroTask, ChooseHeroAbilityTask
-from game.heroes.preferences import ChoosePreferencesTask
+from game.heroes.prototypes import HeroPrototype
+from game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask
 from game.heroes.models import PREFERENCE_TYPE
 from game.heroes.forms import ChoosePreferencesForm, EditNameForm
 from game.heroes.bag import SLOTS_LIST, SLOTS_DICT
@@ -104,7 +104,7 @@ class HeroResource(Resource):
 
         task = PostponedTaskPrototype.create(change_task)
 
-        workers_environment.supervisor.cmd_change_hero_name(self.account.id, task.id)
+        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
 
@@ -118,7 +118,7 @@ class HeroResource(Resource):
 
         task = PostponedTaskPrototype.create(choose_task)
 
-        workers_environment.supervisor.cmd_choose_hero_ability(self.account.id, task.id)
+        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
 
@@ -190,6 +190,6 @@ class HeroResource(Resource):
 
         task = PostponedTaskPrototype.create(choose_task)
 
-        workers_environment.supervisor.cmd_choose_hero_preference(self.account.id, task.id)
+        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(status_url=task.status_url)

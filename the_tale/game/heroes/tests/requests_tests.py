@@ -13,8 +13,7 @@ from accounts.logic import register_user
 from game.game_info import RACE, GENDER, GENDER_ID_2_STR
 from game.logic_storage import LogicStorage
 from game.logic import create_test_map
-
-from game.heroes.prototypes import HeroPrototype, ChangeHeroTask, CHANGE_HERO_TASK_STATE
+from game.heroes.prototypes import HeroPrototype
 
 class HeroRequestsTestBase(TestCase):
 

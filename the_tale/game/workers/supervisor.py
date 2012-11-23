@@ -2,7 +2,7 @@
 from django.utils.log import getLogger
 
 from common.amqp_queues import connection, BaseWorker
-from common.postponed_tasks.prototypes import PostponedTaskPrototype
+from common import postponed_tasks
 
 from accounts.models import Account
 
@@ -55,8 +55,7 @@ class Worker(BaseWorker):
     def initialize(self):
         self.time = TimePrototype.get_current_time()
 
-        #clearing
-        PostponedTaskPrototype.reset_all()
+        postponed_tasks.PostponedTaskPrototype.reset_all()
 
         #initialization
         self.logic_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='logic')
@@ -223,38 +222,13 @@ class Worker(BaseWorker):
         bundle.save()
         self.register_account(account_id)
 
-    def cmd_activate_ability(self, account_id, ability_task_id):
-        self.send_cmd('activate_ability', {'ability_task_id': ability_task_id,
-                                           'account_id': account_id })
+    def cmd_logic_task(self, account_id, task_id):
+        self.send_cmd('logic_task', {'task_id': task_id,
+                                     'account_id': account_id })
 
-    def process_activate_ability(self, account_id, ability_task_id):
-        self.dispatch_logic_cmd(account_id, 'activate_ability', {'account_id': account_id,
-                                                                 'ability_task_id': ability_task_id} )
-
-    def cmd_choose_hero_ability(self, account_id, ability_task_id):
-        self.send_cmd('choose_hero_ability', {'ability_task_id': ability_task_id,
-                                              'account_id': account_id})
-
-    def process_choose_hero_ability(self, account_id, ability_task_id):
-        self.dispatch_logic_cmd(account_id, 'choose_hero_ability', {'account_id': account_id,
-                                                                    'ability_task_id': ability_task_id} )
-
-    def cmd_choose_hero_preference(self, account_id, preference_task_id):
-        self.send_cmd('choose_hero_preference', {'preference_task_id': preference_task_id,
-                                                 'account_id': account_id})
-
-    def process_choose_hero_preference(self, account_id, preference_task_id):
-        self.dispatch_logic_cmd(account_id, 'choose_hero_preference', {'account_id': account_id,
-                                                                       'preference_task_id': preference_task_id} )
-
-    def cmd_change_hero_name(self, account_id, task_id):
-        self.send_cmd('change_hero_name', {'task_id': task_id,
-                                           'account_id': account_id})
-
-    def process_change_hero_name(self, account_id, task_id):
-        self.dispatch_logic_cmd(account_id, 'change_hero_name', {'account_id': account_id,
-                                                                 'task_id': task_id} )
-
+    def process_logic_task(self, account_id, task_id):
+        self.dispatch_logic_cmd(account_id, 'logic_task', {'account_id': account_id,
+                                                           'task_id': task_id} )
 
     def cmd_mark_hero_as_not_fast(self, account_id, hero_id):
         self.send_cmd('mark_hero_as_not_fast', {'hero_id': hero_id,

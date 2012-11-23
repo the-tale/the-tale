@@ -7,7 +7,7 @@ from common.utils.testcase import TestCase
 
 from common.postponed_tasks.prototypes import PostponedTaskPrototype
 from common.postponed_tasks.models import POSTPONED_TASK_STATE
-from common.postponed_tasks.tests.helpers import FakePostponedInternalTask
+from common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
 
 
 class RequestsTests(TestCase):

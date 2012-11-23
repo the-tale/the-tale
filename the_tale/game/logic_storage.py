@@ -42,6 +42,8 @@ class LogicStorage(object):
         del self.heroes_to_actions[hero.id]
         del self.accounts_to_heroes[account.id]
 
+    def save_account_data(self, account_id):
+        return self.save_hero_data(self.accounts_to_heroes[account_id].id)
 
     def save_hero_data(self, hero_id):
         hero = self.heroes[hero_id]

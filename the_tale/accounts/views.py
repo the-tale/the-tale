@@ -13,7 +13,8 @@ from common.utils.resources import Resource
 from common.utils.pagination import Paginator
 from common.utils.decorators import login_required
 
-from accounts.prototypes import AccountPrototype, RegistrationTask, ChangeCredentialsTaskPrototype
+from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
+from accounts.postponed_tasks import RegistrationTask
 from accounts.models import CHANGE_CREDENTIALS_TASK_STATE, Account
 from accounts import forms
 from accounts.conf import accounts_settings
@@ -53,7 +54,7 @@ class RegistrationResource(Resource):
 
         self.request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY] = task.id
 
-        infrastructure_workers_environment.registration.cmd_register(task.id)
+        infrastructure_workers_environment.registration.cmd_task(task.id)
 
         return self.json_processing(task.status_url)
 

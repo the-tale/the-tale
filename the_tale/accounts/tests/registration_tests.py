@@ -8,7 +8,8 @@ from django.test import TestCase
 from common.postponed_tasks import FakePostpondTaskPrototype
 
 from accounts.logic import register_user, REGISTER_USER_RESULT
-from accounts.prototypes import AccountPrototype, RegistrationTask, REGISTRATION_TASK_STATE
+from accounts.prototypes import AccountPrototype
+from accounts.postponed_tasks import RegistrationTask, REGISTRATION_TASK_STATE
 from accounts.models import Account
 
 from game.heroes.prototypes import HeroPrototype

@@ -14,8 +14,7 @@ from game.logic import create_test_map
 
 from accounts.logic import block_expired_accounts
 from accounts.models import Account
-from accounts.prototypes import RegistrationTask
-
+from accounts.postponed_tasks import RegistrationTask
 
 class TestLogic(TestCase):
 

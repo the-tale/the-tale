@@ -18,11 +18,11 @@ from game.actions.fake import FakeActor
 
 from game.heroes.fake import FakeMessanger
 
-from game.heroes.prototypes import HeroPrototype, ChooseHeroAbilityTask, CHOOSE_HERO_ABILITY_STATE
+from game.heroes.prototypes import HeroPrototype
 from game.heroes.habilities import prototypes as common_abilities
 from game.heroes.habilities import ABILITIES
 from game.heroes.habilities.prototypes import ABILITIES_LOGIC_TYPE
-
+from game.heroes.postponed_tasks import ChooseHeroAbilityTask, CHOOSE_HERO_ABILITY_STATE
 
 
 

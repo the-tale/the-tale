@@ -5,13 +5,13 @@ from django.test import TestCase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
-from game.logic_storage import LogicStorage
 
+from game.logic_storage import LogicStorage
+from game.logic import create_test_map
 
 from game.balance import constants as c
 from game.actions import prototypes as actions_prototypes
 from game.heroes.logic import create_mob_for_hero
-from game.logic import create_test_map
 from game.abilities.deck.help import Help
 from game.prototypes import TimePrototype
 
