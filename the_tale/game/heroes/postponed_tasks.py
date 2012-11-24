@@ -101,6 +101,9 @@ class ChooseHeroAbilityTask(object):
         hero.destiny_points -= 1
         hero.destiny_points_spend += 1
 
+        with nested_commit_on_success():
+            storage.save_hero_data(hero.id)
+
         self.state = CHOOSE_HERO_ABILITY_STATE.PROCESSED
 
         return True
@@ -158,6 +161,9 @@ class ChangeHeroTask(object):
         hero.normalized_name = self.name
         hero.gender = self.gender
         hero.race = self.race
+
+        with nested_commit_on_success():
+            storage.save_hero_data(hero.id)
 
         self.state = CHANGE_HERO_TASK_STATE.PROCESSED
         return True
@@ -374,6 +380,8 @@ class ChoosePreferencesTask(object):
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PREFERENCE
             return False
 
+        with nested_commit_on_success():
+            storage.save_hero_data(hero.id)
 
         self.state = CHOOSE_PREFERENCES_TASK_STATE.PROCESSED
         return True

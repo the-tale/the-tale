@@ -37,6 +37,7 @@ class Worker(BaseWorker):
     def process_task(self, task_id):
         task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
         task.process(self.logger)
+        task.save()
 
     def cmd_stop(self):
         return self.send_cmd('stop')

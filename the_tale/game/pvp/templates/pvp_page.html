@@ -94,7 +94,7 @@ jQuery(document).ready(function(e){
     {{ hero_short_macros.hero_short("hero-short-pvp-account", false, true, master_account=resource.account, data_mode="pvp_account") }}
   </div>
   <div class="span6">
-    {{ current_action_macros.current_action(show_abilities=false, data_mode='pvp') }}
+    {{ current_action_macros.current_action(show_abilities=false, data_mode='pvp', say_form=say_form) }}
   </div>
   <div class="span3">
     {{ hero_short_macros.hero_short("hero-short-pvp-enemy", false, true, master_account=enemy_account, data_mode="pvp_enemy") }}

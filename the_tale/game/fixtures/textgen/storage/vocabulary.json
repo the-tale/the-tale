@@ -4128,6 +4128,47 @@
   ], 
   "quest_helpfriend_journal_move_to_quest": [], 
   "quest_notmywork_journal_attack_performer": [], 
+  "pvp_say": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "text", 
+          [], 
+          "e_0", 
+          [], 
+          "text"
+        ]
+      ], 
+      "template": "Облака на небе сложились во фразу: «%(e_0)s»"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "text", 
+          [], 
+          "e_0", 
+          [], 
+          "text"
+        ]
+      ], 
+      "template": "Внезапно в завываниях ветра чётко прозвучал чей-то голос: «%(e_0)s»"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "text", 
+          [], 
+          "e_0", 
+          [], 
+          "text"
+        ]
+      ], 
+      "template": "«%(e_0)s» — донеслось с небес."
+    }
+  ], 
   "quest_hunt_action_track": [
     {
       "internals": [], 

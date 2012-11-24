@@ -116,11 +116,10 @@ class Worker(BaseWorker):
                                             'account_id': account_id})
 
     def process_logic_task(self, account_id, task_id):
-        with nested_commit_on_success():
-            task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
-            task.process(self.logger, storage=self.storage)
-            self.storage.save_account_data(account_id)
-            task.save()
+        task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
+        task.process(self.logger, storage=self.storage)
+        # storage data MUST be saved in task.process method
+        task.save()
 
     def cmd_mark_hero_as_not_fast(self, account_id, hero_id):
         self.send_cmd('mark_hero_as_not_fast', {'hero_id': hero_id,

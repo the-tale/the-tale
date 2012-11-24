@@ -1,5 +1,5 @@
 
-{% macro current_action(show_abilities=true, data_mode='pve') %}
+{% macro current_action(show_abilities=true, data_mode='pve', say_form=none) %}
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
@@ -13,6 +13,11 @@ jQuery(document).ready(function(e) {
                                                        {tooltipTemplate: '#pgf-ability-tooltip-template'});
     {% endif %}
 
+    {% if say_form %}
+    var sayForm = new pgf.forms.Form(jQuery('#pgf-say-form'),
+                                     {OnSuccess: function(instance, data){jQuery("#id_text").val("");
+                                                                          updater.Refresh();}});
+    {% endif %}
 
 });
 </script>
@@ -45,6 +50,24 @@ jQuery(document).ready(function(e) {
     <span class="pgf-in-pvp-queue-message pgf-hidden" rel="tooltip" title="идёт поиск противника для битвы на арене">в очереди…</span>
 
   </div>
+  {% endif %}
+
+  {% if say_form %}
+  <form id="pgf-say-form" method="post" class="form-inline" action="{{ url('game:pvp:say') }}" style="margin: 0;">
+
+    {{ say_form.errors_container }}
+
+    <table width="100%">
+      <tr>
+        <td style="padding-right: 1em;">
+          <input id="id_text" type="text" name="text" maxlength="{{say_form.text.field.max_length}}" style="margin: 0; width: 100%;"/>
+        </td>
+        <td width="5em;">
+          <input type="submit" value="Сказать" class="btn pull-right"/>
+        </td>
+      </tr>
+    </table>
+
   {% endif %}
 
 </div>

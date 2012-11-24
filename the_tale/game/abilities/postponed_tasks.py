@@ -90,7 +90,10 @@ class UseAbilityTask(object):
         self.state = ABILITY_TASK_STATE.PROCESSED
         hero.change_energy(-ability.COST)
 
-        ability.available_at = self.available_at
-        ability.save()
+        with nested_commit_on_success():
+            ability.available_at = self.available_at
+            ability.save()
+
+            storage.save_hero_data(hero.id)
 
         return True

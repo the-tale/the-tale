@@ -40,7 +40,7 @@ class BalancerTestsBase(TestCase):
         workers_environment.deinitialize()
         workers_environment.initialize()
 
-        Battle1x1Prototype.create(AccountPrototype.get_by_id(account_1_id))
+        Battle1x1Prototype.create(self.account_1)
 
         self.worker = workers_environment.pvp_balancer
         self.worker.process_initialize('pvp_balancer')

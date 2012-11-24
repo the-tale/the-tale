@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from dext.utils import s11n
 
 from common.utils.testcase import TestCase
+from common.postponed_tasks import PostponedTask
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -61,3 +62,23 @@ class TestRequests(TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
         self.request_login('test_user@test.com')
         self.assertEqual(s11n.from_json(self.client.get(reverse('game:pvp:info')).content)['data']['mode'], 'pvp')
+
+    def test_say_no_battle(self):
+        self.request_login('test_user@test.com')
+        self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': u'some text'}), 'pvp.say.no_battle')
+
+    def test_say_battle_not_in_processing_state(self):
+        self.request_login('test_user@test.com')
+        self.pvp_create_battle(self.account_1, None)
+        self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': u'some text'}), 'pvp.say.no_battle')
+
+    def test_say_form_errors(self):
+        self.request_login('test_user@test.com')
+        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
+        self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': u''}), 'pvp.say.form_errors')
+
+    def test_say_success(self):
+        self.request_login('test_user@test.com')
+        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
+        self.check_ajax_ok(self.client.post(reverse('game:pvp:say'), {'text': u'some text'}))
+        self.assertEqual(PostponedTask.objects.all().count(), 1)
