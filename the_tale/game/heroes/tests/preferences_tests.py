@@ -5,7 +5,7 @@ from django.test import client
 from django.core.urlresolvers import reverse
 
 from common.utils.testcase import TestCase
-from common.postponed_tasks import PostponedTask, PostponedTaskPrototype, FakePostpondTaskPrototype
+from common.postponed_tasks import PostponedTask, PostponedTaskPrototype, FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
 from accounts.logic import register_user, login_url
 
@@ -98,7 +98,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 
     def test_wrong_energy_regeneration_type(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ENERGY_REGENERATION_TYPE)
 
     # can not test set energy regeneration type, since it must be always selected
@@ -110,7 +110,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
         self.assertNotEqual(self.hero.preferences.energy_regeneration_type, new_energy_regeneration_type)
 
         process_result = task.process(FakePostpondTaskPrototype(), self.storage)
-        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED, process_result)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED, process_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.energy_regeneration_type, expected_energy_regeneration_type)
@@ -120,7 +120,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 
     def test_change_energy_regeneration_type_cooldown(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.check_change_energy_regeneration_type(c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
     def test_remove_energy_regeneration_type(self):
@@ -128,7 +128,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 
     def test_remove_energy_regeneration_type_cooldown(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.check_change_energy_regeneration_type(None, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
@@ -159,12 +159,12 @@ class HeroPreferencesMobTest(TestCase):
     def test_wrong_level(self):
         self.hero.model.level = 1
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, self.mob_id)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
 
     def test_wrong_mob(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, 'wrong_mob_id')
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_MOB)
 
     def test_wrong_preference(self):
@@ -181,7 +181,7 @@ class HeroPreferencesMobTest(TestCase):
         self.assertTrue(wrong_mob_id)
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, wrong_mob_id)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LARGE_MOB_LEVEL)
         self.assertEqual(self.hero.preferences.mob_id, None)
 
@@ -190,20 +190,20 @@ class HeroPreferencesMobTest(TestCase):
         changed_at = self.hero.preferences.mob_changed_at
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, self.mob_id)
         self.assertEqual(self.hero.preferences.mob_id, None)
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.mob_id, self.mob_id)
         self.assertTrue(changed_at < self.hero.preferences.mob_changed_at)
 
     def check_change_mob(self, new_mob_id, expected_mob_id, expected_state):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, self.mob_id)
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, new_mob_id)
         self.assertEqual(self.hero.preferences.mob_id, self.mob_id)
 
         task_result = task.process(FakePostpondTaskPrototype(), self.storage)
-        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED, task_result)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED, task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.mob_id, expected_mob_id)
@@ -251,19 +251,19 @@ class HeroPreferencesPlaceTest(TestCase):
     def test_wrong_level(self):
         self.hero.model.level = 1
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, self.place.id)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
 
     def test_wrong_place(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, 666)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE)
 
     def test_set_place(self):
         changed_at = self.hero.preferences.place_changed_at
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, self.place.id)
         self.assertEqual(self.hero.preferences.place_id, None)
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.place_id, self.place.id)
         self.assertTrue(changed_at < self.hero.preferences.place_changed_at)
@@ -271,13 +271,13 @@ class HeroPreferencesPlaceTest(TestCase):
 
     def check_change_place(self, new_place_id, expected_place_id, expected_state):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, self.place.id)
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, new_place_id)
         self.assertEqual(self.hero.preferences.place_id, self.place.id)
 
         task_result = task.process(FakePostpondTaskPrototype(), self.storage)
-        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.place_id, expected_place_id)
@@ -325,12 +325,12 @@ class HeroPreferencesFriendTest(TestCase):
     def test_wrong_level(self):
         self.hero.model.level = 1
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
 
     def test_wrong_friend(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, 666)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON)
 
     def test_set_enemy_as_friend(self):
@@ -338,7 +338,7 @@ class HeroPreferencesFriendTest(TestCase):
         self.hero.save()
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.enemy_id)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND)
 
     def test_set_outgame_friend(self):
@@ -347,7 +347,7 @@ class HeroPreferencesFriendTest(TestCase):
         friend.save()
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON)
         self.assertEqual(self.hero.preferences.friend_id, None)
 
@@ -356,19 +356,19 @@ class HeroPreferencesFriendTest(TestCase):
         changed_at = self.hero.preferences.friend_changed_at
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
         self.assertEqual(self.hero.preferences.friend_id, None)
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
         self.assertTrue(changed_at < self.hero.preferences.friend_changed_at)
 
     def check_change_friend(self, new_friend_id, expected_friend_id, expected_state):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, new_friend_id)
         self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
         task_result = task.process(FakePostpondTaskPrototype(), self.storage)
-        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.friend_id, expected_friend_id)
 
@@ -415,12 +415,12 @@ class HeroPreferencesEnemyTest(TestCase):
     def test_wrong_level(self):
         self.hero.model.level = 1
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
 
     def test_wrong_enemy(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, 666)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON)
 
     def test_set_outgame_enemy(self):
@@ -429,7 +429,7 @@ class HeroPreferencesEnemyTest(TestCase):
         enemy.save()
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON)
         self.assertEqual(self.hero.preferences.enemy_id, None)
 
@@ -437,7 +437,7 @@ class HeroPreferencesEnemyTest(TestCase):
         changed_at = self.hero.preferences.enemy_changed_at
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.enemy_id)
         self.assertEqual(self.hero.preferences.enemy_id, None)
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
         self.assertTrue(changed_at < self.hero.preferences.enemy_changed_at)
@@ -447,17 +447,17 @@ class HeroPreferencesEnemyTest(TestCase):
         self.hero.save()
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.friend_id)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND)
 
     def check_change_enemy(self, new_enemy_id, expected_enemy_id, expected_state):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, new_enemy_id)
         self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
         task_result = task.process(FakePostpondTaskPrototype(), self.storage)
-        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.enemy_id, expected_enemy_id)
 
@@ -503,12 +503,12 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
     def test_wrong_level(self):
         self.hero.model.level = 1
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
 
     def test_wrong_slot(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, 'wrong_equip_slot')
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT)
 
     def test_wrong_preference(self):
@@ -519,19 +519,19 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
         changed_at = self.hero.preferences.equipment_slot_changed_at
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
         self.assertEqual(self.hero.preferences.equipment_slot, None)
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
         self.assertTrue(changed_at < self.hero.preferences.equipment_slot_changed_at)
 
     def check_change_equipment_slot(self, new_slot, expected_slot, expected_state):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, new_slot)
         self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
         task_result = task.process(FakePostpondTaskPrototype(), self.storage)
-        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.equipment_slot, expected_slot)
 

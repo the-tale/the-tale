@@ -4,7 +4,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from common.postponed_tasks import FakePostpondTaskPrototype
+from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
 from game.heroes.models import Hero
 from game.quests.models import Quest
@@ -24,7 +24,7 @@ class TestLogic(TestCase):
 
     def test_block_expired_accounts(self):
         task = RegistrationTask(account_id=None)
-        task.process(FakePostpondTaskPrototype())
+        self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         task.account.model.created_at = datetime.datetime.fromtimestamp(0)
         task.account.model.save()

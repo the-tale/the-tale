@@ -7,7 +7,7 @@ from django.test import client
 from django.core.urlresolvers import reverse
 
 from common.utils.testcase import TestCase
-from common.postponed_tasks import PostponedTask, PostponedTaskPrototype, FakePostpondTaskPrototype
+from common.postponed_tasks import PostponedTask, PostponedTaskPrototype, FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
 from accounts.logic import register_user, login_url
 
@@ -132,19 +132,19 @@ class ChooseAbilityTaskTest(TestCase):
 
     def test_process_wrong_id(self):
         task = ChooseHeroAbilityTask(self.hero.id, 'ssadasda')
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.WRONG_ID)
 
     def test_process_id_not_in_choices(self):
         task = ChooseHeroAbilityTask(self.hero.id, self.get_unchoosed_ability_id())
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.NOT_IN_CHOICE_LIST)
 
     def test_process_not_for_heroes(self):
         task = ChooseHeroAbilityTask(self.hero.id, self.get_only_for_mobs_ability_id())
 
         with mock.patch('game.heroes.prototypes.HeroPrototype.get_abilities_for_choose', lambda x: [ABILITIES[task.ability_id]]):
-            self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+            self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
 
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.NOT_FOR_PLAYERS)
 
@@ -152,18 +152,18 @@ class ChooseAbilityTaskTest(TestCase):
         task = ChooseHeroAbilityTask(self.hero.id, common_abilities.HIT.get_id())
 
         with mock.patch('game.heroes.prototypes.HeroPrototype.get_abilities_for_choose', lambda x: [ABILITIES[task.ability_id]]):
-            self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+            self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.ALREADY_CHOOSEN)
 
     def test_process_success(self):
         task = ChooseHeroAbilityTask(self.hero.id, self.get_new_ability_id())
-        self.assertTrue(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.PROCESSED)
 
     def test_process_no_destiny_points(self):
         self.hero.destiny_points = 0
         task = ChooseHeroAbilityTask(self.hero.id, self.get_new_ability_id())
-        self.assertFalse(task.process(FakePostpondTaskPrototype(), self.storage))
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.NO_DESTINY_POINTS)
 
 

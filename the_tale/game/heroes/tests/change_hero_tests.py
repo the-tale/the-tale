@@ -3,7 +3,7 @@
 from textgen.words import Noun
 
 from common.utils.testcase import TestCase
-from common.postponed_tasks import FakePostpondTaskPrototype
+from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -57,7 +57,7 @@ class ChangeHeroTest(TestCase):
         self.assertNotEqual(self.hero.race, self.race)
         self.assertFalse(self.hero.is_name_changed)
 
-        task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(task.state, CHANGE_HERO_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.normalized_name, self.noun)

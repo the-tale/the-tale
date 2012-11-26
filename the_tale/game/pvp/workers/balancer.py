@@ -18,6 +18,7 @@ from game.heroes.prototypes import HeroPrototype
 
 from game.prototypes import SupervisorTaskPrototype
 
+from game.pvp.models import BATTLE_1X1_STATE
 from game.pvp.conf import pvp_settings
 from game.pvp.prototypes import Battle1x1Prototype
 
@@ -111,6 +112,30 @@ class Worker(BaseWorker):
 
         self.arena_queue[record.account_id] = record
 
+    def cmd_leave_arena_queue(self, battle_id):
+        return self.send_cmd('leave_arena_queue', {'battle_id': battle_id})
+
+    def process_leave_arena_queue(self, battle_id):
+
+        battle = None
+
+        while battle is None:
+            # wait while model appear in base, since command can be sent from transaction
+            battle = Battle1x1Prototype.get_by_id(battle_id)
+
+        if not battle.state.is_waiting:
+            return
+
+        if battle.account_id not in self.arena_queue:
+            self.logger.error('can not leave queue: battle %d in waiting state but no in arena queue' % battle.id)
+            return
+
+        del self.arena_queue[battle.account_id]
+
+        battle.state = BATTLE_1X1_STATE.LEAVE_QUEUE
+        battle.save()
+
+
     def _get_prepaired_queue(self):
 
         records = []
@@ -161,7 +186,7 @@ class Worker(BaseWorker):
             del self.arena_queue[record.account_id]
 
         if records_to_remove:
-            Battle1x1Prototype.remove_by_ids([record.battle_id for record in records_to_remove])
+            Battle1x1Prototype.set_enemy_not_found_state_by_ids([record.battle_id for record in records_to_remove])
             self.logger.info('remove from queue request from accounts %r' % (records_to_remove, ))
 
 

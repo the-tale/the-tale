@@ -35,9 +35,9 @@ class PvPResource(Resource):
     @handler('', method='get')
     def pvp_page(self):
 
-        battle = Battle1x1Prototype.get_by_account_id(self.account.id)
+        battle = Battle1x1Prototype.get_active_by_account_id(self.account.id)
 
-        if battle is None or not battle.state.is_processing:
+        if battle is None or not (battle.state.is_processing or battle.state.is_prepairing):
             return self.redirect(reverse('game:'))
 
         own_hero = HeroPrototype.get_by_account_id(battle.account_id)
@@ -60,9 +60,9 @@ class PvPResource(Resource):
     @handler('info', method='get')
     def info(self):
 
-        battle = Battle1x1Prototype.get_by_account_id(self.account.id)
+        battle = Battle1x1Prototype.get_active_by_account_id(self.account.id)
 
-        if battle is None or not battle.state.is_processing:
+        if battle is None or not (battle.state.is_processing or battle.state.is_prepairing):
             return self.json_ok(data={'mode': 'pve',
                                       'turn': self.time.ui_info()})
 
@@ -83,9 +83,9 @@ class PvPResource(Resource):
     @handler('say', method='post')
     def say(self):
 
-        battle = Battle1x1Prototype.get_by_account_id(self.account.id)
+        battle = Battle1x1Prototype.get_active_by_account_id(self.account.id)
 
-        if battle is None or not battle.state.is_processing:
+        if battle is None or not (battle.state.is_processing or battle.state.is_prepairing):
             return self.json_error('pvp.say.no_battle', u'Бой не идёт, вы не можете говорить')
 
         say_form = SayForm(self.request.POST)

@@ -154,11 +154,11 @@ class SupervisorTaskPrototype(object):
         storage.save_required.add(hero_2.id)
         storage.save_changed_data()
 
-        battle_1 = Battle1x1Prototype.get_by_account_id(account_1_id)
+        battle_1 = Battle1x1Prototype.get_active_by_account_id(account_1_id)
         battle_1.state = BATTLE_1X1_STATE.PROCESSING
         battle_1.save()
 
-        battle_2 = Battle1x1Prototype.get_by_account_id(account_2_id)
+        battle_2 = Battle1x1Prototype.get_active_by_account_id(account_2_id)
         battle_2.state = BATTLE_1X1_STATE.PROCESSING
         battle_2.save()
 

@@ -2771,7 +2771,25 @@
       "template": "Неизвестный прислал %(e_0)s %(i_0)s, похоже у %(e_1)s есть ещё враги кроме меня"
     }
   ], 
-  "quest_delivery_action_steal_get_reward": [], 
+  "angel_ability_arena_pvp_1x1_leave_queue": [
+    {
+      "internals": [
+        [
+          "вышел", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "вышел"
+        ]
+      ], 
+      "externals": [], 
+      "template": "Голос в голове сообщил, что я %(i_0)s из очереди на гладиаторскую арену."
+    }
+  ], 
   "quest_delivery_action_intro": [
     {
       "internals": [], 
@@ -3355,6 +3373,7 @@
       "template": "залечивает раны"
     }
   ], 
+  "quest_delivery_action_steal_get_reward": [], 
   "action_battlepve1x1_start": [
     {
       "internals": [
@@ -4140,7 +4159,7 @@
           "text"
         ]
       ], 
-      "template": "Облака на небе сложились во фразу: «%(e_0)s»"
+      "template": "Облака сложились во фразу: «%(e_0)s»"
     }, 
     {
       "internals": [], 

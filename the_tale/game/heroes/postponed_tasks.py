@@ -6,7 +6,7 @@ from dext.utils.decorators import nested_commit_on_success
 
 from textgen.words import Noun
 
-from common.postponed_tasks import postponed_task
+from common.postponed_tasks import postponed_task, POSTPONED_TASK_LOGIC_RESULT
 from common.utils.enum import create_enum
 
 from game.balance import constants as c
@@ -70,31 +70,31 @@ class ChooseHeroAbilityTask(object):
         if self.ability_id not in ABILITIES:
             self.state = CHOOSE_HERO_ABILITY_STATE.WRONG_ID
             main_task.comment = u'no ability with id "%s"' % self.ability_id
-            return False
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         choices = hero.get_abilities_for_choose()
 
         if self.ability_id not in [choice.get_id() for choice in choices]:
             self.state = CHOOSE_HERO_ABILITY_STATE.NOT_IN_CHOICE_LIST
             main_task.comment = u'ability not in choices list: %s' % self.ability_id
-            return False
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         ability = ABILITIES[self.ability_id]
 
         if not ability.AVAILABLE_TO_PLAYERS:
             self.state = CHOOSE_HERO_ABILITY_STATE.NOT_FOR_PLAYERS
             main_task.comment = u'ability "%s" does not available to players' % self.ability_id
-            return False
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if hero.destiny_points <= 0:
             self.state = CHOOSE_HERO_ABILITY_STATE.NO_DESTINY_POINTS
             main_task.comment = 'no destiny points'
-            return False
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if hero.abilities.has(self.ability_id):
             self.state = CHOOSE_HERO_ABILITY_STATE.ALREADY_CHOOSEN
             main_task.comment = 'ability has been already choosen'
-            return False
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         hero.abilities.add(self.ability_id)
 
@@ -106,7 +106,7 @@ class ChooseHeroAbilityTask(object):
 
         self.state = CHOOSE_HERO_ABILITY_STATE.PROCESSED
 
-        return True
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
 
 CHANGE_HERO_TASK_STATE = create_enum('CHANGE_HERO_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
@@ -166,7 +166,8 @@ class ChangeHeroTask(object):
             storage.save_hero_data(hero.id)
 
         self.state = CHANGE_HERO_TASK_STATE.PROCESSED
-        return True
+
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
 
 CHOOSE_PREFERENCES_TASK_STATE = create_enum('CHOOSE_PREFERENCES_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
@@ -229,26 +230,26 @@ class ChoosePreferencesTask(object):
         if not hero.preferences.can_update(self.preference_type, datetime.datetime.now()):
             main_task.comment = u'blocked since time delay'
             self.state = CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN
-            return False
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if self.preference_type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE:
 
             if hero.level < c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED:
                 main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED)
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
-                return False
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             energy_regeneration_type = int(self.preference_id) if self.preference_id is not None else None
 
             if energy_regeneration_type is None:
                 main_task.comment = u'energy regeneration preference can not be None'
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNSPECIFIED_PREFERENCE
-                return False
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             if energy_regeneration_type not in c.ANGEL_ENERGY_REGENERATION_DELAY:
                 main_task.comment = u'unknown energy regeneration type: %s' % (energy_regeneration_type, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ENERGY_REGENERATION_TYPE
-                return False
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             hero.preferences.energy_regeneration_type = energy_regeneration_type
             hero.preferences.energy_regeneration_type_changed_at = datetime.datetime.now()
@@ -263,19 +264,19 @@ class ChoosePreferencesTask(object):
                 if hero.level < c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED:
                     main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED)
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
                 if self.preference_id not in MobsDatabase.storage():
                     main_task.comment = u'unknown mob id: %s' % (self.preference_id, )
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_MOB
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
                 mob = MobsDatabase.storage()[self.preference_id]
 
                 if hero.level < mob.level:
                     main_task.comment = u'hero level < mob level (%d < %d)' % (hero.level, mob.level)
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.LARGE_MOB_LEVEL
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             hero.preferences.mob_id = mob_id
             hero.preferences.mob_changed_at = datetime.datetime.now()
@@ -289,12 +290,12 @@ class ChoosePreferencesTask(object):
                 if hero.level < c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED:
                     main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED)
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
                 if place_id not in places_storage:
                     main_task.comment = u'unknown place id: %s' % (place_id, )
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             hero.preferences.place_id = place_id
             hero.preferences.place_changed_at = datetime.datetime.now()
@@ -307,22 +308,22 @@ class ChoosePreferencesTask(object):
                 if hero.level < c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED:
                     main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED)
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
                 if hero.preferences.enemy_id == friend_id:
                     main_task.comment = u'try set enemy as a friend (%d)' % (friend_id, )
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
                 if friend_id not in persons_storage:
                     main_task.comment = u'unknown person id: %s' % (friend_id, )
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
                 if persons_storage[friend_id].out_game:
                     main_task.comment = u'person was moved out game: %s' % (friend_id, )
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             hero.preferences.friend_id = friend_id
             hero.preferences.friend_changed_at = datetime.datetime.now()
@@ -335,22 +336,22 @@ class ChoosePreferencesTask(object):
                 if hero.level < c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED:
                     main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED)
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
                 if hero.preferences.friend_id == enemy_id:
                     main_task.comment = u'try set friend as an enemy (%d)' % (enemy_id, )
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
                 if enemy_id not in persons_storage:
                     main_task.comment = u'unknown person id: %s' % (enemy_id, )
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
                 if persons_storage[enemy_id].out_game:
                     main_task.comment = u'person was moved out game: %s' % (enemy_id, )
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
 
             hero.preferences.enemy_id = enemy_id
@@ -365,12 +366,12 @@ class ChoosePreferencesTask(object):
                 if hero.level < c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED:
                     main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED)
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
                 if self.preference_id not in SLOTS_LIST:
                     main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
-                    return False
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             hero.preferences.equipment_slot = equipment_slot
             hero.preferences.equipment_slot_changed_at = datetime.datetime.now()
@@ -378,10 +379,11 @@ class ChoosePreferencesTask(object):
         else:
             main_task.comment = u'unknown preference type: %s' % (self.preference_type, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PREFERENCE
-            return False
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         with nested_commit_on_success():
             storage.save_hero_data(hero.id)
 
         self.state = CHOOSE_PREFERENCES_TASK_STATE.PROCESSED
-        return True
+
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

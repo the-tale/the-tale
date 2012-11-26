@@ -63,8 +63,13 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
         self.assertEqual(self.meta_action_battle.hero_2, self.hero_2)
 
     def test_one_hero_killed(self):
+        current_time = TimePrototype.get_current_time()
         self.hero_1.health = 0
         self.meta_action_battle.process()
+        self.assertEqual(self.meta_action_battle.state, MetaActionArenaPvP1x1Prototype.STATE.BATTLE_ENDING)
+        current_time.increment_turn()
+        self.meta_action_battle.process()
+
         self.assertEqual(self.meta_action_battle.state, MetaActionArenaPvP1x1Prototype.STATE.PROCESSED)
         self.assertTrue(self.hero_1.is_alive and self.hero_2.is_alive)
         self.assertEqual(self.hero_1.health, self.hero_1.max_health / 2)
@@ -83,7 +88,7 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
     def test_full_battle(self):
         current_time = TimePrototype.get_current_time()
 
-        self.assertEqual(Battle1x1.objects.all().count(), 2)
+        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.PROCESSING).count(), 2)
 
         while self.meta_action_battle.state != MetaActionArenaPvP1x1Prototype.STATE.PROCESSED:
             self.meta_action_battle.process()
@@ -94,7 +99,7 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
         self.assertEqual(self.hero_1.health, self.hero_1.max_health / 2)
         self.assertEqual(self.hero_2.health, self.hero_2.max_health)
 
-        self.assertEqual(Battle1x1.objects.all().count(), 0)
+        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.PROCESSED).count(), 2)
 
     def test_remove(self):
         self.assertEqual(MetaAction.objects.all().count(), 1)

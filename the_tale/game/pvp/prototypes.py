@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
+from game.pvp.exceptions import PvPException
 
 
 class Battle1x1Prototype(object):
@@ -18,9 +19,20 @@ class Battle1x1Prototype(object):
 
 
     @classmethod
-    def get_by_account_id(cls, account_id):
+    def get_active_by_account_id(cls, account_id):
         try:
-            return cls(Battle1x1.objects.get(account_id=account_id))
+            return cls(Battle1x1.objects.get(account_id=account_id, state__in=[BATTLE_1X1_STATE.WAITING,
+                                                                               BATTLE_1X1_STATE.PREPAIRING,
+                                                                               BATTLE_1X1_STATE.PROCESSING]))
+        except Battle1x1.DoesNotExist:
+            return None
+
+    @classmethod
+    def get_ended_by_account_id(cls, account_id):
+        try:
+            return cls(Battle1x1.objects.get(account_id=account_id, state__in=[BATTLE_1X1_STATE.ENEMY_NOT_FOND,
+                                                                               BATTLE_1X1_STATE.PROCESSED,
+                                                                               BATTLE_1X1_STATE.LEAVE_QUEUE]))
         except Battle1x1.DoesNotExist:
             return None
 
@@ -71,10 +83,13 @@ class Battle1x1Prototype(object):
     @classmethod
     def create(cls, account):
 
+        if Battle1x1.objects.filter(account=account.model, state=BATTLE_1X1_STATE.WAITING).count():
+            raise PvPException('try to create second pvp battle invitation for account %d' % account.id)
+
         model = Battle1x1.objects.create(account=account.model)
 
         return cls(model)
 
     @classmethod
-    def remove_by_ids(cls, ids):
-        Battle1x1.objects.filter(id__in=ids).delete()
+    def set_enemy_not_found_state_by_ids(cls, ids):
+        Battle1x1.objects.filter(id__in=ids).update(state=BATTLE_1X1_STATE.ENEMY_NOT_FOND)

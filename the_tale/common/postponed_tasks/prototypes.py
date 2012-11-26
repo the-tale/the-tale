@@ -7,9 +7,16 @@ from django.core.urlresolvers import reverse
 
 from dext.utils import s11n
 
-from common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE
+from common.utils.enum import create_enum
 
+from common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE
 from common.postponed_tasks.exceptions import PostponedTaskException
+
+
+
+POSTPONED_TASK_LOGIC_RESULT = create_enum('POSTPONED_TASK_LOGIC_RESULT', (('SUCCESS', 0, u'удачное выполнение'),
+                                                                          ('ERROR', 1, u'ошибка'),
+                                                                          ('CONTINUE', 2, u'необходимо продолжить выполнение') ) )
 
 
 _INTERNAL_LOGICS = {}
@@ -144,10 +151,16 @@ class PostponedTaskPrototype(object):
             return
 
         try:
-            if self.internal_logic.process(self, **kwargs):
+            process_result = self.internal_logic.process(self, **kwargs)
+
+            if process_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS:
                 self.state = POSTPONED_TASK_STATE.PROCESSED
-            else:
+            elif process_result == POSTPONED_TASK_LOGIC_RESULT.ERROR:
                 self.state = POSTPONED_TASK_STATE.ERROR
+            elif process_result == POSTPONED_TASK_LOGIC_RESULT.CONTINUE:
+                pass
+            else:
+                raise PostponedTaskException(u'unknown process result %r' % (process_result, ))
 
             self.internal_state = self.internal_logic.state
             self.save()

@@ -5,7 +5,7 @@ import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from common.postponed_tasks import FakePostpondTaskPrototype
+from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
 from accounts.logic import register_user, REGISTER_USER_RESULT
 from accounts.prototypes import AccountPrototype
@@ -92,7 +92,7 @@ class TestRegistrationTask(TestCase):
         self.assertTrue(self.task.get_unique_nick() != self.task.get_unique_nick())
 
     def test_process_success(self):
-        self.task.process(FakePostpondTaskPrototype())
+        self.assertEqual(self.task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.PROCESSED)
         self.assertTrue(self.task.account)
         self.assertTrue(self.task.account.is_fast)
@@ -100,13 +100,13 @@ class TestRegistrationTask(TestCase):
 
     @mock.patch('accounts.logic.register_user', lambda nick: (REGISTER_USER_RESULT.OK+1, None, None))
     def test_process_unknown_error(self):
-        self.task.process(FakePostpondTaskPrototype())
+        self.assertEqual(self.task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.UNKNOWN_ERROR)
         self.assertEqual(Account.objects.all().count(), 0)
 
     @mock.patch('accounts.logic.register_user', lambda nick: (REGISTER_USER_RESULT.OK, 1, 1))
     def test_process_bundle_not_foud(self):
-        self.task.process(FakePostpondTaskPrototype())
+        self.assertEqual(self.task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.BUNDLE_NOT_FOUND)
         self.assertEqual(Account.objects.all().count(), 0)
 

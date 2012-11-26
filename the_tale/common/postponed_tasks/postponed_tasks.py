@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from common.postponed_tasks.prototypes import postponed_task
+from common.postponed_tasks.prototypes import postponed_task, POSTPONED_TASK_LOGIC_RESULT
 
 @postponed_task
 class FakePostponedInternalTask(object):
@@ -12,7 +12,7 @@ class FakePostponedInternalTask(object):
         self.state = state
 
     def process(self, main_task):
-        return True
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
     def serialize(self): return {'state': self.state}
 

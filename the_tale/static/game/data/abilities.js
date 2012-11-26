@@ -21,6 +21,13 @@ pgf.game.data.abilities = {
         "description": "Отправить героя на гладиаторскую арену",
         "cost": 1
     },
+    "arenapvp1x1leavequeue": {
+        "type": "arenapvp1x1leavequeue",
+        "use_form": false,
+        "name": "Выйти из очереди",
+        "description": "Выйти из очереди на арену",
+        "cost": 0
+    },
     "help": {
         "type": "help",
         "use_form": false,

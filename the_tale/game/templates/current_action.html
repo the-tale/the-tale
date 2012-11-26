@@ -47,7 +47,14 @@ jQuery(document).ready(function(e) {
       на арену
     </a>
 
-    <span class="pgf-in-pvp-queue-message pgf-hidden" rel="tooltip" title="идёт поиск противника для битвы на арене">в очереди…</span>
+    <span class="pgf-in-pvp-queue-message pgf-hidden" style="vertical-align: middle;">
+      <a href="#" class="pgf-ability-arenapvp1x1leavequeue">
+        <i class="icon-remove" rel="tooltip" title="выйти из очереди" style="vertical-align: middle;"></i>
+      </a>
+      <span rel="tooltip" title="идёт поиск противника для битвы на арене">
+        в очереди…
+      </span>
+    </span>
 
   </div>
   {% endif %}

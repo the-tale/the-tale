@@ -5,7 +5,7 @@ from dext.utils.decorators import nested_commit_on_success
 
 from common.utils.enum import create_enum
 
-from common.postponed_tasks import postponed_task
+from common.postponed_tasks import postponed_task, POSTPONED_TASK_LOGIC_RESULT
 
 from accounts.prototypes import AccountPrototype
 
@@ -74,16 +74,16 @@ class RegistrationTask(object):
             if result != REGISTER_USER_RESULT.OK:
                 main_task.comment = 'unknown error'
                 self.state = REGISTRATION_TASK_STATE.UNKNOWN_ERROR
-                return False
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if not Bundle.objects.filter(id=bundle_id).exists():
             main_task.comment = 'bundle %d does not found' % bundle_id
             self.state = REGISTRATION_TASK_STATE.BUNDLE_NOT_FOUND
-            return False
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         game_workers_environment.supervisor.cmd_register_new_account(account_id)
 
         self.state = REGISTRATION_TASK_STATE.PROCESSED
         self.account_id = int(account_id)
 
-        return True
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

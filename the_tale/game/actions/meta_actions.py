@@ -9,7 +9,7 @@ from game.actions import battle, contexts
 
 from game.prototypes import TimePrototype
 
-from game.pvp.prototypes import Battle1x1Prototype
+from game.pvp.prototypes import Battle1x1Prototype, BATTLE_1X1_STATE
 
 
 def get_meta_actions_types():
@@ -134,6 +134,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
     class STATE(MetaActionPrototype.STATE):
         BATTLE_RUNNING = 'battle_running'
+        BATTLE_ENDING = 'battle_ending'
 
     class ROLES(object):
         HERO_1 = 'hero_1'
@@ -200,11 +201,27 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         if hero.health <= 0:
             # hero.statistics.change_pve_deaths(1)
             self.add_message('meta_action_arena_pvp_1x1_kill', important=True, victim=hero, killer=enemy)
-            self.state = self.STATE.PROCESSED
+            self.state = self.STATE.BATTLE_ENDING
             self.percents = 1.0
 
 
     def _process(self):
+
+        # check processed state before battle turn, to give delay to players to see battle result
+
+        if self.state == self.STATE.BATTLE_ENDING:
+            battle_1 = Battle1x1Prototype.get_active_by_account_id(self.hero_1.account_id)
+            battle_1.set_state(BATTLE_1X1_STATE.PROCESSED)
+            battle_1.save()
+
+            battle_2 = Battle1x1Prototype.get_active_by_account_id(self.hero_2.account_id)
+            battle_2.set_state(BATTLE_1X1_STATE.PROCESSED)
+            battle_2.save()
+
+            self.hero_1.health = self.hero_1_old_health
+            self.hero_2.health = self.hero_2_old_health
+
+            self.state = self.STATE.PROCESSED
 
         if self.state == self.STATE.BATTLE_RUNNING:
 
@@ -217,13 +234,6 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
             self._check_hero_health(self.hero_1, self.hero_2)
             self._check_hero_health(self.hero_2, self.hero_1)
-
-        if self.state == self.STATE.PROCESSED:
-            Battle1x1Prototype.get_by_account_id(self.hero_1.account_id).remove()
-            Battle1x1Prototype.get_by_account_id(self.hero_2.account_id).remove()
-
-            self.hero_1.health = self.hero_1_old_health
-            self.hero_2.health = self.hero_2_old_health
 
 
 META_ACTION_TYPES = get_meta_actions_types()

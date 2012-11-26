@@ -20,7 +20,7 @@ class Help(AbilityPrototype):
 
     def use(self, storage, hero, form):
 
-        battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
+        battle = Battle1x1Prototype.get_active_by_account_id(hero.account_id)
 
         if battle and not battle.state.is_waiting:
             return False

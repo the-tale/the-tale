@@ -2,7 +2,7 @@
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.postponed_tasks import postponed_task
+from common.postponed_tasks import postponed_task, POSTPONED_TASK_LOGIC_RESULT
 from common.utils.enum import create_enum
 
 from game.prototypes import TimePrototype
@@ -73,19 +73,19 @@ class UseAbilityTask(object):
         if energy < ability.COST:
             main_task.comment = 'energy < ability.COST'
             self.state = ABILITY_TASK_STATE.NO_ENERGY
-            return False
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if ability.available_at > turn_number:
             main_task.comment = 'available_at (%d) > turn_number (%d)' % (ability.available_at, turn_number)
             self.state = ABILITY_TASK_STATE.COOLDOWN
-            return False
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         result = ability.use(storage, hero, self.data)
 
         if not result:
             main_task.comment = 'result is False'
             self.state = ABILITY_TASK_STATE.CAN_NOT_PROCESS
-            return False
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         self.state = ABILITY_TASK_STATE.PROCESSED
         hero.change_energy(-ability.COST)
@@ -96,4 +96,4 @@ class UseAbilityTask(object):
 
             storage.save_hero_data(hero.id)
 
-        return True
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

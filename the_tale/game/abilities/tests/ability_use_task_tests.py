@@ -4,7 +4,7 @@ import mock
 from dext.settings import settings
 
 from common.utils.testcase import TestCase
-from common.postponed_tasks import FakePostpondTaskPrototype
+from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -46,20 +46,20 @@ class UseAbilityTasksTests(TestCase):
     def test_process_no_energy(self):
         self.hero.model.energy = 0
         self.hero.save()
-        self.assertFalse(self.task.process(FakePostpondTaskPrototype(), self.storage))
-        self.assertTrue(self.task.state == ABILITY_TASK_STATE.NO_ENERGY)
+        self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(self.task.state, ABILITY_TASK_STATE.NO_ENERGY)
 
     def test_process_cooldown(self):
         with mock.patch('game.abilities.deck.help.Help.available_at', 1):
-            self.assertFalse(self.task.process(FakePostpondTaskPrototype(), self.storage))
-            self.assertTrue(self.task.state == ABILITY_TASK_STATE.COOLDOWN)
+            self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+            self.assertEqual(self.task.state, ABILITY_TASK_STATE.COOLDOWN)
 
     def test_process_can_not_process(self):
 
         with mock.patch('game.abilities.deck.help.Help.use', lambda self, storage, hero, data: False):
-            self.assertFalse(self.task.process(FakePostpondTaskPrototype(), self.storage))
-            self.assertTrue(self.task.state == ABILITY_TASK_STATE.CAN_NOT_PROCESS)
+            self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+            self.assertEqual(self.task.state, ABILITY_TASK_STATE.CAN_NOT_PROCESS)
 
     def test_process_success(self):
-        self.assertTrue(self.task.process(FakePostpondTaskPrototype(), self.storage))
-        self.assertTrue(self.task.state == ABILITY_TASK_STATE.PROCESSED)
+        self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(self.task.state, ABILITY_TASK_STATE.PROCESSED)

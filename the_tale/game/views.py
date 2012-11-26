@@ -30,7 +30,7 @@ class GameResource(Resource):
     @handler('', method='get')
     def game_page(self):
 
-        battle = Battle1x1Prototype.get_by_account_id(self.account.id)
+        battle = Battle1x1Prototype.get_active_by_account_id(self.account.id)
 
         if battle and battle.state.is_processing:
             return self.redirect(reverse('game:pvp:'))
@@ -77,11 +77,12 @@ class GameResource(Resource):
 
             data['pvp'] = {'waiting': False}
 
-            battle = Battle1x1Prototype.get_by_account_id(account.id)
+            battle = Battle1x1Prototype.get_active_by_account_id(account.id)
 
             if battle:
-                data['pvp']['waiting'] = True
-                if battle.state.is_processing:
+                if battle.state.is_waiting:
+                    data['pvp']['waiting'] = True
+                if battle.state.is_processing or battle.state.is_prepairing:
                     data['mode'] = 'pvp'
 
         return self.json_ok(data=data)

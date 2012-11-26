@@ -81,10 +81,16 @@ class TestRequests(TestCase, PvPTestsMixin):
         self.check_redirect(reverse('game:'), reverse('game:pvp:'))
 
     def test_game_info_when_pvp_in_queue(self):
+        self.pvp_create_battle(self.account_1, None)
+        self.pvp_create_battle(self.account_2, None)
+        self.request_login('test_user@test.com')
+        self.assertEqual(s11n.from_json(self.client.get(reverse('game:info')).content)['data']['mode'], 'pve')
+
+    def test_game_info_when_pvp_prepairing(self):
         self.pvp_create_battle(self.account_1, self.account_2)
         self.pvp_create_battle(self.account_2, self.account_1)
         self.request_login('test_user@test.com')
-        self.assertEqual(s11n.from_json(self.client.get(reverse('game:info')).content)['data']['mode'], 'pve')
+        self.assertEqual(s11n.from_json(self.client.get(reverse('game:info')).content)['data']['mode'], 'pvp')
 
     def test_game_info_when_pvp_processing(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
