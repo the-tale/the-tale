@@ -1,12 +1,17 @@
 # coding: utf-8
 
-from accounts.prototypes import AccountPrototype
-
-from game.pvp.prototypes import Battle1x1Prototype
+from common.utils.enum import create_enum
 
 from game.workers.environment import workers_environment
 
 from game.abilities.prototypes import AbilityPrototype
+
+
+ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибка'),
+                                                      ('LOGIC', 1, u'логика'),
+                                                      ('PVP_BALANCER', 2, u'pvp балансировщик'),
+                                                      ('SUCCESS', 3, u'обработка завершена') ))
+
 
 class ArenaPvP1x1(AbilityPrototype):
 
@@ -17,15 +22,21 @@ class ArenaPvP1x1(AbilityPrototype):
     NAME = u'Отправить на арену'
     DESCRIPTION = u'Отправить героя на гладиаторскую арену'
 
-    def use(self, storage, hero, form):
+    def use(self, data, step, main_task_id, storage, pvp_balancer):
 
-        if not hero.can_participate_in_pvp:
-            return False
+        if step is None:
 
-        battle = Battle1x1Prototype.create(AccountPrototype.get_by_id(hero.account_id))
+            hero = storage.heroes[data['hero_id']]
 
-        workers_environment.pvp_balancer.cmd_add_to_arena_queue(battle.id)
+            if not hero.can_participate_in_pvp:
+                return False, ABILITY_TASK_STEP.ERROR, ()
 
-        hero.add_message('angel_ability_arena_pvp_1x1', hero=hero)
+            hero.add_message('angel_ability_arena_pvp_1x1', hero=hero)
 
-        return True
+            return None, ABILITY_TASK_STEP.PVP_BALANCER, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(hero.account_id, main_task_id)), )
+
+        elif step == ABILITY_TASK_STEP.PVP_BALANCER:
+
+            pvp_balancer.add_to_arena_queue(data['hero_id'])
+
+            return True, ABILITY_TASK_STEP.SUCCESS, ()

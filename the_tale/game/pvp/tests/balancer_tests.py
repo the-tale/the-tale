@@ -56,8 +56,7 @@ class BalancerTests(BalancerTestsBase):
         self.assertEqual(Battle1x1.objects.all().count(), 0)
 
     def test_process_add_to_arena_queue(self):
-        battle = Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_1.id))
-        self.worker.process_add_to_arena_queue(battle.id)
+        battle = self.worker.add_to_arena_queue(self.hero_1.id)
         self.assertEqual(len(self.worker.arena_queue), 1)
         self.assertEqual(self.worker.arena_queue.values()[0], QueueRecord(account_id=self.account_1.id,
                                                                           battle_id=battle.id,
@@ -70,10 +69,8 @@ class BalancerTests(BalancerTestsBase):
         self.assertRaises(PvPException, Battle1x1Prototype.create, AccountPrototype.get_by_id(self.account_1.id))
 
     def test_process_add_to_arena_queue_second_record(self):
-        battle_1 = Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_1.id))
-        battle_2 = Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_2.id))
-        self.worker.process_add_to_arena_queue(battle_1.id)
-        self.worker.process_add_to_arena_queue(battle_2.id)
+        self.worker.add_to_arena_queue(self.hero_1.id)
+        self.worker.add_to_arena_queue(self.hero_2.id)
         self.assertEqual(len(self.worker.arena_queue), 2)
 
     def test_process_leave_queue_not_waiting_state(self):
@@ -84,21 +81,20 @@ class BalancerTests(BalancerTestsBase):
 
         self.assertTrue(Battle1x1Prototype.get_by_id(battle_1.id).state.is_prepairing)
 
-        self.worker.process_leave_arena_queue(battle_1.id)
+        self.worker.leave_arena_queue(self.hero_1.id)
 
         self.assertTrue(Battle1x1Prototype.get_by_id(battle_1.id).state.is_prepairing)
 
     def test_process_leave_queue_waiting_state(self):
-        battle_1 = Battle1x1Prototype.create(self.account_1)
-        self.worker.process_add_to_arena_queue(battle_1.id)
+        battle = self.worker.add_to_arena_queue(self.hero_1.id)
 
         self.assertEqual(len(self.worker.arena_queue), 1)
 
-        self.worker.process_leave_arena_queue(battle_1.id)
+        self.worker.leave_arena_queue(self.hero_1.id)
 
         self.assertEqual(len(self.worker.arena_queue), 0)
 
-        self.assertTrue(Battle1x1Prototype.get_by_id(battle_1.id).state.is_leave_queue)
+        self.assertTrue(Battle1x1Prototype.get_by_id(battle.id).state.is_leave_queue)
 
 
 
@@ -108,64 +104,64 @@ class BalancerBalancingTests(BalancerTestsBase):
 
         super(BalancerBalancingTests, self).setUp()
 
-        self.battle_1 = Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_1.id))
-        self.battle_2 = Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_2.id))
+        self.battle_1 = self.worker.add_to_arena_queue(self.hero_1.id)
+        self.battle_2 = self.worker.add_to_arena_queue(self.hero_2.id)
 
         self.test_record_1 = QueueRecord(account_id=0, created_at=0, battle_id=0, hero_level=1)
         self.test_record_2 = QueueRecord(account_id=1, created_at=1, battle_id=0, hero_level=4)
 
-    @property
-    def battle_1_record(self):
+    def battle_1_record(self, created_at_delta=datetime.timedelta(seconds=0)):
         return QueueRecord(account_id=self.account_1.id,
                            battle_id=self.battle_1.id,
-                           created_at=self.battle_1.created_at,
+                           created_at=self.battle_1.created_at + created_at_delta,
                            hero_level=self.hero_1.level)
 
-    @property
-    def battle_2_record(self):
+    def battle_2_record(self, created_at_delta=datetime.timedelta(seconds=0)):
         return QueueRecord(account_id=self.account_2.id,
                            battle_id=self.battle_2.id,
-                           created_at=self.battle_2.created_at,
+                           created_at=self.battle_2.created_at + created_at_delta,
                            hero_level=self.hero_2.level)
 
 
-
     def test_get_prepaired_queue_empty(self):
+        self.worker.leave_arena_queue(self.hero_1.id)
+        self.worker.leave_arena_queue(self.hero_2.id)
+
         records, records_to_remove = self.worker._get_prepaired_queue()
         self.assertEqual(records, [])
         self.assertEqual(records_to_remove, [])
 
     def test_get_prepaired_queue_one_record(self):
-        self.worker.process_add_to_arena_queue(self.battle_1.id)
+        self.worker.leave_arena_queue(self.hero_2.id)
+
         records, records_to_remove = self.worker._get_prepaired_queue()
         self.assertEqual(len(records), 1)
         self.assertEqual(records_to_remove, [])
 
         record = records[0]
-        self.assertEqual(record[2], self.battle_1_record)
+        self.assertEqual(record[2], self.battle_1_record())
         self.assertTrue(record[0] <= record[1])
 
     def test_get_prepaired_queue_one_record_test_time_delta(self):
-        self.battle_1.model.created_at -= datetime.timedelta(seconds=float(pvp_settings.BALANCING_TIMEOUT) / pvp_settings.BALANCING_MAX_LEVEL_DELTA * 2)
-        self.battle_1.save()
+        battle_1_record = self.battle_1_record(created_at_delta=-datetime.timedelta(seconds=float(pvp_settings.BALANCING_TIMEOUT) / pvp_settings.BALANCING_MAX_LEVEL_DELTA * 2))
+        self.worker.arena_queue[self.account_1.id] = battle_1_record
 
-        self.worker.process_add_to_arena_queue(self.battle_1.id)
+        self.worker.leave_arena_queue(self.hero_2.id)
 
         records, records_to_remove = self.worker._get_prepaired_queue()
         self.assertEqual(len(records), 1)
         self.assertEqual(records_to_remove, [])
 
         record = records[0]
-        self.assertEqual(record[2], self.battle_1_record)
+        self.assertEqual(record[2], battle_1_record)
         self.assertEqual(record[0], -6)
         self.assertEqual(record[1], 8)
 
     def test_get_prepaired_queue_one_record_timeout(self):
+        battle_1_record = self.battle_1_record(created_at_delta=-datetime.timedelta(seconds=2))
+        self.worker.arena_queue[self.account_1.id] = battle_1_record
 
-        self.battle_1.model.created_at -= datetime.timedelta(seconds=1)
-        self.battle_1.save()
-
-        self.worker.process_add_to_arena_queue(self.battle_1.id)
+        self.worker.leave_arena_queue(self.hero_2.id)
 
         with mock.patch('game.pvp.conf.pvp_settings.BALANCING_TIMEOUT', 0):
             records, records_to_remove = self.worker._get_prepaired_queue()
@@ -173,12 +169,9 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.assertEqual(records, [])
         self.assertEqual(len(records_to_remove), 1)
 
-        self.assertEqual(records_to_remove, [self.battle_1_record])
+        self.assertEqual(records_to_remove, [battle_1_record])
 
     def test_get_prepaired_queue_two_records(self):
-        self.worker.process_add_to_arena_queue(self.battle_1.id)
-        self.worker.process_add_to_arena_queue(self.battle_2.id)
-
         records, records_to_remove = self.worker._get_prepaired_queue()
 
         self.assertEqual(len(records), 2)
@@ -186,21 +179,18 @@ class BalancerBalancingTests(BalancerTestsBase):
 
         record_1 = records[0]
         record_2 = records[1]
-        self.assertEqual(record_1[2], self.battle_1_record)
+        self.assertEqual(record_1[2], self.battle_1_record())
         self.assertTrue(record_1[0] <= record_1[1])
-        self.assertEqual(record_2[2], self.battle_2_record)
+        self.assertEqual(record_2[2], self.battle_2_record())
         self.assertTrue(record_2[0] <= record_2[1])
 
 
     def test_get_prepaired_queue_two_records_one_timeout(self):
-        self.battle_1.model.created_at -= datetime.timedelta(seconds=2)
-        self.battle_1.save()
+        battle_1_record = self.battle_1_record(created_at_delta=-datetime.timedelta(seconds=2))
+        battle_2_record = self.battle_2_record(created_at_delta=-datetime.timedelta(seconds=1))
 
-        self.battle_2.model.created_at -= datetime.timedelta(seconds=1)
-        self.battle_2.save()
-
-        self.worker.process_add_to_arena_queue(self.battle_1.id)
-        self.worker.process_add_to_arena_queue(self.battle_2.id)
+        self.worker.arena_queue[self.account_1.id] = battle_1_record
+        self.worker.arena_queue[self.account_2.id] = battle_2_record
 
         with mock.patch('game.pvp.conf.pvp_settings.BALANCING_TIMEOUT', 1):
             records, records_to_remove = self.worker._get_prepaired_queue()
@@ -209,8 +199,8 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.assertEqual(len(records_to_remove), 1)
 
         record_2 = records[0]
-        self.assertEqual(records_to_remove, [self.battle_1_record])
-        self.assertEqual(record_2[2], self.battle_2_record)
+        self.assertEqual(records_to_remove, [battle_1_record])
+        self.assertEqual(record_2[2], battle_2_record)
         self.assertTrue(record_2[0] <= record_2[1])
 
 
@@ -248,12 +238,9 @@ class BalancerBalancingTests(BalancerTestsBase):
 
 
     def test_clean_queue(self):
-        self.worker.process_add_to_arena_queue(self.battle_1.id)
-        self.worker.process_add_to_arena_queue(self.battle_2.id)
-
         self.worker._clean_queue([], [])
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).count(), 2)
-        self.worker._clean_queue([self.battle_1_record], [self.battle_2_record])
+        self.worker._clean_queue([self.battle_1_record()], [self.battle_2_record()])
         self.assertEqual(self.worker.arena_queue, {})
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.ENEMY_NOT_FOND).count(), 1)
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).count(), 1)
@@ -263,7 +250,7 @@ class BalancerBalancingTests(BalancerTestsBase):
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
-        self.worker._initiate_battle(self.battle_1_record, self.battle_2_record)
+        self.worker._initiate_battle(self.battle_1_record(), self.battle_2_record())
 
         self.assertEqual(Battle1x1Prototype.get_by_id(self.battle_1.id).enemy_id, self.account_2.id)
         self.assertEqual(Battle1x1Prototype.get_by_id(self.battle_2.id).enemy_id, self.account_1.id)

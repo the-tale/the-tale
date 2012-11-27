@@ -118,8 +118,7 @@ class Worker(BaseWorker):
     def process_logic_task(self, account_id, task_id):
         task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
         task.process(self.logger, storage=self.storage)
-        # storage data MUST be saved in task.process method
-        task.save()
+        task.do_postsave_actions()
 
     def cmd_mark_hero_as_not_fast(self, account_id, hero_id):
         self.send_cmd('mark_hero_as_not_fast', {'hero_id': hero_id,

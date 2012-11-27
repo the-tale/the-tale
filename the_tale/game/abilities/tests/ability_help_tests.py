@@ -34,18 +34,22 @@ class HelpAbilityTest(TestCase):
 
         self.ability = Help.get_by_hero_id(self.hero.id)
 
-
-    def tearDown(self):
-        pass
+    @property
+    def use_attributes(self):
+        return {'data': {'hero_id': self.hero.id},
+                'step': None,
+                'main_task_id': 0,
+                'storage': self.storage,
+                'pvp_balancer': None}
 
     def test_none(self):
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: None):
-            self.assertFalse(self.ability.use(self.storage, self.hero, None))
+            self.assertEqual(self.ability.use(**self.use_attributes), (False, None, ()))
 
     def test_help_when_battle_waiting(self):
         battle = Battle1x1Prototype.create(self.account)
         self.assertTrue(battle.state.is_waiting)
-        self.assertTrue(self.ability.use(self.storage, self.hero, None))
+        self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
 
     def test_help_when_battle_not_waiting(self):
         battle = Battle1x1Prototype.create(self.account)
@@ -53,23 +57,23 @@ class HelpAbilityTest(TestCase):
         battle.save()
 
         self.assertFalse(battle.state.is_waiting)
-        self.assertFalse(self.ability.use(self.storage, self.hero, None))
+        self.assertEqual(self.ability.use(**self.use_attributes), (False, None, ()))
 
     def test_heal(self):
         self.hero.health = 1
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: c.HELP_CHOICES.HEAL):
-            self.assertTrue(self.ability.use(self.storage, self.hero, None))
+            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.assertTrue(self.hero.health > 1)
 
     def test_start_quest(self):
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: c.HELP_CHOICES.START_QUEST):
-            self.assertTrue(self.ability.use(self.storage, self.hero, None))
+            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.assertTrue(self.action_idl.percents >= 1)
 
     def test_money(self):
         old_hero_money = self.hero.money
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: c.HELP_CHOICES.MONEY):
-            self.assertTrue(self.ability.use(self.storage, self.hero, None))
+            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.assertTrue(self.hero.money > old_hero_money)
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
@@ -90,7 +94,7 @@ class HelpAbilityTest(TestCase):
         old_percents = action_move.percents
 
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: c.HELP_CHOICES.TELEPORT):
-            self.assertTrue(self.ability.use(self.storage, self.hero, None))
+            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
 
         self.assertTrue(old_road_percents < self.hero.position.percents)
         self.assertTrue(old_percents < action_move.percents)
@@ -111,7 +115,7 @@ class HelpAbilityTest(TestCase):
         self.assertTrue(c.HELP_CHOICES.LIGHTING in action_battle.help_choices)
 
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: c.HELP_CHOICES.LIGHTING):
-            self.assertTrue(self.ability.use(self.storage, self.hero, None))
+            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
 
         self.assertTrue(old_mob_health > action_battle.mob.health)
         self.assertEqual(self.hero.last_action_percents, action_battle.percents)
@@ -140,7 +144,7 @@ class HelpAbilityTest(TestCase):
 
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: c.HELP_CHOICES.RESURRECT):
             current_time.increment_turn()
-            self.assertTrue(self.ability.use(self.storage, self.hero, None))
+            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.storage.process_turn()
 
         self.assertEqual(self.hero.health, self.hero.max_health)

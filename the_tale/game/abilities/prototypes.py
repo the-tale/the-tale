@@ -75,7 +75,7 @@ class AbilityPrototype(object):
                                       hero_id=hero.id,
                                       activated_at=time.turn_number,
                                       available_at=available_at,
-                                      data=form.data)
+                                      data=form.c.data)
 
         task = PostponedTaskPrototype.create(ability_task)
 

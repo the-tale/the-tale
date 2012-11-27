@@ -18,12 +18,14 @@ class Help(AbilityPrototype):
     NAME = u'Помочь'
     DESCRIPTION = u'Попытаться помочь герою, чем бы тот не занимался'
 
-    def use(self, storage, hero, form):
+    def use(self, data, step, main_task_id, storage, pvp_balancer):
+
+        hero = storage.heroes[data['hero_id']]
 
         battle = Battle1x1Prototype.get_active_by_account_id(hero.account_id)
 
         if battle and not battle.state.is_waiting:
-            return False
+            return False, None, ()
 
         action = storage.current_hero_action(hero.id)
 
@@ -39,12 +41,12 @@ class Help(AbilityPrototype):
                 heal_amount = int(hero.heal(hero.max_health * random.uniform(*c.ANGEL_HELP_HEAL_FRACTION)))
                 hero.add_message('angel_ability_healhero', hero=hero, health=heal_amount)
             action.on_heal()
-            return True
+            return True, None, ()
 
         if choice == c.HELP_CHOICES.START_QUEST:
             action.init_quest()
             hero.add_message('angel_ability_stimulate', hero=hero)
-            return True
+            return True, None, ()
 
         if choice == c.HELP_CHOICES.MONEY:
             multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
@@ -57,7 +59,7 @@ class Help(AbilityPrototype):
             else:
                 hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, coins)
                 hero.add_message('angel_ability_money', hero=hero, coins=coins)
-            return True
+            return True, None, ()
 
         if choice == c.HELP_CHOICES.TELEPORT:
             if critical:
@@ -66,7 +68,7 @@ class Help(AbilityPrototype):
             else:
                 action.short_teleport(c.ANGEL_HELP_TELEPORT_DISTANCE)
                 hero.add_message('angel_ability_shortteleport', hero=hero)
-            return True
+            return True, None, ()
 
         if choice == c.HELP_CHOICES.LIGHTING:
             if critical:
@@ -75,11 +77,11 @@ class Help(AbilityPrototype):
             else:
                 action.bit_mob(random.uniform(*c.ANGEL_HELP_LIGHTING_FRACTION))
                 hero.add_message('angel_ability_lightning', hero=hero, mob=action.mob)
-            return True
+            return True, None, ()
 
         if choice == c.HELP_CHOICES.RESURRECT:
             action.fast_resurrect()
             hero.add_message('angel_ability_resurrect', hero=hero)
-            return True
+            return True, None, ()
 
-        return False
+        return False, None, ()

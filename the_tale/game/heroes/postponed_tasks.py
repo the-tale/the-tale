@@ -61,7 +61,6 @@ class ChooseHeroAbilityTask(object):
     @property
     def error_message(self): return CHOOSE_HERO_ABILITY_STATE.CHOICES[self.state][1]
 
-
     @nested_commit_on_success
     def process(self, main_task, storage):
 

@@ -63,6 +63,7 @@ class PostponedTaskPrototype(object):
 
     def __init__(self, model=None):
         self.model = model
+        self._postsave_actions = []
 
     @property
     def id(self): return self.model.id
@@ -138,6 +139,17 @@ class PostponedTaskPrototype(object):
                                              internal_data=s11n.to_json(task_logic.serialize()),
                                              live_time=live_time)
         return cls(model=model)
+
+    def add_postsave_action(self, action):
+        self._postsave_actions.append(action)
+
+    def extend_postsave_actions(self, actions):
+        self._postsave_actions.extend(actions)
+
+    def do_postsave_actions(self):
+        if self.state.is_waiting or self.state.is_processed:
+            for action in self._postsave_actions:
+                action()
 
 
     def process(self, logger, **kwargs):

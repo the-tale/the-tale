@@ -13,6 +13,7 @@ from django.utils.log import getLogger
 from dext.utils.decorators import nested_commit_on_success
 
 from common.amqp_queues import BaseWorker
+from common import postponed_tasks
 
 from game.heroes.prototypes import HeroPrototype
 
@@ -68,6 +69,8 @@ class Worker(BaseWorker):
         if self.initialized:
             self.logger.warn('WARNING: pvp balancer already initialized, do reinitialization')
 
+        postponed_tasks.autodiscover()
+
         self.initialized = True
         self.worker_id = worker_id
 
@@ -88,23 +91,26 @@ class Worker(BaseWorker):
         self.stop_required = True
         self.logger.info('PVP BALANCER STOPPED')
 
-    def cmd_add_to_arena_queue(self, battle_id):
-        return self.send_cmd('add_to_arena_queue', {'battle_id': battle_id})
+    def cmd_logic_task(self, account_id, task_id):
+        return self.send_cmd('logic_task', {'task_id': task_id,
+                                            'account_id': account_id})
 
-    def process_add_to_arena_queue(self, battle_id):
+    def process_logic_task(self, account_id, task_id):
+        task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
+        task.process(self.logger, pvp_balancer=self)
+        task.do_postsave_actions()
 
-        battle = None
+    def add_to_arena_queue(self, hero_id):
 
-        while battle is None:
-            # wait while model appear in base, since command was sent from transaction
-            battle = Battle1x1Prototype.get_by_id(battle_id)
+        from accounts.prototypes import AccountPrototype
 
+        hero = HeroPrototype.get_by_account_id(hero_id)
 
-        hero = HeroPrototype.get_by_account_id(battle.account_id)
+        battle = Battle1x1Prototype.create(AccountPrototype.get_by_id(hero.account_id))
 
         record = QueueRecord(account_id=battle.account_id,
                              created_at=battle.created_at,
-                             battle_id=battle_id,
+                             battle_id=battle.id,
                              hero_level=hero.level)
 
         if record.account_id in self.arena_queue:
@@ -112,16 +118,13 @@ class Worker(BaseWorker):
 
         self.arena_queue[record.account_id] = record
 
-    def cmd_leave_arena_queue(self, battle_id):
-        return self.send_cmd('leave_arena_queue', {'battle_id': battle_id})
+        return battle
 
-    def process_leave_arena_queue(self, battle_id):
+    def leave_arena_queue(self, hero_id):
 
-        battle = None
+        hero = HeroPrototype.get_by_account_id(hero_id)
 
-        while battle is None:
-            # wait while model appear in base, since command can be sent from transaction
-            battle = Battle1x1Prototype.get_by_id(battle_id)
+        battle = Battle1x1Prototype.get_active_by_account_id(hero.account_id)
 
         if not battle.state.is_waiting:
             return

@@ -6,12 +6,15 @@ from common.utils.testcase import TestCase, CallCounter
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
+from game.workers.environment import workers_environment
+
 from game.logic_storage import LogicStorage
 from game.logic import create_test_map
 
-from game.abilities.deck.arena_pvp_1x1_leave_queue import ArenaPvP1x1LeaveQueue
+from game.abilities.deck.arena_pvp_1x1_leave_queue import ArenaPvP1x1LeaveQueue, ABILITY_TASK_STEP
 
 from game.pvp.prototypes import Battle1x1Prototype
+from game.pvp.models import BATTLE_1X1_STATE, Battle1x1
 
 
 class ArenaPvP1x1LeaveQueueAbilityTest(TestCase):
@@ -30,23 +33,52 @@ class ArenaPvP1x1LeaveQueueAbilityTest(TestCase):
 
         self.ability = ArenaPvP1x1LeaveQueue.get_by_hero_id(self.hero.id)
 
+        workers_environment.deinitialize()
+        workers_environment.initialize()
+
+        self.pvp_balancer = workers_environment.pvp_balancer
+        self.pvp_balancer.process_initialize('pvp_balancer')
+
+    def use_attributes(self, hero_id, step=None, storage=None, pvp_balancer=None):
+        return {'data': {'hero_id': hero_id},
+                'step': step,
+                'main_task_id': 0,
+                'storage': storage,
+                'pvp_balancer': pvp_balancer}
 
     def test_use_no_battle(self):
 
         balancer_cmd_counter = CallCounter()
 
-        with mock.patch('game.pvp.workers.balancer.Worker.cmd_leave_arena_queue', balancer_cmd_counter):
-            self.assertTrue(self.ability.use(self.storage, self.hero, None))
+        with mock.patch('game.pvp.workers.balancer.Worker.leave_arena_queue', balancer_cmd_counter):
+            self.assertEqual(self.ability.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id)), (True, None, ()))
 
         self.assertEqual(balancer_cmd_counter.count, 0)
 
     def test_use_waiting_battle_state(self):
 
-        Battle1x1Prototype.create(self.account)
+        self.pvp_balancer.add_to_arena_queue(self.hero.id)
 
-        balancer_cmd_counter = CallCounter()
+        result, step, postsave_actions = self.ability.use(**self.use_attributes(hero_id=self.hero.id, storage=self.storage))
 
-        with mock.patch('game.pvp.workers.balancer.Worker.cmd_leave_arena_queue', balancer_cmd_counter):
-            self.assertTrue(self.ability.use(self.storage, self.hero, None))
+        self.assertEqual((result, step), (None, ABILITY_TASK_STEP.PVP_BALANCER))
+        self.assertEqual(len(postsave_actions), 1)
 
-        self.assertEqual(balancer_cmd_counter.count, 1)
+        pvp_balancer_logic_task_counter = CallCounter()
+
+        with mock.patch('game.pvp.workers.balancer.Worker.cmd_logic_task', pvp_balancer_logic_task_counter):
+            postsave_actions[0]()
+
+        self.assertEqual(pvp_balancer_logic_task_counter.count, 1)
+
+        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).count(), 1)
+        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.LEAVE_QUEUE).count(), 0)
+
+        result, step, postsave_actions = self.ability.use(**self.use_attributes(hero_id=self.hero.id,
+                                                                                step=step,
+                                                                                pvp_balancer=self.pvp_balancer))
+
+        self.assertEqual((result, step, postsave_actions), (True, ABILITY_TASK_STEP.SUCCESS, ()))
+
+        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).count(), 0)
+        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.LEAVE_QUEUE).count(), 1)

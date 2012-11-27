@@ -65,7 +65,7 @@ class RestActionTest(TestCase):
         old_percents = self.action_rest.percents
 
         with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: c.HELP_CHOICES.HEAL):
-            self.assertTrue(ability.use(self.storage, self.hero, None))
+            self.assertTrue(ability.use(storage=self.storage, data={'hero_id': self.hero.id}, step=None, main_task_id=0, pvp_balancer=None))
             self.assertTrue(self.hero.health > 1)
             self.assertTrue(old_percents < self.action_rest.percents)
             self.assertEqual(self.hero.last_action_percents, self.action_rest.percents)
