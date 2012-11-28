@@ -38,7 +38,7 @@
 {% if can_create_thread %}
 <form action="{{ url('forum:threads:new')}}" method="get">
   <input type="hidden" name="subcategory_id" value="{{subcategory.id}}" />
-  <input type="submit" value="Добавить обсуждение" class="pgf-new-thread-button"/>
+  <input type="submit" value="Добавить обсуждение" class="btn pgf-new-thread-button"/>
 </form>
 {% endif %}
 
