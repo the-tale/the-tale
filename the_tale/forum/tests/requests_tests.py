@@ -71,6 +71,9 @@ class TestRequests(TestCase):
         self.request_logout()
         self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
 
+    def test_subcategory_not_found(self):
+        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcatXXX-slug'])), texts=[('forum.subcategory_not_found', 1)], status_code=404)
+
     def test_new_thread(self):
         texts=['cat1-caption', 'subcat1-caption']
         self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcat1.id)), texts=texts)
@@ -128,6 +131,9 @@ class TestRequests(TestCase):
     def test_get_thread_unlogined(self):
         self.request_logout()
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
+
+    def test_get_thread_not_found(self):
+        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[666])), texts=(('forum.thread_not_found', 1),), status_code=404)
 
     def test_get_thread_fast_account(self):
         self.account.is_fast = True
@@ -191,3 +197,7 @@ class TestRequests(TestCase):
         self.check_ajax_ok(self.client.post(reverse('forum:posts:create') + ('?thread_id=%d' % self.thread3.id), {'text': 'thread3-test-post'}),
                            data={'thread_url': reverse('forum:threads:show', args=[self.thread3.id]) + '?page=1'})
         self.assertEqual(Post.objects.all().count(), 5)
+
+    def test_create_post_thread_not_found(self):
+        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread_id=666'), {'text': 'thread3-test-post'}),
+                              'forum.thread_not_found')

@@ -19,10 +19,48 @@ class BaseForumResource(Resource):
     def initialize(self, category=None, subcategory=None, thread_id=None, post_id=None, *args, **kwargs):
         super(BaseForumResource, self).initialize(*args, **kwargs)
 
+        # get post
         self.post_id = int(post_id) if post_id is not None else None
+        self.post = None
+
+        if self.post_id is not None:
+            self.post = PostPrototype.get_by_id(self.post_id)
+            if self.post is None:
+                return self.auto_error('forum.post_not_found', u'сообщение не найдено', status_code=404)
+
         self.thread_id = int(thread_id) if thread_id is not None else None
-        self.category_slug = category
+        self.thread = None
+
+        # get thread
+        if self.thread_id is not None:
+            self.thread = ThreadPrototype.get_by_id(self.thread_id)
+            if self.thread is None:
+                return self.auto_error('forum.thread_not_found', u'обсуждение не найдено', status_code=404)
+        elif self.post:
+            self.thread = self.post.thread
+
+        # get subcategory
         self.subcategory_slug = subcategory
+        self.subcategory = None
+
+        if self.subcategory_slug is not None:
+            self.subcategory = SubCategoryPrototype.get_by_slug(self.subcategory_slug)
+            if self.subcategory is None:
+                return self.auto_error('forum.subcategory_not_found', u'подкатегория не найдена', status_code=404)
+        elif self.thread:
+            self.subcategory = self.thread.subcategory
+
+        # get category
+        self.category_slug = category
+        self.category = None
+
+        if self.category_slug is not None:
+            self.category = CategoryPrototype.get_by_slug(self.category_slug)
+            if self.category is None:
+                return self.auto_error('forum.category_not_found', u'категория не найдена', status_code=404)
+        elif self.subcategory:
+            self.category = self.subcategory.category
+
 
     def can_delete_thread(self, thread):
         return self.account == thread.author or self.user.has_perm('forum.moderate_thread')
@@ -45,38 +83,6 @@ class BaseForumResource(Resource):
     def can_change_posts(self):
         return self.user.has_perm('forum.moderate_post')
 
-    @property
-    def category(self):
-        if not hasattr(self, '_category'):
-            if self.category_slug:
-                self._category = CategoryPrototype.get_by_slug(self.category_slug)
-            else:
-                self._category = self.subcategory.category
-        return self._category
-
-    @property
-    def subcategory(self):
-        if not hasattr(self, '_subcategory'):
-            if self.subcategory_slug:
-                self._subcategory = SubCategoryPrototype.get_by_slug(self.subcategory_slug)
-            else:
-                self._subcategory = self.thread.subcategory
-        return self._subcategory
-
-    @property
-    def thread(self):
-        if not hasattr(self, '_thread'):
-            if self.thread_id:
-                self._thread = ThreadPrototype.get_by_id(self.thread_id)
-            else:
-                self._thread = self.post.thread
-        return self._thread
-
-    @property
-    def post(self):
-        if not hasattr(self, '_post'):
-            self._post = PostPrototype.get_by_id(self.post_id)
-        return self._post
 
 class PostsResource(BaseForumResource):
 
@@ -84,7 +90,10 @@ class PostsResource(BaseForumResource):
     @handler('create', method='post')
     def create_post(self, thread_id):
 
-        thread = ThreadPrototype.get_by_id(thread_id)
+        thread = ThreadPrototype.get_by_id(int(thread_id))
+
+        if thread is None:
+            return self.auto_error('forum.thread_not_found', u'обсуждение не найдено', status_code=404)
 
         if self.account.is_fast:
             return self.json_error('forum.create_post.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
