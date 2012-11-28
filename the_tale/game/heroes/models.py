@@ -16,8 +16,9 @@ PREFERENCE_TYPE = create_enum('PREFERENCE_TYPE', ( ('MOB', 0, u'любимая �
                                                    ('ENERGY_REGENERATION_TYPE', 4, u'религиозность'),
                                                    ('EQUIPMENT_SLOT', 5, u'экипировка'),) )
 
-
 class Hero(models.Model):
+
+    MAX_NAME_LENGTH = 32
 
     created_at_turn = models.IntegerField(null=False, default=0)
 
@@ -30,7 +31,7 @@ class Hero(models.Model):
     active_state_end_at = models.BigIntegerField(default=0, db_index=True)
 
     #base
-    name = models.CharField(max_length=150, null=False)
+    name = models.CharField(max_length=MAX_NAME_LENGTH, null=False)
 
     gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER.CHOICES)
 

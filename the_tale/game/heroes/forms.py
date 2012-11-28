@@ -1,10 +1,12 @@
 #coding: utf-8
 
+from django.forms import ValidationError
+
 from dext.forms import forms, fields
 
 from common.utils.forms import NounFormsWithoutNumberField
 
-from game.heroes.models import PREFERENCE_TYPE
+from game.heroes.models import PREFERENCE_TYPE, Hero
 
 from game.game_info import RACE, GENDER
 
@@ -21,3 +23,11 @@ class EditNameForm(forms.Form):
     gender = fields.TypedChoiceField(label=u'пол', choices=GENDER.CHOICES, coerce=int)
 
     name_forms = NounFormsWithoutNumberField(label=u'')
+
+    def clean_name_forms(self):
+        data = self.cleaned_data['name_forms']
+
+        if len(data[0]) > Hero.MAX_NAME_LENGTH:
+            raise ValidationError(u'слишком длинное имя, максимальное число символов: %d' % Hero.MAX_NAME_LENGTH)
+
+        return data
