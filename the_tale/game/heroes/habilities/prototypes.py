@@ -56,6 +56,9 @@ class AbilityPrototype(object):
     def get_id(cls): return cls.__name__.lower()
 
     @classmethod
+    def can_be_used(self, actor): return True
+
+    @classmethod
     def use(self, *argv):
         raise NotImplemented('you should declare use method in child classes')
 
@@ -166,6 +169,9 @@ class REGENERATION(AbilityPrototype):
     DESCRIPTION = u'Во время боя герой может восстановить часть своего здоровья.'
 
     RESTORED_PERCENT = 0.25
+
+    @classmethod
+    def can_be_used(self, actor): return actor.health < actor.max_health
 
     @classmethod
     def use(cls, messanger, actor, enemy):

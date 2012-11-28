@@ -66,7 +66,10 @@ class HabilitiesTest(TestCase):
         self.assertEqual(self.messanger.messages, ['hero_ability_runuppush'])
 
     def test_regeneration(self):
+        self.assertFalse(common_abilities.REGENERATION.can_be_used(self.attacker))
         self.attacker.health = 1
+        self.assertTrue(common_abilities.REGENERATION.can_be_used(self.attacker))
+
         common_abilities.REGENERATION.use(self.messanger, self.attacker, self.defender)
         self.assertTrue(self.attacker.health > 1)
         self.assertEqual(self.messanger.messages, ['hero_ability_regeneration'])

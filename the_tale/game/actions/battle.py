@@ -41,7 +41,7 @@ class Actor(object):
         return int(self.actor.health - old_health)
 
     def choose_ability(self):
-        choice_abilities = [ (ability, ability.PRIORITY) for ability in self.actor.abilities.active_abilities]
+        choice_abilities = [ (ability, ability.PRIORITY) for ability in self.actor.abilities.active_abilities if ability.can_be_used(self)]
         return random_value_by_priority(choice_abilities)
 
     def update_context(self, enemy):
