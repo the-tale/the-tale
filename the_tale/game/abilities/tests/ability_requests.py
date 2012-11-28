@@ -5,8 +5,7 @@ from django.core.urlresolvers import reverse
 from dext.utils import s11n
 
 from common.utils.testcase import TestCase
-from common.postponed_tasks.models import PostponedTask
-from common.postponed_tasks.prototypes import PostponedTaskPrototype
+from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
 
 from accounts.logic import register_user
 from accounts.prototypes import AccountPrototype

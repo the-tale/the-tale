@@ -4,7 +4,7 @@ from dext.utils.decorators import nested_commit_on_success
 
 from textgen.words import Fake
 
-from common.postponed_tasks import postponed_task
+from common.postponed_tasks import postponed_task, POSTPONED_TASK_LOGIC_RESULT
 from common.utils.enum import create_enum
 
 from game.pvp.prototypes import Battle1x1Prototype
@@ -46,7 +46,6 @@ class SayInBattleLogTask(object):
     @property
     def error_message(self): return SAY_IN_HERO_LOG_TASK_STATE.CHOICES[self.state][1]
 
-    @nested_commit_on_success
     def process(self, main_task, storage):
 
         battle = Battle1x1Prototype.get_by_id(self.battle_id)
@@ -57,7 +56,7 @@ class SayInBattleLogTask(object):
         if account_hero is None:
             self.state = SAY_IN_HERO_LOG_TASK_STATE.ACCOUNT_HERO_NOT_FOUND
             main_task.comment = 'hero for account %d not found' % battle.account_id
-            return False
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         account_hero.add_message('pvp_say', text=Fake(self.text))
 
@@ -71,4 +70,4 @@ class SayInBattleLogTask(object):
                 storage.save_account_data(battle.enemy_id)
 
         self.state = SAY_IN_HERO_LOG_TASK_STATE.PROCESSED
-        return True
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

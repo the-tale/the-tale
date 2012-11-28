@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from dext.settings import settings
 
-from common.postponed_tasks import FakePostpondTaskPrototype
+from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -57,7 +57,7 @@ class SayInBattleLogTests(TestCase):
         old_hero_1_last_message = self.hero_1.messages[-1]
         old_hero_2_last_message = self.hero_2.messages[-1]
 
-        self.task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(self.task.state, SAY_IN_HERO_LOG_TASK_STATE.PROCESSED)
 
         self.assertNotEqual(old_hero_1_last_message, self.hero_1.messages[-1])
@@ -68,7 +68,7 @@ class SayInBattleLogTests(TestCase):
         old_hero_2_last_message = self.hero_2.messages[-1]
 
         self.storage.release_account_data(self.account_2)
-        self.task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(self.task.state, SAY_IN_HERO_LOG_TASK_STATE.PROCESSED)
         self.assertNotEqual(old_hero_1_last_message, self.hero_1.messages[-1])

@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from dext.utils import s11n
 
 from common.utils.testcase import TestCase
-from common.postponed_tasks import PostponedTask
+from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user, login_url
@@ -95,5 +95,6 @@ class TestRequests(TestCase, PvPTestsMixin):
     def test_say_success(self):
         self.request_login('test_user@test.com')
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
-        self.check_ajax_ok(self.client.post(reverse('game:pvp:say'), {'text': u'some text'}))
-        self.assertEqual(PostponedTask.objects.all().count(), 1)
+        response = self.client.post(reverse('game:pvp:say'), {'text': u'some text'})
+        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+        self.check_ajax_processing(response, task.status_url)
