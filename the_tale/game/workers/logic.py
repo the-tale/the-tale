@@ -101,7 +101,10 @@ class Worker(BaseWorker):
 
     def process_register_account(self, account_id):
         from accounts.prototypes import AccountPrototype
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        account = AccountPrototype.get_by_id(account_id)
+        if account is None:
+            raise LogicException('can not get account with id "%d"' % (account_id,))
+        self.storage.load_account_data(account)
 
     def cmd_release_account(self, account_id):
         return self.send_cmd('release_account', {'account_id': account_id})
