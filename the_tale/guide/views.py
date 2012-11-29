@@ -8,6 +8,8 @@ from common.utils.resources import Resource
 
 from game.heroes.habilities import ABILITIES
 
+from game.map.places.conf import places_settings
+
 class GuideResource(Resource):
 
     def initialize(self, *args, **kwargs):
@@ -28,6 +30,11 @@ class GuideResource(Resource):
     @handler('might', method='get')
     def might(self):
         return self.template('guide/might.html', {'section': 'might'})
+
+    @handler('cities', method='get')
+    def cities(self):
+        return self.template('guide/cities.html', {'section': 'cities',
+                                                   'places_settings': places_settings})
 
     @handler('politics', method='get')
     def politics(self):
