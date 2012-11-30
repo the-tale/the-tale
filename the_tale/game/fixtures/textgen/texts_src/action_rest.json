@@ -1,9 +1,11 @@
 {
-    "description": "",
+    "name": "Отдых",
+    "description": "Описание действий во время отдыха героя.",
     "prefix": "action_rest",
     "types": {
         "description": {
-            "description": "",
+            "name": "Описание",
+            "description": "Краткая декларация того, что делает герой.",
             "variables": {"hero": "привидение"},
             "phrases": [
                 ["залечивает раны",
@@ -11,7 +13,8 @@
             ]
         },
         "start": {
-            "description": "",
+            "name": "Начало",
+            "description": "Герой начинает отдыхать.",
             "variables": {"hero": "привидение"},
             "phrases": [
                 ["[[hero|им,загл]] [{решил|hero|прш}] отдохнуть и залечить раны",
@@ -23,7 +26,8 @@
             ]
         },
         "resring": {
-            "description": "",
+            "name": "Отдых",
+            "description": "Герой отдыхает и восстанавливает немного здоровья.",
             "variables": {"hero": "привидение", "health": 13},
             "phrases": [
                 ["Ух ты, а подорожник помогает: [{вылечил|hero|прш}] [[health]] HP",

@@ -1,9 +1,11 @@
 {
-    "description": "",
+    "name": "Торговля",
+    "description": "Описание действий во время торговли",
     "prefix": "action_trading",
     "types": {
         "description": {
-            "description": "",
+            "name": "Описание",
+            "description": "Краткая декларация того, что делает герой.",
             "variables": {"hero": "привидение"},
             "phrases": [
                 ["торгуется в комиссионном магазине",
@@ -11,7 +13,8 @@
             ]
         },
         "start": {
-            "description": "",
+            "name": "Начало",
+            "description": "Герой начинает торговлю.",
             "variables": {"hero": "привидение"},
             "phrases": [
                 ["Люд говорит, что сегодня ярмарка, надо бы её навестить.",
@@ -23,7 +26,8 @@
             ]
         },
         "sell_item": {
-            "description": "",
+            "name": "Продажа",
+            "description": "Герой продаёт предмет.",
             "variables": {"hero": "привидение", "artifact": "сабля", "coins": 41},
             "phrases": [
                 ["Всего [[coins]] [{монета|coins|}] за [[artifact|вн]]?! Да они издеваются!",

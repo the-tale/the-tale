@@ -1,9 +1,11 @@
 {
-    "description": "",
+    "name": "PvP фразы",
+    "description": "Фразы, употребляющиеся при PvP.",
     "prefix": "pvp",
     "types": {
         "say": {
-            "description": "",
+            "name": "Сообщение",
+            "description": "Один из участвующих ангелов что-то сказал.",
             "variables": {"text": "длинная фраза"},
             "phrases": [
                 ["Облака сложились во фразу: «[[text]]»",

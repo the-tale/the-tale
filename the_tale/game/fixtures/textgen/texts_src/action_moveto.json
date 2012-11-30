@@ -1,9 +1,11 @@
 {
-    "description": "",
+    "name": "Путешествие между городами",
+    "description": "Описание событий при путешествии героя между городами (по дороге)",
     "prefix": "action_moveto",
     "types": {
         "description": {
-            "description": "",
+            "name": "Описание",
+            "description": "Краткая декларация того, что делает герой.",
             "variables": {"hero": "привидение", "destination": "город"},
             "phrases": [
                 ["путешествует в сторону [[destination|рд]]",
@@ -11,7 +13,8 @@
             ]
         },
         "start": {
-            "description": "",
+            "name": "Начало путешествия",
+            "description": "Герой выходит из начальной точки путешествия",
             "variables": {"hero": "привидение", "destination": "город"},
             "phrases": [
                 ["Где тут ближайшая дорога в [[destination|вн]]",
@@ -23,7 +26,8 @@
             ]
         },
         "move": {
-            "description": "",
+            "name": "Путешествие",
+            "description": "Герой передвигается по дороге в сторону пункта назначения",
             "variables": {"hero": "привидение", "description": "город", "current_destination": "село"},
             "phrases": [
                 ["Ну и грязища, а по этой дороге ещё и караваны водят…",

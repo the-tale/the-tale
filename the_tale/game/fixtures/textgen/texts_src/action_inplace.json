@@ -1,9 +1,11 @@
 {
-    "description": "",
+    "name": "Посещение города",
+    "description": "Описание событий, происходящих при посещении героем города.",
     "prefix": "action_inplace",
     "types": {
         "description": {
-            "description": "",
+            "name": "Описание",
+            "description": "Краткая декларация того, что делает герой.",
             "variables": {"hero": "привидение", "place": "город"},
             "phrases": [
                 ["изучает окрестности",
@@ -11,7 +13,8 @@
             ]
         },
         "spend_useless": {
-            "description": "",
+            "name": "Бесполезные траты",
+            "description": "Герой тратит деньги на бесполезную вещь или занятие.",
             "variables": {"hero": "привидение", "coins": 113},
             "phrases": [
                 ["[{Рассыпал|hero|прш,загл}] монеты по мостовой, собрав, [{недосчитался|hero|прш}] [[coins]] [{штука|coins|}].",
@@ -21,7 +24,8 @@
             ]
         },
         "instant_heal": {
-            "description": "",
+            "name": "Лечение",
+            "description": "Герой тратит деньги на лечение.",
             "variables": {"hero": "привидение", "coins": 13},
             "phrases": [
                 ["Лекарь содрал [[coins]] [{монета|coins|}] за лечение.",
@@ -29,7 +33,8 @@
             ]
         },
         "buying_artifact": {
-            "description": "",
+            "name": "Покупка артефакта",
+            "description": "Герой тратит деньги на покупку артефакта, который будет одеваться в первый раз (т.е. слот для него не занят другим артефактом).",
             "variables": {"hero": "привидение", "coins": 1071, "artifact": "пепельница"},
             "phrases": [
                 ["Торговка впарила [[artifact|вн]] за [{целый|coins|вн,жр}] [[coins]] [{монета|coins|вн}].",
@@ -37,7 +42,8 @@
             ]
         },
         "buying_artifact_and_change": {
-            "description": "",
+            "name": "Покупка артефакта и замена",
+            "description": "Герой тратит деньги на покупку артефакта, и меняет на него одетый ранее.",
             "variables": {"hero": "привидение", "coins": 1071, "artifact": "нож", "old_artifact": "пепельница", "sell_price": 13},
             "phrases": [
                 ["[[old_artifact|загл]] мне [{надоел|old_artifact|прш}], купил вместо [{он|old_artifact|рд}] [[artifact|вн]] за [[coins]] [{монета|coins|вн}]. А [[old_artifact|вн]] [{продал|hero|прш}] за [[sell_price]] [{монета|sell_price|вн}].",
@@ -45,7 +51,8 @@
             ]
         },
         "sharpening_artifact": {
-            "description": "",
+            "name": "Заточка артефакта",
+            "description": "Герой тратит деньги на заточку артефакта.",
             "variables": {"hero": "привидение", "coins": 13, "artifact": "пепельница"},
             "phrases": [
                 ["[{Заплатил|hero|прш,загл}] кузнецу [[coins]] [{монета|coins|}] за улучшение [[artifact|рд]].",
@@ -53,7 +60,8 @@
             ]
         },
         "impact_good": {
-            "description": "",
+            "name": "Помощь персонажу",
+            "description": "Герой тратит деньги на помощь персонажу.",
             "variables": {"hero": "привидение", "coins": 13, "person": "гусь"},
             "phrases": [
                 ["[{Отдал|hero|прш,загл}] [[coins]] [{монета|coins|}] на благое дело. Надеюсь, [[person]] применит их с пользой.",
@@ -61,7 +69,8 @@
             ]
         },
         "impact_bad": {
-            "description": "",
+            "name": "Вредительство персонажу",
+            "description": "Герой тратит деньги, чтобы навредить персонажу",
             "variables": {"hero": "привидение", "coins": 13, "person": "гусь"},
             "phrases": [
                 ["[{Заплатил|hero|прш,загл}] [[coins]] [{монета|coins|}] специально обученным людям. [[person|загл]] будет в ярости.",

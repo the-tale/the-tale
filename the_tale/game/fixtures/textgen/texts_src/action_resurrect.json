@@ -1,9 +1,11 @@
 {
-    "description": "",
+    "name": "Воскресание",
+    "description": "Описание событий при воскресании героя",
     "prefix": "action_resurrect",
     "types": {
         "description": {
-            "description": "",
+            "name": "Описание",
+            "description": "Краткая декларация того, что делает герой.",
             "variables": {"hero": "привидение"},
             "phrases": [
                 ["проходит курс усиленного восстановления",

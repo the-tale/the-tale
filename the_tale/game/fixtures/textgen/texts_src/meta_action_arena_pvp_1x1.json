@@ -1,9 +1,11 @@
 {
-    "description": "",
+    "name": "PvP дуэль на арене",
+    "description": "Описание дейсвий во время PvP дуэли на арене",
     "prefix": "meta_action_arena_pvp_1x1",
     "types": {
         "description": {
-            "description": "",
+            "name": "Описание",
+            "description": "Краткая декларация того, что делает герой.",
             "variables": {"hero": "привидение"},
             "phrases": [
                 ["сражается на арене",
@@ -11,7 +13,8 @@
             ]
         },
         "start": {
-            "description": "",
+            "name": "Начало боя",
+            "description": "Герои входят на арену",
             "variables": {"duelist_1": "привидение", "duelist_2": "крыса"},
             "phrases": [
                 ["Начинается бой между [{могучий|duelist_1|тв}] [[duelist_1|тв]] и [{знаменитый|duelist_2|тв}] [[duelist_2|тв]]!",
@@ -19,7 +22,8 @@
             ]
         },
         "kill": {
-            "description": "",
+            "namу": "Победа",
+            "description": "Один из противников нанёс завершающий удар.",
             "variables": {"victim": "привидение", "killer": "крыса"},
             "phrases": [
                 ["[[victim|загл]] [{пал|victim|прш}] от удара [[killer|рд]]. Толпа ликует!",

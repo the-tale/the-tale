@@ -1,16 +1,25 @@
 {
+    "name": "",
     "description": "",
     "prefix": "quest_searchsmith",
     "variables": {"hero": "привидение", "person_end": "свинья", "place_start": "село", "place_end": "город"},
     "types": {
 
-        "description": [["Посетить кузнеца",
-                         "Посетить кузнеца"]],
+        "description": {
+            "name": "",
+            "description": "",
+            "phrases": [["Посетить кузнеца",
+                         "Посетить кузнеца"]]
+        },
 
         "action_intro": [],
 
-        "action_move_to_quest": [["[[hero]] направляется к мастеру",
-                                  "привидение направляется к мастеру"]],
+        "action_move_to_quest": {
+            "name": "",
+            "description": "",
+            "phrases": [["[[hero]] направляется к мастеру",
+                         "привидение направляется к мастеру"]]
+        },
 
         "action_upgrade_equipment": [],
 
@@ -18,12 +27,17 @@
 
         "journal_move_to_quest": [],
 
-        "diary_intro": [["На днях странствующий монах рассказал о чудном мастере, обитающем в [[place_end|пр]]. По-моему мне стоит наведаться к нему, а то что-то экипировка совсем прохудилась.",
-                         "На днях странствующий монах рассказал о чудном мастере, обитающем в городе. По-моему мне стоит наведаться к нему, а то что-то экипировка совсем прохудилась."]],
+        "diary_intro": {
+            "name": "",
+            "description": "",
+            "phrases": [["На днях странствующий монах рассказал о чудном мастере, обитающем в [[place_end|пр]]. По-моему мне стоит наведаться к нему, а то что-то экипировка совсем прохудилась.",
+                         "На днях странствующий монах рассказал о чудном мастере, обитающем в городе. По-моему мне стоит наведаться к нему, а то что-то экипировка совсем прохудилась."]]
+        },
 
         "diary_move_to_quest": [],
 
         "diary_upgrade_equipment_fail": {
+            "name": "",
             "description": "данная фраза появляется, если артефакт не создан",
             "variables": {"hero": "привидение", "coins": 13},
             "phrases": [
@@ -33,6 +47,8 @@
         },
 
         "diary_upgrade_equipment_buy": {
+            "name": "",
+            "description": "",
             "variables": {"hero": "привидение", "coins": 13, "artifact": "пепельница"},
             "phrases": [
                 ["[[person_end|загл]] [{создал|person_end|прш}] поистине чудесный артефакт — «[[artifact|вн]]»! И всего за [[coins]] [{монета|coins|вн}].",
@@ -41,6 +57,8 @@
         },
 
         "diary_upgrade_equipment_buy_and_change": {
+            "name": "",
+            "description": "",
             "variables": {"hero": "привидение", "coins": 13, "artifact": "пепельница", "unequipped": "нож", "sell_price": 2},
             "phrases": [
                 ["[[person_end|загл]] [{создал|person_end|прш}] поистине чудесный артефакт — «[[artifact|вн]]»! И всего за [[coins]] [{монета|coins|вн}]. [[unequipped|вн,загл]] пришлось продать за [[sell_price]] [{монета|sell_price|вн}].",
@@ -49,6 +67,8 @@
         },
 
         "diary_upgrade_equipment_sharp": {
+            "name": "",
+            "description": "",
             "variables": {"hero": "привидение", "coins": 13, "artifact": "пепельница"},
             "phrases": [
                 ["[[person_end|загл]] значительно [{улучшил|person_end|прш}] [[artifact|вн]]! И всего за [[coins]] [{монета|coins|вн}].",
@@ -57,6 +77,8 @@
         },
 
         "diary_get_reward": {
+            "name": "",
+            "description": "",
             "variables": {"hero": "привидение", "coins": 13},
             "phrases": [["[[hero|им,загл]] [{получил|hero|прш}] [[coins]] [{монета|coins|вн}] в награду за выполнение задания",
                          "Привидение получило 13 монет в награду за выполнение задания"]]

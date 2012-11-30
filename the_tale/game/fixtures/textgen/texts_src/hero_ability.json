@@ -1,9 +1,11 @@
 {
-    "description": "",
+    "name": "Способности героя",
+    "description": "Опсиание применения способностей героем (или монстром)",
     "prefix": "hero_ability",
     "types": {
         "hit": {
-            "description": "",
+            "name": "Удар",
+            "description": "Нанесение урона способностью «Удар».",
             "variables": {"attacker": "привидение", "defender": "крыса", "damage": 22},
             "phrases": [
                 ["[[attacker|им,загл]] [{поднатужился|attacker|прш}] и [{нанес|attacker|прш}] [[damage]] [{единица|damage|вн}] урона.",
@@ -21,8 +23,9 @@
             ]
         },
         "hit_miss": {
-            "description": "",
-            "variables": {"attacker": "привидение", "defender": "крыса", "damage": 13},
+            "name": "Промах",
+            "description": "Атакующий промахулся при использовании способности «Удар»",
+            "variables": {"attacker": "привидение", "defender": "крыса"},
             "phrases": [
                 ["[[attacker|им,загл]] [{поднатужился|attacker|прш}]… и [{промахнулся|attacker|прш}]…",
                  "Привидение поднатужилось… и промахнулось…"],
@@ -35,7 +38,8 @@
             ]
         },
         "magicmushroom": {
-            "description": "",
+            "name": "Волшебный гриб",
+            "description": "Использование способности «Волшебный гриб»",
             "variables": {"actor": "привидение"},
             "phrases": [
                 ["«Волшебный гриб!» — [{воскликнул|actor|прш}] [[actor|им]], запихивая в рот мухомор.",
@@ -43,7 +47,8 @@
             ]
         },
         "sidestep": {
-            "description": "",
+            "name": "Шаг в сторону",
+            "description": "Использование способности «Шаг в сторону»",
             "variables": {"attacker": "привидение", "defender": "крыса"},
             "phrases": [
                 ["[[attacker|им,загл]] ловко [{ушёл|attacker|прш}] в сторону от [[defender|рд]].",
@@ -51,7 +56,8 @@
             ]
         },
         "runuppush": {
-            "description": "",
+            "name": "Разбег-толчёк",
+            "description": "Использование способности «Разбег-толчёк»",
             "variables": {"attacker": "привидение", "defender": "крыса", "damage": 13},
             "phrases": [
                 ["[[attacker|им,загл]] [{разбежался|attacker|прш}] и [{впечатал|attacker|прш}] [[defender|вн]] в дерево, [{несчастный|defender|}] не [{досчитался|defender|прш}] [[damage]] HP.",
@@ -59,7 +65,8 @@
             ]
         },
         "runuppush_miss": {
-            "description": "",
+            "name": "Разбег-толчёк (промах)",
+            "description": "Промах при использовании способности «Разбег—толчёк»",
             "variables": {"attacker": "привидение", "defender": "крыса", "damage": 13},
             "phrases": [
                 ["[[attacker|им,загл]] [{разбежался|attacker|прш}] и [{пронёсся|attacker|прш}] мимо [[defender|рд]].",
@@ -67,7 +74,8 @@
             ]
         },
         "regeneration": {
-            "description": "",
+            "name": "Регенерация",
+            "description": "Герой использует способность и восстанавливает здоровье.",
             "variables": {"actor": "привидение", "health": 13},
             "phrases": [
                 ["[[actor|им,загл]] [{восстановил|actor|прш}] [[health]] HP.",
