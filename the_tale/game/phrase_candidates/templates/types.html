@@ -1,0 +1,90 @@
+
+{% extends "phrase_candidates/base.html" %}
+
+{% block title %}Предложение новой фразы | {{ super() }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    jQuery('.pgf-add-phrase-button').click(function(e){
+        e.preventDefault();
+        var target = jQuery(e.currentTarget);
+        var url = target.attr('href');
+
+        pgf.ui.dialog.Create({ fromUrl: url,
+                               OnOpen: function(dialog) {
+                                   addPhraseForm = new pgf.forms.Form(jQuery('.pgf-add-phrase-candidate-form', dialog),
+                                                                      { OnSuccess: function(form, data){
+                                                                          dialog.modal('hide');
+                                                                      }
+                                                                      });
+                               }
+                             });
+    });
+
+
+});
+
+</script>
+
+{% endblock %}
+
+{% block phrase_candidates_content %}
+
+<h2>Предложение новой фразы</h2>
+
+<ul>
+  <li>На этой странице вы можете предложить новую фразу для журнала или дневника героя.</li>
+  <li>Разнообразие фраз, с помощью которых герой описывает свои приключение, делает игру интереснее!</li>
+  <li>Главное требование к фразам — соответствие игровому миру. Помните, что даже юмора может быть слишком много.</li>
+  <li>Администрация оставляет за собой право отказывать в приёме фраз без объяснения причин.</li>
+  <li>Принятая фраза увеличивает могущество её автора, чем больше ваших фраз окажется в игре — тем могущественнее Вы будите.</li>
+  <li>Помните, что у нас не допускаются оскорбления и ненормативная лексика.</li>
+  <li>Будьте оригинальны!</li>
+</ul>
+
+<br/>
+
+<h3>Список всех фраз <small>разбиты по типам</small></h3>
+
+<br/>
+
+<div class="accordion" id="pgf-phrases-accordion">
+
+  {% for module_type, module_data in phrases_types.items() %}
+
+  {% if module_data is none %}{% continue %}{% endif %}
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-phrases-accordion" href="#pgf-module-{{module_type}}">
+        {{module_data['name']}}
+      </a>
+    </div>
+    <div id="pgf-module-{{module_type}}" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        <p>{{module_data['description']}}</p>
+
+        <table class="table table-bordered table-condensed table-no-highlighting">
+          {% for type_suffix, type_data in module_data['types'].items() %}
+          <tr>
+            <th>{{ type_data['name'] }}</th>
+            <td width="80px;" style="text-align: center;">
+              <a class="pgf-add-phrase-button"
+                 href="{{ url('game:phrase-candidates:new') }}?phrase_type={{module_type}}&phrase_subtype={{type_suffix}}">добавить</a>
+            </td>
+            <td>{{type_data['description']}}</td>
+          <tr/>
+          {% endfor %}
+        </table>
+
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+{% endblock %}

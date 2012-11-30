@@ -1,0 +1,41 @@
+
+<div class="modal hide pgf-add-phrase-dialog">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">
+      Новая фраза
+    </h3>
+  </div>
+
+  <div class="modal-body">
+
+    <table class="table table-bordered table-condensed table-no-highlighting">
+      <tbody>
+        <tr><th colspan="3">{{phrase_type['name']}}::{{phrase_subtype['name']}}</th></tr>
+        <tr><th width="125px;">собатие</th><td>{{phrase_subtype['description']}}</td></tr>
+        <tr><th width="125px;">пример</th><td>{{phrase_subtype['example']}}</td></tr>
+        <tr>
+          <th width="125px;">переменные</th>
+          <td>{% for variable in phrase_subtype['variables'] %} <{{VARIABLE_NAMES[variable]}}>{% if not loop.last %},{% endif %} {% endfor %}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <form method="post" action="{{ url('game:phrase-candidates:create') }}" class="pgf-add-phrase-candidate-form">
+
+      {{ new_form.errors_container }}
+
+      {{ new_form.phrase_type.widget}}
+      {{ new_form.phrase_subtype.widget}}
+      {{ new_form.text.widget}}
+      <div class="widget">
+        <input type="submit" class="btn" value="Добавить"/>
+        <button type="button" class="btn" data-dismiss="modal">Отмена</button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

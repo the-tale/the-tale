@@ -2,11 +2,13 @@
 import os
 import pymorphy
 
+from django.core.management.base import BaseCommand
+
+from dext.utils import s11n
+
 from textgen.conf import textgen_settings
 from textgen import logic as textgen_logic
 from textgen.templates import Dictionary
-
-from django.core.management.base import BaseCommand
 
 from game.mobs import logic as mobs_logic
 from game.artifacts import logic as artifacts_logic
@@ -36,12 +38,16 @@ class Command(BaseCommand):
                                                    dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY)
 
         print "LOAD MESSAGES"
-        textgen_logic.import_texts(morph,
-                                   source_dir=game_settings.TEXTGEN_SOURCES_DIR,
-                                   tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
-                                   voc_storage=game_settings.TEXTGEN_STORAGE_VOCABULARY,
-                                   dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY,
-                                   debug=True)
+        user_data = textgen_logic.import_texts(morph,
+                                               source_dir=game_settings.TEXTGEN_SOURCES_DIR,
+                                               tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
+                                               voc_storage=game_settings.TEXTGEN_STORAGE_VOCABULARY,
+                                               dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY,
+                                               debug=True)
+
+        print 'SAVE USER DATA'
+        with open(game_settings.TEXTGEN_STORAGE_PHRASES_TYPES, 'w') as f:
+            f.write(s11n.to_json(user_data).encode('utf-8'))
 
         dictionary = Dictionary()
         dictionary.load(storage=game_settings.TEXTGEN_STORAGE_DICTIONARY)

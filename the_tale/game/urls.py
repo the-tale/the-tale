@@ -12,6 +12,7 @@ urlpatterns = patterns('',
                        (r'^quests/', include('game.quests.urls', namespace='quests') ),
                        (r'^balance/', include('game.balance.urls', namespace='balance') ),
                        (r'^bills/', include('game.bills.urls', namespace='bills') ),
+                       (r'^phrase-candidates/', include('game.phrase_candidates.urls', namespace='phrase-candidates') ),
                        (r'^ratings/', include('game.ratings.urls', namespace='ratings') ),
                        (r'^pvp/', include('game.pvp.urls', namespace='pvp') ),
 )

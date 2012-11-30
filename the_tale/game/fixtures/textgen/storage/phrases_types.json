@@ -1,0 +1,106 @@
+{
+"pvp": null, 
+"action_trading": null, 
+"quest_helpfriend": null, 
+"action_inplace": null, 
+"hero_ability": null, 
+"action_rest": null, 
+"quest_help": null, 
+"action_quest": null, 
+"quest_hunt": null, 
+"action_battlepve1x1": {
+"name": "Сражение с монстром", 
+"types": {
+"action_battlepve1x1_put_loot": {
+"variables": [
+"mob", 
+"hero", 
+"artifact"
+], 
+"example": "Вещи самое место у меня в рюкзаке.", 
+"name": "Герой забрал добычу", 
+"description": "Герой получил добычу с трупа противника и положил её в рюкзак."
+}, 
+"action_battlepve1x1_battle_stun": {
+"variables": [
+"actor"
+], 
+"example": "Привидение в шоке и не может атаковать.", 
+"name": "Стун", 
+"description": "Герой дезориентирован и пропускает ход."
+}, 
+"action_battlepve1x1_no_loot": {
+"variables": [
+"mob", 
+"hero"
+], 
+"example": "Очередной монстр без добычи, куда катится этот мир?", 
+"name": "Нет добычи", 
+"description": "Герой не получил добычу."
+}, 
+"action_battlepve1x1_put_loot_no_space": {
+"variables": [
+"mob", 
+"hero", 
+"artifact"
+], 
+"example": "Вещь никак не влазит в рюкзак, придётся выкинуть.", 
+"name": "Нет места в рюкзаке", 
+"description": "Герой получил добычу, но в рюкзаке нет для неё места (добыча выкидывается)."
+}, 
+"action_battlepve1x1_mob_killed": {
+"variables": [
+"mob", 
+"hero"
+], 
+"example": "«Фаталити!» — закричало привидение, нанося завершающий удар.", 
+"name": "Монстр убит", 
+"description": "Фраза после смерти монстра."
+}, 
+"action_battlepve1x1_description": {
+"variables": [
+"mob", 
+"hero"
+], 
+"example": "сражается с крысой", 
+"name": "Описание", 
+"description": "Краткая декларация того, что делает герой."
+}, 
+"action_battlepve1x1_hero_killed": {
+"variables": [
+"mob", 
+"hero"
+], 
+"example": "Крыса провела завершающий удар и тело привидения упало в овраг.", 
+"name": "Герой убит", 
+"description": "Фраза после смерти героя."
+}, 
+"action_battlepve1x1_start": {
+"variables": [
+"mob", 
+"hero"
+], 
+"example": "Ужасная крыса выскочила из кустов.", 
+"name": "Начало боя", 
+"description": "Объявление о встрече с противником."
+}
+}, 
+"description": "Описание событий, происходящих при сражении с монстрами."
+}, 
+"action_regenerate_energy": null, 
+"quest_interfereenemy": null, 
+"quest_delivery": null, 
+"action_resurrect": null, 
+"quest_spying": null, 
+"action_movenearplace": null, 
+"quest_searchsmith": null, 
+"action_idleness": null, 
+"quest_caravan": null, 
+"hero_common": null, 
+"quest_notmywork": null, 
+"action_moveto": null, 
+"angel_ability": null, 
+"quest_hometown": null, 
+"meta_action_arena_pvp_1x1": null, 
+"action_equipping": null
+}
