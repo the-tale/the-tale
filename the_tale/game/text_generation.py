@@ -58,4 +58,9 @@ def get_phrases_types():
         with open(game_settings.TEXTGEN_STORAGE_PHRASES_TYPES, 'r') as f:
             _PHRASES_TYPES = s11n.from_json(f.read())
 
+        _PHRASES_TYPES['_sorted_modules'] = sorted(_PHRASES_TYPES['modules'].keys(), key=lambda key: _PHRASES_TYPES['modules'][key]['name'])
+
+        for module_type, module_data in _PHRASES_TYPES['modules'].items():
+            module_data['_sorted_types'] = sorted(module_data['types'].keys(), key=lambda key: module_data['types'][key]['name'])
+
     return _PHRASES_TYPES

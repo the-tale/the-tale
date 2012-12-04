@@ -1,0 +1,125 @@
+{% extends "phrase_candidates/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    jQuery('.pgf-edit-phrase-button').click(function(e){
+        e.preventDefault();
+        var target = jQuery(e.currentTarget);
+        var url = target.attr('href');
+
+        pgf.ui.dialog.Create({ fromUrl: url,
+                               OnOpen: function(dialog) {
+                                   addPhraseForm = new pgf.forms.Form(jQuery('.pgf-edit-phrase-candidate-form', dialog),
+                                                                      { OnSuccess: function(form, data){
+                                                                          location.reload();
+                                                                      }
+                                                                      });
+                               }
+                             });
+    });
+
+
+});
+
+</script>
+
+{% endblock %}
+
+{% block title %} Предложенные фразы | {{ super() }}{% endblock %}
+
+{% block phrase_candidates_content %}
+
+<div>
+  <div class="btn-toolbar">
+
+    <div class="btn-group">
+      <a class="btn {% if not is_filtering %}disabled{% endif %}"
+         href="{% if is_filtering %}{{ url('game:phrase-candidates:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
+    </div>
+
+    {% if author_account %}
+    <div class="btn-group">
+      <a class="btn disabled" href="#">автор: {{author_account.nick}}</a>
+    </div>
+    {% endif %}
+
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        состояние:
+        {% if state == PHRASE_CANDIDATE_STATE.IN_QUEUE %}ожидает проверку
+        {% elif state == PHRASE_CANDIDATE_STATE.REMOVED %}не принята
+        {% elif state == PHRASE_CANDIDATE_STATE.APPROVED %}одобрена
+        {% elif state == PHRASE_CANDIDATE_STATE.ADDED %}добавлена
+        {% else %} все
+        {% endif %}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="{{ url_builder(state=none) }}">все</a></li>
+        <li><a href="{{ url_builder(state=PHRASE_CANDIDATE_STATE.IN_QUEUE) }}">ожидает проверку</a></li>
+        <li><a href="{{ url_builder(state=PHRASE_CANDIDATE_STATE.REMOVED) }}">не принята</a></li>
+        <li><a href="{{ url_builder(state=PHRASE_CANDIDATE_STATE.APPROVED) }}">одобрена</a></li>
+        <li><a href="{{ url_builder(state=PHRASE_CANDIDATE_STATE.ADDED) }}">добавлена</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+
+{% if phrases %}
+
+{{ base_macros.render_paginator(paginator) }}
+
+<ul class="unstyled">
+  {% for phrase in phrases %}
+  <li style="margin-bottom: 1em;">
+    <table class="table table-bordered table-condensed table-no-highlighting">
+      <tbody>
+        <tr>
+          <td width="125px;">
+            {% if phrase.state.is_in_queue %}ожидает проверку
+            {% elif phrase.state.is_removed %}не принята
+            {% elif phrase.state.is_approved %}принята
+            {% elif phrase.state.is_added %}добавлена в игру
+            {% endif %}
+          </td>
+          <th>{{ phrase.type_name }} :: {{ phrase.subtype_name }}</th>
+          <td width="125px;"><a href="{{ url('accounts:show', phrase.author.id) }}">{{phrase.author.nick}}</a></td>
+          {% if resource.can_edit_phrase %}
+          <td width="75px;">
+            <a href="{{url('game:phrase-candidates:edit', phrase.id)}}" class="pgf-edit-phrase-button">
+              <i class="icon-pencil" rel="tooltip" title="редактировать"></i></a>
+
+            <a class="pgf-forms-post-simple" href="{{ url('game:phrase-candidates:approve', phrase.id) }}">
+              <i class="icon-ok" rel="tooltip" title="одобрить"></i></a>
+
+            <a class="pgf-forms-post-simple" href="{{ url('game:phrase-candidates:remove', phrase.id) }}">
+              <i class="icon-remove" rel="tooltip" title="отказать"></i></a>
+
+            {% if resource.can_add_phrase_to_game %}
+            <a class="pgf-forms-post-simple" href="{{ url('game:phrase-candidates:add', phrase.id) }}">
+              <i class="icon-plus" rel="tooltip" title="добавить в игру"></i></a>
+            {% endif %}
+          </td>
+          {% endif %}
+        </tr>
+        <tr><td colspan="4">{{phrase.text}}</td> </tr>
+      </tbody>
+    </table>
+  </li>
+  {% endfor %}
+</ul>
+
+{{ base_macros.render_paginator(paginator) }}
+
+{% else %}
+<span class="pgf-no-phrases-message">Не найдено фраз, отвечающих условиям поиска</span>
+{% endif %}
+
+{% endblock %}

@@ -22,14 +22,14 @@ class Spying(Quest):
         bad_line_1 = Line(sequence=[ cmd.Message(event='choice_open_up'),
                                      cmd.MoveNear(place=self.env_local.place_end, back=True),
                                      cmd.QuestResult(result=DEFAULT_RESULTS.NEGATIVE),
-                                     cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
+                                     cmd.GetReward(person=self.env_local.person_end, event='get_reward_open_up'),
                                      cmd.GivePower(person=self.env_local.person_start, power=-1),
                                      cmd.GivePower(person=self.env_local.person_end, power=1)])
 
         good_line_2 = Line(sequence=[cmd.Message(event='choice_continue_spying'),
                                      cmd.MoveNear(place=self.env_local.place_end, back=True),
                                      cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
-                                     cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
+                                     cmd.GetReward(person=self.env_local.person_end, event='get_reward_spying'),
                                      cmd.GivePower(person=self.env_local.person_start, power=1),
                                      cmd.GivePower(person=self.env_local.person_end, power=-1)])
 

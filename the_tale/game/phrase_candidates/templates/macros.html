@@ -1,0 +1,38 @@
+
+{% macro phrase_type_record(variable_names, phrase_module, phrase_subtype) %}
+
+<table class="table table-bordered table-condensed table-no-highlighting">
+  <tbody>
+    <tr><th colspan="3">
+        {% if phrase_module %}{{phrase_module['name']}}
+        {% else %}Неизвестный модуль
+        {% endif %}
+        ::
+        {% if phrase_subtype %}
+        {{phrase_subtype['name']}}
+        {% else %}Неизвестный тип
+        {% endif %}
+    </th></tr>
+    <tr>
+      <th width="125px;">собатие</th>
+      <td>{% if phrase_subtype %}{{phrase_subtype['description']}}{% else %}событие неизвестно{% endif %}</td>
+    </tr>
+    <tr>
+      <th width="125px;">пример</th>
+      <td>{% if phrase_subtype %}{{phrase_subtype['example']}}{% else %}нет примера{% endif %}</td>
+    </tr>
+    <tr>
+      <th width="125px;">переменные</th>
+      <td>
+        {% if phrase_subtype %}
+        {% for variable in phrase_subtype['variables'] %} <{{variable_names[variable]}}>{% if not loop.last %},{% endif %} {% endfor %}
+        {% else %}
+        переменные неизвестны
+        {% endif %}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+{% endmacro %}

@@ -1287,6 +1287,54 @@
       "template": "%(e_0)s выслушивает объяснения"
     }
   ], 
+  "quest_spying_diary_get_reward_spying": [
+    {
+      "internals": [
+        [
+          "получил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "получил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "hero"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s %(e_1)s %(i_1)s в награду за выполнение задания"
+    }
+  ], 
   "quest_hometown_journal_stagger_streets_donothing": [
     {
       "internals": [], 
@@ -1301,7 +1349,7 @@
     {
       "internals": [], 
       "externals": [], 
-      "template": "Ну вот, ничего не изменилось с моего последнего посещения, хотя может быть это и к лучшему?"
+      "template": "Ну вот, ничего не изменилось с моего последнего посещения, хотя, может быть, это и к лучшему?"
     }
   ], 
   "action_inplace_buying_artifact_and_change": [
@@ -1794,42 +1842,23 @@
       "template": "%(e_0)s значительно %(i_0)s %(e_1)s! И всего за %(e_2)s %(i_1)s."
     }
   ], 
-  "quest_notmywork_journal_get_reward": [
+  "quest_delivery_diary_choice_steal": [
     {
       "internals": [
         [
-          "наградил", 
+          "потратил", 
           [
-            "person_start"
+            "hero"
           ], 
           "i_0", 
           [
             "прш"
           ], 
-          "наградил"
+          "потратил"
         ]
       ], 
-      "externals": [
-        [
-          "person_start", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "person_start"
-        ], 
-        [
-          "hero", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s %(e_1)s."
+      "externals": [], 
+      "template": "Слишком много сил я %(i_0)s на доставку этого письма, надо его украсть."
     }
   ], 
   "quest_caravan_description": [
@@ -2351,54 +2380,6 @@
       "template": "%(i_0)s билеты в цирк, всего-то %(e_0)s %(i_1)s."
     }
   ], 
-  "quest_spying_diary_get_reward": [
-    {
-      "internals": [
-        [
-          "получил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "получил"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "hero"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s %(e_1)s %(i_1)s в награду за выполнение задания"
-    }
-  ], 
   "quest_caravan_diary_bad_get_reward": [
     {
       "internals": [
@@ -2709,7 +2690,6 @@
       "template": "%(e_0)s гуляет по городу"
     }
   ], 
-  "quest_spying_action_get_reward": [], 
   "quest_hometown_diary_intro": [
     {
       "internals": [], 
@@ -3313,6 +3293,7 @@
       "template": "%(e_0)s гуляет по городу"
     }
   ], 
+  "quest_spying_action_get_reward_open_up": [], 
   "action_regenerate_energy_no_energy_received_symbols": [
     {
       "internals": [
@@ -3868,6 +3849,7 @@
       "template": "%(e_0)s не %(i_0)s создать артефакт, но %(e_1)s %(i_1)s %(i_2)s."
     }
   ], 
+  "quest_hometown_diary_search_old_friends": [], 
   "action_quest_description": [
     {
       "internals": [], 
@@ -4146,7 +4128,6 @@
     }
   ], 
   "quest_helpfriend_journal_move_to_quest": [], 
-  "quest_notmywork_journal_attack_performer": [], 
   "pvp_say": [
     {
       "internals": [], 
@@ -4488,7 +4469,7 @@
       "template": "%(e_0)s %(i_0)s удар и теперь %(i_1)s отсутствием %(e_1)s HP."
     }
   ], 
-  "quest_spying_action_open_up_choice": [], 
+  "quest_notmywork_journal_attack_performer": [], 
   "quest_caravan_journal_caravan_attack": [
     {
       "internals": [], 
@@ -4684,25 +4665,6 @@
     }
   ], 
   "quest_delivery_action_delivery_get_reward": [], 
-  "quest_delivery_diary_choice_steal": [
-    {
-      "internals": [
-        [
-          "потратил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "потратил"
-        ]
-      ], 
-      "externals": [], 
-      "template": "Слишком много сил я %(i_0)s на доставку этого письма, надо его украсть."
-    }
-  ], 
   "quest_delivery_action_choice_steal": [], 
   "quest_hometown_diary_stagger_streets": [], 
   "angel_ability_healhero": [
@@ -5778,6 +5740,7 @@
   ], 
   "quest_hometown_journal_remember_names_start": [], 
   "quest_hometown_journal_drunk_song": [], 
+  "quest_spying_action_get_reward_spying": [], 
   "quest_spying_choice_openup_variant_open_up": [
     {
       "internals": [], 
@@ -5792,54 +5755,7 @@
       "template": "Итак, чем собралась заниматься моя цель?"
     }
   ], 
-  "quest_searchsmith_diary_get_reward": [
-    {
-      "internals": [
-        [
-          "получил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "получил"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "hero"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s %(e_1)s %(i_1)s в награду за выполнение задания"
-    }
-  ], 
+  "quest_spying_action_open_up_choice": [], 
   "action_rest_start": [
     {
       "internals": [
@@ -6163,8 +6079,69 @@
       "template": "%(e_0)s сражается с прислужниками, которых %(i_0)s %(e_1)s"
     }
   ], 
-  "quest_searchsmith_action_intro": [], 
-  "quest_hometown_diary_search_old_friends": [], 
+  "quest_searchsmith_action_intro": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s направляется к мастеру"
+    }
+  ], 
+  "quest_spying_diary_get_reward_open_up": [
+    {
+      "internals": [
+        [
+          "получил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "получил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "hero"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s %(e_1)s %(i_1)s в награду за выполнение задания"
+    }
+  ], 
   "quest_notmywork_diary_attack_performer": [], 
   "quest_caravan_choice_bring_variant_bandits": [
     {

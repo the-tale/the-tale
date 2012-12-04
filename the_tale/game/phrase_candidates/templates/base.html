@@ -8,6 +8,13 @@
   <div class="span12">
     <div class="block white">
 
+      <h2>Фразы</h2>
+
+      <ul class="nav nav-pills">
+        <li {% if page_type == 'index' %}class="active"{% endif %}><a href="{{ url('game:phrase-candidates:') }}">Добавленые фразы</a></li>
+        <li {% if page_type == 'types' %}class="active"{% endif %}><a href="{{ url('game:phrase-candidates:types') }}">Добавить фразу</a></li>
+      </ul>
+
       {% block phrase_candidates_content %}
       {% endblock %}
 

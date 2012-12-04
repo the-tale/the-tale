@@ -47,13 +47,14 @@ jQuery(document).ready( function(e) {
 
 <br/>
 
-<h3>Список всех фраз <small>разбиты по типам</small></h3>
+<h3>Типы фраз</h3>
 
 <br/>
 
 <div class="accordion" id="pgf-phrases-accordion">
 
-  {% for module_type, module_data in phrases_types.items() %}
+  {% for module_type in phrases_types['_sorted_modules'] %}
+  {% set module_data = phrases_types['modules'][module_type] %}
 
   {% if module_data is none %}{% continue %}{% endif %}
 
@@ -68,13 +69,16 @@ jQuery(document).ready( function(e) {
         <p>{{module_data['description']}}</p>
 
         <table class="table table-bordered table-condensed table-no-highlighting">
-          {% for type_suffix, type_data in module_data['types'].items() %}
+          {% for type_suffix in module_data['_sorted_types'] %}
+          {% set type_data = module_data['types'][type_suffix] %}
           <tr>
-            <th>{{ type_data['name'] }}</th>
-            <td width="80px;" style="text-align: center;">
+            <td width="20px;" style="text-align: center;">
               <a class="pgf-add-phrase-button"
-                 href="{{ url('game:phrase-candidates:new') }}?phrase_type={{module_type}}&phrase_subtype={{type_suffix}}">добавить</a>
+                 href="{{ url('game:phrase-candidates:new') }}?phrase_type={{module_type}}&phrase_subtype={{type_suffix}}">
+                <i class="icon-plus" rel="tooltip" title="предложить фразу"></i>
+              </a>
             </td>
+            <th>{{ type_data['name'] }}</th>
             <td>{{type_data['description']}}</td>
           <tr/>
           {% endfor %}

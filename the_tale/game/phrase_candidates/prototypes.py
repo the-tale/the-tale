@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from accounts.prototypes import AccountPrototype
+
 from game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
 
 
@@ -23,14 +25,28 @@ class PhraseCandidatePrototype(object):
     @property
     def created_at(self): return self.model.created_at
 
-    @property
-    def text(self): return self.model.text
+    def get_text(self): return self.model.text
+    def set_text(self, value): self.model.text = value
+    text = property(get_text, set_text)
 
     @property
     def author_id(self): return self.model.author_id
 
     @property
+    def author(self):
+        if not hasattr(self, '_author'):
+            self._author = AccountPrototype.get_by_id(self.model.author_id)
+        return self._author
+
+    def get_moderator_id(self): return self.model.moderator_id
+    def set_moderator_id(self, value): self.model.moderator_id = value
+    moderatir_id = property(get_moderator_id, set_moderator_id)
+
+    @property
     def type(self): return self.model.type
+
+    @property
+    def subtype(self): return self.model.subtype
 
     @property
     def type_name(self): return self.model.type_name
@@ -52,9 +68,10 @@ class PhraseCandidatePrototype(object):
 
 
     @classmethod
-    def create(cls, type_, type_name, subtype_name, author, text):
+    def create(cls, type_, type_name, subtype, subtype_name, author, text):
         model = PhraseCandidate.objects.create(type=type_,
                                                type_name=type_name,
+                                               subtype=subtype,
                                                subtype_name=subtype_name,
                                                author=author.model,
                                                text=text)
