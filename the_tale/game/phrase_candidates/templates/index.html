@@ -7,6 +7,7 @@
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
 
+{% if resource.can_moderate_phrase %}
     jQuery('.pgf-edit-phrase-button').click(function(e){
         e.preventDefault();
         var target = jQuery(e.currentTarget);
@@ -22,6 +23,7 @@ jQuery(document).ready( function(e) {
                                }
                              });
     });
+{% endif %}
 
 
 });
@@ -33,6 +35,14 @@ jQuery(document).ready( function(e) {
 {% block title %} Предложенные фразы | {{ super() }}{% endblock %}
 
 {% block phrase_candidates_content %}
+
+<p>
+  Мир Пандоры находится далеко от нас, можно сказать, в другой реальности, и наблюдать за ним не просто. В основном мы знакомимся с ним через записки наших героев (в журнале и дневнике). Нашим подопечным сложно описывать мир на языке богов («ибо язык сей сложен яко квантовая физика»), поэтому нам следует помочь им, предоставив шаблоны для описания важных событий в жизни героев.
+</p>
+
+<p>
+  На этой странице находится список предложенных игроками фраз.
+</p>
 
 <div>
   <div class="btn-toolbar">
@@ -91,19 +101,21 @@ jQuery(document).ready( function(e) {
           </td>
           <th>{{ phrase.type_name }} :: {{ phrase.subtype_name }}</th>
           <td width="125px;"><a href="{{ url('accounts:show', phrase.author.id) }}">{{phrase.author.nick}}</a></td>
-          {% if resource.can_edit_phrase %}
+          {% if resource.can_moderate_phrase or resource.can_add_phrase_to_game %}
           <td width="75px;">
+            {% if resource.can_moderate_phrase %}
             <a href="{{url('game:phrase-candidates:edit', phrase.id)}}" class="pgf-edit-phrase-button">
               <i class="icon-pencil" rel="tooltip" title="редактировать"></i></a>
 
-            <a class="pgf-forms-post-simple" href="{{ url('game:phrase-candidates:approve', phrase.id) }}">
+            <a class="pgf-forms-post-simple pgf-approve-phrase-button" href="{{ url('game:phrase-candidates:approve', phrase.id) }}">
               <i class="icon-ok" rel="tooltip" title="одобрить"></i></a>
 
-            <a class="pgf-forms-post-simple" href="{{ url('game:phrase-candidates:remove', phrase.id) }}">
+            <a class="pgf-forms-post-simple pgf-remove-phrase-button" href="{{ url('game:phrase-candidates:remove', phrase.id) }}">
               <i class="icon-remove" rel="tooltip" title="отказать"></i></a>
+            {% endif %}
 
             {% if resource.can_add_phrase_to_game %}
-            <a class="pgf-forms-post-simple" href="{{ url('game:phrase-candidates:add', phrase.id) }}">
+            <a class="pgf-forms-post-simple pgf-add-to-game-phrase-button" href="{{ url('game:phrase-candidates:add', phrase.id) }}">
               <i class="icon-plus" rel="tooltip" title="добавить в игру"></i></a>
             {% endif %}
           </td>

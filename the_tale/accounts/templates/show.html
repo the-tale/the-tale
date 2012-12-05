@@ -55,12 +55,13 @@
 
     </tr>
     <tr>
-      <th>Политика</th>
+      <th>Мир</th>
     </tr>
     <tr>
       <td>
         <ul class="unstyled">
           <li><a href="{{ url('game:bills:') }}?owner_id={{master_account.id}}">законопроекты инициированые игроком</a> (всего {{bills_count}})</li>
+          <li><a href="{{ url('game:phrase-candidates:') }}?author_id={{master_account.id}}">фразы предложенные игроком</a> (всего {{phrases_count}})</li>
         </ul>
       </td>
     </tr>

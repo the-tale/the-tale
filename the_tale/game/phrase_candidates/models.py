@@ -31,5 +31,5 @@ class PhraseCandidate(models.Model):
     state = models.IntegerField(null=False, default=PHRASE_CANDIDATE_STATE.IN_QUEUE, choices=PHRASE_CANDIDATE_STATE.CHOICES, db_index=True)
 
     class Meta:
-        permissions = (("moderate_phrase_candidate", u"Может редактировать фразы-кандидаты"), ) # game designer
-        permissions = (("add_phrase_candidate_to_game", u"Может добавлять фразы-кандидаты"), ) # developer
+        permissions = (('moderate_phrasecandidate', u'Может редактировать фразы-кандидаты'),  # game designer
+                       ('add_to_game_phrasecandidate', u'Может добавлять фразы-кандидаты'), ) # developer

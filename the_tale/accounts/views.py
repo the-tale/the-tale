@@ -292,6 +292,7 @@ class AccountResource(Resource):
         from forum.models import Thread
         from game.bills.models import Bill
         from game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
+        from game.phrase_candidates.models import PhraseCandidate
 
         bills_count = Bill.objects.filter(owner=self.master_account.model).count()
 
@@ -303,6 +304,8 @@ class AccountResource(Resource):
 
         rating_values = RatingValuesPrototype.get_for_account(self.master_account)
 
+        phrases_count = PhraseCandidate.objects.filter(author=self.master_account.model).count()
+
         return self.template('accounts/show.html',
                              {'master_hero': HeroPrototype.get_by_account_id(self.master_account_id),
                               'master_account': self.master_account,
@@ -310,4 +313,5 @@ class AccountResource(Resource):
                               'rating_values': rating_values,
                               'bills_count': bills_count,
                               'threads_with_posts': threads_with_posts,
-                              'threads_count': threads_count} )
+                              'threads_count': threads_count,
+                              'phrases_count': phrases_count} )

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Фразы | {{ super() }}{% endblock %}
+{% block title %}Лингвистика | {{ super() }}{% endblock %}
 
 {% block content %}
 
@@ -11,7 +11,7 @@
       <h2>Фразы</h2>
 
       <ul class="nav nav-pills">
-        <li {% if page_type == 'index' %}class="active"{% endif %}><a href="{{ url('game:phrase-candidates:') }}">Добавленые фразы</a></li>
+        <li {% if page_type == 'index' %}class="active"{% endif %}><a href="{{ url('game:phrase-candidates:') }}">Добавленные фразы</a></li>
         <li {% if page_type == 'types' %}class="active"{% endif %}><a href="{{ url('game:phrase-candidates:types') }}">Добавить фразу</a></li>
       </ul>
 

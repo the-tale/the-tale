@@ -51,3 +51,7 @@ class Command(BaseCommand):
         sync_group('forum moderators group', ['forum.moderate_thread', 'forum.moderate_post'])
 
         sync_group('bills moderators group', ['bills.moderate_bill'])
+
+        sync_group('phrase moderators group', ['phrase_candidates.moderate_phrasecandidate'])
+
+        sync_group('developers group', ['phrase_candidates.add_to_game_phrasecandidate'])

@@ -40,7 +40,7 @@ class PhraseCandidatePrototype(object):
 
     def get_moderator_id(self): return self.model.moderator_id
     def set_moderator_id(self, value): self.model.moderator_id = value
-    moderatir_id = property(get_moderator_id, set_moderator_id)
+    moderator_id = property(get_moderator_id, set_moderator_id)
 
     @property
     def type(self): return self.model.type
