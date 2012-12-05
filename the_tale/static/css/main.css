@@ -128,7 +128,9 @@ table.table-no-highlighting.table tbody tr:hover td {
   background-color: white;
 }
 table.table-no-highlighting.table tbody tr:hover th {
-  background-color: #F9F9F9;
+  background-color: white;
+  /* #F9F9F9; */
+
 }
 table.table-striped tbody tr:nth-child(odd):hover td {
   background-color: #F9F9F9;
