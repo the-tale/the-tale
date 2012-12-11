@@ -12,6 +12,8 @@ class MapInfo(models.Model):
 
     terrain = models.TextField(null=False, default='[]')
 
+    world = models.TextField(null=False, default='', blank=True)
+
     terrain_percents = models.TextField(null=False, default='{}')
 
     race_percents = models.TextField(null=False, default='{}')

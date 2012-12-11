@@ -3,7 +3,7 @@
 from django.test import TestCase
 
 from game.map.places.prototypes import PlacePrototype
-from game.map.places.models import Place, TERRAIN, PLACE_TYPE
+from game.map.places.models import Place, PLACE_TYPE
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
 
@@ -19,7 +19,6 @@ class PlacePowerTest(TestCase):
         self.model = Place.objects.create(x=0,
                                           y=0,
                                           name='power_test_place',
-                                          terrain=TERRAIN.GRASS,
                                           type=PLACE_TYPE.CITY,
                                           subtype='UNDEFINED',
                                           size=5 )

@@ -12,7 +12,7 @@ from game.balance import formulas as f
 
 from game.heroes.models import Hero
 
-from game.map.places.models import Place, PLACE_TYPE, RACE_TO_TERRAIN
+from game.map.places.models import Place, PLACE_TYPE
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
 
@@ -25,7 +25,17 @@ class PlacePrototype(object):
 
     @classmethod
     def get_by_id(cls, id_):
-        return cls(Place.objects.get(id=id_))
+        try:
+            return cls(Place.objects.get(id=id_))
+        except Place.DoesNotExist:
+            return None
+
+    @classmethod
+    def get_by_coordinates(cls, x, y):
+        try:
+            return cls(Place.objects.get(x=x, y=y))
+        except Place.DoesNotExist:
+            return None
 
     @property
     def id(self): return self.model.id
@@ -35,10 +45,6 @@ class PlacePrototype(object):
 
     @property
     def y(self): return self.model.y
-
-    def get_terrain(self): return self.model.terrain
-    def set_terrain(self, value): self.model.terrain = value
-    terrain = property(get_terrain, set_terrain)
 
     def get_name(self): return self.model.name
     def set_name(self, value): self.model.name = value
@@ -137,6 +143,15 @@ class PlacePrototype(object):
     nearest_cells = property(get_nearest_cells, set_nearest_cells)
 
     @property
+    def terrains(self):
+        from game.map.storage import map_info_storage
+        map_info = map_info_storage.item
+        terrains = set()
+        for cell in self.nearest_cells:
+            terrains.add(map_info.terrain[cell[1]][cell[0]])
+        return terrains
+
+    @property
     def power_points(self):
         if 'power_points' not in self.data:
             self.data['power_points'] = []
@@ -157,7 +172,7 @@ class PlacePrototype(object):
         while self.power_points and self.power_points[0][0] < turn - places_settings.POWER_HISTORY_LENGTH:
             self.power_points.pop(0)
 
-    def sync_terrain(self):
+    def get_dominant_race(self):
         race_power = {}
 
         for person in self.persons:
@@ -168,7 +183,7 @@ class PlacePrototype(object):
 
         dominant_race = max(race_power.items(), key=lambda x: x[1])[0]
 
-        self.terrain = RACE_TO_TERRAIN[dominant_race]
+        return dominant_race
 
     def __unicode__(self):
         return self.model.__unicode__()

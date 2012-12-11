@@ -3,12 +3,14 @@
 from django.db import models
 
 from dext.utils import s11n
+import deworld
 
 from game.game_info import RACE
 
 from game.persons.models import Person, PERSON_STATE
 
 from game.map.models import MapInfo
+from game.map.conf import map_settings
 
 class MapInfoPrototype(object):
 
@@ -36,13 +38,26 @@ class MapInfoPrototype(object):
             self._race_percents = dict( (int(k), v) for k, v in s11n.from_json(self.model.race_percents).items())
         return self._race_percents
 
+    @property
+    def world(self):
+        if not hasattr(self, '_world'):
+            if not self.model.world:
+                self._world = self._create_world(w=map_settings.WIDTH, h=map_settings.HEIGHT)
+            else:
+                world_data = s11n.from_json(self.model.world)
+                self._world = deworld.World.deserialize(config=deworld.BaseConfig, data=world_data)
+        return self._world
+
+    @classmethod
+    def _create_world(self, w, h):
+        return deworld.World(w=w, h=h, config=deworld.BaseConfig)
 
     ######################
     # object operations
     ######################
 
     @classmethod
-    def create(cls, turn_number, width, height, terrain):
+    def create(cls, turn_number, width, height, terrain, world):
 
         terrain_squares = {}
 
@@ -68,5 +83,6 @@ class MapInfoPrototype(object):
                                        height=height,
                                        terrain=s11n.to_json(terrain),
                                        terrain_percents=s11n.to_json(terrain_percents),
-                                       race_percents=s11n.to_json(race_percents))
+                                       race_percents=s11n.to_json(race_percents),
+                                       world=s11n.to_json(world.serialize()))
         return cls(model)

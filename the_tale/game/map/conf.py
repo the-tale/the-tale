@@ -14,7 +14,9 @@ map_settings = app_settings('MAP',
                             CELL_SIZE=20,
                             CELL_LENGTH=c.MAP_CELL_LENGTH,
 
+                            CELL_RANDOMIZE_FRACTION=0.1,
+
                             # map generation settings
-                            GEN_CONFIG_FILE='./game/map/management/commands/map_generator/config.py',
+                            GEN_WORLD_PROGRESSION=os.path.join(project_settings.DCONT_DIR, './map/progression'),
                             GEN_REGION_OUTPUT=os.path.join(project_settings.DCONT_DIR, './map/region.js')
-                            )
+    )

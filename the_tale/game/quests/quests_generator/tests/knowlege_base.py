@@ -42,9 +42,9 @@ class KnowlegeBaseTest(TestCase):
     def setUp(self):
         self.base = KnowlegeBase()
 
-        self.base.add_place('place_1', terrain='f', external_data={'id': 1, 'name': 'place_1_name'})
-        self.base.add_place('place_2', terrain='f', external_data={'id': 2, 'name': 'place_2_name'})
-        self.base.add_place('place_3', terrain='g', external_data={'id': 3, 'name': 'place_3_name'})
+        self.base.add_place('place_1', terrains=['f'], external_data={'id': 1, 'name': 'place_1_name'})
+        self.base.add_place('place_2', terrains=['f'], external_data={'id': 2, 'name': 'place_2_name'})
+        self.base.add_place('place_3', terrains=['g'], external_data={'id': 3, 'name': 'place_3_name'})
         self.base.add_place('place_4', external_data={'id': 3, 'name': 'place_3_name'})
 
         self.base.add_person('person_2_1', place='place_2', profession='test_profession', external_data={'id': 1, 'name': 'person_2_1_name'})
@@ -81,6 +81,9 @@ class KnowlegeBaseTest(TestCase):
 
     def test_get_random_place_with_terrain_rollback(self):
         self.assertRaises(RollBackException, self.base.get_random_place, terrain=('d',))
+
+    def test_get_random_place_with_terrain_set_rollback(self):
+        self.assertRaises(RollBackException, self.base.get_random_place, terrain=('d', 'v'))
 
     def test_get_random_person(self):
         unchoosen_persons = set(['person_2_1', 'person_2_2', 'person_3'])

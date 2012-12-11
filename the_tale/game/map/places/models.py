@@ -49,11 +49,6 @@ class Place(models.Model):
 
     description = models.TextField(null=False, default=u'', blank=True)
 
-    terrain = models.CharField(max_length=1,
-                               default=TERRAIN.GRASS,
-                               choices=TERRAIN_CHOICES,
-                               null=False)
-
     type = models.CharField(max_length=50,
                             choices=PLACE_CHOICES,
                             null=False)

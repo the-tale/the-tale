@@ -160,8 +160,7 @@ class Worker(BaseWorker):
 
         # update places
         for place in places_storage.all():
-            place.sync_persons() # MUST BE BEFORE TERRAIN, becouse some valueble persons can be removed
-            place.sync_terrain()
+            place.sync_persons()
             place.update_heroes_number()
             place.mark_as_updated()
 

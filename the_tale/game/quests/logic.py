@@ -37,7 +37,7 @@ def get_knowlege_base(hero):
     # fill base
     for place in places_storage.all():
         place_uuid = 'place_%d' % place.id
-        base.add_place(place_uuid, terrain=place.terrain, external_data={'id': place.id})
+        base.add_place(place_uuid, terrains=place.terrains, external_data={'id': place.id})
 
     for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
         person_uuid = 'person_%d' % person.id

@@ -274,14 +274,15 @@ pgf.game.map.Map = function(selector, params) {
 
         var cellData = mapManager.GetCellData(x, y);
 
-        if (cellData.place) {
-            pgf.ui.dialog.Create({ fromUrl: pgf.urls['game:map:places:map_info'](cellData.place.id)
-                                 });
-        }
-        else {
-            pgf.ui.dialog.Alert({ title: "пустая клетка",
-                                  message: 'На это клетке нет ничего важного' });
-        }
+        pgf.ui.dialog.Create({ fromUrl: pgf.urls['game:map:cell_info'](x, y),
+                               OnOpened: function(dialog) {
+                                   pgf.base.InitializeTabs('game-map-cell-info', 'map', 
+                                                           [[jQuery('.pgf-cell-description-button', dialog), 'description'], 
+                                                            [jQuery('.pgf-cell-persons-button', dialog), 'persons'], 
+                                                            [jQuery('.pgf-cell-map-button', dialog), 'map'], 
+                                                            [jQuery('.pgf-cell-debug-button', dialog), 'debug']]);
+                               }
+                             });        
     }
 
     function OnMouseEnter() {

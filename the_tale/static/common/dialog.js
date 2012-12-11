@@ -75,6 +75,12 @@ pgf.ui.dialog.Create = function(params) {
             }
         };
 
+        var OnShown = function() {
+            if (params.OnOpened) {
+                params.OnOpened(dialog);
+            }            
+        };
+
         var OnHide = function() {
             if (params.OnClose) {
                 params.OnClose(dialog);
@@ -86,6 +92,7 @@ pgf.ui.dialog.Create = function(params) {
         dialog = jQuery(content)
             .modal({keyboard: closeOnEscape, show: false})
             .bind('show', OnShow)
+            .bind('shown', OnShown)
             .bind('hide', OnHide);
 
         dialog.modal('show');

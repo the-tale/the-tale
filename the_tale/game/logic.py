@@ -36,7 +36,6 @@ def create_test_map():
                                y=1,
                                name='1x1',
                                name_forms=s11n.to_json(words.Noun('1x1').serialize()),
-                               terrain=TERRAIN.FOREST,
                                type=PLACE_TYPE.CITY,
                                subtype='UNDEFINED',
                                size=1)
@@ -45,7 +44,6 @@ def create_test_map():
                                y=10,
                                name='10x10',
                                name_forms=s11n.to_json(words.Noun('10x10').serialize()),
-                               terrain=TERRAIN.FOREST,
                                type=PLACE_TYPE.CITY,
                                subtype='UNDEFINED',
                                size=3)
@@ -54,7 +52,6 @@ def create_test_map():
                                y=10,
                                name='1x10',
                                name_forms=s11n.to_json(words.Noun('1x10').serialize()),
-                               terrain=TERRAIN.FOREST,
                                type=PLACE_TYPE.CITY,
                                subtype='UNDEFINED',
                                size=3)
@@ -78,7 +75,8 @@ def create_test_map():
     map_info_storage.set_item(MapInfoPrototype.create(turn_number=0,
                                                       width=map_settings.WIDTH,
                                                       height=map_settings.HEIGHT,
-                                                      terrain=[ [TERRAIN.FOREST for j in xrange(map_settings.WIDTH)] for j in xrange(map_settings.HEIGHT)]))
+                                                      terrain=[ [TERRAIN.FOREST for j in xrange(map_settings.WIDTH)] for j in xrange(map_settings.HEIGHT)],
+                                                      world=MapInfoPrototype._create_world(w=map_settings.WIDTH, h=map_settings.HEIGHT)))
 
     update_nearest_cells()
 

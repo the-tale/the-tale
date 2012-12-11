@@ -1,0 +1,145 @@
+
+<div class="modal hide place-description-dialog">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">
+      {% if place %}
+      <span class="badge">{{ place.size }}</span>
+      <span>{{ place.name }}</span>
+
+      {% if hero and hero.preferences.place_id == place.id %}
+      <span class="badge badge-success">родной город</span>
+      {% endif %}
+      {% else %}
+      Квадрат {{x}}x{{y}}
+      {% endif %}
+    </h3>
+  </div>
+
+  <div class="modal-body">
+
+    <ul class="nav nav-tabs">
+      {% if place %}
+      <li><a href="#pgf-cell-description" class="pgf-cell-description-button" data-toggle="tab">Описание</a></li>
+      <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Персонажи</a></li>
+      {% endif %}
+      <li><a href="#pgf-cell-map" class="pgf-cell-map-button" data-toggle="tab">Карта</a></li>
+      {% if resource.user.is_staff %}
+      <li><a href="#pgf-cell-debug" class="pgf-cell-debug-button" data-toggle="tab">Отладка</a></li>
+      {% endif %}
+    </ul>
+
+    <div class="tab-content">
+      {% if place %}
+      <div class="tab-pane active description" id="pgf-cell-description">
+        <img src="{{ STATIC_URL }}tmp/city.png"/>
+        {% if place.description %}
+        {{ place.description_html|safe }}
+        {% else %}
+        У этого места пока нет описания
+        {% endif %}
+      </div>
+
+      <div class="tab-pane" id="pgf-cell-persons">
+        <ul class="unstyled">
+          <li class="data-updated-time">время обновления статистики:
+            {% set game_time = place.updated_at_game_time %}
+            <span class="pgf-game-date">{{ game_time.verbose_date}}</span>
+            <span class="pgf-game-time">{{ game_time.verbose_time }}</span>
+          </li>
+          <li>прописано героев: {{place.heroes_number}}</li>
+        </ul>
+
+        <h3>персонажи</h3>
+
+        <ul class="unstyled">
+          {% for person in place.persons %}
+          <li class="person-record">
+
+            <table class="person-table table table-striped table-condensed table-no-highlighting">
+              <tbody>
+                <tr>
+                  <td class="profession-icon" rowspan="2">
+                    <img src="{{ STATIC_URL }}tmp/profession.gif"/>
+                  </td>
+
+                  <th>
+                    {{ person.name }}
+                    <small>{{ person.race_verbose }}-{{ person.type_verbose }}</small>
+                    {% if hero and hero.preferences.friend_id == person.id %}
+                    <span class="badge badge-success">соратник</span>
+                    {% endif %}
+                    {% if hero and hero.preferences.enemy_id == person.id %}
+                    <span class="badge badge-important">противник</span>
+                    {% endif %}
+                  </th>
+                  <th class="person-power">
+                    влиятельность
+                  </th>
+                </tr>
+
+                <tr>
+                  <td>
+                    соратников/противников: {{person.friends_number}}/{{person.enemies_number}}
+                  </td>
+                  <td class="person-power">
+                    {% if place.total_persons_power %}
+                    {% set power = (person.power/place.total_persons_power) %}
+                    {% else %}
+                    {% set power = 0 %}
+                    {% endif %}
+
+                    <div class="progress progress-warning">
+                      <div class="bar pgf-health-percents" style="width: {{ power|percents }};"></div>
+                    </div>
+                    <span class="pgf-power">{{ power|percents }}</span>
+                  </td>
+
+                </tr>
+              </tbody>
+
+            </table>
+
+          </li>
+          {% endfor %}
+        </ul>
+
+      </div>
+      {% endif %}
+
+      <div class="tab-pane" id="pgf-cell-map">
+        <ul class="unstyled">
+          <li>дует {{descr_wind}}</li>
+          <li>вокруг {{descr_temperature}} и {{descr_wetness}}</li>
+        </ul>
+      </div>
+
+      {% if resource.user.is_staff %}
+      <div class="tab-pane" id="pgf-cell-debug">
+        <h3>общее</h3>
+        <ul class="unstyled">
+          <li><strong>высота</strong>: {{ cell.height }}</li>
+          <li><strong>температура</strong>: {{ cell.temperature }}</li>
+          <li><strong>ветер</strong>: {{ cell.wind }}</li>
+          <li><strong>влажность</strong>: {{ cell.wetness }}</li>
+          <li><strong>растительность</strong>: {{ cell.vegetation }}</li>
+        </ul>
+
+        <h3>атмосфера</h3>
+        <ul class="unstyled">
+          <li><strong>ветер</strong>: {{ cell.atmo_wind }}</li>
+          <li><strong>температура</strong>: {{ cell.atmo_temperature }}</li>
+          <li><strong>влажность</strong>: {{ cell.atmo_wetness }}</li>
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Ok</a>
+  </div>
+
+</div>

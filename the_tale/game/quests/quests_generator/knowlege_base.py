@@ -23,12 +23,12 @@ class KnowlegeBase(object):
 
         self.specials[uuid] = value
 
-    def add_place(self, uuid, terrain=None, external_data={}):
+    def add_place(self, uuid, terrains=set(), external_data={}):
         if uuid in self.places:
             raise QuestGeneratorException(u'place "%s" has already added to base' % uuid)
 
         self.places[uuid] = {'uuid': uuid,
-                             'terrain': terrain,
+                             'terrains': terrains,
                              'external_data': external_data,
                              'persons': set()}
 
@@ -47,7 +47,7 @@ class KnowlegeBase(object):
         choices = [uuid
                    for uuid, data in self.places.items()
                    if (uuid not in exclude and
-                       (terrain is None or data['terrain'] in terrain))]
+                       (terrain is None or set(data['terrains']) & set(terrain)))]
 
         if len(choices) == 0:
             raise RollBackException('can not found suitable place with terrain: %r, excludes: %r' % (terrain, exclude))
