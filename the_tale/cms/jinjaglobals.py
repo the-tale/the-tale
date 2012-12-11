@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from dext.jinja2.decorators import jinjaglobal
 
 from cms.models import Page
