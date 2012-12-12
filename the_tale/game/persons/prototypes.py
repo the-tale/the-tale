@@ -1,16 +1,21 @@
 # coding: utf-8
 
+from dext.utils import s11n
+
 from textgen.words import Fake
 
 from game.game_info import GENDER_ID_2_STR
 from game.map.places.storage import places_storage
 from game.heroes.models import Hero
 from game.prototypes import TimePrototype
+from game.helpers import add_power_management
 
 from game.persons.models import Person, PERSON_STATE
+from game.persons.conf import persons_settings
+from game.persons.exceptions import PersonsException
 
 
-
+@add_power_management(persons_settings.POWER_HISTORY_LENGTH, PersonsException)
 class PersonPrototype(object):
 
     def __init__(self, model):
@@ -62,13 +67,15 @@ class PersonPrototype(object):
     def in_game(self):  return self.model.state == PERSON_STATE.IN_GAME
 
     @property
+    def data(self):
+        if not hasattr(self, '_data'):
+            self._data = s11n.from_json(self.model.data)
+        return self._data
+
+    @property
     def type_verbose(self):
         from .models import PERSON_TYPE_DICT
         return PERSON_TYPE_DICT[self.type]
-
-    def get_power(self): return self.model.power
-    def set_power(self, value): self.model.power = value
-    power = property(get_power, set_power)
 
     @property
     def friends_number(self): return self.model.friends_number
@@ -83,20 +90,20 @@ class PersonPrototype(object):
         self.model.enemies_number = Hero.objects.filter(pref_enemy_id=self.id, active_state_end_at__gte=current_turn).count()
 
     def save(self):
+        self.model.data = s11n.to_json(self.data)
         self.model.save()
 
     def remove(self):
         self.model.remove()
 
     @classmethod
-    def create(cls, place, race, tp, name, gender, power=0, state=None):
+    def create(cls, place, race, tp, name, gender, state=None):
 
         instance = Person.objects.create(place=place.model,
                                          state=state if state is not None else PERSON_STATE.IN_GAME,
                                          race=race,
                                          type=tp,
                                          gender=gender,
-                                         name=name,
-                                         power=power)
+                                         name=name)
 
         return cls(model=instance)

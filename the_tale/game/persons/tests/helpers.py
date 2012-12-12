@@ -17,5 +17,4 @@ def create_person(place, state):
                                   race=race,
                                   tp=random.choice(PERSON_TYPE_CHOICES)[0],
                                   name=names.generator.get_name(race, gender),
-                                  gender=gender,
-                                  power=0)
+                                  gender=gender)

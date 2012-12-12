@@ -49,8 +49,8 @@ class Person(models.Model):
 
     type = models.IntegerField(choices=PERSON_TYPE_CHOICES)
 
-    power = models.IntegerField(default=0)
-
     friends_number = models.IntegerField(default=0)
 
     enemies_number = models.IntegerField(default=0)
+
+    data = models.TextField(null=False, default=u'{}')

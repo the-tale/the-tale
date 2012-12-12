@@ -23,7 +23,8 @@ class Command(BaseCommand):
 
         try:
             workers_environment.clean_queues()
-            workers_environment.supervisor.initialize()
+            workers_environment.supervisor.cmd_initialize()
+            # workers_environment.supervisor.initialize()
             workers_environment.supervisor.run()
         except KeyboardInterrupt:
             pass

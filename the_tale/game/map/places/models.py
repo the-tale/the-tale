@@ -59,7 +59,7 @@ class Place(models.Model):
 
     size = models.IntegerField(null=False) # specify size of the place
 
-    data = models.TextField(null=False, default={})
+    data = models.TextField(null=False, default=u'{}')
 
     heroes_number = models.IntegerField(default=0)
 

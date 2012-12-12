@@ -6,9 +6,11 @@ from dext.utils import s11n
 
 from game.game_info import GENDER
 from textgen import words
+
 from game import names
 from game.prototypes import TimePrototype, GameTime
 from game.balance import formulas as f
+from game.helpers import add_power_management
 
 from game.heroes.models import Hero
 
@@ -16,6 +18,7 @@ from game.map.places.models import Place, PLACE_TYPE
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
 
+@add_power_management(places_settings.POWER_HISTORY_LENGTH, PlacesException)
 class PlacePrototype(object):
 
     TYPE = 'BASE'
@@ -150,27 +153,6 @@ class PlacePrototype(object):
         for cell in self.nearest_cells:
             terrains.add(map_info.terrain[cell[1]][cell[0]])
         return terrains
-
-    @property
-    def power_points(self):
-        if 'power_points' not in self.data:
-            self.data['power_points'] = []
-        return self.data['power_points']
-
-    @property
-    def power(self):
-        if self.power_points:
-            return max(sum([power[1] for power in self.power_points]), 0)
-        return 0
-
-    def push_power(self, turn, value):
-        if self.power_points and self.power_points[-1][0] > turn:
-            raise PlacesException(u'can not push power to place "%s" - current push turn number (%d) less then latest (%d) ' % (self.name, self.power_points[-1][0], turn))
-
-        self.power_points.append((turn, value))
-
-        while self.power_points and self.power_points[0][0] < turn - places_settings.POWER_HISTORY_LENGTH:
-            self.power_points.pop(0)
 
     def get_dominant_race(self):
         race_power = {}

@@ -127,7 +127,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.GAME_SECONDS_IN_TURN, 120)
 
         self.assertEqual(c.MAP_CELL_LENGTH, 3.0)
-        self.assertEqual(c.MAP_SYNC_TIME, 1440)
+        self.assertEqual(c.MAP_SYNC_TIME, 360)
 
         self.assertEqual(c.QUESTS_SPECIAL_FRACTION, 0.2)
 

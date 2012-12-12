@@ -127,7 +127,7 @@ class Worker(BaseWorker):
         for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
 
             if person.id in self.persons_power:
-                person.power = max(person.power + self.persons_power[person.id], 0)
+                person.push_power(self.turn_number, self.persons_power[person.id])
 
                 if person.place_id not in places_power_delta:
                     places_power_delta[person.place_id] = 0

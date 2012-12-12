@@ -46,13 +46,16 @@ class Worker(BaseWorker):
         self.stop_queue.queue.purge()
 
     def run(self):
-
         while not self.exception_raised and not self.stop_required:
             game_cmd = self.command_queue.get(block=True)
             game_cmd.ack()
             self.process_cmd(game_cmd.payload)
 
-    def initialize(self):
+    def cmd_initialize(self):
+        self.send_cmd('initialize', {})
+
+    def process_initialize(self):
+
         self.time = TimePrototype.get_current_time()
 
         postponed_tasks.PostponedTaskPrototype.reset_all()

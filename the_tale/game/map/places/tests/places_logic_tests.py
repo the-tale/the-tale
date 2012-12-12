@@ -60,10 +60,10 @@ class PlacePowerTest(TestCase):
         person_1 = self.place.persons[0]
         person_2 = self.place.persons[1]
 
-        person_1.power = 1
+        person_1.push_power(0, 1)
         person_1.save()
 
-        person_2.power = 10
+        person_2.push_power(0, 10)
         person_2.save()
 
         self.assertEqual([person.id for person in self.place.persons][:2],

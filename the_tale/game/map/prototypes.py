@@ -8,9 +8,11 @@ import deworld
 from game.game_info import RACE
 
 from game.persons.models import Person, PERSON_STATE
+from game.persons.prototypes import PersonPrototype
 
 from game.map.models import MapInfo
 from game.map.conf import map_settings
+
 
 class MapInfoPrototype(object):
 
@@ -69,10 +71,10 @@ class MapInfoPrototype(object):
 
         terrain_percents = dict( (cell, float(square) / total_cells) for cell, square in terrain_squares.items())
 
-        race_powers = {}
-        for race_id, race_name in RACE.CHOICES:
-            power = Person.objects.filter(race=race_id, state=PERSON_STATE.IN_GAME).aggregate(models.Sum('power'))['power__sum']
-            race_powers[race_id] = power if power is not None else 0
+        race_powers = dict( (race_id, 0) for race_id in RACE.ALL)
+        for person_model in Person.objects.filter(state=PERSON_STATE.IN_GAME):
+            person = PersonPrototype(person_model)
+            race_powers[person.race] += person.power
 
         total_power = sum(race_powers.values()) + 1 # +1 - to prevent division by 0
 
