@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from django.db import models
-
 from dext.utils import s11n
 import deworld
 
@@ -9,6 +7,9 @@ from game.game_info import RACE
 
 from game.persons.models import Person, PERSON_STATE
 from game.persons.prototypes import PersonPrototype
+
+from game.map.places.models import Place
+from game.map.places.prototypes import PlacePrototype
 
 from game.map.models import MapInfo
 from game.map.conf import map_settings
@@ -29,16 +30,22 @@ class MapInfoPrototype(object):
         return self._terrain
 
     @property
-    def terrain_percents(self):
-        if not hasattr(self, '_terrain_percents'):
-            self._terrain_percents = s11n.from_json(self.model.terrain_percents)
-        return self._terrain_percents
+    def statistics(self):
+        if not hasattr(self, '_statistics'):
+            self._statistics = s11n.from_json(self.model.statistics)
+            self._statistics['race_percents'] = dict( (int(key), value) for key, value in self._statistics['race_percents'].items())
+            self._statistics['race_cities'] = dict( (int(key), value) for key, value in self._statistics['race_cities'].items())
+        return self._statistics
 
     @property
-    def race_percents(self):
-        if not hasattr(self, '_race_percents'):
-            self._race_percents = dict( (int(k), v) for k, v in s11n.from_json(self.model.race_percents).items())
-        return self._race_percents
+    def terrain_percents(self):
+        return self.statistics['terrain_percents']
+
+    @property
+    def race_percents(self): return self.statistics['race_percents']
+
+    @property
+    def race_cities(self): return self.statistics['race_cities']
 
     @property
     def world(self):
@@ -61,6 +68,7 @@ class MapInfoPrototype(object):
     @classmethod
     def create(cls, turn_number, width, height, terrain, world):
 
+        # terrain percents
         terrain_squares = {}
 
         for row in terrain:
@@ -71,6 +79,7 @@ class MapInfoPrototype(object):
 
         terrain_percents = dict( (cell, float(square) / total_cells) for cell, square in terrain_squares.items())
 
+        # race percents
         race_powers = dict( (race_id, 0) for race_id in RACE.ALL)
         for person_model in Person.objects.filter(state=PERSON_STATE.IN_GAME):
             person = PersonPrototype(person_model)
@@ -80,11 +89,21 @@ class MapInfoPrototype(object):
 
         race_percents = dict( (race_id, float(power) / total_power) for race_id, power in race_powers.items())
 
+        #race to cities percents
+        race_cities = dict( (race_id, 0) for race_id in RACE.ALL)
+        for place_model in Place.objects.all():
+            place = PlacePrototype(place_model)
+            race_cities[place.get_dominant_race()] += 1
+
+
+        statistics = {'terrain_percents': terrain_percents,
+                      'race_percents': race_percents,
+                      'race_cities': race_cities}
+
         model = MapInfo.objects.create(turn_number=turn_number,
                                        width=width,
                                        height=height,
                                        terrain=s11n.to_json(terrain),
-                                       terrain_percents=s11n.to_json(terrain_percents),
-                                       race_percents=s11n.to_json(race_percents),
-                                       world=s11n.to_json(world.serialize()))
+                                       world=s11n.to_json(world.serialize()),
+                                       statistics=s11n.to_json(statistics))
         return cls(model)

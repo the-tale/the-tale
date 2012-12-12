@@ -123,13 +123,16 @@
         <div class="block">
           <h4 class="newspaper-column-header">Географический уголок</h4>
           <span style="font-size: 8pt;">от Гоблинского Географического Общества.</span>
-          <ul class="unstyled">
-            <li><strong>равнины:</strong> {{ map_info.terrain_percents.get(TERRAIN.GRASS, 0)|percents }}</li>
-            <li><strong>болота:</strong> {{ map_info.terrain_percents.get(TERRAIN.SWAMP, 0)|percents }}</li>
-            <li><strong>леса:</strong> {{ map_info.terrain_percents.get(TERRAIN.FOREST, 0)|percents }}</li>
-            <li><strong>пустыни:</strong> {{ map_info.terrain_percents.get(TERRAIN.DESERT, 0)|percents }}</li>
-            <li><strong>горы:</strong> {{ map_info.terrain_percents.get(TERRAIN.MOUNTAINS, 0)|percents }}</li>
-          </ul>
+
+          <table class="table table-condensed">
+            <tr><th>местность</th>  <th>распространение<th></tr>
+            <tr><th>равнины</th>    <td>{{ map_info.terrain_percents.get(TERRAIN.GRASS, 0)|percents }}</td></tr>
+            <tr><th>болота</th>     <td>{{ map_info.terrain_percents.get(TERRAIN.SWAMP, 0)|percents }}</td></tr>
+            <tr><th>леса</th>       <td>{{ map_info.terrain_percents.get(TERRAIN.FOREST, 0)|percents }}</td></tr>
+            <tr><th>пустыни</th>    <td>{{ map_info.terrain_percents.get(TERRAIN.DESERT, 0)|percents }}</td></tr>
+            <tr><th>горы</th>       <td>{{ map_info.terrain_percents.get(TERRAIN.MOUNTAINS, 0)|percents }}</td></tr>
+          </table>
+
         </div>
       </div>
 
@@ -137,13 +140,14 @@
         <div class="block">
           <h4 class="newspaper-column-header">Политический обзор</h4>
           <span style="font-size: 8pt;">от ПандораСтат</span>
-          <ul class="unstyled">
-            <li><strong>люди:</strong> {{ map_info.race_percents.get(RACE.HUMAN, 0)|percents }}</li>
-            <li><strong>гоблины:</strong> {{ map_info.race_percents.get(RACE.GOBLIN, 0)|percents }}</li>
-            <li><strong>эльфы:</strong> {{ map_info.race_percents.get(RACE.ELF, 0)|percents }}</li>
-            <li><strong>орки:</strong> {{ map_info.race_percents.get(RACE.ORC, 0)|percents }}</li>
-            <li><strong>дварфы:</strong> {{ map_info.race_percents.get(RACE.DWARF, 0)|percents }}</li>
-          </ul>
+          <table class="table table-condensed">
+            <tr><th>раса</th>   <th>влияние<th><th>города</th></tr>
+            <tr><th>люди</th>   <td>{{ map_info.race_percents.get(RACE.HUMAN, 0)|percents }}<td> <td>{{ map_info.race_cities.get(RACE.HUMAN, 0) }}</td></tr>
+            <tr><th>гоблины</th><td>{{ map_info.race_percents.get(RACE.GOBLIN, 0)|percents }}<td><td>{{ map_info.race_cities.get(RACE.GOBLIN, 0) }}</td></tr>
+            <tr><th>эльфы</th>  <td>{{ map_info.race_percents.get(RACE.ELF, 0)|percents }}<td>   <td>{{ map_info.race_cities.get(RACE.ELF, 0) }}</td></tr>
+            <tr><th>орки</th>   <td>{{ map_info.race_percents.get(RACE.ORC, 0)|percents }}<td>   <td>{{ map_info.race_cities.get(RACE.ORC, 0) }}</td></tr>
+            <tr><th>дварфы</th> <td>{{ map_info.race_percents.get(RACE.DWARF, 0)|percents }}<td> <td>{{ map_info.race_cities.get(RACE.DWARF, 0) }}</td></tr>
+          </table>
         </div>
       </div>
 
