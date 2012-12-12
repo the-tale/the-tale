@@ -160,9 +160,11 @@ class Worker(BaseWorker):
         self.logic_worker.cmd_release_account(account_id)
 
     def dispatch_logic_cmd(self, account_id, cmd_name, kwargs):
-        if self.accounts_owners[account_id] == 'logic':
+        if account_id in self.accounts_owners and self.accounts_owners[account_id] == 'logic':
             getattr(self.logic_worker, 'cmd_' + cmd_name)(**kwargs)
         else:
+            if account_id not in self.accounts_owners:
+                self.logger.warn('try to dispatch command for unregistered account %d (command "%s" args %r)' % (account_id, cmd_name, kwargs))
             if account_id not in self.accounts_queues:
                 self.accounts_queues[account_id] = []
             self.accounts_queues[account_id].append((cmd_name, kwargs))

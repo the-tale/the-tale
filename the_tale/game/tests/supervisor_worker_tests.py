@@ -48,7 +48,7 @@ class SupervisorWorkerTests(TestCase):
 
         self.assertEqual(PostponedTask.objects.filter(state=POSTPONED_TASK_STATE.WAITING).count(), 1)
 
-        self.worker.initialize()
+        self.worker.process_initialize()
 
         self.assertEqual(PostponedTask.objects.filter(state=POSTPONED_TASK_STATE.WAITING).count(), 0)
         self.assertEqual(PostponedTask.objects.filter(state=POSTPONED_TASK_STATE.RESETED).count(), 1)
@@ -60,7 +60,7 @@ class SupervisorWorkerTests(TestCase):
         self.assertTrue(self.worker.initialized)
 
     def test_register_task(self):
-        self.worker.initialize()
+        self.worker.process_initialize()
 
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
 
@@ -100,7 +100,7 @@ class SupervisorWorkerTests(TestCase):
         self.assertEqual(release_accounts_counter.count, 2)
 
     def test_register_task_release_account(self):
-        self.worker.initialize()
+        self.worker.process_initialize()
 
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
 
@@ -113,7 +113,7 @@ class SupervisorWorkerTests(TestCase):
 
 
     def test_register_task_second_time(self):
-        self.worker.initialize()
+        self.worker.process_initialize()
 
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
 
@@ -121,7 +121,7 @@ class SupervisorWorkerTests(TestCase):
         self.assertRaises(SupervisorException, self.worker.register_task, task)
 
     def test_register_two_tasks_requested_one_account(self):
-        self.worker.initialize()
+        self.worker.process_initialize()
 
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
         task_2 = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
@@ -131,7 +131,7 @@ class SupervisorWorkerTests(TestCase):
         self.assertRaises(SupervisorException, self.worker.register_task, task_2)
 
     def test_register_account_not_in_task(self):
-        self.worker.initialize()
+        self.worker.process_initialize()
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
 
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
@@ -155,7 +155,7 @@ class SupervisorWorkerTests(TestCase):
         self.assertEqual(self.worker.tasks.values()[0].captured_members, set())
 
     def test_register_account_in_task(self):
-        self.worker.initialize()
+        self.worker.process_initialize()
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
         self.worker.register_task(task)
 
@@ -169,7 +169,7 @@ class SupervisorWorkerTests(TestCase):
         self.assertEqual(self.worker.tasks.values()[0].captured_members, set([self.account_1.id]))
 
     def test_register_account_last_in_task(self):
-        self.worker.initialize()
+        self.worker.process_initialize()
 
         Battle1x1Prototype.create(self.account_1).set_enemy(self.account_2)
         Battle1x1Prototype.create(self.account_2).set_enemy(self.account_1)
@@ -187,3 +187,22 @@ class SupervisorWorkerTests(TestCase):
         self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set())
         self.assertEqual(self.worker.tasks.values(), [])
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
+
+    def test_dispatch_command_for_unregistered_account(self):
+        self.worker.process_initialize()
+
+        result, account_3_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+
+        hero_3 = HeroPrototype.get_by_id(account_3_id)
+
+        logic_task_counter = CallCounter()
+        logger_warn_counter = CallCounter()
+
+        with mock.patch('game.workers.logic.Worker.cmd_logic_task', logic_task_counter):
+            with mock.patch.object(self.worker.logger, 'warn', logger_warn_counter):
+                self.worker.process_mark_hero_as_active(account_3_id, hero_3.id)
+
+        self.assertEqual(logic_task_counter.count, 0)
+        self.assertEqual(logger_warn_counter.count, 1)
+        self.assertFalse(account_3_id in self.worker.accounts_owners)
+        self.assertTrue(account_3_id in self.worker.accounts_queues)
