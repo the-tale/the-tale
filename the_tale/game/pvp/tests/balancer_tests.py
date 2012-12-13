@@ -57,6 +57,7 @@ class BalancerTests(BalancerTestsBase):
 
     def test_process_add_to_arena_queue(self):
         battle = self.worker.add_to_arena_queue(self.hero_1.id)
+        self.assertEqual(self.worker.add_to_arena_queue(self.hero_1.id), None)
         self.assertEqual(len(self.worker.arena_queue), 1)
         self.assertEqual(self.worker.arena_queue.values()[0], QueueRecord(account_id=self.account_1.id,
                                                                           battle_id=battle.id,

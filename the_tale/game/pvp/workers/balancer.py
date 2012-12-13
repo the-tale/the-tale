@@ -106,6 +106,9 @@ class Worker(BaseWorker):
 
         hero = HeroPrototype.get_by_account_id(hero_id)
 
+        if hero.account_id in self.arena_queue:
+            return None
+
         battle = Battle1x1Prototype.create(AccountPrototype.get_by_id(hero.account_id))
 
         record = QueueRecord(account_id=battle.account_id,
