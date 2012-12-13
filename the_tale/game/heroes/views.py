@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+
+import datetime
 
 from dext.views.resources import handler, validator
 
@@ -7,6 +9,8 @@ from common.utils.decorators import login_required
 from common.postponed_tasks import PostponedTaskPrototype
 
 from accounts.prototypes import AccountPrototype
+
+from game.balance import constants as c
 
 from game.mobs.storage import MobsDatabase
 
@@ -172,6 +176,7 @@ class HeroResource(Resource):
                               'friends': friends,
                               'enemies': enemies,
                               'equipment_slots': equipment_slots,
+                              'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.CHARACTER_PREFERENCES_CHANGE_DELAY),
                               'EQUIPMENT_SLOTS_DICT': SLOTS_DICT} )
 
     @login_required

@@ -22,6 +22,10 @@
 
   <div class="modal-body">
 
+    <p class="alert alert-info">
+      Обратите внимание, что предпочтение можно выбирать раз в {{ PREFERENCES_CHANGE_DELAY|verbose_timedelta }}
+    </p>
+
     {% if type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE %}
     {% include "heroes/choose_preferences_energy_regeneration_type.html" with context %}
 
