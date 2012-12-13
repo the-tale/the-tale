@@ -44,6 +44,10 @@ class GuideResource(Resource):
                                                      'bills_settings': bills_settings,
                                                      'BILLS_BY_ID': BILLS_BY_ID})
 
+    @handler('map', method='get')
+    def map(self):
+        return self.template('guide/map.html', {'section': 'map'})
+
     @handler('hero-abilities', method='get')
     def hero_abilities(self):
         abilities = sorted(ABILITIES.values(), key=lambda x: x.NAME)

@@ -26,6 +26,9 @@ class TestRequests(TestCase):
     def test_cities(self):
         self.check_html_ok(self.client.get(reverse('guide:cities')))
 
+    def test_map(self):
+        self.check_html_ok(self.client.get(reverse('guide:map')))
+
     def test_politics(self):
         self.check_html_ok(self.client.get(reverse('guide:politics')))
 
