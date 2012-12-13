@@ -1,5 +1,5 @@
 {
-    "name": "PvP дуэль на арене",
+    "name": "PvP: дуэль на арене",
     "description": "Описание дейсвий во время PvP дуэли на арене",
     "prefix": "meta_action_arena_pvp_1x1",
     "types": {

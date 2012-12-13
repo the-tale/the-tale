@@ -30,13 +30,13 @@ class RequestsTests(TestCase):
         result, account_id, bundle_id = register_user('test_user4')
         self.account4 = AccountPrototype.get_by_id(account_id)
 
-        RatingValues.objects.create(account=self.account1.model, might=9, bills_count=8, power=0, level=9)
-        RatingValues.objects.create(account=self.account2.model, might=8, bills_count=0, power=9, level=1)
-        RatingValues.objects.create(account=self.account3.model, might=0, bills_count=9, power=9, level=8)
+        RatingValues.objects.create(account=self.account1.model, might=9, bills_count=8, power=0, level=9, phrases_count=0)
+        RatingValues.objects.create(account=self.account2.model, might=8, bills_count=0, power=9, level=1, phrases_count=1)
+        RatingValues.objects.create(account=self.account3.model, might=0, bills_count=9, power=9, level=8, phrases_count=0)
 
-        RatingPlaces.objects.create(account=self.account1.model, might_place=1, bills_count_place=2, power_place=3, level_place=1)
-        RatingPlaces.objects.create(account=self.account2.model, might_place=2, bills_count_place=3, power_place=2, level_place=3)
-        RatingPlaces.objects.create(account=self.account3.model, might_place=3, bills_count_place=1, power_place=1, level_place=2)
+        RatingPlaces.objects.create(account=self.account1.model, might_place=1, bills_count_place=2, power_place=3, level_place=1, phrases_count_place=2)
+        RatingPlaces.objects.create(account=self.account2.model, might_place=2, bills_count_place=3, power_place=2, level_place=3, phrases_count_place=1)
+        RatingPlaces.objects.create(account=self.account3.model, might_place=3, bills_count_place=1, power_place=1, level_place=2, phrases_count_place=3)
 
 
     def test_index(self):
@@ -53,3 +53,5 @@ class RequestsTests(TestCase):
         self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.BILLS])), texts=self.get_show_texts(1, 0, 1, 0))
         self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.POWER])), texts=self.get_show_texts(1, 1, 1, 0))
         self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.LEVEL])), texts=self.get_show_texts(1, 1, 1, 0))
+        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.LEVEL])), texts=self.get_show_texts(1, 1, 1, 0))
+        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.PHRASES])), texts=self.get_show_texts(0, 1, 0, 0))

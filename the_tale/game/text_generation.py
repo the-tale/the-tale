@@ -64,3 +64,8 @@ def get_phrases_types():
             module_data['_sorted_types'] = sorted(module_data['types'].keys(), key=lambda key: module_data['types'][key]['name'])
 
     return _PHRASES_TYPES
+
+def get_phrase_module_id_by_subtype(subtype):
+    for module_type, module_data in _PHRASES_TYPES['modules'].items():
+        if subtype in module_data['types']:
+            return module_type

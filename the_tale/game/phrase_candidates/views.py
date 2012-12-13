@@ -11,10 +11,10 @@ from common.utils.resources import Resource
 from common.utils.pagination import Paginator
 from common.utils.decorators import login_required
 
-from game.text_generation import get_phrases_types
+from game.text_generation import get_phrases_types, get_phrase_module_id_by_subtype
 
 from game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
-from game.phrase_candidates.forms import PhraseCandidateNewForm, PhraseCandidateEditForm
+from game.phrase_candidates.forms import PhraseCandidateNewForm, PhraseCandidateEditForm, UNKNOWN_TYPE_ID, SUBTYPE_CHOICES_IDS
 from game.phrase_candidates.conf import phrase_candidates_settings
 from game.phrase_candidates.prototypes import PhraseCandidatePrototype
 
@@ -176,8 +176,11 @@ class PhraseCandidateResource(Resource):
     def edit(self):
         phrases_types = get_phrases_types()
 
+        phrase_subtype = self.phrase.subtype if self.phrase.subtype in SUBTYPE_CHOICES_IDS else UNKNOWN_TYPE_ID
+
         edit_form = PhraseCandidateEditForm(initial={'text': self.phrase.text,
-                                                     'state': self.phrase.state.value})
+                                                     'state': self.phrase.state.value,
+                                                     'subtype': phrase_subtype})
 
         return self.template('phrase_candidates/edit.html', {'edit_form': edit_form,
                                                              'phrase': self.phrase,
@@ -198,6 +201,15 @@ class PhraseCandidateResource(Resource):
         self.phrase.text = edit_form.c.text
         self.phrase.moderator_id = self.account.id
         self.phrase.state = edit_form.c.state
+
+        if edit_form.c.subtype != UNKNOWN_TYPE_ID:
+            phrases_types = get_phrases_types()
+            module_type = get_phrase_module_id_by_subtype(edit_form.c.subtype)
+            self.phrase.subtype = edit_form.c.subtype
+            self.phrase.subtype_name = phrases_types['modules'][module_type]['types'][edit_form.c.subtype]['name']
+            self.phrase.type = module_type
+            self.phrase.type_name = phrases_types['modules'][module_type]['name']
+
         self.phrase.save()
 
         return self.json_ok()

@@ -31,14 +31,15 @@
         </ul>
       </td>
 
-      <td rowspan="3" width="220px">
+      <td rowspan="3" width="250px">
 
         {% if rating_values %}
         <ul class="unstyled">
           <li><strong>могущество:</strong> {% if rating_values.might > 0 %}{{ rating_places.might_place }} место{% else %}не участвует{% endif %}</li>
-          <li><strong>принятые законы:</strong> {% if rating_values.might > 0 %}{{ rating_places.bills_count_place }} место{% else %}не участвует{% endif %}</li>
+          <li><strong>принятые законы:</strong> {% if rating_values.bills_count > 0 %}{{ rating_places.bills_count_place }} место{% else %}не участвует{% endif %}</li>
           <li><strong>сила героя:</strong> {{ rating_places.power_place }} место</li>
           <li><strong>уровень героя:</strong> {{ rating_places.level_place }} место</li>
+          <li><strong>добавленные фразы:</strong> {% if rating_values.phrases_count > 0 %}{{ rating_places.phrases_count_place }} место{% else %}не участвует{% endif %}</li>
         </ul>
         {% else %}
         игрок пока не участвует в рейтингах

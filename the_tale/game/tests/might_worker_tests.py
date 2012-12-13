@@ -2,6 +2,10 @@
 
 from django.test import TestCase
 
+from forum.prototypes import CategoryPrototype, SubCategoryPrototype, ThreadPrototype, PostPrototype
+from forum.models import Thread, Post
+
+from accounts.models import Award, AWARD_TYPE
 from accounts.logic import register_user
 from accounts.prototypes import AccountPrototype
 
@@ -15,10 +19,8 @@ from game.bills.bills import PlaceRenaming
 from game.bills.models import BILL_STATE, Vote
 from game.bills.conf import bills_settings
 
-from forum.prototypes import CategoryPrototype, SubCategoryPrototype, ThreadPrototype, PostPrototype
-from forum.models import Thread, Post
-
-from accounts.models import Award, AWARD_TYPE
+from game.phrase_candidates.prototypes import PhraseCandidatePrototype
+from game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
 
 class MightCalculatorTests(TestCase):
 
@@ -114,6 +116,20 @@ class MightCalculatorTests(TestCase):
 
         VotePrototype.create(self.account, bill, False)
         self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > 0)
+
+    def test_phrase_candidate_might(self):
+        old_might = workers_environment.might_calculator.calculate_might(self.hero)
+        phrase =  PhraseCandidatePrototype.create(type_='type',
+                                                  type_name=u'type name',
+                                                  subtype='subtype',
+                                                  subtype_name=u'subtype name',
+                                                  author=self.account,
+                                                  text=u'text')
+        self.assertEqual(old_might, workers_environment.might_calculator.calculate_might(self.hero))
+        phrase.state = PHRASE_CANDIDATE_STATE.ADDED
+        phrase.save()
+
+        self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > old_might)
 
 
     def test_custom_might(self):

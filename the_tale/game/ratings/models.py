@@ -15,6 +15,8 @@ class RatingValues(models.Model):
 
     level = models.IntegerField(default=0, db_index=True)
 
+    phrases_count = models.IntegerField(default=0, db_index=True)
+
 
 class RatingPlaces(models.Model):
 
@@ -27,3 +29,5 @@ class RatingPlaces(models.Model):
     power_place = models.BigIntegerField(db_index=True)
 
     level_place = models.BigIntegerField(db_index=True)
+
+    phrases_count_place = models.BigIntegerField(db_index=True)

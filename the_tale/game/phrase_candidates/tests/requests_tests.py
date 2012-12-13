@@ -16,6 +16,7 @@ from accounts.logic import register_user, login_url
 from game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
 from game.phrase_candidates.prototypes import PhraseCandidatePrototype
 from game.phrase_candidates.conf import phrase_candidates_settings
+from game.phrase_candidates.forms import SUBTYPE_CHOICES_IDS, UNKNOWN_TYPE_ID
 
 class RequestsTestsBase(TestCase):
 
@@ -52,6 +53,15 @@ class RequestsTestsBase(TestCase):
                                                subtype_name=u'subtype %d' % id_,
                                                author=author,
                                                text=text)
+
+    def get_another_phrase_subtype(self, phrase):
+        phrases_modules = get_phrases_types()
+        phrase_type = phrase.type
+        phrase_subtype = phrase.subtype
+        while phrase_subtype == phrase.subtype:
+            phrase_type = random.choice(phrases_modules['modules'].keys())
+            phrase_subtype = random.choice(phrases_modules['modules'][phrase_type]['types'].keys())
+        return phrase_type, phrase_subtype
 
 
 
@@ -282,6 +292,7 @@ class EditRequestsTests(RequestsTestsBase):
                  (PHRASE_CANDIDATE_STATE.ID_2_TEXT[PHRASE_CANDIDATE_STATE.APPROVED], 1),
                  (PHRASE_CANDIDATE_STATE.ID_2_TEXT[PHRASE_CANDIDATE_STATE.REMOVED], 1),
                  (PHRASE_CANDIDATE_STATE.ID_2_TEXT[PHRASE_CANDIDATE_STATE.ADDED], 0),]
+        texts.extend(('"%s"' % choice_id, 1) for choice_id in SUBTYPE_CHOICES_IDS)
         self.check_html_ok(self.client.get(reverse('game:phrase-candidates:edit', args=[self.phrase_1.id]), HTTP_X_REQUESTED_WITH='XMLHttpRequest'), texts=texts)
 
     def test_no_permissions(self):
@@ -304,13 +315,24 @@ class UpdateRequestsTests(RequestsTestsBase):
 
 
     def test_success(self):
+        new_type, new_subtype = self.get_another_phrase_subtype(self.phrase_1)
         self.check_ajax_ok(self.client.post(reverse('game:phrase-candidates:update', args=[self.phrase_1.id]), {'state': PHRASE_CANDIDATE_STATE.APPROVED,
-                                                                                                                'text': u'new text'}))
+                                                                                                                'text': u'new text',
+                                                                                                                'subtype': new_subtype}))
         phrase = PhraseCandidatePrototype.get_by_id(self.phrase_1.id)
         self.assertEqual(phrase.text, u'new text')
         self.assertTrue(phrase.state.is_approved)
+        self.assertEqual(phrase.subtype, new_subtype)
+        self.assertEqual(phrase.type, new_type)
         self.assertEqual(phrase.moderator_id, self.account_3.id)
 
+    def test_success_unknown_type(self):
+        self.check_ajax_ok(self.client.post(reverse('game:phrase-candidates:update', args=[self.phrase_1.id]), {'state': PHRASE_CANDIDATE_STATE.APPROVED,
+                                                                                                                'text': u'new text',
+                                                                                                                'subtype': UNKNOWN_TYPE_ID}))
+        phrase = PhraseCandidatePrototype.get_by_id(self.phrase_1.id)
+        self.assertEqual(phrase.subtype, self.phrase_1.subtype)
+        self.assertEqual(phrase.type, self.phrase_1.type)
 
     def test_no_permissions(self):
         self.request_logout()

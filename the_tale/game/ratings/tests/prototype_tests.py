@@ -12,6 +12,9 @@ from game.heroes.prototypes import HeroPrototype
 from game.ratings.models import RatingValues
 from game.ratings.prototypes import RatingValuesPrototype
 
+from game.phrase_candidates.prototypes import PhraseCandidatePrototype
+from game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
+
 class PrototypeTestsBase(TestCase):
 
     def setUp(self):
@@ -95,6 +98,32 @@ class RatingPrototypeTests(PrototypeTestsBase):
         RatingValuesPrototype.recalculate()
         self.assertEqual([rv.bills_count for rv in RatingValues.objects.all().order_by('account__id')],
                          [0, 1, 2, 0])
+
+    def create_phrase_candidate(self, author, state=PHRASE_CANDIDATE_STATE.IN_QUEUE):
+        phrase = PhraseCandidatePrototype.create(type_='type',
+                                                 type_name=u'type name',
+                                                 subtype='subtype',
+                                                 subtype_name=u'subtype name',
+                                                 author=author,
+                                                 text=u'text')
+        if phrase.state != state:
+            phrase.state = state
+            phrase.save()
+
+        return phrase
+
+    def test_phrases_count(self):
+        self.create_phrase_candidate(author=self.account_1, state=PHRASE_CANDIDATE_STATE.ADDED)
+        self.create_phrase_candidate(author=self.account_1)
+        self.create_phrase_candidate(author=self.account_1, state=PHRASE_CANDIDATE_STATE.ADDED)
+        self.create_phrase_candidate(author=self.account_3, state=PHRASE_CANDIDATE_STATE.ADDED)
+        self.create_phrase_candidate(author=self.account_3)
+        self.create_phrase_candidate(author=self.account_2)
+
+        RatingValuesPrototype.recalculate()
+        self.assertEqual([rv.phrases_count for rv in RatingValues.objects.all().order_by('account__id')],
+                         [2, 0, 1, 0])
+
 
     def test_level(self):
         self.set_values(self.account_1, level=10)

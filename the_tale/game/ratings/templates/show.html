@@ -14,6 +14,7 @@
   <li {% if rating_type == RATING_TYPE.BILLS %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.BILLS) }}">Принятые законы</a></li>
   <li {% if rating_type == RATING_TYPE.POWER %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.POWER) }}">Сила героя</a></li>
   <li {% if rating_type == RATING_TYPE.LEVEL %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.LEVEL) }}">Уровень героя</a></li>
+  <li {% if rating_type == RATING_TYPE.PHRASES %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.PHRASES) }}">Добавленные фразы</a></li>
 </ul>
 
 {{ base_macros.render_paginator(paginator) }}

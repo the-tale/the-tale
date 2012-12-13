@@ -42,17 +42,21 @@ class PhraseCandidatePrototype(object):
     def set_moderator_id(self, value): self.model.moderator_id = value
     moderator_id = property(get_moderator_id, set_moderator_id)
 
-    @property
-    def type(self): return self.model.type
+    def get_type(self): return self.model.type
+    def set_type(self, value): self.model.type = value
+    type = property(get_type, set_type)
 
-    @property
-    def subtype(self): return self.model.subtype
+    def get_subtype(self): return self.model.subtype
+    def set_subtype(self, value): self.model.subtype = value
+    subtype = property(get_subtype, set_subtype)
 
-    @property
-    def type_name(self): return self.model.type_name
+    def get_type_name(self): return self.model.type_name
+    def set_type_name(self, value): self.model.type_name = value
+    type_name = property(get_type_name, set_type_name)
 
-    @property
-    def subtype_name(self): return self.model.subtype_name
+    def get_subtype_name(self): return self.model.subtype_name
+    def set_subtype_name(self, value): self.model.subtype_name = value
+    subtype_name = property(get_subtype_name, set_subtype_name)
 
     def get_state(self):
         if not hasattr(self, '_state'):

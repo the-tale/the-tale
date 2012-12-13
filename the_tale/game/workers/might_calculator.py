@@ -11,6 +11,8 @@ from game.conf import game_settings
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.models import Hero
 
+from game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
+
 class MightCalculatorException(Exception): pass
 
 class Worker(BaseWorker):
@@ -51,6 +53,7 @@ class Worker(BaseWorker):
         MIGHT_FOR_FORUM_THREAD = 3
         MIGHT_FOR_BILL_VOTE = 1
         MIGHT_FOR_BILL_ACCEPTED = 33
+        MIGHT_FOR_ADDED_PHRASE_CANDIDATE = 10
 
         MIGHT_FOR_AWARD = { AWARD_TYPE.BUG_MINOR: 111,
                             AWARD_TYPE.BUG_NORMAL: 222,
@@ -70,6 +73,8 @@ class Worker(BaseWorker):
 
         might += Vote.objects.filter(owner_id=hero.account_id).count() * MIGHT_FOR_BILL_VOTE
         might += Bill.objects.filter(owner_id=hero.account_id, state=BILL_STATE.ACCEPTED).count() * MIGHT_FOR_BILL_ACCEPTED
+
+        might += PhraseCandidate.objects.filter(state=PHRASE_CANDIDATE_STATE.ADDED).count() * MIGHT_FOR_ADDED_PHRASE_CANDIDATE
 
         for award_type, might_cooficient in MIGHT_FOR_AWARD.items():
             might += Award.objects.filter(account_id=hero.account_id, type=award_type).count() * might_cooficient

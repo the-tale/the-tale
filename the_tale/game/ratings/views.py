@@ -20,7 +20,8 @@ from game.ratings.prototypes import RatingValuesPrototype, RatingPlacesPrototype
 RATING_TYPE = create_enum('RATING_TYPE', (('MIGHT', 'might', u'Могущество'),
                                           ('BILLS', 'bills', u'Принятые законы'),
                                           ('POWER', 'power', u'Сила героя'),
-                                          ('LEVEL', 'level', u'Уровень героя')))
+                                          ('LEVEL', 'level', u'Уровень героя'),
+                                          ('PHRASES', 'phrases', u'Добавленные фразы')))
 
 
 
@@ -62,6 +63,11 @@ class RatingResource(Resource):
             ratings_query = ratings_query.order_by('level_place')
             place_getter = lambda places: places.level_place
             value_getter = lambda values: values.level
+
+        elif self.rating_type == RATING_TYPE.PHRASES:
+            ratings_query = ratings_query.filter(account__ratingvalues__phrases_count__gt=0).order_by('phrases_count_place')
+            place_getter = lambda places: places.phrases_count_place
+            value_getter = lambda values: values.phrases_count
 
         ratings_count = ratings_query.count()
 
