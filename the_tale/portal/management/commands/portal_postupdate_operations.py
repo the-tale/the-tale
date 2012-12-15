@@ -55,3 +55,5 @@ class Command(BaseCommand):
         sync_group('phrase moderators group', ['phrase_candidates.moderate_phrasecandidate'])
 
         sync_group('developers group', ['phrase_candidates.add_to_game_phrasecandidate'])
+
+        sync_group('folclor moderation group', ['blogs.moderate_post'])

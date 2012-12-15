@@ -1,0 +1,42 @@
+{% extends "blogs/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+
+{% block title %} {{ post.caption }} | {{ super() }}{% endblock %}
+
+
+{% block blogs_content %}
+
+<ul class="breadcrumb" style="margin-bottom: 0px;">
+  <li><a href="{{ url('blogs:posts:') }}">Фольклор</a><span class="divider">/</span></li>
+  <li class="active">{{ post.caption }}</li>
+  <li class="pull-right" style="margin-top: 1px; margin-left: 1em;">
+    {{ base_macros.addthis(title=post.caption, description=post.text_html|safe) }}
+  </li>
+
+  {% if resource.account.id == post.author.id %}
+  <li class="pull-right">
+    <a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('blogs:posts:edit', post.id) }}">редактировать</a>
+  </li>
+  {% endif %}
+</ul>
+
+<div style="color: #999; margin-left: 16px;">
+  автор: <a style="color: #999;" href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</a>
+
+  <a class="label pgf-forms-post-simple {%if vote is not none and vote.value%}label-success{%endif%}"
+     style="display: inline-block; width: 1em; text-align: center;" href="{{ url('blogs:posts:vote', post.id) }}?value=for">+</a>
+  <a class="label pgf-forms-post-simple {%if vote is not none and not vote.value%}label-important{%endif%}"
+     style="display: inline-block; width: 1em; text-align: center;"  href="{{ url('blogs:posts:vote', post.id) }}?value=against">-</a>
+
+</div>
+
+<br/>
+
+<h3 style="display: inline-block;">{{ post.caption }}</h3>
+
+<div class="blog-post-content">
+  {{ post.text_html|safe }}
+</div>
+
+{% endblock %}

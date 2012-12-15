@@ -1,0 +1,54 @@
+
+{% extends "blogs/base.html" %}
+
+{% block title %}Создание нового произведения | {{ super() }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var editForm = new pgf.forms.Form(jQuery('#pgf-edit-post-form'),
+                                               {OnSuccess: function(instance, data){location.href = "{{url('blogs:posts:show', post.id)}}";}});
+
+    pgf.base.AddPreview('#pgf-post-text', 'textarea', "{{ url('portal:preview') }}");
+    pgf.base.InitBBFields('#pgf-post-text');
+});
+
+</script>
+
+{% endblock %}
+
+{% block blogs_content %}
+
+<h2>Редактирование произведения</h2>
+
+<form id="pgf-edit-post-form" method="post" action="{{ url('blogs:posts:update', resource.post.id) }}">
+
+  {{ form.errors_container }}
+
+  {{ form.caption.widget }}
+
+  <div id="pgf-post-text">
+    <div class="pgf-edit-content">
+      {{ form.text.widget }}
+    </div>
+
+    <div class="pgf-preview-content pgf-hidden">
+    </div>
+
+    <div class="widget">
+      <input type="button" class="btn pgf-preview-button" value="Предпросмотр"/>
+      <input type="button" class="btn pgf-edit-button pgf-hidden" value="Редактировать"/>
+    </div>
+
+    <br/>
+  </div>
+
+  <div class="widget">
+    <input type="submit" class="btn" value="Сохранить"/>
+  </div>
+
+</form>
+
+{% endblock %}

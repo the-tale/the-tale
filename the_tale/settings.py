@@ -166,6 +166,7 @@ INSTALLED_APPS = (
     'cms.news',
 
     'forum',
+    'blogs',
 
     'south'
 )

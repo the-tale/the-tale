@@ -122,7 +122,8 @@ jQuery(document).ready(function() {
 
             {% if request.user.is_authenticated() %}
             {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Политика"),
-                                                                (url("game:phrase-candidates:"), "Лингвистика") ] ) }}
+                                                                (url("game:phrase-candidates:"), "Лингвистика"),
+                                                                (url("blogs:posts:"), "Фольклор") ] ) }}
             {% endif %}
 
             {% if request.user.is_authenticated() %}

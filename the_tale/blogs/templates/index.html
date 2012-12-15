@@ -1,0 +1,65 @@
+{% extends "blogs/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+
+{% block blogs_content %}
+
+<p>
+  <a class="btn btn-danger" href="{{url('blogs:posts:new')}}">
+    Добавить произведение
+  </a>
+
+  В этом разделе Вы можете опубликовать рассказы о жизни ваших героев, Пандоре и её обиталях.
+</p>
+
+<h2 style="margin-bottom: 0.5em;">список произведений</h2>
+
+{% if is_filtering %}
+<div>
+  <div class="btn-toolbar">
+
+    <div class="btn-group">
+      <a class="btn {% if not is_filtering %}disabled{% endif %}"
+         href="{% if is_filtering %}{{ url('blogs:posts:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
+    </div>
+
+    {% if author_account %}
+    <div class="btn-group">
+      <a class="btn disabled" href="#">автор: {{author_account.nick}}</a>
+    </div>
+    {% endif %}
+
+  </div>
+
+</div>
+{% endif %}
+
+{% if posts %}
+
+{{ base_macros.render_paginator(paginator) }}
+
+<ul class="unstyled">
+  {% for post in posts %}
+  <li style="margin-bottom: 1em;">
+    <table class="table">
+      <tr>
+        <td width="10em;"><a href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</td>
+        <td width="2em;" rel="tooltip" title="оценка" style="cursor: default;">
+          <span class="label {% if post.votes > 0 %}label-success{% endif %} {% if post.votes < 0 %}label-important{% endif %}">
+            {{ post.votes }}
+          </span>
+        </td>
+        <td><a href="{{url('blogs:posts:show', post.id)}}">{{post.caption}}</a></td>
+      </tr>
+    </table>
+  </li>
+  {% endfor %}
+</ul>
+
+{{ base_macros.render_paginator(paginator) }}
+
+{% else %}
+<span class="pgf-no-posts-message">Не найдено произведений, отвечающих условиям поиска</span>
+{% endif %}
+
+{% endblock %}
