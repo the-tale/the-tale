@@ -2,6 +2,9 @@
 import datetime
 import postmarkup
 
+from django.core.urlresolvers import reverse
+from django.conf import settings as project_settings
+
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
 
@@ -17,6 +20,7 @@ from game.bills.bills import deserialize_bill
 from game.bills.conf import bills_settings
 from game.bills.exceptions import BillException
 from game.bills import signals
+
 
 class BillPrototype(object):
 
@@ -186,7 +190,11 @@ class BillPrototype(object):
 
         VotePrototype.create(self.owner, self, True)
 
-        PostPrototype.create(ThreadPrototype(self.model.forum_thread),
+        thread = ThreadPrototype(self.model.forum_thread)
+        thread.caption = form.c.caption
+        thread.save()
+
+        PostPrototype.create(thread,
                              self.owner,
                              u'Законопроект был отредактирован, все голоса сброшены.',
                              technical=True)
@@ -204,23 +212,26 @@ class BillPrototype(object):
     @nested_commit_on_success
     def create(cls, owner, caption, rationale, bill):
 
-        thread = ThreadPrototype.create(SubCategoryPrototype.get_by_slug(bills_settings.FORUM_CATEGORY_SLUG),
-                                        caption=caption,
-                                        author=owner,
-                                        text=rationale,# TODO: replace by special
-                                        markup_method=MARKUP_METHOD.POSTMARKUP)
-
-
         model = Bill.objects.create(owner=owner.model,
                                     type=bill.type,
                                     caption=caption,
                                     rationale=rationale,
                                     created_at_turn=TimePrototype.get_current_turn_number(),
                                     technical_data=s11n.to_json(bill.serialize()),
-                                    votes_for=1, # author always wote for bill
-                                    # min_votes_required=bills_settings.MIN_VOTES_NUMBER, # must be setup on voting end
-                                    # min_votes_percents_required=bills_settings.MIN_VOTES_PERCENT,
-                                    forum_thread=thread.model)
+                                    votes_for=1) # author always wote for bill
+
+        text=u'обсуждение [url="%s%s"]закона[/url]' % (project_settings.SITE_URL,
+                                                       reverse('game:bills:show', args=[model.id]) )
+
+        thread = ThreadPrototype.create(SubCategoryPrototype.get_by_slug(bills_settings.FORUM_CATEGORY_SLUG),
+                                        caption=caption,
+                                        author=owner,
+                                        text=text + u'\n\n' + rationale,
+                                        markup_method=MARKUP_METHOD.POSTMARKUP)
+
+        model.forum_thread = thread.model
+        model.save()
+
 
         bill_prototype = cls(model)
 

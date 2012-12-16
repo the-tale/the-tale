@@ -92,6 +92,21 @@
         {% endfor %}
       </ul>
     </div>
+
+    <div class="block">
+      <h4 class="newspaper-column-header">Фольклористика</h4>
+      <ul class="unstyled">
+        {% for blog_post in blog_posts %}
+        <li class="newspaper-link-list">
+          <span class="pgf-format-time newspaper-link-time" data-timestamp="{{ blog_post.created_at|timestamp }}"></span>
+          <span class="newspaper-forum-user">{{blog_post.author.nick}}</span>
+          <br/>
+          {{ blog_post.caption }}&nbsp;<a style="font-size: 10pt;" href="{{ url('blogs:posts:show', blog_post.id) }}">➔</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
   </div>
 
   <div class="span6">

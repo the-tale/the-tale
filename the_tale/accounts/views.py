@@ -20,7 +20,7 @@ from accounts import forms
 from accounts.conf import accounts_settings
 from accounts.logic import logout_user, login_user, force_login_user
 
-from blogs.models import Post as BlogPost
+from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
 
 from game.heroes.models import Hero
 from game.heroes.prototypes import HeroPrototype
@@ -308,7 +308,7 @@ class AccountResource(Resource):
 
         phrases_count = PhraseCandidate.objects.filter(author=self.master_account.model).count()
 
-        folclor_posts_count = BlogPost.objects.filter(author=self.master_account.model).count()
+        folclor_posts_count = BlogPost.objects.filter(author=self.master_account.model, state=BLOG_POST_STATE.ACCEPTED).count()
 
         return self.template('accounts/show.html',
                              {'master_hero': HeroPrototype.get_by_account_id(self.master_account_id),

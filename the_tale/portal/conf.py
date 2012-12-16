@@ -26,4 +26,5 @@ portal_settings = app_settings('PORTAL',
                                FAQ_URL='http://the-tale.org/forum/threads/126',
                                BILLS_ON_INDEX=8,
                                FORUM_THREADS_ON_INDEX=5,
+                               BLOG_POSTS_ON_INDEX=3,
                                NEWS_ON_INDEX=3)

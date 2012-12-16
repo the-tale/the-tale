@@ -158,8 +158,9 @@ class ThreadPrototype(object):
             self._subcategory = SubCategoryPrototype(self.model.subcategory)
         return self._subcategory
 
-    @property
-    def caption(self): return self.model.caption
+    def get_caption(self): return self.model.caption
+    def set_caption(self, value): self.model.caption = value
+    caption = property(get_caption, set_caption)
 
     @property
     def author(self):

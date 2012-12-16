@@ -103,7 +103,7 @@ class Post(models.Model):
 
     state = models.IntegerField(default=POST_STATE.DEFAULT, choices=POST_STATE_CHOICES)
     removed_by = models.IntegerField(default=None, null=True, choices=POST_REMOVED_BY_CHOICES)
-    remove_initiator = models.ForeignKey('accounts.Account', null=True, related_name='+')
+    remove_initiator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+')
 
     technical = models.BooleanField(default=False)
 

@@ -27,6 +27,9 @@ class Post(models.Model):
 
     votes = models.IntegerField(default=0)
 
+    # we should not remove post when ocasionally remove forum thread
+    forum_thread = models.ForeignKey('forum.Thread', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
+
     class Meta:
         permissions = (("moderate_post", u"Может редактировать сообщения пользователей"), )
 

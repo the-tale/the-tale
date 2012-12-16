@@ -14,14 +14,15 @@
 
 <h2 style="margin-bottom: 0.5em;">список произведений</h2>
 
-{% if is_filtering %}
 <div>
   <div class="btn-toolbar">
 
+    {% if is_filtering %}
     <div class="btn-group">
       <a class="btn {% if not is_filtering %}disabled{% endif %}"
          href="{% if is_filtering %}{{ url('blogs:posts:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
     </div>
+    {% endif %}
 
     {% if author_account %}
     <div class="btn-group">
@@ -29,10 +30,21 @@
     </div>
     {% endif %}
 
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        сортировка: {{ ORDER_BY.ID_2_TEXT[order_by] }}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="{{ url_builder(order_by=ORDER_BY.CREATED_AT) }}">{{ORDER_BY.ID_2_TEXT[ORDER_BY.CREATED_AT]}}</a></li>
+        <li><a href="{{ url_builder(order_by=ORDER_BY.ALPHABET) }}">{{ORDER_BY.ID_2_TEXT[ORDER_BY.ALPHABET]}}</a></li>
+        <li><a href="{{ url_builder(order_by=ORDER_BY.RATING) }}">{{ORDER_BY.ID_2_TEXT[ORDER_BY.RATING]}}</a></li>
+      </ul>
+    </div>
+
   </div>
 
 </div>
-{% endif %}
 
 {% if posts %}
 
@@ -44,12 +56,15 @@
     <table class="table">
       <tr>
         <td width="10em;"><a href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</td>
-        <td width="2em;" rel="tooltip" title="оценка" style="cursor: default;">
+        <td width="2em;" rel="tooltip" title="рейтинг" style="cursor: default;">
           <span class="label {% if post.votes > 0 %}label-success{% endif %} {% if post.votes < 0 %}label-important{% endif %}">
             {{ post.votes }}
           </span>
         </td>
         <td><a href="{{url('blogs:posts:show', post.id)}}">{{post.caption}}</a></td>
+        {% if post.state.is_not_moderated %}
+        <td width="10em;"><span class="label label-important">не проверено</span></td>
+        {% endif %}
       </tr>
     </table>
   </li>

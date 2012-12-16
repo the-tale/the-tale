@@ -11,6 +11,9 @@ from forum.prototypes import ThreadPrototype
 
 from cms.news.models import News
 
+from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
+from blogs.prototypes import PostPrototype as BlogPostPrototype
+
 from game.game_info import RACE
 
 from game.map.prototypes import MapInfoPrototype
@@ -46,6 +49,9 @@ class PortalResource(Resource):
 
         forum_threads = [ ThreadPrototype(thread_model) for thread_model in Thread.objects.all().order_by('-updated_at')[:portal_settings.FORUM_THREADS_ON_INDEX]]
 
+        blog_posts = [ BlogPostPrototype(blog_post_model)
+                       for blog_post_model in BlogPost.objects.filter(state=BLOG_POST_STATE.ACCEPTED, votes__gt=0).order_by('-created_at')[:portal_settings.BLOG_POSTS_ON_INDEX] ]
+
         map_info = MapInfoPrototype(MapInfo.objects.all().order_by('-turn_number')[0])
 
         return self.template('portal/index.html',
@@ -54,6 +60,7 @@ class PortalResource(Resource):
                               'bills_events': bills_events,
                               'hero_of_the_day': hero_of_the_day,
                               'map_info': map_info,
+                              'blog_posts': blog_posts,
                               'TERRAIN': TERRAIN,
                               'RACE': RACE})
 

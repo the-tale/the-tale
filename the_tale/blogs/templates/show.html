@@ -15,20 +15,45 @@
   </li>
 
   {% if resource.account.id == post.author.id %}
-  <li class="pull-right">
-    <a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('blogs:posts:edit', post.id) }}">редактировать</a>
+  <li class="pull-right" style="margin-left: 0.5em;">
+    <a href="{{ url('blogs:posts:edit', post.id) }}">редактировать</a>
   </li>
   {% endif %}
+
+  {% if resource.can_moderate_post %}
+  {% if not post.state.is_accepted %}
+  <li class="pull-right" style="margin-left: 0.5em;">
+    <a class="pgf-forms-post-simple" href="{{url('blogs:posts:accept', post.id)}}">принять</a>
+  </li>
+  {% endif %}
+
+  {% if not post.state.is_declined %}
+  <li class="pull-right" style="margin-left: 0.5em;">
+    <a class="pgf-forms-post-simple" href="{{url('blogs:posts:decline', post.id)}}">заблокировать</a>
+  </li>
+  {% endif %}
+  {% endif %}
+
 </ul>
 
-<div style="color: #999; margin-left: 16px;">
-  автор: <a style="color: #999;" href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</a>
+<div class="blog-post-info">
+  <span class="text">автор:</span> <a href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</a>
 
-  <a class="label pgf-forms-post-simple {%if vote is not none and vote.value%}label-success{%endif%}"
-     style="display: inline-block; width: 1em; text-align: center;" href="{{ url('blogs:posts:vote', post.id) }}?value=for">+</a>
-  <a class="label pgf-forms-post-simple {%if vote is not none and not vote.value%}label-important{%endif%}"
-     style="display: inline-block; width: 1em; text-align: center;"  href="{{ url('blogs:posts:vote', post.id) }}?value=against">-</a>
+  <a class="pgf-forms-post-simple blog-post-vote-link"
+     href="{{ url('blogs:posts:vote', post.id) }}?value=for" rel="tooltip" title="понравилось">
+    <span class="blog-post-vote label {%if vote is not none and vote.value%}label-success{%endif%}">+</span>
+  </a>
+  <a class="pgf-forms-post-simple blog-post-vote-link"
+     href="{{ url('blogs:posts:vote', post.id) }}?value=against" rel="tooltip" title="не понравилось">
+    <span class="blog-post-vote label {%if vote is not none and not vote.value%}label-important{%endif%}">-<span>
+  </a>
 
+  <span class="text">рейтинг:</span>
+  <span class="blog-post-rating label {% if post.votes > 0 %}label-success{% endif %} {% if post.votes < 0 %}label-important{% endif %}">
+    {{ post.votes }}
+  </span>
+
+  <a href="{{url('forum:threads:show', post.forum_thread_id)}}">обсуждение</a>
 </div>
 
 <br/>

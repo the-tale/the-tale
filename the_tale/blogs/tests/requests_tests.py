@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from django.test import client
 from django.core.urlresolvers import reverse
@@ -10,8 +11,6 @@ from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user, login_url
 
 from game.logic import create_test_map
-
-# from forum.models import Post
 
 from blogs.models import Post, Vote, POST_STATE
 from blogs.prototypes import PostPrototype, VotePrototype
@@ -96,7 +95,7 @@ class TestIndexRequests(BaseTestRequests):
 
     def test_index_redirect_from_large_page(self):
         self.assertRedirects(self.client.get(reverse('blogs:posts:')+'?page=2'),
-                             reverse('blogs:posts:')+'?page=1', status_code=302, target_status_code=200)
+                             reverse('blogs:posts:')+'?order_by=created_at&page=1', status_code=302, target_status_code=200)
 
     def test_filter_by_user_no_posts_message(self):
         self.create_two_pages()
@@ -137,6 +136,39 @@ class TestIndexRequests(BaseTestRequests):
         self.check_html_ok(self.client.get(reverse('blogs:posts:')+('?author_id=%d' % self.account_2.id)),
                            texts=account_2_texts)
 
+    def test_order_by(self):
+        self.create_two_pages()
+        # self.create_posts(blogs_settings.POSTS_ON_PAGE, self.account_1, 'caption-a1-%d', 'text-a1-%d')
+        # self.create_posts(1, self.account_2, 'caption-a2-%d', 'text-a2-%d')
+
+        post = PostPrototype(Post.objects.all().order_by('-created_at')[0])
+
+        # default
+        self.check_html_ok(self.client.get(reverse('blogs:posts:')), texts=(('caption-a2-2', 1),))
+        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('caption-a2-2', 1),))
+
+        # created_at
+        post.model.created_at -= datetime.timedelta(seconds=60)
+        post.save()
+
+        self.check_html_ok(self.client.get(reverse('blogs:posts:')), texts=(('caption-a2-2', 0),))
+        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('caption-a2-2', 0),))
+
+        # rating
+        post.model.votes = 10
+        post.save()
+
+        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('caption-a2-2', 0),))
+        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=rating'), texts=(('caption-a2-2', 1),))
+
+        # alphabet
+        post.model.caption = 'aaaaaaaa-caption'
+        post.save()
+
+        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('aaaaaaaa-caption', 0),))
+        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=alphabet'), texts=(('aaaaaaaa-caption', 1),))
+
+
 
 class TestNewRequests(BaseTestRequests):
 
@@ -171,7 +203,21 @@ class TestShowRequests(BaseTestRequests):
     def test_show(self):
 
         texts = [('caption-a2-0', 3 + 1), # 1 from social sharing
-                 ('text-a2-0', 1 + 1) ] # 1 from social sharing
+                 ('text-a2-0', 1 + 1),  # 1 from social sharing
+                 (reverse('blogs:posts:accept', args=[self.post.id]), 0),
+                 (reverse('blogs:posts:decline', args=[self.post.id]), 0) ]
+
+        self.check_html_ok(self.client.get(reverse('blogs:posts:show', args=[self.post.id])), texts=texts)
+
+    def test_show_moderator(self):
+
+        self.request_logout()
+        self.request_login('test_user_2@test.com')
+        group = sync_group('folclor moderation group', ['blogs.moderate_post'])
+        group.user_set.add(self.account_2.user)
+
+        texts = [(reverse('blogs:posts:accept', args=[self.post.id]), 1),
+                 (reverse('blogs:posts:decline', args=[self.post.id]), 1) ]
 
         self.check_html_ok(self.client.get(reverse('blogs:posts:show', args=[self.post.id])), texts=texts)
 
@@ -202,6 +248,10 @@ class TestCreateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), self.get_post_data()), 'blogs.posts.fast_account')
 
     def test_success(self):
+        from forum.models import Thread
+
+        self.assertEqual(Thread.objects.all().count(), 0)
+
         response = self.client.post(reverse('blogs:posts:create'), self.get_post_data())
 
         post = PostPrototype(Post.objects.all()[0])
@@ -213,6 +263,8 @@ class TestCreateRequests(BaseTestRequests):
         self.check_vote(vote, self.account_1, True, post.id)
 
         self.check_ajax_ok(response, data={'next_url': reverse('blogs:posts:show', args=[post.id])})
+
+        self.assertEqual(Thread.objects.all().count(), 1)
 
     def test_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), {}), 'blogs.posts.create.form_errors')
@@ -356,6 +408,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), {}), 'blogs.posts.update.form_errors')
 
     def test_update_success(self):
+        from forum.models import Thread
         old_updated_at = self.post.updated_at
 
         self.assertEqual(Post.objects.all().count(), 1)
@@ -369,6 +422,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.assertEqual(self.post.text, 'new-X-text')
 
         self.assertEqual(Post.objects.all().count(), 1)
+        self.assertEqual(Thread.objects.all()[0].caption, 'new-X-caption')
 
 
 class TestModerateRequests(BaseTestRequests):

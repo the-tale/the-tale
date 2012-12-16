@@ -9,6 +9,9 @@ from accounts.models import Award, AWARD_TYPE
 from accounts.logic import register_user
 from accounts.prototypes import AccountPrototype
 
+from blogs.prototypes import PostPrototype as BlogPostPrototype, POST_STATE as BLOG_POST_STATE
+from blogs.conf import blogs_settings
+
 from game.logic import create_test_map
 
 from game.heroes.prototypes import HeroPrototype
@@ -36,7 +39,8 @@ class MightCalculatorTests(TestCase):
         self.hero_2 = HeroPrototype.get_by_account_id(account_id)
 
         self.forum_category = CategoryPrototype.create('category', 'category-slug', 0)
-        self.forum_subcategory = SubCategoryPrototype.create(self.forum_category, 'subcategory', bills_settings.FORUM_CATEGORY_SLUG, 0)
+        self.bills_subcategory = SubCategoryPrototype.create(self.forum_category, 'subcategory', bills_settings.FORUM_CATEGORY_SLUG, 0)
+        self.blogs_subcategory = SubCategoryPrototype.create(self.forum_category, blogs_settings.FORUM_CATEGORY_SLUG + '-caption', blogs_settings.FORUM_CATEGORY_SLUG, 1)
 
 
     def test_initialize(self):
@@ -46,13 +50,13 @@ class MightCalculatorTests(TestCase):
         self.assertEqual(workers_environment.might_calculator.calculate_might(self.hero), 0)
 
     def test_forum_thread_might(self):
-        ThreadPrototype.create(self.forum_subcategory, 'caption', self.account, 'text')
+        ThreadPrototype.create(self.bills_subcategory, 'caption', self.account, 'text')
 
         self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > 0)
         self.assertEqual(workers_environment.might_calculator.calculate_might(self.hero_2), 0)
 
     def test_forum_post_might(self):
-        thread = ThreadPrototype.create(self.forum_subcategory, 'caption', self.account_2, 'text')
+        thread = ThreadPrototype.create(self.bills_subcategory, 'caption', self.account_2, 'text')
         PostPrototype.create(thread, self.account, 'text')
 
         self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > 0)
@@ -125,9 +129,26 @@ class MightCalculatorTests(TestCase):
                                                   subtype_name=u'subtype name',
                                                   author=self.account,
                                                   text=u'text')
+
         self.assertEqual(old_might, workers_environment.might_calculator.calculate_might(self.hero))
         phrase.state = PHRASE_CANDIDATE_STATE.ADDED
         phrase.save()
+
+        self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > old_might)
+
+    def test_folclor_might(self):
+        old_might = workers_environment.might_calculator.calculate_might(self.hero)
+        post = BlogPostPrototype.create(author=self.account, caption='caption', text='text')
+
+        Thread.objects.all().delete()
+        Post.objects.all().delete()
+        Vote.objects.all().delete()
+
+        self.assertEqual(old_might, workers_environment.might_calculator.calculate_might(self.hero))
+
+        post.state = BLOG_POST_STATE.ACCEPTED
+        post.model.votes = 1
+        post.save()
 
         self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > old_might)
 

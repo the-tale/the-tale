@@ -122,6 +122,7 @@ class TestPrototype(BaseTestPrototypes):
         self.assertEqual(self.bill.data.base_name, 'new-new-name')
         self.assertEqual(self.bill.data.place_id, self.place2.id)
         self.assertEqual(Post.objects.all().count(), 2)
+        self.assertEqual(Thread.objects.get(id=self.bill.forum_thread_id).caption, 'new-caption')
 
     def test_update_by_moderator(self):
         self.assertEqual(self.bill.approved_by_moderator, False)

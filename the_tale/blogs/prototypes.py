@@ -2,12 +2,20 @@
 
 import postmarkup
 
+from django.core.urlresolvers import reverse
+from django.conf import settings as project_settings
+
 from dext.utils.decorators import nested_commit_on_success
 
 from accounts.prototypes import AccountPrototype
 
 from blogs.models import Post, Vote, POST_STATE
 
+from forum.prototypes import ThreadPrototype as ForumThreadPrototype
+from forum.prototypes import SubCategoryPrototype as ForumSubCategoryPrototype
+from forum.models import MARKUP_METHOD
+
+from blogs.conf import blogs_settings
 
 class PostPrototype(object):
 
@@ -33,6 +41,14 @@ class PostPrototype(object):
         self.model.state = self.state.value
     state = property(get_state, set_state)
 
+    @property
+    def forum_thread_id(self): return self.model.forum_thread_id
+
+    @property
+    def forum_thread(self):
+        if not hasattr(self, '_forum_thread'):
+            self._forum_thread = ForumThreadPrototype.get_by_id(self.forum_thread_id)
+        return self._forum_thread
 
     def get_votes(self): return self.model.votes
     def set_votes(self, value): self.model.votes = value
@@ -76,6 +92,16 @@ class PostPrototype(object):
                                     caption=caption,
                                     text=text,
                                     votes=1)
+
+        thread = ForumThreadPrototype.create(ForumSubCategoryPrototype.get_by_slug(blogs_settings.FORUM_CATEGORY_SLUG),
+                                             caption=caption,
+                                             author=author,
+                                             text=u'обсуждение [url="%s%s"]произведения[/url]' % (project_settings.SITE_URL,
+                                                                                                  reverse('blogs:posts:show', args=[model.id])),
+                                             markup_method=MARKUP_METHOD.POSTMARKUP)
+
+        model.forum_thread = thread.model
+        model.save()
 
         post = cls(model)
 
