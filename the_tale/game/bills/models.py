@@ -63,3 +63,6 @@ class Vote(models.Model):
     bill = models.ForeignKey(Bill, null=False)
 
     value = models.BooleanField(null=False, db_index=True)
+
+    class Meta:
+        unique_together = (('owner', 'bill'),)
