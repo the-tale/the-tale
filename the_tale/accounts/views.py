@@ -230,6 +230,7 @@ class ProfileResource(Resource):
 
         return self.json_error('accounts.profile.reset_password.form_errors', reset_password_form.errors)
 
+    @login_required
     @handler('update-last-news-reminder-time', method='post')
     def update_last_news_reminder_time(self):
 
