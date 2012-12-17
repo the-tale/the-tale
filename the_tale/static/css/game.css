@@ -55,6 +55,7 @@
 .hero-equipment-block .equip-record .name {
   font-size: 10pt;
   margin-left: 0.25em;
+  overflow: hidden;
 }
 .hero-equipment-block .equip-record .power-container {
   float: right;
@@ -66,6 +67,7 @@
 #hero-bag-block .bag-record {
   margin-top: 5px;
   cursor: default;
+  overflow: hidden;
 }
 #hero-bag-block .bag-record:hover {
   background-color: #dddddd;

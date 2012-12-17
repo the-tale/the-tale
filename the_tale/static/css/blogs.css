@@ -1,0 +1,31 @@
+.blog-post-page-title .addthis_toolbox {
+  margin-top: 5px;
+}
+.blog-post-content {
+  text-align: justify;
+}
+.blog-post-info {
+  margin-left: 16px;
+}
+.blog-post-info .text {
+  color: #999999;
+}
+.blog-post-info a {
+  /* color: @disabled-text-color; */
+
+}
+.blog-post-info .blog-post-vote-link {
+  text-decoration: none !important;
+}
+.blog-post-info .blog-post-vote {
+  /* color: white; */
+
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+}
+.blog-post-info .blog-post-rating {
+  display: inline-block;
+  min-width: 1em;
+  text-align: center;
+}
