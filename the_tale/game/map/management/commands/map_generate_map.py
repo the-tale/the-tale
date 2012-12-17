@@ -14,9 +14,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         game_time = TimePrototype.get_current_time()
-
-        # for i in xrange(100):
-            # print i
-        # game_time.increment_turn()
         update_map(index=game_time.turn_number)
-        # game_time.save()
