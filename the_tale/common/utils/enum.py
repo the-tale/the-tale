@@ -1,5 +1,7 @@
 # coding: utf-8
 
+class EnumException(Exception): pass
+
 def _create_state_checker(value):
     return lambda self: self.value == value
 
@@ -24,9 +26,14 @@ def create_enum(class_name, records):
 
         def __init__(self, value):
             self.value = value
+            self.verbose = self.ID_2_TEXT[value]
 
         def update(self, value):
-            self.value = value.value if isinstance(value, self.__class__) else value
+            value = value.value if isinstance(value, self.__class__) else value
+            if value not in self.ALL:
+                raise EnumException('try to set wrong value <%r> for enum %r' % (value, self))
+            self.value = value
+
 
         def __eq__(self, other):
             if isinstance(other, self.__class__):

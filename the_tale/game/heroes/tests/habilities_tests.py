@@ -1,4 +1,6 @@
 # coding: utf-8
+import random
+
 import mock
 
 from dext.utils import s11n
@@ -20,8 +22,8 @@ from game.heroes.fake import FakeMessanger
 
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.habilities import prototypes as common_abilities
-from game.heroes.habilities import ABILITIES
-from game.heroes.habilities.prototypes import ABILITIES_LOGIC_TYPE
+from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
+from game.heroes.habilities.prototypes import ABILITY_LOGIC_TYPE
 from game.heroes.postponed_tasks import ChooseHeroAbilityTask, CHOOSE_HERO_ABILITY_STATE
 
 
@@ -36,62 +38,67 @@ class HabilitiesTest(TestCase):
     def tearDown(self):
         pass
 
+    def test_serrialization(self):
+        for ability_class in ABILITIES.values():
+            ability = ability_class(level=random.randint(1, ability_class.MAX_LEVEL))
+            self.assertEqual(ability, ability_class.deserialize(ability.serialize()))
+
     def test_on_miss_method_exists(self):
         for ability_class in ABILITIES.values():
-            if ability_class.LOGIC_TYPE == ABILITIES_LOGIC_TYPE.WITH_CONTACT:
+            if ability_class.LOGIC_TYPE == ABILITY_LOGIC_TYPE.WITH_CONTACT:
                 self.assertTrue('on_miss' in ability_class.__dict__)
 
     def test_hit(self):
-        common_abilities.HIT.use(self.messanger, self.attacker, self.defender)
+        common_abilities.HIT().use(self.messanger, self.attacker, self.defender)
         self.assertTrue(self.defender.health < self.defender.max_health)
         self.assertEqual(self.messanger.messages, ['hero_ability_hit'])
 
     def test_magic_mushroom(self):
-        common_abilities.MAGIC_MUSHROOM.use(self.messanger, self.attacker, self.defender)
+        common_abilities.MAGIC_MUSHROOM().use(self.messanger, self.attacker, self.defender)
         self.assertTrue(self.attacker.context.ability_magic_mushroom)
         self.assertFalse(self.defender.context.ability_magic_mushroom)
         self.assertEqual(self.messanger.messages, ['hero_ability_magicmushroom'])
 
     def test_sidestep(self):
-        common_abilities.SIDESTEP.use(self.messanger, self.attacker, self.defender)
+        common_abilities.SIDESTEP().use(self.messanger, self.attacker, self.defender)
         self.assertFalse(self.attacker.context.ability_sidestep)
         self.assertTrue(self.defender.context.ability_sidestep)
         self.assertEqual(self.messanger.messages, ['hero_ability_sidestep'])
 
     def test_run_up_push(self):
-        common_abilities.RUN_UP_PUSH.use(self.messanger, self.attacker, self.defender)
+        common_abilities.RUN_UP_PUSH().use(self.messanger, self.attacker, self.defender)
         self.assertFalse(self.attacker.context.stun_length)
         self.assertTrue(self.defender.context.stun_length)
         self.assertTrue(self.defender.health < self.defender.max_health)
         self.assertEqual(self.messanger.messages, ['hero_ability_runuppush'])
 
     def test_regeneration(self):
-        self.assertFalse(common_abilities.REGENERATION.can_be_used(self.attacker))
+        self.assertFalse(common_abilities.REGENERATION().can_be_used(self.attacker))
         self.attacker.health = 1
-        self.assertTrue(common_abilities.REGENERATION.can_be_used(self.attacker))
+        self.assertTrue(common_abilities.REGENERATION().can_be_used(self.attacker))
 
-        common_abilities.REGENERATION.use(self.messanger, self.attacker, self.defender)
+        common_abilities.REGENERATION().use(self.messanger, self.attacker, self.defender)
         self.assertTrue(self.attacker.health > 1)
         self.assertEqual(self.messanger.messages, ['hero_ability_regeneration'])
 
     def test_critical_chance(self):
         self.assertFalse(self.attacker.context.crit_chance > 0)
-        common_abilities.CRITICAL_HIT.update_context(self.attacker, self.defender)
+        common_abilities.CRITICAL_HIT().update_context(self.attacker, self.defender)
         self.assertTrue(self.attacker.context.crit_chance > 0)
 
     @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
     def test_berserk(self):
         old_damage = self.attacker.context.modify_initial_damage(100)
-        common_abilities.BERSERK.update_context(self.attacker, self.defender)
+        common_abilities.BERSERK().update_context(self.attacker, self.defender)
         self.assertEqual(old_damage, self.attacker.context.modify_initial_damage(100))
         self.attacker.health = 1
-        common_abilities.BERSERK.update_context(self.attacker, self.defender)
+        common_abilities.BERSERK().update_context(self.attacker, self.defender)
         self.assertTrue(old_damage < self.attacker.context.modify_initial_damage(100))
 
     def test_ninja(self):
         self.assertTrue(self.attacker.context.ninja == 0)
         self.assertTrue(self.defender.context.ninja == 0)
-        common_abilities.NINJA.update_context(self.attacker, self.defender)
+        common_abilities.NINJA().update_context(self.attacker, self.defender)
         self.assertTrue(self.attacker.context.ninja == 0)
         self.assertTrue(self.defender.context.ninja > 0)
 
@@ -114,14 +121,20 @@ class ChooseAbilityTaskTest(TestCase):
         if hero is None:
             hero = self.hero
         choices = hero.get_abilities_for_choose()
-        all_ = hero.abilities.get_for_choose(hero, all_=True)
+
+        max_abilities = hero.ability_types_limitations
+        all_ = hero.abilities.get_candidates(hero,
+                                             ability_type=hero.next_ability_type,
+                                             max_active_abilities=max_abilities[0],
+                                             max_passive_abilities=max_abilities[1])
+
         for ability in all_:
             if ability not in choices:
                 return ability.get_id()
 
     def get_only_for_mobs_ability_id(self):
         for ability_key, ability in ABILITIES.items():
-            if not ability.AVAILABLE_TO_PLAYERS:
+            if (not ability().availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS):
                 return ability_key
 
     def test_create(self):
@@ -151,23 +164,31 @@ class ChooseAbilityTaskTest(TestCase):
 
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.NOT_FOR_PLAYERS)
 
-    def test_process_already_choosen(self):
+    def test_process_already_max_level(self):
         task = ChooseHeroAbilityTask(self.hero.id, common_abilities.HIT.get_id())
 
+        self.hero.abilities.abilities[common_abilities.HIT.get_id()].level = common_abilities.HIT.MAX_LEVEL
+        self.hero.abilities.updated = True
+        self.hero.save()
+
         with mock.patch('game.heroes.prototypes.HeroPrototype.get_abilities_for_choose', lambda x: [ABILITIES[task.ability_id]]):
-            self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-        self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.ALREADY_CHOOSEN)
+            with mock.patch('game.heroes.prototypes.HeroPrototype.can_choose_new_ability', True):
+                self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.ALREADY_MAX_LEVEL)
 
     def test_process_success(self):
         task = ChooseHeroAbilityTask(self.hero.id, self.get_new_ability_id())
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.PROCESSED)
 
-    def test_process_no_destiny_points(self):
-        self.hero.destiny_points = 0
+    def test_process_no_freee_ability_points(self):
+
         task = ChooseHeroAbilityTask(self.hero.id, self.get_new_ability_id())
-        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-        self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.NO_DESTINY_POINTS)
+
+        with mock.patch('game.heroes.prototypes.HeroPrototype.can_choose_new_ability', False):
+            self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+
+        self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.MAXIMUM_ABILITY_POINTS_NUMBER)
 
 
 class HabilitiesViewsTest(TestCase):
@@ -188,12 +209,6 @@ class HabilitiesViewsTest(TestCase):
         if hero is None:
             hero = self.hero
         return hero.get_abilities_for_choose()[0].get_id()
-
-    @property
-    def task(self):
-        if not hasattr(self, '_task'):
-            self._task = ChooseAbilityTaskPrototype(ChooseAbilityTask.objects.all()[0])
-        return self._task
 
     def tearDown(self):
         pass

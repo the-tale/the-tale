@@ -28,7 +28,7 @@ from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS_LIST, SLOTS_TO_ARTIFA
 from game.heroes.statistics import HeroStatistics, MONEY_SOURCE
 from game.heroes.preferences import HeroPreferences
 from game.heroes.models import Hero
-from game.heroes.habilities import AbilitiesPrototype
+from game.heroes.habilities import AbilitiesPrototype, ABILITY_TYPE
 from game.heroes.conf import heroes_settings
 from game.heroes.exceptions import HeroException
 from game.heroes.logic import ValuesDict
@@ -138,18 +138,40 @@ class HeroPrototype(object):
         while f.exp_on_lvl(self.level) <= self.model.experience:
             self.model.experience -= f.exp_on_lvl(self.level)
             self.model.level += 1
-            if self.model.level % c.DESTINY_POINT_IN_LEVELS == 0:
-                self.model.destiny_points += 1
-
             self.add_message('hero_common_level_up', hero=self, level=self.level)
 
     @property
-    def next_destiny_point_lvl(self):
-        return (self.model.level / c.DESTINY_POINT_IN_LEVELS + 1) * c.DESTINY_POINT_IN_LEVELS
+    def max_ability_points_number(self):
+        # 1 for hit ability
+        return 1 + (self.level + 1) / 2
 
-    def get_destiny_points(self): return self.model.destiny_points
-    def set_destiny_points(self, value): self.model.destiny_points = value
-    destiny_points = property(get_destiny_points, set_destiny_points)
+    @property
+    def current_ability_points_number(self):
+        return sum(ability.level for ability in self.abilities.abilities.values())
+
+    @property
+    def can_choose_new_ability(self):
+        return self.current_ability_points_number < self.max_ability_points_number
+
+    @property
+    def next_battle_ability_point_lvl(self):
+        delta = self.level % 6
+        return {0: 1,
+                1: 2,
+                2: 1,
+                3: 4,
+                4: 3,
+                5: 2}[delta] + self.level
+
+    @property
+    def next_nonbattle_ability_point_lvl(self):
+        delta = self.level % 6
+        return {0: 5,
+                1: 4,
+                2: 3,
+                3: 2,
+                4: 1,
+                5: 6}[delta] + self.level
 
     def get_destiny_points_spend(self): return self.model.destiny_points_spend
     def set_destiny_points_spend(self, value): self.model.destiny_points_spend = value
@@ -173,11 +195,36 @@ class HeroPrototype(object):
     @property
     def abilities(self):
         if not hasattr(self, '_abilities'):
-            self._abilities = AbilitiesPrototype.deserialize(s11n.from_json(self.model.abilities))
+            if not self.model.abilities:
+                # TODO: for migration to new ability representation
+                self._abilities = AbilitiesPrototype.create()
+            else:
+                self._abilities = AbilitiesPrototype.deserialize(s11n.from_json(self.model.abilities))
         return self._abilities
 
+
+    @property
+    def next_ability_type(self):
+        return {1: ABILITY_TYPE.BATTLE,
+                2: ABILITY_TYPE.BATTLE,
+                0: ABILITY_TYPE.NONBATTLE}[self.current_ability_points_number % 3]
+
+    @property
+    def ability_types_limitations(self):
+        return {ABILITY_TYPE.BATTLE: (c.ABILITIES_ACTIVE_MAXIMUM, c.ABILITIES_PASSIVE_MAXIMUM),
+                ABILITY_TYPE.NONBATTLE: (c.ABILITIES_NONBATTLE_MAXUMUM, c.ABILITIES_NONBATTLE_MAXUMUM)}[self.next_ability_type]
+
     def get_abilities_for_choose(self):
-        return self.abilities.get_for_choose(self)
+        max_abilities = self.ability_types_limitations
+
+        candidates = self.abilities.get_candidates(self,
+                                                   ability_type=self.next_ability_type,
+                                                   max_active_abilities=max_abilities[0],
+                                                   max_passive_abilities=max_abilities[1])
+
+        return self.abilities.get_for_choose(candidates,
+                                             max_old_abilities_for_choose=2,
+                                             max_abilities_for_choose=4)
 
     @property
     def quests_history(self):
@@ -667,7 +714,6 @@ class HeroPrototype(object):
                 self.level == other.level and
                 self.last_action_percents == other.last_action_percents and
                 self.experience == other.experience and
-                self.destiny_points == other.destiny_points and
                 self.health == other.health and
                 self.money == other.money and
                 self.abilities == other.abilities and
@@ -716,7 +762,7 @@ class HeroPrototype(object):
                             'description': self.actions_descriptions[-1]},
                 'base': { 'name': self.name,
                           'level': self.level,
-                          'destiny_points': self.destiny_points,
+                          'destiny_points': self.max_ability_points_number - self.current_ability_points_number,
                           'health': self.health,
                           'max_health': self.max_health,
                           'experience': self.experience * c.EXP_MULTIPLICATOR,
@@ -757,6 +803,7 @@ class HeroPrototype(object):
                                    race=race,
                                    is_fast=is_fast,
                                    pref_energy_regeneration_type=energy_regeneration_type,
+                                   abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
                                    messages=s11n.to_json([cls._prepair_message(u'Тучи сгущаются (и как быстро!), к непогоде...', in_past=7),
                                                           cls._prepair_message(u'Аааааа, по всюду молниции, спрячусь ка я под этим большим дубом.', in_past=6),
                                                           cls._prepair_message(u'Бабах!!!', in_past=5),

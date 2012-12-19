@@ -8,9 +8,10 @@
       {{ ability.NAME }}
       {% if show_type %}
       <small class="ability-type">
-        {%- if ability.is_battle() -%}боевая способность
-        {%- elif ability.is_nonbattle() -%}социальная способность{% endif -%}
-        {%- if not ability.AVAILABLE_TO_PLAYERS %}, только для монстров{% endif %}
+        уровень {{ability.level}},
+        {{ ability.type.verbose }},
+        {{ ability.availability.verbose }},
+        {{ ability.activation_type.verbose }}
       </small>
       {% endif %}
     </dt>

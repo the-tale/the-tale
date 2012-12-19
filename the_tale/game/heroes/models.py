@@ -39,8 +39,10 @@ class Hero(models.Model):
 
     level = models.IntegerField(null=False, default=1)
     experience = models.FloatField(null=False, default=0)
-    destiny_points = models.IntegerField(null=False, default=1)
-    destiny_points_spend = models.IntegerField(null=False, default=0) # for random.seed
+
+    # for random.seed, when form next ability choices
+    # MUST NOT BE RESETED
+    destiny_points_spend = models.IntegerField(null=False, default=0)
 
     health = models.FloatField(null=False, default=0.0)
 

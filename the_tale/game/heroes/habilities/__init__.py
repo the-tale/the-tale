@@ -1,8 +1,7 @@
 # coding: utf-8
 import random
-import copy
 
-from game.heroes.habilities.prototypes import ABILITIES_ACTIVATION_TYPE, ABILITIES_LOGIC_TYPE
+from game.heroes.habilities.prototypes import ABILITY_TYPE, ABILITY_AVAILABILITY, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE
 
 from game.heroes.habilities.prototypes import ABILITIES as COMMON_ABILITIES
 from game.heroes.habilities.attributes import ABILITIES as ATTRIBUTES_ABILITIES
@@ -12,70 +11,99 @@ ABILITIES = dict(COMMON_ABILITIES)
 ABILITIES.update(**ATTRIBUTES_ABILITIES)
 ABILITIES.update(**NONBATTLE_ABILITIES)
 
-__all__ = ['ABILITIES', 'AbilitiesPrototype', 'ABILITIES_LOGIC_TYPE']
+__all__ = [ABILITIES, ABILITY_LOGIC_TYPE, ABILITY_TYPE, ABILITY_AVAILABILITY, ABILITY_ACTIVATION_TYPE]
 
 class AbilitiesPrototype(object):
 
-    def __init__(self, abilities):
-        self.abilities = dict( (ability_id, ABILITIES[ability_id]) for ability_id in abilities)
-        self.updated = True
+    def __init__(self):
+        self.abilities = {}
+        self.updated = False
+
+    def serialize(self):
+        data = {'abilities': {}}
+        for ability_id, ability in self.abilities.items():
+            data['abilities'][ability_id] = ability.serialize()
+        return data
 
     @classmethod
     def deserialize(cls, data):
-        abilities = copy.deepcopy(data)
+        abilities = cls()
 
-        # set default ability, can be removed, when all migrations will be done
-        if 'hit' not in abilities:
-            abilities.append('hit')
+        for ability_id, ability_data in data['abilities'].items():
+            ability = ABILITIES[ability_id].deserialize(ability_data)
+            abilities.abilities[ability_id] = ability
 
-        return cls(abilities=abilities)
+        return abilities
 
-    def serialize(self):
-        return self.abilities.keys()
+    @classmethod
+    def create(cls):
+        abilities = cls()
+        ability = ABILITIES['hit'](level=1)
+        abilities.abilities[ability.get_id()] = ability
+        return abilities
 
     @property
     def all(self): return self.abilities.values()
 
     @property
-    def active_abilities(self): return [ability for ability in self.abilities.values() if ability.ACTIVATION_TYPE == ABILITIES_ACTIVATION_TYPE.ACTIVE]
+    def active_abilities(self): return [ability for ability in self.abilities.values() if ability.activation_type.is_active]
 
     @property
-    def passive_abilities(self): return [ability for ability in self.abilities.values() if ability.ACTIVATION_TYPE == ABILITIES_ACTIVATION_TYPE.PASSIVE]
+    def passive_abilities(self): return [ability for ability in self.abilities.values() if ability.activation_type.is_passive]
 
     def has(self, ability_id): return ability_id in self.abilities
 
     def get(self, ability_id): return self.abilities[ability_id]
 
-    def add(self, ability_id):
+    def add(self, ability_id, level=1):
         self.updated = True
-        self.abilities[ability_id] = ABILITIES[ability_id]
+        self.abilities[ability_id] = ABILITIES[ability_id](level=level)
+
+    def increment_level(self, ability_id):
+        self.updated = True
+        self.abilities[ability_id].level += 1
 
 
-    def get_for_choose(self, hero, all_=False):
+    def get_candidates(self, hero, ability_type, max_active_abilities, max_passive_abilities):
+        random.seed(hero.id + hero.destiny_points_spend)
 
-        random.seed(hero.id * (hero.destiny_points_spend + 1))
+        # filter by type (battle, nonbattle, etc...)
+        ability_classes = filter(lambda a: a.TYPE==ability_type, ABILITIES.values())
+        choosen_abilities = filter(lambda a: a.TYPE==ability_type, self.abilities.values())
 
-        MAX_ABILITIES = 4
+        # filter by availability for players
+        ability_classes = filter(lambda a: a.AVAILABILITY & ABILITY_AVAILABILITY.FOR_PLAYERS, ability_classes)
 
-        candidates = []
-        for ability_key, ability in ABILITIES.items():
-            if ability_key in self.abilities:
-                continue
-            if not ability.AVAILABLE_TO_PLAYERS:
-                continue
-            candidates.append(ability_key)
+        # filter abilities with max level
+        ability_classes = filter(lambda a: not (self.has(a.get_id()) and self.get(a.get_id()).has_max_level), ability_classes)
 
-        if not all_:
-            choices = random.sample(candidates, min(MAX_ABILITIES, len(candidates)))
-        else:
-            choices = candidates
+        # filter unchoosen abilities if there are no free slots
+        free_active_slots = max_active_abilities - len(filter(lambda a: a.ACTIVATION_TYPE==ABILITY_ACTIVATION_TYPE.ACTIVE, choosen_abilities))
+        free_passive_slots = max_passive_abilities - len(filter(lambda a: a.ACTIVATION_TYPE==ABILITY_ACTIVATION_TYPE.PASSIVE, choosen_abilities))
 
-        result = []
+        candidates = [a(level=1 if not self.has(a.get_id()) else self.get(a.get_id()).level+1)
+                      for a in ability_classes]
 
-        for choice in choices:
-            result.append(ABILITIES[choice])
+        if free_active_slots <= 0:
+            candidates = filter(lambda a: not a.activation_type.is_active or self.has(a.get_id()), candidates)
 
-        return result
+        if free_passive_slots <= 0:
+            candidates = filter(lambda a: not a.activation_type.is_passive or self.has(a.get_id()), candidates)
+
+        return candidates
+
+
+    def get_for_choose(self, candidates, max_old_abilities_for_choose, max_abilities_for_choose):
+        old_candidates = filter(lambda a: self.has(a.get_id()), candidates)
+        new_candidates = filter(lambda a: not self.has(a.get_id()), candidates)
+
+        old_candidates = random.sample(old_candidates, min(max_old_abilities_for_choose, len(old_candidates)))
+        new_candidates = random.sample(new_candidates, min(max_abilities_for_choose - len(old_candidates), len(new_candidates)))
+
+        candidates = old_candidates + new_candidates
+        random.shuffle(candidates)
+
+        return candidates
 
     def modify_attribute(self, name, value):
         for ability in self.abilities.values():

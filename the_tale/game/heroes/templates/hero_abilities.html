@@ -34,14 +34,14 @@ jQuery(document).ready(function(e){
 
   {% if is_owner %}
 
-  {% if resource.hero.destiny_points %}
+  {% if resource.hero.can_choose_new_ability  %}
   <div id="choose-ability-button" class="alert fade in pgf-choose-ability-button">
     {{ resource.hero.name }} может выучить новую способность. <br/>
     Нажмите на это сообщение что бы выбрать её.
   </div>
   {% else %}
   <div class="alert alert-info fade in pgf-choose-ability-button">
-    {{ resource.hero.name }} cможет выучить новую способность на&nbsp;уровне&nbsp;{{ resource.hero.next_destiny_point_lvl }}
+    {{ resource.hero.name }} cможет улучшить свои боевые навыки на уровне {{ resource.hero.next_battle_ability_point_lvl }} и небоевые на уровне {{ resource.hero.next_nonbattle_ability_point_lvl }}
   </div>
   {% endif %}
 

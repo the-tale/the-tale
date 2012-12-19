@@ -22,8 +22,8 @@ class HabilitiesNonBattleTest(TestCase):
         pass
 
     def test_charisma(self):
-        self.assertTrue(100 < nonbattle.CHARISMA.update_quest_reward(self.hero, 100))
+        self.assertTrue(100 < nonbattle.CHARISMA().update_quest_reward(self.hero, 100))
 
     def test_hackster(self):
-        self.assertTrue(100 > nonbattle.HUCKSTER.update_buy_price(self.hero, 100))
-        self.assertTrue(100 < nonbattle.HUCKSTER.update_sell_price(self.hero, 100))
+        self.assertTrue(100 > nonbattle.HUCKSTER().update_buy_price(self.hero, 100))
+        self.assertTrue(100 < nonbattle.HUCKSTER().update_sell_price(self.hero, 100))

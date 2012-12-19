@@ -149,6 +149,12 @@ class ConstantsTest(TestCase):
 
         self.assertEqual(c.CHARACTER_PREFERENCES_CHANGE_DELAY, 60*60*24*7)
 
+        self.assertEqual(c.ABILITIES_ACTIVE_MAXIMUM, 5)
+        self.assertEqual(c.ABILITIES_PASSIVE_MAXIMUM, 2)
+
+        self.assertEqual(c.ABILITIES_BATTLE_MAXIMUM, 7)
+        self.assertEqual(c.ABILITIES_NONBATTLE_MAXUMUM, 4)
+
 
 
 class FormulasTest(TestCase):

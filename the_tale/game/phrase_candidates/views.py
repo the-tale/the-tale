@@ -200,7 +200,7 @@ class PhraseCandidateResource(Resource):
 
         self.phrase.text = edit_form.c.text
         self.phrase.moderator_id = self.account.id
-        self.phrase.state = edit_form.c.state
+        self.phrase.state = int(edit_form.c.state)
 
         if edit_form.c.subtype != UNKNOWN_TYPE_ID:
             phrases_types = get_phrases_types()

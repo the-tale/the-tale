@@ -1,7 +1,11 @@
 # coding: utf-8
+import random
 
-from django.test import TestCase
+import mock
 
+from common.utils.testcase import TestCase
+
+from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
 from game.logic import create_test_map
@@ -12,10 +16,12 @@ from game.prototypes import TimePrototype
 
 from game.balance import formulas as f, constants as c
 from game.logic_storage import LogicStorage
-from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS
 from game.quests.quests_builders import SearchSmith
 
+from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS
 from game.heroes.prototypes import HeroPrototype
+from game.heroes.habilities import ABILITY_TYPE, ABILITIES
+
 
 class HeroTest(TestCase):
 
@@ -24,9 +30,9 @@ class HeroTest(TestCase):
 
         result, account_id, bundle_id = register_user('test_user')
 
-        self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
 
     def tearDown(self):
         pass
@@ -35,6 +41,7 @@ class HeroTest(TestCase):
     def test_create(self):
         self.assertTrue(self.hero.is_alive)
         self.assertEqual(self.hero.created_at_turn, TimePrototype.get_current_time().turn_number)
+        self.assertEqual(self.hero.abilities.get('hit').level, 1)
 
     def test_create_time(self):
         time = TimePrototype.get_current_time()
@@ -90,6 +97,32 @@ class HeroTest(TestCase):
         self.storage._test_save()
 
 
+    def test_set_active_inactive_state(self):
+        self.assertEqual(self.hero.experience_modifier, 1)
+
+        time = TimePrototype.get_current_time()
+        time.turn_number += 2 * c.EXP_ACTIVE_STATE_LENGTH
+        time.save()
+
+        self.assertTrue(self.hero.experience_modifier < 1)
+
+        self.hero.mark_as_active()
+        self.hero.save()
+
+        self.assertEqual(self.hero.experience_modifier, 1)
+
+
+class HeroLevelUpTests(TestCase):
+
+    def setUp(self):
+        create_test_map()
+
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.storage = LogicStorage()
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
+
     def test_lvl_up(self):
         self.assertEqual(self.hero.level, 1)
         self.assertEqual(self.hero.experience_modifier, 1)
@@ -106,25 +139,146 @@ class HeroTest(TestCase):
 
         self.hero.add_experience(f.exp_on_lvl(3))
         self.assertEqual(self.hero.level, 4)
-        self.assertEqual(self.hero.destiny_points, 1)
 
         self.hero.add_experience(f.exp_on_lvl(4))
         self.assertEqual(self.hero.level, 5)
-        self.assertEqual(self.hero.destiny_points, 2)
 
-    def test_set_active_inactive_state(self):
-        self.assertEqual(self.hero.experience_modifier, 1)
+    def test_max_ability_points_number(self):
+        level_to_points_number = { 1: 2,
+                                   2: 2,
+                                   3: 3,
+                                   4: 3,
+                                   5: 4}
 
-        time = TimePrototype.get_current_time()
-        time.turn_number += 2 * c.EXP_ACTIVE_STATE_LENGTH
-        time.save()
+        for level, points_number in level_to_points_number.items():
+            self.hero.model.level = level
+            self.assertEqual(self.hero.max_ability_points_number, points_number)
 
-        self.assertTrue(self.hero.experience_modifier < 1)
 
-        self.hero.mark_as_active()
-        self.hero.save()
+    def test_can_choose_new_ability(self):
+        self.assertTrue(self.hero.can_choose_new_ability)
+        with mock.patch('game.heroes.prototypes.HeroPrototype.current_ability_points_number', 2):
+            self.assertFalse(self.hero.can_choose_new_ability)
 
-        self.assertEqual(self.hero.experience_modifier, 1)
+    def test_next_battle_ability_point_lvl(self):
+        level_to_next_level = { 1: 3,
+                                2: 3,
+                                3: 7,
+                                4: 7,
+                                5: 7,
+                                6: 7,
+                                7: 9,
+                                8: 9,
+                                9: 13,
+                                10: 13,
+                                11: 13,
+                                12: 13,
+                                13: 15,
+                                14: 15,
+                                15: 19,
+                                16: 19,
+                                17: 19}
+
+        for level, next_level in level_to_next_level.items():
+            self.hero.model.level = level
+            self.assertEqual(self.hero.next_battle_ability_point_lvl, next_level)
+
+    def test_next_nonbattle_ability_point_lvl(self):
+        level_to_next_level = { 1: 5,
+                                2: 5,
+                                3: 5,
+                                4: 5,
+                                5: 11,
+                                6: 11,
+                                7: 11,
+                                8: 11,
+                                9: 11,
+                                10: 11,
+                                11: 17,
+                                12: 17,
+                                13: 17,
+                                14: 17,
+                                15: 17,
+                                16: 17,
+                                17: 23}
+
+        for level, next_level in level_to_next_level.items():
+            self.hero.model.level = level
+            self.assertEqual(self.hero.next_nonbattle_ability_point_lvl, next_level)
+
+    def test_next_ability_type(self):
+        ability_points_to_type = {1: ABILITY_TYPE.BATTLE,
+                                  2: ABILITY_TYPE.BATTLE,
+                                  3: ABILITY_TYPE.NONBATTLE,
+                                  4: ABILITY_TYPE.BATTLE,
+                                  5: ABILITY_TYPE.BATTLE,
+                                  6: ABILITY_TYPE.NONBATTLE}
+
+        for ability_points, next_type in ability_points_to_type.items():
+            with mock.patch('game.heroes.prototypes.HeroPrototype.current_ability_points_number', ability_points):
+                self.assertEqual(self.hero.next_ability_type, next_type)
+
+    # def check_abilities_list(self, abilities, abilities_len, expected_abilities):
+
+    def test_get_abilities_for_choose_first_time(self):
+        abilities = self.hero.get_abilities_for_choose()
+        self.assertEqual(len(abilities), 4)
+        self.assertEqual(len(filter(lambda a: a.level==2 and a.get_id()=='hit', abilities)), 1)
+
+    def test_get_abilities_for_choose_has_free_slots(self):
+        for ability in self.hero.abilities.abilities.values():
+            ability.level = ability.MAX_LEVEL
+        abilities = self.hero.get_abilities_for_choose()
+        self.assertEqual(len(abilities), 4)
+        self.assertEqual(len(filter(lambda a: a.level==2 and a.get_id()=='hit', abilities)), 0)
+
+    def test_get_abilities_for_choose_all_passive_slots_busy(self):
+        passive_abilities = filter(lambda a: a.activation_type.is_passive, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
+            self.hero.abilities.add(ability.get_id(), ability.level)
+
+        for i in xrange(100):
+            abilities = self.hero.get_abilities_for_choose()
+            self.assertEqual(len(filter(lambda a: a.activation_type.is_passive, abilities)), 0)
+
+    def test_get_abilities_for_choose_all_active_slots_busy(self):
+        active_abilities = filter(lambda a: a.activation_type.is_active, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
+            self.hero.abilities.add(ability.get_id(), ability.level)
+
+        for i in xrange(100):
+            abilities = self.hero.get_abilities_for_choose()
+            self.assertEqual(len(filter(lambda a: a.activation_type.is_active, abilities)), 0)
+
+    def test_get_abilities_for_choose_all_slots_busy(self):
+        passive_abilities = filter(lambda a: a.activation_type.is_passive, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
+            self.hero.abilities.add(ability.get_id(), ability.level)
+
+        active_abilities = filter(lambda a: a.activation_type.is_active, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
+            self.hero.abilities.add(ability.get_id(), ability.level)
+
+        for i in xrange(100):
+            abilities = self.hero.get_abilities_for_choose()
+            self.assertEqual(len(abilities), 0)
+
+    def test_get_abilities_for_choose_all_slots_busy_but_one_not_max_level(self):
+        passive_abilities = filter(lambda a: a.activation_type.is_passive, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
+            self.hero.abilities.add(ability.get_id(), ability.level)
+
+        active_abilities = filter(lambda a: a.activation_type.is_active, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
+            self.hero.abilities.add(ability.get_id(), ability.level)
+
+        ability = random.choice(self.hero.abilities.abilities.values())
+        ability.level -= 1
+
+        for i in xrange(100):
+            abilities = self.hero.get_abilities_for_choose()
+            self.assertEqual(abilities, [ability.__class__(level=ability.level+1)])
+
 
 
 class HeroGetSpecialQuestsTest(TestCase):

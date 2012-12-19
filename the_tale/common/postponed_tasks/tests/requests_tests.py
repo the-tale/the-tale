@@ -39,6 +39,3 @@ class RequestsTests(TestCase):
 
     def test_status_exception(self):
         self.check_ajax_error(self.request_status(POSTPONED_TASK_STATE.EXCEPTION), 'postponed_task.exception')
-
-    def test_status_unknown_error(self):
-        self.check_ajax_error(self.request_status(666), 'postponed_task.unknown_error')

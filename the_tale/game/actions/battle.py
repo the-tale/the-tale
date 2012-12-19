@@ -4,7 +4,7 @@ import random
 
 from common.utils.logic import random_value_by_priority
 
-from game.heroes.habilities import ABILITIES_LOGIC_TYPE
+from game.heroes.habilities import ABILITY_LOGIC_TYPE
 
 class Actor(object):
 
@@ -71,9 +71,9 @@ def strike(attacker, defender, messanger):
 
     ability = attacker.choose_ability()
 
-    if ability.LOGIC_TYPE == ABILITIES_LOGIC_TYPE.WITHOUT_CONTACT:
+    if ability.LOGIC_TYPE == ABILITY_LOGIC_TYPE.WITHOUT_CONTACT:
         strike_without_contact(ability, attacker, defender, messanger)
-    elif ability.LOGIC_TYPE == ABILITIES_LOGIC_TYPE.WITH_CONTACT:
+    elif ability.LOGIC_TYPE == ABILITY_LOGIC_TYPE.WITH_CONTACT:
         strike_with_contact(ability, attacker, defender, messanger)
 
 

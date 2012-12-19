@@ -24,13 +24,13 @@ class AttributeAbiliesForHeroTest(TestCase):
         pass
 
     def test_extra_slow(self):
-        self.assertFalse(attributes.EXTRA_SLOW.AVAILABLE_TO_PLAYERS)
+        self.assertTrue(attributes.EXTRA_SLOW().availability.is_for_monsters)
 
     def test_slow(self):
-        self.assertFalse(attributes.SLOW.AVAILABLE_TO_PLAYERS)
+        self.assertTrue(attributes.SLOW().availability.is_for_monsters)
 
     def test_fast(self):
-        self.assertTrue(attributes.FAST.AVAILABLE_TO_PLAYERS)
+        self.assertTrue(attributes.FAST().availability.is_for_all)
 
         old_initiative = self.hero.initiative
 
@@ -39,17 +39,16 @@ class AttributeAbiliesForHeroTest(TestCase):
         self.assertTrue(old_initiative < self.hero.initiative)
 
     def test_extra_fast(self):
-        self.assertFalse(attributes.EXTRA_FAST.AVAILABLE_TO_PLAYERS)
-
+        self.assertTrue(attributes.EXTRA_FAST().availability.is_for_monsters)
 
     def test_extra_thin(self):
-        self.assertFalse(attributes.EXTRA_THIN.AVAILABLE_TO_PLAYERS)
+        self.assertTrue(attributes.EXTRA_THIN().availability.is_for_monsters)
 
     def test_thin(self):
-        self.assertFalse(attributes.THIN.AVAILABLE_TO_PLAYERS)
+        self.assertTrue(attributes.THIN().availability.is_for_monsters)
 
     def test_thick(self):
-        self.assertTrue(attributes.THICK.AVAILABLE_TO_PLAYERS)
+        self.assertTrue(attributes.THICK().availability.is_for_all)
 
         old_max_health = self.hero.max_health
 
@@ -58,17 +57,17 @@ class AttributeAbiliesForHeroTest(TestCase):
         self.assertTrue(old_max_health < self.hero.max_health)
 
     def test_extra_thick(self):
-        self.assertFalse(attributes.EXTRA_THICK.AVAILABLE_TO_PLAYERS)
+        self.assertTrue(attributes.EXTRA_THICK().availability.is_for_monsters)
 
 
     def test_extra_weak(self):
-        self.assertFalse(attributes.EXTRA_WEAK.AVAILABLE_TO_PLAYERS)
+        self.assertTrue(attributes.EXTRA_WEAK().availability.is_for_monsters)
 
     def test_weak(self):
-        self.assertFalse(attributes.WEAK.AVAILABLE_TO_PLAYERS)
+        self.assertTrue(attributes.WEAK().availability.is_for_monsters)
 
     def test_strong(self):
-        self.assertTrue(attributes.STRONG.AVAILABLE_TO_PLAYERS)
+        self.assertTrue(attributes.STRONG().availability.is_for_all)
 
         old_damage_modifier = self.hero.damage_modifier
 
@@ -77,7 +76,7 @@ class AttributeAbiliesForHeroTest(TestCase):
         self.assertTrue(old_damage_modifier < self.hero.damage_modifier)
 
     def test_extra_strong(self):
-        self.assertFalse(attributes.EXTRA_STRONG.AVAILABLE_TO_PLAYERS)
+        self.assertTrue(attributes.EXTRA_STRONG().availability.is_for_monsters)
 
 
 class AttributeAbiliesForMobTest(TestCase):

@@ -16,7 +16,7 @@ from game.mobs.storage import MobsDatabase
 from game.persons.storage import persons_storage
 
 from game.heroes.models import PREFERENCE_TYPE
-from game.heroes.habilities import ABILITIES
+from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from game.heroes.bag import SLOTS_LIST
 
 
@@ -25,8 +25,8 @@ CHOOSE_HERO_ABILITY_STATE = create_enum('CHOOSE_HERO_ABILITY_STATE', ( ('UNPROCE
                                                                        ('WRONG_ID', 2, u'неверный идентификатор способности'),
                                                                        ('NOT_IN_CHOICE_LIST', 3, u'способность недоступна для выбора'),
                                                                        ('NOT_FOR_PLAYERS', 4, u'способность не для игроков'),
-                                                                       ('NO_DESTINY_POINTS', 5, u'нехватает очков'),
-                                                                       ('ALREADY_CHOOSEN', 6, u'способность уже выбрана') ) )
+                                                                       ('MAXIMUM_ABILITY_POINTS_NUMBER', 5, u'все доступные способности выбраны'),
+                                                                       ('ALREADY_MAX_LEVEL', 6, u'способность уже имеет максимальный уровень') ) )
 
 @postponed_task
 class ChooseHeroAbilityTask(object):
@@ -78,26 +78,28 @@ class ChooseHeroAbilityTask(object):
             main_task.comment = u'ability not in choices list: %s' % self.ability_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        ability = ABILITIES[self.ability_id]
+        ability_class = ABILITIES[self.ability_id]
 
-        if not ability.AVAILABLE_TO_PLAYERS:
+        if not (ability_class.AVAILABILITY & ABILITY_AVAILABILITY.FOR_PLAYERS):
             self.state = CHOOSE_HERO_ABILITY_STATE.NOT_FOR_PLAYERS
             main_task.comment = u'ability "%s" does not available to players' % self.ability_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        if hero.destiny_points <= 0:
-            self.state = CHOOSE_HERO_ABILITY_STATE.NO_DESTINY_POINTS
-            main_task.comment = 'no destiny points'
+        if not hero.can_choose_new_ability:
+            self.state = CHOOSE_HERO_ABILITY_STATE.MAXIMUM_ABILITY_POINTS_NUMBER
+            main_task.comment = 'has maximum ability points number'
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if hero.abilities.has(self.ability_id):
-            self.state = CHOOSE_HERO_ABILITY_STATE.ALREADY_CHOOSEN
-            main_task.comment = 'ability has been already choosen'
-            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+            ability = hero.abilities.get(self.ability_id)
+            if ability.has_max_level:
+                self.state = CHOOSE_HERO_ABILITY_STATE.ALREADY_MAX_LEVEL
+                main_task.comment = 'ability has already had max_level'
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+            hero.abilities.increment_level(self.ability_id)
+        else:
+            hero.abilities.add(self.ability_id)
 
-        hero.abilities.add(self.ability_id)
-
-        hero.destiny_points -= 1
         hero.destiny_points_spend += 1
 
         with nested_commit_on_success():

@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from game.heroes.habilities import AbilitiesPrototype
 
 from game.balance import formulas as f
 from game.game_info import ATTRIBUTES
+from game.heroes.habilities import ABILITIES
 
 class MobException(Exception): pass
 
@@ -13,7 +14,12 @@ class MobPrototype(object):
 
         self.record = record
         self.level = level
-        self.abilities = AbilitiesPrototype(abilities=record.abilities) if abilities is None else abilities
+
+        self.abilities = abilities
+        if self.abilities is None:
+            self.abilities = AbilitiesPrototype()
+            for ability_id in record.abilities:
+                self.abilities.add(ability_id, level=ABILITIES[ability_id].MAX_LEVEL)
 
         self.initiative = self.abilities.modify_attribute(ATTRIBUTES.INITIATIVE, 1)
         self.health_cooficient = self.abilities.modify_attribute(ATTRIBUTES.HEALTH, 1)

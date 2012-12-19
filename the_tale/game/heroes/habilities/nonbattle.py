@@ -1,13 +1,13 @@
 #coding: utf-8
 
-from game.heroes.habilities.prototypes import AbilityPrototype, ABILITY_TYPE, ABILITIES_ACTIVATION_TYPE
-
+from game.heroes.habilities.prototypes import AbilityPrototype, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 
 
 class CHARISMA(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.NONBATTLE
-    ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.PASSIVE
+    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
+    AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
     NAME = u'Харизматичный'
     normalized_name = NAME
@@ -15,15 +15,15 @@ class CHARISMA(AbilityPrototype):
 
     MONEY_MULTIPLIER = 3
 
-    @classmethod
-    def update_quest_reward(cls, hero, money):
-        return int(money * cls.MONEY_MULTIPLIER)
+    def update_quest_reward(self, hero, money):
+        return int(money * self.MONEY_MULTIPLIER)
 
 
 class HUCKSTER(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.NONBATTLE
-    ACTIVATION_TYPE = ABILITIES_ACTIVATION_TYPE.PASSIVE
+    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
+    AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
     NAME = u'Торгаш'
     normalized_name = NAME
@@ -32,14 +32,12 @@ class HUCKSTER(AbilityPrototype):
     SELL_MULTIPLIER = 1.2
     BUY_MULTIPLIER = 0.8
 
-    @classmethod
-    def update_buy_price(cls, hero, money):
-        return int(money * cls.BUY_MULTIPLIER)
+    def update_buy_price(self, hero, money):
+        return int(money * self.BUY_MULTIPLIER)
 
-    @classmethod
-    def update_sell_price(cls, hero, money):
+    def update_sell_price(self, hero, money):
         ''' +1 for increase price on low levels'''
-        return int(money * cls.SELL_MULTIPLIER + 1)
+        return int(money * self.SELL_MULTIPLIER + 1)
 
 
 ABILITIES = dict( (ability.get_id(), ability)
