@@ -33,9 +33,9 @@ class Hero(models.Model):
     #base
     name = models.CharField(max_length=MAX_NAME_LENGTH, null=False)
 
-    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER.CHOICES)
+    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER._CHOICES)
 
-    race = models.IntegerField(choices=RACE.CHOICES, default=RACE.HUMAN)
+    race = models.IntegerField(choices=RACE._CHOICES, default=RACE.HUMAN)
 
     level = models.IntegerField(null=False, default=1)
     experience = models.FloatField(null=False, default=0)
@@ -65,7 +65,7 @@ class Hero(models.Model):
 
     last_action_percents = models.FloatField(null=False, default=0)
 
-    next_spending = models.IntegerField(null=False, default=c.ITEMS_OF_EXPENDITURE.USELESS, choices=c.ITEMS_OF_EXPENDITURE.CHOICES)
+    next_spending = models.IntegerField(null=False, default=c.ITEMS_OF_EXPENDITURE.USELESS, choices=c.ITEMS_OF_EXPENDITURE._CHOICES)
 
     energy = models.FloatField(null=False, default=0.0)
     last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
@@ -84,7 +84,7 @@ class Hero(models.Model):
     pos_to_y = models.IntegerField(null=True, blank=True, default=None)
 
     #character
-    pref_energy_regeneration_type = models.IntegerField(null=False, default=c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=c.ANGEL_ENERGY_REGENERATION_TYPES.CHOICES, blank=True)
+    pref_energy_regeneration_type = models.IntegerField(null=False, default=c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=c.ANGEL_ENERGY_REGENERATION_TYPES._CHOICES, blank=True)
     pref_energy_regeneration_type_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
     pref_mob_id = models.CharField(max_length=32, null=True, default=None, blank=True)

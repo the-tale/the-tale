@@ -2,7 +2,7 @@
 
 {% import 'macros.html' as base_macros with context %}
 
-{% block title %} {{ RATING_TYPE.ID_2_TEXT[rating_type] }} | {{ super() }}{% endblock %}
+{% block title %} {{ RATING_TYPE._ID_TO_TEXT[rating_type] }} | {{ super() }}{% endblock %}
 
 
 {% block ratings_content %}
@@ -25,7 +25,7 @@
       <th>место</th>
       <th>ангел</th>
       <th>герой</th>
-      <th>{{RATING_TYPE.ID_2_TEXT[rating_type]|lower}}</th>
+      <th>{{RATING_TYPE._ID_TO_TEXT[rating_type]|lower}}</th>
     </tr>
   </thead>
   <tbody>

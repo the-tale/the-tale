@@ -51,7 +51,7 @@ class ModeratorForm(BaseModeratorForm):
 class PersonRemove(object):
 
     type = BILL_TYPE.PERSON_REMOVE
-    type_str = BILL_TYPE.ID_2_STR[BILL_TYPE.PERSON_REMOVE].lower()
+    type_str = BILL_TYPE._ID_TO_STR[BILL_TYPE.PERSON_REMOVE].lower()
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm

@@ -85,17 +85,20 @@ def logout_user(request):
     request.session.flush()
 
 
+def remove_account(account):
+    if account.can_be_removed():
+        with nested_commit_on_success():
+            bundle = BundlePrototype.get_by_account_id(account.id)
+            user = account.user
+
+            account.remove()
+            bundle.remove()
+            user.delete()
+
+
 def block_expired_accounts():
 
     expired_before = datetime.datetime.now() - datetime.timedelta(seconds=accounts_settings.FAST_ACCOUNT_EXPIRED_TIME)
 
     for account_model in Account.objects.filter(is_fast=True, created_at__lt=expired_before):
-        account = AccountPrototype(account_model)
-        if account.can_be_removed():
-            with nested_commit_on_success():
-                bundle = BundlePrototype.get_by_account_id(account.id)
-                user = account.user
-
-                account.remove()
-                bundle.remove()
-                user.delete()
+        remove_account(AccountPrototype(account_model))

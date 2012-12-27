@@ -59,7 +59,7 @@ class ChooseHeroAbilityTask(object):
     def response_data(self): return {}
 
     @property
-    def error_message(self): return CHOOSE_HERO_ABILITY_STATE.CHOICES[self.state][1]
+    def error_message(self): return CHOOSE_HERO_ABILITY_STATE._CHOICES[self.state][1]
 
     @nested_commit_on_success
     def process(self, main_task, storage):
@@ -152,7 +152,7 @@ class ChangeHeroTask(object):
     def response_data(self): return {}
 
     @property
-    def error_message(self): return CHANGE_HERO_TASK_STATE.CHOICES[self.state][1]
+    def error_message(self): return CHANGE_HERO_TASK_STATE._CHOICES[self.state][1]
 
     @nested_commit_on_success
     def process(self, main_task, storage):
@@ -222,7 +222,7 @@ class ChoosePreferencesTask(object):
     def response_data(self): return {}
 
     @property
-    def error_message(self): return CHOOSE_PREFERENCES_TASK_STATE.CHOICES[self.state][1]
+    def error_message(self): return CHOOSE_PREFERENCES_TASK_STATE._CHOICES[self.state][1]
 
     def process(self, main_task, storage):
 

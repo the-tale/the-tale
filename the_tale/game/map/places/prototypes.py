@@ -118,7 +118,7 @@ class PlacePrototype(object):
         from game.game_info import RACE
 
         while persons_count < self.max_persons_number:
-            race = random.choice(RACE.ALL)
+            race = random.choice(RACE._ALL)
             gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
             new_person = PersonPrototype.create(place=self,

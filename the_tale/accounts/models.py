@@ -48,7 +48,7 @@ class Award(models.Model):
 
     account = models.ForeignKey(Account,  related_name='+', null=False)
 
-    type = models.IntegerField(choices=AWARD_TYPE.CHOICES, null=False)
+    type = models.IntegerField(choices=AWARD_TYPE._CHOICES, null=False)
 
     description = models.TextField(default='', blank=True)
 

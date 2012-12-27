@@ -67,11 +67,11 @@ class MobsDatabaseTest(TestCase):
 
         bandit = MobPrototype(record=storage.data['bandit'], level=1)
 
-        self.assertEqual(bandit.health_cooficient, 1.15)
-        self.assertEqual(bandit.initiative, 0.85)
-        self.assertEqual(bandit.damage_modifier, 1.3)
+        self.assertEqual(bandit.health_cooficient, 1.125)
+        self.assertEqual(bandit.initiative, 0.875)
+        self.assertEqual(bandit.damage_modifier, 1.25)
 
-        self.assertEqual(bandit.exp_cooficient, f.mob_difficulty(0.85, 1.15, 1.3))
+        self.assertEqual(bandit.exp_cooficient, f.mob_difficulty(0.875, 1.125, 1.25))
 
 
     def test_load_duplicates(self):

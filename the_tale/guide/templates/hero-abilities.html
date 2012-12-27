@@ -29,42 +29,42 @@
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         тип:
-        {% if ability_type is not none %} {{ ABILITY_TYPE.ID_2_TEXT[ability_type]}}
+        {% if ability_type is not none %} {{ ABILITY_TYPE._ID_TO_TEXT[ability_type]}}
         {% else %} все
         {% endif %}
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
         <li><a href="{{ url_builder(ability_type=none) }}">все</a></li>
-        <li><a href="{{ url_builder(ability_type=ABILITY_TYPE.BATTLE) }}">{{ABILITY_TYPE.ID_2_TEXT[ABILITY_TYPE.BATTLE]}}</a></li>
-        <li><a href="{{ url_builder(ability_type=ABILITY_TYPE.NONBATTLE) }}">{{ABILITY_TYPE.ID_2_TEXT[ABILITY_TYPE.NONBATTLE]}}</a></li>
+        <li><a href="{{ url_builder(ability_type=ABILITY_TYPE.BATTLE) }}">{{ABILITY_TYPE._ID_TO_TEXT[ABILITY_TYPE.BATTLE]}}</a></li>
+        <li><a href="{{ url_builder(ability_type=ABILITY_TYPE.NONBATTLE) }}">{{ABILITY_TYPE._ID_TO_TEXT[ABILITY_TYPE.NONBATTLE]}}</a></li>
       </ul>
     </div>
 
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         метод активации:
-        {% if activation_type is not none %} {{ABILITY_ACTIVATION_TYPE.ID_2_TEXT[activation_type]}}
+        {% if activation_type is not none %} {{ABILITY_ACTIVATION_TYPE._ID_TO_TEXT[activation_type]}}
         {% else %} все
         {% endif %}
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
         <li><a href="{{ url_builder(activation_type=none) }}">все</a></li>
-        <li><a href="{{ url_builder(activation_type=ABILITY_ACTIVATION_TYPE.ACTIVE) }}">{{ABILITY_ACTIVATION_TYPE.ID_2_TEXT[ABILITY_ACTIVATION_TYPE.ACTIVE]}}</a></li>
-        <li><a href="{{ url_builder(activation_type=ABILITY_ACTIVATION_TYPE.PASSIVE) }}">{{ABILITY_ACTIVATION_TYPE.ID_2_TEXT[ABILITY_ACTIVATION_TYPE.PASSIVE]}}</a></li>
+        <li><a href="{{ url_builder(activation_type=ABILITY_ACTIVATION_TYPE.ACTIVE) }}">{{ABILITY_ACTIVATION_TYPE._ID_TO_TEXT[ABILITY_ACTIVATION_TYPE.ACTIVE]}}</a></li>
+        <li><a href="{{ url_builder(activation_type=ABILITY_ACTIVATION_TYPE.PASSIVE) }}">{{ABILITY_ACTIVATION_TYPE._ID_TO_TEXT[ABILITY_ACTIVATION_TYPE.PASSIVE]}}</a></li>
       </ul>
     </div>
 
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        доступность: {{ABILITY_AVAILABILITY.ID_2_TEXT[availability]}}
+        доступность: {{ABILITY_AVAILABILITY._ID_TO_TEXT[availability]}}
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="{{ url_builder(availability=ABILITY_AVAILABILITY.FOR_ALL) }}">{{ABILITY_AVAILABILITY.ID_2_TEXT[ABILITY_AVAILABILITY.FOR_ALL]}}</a></li>
-        <li><a href="{{ url_builder(availability=ABILITY_AVAILABILITY.FOR_PLAYERS) }}">{{ABILITY_AVAILABILITY.ID_2_TEXT[ABILITY_AVAILABILITY.FOR_PLAYERS]}}</a></li>
-        <li><a href="{{ url_builder(availability=ABILITY_AVAILABILITY.FOR_MONSTERS) }}">{{ABILITY_AVAILABILITY.ID_2_TEXT[ABILITY_AVAILABILITY.FOR_MONSTERS]}}</a></li>
+        <li><a href="{{ url_builder(availability=ABILITY_AVAILABILITY.FOR_ALL) }}">{{ABILITY_AVAILABILITY._ID_TO_TEXT[ABILITY_AVAILABILITY.FOR_ALL]}}</a></li>
+        <li><a href="{{ url_builder(availability=ABILITY_AVAILABILITY.FOR_PLAYERS) }}">{{ABILITY_AVAILABILITY._ID_TO_TEXT[ABILITY_AVAILABILITY.FOR_PLAYERS]}}</a></li>
+        <li><a href="{{ url_builder(availability=ABILITY_AVAILABILITY.FOR_MONSTERS) }}">{{ABILITY_AVAILABILITY._ID_TO_TEXT[ABILITY_AVAILABILITY.FOR_MONSTERS]}}</a></li>
       </ul>
     </div>
 

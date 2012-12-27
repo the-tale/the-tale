@@ -54,7 +54,7 @@ class PrototypeTests(TestCase):
 
     def test_process_not_waiting_state(self):
 
-        for state in POSTPONED_TASK_STATE.ALL:
+        for state in POSTPONED_TASK_STATE._ALL:
 
             if state == POSTPONED_TASK_STATE.WAITING:
                 continue

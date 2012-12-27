@@ -13,14 +13,14 @@ from game.game_info import RACE, GENDER
 class ChoosePreferencesForm(forms.Form):
 
     preference_id = fields.CharField(max_length=32, required=False)
-    preference_type = fields.TypedChoiceField(choices=PREFERENCE_TYPE.CHOICES, coerce=int)
+    preference_type = fields.TypedChoiceField(choices=PREFERENCE_TYPE._CHOICES, coerce=int)
 
 
 class EditNameForm(forms.Form):
 
-    race = fields.TypedChoiceField(label=u'раса', choices=RACE.CHOICES, coerce=int)
+    race = fields.TypedChoiceField(label=u'раса', choices=RACE._CHOICES, coerce=int)
 
-    gender = fields.TypedChoiceField(label=u'пол', choices=GENDER.CHOICES, coerce=int)
+    gender = fields.TypedChoiceField(label=u'пол', choices=GENDER._CHOICES, coerce=int)
 
     name_forms = NounFormsWithoutNumberField(label=u'')
 

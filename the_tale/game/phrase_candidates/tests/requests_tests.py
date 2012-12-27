@@ -288,10 +288,10 @@ class EditRequestsTests(RequestsTestsBase):
 
     def test_success(self):
         texts = [(self.phrase_1.text, 1),
-                 (PHRASE_CANDIDATE_STATE.ID_2_TEXT[PHRASE_CANDIDATE_STATE.IN_QUEUE], 1),
-                 (PHRASE_CANDIDATE_STATE.ID_2_TEXT[PHRASE_CANDIDATE_STATE.APPROVED], 1),
-                 (PHRASE_CANDIDATE_STATE.ID_2_TEXT[PHRASE_CANDIDATE_STATE.REMOVED], 1),
-                 (PHRASE_CANDIDATE_STATE.ID_2_TEXT[PHRASE_CANDIDATE_STATE.ADDED], 0),]
+                 (PHRASE_CANDIDATE_STATE._ID_TO_TEXT[PHRASE_CANDIDATE_STATE.IN_QUEUE], 1),
+                 (PHRASE_CANDIDATE_STATE._ID_TO_TEXT[PHRASE_CANDIDATE_STATE.APPROVED], 1),
+                 (PHRASE_CANDIDATE_STATE._ID_TO_TEXT[PHRASE_CANDIDATE_STATE.REMOVED], 1),
+                 (PHRASE_CANDIDATE_STATE._ID_TO_TEXT[PHRASE_CANDIDATE_STATE.ADDED], 0),]
         texts.extend(('"%s"' % choice_id, 1) for choice_id in SUBTYPE_CHOICES_IDS)
         self.check_html_ok(self.client.get(reverse('game:phrase-candidates:edit', args=[self.phrase_1.id]), HTTP_X_REQUESTED_WITH='XMLHttpRequest'), texts=texts)
 

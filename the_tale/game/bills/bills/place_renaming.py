@@ -41,7 +41,7 @@ class ModeratorForm(BaseModeratorForm):
 class PlaceRenaming(object):
 
     type = BILL_TYPE.PLACE_RENAMING
-    type_str = BILL_TYPE.ID_2_STR[BILL_TYPE.PLACE_RENAMING].lower()
+    type_str = BILL_TYPE._ID_TO_STR[BILL_TYPE.PLACE_RENAMING].lower()
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm

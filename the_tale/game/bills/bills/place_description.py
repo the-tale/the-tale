@@ -28,7 +28,7 @@ class ModeratorForm(BaseModeratorForm):
 class PlaceDescripton(object):
 
     type = BILL_TYPE.PLACE_DESCRIPTION
-    type_str = BILL_TYPE.ID_2_STR[BILL_TYPE.PLACE_DESCRIPTION].lower()
+    type_str = BILL_TYPE._ID_TO_STR[BILL_TYPE.PLACE_DESCRIPTION].lower()
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm

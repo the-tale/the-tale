@@ -45,7 +45,7 @@ class RegistrationTask(object):
     def response_data(self): return {}
 
     @property
-    def error_message(self): return REGISTRATION_TASK_STATE.CHOICES[self.state][1]
+    def error_message(self): return REGISTRATION_TASK_STATE._CHOICES[self.state][1]
 
     @property
     def account(self):

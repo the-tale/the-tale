@@ -10,7 +10,7 @@ from game.persons.prototypes import PersonPrototype
 from game.persons.models import PERSON_TYPE_CHOICES
 
 def create_person(place, state):
-    race = random.choice(RACE.CHOICES)[0]
+    race = random.choice(RACE._CHOICES)[0]
     gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
     return PersonPrototype.create(place,
                                   state=state,

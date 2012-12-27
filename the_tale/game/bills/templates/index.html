@@ -57,14 +57,14 @@
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         голосование:
-        {% if voted is not none %} {{ VOTED_TYPE.ID_2_TEXT[voted] }}
+        {% if voted is not none %} {{ VOTED_TYPE._ID_TO_TEXT[voted] }}
         {% else %} все
         {% endif %}
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
         <li><a href="{{ url_builder(voted=none) }}">все</a></li>
-        {% for voted_id, voted_text in VOTED_TYPE.ID_2_TEXT.items() %}
+        {% for voted_id, voted_text in VOTED_TYPE._ID_TO_TEXT.items() %}
         <li><a href="{{ url_builder(voted=voted_id) }}">{{voted_text}}</a></li>
         {% endfor %}
       </ul>

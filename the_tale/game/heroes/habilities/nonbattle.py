@@ -16,7 +16,7 @@ class CHARISMA(AbilityPrototype):
     MONEY_MULTIPLIER = [2, 2.5, 3, 3.5, 4]
 
     @property
-    def money_multiplier(self): return self.MONEY_MULTIPLIER[self.level]
+    def money_multiplier(self): return self.MONEY_MULTIPLIER[self.level-1]
 
     def update_quest_reward(self, hero, money):
         return int(money * self.money_multiplier)
@@ -36,10 +36,10 @@ class HUCKSTER(AbilityPrototype):
     BUY_MULTIPLIER = [0.9, 0.85, 0.8, 0.75, 0.7]
 
     @property
-    def sell_multiplier(self): return self.SELL_MULTIPLIER[self.level]
+    def sell_multiplier(self): return self.SELL_MULTIPLIER[self.level-1]
 
     @property
-    def buy_multiplier(self): return self.BUY_MULTIPLIER[self.level]
+    def buy_multiplier(self): return self.BUY_MULTIPLIER[self.level-1]
 
     def update_buy_price(self, hero, money):
         return int(money * self.buy_multiplier)

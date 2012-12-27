@@ -28,7 +28,7 @@ class PhraseCandidate(models.Model):
     subtype = models.CharField(null=False, blank=False, max_length=256, default=u'')
     subtype_name = models.CharField(null=False, blank=False, max_length=256, default=u'')
 
-    state = models.IntegerField(null=False, default=PHRASE_CANDIDATE_STATE.IN_QUEUE, choices=PHRASE_CANDIDATE_STATE.CHOICES, db_index=True)
+    state = models.IntegerField(null=False, default=PHRASE_CANDIDATE_STATE.IN_QUEUE, choices=PHRASE_CANDIDATE_STATE._CHOICES, db_index=True)
 
     class Meta:
         permissions = (('moderate_phrasecandidate', u'Может редактировать фразы-кандидаты'),  # game designer

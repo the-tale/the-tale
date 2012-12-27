@@ -44,7 +44,7 @@ class SayInBattleLogTask(object):
     def response_data(self): return {}
 
     @property
-    def error_message(self): return SAY_IN_HERO_LOG_TASK_STATE.CHOICES[self.state][1]
+    def error_message(self): return SAY_IN_HERO_LOG_TASK_STATE._CHOICES[self.state][1]
 
     def process(self, main_task, storage):
 

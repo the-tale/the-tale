@@ -43,9 +43,9 @@ class Person(models.Model):
 
     name = models.CharField(max_length=256)
 
-    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER.CHOICES)
+    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER._CHOICES)
 
-    race = models.IntegerField(choices=RACE.CHOICES, default=RACE.HUMAN)
+    race = models.IntegerField(choices=RACE._CHOICES, default=RACE.HUMAN)
 
     type = models.IntegerField(choices=PERSON_TYPE_CHOICES)
 

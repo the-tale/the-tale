@@ -32,13 +32,13 @@
 
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        сортировка: {{ ORDER_BY.ID_2_TEXT[order_by] }}
+        сортировка: {{ ORDER_BY._ID_TO_TEXT[order_by] }}
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="{{ url_builder(order_by=ORDER_BY.CREATED_AT) }}">{{ORDER_BY.ID_2_TEXT[ORDER_BY.CREATED_AT]}}</a></li>
-        <li><a href="{{ url_builder(order_by=ORDER_BY.ALPHABET) }}">{{ORDER_BY.ID_2_TEXT[ORDER_BY.ALPHABET]}}</a></li>
-        <li><a href="{{ url_builder(order_by=ORDER_BY.RATING) }}">{{ORDER_BY.ID_2_TEXT[ORDER_BY.RATING]}}</a></li>
+        <li><a href="{{ url_builder(order_by=ORDER_BY.CREATED_AT) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.CREATED_AT]}}</a></li>
+        <li><a href="{{ url_builder(order_by=ORDER_BY.ALPHABET) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.ALPHABET]}}</a></li>
+        <li><a href="{{ url_builder(order_by=ORDER_BY.RATING) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.RATING]}}</a></li>
       </ul>
     </div>
 

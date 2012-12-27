@@ -31,9 +31,9 @@ SUBTYPE_CHOICES_IDS = [choice[0] for choice in SUBTYPE_CHOICES]
 
 class PhraseCandidateEditForm(forms.Form):
 
-    state = fields.ChoiceField(label=u'Состояние', choices=( (PHRASE_CANDIDATE_STATE.IN_QUEUE, PHRASE_CANDIDATE_STATE.ID_2_TEXT[PHRASE_CANDIDATE_STATE.IN_QUEUE]),
-                                                             (PHRASE_CANDIDATE_STATE.REMOVED, PHRASE_CANDIDATE_STATE.ID_2_TEXT[PHRASE_CANDIDATE_STATE.REMOVED]),
-                                                             (PHRASE_CANDIDATE_STATE.APPROVED, PHRASE_CANDIDATE_STATE.ID_2_TEXT[PHRASE_CANDIDATE_STATE.APPROVED]),))
+    state = fields.ChoiceField(label=u'Состояние', choices=( (PHRASE_CANDIDATE_STATE.IN_QUEUE, PHRASE_CANDIDATE_STATE._ID_TO_TEXT[PHRASE_CANDIDATE_STATE.IN_QUEUE]),
+                                                             (PHRASE_CANDIDATE_STATE.REMOVED, PHRASE_CANDIDATE_STATE._ID_TO_TEXT[PHRASE_CANDIDATE_STATE.REMOVED]),
+                                                             (PHRASE_CANDIDATE_STATE.APPROVED, PHRASE_CANDIDATE_STATE._ID_TO_TEXT[PHRASE_CANDIDATE_STATE.APPROVED]),))
     text = fields.TextField(label=u'Текст', max_length=PhraseCandidate.MAX_TEXT_LENGTH, widget=django_forms.Textarea(attrs={'rows':'3'}))
 
     subtype = fields.ChoiceField(label=u'тип', choices=SUBTYPE_CHOICES)

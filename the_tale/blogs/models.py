@@ -21,7 +21,7 @@ class Post(models.Model):
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
     text = models.TextField(null=False, blank=True, default='')
 
-    state = models.IntegerField(default=POST_STATE.NOT_MODERATED, choices=POST_STATE.CHOICES)
+    state = models.IntegerField(default=POST_STATE.NOT_MODERATED, choices=POST_STATE._CHOICES)
 
     moderator = models.ForeignKey('accounts.Account', null=True, related_name='+')
 

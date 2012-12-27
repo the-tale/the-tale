@@ -49,7 +49,7 @@ class PersonPrototype(object):
     @property
     def race_verbose(self):
         from game.game_info import RACE
-        return RACE.ID_2_TEXT[self.race]
+        return RACE._ID_TO_TEXT[self.race]
 
     @property
     def type(self): return self.model.type

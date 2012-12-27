@@ -80,7 +80,7 @@ class MapInfoPrototype(object):
         terrain_percents = dict( (cell, float(square) / total_cells) for cell, square in terrain_squares.items())
 
         # race percents
-        race_powers = dict( (race_id, 0) for race_id in RACE.ALL)
+        race_powers = dict( (race_id, 0) for race_id in RACE._ALL)
         for person_model in Person.objects.filter(state=PERSON_STATE.IN_GAME):
             person = PersonPrototype(person_model)
             race_powers[person.race] += person.power
@@ -90,7 +90,7 @@ class MapInfoPrototype(object):
         race_percents = dict( (race_id, float(power) / total_power) for race_id, power in race_powers.items())
 
         #race to cities percents
-        race_cities = dict( (race_id, 0) for race_id in RACE.ALL)
+        race_cities = dict( (race_id, 0) for race_id in RACE._ALL)
         for place_model in Place.objects.all():
             place = PlacePrototype(place_model)
             race_cities[place.get_dominant_race()] += 1

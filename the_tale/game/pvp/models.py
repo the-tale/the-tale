@@ -21,4 +21,4 @@ class Battle1x1(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    state = models.IntegerField(default=BATTLE_1X1_STATE.WAITING, choices=BATTLE_1X1_STATE.CHOICES)
+    state = models.IntegerField(default=BATTLE_1X1_STATE.WAITING, choices=BATTLE_1X1_STATE._CHOICES)

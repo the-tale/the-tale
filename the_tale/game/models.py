@@ -32,9 +32,9 @@ SUPERVISOR_TASK_STATE = create_enum('SUPERVISOR_TASK_STATE', (('WAITING', 0, u'Ð
 
 class SupervisorTask(models.Model):
 
-    type = models.IntegerField(null=False, choices=SUPERVISOR_TASK_TYPE.CHOICES)
+    type = models.IntegerField(null=False, choices=SUPERVISOR_TASK_TYPE._CHOICES)
 
-    state = models.IntegerField(null=False, choices=SUPERVISOR_TASK_STATE.CHOICES, default=SUPERVISOR_TASK_STATE.WAITING)
+    state = models.IntegerField(null=False, choices=SUPERVISOR_TASK_STATE._CHOICES, default=SUPERVISOR_TASK_STATE.WAITING)
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 

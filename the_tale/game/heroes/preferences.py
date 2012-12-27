@@ -43,7 +43,7 @@ class HeroPreferences(object):
 
     @property
     def energy_regeneration_type_name(self):
-        return c.ANGEL_ENERGY_REGENERATION_TYPES.ID_2_TEXT[self.energy_regeneration_type]
+        return c.ANGEL_ENERGY_REGENERATION_TYPES._ID_TO_TEXT[self.energy_regeneration_type]
 
     def get_energy_regeneration_type_changed_at(self): return self.hero_model.pref_energy_regeneration_type_changed_at
     def set_energy_regeneration_type_changed_at(self, value): self.hero_model.pref_energy_regeneration_type_changed_at = value

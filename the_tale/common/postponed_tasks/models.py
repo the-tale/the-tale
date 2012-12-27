@@ -20,7 +20,7 @@ class PostponedTask(models.Model):
 
     live_time = models.BigIntegerField(null=True, default=None)
 
-    state = models.IntegerField(default=POSTPONED_TASK_STATE.WAITING, db_index=True, choices=POSTPONED_TASK_STATE.CHOICES)
+    state = models.IntegerField(default=POSTPONED_TASK_STATE.WAITING, db_index=True, choices=POSTPONED_TASK_STATE._CHOICES)
 
     comment = models.CharField(max_length=256, blank=True, default='')
 

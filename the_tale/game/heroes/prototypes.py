@@ -112,7 +112,7 @@ class HeroPrototype(object):
 
     @property
     def gender_verbose(self):
-        return GENDER.ID_2_TEXT[self.gender]
+        return GENDER._ID_TO_TEXT[self.gender]
 
     @property
     def power(self): return f.clean_power_to_lvl(self.level) + self.equipment.get_power()
@@ -126,7 +126,7 @@ class HeroPrototype(object):
 
     @property
     def race_verbose(self):
-        return RACE.ID_2_TEXT[self.race]
+        return RACE._ID_TO_TEXT[self.race]
 
     @property
     def level(self): return self.model.level
@@ -786,7 +786,7 @@ class HeroPrototype(object):
 
         start_place = places_storage.random_place()
 
-        race = random.choice(RACE.ALL)
+        race = random.choice(RACE._ALL)
 
         gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 

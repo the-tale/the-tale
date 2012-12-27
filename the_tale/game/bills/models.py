@@ -31,8 +31,8 @@ class Bill(models.Model):
 
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
 
-    type = models.IntegerField(null=False, choices=BILL_TYPE.CHOICES, db_index=True)
-    state = models.IntegerField(null=False, default=BILL_STATE.VOTING, choices=BILL_STATE.CHOICES, db_index=True)
+    type = models.IntegerField(null=False, choices=BILL_TYPE._CHOICES, db_index=True)
+    state = models.IntegerField(null=False, default=BILL_STATE.VOTING, choices=BILL_STATE._CHOICES, db_index=True)
 
     approved_by_moderator = models.BooleanField(default=False, db_index=True)
 

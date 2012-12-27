@@ -10,7 +10,8 @@ from game.game_info import ATTRIBUTES
 class AbilityAttributeBase(AbilityPrototype):
 
     @property
-    def modifier(self): return self.MODIFIER[self.level]
+    def modifier(self):
+        return self.MODIFIER[self.level-1]
 
 
 class EXTRA_SLOW(AbilityAttributeBase):

@@ -25,11 +25,11 @@ class EventHeroOfTheDay(object):
 
     @property
     def gender_verbose(self):
-        return GENDER.ID_2_TEXT[self.gender]
+        return GENDER._ID_TO_TEXT[self.gender]
 
     @property
     def race_verbose(self):
-        return RACE.ID_2_TEXT[self.race]
+        return RACE._ID_TO_TEXT[self.race]
 
     def serialize(self):
         return {'type': self.TYPE,
