@@ -1,4 +1,5 @@
 #coding: utf-8
+import random
 
 from common.utils.enum import create_enum
 
@@ -54,6 +55,9 @@ class AbilityPrototype(object):
     @property
     def has_max_level(self): return self.level == self.MAX_LEVEL
 
+    @property
+    def priority(self): return self.PRIORITY[self.level]
+
     @classmethod
     def get_id(cls): return cls.__name__.lower()
 
@@ -85,14 +89,19 @@ class HIT(AbilityPrototype):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
-    PRIORITY = 100
+    PRIORITY = [100, 100, 100, 100, 100]
 
     NAME = u'Удар'
     normalized_name = NAME
     DESCRIPTION = u'Каждый уважающий себя герой должен быть в состоянии ударить противника, или пнуть.'
 
+    DAMAGE_MODIFIER = [1.00, 1.25, 1.50, 2.00, 2.25]
+
+    @property
+    def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level]
+
     def use(self, messanger, actor, enemy):
-        damage = actor.context.modify_initial_damage(actor.basic_damage)
+        damage = actor.context.modify_initial_damage(actor.basic_damage*self.damage_modifier)
         enemy.change_health(-damage)
         messanger.add_message('hero_ability_hit', attacker=actor, defender=enemy, damage=damage)
 
@@ -105,16 +114,23 @@ class MAGIC_MUSHROOM(AbilityPrototype):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
-    PRIORITY = 10
+    PRIORITY = [10, 10, 10, 10, 10]
 
     NAME = u'Волшебный гриб'
     normalized_name = NAME
     DESCRIPTION = u'Находясь в бою, герой может силой своей могучей воли вырастить волшебный гриб, съев который, некоторое время станет наносить увеличенный урон противникам.'
 
-    DAMAGE_FACTORS = [3, 2.5, 2, 1.5]
+    DAMAGE_FACTORS = [ [2.00, 1.50],
+                       [2.25, 1.75, 1.25],
+                       [2.50, 2.00, 1.50],
+                       [2.75, 2.25, 1.75, 1.25],
+                       [3.00, 2.50, 2.00, 1.50] ]
+
+    @property
+    def damage_factors(self): return self.DAMAGE_FACTORS[self.level]
 
     def use(self, messanger, actor, enemy):
-        actor.context.use_ability_magic_mushroom(self.DAMAGE_FACTORS)
+        actor.context.use_ability_magic_mushroom(self.damage_factors)
         messanger.add_message('hero_ability_magicmushroom', actor=actor)
 
 
@@ -123,16 +139,24 @@ class SIDESTEP(AbilityPrototype):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
-    PRIORITY = 10
+
+    PRIORITY = [10, 11, 12, 13, 14]
 
     NAME = u'Шаг в сторону'
     normalized_name = NAME
     DESCRIPTION = u'Герой быстро меняет свою позицию, дезориентируя противника, из-за чего тот начинает промахиваться.'
 
-    MISS_PROBABILITIES = [0.8, 0.6, 0.4, 0.2]
+    MISS_PROBABILITIES = {1: [0.50, 0.25, 0.125],
+                          1: [0.60, 0.30, 0.150],
+                          1: [0.70, 0.35, 0.175],
+                          1: [0.80, 0.40, 0.200, 0.1000],
+                          1: [0.90, 0.45, 0.225, 0.1125]}
+
+    @property
+    def miss_probabilities(self): return self.MISS_PROBABILITIES[self.level]
 
     def use(self, messanger, actor, enemy):
-        enemy.context.use_ability_sidestep(self.MISS_PROBABILITIES)
+        enemy.context.use_ability_sidestep(self.miss_probabilities)
         messanger.add_message('hero_ability_sidestep', attacker=actor, defender=enemy)
 
     def on_miss(self, messanger, actor, enemy):
@@ -144,18 +168,25 @@ class RUN_UP_PUSH(AbilityPrototype):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
-    PRIORITY = 10
+    PRIORITY = [10, 11, 12, 13, 14]
 
     NAME = u'Разбег-толчок'
     normalized_name = NAME
     DESCRIPTION = u'Герой разбегается и наносит урон противнику. Враг будет оглушён и пропустит следующую атаку.'
 
-    STUN_LENGTH = 3
+    STUN_LENGTH = {1: (1, 1),
+                   2: (1, 2),
+                   3: (1, 3),
+                   4: (2, 3),
+                   5: (2, 4)}
+
+    @property
+    def stun_length(self): return self.STUN_LENGTH[self.level]
 
     def use(self, messanger, actor, enemy):
         damage = actor.context.modify_initial_damage(actor.basic_damage)
         enemy.change_health(-damage)
-        enemy.context.use_stun(self.STUN_LENGTH)
+        enemy.context.use_stun(random.randint(*self.stun_length))
         messanger.add_message('hero_ability_runuppush', attacker=actor, defender=enemy, damage=damage)
 
     def on_miss(self, messanger, actor, enemy):
@@ -168,19 +199,22 @@ class REGENERATION(AbilityPrototype):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
-    PRIORITY = 10
+    PRIORITY = [10, 11, 12, 13, 14]
 
     NAME = u'Регенерация'
     normalized_name = NAME
     DESCRIPTION = u'Во время боя герой может восстановить часть своего здоровья.'
 
-    RESTORED_PERCENT = 0.25
+    RESTORED_PERCENT = [0.05, 0.10, 0.15, 0.20, 0.25]
+
+    @property
+    def restored_percent(self): return self.RESTORED_PERCENT[self.level]
 
     def can_be_used(self, actor): return actor.health < actor.max_health
 
     @classmethod
     def use(self, messanger, actor, enemy):
-        health_to_regen = f.mob_hp_to_lvl(actor.level) * self.RESTORED_PERCENT # !!!MOB HP, NOT HERO!!!
+        health_to_regen = f.mob_hp_to_lvl(actor.level) * self.restored_percent # !!!MOB HP, NOT HERO!!!
         applied_health = actor.change_health(health_to_regen)
         messanger.add_message('hero_ability_regeneration', actor=actor, health=applied_health)
 
@@ -194,10 +228,13 @@ class CRITICAL_HIT(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Удача благосклонна к герою — урон от любого удара может существенно увеличится.'
 
-    CRITICAL_CHANCE = 0.1
+    CRITICAL_CHANCE = [0.05, 0.08, 0.11, 0.14, 0.17]
+
+    @property
+    def critical_chance(self): return self.CRITICAL_CHANCE[self.level]
 
     def update_context(self, actor, enemy):
-        actor.context.use_crit_chance(self.CRITICAL_CHANCE)
+        actor.context.use_crit_chance(self.critical_chance)
 
 
 class BERSERK(AbilityPrototype):
@@ -209,10 +246,13 @@ class BERSERK(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Чем меньше у героя остаётся здоровья, тем сильнее его удары.'
 
-    MAXIMUM_BONUS = 0.2
+    MAXIMUM_BONUS = [0.1, 0.13, 0.16, 0.19, 0.22]
+
+    @property
+    def maximum_bonus(self): return self.MAXIMUM_BONUS[self.level]
 
     def update_context(self, actor, enemy):
-        actor.context.use_berserk(1 + self.MAXIMUM_BONUS * float(actor.max_health - actor.health) / actor.max_health)
+        actor.context.use_berserk(1 + self.maximum_bonus * float(actor.max_health - actor.health) / actor.max_health)
 
 
 class NINJA(AbilityPrototype):
@@ -224,10 +264,13 @@ class NINJA(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Ниндзя может уклониться от атаки противника.'
 
-    MISS_PROBABILITY = 0.1
+    MISS_PROBABILITY = [0.05, 0.08, 0.11, 0.14, 0.17]
+
+    @property
+    def miss_probability(self): return self.MISS_PROBABILITY[self.level]
 
     def update_context(self, actor, enemy):
-        enemy.context.use_ninja(self.MISS_PROBABILITY)
+        enemy.context.use_ninja(self.miss_probability)
 
 
 
