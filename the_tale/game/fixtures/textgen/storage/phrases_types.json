@@ -221,14 +221,42 @@
 "name": "Удар", 
 "description": "Нанесение урона способностью «Удар»."
 }, 
-"hero_ability_hit_miss": {
+"hero_ability_speedup": {
 "variables": [
 "attacker", 
 "defender"
 ], 
-"example": "Привидение поднатужилось… и промахнулось…", 
-"name": "Промах", 
-"description": "Атакующий промахулся при использовании способности «Удар»"
+"example": "Привидение замыкает на себе потоки магии и начинает двигаться значительно быстрее.", 
+"name": "Ускорение", 
+"description": "Применение способности «Ускорение»."
+}, 
+"hero_ability_fireball": {
+"variables": [
+"attacker", 
+"damage", 
+"defender"
+], 
+"example": "Привидение выпустило шар огня. Волшебное пламя нанесло 22 единицы урона ошарашеной крысе.", 
+"name": "Шар огня", 
+"description": "Нанесение урона способностью «Шар огня»."
+}, 
+"hero_ability_vampire_strike_miss": {
+"variables": [
+"attacker", 
+"defender"
+], 
+"example": "Привидение попыталось укусить крысу, но промахнулось.", 
+"name": "Удар вампира (промах)", 
+"description": "Атакующий промахулся при использовании способности «Удар вампира»"
+}, 
+"hero_ability_freezing": {
+"variables": [
+"attacker", 
+"defender"
+], 
+"example": "Привидение взывает к зимним ветрам и крысу окутывает ужасный холод, её движения замедляются.", 
+"name": "Замарозка", 
+"description": "Применение способности «Замарозка»."
 }, 
 "hero_ability_runuppush": {
 "variables": [
@@ -240,6 +268,15 @@
 "name": "Разбег-толчок", 
 "description": "Использование способности «Разбег-толчок»"
 }, 
+"hero_ability_poison_cloud": {
+"variables": [
+"attacker", 
+"defender"
+], 
+"example": "Привидение создало ядовитое облако вокруг крысы.", 
+"name": "Ядовитое облако", 
+"description": "Применение способности «Ядовитое облако»."
+}, 
 "hero_ability_regeneration": {
 "variables": [
 "health", 
@@ -248,6 +285,15 @@
 "example": "Привидение восстановило 13 HP.", 
 "name": "Регенерация", 
 "description": "Герой использует способность и восстанавливает здоровье."
+}, 
+"hero_ability_fire_miss": {
+"variables": [
+"attacker", 
+"defender"
+], 
+"example": "Выпущенный привидением шар огня пронёсся в сантиметре от цели. В этот раз крысе крупно повезло.", 
+"name": "Шар огня (промах)", 
+"description": "Атакующий промахулся при использовании способности «Шар огня»"
 }, 
 "hero_ability_runuppush_miss": {
 "variables": [
@@ -258,6 +304,26 @@
 "example": "Привидение разбежалось и пронеслось мимо крысы.", 
 "name": "Разбег-толчок (промах)", 
 "description": "Промах при использовании способности «Разбег—толчок»"
+}, 
+"hero_ability_hit_miss": {
+"variables": [
+"attacker", 
+"defender"
+], 
+"example": "Привидение поднатужилось… и промахнулось…", 
+"name": "Промах", 
+"description": "Атакующий промахулся при использовании способности «Удар»"
+}, 
+"hero_ability_vampire_strike": {
+"variables": [
+"attacker", 
+"health", 
+"damage", 
+"defender"
+], 
+"example": "Привидение впилось в крысу, нанесло 17 единиц урона и восстановило 9 HP.", 
+"name": "Удар вампира", 
+"description": "Нанесение урона способностью «Удар вампира»."
 }, 
 "hero_ability_magicmushroom": {
 "variables": [
@@ -545,13 +611,22 @@
 "name": "Герой забрал добычу", 
 "description": "Герой получил добычу с трупа противника и положил её в рюкзак."
 }, 
+"action_battlepve1x1_periodical_fire_damage": {
+"variables": [
+"damage", 
+"actor"
+], 
+"example": "Привидение горит и получает 15 единиц урона.", 
+"name": "Периодический урон огнём", 
+"description": "Герой или монстр получает периодический урон огнём."
+}, 
 "action_battlepve1x1_battle_stun": {
 "variables": [
 "actor"
 ], 
 "example": "Привидение в шоке и не может атаковать.", 
 "name": "Стан", 
-"description": "Герой дезориентирован и пропускает ход."
+"description": "Герой или монстр дезориентирован и пропускает ход."
 }, 
 "action_battlepve1x1_no_loot": {
 "variables": [
@@ -572,6 +647,15 @@
 "name": "Нет места в рюкзаке", 
 "description": "Герой получил добычу, но в рюкзаке нет для неё места (добыча выкидывается)."
 }, 
+"action_battlepve1x1_periodical_poison_damage": {
+"variables": [
+"damage", 
+"actor"
+], 
+"example": "Привидение отравлено и теряет 16 единиц урона.", 
+"name": "Периодический урон ядом", 
+"description": "Герой или монстр получает периодический урон ядом."
+}, 
 "action_battlepve1x1_mob_killed": {
 "variables": [
 "mob", 
@@ -581,14 +665,14 @@
 "name": "Монстр убит", 
 "description": "Монстр умирает."
 }, 
-"action_battlepve1x1_description": {
+"action_battlepve1x1_start": {
 "variables": [
 "mob", 
 "hero"
 ], 
-"example": "сражается с крысой", 
-"name": "Описание", 
-"description": "Краткая декларация того, что делает герой."
+"example": "Ужасная крыса выскочила из кустов.", 
+"name": "Начало боя", 
+"description": "Встреча с противником."
 }, 
 "action_battlepve1x1_hero_killed": {
 "variables": [
@@ -599,14 +683,14 @@
 "name": "Герой убит", 
 "description": "Герой умирает."
 }, 
-"action_battlepve1x1_start": {
+"action_battlepve1x1_description": {
 "variables": [
 "mob", 
 "hero"
 ], 
-"example": "Ужасная крыса выскочила из кустов.", 
-"name": "Начало боя", 
-"description": "Встреча с противником."
+"example": "сражается с крысой", 
+"name": "Описание", 
+"description": "Краткая декларация того, что делает герой."
 }
 }, 
 "description": "Описание событий, происходящих при сражении с монстрами."

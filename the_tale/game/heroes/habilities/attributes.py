@@ -3,16 +3,16 @@
 from game.heroes.habilities.prototypes import AbilityPrototype, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 from game.game_info import ATTRIBUTES
 
-#######################
-# initiative
-#######################
-
 class AbilityAttributeBase(AbilityPrototype):
 
     @property
     def modifier(self):
         return self.MODIFIER[self.level-1]
 
+
+#######################
+# initiative
+#######################
 
 class EXTRA_SLOW(AbilityAttributeBase):
 
@@ -54,7 +54,7 @@ class FAST(AbilityAttributeBase):
     normalized_name = NAME
     DESCRIPTION = u'Обладатель этой способности имеет хорошую реакцию и действует в бою быстрее.'
 
-    MODIFIER = [1.025, 1.05, 1.075, 1.100, 1.125]
+    MODIFIER = [1.02, 1.05, 1.065, 1.085, 1.1]
 
     def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.INITIATIVE else value
 

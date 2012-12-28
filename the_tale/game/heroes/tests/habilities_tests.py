@@ -17,16 +17,18 @@ from game.logic_storage import LogicStorage
 from game.logic import create_test_map
 
 from game.actions.fake import FakeActor
+from game.actions.contexts.battle import Damage
 
 from game.heroes.fake import FakeMessanger
 
 from game.heroes.prototypes import HeroPrototype
-from game.heroes.habilities import prototypes as common_abilities
+from game.heroes.habilities import battle as battle_abilities
+from game.heroes.habilities import modifiers as modifiers_abilities
 from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from game.heroes.habilities.prototypes import ABILITY_LOGIC_TYPE
 from game.heroes.postponed_tasks import ChooseHeroAbilityTask, CHOOSE_HERO_ABILITY_STATE
 
-
+E = 0.0001
 
 class HabilitiesTest(TestCase):
 
@@ -49,58 +51,142 @@ class HabilitiesTest(TestCase):
                 self.assertTrue('on_miss' in ability_class.__dict__)
 
     def test_hit(self):
-        common_abilities.HIT().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.HIT().use(self.messanger, self.attacker, self.defender)
         self.assertTrue(self.defender.health < self.defender.max_health)
         self.assertEqual(self.messanger.messages, ['hero_ability_hit'])
 
     def test_magic_mushroom(self):
-        common_abilities.MAGIC_MUSHROOM().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.MAGIC_MUSHROOM().use(self.messanger, self.attacker, self.defender)
         self.assertTrue(self.attacker.context.ability_magic_mushroom)
         self.assertFalse(self.defender.context.ability_magic_mushroom)
         self.assertEqual(self.messanger.messages, ['hero_ability_magicmushroom'])
 
     def test_sidestep(self):
-        common_abilities.SIDESTEP().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.SIDESTEP().use(self.messanger, self.attacker, self.defender)
         self.assertFalse(self.attacker.context.ability_sidestep)
         self.assertTrue(self.defender.context.ability_sidestep)
         self.assertEqual(self.messanger.messages, ['hero_ability_sidestep'])
 
     def test_run_up_push(self):
-        common_abilities.RUN_UP_PUSH().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.RUN_UP_PUSH().use(self.messanger, self.attacker, self.defender)
         self.assertFalse(self.attacker.context.stun_length)
         self.assertTrue(self.defender.context.stun_length)
         self.assertTrue(self.defender.health < self.defender.max_health)
         self.assertEqual(self.messanger.messages, ['hero_ability_runuppush'])
 
     def test_regeneration(self):
-        self.assertFalse(common_abilities.REGENERATION().can_be_used(self.attacker))
+        self.assertFalse(battle_abilities.REGENERATION().can_be_used(self.attacker))
         self.attacker.health = 1
-        self.assertTrue(common_abilities.REGENERATION().can_be_used(self.attacker))
+        self.assertTrue(battle_abilities.REGENERATION().can_be_used(self.attacker))
 
-        common_abilities.REGENERATION().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.REGENERATION().use(self.messanger, self.attacker, self.defender)
         self.assertTrue(self.attacker.health > 1)
         self.assertEqual(self.messanger.messages, ['hero_ability_regeneration'])
 
     def test_critical_chance(self):
         self.assertFalse(self.attacker.context.crit_chance > 0)
-        common_abilities.CRITICAL_HIT().update_context(self.attacker, self.defender)
+        battle_abilities.CRITICAL_HIT().update_context(self.attacker, self.defender)
         self.assertTrue(self.attacker.context.crit_chance > 0)
 
     @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
     def test_berserk(self):
-        old_damage = self.attacker.context.modify_initial_damage(100)
-        common_abilities.BERSERK().update_context(self.attacker, self.defender)
-        self.assertEqual(old_damage, self.attacker.context.modify_initial_damage(100))
+        old_damage = self.attacker.context.modify_outcoming_damage(Damage(100, 50))
+        battle_abilities.BERSERK().update_context(self.attacker, self.defender)
+        self.assertEqual(old_damage, self.attacker.context.modify_outcoming_damage(Damage(100, 50)))
         self.attacker.health = 1
-        common_abilities.BERSERK().update_context(self.attacker, self.defender)
-        self.assertTrue(old_damage < self.attacker.context.modify_initial_damage(100))
+        battle_abilities.BERSERK().update_context(self.attacker, self.defender)
+        new_damage = self.attacker.context.modify_outcoming_damage(Damage(100, 50))
+        self.assertTrue(old_damage.physic < new_damage.physic)
+        self.assertTrue(old_damage.magic < new_damage.magic)
 
     def test_ninja(self):
         self.assertTrue(self.attacker.context.ninja == 0)
         self.assertTrue(self.defender.context.ninja == 0)
-        common_abilities.NINJA().update_context(self.attacker, self.defender)
+        battle_abilities.NINJA().update_context(self.attacker, self.defender)
         self.assertTrue(self.attacker.context.ninja == 0)
         self.assertTrue(self.defender.context.ninja > 0)
+
+    def test_fireball(self):
+        battle_abilities.FIREBALL().use(self.messanger, self.attacker, self.defender)
+        self.assertTrue(self.defender.health < self.defender.max_health)
+        self.assertFalse(self.attacker.context.damage_queue_fire)
+        self.assertTrue(self.defender.context.damage_queue_fire)
+        self.assertEqual(self.messanger.messages, ['hero_ability_fireball'])
+
+    def test_poison_cloud(self):
+        battle_abilities.POISON_CLOUD().use(self.messanger, self.attacker, self.defender)
+        self.assertEqual(self.defender.health, self.defender.max_health)
+        self.assertFalse(self.attacker.context.damage_queue_poison)
+        self.assertTrue(self.defender.context.damage_queue_poison)
+        self.assertEqual(self.messanger.messages, ['hero_ability_poison_cloud'])
+
+    def test_vimpire_strike(self):
+        self.attacker.health = 1
+        battle_abilities.VAMPIRE_STRIKE().use(self.messanger, self.attacker, self.defender)
+        self.assertTrue(self.defender.health < self.defender.max_health)
+        self.assertTrue(self.attacker.health > 1)
+        self.assertEqual(self.messanger.messages, ['hero_ability_vampire_strike'])
+
+    def test_freezing(self):
+        battle_abilities.FREEZING().use(self.messanger, self.attacker, self.defender)
+        self.assertEqual(self.defender.health, self.defender.max_health)
+        self.assertFalse(self.attacker.context.initiative_queue)
+        self.assertTrue(1 - E < self.attacker.context.initiative < 1 + E)
+        self.assertTrue(self.defender.context.initiative_queue)
+
+        self.defender.context.on_enemy_turn()
+        self.assertTrue(self.defender.context.initiative < 1)
+
+        self.assertEqual(self.messanger.messages, ['hero_ability_freezing'])
+
+    def test_speedup(self):
+        battle_abilities.SPEEDUP().use(self.messanger, self.attacker, self.defender)
+        self.assertEqual(self.defender.health, self.defender.max_health)
+        self.assertFalse(self.defender.context.initiative_queue)
+        self.assertTrue(1 - E < self.defender.context.initiative < 1 + E)
+
+        self.assertTrue(self.attacker.context.initiative_queue)
+        self.attacker.context.on_own_turn()
+        self.assertTrue(self.attacker.context.initiative > 1)
+
+        self.assertEqual(self.messanger.messages, ['hero_ability_speedup'])
+
+    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    def test_mage(self):
+        modifiers_abilities.MAGE().update_context(self.attacker, self.defender)
+        damage = self.attacker.context.modify_outcoming_damage(Damage(100, 100))
+        self.assertTrue(damage.physic < 100 and damage.magic > 100)
+
+        damage = self.attacker.context.modify_incoming_damage(Damage(100, 100))
+        self.assertTrue(damage.physic > 100 and damage.magic < 100)
+
+    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    def test_warrior(self):
+        modifiers_abilities.WARRIOR().update_context(self.attacker, self.defender)
+        damage = self.attacker.context.modify_outcoming_damage(Damage(100, 100))
+        self.assertTrue(damage.physic > 100 and damage.magic < 100)
+
+        damage = self.attacker.context.modify_incoming_damage(Damage(100, 100))
+        self.assertTrue(damage.physic < 100 and damage.magic > 100)
+
+    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    def test_gargoyle(self):
+        modifiers_abilities.GARGOYLE().update_context(self.attacker, self.defender)
+        damage = self.attacker.context.modify_outcoming_damage(Damage(100, 100))
+        self.assertTrue(damage.physic == 100 and damage.magic == 100)
+
+        damage = self.attacker.context.modify_incoming_damage(Damage(100, 100))
+        self.assertTrue(damage.physic < 100 and damage.magic < 100)
+
+    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    def test_killer(self):
+        modifiers_abilities.KILLER().update_context(self.attacker, self.defender)
+        damage = self.attacker.context.modify_outcoming_damage(Damage(100, 100))
+        self.assertTrue(damage.physic > 100 and damage.magic > 100)
+
+        damage = self.attacker.context.modify_incoming_damage(Damage(100, 100))
+        self.assertTrue(damage.physic == 100 and damage.magic == 100)
+
 
 
 class ChooseAbilityTaskTest(TestCase):
@@ -165,9 +251,9 @@ class ChooseAbilityTaskTest(TestCase):
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.NOT_FOR_PLAYERS)
 
     def test_process_already_max_level(self):
-        task = ChooseHeroAbilityTask(self.hero.id, common_abilities.HIT.get_id())
+        task = ChooseHeroAbilityTask(self.hero.id, battle_abilities.HIT.get_id())
 
-        self.hero.abilities.abilities[common_abilities.HIT.get_id()].level = common_abilities.HIT.MAX_LEVEL
+        self.hero.abilities.abilities[battle_abilities.HIT.get_id()].level = battle_abilities.HIT.MAX_LEVEL
         self.hero.abilities.updated = True
         self.hero.save()
 

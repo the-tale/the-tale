@@ -10,7 +10,7 @@ from game.logic import create_test_map
 from game.actions.battle import Actor
 from game.actions.contexts import BattleContext
 
-from game.heroes.habilities.prototypes import RUN_UP_PUSH, HIT
+from game.heroes.habilities.battle import RUN_UP_PUSH, HIT
 from game.mobs.storage import MobsDatabase
 from game.logic_storage import LogicStorage
 
@@ -64,6 +64,11 @@ class ActorTest(TestCase):
         self.assertTrue(run_up_push_selected)
 
         self.storage._test_save()
+
+    def test_initiative_change(self):
+        actor = Actor(self.hero, BattleContext())
+        actor.context.use_initiative([2])
+        self.assertEqual(actor.initiative, self.hero.initiative*2)
 
 
     def test_mob_actor(self):

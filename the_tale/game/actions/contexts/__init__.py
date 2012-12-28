@@ -1,5 +1,5 @@
 # coding: utf-8
 
-from .battle import BattleContext
+from game.actions.contexts.battle import BattleContext, Damage
 
-__all__ = ['BattleContext']
+__all__ = [BattleContext, Damage]

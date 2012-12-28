@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -11,6 +12,8 @@ from game.logic_storage import LogicStorage
 
 from game.actions import battle, contexts
 
+from game.balance import formulas as f
+
 from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, ABILITY_TYPE
 
 
@@ -21,8 +24,9 @@ class Messanger(object):
 
 MESSANGER = Messanger()
 
-TEST_BATTLES_NUMBER = 1000
+TEST_BATTLES_NUMBER = 40
 LEVEL = 5
+HERO_LEVELS = [5, 15, 25, 35, 45]
 
 
 def process_battle(hero_1, hero_2):
@@ -42,14 +46,21 @@ def get_battles_statistics(hero_1, hero_2):
     hero_1_wins = 0
     hero_2_wins = 0
 
-    for i in xrange(TEST_BATTLES_NUMBER):
-        hero_1.health = hero_1.max_health
-        hero_2.health = hero_2.max_health
+    for hero_level in HERO_LEVELS:
 
-        if process_battle(hero_1, hero_2):
-            hero_1_wins += 1
-        else:
-            hero_2_wins += 1
+        with mock.patch('game.heroes.prototypes.HeroPrototype.power', f.power_to_lvl(hero_level)):
+
+            hero_1.model.level = hero_level
+            hero_2.model.level = hero_level
+
+            for i in xrange(TEST_BATTLES_NUMBER):
+                hero_1.health = hero_1.max_health
+                hero_2.health = hero_2.max_health
+
+                if process_battle(hero_1, hero_2):
+                    hero_1_wins += 1
+                else:
+                    hero_2_wins += 1
 
     return hero_1_wins, hero_2_wins
 
@@ -113,9 +124,8 @@ def save_ability_mathces_statistics(statistics, matches):
 
     data = []
     for (x, y), (w_1, w_2) in matches.items():
-        power = 1000 * w_1 / float(w_1+w_2)
-        data.append((index[x], index[y], power))
-        data.append((index[y], index[x], power))
+        data.append((index[x], index[y], 1000 * w_1 / float(w_1+w_2) ))
+        data.append((index[y], index[x], 1000 * w_2 / float(w_1+w_2) ))
 
     x, y, powers = zip(*data)
 
@@ -150,11 +160,10 @@ def save_ability_wins_distribution(statistics, ability_wins):
     keys, wins = zip(*statistics)
 
     data = [ability_wins[key] for key in keys]
-
     ax.boxplot(data)#, positions=[i for i in xrange(len(keys))])
 
     ax.set_xlim(0.5, len(statistics)+0.5)
-    ax.set_ylim(0, TEST_BATTLES_NUMBER)
+    ax.set_ylim(0, TEST_BATTLES_NUMBER*len(HERO_LEVELS))
 
     locator = plt.IndexLocator(1, 0.5)
     formatter = plt.FixedFormatter([s[0] for s in statistics])
@@ -183,14 +192,14 @@ class Command(BaseCommand):
         account_1 = AccountPrototype.get_by_id(account_1_id)
         account_2 = AccountPrototype.get_by_id(account_2_id)
 
+        storage = LogicStorage()
+        storage.load_account_data(account_1)
+        storage.load_account_data(account_2)
+
+        hero_1 = storage.accounts_to_heroes[account_1_id]
+        hero_2 = storage.accounts_to_heroes[account_2_id]
+
         try:
-
-            storage = LogicStorage()
-            storage.load_account_data(account_1)
-            storage.load_account_data(account_2)
-
-            hero_1 = storage.accounts_to_heroes[account_1_id]
-            hero_2 = storage.accounts_to_heroes[account_2_id]
 
             abilities = [ability_class
                          for ability_class in ABILITIES.values()
@@ -212,8 +221,10 @@ class Command(BaseCommand):
 
             statistics = sorted(ability_statistics.items(), key=lambda stat: -stat[1])
 
+            battles_per_ability = TEST_BATTLES_NUMBER * (len(abilities)-1)
+
             for ability_id, wins in statistics:
-                print '%d\t%s' % (wins, ability_id)
+                print '%d\t%.0f%%\t%s' % (wins, 100*float(wins)/(battles_per_ability*len(HERO_LEVELS)), ability_id)
 
             save_ability_power_statistics(statistics)
             save_ability_mathces_statistics(statistics, ability_matches)

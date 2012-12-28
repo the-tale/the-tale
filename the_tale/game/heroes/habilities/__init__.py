@@ -3,12 +3,15 @@ import random
 
 from game.heroes.habilities.prototypes import ABILITY_TYPE, ABILITY_AVAILABILITY, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE
 
-from game.heroes.habilities.prototypes import ABILITIES as COMMON_ABILITIES
+from game.heroes.habilities.battle import ABILITIES as BATTLE_ABILITIES
 from game.heroes.habilities.attributes import ABILITIES as ATTRIBUTES_ABILITIES
+from game.heroes.habilities.modifiers import ABILITIES as MODIFIERS_ABILITIES
 from game.heroes.habilities.nonbattle import ABILITIES as NONBATTLE_ABILITIES
 
-ABILITIES = dict(COMMON_ABILITIES)
+
+ABILITIES = dict(**BATTLE_ABILITIES)
 ABILITIES.update(**ATTRIBUTES_ABILITIES)
+ABILITIES.update(**MODIFIERS_ABILITIES)
 ABILITIES.update(**NONBATTLE_ABILITIES)
 
 __all__ = [ABILITIES, ABILITY_LOGIC_TYPE, ABILITY_TYPE, ABILITY_AVAILABILITY, ABILITY_ACTIVATION_TYPE]

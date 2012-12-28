@@ -14,7 +14,7 @@ class Actor(object):
         self.messages = []
 
     @property
-    def initiative(self): return self.actor.initiative
+    def initiative(self): return self.actor.initiative * self.context.initiative
 
     @property
     def name(self): return self.actor.name
@@ -47,11 +47,19 @@ class Actor(object):
     def update_context(self, enemy):
         self.actor.abilities.update_context(self, enemy)
 
+    def process_effects(self, messanger):
+        fire_damage = self.context.fire_damage
+        if fire_damage:
+            self.change_health(-fire_damage)
+            messanger.add_message('action_battlepve1x1_periodical_fire_damage', actor=self, damage=fire_damage)
+
+        poison_damage = self.context.poison_damage
+        if poison_damage:
+            self.change_health(-poison_damage)
+            messanger.add_message('action_battlepve1x1_periodical_poison_damage', actor=self, damage=poison_damage)
+
 
 def make_turn(actor1, actor2, messanger):
-
-    actor1.update_context(actor2)
-    actor2.update_context(actor1)
 
     actor1_initiative = random.uniform(0, actor1.initiative + actor2.initiative)
 
@@ -64,6 +72,13 @@ def make_turn(actor1, actor2, messanger):
 def strike(attacker, defender, messanger):
 
     attacker.context.on_own_turn()
+    defender.context.on_enemy_turn()
+
+    attacker.update_context(defender)
+    defender.update_context(attacker)
+
+    attacker.process_effects(messanger)
+    defender.process_effects(messanger)
 
     if attacker.context.is_stunned:
         messanger.add_message('action_battlepve1x1_battle_stun', actor=attacker)
