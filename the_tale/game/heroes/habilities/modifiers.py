@@ -77,7 +77,7 @@ class KILLER(AbilityModifiersBase):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
 
-    NAME = u'Варвар'
+    NAME = u'Убийца'
     normalized_name = NAME
     DESCRIPTION = u'Ориентируясь на быстрый бой, убийца совершенствует свои атакующие способности в ущерб защитным.'
 

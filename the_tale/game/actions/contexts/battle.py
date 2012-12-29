@@ -10,15 +10,15 @@ class Damage(object):
         self.magic = magic
 
     @property
-    def total(self): return self.physic + self.magic
+    def total(self): return int(round(self.physic + self.magic))
 
     def multiply(self, physic_multiplier=1.0, magic_multiplier=1.0):
         self.physic *= physic_multiplier
         self.magic *= magic_multiplier
 
     def randomize(self):
-        self.physic =  int(round(self.physic * random.uniform(1-c.DAMAGE_DELTA, 1+c.DAMAGE_DELTA)))
-        self.magic =  int(round(self.magic * random.uniform(1-c.DAMAGE_DELTA, 1+c.DAMAGE_DELTA)))
+        self.physic =  self.physic * random.uniform(1-c.DAMAGE_DELTA, 1+c.DAMAGE_DELTA)
+        self.magic =  self.magic * random.uniform(1-c.DAMAGE_DELTA, 1+c.DAMAGE_DELTA)
 
     def __repr__(self): return u'Damage(physic=%f, magic=%f)' % (self.physic, self.magic)
 

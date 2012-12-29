@@ -22,8 +22,6 @@ class BalanceResource(Resource):
         tmp_times = [0, 8, 24, 24*7, 24*30, 24*30*3, 24*30*6, 24*30*12, 24*30*12*2, 24*30*12*3]
         tmp_lvls = map(f.lvl_after_time, tmp_times)
 
-        print tmp_lvls
-
         # Всё, что ниже, должно зависеть от уровня, не от времени, т.к. время в данном случае не точный параметр, а анализ всё равно ориентируется на уровень.
 
         tmp_exp = map(math.floor, map(f.total_exp_to_lvl, tmp_lvls))

@@ -72,10 +72,16 @@ class MobPrototype(object):
 
     @classmethod
     def deserialize(cls, storage, data):
+
+        if 'abilities'in data['abilities']:
+            abilities = AbilitiesPrototype.deserialize(data['abilities'])
+        else:
+            abilities = AbilitiesPrototype.create()
+
         return cls(record=storage.data[data['id']],
                    level=data['level'],
                    health=data['health'],
-                   abilities=AbilitiesPrototype.deserialize(data['abilities']))
+                   abilities=abilities)
 
     def ui_info(self):
         return { 'name': self.name,

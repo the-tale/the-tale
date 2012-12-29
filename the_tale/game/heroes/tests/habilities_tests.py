@@ -185,7 +185,7 @@ class HabilitiesTest(TestCase):
         self.assertTrue(damage.physic > 100 and damage.magic > 100)
 
         damage = self.attacker.context.modify_incoming_damage(Damage(100, 100))
-        self.assertTrue(damage.physic == 100 and damage.magic == 100)
+        self.assertTrue(damage.physic > 100 and damage.magic > 100)
 
 
 

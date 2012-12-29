@@ -5,6 +5,8 @@ from game.heroes.habilities.prototypes import AbilityPrototype, ABILITY_TYPE, AB
 
 from game.actions.contexts.battle import Damage
 
+from game.balance import constants as c
+
 class HIT(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.BATTLE
@@ -144,8 +146,8 @@ class REGENERATION(AbilityPrototype):
     def use(self, messanger, actor, enemy):
         # health_to_regen = f.mob_hp_to_lvl(actor.level) * self.restored_percent # !!!MOB HP, NOT HERO!!!
         # health_to_regen = actor.max_health * self.restored_percent
-        health_to_regen = actor.basic_damage * self.restored_percent
-        applied_health = actor.change_health(health_to_regen)
+        health_to_regen = actor.basic_damage * self.restored_percent * (1 + random.uniform(-c.DAMAGE_DELTA, c.DAMAGE_DELTA))
+        applied_health = int(round(actor.change_health(health_to_regen)))
         messanger.add_message('hero_ability_regeneration', actor=actor, health=applied_health)
 
 
@@ -286,10 +288,10 @@ class VAMPIRE_STRIKE(AbilityPrototype):
         base_damage = actor.basic_damage * self.damage_fraction
         damage = actor.context.modify_outcoming_damage(Damage(physic=base_damage/2, magic=base_damage/2))
         damage = enemy.context.modify_incoming_damage(damage)
-        health = damage.total * self.heal_fraction
+        health = int(round(damage.total * self.heal_fraction))
         enemy.change_health(-damage.total)
         actor.change_health(health)
-        messanger.add_message('hero_ability_vampire_strike', attacker=actor, defender=enemy, damage=damage, health=health)
+        messanger.add_message('hero_ability_vampire_strike', attacker=actor, defender=enemy, damage=damage.total, health=health)
 
     def on_miss(self, messanger, actor, enemy):
         messanger.add_message('hero_ability_vampire_strike_miss', attacker=actor, defender=enemy)

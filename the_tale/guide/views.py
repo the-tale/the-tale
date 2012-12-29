@@ -70,10 +70,9 @@ class GuideResource(Resource):
             availability = int(availability)
             if availability is not ABILITY_AVAILABILITY.FOR_ALL:
                 is_filtering = True
-            print '!', availability
             abilities = [ability for ability in abilities if ability.AVAILABILITY & availability]
 
-        abilities = sorted(abilities, key=lambda x: x.NAME)
+        abilities = [ability(level=ability.MAX_LEVEL) for ability in sorted(abilities, key=lambda x: x.NAME)]
 
         url_builder = UrlBuilder(reverse('guide:hero-abilities'), arguments={'ability_type': ability_type,
                                                                              'activation_type': activation_type,

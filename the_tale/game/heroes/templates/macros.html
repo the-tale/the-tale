@@ -1,5 +1,5 @@
 
-{% macro abilities_list(abilities, show_description=true, show_type=true) -%}
+{% macro abilities_list(abilities, show_description=true, show_type=true, max_level=false) -%}
 
 <dl class="hero-abilities-list">
   {% for ability in abilities %}
@@ -8,7 +8,9 @@
       {{ ability.NAME }}
       {% if show_type %}
       <small class="ability-type">
-        уровень {{ability.level}},
+        {% if max_level %}максимальный уровень {{ability.MAX_LEVEL}},
+        {% else %} уровень {{ability.level}},
+        {% endif %}
         {{ ability.type.verbose }},
         {{ ability.availability.verbose }},
         {{ ability.activation_type.verbose }}

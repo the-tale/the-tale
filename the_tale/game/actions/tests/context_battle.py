@@ -42,7 +42,7 @@ class BattleContextTest(TestCase):
 
         damage = Damage(100.5, 50.5)
         damage.randomize()
-        self.assertEqual(damage, Damage(101, 51))
+        self.assertEqual(damage.total, 151)
 
     def test_damage_queue_fire(self):
         self.assertEqual(self.context.fire_damage, None)
@@ -101,22 +101,22 @@ class BattleContextTest(TestCase):
 
         self.context.use_initiative([90, 90, 90, 90])
         self.context.on_own_turn()
-        self.assertEqual(self.context.initiative_queue, [90, 90, 90, 90])
+        self.assertEqual(self.context.initiative_queue, [90, 90, 90])
         self.assertEqual(self.context.initiative, 90)
 
         self.context.use_initiative([11, 9])
         self.context.on_own_turn()
-        self.assertEqual(self.context.initiative_queue, [990, 810, 90])
-        self.assertEqual(self.context.initiative, 990)
-
-        self.context.on_own_turn()
         self.assertEqual(self.context.initiative_queue, [810, 90])
         self.assertEqual(self.context.initiative, 810)
 
-        self.context.use_initiative([10, 10, 10, 10])
-        self.assertEqual(self.context.initiative_queue, [810, 900, 10, 10, 10])
         self.context.on_own_turn()
-        self.assertEqual(self.context.initiative, 900)
+        self.assertEqual(self.context.initiative_queue, [90])
+        self.assertEqual(self.context.initiative, 90)
+
+        self.context.use_initiative([10, 10, 10, 10])
+        self.assertEqual(self.context.initiative_queue, [900, 10, 10, 10])
+        self.context.on_own_turn()
+        self.assertEqual(self.context.initiative, 10)
 
 
     @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
@@ -134,7 +134,7 @@ class BattleContextTest(TestCase):
 
         self.context.on_own_turn()
         self.assertEqual(self.context.ability_magic_mushroom, [0.5])
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10, 5)), Damage(5, 3))
+        self.assertEqual(self.context.modify_outcoming_damage(Damage(10, 5)).total, 8)
 
         self.context.on_own_turn()
         self.assertEqual(self.context.ability_magic_mushroom, [])
@@ -181,10 +181,10 @@ class BattleContextTest(TestCase):
 
     @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
     def test_modify_outcoming_damage(self):
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10, 11)), Damage(10, 11))
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10.4, 11.4)), Damage(10, 11))
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10.5, 11.5)), Damage(11, 12))
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10.6, 11.6)), Damage(11, 12))
+        self.assertEqual(self.context.modify_outcoming_damage(Damage(10, 11)).total, 21)
+        self.assertEqual(self.context.modify_outcoming_damage(Damage(10.4, 11.4)).total, 22)
+        self.assertEqual(self.context.modify_outcoming_damage(Damage(10.5, 11.5)).total, 22)
+        self.assertEqual(self.context.modify_outcoming_damage(Damage(10.8, 11.8)).total, 23)
 
     @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
     def test_critical_hit(self):
