@@ -12,7 +12,6 @@ from game.artifacts.storage import ArtifactsDatabase
 from game.artifacts.conf import ITEM_TYPE
 from game.map.places.models import TERRAIN
 from game.logic import create_test_map
-from game.balance import formulas as f
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
 
@@ -67,12 +66,9 @@ class MobsDatabaseTest(TestCase):
 
         bandit = MobPrototype(record=storage.data['bandit'], level=1)
 
-        self.assertEqual(bandit.health_cooficient, 1.125)
-        self.assertEqual(bandit.initiative, 0.875)
-        self.assertEqual(bandit.damage_modifier, 1.25)
-
-        self.assertEqual(bandit.exp_cooficient, f.mob_difficulty(0.875, 1.125, 1.25))
-
+        self.assertEqual(bandit.health_cooficient, 1.025)
+        self.assertEqual(bandit.initiative, 0.975)
+        self.assertEqual(bandit.damage_modifier, 1.05)
 
     def test_load_duplicates(self):
         storage = MobsDatabase()

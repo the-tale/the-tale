@@ -69,6 +69,9 @@ class ActionPrototype(object):
     def order(self): return self.model.order
 
     @property
+    def created_at_turn(self): return self.model.created_at_turn
+
+    @property
     def leader(self):
         return (not self.removed) and (self.storage.current_hero_action(self.hero_id).id == self.id)
 
@@ -177,6 +180,9 @@ class ActionPrototype(object):
     @property
     def back(self): return self.model.back
 
+    def get_hero_health_lost(self): return self.model.hero_health_lost
+    def set_hero_health_lost(self, value): self.model.hero_health_lost = value
+    hero_health_lost = property(get_hero_health_lost, set_hero_health_lost)
 
     @property
     def meta_action_id(self): return self.model.meta_action_id
@@ -388,9 +394,21 @@ class ActionIdlenessPrototype(ActionPrototype):
     @classmethod
     def _create(cls, parent=None, bundle_id=None, hero=None):
         if parent:
-            model = Action.objects.create( type=cls.TYPE, bundle_id=bundle_id, parent=parent.model, hero=parent.hero.model, order=parent.order+1, state=cls.STATE.WAITING)
+            model = Action.objects.create( type=cls.TYPE,
+                                           bundle_id=bundle_id,
+                                           parent=parent.model,
+                                           hero=parent.hero.model,
+                                           order=parent.order+1,
+                                           state=cls.STATE.WAITING,
+                                           created_at_turn=TimePrototype.get_current_turn_number())
         else:
-            model = Action.objects.create( type=cls.TYPE, bundle_id=bundle_id, hero=hero.model, order=0, percents=1.0, state=cls.STATE.WAITING)
+            model = Action.objects.create( type=cls.TYPE,
+                                           bundle_id=bundle_id,
+                                           hero=hero.model,
+                                           order=0,
+                                           percents=1.0,
+                                           state=cls.STATE.WAITING,
+                                           created_at_turn=TimePrototype.get_current_turn_number())
         return cls(model=model)
 
     def init_quest(self):
@@ -458,7 +476,8 @@ class ActionQuestPrototype(ActionPrototype):
                                        hero=parent.hero.model,
                                        order=parent.order+1,
                                        quest=quest.model,
-                                       state=cls.STATE.PROCESSING)
+                                       state=cls.STATE.PROCESSING,
+                                       created_at_turn=TimePrototype.get_current_turn_number())
         return cls(model=model)
 
     def process(self):
@@ -506,7 +525,8 @@ class ActionMoveToPrototype(ActionPrototype):
                                        order=parent.order+1,
                                        place=destination.model,
                                        break_at=break_at,
-                                       state=cls.STATE.CHOOSE_ROAD)
+                                       state=cls.STATE.CHOOSE_ROAD,
+                                       created_at_turn=TimePrototype.get_current_turn_number())
         parent.hero.add_message('action_moveto_start', hero=parent.hero, destination=destination)
         return cls(model=model)
 
@@ -692,7 +712,8 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
                                        hero=parent.hero.model,
                                        order=parent.order+1,
                                        mob=s11n.to_json(mob.serialize()),
-                                       state=cls.STATE.BATTLE_RUNNING)
+                                       state=cls.STATE.BATTLE_RUNNING,
+                                       created_at_turn=TimePrototype.get_current_turn_number())
         parent.hero.add_message('action_battlepve1x1_start', hero=parent.hero, mob=mob)
         return cls(model=model)
 
@@ -721,10 +742,11 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
 
             # make turn only if mob still alive (it can be killed by angel)
             if self.mob.health > 0:
+                old_health = self.hero.health
                 battle.make_turn(battle.Actor(self.hero, self.context),
                                  battle.Actor(self.mob, self.mob_context ),
                                  self.hero)
-
+                self.hero_health_lost += old_health - self.hero.health
                 self.percents = 1.0 - self.mob.health_percents
 
             if self.hero.health <= 0:
@@ -738,7 +760,10 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
             if self.mob.health <= 0:
                 self.mob.kill()
                 self.hero.statistics.change_pve_kills(1)
-                self.hero.add_experience(c.EXP_PER_MOB * self.mob.exp_cooficient)
+                if self.created_at_turn != 0: # TODO: temporary check for situation, when "created_at_turn" field added, MUST be removed
+                    # check for extremal rare situation, when lost health is less then zero
+                    health_percent_lost = float(self.hero_health_lost) / self.hero.max_health if self.hero_health_lost > 0 else 1.0 / c.BATTLE_LENGTH
+                    self.hero.add_experience(f.experience_for_mob(TimePrototype.get_current_turn_number() - self.created_at_turn, health_percent_lost))
                 self.hero.add_message('action_battlepve1x1_mob_killed', hero=self.hero, mob=self.mob)
 
                 loot = self.mob.get_loot()
@@ -780,7 +805,8 @@ class ActionResurrectPrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       state=cls.STATE.RESURRECT)
+                                       state=cls.STATE.RESURRECT,
+                                       created_at_turn=TimePrototype.get_current_turn_number())
         return cls(model=model)
 
     def fast_resurrect(self):
@@ -831,7 +857,8 @@ class ActionInPlacePrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       state=cls.STATE.SPEND_MONEY)
+                                       state=cls.STATE.SPEND_MONEY,
+                                       created_at_turn=TimePrototype.get_current_turn_number())
         return cls(model=model)
 
     def get_description_arguments(self):
@@ -868,7 +895,9 @@ class ActionInPlacePrototype(ActionPrototype):
             coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
             if coins is not None:
 
-                artifact, unequipped, sell_price = self.hero.buy_artifact(with_preferences=False)
+                better = self.hero.abilities.can_buy_better_artifact()
+
+                artifact, unequipped, sell_price = self.hero.buy_artifact(better=better, with_preferences=False)
 
                 if unequipped is not None:
                     self.hero.add_message('action_inplace_buying_artifact_and_change',important=True,
@@ -967,7 +996,8 @@ class ActionRestPrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       state=cls.STATE.RESTING)
+                                       state=cls.STATE.RESTING,
+                                       created_at_turn=TimePrototype.get_current_turn_number())
         parent.hero.add_message('action_rest_start', hero=parent.hero)
         return cls(model=model)
 
@@ -1020,7 +1050,8 @@ class ActionEquippingPrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       state=cls.STATE.EQUIPPING)
+                                       state=cls.STATE.EQUIPPING,
+                                       created_at_turn=TimePrototype.get_current_turn_number())
         return cls(model=model)
 
     def process(self):
@@ -1071,7 +1102,8 @@ class ActionTradingPrototype(ActionPrototype):
                                        hero=parent.hero.model,
                                        order=parent.order+1,
                                        percents_barier=parent.hero.bag.occupation[1],
-                                       state=cls.STATE.TRADING)
+                                       state=cls.STATE.TRADING,
+                                       created_at_turn=TimePrototype.get_current_turn_number())
         parent.hero.add_message('action_trading_start', hero=parent.hero)
         return cls(model=model)
 
@@ -1136,7 +1168,8 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                                        destination_x=x,
                                        destination_y=y,
                                        state=cls.STATE.MOVING,
-                                       back=back)
+                                       back=back,
+                                       created_at_turn=TimePrototype.get_current_turn_number())
 
         if parent.hero.position.is_walking:
             from_x, from_y = parent.hero.position.coordinates_to
@@ -1252,7 +1285,8 @@ class ActionRegenerateEnergyPrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       state=cls.STATE.REGENERATE)
+                                       state=cls.STATE.REGENERATE,
+                                       created_at_turn=TimePrototype.get_current_turn_number())
 
         parent.hero.add_message('action_regenerate_energy_start_%s' % cls.regeneration_slug(parent.hero.preferences.energy_regeneration_type), hero=parent.hero)
 
@@ -1330,7 +1364,8 @@ class ActionDoNothingPrototype(ActionPrototype):
                                        percents_barier=duration,
                                        extra_probability=messages_probability,
                                        textgen_id=messages_prefix,
-                                       state=cls.STATE.DO_NOTHING)
+                                       state=cls.STATE.DO_NOTHING,
+                                       created_at_turn=TimePrototype.get_current_turn_number())
         parent.hero.add_message('%s_start' % messages_prefix, hero=parent.hero)
         return cls(model=model)
 
@@ -1376,7 +1411,8 @@ class ActionMetaProxyPrototype(ActionPrototype):
                                        hero=parent.hero.model,
                                        order=parent.order+1,
                                        meta_action=meta_action.model,
-                                       state=meta_action.state)
+                                       state=meta_action.state,
+                                       created_at_turn=TimePrototype.get_current_turn_number())
         return cls(model=model)
 
     def process(self):

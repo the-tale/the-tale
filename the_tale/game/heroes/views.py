@@ -69,11 +69,16 @@ class HeroResource(Resource):
     @handler('#hero_id', name='show', method='get')
     def hero_page(self):
         abilities = sorted(self.hero.abilities.all, key=lambda x: x.NAME)
+        battle_active_abilities = filter(lambda a: a.type.is_battle and a.activation_type.is_active, abilities)
+        battle_passive_abilities = filter(lambda a: a.type.is_battle and a.activation_type.is_passive, abilities)
+        nonbattle_abilities = filter(lambda a: a.type.is_nonbattle, abilities)
         edit_name_form = EditNameForm(initial={'name_forms': self.hero.normalized_name.forms[:6] if self.hero.is_name_changed else [self.hero.name]*6,
                                                'gender': self.hero.gender,
                                                'race': self.hero.race} )
         return self.template('heroes/hero_page.html',
-                             {'abilities': abilities,
+                             {'battle_active_abilities': battle_active_abilities,
+                              'battle_passive_abilities': battle_passive_abilities,
+                              'nonbattle_abilities': nonbattle_abilities,
                               'is_owner': self.is_owner,
                               'edit_name_form': edit_name_form,
                               'master_account': AccountPrototype.get_by_id(self.hero.account_id),

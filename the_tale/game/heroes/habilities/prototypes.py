@@ -16,6 +16,10 @@ ABILITY_AVAILABILITY = create_enum('ABILITY_AVAILABILITY', (('FOR_PLAYERS', 0b00
                                                             ('FOR_MONSTERS', 0b0010, u'только для монстров'),
                                                             ('FOR_ALL', 0b0011, u'для всех')))
 
+DAMAGE_TYPE = create_enum('DAMAGE_TYPE', (('PHYSICAL', 0b0001, u'физический'),
+                                          ('MAGICAL', 0b0010, u'магический'),
+                                          ('MIXED', 0b0011, u'смешанный')))
+
 
 class AbilityPrototype(object):
 
@@ -24,6 +28,7 @@ class AbilityPrototype(object):
     LOGIC_TYPE = None
     PRIORITY = None
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_ALL
+    DAMAGE_TYPE = None
 
     NAME = u''
     normalized_name = u''
@@ -50,6 +55,11 @@ class AbilityPrototype(object):
     def activation_type(self): return ABILITY_ACTIVATION_TYPE(self.ACTIVATION_TYPE)
 
     @property
+    def damage_type(self):
+        if self.DAMAGE_TYPE is None: return None
+        return DAMAGE_TYPE(self.DAMAGE_TYPE)
+
+    @property
     def has_max_level(self): return self.level == self.MAX_LEVEL
 
     @property
@@ -67,6 +77,12 @@ class AbilityPrototype(object):
     def update_buy_price(self, hero, money): return money
 
     def update_sell_price(self, hero, money): return money
+
+    def update_items_of_expenditure_priorities(self, hero, priorities): return priorities
+
+    def can_get_artifact_for_quest(self, hero): return False
+
+    def can_buy_better_artifact(self, hero): return False
 
     def can_be_used(self, actor): return True
 

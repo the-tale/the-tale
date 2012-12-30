@@ -9,6 +9,7 @@ jQuery(document).ready(function(e){
     jQuery('#choose-ability-button').click(function(){
         pgf.ui.dialog.Create({ fromUrl: pgf.urls['game:heroes:choose_ability_dialog']({{ resource.hero.id }}),
                                OnOpen: function(dialog) {
+                                   jQuery('[rel="tooltip"]', dialog).tooltip(pgf.base.tooltipsArgs);
                                    jQuery('.pgf-hero-ability-record', dialog).click(function(e){
                                        e.preventDefault();
 
@@ -19,6 +20,9 @@ jQuery(document).ready(function(e){
                                                       });
 
                                    });
+                               },
+                               OnClose: function(dialog) {
+                                   pgf.base.HideTooltips(dialog);
                                }
                              });
     });
@@ -47,6 +51,15 @@ jQuery(document).ready(function(e){
 
   {% endif %}
 
+  <h4>Боевые активные</h4>
 
-  {{ macros.abilities_list(abilities) }}
+  {{ macros.abilities_list(battle_active_abilities) }}
+
+  <h4>Боевые пассивные</h4>
+
+  {{ macros.abilities_list(battle_passive_abilities) }}
+
+  <h4>Небоевые</h4>
+
+  {{ macros.abilities_list(nonbattle_abilities) }}
 </div>

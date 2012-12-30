@@ -108,3 +108,19 @@ class ActorTest(TestCase):
         self.assertTrue(run_up_push_selected)
 
         self.storage._test_save()
+
+    def test_process_effects(self):
+        actor = Actor(self.hero, BattleContext())
+
+        actor.context.use_damage_queue_fire([100, 100])
+        actor.context.use_damage_queue_poison([100, 100])
+        actor.context.on_own_turn()
+
+        actor.context.use_incoming_damage_modifier(physic=10, magic=0.8)
+        actor.process_effects(self.hero)
+        self.assertEqual(self.hero.health, self.hero.max_health - 160)
+
+        actor.context.on_own_turn()
+        actor.context.use_incoming_damage_modifier(physic=10, magic=1.2)
+        actor.process_effects(self.hero)
+        self.assertEqual(self.hero.health, self.hero.max_health - 160 - 240)

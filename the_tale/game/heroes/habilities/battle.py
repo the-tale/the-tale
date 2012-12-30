@@ -1,7 +1,7 @@
 #coding: utf-8
 import random
 
-from game.heroes.habilities.prototypes import AbilityPrototype, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE
+from game.heroes.habilities.prototypes import AbilityPrototype, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE, DAMAGE_TYPE
 
 from game.actions.contexts.battle import Damage
 
@@ -13,6 +13,7 @@ class HIT(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
     PRIORITY = [100, 100, 100, 100, 100]
+    DAMAGE_TYPE = DAMAGE_TYPE.MIXED
 
     NAME = u'Удар'
     normalized_name = NAME
@@ -93,6 +94,7 @@ class RUN_UP_PUSH(AbilityPrototype):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
+    DAMAGE_TYPE = DAMAGE_TYPE.PHYSICAL
     PRIORITY = [7, 10, 10, 11, 13]
 
     NAME = u'Разбег-толчок'
@@ -210,6 +212,7 @@ class FIREBALL(AbilityPrototype):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
+    DAMAGE_TYPE = DAMAGE_TYPE.MAGICAL
     PRIORITY = [5, 6, 7, 8, 9]
 
     NAME = u'Шар огня'
@@ -246,6 +249,7 @@ class POISON_CLOUD(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [10, 9, 12, 13, 14]
+    DAMAGE_TYPE = DAMAGE_TYPE.MAGICAL
 
     NAME = u'Ядовитое облако'
     normalized_name = NAME
@@ -269,6 +273,7 @@ class VAMPIRE_STRIKE(AbilityPrototype):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
+    DAMAGE_TYPE = DAMAGE_TYPE.MIXED
     PRIORITY = [15, 16, 17, 18, 19]
 
     NAME = u'Удар вампира'

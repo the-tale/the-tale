@@ -32,8 +32,10 @@
         "action_get_item": [],
         "action_give_item": [],
         "action_steal_item": [],
-        "action_delivery_get_reward": [],
-        "action_steal_get_reward": [],
+        "action_delivery_get_reward_money": [],
+        "action_delivery_get_reward_artifact": [],
+        "action_steal_get_reward_money": [],
+        "action_steal_get_reward_artifact": [],
 
         "journal_get_item": {
             "name": "Журнал: получение",
@@ -89,20 +91,36 @@
                          "Служить на почте трудно и даже опасно, но это почётная профессия! И пусть в дороге меня ждут монстры и ужасная погода — письмо будет доставлено вовремя!"]]
         },
 
-        "diary_delivery_get_reward": {
-            "name": "Дневник: награда за доставку",
-            "description": "Герой получает награду за доставку предмета.",
+        "diary_delivery_get_reward_money": {
+            "name": "Дневник: награда за доставку (деньги)",
+            "description": "Герой получает награду за доставку предмета (деньги).",
             "variables": {"hero": "привидение", "coins": 13},
-            "phrases": [["[[person_end|им,загл]] [{расщедрился|person_end|прш}] и [{вручил|person_end|прш}] [[coins]] [{монета|coins|вн}] в награду за быструю доставку",
-                         "Гусь расщедрился и вручил 13 монет в награду за быструю доставку"]]
+            "phrases": [["[[person_end|им,загл]] [{расщедрился|person_end|прш}] и [{вручил|person_end|прш}] [[coins]] [{монета|coins|вн}] в награду за быструю доставку.",
+                         "Гусь расщедрился и вручил 13 монет в награду за быструю доставку."]]
         },
 
-        "diary_steal_get_reward": {
-            "name": "Дневник: награда за воровство",
-            "description": "Герой получает награду за воровство.",
+        "diary_delivery_get_reward_artifact": {
+            "name": "Дневник: награда за доставку (артефакт)",
+            "description": "Герой получает награду за доставку предмета (артефакт).",
+            "variables": {"hero": "привидение", "artifact": "пепельница"},
+            "phrases": [["[[person_end|им,загл]] [{расщедрился|person_end|прш}] и [{вручил|person_end|прш}] [[artifact|вн]] в награду за быструю доставку.",
+                         "Гусь расщедрился и вручил пепельницу в награду за быструю доставку."]]
+        },
+
+        "diary_steal_get_reward_money": {
+            "name": "Дневник: награда за воровство (деньги)",
+            "description": "Герой получает награду за воровство (деньги).",
             "variables": {"hero": "привидение", "coins": 13},
-            "phrases": [["[[item_to_deliver|вн,загл]] удалось продать всего за [[coins]] [{монета|coins|вн}]",
-                         "Краску удалось продать всего за 13 монет"]]
+            "phrases": [["[[item_to_deliver|вн,загл]] удалось продать всего за [[coins]] [{монета|coins|вн}].",
+                         "Краску удалось продать всего за 13 монет."]]
+        },
+
+        "diary_steal_get_reward_artifact": {
+            "name": "Дневник: награда за воровство (артефакт)",
+            "description": "Герой получает награду за воровство (артефакт).",
+            "variables": {"hero": "привидение", "artifact": "пепельница"},
+            "phrases": [["[[item_to_deliver|вн,загл]] удалось обменять на [[artifact|вн]].",
+                         "Краску удалось обменять на пепельницу."]]
         },
 
         "choice_steal_variant_delivery": {

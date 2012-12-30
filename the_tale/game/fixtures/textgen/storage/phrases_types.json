@@ -55,23 +55,38 @@
 "hero", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение идёт в гости", 
 "name": "Активность: интро", 
 "description": "Краткое суммарное описание действий героя в момент получения задания."
 }, 
-"quest_helpfriend_diary_negative_get_reward": {
+"quest_helpfriend_diary_negative_get_reward_money": {
 "variables": [
 "person_end", 
 "hero", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
-"example": "Свинья вздохнула и в благодарность за попытку помочь подарила 13 монет", 
-"name": "Дневник: награда за неудавшуюся помощь", 
-"description": "Герой получает награду за неудавшуюся попытку помочь."
+"example": "Свинья вздохнула и в благодарность за попытку помочь подарила 13 монет.", 
+"name": "Дневник: награда за неудавшуюся помощь (деньги)", 
+"description": "Герой получает награду за неудавшуюся попытку помочь (деньги)."
+}, 
+"quest_helpfriend_diary_negative_get_reward_artifact": {
+"variables": [
+"person_end", 
+"hero", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "Свинья вздохнула и в благодарность за попытку помочь подарила пепельницу.", 
+"name": "Дневник: награда за неудавшуюся помощь (артефакт)", 
+"description": "Герой получает награду за неудавшуюся попытку помочь (артефакт)."
 }, 
 "quest_helpfriend_diary_intro": {
 "variables": [
@@ -79,7 +94,8 @@
 "hero", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "Как там поживает Свинья? Стоит сходить, проверить.", 
 "name": "Дневник: начало задание", 
@@ -87,14 +103,40 @@
 }, 
 "quest_helpfriend_description": {
 "variables": [
-"place_end", 
 "person_end", 
 "hero", 
+"place_end", 
+"coins", 
 "place_start"
 ], 
 "example": "Навестить соратника", 
 "name": "Название", 
 "description": "Краткое название задания."
+}, 
+"quest_helpfriend_diary_positive_get_reward_artifact": {
+"variables": [
+"person_end", 
+"hero", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "Свинья в благодарность за помощь одарила пепельницей.", 
+"name": "Дневник: награда за удавшуюся помощь (артефакт)", 
+"description": "Герой получает награду за удавшуюся попытку помочь (артефакт)."
+}, 
+"quest_helpfriend_diary_positive_get_reward_money": {
+"variables": [
+"person_end", 
+"hero", 
+"place_end", 
+"coins", 
+"place_start"
+], 
+"example": "Свинья в благодарность за помощь одарила 13 монетами.", 
+"name": "Дневник: награда за удавшуюся помощь (деньги)", 
+"description": "Герой получает награду за удавшуюся попытку помочь (деньги)."
 }, 
 "quest_helpfriend_action_move_to_quest": {
 "variables": [
@@ -102,23 +144,12 @@
 "hero", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение идёт в гости", 
 "name": "Активность: путешествие к целевому персонажу", 
 "description": "Краткое суммарное описание действий героя при путешествии к целевому персонажу."
-}, 
-"quest_helpfriend_diary_positive_get_reward": {
-"variables": [
-"person_end", 
-"hero", 
-"place_end", 
-"coins", 
-"place_start"
-], 
-"example": "Свинья в благодарность за помощь одарила 13 монетами", 
-"name": "Дневник: награда за удавшуюся помощь", 
-"description": "Герой получает награду за удавшуюся попытку помочь."
 }
 }, 
 "description": "Тексты, относящиеся к заданию."
@@ -321,7 +352,7 @@
 "damage", 
 "defender"
 ], 
-"example": "Привидение впилось в крысу, нанесло 17 единиц урона и восстановило 9 HP.", 
+"example": "Привидение зубами впилось в крысу, нанесло 17 единиц урона и восстановило 9 HP.", 
 "name": "Удар вампира", 
 "description": "Нанесение урона способностью «Удар вампира»."
 }, 
@@ -386,7 +417,8 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение идёт на помощь", 
 "name": "Активность: интро", 
@@ -399,11 +431,25 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение идёт на помощь", 
 "name": "Активность: движение к целевому персонажу", 
 "description": "Краткое суммарное описание действий героя при движении к целевому персонажу."
+}, 
+"quest_help_diary_get_reward_money": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start"
+], 
+"example": "Привидение получило 13 монет в награду за выполнение задания", 
+"name": "Дневник: получение награды (деньги)", 
+"description": "Герой получает награду за помощь (деньги)."
 }, 
 "quest_help_description": {
 "variables": [
@@ -417,13 +463,26 @@
 "name": "Название", 
 "description": "Краткое название задания."
 }, 
-"quest_help_journal_move_to_quest": {
+"quest_help_diary_get_reward_artifact": {
 "variables": [
 "person_end", 
 "hero", 
 "person_start", 
 "place_end", 
 "coins", 
+"place_start", 
+"artifact"
+], 
+"example": "Привидение получило пепельницу в награду за выполнение задания.", 
+"name": "Дневник: получение награды (артефакт)", 
+"description": "Герой получает награду за помощь (артефакт)."
+}, 
+"quest_help_journal_move_to_quest": {
+"variables": [
+"place_end", 
+"person_end", 
+"hero", 
+"person_start", 
 "place_start"
 ], 
 "example": "Впереди нелёгкий путь, о чём же меня попросят?", 
@@ -437,24 +496,12 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "Свинья попросила помочь другу. Гусь живёт в городе.", 
 "name": "Дневник: Начало задания", 
 "description": "Герой получил задание."
-}, 
-"quest_help_diary_get_reward": {
-"variables": [
-"person_end", 
-"hero", 
-"person_start", 
-"place_end", 
-"coins", 
-"place_start"
-], 
-"example": "Привидение получило 13 монет в награду за выполнение задания", 
-"name": "Дневник: получение награды", 
-"description": "Герой получает награду за помощь."
 }
 }, 
 "description": "Тексты, относящиеся к заданию."
@@ -500,7 +547,8 @@
 "variables": [
 "place_end", 
 "coins", 
-"hero"
+"hero", 
+"artifact"
 ], 
 "example": "привидение идёт к месту охоты", 
 "name": "Активность: интро", 
@@ -516,15 +564,16 @@
 "name": "Активность: охота", 
 "description": "Краткое суммарное описание действий героя во время преследования добычи."
 }, 
-"quest_hunt_journal_get_reward": {
+"quest_hunt_diary_get_reward_artifact": {
 "variables": [
 "place_end", 
 "coins", 
-"hero"
+"hero", 
+"artifact"
 ], 
-"example": "Привидение получило награду.", 
-"name": "Журнал: награда", 
-"description": "Герой получает награду за добычу."
+"example": "Получило гонорар за очередные «Записки охотника». Положило в рюкзак пепельницу.", 
+"name": "Дневник: награда (артефакт)", 
+"description": "Герой получил награду за выполнение задания (артефакт)"
 }, 
 "quest_hunt_journal_move_to_city": {
 "variables": [
@@ -540,11 +589,21 @@
 "variables": [
 "place_end", 
 "coins", 
-"hero"
+"hero", 
+"artifact"
 ], 
 "example": "привидение идёт к месту охоты", 
 "name": "Активность: путешествие к месту охоты", 
 "description": "Краткое суммарное описание действий героя во время путешествия к месту охоты."
+}, 
+"quest_hunt_description": {
+"variables": [
+"place_end", 
+"hero"
+], 
+"example": "Поохотиться в удовольствие", 
+"name": "Название", 
+"description": "Краткое название задания."
 }, 
 "quest_hunt_diary_intro": {
 "variables": [
@@ -556,29 +615,19 @@
 "name": "Дневник: начало задания", 
 "description": "Герой получил задание."
 }, 
-"quest_hunt_diary_get_reward": {
+"quest_hunt_diary_get_reward_money": {
 "variables": [
 "place_end", 
 "coins", 
 "hero"
 ], 
 "example": "Привидение продало трофеи за 22 монеты.", 
-"name": "Дневник: награда", 
-"description": "Герой получил награду за выполнение задания"
-}, 
-"quest_hunt_description": {
-"variables": [
-"place_end", 
-"hero"
-], 
-"example": "Поохотиться в удовольствие", 
-"name": "Название", 
-"description": "Краткое название задания."
+"name": "Дневник: награда (деньги)", 
+"description": "Герой получил награду за выполнение задания (деньги)"
 }, 
 "quest_hunt_journal_track": {
 "variables": [
 "place_end", 
-"coins", 
 "hero"
 ], 
 "example": "Вижу следы!", 
@@ -588,7 +637,6 @@
 "quest_hunt_journal_move_to_quest": {
 "variables": [
 "place_end", 
-"coins", 
 "hero"
 ], 
 "example": "Привидение отправилось в исконные места обитания любимой добычи.", 
@@ -882,26 +930,29 @@
 "types": {
 "quest_interfereenemy_description": {
 "variables": [
-"place_end", 
 "person_end", 
 "hero", 
-"place_start"
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
 ], 
 "example": "Сделать гадость противнику", 
 "name": "Название", 
 "description": "Краткое название задания."
 }, 
-"quest_interfereenemy_diary_get_reward": {
+"quest_interfereenemy_diary_get_reward_artifact": {
 "variables": [
 "person_end", 
 "hero", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
-"example": "Неизвестный прислал 13 монет, похоже у Свиньи есть ещё враги кроме меня", 
-"name": "Дневник: награда", 
-"description": "Герой получает награду за удачную диверсию."
+"example": "Неизвестный прислал пепельницу, похоже у Свиньи есть ещё враги кроме меня.", 
+"name": "Дневник: награда (артефакт)", 
+"description": "Герой получает награду за удачную диверсию (артефакт)."
 }, 
 "quest_interfereenemy_action_move_to_quest": {
 "variables": [
@@ -909,7 +960,8 @@
 "hero", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение идёт на дело", 
 "name": "Активность: путешествие к городу противника", 
@@ -921,11 +973,24 @@
 "hero", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "Прошёл слух, что Свинья собирается провернуть новое дельце, что же, настало время свести старые счёты.", 
 "name": "Дневник:  начало задания", 
 "description": "Герой получил задание."
+}, 
+"quest_interfereenemy_diary_get_reward_money": {
+"variables": [
+"person_end", 
+"hero", 
+"place_end", 
+"coins", 
+"place_start"
+], 
+"example": "Неизвестный прислал 13 монет, похоже у Свиньи есть ещё враги кроме меня.", 
+"name": "Дневник: награда (деньги)", 
+"description": "Герой получает награду за удачную диверсию (деньги)."
 }, 
 "quest_interfereenemy_action_intro": {
 "variables": [
@@ -933,7 +998,8 @@
 "hero", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение идёт на дело", 
 "name": "Активность: интро", 
@@ -953,6 +1019,7 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "Свинья попросила доставить письмо. Его должен получить гусь из города.", 
@@ -967,6 +1034,7 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "Слишком много сил я потратило на доставку этого письма, надо его украсть.", 
@@ -981,6 +1049,7 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "Привидение отдало краску", 
@@ -995,13 +1064,14 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "Привидение решило доставить краску", 
 "name": "Выбор: доставка", 
 "description": "Краткая констатация выбора героя в случае доставки предмета."
 }, 
-"quest_delivery_diary_delivery_get_reward": {
+"quest_delivery_diary_delivery_get_reward_money": {
 "variables": [
 "item_to_deliver", 
 "person_end", 
@@ -1009,11 +1079,27 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
-"example": "Гусь расщедрился и вручил 13 монет в награду за быструю доставку", 
-"name": "Дневник: награда за доставку", 
-"description": "Герой получает награду за доставку предмета."
+"example": "Гусь расщедрился и вручил 13 монет в награду за быструю доставку.", 
+"name": "Дневник: награда за доставку (деньги)", 
+"description": "Герой получает награду за доставку предмета (деньги)."
+}, 
+"quest_delivery_diary_steal_get_reward_money": {
+"variables": [
+"item_to_deliver", 
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"artifact", 
+"place_start"
+], 
+"example": "Краску удалось продать всего за 13 монет.", 
+"name": "Дневник: награда за воровство (деньги)", 
+"description": "Герой получает награду за воровство (деньги)."
 }, 
 "quest_delivery_journal_get_item": {
 "variables": [
@@ -1023,6 +1109,7 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "Привидение получило краску", 
@@ -1037,6 +1124,7 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "привидение идёт к месту назначения", 
@@ -1051,13 +1139,14 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "Доставить посылку", 
 "name": "Название", 
 "description": "Краткое название задания."
 }, 
-"quest_delivery_diary_steal_get_reward": {
+"quest_delivery_diary_steal_get_reward_artifact": {
 "variables": [
 "item_to_deliver", 
 "person_end", 
@@ -1065,11 +1154,12 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
-"example": "Краску удалось продать всего за 13 монет", 
-"name": "Дневник: награда за воровство", 
-"description": "Герой получает награду за воровство."
+"example": "Краску удалось обменять на пепельницу.", 
+"name": "Дневник: награда за воровство (артефакт)", 
+"description": "Герой получает награду за воровство (артефакт)."
 }, 
 "quest_delivery_journal_steal_item": {
 "variables": [
@@ -1079,11 +1169,26 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "Привидение присвоило краску", 
 "name": "Журнал: воровство", 
 "description": "Герой ворует предмет."
+}, 
+"quest_delivery_diary_delivery_get_reward_artifact": {
+"variables": [
+"item_to_deliver", 
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"artifact", 
+"place_start"
+], 
+"example": "Гусь расщедрился и вручил пепельницу в награду за быструю доставку.", 
+"name": "Дневник: награда за доставку (артефакт)", 
+"description": "Герой получает награду за доставку предмета (артефакт)."
 }, 
 "quest_delivery_diary_choice_delivery": {
 "variables": [
@@ -1093,6 +1198,7 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "Служить на почте трудно и даже опасно, но это почётная профессия! И пусть в дороге меня ждут монстры и ужасная погода — письмо будет доставлено вовремя!", 
@@ -1107,6 +1213,7 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "Работа у курьеров не простая, пора двигаться", 
@@ -1121,6 +1228,7 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "Привидение решило прикарманить краску", 
@@ -1135,6 +1243,7 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "честно выполнить свои обязательства", 
@@ -1149,6 +1258,7 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "привидение обсуждает условия доставки", 
@@ -1163,6 +1273,7 @@
 "person_start", 
 "place_end", 
 "coins", 
+"artifact", 
 "place_start"
 ], 
 "example": "украсть-украсть-украсть", 
@@ -1189,19 +1300,6 @@
 "quest_spying": {
 "name": "Задание: шпионаж", 
 "types": {
-"quest_spying_diary_get_reward_open_up": {
-"variables": [
-"person_end", 
-"hero", 
-"person_start", 
-"place_end", 
-"coins", 
-"place_start"
-], 
-"example": "Привидение получило 13 монет в награду за выполнение задания", 
-"name": "Дневник: награда при сдаче", 
-"description": "Герой получает награду за задание при сдаче."
-}, 
 "quest_spying_diary_intro": {
 "variables": [
 "person_end", 
@@ -1209,7 +1307,8 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "Свинья попросила прошпионить за одной подозрительной личностью. Эта личность — гусь, живёт в городе.", 
 "name": "Дневник: начало задания", 
@@ -1222,19 +1321,36 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение идёт к месту жительства цели", 
 "name": "Активность: интро", 
 "description": "Краткое суммарное описание действий героя в момент получения задания."
 }, 
-"quest_spying_choice_openup_variant_open_up": {
+"quest_spying_diary_get_reward_open_up_money": {
 "variables": [
-"place_end", 
 "person_end", 
 "hero", 
 "person_start", 
-"place_start"
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "Привидение получило 13 монет в награду за выполнение задания", 
+"name": "Дневник: награда при сдаче (деньги)", 
+"description": "Герой получает награду за задание при сдаче (деньги)."
+}, 
+"quest_spying_choice_openup_variant_open_up": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
 ], 
 "example": "поддаться укорам совести и раскрыться", 
 "name": "Вариант выбора: сдаться", 
@@ -1247,49 +1363,14 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение идёт к месту жительства цели", 
 "name": "Активность: путешествие к месту жительства цели", 
 "description": "Краткое суммарное описание действий героя в момент путешествия к месту жительства цели."
 }, 
-"quest_spying_action_spying": {
-"variables": [
-"place_end", 
-"person_end", 
-"hero", 
-"person_start", 
-"place_start"
-], 
-"example": "привидение наблюдает за целью", 
-"name": "Активность: шпионаж", 
-"description": "Краткое суммарное описание действий героя в момент шпионажа."
-}, 
-"quest_spying_description": {
-"variables": [
-"place_end", 
-"person_end", 
-"hero", 
-"person_start", 
-"place_start"
-], 
-"example": "Прошпионить", 
-"name": "Название", 
-"description": "Краткое название задания."
-}, 
-"quest_spying_journal_spying": {
-"variables": [
-"place_end", 
-"person_end", 
-"hero", 
-"person_start", 
-"place_start"
-], 
-"example": "Итак, чем собралась заниматься моя цель?", 
-"name": "Журнал: шпионаж", 
-"description": "Герой начал шпионить."
-}, 
-"quest_spying_diary_get_reward_spying": {
+"quest_spying_diary_get_reward_spying_money": {
 "variables": [
 "person_end", 
 "hero", 
@@ -1299,22 +1380,10 @@
 "place_start"
 ], 
 "example": "Привидение получило 13 монет в награду за выполнение задания", 
-"name": "Дневник: награда при шпионаже", 
-"description": "Герой получает награду за задание при шпионаже."
+"name": "Дневник: награда при шпионаже (деньги)", 
+"description": "Герой получает награду за задание при шпионаже (деньги)."
 }, 
-"quest_spying_choice_openup_variant_spy": {
-"variables": [
-"place_end", 
-"person_end", 
-"hero", 
-"person_start", 
-"place_start"
-], 
-"example": "довести дело до конца", 
-"name": "Вариант выбора: шпионить", 
-"description": "Краткое описание варианта выбора, ведущего к ограблению каравана."
-}, 
-"quest_spying_diary_choice_continue_spying": {
+"quest_spying_action_spying": {
 "variables": [
 "person_end", 
 "hero", 
@@ -1323,9 +1392,93 @@
 "coins", 
 "place_start"
 ], 
+"example": "привидение наблюдает за целью", 
+"name": "Активность: шпионаж", 
+"description": "Краткое суммарное описание действий героя в момент шпионажа."
+}, 
+"quest_spying_description": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "Прошпионить", 
+"name": "Название", 
+"description": "Краткое название задания."
+}, 
+"quest_spying_diary_choice_continue_spying": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
 "example": "Решило довести разведку до конца — не пристало герою отказываться от заданий, да и гусь действительно ведёт себя подозрительно.", 
 "name": "Дневник: шпионить до конца", 
 "description": "Герой принял решение шпионить до конца."
+}, 
+"quest_spying_journal_spying": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "Итак, чем собралась заниматься моя цель?", 
+"name": "Журнал: шпионаж", 
+"description": "Герой начал шпионить."
+}, 
+"quest_spying_choice_openup_variant_spy": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "довести дело до конца", 
+"name": "Вариант выбора: шпионить", 
+"description": "Краткое описание варианта выбора, ведущего к ограблению каравана."
+}, 
+"quest_spying_diary_get_reward_spying_artifact": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "Привидение получило пепельницу в награду за выполнение задания", 
+"name": "Дневник: награда при шпионаже (артефакт)", 
+"description": "Герой получает награду за задание при шпионаже (артефакт)."
+}, 
+"quest_spying_diary_get_reward_open_up_artifact": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "Привидение получило пепельницу в награду за выполнение задания", 
+"name": "Дневник: награда при сдаче (артефакт)", 
+"description": "Герой получает награду за задание при сдаче (артефакт)."
 }, 
 "quest_spying_diary_choice_open_up": {
 "variables": [
@@ -1341,10 +1494,11 @@
 }, 
 "quest_spying_choice_openup_result_spy": {
 "variables": [
-"place_end", 
 "person_end", 
 "hero", 
 "person_start", 
+"place_end", 
+"coins", 
 "place_start"
 ], 
 "example": "Привидение решило продолжить шпионаж.", 
@@ -1358,7 +1512,8 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "Привидение решило прийти с повинной.", 
 "name": "Выбор: сдача", 
@@ -1548,8 +1703,8 @@
 "hero", 
 "person_start", 
 "place_end", 
-"coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение пытается скрыться с награбленным", 
 "name": "Активность: скрыться с награбленным", 
@@ -1561,8 +1716,8 @@
 "hero", 
 "person_start", 
 "place_end", 
-"coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "Провести караван", 
 "name": "Название", 
@@ -1575,26 +1730,14 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение грабит караван", 
 "name": "Активность: герой грабит корован", 
 "description": "Краткое суммарное описание действий героя при ограблении им каравана."
 }, 
-"quest_caravan_journal_run_away": {
-"variables": [
-"person_end", 
-"hero", 
-"person_start", 
-"place_end", 
-"coins", 
-"place_start"
-], 
-"example": "Нахватал полные карманы добра, теперь надо бежать.", 
-"name": "Журнал: убегание", 
-"description": "Герой пытается скрыться с добычей."
-}, 
-"quest_caravan_action_bad_get_reward": {
+"quest_caravan_action_bad_get_reward_money": {
 "variables": [
 "place_end", 
 "person_end", 
@@ -1603,8 +1746,35 @@
 "place_start"
 ], 
 "example": "привидение изучает добычу", 
-"name": "Активность: изучение добычи", 
+"name": "Активность: изучение добычи (деньги)", 
 "description": "Краткое суммарное описание действий героя при изучении добычи после ограбления каравана."
+}, 
+"quest_caravan_journal_run_away": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"place_start", 
+"artifact"
+], 
+"example": "Нахватал полные карманы добра, теперь надо бежать.", 
+"name": "Журнал: убегание", 
+"description": "Герой пытается скрыться с добычей."
+}, 
+"quest_caravan_diary_bad_get_reward_money": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "Караванщик оказался не таким богатым — за добычу удалось выручить всего 13 монет.", 
+"name": "Дневник: награда за ограбление (деньги)", 
+"description": "Герой получает награду за ограбление каравана (деньги)."
 }, 
 "quest_caravan_action_bandits_attack": {
 "variables": [
@@ -1612,8 +1782,8 @@
 "hero", 
 "person_start", 
 "place_end", 
-"coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение защищает караван от бандитов", 
 "name": "Активность: атака бандитов", 
@@ -1626,11 +1796,12 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
-"example": "Привидение получило 13 монет в награду за хорошую охрану каравана", 
-"name": "Дневник: награда за защиту", 
-"description": "Герой получает награду за защиту каравана."
+"example": "Привидение получило пепельницу в награду за хорошую охрану каравана.", 
+"name": "Дневник: награда за защиту (артефакт)", 
+"description": "Герой получает награду за защиту каравана (артефакт)."
 }, 
 "quest_caravan_diary_intro": {
 "variables": [
@@ -1638,8 +1809,8 @@
 "hero", 
 "person_start", 
 "place_end", 
-"coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "Свинья поручила отвести караван в город. Там меня должен встретить гусь.", 
 "name": "Дневник: начало задания", 
@@ -1651,25 +1822,12 @@
 "hero", 
 "person_start", 
 "place_end", 
-"coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "Привидение собралось ограбить караван.", 
 "name": "Выбор: ограбление", 
 "description": "Краткая констатация выбора героя в случае ограбления каравана."
-}, 
-"quest_caravan_journal_move_to_point": {
-"variables": [
-"person_end", 
-"hero", 
-"person_start", 
-"place_end", 
-"coins", 
-"place_start"
-], 
-"example": "Привидение отправилось за караваном.", 
-"name": "Журнал: начало пути", 
-"description": "Герой отправился с караваном"
 }, 
 "quest_caravan_diary_choice_attack": {
 "variables": [
@@ -1677,8 +1835,8 @@
 "hero", 
 "person_start", 
 "place_end", 
-"coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "Который час любуюсь на толстый кошель караванщика… Право, с него не убудет, если он не досчитается немного товара.", 
 "name": "Дневник: выбор ограбления", 
@@ -1691,24 +1849,12 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "Уже который час за нами следят бандиты. Надо быть готовым к нападению.", 
 "name": "Дневник: выбор защиты", 
 "description": "Герой реил защищать караван."
-}, 
-"quest_caravan_action_good_get_reward": {
-"variables": [
-"person_end", 
-"hero", 
-"person_start", 
-"place_end", 
-"coins", 
-"place_start"
-], 
-"example": "привидение получает награду", 
-"name": "Активность: получение награды", 
-"description": "Краткое суммарное описание действий героя при получении награды за защиту каравана."
 }, 
 "quest_caravan_action_move_to_point": {
 "variables": [
@@ -1716,12 +1862,25 @@
 "hero", 
 "person_start", 
 "place_end", 
-"coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение сопровождает караван", 
 "name": "Активность: сопровождение каравана", 
 "description": "Краткое суммарное описание действий героя при сопровождении каравана"
+}, 
+"quest_caravan_action_good_get_reward_money": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"place_start", 
+"artifact"
+], 
+"example": "привидение получает награду", 
+"name": "Активность: получение награды (деньги)", 
+"description": "Краткое суммарное описание действий героя при получении награды за защиту каравана."
 }, 
 "quest_caravan_action_choice_defend": {
 "variables": [
@@ -1741,12 +1900,12 @@
 "hero", 
 "person_start", 
 "place_end", 
-"coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
-"example": "Караванщик оказался не таким богатым — за добычу удалось выручить всего 13 монет", 
-"name": "Дневник: награда за ограбление", 
-"description": "Герой получает награду за ограбление каравана."
+"example": "Караванщик оказался состоятельным — обнаружило пепельницу среди добычи.", 
+"name": "Дневник: награда за ограбление (артефакт)", 
+"description": "Герой получает награду за ограбление каравана. (артефакт)"
 }, 
 "quest_caravan_action_intro": {
 "variables": [
@@ -1755,7 +1914,8 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение беседует с караванщиком", 
 "name": "Активность: интро", 
@@ -1767,8 +1927,8 @@
 "hero", 
 "person_start", 
 "place_end", 
-"coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение грабит караван", 
 "name": "Активность: выбор ограбления каравана", 
@@ -1793,7 +1953,8 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "ограбить торговца", 
 "name": "Вариант выбора: ограбление", 
@@ -1806,11 +1967,26 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "А не взять ли мне свою долю пораньше?", 
 "name": "Журнал: атака героя", 
 "description": "Начало атаки героя на караван."
+}, 
+"quest_caravan_journal_move_to_point": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "Привидение отправилось за караваном.", 
+"name": "Журнал: начало пути", 
+"description": "Герой отправился с караваном"
 }, 
 "quest_caravan_journal_bandits_attack": {
 "variables": [
@@ -1818,12 +1994,26 @@
 "hero", 
 "person_start", 
 "place_end", 
-"coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "Караван атакуют!", 
 "name": "Журнал: атака бандитов", 
 "description": "Начало атаки бандитов на караван."
+}, 
+"quest_caravan_action_good_get_reward_artifact": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "привидение получает награду", 
+"name": "Активность: получение награды (артефакт)", 
+"description": "Краткое суммарное описание действий героя при получении награды за защиту каравана."
 }, 
 "quest_caravan_choice_bring_variant_caravan": {
 "variables": [
@@ -1831,12 +2021,25 @@
 "hero", 
 "person_start", 
 "place_end", 
-"coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "защищать торговца", 
 "name": "Вариант выбора: защита", 
 "description": "Краткое описание варианта выбора, ведущего к защите каравана."
+}, 
+"quest_caravan_action_bad_get_reward_artifact": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"place_start", 
+"artifact"
+], 
+"example": "привидение изучает добычу", 
+"name": "Активность: изучение добычи (артефакт)", 
+"description": "Краткое суммарное описание действий героя при изучении добычи после ограбления каравана."
 }
 }, 
 "description": "Тексты, относящиеся к заданию."
@@ -1878,7 +2081,8 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "привидение направляется в город", 
 "name": "Активность: интро", 
@@ -1886,15 +2090,30 @@
 }, 
 "quest_notmywork_diary_choice_attack": {
 "variables": [
-"place_end", 
 "person_end", 
 "hero", 
 "person_start", 
-"place_start"
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
 ], 
 "example": "Что-то гусь юлит… придётся применить силовое воздействие.", 
 "name": "Дневник: выбор насилия", 
 "description": "Герой решает заставить должника силой"
+}, 
+"quest_notmywork_diary_get_reward_money": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start"
+], 
+"example": "Привидение получило 13 монет в награду за выполнение задания", 
+"name": "Дневник: награда за задание (деньги)", 
+"description": "Герой получает награду за выполнение задания (деньги)."
 }, 
 "quest_notmywork_action_choice_attack": {
 "variables": [
@@ -1932,19 +2151,6 @@
 "name": "Активность: возвращение за наградой", 
 "description": "Краткое суммарное описание действий героя при возвращении за наградой."
 }, 
-"quest_notmywork_action_move_to_quest": {
-"variables": [
-"person_end", 
-"hero", 
-"person_start", 
-"place_end", 
-"coins", 
-"place_start"
-], 
-"example": "привидение направляется в город", 
-"name": "Активность: движение к месту жительства должника", 
-"description": "Краткое суммарное описание действий героя при путешествии к должнику."
-}, 
 "quest_notmywork_description": {
 "variables": [
 "place_end", 
@@ -1981,6 +2187,20 @@
 "name": "Активность: выбивание долга", 
 "description": "Краткое описание действий герой при выбивании долга."
 }, 
+"quest_notmywork_diary_get_reward_artifact": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "Привидение получило пепельницу в награду за выполнение задания", 
+"name": "Дневник: награда за задание (артефакт)", 
+"description": "Герой получает награду за выполнение задания (артефакт)."
+}, 
 "quest_notmywork_choice_work_variant_bruteforce": {
 "variables": [
 "place_end", 
@@ -1995,28 +2215,31 @@
 }, 
 "quest_notmywork_journal_work_choice": {
 "variables": [
-"place_end", 
 "person_end", 
 "hero", 
 "person_start", 
-"place_start"
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
 ], 
 "example": "Стоит помочь бедняге.", 
 "name": "Журнал: выбор помощи", 
 "description": "Герой решает помочь должнику."
 }, 
-"quest_notmywork_diary_get_reward": {
+"quest_notmywork_action_move_to_quest": {
 "variables": [
 "person_end", 
 "hero", 
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
-"example": "Привидение получило 13 монет в награду за выполнение задания", 
-"name": "Дневник: награда за задание", 
-"description": "Герой получает награду за выполнение задания."
+"example": "привидение направляется в город", 
+"name": "Активность: движение к месту жительства должника", 
+"description": "Краткое суммарное описание действий героя при путешествии к должнику."
 }, 
 "quest_notmywork_choice_work_variant_diplomacy": {
 "variables": [
@@ -2025,7 +2248,8 @@
 "person_start", 
 "place_end", 
 "coins", 
-"place_start"
+"place_start", 
+"artifact"
 ], 
 "example": "прибегнуть к дипломатии", 
 "name": "Вариант выбора: помощь", 
@@ -2069,11 +2293,13 @@
 }, 
 "quest_notmywork_choice_work_result_diplomacy": {
 "variables": [
-"place_end", 
 "person_end", 
 "hero", 
 "person_start", 
-"place_start"
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
 ], 
 "example": "Привидение решило уговорить должника.", 
 "name": "Выбор: помощь", 
@@ -2081,11 +2307,13 @@
 }, 
 "quest_notmywork_journal_move_to_quest": {
 "variables": [
-"place_end", 
 "person_end", 
 "hero", 
 "person_start", 
-"place_start"
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
 ], 
 "example": "Пойдём, посмотрим на должника.", 
 "name": "Журнал: начало путешествия к должнику", 
@@ -2277,22 +2505,14 @@
 }, 
 "quest_hometown_action_chatting": {
 "variables": [
+"hero", 
 "place_end", 
 "coins", 
-"hero"
+"artifact"
 ], 
 "example": "привидение гуляет по городу", 
 "name": "Активность: общение с друзьями", 
 "description": "Краткое суммарное описание действий героя во время общения с друзьями."
-}, 
-"quest_hometown_journal_get_reward": {
-"variables": [
-"place_end", 
-"hero"
-], 
-"example": "Привидение получило подарок от друзей в благодарность за то, что не забывает о них.", 
-"name": "Журнал: награда", 
-"description": "Герой получает награду за посещение города."
 }, 
 "quest_hometown_action_stagger_streets": {
 "variables": [
@@ -2305,9 +2525,10 @@
 }, 
 "quest_hometown_journal_stagger_streets_description": {
 "variables": [
+"hero", 
 "place_end", 
 "coins", 
-"hero"
+"artifact"
 ], 
 "example": "Шатается по знакомым улочкам, пялясь на новые постройки.", 
 "name": "Описание: шатание по улочкам", 
@@ -2324,9 +2545,10 @@
 }, 
 "quest_hometown_action_remember_names": {
 "variables": [
+"hero", 
 "place_end", 
 "coins", 
-"hero"
+"artifact"
 ], 
 "example": "привидение гуляет по городу", 
 "name": "Активность: вспоминание имён", 
@@ -2343,9 +2565,10 @@
 }, 
 "quest_hometown_journal_search_old_friends_description": {
 "variables": [
+"hero", 
 "place_end", 
 "coins", 
-"hero"
+"artifact"
 ], 
 "example": "разыскивает старых боевых товарищей", 
 "name": "Описание: поиск друзей", 
@@ -2371,9 +2594,10 @@
 }, 
 "quest_hometown_diary_intro": {
 "variables": [
+"hero", 
 "place_end", 
 "coins", 
-"hero"
+"artifact"
 ], 
 "example": "Давно что-то не было известий из родного дома, наверное стоит проверить на месте ли он.", 
 "name": "Дневник: начало задания", 
@@ -2390,9 +2614,10 @@
 }, 
 "quest_hometown_action_move_to_quest": {
 "variables": [
+"hero", 
 "place_end", 
 "coins", 
-"hero"
+"artifact"
 ], 
 "example": "привидение возвращается в родной город", 
 "name": "Активность: путешествие в город", 
@@ -2400,43 +2625,57 @@
 }, 
 "quest_hometown_journal_drunk_song_description": {
 "variables": [
+"hero", 
 "place_end", 
 "coins", 
-"hero"
+"artifact"
 ], 
 "example": "распевает разгульную песню, пьянствуя с друзьями в трактире", 
 "name": "Описание: начало пьяной песни", 
 "description": "Краткая декларация того, что герой поёт пьяную песню"
 }, 
-"quest_hometown_journal_move_to_quest": {
+"quest_hometown_diary_get_reward_money": {
 "variables": [
 "place_end", 
 "coins", 
 "hero"
+], 
+"example": "Привидение получило подарок от друзей в благодарность за то, что не забывает о них.", 
+"name": "Журнал: награда (деньги)", 
+"description": "Герой получает награду за посещение города (деньги)."
+}, 
+"quest_hometown_journal_move_to_quest": {
+"variables": [
+"hero", 
+"place_end", 
+"coins", 
+"artifact"
 ], 
 "example": "Привидение отправилось в родной город.", 
 "name": "Журнал: отправление в город", 
 "description": "Герой отправляется в город."
 }, 
-"quest_hometown_diary_get_reward": {
-"variables": [
-"place_end", 
-"coins", 
-"hero"
-], 
-"example": "Привидение получило 13 монет в награду за выполнение задания", 
-"name": "Дневник: получение награды", 
-"description": "Герой получает награду за посещение родного города."
-}, 
 "quest_hometown_action_intro": {
 "variables": [
+"hero", 
 "place_end", 
 "coins", 
-"hero"
+"artifact"
 ], 
 "example": "привидение возвращается в родной город", 
 "name": "Активность: интро", 
 "description": "Краткое суммарное описание действий героя в момент получения задания."
+}, 
+"quest_hometown_diary_get_reward_artifact": {
+"variables": [
+"hero", 
+"place_end", 
+"coins", 
+"artifact"
+], 
+"example": "Привидение получило пепельницу от друзей в благодарность за то, что не забывает о них.", 
+"name": "Журнал: награда (артефакт)", 
+"description": "Герой получает награду за посещение города (артефакт)."
 }, 
 "quest_hometown_journal_drunk_song_start": {
 "variables": [

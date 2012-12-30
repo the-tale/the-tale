@@ -7,6 +7,8 @@ class Action(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    created_at_turn = models.BigIntegerField(null=False, db_index=True)
+
     type = models.CharField(max_length=150, null=False)
 
     hero = models.ForeignKey('heroes.Hero', related_name='actions')
@@ -34,6 +36,7 @@ class Action(models.Model):
     extra_probability = models.FloatField(null=True, blank=True, default=None)
     mob_context = models.TextField(null=False, default='{}')
     textgen_id = models.CharField(max_length=128, null=True, blank=True, default=None)
+    hero_health_lost = models.IntegerField(null=False, default=0)
     back = models.BooleanField(null=False, default=False)
 
     meta_action = models.ForeignKey('actions.MetaAction', null=True, default=None)

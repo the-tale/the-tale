@@ -279,6 +279,19 @@ class HeroLevelUpTests(TestCase):
             abilities = self.hero.get_abilities_for_choose()
             self.assertEqual(abilities, [ability.__class__(level=ability.level+1)])
 
+    def test_get_abilities_for_choose_all_slots_busy_and_all_not_max_level(self):
+        passive_abilities = filter(lambda a: a.activation_type.is_passive, [a(level=1) for a in ABILITIES.values()])
+        for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
+            self.hero.abilities.add(ability.get_id(), ability.level)
+
+        active_abilities = filter(lambda a: a.activation_type.is_active, [a(level=1) for a in ABILITIES.values()])
+        for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
+            self.hero.abilities.add(ability.get_id(), ability.level)
+
+        for i in xrange(100):
+            abilities = self.hero.get_abilities_for_choose()
+            self.assertEqual(len(abilities), c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM)
+
 
 
 class HeroGetSpecialQuestsTest(TestCase):
@@ -357,3 +370,10 @@ class HeroEquipmentTests(TestCase):
 
         artifact = self.hero.sharp_artifact()
         self.assertNotEqual(artifact.equip_type, EQUIP_TYPE.WEAPON)
+
+    def test_buy_artifact_and_not_equip(self):
+        old_equipment = self.hero.equipment.serialize()
+        old_bag = self.hero.bag.serialize()
+        self.hero.buy_artifact(equip=False)
+        self.assertEqual(old_equipment, self.hero.equipment.serialize())
+        self.assertNotEqual(old_bag, self.hero.bag.serialize())

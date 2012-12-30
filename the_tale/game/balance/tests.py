@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from . import formulas as f, constants as c
 
+E = 0.00001
 
 class ConstantsTest(TestCase):
 
@@ -154,7 +155,8 @@ class ConstantsTest(TestCase):
 
         self.assertEqual(c.ABILITIES_BATTLE_MAXIMUM, 7)
         self.assertEqual(c.ABILITIES_NONBATTLE_MAXUMUM, 4)
-
+        self.assertEqual(c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM, 2)
+        self.assertEqual(c.ABILITIES_FOR_CHOOSE_MAXIMUM, 4)
 
 
 class FormulasTest(TestCase):
@@ -191,3 +193,12 @@ class FormulasTest(TestCase):
         self.assertEqual(f.turns_to_game_time(70010), (0, 4, 14, 5, 40, 0))
         self.assertEqual(f.turns_to_game_time(700103), (8, 3, 21, 8, 46, 0))
         self.assertEqual(f.turns_to_game_time(7001038), (86, 4, 8, 15, 56, 0))
+
+    def test_experience_for_mob(self):
+        health = 1.0 / c.BATTLES_BEFORE_HEAL
+        turns = c.BATTLE_LENGTH
+
+        self.assertTrue(1.0 - E < f.experience_for_mob(turns, health) < 1.0 + E)
+        self.assertTrue(1.1 - E < f.experience_for_mob(turns*1.1, health) < 1.1 + E)
+        self.assertTrue(0.9 - E < f.experience_for_mob(turns, health*0.9) < 0.9 + E)
+        self.assertTrue(0.99 - E < f.experience_for_mob(turns*1.1, health*0.9) < 0.99 + E)

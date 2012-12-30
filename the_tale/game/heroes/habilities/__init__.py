@@ -1,4 +1,5 @@
 # coding: utf-8
+import copy
 import random
 
 from game.heroes.habilities.prototypes import ABILITY_TYPE, ABILITY_AVAILABILITY, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE
@@ -100,10 +101,16 @@ class AbilitiesPrototype(object):
         old_candidates = filter(lambda a: self.has(a.get_id()), candidates)
         new_candidates = filter(lambda a: not self.has(a.get_id()), candidates)
 
-        old_candidates = random.sample(old_candidates, min(max_old_abilities_for_choose, len(old_candidates)))
-        new_candidates = random.sample(new_candidates, min(max_abilities_for_choose - len(old_candidates), len(new_candidates)))
+        first_old_candidates = random.sample(old_candidates, min(max_old_abilities_for_choose, len(old_candidates)))
+        # second_old_candidates = filter(lambda a: a not in first_old_candidates, old_candidates)
+        new_candidates = random.sample(new_candidates, min(max_abilities_for_choose - len(first_old_candidates), len(new_candidates)))
 
-        candidates = old_candidates + new_candidates
+        candidates = first_old_candidates + new_candidates
+
+        # if len(candidates) < max_abilities_for_choose:
+        #     candidates += random.sample(filter(lambda a: a not in candidates, second_old_candidates),
+        #                                 min(len(second_old_candidates), max_abilities_for_choose - len(candidates)))
+
         random.shuffle(candidates)
 
         return candidates
@@ -131,6 +138,43 @@ class AbilitiesPrototype(object):
         for ability in self.abilities.values():
             money = ability.update_sell_price(hero, money)
         return money
+
+    def update_items_of_expenditure_priorities(self, hero, priorities):
+        priorities = copy.deepcopy(priorities)
+        for ability in self.abilities.values():
+            priorities = ability.update_items_of_expenditure_priorities(hero, priorities)
+        return priorities
+
+    def can_get_artifact_for_quest(self, hero):
+        for ability in self.abilities.values():
+            if ability.can_get_artifact_for_quest(hero):
+                return True
+        return False
+
+    def can_buy_better_artifact(self, hero):
+        for ability in self.abilities.values():
+            if ability.can_buy_better_artifact(hero):
+                return True
+        return False
+
+    def randomized_level_up(self, levels):
+
+        for i in xrange(levels):
+
+            candidates = []
+
+            for ability in self.abilities.values():
+                if not ability.has_max_level:
+                    candidates.append(ability)
+
+            if not candidates: return levels - i
+
+            ability = random.choice(candidates)
+            ability.level += 1
+            self.updated = True
+
+        return 0
+
 
     def __eq__(self, other):
         return set(self.abilities.keys()) == set(other.abilities.keys())

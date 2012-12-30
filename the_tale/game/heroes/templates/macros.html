@@ -3,17 +3,26 @@
 
 <dl class="hero-abilities-list">
   {% for ability in abilities %}
-  <div class="hero-ability-record pgf-hero-ability-record" data-ability-id="{{ability.get_id()}}">
+  <div class="hero-ability-record pgf-hero-ability-record"
+       data-ability-id="{{ability.get_id()}}"
+       rel="tooltip"
+       title=" максимальный уровень {{ability.MAX_LEVEL}},
+               {{ ability.type.verbose }},
+               {{ ability.availability.verbose }},
+               {{ ability.activation_type.verbose -}}
+
+               {%- if ability.type.is_battle -%},
+               {% if ability.damage_type is not none %}
+               {{ability.damage_type.verbose}} урон
+               {% else %}
+               нет прямого урона
+               {% endif %}
+               {% endif %}">
     <dt class="ability-name">
       {{ ability.NAME }}
       {% if show_type %}
       <small class="ability-type">
-        {% if max_level %}максимальный уровень {{ability.MAX_LEVEL}},
-        {% else %} уровень {{ability.level}},
-        {% endif %}
-        {{ ability.type.verbose }},
-        {{ ability.availability.verbose }},
-        {{ ability.activation_type.verbose }}
+        {% if not max_level %} уровень {{ability.level}} {% endif %}
       </small>
       {% endif %}
     </dt>

@@ -24,11 +24,39 @@ from game.heroes.fake import FakeMessanger
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.habilities import battle as battle_abilities
 from game.heroes.habilities import modifiers as modifiers_abilities
-from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
+from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, AbilitiesPrototype
 from game.heroes.habilities.prototypes import ABILITY_LOGIC_TYPE
 from game.heroes.postponed_tasks import ChooseHeroAbilityTask, CHOOSE_HERO_ABILITY_STATE
 
 E = 0.0001
+
+class HabilitiesContainerTest(TestCase):
+
+    def setUp(self):
+        self.abilities = AbilitiesPrototype.create()
+
+    def test_simple_level_up(self):
+        self.assertEqual(self.abilities.randomized_level_up(1), 0)
+        self.assertEqual(self.abilities.get(battle_abilities.HIT.get_id()).level, 2)
+
+    def test_large_level_up(self):
+        self.assertEqual(self.abilities.randomized_level_up(battle_abilities.HIT.MAX_LEVEL+1), 2)
+        self.assertEqual(self.abilities.get(battle_abilities.HIT.get_id()).level, battle_abilities.HIT.MAX_LEVEL)
+
+    def test_multiply_level_up(self):
+        self.abilities.add(battle_abilities.REGENERATION.get_id())
+        levels = max([battle_abilities.HIT.MAX_LEVEL, battle_abilities.REGENERATION.MAX_LEVEL])
+        self.assertEqual(self.abilities.randomized_level_up(levels), 0)
+        self.assertTrue(self.abilities.get(battle_abilities.HIT.get_id()).level > 1)
+        self.assertTrue(self.abilities.get(battle_abilities.REGENERATION.get_id()).level > 1)
+
+    def test_multiply_simple_level_up(self):
+        self.abilities.add(battle_abilities.REGENERATION.get_id())
+        self.assertEqual(self.abilities.randomized_level_up(1), 0)
+        self.assertTrue(self.abilities.get(battle_abilities.HIT.get_id()).level in [1, 2])
+        self.assertTrue(self.abilities.get(battle_abilities.REGENERATION.get_id()).level in [1, 2])
+        self.assertEqual(self.abilities.get(battle_abilities.HIT.get_id()).level + self.abilities.get(battle_abilities.REGENERATION.get_id()).level, 3)
+
 
 class HabilitiesTest(TestCase):
 

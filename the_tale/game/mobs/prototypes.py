@@ -3,7 +3,6 @@ from game.heroes.habilities import AbilitiesPrototype
 
 from game.balance import formulas as f
 from game.game_info import ATTRIBUTES
-from game.heroes.habilities import ABILITIES
 
 class MobException(Exception): pass
 
@@ -15,11 +14,7 @@ class MobPrototype(object):
         self.record = record
         self.level = level
 
-        self.abilities = abilities
-        if self.abilities is None:
-            self.abilities = AbilitiesPrototype()
-            for ability_id in record.abilities:
-                self.abilities.add(ability_id, level=ABILITIES[ability_id].MAX_LEVEL)
+        self.abilities = self._produce_abilities(record, level) if abilities is None else abilities
 
         self.initiative = self.abilities.modify_attribute(ATTRIBUTES.INITIATIVE, 1)
         self.health_cooficient = self.abilities.modify_attribute(ATTRIBUTES.HEALTH, 1)
@@ -29,6 +24,13 @@ class MobPrototype(object):
 
         self.health = self.max_health if health is None else health
 
+    @staticmethod
+    def _produce_abilities(record, level):
+        abilities = AbilitiesPrototype()
+        for ability_id in record.abilities:
+            abilities.add(ability_id, level=1)
+        abilities.randomized_level_up(f.max_ability_points_number(level)-len(record.abilities))
+        return abilities
 
     @property
     def id(self): return self.record.id
@@ -49,9 +51,6 @@ class MobPrototype(object):
     def health_percents(self): return float(self.health) / self.max_health
 
     @property
-    def exp_cooficient(self): return f.mob_difficulty(self.initiative, self.health_cooficient, self.damage_modifier)
-
-    @property
     def basic_damage(self): return f.expected_damage_to_hero_per_hit(self.level) * self.damage_modifier
 
     def strike_by(self, percents):
@@ -67,19 +66,19 @@ class MobPrototype(object):
     def serialize(self):
         return {'level': self.level,
                 'id': self.id,
-                'health': self.health,
-                'abilities': self.abilities.serialize()}
+                'health': self.health}
 
     @classmethod
     def deserialize(cls, storage, data):
 
-        if 'abilities'in data['abilities']:
-            abilities = AbilitiesPrototype.deserialize(data['abilities'])
-        else:
-            abilities = AbilitiesPrototype.create()
+        record = storage.data[data['id']]
+        level = data['level']
 
-        return cls(record=storage.data[data['id']],
-                   level=data['level'],
+        # yes, we do not save abilities and after load, mob can has differen abilities levels
+        abilities = cls._produce_abilities(record, level)
+
+        return cls(record=record,
+                   level=level,
                    health=data['health'],
                    abilities=abilities)
 

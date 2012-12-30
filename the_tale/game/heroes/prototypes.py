@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import math
 import time
 import datetime
@@ -134,7 +134,7 @@ class HeroPrototype(object):
     @property
     def experience(self): return self.model.experience
     def add_experience(self, value):
-        self.model.experience += value * self.experience_modifier
+        self.model.experience += self.abilities.modify_attribute(ATTRIBUTES.EXPERIENCE, value * self.experience_modifier)
         while f.exp_on_lvl(self.level) <= self.model.experience:
             self.model.experience -= f.exp_on_lvl(self.level)
             self.model.level += 1
@@ -142,8 +142,7 @@ class HeroPrototype(object):
 
     @property
     def max_ability_points_number(self):
-        # 1 for hit ability
-        return 1 + (self.level + 1) / 2
+        return f.max_ability_points_number(self.level)
 
     @property
     def current_ability_points_number(self):
@@ -223,8 +222,8 @@ class HeroPrototype(object):
                                                    max_passive_abilities=max_abilities[1])
 
         return self.abilities.get_for_choose(candidates,
-                                             max_old_abilities_for_choose=2,
-                                             max_abilities_for_choose=4)
+                                             max_old_abilities_for_choose=c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM,
+                                             max_abilities_for_choose=c.ABILITIES_FOR_CHOOSE_MAXIMUM)
 
     @property
     def quests_history(self):
@@ -284,7 +283,7 @@ class HeroPrototype(object):
         self.bag.pop_quest_artifact(artifact)
 
 
-    def buy_artifact(self, better=False, with_preferences=True):
+    def buy_artifact(self, better=False, with_preferences=True, equip=True):
         artifacts_list = None
         if self.preferences.equipment_slot is not None:
             if with_preferences:
@@ -305,6 +304,9 @@ class HeroPrototype(object):
             return None, None, None
 
         self.bag.put_artifact(artifact)
+
+        if not equip:
+            return artifact, None, None
 
         slot = random.choice(ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type])
         unequipped = self.equipment.get(slot)
@@ -410,6 +412,11 @@ class HeroPrototype(object):
             self.bag.pop_artifact(equipped)
             self.equipment.equip(slot, equipped)
 
+    def can_get_artifact_for_quest(self):
+        return self.abilities.can_get_artifact_for_quest(self)
+
+    def can_buy_better_artifact(self):
+        return self.abilities.can_buy_better_artifact(self)
 
     @property
     def equipment(self):
@@ -448,7 +455,8 @@ class HeroPrototype(object):
     def next_spending(self): return self.model.next_spending
 
     def switch_spending(self):
-        self.model.next_spending = random_value_by_priority(list(c.ITEMS_OF_EXPENDITURE_PRIORITY.items()))
+        priorities = self.abilities.update_items_of_expenditure_priorities(self, c.ITEMS_OF_EXPENDITURE_PRIORITY)
+        self.model.next_spending = random_value_by_priority(list(priorities.items()))
 
     @property
     def energy_maximum(self): return c.ANGEL_ENERGY_MAX
@@ -484,8 +492,7 @@ class HeroPrototype(object):
     might_updated_time = property(get_might_updated_time, set_might_updated_time)
 
     @property
-    def might_crit_chance(self): return f.might_crit_chance(self.might)
-
+    def might_crit_chance(self): return self.abilities.modify_attribute(ATTRIBUTES.MIGHT_CRIT_CHANCE, f.might_crit_chance(self.might))
 
     def on_highlevel_data_updated(self):
         if self.preferences.friend_id is not None and self.preferences.friend.out_game:
@@ -504,7 +511,7 @@ class HeroPrototype(object):
     def damage_modifier(self): return self.abilities.modify_attribute(ATTRIBUTES.DAMAGE, 1)
 
     @property
-    def move_speed(self): return 0.3
+    def move_speed(self): return self.abilities.modify_attribute(ATTRIBUTES.SPEED, 0.3)
 
     @property
     def initiative(self): return self.abilities.modify_attribute(ATTRIBUTES.INITIATIVE, 1)

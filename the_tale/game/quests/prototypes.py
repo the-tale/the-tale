@@ -290,12 +290,19 @@ class QuestPrototype(object):
         cur_action.hero.pop_quest_loot(item)
 
     def cmd_get_reward(self, cmd, cur_action, writer):
+
+        if cur_action.hero.can_get_artifact_for_quest():
+            artifact, unequipped, sell_price = cur_action.hero.buy_artifact(equip=False)
+
+            if artifact is not None:
+                self.push_message(writer, cur_action.hero, '%s_artifact' % cmd.event, hero=cur_action.hero, artifact=artifact)
+                return
+
         multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
         money = 1 + int(f.sell_artifact_price(cur_action.hero.level) * multiplier)
         money = cur_action.hero.abilities.update_quest_reward(cur_action.hero, money)
         cur_action.hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
-
-        self.push_message(writer, cur_action.hero, cmd.event, hero=cur_action.hero, coins=money)
+        self.push_message(writer, cur_action.hero, '%s_money' % cmd.event, hero=cur_action.hero, coins=money)
 
     def cmd_quest(self, cmd, cur_action, writer):
         self.push_message(writer, cur_action.hero, cmd.event)

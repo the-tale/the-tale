@@ -29,15 +29,16 @@
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         тип:
-        {% if ability_type is not none %} {{ ABILITY_TYPE._ID_TO_TEXT[ability_type]}}
+        {% if ability_type == ABILITY_TYPE.BATTLE %} боевые
+        {% elif ability_type == ABILITY_TYPE.NONBATTLE %} небоевые
         {% else %} все
         {% endif %}
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
         <li><a href="{{ url_builder(ability_type=none) }}">все</a></li>
-        <li><a href="{{ url_builder(ability_type=ABILITY_TYPE.BATTLE) }}">{{ABILITY_TYPE._ID_TO_TEXT[ABILITY_TYPE.BATTLE]}}</a></li>
-        <li><a href="{{ url_builder(ability_type=ABILITY_TYPE.NONBATTLE) }}">{{ABILITY_TYPE._ID_TO_TEXT[ABILITY_TYPE.NONBATTLE]}}</a></li>
+        <li><a href="{{ url_builder(ability_type=ABILITY_TYPE.BATTLE) }}">боевые</a></li>
+        <li><a href="{{ url_builder(ability_type=ABILITY_TYPE.NONBATTLE) }}">небоевые</a></li>
       </ul>
     </div>
 

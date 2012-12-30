@@ -53,7 +53,7 @@ class Hero(models.Model):
     equipment = models.TextField(null=False, default='{}')
     bag = models.TextField(null=False, default='{}')
 
-    abilities = models.TextField(null=False, default='[]')
+    abilities = models.TextField(null=False, default='', blank=True)
 
     quests_history = models.TextField(null=False, default='{}')
 
