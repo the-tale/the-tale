@@ -73,11 +73,11 @@ def compare_abilities(hero_1, hero_2, abilities, level):
         for ability_2 in abilities[i+1:]:
 
             hero_1.abilities.abilities = {}
-            hero_1.abilities.add('hit', level)
+            hero_1.abilities.add('hit', min(level, ABILITIES['hit'].MAX_LEVEL))
             hero_1.abilities.add(ability_1.get_id(), level)
 
             hero_2.abilities.abilities = {}
-            hero_2.abilities.add('hit', level)
+            hero_2.abilities.add('hit', min(level, ABILITIES['hit'].MAX_LEVEL))
             hero_2.abilities.add(ability_2.get_id(), level)
 
             hero_1_wins, hero_2_wins = get_battles_statistics(hero_1, hero_2)

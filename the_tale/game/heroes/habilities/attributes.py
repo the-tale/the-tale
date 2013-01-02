@@ -54,7 +54,7 @@ class FAST(AbilityAttributeBase):
     normalized_name = NAME
     DESCRIPTION = u'Обладатель этой способности имеет хорошую реакцию и действует в бою быстрее.'
 
-    MODIFIER = [1.02, 1.05, 1.065, 1.085, 1.1]
+    MODIFIER = [1.025, 1.05, 1.075, 1.100, 1.125]
 
     def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.INITIATIVE else value
 
@@ -118,7 +118,7 @@ class THICK(AbilityAttributeBase):
     normalized_name = NAME
     DESCRIPTION = u'Герои и монстры, которые много кушали в детстве, становятся чуть здоровее остальных.'
 
-    MODIFIER = [1.025, 1.05, 1.075, 1.100, 1.125]
+    MODIFIER = [1.025, 1.05, 1.075, 1.100, 1.13]
 
     def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.HEALTH else value
 

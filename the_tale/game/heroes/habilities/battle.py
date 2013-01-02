@@ -5,21 +5,22 @@ from game.heroes.habilities.prototypes import AbilityPrototype, ABILITY_TYPE, AB
 
 from game.actions.contexts.battle import Damage
 
-from game.balance import constants as c
+from game.balance import constants as c, formulas as f
 
 class HIT(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
-    PRIORITY = [100, 100, 100, 100, 100]
+    PRIORITY = [100]
     DAMAGE_TYPE = DAMAGE_TYPE.MIXED
+    MAX_LEVEL = 1
 
     NAME = u'Удар'
     normalized_name = NAME
     DESCRIPTION = u'Каждый уважающий себя герой должен быть в состоянии ударить противника, или пнуть.'
 
-    DAMAGE_MODIFIER = [1.00, 1.25, 1.50, 1.75, 2.00]
+    DAMAGE_MODIFIER = [1.00]
 
     @property
     def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
@@ -35,6 +36,33 @@ class HIT(AbilityPrototype):
         messanger.add_message('hero_ability_hit_miss', attacker=actor, defender=enemy)
 
 
+class STRONG_HIT(AbilityPrototype):
+
+    TYPE = ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
+    PRIORITY = [15, 16, 17, 18, 19]
+    DAMAGE_TYPE = DAMAGE_TYPE.PHYSICAL
+
+    NAME = u'Тяжёлый удар'
+    normalized_name = NAME
+    DESCRIPTION = u'Если хорошенько размахнуться и правильно ударить, то удар получится намного сильнее и болезненней.'
+
+    DAMAGE_MODIFIER = [1.25, 1.4, 1.55, 1.7, 1.85]
+
+    @property
+    def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
+
+    def use(self, messanger, actor, enemy):
+        damage = actor.context.modify_outcoming_damage(Damage(physic=actor.basic_damage*self.damage_modifier))
+        damage = enemy.context.modify_incoming_damage(damage)
+        enemy.change_health(-damage.total)
+        messanger.add_message('hero_ability_strong_hit', attacker=actor, defender=enemy, damage=damage.total)
+
+    def on_miss(self, messanger, actor, enemy):
+        messanger.add_message('hero_ability_strong_hit_miss', attacker=actor, defender=enemy)
+
+
 class MAGIC_MUSHROOM(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.BATTLE
@@ -46,10 +74,10 @@ class MAGIC_MUSHROOM(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Находясь в бою, герой может силой своей могучей воли вырастить волшебный гриб, съев который, некоторое время станет наносить увеличенный урон противникам.'
 
-    DAMAGE_FACTORS = [ [1.75, 1.55, 1.20, 1.05],
-                       [1.85, 1.65, 1.35, 1.15],
-                       [1.90, 1.70, 1.40, 1.20],
-                       [2.05, 1.80, 1.55, 1.30],
+    DAMAGE_FACTORS = [ [1.75, 1.55, 1.25, 1.05],
+                       [1.85, 1.65, 1.40, 1.15],
+                       [1.90, 1.70, 1.45, 1.20],
+                       [2.05, 1.80, 1.60, 1.30],
                        [2.25, 2.00, 1.75] ]
 
     @property
@@ -73,10 +101,10 @@ class SIDESTEP(AbilityPrototype):
     DESCRIPTION = u'Герой быстро меняет свою позицию, дезориентируя противника, из-за чего тот начинает промахиваться.'
 
     MISS_PROBABILITIES = [ [1.00, 0.35, 0.175],
-                           [1.00, 0.55, 0.200, 0.10],
-                           [1.00, 0.60, 0.250, 0.15, 0.05],
-                           [1.00, 0.65, 0.300, 0.20, 0.10],
-                           [1.00, 0.70, 0.350, 0.20, 0.10]]
+                           [1.00, 0.45, 0.200, 0.05],
+                           [1.00, 0.55, 0.225, 0.10, 0.05],
+                           [1.00, 0.65, 0.250, 0.15, 0.10],
+                           [1.00, 0.75, 0.275, 0.20, 0.15]]
 
     @property
     def miss_probabilities(self): return self.MISS_PROBABILITIES[self.level-1]
@@ -95,17 +123,17 @@ class RUN_UP_PUSH(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
     DAMAGE_TYPE = DAMAGE_TYPE.PHYSICAL
-    PRIORITY = [7, 10, 10, 11, 13]
+    PRIORITY = [7, 8, 9, 10, 11]
 
     NAME = u'Разбег-толчок'
     normalized_name = NAME
     DESCRIPTION = u'Герой разбегается и наносит урон противнику. Враг будет оглушён и пропустит один или несколько ходов атаку.'
 
-    DAMAGE_MODIFIER = [0.5, 0.6, 0.8, 0.9, 0.9]
+    DAMAGE_MODIFIER = [0.35, 0.45, 0.55, 0.65, 0.75]
 
     STUN_LENGTH = [ (1.0, 1.6),
                     (1.0, 1.7),
-                    (1.0, 1.8),
+                    (1.0, 1.9),
                     (1.0, 2.2),
                     (1.0, 2.6) ]
 
@@ -132,13 +160,13 @@ class REGENERATION(AbilityPrototype):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
-    PRIORITY = [11, 12, 13, 14, 15]
+    PRIORITY = [8, 9, 10, 11, 12]
 
     NAME = u'Регенерация'
     normalized_name = NAME
     DESCRIPTION = u'Во время боя герой может восстановить часть своего здоровья.'
 
-    RESTORED_PERCENT = [1.3, 2.1, 2.95, 3.90, 4.75]
+    RESTORED_PERCENT = [0.17, 0.20, 0.23, 0.25, 0.28]
 
     @property
     def restored_percent(self): return self.RESTORED_PERCENT[self.level-1]
@@ -146,9 +174,9 @@ class REGENERATION(AbilityPrototype):
     def can_be_used(self, actor): return actor.health < actor.max_health
 
     def use(self, messanger, actor, enemy):
-        # health_to_regen = f.mob_hp_to_lvl(actor.level) * self.restored_percent # !!!MOB HP, NOT HERO!!!
+        health_to_regen = f.mob_hp_to_lvl(actor.level) * self.restored_percent * (1 + random.uniform(-c.DAMAGE_DELTA, c.DAMAGE_DELTA))# !!!MOB HP, NOT HERO!!!
         # health_to_regen = actor.max_health * self.restored_percent
-        health_to_regen = actor.basic_damage * self.restored_percent * (1 + random.uniform(-c.DAMAGE_DELTA, c.DAMAGE_DELTA))
+        # health_to_regen = actor.basic_damage * self.restored_percent * (1 + random.uniform(-c.DAMAGE_DELTA, c.DAMAGE_DELTA))
         applied_health = int(round(actor.change_health(health_to_regen)))
         messanger.add_message('hero_ability_regeneration', actor=actor, health=applied_health)
 
@@ -162,7 +190,7 @@ class CRITICAL_HIT(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Удача благосклонна к герою — урон от любого удара может существенно увеличится.'
 
-    CRITICAL_CHANCE = [0.04, 0.07, 0.09, 0.10, 0.13]
+    CRITICAL_CHANCE = [0.03, 0.06, 0.09, 0.10, 0.13]
 
     @property
     def critical_chance(self): return self.CRITICAL_CHANCE[self.level-1]
@@ -180,7 +208,7 @@ class BERSERK(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Чем меньше у героя остаётся здоровья, тем сильнее его удары.'
 
-    MAXIMUM_BONUS = [0.09, 0.15, 0.18, 0.22, 0.25]
+    MAXIMUM_BONUS = [0.05, 0.10, 0.15, 0.20, 0.25]
 
     @property
     def maximum_bonus(self): return self.MAXIMUM_BONUS[self.level-1]
@@ -198,7 +226,7 @@ class NINJA(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Ниндзя может уклониться от атаки противника.'
 
-    MISS_PROBABILITY = [0.03, 0.05, 0.07, 0.09, 0.11]
+    MISS_PROBABILITY = [0.025, 0.05, 0.075, 0.10, 0.120]
 
     @property
     def miss_probability(self): return self.MISS_PROBABILITY[self.level-1]
@@ -213,18 +241,18 @@ class FIREBALL(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
     DAMAGE_TYPE = DAMAGE_TYPE.MAGICAL
-    PRIORITY = [5, 6, 7, 8, 9]
+    PRIORITY = [4, 5, 6, 7, 8]
 
     NAME = u'Шар огня'
     normalized_name = NAME
     DESCRIPTION = u'Герой запускает в противника шар волшебного огня, нанося большой урон и поджигая врага.'
 
-    DAMAGE_MODIFIER = [1.70, 2.25, 2.50, 2.75, 3.00]
-    PERIODIC_DAMAGE_MODIFIERS = [ [0.25],
-                                  [0.55, 0.20],
-                                  [0.70, 0.40, 0.15],
-                                  [0.90, 0.65, 0.40],
-                                  [1.00, 0.75, 0.50, 0.25] ]
+    DAMAGE_MODIFIER = [1.4, 1.5, 1.6, 1.8, 2]
+    PERIODIC_DAMAGE_MODIFIERS = [ [0.15, 0.05],
+                                  [0.30, 0.20, 0.10],
+                                  [0.35, 0.25, 0.10],
+                                  [0.40, 0.30, 0.15, 0.10],
+                                  [0.25, 0.20, 0.150, 0.10, 0.05] ]
 
     @property
     def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
@@ -248,18 +276,18 @@ class POISON_CLOUD(AbilityPrototype):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
-    PRIORITY = [10, 9, 12, 13, 14]
+    PRIORITY = [6, 7, 8, 9, 10]
     DAMAGE_TYPE = DAMAGE_TYPE.MAGICAL
 
     NAME = u'Ядовитое облако'
     normalized_name = NAME
     DESCRIPTION = u'Вокруг противника сгущается ядовитое облако, не наносящее урона, но вызывающее сильное отравление.'
 
-    PERIODIC_DAMAGE_MODIFIERS = [ [0.70, 0.45, 0.20],
-                                  [1.00, 0.75, 0.5],
-                                  [1.15, 0.90, 0.65],
-                                  [1.40, 1.15, 0.90],
-                                  [1.65, 1.45, 1.15] ]
+    PERIODIC_DAMAGE_MODIFIERS = [ [0.75, 0.50, 0.25],
+                                  [0.90, 0.65, 0.40],
+                                  [1.00, 0.70, 0.45],
+                                  [1.05, 0.75, 0.50],
+                                  [1.10, 0.80, 0.55]]
 
     @property
     def periodic_damage_modifiers(self): return self.PERIODIC_DAMAGE_MODIFIERS[self.level-1]
@@ -274,14 +302,14 @@ class VAMPIRE_STRIKE(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
     DAMAGE_TYPE = DAMAGE_TYPE.MIXED
-    PRIORITY = [15, 16, 17, 18, 19]
+    PRIORITY = [14, 15, 16, 17, 18]
 
     NAME = u'Удар вампира'
     normalized_name = NAME
     DESCRIPTION = u'Секретный удар, лечащий героя на величину, пропорциональную нанесённому урону.'
 
-    DAMAGE_FRACTION = [1.00, 1.3, 1.5, 1.8, 2.1]
-    HEAL_FRACTION = [0.3, 0.5, 0.6, 0.8, 1.0]
+    DAMAGE_FRACTION = [0.85, 0.95, 1.00, 1.10, 1.15]
+    HEAL_FRACTION =   [0.45, 0.55, 0.65, 0.70, 0.75]
 
     @property
     def heal_fraction(self): return self.HEAL_FRACTION[self.level-1]
@@ -314,10 +342,10 @@ class FREEZING(AbilityPrototype):
     DESCRIPTION = u'Противника пронзает ужасный холод, замедляя его движения.'
 
     INITIATIVE_MODIFIERS = [ [0.37, 0.48, 0.58, 0.68, 0.78, 0.88],
-                             [0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95],
-                             [0.32, 0.42, 0.52, 0.62, 0.72, 0.82, 0.92],
-                             [0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90],
-                             [0.25, 0.36, 0.47, 0.59, 0.69, 0.80, 0.91]]
+                             [0.33, 0.44, 0.54, 0.64, 0.74, 0.84, 0.94],
+                             [0.29, 0.39, 0.51, 0.61, 0.71, 0.81, 0.91],
+                             [0.25, 0.35, 0.47, 0.57, 0.67, 0.77, 0.87],
+                             [0.23, 0.33, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95]]
 
     @property
     def initiative_modifiers(self): return self.INITIATIVE_MODIFIERS[self.level-1]

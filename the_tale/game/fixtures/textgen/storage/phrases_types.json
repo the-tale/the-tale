@@ -242,6 +242,15 @@
 "hero_ability": {
 "name": "Способности: герой", 
 "types": {
+"hero_ability_vampire_strike_miss": {
+"variables": [
+"attacker", 
+"defender"
+], 
+"example": "Привидение попыталось укусить крысу, но промахнулось.", 
+"name": "Удар вампира (промах)", 
+"description": "Атакующий промахулся при использовании способности «Удар вампира»"
+}, 
 "hero_ability_hit": {
 "variables": [
 "attacker", 
@@ -251,6 +260,16 @@
 "example": "Привидение поднатужилось и нанесло 22 единицы урона.", 
 "name": "Удар", 
 "description": "Нанесение урона способностью «Удар»."
+}, 
+"hero_ability_strong_hit": {
+"variables": [
+"attacker", 
+"damage", 
+"defender"
+], 
+"example": "Привидение размахнулось сильнее обычного и нанесло 22 единицы урона.", 
+"name": "Сильный удар", 
+"description": "Нанесение урона способностью «Сильный удар»."
 }, 
 "hero_ability_speedup": {
 "variables": [
@@ -271,14 +290,14 @@
 "name": "Шар огня", 
 "description": "Нанесение урона способностью «Шар огня»."
 }, 
-"hero_ability_vampire_strike_miss": {
+"hero_ability_hit_miss": {
 "variables": [
 "attacker", 
 "defender"
 ], 
-"example": "Привидение попыталось укусить крысу, но промахнулось.", 
-"name": "Удар вампира (промах)", 
-"description": "Атакующий промахулся при использовании способности «Удар вампира»"
+"example": "Привидение поднатужилось… и промахнулось…", 
+"name": "Удао (Промах)", 
+"description": "Атакующий промахулся при использовании способности «Удар»"
 }, 
 "hero_ability_freezing": {
 "variables": [
@@ -336,14 +355,14 @@
 "name": "Разбег-толчок (промах)", 
 "description": "Промах при использовании способности «Разбег—толчок»"
 }, 
-"hero_ability_hit_miss": {
+"hero_ability_strong_hit_miss": {
 "variables": [
 "attacker", 
 "defender"
 ], 
-"example": "Привидение поднатужилось… и промахнулось…", 
-"name": "Промах", 
-"description": "Атакующий промахулся при использовании способности «Удар»"
+"example": "Крыса успела отбежать подальше, пока привидение замахивалось.", 
+"name": "Сильный удар (промах)", 
+"description": "Атакующий промахулся при использовании способности «Сильный удар»"
 }, 
 "hero_ability_vampire_strike": {
 "variables": [

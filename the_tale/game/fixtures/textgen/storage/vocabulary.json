@@ -2442,6 +2442,56 @@
       "template": "Провести караван"
     }
   ], 
+  "hero_ability_strong_hit_miss": [
+    {
+      "internals": [
+        [
+          "успел", 
+          [
+            "defender"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "успел"
+        ], 
+        [
+          "замахивался", 
+          [
+            "attacker"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "замахивался"
+        ]
+      ], 
+      "externals": [
+        [
+          "defender", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "defender"
+        ], 
+        [
+          "attacker", 
+          [], 
+          "e_1", 
+          [
+            "им"
+          ], 
+          "attacker"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s отбежать подальше, пока %(e_1)s %(i_1)s."
+    }
+  ], 
   "quest_notmywork_diary_move_to_customer": [], 
   "quest_caravan_action_caravan_attack": [
     {
@@ -2532,6 +2582,99 @@
       "internals": [], 
       "externals": [], 
       "template": "Доставить посылку"
+    }
+  ], 
+  "action_inplace_sharpening_artifact": [
+    {
+      "internals": [
+        [
+          "Заплатил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "Заплатил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "%(i_0)s кузнецу %(e_0)s %(i_1)s за улучшение %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "им"
+          ], 
+          "монета"
+        ], 
+        [
+          "заплатил", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "заплатил"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s, конечно, не малые деньги, но работа кузнеца того стоила — %(i_1)s без зазрения за улучшение %(e_1)s."
     }
   ], 
   "action_battlepve1x1_put_loot_no_space": [
@@ -7293,7 +7436,65 @@
       "template": "%(e_0)s %(i_0)s восстановить равновесие."
     }
   ], 
-  "quest_spying_action_choice_continue_spying": [], 
+  "hero_ability_strong_hit": [
+    {
+      "internals": [
+        [
+          "размахнулся", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "размахнулся"
+        ], 
+        [
+          "нанес", 
+          [
+            "attacker"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "нанес"
+        ], 
+        [
+          "единица", 
+          [
+            "damage"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "единица"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "damage", 
+          [], 
+          "e_1", 
+          [], 
+          "damage"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s сильнее обычного и %(i_1)s %(e_1)s %(i_2)s урона."
+    }
+  ], 
   "action_moveto_start": [
     {
       "internals": [], 
@@ -7820,99 +8021,7 @@
       "template": "%(e_0)s говорит, что никак не может найти время — %(i_0)s делами по горло. Придётся помочь."
     }
   ], 
-  "action_inplace_sharpening_artifact": [
-    {
-      "internals": [
-        [
-          "Заплатил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш", 
-            "загл"
-          ], 
-          "Заплатил"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "рд"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "%(i_0)s кузнецу %(e_0)s %(i_1)s за улучшение %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "им"
-          ], 
-          "монета"
-        ], 
-        [
-          "заплатил", 
-          [
-            "hero"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "заплатил"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "рд"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s, конечно, не малые деньги, но работа кузнеца того стоила — %(i_1)s без зазрения за улучшение %(e_1)s."
-    }
-  ], 
+  "quest_spying_action_choice_continue_spying": [], 
   "quest_hometown_journal_search_old_friends_donothing": [], 
   "quest_caravan_diary_bad_get_reward_artefact": [
     {

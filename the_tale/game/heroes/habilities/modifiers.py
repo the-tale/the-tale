@@ -36,11 +36,11 @@ class MAGE(AbilityModifiersBase):
     normalized_name = NAME
     DESCRIPTION = u'Маг всё своё усердие направляет в совершенствование магических умений, поэтому имеет увеличеный магический урон, защиту от магии и уменьшенные физический урон и защиту от физических атак.'
 
-    INCOMING_MAGIC_DAMAGE_MODIFIER = [0.94, 0.89, 0.85, 0.8, 0.75]
-    INCOMING_PHYSIC_DAMAGE_MODIFIER = [1.025, 1.04, 1.075, 1.1, 1.125]
+    INCOMING_MAGIC_DAMAGE_MODIFIER =   [0.950, 0.900, 0.850, 0.800, 0.750]
+    INCOMING_PHYSIC_DAMAGE_MODIFIER =  [1.025, 1.050, 1.075, 1.100, 1.125]
 
-    OUTCOMING_MAGIC_DAMAGE_MODIFIER = [1.07, 1.11, 1.15, 1.2, 1.25]
-    OUTCOMING_PHYSIC_DAMAGE_MODIFIER = [0.975, 0.96, 0.925, 0.9, 0.875]
+    OUTCOMING_MAGIC_DAMAGE_MODIFIER =  [1.050, 1.100, 1.150, 1.200, 1.250]
+    OUTCOMING_PHYSIC_DAMAGE_MODIFIER = [0.975, 0.950, 0.925, 0.900, 0.875]
 
 
 class WARRIOR(AbilityModifiersBase):
@@ -52,11 +52,11 @@ class WARRIOR(AbilityModifiersBase):
     normalized_name = NAME
     DESCRIPTION = u'Воин большинство времени тратит на физические тренировки, благодаря чему наносит больший физический урон, имеет хорошую защиту от физических атак, но слабо противостоит магическим атакам и сам с трудом пользуется магией.'
 
-    INCOMING_MAGIC_DAMAGE_MODIFIER =   [1.025, 1.04, 1.070, 1.1, 1.125]
-    INCOMING_PHYSIC_DAMAGE_MODIFIER =  [0.940, 0.90, 0.830, 0.8, 0.750]
+    INCOMING_MAGIC_DAMAGE_MODIFIER =   [1.025, 1.050, 1.075, 1.100, 1.125]
+    INCOMING_PHYSIC_DAMAGE_MODIFIER =  [0.950, 0.900, 0.850, 0.800, 0.750]
 
-    OUTCOMING_MAGIC_DAMAGE_MODIFIER =  [0.975, 0.95, 0.925, 0.9, 0.875]
-    OUTCOMING_PHYSIC_DAMAGE_MODIFIER = [1.060, 1.14, 1.170, 1.2, 1.250]
+    OUTCOMING_MAGIC_DAMAGE_MODIFIER =  [0.975, 0.950, 0.925, 0.900, 0.875]
+    OUTCOMING_PHYSIC_DAMAGE_MODIFIER = [1.050, 1.100, 1.150, 1.200, 1.250]
 
 
 class GARGOYLE(AbilityModifiersBase):
@@ -68,8 +68,8 @@ class GARGOYLE(AbilityModifiersBase):
     normalized_name = NAME
     DESCRIPTION = u'Подобно горгулье, обладатель этой способности имеет увеличенную защиту от всех типов атак.'
 
-    INCOMING_MAGIC_DAMAGE_MODIFIER = [0.960, 0.940, 0.925, 0.900, 0.875]
-    INCOMING_PHYSIC_DAMAGE_MODIFIER = [0.960, 0.940, 0.925, 0.900, 0.875]
+    INCOMING_MAGIC_DAMAGE_MODIFIER =  [0.975, 0.950, 0.925, 0.900, 0.875]
+    INCOMING_PHYSIC_DAMAGE_MODIFIER = [0.975, 0.950, 0.925, 0.900, 0.875]
 
 
 class KILLER(AbilityModifiersBase):
@@ -81,11 +81,11 @@ class KILLER(AbilityModifiersBase):
     normalized_name = NAME
     DESCRIPTION = u'Ориентируясь на быстрый бой, убийца совершенствует свои атакующие способности в ущерб защитным.'
 
-    OUTCOMING_MAGIC_DAMAGE_MODIFIER =  [1.07, 1.12, 1.17, 1.2, 1.25]
-    OUTCOMING_PHYSIC_DAMAGE_MODIFIER = [1.07, 1.12, 1.17, 1.2, 1.25]
+    OUTCOMING_MAGIC_DAMAGE_MODIFIER =  [1.050, 1.100, 1.150, 1.200, 1.260]
+    OUTCOMING_PHYSIC_DAMAGE_MODIFIER = [1.050, 1.100, 1.150, 1.200, 1.260]
 
-    INCOMING_MAGIC_DAMAGE_MODIFIER =  [1.025, 1.04, 1.07, 1.1, 1.125]
-    INCOMING_PHYSIC_DAMAGE_MODIFIER = [1.025, 1.04, 1.07, 1.1, 1.125]
+    INCOMING_MAGIC_DAMAGE_MODIFIER =   [1.025, 1.050, 1.075, 1.100, 1.115]
+    INCOMING_PHYSIC_DAMAGE_MODIFIER =  [1.025, 1.050, 1.075, 1.100, 1.115]
 
 
 ABILITIES = dict( (ability.get_id(), ability)
