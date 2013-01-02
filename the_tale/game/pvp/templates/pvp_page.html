@@ -11,7 +11,7 @@
 <ul class="pvp-abilities-list unstyled">
   {% for ability in abilities%}
   <li rel="tooltip" title="{{ability.DESCRIPTION}}">
-    {{ ability.NAME }}
+    {{ ability.NAME }} <span class="pull-right">{{ability.level}}</span>
   </li>
   {% endfor %}
 </ul>

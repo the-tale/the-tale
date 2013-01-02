@@ -1797,6 +1797,54 @@
       "template": "Торговец попросил всего %(e_0)s %(i_0)s за %(e_1)s. Не долго думая %(i_1)s %(i_2)s, а %(i_3)s %(e_2)s пришлось продать за %(e_3)s %(i_4)s."
     }
   ], 
+  "quest_caravan_diary_good_get_reward_money": [
+    {
+      "internals": [
+        [
+          "получил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "получил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "hero"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s %(e_1)s %(i_1)s в награду за хорошую охрану каравана."
+    }
+  ], 
   "quest_interfereenemy_diary_get_reward_money": [
     {
       "internals": [
@@ -2372,6 +2420,21 @@
       "template": "Слишком много сил я %(i_0)s на доставку этого письма, надо его украсть."
     }
   ], 
+  "quest_caravan_action_good_get_reward_artifact": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s получает награду"
+    }
+  ], 
   "quest_caravan_description": [
     {
       "internals": [], 
@@ -2609,13 +2672,6 @@
         ]
       ], 
       "template": "Повертев в руках %(e_0)s, %(i_0)s от %(e_1)s, %(e_2)s с сожалением %(i_1)s %(i_2)s — в рюкзаке не осталось места."
-    }
-  ], 
-  "action_regenerate_energy_description_incense": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "вдыхает аромат курящихся благовоний"
     }
   ], 
   "action_regenerate_energy_start_incense": [
@@ -3398,35 +3454,6 @@
       "template": "%(i_0)s знаменитые дварфийские пироги, %(i_1)s %(e_0)s %(i_2)s на лечение зубов."
     }
   ], 
-  "quest_caravan_diary_bad_get_reward": [
-    {
-      "internals": [
-        [
-          "обнаружил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "обнаружил"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "Караванщик оказался состоятельным — %(i_0)s %(e_0)s среди добычи."
-    }
-  ], 
   "action_inplace_instant_heal": [
     {
       "internals": [
@@ -3659,21 +3686,6 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s в исконные места обитания любимой добычи."
-    }
-  ], 
-  "quest_caravan_action_move_to_point": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s сопровождает караван"
     }
   ], 
   "quest_hometown_journal_stagger_streets": [], 
@@ -4322,19 +4334,11 @@
       "template": "%(e_0)s %(i_0)s и %(i_1)s %(e_1)s %(i_2)s урона."
     }
   ], 
-  "quest_caravan_action_good_get_reward_artifact": [
+  "action_regenerate_energy_description_incense": [
     {
       "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s получает награду"
+      "externals": [], 
+      "template": "вдыхает аромат курящихся благовоний"
     }
   ], 
   "quest_spying_journal_move_to_quest": [], 
@@ -4457,7 +4461,14 @@
     }
   ], 
   "quest_searchsmith_diary_move_to_quest": [], 
-  "quest_caravan_diary_good_get_reward": [
+  "quest_hometown_journal_stagger_streets_start": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Пойду поброжу по родным улочкам."
+    }
+  ], 
+  "quest_caravan_diary_good_get_reward_artefact": [
     {
       "internals": [
         [
@@ -4494,13 +4505,6 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s %(e_1)s в награду за хорошую охрану каравана."
-    }
-  ], 
-  "quest_hometown_journal_stagger_streets_start": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "Пойду поброжу по родным улочкам."
     }
   ], 
   "quest_spying_diary_get_reward_spying_money": [
@@ -7910,6 +7914,35 @@
     }
   ], 
   "quest_hometown_journal_search_old_friends_donothing": [], 
+  "quest_caravan_diary_bad_get_reward_artefact": [
+    {
+      "internals": [
+        [
+          "обнаружил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "обнаружил"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "Караванщик оказался состоятельным — %(i_0)s %(e_0)s среди добычи."
+    }
+  ], 
   "action_equipping_change_equal_items": [
     {
       "internals": [
@@ -7950,7 +7983,21 @@
       "template": "%(i_0)s %(e_0)s куда лучше %(i_1)s — надо их поменять."
     }
   ], 
-  "quest_hometown_journal_remember_names_start": [], 
+  "quest_caravan_action_move_to_point": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s сопровождает караван"
+    }
+  ], 
   "hero_ability_fireball": [
     {
       "internals": [
@@ -8076,6 +8123,21 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s к зимним ветрам и %(e_1)s окутывает ужасный холод, %(i_1)s движения замедляются."
+    }
+  ], 
+  "quest_helpfriend_action_intro": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s идёт в гости"
     }
   ], 
   "quest_spying_choice_openup_variant_open_up": [
@@ -8549,21 +8611,7 @@
       "template": "%(e_0)s идёт на помощь"
     }
   ], 
-  "quest_helpfriend_action_intro": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s идёт в гости"
-    }
-  ], 
+  "quest_hometown_journal_remember_names_start": [], 
   "action_trading_description": [
     {
       "internals": [], 

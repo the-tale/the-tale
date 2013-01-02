@@ -1737,17 +1737,31 @@
 "name": "Активность: герой грабит корован", 
 "description": "Краткое суммарное описание действий героя при ограблении им каравана."
 }, 
-"quest_caravan_action_bad_get_reward_money": {
+"quest_caravan_diary_good_get_reward_artefact": {
 "variables": [
-"place_end", 
 "person_end", 
 "hero", 
 "person_start", 
-"place_start"
+"place_end", 
+"place_start", 
+"artifact"
 ], 
-"example": "привидение изучает добычу", 
-"name": "Активность: изучение добычи (деньги)", 
-"description": "Краткое суммарное описание действий героя при изучении добычи после ограбления каравана."
+"example": "Привидение получило пепельницу в награду за хорошую охрану каравана.", 
+"name": "Дневник: награда за защиту (артефакт)", 
+"description": "Герой получает награду за защиту каравана (артефакт)."
+}, 
+"quest_caravan_diary_intro": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"place_start", 
+"artifact"
+], 
+"example": "Свинья поручила отвести караван в город. Там меня должен встретить гусь.", 
+"name": "Дневник: начало задания", 
+"description": "Герой получил задание."
 }, 
 "quest_caravan_journal_run_away": {
 "variables": [
@@ -1789,21 +1803,7 @@
 "name": "Активность: атака бандитов", 
 "description": "Краткое суммарное описание действий героя при атаке бандитов."
 }, 
-"quest_caravan_diary_good_get_reward": {
-"variables": [
-"person_end", 
-"hero", 
-"person_start", 
-"place_end", 
-"coins", 
-"place_start", 
-"artifact"
-], 
-"example": "Привидение получило пепельницу в награду за хорошую охрану каравана.", 
-"name": "Дневник: награда за защиту (артефакт)", 
-"description": "Герой получает награду за защиту каравана (артефакт)."
-}, 
-"quest_caravan_diary_intro": {
+"quest_caravan_action_bad_get_reward_money": {
 "variables": [
 "person_end", 
 "hero", 
@@ -1812,9 +1812,9 @@
 "place_start", 
 "artifact"
 ], 
-"example": "Свинья поручила отвести караван в город. Там меня должен встретить гусь.", 
-"name": "Дневник: начало задания", 
-"description": "Герой получил задание."
+"example": "привидение изучает добычу", 
+"name": "Активность: изучение добычи (деньги)", 
+"description": "Краткое суммарное описание действий героя при изучении добычи после ограбления каравана."
 }, 
 "quest_caravan_choice_bring_result_bandits": {
 "variables": [
@@ -1856,6 +1856,19 @@
 "name": "Дневник: выбор защиты", 
 "description": "Герой реил защищать караван."
 }, 
+"quest_caravan_diary_bad_get_reward_artefact": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"place_start", 
+"artifact"
+], 
+"example": "Караванщик оказался состоятельным — обнаружило пепельницу среди добычи.", 
+"name": "Дневник: награда за ограбление (артефакт)", 
+"description": "Герой получает награду за ограбление каравана. (артефакт)"
+}, 
 "quest_caravan_action_move_to_point": {
 "variables": [
 "person_end", 
@@ -1884,18 +1897,6 @@
 }, 
 "quest_caravan_action_choice_defend": {
 "variables": [
-"place_end", 
-"person_end", 
-"hero", 
-"person_start", 
-"place_start"
-], 
-"example": "привидение защищает караван от бандитов", 
-"name": "Активность: выбор защиты от бандитов", 
-"description": "Краткое суммарное описание действий героя при выборе защиты каравана от бандитов"
-}, 
-"quest_caravan_diary_bad_get_reward": {
-"variables": [
 "person_end", 
 "hero", 
 "person_start", 
@@ -1903,9 +1904,9 @@
 "place_start", 
 "artifact"
 ], 
-"example": "Караванщик оказался состоятельным — обнаружило пепельницу среди добычи.", 
-"name": "Дневник: награда за ограбление (артефакт)", 
-"description": "Герой получает награду за ограбление каравана. (артефакт)"
+"example": "привидение защищает караван от бандитов", 
+"name": "Активность: выбор защиты от бандитов", 
+"description": "Краткое суммарное описание действий героя при выборе защиты каравана от бандитов"
 }, 
 "quest_caravan_action_intro": {
 "variables": [
@@ -1920,6 +1921,20 @@
 "example": "привидение беседует с караванщиком", 
 "name": "Активность: интро", 
 "description": "Краткое суммарное описание действий героя в момент получения задания."
+}, 
+"quest_caravan_choice_bring_variant_bandits": {
+"variables": [
+"person_end", 
+"hero", 
+"person_start", 
+"place_end", 
+"coins", 
+"place_start", 
+"artifact"
+], 
+"example": "ограбить торговца", 
+"name": "Вариант выбора: ограбление", 
+"description": "Краткое описание варианта выбора, ведущего к ограблению каравана."
 }, 
 "quest_caravan_action_choice_attack": {
 "variables": [
@@ -1946,7 +1961,7 @@
 "name": "Выбор: защита", 
 "description": "Краткая констатация выбора героя в случае защиты каравана."
 }, 
-"quest_caravan_choice_bring_variant_bandits": {
+"quest_caravan_diary_good_get_reward_money": {
 "variables": [
 "person_end", 
 "hero", 
@@ -1956,9 +1971,9 @@
 "place_start", 
 "artifact"
 ], 
-"example": "ограбить торговца", 
-"name": "Вариант выбора: ограбление", 
-"description": "Краткое описание варианта выбора, ведущего к ограблению каравана."
+"example": "Привидение получило 13 монет в награду за хорошую охрану каравана.", 
+"name": "Дневник: награда за защиту (деньги)", 
+"description": "Герой получает награду за защиту каравана (деньги)."
 }, 
 "quest_caravan_journal_caravan_attack": {
 "variables": [

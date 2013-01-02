@@ -178,7 +178,7 @@ class Worker(BaseWorker):
 
             for index, record in enumerate(records):
 
-                if current_record.has_intersections(record):
+                if pvp_settings.BALANCING_WITHOUT_LEVELS or current_record.has_intersections(record):
                     battle_pairs.append((current_record.record, record.record))
                     records.pop(index)
                     records_to_exclude.append(current_record.record)

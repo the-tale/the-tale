@@ -895,7 +895,7 @@ class ActionInPlacePrototype(ActionPrototype):
             coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
             if coins is not None:
 
-                better = self.hero.abilities.can_buy_better_artifact()
+                better = self.hero.can_buy_better_artifact()
 
                 artifact, unequipped, sell_price = self.hero.buy_artifact(better=better, with_preferences=False)
 
