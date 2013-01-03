@@ -33,6 +33,8 @@ class Post(models.Model):
     class Meta:
         permissions = (("moderate_post", u"Может редактировать сообщения пользователей"), )
 
+    def __unicode__(self): return self.caption
+
 
 class Vote(models.Model):
 
