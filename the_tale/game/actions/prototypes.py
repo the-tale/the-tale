@@ -413,8 +413,10 @@ class ActionIdlenessPrototype(ActionPrototype):
 
     def init_quest(self):
 
-        if self.state != self.STATE.WAITING:
+        if not self.leader:
             return False
+
+        self.state = self.STATE.WAITING
 
         self.percents = 1.0
 
@@ -440,15 +442,15 @@ class ActionIdlenessPrototype(ActionPrototype):
 
             self.percents += 1.0 / c.TURNS_TO_IDLE
 
-            if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
-                ActionRegenerateEnergyPrototype.create(self)
-                self.state = self.STATE.REGENERATE_ENERGY
-
-            elif self.percents >= 1.0:
+            if self.percents >= 1.0:
                 self.state = self.STATE.QUEST
                 quest = create_random_quest_for_hero(self.hero)
                 ActionQuestPrototype.create(parent=self, quest=quest)
                 self.percents = 0
+
+            elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+                ActionRegenerateEnergyPrototype.create(self)
+                self.state = self.STATE.REGENERATE_ENERGY
 
             else:
                 if random.uniform(0, 1) < 0.2:

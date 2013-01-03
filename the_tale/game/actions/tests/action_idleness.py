@@ -66,6 +66,7 @@ class IdlenessActionTest(TestCase):
         self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
+        self.action_idl.percents = 0.0
         self.storage.process_turn()
         self.assertEqual(len(self.storage.actions), 2)
         self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRegenerateEnergyPrototype.TYPE)
@@ -104,6 +105,20 @@ class IdlenessActionTest(TestCase):
 
     def test_initiate_quest(self):
         self.action_idl.state = ActionIdlenessPrototype.STATE.WAITING
+        self.action_idl.percents = 0
+
+        self.action_idl.init_quest()
+
+        self.storage.process_turn()
+
+        self.assertEqual(len(self.storage.actions), 2)
+        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionQuestPrototype.TYPE)
+        self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
+
+        self.storage._test_save()
+
+    def test_initiate_quest_just_after_quest(self):
+        self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
         self.action_idl.percents = 0
 
         self.action_idl.init_quest()
