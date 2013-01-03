@@ -68,8 +68,7 @@ class AbilitiesPrototype(object):
         self.abilities[ability_id].level += 1
 
 
-    def get_candidates(self, hero, ability_type, max_active_abilities, max_passive_abilities):
-        random.seed(hero.id + hero.destiny_points_spend)
+    def get_candidates(self, ability_type, max_active_abilities, max_passive_abilities):
 
         # filter by type (battle, nonbattle, etc...)
         ability_classes = filter(lambda a: a.TYPE==ability_type, ABILITIES.values())

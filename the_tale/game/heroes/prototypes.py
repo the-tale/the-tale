@@ -214,16 +214,26 @@ class HeroPrototype(object):
                 ABILITY_TYPE.NONBATTLE: (c.ABILITIES_NONBATTLE_MAXUMUM, c.ABILITIES_NONBATTLE_MAXUMUM)}[self.next_ability_type]
 
     def get_abilities_for_choose(self):
+
+        random_state = random.getstate()
+        random.seed(self.id + self.destiny_points_spend)
+
         max_abilities = self.ability_types_limitations
 
-        candidates = self.abilities.get_candidates(self,
-                                                   ability_type=self.next_ability_type,
+        candidates = self.abilities.get_candidates(ability_type=self.next_ability_type,
                                                    max_active_abilities=max_abilities[0],
                                                    max_passive_abilities=max_abilities[1])
 
-        return self.abilities.get_for_choose(candidates,
-                                             max_old_abilities_for_choose=c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM,
-                                             max_abilities_for_choose=c.ABILITIES_FOR_CHOOSE_MAXIMUM)
+
+        abilities = self.abilities.get_for_choose(candidates,
+                                                  max_old_abilities_for_choose=c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM,
+                                                  max_abilities_for_choose=c.ABILITIES_FOR_CHOOSE_MAXIMUM)
+
+        random.setstate(random_state)
+
+        return abilities
+
+
 
     @property
     def quests_history(self):

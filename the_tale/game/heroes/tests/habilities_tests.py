@@ -36,8 +36,13 @@ class HabilitiesContainerTest(TestCase):
         self.abilities = AbilitiesPrototype.create()
 
     def test_simple_level_up(self):
+        self.assertEqual(self.abilities.randomized_level_up(1), 1)
+        self.assertEqual(self.abilities.get(battle_abilities.HIT.get_id()).level, 1)
+
+    def test_simple_level_up_with_level_up(self):
+        self.abilities.add(battle_abilities.REGENERATION.get_id())
         self.assertEqual(self.abilities.randomized_level_up(1), 0)
-        self.assertEqual(self.abilities.get(battle_abilities.HIT.get_id()).level, 2)
+        self.assertEqual(self.abilities.get(battle_abilities.REGENERATION.get_id()).level, 2)
 
     def test_large_level_up(self):
         self.assertEqual(self.abilities.randomized_level_up(battle_abilities.HIT.MAX_LEVEL+1), 2)
@@ -45,10 +50,12 @@ class HabilitiesContainerTest(TestCase):
 
     def test_multiply_level_up(self):
         self.abilities.add(battle_abilities.REGENERATION.get_id())
-        levels = max([battle_abilities.HIT.MAX_LEVEL, battle_abilities.REGENERATION.MAX_LEVEL])
+        self.abilities.add(battle_abilities.STRONG_HIT.get_id())
+        levels = max([battle_abilities.HIT.MAX_LEVEL, battle_abilities.REGENERATION.MAX_LEVEL, battle_abilities.STRONG_HIT.MAX_LEVEL])
         self.assertEqual(self.abilities.randomized_level_up(levels), 0)
-        self.assertTrue(self.abilities.get(battle_abilities.HIT.get_id()).level > 1)
+        self.assertTrue(self.abilities.get(battle_abilities.HIT.get_id()).level, 1)
         self.assertTrue(self.abilities.get(battle_abilities.REGENERATION.get_id()).level > 1)
+        self.assertTrue(self.abilities.get(battle_abilities.STRONG_HIT.get_id()).level > 1)
 
     def test_multiply_simple_level_up(self):
         self.abilities.add(battle_abilities.REGENERATION.get_id())
@@ -237,8 +244,7 @@ class ChooseAbilityTaskTest(TestCase):
         choices = hero.get_abilities_for_choose()
 
         max_abilities = hero.ability_types_limitations
-        all_ = hero.abilities.get_candidates(hero,
-                                             ability_type=hero.next_ability_type,
+        all_ = hero.abilities.get_candidates(ability_type=hero.next_ability_type,
                                              max_active_abilities=max_abilities[0],
                                              max_passive_abilities=max_abilities[1])
 

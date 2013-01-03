@@ -21,6 +21,7 @@ from game.quests.quests_builders import SearchSmith
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.habilities import ABILITY_TYPE, ABILITIES
+from game.heroes.habilities import battle
 
 
 class HeroTest(TestCase):
@@ -218,12 +219,10 @@ class HeroLevelUpTests(TestCase):
             with mock.patch('game.heroes.prototypes.HeroPrototype.current_ability_points_number', ability_points):
                 self.assertEqual(self.hero.next_ability_type, next_type)
 
-    # def check_abilities_list(self, abilities, abilities_len, expected_abilities):
 
     def test_get_abilities_for_choose_first_time(self):
         abilities = self.hero.get_abilities_for_choose()
-        self.assertEqual(len(abilities), 4)
-        self.assertEqual(len(filter(lambda a: a.level==2 and a.get_id()=='hit', abilities)), 1)
+        self.assertEqual(len(abilities), c.ABILITIES_FOR_CHOOSE_MAXIMUM)
 
     def test_get_abilities_for_choose_has_free_slots(self):
         for ability in self.hero.abilities.abilities.values():
@@ -263,12 +262,13 @@ class HeroLevelUpTests(TestCase):
             abilities = self.hero.get_abilities_for_choose()
             self.assertEqual(len(abilities), 0)
 
+    @mock.patch('game.heroes.prototypes.HeroPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_slots_busy_but_one_not_max_level(self):
-        passive_abilities = filter(lambda a: a.activation_type.is_passive, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        passive_abilities = filter(lambda a: a.activation_type.is_passive, [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = filter(lambda a: a.activation_type.is_active, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        active_abilities = filter(lambda a: a.activation_type.is_active, [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
