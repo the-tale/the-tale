@@ -47,6 +47,7 @@ class Worker(BaseWorker):
 
 
     def calculate_might(self, hero):
+
         from accounts.models import Award, AWARD_TYPE
         from forum.models import Post, Thread, POST_STATE
         from game.bills.models import Bill, Vote, BILL_STATE
@@ -77,9 +78,9 @@ class Worker(BaseWorker):
         might += Vote.objects.filter(owner_id=hero.account_id).count() * MIGHT_FOR_BILL_VOTE
         might += Bill.objects.filter(owner_id=hero.account_id, state=BILL_STATE.ACCEPTED).count() * MIGHT_FOR_BILL_ACCEPTED
 
-        might += PhraseCandidate.objects.filter(state=PHRASE_CANDIDATE_STATE.ADDED).count() * MIGHT_FOR_ADDED_PHRASE_CANDIDATE
+        might += PhraseCandidate.objects.filter(author_id=hero.account_id, state=PHRASE_CANDIDATE_STATE.ADDED).count() * MIGHT_FOR_ADDED_PHRASE_CANDIDATE
 
-        might += BlogPost.objects.filter(state=BLOG_POST_STATE.ACCEPTED, votes__gt=0).count() * MIGHT_FOR_GOOD_FOLCLOR_POST
+        might += BlogPost.objects.filter(author_id=hero.account_id, state=BLOG_POST_STATE.ACCEPTED, votes__gt=0).count() * MIGHT_FOR_GOOD_FOLCLOR_POST
 
         for award_type, might_cooficient in MIGHT_FOR_AWARD.items():
             might += Award.objects.filter(account_id=hero.account_id, type=award_type).count() * might_cooficient

@@ -134,7 +134,20 @@ class MightCalculatorTests(TestCase):
         phrase.state = PHRASE_CANDIDATE_STATE.ADDED
         phrase.save()
 
-        self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > old_might)
+        new_might = workers_environment.might_calculator.calculate_might(self.hero)
+        self.assertTrue(new_might > old_might)
+
+        phrase =  PhraseCandidatePrototype.create(type_='type',
+                                                  type_name=u'type name',
+                                                  subtype='subtype',
+                                                  subtype_name=u'subtype name',
+                                                  author=self.account_2,
+                                                  text=u'text')
+        phrase.state = PHRASE_CANDIDATE_STATE.ADDED
+        phrase.save()
+
+        self.assertEqual(new_might, workers_environment.might_calculator.calculate_might(self.hero))
+
 
     def test_folclor_might(self):
         old_might = workers_environment.might_calculator.calculate_might(self.hero)
@@ -150,7 +163,20 @@ class MightCalculatorTests(TestCase):
         post.model.votes = 1
         post.save()
 
-        self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > old_might)
+        new_might = workers_environment.might_calculator.calculate_might(self.hero)
+        self.assertTrue(new_might > old_might)
+
+        post = BlogPostPrototype.create(author=self.account_2, caption='caption', text='text')
+
+        Thread.objects.all().delete()
+        Post.objects.all().delete()
+        Vote.objects.all().delete()
+
+        post.state = BLOG_POST_STATE.ACCEPTED
+        post.model.votes = 1
+        post.save()
+
+        self.assertEqual(new_might, workers_environment.might_calculator.calculate_might(self.hero))
 
 
     def test_custom_might(self):
