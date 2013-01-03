@@ -26,6 +26,8 @@ for module in phrases_types['modules'].values():
         subtype_name = subtype['name']
         SUBTYPE_CHOICES.append((subtype_id, u'%s::%s' % (module_name, subtype_name)))
 
+SUBTYPE_CHOICES = sorted(SUBTYPE_CHOICES, key=lambda x: x[0])
+
 SUBTYPE_CHOICES_IDS = [choice[0] for choice in SUBTYPE_CHOICES]
 
 
