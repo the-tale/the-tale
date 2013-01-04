@@ -10,6 +10,7 @@ from common.utils.resources import Resource
 from game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 
 from game.map.places.conf import places_settings
+from game.persons.conf import persons_settings
 
 class GuideResource(Resource):
 
@@ -35,7 +36,8 @@ class GuideResource(Resource):
     @handler('cities', method='get')
     def cities(self):
         return self.template('guide/cities.html', {'section': 'cities',
-                                                   'places_settings': places_settings})
+                                                   'places_settings': places_settings,
+                                                   'persons_settings': persons_settings})
 
     @handler('politics', method='get')
     def politics(self):
