@@ -1,12 +1,16 @@
 # coding: utf-8
 import os
 import sys
-from meta_config import meta_config
+
+from dext.utils.meta_config import MetaConfig
 
 TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 HOME_DIR = os.getenv("HOME")
+
+META_CONFIG_FILE = os.path.join(PROJECT_DIR, 'meta_config.json')
+meta_config = MetaConfig(config_path=META_CONFIG_FILE)
 
 DEBUG = False
 

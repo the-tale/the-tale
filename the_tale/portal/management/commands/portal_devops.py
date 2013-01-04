@@ -5,12 +5,15 @@ import subprocess
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
+from django.conf import settings as project_settings
 
-from meta_config import meta_config
+from dext.utils.meta_config import MetaConfig
 
 FABFILE = '/home/tie/repos/mine/devops/the_tale'
 SETUP_HOST = "root@the-tale.org"
 UPDATE_HOST = "the-tale@the-tale.org"
+
+meta_config = MetaConfig(config_path=project_settings.META_CONFIG_FILE)
 
 class Command(BaseCommand):
 
