@@ -2,6 +2,7 @@
     "name": "Действие: воскресание",
     "description": "Описание событий при воскресании героя",
     "prefix": "action_resurrect",
+    "variables_verbose": {"hero": "герой"},
     "types": {
         "description": {
             "name": "Описание",

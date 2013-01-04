@@ -2,6 +2,8 @@
     "name": "Действие: путешествие в окрестностях города",
     "description": "Описание действий, происходящих при путешествии героя в окрестностях города.",
     "prefix": "action_movenearplace",
+    "variables_verbose": {"hero": "герой",
+                          "place": "город"},
     "types": {
         "description": {
             "name": "Описание",

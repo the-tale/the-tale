@@ -3,6 +3,15 @@
     "description": "Тексты, относящиеся к заданию.",
     "prefix": "quest_searchsmith",
     "variables": {"hero": "привидение", "person_end": "свинья", "place_start": "село", "place_end": "город"},
+    "variables_verbose": {"hero": "герой",
+                          "person_start": "персонаж, начинающий задание",
+                          "person_end": "персонаж, заканчивающий задание",
+                          "place_start": "место начала задания",
+                          "place_end": "место окончания задания",
+                          "coins": "цена работы кузнеца",
+                          "sell_price": "цена продажи",
+                          "artifact": "артефакт",
+                          "unequipped": "снимаемый артефакт"},
     "types": {
 
         "description": {

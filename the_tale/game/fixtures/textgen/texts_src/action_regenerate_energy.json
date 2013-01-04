@@ -3,6 +3,8 @@
     "description": "Описание событий во время проведения героем религиозных обрядов.",
     "prefix": "action_regenerate_energy",
     "variables": {"hero": "привидение"},
+    "variables_verbose": {"hero": "герой",
+                          "energy": "количество энергии"},
     "types": {
         "description_pray": {
             "name": "Описание молитвы",

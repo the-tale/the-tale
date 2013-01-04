@@ -18,36 +18,36 @@ from game.phrase_candidates.forms import PhraseCandidateNewForm, PhraseCandidate
 from game.phrase_candidates.conf import phrase_candidates_settings
 from game.phrase_candidates.prototypes import PhraseCandidatePrototype
 
-VARIABLE_NAMES = {'hero': u'герой',
-                  'mob': u'монстр',
-                  'actor': u'герой или монстр',
-                  'artifact': u'предмет',
-                  'text': u'любой текст',
-                  'duelist_1': u'1-ый участник дуэли',
-                  'duelist_2': u'2-ой участник дуэли',
-                  'victim': u'проигравший',
-                  'killer': u'победитель',
-                  'energy': u'количество энергии',
-                  'health': u'количество здоровья',
-                  'place': u'город',
-                  'coins': u'количество монет',
-                  'old_artifact': u'старый артефакт',
-                  'sell_price': u'цена продажи',
-                  'person': u'персонаж',
-                  'destination': u'конечное место назначения',
-                  'current_destination': u'текущее место назначения',
-                  'item': u'артефакт',
-                  'equipped': u'экипируемый артефакт',
-                  'unequipped': u'снимаемый артефакт',
-                  'person_start': u'персонаж, начинающий задание',
-                  'place_start': u'место начала задания',
-                  'person_end': u'персонаж, заканчивающий задание',
-                  'place_end': u'место окончания задания',
-                  'item_to_deliver': u'предмет для доставки',
-                  'level': u'уровень героя',
-                  'attacker': u'атакующий герой или монстр',
-                  'defender': u'защищающийся герой или монстр',
-                  'damage': u'количество урона'}
+# VARIABLE_NAMES = {'hero': u'герой',
+#                   'mob': u'монстр',
+#                   'actor': u'герой или монстр',
+#                   'artifact': u'предмет',
+#                   'text': u'любой текст',
+#                   'duelist_1': u'1-ый участник дуэли',
+#                   'duelist_2': u'2-ой участник дуэли',
+#                   'victim': u'проигравший',
+#                   'killer': u'победитель',
+#                   'energy': u'количество энергии',
+#                   'health': u'количество здоровья',
+#                   'place': u'город',
+#                   'coins': u'количество монет',
+#                   'old_artifact': u'старый артефакт',
+#                   'sell_price': u'цена продажи',
+#                   'person': u'персонаж',
+#                   'destination': u'конечное место назначения',
+#                   'current_destination': u'текущее место назначения',
+#                   'item': u'артефакт',
+#                   'equipped': u'экипируемый артефакт',
+#                   'unequipped': u'снимаемый артефакт',
+#                   'person_start': u'персонаж, начинающий задание',
+#                   'place_start': u'место начала задания',
+#                   'person_end': u'персонаж, заканчивающий задание',
+#                   'place_end': u'место окончания задания',
+#                   'item_to_deliver': u'предмет для доставки',
+#                   'level': u'уровень героя',
+#                   'attacker': u'атакующий герой или монстр',
+#                   'defender': u'защищающийся герой или монстр',
+#                   'damage': u'количество урона'}
 
 class PhraseCandidateResource(Resource):
 
@@ -142,7 +142,7 @@ class PhraseCandidateResource(Resource):
                                                    'phrase_subtype': phrase_subtype})
 
         return self.template('phrase_candidates/new.html', {'new_form': new_form,
-                                                            'VARIABLE_NAMES': VARIABLE_NAMES,
+                                                            'VARIABLE_NAMES': phrases_types['modules'][phrase_type]['variables_verbose'],
                                                             'phrase_type': phrases_types['modules'][phrase_type],
                                                             'phrase_subtype': phrases_types['modules'][phrase_type]['types'][phrase_subtype]})
 
@@ -184,7 +184,7 @@ class PhraseCandidateResource(Resource):
 
         return self.template('phrase_candidates/edit.html', {'edit_form': edit_form,
                                                              'phrase': self.phrase,
-                                                             'VARIABLE_NAMES': VARIABLE_NAMES,
+                                                             'VARIABLE_NAMES': phrases_types['modules'].get(self.phrase_type, {'variables_verbose': {}})['variables_verbose'],
                                                              'phrase_type': phrases_types['modules'].get(self.phrase.type),
                                                              'phrase_subtype': phrases_types['modules'].get(self.phrase.type, {'types': {}})['types'].get(self.phrase.subtype)})
 

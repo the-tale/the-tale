@@ -2,6 +2,10 @@
     "name": "Способности: ангел",
     "description": "Описание результата использование способностей игрока",
     "prefix": "angel_ability",
+    "variables_verbose": {"hero": "герой",
+                          "mob": "монстр",
+                          "coins": "количество монет",
+                          "health": "количество здоровья"},
     "types": {
         "shortteleport": {
             "name": "Короткий телепорт",

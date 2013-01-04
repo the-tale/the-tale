@@ -2,6 +2,7 @@
     "name": "Действие: выполнение задания",
     "description": "Герой выполняет специфические для задания действия.",
     "prefix": "action_quest",
+    "variables_verbose": {"hero": "герой"},
     "types": {
         "description": {
             "name": "Описание",

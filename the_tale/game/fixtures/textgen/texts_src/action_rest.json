@@ -2,6 +2,8 @@
     "name": "Действие: отдых",
     "description": "Описание действий во время отдыха героя.",
     "prefix": "action_rest",
+    "variables_verbose": {"hero": "герой",
+                          "health": "количество здоровья"},
     "types": {
         "description": {
             "name": "Описание",

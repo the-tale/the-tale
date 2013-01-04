@@ -1,6 +1,9 @@
 {
 "modules": {
 "pvp": {
+"variables_verbose": {
+"text": "любой текст"
+}, 
 "name": "PvP: фразы", 
 "types": {
 "pvp_say": {
@@ -15,6 +18,11 @@
 "description": "Фразы, употребляющиеся при PvP."
 }, 
 "action_trading": {
+"variables_verbose": {
+"coins": "количество монет", 
+"hero": "герой", 
+"artifact": "предмет"
+}, 
 "name": "Действие: торговля", 
 "types": {
 "action_trading_sell_item": {
@@ -47,6 +55,15 @@
 "description": "Описание действий во время торговли"
 }, 
 "quest_helpfriend": {
+"variables_verbose": {
+"person_end": "персонаж, заканчивающий задание", 
+"hero": "герой", 
+"person_start": "персонаж, начинающий задание", 
+"place_end": "место окончания задания", 
+"coins": "количество монет", 
+"artifact": "артефакт", 
+"place_start": "место начала задания"
+}, 
 "name": "Задание: помощь соратнику", 
 "types": {
 "quest_helpfriend_action_intro": {
@@ -155,6 +172,15 @@
 "description": "Тексты, относящиеся к заданию."
 }, 
 "action_inplace": {
+"variables_verbose": {
+"hero": "герой", 
+"coins": "количество монет", 
+"artifact": "предмет", 
+"sell_price": "цена продажи", 
+"person": "персонаж", 
+"place": "город", 
+"old_artifact": "старый артефакт"
+}, 
 "name": "Действие: посещение города", 
 "types": {
 "action_inplace_sharpening_artifact": {
@@ -240,6 +266,13 @@
 "description": "Описание событий, происходящих при посещении героем города."
 }, 
 "hero_ability": {
+"variables_verbose": {
+"attacker": "атакующий", 
+"health": "количество вылеченного здоровья", 
+"damage": "количество урона", 
+"actor": "герой или монстр", 
+"defender": "защищающийся"
+}, 
 "name": "Способности: герой", 
 "types": {
 "hero_ability_vampire_strike_miss": {
@@ -396,6 +429,10 @@
 "description": "Опсиание применения способностей героем (или монстром)"
 }, 
 "action_rest": {
+"variables_verbose": {
+"health": "количество здоровья", 
+"hero": "герой"
+}, 
 "name": "Действие: отдых", 
 "types": {
 "action_rest_resring": {
@@ -427,6 +464,15 @@
 "description": "Описание действий во время отдыха героя."
 }, 
 "quest_help": {
+"variables_verbose": {
+"person_end": "персонаж, заканчивающий задание", 
+"hero": "герой", 
+"person_start": "персонаж, начинающий задание", 
+"place_end": "место окончания задания", 
+"coins": "количество монет", 
+"artifact": "артефакт", 
+"place_start": "место начала задания"
+}, 
 "name": "Задание: помощь", 
 "types": {
 "quest_help_action_intro": {
@@ -526,6 +572,9 @@
 "description": "Тексты, относящиеся к заданию."
 }, 
 "action_quest": {
+"variables_verbose": {
+"hero": "герой"
+}, 
 "name": "Действие: выполнение задания", 
 "types": {
 "action_quest_description": {
@@ -540,6 +589,15 @@
 "description": "Герой выполняет специфические для задания действия."
 }, 
 "quest_hunt": {
+"variables_verbose": {
+"person_end": "персонаж, заканчивающий задание", 
+"hero": "герой", 
+"person_start": "персонаж, начинающий задание", 
+"place_end": "место окончания задания", 
+"coins": "количество монет", 
+"artifact": "артефакт", 
+"place_start": "место начала задания"
+}, 
 "name": "Задание: охота", 
 "types": {
 "quest_hunt_action_track": {
@@ -666,6 +724,13 @@
 "description": "Тексты, относящиеся к заданию."
 }, 
 "action_battlepve1x1": {
+"variables_verbose": {
+"mob": "монстр", 
+"hero": "герой", 
+"artifact": "предмет", 
+"actor": "герой или монстр", 
+"damage": "количество урона"
+}, 
 "name": "Действие: Сражение с монстром", 
 "types": {
 "action_battlepve1x1_put_loot": {
@@ -763,6 +828,10 @@
 "description": "Описание событий, происходящих при сражении с монстрами."
 }, 
 "action_regenerate_energy": {
+"variables_verbose": {
+"energy": "количество энергии", 
+"hero": "герой"
+}, 
 "name": "Действие: восстановление энергии", 
 "types": {
 "action_regenerate_energy_energy_received_meditation": {
@@ -945,6 +1014,15 @@
 "description": "Описание событий во время проведения героем религиозных обрядов."
 }, 
 "quest_interfereenemy": {
+"variables_verbose": {
+"person_end": "персонаж, заканчивающий задание", 
+"hero": "герой", 
+"person_start": "персонаж, начинающий задание", 
+"place_end": "место окончания задания", 
+"coins": "количество монет", 
+"artifact": "артефакт", 
+"place_start": "место начала задания"
+}, 
 "name": "Задание: навредить противнику", 
 "types": {
 "quest_interfereenemy_description": {
@@ -1028,6 +1106,16 @@
 "description": "Тексты, относящиеся к заданию."
 }, 
 "quest_delivery": {
+"variables_verbose": {
+"item_to_deliver": "предмет для доставки", 
+"person_end": "персонаж, заканчивающий задание", 
+"hero": "герой", 
+"person_start": "персонаж, начинающий задание", 
+"place_end": "место окончания задания", 
+"coins": "количество монет", 
+"artifact": "артефакт", 
+"place_start": "место начала задания"
+}, 
 "name": "Задание доставить предмет", 
 "types": {
 "quest_delivery_diary_intro": {
@@ -1303,6 +1391,9 @@
 "description": "Тексты, относящиеся к заданию"
 }, 
 "action_resurrect": {
+"variables_verbose": {
+"hero": "герой"
+}, 
 "name": "Действие: воскресание", 
 "types": {
 "action_resurrect_description": {
@@ -1317,6 +1408,15 @@
 "description": "Описание событий при воскресании героя"
 }, 
 "quest_spying": {
+"variables_verbose": {
+"person_end": "персонаж, заканчивающий задание", 
+"hero": "герой", 
+"person_start": "персонаж, начинающий задание", 
+"place_end": "место окончания задания", 
+"coins": "количество монет", 
+"artifact": "артефакт", 
+"place_start": "место начала задания"
+}, 
 "name": "Задание: шпионаж", 
 "types": {
 "quest_spying_diary_intro": {
@@ -1542,6 +1642,10 @@
 "description": "Тексты, относящиеся к заданию."
 }, 
 "action_movenearplace": {
+"variables_verbose": {
+"place": "город", 
+"hero": "герой"
+}, 
 "name": "Действие: путешествие в окрестностях города", 
 "types": {
 "action_movenearplace_description": {
@@ -1566,6 +1670,17 @@
 "description": "Описание действий, происходящих при путешествии героя в окрестностях города."
 }, 
 "quest_searchsmith": {
+"variables_verbose": {
+"unequipped": "снимаемый артефакт", 
+"person_end": "персонаж, заканчивающий задание", 
+"hero": "герой", 
+"person_start": "персонаж, начинающий задание", 
+"place_end": "место окончания задания", 
+"coins": "цена работы кузнеца", 
+"artifact": "артефакт", 
+"sell_price": "цена продажи", 
+"place_start": "место начала задания"
+}, 
 "name": "Задание: посещение кузнеца", 
 "types": {
 "quest_searchsmith_diary_upgrade_equipment_sharp": {
@@ -1692,6 +1807,9 @@
 "description": "Тексты, относящиеся к заданию."
 }, 
 "action_idleness": {
+"variables_verbose": {
+"hero": "герой"
+}, 
 "name": "Действие: бездействие героя", 
 "types": {
 "action_idleness_waiting": {
@@ -1714,6 +1832,15 @@
 "description": "Описание моментов, когда герой ничего не делает."
 }, 
 "quest_caravan": {
+"variables_verbose": {
+"person_end": "персонаж, заканчивающий задание", 
+"hero": "герой", 
+"person_start": "персонаж, начинающий задание", 
+"place_end": "место окончания задания", 
+"coins": "количество монет", 
+"artifact": "артефакт", 
+"place_start": "место начала задания"
+}, 
 "name": "Задание: провести караван", 
 "types": {
 "quest_caravan_action_run_away": {
@@ -2079,6 +2206,10 @@
 "description": "Тексты, относящиеся к заданию."
 }, 
 "hero_common": {
+"variables_verbose": {
+"hero": "герой", 
+"level": "уровень"
+}, 
 "name": "Общие сообщения, относящиеся к герою", 
 "types": {
 "hero_common_level_up": {
@@ -2094,6 +2225,15 @@
 "description": "Сообщение, относящиеся к герою и не вошедшие в другие модули"
 }, 
 "quest_notmywork": {
+"variables_verbose": {
+"person_end": "персонаж, заканчивающий задание", 
+"hero": "герой", 
+"person_start": "персонаж, начинающий задание", 
+"place_end": "место окончания задания", 
+"coins": "количество монет", 
+"artifact": "артефакт", 
+"place_start": "место начала задания"
+}, 
 "name": "Задание: чужие обязательства", 
 "types": {
 "quest_notmywork_diary_choice_do_work": {
@@ -2357,6 +2497,11 @@
 "description": "Тексты, относящиеся к заданию."
 }, 
 "action_moveto": {
+"variables_verbose": {
+"destination": "конечное место назначения", 
+"hero": "герой", 
+"current_destination": "текущее место назначения"
+}, 
 "name": "Действие: путешествие между городами", 
 "types": {
 "action_moveto_move": {
@@ -2391,6 +2536,12 @@
 "description": "Описание событий при путешествии героя между городами (по дороге)"
 }, 
 "angel_ability": {
+"variables_verbose": {
+"mob": "монстр", 
+"health": "количество здоровья", 
+"coins": "количество монет", 
+"hero": "герой"
+}, 
 "name": "Способности: ангел", 
 "types": {
 "angel_ability_lightning": {
@@ -2499,6 +2650,15 @@
 "description": "Описание результата использование способностей игрока"
 }, 
 "quest_hometown": {
+"variables_verbose": {
+"person_end": "персонаж, заканчивающий задание", 
+"hero": "герой", 
+"person_start": "персонаж, начинающий задание", 
+"place_end": "место окончания задания", 
+"coins": "количество монет", 
+"artifact": "артефакт", 
+"place_start": "место начала задания"
+}, 
 "name": "Задание: путешествие в родной город", 
 "types": {
 "quest_hometown_journal_stagger_streets_start": {
@@ -2724,6 +2884,14 @@
 "description": "Тексты, относящиеся к заданию."
 }, 
 "meta_action_arena_pvp_1x1": {
+"variables_verbose": {
+"duelist_2": "2-ой участник дуэали", 
+"duelist_1": "1-ый участник дуэали", 
+"hero": "герой", 
+"killer": "победитель", 
+"attacker": "атакующий", 
+"victim": "проигравший"
+}, 
 "name": "PvP: дуэль на арене", 
 "types": {
 "meta_action_arena_pvp_1x1_start": {
@@ -2747,6 +2915,12 @@
 "description": "Описание дейсвий во время PvP дуэли на арене"
 }, 
 "action_equipping": {
+"variables_verbose": {
+"unequipped": "снимаемый артефакт", 
+"item": "артефакт", 
+"hero": "герой", 
+"equipped": "экипируемый артефакт"
+}, 
 "name": "Действие: экипировка", 
 "types": {
 "action_equipping_description": {

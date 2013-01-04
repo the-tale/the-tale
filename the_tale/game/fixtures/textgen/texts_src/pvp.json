@@ -2,6 +2,7 @@
     "name": "PvP: фразы",
     "description": "Фразы, употребляющиеся при PvP.",
     "prefix": "pvp",
+    "variables_verbose": {"text": "любой текст"},
     "types": {
         "say": {
             "name": "Сообщение",

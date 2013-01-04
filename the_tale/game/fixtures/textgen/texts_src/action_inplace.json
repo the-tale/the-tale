@@ -2,6 +2,13 @@
     "name": "Действие: посещение города",
     "description": "Описание событий, происходящих при посещении героем города.",
     "prefix": "action_inplace",
+    "variables_verbose": {"hero": "герой",
+                          "place": "город",
+                          "coins": "количество монет",
+                          "sell_price": "цена продажи",
+                          "artifact": "предмет",
+                          "old_artifact": "старый артефакт",
+                          "person": "персонаж"},
     "types": {
         "description": {
             "name": "Описание",

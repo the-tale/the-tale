@@ -2,6 +2,11 @@
     "name": "Действие: Сражение с монстром",
     "description": "Описание событий, происходящих при сражении с монстрами.",
     "prefix": "action_battlepve1x1",
+    "variables_verbose": {"hero": "герой",
+                          "mob": "монстр",
+                          "actor": "герой или монстр",
+                          "artifact": "предмет",
+                          "damage": "количество урона"},
     "types": {
         "description": {
             "name": "Описание",

@@ -2,6 +2,9 @@
     "name": "Действие: торговля",
     "description": "Описание действий во время торговли",
     "prefix": "action_trading",
+    "variables_verbose": {"hero": "герой",
+                          "artifact": "предмет",
+                          "coins": "количество монет"},
     "types": {
         "description": {
             "name": "Описание",

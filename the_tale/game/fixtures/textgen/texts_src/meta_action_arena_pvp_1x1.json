@@ -2,6 +2,12 @@
     "name": "PvP: дуэль на арене",
     "description": "Описание дейсвий во время PvP дуэли на арене",
     "prefix": "meta_action_arena_pvp_1x1",
+    "variables_verbose": {"hero": "герой",
+                          "attacker": "атакующий",
+                          "duelist_1": "1-ый участник дуэали",
+                          "duelist_2": "2-ой участник дуэали",
+                          "victim": "проигравший",
+                          "killer": "победитель"},
     "types": {
         "description": {
             "name": "Описание",

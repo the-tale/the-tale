@@ -2,6 +2,9 @@
     "name": "Действие: путешествие между городами",
     "description": "Описание событий при путешествии героя между городами (по дороге)",
     "prefix": "action_moveto",
+    "variables_verbose": {"hero": "герой",
+                          "destination": "конечное место назначения",
+                          "current_destination": "текущее место назначения"},
     "types": {
         "description": {
             "name": "Описание",

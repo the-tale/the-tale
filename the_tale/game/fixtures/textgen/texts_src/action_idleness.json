@@ -2,6 +2,7 @@
     "name": "Действие: бездействие героя",
     "description": "Описание моментов, когда герой ничего не делает.",
     "prefix": "action_idleness",
+    "variables_verbose": {"hero": "герой"},
     "types": {
         "description": {
             "name": "Описание",

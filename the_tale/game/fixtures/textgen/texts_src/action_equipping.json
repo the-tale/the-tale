@@ -2,6 +2,10 @@
     "name": "Действие: экипировка",
     "description": "Описание собыйти во время изменения экипировки героя.",
     "prefix": "action_equipping",
+    "variables_verbose": {"hero": "герой",
+                          "item": "артефакт",
+                          "unequipped": "снимаемый артефакт",
+                          "equipped": "экипируемый артефакт"},
     "types": {
         "description": {
             "name": "Описание",

@@ -3,6 +3,14 @@
     "description": "Тексты, относящиеся к заданию",
     "prefix": "quest_delivery",
     "variables": {"hero": "привидение", "person_start": "свинья", "person_end": "гусь", "place_start": "село", "place_end": "город", "item_to_deliver": "краска"},
+    "variables_verbose": {"hero": "герой",
+                          "person_start": "персонаж, начинающий задание",
+                          "person_end": "персонаж, заканчивающий задание",
+                          "place_start": "место начала задания",
+                          "place_end": "место окончания задания",
+                          "item_to_deliver": "предмет для доставки",
+                          "coins": "количество монет",
+                          "artifact": "артефакт"},
     "types": {
 
         "description": {
