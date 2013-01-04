@@ -61,7 +61,7 @@ class Hero(models.Model):
     diary = models.TextField(null=False, default='[]')
     actions_descriptions = models.TextField(null=False, default='[]')
 
-    name_forms = models.TextField(null=False, default='')
+    name_forms = models.TextField(null=False, default='', blank=True)
 
     last_action_percents = models.FloatField(null=False, default=0)
 

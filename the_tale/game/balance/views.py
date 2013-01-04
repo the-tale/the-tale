@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import math
 
-from dext.views.resources import handler
+from dext.views import handler
 from dext.utils.decorators import debug_required
 
 from common.utils.decorators import staff_required

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.views.resources import handler
+from dext.views import handler
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required

@@ -23,8 +23,14 @@ def create_enum(class_name, records):
         _STR_TO_ID = {}
         _ID_TO_TEXT = {}
         _ALL = []
+        _VALUE_TYPE = None
 
         def __init__(self, value):
+            value = self._VALUE_TYPE(value)
+
+            if value not in self._ALL:
+                raise EnumException('try to set wrong value <%r> for enum %r' % (value, self))
+
             self.value = value
             self.verbose = self._ID_TO_TEXT[value]
 
@@ -50,11 +56,15 @@ def create_enum(class_name, records):
 
         setattr(Enum, 'is_%s' % field_name.lower(), property(_create_state_checker(field_id)))
 
+    Enum._VALUE_TYPE = records[0][1].__class__
+    if not all([Enum._VALUE_TYPE == field[1].__class__ for field in records]):
+        raise EnumException('All values MUST have the same class. if that is not true - better use another mechanic, except enum.')
+
     if len(records) != len(Enum._STR_TO_ID):
-        raise Exception('enum "%s" has duplicate field names' % class_name)
+        raise EnumException('enum "%s" has duplicate field names' % class_name)
 
     if len(records) != len(Enum._ID_TO_STR):
-        raise Exception('enum "%s" has duplicate field ids' % class_name)
+        raise EnumException('enum "%s" has duplicate field ids' % class_name)
 
     Enum.__name__ = class_name
 

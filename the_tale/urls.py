@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.conf import settings as project_settings
 
 from dext import jinja2 as jinja2_next
-from dext.views.dispatcher import create_handler_view
+from dext.views import create_handler_view
 
 from portal.views import PortalResource
 

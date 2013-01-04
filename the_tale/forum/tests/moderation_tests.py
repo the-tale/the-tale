@@ -76,27 +76,27 @@ class TestModeration(TestCase):
 
     def test_loggined_new_thread_page(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcategory.id)),
+        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory.slug)),
                            texts=[('pgf-new-thread-form', 4)])
 
     def test_unlogined_new_thread_page(self):
-        request_url = reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcategory.id)
+        request_url = reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory.slug)
         self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_loggined_new_thread_page_in_closed_theme(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcategory2.id)),
+        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory2.slug)),
                            texts=[('pgf-new-thread-form', 0), ('forum.new_thread.no_permissions', 1)])
 
     def test_moderator_new_thread_page_in_closed_theme(self):
         self.request_login('moderator@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcategory2.id)),
+        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory2.slug)),
                                            texts=[('pgf-new-thread-form', 4)])
 
     # create request
     def test_loggined_create_thread_page(self):
         self.request_login('main_user@test.com')
-        response = self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcategory.id),
+        response = self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcategory.slug),
                                     {'caption': 'thread5-caption', 'text': 'thread5-text'})
 
         thread = Thread.objects.all().order_by('-created_at')[0]
@@ -105,19 +105,19 @@ class TestModeration(TestCase):
                                       'thread_url': reverse('forum:threads:show', args=[thread.id])})
 
     def test_unlogined_create_thread_page(self):
-        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcategory.id),
+        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcategory.slug),
                                                {'caption': 'thread5-caption', 'text': 'thread5-text'}),
                               'common.login_required')
 
     def test_loggined_create_thread_page_in_closed_theme(self):
         self.request_login('main_user@test.com')
-        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcategory2.id),
+        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcategory2.slug),
                                                {'caption': 'thread5-caption', 'text': 'thread5-text'}),
                               'forum.create_thread.no_permissions')
 
     def test_moderator_create_thread_page_in_closed_theme(self):
         self.request_login('moderator@test.com')
-        response = self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcategory2.id),
+        response = self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcategory2.slug),
                                     {'caption': 'thread5-caption', 'text': 'thread5-text'})
 
         thread = Thread.objects.all().order_by('-created_at')[0]

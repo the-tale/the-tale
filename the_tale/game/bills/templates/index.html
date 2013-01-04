@@ -12,7 +12,7 @@
     </a>
     <ul class="dropdown-menu">
       {% for bill_id, bill_type in BILLS_BY_ID.items() %}
-      <li><a href="{{ url('game:bills:new') }}?type={{bill_id}}">{{bill_type.CAPTION}}</a></li>
+      <li><a href="{{ url('game:bills:new', bill_type=bill_id) }}">{{bill_type.CAPTION}}</a></li>
       {% endfor %}
     </ul>
   </div>
@@ -39,9 +39,9 @@
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         состояние:
-        {% if state == BILL_STATE.VOTING %} голосование
-        {% elif state == BILL_STATE.ACCEPTED %} принятые
-        {% elif state == BILL_STATE.REJECTED %} отклонённые
+        {% if state.is_voting %} голосование
+        {% elif state.is_accepted %} принятые
+        {% elif state.is_rejected %} отклонённые
         {% else %} все
         {% endif %}
         <span class="caret"></span>
@@ -57,7 +57,7 @@
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         голосование:
-        {% if voted is not none %} {{ VOTED_TYPE._ID_TO_TEXT[voted] }}
+        {% if voted is not none %} {{ voted.verbose }}
         {% else %} все
         {% endif %}
         <span class="caret"></span>
@@ -73,7 +73,7 @@
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         тип:
-        {% if bill_type is not none %} {{BILLS_BY_ID[bill_type].CAPTION}}
+        {% if bill_type is not none %} {{bill_type.verbose}}
         {% else %} все
         {% endif %}
         <span class="caret"></span>

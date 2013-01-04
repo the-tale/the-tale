@@ -3,7 +3,7 @@
 from django.http import Http404
 from django.core.urlresolvers import reverse
 
-from dext.views.resources import handler
+from dext.views import handler
 
 from common.utils.resources import Resource
 

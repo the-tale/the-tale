@@ -2,7 +2,7 @@
 
 from django.conf.urls.defaults import patterns, include
 
-from dext.views.dispatcher import resource_patterns
+from dext.views import resource_patterns
 
 from accounts.views import RegistrationResource, ProfileResource, AuthResource, AccountResource
 

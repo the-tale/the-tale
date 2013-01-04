@@ -2,7 +2,7 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views.resources import handler, validator
+from dext.views import handler, validator
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 

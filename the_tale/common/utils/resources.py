@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 
-from dext.views.resources import BaseResource
+from dext.views import BaseResource
 
 from accounts.prototypes import AccountPrototype
 from accounts.models import Account

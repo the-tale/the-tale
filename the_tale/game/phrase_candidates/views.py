@@ -2,7 +2,7 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views.resources import handler, validator
+from dext.views import handler, validator
 from dext.utils.urls import UrlBuilder
 
 from accounts.prototypes import AccountPrototype

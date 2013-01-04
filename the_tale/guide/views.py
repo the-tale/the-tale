@@ -2,7 +2,7 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views.resources import handler
+from dext.views import handler
 from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource

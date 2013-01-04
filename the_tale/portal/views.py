@@ -2,7 +2,7 @@
 
 import postmarkup
 
-from dext.views.resources import handler
+from dext.views import handler
 
 from common.utils.resources import Resource
 

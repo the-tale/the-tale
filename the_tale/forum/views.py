@@ -1,13 +1,15 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from django.core.urlresolvers import reverse
 
-from dext.views.resources import handler
+from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
 from common.utils.decorators import login_required
+
+from accounts.prototypes import AccountPrototype
 
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm, EditThreadForm
@@ -16,50 +18,19 @@ from forum.prototypes import CategoryPrototype, SubCategoryPrototype, ThreadProt
 
 class BaseForumResource(Resource):
 
-    def initialize(self, category=None, subcategory=None, thread_id=None, post_id=None, *args, **kwargs):
+    @validate_argument('category', CategoryPrototype.get_by_slug, 'forum', u'категория не найдена')
+    @validate_argument('subcategory', SubCategoryPrototype.get_by_slug, 'forum', u'подкатегория не найдена')
+    @validate_argument('thread', ThreadPrototype.get_by_id, 'forum', u'обсуждение не найдено')
+    @validate_argument('post', PostPrototype.get_by_id, 'forum', u'сообщение не найдено')
+    def initialize(self, category=None, subcategory=None, thread=None, post=None, *args, **kwargs):
         super(BaseForumResource, self).initialize(*args, **kwargs)
 
-        # get post
-        self.post_id = int(post_id) if post_id is not None else None
-        self.post = None
+        self.post = post
+        self.thread = self.post.thread if self.post and thread is None else thread
+        self.subcategory = self.thread.subcategory if self.thread and subcategory is None else subcategory
+        self.category = self.subcategory.category if self.subcategory and category is None else category
 
-        if self.post_id is not None:
-            self.post = PostPrototype.get_by_id(self.post_id)
-            if self.post is None:
-                return self.auto_error('forum.post_not_found', u'сообщение не найдено', status_code=404)
-
-        self.thread_id = int(thread_id) if thread_id is not None else None
-        self.thread = None
-
-        # get thread
-        if self.thread_id is not None:
-            self.thread = ThreadPrototype.get_by_id(self.thread_id)
-            if self.thread is None:
-                return self.auto_error('forum.thread_not_found', u'обсуждение не найдено', status_code=404)
-        elif self.post:
-            self.thread = self.post.thread
-
-        # get subcategory
-        self.subcategory_slug = subcategory
-        self.subcategory = None
-
-        if self.subcategory_slug is not None:
-            self.subcategory = SubCategoryPrototype.get_by_slug(self.subcategory_slug)
-            if self.subcategory is None:
-                return self.auto_error('forum.subcategory_not_found', u'подкатегория не найдена', status_code=404)
-        elif self.thread:
-            self.subcategory = self.thread.subcategory
-
-        # get category
-        self.category_slug = category
-        self.category = None
-
-        if self.category_slug is not None:
-            self.category = CategoryPrototype.get_by_slug(self.category_slug)
-            if self.category is None:
-                return self.auto_error('forum.category_not_found', u'категория не найдена', status_code=404)
-        elif self.subcategory:
-            self.category = self.subcategory.category
+        # TODO: check consistency
 
 
     def can_delete_thread(self, thread):
@@ -87,13 +58,9 @@ class BaseForumResource(Resource):
 class PostsResource(BaseForumResource):
 
     @login_required
+    @validate_argument('thread', ThreadPrototype.get_by_id, 'forum.posts.create', u'обсуждение не найдено')
     @handler('create', method='post')
-    def create_post(self, thread_id):
-
-        thread = ThreadPrototype.get_by_id(int(thread_id))
-
-        if thread is None:
-            return self.auto_error('forum.thread_not_found', u'обсуждение не найдено', status_code=404)
+    def create_post(self, thread):
 
         if self.account.is_fast:
             return self.json_error('forum.create_post.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
@@ -108,7 +75,7 @@ class PostsResource(BaseForumResource):
         return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]) + ('?page=%d' % thread.paginator.pages_count)})
 
     @login_required
-    @handler('#post_id', 'delete', method='post')
+    @handler('#post', 'delete', method='post')
     def delete_post(self):
 
         if self.account.is_fast:
@@ -125,7 +92,7 @@ class PostsResource(BaseForumResource):
         return self.json_ok()
 
     @login_required
-    @handler('#post_id', 'edit', method='get')
+    @handler('#post', 'edit', method='get')
     def edit_post(self):
 
         if self.account.is_fast:
@@ -144,7 +111,7 @@ class PostsResource(BaseForumResource):
                               'new_post_form': NewPostForm(initial={'text': self.post.text})} )
 
     @login_required
-    @handler('#post_id', 'update', method='post')
+    @handler('#post', 'update', method='post')
     def update_post(self):
 
         if self.account.is_fast:
@@ -165,39 +132,29 @@ class PostsResource(BaseForumResource):
 
 class ThreadsResource(BaseForumResource):
 
+    @validate_argument('author', AccountPrototype.get_by_id, 'forum.threads.index', u'автор не найден')
+    @validate_argument('participant', AccountPrototype.get_by_id, 'forum.threads.index', u'участник не найден')
+    @validate_argument('page', int, 'forum.threads.index', u'неверный номер страницы')
     @handler('', method='get')
-    def index(self, author_id=None, page=1, participant_id=None):
-        from accounts.prototypes import AccountPrototype
+    def index(self, author=None, page=1, participant=None):
 
         threads_query = Thread.objects.all().order_by('-updated_at')
 
         is_filtering = False
-        author_account = None
-        participant_account = None
 
-        if author_id is not None:
-            author_id = int(author_id)
-            author_account = AccountPrototype.get_by_id(author_id)
-            if author_account:
-                threads_query = threads_query.filter(author_id=author_account.id)
-                is_filtering = True
-            else:
-                threads_query = Thread.objects.none()
+        if author is not None:
+            threads_query = threads_query.filter(author_id=author.id)
+            is_filtering = True
 
-        if participant_id is not None:
-            participant_id = int(participant_id)
-            participant_account = AccountPrototype.get_by_id(participant_id)
-            if participant_account:
-                threads_query = threads_query.filter(post__author__id=participant_account.id).distinct()
-                is_filtering = True
-            else:
-                threads_query = Thread.objects.none()
+        if participant is not None:
+            threads_query = threads_query.filter(post__author__id=participant.id).distinct()
+            is_filtering = True
 
-        url_builder = UrlBuilder(reverse('forum:threads:'), arguments={'author_id': author_id,
-                                                                       'participant_id': participant_id,
+        url_builder = UrlBuilder(reverse('forum:threads:'), arguments={'author': author.id if author else None,
+                                                                       'participant': participant.id if participant else None,
                                                                        'page': page})
 
-        page = int(page) - 1
+        page -= 1
 
         paginator = Paginator(page, threads_query.count(), forum_settings.THREADS_ON_PAGE, url_builder)
 
@@ -212,20 +169,16 @@ class ThreadsResource(BaseForumResource):
                              {'is_filtering': is_filtering,
                               'pages_count': range(paginator.pages_count),
                               'current_page_number': page,
-                              'author_account': author_account,
-                              'participant_account': participant_account,
+                              'author_account': author,
+                              'participant_account': participant,
                               'paginator': paginator,
                               'threads': threads} )
 
 
     @login_required
+    @validate_argument('subcategory', SubCategoryPrototype.get_by_slug, 'forum', u'подкатегория не найдена')
     @handler('new', method='get')
-    def new_thread(self, subcategory_id):
-
-        subcategory = SubCategoryPrototype.get_by_id(subcategory_id)
-
-        if subcategory is None:
-            return self.auto_error('forum.threads.new.wrong_category_id', u'Категория не найдена', status_code=404)
+    def new_thread(self, subcategory):
 
         if self.account.is_fast:
             return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете писать на форуме',
@@ -241,13 +194,9 @@ class ThreadsResource(BaseForumResource):
                               'new_thread_form': NewThreadForm()} )
 
     @login_required
+    @validate_argument('subcategory', SubCategoryPrototype.get_by_slug, 'forum', u'подкатегория не найдена')
     @handler('create', method='post')
-    def create_thread(self, subcategory_id):
-
-        subcategory = SubCategoryPrototype.get_by_id(subcategory_id)
-
-        if subcategory is None:
-            return self.auto_error('forum.threads.create.wrong_category_id', u'Категория не найдена', status_code=404)
+    def create_thread(self, subcategory):
 
         if self.account.is_fast:
             return self.json_error('forum.create_thread.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
@@ -269,7 +218,7 @@ class ThreadsResource(BaseForumResource):
                                   'thread_id': thread.id})
 
     @login_required
-    @handler('#thread_id', 'delete', method='post')
+    @handler('#thread', 'delete', method='post')
     def delete_thread(self):
 
         if self.account.is_fast:
@@ -283,7 +232,7 @@ class ThreadsResource(BaseForumResource):
         return self.json_ok()
 
     @login_required
-    @handler('#thread_id', 'update', method='post')
+    @handler('#thread', 'update', method='post')
     def update_thread(self):
 
         if self.account.is_fast:
@@ -312,7 +261,7 @@ class ThreadsResource(BaseForumResource):
         return self.json_ok()
 
     @login_required
-    @handler('#thread_id', 'edit', method='get')
+    @handler('#thread', 'edit', method='get')
     def edit_thread(self):
 
         if self.account.is_fast:
@@ -333,13 +282,14 @@ class ThreadsResource(BaseForumResource):
                               'can_change_thread_category': self.can_change_thread_category()} )
 
 
-    @handler('#thread_id', name='show', method='get')
+    @validate_argument('page', int, 'forum.threads.show', u'неверный номер страницы')
+    @handler('#thread', name='show', method='get')
     def get_thread(self, page=1):
 
         url_builder = UrlBuilder(reverse('forum:threads:show', args=[self.thread.id]),
                                  arguments={'page': page})
 
-        page = int(page) - 1
+        page -= 1
 
         paginator = Paginator(page, self.thread.posts_count+1, forum_settings.POSTS_ON_PAGE, url_builder)
 
@@ -396,6 +346,7 @@ class ForumResource(BaseForumResource):
                              {'forum_structure': forum_structure} )
 
 
+    @validate_argument('page', int, 'forum.subcategory.show', u'неверный номер страницы')
     @handler('categories', '#subcategory', name='subcategory', method='get')
     def get_subcategory(self, page=1):
 
@@ -403,7 +354,7 @@ class ForumResource(BaseForumResource):
 
         url_builder = UrlBuilder(reverse('forum:subcategory', args=[self.subcategory.slug]), arguments={'page': page})
 
-        page = int(page) - 1
+        page -= 1
 
         paginator = Paginator(page, threads_query.count(), forum_settings.THREADS_ON_PAGE, url_builder)
 

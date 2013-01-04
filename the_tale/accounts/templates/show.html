@@ -49,8 +49,8 @@
 
       <td>
         <ul class="unstyled">
-          <li><a href="{{url('forum:threads:')}}?author_id={{master_account.id}}">обсуждения созданные игроком</a> (всего {{threads_count}})</li>
-          <li><a href="{{url('forum:threads:')}}?participant_id={{master_account.id}}">обсуждения с участием игрока</a> (всего {{threads_with_posts}})</li>
+          <li><a href="{{url('forum:threads:')}}?author={{master_account.id}}">обсуждения созданные игроком</a> (всего {{threads_count}})</li>
+          <li><a href="{{url('forum:threads:')}}?participant={{master_account.id}}">обсуждения с участием игрока</a> (всего {{threads_with_posts}})</li>
         </ul>
       </td>
 
@@ -61,7 +61,7 @@
     <tr>
       <td>
         <ul class="unstyled">
-          <li><a href="{{ url('game:bills:') }}?owner_id={{master_account.id}}">законопроекты инициированые игроком</a> (всего {{bills_count}})</li>
+          <li><a href="{{ url('game:bills:') }}?owner={{master_account.id}}">законопроекты инициированые игроком</a> (всего {{bills_count}})</li>
           <li><a href="{{ url('game:phrase-candidates:') }}?author_id={{master_account.id}}">фразы предложенные игроком</a> (всего {{phrases_count}})</li>
           <li><a href="{{ url('blogs:posts:') }}?author_id={{master_account.id}}">произведения игрока</a> (всего {{folclor_posts_count}})</li>
         </ul>

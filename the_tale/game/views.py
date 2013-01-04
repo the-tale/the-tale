@@ -2,7 +2,7 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views.resources import handler
+from dext.views import handler
 from dext.utils.decorators import debug_required
 
 from common.utils.decorators import staff_required, login_required

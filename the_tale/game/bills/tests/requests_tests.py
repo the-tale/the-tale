@@ -123,7 +123,7 @@ class TestIndexRequests(BaseTestRequests):
 
         result, account_id, bundle_id = register_user('test_user4', 'test_user4@test.com', '111111')
         account4 = AccountPrototype.get_by_id(account_id)
-        self.check_html_ok(self.client.get(reverse('game:bills:')+('?owner_id=%d' % account4.id)),
+        self.check_html_ok(self.client.get(reverse('game:bills:')+('?owner=%d' % account4.id)),
                            texts=[('pgf-no-bills-message', 1)])
 
 
@@ -140,7 +140,7 @@ class TestIndexRequests(BaseTestRequests):
                            ('test_user1', bills_settings.BILLS_ON_PAGE + 2), #1 for main menu, 1 for filter text
                            ('test_user2', 0)]
 
-        self.check_html_ok(self.client.get(reverse('game:bills:')+('?owner_id=%d' % self.account1.id)),
+        self.check_html_ok(self.client.get(reverse('game:bills:')+('?owner=%d' % self.account1.id)),
                            texts=account_1_texts)
 
         account_2_texts = [('pgf-no-bills-message', 0),
@@ -154,7 +154,7 @@ class TestIndexRequests(BaseTestRequests):
                            ('test_user2', 3+1)] # 1 for filter text
 
 
-        self.check_html_ok(self.client.get(reverse('game:bills:')+('?owner_id=%d' % self.account2.id)),
+        self.check_html_ok(self.client.get(reverse('game:bills:')+('?owner=%d' % self.account2.id)),
                            texts=account_2_texts)
 
     def test_filter_by_state(self):
@@ -203,23 +203,23 @@ class TestNewRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.request_logout()
-        url = reverse('game:bills:new') + ('?type=%s' % PlaceRenaming.type)
+        url = reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type)
         self.check_redirect(url, login_url(url))
 
     def test_is_fast(self):
         self.account1.is_fast = True
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?type=%s' % PlaceRenaming.type)), texts=(('bills.is_fast', 1),))
+        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type)), texts=(('bills.is_fast', 1),))
 
     def test_wrong_type(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + '?type=xxx'), texts=(('bills.wrong_type', 1),))
+        self.check_html_ok(self.client.get(reverse('game:bills:new') + '?bill_type=xxx'), texts=(('bills.new.bill_type.wrong_format', 1),))
 
     def test_success(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?type=%s' % PlaceRenaming.type)))
+        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type)))
 
     def test_new_place_renaming(self):
         texts = [('>'+place.name+'<', 1) for place in places_storage.all()]
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?type=%s' % PlaceRenaming.type)), texts=texts)
+        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type)), texts=texts)
 
 
 class TestShowRequests(BaseTestRequests):
@@ -292,10 +292,10 @@ class TestCreateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('game:bills:create'), self.get_post_data()), 'bills.is_fast')
 
     def test_type_not_exist(self):
-        self.check_ajax_error(self.client.post(reverse('game:bills:create') + '?type=xxx', self.get_post_data()), 'bills.wrong_type')
+        self.check_ajax_error(self.client.post(reverse('game:bills:create') + '?bill_type=xxx', self.get_post_data()), 'bills.create.bill_type.wrong_format')
 
     def test_success(self):
-        response = self.client.post(reverse('game:bills:create') + ('?type=%s' % PlaceRenaming.type), self.get_post_data())
+        response = self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type), self.get_post_data())
 
         bill = BillPrototype(Bill.objects.all()[0])
         self.assertEqual(bill.caption, 'bill-caption')
@@ -317,7 +317,7 @@ class TestVoteRequests(BaseTestRequests):
     def setUp(self):
         super(TestVoteRequests, self).setUp()
 
-        self.client.post(reverse('game:bills:create') + ('?type=%s' % PlaceRenaming.type), {'caption': 'bill-caption',
+        self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type), {'caption': 'bill-caption',
                                                                                             'rationale': 'bill-rationale',
                                                                                             'place': self.place1.id,
                                                                                             'new_name': 'new-name'})
@@ -337,10 +337,10 @@ class TestVoteRequests(BaseTestRequests):
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_bill_not_exists(self):
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[666]) + '?value=for', {}), 'bills.wrong_bill_id')
+        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[666]) + '?value=for', {}), 'bills.bill.not_found')
 
     def test_wrong_value(self):
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=xxx', {}), 'bills.vote.wrong_value')
+        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=xxx', {}), 'bills.vote.value.wrong_format')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_bill_accepted(self):
@@ -378,7 +378,7 @@ class TestEditRequests(BaseTestRequests):
     def setUp(self):
         super(TestEditRequests, self).setUp()
 
-        self.client.post(reverse('game:bills:create') + ('?type=%s' % PlaceRenaming.type), {'caption': 'bill-caption',
+        self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type), {'caption': 'bill-caption',
                                                                                                 'rationale': 'bill-rationale',
                                                                                                 'place': self.place1.id,
                                                                                                 'new_name': 'new-name'})
@@ -421,7 +421,7 @@ class TestUpdateRequests(BaseTestRequests):
     def setUp(self):
         super(TestUpdateRequests, self).setUp()
 
-        self.client.post(reverse('game:bills:create') + ('?type=%s' % PlaceRenaming.type), {'caption': 'bill-caption',
+        self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type), {'caption': 'bill-caption',
                                                                                                 'rationale': 'bill-rationale',
                                                                                                 'place': self.place1.id,
                                                                                                 'new_name': 'new-name'})
@@ -445,7 +445,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'bills.is_fast')
 
     def test_type_not_exist(self):
-        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[666]), self.get_post_data()), 'bills.wrong_bill_id')
+        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[666]), self.get_post_data()), 'bills.bill.not_found')
 
     def test_no_permissions(self):
         self.request_logout()
@@ -478,7 +478,7 @@ class TestModerationPageRequests(BaseTestRequests):
     def setUp(self):
         super(TestModerationPageRequests, self).setUp()
 
-        self.client.post(reverse('game:bills:create') + ('?type=%s' % PlaceRenaming.type), {'caption': 'bill-caption',
+        self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type), {'caption': 'bill-caption',
                                                                                                 'rationale': 'bill-rationale',
                                                                                                 'place': self.place1.id,
                                                                                                 'new_name': 'new-name'})
@@ -523,7 +523,7 @@ class TestModerateRequests(BaseTestRequests):
     def setUp(self):
         super(TestModerateRequests, self).setUp()
 
-        self.client.post(reverse('game:bills:create') + ('?type=%s' % PlaceRenaming.type), {'caption': 'bill-caption',
+        self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type), {'caption': 'bill-caption',
                                                                                                 'rationale': 'bill-rationale',
                                                                                                 'place': self.place1.id,
                                                                                                 'new_name': 'new-name'})
@@ -569,7 +569,7 @@ class TestModerateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.is_fast')
 
     def test_type_not_exist(self):
-        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[666]), self.get_post_data()), 'bills.wrong_bill_id')
+        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[666]), self.get_post_data()), 'bills.bill.not_found')
 
     def test_no_permissions(self):
         self.request_logout()
@@ -593,7 +593,7 @@ class TestDeleteRequests(BaseTestRequests):
     def setUp(self):
         super(TestDeleteRequests, self).setUp()
 
-        self.client.post(reverse('game:bills:create') + ('?type=%s' % PlaceRenaming.type), {'caption': 'bill-caption',
+        self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type), {'caption': 'bill-caption',
                                                                                                 'rationale': 'bill-rationale',
                                                                                                 'place': self.place1.id,
                                                                                                 'new_name': 'new-name'})
@@ -615,7 +615,7 @@ class TestDeleteRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'bills.is_fast')
 
     def test_type_not_exist(self):
-        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[666]), {}), 'bills.wrong_bill_id')
+        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[666]), {}), 'bills.bill.not_found')
 
     def test_no_permissions(self):
         self.request_logout()

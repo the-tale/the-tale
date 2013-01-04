@@ -37,7 +37,7 @@ jQuery(document).ready( function(e) {
 
 <p>{{bill_class.DESCRIPTION}}</p>
 
-<form id="pgf-new-bill-form" method="post" action="{{ url('game:bills:create') }}?type={{bill_class.type}}">
+<form id="pgf-new-bill-form" method="post" action="{{ url('game:bills:create', bill_type=bill_class.type) }}">
 
   {{ form.errors_container }}
 

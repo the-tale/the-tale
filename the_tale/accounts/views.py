@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout
 from django.utils.log import getLogger
 
-from dext.views.resources import handler
+from dext.views import handler
 from dext.utils.urls import UrlBuilder
 
 from common.postponed_tasks import PostponedTaskPrototype

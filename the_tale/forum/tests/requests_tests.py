@@ -72,43 +72,43 @@ class TestRequests(TestCase):
         self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
 
     def test_subcategory_not_found(self):
-        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcatXXX-slug'])), texts=[('forum.subcategory_not_found', 1)], status_code=404)
+        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcatXXX-slug'])), texts=[('forum.subcategory.not_found', 1)], status_code=404)
 
     def test_new_thread(self):
         texts=['cat1-caption', 'subcat1-caption']
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcat1.id)), texts=texts)
+        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=texts)
 
     def test_new_thread_unlogined(self):
         self.request_logout()
-        request_url = reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcat1.id)
+        request_url = reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)
         self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_new_thread_fast(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory_id=%d' % self.subcat1.id)), texts=['pgf-error-forum.new_thread.fast_account'])
+        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-forum.new_thread.fast_account'])
 
     def test_create_thread_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcat1.id)),
+        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug)),
                               code='common.login_required')
 
     def test_create_thread_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcat1.id)),
+        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug)),
                               code='forum.create_thread.fast_account')
 
     def test_create_thread_closed_subcategory(self):
-        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcat2.id)),
+        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat2.slug)),
                               code='forum.create_thread.no_permissions')
 
     def test_create_thread_form_errors(self):
-        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcat1.id)),
+        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug)),
                               code='forum.create_thread.form_errors')
 
     def test_create_thread_success(self):
-        response = self.client.post(reverse('forum:threads:create') + ('?subcategory_id=%d' % self.subcat1.id), {'caption': 'thread4-caption', 'text': 'thread4-text'})
+        response = self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug), {'caption': 'thread4-caption', 'text': 'thread4-text'})
 
         thread = Thread.objects.all().order_by('-created_at')[0]
 
@@ -133,7 +133,7 @@ class TestRequests(TestCase):
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
 
     def test_get_thread_not_found(self):
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[666])), texts=(('forum.thread_not_found', 1),), status_code=404)
+        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[666])), texts=(('forum.thread.not_found', 1),), status_code=404)
 
     def test_get_thread_fast_account(self):
         self.account.is_fast = True
@@ -180,24 +180,24 @@ class TestRequests(TestCase):
 
     def test_create_post_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread_id=%d' % self.thread3.id)),
+        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
                               code='common.login_required')
 
     def test_create_post_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread_id=%d' % self.thread3.id)),
+        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
                               code='forum.create_post.fast_account')
 
     def test_create_post_form_errors(self):
-        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread_id=%d' % self.thread3.id)),
+        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
                               code='forum.create_post.form_errors')
 
     def test_create_post_success(self):
-        self.check_ajax_ok(self.client.post(reverse('forum:posts:create') + ('?thread_id=%d' % self.thread3.id), {'text': 'thread3-test-post'}),
+        self.check_ajax_ok(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id), {'text': 'thread3-test-post'}),
                            data={'thread_url': reverse('forum:threads:show', args=[self.thread3.id]) + '?page=1'})
         self.assertEqual(Post.objects.all().count(), 5)
 
     def test_create_post_thread_not_found(self):
-        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread_id=666'), {'text': 'thread3-test-post'}),
-                              'forum.thread_not_found')
+        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=666'), {'text': 'thread3-test-post'}),
+                              'forum.posts.create.thread.not_found')

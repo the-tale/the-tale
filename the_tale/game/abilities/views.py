@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.views.resources import handler
+from dext.views import handler
 from dext.utils.exceptions import Error
 
 from common.utils.resources import Resource

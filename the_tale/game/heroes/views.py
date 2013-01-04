@@ -2,7 +2,7 @@
 
 import datetime
 
-from dext.views.resources import handler, validator
+from dext.views import handler, validator
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required

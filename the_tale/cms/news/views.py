@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.utils.feedgenerator import Atom1Feed
 
-from dext.views.resources import handler
+from dext.views import handler
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 

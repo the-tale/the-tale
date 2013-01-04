@@ -1,7 +1,7 @@
 #coding: utf-8
 
 from django.conf.urls.defaults import patterns, include
-from dext.views.dispatcher import resource_patterns
+from dext.views import resource_patterns
 
 from game.views import GameResource
 
