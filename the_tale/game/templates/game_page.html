@@ -25,7 +25,7 @@ var widgets = {};
 
 jQuery(document).ready(function(e){
 
-    updater = new pgf.game.Updater({url: "{{ url('game:info') }}"});
+    updater = new pgf.game.Updater({url: "{{ url('game:info', account=resource.account.id) }}"});
 
     {% if settings.DEBUG %}
     {{ game_macros.game_debug_javascript() }}

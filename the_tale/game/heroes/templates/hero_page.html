@@ -18,7 +18,7 @@ var widgets = {};
 
 jQuery(document).ready(function(e){
 
-    updater = new pgf.game.Updater({url: "{{ url('game:info') }}?account={{ master_account.id }}"});
+    updater = new pgf.game.Updater({url: "{{ url('game:info', account=master_account.id) }}"});
 
     setTimeout(function(){
         updater.Refresh();

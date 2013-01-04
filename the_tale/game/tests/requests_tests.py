@@ -33,6 +33,9 @@ class TestRequests(TestCase, PvPTestsMixin):
 
         self.client = client.Client()
 
+        self.game_info_url_1 = reverse('game:info') + ('?account=%d' % self.account_1.id)
+        self.game_info_url_2 = reverse('game:info') + ('?account=%d' % self.account_2.id)
+
 
     def test_game_page_unlogined(self):
         self.check_redirect(reverse('game:'), login_url(reverse('game:')))
@@ -43,29 +46,29 @@ class TestRequests(TestCase, PvPTestsMixin):
         self.assertEqual(response.status_code, 200)
 
     def test_info_unlogined(self):
-        self.check_redirect(reverse('game:info'), login_url(reverse('game:info')))
+        self.check_ajax_ok(self.client.get(self.game_info_url_1, HTTP_X_REQUESTED_WITH='XMLHttpRequest'))
 
     def test_info_logined(self):
         self.request_login('test_user@test.com')
-        response = self.client.get(reverse('game:info'))
+        response = self.client.get(self.game_info_url_1)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'abilities', 'mode', 'pvp')))
 
     def test_info_other_account(self):
         self.request_login('test_user@test.com')
-        response = self.client.get(reverse('game:info') + ('?account=%s' % self.account_2_id))
+        response = self.client.get(self.game_info_url_2)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'mode')))
 
     def test_info_account_not_exists(self):
         self.request_login('test_user@test.com')
-        response = self.client.get(reverse('game:info') + '?account=666')
-        self.check_ajax_error(response, 'game.info.account_not_exists')
+        response = self.client.get(reverse('game:info') + '?account=666', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.check_ajax_error(response, 'game.info.account.not_found')
 
     def test_info_wrong_account_id(self):
         self.request_login('test_user@test.com')
-        response = self.client.get(reverse('game:info') + '?account=sdsd')
-        self.check_ajax_error(response, 'game.info.wrong_account_id')
+        response = self.client.get(reverse('game:info') + '?account=sdsd', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.check_ajax_error(response, 'game.info.account.wrong_format')
 
 
     def test_game_page_when_pvp_in_queue(self):
@@ -84,19 +87,19 @@ class TestRequests(TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_1, None)
         self.pvp_create_battle(self.account_2, None)
         self.request_login('test_user@test.com')
-        self.assertEqual(s11n.from_json(self.client.get(reverse('game:info')).content)['data']['mode'], 'pve')
+        self.assertEqual(s11n.from_json(self.client.get(self.game_info_url_1).content)['data']['mode'], 'pve')
 
     def test_game_info_when_pvp_prepairing(self):
         self.pvp_create_battle(self.account_1, self.account_2)
         self.pvp_create_battle(self.account_2, self.account_1)
         self.request_login('test_user@test.com')
-        self.assertEqual(s11n.from_json(self.client.get(reverse('game:info')).content)['data']['mode'], 'pvp')
+        self.assertEqual(s11n.from_json(self.client.get(self.game_info_url_1).content)['data']['mode'], 'pvp')
 
     def test_game_info_when_pvp_processing(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
         self.request_login('test_user@test.com')
-        self.assertEqual(s11n.from_json(self.client.get(reverse('game:info')).content)['data']['mode'], 'pvp')
+        self.assertEqual(s11n.from_json(self.client.get(self.game_info_url_1).content)['data']['mode'], 'pvp')
 
 
 class NewsAlertsTests(TestCase):

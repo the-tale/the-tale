@@ -2,7 +2,7 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views import handler
+from dext.views import handler, validate_argument
 from dext.utils.decorators import debug_required
 
 from common.utils.decorators import staff_required, login_required
@@ -39,22 +39,9 @@ class GameResource(Resource):
                              {'map_settings': map_settings,
                               'game_settings': game_settings } )
 
-    @login_required
+    @validate_argument('account', AccountPrototype.get_by_id, 'game.info', u'неверный идентификатор аккаунта')
     @handler('info', method='get')
-    def info(self, account=None):
-
-        if account is None:
-            account = self.account
-        else:
-            try:
-                account = int(account)
-            except ValueError:
-                return self.json_error('game.info.wrong_account_id', u'Неверный идентификатор аккаунта')
-
-            account = AccountPrototype.get_by_id(account)
-
-            if account is None:
-                return self.json_error('game.info.account_not_exists', u'Аккаунт не найден')
+    def info(self, account):
 
         data = {}
 
@@ -65,7 +52,7 @@ class GameResource(Resource):
         hero = HeroPrototype.get_by_account_id(account.id)
         data['hero'] = hero.ui_info()
 
-        if self.account.id == account.id:
+        if self.account and self.account.id == account.id:
             abilities_data = AbilitiesData.objects.get(hero_id=hero.id)
             data['abilities'] = [ability(abilities_data).ui_info() for ability_type, ability in ABILITIES.items()]
 
