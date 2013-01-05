@@ -7,7 +7,7 @@ from game import names
 from game.game_info import RACE, GENDER
 
 from game.persons.prototypes import PersonPrototype
-from game.persons.models import PERSON_TYPE_CHOICES
+from game.persons.models import PERSON_TYPE
 
 def create_person(place, state):
     race = random.choice(RACE._CHOICES)[0]
@@ -15,6 +15,6 @@ def create_person(place, state):
     return PersonPrototype.create(place,
                                   state=state,
                                   race=race,
-                                  tp=random.choice(PERSON_TYPE_CHOICES)[0],
+                                  tp=random.choice(PERSON_TYPE._ALL),
                                   name=names.generator.get_name(race, gender),
                                   gender=gender)

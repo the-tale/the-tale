@@ -85,6 +85,16 @@ body {
    }
 }
 
+a.info-link {
+   text-decoration: none;
+   border-bottom: 1px dashed;
+
+   &:hover {
+      text-decoration: none;
+      border-bottom: 1px dashed;
+   }
+}
+
 #time-block {
    cursor: default;
 }
@@ -164,6 +174,10 @@ table {
    }
 
    &.table-striped tbody tr:nth-child(odd):hover td {
+      background-color: #F9F9F9;
+   }
+
+   &.table-striped tbody tr:nth-child(odd):hover th {
       background-color: #F9F9F9;
    }
 }

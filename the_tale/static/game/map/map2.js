@@ -279,8 +279,14 @@ pgf.game.map.Map = function(selector, params) {
                                    pgf.base.InitializeTabs('game-map-cell-info', 'map', 
                                                            [[jQuery('.pgf-cell-description-button', dialog), 'description'], 
                                                             [jQuery('.pgf-cell-persons-button', dialog), 'persons'], 
+                                                            [jQuery('.pgf-cell-place-modifiers-button', dialog), 'place-modifiers'], 
                                                             [jQuery('.pgf-cell-map-button', dialog), 'map'], 
                                                             [jQuery('.pgf-cell-debug-button', dialog), 'debug']]);
+                                   jQuery('[rel="tooltip"]', dialog).tooltip(pgf.base.tooltipsArgs);
+                                   jQuery('[rel="popover"]', dialog).popover(pgf.base.popoverArgs);
+                               },
+                               OnClose: function(dialog) {
+                                   pgf.base.HideTooltips(dialog);
                                }
                              });        
     }

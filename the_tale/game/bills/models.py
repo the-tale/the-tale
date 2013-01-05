@@ -13,7 +13,8 @@ BILL_STATE = create_enum('BILL_STATE', (('VOTING', 1, u'на голосован�
 
 BILL_TYPE = create_enum('BILL_TYPE', (('PLACE_RENAMING', 0, u'переименование места'),
                                       ('PERSON_REMOVE', 1, u'удаление персонажа'),
-                                      ('PLACE_DESCRIPTION', 2, u'изменить описание места')))
+                                      ('PLACE_DESCRIPTION', 2, u'изменить описание места'),
+                                      ('PLACE_MODIFIER', 3, u'изменить тип места')))
 
 
 

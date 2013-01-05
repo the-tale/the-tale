@@ -20,7 +20,6 @@ class PlacePowerTest(TestCase):
                                           y=0,
                                           name='power_test_place',
                                           type=PLACE_TYPE.CITY,
-                                          subtype='UNDEFINED',
                                           size=5 )
 
         self.place = PlacePrototype(self.model)

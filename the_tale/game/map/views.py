@@ -38,8 +38,13 @@ class MapResource(Resource):
 
         randomized_cell = cell.randomize(seed=(x+y)*TimePrototype.get_current_time().game_time.day, fraction=map_settings.CELL_RANDOMIZE_FRACTION)
 
+        place = PlacePrototype.get_by_coordinates(x, y)
+
+        place_modifiers = place.modifiers if place else None
+
         return self.template('map/cell_info.html',
-                             {'place': PlacePrototype.get_by_coordinates(x, y),
+                             {'place': place,
+                              'place_modifiers': place_modifiers,
                               'cell': cell,
                               'descr_wind': descriptors.wind(randomized_cell),
                               'descr_temperature': descriptors.temperature(randomized_cell),

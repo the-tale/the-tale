@@ -10,6 +10,8 @@ from accounts.logic import register_user
 
 from game.logic import create_test_map
 
+from game.map.places.modifiers import MODIFIERS, TradeCenter
+
 class TestMapRequests(TestCase):
 
     def setUp(self):
@@ -34,3 +36,20 @@ class TestMapRequests(TestCase):
         self.account.user.is_staff = True
         self.account.user.save()
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + '?x=5&y=5'), texts=[('pgf-cell-debug', 3)])
+
+    def test_place_info_no_modifier(self):
+        self.request_login('test_user@test.com')
+
+        texts = [('pgf-current-modifier-marker', 0)] + [(modifier.NAME, 1) for modifier in MODIFIERS.values()]
+
+        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
+
+    def test_place_info_modifier(self):
+        self.request_login('test_user@test.com')
+
+        self.place_1.modifier = TradeCenter(self.place_1)
+        self.place_1.save()
+
+        texts = [('pgf-current-modifier-marker', 1)] + [(modifier.NAME, 1 if modifier != TradeCenter else 2) for modifier in MODIFIERS.values()]
+
+        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)

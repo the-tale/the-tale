@@ -10,7 +10,7 @@ from game.heroes.models import Hero
 from game.prototypes import TimePrototype
 from game.helpers import add_power_management
 
-from game.persons.models import Person, PERSON_STATE
+from game.persons.models import Person, PERSON_STATE, PERSON_TYPE
 from game.persons.conf import persons_settings
 from game.persons.exceptions import PersonsException
 
@@ -74,8 +74,7 @@ class PersonPrototype(object):
 
     @property
     def type_verbose(self):
-        from .models import PERSON_TYPE_DICT
-        return PERSON_TYPE_DICT[self.type]
+        return PERSON_TYPE._ID_TO_TEXT[self.type]
 
     @property
     def friends_number(self): return self.model.friends_number

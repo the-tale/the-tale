@@ -37,7 +37,6 @@ def create_test_map():
                                name='1x1',
                                name_forms=s11n.to_json(words.Noun('1x1').serialize()),
                                type=PLACE_TYPE.CITY,
-                               subtype='UNDEFINED',
                                size=1)
 
     p2 = Place.objects.create( x=10,
@@ -45,7 +44,6 @@ def create_test_map():
                                name='10x10',
                                name_forms=s11n.to_json(words.Noun('10x10').serialize()),
                                type=PLACE_TYPE.CITY,
-                               subtype='UNDEFINED',
                                size=3)
 
     p3 = Place.objects.create( x=1,
@@ -53,7 +51,6 @@ def create_test_map():
                                name='1x10',
                                name_forms=s11n.to_json(words.Noun('1x10').serialize()),
                                type=PLACE_TYPE.CITY,
-                               subtype='UNDEFINED',
                                size=3)
 
     places_storage.sync(force=True)

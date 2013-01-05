@@ -2,20 +2,16 @@
 
 from django.db import models
 
-from ...game_info import RACE
+from common.utils.enum import create_enum
 
-class TERRAIN:
-    DESERT = '_'
-    FOREST = 'f'
-    GRASS = '.'
-    SWAMP = 'w'
-    MOUNTAINS = 'm'
+from game.game_info import RACE
 
-TERRAIN_CHOICES = ( (TERRAIN.DESERT, u'пустыня' ),
-                    (TERRAIN.FOREST, u'лес'),
-                    (TERRAIN.GRASS, u'луга'),
-                    (TERRAIN.SWAMP, u'болото'),
-                    (TERRAIN.MOUNTAINS, u'горы'))
+
+TERRAIN = create_enum('TERRAIN', (('DESERT',    '_', u'пустыня'),
+                                  ('FOREST',    'f', u'лес'),
+                                  ('GRASS',     '.', u'луга'),
+                                  ('SWAMP',     'w', u'болото'),
+                                  ('MOUNTAINS', 'm', u'горы')) )
 
 RACE_TO_TERRAIN = { RACE.HUMAN: TERRAIN.GRASS,
                     RACE.ELF: TERRAIN.FOREST,
@@ -29,14 +25,14 @@ TERRAIN_STR_2_ID = { 'desert': TERRAIN.DESERT,
                      'swamp': TERRAIN.SWAMP,
                      'mountains': TERRAIN.MOUNTAINS}
 
-class PLACE_TYPE:
-    CITY = 'city'
 
-PLACE_CHOICES = ( (PLACE_TYPE.CITY, 'city'), )
+PLACE_TYPE = create_enum('PLACE_TYPE', (('CITY', 0, u'город'),))
+
 
 class Place(models.Model):
 
     MAX_NAME_LENGTH = 150
+    MAX_MODIFIER_ID_LENGTH = 32
 
     x = models.BigIntegerField(null=False)
     y = models.BigIntegerField(null=False)
@@ -49,19 +45,15 @@ class Place(models.Model):
 
     description = models.TextField(null=False, default=u'', blank=True)
 
-    type = models.CharField(max_length=50,
-                            choices=PLACE_CHOICES,
-                            null=False)
-
-    subtype = models.CharField(max_length=50,
-                               choices=( ('UNDEFINED', 'undefined'), ),
-                               null=False) # orc city, goblin dungeon (specify how to display)
+    type = models.IntegerField(choices=PLACE_TYPE._CHOICES, null=False, default=PLACE_TYPE.CITY)
 
     size = models.IntegerField(null=False) # specify size of the place
 
     data = models.TextField(null=False, default=u'{}')
 
     heroes_number = models.IntegerField(default=0)
+
+    modifier = models.CharField(max_length=MAX_MODIFIER_ID_LENGTH, null=True, default=None)
 
     class Meta:
         ordering = ('name', )

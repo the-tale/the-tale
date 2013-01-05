@@ -2,10 +2,11 @@
 
 from game.bills.bills.place_renaming import PlaceRenaming
 from game.bills.bills.place_description import PlaceDescripton
+from game.bills.bills.place_change_modifier import PlaceModifier
 from game.bills.bills.person_remove import PersonRemove
 
 
-BILLS = [PlaceRenaming, PlaceDescripton, PersonRemove]
+BILLS = [PlaceRenaming, PlaceDescripton, PlaceModifier, PersonRemove]
 
 def deserialize_bill(data):
     return BILLS_BY_STR[data['type']].deserialize(data)

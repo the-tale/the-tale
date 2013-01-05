@@ -1,3 +1,5 @@
 # coding: utf-8
 
-class PlacesException(Exception): pass
+from game.map.exceptions import MapException
+
+class PlacesException(MapException): pass

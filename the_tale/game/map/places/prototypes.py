@@ -17,6 +17,7 @@ from game.heroes.models import Hero
 from game.map.places.models import Place, PLACE_TYPE
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
+from game.map.places.modifiers import MODIFIERS, PlaceModifierBase
 
 @add_power_management(places_settings.POWER_HISTORY_LENGTH, PlacesException)
 class PlacePrototype(object):
@@ -56,6 +57,22 @@ class PlacePrototype(object):
     @property
     def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self.model.updated_at_turn))
 
+    def get_modifier(self): return MODIFIERS[self.model.modifier](self) if self.model.modifier else None
+    def set_modifier(self, value):
+        if isinstance(value, PlaceModifierBase):
+            self.model.modifier = value.get_id()
+        else:
+            self.model.modifier = value
+    modifier = property(get_modifier, set_modifier)
+
+    # def get_allowed_modifiers(self):
+    #     modifiers = []
+    #     for modifier_class in MODIFIERS.values():
+    #         modifier = modifier_class(self)
+    #         if modifier.can_be_choosen and modifier != self.modifier:
+    #             modifiers.append(modifier)
+    #     return modifiers
+
     @property
     def normalized_name(self):
 
@@ -79,9 +96,6 @@ class PlacePrototype(object):
     @property
     def type(self): return self.model.type
 
-    @property
-    def subtype(self): return self.model.subtype
-
     def get_size(self): return self.model.size
     def set_size(self, value): self.model.size = value
     size = property(get_size, set_size)
@@ -101,6 +115,11 @@ class PlacePrototype(object):
     @property
     def total_persons_power(self): return sum([person.power for person in self.persons])
 
+    @property
+    def modifiers(self):
+        from game.map.places.modifiers import MODIFIERS
+        return sorted([modifier(self) for modifier in MODIFIERS.values()], key=lambda m: -m.power)
+
     def mark_as_updated(self): self.model.updated_at_turn = TimePrototype.get_current_turn_number()
 
     @property
@@ -114,7 +133,7 @@ class PlacePrototype(object):
 
         from game.persons.prototypes import PersonPrototype
         from game.persons.storage import persons_storage
-        from game.persons.models import PERSON_TYPE_CHOICES
+        from game.persons.models import PERSON_TYPE
         from game.game_info import RACE
 
         while persons_count < self.max_persons_number:
@@ -124,7 +143,7 @@ class PlacePrototype(object):
             new_person = PersonPrototype.create(place=self,
                                                 race=race,
                                                 gender=gender,
-                                                tp=random.choice(PERSON_TYPE_CHOICES)[0],
+                                                tp=random.choice(PERSON_TYPE._ALL),
                                                 name=names.generator.get_name(race, gender))
             persons_storage.add_item(new_person.id, new_person)
             persons_count += 1
@@ -197,5 +216,4 @@ class PlacePrototype(object):
                 'pos': {'x': self.x, 'y': self.y},
                 'name': self.name,
                 'type': self.type,
-                'subtype': self.subtype,
                 'size': self.size}
