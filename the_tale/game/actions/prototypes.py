@@ -18,7 +18,7 @@ from game.mobs.storage import MobsDatabase
 from game.actions.models import Action, UNINITIALIZED_STATE
 from game.actions import battle, contexts
 
-from game.balance import constants as c, formulas as f
+from game.balance import constants as c, formulas as f, enums as e
 
 from game.actions.exceptions import ActionException
 
@@ -448,7 +448,7 @@ class ActionIdlenessPrototype(ActionPrototype):
                 ActionQuestPrototype.create(parent=self, quest=quest)
                 self.percents = 0
 
-            elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+            elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
                 ActionRegenerateEnergyPrototype.create(self)
                 self.state = self.STATE.REGENERATE_ENERGY
 
@@ -651,11 +651,11 @@ class ActionMoveToPrototype(ActionPrototype):
 
             current_destination = self.current_destination
 
-            if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+            if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
                 ActionRegenerateEnergyPrototype.create(self)
                 self.state = self.STATE.REGENERATE_ENERGY
 
-            elif random.uniform(0, 1) <= c.BATTLES_PER_TURN:
+            elif self.hero.position.is_battle_start_needed():
                 mob = create_mob_for_hero(self.hero)
                 ActionBattlePvE1x1Prototype.create(parent=self, mob=mob)
                 self.state = self.STATE.BATTLE
@@ -668,12 +668,18 @@ class ActionMoveToPrototype(ActionPrototype):
                                           destination=self.destination,
                                           current_destination=self.current_destination)
 
-                delta = self.hero.move_speed / self.hero.position.road.length
+                move_speed = self.hero.move_speed
+
+                dominant_place = self.hero.position.get_dominant_place()
+                if dominant_place and dominant_place.modifier:
+                    move_speed = dominant_place.modifier.modify_move_speed(move_speed)
+
+                delta = move_speed / self.hero.position.road.length
 
                 self.hero.position.percents += delta
 
                 real_length = self.length if self.break_at is None else self.length * self.break_at
-                self.percents += self.hero.move_speed / real_length
+                self.percents += move_speed / real_length
 
                 if self.hero.position.percents >= 1:
                     self.hero.position.percents = 1
@@ -861,6 +867,11 @@ class ActionInPlacePrototype(ActionPrototype):
                                        order=parent.order+1,
                                        state=cls.STATE.SPEND_MONEY,
                                        created_at_turn=TimePrototype.get_current_turn_number())
+
+        if parent.hero.health < parent.hero.max_health and parent.hero.position.place.modifier and parent.hero.position.place.modifier.full_regen_allowed():
+            parent.hero.health = parent.hero.max_health
+            parent.hero.add_message('action_inplace_instant_heal', hero=parent.hero, place=parent.hero.position.place)
+
         return cls(model=model)
 
     def get_description_arguments(self):
@@ -876,7 +887,7 @@ class ActionInPlacePrototype(ActionPrototype):
     def try_to_spend_money(self, gold_amount, money_source):
         if gold_amount <= self.hero.money:
             gold_amount = min(self.hero.money, int(gold_amount * (1 + random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA))))
-            gold_amount = self.hero.abilities.update_buy_price(self.hero, gold_amount)
+            gold_amount = self.hero.modify_buy_price(gold_amount)
             self.hero.change_money(money_source, -gold_amount)
             self.hero.switch_spending()
             return gold_amount
@@ -885,15 +896,13 @@ class ActionInPlacePrototype(ActionPrototype):
 
     def spend_money(self):
 
-        from game.workers.environment import workers_environment
-
-        if self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
+        if self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
             coins = self.try_to_spend_money(f.instant_heal_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_HEAL)
             if coins is not None:
                 self.hero.health = self.hero.max_health
-                self.hero.add_message('action_inplace_instant_heal', important=True, hero=self.hero, coins=coins)
+                self.hero.add_message('action_inplace_instant_heal_for_money', important=True, hero=self.hero, coins=coins)
 
-        elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+        elif self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
             if coins is not None:
 
@@ -907,19 +916,19 @@ class ActionInPlacePrototype(ActionPrototype):
                 else:
                     self.hero.add_message('action_inplace_buying_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
 
-        elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
+        elif self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
             coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_SHARPENING)
             if coins is not None:
                 artifact = self.hero.sharp_artifact()
 
                 self.hero.add_message('action_inplace_sharpening_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
 
-        elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.USELESS:
+        elif self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.USELESS:
             coins = self.try_to_spend_money(f.useless_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_USELESS)
             if coins is not None:
                 self.hero.add_message('action_inplace_spend_useless', important=True, hero=self.hero, coins=coins)
 
-        elif self.hero.next_spending == c.ITEMS_OF_EXPENDITURE.IMPACT:
+        elif self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.IMPACT:
             coins = self.try_to_spend_money(f.impact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_IMPACT)
             if coins is not None:
 
@@ -937,10 +946,10 @@ class ActionInPlacePrototype(ActionPrototype):
                 impact_type, person = random.choice(choices)
 
                 if impact_type:
-                    workers_environment.highlevel.cmd_change_person_power(person.id, f.person_power_from_random_spend(1, self.hero.level))
+                    person.cmd_change_power(f.person_power_from_random_spend(1, self.hero.level))
                     self.hero.add_message('action_inplace_impact_good', important=True, hero=self.hero, coins=coins, person=person)
                 else:
-                    workers_environment.highlevel.cmd_change_person_power(person.id, f.person_power_from_random_spend(-1, self.hero.level))
+                    person.cmd_change_power(f.person_power_from_random_spend(-1, self.hero.level))
                     self.hero.add_message('action_inplace_impact_bad', important=True, hero=self.hero, coins=coins, person=person)
 
         else:
@@ -958,7 +967,7 @@ class ActionInPlacePrototype(ActionPrototype):
 
         if self.state == self.STATE.CHOOSING:
 
-            if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+            if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
                 self.STATE.REGENERATE_ENERGY
                 ActionRegenerateEnergyPrototype.create(self)
 
@@ -1223,11 +1232,11 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                 ActionRestPrototype.create(self)
                 self.state = self.STATE.RESTING
 
-            elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+            elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
                 ActionRegenerateEnergyPrototype.create(self)
                 self.state = self.STATE.REGENERATE_ENERGY
 
-            elif random.uniform(0, 1) <= c.BATTLES_PER_TURN:
+            elif self.hero.position.is_battle_start_needed():
                 mob = create_mob_for_hero(self.hero)
                 ActionBattlePvE1x1Prototype.create(parent=self, mob=mob)
                 self.state = self.STATE.BATTLE
@@ -1305,11 +1314,11 @@ class ActionRegenerateEnergyPrototype(ActionPrototype):
 
     @classmethod
     def regeneration_slug(cls, regeneration_type):
-        return { c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 'pray',
-                 c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 'sacrifice',
-                 c.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 'incense',
-                 c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 'symbols',
-                 c.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 'meditation' }[regeneration_type]
+        return { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 'pray',
+                 e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 'sacrifice',
+                 e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 'incense',
+                 e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 'symbols',
+                 e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 'meditation' }[regeneration_type]
 
     def step_percents(self):
         return 1.0 / c.ANGEL_ENERGY_REGENERATION_STEPS[self.regeneration_type]

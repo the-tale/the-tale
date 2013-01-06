@@ -5,9 +5,11 @@ from django.db import models
 
 from common.utils.enum import create_enum
 
-from game.game_info import RACE, GENDER
+from game.game_info import GENDER
+from game.balance.enums import RACE
 
-from game.balance import constants as c
+from game.balance import enums as e
+
 
 PREFERENCE_TYPE = create_enum('PREFERENCE_TYPE', ( ('MOB', 0, u'любимая добыча'),
                                                    ('PLACE', 1, u'родной город'),
@@ -65,7 +67,7 @@ class Hero(models.Model):
 
     last_action_percents = models.FloatField(null=False, default=0)
 
-    next_spending = models.IntegerField(null=False, default=c.ITEMS_OF_EXPENDITURE.USELESS, choices=c.ITEMS_OF_EXPENDITURE._CHOICES)
+    next_spending = models.IntegerField(null=False, default=e.ITEMS_OF_EXPENDITURE.USELESS, choices=e.ITEMS_OF_EXPENDITURE._CHOICES)
 
     energy = models.FloatField(null=False, default=0.0)
     last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
@@ -84,7 +86,7 @@ class Hero(models.Model):
     pos_to_y = models.IntegerField(null=True, blank=True, default=None)
 
     #character
-    pref_energy_regeneration_type = models.IntegerField(null=False, default=c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=c.ANGEL_ENERGY_REGENERATION_TYPES._CHOICES, blank=True)
+    pref_energy_regeneration_type = models.IntegerField(null=False, default=e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=e.ANGEL_ENERGY_REGENERATION_TYPES._CHOICES, blank=True)
     pref_energy_regeneration_type_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
     pref_mob_id = models.CharField(max_length=32, null=True, default=None, blank=True)

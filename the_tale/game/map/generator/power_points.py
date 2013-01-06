@@ -3,7 +3,7 @@ import math
 
 from deworld import power_points, layers, normalizers
 
-from game.game_info import RACE
+from game.balance.enums import RACE
 
 from game.map.places.storage import places_storage
 from game.map.exceptions import MapException
@@ -15,7 +15,7 @@ def _point_circle_height(place, power, normalizer):
                                         name='place_height_point_%d' % place.id,
                                         x=place.x,
                                         y=place.y,
-                                        radius=place.size,
+                                        radius=place.terrain_change_power,
                                         power=power,
                                         normalizer=normalizer)
 
@@ -35,15 +35,15 @@ def _point_arrow_height(place, power, length_normalizer, width_normalizer):
     if len(distances) > 0:
         distance, other_place = distances[0]
         arrow = power_points.ArrowAreaPoint.Arrow(angle=math.atan2(other_place.y - place.y, other_place.x - place.x),
-                                                  length=place.size,
-                                                  width=(place.size / 3) + 1)
+                                                  length=place.terrain_change_power,
+                                                  width=(place.terrain_change_power / 3) + 1)
         arrows.extend([arrow, arrow.rounded_arrow])
 
     if len(distances) > 1:
         distance, other_place = distances[1]
         arrow = power_points.ArrowAreaPoint.Arrow(angle=math.atan2(other_place.y - place.y, other_place.x - place.x),
-                                                  length=place.size,
-                                                  width=(place.size / 3) + 1)
+                                                  length=place.terrain_change_power,
+                                                  width=(place.terrain_change_power / 3) + 1)
         arrows.extend([arrow, arrow.rounded_arrow])
 
     return power_points.ArrowAreaPoint(layer_type=layers.LAYER_TYPE.HEIGHT,
@@ -60,7 +60,7 @@ def _point_circle_vegetation(place, power, normalizer):
                                         name='place_vegetation_point_%d' % place.id,
                                         x=place.x,
                                         y=place.y,
-                                        radius=place.size,
+                                        radius=place.terrain_change_power,
                                         power=power,
                                         default_power=(0.0, 0.0),
                                         normalizer=normalizer)
@@ -70,7 +70,7 @@ def _point_circle_temperature(place, power, normalizer):
                                         name='place_temperature_point_%d' % place.id,
                                         x=place.x,
                                         y=place.y,
-                                        radius=place.size,
+                                        radius=place.terrain_change_power,
                                         power=power,
                                         normalizer=normalizer)
 
@@ -79,7 +79,7 @@ def _point_circle_wetness(place, power, normalizer):
                                         name='place_wetness_point_%d' % place.id,
                                         x=place.x,
                                         y=place.y,
-                                        radius=place.size,
+                                        radius=place.terrain_change_power,
                                         power=power,
                                         normalizer=normalizer)
 

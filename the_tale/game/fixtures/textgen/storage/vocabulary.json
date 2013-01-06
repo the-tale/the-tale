@@ -3601,52 +3601,38 @@
     {
       "internals": [
         [
-          "монета", 
+          "вошёл", 
           [
-            "coins"
+            "hero"
           ], 
           "i_0", 
           [
-            "вн"
+            "прш"
           ], 
-          "монета"
+          "вошёл"
         ]
       ], 
       "externals": [
         [
-          "coins", 
+          "hero", 
           [], 
           "e_0", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "Лекарь содрал %(e_0)s %(i_0)s за лечение."
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
           [
-            "coins"
+            "им"
           ], 
-          "i_0", 
+          "hero"
+        ], 
+        [
+          "place", 
+          [], 
+          "e_1", 
           [
             "вн"
           ], 
-          "монета"
+          "place"
         ]
       ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "Бинты, мази, притирки — всё это стоило %(e_0)s %(i_0)s, но здоровье важнее."
+      "template": "Едва %(e_0)s %(i_0)s в %(e_1)s, как раны начали затягиваться."
     }
   ], 
   "quest_hometown_action_move_to_quest": [
@@ -5840,11 +5826,56 @@
       "template": "Заприметив невдалеке подходящий камень, %(e_0)s %(i_0)s инструменты и %(i_1)s изображать на нем символ удачи."
     }
   ], 
-  "quest_searchsmith_description": [
+  "action_inplace_instant_heal_for_money": [
     {
-      "internals": [], 
-      "externals": [], 
-      "template": "Посетить кузнеца"
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "Лекарь содрал %(e_0)s %(i_0)s за лечение."
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "Бинты, мази, притирки — всё это стоило %(e_0)s %(i_0)s, но здоровье важнее."
     }
   ], 
   "quest_spying_action_get_reward_open_up_artifact": [], 
@@ -8959,6 +8990,13 @@
       "internals": [], 
       "externals": [], 
       "template": "Посетить родной город"
+    }
+  ], 
+  "quest_searchsmith_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Посетить кузнеца"
     }
   ], 
   "quest_hometown_diary_get_reward_artifact": [

@@ -17,7 +17,7 @@ from game.map.places.models import Place
 
 from game.logic_storage import LogicStorage
 
-from game.balance import constants as c
+from game.balance import constants as c, enums as e
 
 from game.persons.models import Person, PERSON_STATE
 from game.persons.storage import persons_storage
@@ -77,7 +77,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
         self.storage.add_hero(self.hero)
 
         self.hero.model.level = c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED
-        self.hero.model.pref_energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero.model.pref_energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
         self.hero.model.save()
 
     def tearDown(self):
@@ -116,20 +116,20 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
         self.assertEqual(self.hero.preferences.energy_regeneration_type, expected_energy_regeneration_type)
 
     def test_change_energy_regeneration_type(self):
-        self.check_change_energy_regeneration_type(c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
+        self.check_change_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_energy_regeneration_type_cooldown(self):
-        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-        self.check_change_energy_regeneration_type(c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
+        self.check_change_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
     def test_remove_energy_regeneration_type(self):
-        self.check_change_energy_regeneration_type(None, c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, CHOOSE_PREFERENCES_TASK_STATE.UNSPECIFIED_PREFERENCE)
+        self.check_change_energy_regeneration_type(None, e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, CHOOSE_PREFERENCES_TASK_STATE.UNSPECIFIED_PREFERENCE)
 
     def test_remove_energy_regeneration_type_cooldown(self):
-        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-        self.check_change_energy_regeneration_type(None, c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
+        self.check_change_energy_regeneration_type(None, e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
 class HeroPreferencesMobTest(TestCase):

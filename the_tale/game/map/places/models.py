@@ -4,7 +4,7 @@ from django.db import models
 
 from common.utils.enum import create_enum
 
-from game.game_info import RACE
+from game.balance.enums import RACE
 
 
 TERRAIN = create_enum('TERRAIN', (('DESERT',    '_', u'пустыня'),

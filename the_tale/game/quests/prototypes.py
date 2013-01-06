@@ -183,14 +183,14 @@ class QuestPrototype(object):
         return False
 
     def end_quest(self, cur_action):
-        from game.workers.environment import workers_environment
+        from game.persons.storage import persons_storage
 
         if not cur_action.hero.can_change_persons_power:
             return
 
         for person_id, power in self.env.persons_power_points.items():
             person_data = self.env.persons[person_id]
-            workers_environment.highlevel.cmd_change_person_power(person_data['external_data']['id'], power)
+            persons_storage.get(person_data['external_data']['id']).cmd_change_power(power)
 
     def push_message(self, writer, messanger, event, **kwargs):
 

@@ -1,16 +1,16 @@
 # coding: utf-8
 import mock
 
-from django.test import TestCase
-
 from dext.settings import settings
+
+from common.utils.testcase import TestCase, CallCounter
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
 from game.logic_storage import LogicStorage
 
 
-from game.balance import constants as c, formulas as f
+from game.balance import formulas as f, constants as c, enums as e
 
 from game.logic import create_test_map
 from game.actions.prototypes import ActionMoveToPrototype, ActionInPlacePrototype, ActionRestPrototype
@@ -85,6 +85,22 @@ class MoveToActionTest(TestCase):
         self.storage._test_save()
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
+    def test_modify_speed_in_transport_node(self):
+
+        from game.map.places.modifiers.prototypes import TransportNode
+
+        self.hero.position.place.modifier = TransportNode(self.hero.position.place)
+
+        speed_modifier_call_counter = CallCounter(self.hero.move_speed)
+
+        self.assertEqual(speed_modifier_call_counter.count, 0)
+
+        with mock.patch('game.map.places.modifiers.prototypes.TransportNode.modify_move_speed', speed_modifier_call_counter):
+            self.storage.process_turn()
+
+        self.assertEqual(speed_modifier_call_counter.count, 1)
+
+    @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
     def test_short_teleport(self):
 
         current_time = TimePrototype.get_current_time()
@@ -124,7 +140,7 @@ class MoveToActionTest(TestCase):
         self.storage._test_save()
 
     def test_regenerate_energy_on_move(self):
-        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
+        self.hero.preferences.energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
@@ -139,7 +155,7 @@ class MoveToActionTest(TestCase):
         self.storage._test_save()
 
     def test_not_regenerate_energy_on_move_for_sacrifice(self):
-        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero.preferences.energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
@@ -155,7 +171,7 @@ class MoveToActionTest(TestCase):
         self.storage._test_save()
 
     def test_regenerate_energy_after_battle_for_sacrifice(self):
-        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero.preferences.energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_move.state = self.action_move.STATE.BATTLE

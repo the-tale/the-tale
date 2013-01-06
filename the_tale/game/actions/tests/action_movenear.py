@@ -10,7 +10,7 @@ from game.heroes.prototypes import HeroPrototype
 from game.logic_storage import LogicStorage
 
 
-from game.balance import constants as c, formulas as f
+from game.balance import constants as c, formulas as f, enums as e
 
 from game.logic import create_test_map
 from game.actions.prototypes import ActionMoveNearPlacePrototype, ActionRestPrototype, ActionResurrectPrototype
@@ -136,7 +136,7 @@ class MoveNearActionTest(TestCase):
         self.storage._test_save()
 
     def test_regenerate_energy_on_move(self):
-        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
+        self.hero.preferences.energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_move.state = self.action_move.STATE.MOVING
@@ -148,7 +148,7 @@ class MoveNearActionTest(TestCase):
         self.storage._test_save()
 
     def test_not_regenerate_energy_on_move_for_sacrifice(self):
-        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero.preferences.energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_move.state = self.action_move.STATE.MOVING
@@ -161,7 +161,7 @@ class MoveNearActionTest(TestCase):
 
 
     def test_regenerate_energy_after_battle_for_sacrifice(self):
-        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero.preferences.energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_move.state = self.action_move.STATE.BATTLE

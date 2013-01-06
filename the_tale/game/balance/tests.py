@@ -3,7 +3,7 @@
 from django.test import TestCase
 
 
-from . import formulas as f, constants as c
+from . import formulas as f, constants as c, enums as e
 
 E = 0.00001
 
@@ -68,11 +68,11 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.MAX_BAG_SIZE, 12)
         self.assertEqual(c.BAG_SIZE_TO_SELL_LOOT_FRACTION, 0.33)
 
-        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY, { c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 6,
-                                                            c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 2,
-                                                            c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 2,
-                                                            c.ITEMS_OF_EXPENDITURE.USELESS: 1,
-                                                            c.ITEMS_OF_EXPENDITURE.IMPACT: 2 } )
+        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY, { e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 6,
+                                                            e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 2,
+                                                            e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 2,
+                                                            e.ITEMS_OF_EXPENDITURE.USELESS: 1,
+                                                            e.ITEMS_OF_EXPENDITURE.IMPACT: 2 } )
 
         self.assertEqual(c.DESTINY_POINT_IN_LEVELS, 5)
 
@@ -81,17 +81,17 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD,  180)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_AMAUNT, 1)
 
-        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_DELAY, { c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 1,
-                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 2,
-                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 4,
-                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 3,
-                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 2 })
+        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_DELAY, { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 1,
+                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 2,
+                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 4,
+                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 3,
+                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 2 })
 
-        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_STEPS, { c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 3,
-                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 5,
-                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 6,
-                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 4,
-                                                              c.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 4 })
+        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_STEPS, { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 3,
+                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 5,
+                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 6,
+                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 4,
+                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 4 })
 
         self.assertEqual(c.ANGEL_HELP_HEAL_IF_LOWER_THEN, float(0.8))
 
@@ -157,6 +157,18 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.ABILITIES_NONBATTLE_MAXUMUM, 4)
         self.assertEqual(c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM, 2)
         self.assertEqual(c.ABILITIES_FOR_CHOOSE_MAXIMUM, 4)
+
+    def test_profession_to_race_mastery(self):
+        for profession, masteries in c.PROFESSION_TO_RACE_MASTERY.items():
+            self.assertEqual(len(masteries), len(e.RACE._ALL))
+
+        # check, if race id's not changed
+        self.assertEqual(e.RACE.HUMAN, 0)
+        self.assertEqual(e.RACE.ELF, 1)
+        self.assertEqual(e.RACE.ORC, 2)
+        self.assertEqual(e.RACE.GOBLIN, 3)
+        self.assertEqual(e.RACE.DWARF, 4)
+
 
 
 class FormulasTest(TestCase):

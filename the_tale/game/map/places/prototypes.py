@@ -65,14 +65,6 @@ class PlacePrototype(object):
             self.model.modifier = value
     modifier = property(get_modifier, set_modifier)
 
-    # def get_allowed_modifiers(self):
-    #     modifiers = []
-    #     for modifier_class in MODIFIERS.values():
-    #         modifier = modifier_class(self)
-    #         if modifier.can_be_choosen and modifier != self.modifier:
-    #             modifiers.append(modifier)
-    #     return modifiers
-
     @property
     def normalized_name(self):
 
@@ -99,6 +91,13 @@ class PlacePrototype(object):
     def get_size(self): return self.model.size
     def set_size(self, value): self.model.size = value
     size = property(get_size, set_size)
+
+    @property
+    def terrain_change_power(self):
+        power = self.size
+        if self.modifier:
+            power = self.modify_terrain_change_power(power)
+        return float(power)
 
     @property
     def heroes_number(self): return self.model.heroes_number
@@ -129,12 +128,14 @@ class PlacePrototype(object):
         '''
         DO NOT SAVE CHANGES - this MUST do parent code
         '''
-        persons_count = len(self.persons)
-
         from game.persons.prototypes import PersonPrototype
         from game.persons.storage import persons_storage
-        from game.persons.models import PERSON_TYPE
-        from game.game_info import RACE
+        from game.balance.enums import RACE, PERSON_TYPE
+
+        for person in filter(lambda person: not person.is_stable, self.persons):
+            person.move_out_game()
+
+        persons_count = len(self.persons)
 
         while persons_count < self.max_persons_number:
             race = random.choice(RACE._ALL)
@@ -147,9 +148,6 @@ class PlacePrototype(object):
                                                 name=names.generator.get_name(race, gender))
             persons_storage.add_item(new_person.id, new_person)
             persons_count += 1
-
-        if hasattr(self, '_persons'):
-            delattr(self, '_persons')
 
     @property
     def data(self):
@@ -208,8 +206,8 @@ class PlacePrototype(object):
         self.model.data = s11n.to_json(self.data)
         self.model.save(force_update=True)
 
-    def __eq__(self, other):
-        return self.id == other.id
+    # def __eq__(self, other):
+    #     return self.id == other.id
 
     def map_info(self):
         return {'id': self.id,

@@ -3,7 +3,7 @@
 from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE, DEFAULT_RESULTS
 from game.quests.quests_generator import commands as cmd
 
-from game.persons.models import PERSON_TYPE
+from game.balance.enums import PERSON_TYPE
 
 class SearchSmith(Quest):
 

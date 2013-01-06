@@ -1,4 +1,6 @@
 # coding: utf-8
+import mock
+
 from django.test import TestCase
 
 from accounts.logic import register_user
@@ -14,6 +16,9 @@ from game.persons.tests.helpers import create_person
 class PrototypeTests(TestCase):
 
     def setUp(self):
+        current_time = TimePrototype.get_current_time()
+        current_time.increment_turn()
+
         self.p1, self.p2, self.p3 = create_test_map()
 
         self.person = create_person(self.p1, PERSON_STATE.IN_GAME)
@@ -37,6 +42,23 @@ class PrototypeTests(TestCase):
     def test_initialize(self):
         self.assertEqual(self.person.friends_number, 0)
         self.assertEqual(self.person.enemies_number, 0)
+        self.assertEqual(self.person.model.created_at_turn, TimePrototype.get_current_turn_number() - 1)
+        self.assertTrue(self.person.is_stable)
+
+    @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', 1.0)
+    @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_WEEKS', -1.0)
+    def test_is_stable_no_time_delay_no_percent(self):
+        self.assertFalse(self.person.is_stable)
+
+    @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', 1.0)
+    @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_WEEKS', 10.0)
+    def test_is_stable_with_time_delay(self):
+        self.assertTrue(self.person.is_stable)
+
+    @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', -1.0)
+    @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_WEEKS', -1.0)
+    def test_is_stable_with_percent(self):
+        self.assertTrue(self.person.is_stable)
 
     def test_update_friends_number(self):
         self.hero_1.preferences.friend_id = self.person.id

@@ -8,7 +8,8 @@ from common.utils.forms import NounFormsWithoutNumberField
 
 from game.heroes.models import PREFERENCE_TYPE, Hero
 
-from game.game_info import RACE, GENDER
+from game.game_info import GENDER
+from game.balance.enums import RACE
 
 class ChoosePreferencesForm(forms.Form):
 

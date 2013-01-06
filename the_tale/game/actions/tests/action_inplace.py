@@ -14,7 +14,7 @@ from game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype,
 from game.artifacts.storage import ArtifactsDatabase
 from game.prototypes import TimePrototype
 
-from game.balance import constants as c, formulas as f
+from game.balance import constants as c, formulas as f, enums as e
 
 class InPlaceActionTest(TestCase):
 
@@ -41,6 +41,27 @@ class InPlaceActionTest(TestCase):
         self.assertEqual(self.action_inplace.bundle_id, self.action_idl.bundle_id)
         self.storage._test_save()
 
+    def test_instant_heal_in_resort(self):
+        from game.map.places.modifiers.prototypes import Resort
+
+        self.hero.health = 1
+        self.hero.position.place.modifier = Resort(self.hero.position.place)
+        old_messages_len = len (self.hero.messages)
+        ActionInPlacePrototype.create(self.action_inplace)
+        self.assertEqual(self.hero.health, self.hero.max_health)
+        self.assertEqual(len(self.hero.messages), old_messages_len + 1)
+        self.storage._test_save()
+
+    def test_no_instant_heal_in_resort(self):
+        from game.map.places.modifiers.prototypes import Resort
+
+        self.hero.health = self.hero.max_health
+        self.hero.position.place.modifier = Resort(self.hero.position.place)
+        old_messages_len = len (self.hero.messages)
+        ActionInPlacePrototype.create(self.action_inplace)
+        self.assertEqual(self.hero.health, self.hero.max_health)
+        self.assertEqual(len(self.hero.messages), old_messages_len)
+        self.storage._test_save()
 
     def test_processed(self):
         self.storage.process_turn()
@@ -49,7 +70,7 @@ class InPlaceActionTest(TestCase):
         self.storage._test_save()
 
     def test_regenerate_energy_action_create(self):
-        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
+        self.hero.preferences.energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.storage.process_turn()
@@ -58,7 +79,7 @@ class InPlaceActionTest(TestCase):
         self.storage._test_save()
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
-        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero.preferences.energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.storage.process_turn()
@@ -141,7 +162,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
 
     def test_instant_heal(self):
-        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
+        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
             self.hero.switch_spending()
 
         money = f.instant_heal_price(self.hero.level)
@@ -157,7 +178,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.storage._test_save()
 
     def test_bying_artifact_with_hero_preferences(self):
-        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             self.hero.switch_spending()
 
         money = f.buy_artifact_price(self.hero.level)
@@ -188,7 +209,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
 
     def test_bying_artifact_without_change(self):
-        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             self.hero.switch_spending()
 
         money = f.buy_artifact_price(self.hero.level)
@@ -214,7 +235,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.storage._test_save()
 
     def test_bying_artifact_with_change(self):
-        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
             self.hero.switch_spending()
 
         # fill all slots with artifacts
@@ -240,7 +261,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.storage._test_save()
 
     def test_sharpening_artifact(self):
-        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
+        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
             self.hero.switch_spending()
 
         money = f.sharpening_artifact_price(self.hero.level)
@@ -257,7 +278,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.storage._test_save()
 
     def test_sharpening_artifact_with_hero_preferences(self):
-        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
+        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
             self.hero.switch_spending()
 
         self.hero.preferences.equipment_slot = SLOTS.PLATE
@@ -280,7 +301,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
 
     def test_useless(self):
-        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.USELESS:
+        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.USELESS:
             self.hero.switch_spending()
 
         money = f.useless_price(self.hero.level)
@@ -294,7 +315,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
 
     def test_impact(self):
-        while self.hero.next_spending != c.ITEMS_OF_EXPENDITURE.IMPACT:
+        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.IMPACT:
             self.hero.switch_spending()
 
         money = f.impact_price(self.hero.level)

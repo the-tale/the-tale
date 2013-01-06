@@ -1,6 +1,7 @@
 # coding: utf-8
 
-from game.game_info import GENDER, RACE
+from game.game_info import GENDER
+from game.balance.enums import RACE
 
 from portal.newspaper.models import NEWSPAPER_EVENT_SECTION, NEWSPAPER_EVENT_TYPE
 

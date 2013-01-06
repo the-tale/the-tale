@@ -9,7 +9,8 @@ from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
 from game.logic import create_test_map
-from game.game_info import RACE, GENDER
+from game.game_info import GENDER
+from game.balance.enums import RACE
 from game.logic_storage import LogicStorage
 
 from game.heroes.postponed_tasks import ChangeHeroTask, CHANGE_HERO_TASK_STATE

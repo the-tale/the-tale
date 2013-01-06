@@ -6,7 +6,7 @@ from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
 
 from game.logic import create_test_map
-from game.balance import constants as c
+from game.balance import constants as c, enums as e
 from game.heroes.habilities import nonbattle
 
 
@@ -32,12 +32,12 @@ class HabilitiesNonBattleTest(TestCase):
         priorities = copy.deepcopy(c.ITEMS_OF_EXPENDITURE_PRIORITY)
         priorities = nonbattle.DANDY().update_items_of_expenditure_priorities(self.hero, priorities)
 
-        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY[c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL], priorities[c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL])
-        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY[c.ITEMS_OF_EXPENDITURE.USELESS], priorities[c.ITEMS_OF_EXPENDITURE.USELESS])
-        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY[c.ITEMS_OF_EXPENDITURE.IMPACT], priorities[c.ITEMS_OF_EXPENDITURE.IMPACT])
+        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY[e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL], priorities[e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL])
+        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY[e.ITEMS_OF_EXPENDITURE.USELESS], priorities[e.ITEMS_OF_EXPENDITURE.USELESS])
+        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY[e.ITEMS_OF_EXPENDITURE.IMPACT], priorities[e.ITEMS_OF_EXPENDITURE.IMPACT])
 
-        self.assertTrue(c.ITEMS_OF_EXPENDITURE_PRIORITY[c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT] < priorities[c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT])
-        self.assertTrue(c.ITEMS_OF_EXPENDITURE_PRIORITY[c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT] < priorities[c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT])
+        self.assertTrue(c.ITEMS_OF_EXPENDITURE_PRIORITY[e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT] < priorities[e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT])
+        self.assertTrue(c.ITEMS_OF_EXPENDITURE_PRIORITY[e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT] < priorities[e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT])
 
     def test_businessman(self):
         self.assertFalse(any(self.hero.can_get_artifact_for_quest() for i in xrange(200)))

@@ -151,17 +151,22 @@ class Worker(BaseWorker):
         places_number = len(places_by_power)
         for i, place in enumerate(places_by_power):
             new_size = int(places_settings.MAX_SIZE * float(i) / places_number) + 1
+            if place.modifier:
+                new_size = place.modifier.modify_place_size(new_size)
 
             if new_size > place.size:
                 place.size += 1
             elif new_size < place.size:
                 place.size -= 1
-            # print place.power, place.name, place.size
 
         # update places
         for place in places_storage.all():
             place.sync_persons()
             place.update_heroes_number()
+
+            if place.modifier and not place.modifier.is_enough_power:
+                place.modifier = None
+
             place.mark_as_updated()
 
         places_storage.save_all()

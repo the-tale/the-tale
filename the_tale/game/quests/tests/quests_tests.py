@@ -4,7 +4,7 @@ import mock
 from common.utils.testcase import TestCase
 
 from game.heroes.bag import SLOTS
-from game.persons.models import PERSON_TYPE
+from game.balance.enums import PERSON_TYPE
 from game.persons.storage import persons_storage
 
 from accounts.logic import register_user

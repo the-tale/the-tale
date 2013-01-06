@@ -2,7 +2,7 @@
 
 import math
 
-from common.utils.enum import create_enum
+from game.balance import enums as e
 
 TIME_TO_LVL_DELTA = float(5) # разница во времени получения двух соседних уровней
 
@@ -60,18 +60,11 @@ BAG_SIZE_TO_SELL_LOOT_FRACTION = float(0.33) # процент заполненн
 
 # типы трат
 
-ITEMS_OF_EXPENDITURE = create_enum('ITEMS_OF_EXPENDITURE',
-                                   ( ('INSTANT_HEAL', 0, u'лечение'),
-                                     ('BUYING_ARTIFACT', 1, u'покупка артефакта'),
-                                     ('SHARPENING_ARTIFACT', 2, u'заточка артефакта'),
-                                     ('USELESS', 3, u'бесполезные траты'),
-                                     ('IMPACT', 4, u'изменение влияния'), ) )
-
-ITEMS_OF_EXPENDITURE_PRIORITY = { ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 6,
-                                  ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 2,
-                                  ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 2,
-                                  ITEMS_OF_EXPENDITURE.USELESS: 1,
-                                  ITEMS_OF_EXPENDITURE.IMPACT: 2 }
+ITEMS_OF_EXPENDITURE_PRIORITY = { e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 6,
+                                  e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 2,
+                                  e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 2,
+                                  e.ITEMS_OF_EXPENDITURE.USELESS: 1,
+                                  e.ITEMS_OF_EXPENDITURE.IMPACT: 2 }
 
 # относительные размеры различных трат
 
@@ -152,24 +145,18 @@ ANGEL_ENERGY_REGENERATION_TIME = float(0.5) # раз в сколько часо�
 ANGEL_ENERGY_REGENERATION_AMAUNT = int(1) # сколько восстанавливаем
 ANGEL_ENERGY_REGENERATION_PERIOD = int(ANGEL_ENERGY_REGENERATION_TIME * TURNS_IN_HOUR) # раз в сколько ходов
 
-ANGEL_ENERGY_REGENERATION_TYPES = create_enum('ANGEL_ENERGY_REGENERATION_TYPES',
-                                              ( ('PRAY', 0, u'молитва'),
-                                                ('SACRIFICE', 1, u'жертвоприношение'),
-                                                ('INCENSE', 2, u'благовония'),
-                                                ('SYMBOLS', 3, u'символы'),
-                                                ('MEDITATION', 4, u'медитация') ))
 
-ANGEL_ENERGY_REGENERATION_DELAY = { ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 1,
-                                    ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 2,
-                                    ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 4,
-                                    ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 3,
-                                    ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 2 }
+ANGEL_ENERGY_REGENERATION_DELAY = { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 1,
+                                    e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 2,
+                                    e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 4,
+                                    e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 3,
+                                    e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 2 }
 
-ANGEL_ENERGY_REGENERATION_STEPS = { ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 3,
-                                    ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 5,
-                                    ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 6,
-                                    ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 4,
-                                    ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 4 }
+ANGEL_ENERGY_REGENERATION_STEPS = { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 3,
+                                    e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 5,
+                                    e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 6,
+                                    e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 4,
+                                    e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 4 }
 
 
 # абилки ангела
@@ -267,3 +254,30 @@ ABILITIES_NONBATTLE_MAXUMUM = 4
 
 ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM = 2
 ABILITIES_FOR_CHOOSE_MAXIMUM = 4
+
+
+##########################
+# профессии
+##########################
+
+PROFESSION_TO_RACE_MASTERY = {# HUM  ELF  ORC  GOB  DWA
+    e.PERSON_TYPE.BLACKSMITH:  [0.5, 0.2, 0.3, 0.1, 1.0],
+    e.PERSON_TYPE.FISHERMAN:   [0.5, 0.2, 0.7, 0.3, 0.5],
+    e.PERSON_TYPE.TAILOR:      [0.5, 0.7, 0.6, 0.3, 0.2],
+    e.PERSON_TYPE.CARPENTER:   [0.5, 0.8, 0.2, 0.3, 0.8],
+    e.PERSON_TYPE.HUNTER:      [0.5, 0.3, 1.0, 0.3, 0.5],
+    e.PERSON_TYPE.WARDEN:      [0.5, 0.5, 1.0, 0.2, 1.0],
+    e.PERSON_TYPE.MERCHANT:    [0.7, 0.7, 0.3, 1.0, 0.5],
+    e.PERSON_TYPE.INNKEEPER:   [0.7, 0.2, 0.3, 0.8, 0.6],
+    e.PERSON_TYPE.ROGUE:       [0.9, 0.7, 0.4, 0.6, 0.4],
+    e.PERSON_TYPE.FARMER:      [0.8, 1.0, 0.3, 0.3, 0.2],
+    e.PERSON_TYPE.MINER:       [0.5, 0.5, 0.5, 0.1, 1.0],
+    e.PERSON_TYPE.PRIEST:      [0.8, 1.0, 0.4, 0.5, 0.2],
+    e.PERSON_TYPE.PHYSICIAN:   [0.5, 0.3, 0.7, 0.9, 0.5],
+    e.PERSON_TYPE.ALCHEMIST:   [0.5, 0.6, 0.2, 1.0, 0.5],
+    e.PERSON_TYPE.EXECUTIONER: [1.0, 0.5, 0.7, 0.1, 0.8],
+    e.PERSON_TYPE.MAGICIAN:    [0.5, 1.0, 0.2, 0.6, 0.3],
+    e.PERSON_TYPE.MAYOR:       [0.5, 0.1, 0.7, 0.9, 0.7],
+    e.PERSON_TYPE.BUREAUCRAT:  [0.8, 0.3, 0.6, 1.0, 0.5],
+    e.PERSON_TYPE.ARISTOCRAT:  [0.8, 0.9, 0.2, 0.9, 0.9],
+    e.PERSON_TYPE.BARD:        [0.5, 1.0, 0.3, 0.3, 0.5]}

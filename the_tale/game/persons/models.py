@@ -1,37 +1,23 @@
 # coding: utf-8
 
+import datetime
+
 from django.db import models
 
 from common.utils.enum import create_enum
 
-from game.game_info import RACE, GENDER
+from game.game_info import GENDER
+from game.balance.enums import RACE, PERSON_TYPE
 
-
-PERSON_TYPE = create_enum('PERSON_TYPE', ( ('BLACKSMITH', 0, u'кузнец'),
-                                           ('FISHERMAN', 1, u'рыбак'),
-                                           ('TAILOR', 2, u'портной'),
-                                           ('CARPENTER', 3, u'плотник'),
-                                           ('HUNTER', 4, u'охотник'),
-                                           ('WARDEN', 5, u'стражник'),
-                                           ('MERCHANT', 6, u'торговец'),
-                                           ('INNKEEPER', 7, u'трактирщик'),
-                                           ('ROGUE', 8, u'вор'),
-                                           ('FARMER', 9, u'фермер'),
-                                           ('MINER', 10, u'шахтёр'),
-                                           ('PRIEST', 11, u'священник'),
-                                           ('PHYSICIAN', 12, u'лекарь'),
-                                           ('ALCHEMIST', 13, u'алхимик'),
-                                           ('EXECUTIONER', 14, u'палач'),
-                                           ('MAGICIAN', 15, u'волшебник'),
-                                           ('MAYOR', 16, u'мэр'),
-                                           ('BUREAUCRAT', 17, u'бюрократ'),
-                                           ('ARISTOCRAT', 18, u'аристократ'), ))
 
 PERSON_STATE = create_enum('PERSON_STATE', ( ('IN_GAME', 0,  u'в игре'),
                                              ('OUT_GAME', 1, u'вне игры') ))
 
 
 class Person(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
+    created_at_turn = models.IntegerField(null=False, default=0)
 
     place = models.ForeignKey('places.Place', related_name='persons')
 

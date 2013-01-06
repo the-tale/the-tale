@@ -2,13 +2,16 @@
 
 from django.test import TestCase
 
+from game.balance import constants as c
+
+from game.persons.storage import persons_storage
+from game.persons.conf import persons_settings
+
 from game.map.places.prototypes import PlacePrototype
 from game.map.places.models import Place, PLACE_TYPE
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
-
 from game.map.places.storage import places_storage
-from game.persons.storage import persons_storage
 
 class PlacePowerTest(TestCase):
 
@@ -67,3 +70,19 @@ class PlacePowerTest(TestCase):
 
         self.assertEqual([person.id for person in self.place.persons][:2],
                          [person_2.id, person_1.id])
+
+    def test_sync_persons_add_new_person(self):
+        persons = self.place.persons
+        removed_person = persons[-1]
+        removed_person.move_out_game()
+        self.place.sync_persons()
+        self.assertEqual([p.id for p in persons[:-1]], [p.id for p in self.place.persons[:-1]])
+        self.assertNotEqual(removed_person.id, self.place.persons[-1].id)
+
+    def test_sync_persons_remove_unstable_person(self):
+        persons = self.place.persons
+        unstable_person = persons[-1]
+        unstable_person.model.created_at_turn -= persons_settings.POWER_STABILITY_WEEKS*7*24*c.TURNS_IN_HOUR+1
+        self.place.sync_persons()
+        self.assertEqual([p.id for p in persons[:-1]], [p.id for p in self.place.persons[:-1]])
+        self.assertNotEqual(unstable_person.id, self.place.persons[-1].id)

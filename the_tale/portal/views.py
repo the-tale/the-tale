@@ -14,7 +14,7 @@ from cms.news.models import News
 from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
 from blogs.prototypes import PostPrototype as BlogPostPrototype
 
-from game.game_info import RACE
+from game.balance.enums import RACE
 
 from game.map.prototypes import MapInfoPrototype
 from game.map.models import MapInfo

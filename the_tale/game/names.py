@@ -3,7 +3,8 @@
 import pynames
 from pynames.generators import GENDER as PYNAMES_GENDER
 
-from .game_info import RACE, GENDER
+from game.game_info import GENDER
+from game.balance.enums import RACE
 
 class NamesGenerators(object):
 
@@ -28,5 +29,3 @@ class NamesGenerators(object):
             return self.dwarfish.get_name_simple(gender=gender)
 
 generator = NamesGenerators()
-
-

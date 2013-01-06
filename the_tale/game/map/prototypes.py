@@ -3,13 +3,14 @@
 from dext.utils import s11n
 import deworld
 
-from game.game_info import RACE
+from game.balance.enums import RACE
 
 from game.persons.models import Person, PERSON_STATE
 from game.persons.prototypes import PersonPrototype
 
 from game.map.places.models import Place
 from game.map.places.prototypes import PlacePrototype
+from game.map.places.storage import places_storage
 
 from game.map.models import MapInfo
 from game.map.conf import map_settings
@@ -60,6 +61,12 @@ class MapInfoPrototype(object):
     @classmethod
     def _create_world(self, w, h):
         return deworld.World(w=w, h=h, config=deworld.BaseConfig)
+
+    def get_dominant_place(self, x, y):
+        for place in places_storage.all():
+            if (x, y) in place.nearest_cells:
+                return place
+        return None
 
     ######################
     # object operations

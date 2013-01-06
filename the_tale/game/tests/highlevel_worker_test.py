@@ -104,9 +104,15 @@ class HighlevelTest(TestCase):
         self.assertTrue(self.worker.stop_required)
 
     def test_sync_data(self):
+        from game.map.places.modifiers.prototypes import TradeCenter
+
         self.assertEqual(self.p1.power, 0)
         self.assertEqual(self.p2.power, 0)
         self.assertEqual(self.p3.power, 0)
+
+        self.assertEqual(self.p1.modifier, None)
+        self.p1.modifier = TradeCenter(self.p1)
+        self.assertEqual(self.p1.modifier, TradeCenter(self.p1))
 
         persons_version_0 = persons_storage._version
         places_version_0 = places_storage._version
@@ -128,6 +134,8 @@ class HighlevelTest(TestCase):
 
         self.worker.sync_data()
         self.assertEqual(self.worker.persons_power, {})
+
+        self.assertEqual(self.p1.modifier, None)
 
         persons_version_1 = persons_storage._version
         places_version_1 = places_storage._version

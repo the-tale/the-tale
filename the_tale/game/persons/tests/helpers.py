@@ -4,10 +4,10 @@ import random
 
 from game import names
 
-from game.game_info import RACE, GENDER
+from game.game_info import GENDER
+from game.balance.enums import RACE, PERSON_TYPE
 
 from game.persons.prototypes import PersonPrototype
-from game.persons.models import PERSON_TYPE
 
 def create_person(place, state):
     race = random.choice(RACE._CHOICES)[0]

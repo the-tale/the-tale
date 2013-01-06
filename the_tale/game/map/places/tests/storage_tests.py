@@ -61,8 +61,8 @@ class PlacesStorageTest(TestCase):
         self.assertEqual(self.storage[self.p1.id].id, self.p1.id)
 
     def test_get(self):
-        self.assertEqual(self.storage.get(666, self.p2), self.p2)
-        self.assertEqual(self.storage.get(self.p3.id, self.p1), self.p3)
+        self.assertEqual(self.storage.get(666, self.p2).id, self.p2.id)
+        self.assertEqual(self.storage.get(self.p3.id, self.p1).id, self.p3.id)
 
     def test_all(self):
         self.assertEqual(len(self.storage.all()), 3)

@@ -18,7 +18,8 @@ from common.utils.logic import random_value_by_priority
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage
 
-from game.game_info import GENDER, RACE, ATTRIBUTES, RACE_TO_ENERGY_REGENERATION_TYPE
+from game.game_info import GENDER, ATTRIBUTES, RACE_TO_ENERGY_REGENERATION_TYPE
+from game.balance.enums import RACE
 
 from game import names
 
@@ -37,7 +38,7 @@ from game.map.storage import map_info_storage
 
 from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 
-from game.balance import constants as c, formulas as f
+from game.balance import constants as c, formulas as f, enums as e
 from game.prototypes import TimePrototype, GameTime
 
 logger=getLogger('the-tale.workers.game_logic')
@@ -341,7 +342,7 @@ class HeroPrototype(object):
     def sell_artifact(self, artifact):
         sell_price = artifact.get_sell_price()
 
-        sell_price = self.abilities.update_sell_price(self, sell_price)
+        sell_price = self.modify_sell_price(sell_price)
 
         if artifact.is_useless:
             money_source = MONEY_SOURCE.EARNED_FROM_LOOT
@@ -352,6 +353,23 @@ class HeroPrototype(object):
         self.bag.pop_artifact(artifact)
 
         return sell_price
+
+    def modify_sell_price(self, price):
+        price = self.abilities.update_sell_price(self, price)
+
+        if self.position.place and self.position.place.modifier:
+            price = self.position.place.modifier.modify_sell_price(price)
+
+        return price
+
+    def modify_buy_price(self, price):
+        price = self.abilities.update_buy_price(self, price)
+
+        if self.position.place and self.position.place.modifier:
+            price = self.position.place.modifier.modify_buy_price(price)
+
+        return price
+
 
     def sharp_artifact(self):
         choices = copy.copy(SLOTS_LIST)
@@ -426,7 +444,13 @@ class HeroPrototype(object):
         return self.abilities.can_get_artifact_for_quest(self)
 
     def can_buy_better_artifact(self):
-        return self.abilities.can_buy_better_artifact(self)
+        if self.abilities.can_buy_better_artifact(self):
+            return True
+
+        if self.position.place and self.position.place.modifier and self.position.place.modifier.can_buy_better_artifact():
+            return True
+
+        return False
 
     @property
     def equipment(self):
@@ -770,11 +794,11 @@ class HeroPrototype(object):
                 'can_participate_in_pvp': self.can_participate_in_pvp,
                 'energy': { 'max': self.energy_maximum,
                             'value': self.energy },
-                'next_spending': { c.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 'heal',
-                                   c.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 'artifact',
-                                   c.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 'sharpening',
-                                   c.ITEMS_OF_EXPENDITURE.USELESS: 'useless',
-                                   c.ITEMS_OF_EXPENDITURE.IMPACT: 'impact'}[self.next_spending],
+                'next_spending': { e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 'heal',
+                                   e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 'artifact',
+                                   e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 'sharpening',
+                                   e.ITEMS_OF_EXPENDITURE.USELESS: 'useless',
+                                   e.ITEMS_OF_EXPENDITURE.IMPACT: 'impact'}[self.next_spending],
                 'action': { 'percents': self.last_action_percents,
                             'description': self.actions_descriptions[-1]},
                 'base': { 'name': self.name,
@@ -980,6 +1004,23 @@ class HeroPositionPrototype(object):
         map_info = map_info_storage.item
         x, y = self.cell_coordinates
         return map_info.terrain[y][x]
+
+    def get_dominant_place(self):
+        if self.place:
+            return self.place
+        else:
+            return map_info_storage.item.get_dominant_place(*self.cell_coordinates)
+
+    def is_battle_start_needed(self):
+        battles_per_turn = c.BATTLES_PER_TURN
+
+        dominant_place = self.get_dominant_place()
+
+        if dominant_place and dominant_place.modifier:
+            battles_per_turn = dominant_place.modifier.modify_battles_per_turn(battles_per_turn)
+
+        return random.uniform(0, 1) <= battles_per_turn
+
 
     ###########################################
     # Checks

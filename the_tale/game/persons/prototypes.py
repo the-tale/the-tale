@@ -10,7 +10,10 @@ from game.heroes.models import Hero
 from game.prototypes import TimePrototype
 from game.helpers import add_power_management
 
-from game.persons.models import Person, PERSON_STATE, PERSON_TYPE
+from game.balance.enums import RACE, PERSON_TYPE
+from game.balance import constants as c
+
+from game.persons.models import Person, PERSON_STATE
 from game.persons.conf import persons_settings
 from game.persons.exceptions import PersonsException
 
@@ -27,6 +30,9 @@ class PersonPrototype(object):
 
     @property
     def id(self): return self.model.id
+
+    @property
+    def created_at_turn(self): return self.model.created_at_turn
 
     @property
     def place_id(self): return self.model.place_id
@@ -48,17 +54,37 @@ class PersonPrototype(object):
 
     @property
     def race_verbose(self):
-        from game.game_info import RACE
         return RACE._ID_TO_TEXT[self.race]
 
     @property
     def type(self): return self.model.type
 
     @property
+    def mastery(self): return c.PROFESSION_TO_RACE_MASTERY[self.type][self.race]
+
+    @property
     def state(self): return self.model.state
 
     def move_out_game(self): self.model.state = PERSON_STATE.OUT_GAME
     def move_in_game(self):  self.model.state = PERSON_STATE.IN_GAME
+
+    def cmd_change_power(self, power):
+        from game.workers.environment import workers_environment
+        if self.place.modifier:
+            power = self.place.modify_power(power)
+        workers_environment.highlevel.cmd_change_person_power(self.id, power)
+
+    @property
+    def is_stable(self):
+        if self.created_at_turn > TimePrototype.get_current_turn_number() - persons_settings.POWER_STABILITY_WEEKS*7*24*c.TURNS_IN_HOUR:
+            return True
+
+        power_percent = float(self.power) / self.place.power if self.place.power > 0.0001 else 0.0
+
+        if power_percent  > persons_settings.POWER_STABILITY_PERCENT:
+            return True
+
+        return False
 
     @property
     def out_game(self): return self.model.state == PERSON_STATE.OUT_GAME
@@ -103,6 +129,7 @@ class PersonPrototype(object):
                                          race=race,
                                          type=tp,
                                          gender=gender,
-                                         name=name)
+                                         name=name,
+                                         created_at_turn=TimePrototype.get_current_turn_number())
 
         return cls(model=instance)

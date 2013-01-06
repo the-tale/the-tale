@@ -10,7 +10,7 @@ from game.logic_storage import LogicStorage
 
 from game.logic import create_test_map
 from game.actions.prototypes import ActionIdlenessPrototype, ActionQuestPrototype, ActionInPlacePrototype, ActionRegenerateEnergyPrototype
-from game.balance import constants as c, formulas as f
+from game.balance import constants as c, formulas as f, enums as e
 from game.prototypes import TimePrototype
 
 class IdlenessActionTest(TestCase):
@@ -63,7 +63,7 @@ class IdlenessActionTest(TestCase):
         self.storage._test_save()
 
     def test_regenerate_energy_action_create(self):
-        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
+        self.hero.preferences.energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_idl.percents = 0.0
@@ -74,7 +74,7 @@ class IdlenessActionTest(TestCase):
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
         self.action_idl.percents = 0
-        self.hero.preferences.energy_regeneration_type = c.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero.preferences.energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.storage.process_turn()
