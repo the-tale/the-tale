@@ -3,8 +3,7 @@
 import math
 import random
 
-from game.balance.enums import PERSON_TYPE
-from game.balance import constants as c
+from game.balance import constants as c, enums as e
 
 # from game.map.places.modifiers.exceptions import PlaceModifierException
 
@@ -15,35 +14,14 @@ from game.map.places.conf import places_settings
 
 EFFECT_SOURCES = create_enum('EFFECT_SOURCES', (('PERSON', 0, u'персонаж'),))
 
+def _get_profession_effects(type_):
+    return dict( (profession_id, modifiers[type_]) for profession_id, modifiers in c.PROFESSION_TO_CITY_MODIFIERS.items())
 
 class PlaceModifierBase(object):
 
     NAME = None
     DESCRIPTION = None
-
-    PERSON_EFFECTS = { PERSON_TYPE.BLACKSMITH: 0,
-                       PERSON_TYPE.FISHERMAN: 0,
-                       PERSON_TYPE.TAILOR: 0,
-                       PERSON_TYPE.CARPENTER: 0,
-                       PERSON_TYPE.HUNTER: 0,
-                       PERSON_TYPE.WARDEN: 0,
-                       PERSON_TYPE.MERCHANT: 0,
-                       PERSON_TYPE.INNKEEPER: 0,
-                       PERSON_TYPE.ROGUE: 0,
-                       PERSON_TYPE.FARMER: 0,
-                       PERSON_TYPE.MINER: 0,
-                       PERSON_TYPE.PRIEST: 0,
-                       PERSON_TYPE.PHYSICIAN: 0,
-                       PERSON_TYPE.ALCHEMIST: 0,
-                       PERSON_TYPE.EXECUTIONER: 0,
-                       PERSON_TYPE.MAGICIAN: 0,
-                       PERSON_TYPE.MAYOR: 0,
-                       PERSON_TYPE.BUREAUCRAT: 0,
-                       PERSON_TYPE.ARISTOCRAT: 0,
-                       PERSON_TYPE.BARD: 0,
-                       PERSON_TYPE.TAMER: 0,
-                       PERSON_TYPE.HERDSMAN: 0}
-
+    PERSON_EFFECTS = None
     PERSON_POWER_MODIFIER = 10
 
     def __init__(self, place):
@@ -62,10 +40,10 @@ class PlaceModifierBase(object):
         return self._power
 
     @property
-    def size_modifier(self): return math.log(self.place.size, 2) + 1
+    def size_modifier(self): return (math.log(self.place.size, 2) + 1) / 2.0
 
     @classmethod
-    def get_id(cls): return cls.__name__.lower()
+    def get_id(cls): return cls.TYPE
 
     def get_power_effects(self):
         effects = []
@@ -109,31 +87,10 @@ class PlaceModifierBase(object):
 
 class TradeCenter(PlaceModifierBase):
 
+    TYPE = e.CITY_MODIFIERS.TRADE_CENTER
+    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.TRADE_CENTER)
     NAME = u'Торговый центр'
     DESCRIPTION = u'В городе идёт оживлённая торговля, поэтому герои всегда могут найти выгодную цену для продажи своих трофеев или покупки артефактов.'
-
-    PERSON_EFFECTS = { PERSON_TYPE.BLACKSMITH: 2,
-                       PERSON_TYPE.FISHERMAN: 1,
-                       PERSON_TYPE.TAILOR: 2,
-                       PERSON_TYPE.CARPENTER: 2,
-                       PERSON_TYPE.HUNTER: 1,
-                       PERSON_TYPE.WARDEN: -1,
-                       PERSON_TYPE.MERCHANT: 5,
-                       PERSON_TYPE.INNKEEPER: 3,
-                       PERSON_TYPE.ROGUE: 1,
-                       PERSON_TYPE.FARMER: 1,
-                       PERSON_TYPE.MINER: 1,
-                       PERSON_TYPE.PRIEST: -2,
-                       PERSON_TYPE.PHYSICIAN: -2,
-                       PERSON_TYPE.ALCHEMIST: 2,
-                       PERSON_TYPE.EXECUTIONER: -3,
-                       PERSON_TYPE.MAGICIAN: 2,
-                       PERSON_TYPE.MAYOR: -2,
-                       PERSON_TYPE.BUREAUCRAT: -3,
-                       PERSON_TYPE.ARISTOCRAT: 1,
-                       PERSON_TYPE.BARD: 3,
-                       PERSON_TYPE.TAMER: 0,
-                       PERSON_TYPE.HERDSMAN: 0 }
 
     def modify_sell_price(self, price): return price * 1.1
     def modify_buy_price(self, price): return price * 0.9
@@ -141,124 +98,39 @@ class TradeCenter(PlaceModifierBase):
 
 class CraftCenter(PlaceModifierBase):
 
+    TYPE = e.CITY_MODIFIERS.CRAFT_CENTER
+    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.CRAFT_CENTER)
     NAME = u'Город мастеров'
     DESCRIPTION = u'Большое количество мастеров, трудящихся в городе, позволяет героям приобретать лучшие артефакты.'
-
-    PERSON_EFFECTS = { PERSON_TYPE.BLACKSMITH: 3,
-                       PERSON_TYPE.FISHERMAN: 1,
-                       PERSON_TYPE.TAILOR: 3,
-                       PERSON_TYPE.CARPENTER: 3,
-                       PERSON_TYPE.HUNTER: 1,
-                       PERSON_TYPE.WARDEN: 0,
-                       PERSON_TYPE.MERCHANT: -2,
-                       PERSON_TYPE.INNKEEPER: -4,
-                       PERSON_TYPE.ROGUE: -2,
-                       PERSON_TYPE.FARMER: 1,
-                       PERSON_TYPE.MINER: 1,
-                       PERSON_TYPE.PRIEST: -2,
-                       PERSON_TYPE.PHYSICIAN: -2,
-                       PERSON_TYPE.ALCHEMIST: 3,
-                       PERSON_TYPE.EXECUTIONER: -3,
-                       PERSON_TYPE.MAGICIAN: 2,
-                       PERSON_TYPE.MAYOR: 1,
-                       PERSON_TYPE.BUREAUCRAT: -2,
-                       PERSON_TYPE.ARISTOCRAT: -4,
-                       PERSON_TYPE.BARD: -2,
-                       PERSON_TYPE.TAMER: 0,
-                       PERSON_TYPE.HERDSMAN: 0 }
 
     def can_buy_better_artifact(self): return random.uniform(0, 1) < 0.1
 
 
 class Fort(PlaceModifierBase):
 
+    TYPE = e.CITY_MODIFIERS.FORT
+    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.FORT)
     NAME = u'Форт'
     DESCRIPTION = u'Постоянное присутствие военных делает окрестности города безопаснее для путешествий.'
-
-    PERSON_EFFECTS = { PERSON_TYPE.BLACKSMITH: 2,
-                       PERSON_TYPE.FISHERMAN: -2,
-                       PERSON_TYPE.TAILOR: 1,
-                       PERSON_TYPE.CARPENTER: 1,
-                       PERSON_TYPE.HUNTER: 2,
-                       PERSON_TYPE.WARDEN: 5,
-                       PERSON_TYPE.MERCHANT: -1,
-                       PERSON_TYPE.INNKEEPER: -2,
-                       PERSON_TYPE.ROGUE: 3,
-                       PERSON_TYPE.FARMER: -2,
-                       PERSON_TYPE.MINER: 1,
-                       PERSON_TYPE.PRIEST: 1,
-                       PERSON_TYPE.PHYSICIAN: 2,
-                       PERSON_TYPE.ALCHEMIST: 1,
-                       PERSON_TYPE.EXECUTIONER: 4,
-                       PERSON_TYPE.MAGICIAN: 1,
-                       PERSON_TYPE.MAYOR: 2,
-                       PERSON_TYPE.BUREAUCRAT: 1,
-                       PERSON_TYPE.ARISTOCRAT: 2,
-                       PERSON_TYPE.BARD: 1,
-                       PERSON_TYPE.TAMER: 0,
-                       PERSON_TYPE.HERDSMAN: 0 }
 
     def modify_battles_per_turn(self, battles_per_turn): return battles_per_turn * 0.75
 
 
 class PoliticalCenter(PlaceModifierBase):
 
+    TYPE = e.CITY_MODIFIERS.POLITICAL_CENTER
+    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.POLITICAL_CENTER)
     NAME = u'Политический центр'
     DESCRIPTION = u'Активная политическая жизнь приводит к тому, что усиливаются все изменения влияния (и положительные и отрицательные).'
-
-    PERSON_EFFECTS = { PERSON_TYPE.BLACKSMITH: -1,
-                       PERSON_TYPE.FISHERMAN: -1,
-                       PERSON_TYPE.TAILOR: -1,
-                       PERSON_TYPE.CARPENTER: -1,
-                       PERSON_TYPE.HUNTER: -1,
-                       PERSON_TYPE.WARDEN: 2,
-                       PERSON_TYPE.MERCHANT: 3,
-                       PERSON_TYPE.INNKEEPER: 1,
-                       PERSON_TYPE.ROGUE: 3,
-                       PERSON_TYPE.FARMER: -1,
-                       PERSON_TYPE.MINER: -1,
-                       PERSON_TYPE.PRIEST: 1,
-                       PERSON_TYPE.PHYSICIAN: 0,
-                       PERSON_TYPE.ALCHEMIST: -1,
-                       PERSON_TYPE.EXECUTIONER: 3,
-                       PERSON_TYPE.MAGICIAN: 2,
-                       PERSON_TYPE.MAYOR: 5,
-                       PERSON_TYPE.BUREAUCRAT: 2,
-                       PERSON_TYPE.ARISTOCRAT: 4,
-                       PERSON_TYPE.BARD: 2,
-                       PERSON_TYPE.TAMER: 0,
-                       PERSON_TYPE.HERDSMAN: 0 }
 
     def modify_power(self, power): return power * 1.25
 
 
 class Polic(PlaceModifierBase):
-
+    TYPE = e.CITY_MODIFIERS.POLIC
+    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.POLIC)
     NAME = u'Полис'
     DESCRIPTION = u'Самостоятельная политика города вместе с большими свободами граждан способствует увеличению размера и широкому распространению влияния.'
-
-    PERSON_EFFECTS = { PERSON_TYPE.BLACKSMITH: 2,
-                       PERSON_TYPE.FISHERMAN: 2,
-                       PERSON_TYPE.TAILOR: 2,
-                       PERSON_TYPE.CARPENTER: 2,
-                       PERSON_TYPE.HUNTER: 2,
-                       PERSON_TYPE.WARDEN: 2,
-                       PERSON_TYPE.MERCHANT: 3,
-                       PERSON_TYPE.INNKEEPER: 3,
-                       PERSON_TYPE.ROGUE: -5,
-                       PERSON_TYPE.FARMER: 2,
-                       PERSON_TYPE.MINER: 2,
-                       PERSON_TYPE.PRIEST: -2,
-                       PERSON_TYPE.PHYSICIAN: 2,
-                       PERSON_TYPE.ALCHEMIST: 2,
-                       PERSON_TYPE.EXECUTIONER: -2,
-                       PERSON_TYPE.MAGICIAN: 2,
-                       PERSON_TYPE.MAYOR: -2,
-                       PERSON_TYPE.BUREAUCRAT: -4,
-                       PERSON_TYPE.ARISTOCRAT: -2,
-                       PERSON_TYPE.BARD: 2,
-                       PERSON_TYPE.TAMER: 0,
-                       PERSON_TYPE.HERDSMAN: 0 }
 
     def modify_place_size(self, size): return min(places_settings.MAX_SIZE, size + 2)
     def modify_terrain_change_power(self, power): return power * 1.25
@@ -266,62 +138,19 @@ class Polic(PlaceModifierBase):
 
 class Resort(PlaceModifierBase):
 
+    TYPE = e.CITY_MODIFIERS.RESORT
+    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.RESORT)
     NAME = u'Курорт'
     DESCRIPTION = u'Город прославлен своими здравницами и особой атмосферой, в которой раны затягиваются особенно быстро. При посещении города герои полностью восстанавливают своё здоровье.'
-
-    PERSON_EFFECTS = { PERSON_TYPE.BLACKSMITH: -3,
-                       PERSON_TYPE.FISHERMAN: 2,
-                       PERSON_TYPE.TAILOR: -2,
-                       PERSON_TYPE.CARPENTER: -2,
-                       PERSON_TYPE.HUNTER: 2,
-                       PERSON_TYPE.WARDEN: 2,
-                       PERSON_TYPE.MERCHANT: 3,
-                       PERSON_TYPE.INNKEEPER: 3,
-                       PERSON_TYPE.ROGUE: -1,
-                       PERSON_TYPE.FARMER: 2,
-                       PERSON_TYPE.MINER: -3,
-                       PERSON_TYPE.PRIEST: 2,
-                       PERSON_TYPE.PHYSICIAN: 5,
-                       PERSON_TYPE.ALCHEMIST: 1,
-                       PERSON_TYPE.EXECUTIONER: -4,
-                       PERSON_TYPE.MAGICIAN: 2,
-                       PERSON_TYPE.MAYOR: 0,
-                       PERSON_TYPE.BUREAUCRAT: -1,
-                       PERSON_TYPE.ARISTOCRAT: 2,
-                       PERSON_TYPE.BARD: 3,
-                       PERSON_TYPE.TAMER: 0,
-                       PERSON_TYPE.HERDSMAN: 0 }
 
     def full_regen_allowed(self): return True
 
 
 class TransportNode(PlaceModifierBase):
-
+    TYPE = e.CITY_MODIFIERS.TRANSPORT_NODE
+    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.TRANSPORT_NODE)
     NAME = u'Транспортный узел'
     DESCRIPTION = u'Хорошие дороги и обилие гостиниц делает путешествие по дорогам в окрестностях города быстрым и комфортным.'
-
-    PERSON_EFFECTS = { PERSON_TYPE.BLACKSMITH: -2,
-                       PERSON_TYPE.FISHERMAN: -1,
-                       PERSON_TYPE.TAILOR: -2,
-                       PERSON_TYPE.CARPENTER: -2,
-                       PERSON_TYPE.HUNTER: -1,
-                       PERSON_TYPE.WARDEN: 3,
-                       PERSON_TYPE.MERCHANT: 4,
-                       PERSON_TYPE.INNKEEPER: 5,
-                       PERSON_TYPE.ROGUE: 1,
-                       PERSON_TYPE.FARMER: -1,
-                       PERSON_TYPE.MINER: -1,
-                       PERSON_TYPE.PRIEST: -1,
-                       PERSON_TYPE.PHYSICIAN: 0,
-                       PERSON_TYPE.ALCHEMIST: -1,
-                       PERSON_TYPE.EXECUTIONER: 0,
-                       PERSON_TYPE.MAGICIAN: 1,
-                       PERSON_TYPE.MAYOR: 2,
-                       PERSON_TYPE.BUREAUCRAT: -1,
-                       PERSON_TYPE.ARISTOCRAT: -1,
-                       PERSON_TYPE.BARD: 1,
-                       PERSON_TYPE.TAMER: 0,
-                       PERSON_TYPE.HERDSMAN: 0 }
 
     def modify_move_speed(self, speed): return speed * 1.25
 

@@ -263,13 +263,24 @@ ABILITIES_FOR_CHOOSE_MAXIMUM = 4
 import os
 from common.utils import xls
 
-_professions_to_race_mastery = xls.load_table(os.path.join(os.path.dirname(__file__), 'fixtures/professions_to_race_mastery.xls'),
+_professions_to_race_mastery = xls.load_table(os.path.join(os.path.dirname(__file__), 'fixtures/professions.xls'), sheet_index=0,
                                               rows=e.PERSON_TYPE._ID_TO_STR.values(),
                                               columns=e.RACE._ID_TO_STR.values())
 
 PROFESSION_TO_RACE_MASTERY = dict( (profession_id,
-                                    dict( (e.RACE._STR_TO_ID[race_str], value) for race_str, value in _professions_to_race_mastery[profession_str].items()) )
-                                   for profession_id, profession_str in e.PERSON_TYPE._ID_TO_STR.items())
+                                    dict( (e.RACE._STR_TO_ID[race_str], value)
+                                          for race_str, value in _professions_to_race_mastery[profession_str].items()) )
+                                    for profession_id, profession_str in e.PERSON_TYPE._ID_TO_STR.items())
+
+_professions_to_cities_effects = xls.load_table(os.path.join(os.path.dirname(__file__), 'fixtures/professions.xls'), sheet_index=1,
+                                                rows=e.PERSON_TYPE._ID_TO_STR.values(),
+                                                columns=e.CITY_MODIFIERS._ID_TO_STR.values())
+
+PROFESSION_TO_CITY_MODIFIERS = dict( (profession_id,
+                                            dict( (e.CITY_MODIFIERS._STR_TO_ID[specialization_id], value)
+                                                  for specialization_id, value in _professions_to_cities_effects[profession_str].items()) )
+                                            for profession_id, profession_str in e.PERSON_TYPE._ID_TO_STR.items())
+
 
 ###########################
 # типы городов

@@ -44,3 +44,12 @@ PERSON_TYPE = create_enum('PERSON_TYPE', ( ('BLACKSMITH', 0, u'кузнец'),
                                            ('BARD', 19, u'бард'),
                                            ('TAMER', 20, u'дрессировщик'),
                                            ('HERDSMAN', 21, u'скотовод') ))
+
+
+CITY_MODIFIERS = create_enum('CITY_MODIFIERS', ( ('TRADE_CENTER', 0, u'Торговый центр'),
+                                                 ('CRAFT_CENTER', 1, u'Город мастеров'),
+                                                 ('FORT', 2, u'Форт'),
+                                                 ('POLITICAL_CENTER', 3, u'Политический центр'),
+                                                 ('POLIC', 4, u'Полис'),
+                                                 ('RESORT', 5, u'Курорт'),
+                                                 ('TRANSPORT_NODE', 6, u'Транспортный узел') ))

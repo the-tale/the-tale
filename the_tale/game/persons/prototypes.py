@@ -88,7 +88,7 @@ class PersonPrototype(object):
     def cmd_change_power(self, power):
         from game.workers.environment import workers_environment
         if self.place.modifier:
-            power = self.place.modify_power(power)
+            power = self.place.modifier.modify_power(power)
         workers_environment.highlevel.cmd_change_person_power(self.id, power)
 
     @property

@@ -171,6 +171,12 @@ class ConstantsTest(TestCase):
         self.assertEqual(e.RACE.GOBLIN, 3)
         self.assertEqual(e.RACE.DWARF, 4)
 
+    def test_profession_to_city_specialization(self):
+        for profession, specializations in c.PROFESSION_TO_CITY_MODIFIERS.items():
+            self.assertEqual(len(specializations), len(e.CITY_MODIFIERS._ALL))
+
+            self.assertTrue(all([-10 <= effect <= 10 for effect in specializations.values()]))
+
 
 
 class FormulasTest(TestCase):

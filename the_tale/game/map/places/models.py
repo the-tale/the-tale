@@ -4,7 +4,7 @@ from django.db import models
 
 from common.utils.enum import create_enum
 
-from game.balance.enums import RACE
+from game.balance.enums import RACE, CITY_MODIFIERS
 
 
 TERRAIN = create_enum('TERRAIN', (('DESERT',    '_', u'пустыня'),
@@ -32,7 +32,6 @@ PLACE_TYPE = create_enum('PLACE_TYPE', (('CITY', 0, u'город'),))
 class Place(models.Model):
 
     MAX_NAME_LENGTH = 150
-    MAX_MODIFIER_ID_LENGTH = 32
 
     x = models.BigIntegerField(null=False)
     y = models.BigIntegerField(null=False)
@@ -53,7 +52,7 @@ class Place(models.Model):
 
     heroes_number = models.IntegerField(default=0)
 
-    modifier = models.CharField(max_length=MAX_MODIFIER_ID_LENGTH, null=True, default=None)
+    modifier = models.IntegerField(null=True, default=None, choices=CITY_MODIFIERS._CHOICES)
 
     class Meta:
         ordering = ('name', )
