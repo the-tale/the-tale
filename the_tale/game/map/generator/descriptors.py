@@ -2,6 +2,8 @@
 
 import math
 
+from common.utils.logic import choose_from_interval
+
 WIND_DIRECTIONS = [(-math.pi*8.0/8.0, u'восточный'),
                    (-math.pi*7.0/8.0, u'юго-восточно-восточный'),
                    (-math.pi*6.0/8.0, u'юго-восточный'),
@@ -68,17 +70,6 @@ WETNESS_POWERS = [(0.00, u'ужасно сухо'),
 #                          (0.95, u'грязевое месиво') ]
 
 
-def _choose_from_interval(real_power, intervals):
-
-    power_verbose = None
-    for power, text in reversed(intervals):
-        if power <= real_power:
-            power_verbose = text
-            break
-
-    return power_verbose
-
-
 def wind(cell):
 
     wind_angle = math.atan2(cell.atmo_wind[1], cell.atmo_wind[0])
@@ -92,12 +83,12 @@ def wind(cell):
             min_angle_delta = angle_delta
             angle_verbose = text
 
-    power_verbose = _choose_from_interval(wind_power, WIND_POWERS)
+    power_verbose = choose_from_interval(wind_power, WIND_POWERS)
 
     return u'%s %s' % (angle_verbose, power_verbose)
 
 def temperature(cell):
-    return _choose_from_interval(cell.atmo_temperature, TEMPERATURE_POWERS)
+    return choose_from_interval(cell.atmo_temperature, TEMPERATURE_POWERS)
 
 def wetness(cell):
-    return _choose_from_interval(cell.atmo_wetness, WETNESS_POWERS)
+    return choose_from_interval(cell.atmo_wetness, WETNESS_POWERS)

@@ -43,3 +43,14 @@ def verbose_timedelta(value):
         return pluralize_word(value.seconds / 60 , u'минута', u'минуты', u'минут')
 
     return u'меньше минуты'
+
+
+def choose_from_interval(value, intervals):
+
+    choose_result = None
+    for test_value, result in reversed(intervals):
+        if test_value <= value:
+            choose_result = result
+            break
+
+    return choose_result

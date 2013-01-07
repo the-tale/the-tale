@@ -78,28 +78,23 @@
                     <span class="badge badge-important">противник</span>
                     {% endif %}
                   </th>
-                  <th class="person-power">
-                    влиятельность
-                  </th>
+                  <th width="100px">влиятельность</th>
+                  <td width="100px">
+                    {% if place.total_persons_power %}
+                    {% set power = (person.power/place.total_persons_power) %}
+                    {% else %}
+                    {% set power = 0 %}
+                    {% endif %}
+                    {{ power|percents }}
+                  </td>
                 </tr>
 
                 <tr>
                   <td>
                     соратников/противников: {{person.friends_number}}/{{person.enemies_number}}
                   </td>
-                  <td class="person-power">
-                    {% if place.total_persons_power %}
-                    {% set power = (person.power/place.total_persons_power) %}
-                    {% else %}
-                    {% set power = 0 %}
-                    {% endif %}
-
-                    <div class="progress progress-warning">
-                      <div class="bar pgf-health-percents" style="width: {{ power|percents }};"></div>
-                    </div>
-                    <span class="pgf-power">{{ power|percents }}</span>
-                  </td>
-
+                  <th width="100px">мастерство</th>
+                  <td width="100px">{{person.mastery_verbose}}</td>
                 </tr>
               </tbody>
 

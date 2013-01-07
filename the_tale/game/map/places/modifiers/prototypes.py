@@ -4,6 +4,7 @@ import math
 import random
 
 from game.balance.enums import PERSON_TYPE
+from game.balance import constants as c
 
 # from game.map.places.modifiers.exceptions import PlaceModifierException
 
@@ -39,10 +40,9 @@ class PlaceModifierBase(object):
                        PERSON_TYPE.MAYOR: 0,
                        PERSON_TYPE.BUREAUCRAT: 0,
                        PERSON_TYPE.ARISTOCRAT: 0,
-                       PERSON_TYPE.BARD: 0}
-
-    NECESSARY_BORDER = 75
-    ENOUGH_BORDER = 50
+                       PERSON_TYPE.BARD: 0,
+                       PERSON_TYPE.TAMER: 0,
+                       PERSON_TYPE.HERDSMAN: 0}
 
     PERSON_POWER_MODIFIER = 10
 
@@ -84,10 +84,10 @@ class PlaceModifierBase(object):
         return effects
 
     @property
-    def is_enough_power(self): return self.power >= self.ENOUGH_BORDER
+    def is_enough_power(self): return self.power >= c.PLACE_TYPE_ENOUGH_BORDER
 
     @property
-    def can_be_choosen(self): return self.power >= self.NECESSARY_BORDER
+    def can_be_choosen(self): return self.power >= c.PLACE_TYPE_NECESSARY_BORDER
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and
@@ -131,7 +131,9 @@ class TradeCenter(PlaceModifierBase):
                        PERSON_TYPE.MAYOR: -2,
                        PERSON_TYPE.BUREAUCRAT: -3,
                        PERSON_TYPE.ARISTOCRAT: 1,
-                       PERSON_TYPE.BARD: 3 }
+                       PERSON_TYPE.BARD: 3,
+                       PERSON_TYPE.TAMER: 0,
+                       PERSON_TYPE.HERDSMAN: 0 }
 
     def modify_sell_price(self, price): return price * 1.1
     def modify_buy_price(self, price): return price * 0.9
@@ -161,7 +163,9 @@ class CraftCenter(PlaceModifierBase):
                        PERSON_TYPE.MAYOR: 1,
                        PERSON_TYPE.BUREAUCRAT: -2,
                        PERSON_TYPE.ARISTOCRAT: -4,
-                       PERSON_TYPE.BARD: -2 }
+                       PERSON_TYPE.BARD: -2,
+                       PERSON_TYPE.TAMER: 0,
+                       PERSON_TYPE.HERDSMAN: 0 }
 
     def can_buy_better_artifact(self): return random.uniform(0, 1) < 0.1
 
@@ -190,7 +194,9 @@ class Fort(PlaceModifierBase):
                        PERSON_TYPE.MAYOR: 2,
                        PERSON_TYPE.BUREAUCRAT: 1,
                        PERSON_TYPE.ARISTOCRAT: 2,
-                       PERSON_TYPE.BARD: 1 }
+                       PERSON_TYPE.BARD: 1,
+                       PERSON_TYPE.TAMER: 0,
+                       PERSON_TYPE.HERDSMAN: 0 }
 
     def modify_battles_per_turn(self, battles_per_turn): return battles_per_turn * 0.75
 
@@ -219,7 +225,9 @@ class PoliticalCenter(PlaceModifierBase):
                        PERSON_TYPE.MAYOR: 5,
                        PERSON_TYPE.BUREAUCRAT: 2,
                        PERSON_TYPE.ARISTOCRAT: 4,
-                       PERSON_TYPE.BARD: 2 }
+                       PERSON_TYPE.BARD: 2,
+                       PERSON_TYPE.TAMER: 0,
+                       PERSON_TYPE.HERDSMAN: 0 }
 
     def modify_power(self, power): return power * 1.25
 
@@ -248,7 +256,9 @@ class Polic(PlaceModifierBase):
                        PERSON_TYPE.MAYOR: -2,
                        PERSON_TYPE.BUREAUCRAT: -4,
                        PERSON_TYPE.ARISTOCRAT: -2,
-                       PERSON_TYPE.BARD: 2 }
+                       PERSON_TYPE.BARD: 2,
+                       PERSON_TYPE.TAMER: 0,
+                       PERSON_TYPE.HERDSMAN: 0 }
 
     def modify_place_size(self, size): return min(places_settings.MAX_SIZE, size + 2)
     def modify_terrain_change_power(self, power): return power * 1.25
@@ -278,7 +288,9 @@ class Resort(PlaceModifierBase):
                        PERSON_TYPE.MAYOR: 0,
                        PERSON_TYPE.BUREAUCRAT: -1,
                        PERSON_TYPE.ARISTOCRAT: 2,
-                       PERSON_TYPE.BARD: 3 }
+                       PERSON_TYPE.BARD: 3,
+                       PERSON_TYPE.TAMER: 0,
+                       PERSON_TYPE.HERDSMAN: 0 }
 
     def full_regen_allowed(self): return True
 
@@ -307,7 +319,9 @@ class TransportNode(PlaceModifierBase):
                        PERSON_TYPE.MAYOR: 2,
                        PERSON_TYPE.BUREAUCRAT: -1,
                        PERSON_TYPE.ARISTOCRAT: -1,
-                       PERSON_TYPE.BARD: 1 }
+                       PERSON_TYPE.BARD: 1,
+                       PERSON_TYPE.TAMER: 0,
+                       PERSON_TYPE.HERDSMAN: 0 }
 
     def modify_move_speed(self, speed): return speed * 1.25
 

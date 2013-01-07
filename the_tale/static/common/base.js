@@ -95,10 +95,19 @@ pgf.base.HideTooltips = function(clearedContainer) {
     jQuery('.tooltip').remove();
 
     if (clearedContainer) {
+        // TODO: is first processing needed????
         jQuery('.pgf-has-popover', clearedContainer).each(function(i, el){
                                                               el = jQuery(el);
                                                               el.data('popover').enabled = false;
                                                           });        
+        jQuery('[rel="popover"]', clearedContainer).each(function(i, el){
+                                                             el = jQuery(el);
+                                                             el.data('popover').enabled = false;
+                                                         });        
+        jQuery('[rel="tooltip"]', clearedContainer).each(function(i, el){
+                                                             el = jQuery(el);
+                                                             el.data('tooltip').enabled = false;
+                                                         });        
     }
 };
 

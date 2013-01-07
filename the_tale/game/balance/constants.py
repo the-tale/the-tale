@@ -261,23 +261,33 @@ ABILITIES_FOR_CHOOSE_MAXIMUM = 4
 ##########################
 
 PROFESSION_TO_RACE_MASTERY = {# HUM  ELF  ORC  GOB  DWA
-    e.PERSON_TYPE.BLACKSMITH:  [0.5, 0.2, 0.7, 0.1, 1.0],
-    e.PERSON_TYPE.FISHERMAN:   [0.5, 0.2, 0.7, 0.6, 0.5],
-    e.PERSON_TYPE.TAILOR:      [0.5, 0.7, 0.6, 0.3, 0.2],
-    e.PERSON_TYPE.CARPENTER:   [0.5, 0.8, 0.5, 0.3, 0.8],
-    e.PERSON_TYPE.HUNTER:      [0.5, 0.3, 1.0, 0.3, 0.5],
-    e.PERSON_TYPE.WARDEN:      [0.5, 0.5, 1.0, 0.2, 1.0],
-    e.PERSON_TYPE.MERCHANT:    [0.7, 0.7, 0.3, 1.0, 0.5],
-    e.PERSON_TYPE.INNKEEPER:   [0.7, 0.2, 0.3, 0.8, 0.6],
-    e.PERSON_TYPE.ROGUE:       [0.9, 0.7, 0.4, 0.6, 0.4],
-    e.PERSON_TYPE.FARMER:      [0.8, 1.0, 0.3, 0.3, 0.2],
-    e.PERSON_TYPE.MINER:       [0.5, 0.5, 0.3, 0.1, 1.0],
-    e.PERSON_TYPE.PRIEST:      [0.8, 1.0, 0.4, 0.5, 0.2],
-    e.PERSON_TYPE.PHYSICIAN:   [0.5, 0.3, 0.7, 0.9, 0.5],
-    e.PERSON_TYPE.ALCHEMIST:   [0.5, 0.6, 0.2, 1.0, 0.5],
-    e.PERSON_TYPE.EXECUTIONER: [1.0, 0.5, 0.7, 0.1, 0.8],
-    e.PERSON_TYPE.MAGICIAN:    [0.5, 1.0, 0.2, 0.6, 0.3],
-    e.PERSON_TYPE.MAYOR:       [0.5, 0.1, 0.7, 0.9, 0.7],
-    e.PERSON_TYPE.BUREAUCRAT:  [0.8, 0.3, 0.6, 1.0, 0.5],
-    e.PERSON_TYPE.ARISTOCRAT:  [0.8, 0.9, 0.2, 0.9, 0.9],
-    e.PERSON_TYPE.BARD:        [0.5, 1.0, 0.3, 0.3, 0.5]}
+    e.PERSON_TYPE.BLACKSMITH:  [0.4, 0.6, 0.6, 0.3, 1.0],
+    e.PERSON_TYPE.FISHERMAN:   [0.4, 0.2, 1.0, 0.4, 0.8],
+    e.PERSON_TYPE.TAILOR:      [0.6, 0.5, 0.6, 1.0, 0.1],
+    e.PERSON_TYPE.CARPENTER:   [0.4, 0.6, 0.6, 0.3, 1.0],
+    e.PERSON_TYPE.HUNTER:      [0.4, 0.2, 1.0, 0.4, 0.8],
+    e.PERSON_TYPE.WARDEN:      [1.0, 0.5, 0.6, 0.4, 0.4],
+    e.PERSON_TYPE.MERCHANT:    [0.6, 0.5, 0.6, 1.0, 0.1],
+    e.PERSON_TYPE.INNKEEPER:   [0.8, 0.4, 0.7, 0.5, 0.5],
+    e.PERSON_TYPE.ROGUE:       [0.5, 1.0, 0.1, 0.6, 0.6],
+    e.PERSON_TYPE.FARMER:      [0.4, 0.3, 0.9, 0.3, 1.0],
+    e.PERSON_TYPE.MINER:       [0.4, 0.6, 0.6, 0.3, 1.0],
+    e.PERSON_TYPE.PRIEST:      [1.0, 0.5, 0.6, 0.4, 0.4],
+    e.PERSON_TYPE.PHYSICIAN:   [0.6, 0.5, 0.7, 1.0, 0.2],
+    e.PERSON_TYPE.ALCHEMIST:   [0.4, 1.0, 0.2, 0.9, 0.4],
+    e.PERSON_TYPE.EXECUTIONER: [1.0, 0.4, 0.6, 0.4, 0.4],
+    e.PERSON_TYPE.MAGICIAN:    [0.5, 1.0, 0.1, 0.6, 0.6],
+    e.PERSON_TYPE.MAYOR:       [1.0, 0.4, 0.6, 0.5, 0.4],
+    e.PERSON_TYPE.BUREAUCRAT:  [0.6, 0.5, 0.6, 1.0, 0.1],
+    e.PERSON_TYPE.ARISTOCRAT:  [1.0, 0.4, 0.6, 0.4, 0.4],
+    e.PERSON_TYPE.BARD:        [0.5, 1.0, 0.1, 0.6, 0.6],
+    e.PERSON_TYPE.TAMER:       [0.4, 0.1, 1.0, 0.5, 0.8],
+    e.PERSON_TYPE.HERDSMAN:    [0.4, 0.2, 1.0, 0.4, 0.8] }
+
+
+###########################
+# типы городов
+###########################
+
+PLACE_TYPE_NECESSARY_BORDER = 75
+PLACE_TYPE_ENOUGH_BORDER = 50

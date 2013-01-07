@@ -41,4 +41,6 @@ PERSON_TYPE = create_enum('PERSON_TYPE', ( ('BLACKSMITH', 0, u'кузнец'),
                                            ('MAYOR', 16, u'мэр'),
                                            ('BUREAUCRAT', 17, u'бюрократ'),
                                            ('ARISTOCRAT', 18, u'аристократ'),
-                                           ('BARD', 19, u'бард') ))
+                                           ('BARD', 19, u'бард'),
+                                           ('TAMER', 20, u'дрессировщик'),
+                                           ('HERDSMAN', 21, u'скотовод') ))

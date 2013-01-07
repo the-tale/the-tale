@@ -86,6 +86,13 @@ pgf.ui.dialog.Create = function(params) {
                 params.OnClose(dialog);
             }
 
+        };
+
+        var OnHidden = function() {
+            if (params.OnClosed) {
+                params.OnClosed(dialog);
+            }
+
             dialog.remove();
         };
 
@@ -93,7 +100,8 @@ pgf.ui.dialog.Create = function(params) {
             .modal({keyboard: closeOnEscape, show: false})
             .bind('show', OnShow)
             .bind('shown', OnShown)
-            .bind('hide', OnHide);
+            .bind('hide', OnHide)
+            .bind('hidden', OnHidden);
 
         dialog.modal('show');
     }

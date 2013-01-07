@@ -4,6 +4,8 @@ from dext.utils import s11n
 
 from textgen.words import Fake
 
+from common.utils.logic import choose_from_interval
+
 from game.game_info import GENDER_ID_2_STR
 from game.map.places.storage import places_storage
 from game.heroes.models import Hero
@@ -16,6 +18,18 @@ from game.balance import constants as c
 from game.persons.models import Person, PERSON_STATE
 from game.persons.conf import persons_settings
 from game.persons.exceptions import PersonsException
+
+MASTERY_VERBOSE = ( (0.0, u'полная непригодность'),
+                    (0.1, u'бездарность'),
+                    (0.2, u'невежда'),
+                    (0.3, u'неуч'),
+                    (0.4, u'ученик'),
+                    (0.5, u'подмастерье'),
+                    (0.6, u'умелец'),
+                    (0.7, u'мастер'),
+                    (0.8, u'эксперт'),
+                    (0.9, u'мэтр'),
+                    (1.0, u'гений') )
 
 
 @add_power_management(persons_settings.POWER_HISTORY_LENGTH, PersonsException)
@@ -61,6 +75,9 @@ class PersonPrototype(object):
 
     @property
     def mastery(self): return c.PROFESSION_TO_RACE_MASTERY[self.type][self.race]
+
+    @property
+    def mastery_verbose(self): return choose_from_interval(self.mastery, MASTERY_VERBOSE)
 
     @property
     def state(self): return self.model.state

@@ -162,6 +162,8 @@ class ConstantsTest(TestCase):
         for profession, masteries in c.PROFESSION_TO_RACE_MASTERY.items():
             self.assertEqual(len(masteries), len(e.RACE._ALL))
 
+            self.assertTrue(all([0 < mastery < 1 for mastery in masteries]))
+
         # check, if race id's not changed
         self.assertEqual(e.RACE.HUMAN, 0)
         self.assertEqual(e.RACE.ELF, 1)

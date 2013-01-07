@@ -283,9 +283,8 @@ pgf.game.map.Map = function(selector, params) {
                                                             [jQuery('.pgf-cell-map-button', dialog), 'map'], 
                                                             [jQuery('.pgf-cell-debug-button', dialog), 'debug']]);
                                    jQuery('[rel="tooltip"]', dialog).tooltip(pgf.base.tooltipsArgs);
-                                   jQuery('[rel="popover"]', dialog).popover(pgf.base.popoverArgs);
                                },
-                               OnClose: function(dialog) {
+                               OnClosed: function(dialog) {
                                    pgf.base.HideTooltips(dialog);
                                }
                              });        
