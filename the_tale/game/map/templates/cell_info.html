@@ -26,7 +26,7 @@
       {% if place %}
       <li><a href="#pgf-cell-description" class="pgf-cell-description-button" data-toggle="tab">Описание</a></li>
       <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Персонажи</a></li>
-      <li><a href="#pgf-cell-place-modifiers" class="pgf-cell-place-modifiers-button" data-toggle="tab">Развитие</a></li>
+      <li><a href="#pgf-cell-place-modifiers" class="pgf-cell-place-modifiers-button" data-toggle="tab">Специализация</a></li>
       {% endif %}
       <li><a href="#pgf-cell-map" class="pgf-cell-map-button" data-toggle="tab">Карта</a></li>
       {% if resource.user.is_staff %}
@@ -108,10 +108,16 @@
 
       <div class="tab-pane active description" id="pgf-cell-place-modifiers">
 
+        <p>
+          В этом разделе отображается на сколько город продвинулся на пути к каждой из специализаций.
+          Чтобы можно было изменить специализацию города, необходимо довести её развитие до {{c.PLACE_TYPE_NECESSARY_BORDER}}.
+          Если город уже имеет специализацию и её развитие опустится ниже {{c.PLACE_TYPE_ENOUGH_BORDER}}, то город перестанет быть специализированным.
+        </p>
+
         <table class="table table-striped table-condensed table-no-highlighting">
           <tr>
-            <th>тип</th>
-            <th>очки</th>
+            <th>специализация</th>
+            <th>развитие</th>
             <th>информация</th>
           </tr>
           {% for modifier in place_modifiers %}

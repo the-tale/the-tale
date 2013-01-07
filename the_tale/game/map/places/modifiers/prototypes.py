@@ -173,7 +173,7 @@ class CraftCenter(PlaceModifierBase):
 class Fort(PlaceModifierBase):
 
     NAME = u'Форт'
-    DESCRIPTION = u'Постоянное присутствие военных делает окрестности города более безопасыми для путешествий.'
+    DESCRIPTION = u'Постоянное присутствие военных делает окрестности города безопаснее для путешествий.'
 
     PERSON_EFFECTS = { PERSON_TYPE.BLACKSMITH: 2,
                        PERSON_TYPE.FISHERMAN: -2,
@@ -235,7 +235,7 @@ class PoliticalCenter(PlaceModifierBase):
 class Polic(PlaceModifierBase):
 
     NAME = u'Полис'
-    DESCRIPTION = u'Самостоятельная политика города вместе с большими свободами граждан способствует увеличению размера города более широкому распространению его влияния.'
+    DESCRIPTION = u'Самостоятельная политика города вместе с большими свободами граждан способствует увеличению размера и широкому распространению влияния.'
 
     PERSON_EFFECTS = { PERSON_TYPE.BLACKSMITH: 2,
                        PERSON_TYPE.FISHERMAN: 2,
@@ -297,7 +297,7 @@ class Resort(PlaceModifierBase):
 
 class TransportNode(PlaceModifierBase):
 
-    NAME = u'Транстпортный узел'
+    NAME = u'Транспортный узел'
     DESCRIPTION = u'Хорошие дороги и обилие гостиниц делает путешествие по дорогам в окрестностях города быстрым и комфортным.'
 
     PERSON_EFFECTS = { PERSON_TYPE.BLACKSMITH: -2,

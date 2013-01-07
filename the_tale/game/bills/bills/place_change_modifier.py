@@ -14,7 +14,7 @@ from game.map.places.modifiers import MODIFIERS
 class UserForm(BaseUserForm):
 
     place = fields.ChoiceField(label=u'Город')
-    new_modifier = fields.ChoiceField(label=u'Новый тип')
+    new_modifier = fields.ChoiceField(label=u'Новая специализация')
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -49,8 +49,8 @@ class PlaceModifier(object):
     MODERATOR_FORM_TEMPLATE = 'bills/bills/place_change_modifier_moderator_form.html'
     SHOW_TEMPLATE = 'bills/bills/place_change_modifier_show.html'
 
-    CAPTION = u'Закон об изменении типа города'
-    DESCRIPTION = u'Изменяет тип города. Изменить тип города можно только на один из доступных для этого города. Посмотреть доступные типы можно в диалоге информайции о городе на странице игры.'
+    CAPTION = u'Закон об изменении специализации города'
+    DESCRIPTION = u'Изменяет специализацию города. Изменить специализацию можно только на одну из доступных для этого города. Посмотреть доступные варианты можно в диалоге информации о городе на странице игры.'
 
     def __init__(self, place_id=None, modifier_id=None, modifier_name=None, old_modifier_name=None, old_name=None):
         self.place_id = place_id

@@ -35,9 +35,13 @@ class GuideResource(Resource):
 
     @handler('cities', method='get')
     def cities(self):
+        from game.balance.enums import PERSON_TYPE
+        from game.map.places.modifiers import MODIFIERS
         return self.template('guide/cities.html', {'section': 'cities',
                                                    'places_settings': places_settings,
-                                                   'persons_settings': persons_settings})
+                                                   'persons_settings': persons_settings,
+                                                   'PROFESSIONS': sorted(PERSON_TYPE._ID_TO_TEXT.values()),
+                                                   'MODIFIERS': sorted(MODIFIERS.values(), key=lambda modifier: modifier.NAME) })
 
     @handler('politics', method='get')
     def politics(self):
