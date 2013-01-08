@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
         try:
             timestamp_string = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
-        
+
             backup_dir = os.path.join(tmp_dir, timestamp_string)
 
             os.mkdir(backup_dir)
@@ -36,25 +36,29 @@ class Command(BaseCommand):
                                                                                     'file_name': backup_file_name}
                 subprocess.call(cmd, shell=True)
 
-
             print 'make archive'
 
-            archive_file = shutil.make_archive(os.path.join(tmp_dir, timestamp_string),
+            raw_archive_path = os.path.join(tmp_dir, timestamp_string)
+
+            archive_file = shutil.make_archive(raw_archive_path,
                                                format='gztar',
                                                root_dir=tmp_dir,
                                                base_dir=timestamp_string)
 
-            print 'send email to %s' % portal_settings.DUMP_EMAIL
+            print 'archive created: %s' % archive_file
 
-            email = EmailMessage('[BACKUP][the-tale.org] %s' % timestamp_string, 
-                                 'backup file for %s' % timestamp_string,
-                                 'no-reply@the-tale.org',
-                                 [portal_settings.DUMP_EMAIL])
-            email.attach_file(archive_file)
-            email.send()
+            shutil.copyfile(archive_file, '/home/the-tale/last_backup.gztar')
+
+            # print 'send email to %s' % portal_settings.DUMP_EMAIL
+
+            # email = EmailMessage('[BACKUP][the-tale.org] %s' % timestamp_string,
+            #                      'backup file for %s' % timestamp_string,
+            #                      'no-reply@the-tale.org',
+            #                      [portal_settings.DUMP_EMAIL])
+            # email.attach_file(archive_file)
+            # email.send()
 
         except:
             raise
         finally:
             shutil.rmtree(tmp_dir)
-        
