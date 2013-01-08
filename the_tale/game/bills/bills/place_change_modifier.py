@@ -21,6 +21,10 @@ class UserForm(BaseUserForm):
         self.fields['place'].choices = [(place.id, place.name) for place in sorted(places_storage.all(), key=lambda p: p.name)]
         self.fields['new_modifier'].choices = [(modifier.get_id(), modifier.NAME) for modifier in sorted(MODIFIERS.values(), key=lambda m: m.NAME)]
 
+    def clean_new_modifier(self):
+        data = self.cleaned_data['new_modifier']
+        return int(data)
+
     def clean(self):
         cleaned_data = super(UserForm, self).clean()
 

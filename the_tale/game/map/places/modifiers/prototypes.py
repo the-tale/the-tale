@@ -40,7 +40,13 @@ class PlaceModifierBase(object):
         return self._power
 
     @property
-    def size_modifier(self): return (math.log(self.place.size, 2) + 1) / 2.0
+    def size_modifier(self):
+        u'''
+        методика расчёта:
+        в городе 7-ого уровня 2 персонажа со способностями 0.7 и влиянием 0.35 каждый в сумме должны накапливать 75 очков
+        2*7*0.35*0.7 ~ 3.43 с модификатором силы персонажа - 34.3 -> на 7-ом уровне можификатор от размера должен быть примерно 2.2
+        '''
+        return (math.log(self.place.size, 2) + 1) / 1.7
 
     @classmethod
     def get_id(cls): return cls.TYPE

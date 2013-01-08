@@ -57,7 +57,7 @@ class PlacePrototype(object):
     @property
     def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self.model.updated_at_turn))
 
-    def get_modifier(self): return MODIFIERS[self.model.modifier](self) if self.model.modifier else None
+    def get_modifier(self): return MODIFIERS[self.model.modifier](self) if self.model.modifier is not None else None
     def set_modifier(self, value):
         if isinstance(value, PlaceModifierBase):
             self.model.modifier = value.get_id()
