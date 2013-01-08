@@ -26,9 +26,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        game_version = options['game-version']
+        version = options['game-version']
 
-        if game_version is None:
+        if version is None:
             print >> sys.stderr, 'game version MUST be specified'
             sys.exit(1)
 
@@ -55,5 +55,5 @@ class Command(BaseCommand):
         print
 
         meta_config.increment_static_data_version()
-        meta_config.game_version = game_version
+        meta_config.version = version
         meta_config.save_config()

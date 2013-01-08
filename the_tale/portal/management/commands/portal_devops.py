@@ -38,7 +38,7 @@ class Command(BaseCommand):
 
         elif command == 'update':
             subprocess.call(['fab', '-f', FABFILE, 'update:static_data_version=%s,game_version=%s,host=%s' % (meta_config.static_data_version,
-                                                                                                              meta_config.game_version,
+                                                                                                              meta_config.version,
                                                                                                               UPDATE_HOST)])
 
         elif command == 'backup':
