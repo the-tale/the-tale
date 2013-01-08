@@ -96,8 +96,8 @@ class PlacePrototype(object):
     def terrain_change_power(self):
         power = self.size
         if self.modifier:
-            power = self.modify_terrain_change_power(power)
-        return float(power)
+            power = self.modifier.modify_terrain_change_power(power)
+        return int(round(power))
 
     @property
     def heroes_number(self): return self.model.heroes_number
