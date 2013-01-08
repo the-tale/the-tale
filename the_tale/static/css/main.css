@@ -77,6 +77,14 @@ body .dl-record {
 body .dl-record small {
   font-weight: normal;
 }
+a.info-link {
+  text-decoration: none;
+  border-bottom: 1px dashed;
+}
+a.info-link:hover {
+  text-decoration: none;
+  border-bottom: 1px dashed;
+}
 #time-block {
   cursor: default;
 }
@@ -138,6 +146,9 @@ table.table-no-highlighting.table tbody tr:hover th {
 
 }
 table.table-striped tbody tr:nth-child(odd):hover td {
+  background-color: #F9F9F9;
+}
+table.table-striped tbody tr:nth-child(odd):hover th {
   background-color: #F9F9F9;
 }
 blockquote {
