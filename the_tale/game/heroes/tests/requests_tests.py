@@ -10,6 +10,7 @@ from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
 
 from accounts.logic import register_user
 
+from game.balance import constants as c
 from game.game_info import GENDER, GENDER_ID_2_STR
 from game.balance.enums import RACE
 from game.logic_storage import LogicStorage
@@ -83,6 +84,22 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
 
         self.request_login('test_user_2@test.com')
         self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=texts)
+
+
+class ChangePreferencesRequestsTests(HeroRequestsTestBase):
+
+    def setUp(self):
+        super(ChangePreferencesRequestsTests, self).setUp()
+
+    def test_chooce_preferences_dialog(self):
+        from game.heroes.models import PREFERENCE_TYPE
+
+        self.hero.model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
+        self.hero.save()
+
+        for preference_type in PREFERENCE_TYPE._ALL:
+            texts = []
+            self.check_html_ok(self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % preference_type)), texts=texts)
 
 
 class ChangeHeroRequestsTests(HeroRequestsTestBase):
