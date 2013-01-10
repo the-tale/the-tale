@@ -27,7 +27,7 @@ class PostAdmin(admin.ModelAdmin):
 
     fields = ('thread', 'author', 'created_at', 'updated_at', 'text', 'markup_method', 'technical', 'state', 'removed_by', 'remove_initiator')
 
-    readonly_fields = ('thread', 'author', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
 
     list_filter= ('state',)
 

@@ -62,6 +62,8 @@ class Thread(models.Model):
     def get_absolute_url(self):
         return reverse('forum:threads:show', args=[self.id])
 
+    def __unicode__(self): return u'%d - %s' % (self.id, self.caption)
+
 
 class MARKUP_METHOD:
     POSTMARKUP = 0
@@ -109,3 +111,5 @@ class Post(models.Model):
 
     class Meta:
         permissions = (("moderate_post", u"Может редактировать сообщения пользователей"), )
+
+    def __unicode__(self): return u'thread %d, post %d' % (self.thread_id, self.id)
