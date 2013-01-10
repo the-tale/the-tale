@@ -68,7 +68,7 @@ class MAGIC_MUSHROOM(AbilityPrototype):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
-    PRIORITY = [9, 11, 11, 12, 11]
+    PRIORITY = [9, 11, 11, 12, 12]
 
     NAME = u'Волшебный гриб'
     normalized_name = NAME
@@ -78,7 +78,7 @@ class MAGIC_MUSHROOM(AbilityPrototype):
                        [1.85, 1.65, 1.40, 1.15],
                        [1.90, 1.70, 1.45, 1.20],
                        [2.05, 1.80, 1.60, 1.30],
-                       [2.25, 2.00, 1.75] ]
+                       [2.15, 1.85, 1.70, 1.35] ]
 
     @property
     def damage_factors(self): return self.DAMAGE_FACTORS[self.level-1]
@@ -247,12 +247,12 @@ class FIREBALL(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Герой запускает в противника шар волшебного огня, нанося большой урон и поджигая врага.'
 
-    DAMAGE_MODIFIER = [1.4, 1.5, 1.6, 1.8, 2]
+    DAMAGE_MODIFIER = [1.4, 1.5, 1.6, 1.7, 1.8]
     PERIODIC_DAMAGE_MODIFIERS = [ [0.15, 0.05],
                                   [0.30, 0.20, 0.10],
                                   [0.35, 0.25, 0.10],
                                   [0.40, 0.30, 0.15, 0.10],
-                                  [0.25, 0.20, 0.150, 0.10, 0.05] ]
+                                  [0.45, 0.35, 0.15, 0.10] ]
 
     @property
     def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
