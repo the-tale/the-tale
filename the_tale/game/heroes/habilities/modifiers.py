@@ -79,7 +79,7 @@ class KILLER(AbilityModifiersBase):
 
     NAME = u'Убийца'
     normalized_name = NAME
-    DESCRIPTION = u'Ориентируясь на быстрый бой, убийца совершенствует свои атакующие способности в ущерб защитным.'
+    DESCRIPTION = u'Ориентируясь на короткий бой, убийца совершенствует свои атакующие способности в ущерб защитным.'
 
     OUTCOMING_MAGIC_DAMAGE_MODIFIER =  [1.050, 1.100, 1.150, 1.200, 1.260]
     OUTCOMING_PHYSIC_DAMAGE_MODIFIER = [1.050, 1.100, 1.150, 1.200, 1.260]
