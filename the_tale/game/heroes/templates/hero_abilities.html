@@ -53,13 +53,25 @@ jQuery(document).ready(function(e){
 
   <h4>Боевые активные</h4>
 
+  {% if battle_active_abilities %}
   {{ macros.abilities_list(battle_active_abilities) }}
+  {% else %}
+  <p style="margin-left:1em;">нет способностей</p>
+  {% endif %}
 
   <h4>Боевые пассивные</h4>
 
+  {% if battle_passive_abilities %}
   {{ macros.abilities_list(battle_passive_abilities) }}
+  {% else %}
+  <p style="margin-left:1em;">нет способностей</p>
+  {% endif %}
 
   <h4>Небоевые</h4>
 
+  {% if nonbattle_abilities %}
   {{ macros.abilities_list(nonbattle_abilities) }}
+  {% else %}
+  <p style="margin-left:1em;">нет способностей</p>
+  {% endif %}
 </div>
