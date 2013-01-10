@@ -603,14 +603,36 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
     var shortLogContainer = jQuery('.pgf-log-list', content);
 
     function RenderDiaryMessage(index, message, element) {
-        jQuery('.pgf-time', element).text(message[2]);
-        jQuery('.pgf-date', element).text(message[1]);
-        jQuery('.pgf-message', element).text(message[3]);
+
+        var text = "";
+        for (var i in message[1]) {
+            if (i == 0) {
+                text += "<div class='submessage' style='vertical-align: top;'>" + message[1][i][2] + "</div>";                
+            }
+            else {
+                text += "<div class='submessage'>" + message[1][i][2] + "</div>";
+            }
+        }
+
+        jQuery('.pgf-time', element).text(message[1][0][3]);
+        jQuery('.pgf-date', element).text(message[0]);
+        jQuery('.pgf-message', element).html(text);
     }
 
     function RenderLogMessage(index, message, element) {
-        jQuery('.pgf-time', element).text(message[1]);
-        jQuery('.pgf-message', element).text(message[2]);
+        jQuery('.pgf-time', element).text(message[0]);
+        
+        var text = "";
+        for (var i in message[1]) {
+            if (i == 0) {
+                text += "<div class='submessage' style='vertical-align: top;'>" + message[1][i][2] + "</div>";                
+            }
+            else {
+                text += "<div class='submessage'>" + message[1][i][2] + "</div>";
+            }
+        }
+
+        jQuery('.pgf-message', element).html(text);
     }
 
     function RenderLog(data, widget) {
@@ -646,24 +668,26 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
             }
         }
 
-        if (messages.length == 0) {
-            for (var i=0; i<=turnMessages.length-1; ++i) {
-                messages.unshift(turnMessages[i]);
+        var lastTimestamp = -1;
+        var lastGameTime = undefined;
+
+        if (messages.length > 0)  messages.shift(); // if messages has elements, remove last since it can be not full
+
+        if (messages.length > 0) lastTimestamp = messages[0][1][messages[0][1].length-1][0]; //get linux timestamp
+        if (messages.length > 0) lastGameTime = messages[0][0]; //get game time
+        
+        for (var i=0; i<=turnMessages.length-1; ++i) {
+
+            if (turnMessages[i][0] <= lastTimestamp) continue;
+
+            if (lastGameTime == turnMessages[i][1]) {
+                messages[0][1].push(turnMessages[i]);
             }
-        }
-        else {
-            var lastTimestamp = messages[0][0];
-
-            while (messages.length > 0 && messages[0][0] == lastTimestamp) {
-                messages.shift();
+            else {
+                messages.unshift([turnMessages[i][1], [turnMessages[i]]]);                    
             }
 
-            for (var i=0; i<=turnMessages.length-1; ++i) {
-
-                if (turnMessages[i][0] < lastTimestamp) continue;
-
-                messages.unshift(turnMessages[i]);
-            }
+            lastGameTime = turnMessages[i][1];
         }
 
     };

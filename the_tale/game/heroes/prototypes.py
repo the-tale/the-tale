@@ -779,7 +779,7 @@ class HeroPrototype(object):
         diary = []
         for turn_number, timestamp, msg in self.diary:
             game_time = GameTime.create_from_turn(turn_number)
-            diary.append((timestamp, game_time.verbose_date, game_time.verbose_time, msg))
+            diary.append((timestamp, game_time.verbose_time, msg, game_time.verbose_date))
 
         return {'id': self.id,
                 'messages': messages,

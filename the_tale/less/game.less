@@ -239,7 +239,6 @@
 }
 
 .log-record {
-   margin: 0.75em 0;
    cursor: default;
 
    &:hover {
@@ -254,15 +253,17 @@
    }
 
    .message {
-      /* margin-left: 3.5em; */
-      /* margin-left: 0.5em; */
       display: inline;
       padding-left: 0.5em;
+
+      .submessage {
+         margin-bottom: 0.75em;
+         display: inline-block;
+      }
    }
 }
 
 .diary-record {
-   margin: 0.75em 0;
    cursor: default;
 
    &:hover {
@@ -275,6 +276,11 @@
 
    .message {
       margin-left: 1em;
+
+      .submessage {
+         margin-bottom: 0.75em;
+         display: inline-block;
+      }
    }
 }
 
@@ -288,7 +294,6 @@
       top: 0;
       z-index: 1001;
       background-color: @block-background-color;
-      /* margin: 2px; */
 
       border: 1px solid @border-color;
       border-bottom-left-radius: 8px;
