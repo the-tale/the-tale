@@ -14,6 +14,8 @@ class Quest(models.Model):
     data = models.TextField(null=False, default='{}')
     env = models.TextField(null=False, default='{}')
 
+    def __unicode__(self): return u'%d' % self.id
+
 
 class QuestsHeroes(models.Model):
     hero = models.ForeignKey('heroes.Hero', related_name='+', null=False)

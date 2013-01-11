@@ -2,14 +2,15 @@
 import copy
 import random
 
+from common.utils.enum import create_enum
+
 from game.quests.quests_generator.exceptions import QuestGeneratorException
 from game.quests.quests_generator.environment import LocalEnvironment
 from game.quests.quests_generator.commands import deserialize_command
 
-class ACTOR_TYPE:
-    PERSON = 0
-    PLACE = 1
-
+ACTOR_TYPE = create_enum('ACTOR_TYPE', (('PERSON', 0, u'персонаж'),
+                                        ('PLACE', 1, u'место'),
+                                        ('MONEY_SPENDING', 1000, u'актор для javascript ui')))
 
 class DEFAULT_RESULTS:
     POSITIVE = 'positive'

@@ -22,5 +22,9 @@ class QuestAdmin(admin.ModelAdmin):
             return heroes[0]
         return None
 
+class QuestsHeroesAdmin(admin.ModelAdmin):
+    list_display = ('id', 'hero', 'quest')
+
 
 admin.site.register(Quest, QuestAdmin)
+admin.site.register(QuestsHeroes, QuestsHeroesAdmin)

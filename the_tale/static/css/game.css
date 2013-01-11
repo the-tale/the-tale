@@ -162,7 +162,6 @@
   height: 400px;
 }
 .log-record {
-  margin: 0.75em 0;
   cursor: default;
   padding-left: 3.5em;
 }
@@ -174,15 +173,14 @@
   display: inline;
 }
 .log-record .message {
-  /* margin-left: 3.5em; */
-
-  /* margin-left: 0.5em; */
-
   display: inline;
   padding-left: 0.5em;
 }
+.log-record .message .submessage {
+  margin-bottom: 0.75em;
+  display: inline-block;
+}
 .diary-record {
-  margin: 0.75em 0;
   cursor: default;
 }
 .diary-record:hover {
@@ -194,6 +192,10 @@
 .diary-record .message {
   margin-left: 1em;
 }
+.diary-record .message .submessage {
+  margin-bottom: 0.75em;
+  display: inline-block;
+}
 #pgf-map-block {
   position: relative;
 }
@@ -203,8 +205,6 @@
   top: 0;
   z-index: 1001;
   background-color: WhiteSmoke;
-  /* margin: 2px; */
-
   border: 1px solid #cccccc;
   border-bottom-left-radius: 8px;
   padding: 0.25em;

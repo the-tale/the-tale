@@ -39,6 +39,12 @@ class Command(BaseCommand):
         subprocess.call(['./manage.py', 'abilities_create_abilities_js'])
 
         print
+        print 'GENERATE JAVASCRIPT CONSTANTS'
+        print
+
+        subprocess.call(['./manage.py', 'game_generate_js'])
+
+        print
         print 'GENERATE CSS'
         print
 
