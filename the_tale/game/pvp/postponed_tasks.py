@@ -7,6 +7,8 @@ from textgen.words import Fake
 from common.postponed_tasks import postponed_task, POSTPONED_TASK_LOGIC_RESULT
 from common.utils.enum import create_enum
 
+from game.heroes.prototypes import HeroPrototype
+
 from game.pvp.prototypes import Battle1x1Prototype
 
 SAY_IN_HERO_LOG_TASK_STATE = create_enum('SAY_IN_HERO_LOG_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
@@ -70,4 +72,80 @@ class SayInBattleLogTask(object):
                 storage.save_account_data(battle.enemy_id)
 
         self.state = SAY_IN_HERO_LOG_TASK_STATE.PROCESSED
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+
+
+ACCEPT_BATTLE_TASK_STATE = create_enum('ACCEPT_BATTLE_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
+                                                                     ('BATTLE_NOT_FOUND', 1, u'битва не найдена'),
+                                                                     ('WRONG_ACCEPTED_BATTLE_STATE', 2, u'герой не успел принять вызов'),
+                                                                     ('WRONG_INITIATOR_BATTLE_STATE', 3, u'герой уже находится в сражении'),
+                                                                     ('NOT_IN_QUEUE', 4, u'битва не находится в очереди балансировщика'),
+                                                                     ('PROCESSED', 5, u'обработана') ) )
+
+@postponed_task
+class AcceptBattleTask(object):
+
+    TYPE = 'accept-battle-task'
+
+    def __init__(self, battle_id, accept_initiator_id, state=ACCEPT_BATTLE_TASK_STATE.UNPROCESSED):
+        self.battle_id = battle_id
+        self.accept_initiator_id = accept_initiator_id
+        self.state = state
+
+    def __eq__(self, other):
+        return (self.battle_id == other.battle_id and
+                self.accept_initiator_id == other.accept_initiator_id and
+                self.state == other.state )
+
+    def serialize(self):
+        return { 'battle_id': self.battle_id,
+                 'accept_initiator_id': self.accept_initiator_id,
+                 'state': self.state}
+
+    @classmethod
+    def deserialize(cls, data):
+        return cls(**data)
+
+    @property
+    def uuid(self): return self.accept_initiator_id
+
+    @property
+    def response_data(self): return {}
+
+    @property
+    def error_message(self): return ACCEPT_BATTLE_TASK_STATE._CHOICES[self.state][1]
+
+    def process(self, main_task, pvp_balancer):
+
+        accepted_battle = Battle1x1Prototype.get_by_id(self.battle_id)
+
+        if accepted_battle is None:
+            self.state = ACCEPT_BATTLE_TASK_STATE.BATTLE_NOT_FOUND
+            main_task.comment = 'battle %d not found' % self.battle_id
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+        if not accepted_battle.state.is_waiting:
+            self.state = ACCEPT_BATTLE_TASK_STATE.WRONG_ACCEPTED_BATTLE_STATE
+            main_task.comment = 'battle %d has wrong state %s' % (self.battle_id, accepted_battle.state.value)
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+        if not accepted_battle.account_id in pvp_balancer.arena_queue:
+            self.state = ACCEPT_BATTLE_TASK_STATE.NOT_IN_QUEUE
+            main_task.comment = 'battle %d not in queue' % self.battle_id
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+        initiator_battle = Battle1x1Prototype.get_active_by_account_id(self.accept_initiator_id)
+
+        if initiator_battle is not None and not initiator_battle.state.is_waiting:
+            self.state = ACCEPT_BATTLE_TASK_STATE.WRONG_INITIATOR_BATTLE_STATE
+            main_task.comment = 'initiator battle %d has wrong state %s' % (initiator_battle.id, initiator_battle.state.value)
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+        if self.accept_initiator_id not in pvp_balancer.arena_queue:
+            pvp_balancer.add_to_arena_queue(HeroPrototype.get_by_account_id(self.accept_initiator_id).id)
+
+        pvp_balancer.force_battle(accepted_battle.account_id, self.accept_initiator_id)
+
+        self.state = ACCEPT_BATTLE_TASK_STATE.PROCESSED
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

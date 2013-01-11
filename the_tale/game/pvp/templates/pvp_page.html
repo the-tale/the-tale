@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "pvp/base.html" %}
 
 {% import 'heroes/hero_short.html' as hero_short_macros with context %}
 {% import 'heroes/hero_equipment.html' as hero_equipment_macros with context %}
@@ -17,7 +17,7 @@
 </ul>
 {% endmacro %}
 
-{% block title %}Игра | {{ super() }}{% endblock %}
+{% block title %}Сражение | {{ super() }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -53,10 +53,6 @@ jQuery(document).ready(function(e){
     {% if not settings.DEBUG %}
     setInterval(RefreshData, {{ game_settings.TURN_DELAY*1000 }} );
     {% endif %}
-
-    // pgf.base.InitializeTabs('game-tab-main', 'journal', [['.pgf-journal-tab-button', 'journal'], ['.pgf-map-tab-button', 'map']]);
-    // pgf.base.InitializeTabs('game-tab-second', 'diary', [['.pgf-diary-tab-button', 'diary'], ['.pgf-quests-tab-button', 'quests']]);
-    // pgf.base.InitializeTabs('game-tab-equipment', 'equipment', [['.pgf-equipment-tab-button', 'equipment'], ['.pgf-bag-tab-button', 'bag']]);
 
     widgets.placeAndTime = new pgf.game.widgets.Time('#time-block', updater, widgets, {} );
 

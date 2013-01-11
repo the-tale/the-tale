@@ -13,11 +13,13 @@ from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user, login_url
 
 from game.logic import create_test_map
-from game.pvp.models import BATTLE_1X1_STATE
 
+from game.heroes.prototypes import HeroPrototype
+
+from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 from game.pvp.tests.helpers import PvPTestsMixin
 
-class TestRequests(TestCase, PvPTestsMixin):
+class TestRequestsBase(TestCase, PvPTestsMixin):
 
     def setUp(self):
         create_test_map()
@@ -25,76 +27,164 @@ class TestRequests(TestCase, PvPTestsMixin):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.account_1_id = account_id
         self.account_1 = AccountPrototype.get_by_id(account_id)
+        self.hero_1 = HeroPrototype.get_by_account_id(self.account_1.id)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         self.account_2_id = account_id
         self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
 
         self.client = client.Client()
 
+        self.request_login('test_user@test.com')
+
+
+class TestRequests(TestRequestsBase):
+
     def test_login_required(self):
+        self.request_logout()
         self.check_redirect(reverse('game:pvp:'), login_url(reverse('game:pvp:')))
 
     def test_game_page_when_pvp_in_queue(self):
         self.pvp_create_battle(self.account_1, None)
         self.pvp_create_battle(self.account_2, None)
-        self.request_login('test_user@test.com')
         self.check_redirect(reverse('game:pvp:'), reverse('game:'))
 
     def test_game_page_when_pvp_prepairing(self):
         self.pvp_create_battle(self.account_1, self.account_2)
         self.pvp_create_battle(self.account_2, self.account_1)
-        self.request_login('test_user@test.com')
         self.check_html_ok(self.client.get(reverse('game:pvp:')), texts=[('pgf-change-name-warning', 1)])
 
     def test_game_page_when_pvp_processing(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
-        self.request_login('test_user@test.com')
         self.check_html_ok(self.client.get(reverse('game:pvp:')), texts=[('pgf-change-name-warning', 1)])
 
     @mock.patch('game.heroes.prototypes.HeroPrototype.is_name_changed', True)
     def test_game_page_when_pvp_processing_change_name_warning_hiden(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
-        self.request_login('test_user@test.com')
         self.check_html_ok(self.client.get(reverse('game:pvp:')), texts=[('pgf-change-name-warning', 0)])
 
     def test_game_info_when_pvp_in_queue(self):
         self.pvp_create_battle(self.account_1, None)
         self.pvp_create_battle(self.account_2, None)
-        self.request_login('test_user@test.com')
         self.assertEqual(s11n.from_json(self.client.get(reverse('game:pvp:info')).content)['data']['mode'], 'pve')
 
     def test_game_info_when_pvp_prepairing(self):
         self.pvp_create_battle(self.account_1, self.account_2)
         self.pvp_create_battle(self.account_2, self.account_1)
-        self.request_login('test_user@test.com')
         self.assertEqual(s11n.from_json(self.client.get(reverse('game:pvp:info')).content)['data']['mode'], 'pvp')
 
     def test_game_info_when_pvp_processing(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
-        self.request_login('test_user@test.com')
         self.assertEqual(s11n.from_json(self.client.get(reverse('game:pvp:info')).content)['data']['mode'], 'pvp')
 
     def test_say_no_battle(self):
-        self.request_login('test_user@test.com')
         self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': u'some text'}), 'pvp.say.no_battle')
 
     def test_say_battle_not_in_processing_state(self):
-        self.request_login('test_user@test.com')
         self.pvp_create_battle(self.account_1, None)
         self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': u'some text'}), 'pvp.say.no_battle')
 
     def test_say_form_errors(self):
-        self.request_login('test_user@test.com')
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': u''}), 'pvp.say.form_errors')
 
     def test_say_success(self):
-        self.request_login('test_user@test.com')
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         response = self.client.post(reverse('game:pvp:say'), {'text': u'some text'})
         task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
         self.check_ajax_processing(response, task.status_url)
+
+
+class TestCallsPage(TestRequestsBase):
+
+    def setUp(self):
+        super(TestCallsPage, self).setUp()
+
+    def test_fast_user(self):
+        self.hero_1.is_fast = True
+        self.hero_1.save()
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pvp.is_fast', 1)])
+
+    @mock.patch('game.heroes.prototypes.HeroPrototype.can_participate_in_pvp', False)
+    def test_no_rights(self):
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pvp.no_rights', 1)])
+
+    def test_no_battles(self):
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 1)])
+
+    def test_own_battle(self):
+        self.pvp_create_battle(self.account_1, None, BATTLE_1X1_STATE.WAITING)
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 0),
+                                                                              ('pgf-own-battle-message', 1)])
+
+    def test_low_level_battle(self):
+        self.hero_1.model.level = 100
+        self.hero_1.save()
+        self.pvp_create_battle(self.account_2, None, BATTLE_1X1_STATE.WAITING)
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 0),
+                                                                              ('pgf-can-not-accept-call', 1)])
+
+    def test_height_level_battle(self):
+        self.hero_2.model.level = 100
+        self.hero_2.save()
+        self.pvp_create_battle(self.account_2, None, BATTLE_1X1_STATE.WAITING)
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 0),
+                                                                              ('pgf-can-not-accept-call', 1)])
+
+    def test_battle(self):
+        self.pvp_create_battle(self.account_2, None, BATTLE_1X1_STATE.WAITING)
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 0),
+                                                                              ('pgf-accept-battle', 1)])
+
+    def test_only_waiting_battles(self):
+        for state in BATTLE_1X1_STATE._ALL:
+            if state == BATTLE_1X1_STATE.WAITING:
+                continue
+            self.pvp_create_battle(self.account_2, None, state)
+            self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 1)])
+            Battle1x1.objects.all().delete()
+
+
+class AcceptCallRequestsTests(TestRequestsBase):
+
+    def setUp(self):
+        super(AcceptCallRequestsTests, self).setUp()
+
+        self.battle = self.pvp_create_battle(self.account_2, None, BATTLE_1X1_STATE.WAITING)
+
+        self.accept_url = reverse('game:pvp:accept-call')+('?battle=%d' % self.battle.id)
+
+    def test_fast_user(self):
+        self.hero_1.is_fast = True
+        self.hero_1.save()
+        self.check_ajax_error(self.client.post(self.accept_url), 'pvp.is_fast')
+
+    @mock.patch('game.heroes.prototypes.HeroPrototype.can_participate_in_pvp', False)
+    def test_no_rights(self):
+        self.check_ajax_error(self.client.post(self.accept_url), 'pvp.no_rights')
+
+    def test_no_battle(self):
+        self.check_ajax_error(self.client.post(reverse('game:pvp:accept-call')+'?battle=666'), 'pvp.battle.not_found')
+
+    def test_own_battle(self):
+        self.request_logout()
+        self.request_login('test_user_2@test.com')
+        self.check_ajax_error(self.client.post(self.accept_url), 'pvp.accept_call.own_battle')
+
+    def test_low_level_battle(self):
+        self.hero_1.model.level = 100
+        self.hero_1.save()
+        self.check_ajax_error(self.client.post(self.accept_url), 'pvp.accept_call.wrong_enemy_level')
+
+    def test_height_level_battle(self):
+        self.hero_2.model.level = 100
+        self.hero_2.save()
+        self.check_ajax_error(self.client.post(self.accept_url), 'pvp.accept_call.wrong_enemy_level')
+
+    def test_battle(self):
+        self.check_ajax_processing(self.client.post(self.accept_url))
+        self.assertEqual(PostponedTask.objects.all().count(), 1)

@@ -124,5 +124,9 @@ class Hero(models.Model):
 
     stat_quests_done = models.BigIntegerField(default=0, null=False)
 
+    stat_pvp_battles_1x1_number = models.BigIntegerField(default=0, null=False)
+    stat_pvp_battles_1x1_victories = models.BigIntegerField(default=0, null=False)
+    stat_pvp_battles_1x1_draws = models.BigIntegerField(default=0, null=False)
+
     def __unicode__(self):
         return u'hero[%d] - %s' % (self.id, self.name)

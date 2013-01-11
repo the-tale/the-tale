@@ -293,20 +293,20 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
 
     var actionType = el.data('action-type');
 
-    if (!actionType) {
-        actionType = 'redirect';
-    }
+    if (!actionType) actionType = 'reload';
 
     if (el.attr('href')) {
         pgf.forms.Post({ action: el.attr('href'),
                          OnSuccess: function(data){
                              if (actionType == 'quietly') {
                              }
-                             else {
-                                 if (actionType == 'redirect') {
-                                     location.reload(true);
-                                 }
+                             if (actionType == 'reload') {
+                                 location.reload(true);
                              }
+                             if (actionType == 'redirect') {
+                                 location.href = el.data('redirect-url');
+                             }
+                             
                          }
                        });
     }

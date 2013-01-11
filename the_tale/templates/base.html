@@ -118,7 +118,8 @@ jQuery(document).ready(function() {
                                                                          (url("cms:world:"), get_cms_section_info("world").caption),
                                                                          (faq_url(), "FAQ")]) }}
             {{ base_macros.main_menu_item("community", "#", "Сообщество", [(url("accounts:"), "Игроки"),
-                                                                           (url("game:ratings:"), "Рейтинги")]) }}
+                                                                           (url("game:ratings:"), "Рейтинги"),
+                                                                           (url("game:pvp:calls"), "Арена")]) }}
 
             {% if request.user.is_authenticated() %}
             {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Политика"),

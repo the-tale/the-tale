@@ -196,7 +196,7 @@ class Worker(BaseWorker):
             self.logger.info('remove from queue request from accounts %r' % (records_to_remove, ))
 
 
-    def _initiate_battle(self, record_1, record_2):
+    def _initiate_battle(self, record_1, record_2, from_balancing=False):
         from accounts.prototypes import AccountPrototype
 
         account_1 = AccountPrototype.get_by_id(record_1.account_id)
@@ -205,8 +205,18 @@ class Worker(BaseWorker):
         self.logger.info('start battle between accounts %d and %d' % (account_1.id, account_2.id))
 
         with nested_commit_on_success():
-            Battle1x1Prototype.get_by_id(record_1.battle_id).set_enemy(account_2)
-            Battle1x1Prototype.get_by_id(record_2.battle_id).set_enemy(account_1)
+            battle_1 = Battle1x1Prototype.get_by_id(record_1.battle_id)
+            battle_2 = Battle1x1Prototype.get_by_id(record_2.battle_id)
+
+            battle_1.set_enemy(account_2)
+            battle_2.set_enemy(account_1)
+
+            if from_balancing and abs(record_1.hero_level - record_2.hero_level) < pvp_settings.BALANCING_MIN_LEVEL_DELTA:
+                battle_1.calculate_rating = True
+                battle_2.calculate_rating = True
+
+            battle_1.save()
+            battle_2.save()
 
             task = SupervisorTaskPrototype.create_arena_pvp_1x1(account_1, account_2)
 
@@ -219,6 +229,13 @@ class Worker(BaseWorker):
         battle_pairs, records_to_exclude = self._search_battles(records)
 
         for battle_pair in battle_pairs:
-            self._initiate_battle(*battle_pair)
+            self._initiate_battle(*battle_pair, from_balancing=True)
 
         self._clean_queue(records_to_remove, records_to_exclude)
+
+    def force_battle(self, account_1_id, account_2_id):
+        record_1 = self.arena_queue[account_1_id]
+        record_2 = self.arena_queue[account_2_id]
+
+        self._initiate_battle(record_1, record_2)
+        self._clean_queue(records_to_remove=[], records_to_exclude=[record_1, record_2])

@@ -9,7 +9,7 @@ from game.actions import battle, contexts
 
 from game.prototypes import TimePrototype
 
-from game.pvp.prototypes import Battle1x1Prototype, BATTLE_1X1_STATE
+from game.pvp.prototypes import Battle1x1Prototype, BATTLE_1X1_STATE, BATTLE_RESULT
 
 
 def get_meta_actions_types():
@@ -212,10 +212,36 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         if self.state == self.STATE.BATTLE_ENDING:
             battle_1 = Battle1x1Prototype.get_active_by_account_id(self.hero_1.account_id)
             battle_1.set_state(BATTLE_1X1_STATE.PROCESSED)
-            battle_1.save()
 
             battle_2 = Battle1x1Prototype.get_active_by_account_id(self.hero_2.account_id)
             battle_2.set_state(BATTLE_1X1_STATE.PROCESSED)
+
+            if battle_1.calculate_rating and battle_2.calculate_rating:
+                self.hero_1.statistics.change_pvp_battles_1x1_number(1)
+                self.hero_2.statistics.change_pvp_battles_1x1_number(1)
+
+            if self.hero_1.health <= 0:
+                if self.hero_2.health <= 0:
+                    battle_1.set_result(BATTLE_RESULT.DRAW)
+                    battle_2.set_result(BATTLE_RESULT.DRAW)
+
+                    if battle_1.calculate_rating and battle_2.calculate_rating:
+                        self.hero_1.statistics.change_pvp_battles_1x1_draws(1)
+                        self.hero_2.statistics.change_pvp_battles_1x1_draws(1)
+                else:
+                    battle_1.set_result(BATTLE_RESULT.DEFEAT)
+                    battle_2.set_result(BATTLE_RESULT.VICTORY)
+
+                    if battle_1.calculate_rating and battle_2.calculate_rating:
+                        self.hero_2.statistics.change_pvp_battles_1x1_victories(1)
+            else:
+                battle_1.set_result(BATTLE_RESULT.VICTORY)
+                battle_2.set_result(BATTLE_RESULT.DEFEAT)
+
+                if battle_1.calculate_rating and battle_2.calculate_rating:
+                    self.hero_1.statistics.change_pvp_battles_1x1_victories(1)
+
+            battle_1.save()
             battle_2.save()
 
             self.hero_1.health = self.hero_1_old_health

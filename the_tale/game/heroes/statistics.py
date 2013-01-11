@@ -122,6 +122,25 @@ class HeroStatistics(object):
     def quests_done(self): return self.hero_model.stat_quests_done
     def change_quests_done(self, value): self.hero_model.stat_quests_done += value
 
+    #########################################
+    # pvp
+    #########################################
+
+    @property
+    def pvp_battles_1x1_number(self): return self.hero_model.stat_pvp_battles_1x1_number
+    def change_pvp_battles_1x1_number(self, value): self.hero_model.stat_pvp_battles_1x1_number += value
+
+    @property
+    def pvp_battles_1x1_victories(self): return self.hero_model.stat_pvp_battles_1x1_victories
+    def change_pvp_battles_1x1_victories(self, value): self.hero_model.stat_pvp_battles_1x1_victories += value
+
+    @property
+    def pvp_battles_1x1_draws(self): return self.hero_model.stat_pvp_battles_1x1_draws
+    def change_pvp_battles_1x1_draws(self, value): self.hero_model.stat_pvp_battles_1x1_draws += value
+
+    @property
+    def pvp_battles_1x1_defeats(self): return self.pvp_battles_1x1_number - self.pvp_battles_1x1_draws - self.pvp_battles_1x1_victories
+
 
     def __eq__(self, other):
         return ( self.pve_deaths == other.pve_deaths and

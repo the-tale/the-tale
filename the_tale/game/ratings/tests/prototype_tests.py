@@ -47,11 +47,13 @@ class RatingPrototypeTests(PrototypeTestsBase):
         self.assertEqual([rv.account_id for rv in RatingValues.objects.all().order_by('account__id')],
                          [self.account_1.id, self.account_2.id, self.account_3.id, self.account_4.id, ])
 
-    def set_values(self, account, might=0, level=0, power=0):
+    def set_values(self, account, might=0, level=0, power=0, pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0):
         hero = HeroPrototype.get_by_account_id(account.id)
         hero.model.might = might
         hero.model.level = level
         hero.model.raw_power = power
+        hero.model.stat_pvp_battles_1x1_number = pvp_battles_1x1_number
+        hero.model.stat_pvp_battles_1x1_victories = pvp_battles_1x1_victories
         hero.model.save()
 
     def test_might(self):
@@ -145,3 +147,18 @@ class RatingPrototypeTests(PrototypeTestsBase):
         RatingValuesPrototype.recalculate()
         self.assertEqual([rv.power for rv in RatingValues.objects.all().order_by('account__id')],
                          [9, 10, 7, 1 ])
+
+
+    def test_pvp(self):
+        self.set_values(self.account_1, pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0)
+        self.set_values(self.account_2, pvp_battles_1x1_number=5, pvp_battles_1x1_victories=1)
+        self.set_values(self.account_3, pvp_battles_1x1_number=10, pvp_battles_1x1_victories=2)
+        self.set_values(self.account_4, pvp_battles_1x1_number=20, pvp_battles_1x1_victories=3)
+
+        RatingValuesPrototype.recalculate()
+
+        self.assertEqual([rv.pvp_battles_1x1_number for rv in RatingValues.objects.all().order_by('account__id')],
+                         [0, 5, 10, 20 ])
+
+        self.assertEqual([rv.pvp_battles_1x1_victories for rv in RatingValues.objects.all().order_by('account__id')],
+                         [0, 0.2, 0.2, 0.15])

@@ -12,6 +12,11 @@ BATTLE_1X1_STATE = create_enum('BATTLE_1X1_STATE', (('WAITING', 1, u'в очер
                                                     ('PROCESSED', 5, u'бой обработан'),
                                                     ('LEAVE_QUEUE', 6, u'убрана из очереди игроком')) )
 
+BATTLE_RESULT = create_enum('BATTLE_RESULT', (('UNKNOWN', 0, u'неизвестен'),
+                                              ('VICTORY', 1, u'победа'),
+                                              ('DEFEAT', 2, u'поражение'),
+                                              ('DRAW', 3, u'ничья')) )
+
 
 class Battle1x1(models.Model):
 
@@ -21,4 +26,8 @@ class Battle1x1(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    state = models.IntegerField(default=BATTLE_1X1_STATE.WAITING, choices=BATTLE_1X1_STATE._CHOICES)
+    state = models.IntegerField(default=BATTLE_1X1_STATE.WAITING, choices=BATTLE_1X1_STATE._CHOICES, db_index=True)
+
+    calculate_rating = models.BooleanField(default=False, db_index=True)
+
+    result = models.IntegerField(default=BATTLE_RESULT.UNKNOWN, choices=BATTLE_RESULT._CHOICES, db_index=True)

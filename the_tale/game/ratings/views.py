@@ -21,7 +21,9 @@ RATING_TYPE = create_enum('RATING_TYPE', (('MIGHT', 'might', u'Могущест�
                                           ('BILLS', 'bills', u'Принятые законы'),
                                           ('POWER', 'power', u'Сила героя'),
                                           ('LEVEL', 'level', u'Уровень героя'),
-                                          ('PHRASES', 'phrases', u'Добавленные фразы')))
+                                          ('PHRASES', 'phrases', u'Добавленные фразы'),
+                                          ('PVP_BATTLES_1x1_NUMBER', 'pvp_battles_1x1_number', u'сражения в PvP'),
+                                          ('PVP_BATTLES_1x1_VICTORIES', 'pvp_battles_1x1_victories', u'победы в PvP'),))
 
 
 
@@ -68,6 +70,17 @@ class RatingResource(Resource):
             ratings_query = ratings_query.filter(account__ratingvalues__phrases_count__gt=0).order_by('phrases_count_place')
             place_getter = lambda places: places.phrases_count_place
             value_getter = lambda values: values.phrases_count
+
+        elif self.rating_type == RATING_TYPE.PVP_BATTLES_1x1_NUMBER:
+            ratings_query = ratings_query.order_by('pvp_battles_1x1_number_place')
+            place_getter = lambda places: places.pvp_battles_1x1_number_place
+            value_getter = lambda values: values.pvp_battles_1x1_number
+
+        elif self.rating_type == RATING_TYPE.PVP_BATTLES_1x1_VICTORIES:
+            ratings_query = ratings_query.order_by('pvp_battles_1x1_victories_place')
+            place_getter = lambda places: places.pvp_battles_1x1_victories_place
+            value_getter = lambda values: '%.2f%%' % (values.pvp_battles_1x1_victories * 100)
+
 
         ratings_count = ratings_query.count()
 

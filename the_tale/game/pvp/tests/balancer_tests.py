@@ -155,8 +155,8 @@ class BalancerBalancingTests(BalancerTestsBase):
 
         record = records[0]
         self.assertEqual(record[2], battle_1_record)
-        self.assertEqual(record[0], -6)
-        self.assertEqual(record[1], 8)
+        self.assertEqual(record[0], -5)
+        self.assertEqual(record[1], 7)
 
     def test_get_prepaired_queue_one_record_timeout(self):
         battle_1_record = self.battle_1_record(created_at_delta=-datetime.timedelta(seconds=2))
@@ -251,9 +251,67 @@ class BalancerBalancingTests(BalancerTestsBase):
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
+        self.worker._initiate_battle(self.battle_1_record(), self.battle_2_record(), from_balancing=True)
+
+        battle_1 = Battle1x1Prototype.get_by_id(self.battle_1.id)
+        battle_2 = Battle1x1Prototype.get_by_id(self.battle_2.id)
+
+        self.assertEqual(battle_1.enemy_id, self.account_2.id)
+        self.assertTrue(battle_1.calculate_rating)
+        self.assertEqual(battle_2.enemy_id, self.account_1.id)
+        self.assertTrue(battle_2.calculate_rating)
+
+        self.assertEqual(SupervisorTask.objects.all().count(), 1)
+
+    def test_initiate_battle_without_rating_by_option(self):
+
+        self.assertEqual(SupervisorTask.objects.all().count(), 0)
+
+        self.worker._initiate_battle(self.battle_1_record(), self.battle_2_record(), from_balancing=False)
+
+        battle_1 = Battle1x1Prototype.get_by_id(self.battle_1.id)
+        battle_2 = Battle1x1Prototype.get_by_id(self.battle_2.id)
+
+        self.assertEqual(battle_1.enemy_id, self.account_2.id)
+        self.assertFalse(battle_1.calculate_rating)
+        self.assertEqual(battle_2.enemy_id, self.account_1.id)
+        self.assertFalse(battle_2.calculate_rating)
+
+        self.assertEqual(SupervisorTask.objects.all().count(), 1)
+
+    def test_initiate_battle_without_rating_by_level(self):
+
+        self.assertEqual(SupervisorTask.objects.all().count(), 0)
+
+        self.hero_1.model.level = 100
+        self.hero_1.save()
+
         self.worker._initiate_battle(self.battle_1_record(), self.battle_2_record())
 
-        self.assertEqual(Battle1x1Prototype.get_by_id(self.battle_1.id).enemy_id, self.account_2.id)
-        self.assertEqual(Battle1x1Prototype.get_by_id(self.battle_2.id).enemy_id, self.account_1.id)
+        battle_1 = Battle1x1Prototype.get_by_id(self.battle_1.id)
+        battle_2 = Battle1x1Prototype.get_by_id(self.battle_2.id)
 
+        self.assertEqual(battle_1.enemy_id, self.account_2.id)
+        self.assertFalse(battle_1.calculate_rating)
+        self.assertEqual(battle_2.enemy_id, self.account_1.id)
+        self.assertFalse(battle_2.calculate_rating)
+
+        self.assertEqual(SupervisorTask.objects.all().count(), 1)
+
+    def test_force_battle(self):
+
+        self.assertEqual(SupervisorTask.objects.all().count(), 0)
+        self.assertEqual(len(self.worker.arena_queue), 2)
+
+        self.worker.force_battle(self.account_1.id, self.account_2.id)
+
+        battle_1 = Battle1x1Prototype.get_by_id(self.battle_1.id)
+        battle_2 = Battle1x1Prototype.get_by_id(self.battle_2.id)
+
+        self.assertEqual(battle_1.enemy_id, self.account_2.id)
+        self.assertFalse(battle_1.calculate_rating)
+        self.assertEqual(battle_2.enemy_id, self.account_1.id)
+        self.assertFalse(battle_2.calculate_rating)
+
+        self.assertEqual(self.worker.arena_queue, {})
         self.assertEqual(SupervisorTask.objects.all().count(), 1)

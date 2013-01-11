@@ -19,7 +19,8 @@ from game.actions.models import MetaAction, MetaActionMember
 
 from game.pvp.models import Battle1x1
 
-from game.pvp.models import BATTLE_1X1_STATE
+from game.pvp.models import BATTLE_1X1_STATE, BATTLE_RESULT
+from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.tests.helpers import PvPTestsMixin
 
 class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
@@ -44,8 +45,13 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
 
         self.hero_1.health = self.hero_1.max_health / 2
 
-        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
-        self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
+        self.battle_1 = self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
+        self.battle_1.calculate_rating = True
+        self.battle_1.save()
+
+        self.battle_2 = self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
+        self.battle_2.calculate_rating = True
+        self.battle_2.save()
 
         self.meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2)
         self.meta_action_battle.set_storage(self.storage)
@@ -75,6 +81,69 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
         self.assertEqual(self.hero_1.health, self.hero_1.max_health / 2)
         self.assertEqual(self.hero_2.health, self.hero_2.max_health)
 
+    def check_hero_pvp_statistics(self, hero, battles, victories, draws, defeats):
+        self.assertEqual(hero.statistics.pvp_battles_1x1_number, battles)
+        self.assertEqual(hero.statistics.pvp_battles_1x1_victories, victories)
+        self.assertEqual(hero.statistics.pvp_battles_1x1_draws, draws)
+        self.assertEqual(hero.statistics.pvp_battles_1x1_defeats, defeats)
+
+    def _end_battle(self, hero_1_health, hero_2_health):
+        self.hero_1.health = hero_1_health
+        self.hero_2.health = hero_2_health
+        current_time = TimePrototype.get_current_time()
+        self.meta_action_battle.process()
+        current_time.increment_turn()
+        self.meta_action_battle.process()
+
+    def test_hero_1_win(self):
+        self._end_battle(hero_1_health=self.hero_1.max_health, hero_2_health=0)
+
+        self.assertTrue(Battle1x1Prototype.get_by_id(self.battle_1.id).result.is_victory)
+        self.assertTrue(Battle1x1Prototype.get_by_id(self.battle_2.id).result.is_defeat)
+
+        self.check_hero_pvp_statistics(self.hero_1, 1, 1, 0, 0)
+        self.check_hero_pvp_statistics(self.hero_2, 1, 0, 0, 1)
+
+    def test_hero_2_win(self):
+        self._end_battle(hero_1_health=0, hero_2_health=self.hero_2.max_health)
+
+        self.assertTrue(Battle1x1Prototype.get_by_id(self.battle_1.id).result.is_defeat)
+        self.assertTrue(Battle1x1Prototype.get_by_id(self.battle_2.id).result.is_victory)
+
+        self.check_hero_pvp_statistics(self.hero_1, 1, 0, 0, 1)
+        self.check_hero_pvp_statistics(self.hero_2, 1, 1, 0, 0)
+
+    def test_draw(self):
+        self._end_battle(hero_1_health=0, hero_2_health=0)
+
+        self.assertTrue(Battle1x1Prototype.get_by_id(self.battle_1.id).result.is_draw)
+        self.assertTrue(Battle1x1Prototype.get_by_id(self.battle_2.id).result.is_draw)
+
+        self.check_hero_pvp_statistics(self.hero_1, 1, 0, 1, 0)
+        self.check_hero_pvp_statistics(self.hero_2, 1, 0, 1, 0)
+
+    @mock.patch('game.pvp.prototypes.Battle1x1Prototype.calculate_rating', False)
+    def test_hero_1_win_no_stats(self):
+        self._end_battle(hero_1_health=self.hero_1.max_health, hero_2_health=0)
+
+        self.check_hero_pvp_statistics(self.hero_1, 0, 0, 0, 0)
+        self.check_hero_pvp_statistics(self.hero_2, 0, 0, 0, 0)
+
+    @mock.patch('game.pvp.prototypes.Battle1x1Prototype.calculate_rating', False)
+    def test_hero_2_win_no_stats(self):
+        self._end_battle(hero_1_health=0, hero_2_health=self.hero_1.max_health)
+
+        self.check_hero_pvp_statistics(self.hero_1, 0, 0, 0, 0)
+        self.check_hero_pvp_statistics(self.hero_2, 0, 0, 0, 0)
+
+    @mock.patch('game.pvp.prototypes.Battle1x1Prototype.calculate_rating', False)
+    def test_draw_no_stats(self):
+        self._end_battle(hero_1_health=0, hero_2_health=0)
+
+        self.check_hero_pvp_statistics(self.hero_1, 0, 0, 0, 0)
+        self.check_hero_pvp_statistics(self.hero_2, 0, 0, 0, 0)
+
+
     def test_second_process_call_in_one_turn(self):
 
         meta_action_process_counter = CallCounter()
@@ -100,6 +169,7 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
         self.assertEqual(self.hero_2.health, self.hero_2.max_health)
 
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.PROCESSED).count(), 2)
+        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_RESULT.UNKNOWN).count(), 0)
 
     def test_remove(self):
         self.assertEqual(MetaAction.objects.all().count(), 1)

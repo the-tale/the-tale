@@ -15,6 +15,8 @@
   <li {% if rating_type == RATING_TYPE.POWER %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.POWER) }}">Сила героя</a></li>
   <li {% if rating_type == RATING_TYPE.LEVEL %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.LEVEL) }}">Уровень героя</a></li>
   <li {% if rating_type == RATING_TYPE.PHRASES %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.PHRASES) }}">Добавленные фразы</a></li>
+  <li {% if rating_type == RATING_TYPE.PVP_BATTLES_1x1_NUMBER %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.PVP_BATTLES_1x1_NUMBER) }}">Сражений PvP</a></li>
+  <li {% if rating_type == RATING_TYPE.PVP_BATTLES_1x1_VICTORIES %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.PVP_BATTLES_1x1_VICTORIES) }}">Побед PvP</a></li>
 </ul>
 
 {{ base_macros.render_paginator(paginator) }}

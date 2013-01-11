@@ -11,3 +11,4 @@ class PvPTestsMixin(object):
         if state is not None:
             battle.state = state
         battle.save()
+        return battle

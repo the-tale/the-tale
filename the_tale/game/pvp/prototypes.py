@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
+from game.pvp.models import Battle1x1, BATTLE_1X1_STATE, BATTLE_RESULT
 from game.pvp.exceptions import PvPException
 
 
@@ -60,6 +60,21 @@ class Battle1x1Prototype(object):
     @property
     def enemy_id(self): return self.model.enemy_id
 
+    def get_calculate_rating(self): return self.model.calculate_rating
+    def set_calculate_rating(self, value): self.model.calculate_rating = value
+    calculate_rating = property(get_calculate_rating, set_calculate_rating)
+
+
+    def get_result(self):
+        if not hasattr(self, '_result'):
+            self._result = BATTLE_RESULT(self.model.result)
+        return self._result
+    def set_result(self, value):
+        self.result.update(value)
+        self.model.result = self.result.value
+    result = property(get_result, set_result)
+
+
     def get_state(self):
         if not hasattr(self, '_state'):
             self._state = BATTLE_1X1_STATE(self.model.state)
@@ -72,7 +87,6 @@ class Battle1x1Prototype(object):
     def set_enemy(self, enemy):
         self.model.enemy = enemy.model
         self.state = BATTLE_1X1_STATE.PREPAIRING
-        self.save()
 
     def save(self):
         self.model.save()

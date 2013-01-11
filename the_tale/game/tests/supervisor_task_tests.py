@@ -43,8 +43,13 @@ class SupervisorTaskTests(TestCase):
         task.capture_member(self.account_1.id)
         task.capture_member(self.account_2.id)
 
-        Battle1x1Prototype.create(self.account_1).set_enemy(self.account_2)
-        Battle1x1Prototype.create(self.account_2).set_enemy(self.account_1)
+        battle_1 = Battle1x1Prototype.create(self.account_1)
+        battle_1.set_enemy(self.account_2)
+        battle_1.save()
+
+        battle_2 = Battle1x1Prototype.create(self.account_2)
+        battle_2.set_enemy(self.account_1)
+        battle_2.save()
 
         self.assertEqual(Action.objects.all().count(), 2)
         self.assertEqual(MetaAction.objects.all().count(), 0)

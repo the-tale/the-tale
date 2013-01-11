@@ -64,8 +64,13 @@ class SupervisorWorkerTests(TestCase):
 
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
 
-        Battle1x1Prototype.create(self.account_1).set_enemy(self.account_2)
-        Battle1x1Prototype.create(self.account_2).set_enemy(self.account_1)
+        battle_1 = Battle1x1Prototype.create(self.account_1)
+        battle_1.set_enemy(self.account_2)
+        battle_1.save()
+
+        battle_2 = Battle1x1Prototype.create(self.account_2)
+        battle_2.set_enemy(self.account_1)
+        battle_2.save()
 
         self.assertEqual(len(self.worker.tasks), 0)
         self.assertEqual(len(self.worker.accounts_for_tasks), 0)
