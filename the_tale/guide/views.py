@@ -13,6 +13,8 @@ from game.map.places.conf import places_settings
 from game.persons.conf import persons_settings
 from game.pvp.conf import pvp_settings
 
+from portal.conf import portal_settings
+
 class GuideResource(Resource):
 
     def initialize(self, *args, **kwargs):
@@ -104,3 +106,8 @@ class GuideResource(Resource):
     @handler('hero-preferences', method='get')
     def hero_preferences(self):
         return self.template('guide/hero-preferences.html', {'section': 'hero-preferences'})
+
+    @handler('how-to-help', method='get')
+    def how_to_help(self):
+        return self.template('guide/how_to_help.html', {'section': 'how-to-help',
+                                                        'portal_settings': portal_settings})

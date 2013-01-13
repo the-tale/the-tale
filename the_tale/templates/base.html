@@ -32,6 +32,8 @@
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css" />
     <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
+    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-505d67570062215a"></script>
+
     <script src="{{ STATIC_URL }}plugins/globalize/globalize.js"></script>
     <script src="{{ STATIC_URL }}plugins/globalize/cultures/globalize.culture.ru.js"></script>
     <script src="{{ STATIC_URL }}common/base.js" type="text/javascript"></script>
@@ -116,6 +118,7 @@ jQuery(document).ready(function() {
                                                                          (url("guide:cities"), "Города"),
                                                                          (url("guide:map"), "Карта"),
                                                                          (url("guide:pvp"), "PvP"),
+                                                                         (url("guide:how-to-help"), "Как помочь?"),
                                                                          (url("cms:world:"), get_cms_section_info("world").caption),
                                                                          (faq_url(), "FAQ")]) }}
             {{ base_macros.main_menu_item("community", "#", "Сообщество", [(url("accounts:"), "Игроки"),
