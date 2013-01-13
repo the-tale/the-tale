@@ -24,17 +24,7 @@ from portal.conf import portal_settings
 from portal.newspaper.models import NewspaperEvent, NEWSPAPER_EVENT_SECTION
 from portal.newspaper.prototypes import NewspaperEventPrototype
 
-
-
 class PortalResource(Resource):
-
-    # render error taken by exception middleware
-    def error(self, msg=None):
-        return self.template('error.html', {'msg': msg})
-
-    # render error taken by exception middleware
-    def handler403(self, msg=None):
-        return self.template('403.html', {'msg': msg})
 
     @handler('', method='get')
     def index(self):
@@ -64,13 +54,16 @@ class PortalResource(Resource):
                               'TERRAIN': TERRAIN,
                               'RACE': RACE})
 
-    @handler('404', method='get')
+    @handler('404')
     def handler404(self):
-        return self.template('portal/404.html', status_code=404)
+        return self.auto_error('common.404',
+                               u'Извините, запрашиваемая Вами страница не найдена.',
+                               status_code=404)
 
-    @handler('500', method='get')
+    @handler('500')
     def handler500(self):
-        return self.template('portal/500.html')
+        return self.auto_error('common.500',
+                               u'Извините, произошла ошибка, мы работаем над её устранением. Пожалуйста, повторите попытку позже.')
 
     @handler('preview', name='preview', method='post')
     def preview(self):

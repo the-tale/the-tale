@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from dext.views import handler
-from dext.utils.exceptions import Error
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
@@ -18,10 +17,10 @@ class AbilitiesResource(Resource):
         self.ability_type = ability_type
 
         if self.ability is None:
-            raise Error('abilities.wrong_ability', u'У вас нет такой способности')
+            return self.auto_error('abilities.wrong_ability', u'У вас нет такой способности')
 
         if self.ability.on_cooldown(self.time, HeroPrototype.get_by_account_id(self.account.id).id):
-            raise Error('abilities.on_cooldown', u'Вы пока не можете использовать эту способность')
+            return self.auto_error('abilities.on_cooldown', u'Вы пока не можете использовать эту способность')
 
     @property
     def ability(self):

@@ -1,15 +1,8 @@
 # coding: utf-8
 
-from dext.utils.exceptions import ExceptionMiddleware as DextExceptionMiddleware
-
 from game.map.places.storage import places_storage
 # from game.map.roads.storage import roads_storage
 from game.persons.storage import persons_storage
-
-from portal.views import PortalResource
-
-class ExceptionMiddleware(DextExceptionMiddleware):
-    EXCEPTION_RESOURCE = PortalResource
 
 
 class StorageMiddleware(object):
