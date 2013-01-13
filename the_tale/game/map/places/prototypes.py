@@ -153,6 +153,7 @@ class PlacePrototype(object):
     def data(self):
         if not hasattr(self, '_data'):
             self._data = s11n.from_json(self.model.data)
+            self.data['nearest_cells'] = map(tuple, self.data['nearest_cells'])
         return self._data
 
     def get_nearest_cells(self):
