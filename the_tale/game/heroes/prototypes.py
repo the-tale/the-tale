@@ -461,9 +461,6 @@ class HeroPrototype(object):
         return self._equipment
 
     @property
-    def flags(self): return self.model.flags
-
-    @property
     def is_name_changed(self):
         return bool(self.model.name_forms)
 
@@ -536,6 +533,13 @@ class HeroPrototype(object):
         if self.preferences.enemy_id is not None and self.preferences.enemy.out_game:
             self.preferences.enemy_id = None
             self.preferences.enemy_changed_at = datetime.datetime(2000, 1, 1)
+
+    def modify_person_power(self, person, power):
+        if person.id in (self.preferences.friend_id, self.preferences.enemy_id):
+            power *= c.HERO_POWER_PREFERENCE_MULTIPLIER
+        if person.place_id == self.preferences.place_id:
+            power *= c.HERO_POWER_PREFERENCE_MULTIPLIER
+        return power
 
     ###########################################
     # Secondary attributes

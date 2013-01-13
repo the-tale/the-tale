@@ -225,6 +225,7 @@ QUESTS_LOCK_TIME = { 'hunt': int(1.5*12*TURNS_IN_HOUR),
 # Влияние персонажей
 HERO_POWER_PER_DAY = int(1000) # базовое количество влияния, которое герой 1-ого уровня производит в день на одного персонажа задействованного в заданиях
 PERSON_POWER_FOR_RANDOM_SPEND = int(200) # доля от стандартной величины..
+HERO_POWER_PREFERENCE_MULTIPLIER = 1.5
 
 
 ##########################

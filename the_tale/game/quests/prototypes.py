@@ -190,7 +190,9 @@ class QuestPrototype(object):
 
         for person_id, power in self.env.persons_power_points.items():
             person_data = self.env.persons[person_id]
-            persons_storage.get(person_data['external_data']['id']).cmd_change_power(power)
+            person = persons_storage.get(person_data['external_data']['id'])
+            power = cur_action.hero.modify_person_power(person, power)
+            person.cmd_change_power(power)
 
     def push_message(self, writer, messanger, event, **kwargs):
 

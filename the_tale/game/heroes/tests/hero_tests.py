@@ -27,7 +27,7 @@ from game.heroes.habilities import battle
 class HeroTest(TestCase):
 
     def setUp(self):
-        create_test_map()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
 
@@ -60,44 +60,6 @@ class HeroTest(TestCase):
         self.assertTrue(hero.created_at_turn != self.hero.created_at_turn)
 
 
-    def test_equipping_process(self):
-        self.assertEqual(self.hero.get_equip_canditates(), (None, None, None))
-
-        #equip artefact in empty slot
-        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
-
-        equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
-        self.hero.equipment.unequip(equip_slot)
-
-        self.hero.bag.put_artifact(artifact)
-
-        slot, unequipped, equipped = self.hero.get_equip_canditates()
-        self.assertTrue(slot)
-        self.assertTrue(unequipped is None)
-        self.assertEqual(equipped, artifact)
-
-        self.hero.change_equipment(slot, unequipped, equipped)
-        self.assertTrue(not self.hero.bag.items())
-        self.assertEqual(self.hero.equipment.get(slot), artifact)
-
-        # change artifact
-        new_artifact = ArtifactsDatabase.storage().generate_artifact_from_list([artifact.id], self.hero.level)
-        new_artifact.power = artifact.power + 1
-        self.hero.bag.put_artifact(new_artifact)
-
-        slot, unequipped, equipped = self.hero.get_equip_canditates()
-        self.assertTrue(slot)
-        self.assertEqual(unequipped, artifact)
-        self.assertEqual(equipped, new_artifact)
-
-        self.hero.change_equipment(slot, unequipped, equipped)
-        self.assertEqual(self.hero.bag.items()[0][1], artifact)
-        self.assertEqual(len(self.hero.bag.items()), 1)
-        self.assertEqual(self.hero.equipment.get(slot), new_artifact)
-
-        self.storage._test_save()
-
-
     def test_set_active_inactive_state(self):
         self.assertEqual(self.hero.experience_modifier, 1)
 
@@ -111,6 +73,18 @@ class HeroTest(TestCase):
         self.hero.save()
 
         self.assertEqual(self.hero.experience_modifier, 1)
+
+    def test_modify_person_power(self):
+        friend = self.place_1.persons[0]
+        enemy = self.place_2.persons[0]
+
+        self.hero.preferences.place_id = self.place_1.id
+        self.hero.preferences.friend_id = friend.id
+        self.hero.preferences.enemy_id = enemy.id
+
+        self.assertEqual(self.hero.modify_person_power(self.place_3.persons[0], 100), 100)
+        self.assertTrue(self.hero.modify_person_power(enemy, 100) > 100)
+        self.assertTrue(self.hero.modify_person_power(friend, 100) > self.hero.modify_person_power(enemy, 100))
 
 
 class HeroLevelUpTests(TestCase):
@@ -329,9 +303,12 @@ class HeroEquipmentTests(TestCase):
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 
-        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+
+        self.hero = self.storage.accounts_to_heroes[account_id]
         self.hero.model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
-        self.hero.model.save()
+        self.hero.save()
 
     def test_sharp_artifact(self):
         old_power = self.hero.power
@@ -377,3 +354,41 @@ class HeroEquipmentTests(TestCase):
         self.hero.buy_artifact(equip=False)
         self.assertEqual(old_equipment, self.hero.equipment.serialize())
         self.assertNotEqual(old_bag, self.hero.bag.serialize())
+
+
+    def test_equipping_process(self):
+        self.assertEqual(self.hero.get_equip_canditates(), (None, None, None))
+
+        #equip artefact in empty slot
+        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+
+        equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
+        self.hero.equipment.unequip(equip_slot)
+
+        self.hero.bag.put_artifact(artifact)
+
+        slot, unequipped, equipped = self.hero.get_equip_canditates()
+        self.assertTrue(slot)
+        self.assertTrue(unequipped is None)
+        self.assertEqual(equipped, artifact)
+
+        self.hero.change_equipment(slot, unequipped, equipped)
+        self.assertTrue(not self.hero.bag.items())
+        self.assertEqual(self.hero.equipment.get(slot), artifact)
+
+        # change artifact
+        new_artifact = ArtifactsDatabase.storage().generate_artifact_from_list([artifact.id], self.hero.level)
+        new_artifact.power = artifact.power + 1
+        self.hero.bag.put_artifact(new_artifact)
+
+        slot, unequipped, equipped = self.hero.get_equip_canditates()
+        self.assertTrue(slot)
+        self.assertEqual(unequipped, artifact)
+        self.assertEqual(equipped, new_artifact)
+
+        self.hero.change_equipment(slot, unequipped, equipped)
+        self.assertEqual(self.hero.bag.items()[0][1], artifact)
+        self.assertEqual(len(self.hero.bag.items()), 1)
+        self.assertEqual(self.hero.equipment.get(slot), new_artifact)
+
+        self.storage._test_save()
