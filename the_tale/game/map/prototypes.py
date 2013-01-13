@@ -73,6 +73,11 @@ class MapInfoPrototype(object):
     ######################
 
     @classmethod
+    def remove_old_infos(cls):
+        new_ids =  MapInfo.objects.order_by('-created_at', '-turn_number')[:2].values_list('id', flat=True)
+        MapInfo.objects.exclude(id__in=new_ids).delete()
+
+    @classmethod
     def create(cls, turn_number, width, height, terrain, world):
 
         # terrain percents

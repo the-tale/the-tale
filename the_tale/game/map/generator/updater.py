@@ -112,6 +112,8 @@ def update_map(index):
                                                       terrain=terrain,
                                                       world=world))
 
+    MapInfoPrototype.remove_old_infos()
+
     data = {'width': world.w,
             'height': world.h,
             'terrain': [ ''.join(row) for row in terrain ],
