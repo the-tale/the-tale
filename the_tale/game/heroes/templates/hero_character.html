@@ -29,6 +29,9 @@ jQuery(document).ready(function(e){
                                        jQuery('.place-table').toggleClass('pgf-hidden', true);
                                        jQuery('.place-table-'+placeId).removeClass('pgf-hidden');
                                    });
+
+                                   var placeId = jQuery("#pgf-places-selector", dialog).val();
+                                   jQuery('.place-table-'+placeId, dialog).removeClass('pgf-hidden');
                                }
                              });
     });

@@ -36,3 +36,5 @@ class Person(models.Model):
     enemies_number = models.IntegerField(default=0)
 
     data = models.TextField(null=False, default=u'{}')
+
+    def __unicode__(self): return u'%s from %s' % (self.name, self.place)

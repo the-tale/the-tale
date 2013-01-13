@@ -44,7 +44,7 @@
 <label>Персонажи</label>
 
 {% for place_id, place in all_places.items() %}
-<table class="{% if person_place_id != place_id %}pgf-hidden{% endif %} place-table place-table-{{place_id}} table table-bordered table-striped table-condensed">
+<table class="pgf-hidden place-table place-table-{{place_id}} table table-bordered table-striped table-condensed">
   <tbody>
     {% for person in persons %}
     {% if person.place_id == place_id %}
