@@ -37,3 +37,6 @@ class TestRequests(TestCase):
 
     def test_hero_preferences(self):
         self.check_html_ok(self.client.get(reverse('guide:hero-preferences')))
+
+    def test_pvp(self):
+        self.check_html_ok(self.client.get(reverse('guide:pvp')))

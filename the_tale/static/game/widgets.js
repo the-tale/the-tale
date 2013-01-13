@@ -628,7 +628,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
                 text += "<div class='submessage' style='vertical-align: top;'>" + message[1][i][2] + "</div>";                
             }
             else {
-                text += "<div class='submessage'>" + message[1][i][2] + "</div>";
+                text += "<br/><div class='submessage'>" + message[1][i][2] + "</div>";
             }
         }
 

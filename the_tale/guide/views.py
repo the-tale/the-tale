@@ -11,6 +11,7 @@ from game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACTIVATION_T
 
 from game.map.places.conf import places_settings
 from game.persons.conf import persons_settings
+from game.pvp.conf import pvp_settings
 
 class GuideResource(Resource):
 
@@ -54,6 +55,11 @@ class GuideResource(Resource):
     @handler('map', method='get')
     def map(self):
         return self.template('guide/map.html', {'section': 'map'})
+
+    @handler('pvp', method='get')
+    def pvp(self):
+        return self.template('guide/pvp.html', {'section': 'pvp',
+                                                'pvp_settings': pvp_settings})
 
     @handler('hero-abilities', method='get')
     def hero_abilities(self, ability_type=None, activation_type=None, availability=ABILITY_AVAILABILITY.FOR_ALL):
