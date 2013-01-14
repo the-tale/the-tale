@@ -337,7 +337,7 @@ class FREEZING(AbilityPrototype):
     LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [7, 8, 10, 10, 11]
 
-    NAME = u'Замарозка'
+    NAME = u'Заморозка'
     normalized_name = NAME
     DESCRIPTION = u'Противника пронзает ужасный холод, замедляя его движения.'
 
