@@ -1,6 +1,8 @@
 # coding: utf-8
 import re
 
+from django.core.urlresolvers import reverse_lazy
+
 from dext.utils.app_settings import app_settings
 
 SITE_SECTIONS = ( (re.compile(r'^/$'), 'index'),
@@ -20,8 +22,8 @@ SITE_SECTIONS = ( (re.compile(r'^/$'), 'index'),
 
 portal_settings = app_settings('PORTAL',
                                DUMP_EMAIL='admin@the-tale.org',
-                               FAQ_URL='http://the-tale.org/forum/threads/126',
-                               ERRORS_URL='http://the-tale.org/forum/categories/erros',
+                               FAQ_URL=reverse_lazy('forum:threads:show', args=[126]),
+                               ERRORS_URL=reverse_lazy('forum:subcategory', args=['erros']),
                                BILLS_ON_INDEX=8,
                                FORUM_THREADS_ON_INDEX=5,
                                BLOG_POSTS_ON_INDEX=3,
