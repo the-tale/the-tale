@@ -40,9 +40,11 @@ class GuideResource(Resource):
     def cities(self):
         from game.balance.enums import PERSON_TYPE
         from game.map.places.modifiers import MODIFIERS
+        from game.persons.prototypes import MASTERY_VERBOSE
         return self.template('guide/cities.html', {'section': 'cities',
                                                    'places_settings': places_settings,
                                                    'persons_settings': persons_settings,
+                                                   'MASTERY_LEVELS': [mastery[1] for mastery in MASTERY_VERBOSE],
                                                    'PROFESSIONS': sorted(PERSON_TYPE._ID_TO_TEXT.values()),
                                                    'MODIFIERS': sorted(MODIFIERS.values(), key=lambda modifier: modifier.NAME) })
 
