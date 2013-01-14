@@ -9,7 +9,8 @@ from forum.models import Thread
 
 BILL_STATE = create_enum('BILL_STATE', (('VOTING', 1, u'на голосовании'),
                                         ('ACCEPTED', 2, u'принят'),
-                                        ('REJECTED', 3, u'отклонён'), ))
+                                        ('REJECTED', 3, u'отклонён'),
+                                        ('REMOVED', 4, u'удалён')))
 
 BILL_TYPE = create_enum('BILL_TYPE', (('PLACE_RENAMING', 0, u'переименование места'),
                                       ('PERSON_REMOVE', 1, u'удаление персонажа'),
@@ -28,7 +29,7 @@ class Bill(models.Model):
 
     created_at_turn = models.IntegerField(null=False)
 
-    owner = models.ForeignKey('accounts.Account', null=False)
+    owner = models.ForeignKey('accounts.Account', null=False, related_name='+')
 
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
 
@@ -36,6 +37,8 @@ class Bill(models.Model):
     state = models.IntegerField(null=False, default=BILL_STATE.VOTING, choices=BILL_STATE._CHOICES, db_index=True)
 
     approved_by_moderator = models.BooleanField(default=False, db_index=True)
+
+    remove_initiator = models.ForeignKey('accounts.Account', null=True, related_name='+')
 
     rationale = models.TextField(null=False, blank=True)
     technical_data = models.TextField(null=False, blank=True, default={})

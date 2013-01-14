@@ -74,6 +74,20 @@ class TestBillsEvents(TestCase):
         self.assertEqual(event.data.bill_type, bill.type)
         self.assertEqual(event.data.caption, bill.caption)
 
+    def test_bill_removed(self):
+        bill = self.create_place_renaming_bill(1)
+        bill.remove(self.account1)
+
+        self.assertEqual(NewspaperEvent.objects.all().count(), 2)
+
+        bill = BillPrototype.get_by_id(bill.id)
+        event = NewspaperEventPrototype(NewspaperEvent.objects.all().order_by('created_at')[1])
+
+        self.assertEqual(event.data.TYPE, NEWSPAPER_EVENT_TYPE.BILL_REMOVED)
+        self.assertEqual(event.data.bill_id, bill.id)
+        self.assertEqual(event.data.bill_type, bill.type)
+        self.assertEqual(event.data.caption, bill.caption)
+
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 2)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_rejected(self):

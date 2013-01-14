@@ -33,6 +33,10 @@ class EventBillEdited(EventBillBase):
     TYPE = NEWSPAPER_EVENT_TYPE.BILL_EDITED
     TEMPLATE = 'newspaper/events/bill_edited.html'
 
+class EventBillRemoved(EventBillBase):
+    TYPE = NEWSPAPER_EVENT_TYPE.BILL_REMOVED
+    TEMPLATE = 'newspaper/events/bill_removed.html'
+
 class EventBillProcessed(EventBillBase):
     TYPE = NEWSPAPER_EVENT_TYPE.BILL_PROCESSED
     TEMPLATE = 'newspaper/events/bill_processed.html'

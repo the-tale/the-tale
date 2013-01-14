@@ -23,6 +23,10 @@ def newspaper_bill_edited(sender, bill, **kwargs):
 def newspaper_bill_processed(sender, bill, **kwargs):
     NewspaperEventPrototype.create(events.EventBillProcessed(bill_id=bill.id, bill_type=bill.type, caption=bill.caption, accepted=bill.state.is_accepted))
 
+@receiver(bills_signals.bill_removed, dispatch_uid="newspaper_bill_removed")
+def newspaper_bill_removed(sender, bill, **kwargs):
+    NewspaperEventPrototype.create(events.EventBillRemoved(bill_id=bill.id, bill_type=bill.type, caption=bill.caption))
+
 
 @receiver(game_signals.day_started, dispatch_uid='newspaper_day_started')
 def newspaper_day_started(sender, **kwargs):

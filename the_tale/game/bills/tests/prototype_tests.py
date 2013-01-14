@@ -146,13 +146,11 @@ class TestPrototype(BaseTestPrototypes):
         self.assertEqual(self.bill.data.name_forms.forms, self.NAME_FORMS)
 
     def test_remove(self):
-        self.assertEqual(Thread.objects.all().count(), 1)
-        self.assertEqual(Bill.objects.all().count(), 1)
-
-        self.bill.remove()
-
-        self.assertEqual(Thread.objects.all().count(), 0)
-        self.assertEqual(Bill.objects.all().count(), 0)
+        thread = Thread.objects.get(id=self.bill.forum_thread_id)
+        self.bill.remove(self.account1)
+        self.assertTrue(self.bill.state.is_removed)
+        self.assertEqual(Post.objects.all().count(), 2)
+        self.assertNotEqual(Thread.objects.get(id=self.bill.forum_thread_id).caption, thread.caption)
 
 
 class TestPrototypeApply(BaseTestPrototypes):

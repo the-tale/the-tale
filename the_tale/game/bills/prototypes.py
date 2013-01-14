@@ -88,6 +88,8 @@ class BillPrototype(object):
             self._owner = AccountPrototype(self.model.owner)
         return self._owner
 
+    def set_remove_initiator(self, initiator): self.model.remove_initiator = initiator.model
+
     @property
     def user_form_initials(self):
         special_initials = self.data.user_form_initials
@@ -246,9 +248,22 @@ class BillPrototype(object):
         self.model.save()
 
     @nested_commit_on_success
-    def remove(self):
-        self.model.forum_thread.delete()
-        self.model.delete()
+    def remove(self, initiator):
+        self.set_remove_initiator(initiator)
+        self.state = BILL_STATE.REMOVED
+        self.save()
+
+        thread = ThreadPrototype(self.model.forum_thread)
+        thread.caption = thread.caption + u' [удалён]'
+        thread.save()
+
+        PostPrototype.create(thread,
+                             initiator,
+                             u'Законопроект был удалён',
+                             technical=True)
+
+        signals.bill_removed.send(self.__class__, bill=self)
+
 
 
 class VotePrototype(object):

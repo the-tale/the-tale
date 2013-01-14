@@ -93,6 +93,12 @@ class TestIndexRequests(BaseTestRequests):
 
         self.check_html_ok(self.client.get(reverse('game:bills:')), texts=texts)
 
+    def test_removed_bills(self):
+        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        self.create_bills(1, self.account1, 'caption-a1-%d', 'rationale-a1-%d', bill_data)[0].remove(self.account1)
+
+        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-no-bills-message', 1),))
+
     def create_two_pages(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
         self.create_bills(bills_settings.BILLS_ON_PAGE, self.account1, 'caption-a1-%d', 'rationale-a1-%d', bill_data)
@@ -246,6 +252,12 @@ class TestShowRequests(BaseTestRequests):
     def test_unexsists(self):
         self.check_html_ok(self.client.get(reverse('game:bills:show', args=[0])), status_code=404)
 
+    def test_removed(self):
+        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        bill = self.create_bills(1, self.account1, 'caption-a1-%d', 'rationale-a1-%d', bill_data)[0]
+        bill.remove(self.account1)
+        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=[('bills.removed', 1)])
+
     def test_show(self):
         bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_2')
         self.create_bills(1, self.account1, 'caption-a2-%d', 'rationale-a2-%d', bill_data)
@@ -398,6 +410,10 @@ class TestEditRequests(BaseTestRequests):
     def test_unexsists(self):
         self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[666])), status_code=404)
 
+    def test_removed(self):
+        self.bill.remove(self.account1)
+        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=[('bills.removed', 1)])
+
     def test_no_permissions(self):
         self.request_logout()
         self.request_login('test_user2@test.com')
@@ -446,6 +462,10 @@ class TestUpdateRequests(BaseTestRequests):
 
     def test_type_not_exist(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[666]), self.get_post_data()), 'bills.bill.not_found')
+
+    def test_removed(self):
+        self.bill.remove(self.account1)
+        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id])), 'bills.removed')
 
     def test_no_permissions(self):
         self.request_logout()
@@ -503,6 +523,10 @@ class TestModerationPageRequests(BaseTestRequests):
 
     def test_unexsists(self):
         self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[666])), status_code=404)
+
+    def test_removed(self):
+        self.bill.remove(self.account1)
+        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=[('bills.removed', 1)])
 
     def test_no_permissions(self):
         self.request_logout()
@@ -571,6 +595,10 @@ class TestModerateRequests(BaseTestRequests):
     def test_type_not_exist(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[666]), self.get_post_data()), 'bills.bill.not_found')
 
+    def test_removed(self):
+        self.bill.remove(self.account1)
+        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id])), 'bills.removed')
+
     def test_no_permissions(self):
         self.request_logout()
         self.request_login('test_user1@test.com')
@@ -616,6 +644,10 @@ class TestDeleteRequests(BaseTestRequests):
 
     def test_type_not_exist(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[666]), {}), 'bills.bill.not_found')
+
+    def test_removed(self):
+        self.bill.remove(self.account1)
+        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id])), 'bills.removed')
 
     def test_no_permissions(self):
         self.request_logout()

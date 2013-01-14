@@ -100,7 +100,7 @@ class TestRequests(TestCase):
 
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[thread.id])), texts=(('news1-caption', 3),
                                                                                                     ('news1-description', 0),
-                                                                                                    ('news1-content', 2)))
+                                                                                                    ('news1-content', 1)))
 
         self.check_html_ok(self.client.get(reverse('news:show', args=[self.news1.id])), texts=(('pgf-forum-link', 1), ))
         self.check_html_ok(self.client.get(reverse('news:')), texts=(('pgf-forum-link', 1), ))

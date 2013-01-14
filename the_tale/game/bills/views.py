@@ -35,6 +35,9 @@ class BillResource(Resource):
 
         self.bill = bill
 
+        if self.bill and self.bill.state.is_removed:
+            return self.auto_error('bills.removed', u'Законопроект удалён')
+
         if self.account.is_fast:
             return self.auto_error('bills.is_fast', u'Вам необходимо завершить регистрацию, чтобы просматривать данный раздел')
 
@@ -50,7 +53,6 @@ class BillResource(Resource):
     @validator(code='bills.moderator_rights_required', message=u'Вы не являетесь модератором')
     def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_bill(self.bill)
 
-
     @validate_argument('page', int, 'bills', u'неверная страница')
     @validate_argument('owner', AccountPrototype.get_by_id, 'bills', u'неверный владелец закона')
     @validate_argument('state', BILL_STATE, 'bills', u'неверное состояние закона')
@@ -59,7 +61,7 @@ class BillResource(Resource):
     @handler('', method='get')
     def index(self, page=1, owner=None, state=None, bill_type=None, voted=None):
 
-        bills_query = Bill.objects.all()
+        bills_query = Bill.objects.exclude(state=BILL_STATE.REMOVED)
 
         is_filtering = False
 
@@ -177,7 +179,7 @@ class BillResource(Resource):
     @validate_moderator_rights()
     @handler('#bill', 'delete', name='delete', method='post')
     def delete(self):
-        self.bill.remove()
+        self.bill.remove(self.account)
         return self.json_ok()
 
     @validate_moderator_rights()
