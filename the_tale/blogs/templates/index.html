@@ -55,8 +55,8 @@
   <li style="margin-bottom: 1em;">
     <table class="table">
       <tr>
-        <td width="10em;"><a href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</td>
-        <td width="2em;" rel="tooltip" title="рейтинг" style="cursor: default;">
+        <td width="100px"><a href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</td>
+        <td width="20px" rel="tooltip" title="рейтинг" style="cursor: default;">
           <span class="label {% if post.votes > 0 %}label-success{% endif %} {% if post.votes < 0 %}label-important{% endif %}">
             {{ post.votes }}
           </span>
