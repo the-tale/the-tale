@@ -49,14 +49,14 @@ class Command(BaseCommand):
 
             shutil.copyfile(archive_file, '/home/the-tale/last_backup.gztar')
 
-            # print 'send email to %s' % portal_settings.DUMP_EMAIL
+            print 'send email to %s' % portal_settings.DUMP_EMAIL
 
-            # email = EmailMessage('[BACKUP][the-tale.org] %s' % timestamp_string,
-            #                      'backup file for %s' % timestamp_string,
-            #                      'no-reply@the-tale.org',
-            #                      [portal_settings.DUMP_EMAIL])
-            # email.attach_file(archive_file)
-            # email.send()
+            email = EmailMessage('[BACKUP][the-tale.org] %s' % timestamp_string,
+                                 'backup file for %s' % timestamp_string,
+                                 'no-reply@the-tale.org',
+                                 [portal_settings.DUMP_EMAIL])
+            email.attach_file(archive_file)
+            email.send()
 
         except:
             raise
