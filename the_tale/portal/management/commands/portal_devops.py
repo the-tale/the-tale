@@ -43,7 +43,7 @@ class Command(BaseCommand):
 
         if command == 'setup':
             subprocess.call(['fab', '-f', FABFILE, 'setup:static_data_version=%s,version=%s,domain=%s,host=%s' % (meta_config.static_data_version,
-                                                                                                                  meta_config.version,
+                                                                                                                  'rc.0.2.6',#meta_config.version,
                                                                                                                   HOST,
                                                                                                                   FULL_HOST)])
         else:

@@ -7,6 +7,8 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = ( ('forum', '0001_initial'), )
+
     def forwards(self, orm):
         # Adding model 'Bill'
         db.create_table('bills_bill', (

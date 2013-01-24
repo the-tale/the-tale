@@ -17,7 +17,10 @@ class Migration(DataMigration):
         DAYS = 7 * 3
         TURNS_IN_DAY = 360 * 24
 
-        turn_number = int(orm['settings.setting'].objects.get(key='turn number').value)
+        try:
+            turn_number = int(orm['settings.setting'].objects.get(key='turn number').value)
+        except orm['settings.setting'].DoesNotExist:
+            turn_number = 0
 
         for person in orm['persons.Person'].objects.all():
             power_step = person.power / DAYS
