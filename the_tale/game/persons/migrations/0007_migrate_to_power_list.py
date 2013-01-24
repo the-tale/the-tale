@@ -8,6 +8,10 @@ from django.db import models
 
 class Migration(DataMigration):
 
+    depends_on = (
+        ("settings", "0001_initial"),
+    )
+
     def forwards(self, orm):
 
         DAYS = 7 * 3

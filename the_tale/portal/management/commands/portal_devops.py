@@ -9,11 +9,19 @@ from django.conf import settings as project_settings
 
 from dext.utils.meta_config import MetaConfig
 
-FABFILE = '/home/tie/repos/mine/devops/the_tale'
-SETUP_HOST = "root@the-tale.org"
-UPDATE_HOST = "the-tale@the-tale.org"
+FABFILE = '/home/tie/repos/mine/devops/the_tale_2/deploy.py'
+
+USER = 'root'
+HOST = 'the-tale.org'
+
+USER = 'tie'
+HOST = '192.168.1.3'
+
+FULL_HOST = "%s@%s" % (USER, HOST)
+
 
 meta_config = MetaConfig(config_path=project_settings.META_CONFIG_FILE)
+
 
 class Command(BaseCommand):
 
@@ -34,15 +42,9 @@ class Command(BaseCommand):
         command = options['command']
 
         if command == 'setup':
-            subprocess.call(['fab', '-f', FABFILE, 'setup:host=%s' % SETUP_HOST])
-
-        elif command == 'update':
-            subprocess.call(['fab', '-f', FABFILE, 'update:static_data_version=%s,version=%s,host=%s' % (meta_config.static_data_version,
-                                                                                                         meta_config.version,
-                                                                                                         UPDATE_HOST)])
-
-        elif command == 'backup':
-            subprocess.call(['fab', '-f', FABFILE, 'backup:host=%s' % (UPDATE_HOST)])
-
+            subprocess.call(['fab', '-f', FABFILE, 'setup:static_data_version=%s,version=%s,domain=%s,host=%s' % (meta_config.static_data_version,
+                                                                                                                  meta_config.version,
+                                                                                                                  HOST,
+                                                                                                                  FULL_HOST)])
         else:
             print 'unknown command'
