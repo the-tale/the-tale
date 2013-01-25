@@ -51,9 +51,9 @@ class Command(BaseCommand):
 
             print 'send email to %s' % portal_settings.DUMP_EMAIL
 
-            email = EmailMessage('[BACKUP][the-tale.org] %s' % timestamp_string,
+            email = EmailMessage('[BACKUP][%s] %s' % (project_settings.SITE_URL, timestamp_string),
                                  'backup file for %s' % timestamp_string,
-                                 'no-reply@the-tale.org',
+                                 project_settings.SERVER_EMAIL,
                                  [portal_settings.DUMP_EMAIL])
             email.attach_file(archive_file)
             email.send()
