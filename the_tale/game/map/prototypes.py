@@ -78,7 +78,10 @@ class MapInfoPrototype(object):
         MapInfo.objects.exclude(id__in=new_ids).delete()
 
     @classmethod
-    def create(cls, turn_number, width, height, terrain, world):
+    def create(cls, turn_number, width, height, terrain, world=None):
+        '''
+        if world is None, it will be created in world property
+        '''
 
         # terrain percents
         terrain_squares = {}
@@ -116,6 +119,6 @@ class MapInfoPrototype(object):
                                        width=width,
                                        height=height,
                                        terrain=s11n.to_json(terrain),
-                                       world=s11n.to_json(world.serialize()),
+                                       world=s11n.to_json(world.serialize()) if world else '',
                                        statistics=s11n.to_json(statistics))
         return cls(model)

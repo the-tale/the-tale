@@ -6,9 +6,12 @@ from django.core.management.base import BaseCommand
 from dext.utils.decorators import nested_commit_on_success
 
 from game.map.roads.models import Road
-from game.map.places.models import Place, PLACE_TYPE
+from game.map.places.models import Place, PLACE_TYPE, TERRAIN
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage
+from game.map.storage import map_info_storage
+from game.map.prototypes import MapInfoPrototype
+from game.map.conf import map_settings
 
 class Command(BaseCommand):
 
@@ -87,3 +90,15 @@ class Command(BaseCommand):
 
         roads_storage.update_version()
         roads_storage.sync(force=True)
+
+        terrain = []
+        for y in xrange(0, map_settings.HEIGHT):
+            row = []
+            terrain.append(row)
+            for x in xrange(0, map_settings.WIDTH):
+                row.append(TERRAIN.FOREST)
+
+        map_info_storage.set_item(MapInfoPrototype.create(turn_number=0,
+                                                          width=map_settings.WIDTH,
+                                                          height=map_settings.HEIGHT,
+                                                          terrain=terrain))
