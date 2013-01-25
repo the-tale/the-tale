@@ -88,6 +88,9 @@ class Command(BaseCommand):
         places_storage.update_version()
         places_storage.sync(force=True)
 
+        for place in places_storage.all():
+            place.sync_persons()
+
         roads_storage.update_version()
         roads_storage.sync(force=True)
 
