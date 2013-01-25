@@ -33,7 +33,7 @@ TIME_ZONE = 'UTC'
 LANGUAGE_CODE = 'ru'
 
 SITE_ID = 1
-SITE_URL = 'the-tale.org'
+SITE_URL = None # MUST be defined in settings_local
 
 X_FRAME_OPTIONS = 'DENY'
 
