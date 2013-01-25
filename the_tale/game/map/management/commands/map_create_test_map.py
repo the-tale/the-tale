@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from dext.utils.decorators import nested_commit_on_success
 
 from game.map.roads.models import Road
-from game.map.places.models import Place, TERRAIN, PLACE_TYPE
+from game.map.places.models import Place, PLACE_TYPE
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage
 
@@ -27,7 +27,6 @@ class Command(BaseCommand):
                                      y=y,
                                      name='%dx%d' % (x, y),
                                      type=PLACE_TYPE.CITY,
-                                     subtype='UNDEFINED',
                                      size=size)
 
     def create_road(self, p1, p2):
