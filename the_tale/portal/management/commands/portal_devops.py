@@ -11,11 +11,11 @@ from dext.utils.meta_config import MetaConfig
 
 FABFILE = '/home/tie/repos/mine/devops/the_tale_2/deploy.py'
 
-USER = 'root'
-HOST = 'the-tale.org'
+# USER = 'root'
+# HOST = 'the-tale.org'
 
-USER = 'tie'
-HOST = '192.168.1.3'
+USER = 'root'
+HOST = 'the-tale.com'
 
 FULL_HOST = "%s@%s" % (USER, HOST)
 

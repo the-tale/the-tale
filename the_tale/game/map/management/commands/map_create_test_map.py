@@ -22,11 +22,10 @@ class Command(BaseCommand):
 
 
 
-    def create_place(self, x, y, terrain, size):
+    def create_place(self, x, y, size):
         return Place.objects.create( x=x,
                                      y=y,
                                      name='%dx%d' % (x, y),
-                                     terrain=terrain,
                                      type=PLACE_TYPE.CITY,
                                      subtype='UNDEFINED',
                                      size=size)
@@ -41,24 +40,24 @@ class Command(BaseCommand):
         Place.objects.all().delete()
         Road.objects.all().delete()
 
-        p1x1   = self.create_place(1,  1,  TERRAIN.DESERT, size=1)
-        p14x1  = self.create_place(14, 1,  TERRAIN.FOREST, size=1)
-        p27x1  = self.create_place(27, 1,  TERRAIN.SWAMP,  size=6)
-        p5x3   = self.create_place(5,  3,  TERRAIN.DESERT, size=5)
-        p1x9   = self.create_place(1,  9,  TERRAIN.FOREST, size=6)
-        p5x12  = self.create_place(5,  12, TERRAIN.GRASS,  size=1)
-        p3x17  = self.create_place(3,  17, TERRAIN.GRASS,  size=10)
-        p10x18 = self.create_place(10, 18, TERRAIN.FOREST, size=3)
-        p11x11 = self.create_place(11, 11, TERRAIN.SWAMP,  size=4)
-        p11x6  = self.create_place(11, 6,  TERRAIN.DESERT, size=4)
-        p19x5  = self.create_place(19, 5,  TERRAIN.FOREST, size=3)
-        p20x8  = self.create_place(20, 8,  TERRAIN.GRASS,  size=9)
-        p24x8  = self.create_place(24, 8,  TERRAIN.FOREST, size=10)
-        p17x12 = self.create_place(17, 12, TERRAIN.GRASS,  size=2)
-        p19x17 = self.create_place(19, 17, TERRAIN.FOREST, size=8)
-        p24x13 = self.create_place(24, 13, TERRAIN.FOREST, size=1)
-        p27x13 = self.create_place(27, 13, TERRAIN.GRASS,  size=1)
-        p28x19 = self.create_place(28, 19, TERRAIN.SWAMP,  size=3)
+        p1x1   = self.create_place(1,  1,  size=1)
+        p14x1  = self.create_place(14, 1,  size=1)
+        p27x1  = self.create_place(27, 1,  size=6)
+        p5x3   = self.create_place(5,  3,  size=5)
+        p1x9   = self.create_place(1,  9,  size=6)
+        p5x12  = self.create_place(5,  12, size=1)
+        p3x17  = self.create_place(3,  17, size=10)
+        p10x18 = self.create_place(10, 18, size=3)
+        p11x11 = self.create_place(11, 11, size=4)
+        p11x6  = self.create_place(11, 6,  size=4)
+        p19x5  = self.create_place(19, 5,  size=3)
+        p20x8  = self.create_place(20, 8,  size=9)
+        p24x8  = self.create_place(24, 8,  size=10)
+        p17x12 = self.create_place(17, 12, size=2)
+        p19x17 = self.create_place(19, 17, size=8)
+        p24x13 = self.create_place(24, 13, size=1)
+        p27x13 = self.create_place(27, 13, size=1)
+        p28x19 = self.create_place(28, 19, size=3)
 
         self.create_road(p1x1,   p5x3)
         self.create_road(p5x3,   p1x9)
