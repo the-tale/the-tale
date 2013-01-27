@@ -40,7 +40,8 @@ class PortalResource(Resource):
         forum_threads = [ ThreadPrototype(thread_model) for thread_model in Thread.objects.all().order_by('-updated_at')[:portal_settings.FORUM_THREADS_ON_INDEX]]
 
         blog_posts = [ BlogPostPrototype(blog_post_model)
-                       for blog_post_model in BlogPost.objects.filter(state=BLOG_POST_STATE.ACCEPTED, votes__gt=0).order_by('-created_at')[:portal_settings.BLOG_POSTS_ON_INDEX] ]
+                       for blog_post_model in BlogPost.objects.filter(state__in=[BLOG_POST_STATE.ACCEPTED, BLOG_POST_STATE.NOT_MODERATED],
+                                                                      votes__gt=0).order_by('-created_at')[:portal_settings.BLOG_POSTS_ON_INDEX] ]
 
         map_info = MapInfoPrototype(MapInfo.objects.all().order_by('-turn_number')[0])
 
