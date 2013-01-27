@@ -1,6 +1,8 @@
 # coding: utf-8
 from django.utils.log import getLogger
 
+from dext.settings import settings
+
 from common.amqp_queues import connection, BaseWorker
 from common import postponed_tasks
 
@@ -175,6 +177,8 @@ class Worker(BaseWorker):
     def process_next_turn(self):
         self.time.increment_turn()
         self.time.save()
+
+        settings.refresh()
 
         self.logic_worker.cmd_next_turn(turn_number=self.time.turn_number)
         self.wait_answers_from('next_turn', workers=['logic'])
