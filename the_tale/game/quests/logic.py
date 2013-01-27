@@ -50,6 +50,7 @@ def get_knowlege_base(hero):
                                        'type': person.type,
                                        'gender': person.gender,
                                        'race': person.race,
+                                       'mastery_verbose': person.mastery_verbose,
                                        'place_id': person.place_id})
 
     pref_mob = hero.preferences.mob

@@ -178,6 +178,11 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         jQuery('.pgf-race', content).text(race);
         jQuery('.pgf-gender', content).text(gender);
         jQuery('.pgf-type', content).text(profeccion);
+        
+        if (data.mastery_verbose) {
+            jQuery('.pgf-mastery', content).text(data.mastery_verbose);            
+        }
+
         popoverContent = content.html();
     }
 
