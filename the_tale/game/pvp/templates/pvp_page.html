@@ -3,7 +3,7 @@
 {% import 'heroes/hero_short.html' as hero_short_macros with context %}
 {% import 'heroes/hero_equipment.html' as hero_equipment_macros with context %}
 {% import 'game/macros.html' as game_macros with context %}
-{% import 'game/current_action.html' as current_action_macros with context %}
+{% import 'pvp/pvp_info.html' as pvp_info_macros with context %}
 {% import 'game/log.html' as log_macros with context %}
 
 {% macro render_abilities(abilities) %}
@@ -22,7 +22,7 @@
 {% block head %}
 {{ super() }}
 
-<script src="{{ STATIC_URL }}game/constants.js" type="text/javascript"></script>
+<script src="{{ STATIC_URL }}game/data/constants.js" type="text/javascript"></script>
 <script src="{{ STATIC_URL }}game/widgets.js" type="text/javascript"></script>
 <script src="{{ STATIC_URL }}game/angel.js" type="text/javascript"></script>
 <script src="{{ STATIC_URL }}game/map/map2.js" type="text/javascript"></script>
@@ -90,7 +90,7 @@ jQuery(document).ready(function(e){
     {{ hero_short_macros.hero_short("hero-short-pvp-account", false, true, master_account=resource.account, data_mode="pvp_account") }}
   </div>
   <div class="span6">
-    {{ current_action_macros.current_action(show_abilities=false, data_mode='pvp', say_form=say_form) }}
+    {{ pvp_info_macros.pvp_info(say_form=say_form) }}
   </div>
   <div class="span3">
     {{ hero_short_macros.hero_short("hero-short-pvp-enemy", false, true, master_account=enemy_account, data_mode="pvp_enemy") }}

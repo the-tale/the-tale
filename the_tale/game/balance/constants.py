@@ -1,6 +1,9 @@
 # coding: utf-8
-
+import os
 import math
+import itertools
+
+from common.utils import xls
 
 from game.balance import enums as e
 
@@ -108,6 +111,8 @@ DAMAGE_TO_MOB_PER_HIT_FRACTION = float(1.0 / (BATTLE_LENGTH / 2)) # доля у�
 DAMAGE_DELTA = float(0.2) # разброс в значениях урона [1-DAMAGE_DELTA, 1+DAMAGE_DELTA]
 
 DAMAGE_CRIT_MULTIPLIER = float(2.0) # во сколько раз увеличивается урон при критическом ударе
+DAMAGE_PVP_ADVANTAGE_MODIFIER = float(0.5) # на какую долю изменяется урон при максимальной разнице в преимуществе между бойцами
+DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER = float(3.5) # во сколько раз увеличится урон удара при максимальном преимушестве
 
 EXP_PER_HOUR = float(BATTLES_PER_HOUR * EXP_PER_MOB)  # опыт в час ;
 
@@ -261,26 +266,75 @@ ABILITIES_FOR_CHOOSE_MAXIMUM = 4
 # профессии
 ##########################
 
-import os
-from common.utils import xls
+_professions_xls_file = os.path.join(os.path.dirname(__file__), 'fixtures/professions.xls')
 
-_professions_to_race_mastery = xls.load_table(os.path.join(os.path.dirname(__file__), 'fixtures/professions.xls'), sheet_index=0,
-                                              rows=e.PERSON_TYPE._ID_TO_STR.values(),
-                                              columns=e.RACE._ID_TO_STR.values())
+PROFESSION_TO_RACE_MASTERY = xls.load_table_for_enums(_professions_xls_file, sheet_index=0,
+                                                      rows_enum=e.PERSON_TYPE, columns_enum=e.RACE,
+                                                      data_type=float)
 
-PROFESSION_TO_RACE_MASTERY = dict( (profession_id,
-                                    dict( (e.RACE._STR_TO_ID[race_str], value)
-                                          for race_str, value in _professions_to_race_mastery[profession_str].items()) )
-                                    for profession_id, profession_str in e.PERSON_TYPE._ID_TO_STR.items())
+PROFESSION_TO_CITY_MODIFIERS = xls.load_table_for_enums(_professions_xls_file, sheet_index=1,
+                                                        rows_enum=e.PERSON_TYPE, columns_enum=e.CITY_MODIFIERS,
+                                                        data_type=float)
 
-_professions_to_cities_effects = xls.load_table(os.path.join(os.path.dirname(__file__), 'fixtures/professions.xls'), sheet_index=1,
-                                                rows=e.PERSON_TYPE._ID_TO_STR.values(),
-                                                columns=e.CITY_MODIFIERS._ID_TO_STR.values())
+###########################
+# стили pvp боя
+###########################
 
-PROFESSION_TO_CITY_MODIFIERS = dict( (profession_id,
-                                            dict( (e.CITY_MODIFIERS._STR_TO_ID[specialization_id], value)
-                                                  for specialization_id, value in _professions_to_cities_effects[profession_str].items()) )
-                                            for profession_id, profession_str in e.PERSON_TYPE._ID_TO_STR.items())
+PVP_RESOURCES_PER_TURN = 1
+
+_pvp_combat_styles_file = os.path.join(os.path.dirname(__file__), 'fixtures/combat_styles.xls')
+
+PVP_COMBAT_STYLES_ADVANTAGES = xls.load_table_for_enums(_pvp_combat_styles_file, sheet_index=0,
+                                                        rows_enum=e.PVP_COMBAT_STYLES, columns_enum=e.PVP_COMBAT_STYLES)
+
+PVP_COMBAT_STYLES_COSTS = xls.load_table_for_enums(_pvp_combat_styles_file, sheet_index=2,
+                                                   rows_enum=e.PVP_COMBAT_STYLES, columns_enum=e.PVP_COMBAT_RESOURCES)
+
+# параметр используется для расчёта прочих игровых параметров
+# характеризует долю силы стиля
+_PVP_K = 3.0/4
+
+# стили должны угасать с такой скоростью
+# чтобы за время опускания силы до k-ой доли на него накапливалась d-ая часть ресурсов (d < 1)
+# решаем уравнение: x(1-p)^(dn) = kx, где x - сила стиля, p - коофициент угасания, k - остающаяся доля, n - ходы, за которе накапливается все ресурсы
+# p = 1 - math.pow(k, 1/n)
+_pvp_d = (1-_PVP_K) * 3/4
+_pvp_combat_styles_cost_turns = [ int(math.ceil(float(max(*cost.values()))/PVP_RESOURCES_PER_TURN))
+                                  for combat_style_id, cost in PVP_COMBAT_STYLES_COSTS.items()]
+_pvp_combat_styles_extinction_fractions = [1 - math.pow(_PVP_K, 1.0/(turns*_pvp_d)) for turns in _pvp_combat_styles_cost_turns]
+PVP_COMBAT_STYLE_EXTINCTION_FRACTION = sum(_pvp_combat_styles_extinction_fractions) / len(_pvp_combat_styles_extinction_fractions)
+
+_pvp_combat_styles_powers = xls.load_table(_pvp_combat_styles_file, sheet_index=1, rows=e.PVP_COMBAT_STYLES._ID_TO_STR.values())
+PVP_COMBAT_STYLES_POWERS = dict( (e.PVP_COMBAT_STYLES._STR_TO_ID[combat_style_str], powers[0]) for combat_style_str, powers in _pvp_combat_styles_powers.items() )
+
+# максимальный коофициент превосходства должен быть таким
+# чтобы силы слабого но свежего стиля и сильного сниженного до k-ой доли были равны
+# ВНИМАНИЕ: a <= kb, иначе коофициент будет отриццательным!!!
+# уравнение: a(1+x) = kb(1-x), где a - сила слабого стиля, b - сила сильного стиля, x - доля изменения
+# x = (kb-a)/(kb+a)
+# округляем, чтобы игрокам было легче
+_pvp_min_power = min(*PVP_COMBAT_STYLES_POWERS.values())
+_pvp_max_power = max(*PVP_COMBAT_STYLES_POWERS.values())
+
+if _pvp_min_power > _PVP_K * _pvp_max_power:
+    raise Exception('this MUST BE TRUE: a <= kb')
+
+_pvp_max_combat_style_advantage = (_PVP_K*_pvp_max_power - _pvp_min_power)/(_PVP_K*_pvp_max_power + _pvp_min_power)
+
+# normalize combat style advantages
+_pvp_max_advantage = max(itertools.chain(*[[math.fabs(advantage) for advantage in style_advantages.values()]
+                                       for style_advantages in PVP_COMBAT_STYLES_ADVANTAGES.values()]))
+
+for combat_style_id in e.PVP_COMBAT_STYLES._ALL:
+    for combat_style_id_2 in e.PVP_COMBAT_STYLES._ALL:
+        advantage = PVP_COMBAT_STYLES_ADVANTAGES[combat_style_id][combat_style_id_2]
+        PVP_COMBAT_STYLES_ADVANTAGES[combat_style_id][combat_style_id_2] = round(1 + advantage / _pvp_max_advantage * _pvp_max_combat_style_advantage, 2)
+
+# максимальный сдвиг преимушества устанавливается для максимальной разницы в силе стилей (т.е. между 0-ом и максимальной силой с максимальным бонусом)
+PVP_MAX_ADVANTAGE_STEP = 0.3
+PVP_MAX_POWER_MULTIPLIER = _pvp_max_power * (1 + _pvp_max_combat_style_advantage)
+
+PVP_ADVANTAGE_BARIER = 0.95
 
 
 ###########################

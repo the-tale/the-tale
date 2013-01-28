@@ -41,6 +41,8 @@ from game.text_generation import get_vocabulary, get_dictionary, prepair_substit
 from game.balance import constants as c, formulas as f, enums as e
 from game.prototypes import TimePrototype, GameTime
 
+from game.pvp.combat_styles import COMBAT_STYLES
+
 logger=getLogger('the-tale.workers.game_logic')
 
 class HeroPrototype(object):
@@ -636,6 +638,39 @@ class HeroPrototype(object):
         self.actions_descriptions_updated = True
         self.actions_descriptions.pop()
 
+    def get_pvp_combat_style(self): return self.model.pvp_combat_style
+    def set_pvp_combat_style(self, value): self.model.pvp_combat_style = value
+    pvp_combat_style = property(get_pvp_combat_style, set_pvp_combat_style)
+
+    def get_pvp_advantage(self): return self.model.pvp_advantage
+    def set_pvp_advantage(self, value): self.model.pvp_advantage = value
+    pvp_advantage = property(get_pvp_advantage, set_pvp_advantage)
+
+    def get_pvp_power(self): return self.model.pvp_power
+    def set_pvp_power(self, value): self.model.pvp_power = value
+    pvp_power = property(get_pvp_power, set_pvp_power)
+
+    def update_pvp_power_modified(self, enemy_hero):
+        if None in (self.pvp_combat_style, enemy_hero.pvp_combat_style if enemy_hero else None):
+            self.model.pvp_power_modified = self.pvp_power
+        else:
+            self.model.pvp_power_modified = self.pvp_power * c.PVP_COMBAT_STYLES_ADVANTAGES[self.pvp_combat_style][enemy_hero.pvp_combat_style]
+
+    @property
+    def pvp_power_modified(self): return self.model.pvp_power_modified
+
+    def get_pvp_rage(self): return self.model.pvp_resource_rage
+    def set_pvp_rage(self, value): self.model.pvp_resource_rage = value
+    pvp_rage = property(get_pvp_rage, set_pvp_rage)
+
+    def get_pvp_initiative(self): return self.model.pvp_resource_initiative
+    def set_pvp_initiative(self, value): self.model.pvp_resource_initiative = value
+    pvp_initiative = property(get_pvp_initiative, set_pvp_initiative)
+
+    def get_pvp_concentration(self): return self.model.pvp_resource_concentration
+    def set_pvp_concentration(self, value): self.model.pvp_resource_concentration = value
+    pvp_concentration = property(get_pvp_concentration, set_pvp_concentration)
+
     @property
     def messages(self):
         if not hasattr(self, '_messages'):
@@ -805,6 +840,13 @@ class HeroPrototype(object):
                                    e.ITEMS_OF_EXPENDITURE.IMPACT: 'impact'}[self.next_spending],
                 'action': { 'percents': self.last_action_percents,
                             'description': self.actions_descriptions[-1]},
+                'pvp': { 'combat_style': COMBAT_STYLES[self.pvp_combat_style].str_id.lower() if self.pvp_combat_style is not None else None,
+                         'advantage': self.pvp_advantage,
+                         'power': self.pvp_power,
+                         'power_modified': self.pvp_power_modified,
+                         'resource': {'rage': self.pvp_rage,
+                                      'initiative': self.pvp_initiative,
+                                      'concentration': self.pvp_concentration} },
                 'base': { 'name': self.name,
                           'level': self.level,
                           'destiny_points': self.max_ability_points_number - self.current_ability_points_number,

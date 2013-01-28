@@ -459,16 +459,8 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
         data.actions = [];
 
-        if (params.dataMode == 'pve') {
-            if (game_data.hero) {
-                data.action = game_data.hero.action;                            
-            }
-        }
-
-        if (params.dataMode == 'pvp') {
-            if (game_data.account.hero) {
-                data.action = game_data.account.hero.action;                            
-            }
+        if (game_data.hero) {
+            data.action = game_data.hero.action;                            
         }
     };
 
@@ -478,6 +470,140 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
     this.GetCurrentAction = function() {
         return data.action;
+    };
+
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        instance.Refresh(game_data);
+        instance.Render();
+    });
+};
+
+pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
+    var instance = this;
+
+    var widget = jQuery(selector);
+
+    var pvpInfoBlock = jQuery('.pgf-info-block-block', widget);
+
+    var styleRecords = jQuery('.pvp-style-record', widget);
+
+    var data = {};
+
+    var processingChangeStyleRequest = false;
+
+    function RefreshStylesStates() {
+        styleRecords.each(
+            function(i, el) {
+                el = jQuery(el);
+                var rage = parseInt(el.data('rage'));
+                var initiative = parseInt(el.data('initiative'));
+                var concentration = parseInt(el.data('concentration'));
+
+                var ownPvP = data.own_hero.pvp;
+
+                var disable = processingChangeStyleRequest || 
+                    ownPvP.resource.rage < rage || 
+                    ownPvP.resource.initiative < initiative || 
+                    ownPvP.resource.concentration < concentration;
+                
+                el.toggleClass('disabled pgf-disabled', disable);
+            });
+    }
+
+    styleRecords.click( 
+        function(e) {
+            var target = jQuery(e.currentTarget);
+            e.preventDefault();
+
+            if (target.hasClass("pgf-disabled")) {
+                pgf.ui.dialog.Alert({title: "Нельзя изменить стиль",
+                                     message: "Нельзя изменить стиль: не хватает ресурсов либо изменение уже применяется."});
+                return;
+            }
+
+            processingChangeStyleRequest = true;
+
+            RefreshStylesStates();
+
+            pgf.forms.Post({action: target.attr("href"),
+                            data: {},
+                            wait: false,
+                            OnError: function() {
+                                processingChangeStyleRequest = false;
+                                RefreshStylesStates();
+                            },
+                            OnSuccess: function(data) {
+                                processingChangeStyleRequest = false;
+                                RefreshStylesStates();
+                                jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
+                            }
+                           });            
+        });
+
+    function ToggleAdwantageColors(greate, good, bad, worse) {
+        jQuery('.pgf-advantage-progress', widget)
+            .toggleClass('progress-success', greate)
+            .toggleClass('progress-info', good)
+            .toggleClass('progress-warning', bad)
+            .toggleClass('progress-danger', worse);        
+    }
+
+    function RenderResources(element, rage, initiative, concentration) {
+        jQuery('.pgf-pvp-rage', element).text(rage);
+        jQuery('.pgf-pvp-initiative', element).text(initiative);
+        jQuery('.pgf-pvp-concentration', element).text(concentration);
+    }
+
+    function RenderPvpInfo() {
+
+        if (!data.own_hero) return;
+
+        var ownPvP = data.own_hero.pvp;
+        var enemyPvP = data.enemy_hero.pvp;
+
+        jQuery('.pgf-advantage-percents', widget).width( ((0.5 + ownPvP.advantage * 0.5) * 100) + '%');
+
+        RenderResources(jQuery('.pgf-own-pvp-resources', widget), ownPvP.resource.rage, ownPvP.resource.initiative, ownPvP.resource.concentration);
+
+        RenderResources(jQuery('.pgf-enemy-pvp-resources', widget), enemyPvP.resource.rage, enemyPvP.resource.initiative, enemyPvP.resource.concentration);
+
+        jQuery('.pgf-own-power', widget).text(Math.round(ownPvP.power_modified));
+        jQuery('.pgf-enemy-power', widget).text(Math.round(enemyPvP.power_modified));
+
+        jQuery('.pvp-own-style', widget).removeClass('pvp-own-style');
+        jQuery('.pvp-enemy-style', widget).removeClass('pvp-enemy-style');
+
+        if (ownPvP.combat_style) {
+            jQuery('.pvp-style-icon.'+ownPvP.combat_style, widget).toggleClass('pvp-own-style', true);            
+        }
+
+        if (enemyPvP.combat_style) {
+            jQuery('.pvp-style-icon.'+enemyPvP.combat_style, widget).toggleClass('pvp-enemy-style', true);
+        }
+            
+        if (0.5 <= ownPvP.advantage) { ToggleAdwantageColors(true, false, false, false);}
+        else {
+            if (0 <= ownPvP.advantage && ownPvP.advantage < 0.5) { ToggleAdwantageColors(false, true, false, false);}   
+            else {
+                if (-0.5 <= ownPvP.advantage && ownPvP.advantage < 0) { ToggleAdwantageColors(false, false, true, false);}                   
+                else {
+                    ToggleAdwantageColors(false, false, false, true);   
+                }
+            }
+        }
+    }
+
+    this.Refresh = function(game_data) {
+
+        if (game_data.account.hero) {
+            data.own_hero = game_data.account.hero;
+            data.enemy_hero = game_data.enemy.hero;
+            RefreshStylesStates();
+        }
+    };
+
+    this.Render = function() {
+        RenderPvpInfo();
     };
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){

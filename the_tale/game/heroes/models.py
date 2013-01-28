@@ -67,6 +67,14 @@ class Hero(models.Model):
 
     last_action_percents = models.FloatField(null=False, default=0)
 
+    pvp_combat_style = models.IntegerField(null=True, default=None)
+    pvp_advantage = models.FloatField(null=False, default=0)
+    pvp_power = models.FloatField(null=False, default=0)
+    pvp_power_modified = models.FloatField(null=False, default=0)
+    pvp_resource_rage = models.IntegerField(null=False, default=0)
+    pvp_resource_initiative = models.IntegerField(null=False, default=0)
+    pvp_resource_concentration = models.IntegerField(null=False, default=0)
+
     next_spending = models.IntegerField(null=False, default=e.ITEMS_OF_EXPENDITURE.USELESS, choices=e.ITEMS_OF_EXPENDITURE._CHOICES)
 
     energy = models.FloatField(null=False, default=0.0)

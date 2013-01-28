@@ -1,0 +1,114 @@
+
+{% macro pvp_style_record(image, combat_style) %}
+
+<a class="pvp-style-record pull-left pgf-style-record disabled pgf-disabled"
+   href="{{url('game:pvp:change-style')}}?combat_style={{combat_style.type}}"
+   rel="tooltip"
+   data-rage="{{combat_style.cost_rage}}" data-initiative="{{combat_style.cost_initiative}}" data-concentration="{{combat_style.cost_concentration}}"
+   title="<strong>{{combat_style.name}}</strong><br/>
+          <div class='pvp-resource label label-important'>{{combat_style.cost_rage}}</div> <div class='pvp-resource label label-info'>{{combat_style.cost_initiative}}</div> <div class='pvp-resource label label-success'>{{combat_style.cost_concentration}}</div><br/>
+          <strong>эффективность {{combat_style.power}}</strong><br/>
+          <i>преимущество над</i>
+          <ul class='unstyled' style='text-align: left; min-width: 150px;'>
+            {% for style_id, advantage in combat_style.advantages %}
+            <li>{{COMBAT_STYLES[style_id].name}} <span class='pull-right'
+                                                       style='margin-right: 5px; color:{%if advantage>1%}Chartreuse{%elif advantage<1%}red{%else%}{%endif%};'>x {{advantage}}</span></li>
+            {% endfor %}
+          </ul>">
+  <i class="pvp-style-icon {{image}}">
+    <div class="pvp-style-hover"></div>
+  </i>
+</a>
+
+{% endmacro %}
+
+{% macro pvp_info(say_form) %}
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    widgets.pvp_info = new pgf.game.widgets.PvPInfo('#pvp-info-block', updater, widgets);
+
+    var sayForm = new pgf.forms.Form(jQuery('#pgf-say-form'),
+                                     {OnSuccess: function(instance, data){jQuery("#id_text").val("");
+                                                                          updater.Refresh();}});
+
+});
+</script>
+
+<div id="pvp-info-block" class="block" style="cursor: default;">
+
+  <div>
+    <strong>преимущество</strong>
+    <div class="progress pgf-advantage-progress" style="margin: 10px 0;">
+      <div class="bar pgf-advantage-percents"></div>
+    </div>
+
+    <div>
+
+      <table class="pvp-info-table table table-condensed" style="width: 100%; margin-bottom: 0;">
+        <tbody>
+          <tr style="width: 100%; text-align: center;">
+            <td class="pvp-resources-record pgf-own-pvp-resources" rel="tooltip" title="ярость">
+              <div class="pgf-pvp-rage label pvp-resource label-important"></div>
+            </td>
+            <td class="pvp-resources-record pgf-own-pvp-resources" rel="tooltip" title="инициатива">
+              <div class="pgf-pvp-initiative pvp-resource label label-info"></div>
+            </td>
+            <td class="pvp-resources-record pgf-own-pvp-resources" rel="tooltip" title="концентрация">
+              <div class="pgf-pvp-concentration pvp-resource label label-success"></div>
+            </td>
+
+            <td width="30px" class="pvp-power pgf-own-power" rel="tooltip" title="эффективность вашего стиля"></td>
+            <td width="10px">VS</td>
+            <td width="30px" class="pvp-power pgf-enemy-power" rel="tooltip" title="эффективность стиля противника"></td>
+
+            <td class="pvp-resources-record pgf-enemy-pvp-resources" rel="tooltip" title="ярость">
+              <div class="pgf-pvp-rage label pvp-resource label-important"></div>
+            </td>
+            <td class="pvp-resources-record pgf-enemy-pvp-resources" rel="tooltip" title="инициатива">
+              <div class="pgf-pvp-initiative pvp-resource label label-info"></div>
+            </td>
+            <td class="pvp-resources-record pgf-enemy-pvp-resources" rel="tooltip" title="концентрация">
+              <div class="pgf-pvp-concentration pvp-resource label label-success"></div>
+            </td>
+
+
+          </tr>
+          <tr>
+            <td colspan="9" class="pvp-style-container">
+              {{ pvp_style_record("tiger", COMBAT_STYLES[PVP_COMBAT_STYLES.TIGER]) }}
+              {{ pvp_style_record("monkey", COMBAT_STYLES[PVP_COMBAT_STYLES.MONKEY]) }}
+              {{ pvp_style_record("mantis", COMBAT_STYLES[PVP_COMBAT_STYLES.MANTIS]) }}
+              {{ pvp_style_record("bear", COMBAT_STYLES[PVP_COMBAT_STYLES.BEAR]) }}
+              {{ pvp_style_record("snake", COMBAT_STYLES[PVP_COMBAT_STYLES.SNAKE]) }}
+              {{ pvp_style_record("fox", COMBAT_STYLES[PVP_COMBAT_STYLES.FOX]) }}
+              {{ pvp_style_record("owl", COMBAT_STYLES[PVP_COMBAT_STYLES.OWL]) }}
+              {{ pvp_style_record("scorpion", COMBAT_STYLES[PVP_COMBAT_STYLES.SCORPION]) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+  </div>
+
+  <form id="pgf-say-form" method="post" class="form-inline" action="{{ url('game:pvp:say') }}" style="margin: 0;">
+
+    {{ say_form.errors_container }}
+
+    <table width="100%">
+      <tr>
+        <td style="padding-right: 1em;">
+          <input id="id_text" type="text" name="text" maxlength="{{say_form.text.field.max_length}}" style="margin: 0; width: 100%;"/>
+        </td>
+        <td width="5em;">
+          <input type="submit" value="Сказать" class="btn pull-right"/>
+        </td>
+      </tr>
+    </table>
+  </form>
+
+</div>
+
+{% endmacro %}

@@ -46,6 +46,9 @@ class BattleContext(object):
         self.outcoming_magic_damage_modifier = 1.0
         self.outcoming_physic_damage_modifier = 1.0
 
+        self.pvp_advantage = 0
+        self.pvp_advantage_used = False
+
     def use_ability_magic_mushroom(self, damage_factors): self.ability_magic_mushroom = [None] + damage_factors
 
     def use_ability_sidestep(self, miss_probabilities): self.ability_sidestep = [None] + miss_probabilities
@@ -75,6 +78,9 @@ class BattleContext(object):
     def use_outcoming_damage_modifier(self, physic=1.0, magic=1.0):
         self.outcoming_magic_damage_modifier *= magic
         self.outcoming_physic_damage_modifier *= physic
+
+    def use_pvp_advantage(self, advantage):
+        self.pvp_advantage = min(1.0, max(-1.0, advantage))
 
     @property
     def is_stunned(self): return (self.stun_length > 0)
@@ -107,6 +113,14 @@ class BattleContext(object):
         damage.multiply(self.berserk_damage_modifier, self.berserk_damage_modifier)
 
         damage.multiply(self.outcoming_physic_damage_modifier, self.outcoming_magic_damage_modifier)
+
+        if self.pvp_advantage > c.PVP_ADVANTAGE_BARIER:
+            damage.multiply(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER)
+            self.pvp_advantage_used = True
+        else:
+            advantage_damage_multiplier = 1 + self.pvp_advantage * c.DAMAGE_PVP_ADVANTAGE_MODIFIER
+            damage.multiply(advantage_damage_multiplier, advantage_damage_multiplier)
+
         damage.randomize()
         return damage
 
@@ -131,6 +145,8 @@ class BattleContext(object):
 
         self.outcoming_magic_damage_modifier = 1.0
         self.outcoming_physic_damage_modifier = 1.0
+
+        self.pvp_advantage_used = False
 
     def on_own_turn(self):
         if self.ability_magic_mushroom:

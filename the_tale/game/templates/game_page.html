@@ -3,7 +3,6 @@
 {% import 'heroes/hero_short.html' as hero_short_macros with context %}
 {% import 'heroes/hero_equipment.html' as hero_equipment_macros with context %}
 {% import 'game/macros.html' as game_macros with context %}
-{% import 'game/current_action.html' as current_action_macros with context %}
 {% import 'game/log.html' as log_macros with context %}
 
 {% block title %}Игра | {{ super() }}{% endblock %}
@@ -114,7 +113,7 @@ jQuery(document).ready(function(e){
     {{ hero_short_macros.hero_short("hero-short-data", true, true) }}
   </div>
   <div class="span5">
-    {{ current_action_macros.current_action(show_abilities=true, data_mode='pve') }}
+    {% include "game/current_action.html" %}
   </div>
   <div class="span4">
     {% include "game/current_quest.html" %}

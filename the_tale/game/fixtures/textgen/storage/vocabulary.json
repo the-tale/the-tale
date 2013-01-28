@@ -575,6 +575,35 @@
       "template": "%(e_0)s %(i_0)s, что %(e_1)s как нельзя лучше подойдёт геройскому образу."
     }
   ], 
+  "quest_hometown_journal_move_to_quest": [
+    {
+      "internals": [
+        [
+          "отправился", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "отправился"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s в родной город."
+    }
+  ], 
   "quest_caravan_action_bandits_attack": [
     {
       "internals": [], 
@@ -1795,7 +1824,36 @@
       "template": "%(e_0)s %(i_0)s и %(i_1)s мимо %(e_1)s."
     }
   ], 
-  "quest_delivery_action_delivery_get_reward_money": [], 
+  "pvp_change_style_to_owl": [
+    {
+      "internals": [
+        [
+          "изменил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "изменил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл", 
+            "им"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s стиль боя на стиль совы."
+    }
+  ], 
   "quest_helpfriend_action_move_to_quest": [
     {
       "internals": [], 
@@ -2174,6 +2232,36 @@
       "template": "%(e_0)s %(i_0)s от удара %(e_1)s. Толпа ликует!"
     }
   ], 
+  "pvp_change_style_to_snake": [
+    {
+      "internals": [
+        [
+          "изменил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "изменил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл", 
+            "им"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s стиль боя на стиль змеи."
+    }
+  ], 
   "quest_interfereenemy_action_intro": [
     {
       "internals": [], 
@@ -2190,11 +2278,26 @@
     }
   ], 
   "quest_hometown_diary_move_to_quest": [], 
-  "quest_hometown_journal_move_to_quest": [
+  "quest_hometown_action_remember_names": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s гуляет по городу"
+    }
+  ], 
+  "pvp_change_style_to_monkey": [
     {
       "internals": [
         [
-          "отправился", 
+          "изменил", 
           [
             "hero"
           ], 
@@ -2202,7 +2305,7 @@
           [
             "прш"
           ], 
-          "отправился"
+          "изменил"
         ]
       ], 
       "externals": [
@@ -2211,15 +2314,15 @@
           [], 
           "e_0", 
           [
-            "загл"
+            "загл", 
+            "им"
           ], 
           "hero"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s в родной город."
+      "template": "%(e_0)s %(i_0)s стиль боя на стиль обезьяны."
     }
   ], 
-  "quest_spying_action_get_reward_spying_artifact": [], 
   "quest_hometown_journal_stagger_streets_donothing": [
     {
       "internals": [], 
@@ -2669,19 +2772,34 @@
       "template": "На горизонте показалась яркая точка, стремительно приближающаяся к %(e_0)s. Мгновение и шар огня выжег аккуратный круг там, где находился противник."
     }
   ], 
-  "quest_hunt_action_hunt": [
+  "pvp_change_style_to_scorpion": [
     {
-      "internals": [], 
+      "internals": [
+        [
+          "изменил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "изменил"
+        ]
+      ], 
       "externals": [
         [
           "hero", 
           [], 
           "e_0", 
-          [], 
+          [
+            "загл", 
+            "им"
+          ], 
           "hero"
         ]
       ], 
-      "template": "%(e_0)s охотится"
+      "template": "%(e_0)s %(i_0)s стиль боя на стиль скорпиона."
     }
   ], 
   "quest_notmywork_description": [
@@ -4096,19 +4214,11 @@
       "template": "%(e_0)s идёт к месту охоты"
     }
   ], 
-  "quest_hometown_action_remember_names": [
+  "quest_notmywork_journal_move_to_customer": [
     {
       "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s гуляет по городу"
+      "externals": [], 
+      "template": "А теперь можно и за наградой."
     }
   ], 
   "quest_spying_choice_openup_result_spy": [
@@ -4769,7 +4879,36 @@
     }
   ], 
   "quest_spying_action_get_reward_open_up_money": [], 
-  "quest_helpfriend_action_negative_get_reward_money": [], 
+  "pvp_change_style_to_bear": [
+    {
+      "internals": [
+        [
+          "изменил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "изменил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл", 
+            "им"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s стиль боя на стиль медведя."
+    }
+  ], 
   "quest_hometown_diary_get_reward_money": [
     {
       "internals": [
@@ -5325,24 +5464,9 @@
       "template": "Нахватал полные карманы добра, теперь надо бежать."
     }
   ], 
+  "quest_spying_action_get_reward_spying_artifact": [], 
   "quest_delivery_diary_steal_item": [], 
-  "action_rest_description": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "залечивает раны"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "смазывает царапины лечебной мазью"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "накладывает повязку на рану"
-    }
-  ], 
+  "quest_hometown_journal_remember_names_donothing": [], 
   "hero_ability_vampire_strike": [
     {
       "internals": [
@@ -5478,11 +5602,19 @@
       "template": "вспоминает как зовут знакомого оружейника"
     }
   ], 
-  "quest_notmywork_journal_move_to_customer": [
+  "quest_hunt_action_hunt": [
     {
       "internals": [], 
-      "externals": [], 
-      "template": "А теперь можно и за наградой."
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s охотится"
     }
   ], 
   "hero_ability_speedup": [
@@ -5545,65 +5677,7 @@
       "template": "Ой, мне кажется этот торговец смотрит на меня - надо бежать."
     }
   ], 
-  "quest_delivery_diary_delivery_get_reward_money": [
-    {
-      "internals": [
-        [
-          "расщедрился", 
-          [
-            "person_end"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "расщедрился"
-        ], 
-        [
-          "вручил", 
-          [
-            "person_end"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "вручил"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_2", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "person_end", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "person_end"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s и %(i_1)s %(e_1)s %(i_2)s в награду за быструю доставку."
-    }
-  ], 
+  "quest_helpfriend_action_negative_get_reward_money": [], 
   "quest_help_description": [
     {
       "internals": [], 
@@ -5750,6 +5824,36 @@
     }
   ], 
   "quest_delivery_diary_move_to_destination": [], 
+  "pvp_change_style_to_tiger": [
+    {
+      "internals": [
+        [
+          "изменил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "изменил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл", 
+            "им"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s стиль боя на стиль тигра."
+    }
+  ], 
   "quest_interfereenemy_diary_intro": [
     {
       "internals": [], 
@@ -8108,6 +8212,7 @@
       "template": "%(e_0)s быстро %(i_0)s, %(i_1)s и в стремительном рывке %(i_2)s разящий удар в %(e_1)s %(i_3)s урона на %(e_2)s."
     }
   ], 
+  "quest_delivery_action_delivery_get_reward_money": [], 
   "quest_notmywork_journal_attack_performer": [], 
   "quest_spying_diary_spying": [], 
   "quest_delivery_action_choice_steal": [], 
@@ -9090,6 +9195,21 @@
       "template": "Прошпионить"
     }
   ], 
+  "quest_caravan_action_choice_defend": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s защищает караван от бандитов"
+    }
+  ], 
   "quest_caravan_diary_bad_get_reward_money": [
     {
       "internals": [
@@ -9159,7 +9279,36 @@
       "template": "%(i_0)s гонорар за очередные «Записки охотника». %(i_1)s в рюкзак %(e_0)s."
     }
   ], 
-  "quest_hometown_journal_remember_names_donothing": [], 
+  "pvp_change_style_to_fox": [
+    {
+      "internals": [
+        [
+          "изменил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "изменил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл", 
+            "им"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s стиль боя на стиль лиса."
+    }
+  ], 
   "quest_spying_choice_openup_variant_spy": [
     {
       "internals": [], 
@@ -10127,19 +10276,11 @@
       "template": "Стоит помочь бедняге."
     }
   ], 
-  "quest_caravan_action_choice_defend": [
+  "quest_hometown_description": [
     {
       "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s защищает караван от бандитов"
+      "externals": [], 
+      "template": "Посетить родной город"
     }
   ], 
   "quest_hometown_journal_stagger_streets_description": [
@@ -10555,6 +10696,23 @@
       "template": "%(e_0)s идёт в гости"
     }
   ], 
+  "action_rest_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "залечивает раны"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "смазывает царапины лечебной мазью"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "накладывает повязку на рану"
+    }
+  ], 
   "quest_spying_choice_openup_variant_open_up": [
     {
       "internals": [], 
@@ -10570,6 +10728,65 @@
     }
   ], 
   "quest_spying_action_open_up_choice": [], 
+  "quest_delivery_diary_delivery_get_reward_money": [
+    {
+      "internals": [
+        [
+          "расщедрился", 
+          [
+            "person_end"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "расщедрился"
+        ], 
+        [
+          "вручил", 
+          [
+            "person_end"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "вручил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_end", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "person_end"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s и %(i_1)s %(e_1)s %(i_2)s в награду за быструю доставку."
+    }
+  ], 
   "quest_interfereenemy_action_get_reward_artifact": [], 
   "action_rest_start": [
     {
@@ -11427,11 +11644,34 @@
       "template": "%(e_0)s идёт к месту охоты"
     }
   ], 
-  "quest_hometown_description": [
+  "pvp_change_style_to_mantis": [
     {
-      "internals": [], 
-      "externals": [], 
-      "template": "Посетить родной город"
+      "internals": [
+        [
+          "изменил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "изменил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл", 
+            "им"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s стиль боя на стиль богомола."
     }
   ], 
   "quest_searchsmith_description": [

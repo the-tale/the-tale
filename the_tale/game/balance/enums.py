@@ -53,3 +53,17 @@ CITY_MODIFIERS = create_enum('CITY_MODIFIERS', ( ('TRADE_CENTER', 0, u'Торг�
                                                  ('POLIC', 4, u'Полис'),
                                                  ('RESORT', 5, u'Курорт'),
                                                  ('TRANSPORT_NODE', 6, u'Транспортный узел') ))
+
+
+PVP_COMBAT_STYLES = create_enum('PVP_COMBAT_STYLES', ( ('TIGER', 0, u'Стиль Тигра'),
+                                                       ('MONKEY', 1, u'Стиль Обезьяны'),
+                                                       ('MANTIS', 2, u'Стиль Богомола'),
+                                                       ('BEAR', 3, u'Стиль Медведя'),
+                                                       ('SNAKE', 4, u'Стиль Змеи'),
+                                                       ('FOX', 5, u'Стиль Лиса'),
+                                                       ('OWL', 6, u'Стиль Совы'),
+                                                       ('SCORPION', 7, u'Стиль Скорпиона')))
+
+PVP_COMBAT_RESOURCES = create_enum('PVP_COMBAT_RESOURCES', ( ('RAGE', 0, u'Ярость'),
+                                                             ('INITIATIVE', 1, u'Инициатива'),
+                                                             ('CONCENTRATION', 2, u'Концентрация') ))

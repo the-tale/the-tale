@@ -53,7 +53,7 @@ pgf.widgets = {
                     return;
                 }
                 instance.change(delta);
-            }
+            };
         }
 
         plus.click( CreateBtnCallback(1) );

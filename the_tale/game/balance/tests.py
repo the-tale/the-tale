@@ -63,6 +63,9 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.DAMAGE_TO_MOB_PER_HIT_FRACTION, 1.0 / (16/2))
         self.assertEqual(c.DAMAGE_DELTA, 0.2)
         self.assertEqual(c.DAMAGE_CRIT_MULTIPLIER, 2.0)
+        self.assertEqual(c.DAMAGE_PVP_ADVANTAGE_MODIFIER, 0.5)
+        self.assertEqual(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, 3.5)
+
         self.assertEqual(c.EXP_PER_HOUR, (360.0 / (int(8*(16+5)-5 + (8*(16+5)-5) * 0.2)) * 8) * 1)
 
         self.assertEqual(c.MAX_BAG_SIZE, 12)
@@ -158,6 +161,13 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM, 2)
         self.assertEqual(c.ABILITIES_FOR_CHOOSE_MAXIMUM, 4)
 
+        # different pvp constants
+        self.assertEqual(c._PVP_K, 3.0/4) # if this constant changed, check all pvp balancing
+        self.assertEqual(c.PVP_RESOURCES_PER_TURN, 1)
+        self.assertEqual(c.PVP_MAX_ADVANTAGE_STEP, 0.3)
+        self.assertEqual(c.PVP_MAX_POWER_MULTIPLIER, 144.0)
+        self.assertEqual(c.PVP_ADVANTAGE_BARIER, 0.95)
+
     def test_profession_to_race_mastery(self):
         for profession, masteries in c.PROFESSION_TO_RACE_MASTERY.items():
             self.assertEqual(len(masteries), len(e.RACE._ALL))
@@ -176,6 +186,11 @@ class ConstantsTest(TestCase):
             self.assertEqual(len(specializations), len(e.CITY_MODIFIERS._ALL))
 
             self.assertTrue(all([-10 <= effect <= 10 for effect in specializations.values()]))
+
+    def test_pvp_combat_styles_advantages_balanced(self):
+        test_value = len(e.PVP_COMBAT_STYLES._ALL)
+        for combat_style in e.PVP_COMBAT_STYLES._ALL:
+            self.assertEqual(sum(c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style][combat_style_2] for combat_style_2 in e.PVP_COMBAT_STYLES._ALL), test_value)
 
 
 

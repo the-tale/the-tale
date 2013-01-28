@@ -9,6 +9,8 @@ from game.actions import battle, contexts
 
 from game.prototypes import TimePrototype
 
+from game.balance import constants as c
+
 from game.pvp.prototypes import Battle1x1Prototype, BATTLE_1X1_STATE, BATTLE_RESULT
 
 
@@ -178,7 +180,21 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         hero_2_old_health = hero_2.health
 
         hero_1.health = hero_1.max_health
+        hero_1.pvp_combat_style = None
+        hero_1.pvp_advantage = 0
+        hero_1.pvp_power = 0
+        hero_1.pvp_rage = 0
+        hero_1.pvp_initiative = 0
+        hero_1.pvp_concentration = 0
+
+
         hero_2.health = hero_2.max_health
+        hero_2.pvp_combat_style = None
+        hero_2.pvp_advantage = 0
+        hero_2.pvp_power = 0
+        hero_2.pvp_rage = 0
+        hero_2.pvp_initiative = 0
+        hero_2.pvp_concentration = 0
 
         model = MetaAction.objects.create(type=cls.TYPE,
                                           percents=0,
@@ -203,6 +219,14 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
             self.add_message('meta_action_arena_pvp_1x1_kill', important=True, victim=hero, killer=enemy)
             self.state = self.STATE.BATTLE_ENDING
             self.percents = 1.0
+
+    def update_hero_pvp_info(self, hero_1, hero_2):
+        hero_1.pvp_rage += c.PVP_RESOURCES_PER_TURN
+        hero_1.pvp_initiative += c.PVP_RESOURCES_PER_TURN
+        hero_1.pvp_concentration += c.PVP_RESOURCES_PER_TURN
+        hero_1.pvp_power -= hero_1.pvp_power * c.PVP_COMBAT_STYLE_EXTINCTION_FRACTION
+
+        hero_1.update_pvp_power_modified(hero_2)
 
 
     def _process(self):
@@ -256,7 +280,23 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
                                  battle.Actor(self.hero_2, self.hero_2_context ),
                                  self)
 
+                if self.hero_1_context.pvp_advantage_used or self.hero_2_context.pvp_advantage_used:
+                    self.hero_1.pvp_advantage = 0
+                    self.hero_2.pvp_advantage = 0
+
                 self.percents = 1.0 - min(self.hero_1.health_percents, self.hero_2.health_percents)
+
+            self.update_hero_pvp_info(self.hero_1, self.hero_2)
+            self.update_hero_pvp_info(self.hero_2, self.hero_1)
+
+            power_delta = self.hero_1.pvp_power_modified - self.hero_2.pvp_power_modified
+            advantage_delta = c.PVP_MAX_ADVANTAGE_STEP * power_delta / c.PVP_MAX_POWER_MULTIPLIER
+
+            self.hero_1.pvp_advantage = self.hero_1.pvp_advantage + advantage_delta
+            self.hero_1_context.use_pvp_advantage(self.hero_1.pvp_advantage)
+
+            self.hero_2.pvp_advantage = self.hero_2.pvp_advantage - advantage_delta
+            self.hero_2_context.use_pvp_advantage(self.hero_2.pvp_advantage)
 
             self._check_hero_health(self.hero_1, self.hero_2)
             self._check_hero_health(self.hero_2, self.hero_1)

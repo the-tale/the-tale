@@ -1,4 +1,6 @@
 # coding: utf-8
+import random
+
 import mock
 
 from django.test import client
@@ -18,6 +20,7 @@ from game.heroes.prototypes import HeroPrototype
 
 from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 from game.pvp.tests.helpers import PvPTestsMixin
+from game.pvp.combat_styles import COMBAT_STYLES
 
 class TestRequestsBase(TestCase, PvPTestsMixin):
 
@@ -81,20 +84,48 @@ class TestRequests(TestRequestsBase):
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
         self.assertEqual(s11n.from_json(self.client.get(reverse('game:pvp:info')).content)['data']['mode'], 'pvp')
 
-    def test_say_no_battle(self):
+class SayRequestsTests(TestRequestsBase):
+
+    def test_no_battle(self):
         self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': u'some text'}), 'pvp.say.no_battle')
 
-    def test_say_battle_not_in_processing_state(self):
+    def test_battle_not_in_processing_state(self):
         self.pvp_create_battle(self.account_1, None)
         self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': u'some text'}), 'pvp.say.no_battle')
 
-    def test_say_form_errors(self):
+    def test_form_errors(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': u''}), 'pvp.say.form_errors')
 
-    def test_say_success(self):
+    def test_success(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         response = self.client.post(reverse('game:pvp:say'), {'text': u'some text'})
+        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+        self.check_ajax_processing(response, task.status_url)
+
+
+class ChangePvPStyleRequestsTests(TestRequestsBase):
+
+    def setUp(self):
+        super(ChangePvPStyleRequestsTests, self).setUp()
+        self.combat_style = random.choice(COMBAT_STYLES.values())
+        self.change_style_url = reverse('game:pvp:change-style') + ('?combat_style=%d' % self.combat_style.type)
+
+    def test_no_battle(self):
+        self.check_ajax_error(self.client.post(self.change_style_url), 'pvp.combat_style.no_battle')
+
+    def test_battle_not_in_processing_state(self):
+        self.pvp_create_battle(self.account_1, None)
+        self.check_ajax_error(self.client.post(self.change_style_url), 'pvp.combat_style.no_battle')
+
+    def test_wrong_style_id(self):
+        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
+        self.pvp_create_battle(self.account_1, None)
+        self.check_ajax_error(self.client.post(reverse('game:pvp:change-style') + '?combat_style=666'), 'pvp.combat_style.wrong_format')
+
+    def test_success(self):
+        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
+        response = self.client.post(self.change_style_url)
         task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
         self.check_ajax_processing(response, task.status_url)
 

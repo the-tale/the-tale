@@ -6,7 +6,7 @@ import xlrd
 class XLSException(Exception): pass
 
 
-def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=None):
+def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=None, data_type=lambda x: x):
 
     if rows and len(set(rows)) != len(rows):
         raise XLSException('duplicate row id')
@@ -70,7 +70,7 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
             if len(row[1:]) != len(columns):
                 raise XLSException('wrong number of elements in row: %r' % (row[1:], ))
 
-            new_data[row_id] = dict(zip(real_columns, row[1:]))
+            new_data[row_id] = dict(zip(real_columns, [ data_type(el) for el in row[1:]]))
 
         return new_data
 
@@ -83,7 +83,7 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
             if row_id in new_data:
                 raise XLSException('duplicate row id: "%s"' % (row_id, ))
 
-            new_data[row_id] = row[1:]
+            new_data[row_id] = [ data_type(el) for el in row[1:]]
 
         return new_data
 
@@ -98,7 +98,22 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
         for row in data[1:]:
             if len(row) != len(columns):
                 raise XLSException('wrong number of elements in row: %r' % (row, ))
-            new_data.append(dict(zip(real_columns, row)))
+            new_data.append(dict(zip(real_columns, [ data_type(el) for el in row])))
         return new_data
 
     return data
+
+
+def load_table_for_enums(filename, rows_enum, columns_enum, sheet_index=0, encoding='utf-8', data_type=lambda x: x):
+
+    data = load_table(filename=filename, sheet_index=sheet_index, encoding=encoding,
+                      rows=rows_enum._ID_TO_STR.values(),
+                      columns=columns_enum._ID_TO_STR.values(),
+                      data_type=data_type)
+
+    result = dict( (row_id,
+                    dict( (columns_enum._STR_TO_ID[column_str], column_value)
+                          for column_str, column_value in data[row_str].items()) )
+                    for row_id, row_str in rows_enum._ID_TO_STR.items())
+
+    return result

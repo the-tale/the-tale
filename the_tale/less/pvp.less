@@ -11,3 +11,121 @@
       }
    }
 }
+
+.pvp-resources-record {
+   /* text-align: center !important; */
+   margin: 1px;
+
+   &:hover {
+      background-color: @hover-color !important;
+   }
+
+}
+
+.pvp-info-table {
+   td {
+      text-align: center !important;
+   }
+}
+
+.pvp-power {
+   /* text-align: center !important; */
+   &:hover {
+      background-color: @hover-color !important;
+   }
+}
+
+.pvp-resource {
+   vertical-align: middle;
+   margin-bottom: 2px;
+   width: 25px;
+   display: inline-block;
+}
+
+.pvp-style-container {
+   width: 100%;
+   height: 40px;
+   margin-top: 0.25em;
+   margin-bottom: 0.25em;
+}
+
+.pvp-style-record {
+   /* text-align: center !important; */
+   display: inline-block;
+   width: 12.5%;
+
+   &.disabled .pvp-style-hover{
+      opacity: 0.7 !important;
+      &:hover {opacity: 0.7 !important;}
+   }
+
+}
+
+.pvp-style-icon {
+   width: 40px;
+   height: 40px;
+   display: block;
+   margin: auto;
+   /* float: left; */
+   /* margin-right: 5px; */
+   /* margin-bottom: 0; */
+
+   .pvp-style-hover {
+      width: 40px;
+      height: 40px;
+      display: block;
+      background-color: black;
+      opacity: 0.2;
+      border-radius: 7px;
+
+      &:hover {opacity: 0;}
+   }
+
+   @border-size: 3px;
+
+   margin-top: @border-size;
+   border-radius: 7px;
+
+   &.pvp-own-style { border: @border-size green solid; margin-top: 0;}
+   &.pvp-enemy-style { border: @border-size red solid; margin-top: 0; }
+   &.pvp-own-style.pvp-enemy-style {
+      border-left: @border-size green solid;
+      border-top: @border-size green solid;
+      border-right: @border-size red solid;
+      border-bottom: @border-size red solid;
+      margin-top: 0;
+   }
+
+   &.tiger {
+      background: url('../game/images/pvp_combat_styles.png') no-repeat scroll 0 0 transparent;
+   }
+
+   &.owl {
+      background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -40px 0 transparent;
+   }
+
+   &.fox {
+      background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -80px 0 transparent;
+   }
+
+   &.monkey {
+      background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -120px 0 transparent;
+   }
+
+   &.bear {
+      background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -160px 0 transparent;
+   }
+
+   &.mantis {
+      background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -200px 0 transparent;
+   }
+
+   &.scorpion {
+      background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -240px 0 transparent;
+   }
+
+   &.snake {
+      background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -280px 0 transparent;
+   }
+
+}
