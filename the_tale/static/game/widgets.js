@@ -58,7 +58,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
     var data = undefined;
 
-    var tooltipArgs = jQuery.extend(true, {}, pgf.base.popoverArgs, {title: function(){return jQuery('#pgf-might-tooltip').html();} });
+    var tooltipArgs = jQuery.extend(true, {}, pgf.base.popoverArgs, {title: function(){return jQuery('.pgf-might-tooltip', content).html();} });
     jQuery('.pgf-might-record', content).tooltip(tooltipArgs);
 
     this.RenderHero = function(data, widget) {
@@ -88,6 +88,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-money', widget).text(data.money);
         jQuery('.pgf-might', widget).text(data.might);
         jQuery('.pgf-might-crit-chance', widget).text(data.might_crit_chance);
+        jQuery('.pgf-might-pvp-effectiveness-bonus', widget).text(data.might_pvp_effectiveness_bonus);
 
         jQuery('.pgf-energy', content).text(data.energy.value);
         jQuery('.pgf-max-energy', content).text(data.energy.max);
@@ -546,6 +547,11 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
             .toggleClass('progress-info', good)
             .toggleClass('progress-warning', bad)
             .toggleClass('progress-danger', worse);        
+        jQuery('.pgf-advantage', widget)      
+            .toggleClass('label-success', greate)
+            .toggleClass('label-info', good)
+            .toggleClass('label-warning', bad)
+            .toggleClass('label-danger', worse);        
     }
 
     function RenderResources(element, rage, initiative, concentration) {
@@ -562,6 +568,7 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
         var enemyPvP = data.enemy_hero.pvp;
 
         jQuery('.pgf-advantage-percents', widget).width( ((0.5 + ownPvP.advantage * 0.5) * 100) + '%');
+        jQuery('.pgf-advantage', widget).text(parseInt(ownPvP.advantage * 100) + '%');
 
         RenderResources(jQuery('.pgf-own-pvp-resources', widget), ownPvP.resource.rage, ownPvP.resource.initiative, ownPvP.resource.concentration);
 

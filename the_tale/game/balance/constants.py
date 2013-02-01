@@ -112,7 +112,7 @@ DAMAGE_DELTA = float(0.2) # разброс в значениях урона [1-D
 
 DAMAGE_CRIT_MULTIPLIER = float(2.0) # во сколько раз увеличивается урон при критическом ударе
 DAMAGE_PVP_ADVANTAGE_MODIFIER = float(0.5) # на какую долю изменяется урон при максимальной разнице в преимуществе между бойцами
-DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER = float(3.5) # во сколько раз увеличится урон удара при максимальном преимушестве
+DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER = float(5) # во сколько раз увеличится урон удара при максимальном преимушестве
 
 EXP_PER_HOUR = float(BATTLES_PER_HOUR * EXP_PER_MOB)  # опыт в час ;
 
@@ -287,7 +287,7 @@ _pvp_combat_styles_file = os.path.join(os.path.dirname(__file__), 'fixtures/comb
 PVP_COMBAT_STYLES_ADVANTAGES = xls.load_table_for_enums(_pvp_combat_styles_file, sheet_index=0,
                                                         rows_enum=e.PVP_COMBAT_STYLES, columns_enum=e.PVP_COMBAT_STYLES)
 
-PVP_COMBAT_STYLES_COSTS = xls.load_table_for_enums(_pvp_combat_styles_file, sheet_index=2,
+PVP_COMBAT_STYLES_COSTS = xls.load_table_for_enums(_pvp_combat_styles_file, sheet_index=2, data_type=int,
                                                    rows_enum=e.PVP_COMBAT_STYLES, columns_enum=e.PVP_COMBAT_RESOURCES)
 
 # параметр используется для расчёта прочих игровых параметров
@@ -304,7 +304,7 @@ _pvp_combat_styles_cost_turns = [ int(math.ceil(float(max(*cost.values()))/PVP_R
 _pvp_combat_styles_extinction_fractions = [1 - math.pow(_PVP_K, 1.0/(turns*_pvp_d)) for turns in _pvp_combat_styles_cost_turns]
 PVP_COMBAT_STYLE_EXTINCTION_FRACTION = sum(_pvp_combat_styles_extinction_fractions) / len(_pvp_combat_styles_extinction_fractions)
 
-_pvp_combat_styles_powers = xls.load_table(_pvp_combat_styles_file, sheet_index=1, rows=e.PVP_COMBAT_STYLES._ID_TO_STR.values())
+_pvp_combat_styles_powers = xls.load_table(_pvp_combat_styles_file, sheet_index=1, rows=e.PVP_COMBAT_STYLES._ID_TO_STR.values(), data_type=int)
 PVP_COMBAT_STYLES_POWERS = dict( (e.PVP_COMBAT_STYLES._STR_TO_ID[combat_style_str], powers[0]) for combat_style_str, powers in _pvp_combat_styles_powers.items() )
 
 # максимальный коофициент превосходства должен быть таким

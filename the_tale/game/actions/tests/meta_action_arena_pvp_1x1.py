@@ -81,6 +81,7 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
         self.assertEqual(self.meta_action_battle.hero_1.pvp_rage, 0)
         self.assertEqual(self.meta_action_battle.hero_1.pvp_initiative, 0)
         self.assertEqual(self.meta_action_battle.hero_1.pvp_concentration, 0)
+        self.assertTrue(self.meta_action_battle.hero_1_context.pvp_advantage_strike_damage > 0)
 
         self.assertEqual(self.meta_action_battle.hero_2.health, self.hero_2.max_health)
         self.assertEqual(self.meta_action_battle.hero_2.pvp_combat_style, None)
@@ -90,6 +91,7 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
         self.assertEqual(self.meta_action_battle.hero_2.pvp_rage, 0)
         self.assertEqual(self.meta_action_battle.hero_2.pvp_initiative, 0)
         self.assertEqual(self.meta_action_battle.hero_2.pvp_concentration, 0)
+        self.assertTrue(self.meta_action_battle.hero_2_context.pvp_advantage_strike_damage > 0)
 
     def test_one_hero_killed(self):
         current_time = TimePrototype.get_current_time()

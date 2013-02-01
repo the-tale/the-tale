@@ -1,7 +1,7 @@
 # coding: utf-8
 import random
 
-from game.balance import constants as c, enums as e
+from game.balance import enums as e
 from game.game_info import ATTRIBUTES
 from game.heroes.habilities.prototypes import AbilityPrototype, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 

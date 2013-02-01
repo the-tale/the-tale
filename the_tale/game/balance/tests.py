@@ -64,7 +64,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c.DAMAGE_DELTA, 0.2)
         self.assertEqual(c.DAMAGE_CRIT_MULTIPLIER, 2.0)
         self.assertEqual(c.DAMAGE_PVP_ADVANTAGE_MODIFIER, 0.5)
-        self.assertEqual(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, 3.5)
+        self.assertEqual(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, 5.0)
 
         self.assertEqual(c.EXP_PER_HOUR, (360.0 / (int(8*(16+5)-5 + (8*(16+5)-5) * 0.2)) * 8) * 1)
 

@@ -34,6 +34,7 @@ class BattleContextTest(TestCase):
 
         self.assertEqual(self.context.pvp_advantage, 0)
         self.assertFalse(self.context.pvp_advantage_used)
+        self.assertEqual(self.context.pvp_advantage_strike_damage, 0)
 
 
     def test_create(self):
@@ -197,13 +198,15 @@ class BattleContextTest(TestCase):
         self.assertFalse(self.context.pvp_advantage_used)
 
         self.context.use_pvp_advantage(-0.75)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)).total, int(round((1-c.DAMAGE_PVP_ADVANTAGE_MODIFIER*0.75)*30)))
+        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)).total, 30) # only damage from hero with heigh advantage modified
         self.assertFalse(self.context.pvp_advantage_used)
 
     @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
     def test_modify_outcoming_damage_advantage_strike(self):
         self.context.use_pvp_advantage(1.0)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)).total, c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER*30)
+        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)).total, 0) # pvp_advantage_strike_damage not set
+        self.context.use_pvp_advantage_stike_damage(666)
+        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)).total, 666)
         self.assertTrue(self.context.pvp_advantage_used)
 
 

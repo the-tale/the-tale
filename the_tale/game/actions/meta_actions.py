@@ -153,6 +153,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
     def hero_1_context(self):
         if not hasattr(self, '_hero_1_context'):
             self._hero_1_context = contexts.BattleContext.deserialize(s11n.from_json(self.members_by_roles[self.ROLES.HERO_1].context_str))
+            self._hero_1_context.use_pvp_advantage_stike_damage(self.hero_1.basic_damage * c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER)
         return self._hero_1_context
 
     @property
@@ -166,11 +167,21 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
     def hero_2_context(self):
         if not hasattr(self, '_hero_2_context'):
             self._hero_2_context = contexts.BattleContext.deserialize(s11n.from_json(self.members_by_roles[self.ROLES.HERO_2].context_str))
+            self._hero_2_context.use_pvp_advantage_stike_damage(self.hero_2.basic_damage * c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER)
         return self._hero_2_context
 
     def add_message(self, *argv, **kwargs):
         self.hero_1.add_message(*argv, **kwargs)
         self.hero_2.add_message(*argv, **kwargs)
+
+    @classmethod
+    def reset_hero_info(cls, hero):
+        hero.pvp_combat_style = None
+        hero.pvp_advantage = 0
+        hero.pvp_power = 0
+        hero.pvp_rage = 0
+        hero.pvp_initiative = 0
+        hero.pvp_concentration = 0
 
     @classmethod
     @nested_commit_on_success
@@ -180,21 +191,10 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         hero_2_old_health = hero_2.health
 
         hero_1.health = hero_1.max_health
-        hero_1.pvp_combat_style = None
-        hero_1.pvp_advantage = 0
-        hero_1.pvp_power = 0
-        hero_1.pvp_rage = 0
-        hero_1.pvp_initiative = 0
-        hero_1.pvp_concentration = 0
-
+        cls.reset_hero_info(hero_1)
 
         hero_2.health = hero_2.max_health
-        hero_2.pvp_combat_style = None
-        hero_2.pvp_advantage = 0
-        hero_2.pvp_power = 0
-        hero_2.pvp_rage = 0
-        hero_2.pvp_initiative = 0
-        hero_2.pvp_concentration = 0
+        cls.reset_hero_info(hero_2)
 
         model = MetaAction.objects.create(type=cls.TYPE,
                                           percents=0,
@@ -270,6 +270,9 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
             self.hero_1.health = self.hero_1_old_health
             self.hero_2.health = self.hero_2_old_health
+
+            self.reset_hero_info(self.hero_1)
+            self.reset_hero_info(self.hero_2)
 
             self.state = self.STATE.PROCESSED
 

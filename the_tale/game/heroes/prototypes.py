@@ -527,6 +527,9 @@ class HeroPrototype(object):
     @property
     def might_crit_chance(self): return self.abilities.modify_attribute(ATTRIBUTES.MIGHT_CRIT_CHANCE, f.might_crit_chance(self.might))
 
+    @property
+    def might_pvp_effectiveness_bonus(self): return f.might_pvp_effectiveness_bonus(self.might)
+
     def on_highlevel_data_updated(self):
         if self.preferences.friend_id is not None and self.preferences.friend.out_game:
             self.preferences.friend_id = None
@@ -655,6 +658,7 @@ class HeroPrototype(object):
             self.model.pvp_power_modified = self.pvp_power
         else:
             self.model.pvp_power_modified = self.pvp_power * c.PVP_COMBAT_STYLES_ADVANTAGES[self.pvp_combat_style][enemy_hero.pvp_combat_style]
+        self.model.pvp_power_modified *= (1 + self.might_pvp_effectiveness_bonus)
 
     @property
     def pvp_power_modified(self): return self.model.pvp_power_modified
@@ -830,6 +834,7 @@ class HeroPrototype(object):
                 'money': self.money,
                 'might': self.might,
                 'might_crit_chance': '%.2f' % (self.might_crit_chance*100),
+                'might_pvp_effectiveness_bonus': '%.2f' % (self.might_pvp_effectiveness_bonus*100),
                 'can_participate_in_pvp': self.can_participate_in_pvp,
                 'energy': { 'max': self.energy_maximum,
                             'value': self.energy },

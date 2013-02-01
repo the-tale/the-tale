@@ -40,6 +40,8 @@
           <li><strong>сила героя:</strong> {{ rating_places.power_place }} место</li>
           <li><strong>уровень героя:</strong> {{ rating_places.level_place }} место</li>
           <li><strong>добавленные фразы:</strong> {% if rating_values.phrases_count > 0 %}{{ rating_places.phrases_count_place }} место{% else %}не участвует{% endif %}</li>
+          <li><strong>Сражений PvP:</strong> {% if rating_values.pvp_battles_1x1_number > 0 %}{{ rating_places.pvp_battles_1x1_number_place }} место{% else %}не участвует{% endif %}</li>
+          <li><strong>Побед PvP:</strong> {% if rating_values.pvp_battles_1x1_victories > 0 %}{{ rating_places.pvp_battles_1x1_victories_place }} место{% else %}не участвует{% endif %}</li>
         </ul>
         {% else %}
         игрок пока не участвует в рейтингах

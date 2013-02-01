@@ -48,6 +48,7 @@ class BattleContext(object):
 
         self.pvp_advantage = 0
         self.pvp_advantage_used = False
+        self.pvp_advantage_strike_damage = 0
 
     def use_ability_magic_mushroom(self, damage_factors): self.ability_magic_mushroom = [None] + damage_factors
 
@@ -82,6 +83,9 @@ class BattleContext(object):
     def use_pvp_advantage(self, advantage):
         self.pvp_advantage = min(1.0, max(-1.0, advantage))
 
+    def use_pvp_advantage_stike_damage(self, damage):
+        self.pvp_advantage_strike_damage = damage
+
     @property
     def is_stunned(self): return (self.stun_length > 0)
 
@@ -115,9 +119,10 @@ class BattleContext(object):
         damage.multiply(self.outcoming_physic_damage_modifier, self.outcoming_magic_damage_modifier)
 
         if self.pvp_advantage > c.PVP_ADVANTAGE_BARIER:
-            damage.multiply(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER)
+            # make full reset of damage, since it can be really huge delta in damage with different abilities
+            damage = Damage(physic=self.pvp_advantage_strike_damage/2.0, magic=self.pvp_advantage_strike_damage/2.0)
             self.pvp_advantage_used = True
-        else:
+        elif self.pvp_advantage > 0:
             advantage_damage_multiplier = 1 + self.pvp_advantage * c.DAMAGE_PVP_ADVANTAGE_MODIFIER
             damage.multiply(advantage_damage_multiplier, advantage_damage_multiplier)
 
@@ -174,7 +179,11 @@ class BattleContext(object):
                  'incoming_magic_damage_modifier': self.incoming_magic_damage_modifier,
                  'incoming_physic_damage_modifier': self.incoming_physic_damage_modifier,
                  'outcoming_magic_damage_modifier': self.outcoming_magic_damage_modifier,
-                 'outcoming_physic_damage_modifier': self.outcoming_magic_damage_modifier}
+                 'outcoming_physic_damage_modifier': self.outcoming_magic_damage_modifier,
+
+                 'pvp_advantage': self.pvp_advantage,
+                 'pvp_advantage_used': self.pvp_advantage_used,
+                 'pvp_advantage_strike_damage': self.pvp_advantage_strike_damage}
 
     @classmethod
     def deserialize(cls, data):
@@ -195,6 +204,10 @@ class BattleContext(object):
         context.outcoming_magic_damage_modifier = data.get('outcoming_magic_damage_modifier', 1.0)
         context.outcoming_physic_damage_modifier = data.get('outcoming_physic_damage_modifier', 1.0)
 
+        context.pvp_advantage = data.get('pvp_advantage', 0)
+        context.pvp_advantage_used = data.get('pvp_advantage_used', False)
+        context.pvp_advantage_strike_damage = data.get('pvp_advantage_strike_damage', 0)
+
         return context
 
 
@@ -208,7 +221,12 @@ class BattleContext(object):
                 self.damage_queue_fire == other.damage_queue_fire and
                 self.damage_queue_poison == other.damage_queue_poison and
                 self.initiative_queue == other.initiative_queue and
+
                 self.incoming_magic_damage_modifier == other.incoming_magic_damage_modifier and
                 self.incoming_physic_damage_modifier == other.incoming_physic_damage_modifier and
                 self.outcoming_magic_damage_modifier == other.outcoming_magic_damage_modifier and
-                self.outcoming_physic_damage_modifier == other.outcoming_physic_damage_modifier)
+                self.outcoming_physic_damage_modifier == other.outcoming_physic_damage_modifier and
+
+                self.pvp_advantage == other.pvp_advantage and
+                self.pvp_advantage_used == other.pvp_advantage_used and
+                self.pvp_advantage_strike_damage == other.pvp_advantage_strike_damage)

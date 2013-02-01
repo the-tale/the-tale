@@ -204,6 +204,11 @@ def might_crit_chance(might):
         return 0
     return math.log(might, 10) / 10.0
 
+def might_pvp_effectiveness_bonus(might):
+    if might < 1:
+        return 0
+    return math.log(might, 10) / 40.0
+
 
 # опыт за битву с монстром:
 def experience_for_mob(battle_length, health_percent_left):
