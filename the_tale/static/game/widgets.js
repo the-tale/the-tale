@@ -503,9 +503,9 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
                 var ownPvP = data.own_hero.pvp;
 
                 var disable = processingChangeStyleRequest || 
-                    ownPvP.resource.rage < rage || 
-                    ownPvP.resource.initiative < initiative || 
-                    ownPvP.resource.concentration < concentration;
+                    ownPvP.rage < rage || 
+                    ownPvP.initiative < initiative || 
+                    ownPvP.concentration < concentration;
                 
                 el.toggleClass('disabled pgf-disabled', disable);
             });
@@ -570,12 +570,12 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
         jQuery('.pgf-advantage-percents', widget).width( ((0.5 + ownPvP.advantage * 0.5) * 100) + '%');
         jQuery('.pgf-advantage', widget).text(parseInt(ownPvP.advantage * 100) + '%');
 
-        RenderResources(jQuery('.pgf-own-pvp-resources', widget), ownPvP.resource.rage, ownPvP.resource.initiative, ownPvP.resource.concentration);
+        RenderResources(jQuery('.pgf-own-pvp-resources', widget), ownPvP.rage, ownPvP.initiative, ownPvP.concentration);
 
-        RenderResources(jQuery('.pgf-enemy-pvp-resources', widget), enemyPvP.resource.rage, enemyPvP.resource.initiative, enemyPvP.resource.concentration);
+        RenderResources(jQuery('.pgf-enemy-pvp-resources', widget), enemyPvP.rage, enemyPvP.initiative, enemyPvP.concentration);
 
-        jQuery('.pgf-own-power', widget).text(Math.round(ownPvP.power_modified));
-        jQuery('.pgf-enemy-power', widget).text(Math.round(enemyPvP.power_modified));
+        jQuery('.pgf-own-effectiveness', widget).text(Math.round(ownPvP.effectiveness_modified));
+        jQuery('.pgf-enemy-effectiveness', widget).text(Math.round(enemyPvP.effectiveness_modified));
 
         jQuery('.pvp-own-style', widget).removeClass('pvp-own-style');
         jQuery('.pvp-enemy-style', widget).removeClass('pvp-enemy-style');

@@ -7,7 +7,7 @@
    data-rage="{{combat_style.cost_rage}}" data-initiative="{{combat_style.cost_initiative}}" data-concentration="{{combat_style.cost_concentration}}"
    title="<strong>{{combat_style.name}}</strong><br/>
           <div class='pvp-resource label label-important'>{{combat_style.cost_rage}}</div> <div class='pvp-resource label label-info'>{{combat_style.cost_initiative}}</div> <div class='pvp-resource label label-success'>{{combat_style.cost_concentration}}</div><br/>
-          <strong>эффективность {{combat_style.power}}</strong><br/>
+          <strong>эффективность {{combat_style.effectiveness}}</strong><br/>
           <i>преимущество над</i>
           <ul class='unstyled' style='text-align: left; min-width: 150px;'>
             {% for style_id, advantage in combat_style.advantages %}
@@ -58,9 +58,9 @@ jQuery(document).ready(function(e) {
               <div class="pgf-pvp-concentration pvp-resource label label-success"></div>
             </td>
 
-            <td width="30px" class="pvp-power pgf-own-power" rel="tooltip" title="эффективность вашего стиля"></td>
+            <td width="30px" class="pvp-effectiveness pgf-own-effectiveness" rel="tooltip" title="эффективность вашего стиля"></td>
             <td width="10px">VS</td>
-            <td width="30px" class="pvp-power pgf-enemy-power" rel="tooltip" title="эффективность стиля противника"></td>
+            <td width="30px" class="pvp-effectiveness pgf-enemy-effectiveness" rel="tooltip" title="эффективность стиля противника"></td>
 
             <td class="pvp-resources-record pgf-enemy-pvp-resources" rel="tooltip" title="ярость">
               <div class="pgf-pvp-rage label pvp-resource label-important"></div>
