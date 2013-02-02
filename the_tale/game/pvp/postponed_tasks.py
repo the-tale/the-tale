@@ -220,7 +220,7 @@ class ChangePvPStyleTask(object):
             main_task.comment = 'no resources for style %d' % self.combat_style_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        pvp_style.apply_to_hero(hero, enemy_hero)
+        pvp_style.apply_to_hero(hero)
 
         hero.add_message('pvp_change_style_to_%s' % pvp_style.str_id.lower(), hero=hero)
 

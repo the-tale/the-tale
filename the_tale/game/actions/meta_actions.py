@@ -184,6 +184,8 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         hero.pvp.initiative = 0
         hero.pvp.concentration = 0
 
+        hero.pvp.store_turn_data()
+
     @classmethod
     @nested_commit_on_success
     def create(cls, storage, hero_1, hero_2):
@@ -277,11 +279,11 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         if self.state == self.STATE.BATTLE_RUNNING:
 
             # apply all changes made by player
-            self.hero_1.update_pvp_effectiveness_modified(self.hero_2, real=True)
-            self.hero_2.update_pvp_effectiveness_modified(self.hero_1, real=True)
+            hero_1_effectivenes = self.hero_1.get_pvp_effectiveness_modified(self.hero_2)
+            hero_2_effectivenes = self.hero_2.get_pvp_effectiveness_modified(self.hero_1)
 
             # modify advantage
-            effectiveness_delta = self.hero_1.pvp.effectiveness_modified - self.hero_2.pvp.effectiveness_modified
+            effectiveness_delta = hero_1_effectivenes - hero_2_effectivenes
             advantage_delta = c.PVP_MAX_ADVANTAGE_STEP * effectiveness_delta / c.PVP_MAX_EFFECTIVENESS_MULTIPLIER
 
             self.hero_1.pvp.advantage = self.hero_1.pvp.advantage + advantage_delta
@@ -305,9 +307,6 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
             # update resources, etc
             self.update_hero_pvp_info(self.hero_1)
             self.update_hero_pvp_info(self.hero_2)
-
-            self.hero_1.update_pvp_effectiveness_modified(self.hero_2, real=True)
-            self.hero_2.update_pvp_effectiveness_modified(self.hero_1, real=True)
 
             self.hero_1.pvp.store_turn_data()
             self.hero_2.pvp.store_turn_data()

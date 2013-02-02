@@ -11,6 +11,7 @@ from game.balance.enums import PERSON_TYPE, RACE
 
 from game.quests.quests_generator.quest_line import ACTOR_TYPE
 from game.game_info import GENDER
+from game.balance import constants as c
 
 class Command(BaseCommand):
 
@@ -27,5 +28,6 @@ class Command(BaseCommand):
                            {'actor_type': s11n.to_json(ACTOR_TYPE._STR_TO_ID),
                             'gender_to_str': s11n.to_json(GENDER._ID_TO_TEXT),
                             'person_type_to_str': s11n.to_json(PERSON_TYPE._ID_TO_TEXT),
-                            'race_to_str': s11n.to_json(RACE._ID_TO_TEXT)
+                            'race_to_str': s11n.to_json(RACE._ID_TO_TEXT),
+                            'pvp_combat_styles_advantages': s11n.to_json(c.PVP_COMBAT_STYLES_ADVANTAGES)
                             }).encode('utf-8'))

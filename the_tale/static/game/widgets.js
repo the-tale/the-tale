@@ -574,18 +574,26 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
 
         RenderResources(jQuery('.pgf-enemy-pvp-resources', widget), enemyPvP.rage, enemyPvP.initiative, enemyPvP.concentration);
 
-        jQuery('.pgf-own-effectiveness', widget).text(Math.round(ownPvP.effectiveness_modified));
-        jQuery('.pgf-enemy-effectiveness', widget).text(Math.round(enemyPvP.effectiveness_modified));
+        var ownAdvantage = 1.0;
+        var enemyAdvantage = 1.0 ;
+
+        if (ownPvP.combat_style != null && enemyPvP.combat_style != null) {
+            ownAdvantage = pgf.game.constants.PVP_COMBAT_STYLES_ADVANTAGES[ownPvP.combat_style][enemyPvP.combat_style];            
+            enemyAdvantage = pgf.game.constants.PVP_COMBAT_STYLES_ADVANTAGES[enemyPvP.combat_style][ownPvP.combat_style];
+        }
+
+        jQuery('.pgf-own-effectiveness', widget).text(Math.round(ownPvP.effectiveness*ownAdvantage*100) + '%');
+        jQuery('.pgf-enemy-effectiveness', widget).text(Math.round(enemyPvP.effectiveness*enemyAdvantage*100) + '%');
 
         jQuery('.pvp-own-style', widget).removeClass('pvp-own-style');
         jQuery('.pvp-enemy-style', widget).removeClass('pvp-enemy-style');
 
-        if (ownPvP.combat_style) {
-            jQuery('.pvp-style-icon.'+ownPvP.combat_style, widget).toggleClass('pvp-own-style', true);            
+        if (ownPvP.combat_style_str) {
+            jQuery('.pvp-style-icon.'+ownPvP.combat_style_str, widget).toggleClass('pvp-own-style', true);            
         }
 
-        if (enemyPvP.combat_style) {
-            jQuery('.pvp-style-icon.'+enemyPvP.combat_style, widget).toggleClass('pvp-enemy-style', true);
+        if (enemyPvP.combat_style_str) {
+            jQuery('.pvp-style-icon.'+enemyPvP.combat_style_str, widget).toggleClass('pvp-enemy-style', true);
         }
             
         if (0.5 <= ownPvP.advantage) { ToggleAdwantageColors(true, false, false, false);}

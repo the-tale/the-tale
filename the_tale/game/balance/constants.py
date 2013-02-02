@@ -287,7 +287,7 @@ _pvp_combat_styles_file = os.path.join(os.path.dirname(__file__), 'fixtures/comb
 PVP_COMBAT_STYLES_ADVANTAGES = xls.load_table_for_enums(_pvp_combat_styles_file, sheet_index=0,
                                                         rows_enum=e.PVP_COMBAT_STYLES, columns_enum=e.PVP_COMBAT_STYLES)
 
-PVP_COMBAT_STYLES_COSTS = xls.load_table_for_enums(_pvp_combat_styles_file, sheet_index=2, data_type=int,
+PVP_COMBAT_STYLES_COSTS = xls.load_table_for_enums(_pvp_combat_styles_file, sheet_index=1, data_type=int,
                                                    rows_enum=e.PVP_COMBAT_STYLES, columns_enum=e.PVP_COMBAT_RESOURCES)
 
 # параметр используется для расчёта прочих игровых параметров
@@ -304,23 +304,13 @@ _pvp_combat_styles_cost_turns = [ int(math.ceil(float(max(*cost.values()))/PVP_R
 _pvp_combat_styles_extinction_fractions = [1 - math.pow(_PVP_K, 1.0/(turns*_pvp_d)) for turns in _pvp_combat_styles_cost_turns]
 PVP_COMBAT_STYLE_EXTINCTION_FRACTION = sum(_pvp_combat_styles_extinction_fractions) / len(_pvp_combat_styles_extinction_fractions)
 
-_pvp_combat_styles_effectiveness = xls.load_table(_pvp_combat_styles_file, sheet_index=1, rows=e.PVP_COMBAT_STYLES._ID_TO_STR.values(), data_type=int)
-PVP_COMBAT_STYLES_EFFECTIVENESS = dict( (e.PVP_COMBAT_STYLES._STR_TO_ID[combat_style_str], powers[0])
-                                        for combat_style_str, powers in _pvp_combat_styles_effectiveness.items() )
-
 # максимальный коофициент превосходства должен быть таким
-# чтобы силы слабого но свежего стиля и сильного сниженного до k-ой доли были равны
-# ВНИМАНИЕ: a <= kb, иначе коофициент будет отриццательным!!!
-# уравнение: a(1+x) = kb(1-x), где a - сила слабого стиля, b - сила сильного стиля, x - доля изменения
-# x = (kb-a)/(kb+a)
+# чтобы силы ослабшего (до l, например, 0.5) но превосходящего стиля и свежего, но проигрывающего были равны
+# уравнение: lp(1+x) = p(1-x), где p - эффективность x - доля изменения
+# x = (1-l)/(1+l)
 # округляем, чтобы игрокам было легче
-_pvp_min_effectiveness = min(*PVP_COMBAT_STYLES_EFFECTIVENESS.values())
-_pvp_max_effectiveness = max(*PVP_COMBAT_STYLES_EFFECTIVENESS.values())
 
-if _pvp_min_effectiveness > _PVP_K * _pvp_max_effectiveness:
-    raise Exception('this MUST BE TRUE: a <= kb')
-
-_pvp_max_combat_style_advantage = (_PVP_K*_pvp_max_effectiveness - _pvp_min_effectiveness)/(_PVP_K*_pvp_max_effectiveness + _pvp_min_effectiveness)
+_pvp_max_combat_style_advantage = (1 - 0.5) / (1 + 0.5)
 
 # normalize combat style advantages
 _pvp_max_advantage = max(itertools.chain(*[[math.fabs(advantage) for advantage in style_advantages.values()]
@@ -333,7 +323,7 @@ for combat_style_id in e.PVP_COMBAT_STYLES._ALL:
 
 # максимальный сдвиг преимушества устанавливается для максимальной разницы в силе стилей (т.е. между 0-ом и максимальной силой с максимальным бонусом)
 PVP_MAX_ADVANTAGE_STEP = 0.3
-PVP_MAX_EFFECTIVENESS_MULTIPLIER = _pvp_max_effectiveness * (1 + _pvp_max_combat_style_advantage)
+PVP_MAX_EFFECTIVENESS_MULTIPLIER = 1 + _pvp_max_combat_style_advantage
 
 PVP_ADVANTAGE_BARIER = 0.95
 

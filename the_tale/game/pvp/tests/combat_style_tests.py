@@ -46,7 +46,7 @@ class CombatStyleTests(TestCase):
         self.assertTrue(self.combat_style.hero_has_resources(self.hero_1))
 
     def test_apply_to_hero_exception(self):
-        self.assertRaises(PvPException, self.combat_style.apply_to_hero, self.hero_1, self.hero_2)
+        self.assertRaises(PvPException, self.combat_style.apply_to_hero, self.hero_1)
 
     def test_apply_to_hero(self):
         self.assertEqual(self.hero_1.pvp.combat_style, None)
@@ -55,13 +55,12 @@ class CombatStyleTests(TestCase):
         self.hero_1.pvp.initiative = self.combat_style.cost_initiative + 1
         self.hero_1.pvp.concentration = self.combat_style.cost_concentration + 2
 
-        self.combat_style.apply_to_hero(self.hero_1, self.hero_2)
+        self.combat_style.apply_to_hero(self.hero_1)
 
         self.assertEqual(self.hero_1.pvp.rage, 0)
         self.assertEqual(self.hero_1.pvp.initiative, 1)
         self.assertEqual(self.hero_1.pvp.concentration, 2)
 
         self.assertEqual(self.hero_1.pvp.effectiveness, self.combat_style.effectiveness)
-        self.assertEqual(self.hero_1.pvp.effectiveness_modified, self.combat_style.effectiveness)
 
         self.assertEqual(self.hero_1.pvp.combat_style, self.combat_style.type)

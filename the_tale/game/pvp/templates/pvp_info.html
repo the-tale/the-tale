@@ -7,7 +7,7 @@
    data-rage="{{combat_style.cost_rage}}" data-initiative="{{combat_style.cost_initiative}}" data-concentration="{{combat_style.cost_concentration}}"
    title="<strong>{{combat_style.name}}</strong><br/>
           <div class='pvp-resource label label-important'>{{combat_style.cost_rage}}</div> <div class='pvp-resource label label-info'>{{combat_style.cost_initiative}}</div> <div class='pvp-resource label label-success'>{{combat_style.cost_concentration}}</div><br/>
-          <strong>эффективность {{combat_style.effectiveness}}</strong><br/>
+          <strong>эффективность {{combat_style.effectiveness|percents}}</strong><br/>
           <i>преимущество над</i>
           <ul class='unstyled' style='text-align: left; min-width: 150px;'>
             {% for style_id, advantage in combat_style.advantages %}
@@ -82,8 +82,6 @@ jQuery(document).ready(function(e) {
               {{ pvp_style_record("bear", COMBAT_STYLES[PVP_COMBAT_STYLES.BEAR]) }}
               {{ pvp_style_record("snake", COMBAT_STYLES[PVP_COMBAT_STYLES.SNAKE]) }}
               {{ pvp_style_record("fox", COMBAT_STYLES[PVP_COMBAT_STYLES.FOX]) }}
-              {{ pvp_style_record("owl", COMBAT_STYLES[PVP_COMBAT_STYLES.OWL]) }}
-              {{ pvp_style_record("scorpion", COMBAT_STYLES[PVP_COMBAT_STYLES.SCORPION]) }}
             </td>
           </tr>
         </tbody>

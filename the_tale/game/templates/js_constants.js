@@ -15,5 +15,7 @@ pgf.game.constants = {
 
     PERSON_TYPE_TO_STR: {{person_type_to_str|safe}},
 
-    RACE_TO_STR: {{race_to_str|safe}}
+    RACE_TO_STR: {{race_to_str|safe}},
+    
+    PVP_COMBAT_STYLES_ADVANTAGES: {{pvp_combat_styles_advantages|safe}}
 };

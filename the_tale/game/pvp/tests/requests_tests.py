@@ -100,7 +100,7 @@ class TestRequests(TestRequestsBase):
 
         data = s11n.from_json(self.client.get(reverse('game:pvp:info')).content)
 
-        self.assertEqual(data['data']['account']['hero']['pvp']['combat_style'], COMBAT_STYLES[self.hero_1.pvp.combat_style].str_id.lower())
+        self.assertEqual(data['data']['account']['hero']['pvp']['combat_style'], COMBAT_STYLES[self.hero_1.pvp.combat_style].type)
         self.assertEqual(data['data']['enemy']['hero']['pvp']['combat_style'], None)
 
         self.hero_2.pvp.store_turn_data()
@@ -108,7 +108,7 @@ class TestRequests(TestRequestsBase):
 
         data = s11n.from_json(self.client.get(reverse('game:pvp:info')).content)
 
-        self.assertEqual(data['data']['enemy']['hero']['pvp']['combat_style'], COMBAT_STYLES[self.hero_2.pvp.combat_style].str_id.lower())
+        self.assertEqual(data['data']['enemy']['hero']['pvp']['combat_style'], COMBAT_STYLES[self.hero_2.pvp.combat_style].type)
 
 class SayRequestsTests(TestRequestsBase):
 

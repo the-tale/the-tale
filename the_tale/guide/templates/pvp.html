@@ -28,7 +28,7 @@
 <h4>Ход боя</h4>
 
 <p>
-  Столкнувшись со сложным противником, приключенцы вспоминают, что оказывается сражаться можно не просто пытаясь изрубить супостата в капусту, но и применяя различные боевые стили. Правда дальше вспоминания дело не идёт и для успешного сражения, необходима помощь игрока.
+  Столкнувшись со сложным противником, приключенцы вспоминают, что (оказывается) сражаться можно не просто пытаясь изрубить супостата в капусту, но и применяя различные боевые стили. Правда, дальше вспоминания дело не идёт и для успешного сражения, необходима помощь игрока.
 </p>
 
 <p>
@@ -36,11 +36,11 @@
 </p>
 
 <p class="alert alert-error">
-  Не пытайтесь принудительно обновлять страницу игры в надежде узнать какой выбор сделал противник на этом ходу — не получится. Серьёзно.
+  Не пытайтесь принудительно обновлять страницу игры в надежде узнать какой выбор сделал противник на этом ходу — не получится. Разработчики пробовали — бесперспективняк.
 <p>
 
 <p>
-  <strong>Эффективность</strong> боя влияет на <strong>преимущество</strong>, которое один герой может получить над другим. В начале боя ни один из героев не обладает преимуществом. В случает, если эффективность боя одного из героев выше, тот получает определённое количество преимущества. Преимущество даёт хороший бонус к урону, а при получении полного преимущества над противником позволяет герою произвести очень сильный удар. После нанесения подобного удара, обоим героям необходимо время что-бы придти в себя, поэтому преимущество сбрасывается на начальное значение.
+  <strong>Эффективность</strong> боя влияет на <strong>преимущество</strong>, которое один герой может получить над другим. В начале боя ни один из героев не обладает преимуществом. В случает, если эффективность боя одного из героев выше, тот получает определённое количество преимущества. Преимущество даёт хороший бонус к урону (при максимальном преимуществе урон героя увеличивается на {{c.DAMAGE_PVP_ADVANTAGE_MODIFIER|percents}}). При получении полного преимущества над противником, следующий удачный удар героя нанесёт очень большой урон ({{c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER|percents}}). После нанесения подобного удара, обоим героям необходимо время что-бы придти в себя, поэтому преимущество сбрасывается на начальное значение.
 </p>
 
 <p>
@@ -50,7 +50,7 @@
 {% macro combat_style_info(combat_style) %}
 <tr>
   <th>{{combat_style.name}}</th>
-  <td>{{combat_style.power}}</td>
+  <td>{{combat_style.effectiveness|percents}}</td>
   <td>{{combat_style.cost_rage}}</td>
   <td>{{combat_style.cost_initiative}}</td>
   <td>{{combat_style.cost_concentration}}</td>
@@ -58,7 +58,7 @@
 {% endmacro %}
 
 <table class="table table-condensed">
-  <caption>Всего существует 8 стилей боя, они различаются эффективностью и ценой активации</caption>
+  <caption>Всего существует 6 стилей боя, они различаются эффективностью и ценой активации</caption>
   <tbody>
     <tr>
       <th width="20%"></th>
@@ -74,9 +74,6 @@
     {{ combat_style_info(COMBAT_STYLES[PVP_COMBAT_STYLES.BEAR]) }}
     {{ combat_style_info(COMBAT_STYLES[PVP_COMBAT_STYLES.SNAKE]) }}
     {{ combat_style_info(COMBAT_STYLES[PVP_COMBAT_STYLES.FOX]) }}
-    {{ combat_style_info(COMBAT_STYLES[PVP_COMBAT_STYLES.OWL]) }}
-    {{ combat_style_info(COMBAT_STYLES[PVP_COMBAT_STYLES.SCORPION]) }}
-
   </tbody>
 </table>
 
@@ -89,8 +86,6 @@
   <td>{{c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style.type][PVP_COMBAT_STYLES.BEAR]}}</td>
   <td>{{c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style.type][PVP_COMBAT_STYLES.SNAKE]}}</td>
   <td>{{c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style.type][PVP_COMBAT_STYLES.FOX]}}</td>
-  <td>{{c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style.type][PVP_COMBAT_STYLES.OWL]}}</td>
-  <td>{{c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style.type][PVP_COMBAT_STYLES.SCORPION]}}</td>
 </tr>
 {% endmacro %}
 
@@ -105,8 +100,7 @@
       <th>{{COMBAT_STYLES[PVP_COMBAT_STYLES.BEAR].name}}</th>
       <th>{{COMBAT_STYLES[PVP_COMBAT_STYLES.SNAKE].name}}</th>
       <th>{{COMBAT_STYLES[PVP_COMBAT_STYLES.FOX].name}}</th>
-      <th>{{COMBAT_STYLES[PVP_COMBAT_STYLES.OWL].name}}</th>
-      <th>{{COMBAT_STYLES[PVP_COMBAT_STYLES.SCORPION].name}}</th>
+
     </tr>
     {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.TIGER]) }}
     {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.MONKEY]) }}
@@ -114,8 +108,6 @@
     {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.BEAR]) }}
     {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.SNAKE]) }}
     {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.FOX]) }}
-    {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.OWL]) }}
-    {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.SCORPION]) }}
   </tbody>
 </table>
 

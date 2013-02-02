@@ -17,6 +17,7 @@ from game.prototypes import TimePrototype
 from game.balance import formulas as f, constants as c
 from game.logic_storage import LogicStorage
 from game.quests.quests_builders import SearchSmith
+from game.pvp.combat_styles import COMBAT_STYLES
 
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS
 from game.heroes.prototypes import HeroPrototype
@@ -87,16 +88,23 @@ class HeroTest(TestCase):
         self.assertTrue(self.hero.modify_person_power(friend, 100) > self.hero.modify_person_power(enemy, 100))
 
     def test_might_for_pvp_effectiveness(self):
-        self.assertEqual(self.hero.pvp.effectiveness, 0)
-        self.assertEqual(self.hero.pvp.effectiveness_modified, 0)
 
-        self.hero.pvp.effectiveness = 100
-        self.hero.update_pvp_effectiveness_modified(None, real=False)
-        self.assertEqual(self.hero.pvp.effectiveness_modified, 100)
+        combat_style = random.choice(COMBAT_STYLES.values())
+
+        combat_style._give_resources_to_hero(self.hero)
+
+        self.assertEqual(self.hero.pvp.effectiveness, 0)
+
+        combat_style.apply_to_hero(self.hero)
+
+        self.assertEqual(self.hero.pvp.effectiveness, 1.0)
 
         self.hero.might = 100000
-        self.hero.update_pvp_effectiveness_modified(None, real=False)
-        self.assertTrue(self.hero.pvp.effectiveness_modified > 100)
+
+        combat_style._give_resources_to_hero(self.hero)
+        combat_style.apply_to_hero(self.hero)
+
+        self.assertTrue(self.hero.pvp.effectiveness > 1.0)
 
 
 

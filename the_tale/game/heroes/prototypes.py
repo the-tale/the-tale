@@ -648,21 +648,19 @@ class HeroPrototype(object):
             self._pvp = PvPData.deserialize(s11n.from_json(self.model.pvp))
         return self._pvp
 
-    def update_pvp_effectiveness_modified(self, enemy_hero, real):
+    def get_pvp_effectiveness_modified(self, enemy_hero):
         '''
         ATTENTION! We use enemy pvp data on start of the turn!
         '''
 
-        if real:
-            enemy_style = enemy_hero.pvp.combat_style if enemy_hero else None
-        else:
-            enemy_style = enemy_hero.pvp.turn_combat_style if enemy_hero else None
+        enemy_style = enemy_hero.pvp.combat_style if enemy_hero else None
 
         if None in (self.pvp.combat_style, enemy_style):
-            self.pvp.effectiveness_modified = self.pvp.effectiveness
+            effectiveness_modified = self.pvp.effectiveness
         else:
-            self.pvp.effectiveness_modified = self.pvp.effectiveness * c.PVP_COMBAT_STYLES_ADVANTAGES[self.pvp.combat_style][enemy_style]
-        self.pvp.effectiveness_modified *= (1 + self.might_pvp_effectiveness_bonus)
+            effectiveness_modified = self.pvp.effectiveness * c.PVP_COMBAT_STYLES_ADVANTAGES[self.pvp.combat_style][enemy_style]
+
+        return effectiveness_modified
 
     @property
     def messages(self):
