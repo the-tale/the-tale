@@ -176,12 +176,13 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
     @classmethod
     def reset_hero_info(cls, hero):
-        hero.pvp_combat_style = None
-        hero.pvp_advantage = 0
-        hero.pvp_power = 0
-        hero.pvp_rage = 0
-        hero.pvp_initiative = 0
-        hero.pvp_concentration = 0
+        hero.pvp.combat_style = None
+        hero.pvp.advantage = 0
+        hero.pvp.effectiveness = 0
+        hero.pvp.effectiveness_modified = 0
+        hero.pvp.rage = 0
+        hero.pvp.initiative = 0
+        hero.pvp.concentration = 0
 
     @classmethod
     @nested_commit_on_success
@@ -220,14 +221,11 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
             self.state = self.STATE.BATTLE_ENDING
             self.percents = 1.0
 
-    def update_hero_pvp_info(self, hero_1, hero_2):
-        hero_1.pvp_rage += c.PVP_RESOURCES_PER_TURN
-        hero_1.pvp_initiative += c.PVP_RESOURCES_PER_TURN
-        hero_1.pvp_concentration += c.PVP_RESOURCES_PER_TURN
-        hero_1.pvp_power -= hero_1.pvp_power * c.PVP_COMBAT_STYLE_EXTINCTION_FRACTION
-
-        hero_1.update_pvp_power_modified(hero_2)
-
+    def update_hero_pvp_info(self, hero_1):
+        hero_1.pvp.rage += c.PVP_RESOURCES_PER_TURN
+        hero_1.pvp.initiative += c.PVP_RESOURCES_PER_TURN
+        hero_1.pvp.concentration += c.PVP_RESOURCES_PER_TURN
+        hero_1.pvp.effectiveness -= hero_1.pvp.effectiveness * c.PVP_COMBAT_STYLE_EXTINCTION_FRACTION
 
     def _process(self):
 
@@ -278,31 +276,46 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
         if self.state == self.STATE.BATTLE_RUNNING:
 
+            # apply all changes made by player
+            self.hero_1.update_pvp_effectiveness_modified(self.hero_2, real=True)
+            self.hero_2.update_pvp_effectiveness_modified(self.hero_1, real=True)
+
+            # modify advantage
+            effectiveness_delta = self.hero_1.pvp.effectiveness_modified - self.hero_2.pvp.effectiveness_modified
+            advantage_delta = c.PVP_MAX_ADVANTAGE_STEP * effectiveness_delta / c.PVP_MAX_EFFECTIVENESS_MULTIPLIER
+
+            self.hero_1.pvp.advantage = self.hero_1.pvp.advantage + advantage_delta
+            self.hero_1_context.use_pvp_advantage(self.hero_1.pvp.advantage)
+
+            self.hero_2.pvp.advantage = self.hero_2.pvp.advantage - advantage_delta
+            self.hero_2_context.use_pvp_advantage(self.hero_2.pvp.advantage)
+
+            # battle step
             if self.hero_1.health > 0 and self.hero_2.health > 0:
                 battle.make_turn(battle.Actor(self.hero_1, self.hero_1_context),
                                  battle.Actor(self.hero_2, self.hero_2_context ),
                                  self)
 
                 if self.hero_1_context.pvp_advantage_used or self.hero_2_context.pvp_advantage_used:
-                    self.hero_1.pvp_advantage = 0
-                    self.hero_2.pvp_advantage = 0
+                    self.hero_1.pvp.advantage = 0
+                    self.hero_2.pvp.advantage = 0
 
                 self.percents = 1.0 - min(self.hero_1.health_percents, self.hero_2.health_percents)
 
-            self.update_hero_pvp_info(self.hero_1, self.hero_2)
-            self.update_hero_pvp_info(self.hero_2, self.hero_1)
+            # update resources, etc
+            self.update_hero_pvp_info(self.hero_1)
+            self.update_hero_pvp_info(self.hero_2)
 
-            power_delta = self.hero_1.pvp_power_modified - self.hero_2.pvp_power_modified
-            advantage_delta = c.PVP_MAX_ADVANTAGE_STEP * power_delta / c.PVP_MAX_POWER_MULTIPLIER
+            self.hero_1.update_pvp_effectiveness_modified(self.hero_2, real=True)
+            self.hero_2.update_pvp_effectiveness_modified(self.hero_1, real=True)
 
-            self.hero_1.pvp_advantage = self.hero_1.pvp_advantage + advantage_delta
-            self.hero_1_context.use_pvp_advantage(self.hero_1.pvp_advantage)
+            self.hero_1.pvp.store_turn_data()
+            self.hero_2.pvp.store_turn_data()
 
-            self.hero_2.pvp_advantage = self.hero_2.pvp_advantage - advantage_delta
-            self.hero_2_context.use_pvp_advantage(self.hero_2.pvp_advantage)
-
+            # check if anyone has killed
             self._check_hero_health(self.hero_1, self.hero_2)
             self._check_hero_health(self.hero_2, self.hero_1)
+
 
 
 META_ACTION_TYPES = get_meta_actions_types()

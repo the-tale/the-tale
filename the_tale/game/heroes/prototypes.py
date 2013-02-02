@@ -19,11 +19,19 @@ from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage
 
 from game.game_info import GENDER, ATTRIBUTES, RACE_TO_ENERGY_REGENERATION_TYPE
+
 from game.balance.enums import RACE
+from game.balance import constants as c, formulas as f, enums as e
 
 from game import names
 
 from game.artifacts.storage import ArtifactsDatabase
+
+from game.map.storage import map_info_storage
+
+from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
+
+from game.prototypes import TimePrototype, GameTime
 
 from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS_LIST, SLOTS_TO_ARTIFACT_TYPES
 from game.heroes.statistics import HeroStatistics, MONEY_SOURCE
@@ -33,15 +41,8 @@ from game.heroes.habilities import AbilitiesPrototype, ABILITY_TYPE
 from game.heroes.conf import heroes_settings
 from game.heroes.exceptions import HeroException
 from game.heroes.logic import ValuesDict
+from game.heroes.pvp import PvPData
 
-from game.map.storage import map_info_storage
-
-from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
-
-from game.balance import constants as c, formulas as f, enums as e
-from game.prototypes import TimePrototype, GameTime
-
-from game.pvp.combat_styles import COMBAT_STYLES
 
 logger=getLogger('the-tale.workers.game_logic')
 
@@ -641,39 +642,27 @@ class HeroPrototype(object):
         self.actions_descriptions_updated = True
         self.actions_descriptions.pop()
 
-    def get_pvp_combat_style(self): return self.model.pvp_combat_style
-    def set_pvp_combat_style(self, value): self.model.pvp_combat_style = value
-    pvp_combat_style = property(get_pvp_combat_style, set_pvp_combat_style)
-
-    def get_pvp_advantage(self): return self.model.pvp_advantage
-    def set_pvp_advantage(self, value): self.model.pvp_advantage = value
-    pvp_advantage = property(get_pvp_advantage, set_pvp_advantage)
-
-    def get_pvp_power(self): return self.model.pvp_power
-    def set_pvp_power(self, value): self.model.pvp_power = value
-    pvp_power = property(get_pvp_power, set_pvp_power)
-
-    def update_pvp_power_modified(self, enemy_hero):
-        if None in (self.pvp_combat_style, enemy_hero.pvp_combat_style if enemy_hero else None):
-            self.model.pvp_power_modified = self.pvp_power
-        else:
-            self.model.pvp_power_modified = self.pvp_power * c.PVP_COMBAT_STYLES_ADVANTAGES[self.pvp_combat_style][enemy_hero.pvp_combat_style]
-        self.model.pvp_power_modified *= (1 + self.might_pvp_effectiveness_bonus)
-
     @property
-    def pvp_power_modified(self): return self.model.pvp_power_modified
+    def pvp(self):
+        if not hasattr(self, '_pvp'):
+            self._pvp = PvPData.deserialize(s11n.from_json(self.model.pvp))
+        return self._pvp
 
-    def get_pvp_rage(self): return self.model.pvp_resource_rage
-    def set_pvp_rage(self, value): self.model.pvp_resource_rage = value
-    pvp_rage = property(get_pvp_rage, set_pvp_rage)
+    def update_pvp_effectiveness_modified(self, enemy_hero, real):
+        '''
+        ATTENTION! We use enemy pvp data on start of the turn!
+        '''
 
-    def get_pvp_initiative(self): return self.model.pvp_resource_initiative
-    def set_pvp_initiative(self, value): self.model.pvp_resource_initiative = value
-    pvp_initiative = property(get_pvp_initiative, set_pvp_initiative)
+        if real:
+            enemy_style = enemy_hero.pvp.combat_style if enemy_hero else None
+        else:
+            enemy_style = enemy_hero.pvp.turn_combat_style if enemy_hero else None
 
-    def get_pvp_concentration(self): return self.model.pvp_resource_concentration
-    def set_pvp_concentration(self, value): self.model.pvp_resource_concentration = value
-    pvp_concentration = property(get_pvp_concentration, set_pvp_concentration)
+        if None in (self.pvp.combat_style, enemy_style):
+            self.pvp.effectiveness_modified = self.pvp.effectiveness
+        else:
+            self.pvp.effectiveness_modified = self.pvp.effectiveness * c.PVP_COMBAT_STYLES_ADVANTAGES[self.pvp.combat_style][enemy_style]
+        self.pvp.effectiveness_modified *= (1 + self.might_pvp_effectiveness_bonus)
 
     @property
     def messages(self):
@@ -774,6 +763,10 @@ class HeroPrototype(object):
             self.model.name_forms = s11n.to_json(self.normalized_name.serialize())
             self.name_updated = False
 
+        if self.pvp.updated:
+            self.model.pvp = s11n.to_json(self.pvp.serialize())
+            self.pvp.updated = False
+
         database.raw_save(self.model)
 
     @staticmethod
@@ -810,7 +803,7 @@ class HeroPrototype(object):
                 self._compare_messages(self.diary, other.diary) and
                 self.actions_descriptions == other.actions_descriptions)
 
-    def ui_info(self, ignore_actions=False):
+    def ui_info(self, for_last_turn=False):
 
         quest_items_count, loot_items_count = self.bag.occupation
 
@@ -845,13 +838,7 @@ class HeroPrototype(object):
                                    e.ITEMS_OF_EXPENDITURE.IMPACT: 'impact'}[self.next_spending],
                 'action': { 'percents': self.last_action_percents,
                             'description': self.actions_descriptions[-1]},
-                'pvp': { 'combat_style': COMBAT_STYLES[self.pvp_combat_style].str_id.lower() if self.pvp_combat_style is not None else None,
-                         'advantage': self.pvp_advantage,
-                         'power': self.pvp_power,
-                         'power_modified': self.pvp_power_modified,
-                         'resource': {'rage': self.pvp_rage,
-                                      'initiative': self.pvp_initiative,
-                                      'concentration': self.pvp_concentration} },
+                'pvp': self.pvp.ui_info() if not for_last_turn else self.pvp.turn_ui_info(),
                 'base': { 'name': self.name,
                           'level': self.level,
                           'destiny_points': self.max_ability_points_number - self.current_ability_points_number,

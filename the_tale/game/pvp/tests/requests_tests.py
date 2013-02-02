@@ -84,6 +84,32 @@ class TestRequests(TestRequestsBase):
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
         self.assertEqual(s11n.from_json(self.client.get(reverse('game:pvp:info')).content)['data']['mode'], 'pvp')
 
+    def test_game_info_data_hidding(self):
+        '''
+        player hero always must show actual data
+        enemy hero always must show data on statrt of the turn
+        '''
+        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
+        self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
+
+        self.hero_1.pvp.combat_style = random.choice(COMBAT_STYLES.values()).type
+        self.hero_1.save()
+
+        self.hero_2.pvp.combat_style = random.choice(COMBAT_STYLES.values()).type
+        self.hero_2.save()
+
+        data = s11n.from_json(self.client.get(reverse('game:pvp:info')).content)
+
+        self.assertEqual(data['data']['account']['hero']['pvp']['combat_style'], COMBAT_STYLES[self.hero_1.pvp.combat_style].str_id.lower())
+        self.assertEqual(data['data']['enemy']['hero']['pvp']['combat_style'], None)
+
+        self.hero_2.pvp.store_turn_data()
+        self.hero_2.save()
+
+        data = s11n.from_json(self.client.get(reverse('game:pvp:info')).content)
+
+        self.assertEqual(data['data']['enemy']['hero']['pvp']['combat_style'], COMBAT_STYLES[self.hero_2.pvp.combat_style].str_id.lower())
+
 class SayRequestsTests(TestRequestsBase):
 
     def test_no_battle(self):

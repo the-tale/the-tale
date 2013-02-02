@@ -69,11 +69,11 @@ class ChangePvPStyleTests(TestCase):
         self.assertEqual(self.task.state, CHANGE_PVP_STYLE_TASK_STATE.NO_RESOURCES)
 
     def test_process_success(self):
-        self.assertEqual(self.hero_1.pvp_combat_style, None)
+        self.assertEqual(self.hero_1.pvp.combat_style, None)
 
-        self.hero_1.pvp_rage = self.combat_style.cost_rage
-        self.hero_1.pvp_initiative = self.combat_style.cost_initiative + 1
-        self.hero_1.pvp_concentration = self.combat_style.cost_concentration + 2
+        self.hero_1.pvp.rage = self.combat_style.cost_rage
+        self.hero_1.pvp.initiative = self.combat_style.cost_initiative + 1
+        self.hero_1.pvp.concentration = self.combat_style.cost_concentration + 2
 
         old_hero_1_last_message = self.hero_1.messages[-1]
         old_hero_2_last_message = self.hero_2.messages[-1]
@@ -84,8 +84,8 @@ class ChangePvPStyleTests(TestCase):
         self.assertNotEqual(old_hero_1_last_message, self.hero_1.messages[-1])
         self.assertNotEqual(old_hero_2_last_message, self.hero_2.messages[-1])
 
-        self.assertEqual(self.hero_1.pvp_rage, 0)
-        self.assertEqual(self.hero_1.pvp_initiative, 1)
-        self.assertEqual(self.hero_1.pvp_concentration, 2)
+        self.assertEqual(self.hero_1.pvp.rage, 0)
+        self.assertEqual(self.hero_1.pvp.initiative, 1)
+        self.assertEqual(self.hero_1.pvp.concentration, 2)
 
-        self.assertEqual(self.hero_1.pvp_combat_style, self.combat_style.type)
+        self.assertEqual(self.hero_1.pvp.combat_style, self.combat_style.type)

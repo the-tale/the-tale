@@ -50,7 +50,7 @@ class GameResource(Resource):
         data['turn'] = self.time.ui_info()
 
         hero = HeroPrototype.get_by_account_id(account.id)
-        data['hero'] = hero.ui_info()
+        data['hero'] = hero.ui_info(for_last_turn=False)
 
         if self.account and self.account.id == account.id:
             abilities_data = AbilitiesData.objects.get(hero_id=hero.id)

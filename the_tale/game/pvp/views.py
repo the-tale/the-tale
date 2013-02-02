@@ -45,10 +45,10 @@ class PvPResource(Resource):
         if not self.own_hero.can_participate_in_pvp:
             return self.auto_error('pvp.no_rights', u'Вы не можете участвовать в PvP.')
 
-    def fill_account_info(self, data, account):
+    def fill_account_info(self, data, account, for_last_turn):
         hero = HeroPrototype.get_by_account_id(account.id)
 
-        data['hero'] = hero.ui_info()
+        data['hero'] = hero.ui_info(for_last_turn=for_last_turn)
 
     @handler('', method='get')
     def pvp_page(self):
@@ -92,8 +92,8 @@ class PvPResource(Resource):
         account = self.account
         enemy = AccountPrototype.get_by_id(battle.enemy_id)
 
-        self.fill_account_info(data['account'], account)
-        self.fill_account_info(data['enemy'], enemy)
+        self.fill_account_info(data['account'], account, for_last_turn=False)
+        self.fill_account_info(data['enemy'], enemy, for_last_turn=True)
 
         return self.json_ok(data=data)
 

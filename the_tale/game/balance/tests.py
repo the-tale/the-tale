@@ -165,7 +165,7 @@ class ConstantsTest(TestCase):
         self.assertEqual(c._PVP_K, 3.0/4) # if this constant changed, check all pvp balancing
         self.assertEqual(c.PVP_RESOURCES_PER_TURN, 1)
         self.assertEqual(c.PVP_MAX_ADVANTAGE_STEP, 0.3)
-        self.assertEqual(c.PVP_MAX_POWER_MULTIPLIER, 144.0)
+        self.assertEqual(c.PVP_MAX_EFFECTIVENESS_MULTIPLIER, 144.0)
         self.assertEqual(c.PVP_ADVANTAGE_BARIER, 0.95)
 
     def test_profession_to_race_mastery(self):

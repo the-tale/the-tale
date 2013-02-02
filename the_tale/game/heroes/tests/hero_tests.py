@@ -87,16 +87,16 @@ class HeroTest(TestCase):
         self.assertTrue(self.hero.modify_person_power(friend, 100) > self.hero.modify_person_power(enemy, 100))
 
     def test_might_for_pvp_effectiveness(self):
-        self.assertEqual(self.hero.pvp_power, 0)
-        self.assertEqual(self.hero.pvp_power_modified, 0)
+        self.assertEqual(self.hero.pvp.effectiveness, 0)
+        self.assertEqual(self.hero.pvp.effectiveness_modified, 0)
 
-        self.hero.pvp_power = 100
-        self.hero.update_pvp_power_modified(None)
-        self.assertEqual(self.hero.pvp_power_modified, 100)
+        self.hero.pvp.effectiveness = 100
+        self.hero.update_pvp_effectiveness_modified(None, real=False)
+        self.assertEqual(self.hero.pvp.effectiveness_modified, 100)
 
         self.hero.might = 100000
-        self.hero.update_pvp_power_modified(None)
-        self.assertTrue(self.hero.pvp_power_modified > 100)
+        self.hero.update_pvp_effectiveness_modified(None, real=False)
+        self.assertTrue(self.hero.pvp.effectiveness_modified > 100)
 
 
 
