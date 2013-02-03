@@ -51,7 +51,7 @@ class PlaceRenaming(object):
     SHOW_TEMPLATE = 'bills/bills/place_renaming_show.html'
 
     CAPTION = u'Закон о переименовании города'
-    DESCRIPTION = u'Изменяет название города. При выборе нового названия постарайтесь учесть какой расе принадлежит город, кто является его жителями и в какую сторону он развивается.'
+    DESCRIPTION = u'Изменяет название города. При выборе нового названия постарайтесь учесть, какой расе принадлежит город, кто является его жителями и в какую сторону он развивается.'
 
     def __init__(self, place_id=None, base_name=None, name_forms=None, old_name=None):
         self.place_id = place_id

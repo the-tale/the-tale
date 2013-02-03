@@ -371,7 +371,7 @@ class HeroPrototype(object):
         if self.position.place and self.position.place.modifier:
             price = self.position.place.modifier.modify_buy_price(price)
 
-        return price
+        return int(round(price))
 
 
     def sharp_artifact(self):
