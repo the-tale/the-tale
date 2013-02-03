@@ -2,6 +2,8 @@
 import os
 import pymorphy
 
+from optparse import make_option
+
 from django.core.management.base import BaseCommand
 
 from dext.utils import s11n
@@ -21,21 +23,34 @@ class Command(BaseCommand):
 
     help = 'load all texts into database'
 
+    requires_model_validation = False
+
+    option_list = BaseCommand.option_list + ( make_option('-c', '--check',
+                                                          action='store_true',
+                                                          default=False,
+                                                          dest='check',
+                                                          help='do check only, without compilation'),
+                                                          )
+
+
     def handle(self, *args, **options):
 
-        print 'CLEAN STORED PHRASES'
-        if os.path.exists(game_settings.TEXTGEN_STORAGE_VOCABULARY):
-            os.remove(game_settings.TEXTGEN_STORAGE_VOCABULARY)
+        check = options['check']
 
-        print "LOAD MOB'S NAMES"
-        mobs_logic.import_texts_into_database(morph,
-                                              tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
-                                              dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY)
+        if not check:
+            print 'CLEAN STORED PHRASES'
+            if os.path.exists(game_settings.TEXTGEN_STORAGE_VOCABULARY):
+                os.remove(game_settings.TEXTGEN_STORAGE_VOCABULARY)
 
-        print "LOAD ARTIFACT'S NAMES"
-        artifacts_logic.import_texts_into_database(morph,
-                                                   tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
-                                                   dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY)
+            print "LOAD MOB'S NAMES"
+            mobs_logic.import_texts_into_database(morph,
+                                                  tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
+                                                  dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY)
+
+            print "LOAD ARTIFACT'S NAMES"
+            artifacts_logic.import_texts_into_database(morph,
+                                                       tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
+                                                       dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY)
 
         print "LOAD MESSAGES"
         user_data = textgen_logic.import_texts(morph,
@@ -43,16 +58,20 @@ class Command(BaseCommand):
                                                tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
                                                voc_storage=game_settings.TEXTGEN_STORAGE_VOCABULARY,
                                                dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY,
-                                               debug=True)
+                                               check=check)
 
-        print 'SAVE USER DATA'
-        with open(game_settings.TEXTGEN_STORAGE_PHRASES_TYPES, 'w') as f:
-            f.write(s11n.to_json(user_data).encode('utf-8'))
+        if not check:
+            print 'SAVE USER DATA'
+            with open(game_settings.TEXTGEN_STORAGE_PHRASES_TYPES, 'w') as f:
+                f.write(s11n.to_json(user_data).encode('utf-8'))
 
-        dictionary = Dictionary()
-        dictionary.load(storage=game_settings.TEXTGEN_STORAGE_DICTIONARY)
-        undefined_words = dictionary.get_undefined_words()
-        print 'undefined words number: %d' % len(undefined_words)
-        if undefined_words:
-            for word in undefined_words:
-                print word
+            dictionary = Dictionary()
+            dictionary.load(storage=game_settings.TEXTGEN_STORAGE_DICTIONARY)
+            undefined_words = dictionary.get_undefined_words()
+            print 'undefined words number: %d' % len(undefined_words)
+            if undefined_words:
+                for word in undefined_words:
+                    print word
+
+        else:
+            print 'CHECK COMPLETE, ALL DATA COMPILED CORRECTLY'
