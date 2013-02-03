@@ -222,16 +222,6 @@
 }, 
 "name": "Действие: посещение города", 
 "types": {
-"action_inplace_sharpening_artifact": {
-"variables": [
-"coins", 
-"hero", 
-"artifact"
-], 
-"example": "Заплатило кузнецу 13 монет за улучшение пепельницы.", 
-"name": "Заточка артефакта", 
-"description": "Герой тратит деньги на заточку артефакта."
-}, 
 "action_inplace_description": {
 "variables": [
 "hero", 
@@ -241,27 +231,46 @@
 "name": "Описание", 
 "description": "Краткая декларация того, что делает герой."
 }, 
-"action_inplace_impact_bad": {
+"action_inplace_diary_buying_artifact": {
 "variables": [
-"person", 
 "coins", 
-"hero"
+"hero", 
+"artifact"
 ], 
-"example": "Заплатило 13 монет специально обученным людям. Гусь будет в ярости.", 
-"name": "Вредительство персонажу", 
-"description": "Герой тратит деньги, чтобы навредить персонажу"
+"example": "Торговка впарила пепельницу за целую 1071 монету.", 
+"name": "Дневник: Покупка артефакта", 
+"description": "Герой тратит деньги на покупку артефакта, который будет одеваться в первый раз (т.е. слот для него не занят другим артефактом)."
 }, 
-"action_inplace_impact_good": {
+"action_inplace_diary_sharpening_artifact": {
+"variables": [
+"coins", 
+"hero", 
+"artifact"
+], 
+"example": "Заплатило кузнецу 13 монет за улучшение пепельницы.", 
+"name": "Днекник: Заточка артефакта", 
+"description": "Герой тратит деньги на заточку артефакта."
+}, 
+"action_inplace_diary_impact_good": {
 "variables": [
 "person", 
 "coins", 
 "hero"
 ], 
 "example": "Отдало 13 монет на благое дело. Надеюсь, гусь применит их с пользой.", 
-"name": "Помощь персонажу", 
+"name": "Дневник: Помощь персонажу", 
 "description": "Герой тратит деньги на помощь персонажу."
 }, 
-"action_inplace_buying_artifact_and_change": {
+"action_inplace_diary_spend_useless": {
+"variables": [
+"coins", 
+"hero"
+], 
+"example": "Рассыпало монеты по мостовой, собрав, недосчиталось 113 штук.", 
+"name": "Дневник: Бесполезные траты", 
+"description": "Герой тратит деньги на бесполезную вещь или занятие."
+}, 
+"action_inplace_diary_buying_artifact_and_change": {
 "variables": [
 "old_artifact", 
 "sell_price", 
@@ -270,36 +279,8 @@
 "artifact"
 ], 
 "example": "Пепельница мне надоела, купил вместо её нож за 1071 монету. А пепельницу продало за 13 монет.", 
-"name": "Покупка артефакта и замена", 
+"name": "Днекник: Покупка артефакта и замена", 
 "description": "Герой тратит деньги на покупку артефакта, и меняет на него одетый ранее."
-}, 
-"action_inplace_buying_artifact": {
-"variables": [
-"coins", 
-"hero", 
-"artifact"
-], 
-"example": "Торговка впарила пепельницу за целую 1071 монету.", 
-"name": "Покупка артефакта", 
-"description": "Герой тратит деньги на покупку артефакта, который будет одеваться в первый раз (т.е. слот для него не занят другим артефактом)."
-}, 
-"action_inplace_spend_useless": {
-"variables": [
-"coins", 
-"hero"
-], 
-"example": "Рассыпало монеты по мостовой, собрав, недосчиталось 113 штук.", 
-"name": "Бесполезные траты", 
-"description": "Герой тратит деньги на бесполезную вещь или занятие."
-}, 
-"action_inplace_instant_heal_for_money": {
-"variables": [
-"coins", 
-"hero"
-], 
-"example": "Лекарь содрал 1031 монету за лечение.", 
-"name": "Лечение", 
-"description": "Герой тратит деньги на лечение."
 }, 
 "action_inplace_instant_heal": {
 "variables": [
@@ -309,6 +290,25 @@
 "example": "Едва привидение вошло в город, как раны начали затягиваться.", 
 "name": "Лечение", 
 "description": "Герой моментально излечивается благодаря типу города «Курорт»."
+}, 
+"action_inplace_diary_instant_heal_for_money": {
+"variables": [
+"coins", 
+"hero"
+], 
+"example": "Лекарь содрал 1031 монету за лечение.", 
+"name": "Дневник: Лечение за деньги", 
+"description": "Герой тратит деньги на лечение."
+}, 
+"action_inplace_diary_impact_bad": {
+"variables": [
+"person", 
+"coins", 
+"hero"
+], 
+"example": "Заплатило 13 монет специально обученным людям. Гусь будет в ярости.", 
+"name": "Дневник: Вредительство персонажу", 
+"description": "Герой тратит деньги, чтобы навредить персонажу"
 }
 }, 
 "description": "Описание событий, происходящих при посещении героем города."
@@ -819,6 +819,15 @@
 "name": "Периодический урон ядом", 
 "description": "Герой или монстр получает периодический урон ядом."
 }, 
+"action_battlepve1x1_diary_hero_killed": {
+"variables": [
+"mob", 
+"hero"
+], 
+"example": "Крыса провела завершающий удар и тело привидения упало в овраг.", 
+"name": "Дневник: Герой убит", 
+"description": "Герой умирает."
+}, 
 "action_battlepve1x1_mob_killed": {
 "variables": [
 "mob", 
@@ -836,15 +845,6 @@
 "example": "Ужасная крыса выскочила из кустов.", 
 "name": "Начало боя", 
 "description": "Встреча с противником."
-}, 
-"action_battlepve1x1_hero_killed": {
-"variables": [
-"mob", 
-"hero"
-], 
-"example": "Крыса провела завершающий удар и тело привидения упало в овраг.", 
-"name": "Герой убит", 
-"description": "Герой умирает."
 }, 
 "action_battlepve1x1_description": {
 "variables": [
@@ -2800,6 +2800,24 @@
 }, 
 "name": "Действие: экипировка", 
 "types": {
+"action_equipping_diary_equip_item": {
+"variables": [
+"hero", 
+"equipped"
+], 
+"example": "Сабля здорово мне подойдет.", 
+"name": "Дневник: Экипировать предмет", 
+"description": "Экипировка предмета в первый раз (до этого слот экипировки для предмета был свободен)"
+}, 
+"action_equipping_diary_change_equal_items": {
+"variables": [
+"item", 
+"hero"
+], 
+"example": "Новое копьё куда лучше старого — надо их поменять.", 
+"name": "Дневник: Обновить предмет", 
+"description": "Замена экипированного предмета на предмет с аналогичным названием."
+}, 
 "action_equipping_description": {
 "variables": [
 "hero"
@@ -2808,33 +2826,15 @@
 "name": "Описание", 
 "description": "Краткая декларация того, что делает герой."
 }, 
-"action_equipping_change_item": {
+"action_equipping_diary_change_item": {
 "variables": [
 "unequipped", 
 "hero", 
 "equipped"
 ], 
 "example": "Что-то копьё поизносилось, пора менять на меч.", 
-"name": "Сменить предмет", 
+"name": "Дневник: Сменить предмет", 
 "description": "Замена экипированного предмета на предмет с отличающимся названием"
-}, 
-"action_equipping_change_equal_items": {
-"variables": [
-"item", 
-"hero"
-], 
-"example": "Новое копьё куда лучше старого — надо их поменять.", 
-"name": "Обновить предмет", 
-"description": "Замена экипированного предмета на предмет с аналогичным названием."
-}, 
-"action_equipping_equip_item": {
-"variables": [
-"hero", 
-"equipped"
-], 
-"example": "Сабля здорово мне подойдет.", 
-"name": "Экипировать предмет", 
-"description": "Экипировка предмета в первый раз (до этого слот экипировки для предмета был свободен)"
 }
 }, 
 "description": "Описание событий во время изменения экипировки героя."
