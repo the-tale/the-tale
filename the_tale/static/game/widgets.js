@@ -78,8 +78,8 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-experience-to-level', widget).text(data.base.experience_to_level);
 
         jQuery('.pgf-race-gender').removeClass('pgf-hidden');
-        jQuery('.pgf-gender', widget).text(data.base.gender);
-        jQuery('.pgf-race', widget).text(data.base.race);
+        jQuery('.pgf-gender', widget).text(pgf.game.constants.GENDER_TO_TEXT[data.base.gender]);
+        jQuery('.pgf-race', widget).text(pgf.game.constants.RACE_TO_TEXT[data.base.race]);
 
         jQuery('.pgf-health-percents', widget).width( (100 * data.base.health / data.base.max_health) + '%');
         jQuery('.pgf-experience-percents', widget).width( (100 * data.base.experience / data.base.experience_to_level) + '%');
@@ -170,9 +170,9 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         popoverTitle = 'персонаж';
 
         var place = widgets.mapManager.GetPlaceData(data.place_id);
-        var race = pgf.game.constants.RACE_TO_STR[data.race];
-        var gender = pgf.game.constants.GENDER_TO_STR[data.gender];
-        var profeccion = pgf.game.constants.PERSON_TYPE_TO_STR[data.type];
+        var race = pgf.game.constants.RACE_TO_TEXT[data.race];
+        var gender = pgf.game.constants.GENDER_TO_TEXT[data.gender];
+        var profeccion = pgf.game.constants.PERSON_TYPE_TO_TEXT[data.type];
 
         var content = jQuery('#pgf-popover-person').clone();
         jQuery('.pgf-place', content).text(place.name);

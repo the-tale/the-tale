@@ -214,6 +214,7 @@ class PlacePrototype(object):
     def map_info(self):
         return {'id': self.id,
                 'pos': {'x': self.x, 'y': self.y},
+                'race': self.get_dominant_race(),
                 'name': self.name,
                 'type': self.type,
                 'size': self.size}

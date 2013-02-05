@@ -2,188 +2,107 @@
 
 pgf.tilesets = {
 
-    tileset3: {
-        TILE_SIZE: 32,
-
-        sprites: {
-            'f': { src: "/tmp/map3.png",
-                   x: 4 * 32,
-                   y: 0 * 32,
-                   w: 32,
-                   h: 32
-                 },
-            '.': { src: "/tmp/map3.png",
-                   x: 0 * 32,
-                   y: 0 * 32,
-                   w: 32,
-                   h: 32
-                 },
-            '_': { src: "/tmp/map3.png",
-                   x: 3 * 32,
-                   y: 0 * 32,
-                   w: 32,
-                   h: 32
-                 },
-            'w': { src: "/tmp/map3.png",
-                   x: 2 * 32,
-                   y: 0 * 32,
-                   w: 32,
-                   h: 32
-                 },
-            'place': { src: "/tmp/map3.png",
-                       x: 2 * 32,
-                       y: 6 * 32,
-                       w: 32,
-                       h: 32
-                     },
-            'hero': { src: "/tmp/map3.png",
-                      x: 7 * 32,
-                      y: 0 * 32,
-                      w: 32,
-                      h: 32
-                    },
-            'r': { src: "/tmp/map_road.png",
-                   x: 0 * 32,
-                   y: 0 * 32,
-                   w: 32,
-                   h: 32
-                 },
-        },
-    },
-
-    tileset2: {
+    main: {
 
         TILE_SIZE: 32,
+        W: 32,
+        H: 32,
+        SRC: "/game/images/map.png",
 
         sprites: {
-            'f': { src: "/tmp/map2.png",
-                   x: 1 * 32,
-                   y: 0 * 32,
-                   w: 32,
-                   h: 32
-                 },
-            '.': { src: "/tmp/map2.png",
-                   x: 3 * 32,
-                   y: 0 * 32,
-                   w: 32,
-                   h: 32
-                 },
-            '_': { src: "/tmp/map2.png",
-                   x: 1 * 32,
-                   y: 2 * 32,
-                   w: 32,
-                   h: 32
-                 },
-            'w': { src: "/tmp/map2.png",
-                   x: 7 * 32,
-                   y: 4 * 32,
-                   w: 32,
-                   h: 32
-                 },
-            'm': { src: "/tmp/rocks.png",
-                   x: 0 * 32,
-                   y: 0 * 32,
-                   w: 32,
-                   h: 32
-                 },
-            'place_small': { src: "/tmp/city_small.png",
-                       x: 0,
-                       y: 0,
-                       w: 32,
-                       h: 32
-                     },
-            'place_medium': { src: "/tmp/city_medium.png",
-                       x: 0,
-                       y: 0,
-                       w: 32,
-                       h: 32
-                     },
-            'place_large': { src: "/tmp/city_large.png",
-                       x: 0,
-                       y: 0,
-                       w: 32,
-                       h: 32
-                     },
-            'hero_right': { src: "/tmp/hero.png",
-                            x: 0,
-                            y: 0,
-                            w: 32,
-                            h: 32
-                    },
-            'hero_left': { src: "/tmp/hero.png",
-                           x: 32,
-                           y: 0,
-                           w: 32,
-                           h: 32
-                    },
-            'r4': { src: "/tmp/map_road.png",
-                   x: 0 * 32,
-                   y: 0 * 32,
-                   w: 32,
-                   h: 32
-                 },
-            'r3': { src: "/tmp/map_road.png",
-                   x: 1 * 32,
-                   y: 0 * 32,
-                   w: 32,
-                   h: 32
-                 },
-            'r_line': { src: "/tmp/map_road.png",
-                        x: 2 * 32,
-                        y: 0 * 32,
-                        w: 32,
-                        h: 32
-                      },
-            'r_angle': { src: "/tmp/map_road.png",
-                         x: 3 * 32,
-                         y: 0 * 32,
-                         w: 32,
-                         h: 32
-                       },
-        },
-    },
 
-    tileset1: {
+            hero_human_masculine:  { x: 0 * 32, y: 8 * 32 },
+            hero_human_feminine:   { x: 1 * 32, y: 8 * 32 },
+            hero_dwarf_masculine:  { x: 2 * 32, y: 8 * 32 },
+            hero_dwarf_feminine:   { x: 3 * 32, y: 8 * 32 },
+            hero_elf_masculine:    { x: 4 * 32, y: 8 * 32 },
+            hero_elf_feminine:     { x: 5 * 32, y: 8 * 32 },
+            hero_goblin_masculine: { x: 6 * 32, y: 8 * 32 },
+            hero_goblin_feminine:  { x: 7 * 32, y: 8 * 32 },
+            hero_orc_masculine:    { x: 8 * 32, y: 8 * 32 },
+            hero_orc_feminine:     { x: 9 * 32, y: 8 * 32 },
 
-        TILE_SIZE: 48,
-        
-        sprites: {
-            'f': { src: "/tmp/map.png",
-                   x: 3 * 48,
-                   y: 0 * 48,
-                   w: 48,
-                   h: 48
-                 },
-            '.': { src: "/tmp/map.png",
-                   x: 0 * 48,
-                   y: 0 * 48,
-                   w: 48,
-                   h: 48
-                 },
-            '_': { src: "/tmp/map.png",
-                   x: 0 * 48,
-                   y: 3 * 48,
-                   w: 48,
-                   h: 48
-                 },
-            'w': { src: "/tmp/map.png",
-                   x: 14 * 48,
-                   y: 2 * 48,
-                   w: 48,
-                   h: 48
-                 },
-            'place': { src: "/tmp/map.png",
-                       x: 4 * 48,
-                       y: 4 * 48,
-                       w: 48,
-                       h: 48
-                     },
-            'hero': { src: "/tmp/map.png",
-                      x: 5 * 48,
-                      y: 11 * 48,
-                      w: 48,
-                      h: 48
-                    },
+            // neutral gender eual to male
+            hero_human_neuter:  { x: 0 * 32, y: 8 * 32 },
+            hero_dwarf_neuter:  { x: 2 * 32, y: 8 * 32 },
+            hero_elf_neuter:    { x: 4 * 32, y: 8 * 32 },
+            hero_goblin_neuter: { x: 6 * 32, y: 8 * 32 },
+            hero_orc_neuter:    { x: 8 * 32, y: 8 * 32 },
+
+            WATER_DEEP:            { y: 2 * 32, x: 4 * 32 },
+            WATER_SHOAL:           { y: 2 * 32, x: 3 * 32 },
+            MOUNTAINS_HIGH:        { y: 2 * 32, x: 1 * 32 },
+            MOUNTAINS_LOW:         { y: 2 * 32, x: 0 * 32 },
+            PLANE_SAND:            { y: 0 * 32, x: 1 * 32 },
+            PLANE_DRY_LAND:        { y: 0 * 32, x: 3 * 32 },
+            PLANE_MUD:             { y: 0 * 32, x: 4 * 32 },
+            PLANE_DRY_GRASS:       { y: 0 * 32, x: 5 * 32 },
+            PLANE_GRASS:           { y: 0 * 32, x: 0 * 32 },
+            PLANE_SWAMP_GRASS:     { y: 0 * 32, x: 2 * 32 },
+            PLANE_CONIFER_FOREST:  { y: 1 * 32, x: 0 * 32 },
+            PLANE_GREENWOOD:       { y: 1 * 32, x: 1 * 32 },
+            PLANE_SWAMP_FOREST:    { y: 1 * 32, x: 2 * 32 },
+            PLANE_JUNGLE:          { y: 1 * 32, x: 3 * 32 },
+            PLANE_WITHERED_FOREST: { y: 1 * 32, x: 5 * 32 },
+            HILLS_SAND:            { y: 0 * 32, x: 7 * 32 },
+            HILLS_DRY_LAND:        { y: 0 * 32, x: 11 * 32 },
+            HILLS_MUD:             { y: 0 * 32, x: 10 * 32 },
+            HILLS_DRY_GRASS:       { y: 0 * 32, x: 9 * 32 },
+            HILLS_GRASS:           { y: 0 * 32, x: 6 * 32 },
+            HILLS_SWAMP_GRASS:     { y: 0 * 32, x: 8 * 32 },
+            HILLS_CONIFER_FOREST:  { y: 1 * 32, x: 6 * 32 },
+            HILLS_GREENWOOD:       { y: 1 * 32, x: 7 * 32 },
+            HILLS_SWAMP_FOREST:    { y: 1 * 32, x: 8 * 32 },
+            HILLS_JUNGLE:          { y: 1 * 32, x: 9 * 32 },
+            HILLS_WITHERED_FOREST: { y: 1 * 32, x: 11 * 32 },
+
+            city_human_small :   { y: 6 * 32, x: 0 * 32},
+            city_human_medium :  { y: 6 * 32, x: 1 * 32},
+            city_human_large :   { y: 6 * 32, x: 2 * 32},
+            city_human_capital : { y: 6 * 32, x: 3 * 32},
+
+            city_dwarf_small :   { y: 6 * 32, x: 4 * 32},
+            city_dwarf_medium :  { y: 6 * 32, x: 5 * 32},
+            city_dwarf_large :   { y: 6 * 32, x: 6 * 32},
+            city_dwarf_capital : { y: 6 * 32, x: 7 * 32},
+
+            city_elf_small :   { y: 6 * 32, x: 8 * 32},
+            city_elf_medium :  { y: 6 * 32, x: 9 * 32},
+            city_elf_large :   { y: 6 * 32, x: 10 * 32},
+            city_elf_capital : { y: 6 * 32, x: 11 * 32},
+
+            city_goblin_small :   { y: 7 * 32, x: 0 * 32},
+            city_goblin_medium :  { y: 7 * 32, x: 1 * 32},
+            city_goblin_large :   { y: 7 * 32, x: 2 * 32},
+            city_goblin_capital : { y: 7 * 32, x: 3 * 32},
+
+            city_orc_small :   { y: 7 * 32, x: 4 * 32},
+            city_orc_medium :  { y: 7 * 32, x: 5 * 32},
+            city_orc_large :   { y: 7 * 32, x: 6 * 32},
+            city_orc_capital : { y: 7 * 32, x: 7 * 32},
+
+            r4:      { x: 3 * 32, y: 3 * 32 },
+            r3:      { x: 1 * 32, y: 3 * 32 },
+            r_vert:  { x: 5 * 32, y: 3 * 32 },
+            r_horiz: { x: 2 * 32, y: 3 * 32 },
+            r_angle: { x: 4 * 32, y: 3 * 32 },
+
+            select_land: { x: 0*32, y: 9 * 32},
+            select_hero: { x: 1*32, y: 9 * 32}
         }
+    }
+};
+
+// prepair tiles
+
+for (var tilesetName in pgf.tilesets) {
+    var tileset = pgf.tilesets[tilesetName];
+
+    for (var spriteName in tileset.sprites) {
+        var sprite = tileset.sprites[spriteName];
+        
+        if (sprite.w == undefined) sprite.w = tileset.W;
+        if (sprite.h == undefined) sprite.h = tileset.H;
+        if (sprite.src == undefined) sprite.src = tileset.SRC;
     }
 }

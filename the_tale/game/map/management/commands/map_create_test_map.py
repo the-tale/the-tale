@@ -99,7 +99,7 @@ class Command(BaseCommand):
             row = []
             terrain.append(row)
             for x in xrange(0, map_settings.WIDTH):
-                row.append(TERRAIN.FOREST)
+                row.append(TERRAIN.PLANE_GREENWOOD)
 
         map_info_storage.set_item(MapInfoPrototype.create(turn_number=0,
                                                           width=map_settings.WIDTH,

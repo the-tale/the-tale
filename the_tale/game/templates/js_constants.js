@@ -13,9 +13,15 @@ pgf.game.constants = {
 
     GENDER_TO_STR: {{gender_to_str|safe}},
 
-    PERSON_TYPE_TO_STR: {{person_type_to_str|safe}},
+    GENDER_TO_TEXT: {{gender_to_text|safe}},
+
+    PERSON_TYPE_TO_TEXT: {{person_type_to_text|safe}},
 
     RACE_TO_STR: {{race_to_str|safe}},
+
+    RACE_TO_TEXT: {{race_to_text|safe}},
     
-    PVP_COMBAT_STYLES_ADVANTAGES: {{pvp_combat_styles_advantages|safe}}
+    PVP_COMBAT_STYLES_ADVANTAGES: {{pvp_combat_styles_advantages|safe}},
+    
+    TERRAIN_ID_TO_STR: {{terrain_id_to_str|safe}}
 };

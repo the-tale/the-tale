@@ -11,7 +11,7 @@ from game.prototypes import TimePrototype
 from game.map.conf import map_settings
 from game.map.storage import map_info_storage
 from game.map.prototypes import MapInfoPrototype
-from game.map.generator import biomes
+from game.map.generator.biomes import Biom
 from game.map.generator.power_points import get_places_power_points
 from game.map.places.storage import places_storage
 from game.map.places.models import TERRAIN
@@ -30,6 +30,7 @@ def _place_info(place):
             'x': place.x,
             'y': place.y,
             'name': place.name,
+            'race': place.get_dominant_race(),
             'size': place.size}
 
 
@@ -86,12 +87,8 @@ def update_map(index):
     for point in get_places_power_points():
         world.add_power_point(point)
 
-    world.add_biom(biomes.Mountains(id_=TERRAIN.MOUNTAINS))
-    world.add_biom(biomes.Desert(id_=TERRAIN.DESERT))
-    world.add_biom(biomes.Swamp(id_=TERRAIN.SWAMP))
-    world.add_biom(biomes.Forest(id_=TERRAIN.FOREST))
-    world.add_biom(biomes.Grass(id_=TERRAIN.GRASS))
-    world.add_biom(biomes.Default(id_=TERRAIN.GRASS))
+    for terrain in TERRAIN._ALL:
+        world.add_biom(Biom(id_=terrain))
 
     world.do_step()
 
@@ -116,7 +113,7 @@ def update_map(index):
 
     data = {'width': world.w,
             'height': world.h,
-            'terrain': [ ''.join(row) for row in terrain ],
+            'terrain': [ row for row in terrain ],
             'places': dict( (place.id, _place_info(place) ) for place in places_storage.all() ),
             'roads': dict( (road.id, _road_info(road) ) for road in roads_storage.all() ) }
 

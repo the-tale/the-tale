@@ -16,12 +16,18 @@ pgf.game.constants = {
 },
 
     GENDER_TO_STR: {
+"0": "MASCULINE", 
+"1": "FEMININE", 
+"2": "NEUTER"
+},
+
+    GENDER_TO_TEXT: {
 "0": "мужчина", 
 "1": "женщина", 
 "2": "оно"
 },
 
-    PERSON_TYPE_TO_STR: {
+    PERSON_TYPE_TO_TEXT: {
 "0": "кузнец", 
 "1": "рыбак", 
 "2": "портной", 
@@ -47,6 +53,14 @@ pgf.game.constants = {
 },
 
     RACE_TO_STR: {
+"0": "HUMAN", 
+"1": "ELF", 
+"2": "ORC", 
+"3": "GOBLIN", 
+"4": "DWARF"
+},
+
+    RACE_TO_TEXT: {
 "0": "человек", 
 "1": "эльф", 
 "2": "орк", 
@@ -103,5 +117,34 @@ pgf.game.constants = {
 "4": 1.08, 
 "5": 1.0
 }
+},
+    
+    TERRAIN_ID_TO_STR: {
+"0": "WATER_DEEP", 
+"1": "WATER_SHOAL", 
+"2": "MOUNTAINS_HIGH", 
+"3": "MOUNTAINS_LOW", 
+"4": "PLANE_SAND", 
+"5": "PLANE_DRY_LAND", 
+"6": "PLANE_MUD", 
+"7": "PLANE_DRY_GRASS", 
+"8": "PLANE_GRASS", 
+"9": "PLANE_SWAMP_GRASS", 
+"10": "PLANE_CONIFER_FOREST", 
+"11": "PLANE_GREENWOOD", 
+"12": "PLANE_SWAMP_FOREST", 
+"13": "PLANE_JUNGLE", 
+"14": "PLANE_WITHERED_FOREST", 
+"15": "HILLS_SAND", 
+"16": "HILLS_DRY_LAND", 
+"17": "HILLS_MUD", 
+"18": "HILLS_DRY_GRASS", 
+"19": "HILLS_GRASS", 
+"20": "HILLS_SWAMP_GRASS", 
+"21": "HILLS_CONIFER_FOREST", 
+"22": "HILLS_GREENWOOD", 
+"23": "HILLS_SWAMP_FOREST", 
+"24": "HILLS_JUNGLE", 
+"25": "HILLS_WITHERED_FOREST"
 }
 };

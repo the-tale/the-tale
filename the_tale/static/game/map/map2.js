@@ -365,16 +365,16 @@ pgf.game.map.Map = function(selector, params) {
         }
 
         if (l && u) return {name: 'r_angle', rotate: 0};
-        if (l && r) return {name: 'r_line', rotate: 0};
+        if (l && r) return {name: 'r_horiz', rotate: 0};
         if (l && d) return {name: 'r_angle', rotate: 270};
 
         if (u && r) return {name: 'r_angle', rotate: 90};
-        if (u && d) return {name: 'r_line', rotate: 90};
+        if (u && d) return {name: 'r_vert', rotate: 0};
 
         if (r && d) return {name: 'r_angle', rotate: 180};
 
-        if (l || r) return {name: 'r_line', rotate: 0};
-        if (u || d) return {name: 'r_line', rotate: 90};
+        if (l || r) return {name: 'r_horiz', rotate: 0};
+        if (u || d) return {name: 'r_vert', rotate: 0};
 
         alert('check cell: ('+x+', '+y+')');
         return {name: 'r_line', rotate: 0};
@@ -436,7 +436,7 @@ pgf.game.map.Map = function(selector, params) {
 
             return {x: x, y: y};
         }
-    }
+    };
 
     function Draw(fullData) {
 
@@ -464,7 +464,7 @@ pgf.game.map.Map = function(selector, params) {
                 var x = posX + j * TILE_SIZE;
                 var y = posY + i * TILE_SIZE;
 
-                image = spritesManager.GetImage(terrain[i][j]);
+                image = spritesManager.GetImage(pgf.game.constants.TERRAIN_ID_TO_STR[terrain[i][j]]);
                 image.Draw(context, x, y);
 
                 if (calculatedData.roadsMap[i][j] != '.') {
@@ -489,13 +489,14 @@ pgf.game.map.Map = function(selector, params) {
         context.textBaseline = 'top';
         for (var place_id in data.places) {
             var place = data.places[place_id];
-            var spriteName = 'place_medium';
-            if (place.size <= 3) {
-                spriteName = 'place_small';
-            }
-            if (place.size >= 8) {
-                spriteName = 'place_large';
-            }
+            var spriteName = 'city_' + pgf.game.constants.RACE_TO_STR[place.race].toLowerCase();
+
+            if (place.size < 3) { spriteName += '_small'; }
+            else { if (place.size < 6) { spriteName += '_medium'; }
+                   else { if (place.size < 9) { spriteName += '_large'; }
+                          else spriteName += '_capital';
+                        }}
+                                  
             var image = spritesManager.GetImage(spriteName);
             image.Draw(context,
                        posX + place.x * TILE_SIZE,
@@ -514,8 +515,12 @@ pgf.game.map.Map = function(selector, params) {
             var hero = dynamicData.heroes[hero_id];
 
             var heroPosition = GetHeroPosition(data, hero);
+            // hero.base.race/gender
+            var heroImage = 'hero_'+ 
+                pgf.game.constants.RACE_TO_STR[hero.base.race].toLowerCase() +
+                '_' + pgf.game.constants.GENDER_TO_STR[hero.base.gender].toLowerCase();
 
-            var heroImage = 'hero_right';
+            var reflectNeeded = false;
 
             if (hero.position.road) {
                 var road = data.roads[hero.position.road.id];
@@ -530,7 +535,8 @@ pgf.game.map.Map = function(selector, params) {
                 }
 
                 if (point_1.x > point_2.x) {
-                    heroImage = 'hero_left';
+                    reflectNeeded = true;
+                    // heroImage = 'hero_left';
                 }
             }
 
@@ -543,7 +549,8 @@ pgf.game.map.Map = function(selector, params) {
                 var from_x = hero.position.coordinates.from.x;
 
                 if (from_x > to_x) {
-                    heroImage = 'hero_left';
+                    reflectNeeded = true;
+                    // heroImage = 'hero_left';
                 }
             }
 
@@ -552,7 +559,17 @@ pgf.game.map.Map = function(selector, params) {
             var heroX = parseInt(posX + heroPosition.x * TILE_SIZE, 10);
             var heroY = parseInt(posY + heroPosition.y * TILE_SIZE, 10) - 12;
 
+            if (reflectNeeded) {
+                context.save(); 
+                context.scale(-1, 1);
+                heroX *= -1;
+            }
+
             image.Draw(context, heroX, heroY);
+
+            if (reflectNeeded) {
+                context.restore();
+            }
         }
 
         if (selectedTile) {
@@ -562,7 +579,8 @@ pgf.game.map.Map = function(selector, params) {
 
             if (0 <= x && x < w * TILE_SIZE &&
                 0 <= y && y < h * TILE_SIZE) {
-                context.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
+                var image = spritesManager.GetImage('select_land');
+                image.Draw(context, x, y);
             }
         }
 

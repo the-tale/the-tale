@@ -8,7 +8,7 @@ from collections import namedtuple
 from game.mobs.conf import mobs_settings
 from game.mobs.exceptions import MobsException
 from game.mobs.prototypes import MobPrototype
-from game.map.places.models import TERRAIN_STR_2_ID
+from game.map.places.models import TERRAIN
 
 MobRecord = namedtuple('MobRecord', ('level', 'id', 'name', 'normalized_name', 'morph', 'abilities', 'terrain', 'loot', 'artifacts'))
 
@@ -46,7 +46,7 @@ class MobsDatabase(object):
             mob_data[5] = self._prepair_string_set(mob_data[5])
 
             mob_data[6] = self._prepair_string_set(mob_data[6])
-            mob_data[6] = frozenset([TERRAIN_STR_2_ID[terrain] for terrain in mob_data[6]])
+            mob_data[6] = frozenset([TERRAIN._STR_TO_ID[terrain.upper()] for terrain in mob_data[6]])
 
             mob_data[7] = self._prepair_string_set(mob_data[7])
             mob_data[8] = self._prepair_string_set(mob_data[8])

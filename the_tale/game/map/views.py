@@ -12,7 +12,7 @@ from game.prototypes import TimePrototype
 from game.heroes.prototypes import HeroPrototype
 
 from game.map.storage import map_info_storage
-from game.map.logic import get_map_info
+# from game.map.logic import get_map_info
 from game.map.places.prototypes import PlacePrototype
 from game.map.generator import descriptors
 from game.map.conf import map_settings
@@ -23,10 +23,10 @@ class MapResource(Resource):
     def __init__(self, request, *args, **kwargs):
         super(MapResource, self).__init__(request, *args, **kwargs)
 
-    @handler('', method='get')
-    def info(self):
-        map_info = get_map_info()
-        return self.json(status='ok', data=map_info)
+    # @handler('', method='get')
+    # def info(self):
+    #     map_info = get_map_info()
+    #     return self.json(status='ok', data=map_info)
 
     @login_required
     @handler('cell-info', method='get')
@@ -43,7 +43,7 @@ class MapResource(Resource):
 
         cell = world.cell_info(x, y)
 
-        nearest_place_name = map_info.get_dominant_place(x, y).normalized_name[0].get_form(Args(u'дт'))
+        nearest_place_name = map_info.get_dominant_place(x, y).normalized_name[0].get_form(Args(u'рд'))
 
         randomized_cell = cell.randomize(seed=(x+y)*TimePrototype.get_current_time().game_time.day, fraction=map_settings.CELL_RANDOMIZE_FRACTION)
 

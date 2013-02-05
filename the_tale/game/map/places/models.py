@@ -4,27 +4,39 @@ from django.db import models
 
 from common.utils.enum import create_enum
 
-from game.balance.enums import RACE, CITY_MODIFIERS
+from game.balance.enums import CITY_MODIFIERS
 
 
-TERRAIN = create_enum('TERRAIN', (('DESERT',    '_', u'пустыня'),
-                                  ('FOREST',    'f', u'лес'),
-                                  ('GRASS',     '.', u'луга'),
-                                  ('SWAMP',     'w', u'болото'),
-                                  ('MOUNTAINS', 'm', u'горы')) )
+TERRAIN = create_enum('TERRAIN', ( ('WATER_DEEP',            0, u'глубокая вода'),
+                                   ('WATER_SHOAL',           1, u'мелкая вода'),
+                                   ('MOUNTAINS_HIGH',        2, u'высокие горы'),
+                                   ('MOUNTAINS_LOW',         3, u'низкие горы'),
 
-RACE_TO_TERRAIN = { RACE.HUMAN: TERRAIN.GRASS,
-                    RACE.ELF: TERRAIN.FOREST,
-                    RACE.ORC: TERRAIN.DESERT,
-                    RACE.GOBLIN: TERRAIN.SWAMP,
-                    RACE.DWARF: TERRAIN.MOUNTAINS }
+                                   ('PLANE_SAND',            4, u'пустыня'),
+                                   ('PLANE_DRY_LAND',        5, u'высохшая растрескавшаяся земля'),
+                                   ('PLANE_MUD',             6, u'грязь'),
+                                   ('PLANE_DRY_GRASS',       7, u'сухие луга'),
+                                   ('PLANE_GRASS',           8, u'луга'),
+                                   ('PLANE_SWAMP_GRASS',     9, u'болото'),
+                                   ('PLANE_CONIFER_FOREST',  10, u'хвойный лес'),
+                                   ('PLANE_GREENWOOD',       11, u'лиственный лес'),
+                                   ('PLANE_SWAMP_FOREST',    12, u'заболоченный лес'),
+                                   ('PLANE_JUNGLE',          13, u'джунгли'),
+                                   ('PLANE_WITHERED_FOREST', 14, u'мёртвый лес'),
 
-TERRAIN_STR_2_ID = { 'desert': TERRAIN.DESERT,
-                     'forest': TERRAIN.FOREST,
-                     'grass': TERRAIN.GRASS,
-                     'swamp': TERRAIN.SWAMP,
-                     'mountains': TERRAIN.MOUNTAINS}
+                                   ('HILLS_SAND',            15, u'песчаные дюны'),
+                                   ('HILLS_DRY_LAND',        16, u'высохшие растрескавшиеся холмы'),
+                                   ('HILLS_MUD',             17, u'грязевые холмы'),
+                                   ('HILLS_DRY_GRASS',       18, u'холмы с высохшей травой'),
+                                   ('HILLS_GRASS',           19, u'зелёные холмы'),
+                                   ('HILLS_SWAMP_GRASS',     20, u'заболоченные холмы'),
+                                   ('HILLS_CONIFER_FOREST',  21, u'хвойный лес на холмах'),
+                                   ('HILLS_GREENWOOD',       22, u'лиственный лес на холмах'),
+                                   ('HILLS_SWAMP_FOREST',    23, u'заболоченный лес холмах'),
+                                   ('HILLS_JUNGLE',          24, u'джунгли на холмах'),
+                                   ('HILLS_WITHERED_FOREST', 25, u'мёртвый лес на холмах')
 
+                                   ) )
 
 PLACE_TYPE = create_enum('PLACE_TYPE', (('CITY', 0, u'город'),))
 
