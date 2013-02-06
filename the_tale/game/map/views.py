@@ -15,6 +15,7 @@ from game.map.storage import map_info_storage
 # from game.map.logic import get_map_info
 from game.map.places.prototypes import PlacePrototype
 from game.map.generator import descriptors
+from game.map.generator.biomes import Biom
 from game.map.conf import map_settings
 from game.map.places.models import TERRAIN
 
@@ -51,6 +52,13 @@ class MapResource(Resource):
 
         place_modifiers = place.modifiers if place else None
 
+        terrain_points = []
+
+        if self.user.is_staff:
+            for terrain, text in TERRAIN._ID_TO_TEXT.items():
+                terrain_points.append((text, Biom(id_=terrain).check(cell)))
+            terrain_points = sorted(terrain_points, key=lambda x: -x[1])
+
         return self.template('map/cell_info.html',
                              {'place': place,
                               'place_modifiers': place_modifiers,
@@ -62,4 +70,5 @@ class MapResource(Resource):
                               'nearest_place_name': nearest_place_name,
                               'x': x,
                               'y': y,
+                              'terrain_points': terrain_points,
                               'hero': HeroPrototype.get_by_account_id(self.account.id) if self.account else None} )

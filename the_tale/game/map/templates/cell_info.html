@@ -176,6 +176,19 @@
           <li><strong>температура</strong>: {{ cell.atmo_temperature }}</li>
           <li><strong>влажность</strong>: {{ cell.atmo_wetness }}</li>
         </ul>
+
+        <h3>территории</h3>
+        <table class="table table-condensed">
+          <tbody>
+            {% for text, points in terrain_points %}
+            <tr>
+              <td>{{text}}</td>
+              <td>{{points}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
       </div>
       {% endif %}
     </div>

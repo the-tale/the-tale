@@ -47,6 +47,9 @@ pgf.game.resources.ImageManager =  function(spritesSettins, params) {
 
     function InitializeSourceSprites(properties) {
         for( spriteName in spritesSettins) {
+
+            if (typeof(spritesSettins[spriteName])=='string') continue;
+
             if (spritesSettins[spriteName].src == properties.src) {
 
                 var data = spritesSettins[spriteName];
@@ -73,6 +76,11 @@ pgf.game.resources.ImageManager =  function(spritesSettins, params) {
     for(spriteName in spritesSettins) {
         var data = spritesSettins[spriteName];
 
+        if (typeof(data)=='string') {
+            sprites[spriteName] = data; // store link to real sprite
+            continue;
+        }
+
         totalSprites += 1;
 
         if (spritesSources[data.src] == undefined) {
@@ -97,7 +105,9 @@ pgf.game.resources.ImageManager =  function(spritesSettins, params) {
     }
 
     this.GetImage = function(name) {
-        return sprites[name];
+        var sprite = sprites[name];
+        if (typeof(sprite)=='string') return this.GetImage(sprite);
+        return sprite;
     };
 
     this.IsReady = function(){ return (initializedSprites == totalSprites); };
@@ -139,7 +149,7 @@ pgf.game.map.MapManager = function(params) {
         for (var i=0; i<h; ++i) {
             var row = [];
             for (var j=0; j<w; ++j) {
-                row.push('.');
+                row.push({});
             }
             roadsMap.push(row);
         }
@@ -153,17 +163,19 @@ pgf.game.map.MapManager = function(params) {
             var x = point_1.x;
             var y = point_1.y;
 
-            roadsMap[y][x] = 'r';
             for(var i=0; i<road.path.length; ++i) {
+
+                roadsMap[y][x][road.path[i]] = true;
+                roadsMap[y][x].road = true;
+
                 switch(road.path[i]) {
                 case 'l': x -= 1; break;
                 case 'r': x += 1; break;
                 case 'u': y -= 1; break;
                 case 'd': y += 1; break;
                 }
-
-                roadsMap[y][x] = 'r';
             }
+            roadsMap[y][x].road = true;
         }
 
         return roadsMap;
@@ -348,14 +360,25 @@ pgf.game.map.Map = function(selector, params) {
     function GetRoadTile(map, y, x) {
         var result = {name: '',
                       rotate: 0};
-        var l = 1 ? (x > 0 && map[y][x-1] != '.') : 0;
-        var r = 1 ? ((x < map[y].length-1) && map[y][x+1] != '.') : 0;
-        var u = 1 ? (y > 0 && map[y-1][x] != '.') : 0;
-        var d = 1 ? ((y < map.length-1) && map[y+1][x] != '.') : 0;
+        var l = 0;
+        var r = 0;
+        var u = 0;
+        var d = 0;
+
+        var cell = map[y][x];
+        var l_cell = x > 0 ? map[y][x-1] : {};
+        var r_cell = x < map[y].length-1 ? map[y][x+1] : {};
+        var u_cell = y > 0 ? map[y-1][x] : {};
+        var d_cell = y < map.length-1 ? map[y+1][x] : {};
+
+        if (cell.l || l_cell.r) l = 1;
+        if (cell.r || r_cell.l) r = 1;
+        if (cell.u || u_cell.d) u = 1;
+        if (cell.d || d_cell.u) d = 1;
 
         var sum = l + r + u + d;
 
-        if (sum==4)return {name: 'r4', rotate: 0};
+        if (sum==4) return {name: 'r4', rotate: 0};
 
         if (sum==3) {
             if (!l) return {name: 'r3', rotate: 90};
@@ -373,8 +396,10 @@ pgf.game.map.Map = function(selector, params) {
 
         if (r && d) return {name: 'r_angle', rotate: 180};
 
-        if (l || r) return {name: 'r_horiz', rotate: 0};
-        if (u || d) return {name: 'r_vert', rotate: 0};
+        if (l) return {name: 'r1', rotate: 180};
+        if (r) return {name: 'r1', rotate: 0};
+        if (u) return {name: 'r1', rotate: 270};
+        if (d) return {name: 'r1', rotate: 90};
 
         alert('check cell: ('+x+', '+y+')');
         return {name: 'r_line', rotate: 0};
@@ -436,7 +461,7 @@ pgf.game.map.Map = function(selector, params) {
 
             return {x: x, y: y};
         }
-    };
+    }
 
     function Draw(fullData) {
 
@@ -464,10 +489,13 @@ pgf.game.map.Map = function(selector, params) {
                 var x = posX + j * TILE_SIZE;
                 var y = posY + i * TILE_SIZE;
 
-                image = spritesManager.GetImage(pgf.game.constants.TERRAIN_ID_TO_STR[terrain[i][j]]);
-                image.Draw(context, x, y);
+                var imageName = pgf.game.constants.TERRAIN_ID_TO_STR[terrain[i][j]];
 
-                if (calculatedData.roadsMap[i][j] != '.') {
+                if (calculatedData.roadsMap[i][j].road) {
+
+                    image = spritesManager.GetImage('ROAD_'+imageName);
+                    image.Draw(context, x, y);
+
                     var roadTile = GetRoadTile(calculatedData.roadsMap, i, j);
                     image = spritesManager.GetImage(roadTile.name);
                     rotate = roadTile.rotate * Math.PI / 180;
@@ -479,7 +507,10 @@ pgf.game.map.Map = function(selector, params) {
                     context.rotate(rotate);
                     image.Draw(context, -TILE_SIZE/2, -TILE_SIZE/2);
                     context.restore();
-
+                }
+                else {
+                    image = spritesManager.GetImage(imageName);
+                    image.Draw(context, x, y);
                 }
             }
         }

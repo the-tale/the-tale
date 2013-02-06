@@ -54,7 +54,37 @@ pgf.tilesets = {
             HILLS_GREENWOOD:       { y: 1 * 32, x: 7 * 32 },
             HILLS_SWAMP_FOREST:    { y: 1 * 32, x: 8 * 32 },
             HILLS_JUNGLE:          { y: 1 * 32, x: 9 * 32 },
-            HILLS_WITHERED_FOREST: { y: 1 * 32, x: 11 * 32 },
+            HILLS_WITHERED_FOREST: { y: 1 * 32, x: 10 * 32 },
+
+            MOUNTAINS_BACKGROUND:  { y: 2 * 32, x: 2 * 32},
+            JUNGLE_BACKGROUD:      { y: 1 * 32, x: 11 * 32},
+
+            ROAD_WATER_DEEP:            'WATER_DEEP',
+            ROAD_WATER_SHOAL:           'WATER_SHOAL',
+            ROAD_MOUNTAINS_HIGH:        'MOUNTAINS_BACKGROUND',
+            ROAD_MOUNTAINS_LOW:         'MOUNTAINS_BACKGROUND',
+            ROAD_PLANE_SAND:            'PLANE_SAND',
+            ROAD_PLANE_DRY_LAND:        'PLANE_DRY_LAND',
+            ROAD_PLANE_MUD:             'PLANE_MUD',
+            ROAD_PLANE_DRY_GRASS:       'PLANE_DRY_GRASS',
+            ROAD_PLANE_GRASS:           'PLANE_GRASS',
+            ROAD_PLANE_SWAMP_GRASS:     'PLANE_SWAMP_GRASS',
+            ROAD_PLANE_CONIFER_FOREST:  'PLANE_GRASS',
+            ROAD_PLANE_GREENWOOD:       'PLANE_GRASS',
+            ROAD_PLANE_SWAMP_FOREST:    'PLANE_SWAMP_GRASS',
+            ROAD_PLANE_JUNGLE:          'JUNGLE_BACKGROUD',
+            ROAD_PLANE_WITHERED_FOREST: 'PLANE_SAND',
+            ROAD_HILLS_SAND:            'PLANE_SAND',
+            ROAD_HILLS_DRY_LAND:        'PLANE_DRY_LAND',
+            ROAD_HILLS_MUD:             'PLANE_MUD',
+            ROAD_HILLS_DRY_GRASS:       'PLANE_DRY_GRASS',
+            ROAD_HILLS_GRASS:           'PLANE_GRASS',
+            ROAD_HILLS_SWAMP_GRASS:     'PLANE_SWAMP_GRASS',
+            ROAD_HILLS_CONIFER_FOREST:  'PLANE_GRASS',
+            ROAD_HILLS_GREENWOOD:       'PLANE_GRASS',
+            ROAD_HILLS_SWAMP_FOREST:    'PLANE_SWAMP_GRASS',
+            ROAD_HILLS_JUNGLE:          'JUNGLE_BACKGROUD',
+            ROAD_HILLS_WITHERED_FOREST: 'PLANE_SAND',
 
             city_human_small :   { y: 6 * 32, x: 0 * 32},
             city_human_medium :  { y: 6 * 32, x: 1 * 32},
@@ -86,6 +116,7 @@ pgf.tilesets = {
             r_vert:  { x: 5 * 32, y: 3 * 32 },
             r_horiz: { x: 2 * 32, y: 3 * 32 },
             r_angle: { x: 4 * 32, y: 3 * 32 },
+            r1:      { x: 0 * 32, y: 3 * 32 },
 
             select_land: { x: 0*32, y: 9 * 32},
             select_hero: { x: 1*32, y: 9 * 32}
@@ -100,6 +131,8 @@ for (var tilesetName in pgf.tilesets) {
 
     for (var spriteName in tileset.sprites) {
         var sprite = tileset.sprites[spriteName];
+
+        if (typeof(sprite)=='string') continue;
         
         if (sprite.w == undefined) sprite.w = tileset.W;
         if (sprite.h == undefined) sprite.h = tileset.H;

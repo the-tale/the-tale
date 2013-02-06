@@ -9,18 +9,33 @@ from game.map.places.storage import places_storage
 from game.map.exceptions import MapException
 from game.map.conf import map_settings
 
+def get_height_power_function(borders):
 
-def _point_circle_height(place, power, normalizer):
+    def power_function(world, x, y):
+        height = world.layer_height.data[y][x]
+
+        if x == 12 and y == 11:
+            print height, borders
+
+        if height < borders[0]: return (0.0, 1.0)
+        if height > borders[1]: return (1.0, 0.0)
+        return (0.0, 0.0)
+
+    return power_function
+
+
+def _point_circle_height(place, borders, normalizer):
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.HEIGHT,
                                         name='place_height_point_%d' % place.id,
                                         x=place.x,
                                         y=place.y,
                                         radius=place.terrain_change_power,
-                                        power=power,
+                                        power=get_height_power_function(borders),
+                                        default_power=(0.0, 0.0),
                                         normalizer=normalizer)
 
 
-def _point_arrow_height(place, power, length_normalizer, width_normalizer):
+def _point_arrow_height(place, borders, length_normalizer, width_normalizer):
 
     distances = []
 
@@ -50,7 +65,8 @@ def _point_arrow_height(place, power, length_normalizer, width_normalizer):
                                        name='place_height_point_%d' % place.id,
                                        x=place.x,
                                        y=place.y,
-                                       power=power,
+                                       power=get_height_power_function(borders),
+                                       default_power=(0.0, 0.0),
                                        length_normalizer=length_normalizer,
                                        width_normalizer=width_normalizer,
                                        arrows=arrows)
@@ -126,22 +142,24 @@ def get_places_power_points():
         race = place.get_dominant_race()
 
         if race == RACE.HUMAN:
-            points.append(_point_circle_height(place=place, power=-0.1, normalizer=normalizers.equal))
+            points.append(_point_circle_height(place=place, borders=(-0.2, 0.2), normalizer=normalizers.linear_2))
             points.append(_point_circle_vegetation(place=place, power=(0.6, -0.3), normalizer=normalizers.linear_2))
         elif race == RACE.ELF:
+            points.append(_point_circle_height(place=place, borders=(-0.4, 0.8), normalizer=normalizers.linear_2))
             points.append(_point_circle_vegetation(place=place, power=(-0.2, 1.0), normalizer=normalizers.linear_2))
             points.append(_point_circle_temperature(place=place, power=0.1, normalizer=normalizers.linear))
         elif race == RACE.ORC:
+            points.append(_point_circle_height(place=place, borders=(0.0, 0.6), normalizer=normalizers.linear_2))
             points.append(_point_circle_vegetation(place=place, power=(-0.3, -0.5), normalizer=normalizers.linear_2))
             points.append(_point_circle_temperature(place=place, power=0.3, normalizer=normalizers.linear))
             points.append(_point_circle_wetness(place=place, power=-0.4, normalizer=normalizers.linear))
         elif race == RACE.GOBLIN:
-            points.append(_point_circle_height(place=place, power=-0.4, normalizer=normalizers.linear))
+            points.append(_point_circle_height(place=place, borders=(-0.7, -0.3), normalizer=normalizers.linear_2))
             points.append(_point_circle_vegetation(place=place, power=(0.2, 0.0), normalizer=normalizers.linear_2))
             points.append(_point_circle_temperature(place=place, power=0.1, normalizer=normalizers.linear))
             points.append(_point_circle_wetness(place=place, power=0.5, normalizer=normalizers.linear))
         elif race == RACE.DWARF:
-            points.append(_point_arrow_height(place=place, power=1.0, length_normalizer=normalizers.linear, width_normalizer=normalizers.linear))
+            points.append(_point_arrow_height(place=place, borders=(1.0, 1.0), length_normalizer=normalizers.linear_2, width_normalizer=normalizers.linear_2))
             points.append(_point_circle_temperature(place=place, power=0.2, normalizer=normalizers.linear))
             points.append(_point_circle_wetness(place=place, power=-0.1, normalizer=normalizers.linear))
         else:
