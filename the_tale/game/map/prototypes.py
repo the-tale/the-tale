@@ -22,6 +22,9 @@ class MapInfoPrototype(object):
         self.model = model
 
     @property
+    def id(self): return self.model.id
+
+    @property
     def turn_number(self): return self.model.turn_number
 
     @property

@@ -125,4 +125,4 @@ def update_map(index):
     with open(map_settings.GEN_REGION_OUTPUT, 'w') as region_json_file:
         region_json_file.write(s11n.to_json(data).encode('utf-8'))
 
-    # deworld.draw_world(index, world, catalog=map_settings.GEN_WORLD_PROGRESSION)
+    deworld.draw_world(index, world, catalog=map_settings.GEN_WORLD_PROGRESSION)

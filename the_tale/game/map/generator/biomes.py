@@ -18,10 +18,13 @@ _HEIGHT_POINTS = _modify_row_names(xls.load_table(sheet_index=0, columns=[ round
 _TEMPERATURE_POINTS = _modify_row_names(xls.load_table(sheet_index=1, columns=[ round(val/10.0, 1) for val in xrange(0, 11)], **_xls_attributes))
 _WETNESS_POINTS = _modify_row_names(xls.load_table(sheet_index=2, columns=[ round(val/10.0, 1) for val in xrange(0, 11)], **_xls_attributes))
 _VEGETATION_POINTS = _modify_row_names(xls.load_table(sheet_index=3, columns=['DESERT', 'GRASS', 'FOREST'], **_xls_attributes))
+_SOIL_POINTS = _modify_row_names(xls.load_table(sheet_index=4, columns=[ round(val/10.0, 1) for val in xrange(0, 11)], **_xls_attributes))
 
 def mid(left, right, x, left_value, right_value):
     if left == right: return left_value
-    return ( (x - left) * left_value + (right - x) * right_value) / (right - left)
+    # return ( (x - left) * left_value + (right - x) * right_value) / (right - left)
+
+    return (right_value - left_value) * (x - left) / (right - left) + left_value
 
 class Biom(object):
 
@@ -30,7 +33,7 @@ class Biom(object):
 
     def _cell_mid(self, value, min_, max_, data):
         left = math.floor(value*10)/10.0
-        right = math.floor(value*10)/10.0
+        right = math.ceil(value*10)/10.0
 
         if left < min_: left = min_
         if right > max_: right = max_
@@ -45,9 +48,18 @@ class Biom(object):
                                                                            VEGETATION_TYPE.GRASS: 'GRASS',
                                                                            VEGETATION_TYPE.FOREST: 'FOREST'}[cell.vegetation]]
 
+    def soil_points(self, cell): return self._cell_mid(cell.soil, 0, 1, _SOIL_POINTS)
 
     def check(self, cell):
         return ( self.height_points(cell) +
                  self.temperature_points(cell) +
                  self.wetness_points(cell) +
-                 self.vegetation_points(cell))
+                 self.vegetation_points(cell) +
+                 self.soil_points(cell))
+
+    def get_points(self, cell):
+        return [ ('height', self.height_points(cell)),
+                 ('temperature', self.temperature_points(cell)),
+                 ('wetness', self.wetness_points(cell)),
+                 ('vegetation', self.vegetation_points(cell)),
+                 ('soil', self.soil_points(cell)) ]

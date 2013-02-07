@@ -43,6 +43,7 @@ class MapResource(Resource):
         world = map_info.world
 
         cell = world.cell_info(x, y)
+        cell_power = world.cell_power_info(x, y)
 
         nearest_place_name = map_info.get_dominant_place(x, y).normalized_name[0].get_form(Args(u'рд'))
 
@@ -55,14 +56,16 @@ class MapResource(Resource):
         terrain_points = []
 
         if self.user.is_staff:
-            for terrain, text in TERRAIN._ID_TO_TEXT.items():
-                terrain_points.append((text, Biom(id_=terrain).check(cell)))
+            for terrain_id, text in TERRAIN._ID_TO_TEXT.items():
+                biom = Biom(id_=terrain_id)
+                terrain_points.append((text, biom.check(cell), biom.get_points(cell)))
             terrain_points = sorted(terrain_points, key=lambda x: -x[1])
 
         return self.template('map/cell_info.html',
                              {'place': place,
                               'place_modifiers': place_modifiers,
                               'cell': cell,
+                              'cell_power': cell_power,
                               'descr_wind': descriptors.wind(randomized_cell),
                               'descr_temperature': descriptors.temperature(randomized_cell),
                               'descr_wetness': descriptors.wetness(randomized_cell),
