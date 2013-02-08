@@ -6,6 +6,8 @@ import deworld
 
 from dext.utils import s11n
 
+from django.conf import settings as project_settings
+
 from game.prototypes import TimePrototype
 
 from game.map.conf import map_settings
@@ -125,4 +127,5 @@ def update_map(index):
     with open(map_settings.GEN_REGION_OUTPUT, 'w') as region_json_file:
         region_json_file.write(s11n.to_json(data).encode('utf-8'))
 
-    deworld.draw_world(index, world, catalog=map_settings.GEN_WORLD_PROGRESSION)
+    if project_settings.DEBUG:
+        deworld.draw_world(index, world, catalog=map_settings.GEN_WORLD_PROGRESSION)

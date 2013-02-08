@@ -136,7 +136,7 @@ def _default_vegetation_points():
                                         name='default_vegetation',
                                         x=map_settings.WIDTH/2,
                                         y=map_settings.HEIGHT/2,
-                                        power=(0.2, 0.2),
+                                        power=(0.25, 0.25),
                                         default_power=(0.0, 0.0),
                                         radius=int(math.hypot(map_settings.WIDTH, map_settings.HEIGHT)/2)+1,
                                         normalizer=normalizers.equal)
@@ -160,7 +160,7 @@ def get_places_power_points():
             points.append(_point_circle_soil(place=place, power=0.2, normalizer=normalizers.linear))
             points.append(_point_circle_wetness(place=place, power=0.1, normalizer=normalizers.linear))
         elif race == RACE.ELF:
-            points.append(_point_circle_height(place=place, borders=(0.0, 0.6), normalizer=normalizers.linear_2))
+            points.append(_point_circle_height(place=place, borders=(0.0, 0.5), normalizer=normalizers.linear_2))
             points.append(_point_circle_vegetation(place=place, power=(-0.2, 1.0), normalizer=normalizers.linear_2))
             points.append(_point_circle_soil(place=place, power=0.1, normalizer=normalizers.linear))
             points.append(_point_circle_temperature(place=place, power=0.1, normalizer=normalizers.linear))

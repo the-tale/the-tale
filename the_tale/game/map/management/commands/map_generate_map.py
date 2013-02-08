@@ -26,6 +26,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         for i in xrange(options['repeate_number']):
-            print i
-            # game_time = TimePrototype.get_current_time()
             update_map(index=map_info_storage.item.id+1)

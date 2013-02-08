@@ -2,6 +2,15 @@
 import datetime
 from django.db import models
 
+from common.utils.enum import create_enum
+
+MAP_STATISTICS = create_enum('MAP_STATISTICS', ( ('LOWLANDS', 0, u'низины'),
+                                                 ('PLAINS', 1, u'равнины'),
+                                                 ('UPLANDS', 2, u'возвышенности'),
+                                                 ('DESERTS', 3, u'пустыни'),
+                                                 ('GRASS', 4, u'луга'),
+                                                 ('FORESTS', 5, u'леса'),) )
+
 
 class MapInfo(models.Model):
 

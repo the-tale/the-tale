@@ -1,7 +1,11 @@
 # coding: utf-8
 
+from collections import defaultdict
+
 from dext.utils import s11n
+
 import deworld
+from deworld.layers import VEGETATION_TYPE
 
 from game.balance.enums import RACE
 
@@ -12,7 +16,7 @@ from game.map.places.models import Place
 from game.map.places.prototypes import PlacePrototype
 from game.map.places.storage import places_storage
 
-from game.map.models import MapInfo
+from game.map.models import MapInfo, MAP_STATISTICS
 from game.map.conf import map_settings
 
 
@@ -39,6 +43,7 @@ class MapInfoPrototype(object):
             self._statistics = s11n.from_json(self.model.statistics)
             self._statistics['race_percents'] = dict( (int(key), value) for key, value in self._statistics['race_percents'].items())
             self._statistics['race_cities'] = dict( (int(key), value) for key, value in self._statistics['race_cities'].items())
+            self._statistics['terrain_percents'] = dict( (int(key), value) for key, value in self._statistics['terrain_percents'].items())
         return self._statistics
 
     @property
@@ -87,15 +92,33 @@ class MapInfoPrototype(object):
         '''
 
         # terrain percents
-        terrain_squares = {}
+        terrain_percents = {}
 
-        for row in terrain:
-            for cell in row:
-                terrain_squares[cell] = terrain_squares.get(cell, 0) + 1
+        if world:
 
-        total_cells = sum(terrain_squares.values())
+            terrain_squares = defaultdict(int)
 
-        terrain_percents = dict( (cell, float(square) / total_cells) for cell, square in terrain_squares.items())
+            for y in xrange(0, height):
+                for x in xrange(0, width):
+                    cell = world.cell_info(x, y)
+
+                    if cell.height < -0.2:
+                        terrain_squares[MAP_STATISTICS.LOWLANDS] += 1
+                    elif cell.height < 0.3:
+                        terrain_squares[MAP_STATISTICS.PLAINS] += 1
+                    else:
+                        terrain_squares[MAP_STATISTICS.UPLANDS] += 1
+
+                    if cell.vegetation == VEGETATION_TYPE.DESERT:
+                        terrain_squares[MAP_STATISTICS.DESERTS] += 1
+                    elif cell.vegetation == VEGETATION_TYPE.GRASS:
+                        terrain_squares[MAP_STATISTICS.GRASS] += 1
+                    else:
+                        terrain_squares[MAP_STATISTICS.FORESTS] += 1
+
+            total_cells = width * height
+
+            terrain_percents = dict( (id_, float(square) / total_cells) for id_, square in terrain_squares.items())
 
         # race percents
         race_powers = dict( (race_id, 0) for race_id in RACE._ALL)

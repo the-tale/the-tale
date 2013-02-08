@@ -535,11 +535,24 @@ pgf.game.map.Map = function(selector, params) {
 
             var text = '('+place.size+') '+place.name;
 
+            context.font="12px sans-serif";
             var textSize = context.measureText(text);
 
-            context.fillText(text,
-                             posX + place.x * TILE_SIZE + TILE_SIZE / 2 - textSize.width / 2,
-                             posY + (place.y + 1) * TILE_SIZE);
+            var textX = Math.round(posX + place.x * TILE_SIZE + TILE_SIZE / 2 - textSize.width / 2);
+            var textY = Math.round(posY + (place.y + 1) * TILE_SIZE) + 2;
+
+            var rectDelta = 2;
+            var textHeight = 12;
+
+            context.fillStyle="#000000";
+            context.globalAlpha=0.75;
+            context.fillRect(textX-rectDelta, textY, textSize.width+rectDelta*2, textHeight+rectDelta*2);
+            context.globalAlpha=1;
+            context.strokeStyle="#000000";
+            context.strokeRect(textX-rectDelta, textY, textSize.width+rectDelta*2, textHeight+rectDelta*2);
+
+            context.fillStyle="#ffffff";
+            context.fillText(text, textX, textY);
         }
 
         for (var hero_id in dynamicData.heroes) {

@@ -88,7 +88,7 @@ def wind(cell):
     return u'%s %s' % (angle_verbose, power_verbose)
 
 def temperature(cell):
-    return choose_from_interval(cell.atmo_temperature, TEMPERATURE_POWERS)
+    return choose_from_interval(cell.mid_temperature, TEMPERATURE_POWERS)
 
 def wetness(cell):
-    return choose_from_interval(cell.atmo_wetness, WETNESS_POWERS)
+    return choose_from_interval(cell.mid_wetness, WETNESS_POWERS)

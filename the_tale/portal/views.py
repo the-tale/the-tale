@@ -17,7 +17,7 @@ from blogs.prototypes import PostPrototype as BlogPostPrototype
 from game.balance.enums import RACE
 
 from game.map.prototypes import MapInfoPrototype
-from game.map.models import MapInfo
+from game.map.models import MapInfo, MAP_STATISTICS
 from game.map.places.models import TERRAIN
 
 from portal.conf import portal_settings
@@ -53,6 +53,7 @@ class PortalResource(Resource):
                               'map_info': map_info,
                               'blog_posts': blog_posts,
                               'TERRAIN': TERRAIN,
+                              'MAP_STATISTICS': MAP_STATISTICS,
                               'RACE': RACE})
 
     @handler('404')
