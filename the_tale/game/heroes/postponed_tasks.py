@@ -12,7 +12,7 @@ from common.utils.enum import create_enum
 from game.balance import constants as c
 
 from game.map.places.storage import places_storage
-from game.mobs.storage import MobsDatabase
+from game.mobs.storage import mobs_storage
 from game.persons.storage import persons_storage
 
 from game.heroes.models import PREFERENCE_TYPE
@@ -267,12 +267,12 @@ class ChoosePreferencesTask(object):
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
                     return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-                if self.preference_id not in MobsDatabase.storage():
+                if  not mobs_storage.has_mob(self.preference_id):
                     main_task.comment = u'unknown mob id: %s' % (self.preference_id, )
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_MOB
                     return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-                mob = MobsDatabase.storage()[self.preference_id]
+                mob = mobs_storage.get_by_uuid(self.preference_id)
 
                 if hero.level < mob.level:
                     main_task.comment = u'hero level < mob level (%d < %d)' % (hero.level, mob.level)

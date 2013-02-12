@@ -13,8 +13,6 @@ from game.heroes.statistics import MONEY_SOURCE
 from game.map.places.storage import places_storage
 from game.map.roads.storage import waymarks_storage
 
-from game.mobs.storage import MobsDatabase
-
 from game.actions.models import Action, UNINITIALIZED_STATE
 from game.actions import battle, contexts
 
@@ -131,7 +129,7 @@ class ActionPrototype(object):
             mob_data = s11n.from_json(self.model.mob)
             self._mob = None
             if mob_data:
-                self._mob = MobPrototype.deserialize(MobsDatabase.storage(), mob_data)
+                self._mob = MobPrototype.deserialize(mob_data)
         return self._mob
 
     def remove_mob(self):

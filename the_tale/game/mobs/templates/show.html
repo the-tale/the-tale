@@ -1,0 +1,17 @@
+{% extends "mobs/base.html" %}
+
+{% block title %}{{mob.name|capitalize}} | {{ super() }}{% endblock %}
+
+{% block mobs_content %}
+
+<h2>{{mob.name|capitalize}}</h2>
+
+{{mob.level}}
+
+{{mob.abilities}}
+
+{{mob.terrains}}
+
+{{mob.description}}
+
+{% endblock %}

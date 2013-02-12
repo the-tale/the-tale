@@ -8,8 +8,8 @@
   <div class="span3">
     <div class="block">
       {% block guide_context %}
-        <h3 class="guide-navigation-caption">ПУТЕВОДИТЕЛЬ</h3>
-        <ul class="guide-navigation nav nav-list">
+        <h3 class="guide-navigation-caption" style="padding-left: 2px;">ПУТЕВОДИТЕЛЬ</h3>
+        <ul class="guide-navigation nav nav-list" style="padding-left: 2px;">
           <li class="nav-header {% if section=='' %}active{% endif %}">Общее</li>
           <li class="nav-element {% if section=='registration' %}active{% endif %}"><a href="{{ url('guide:registration') }}">Регистрация</a></li>
           <li class="nav-header {% if section=='' %}active{% endif %}">Игра</li>

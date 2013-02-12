@@ -10,12 +10,14 @@ from game.heroes.bag import SLOTS
 from game.artifacts.storage import ArtifactsDatabase
 from game.bundles import BundlePrototype
 
-from game.map.storage import map_info_storage
 from game.persons.storage import persons_storage
+
+from game.mobs.prototypes import MobRecordPrototype
+from game.mobs.storage import mobs_storage
+
+from game.map.storage import map_info_storage
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage, waymarks_storage
-
-
 from game.map.places.models import Place, TERRAIN, PLACE_TYPE
 from game.map.roads.prototypes import RoadPrototype
 from game.map.roads.logic import update_waymarks
@@ -76,6 +78,12 @@ def create_test_map():
                                                       world=MapInfoPrototype._create_world(w=map_settings.WIDTH, h=map_settings.HEIGHT)))
 
     update_nearest_cells()
+
+    MobRecordPrototype.create_random('mob_1')
+    MobRecordPrototype.create_random('mob_2')
+    MobRecordPrototype.create_random('mob_3')
+
+    mobs_storage.sync(force=True)
 
     return (places_storage[p1.id], places_storage[p2.id], places_storage[p3.id])
 

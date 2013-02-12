@@ -378,28 +378,28 @@ pgf.game.map.Map = function(selector, params) {
 
         var sum = l + r + u + d;
 
-        if (sum==4) return {name: 'r4', rotate: 0};
+        if (sum==4) return {name: 'r4', scaleX: 1, scaleY: 1};
 
         if (sum==3) {
-            if (!l) return {name: 'r3', rotate: 90};
-            if (!r) return {name: 'r3', rotate: 270};
-            if (!u) return {name: 'r3', rotate: 180};
-            if (!d) return {name: 'r3', rotate: 0};
+            if (!l) return {name: 'r3', rotate: 90, scaleX: 1, scaleY: 1};
+            if (!r) return {name: 'r3', rotate: 270, scaleX: 1, scaleY: 1};
+            if (!u) return {name: 'r3', rotate: 180, scaleX: 1, scaleY: -1};
+            if (!d) return {name: 'r3', rotate: 0, scaleX: 1, scaleY: 1};
         }
 
-        if (l && u) return {name: 'r_angle', rotate: 0};
-        if (l && r) return {name: 'r_horiz', rotate: 0};
-        if (l && d) return {name: 'r_angle', rotate: 270};
+        if (l && u) return {name: 'r_angle', rotate: 0, scaleX: 1, scaleY: 1};
+        if (l && r) return {name: 'r_horiz', rotate: 0, scaleX: 1, scaleY: 1};
+        if (l && d) return {name: 'r_angle', rotate: 270, scaleX: 1, scaleY: 1};
 
-        if (u && r) return {name: 'r_angle', rotate: 90};
-        if (u && d) return {name: 'r_vert', rotate: 0};
+        if (u && r) return {name: 'r_angle', rotate: 90, scaleX: 1, scaleY: 1};
+        if (u && d) return {name: 'r_vert', rotate: 0, scaleX: 1, scaleY: 1};
 
-        if (r && d) return {name: 'r_angle', rotate: 180};
+        if (r && d) return {name: 'r_angle', rotate: 180, scaleX: 1, scaleY: 1};
 
-        if (l) return {name: 'r1', rotate: 180};
-        if (r) return {name: 'r1', rotate: 0};
-        if (u) return {name: 'r1', rotate: 270};
-        if (d) return {name: 'r1', rotate: 90};
+        if (l) return {name: 'r1', rotate: 180, scaleX: 1, scaleY: 1};
+        if (r) return {name: 'r1', rotate: 0, scaleX: 1, scaleY: 1};
+        if (u) return {name: 'r1', rotate: 270, scaleX: 1, scaleY: 1};
+        if (d) return {name: 'r1', rotate: 90, scaleX: 1, scaleY: 1};
 
         alert('check cell: ('+x+', '+y+')');
         return {name: 'r_line', rotate: 0};

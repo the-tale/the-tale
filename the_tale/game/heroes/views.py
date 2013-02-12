@@ -12,7 +12,7 @@ from accounts.prototypes import AccountPrototype
 
 from game.balance import constants as c
 
-from game.mobs.storage import MobsDatabase
+from game.mobs.storage import mobs_storage
 
 from game.map.places.storage import places_storage
 
@@ -152,7 +152,7 @@ class HeroResource(Resource):
             pass
 
         if type == PREFERENCE_TYPE.MOB:
-            all_mobs = MobsDatabase.storage().get_available_mobs_list(level=self.hero.level)
+            all_mobs = mobs_storage.get_available_mobs_list(level=self.hero.level)
             all_mobs = sorted(all_mobs, key=lambda x: x.name)
             mobs = split_list(all_mobs)
 

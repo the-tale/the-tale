@@ -1,0 +1,78 @@
+{% extends "mobs/base.html" %}
+
+{% block mobs_content %}
+
+<h2 style="margin-bottom: 0.5em;">Бестиарий</h2>
+
+{% if resource.can_create_mob %}
+<a class="btn btn-danger pgf-create-mob-button" href="{{url('game:mobs:new')}}">создать монстра</a>
+{% endif %}
+
+<div>
+  <div class="btn-toolbar">
+
+    <div class="btn-group">
+      <a class="btn {% if not is_filtering %}disabled{% endif %}"
+         href="{% if is_filtering %}{{ url('game:mobs:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
+    </div>
+
+    {% if resource.can_create_mob or resource.can_moderate_mob %}
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        состояние:
+        {% if state.is_enabled %} в игре
+        {% elif state.is_disabled %} вне игры
+        {% endif %}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="{{ url_builder(state=MOB_RECORD_STATE.ENABLED) }}">в игре</a></li>
+        <li><a href="{{ url_builder(state=MOB_RECORD_STATE.DISABLED) }}">вне игры</a></li>
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        территория:
+        {% if terrain is not none %} {{ terrain.verbose }}
+        {% else %} все
+        {% endif %}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="{{ url_builder(terrain=none) }}">все</a></li>
+        {% for terrain_id, terrain_text in TERRAIN._ID_TO_TEXT.items() %}
+        <li><a href="{{ url_builder(terrain=terrain_id) }}">{{terrain_text}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+
+{% if mobs %}
+
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      <th>уровень</th>
+      <th>название</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for mob in mobs %}
+    <tr>
+      <td>{{mob.level}}</td>
+      <td>{{mob.name}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+<span class="pgf-no-mobs-message">Не найдено монстров, отвечающих условиям поиска.</span>
+{% endif %}
+
+{% endblock %}

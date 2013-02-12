@@ -15,6 +15,7 @@ urlpatterns = patterns('',
                        (r'^phrase-candidates/', include('game.phrase_candidates.urls', namespace='phrase-candidates') ),
                        (r'^ratings/', include('game.ratings.urls', namespace='ratings') ),
                        (r'^pvp/', include('game.pvp.urls', namespace='pvp') ),
+                       (r'^mobs/', include('game.mobs.urls', namespace='mobs') ),
 )
 
 urlpatterns += resource_patterns(GameResource)

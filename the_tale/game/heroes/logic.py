@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 import copy
 
 def create_mob_for_hero(hero):
-    from game.mobs.storage import MobsDatabase
-    return MobsDatabase.storage().get_random_mob(hero)
+    from game.mobs.storage import mobs_storage
+    return mobs_storage.get_random_mob(hero)
 
 
 class ValuesDict(object):

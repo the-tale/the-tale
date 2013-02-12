@@ -7,7 +7,7 @@ from game.prototypes import TimePrototype
 
 from game.balance import constants as c, formulas as f
 
-from game.mobs.storage import MobsDatabase
+from game.mobs.storage import mobs_storage
 
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.statistics import MONEY_SOURCE
@@ -342,9 +342,9 @@ class QuestPrototype(object):
 
         mob = None
         if cmd.mob_id:
-            mob = MobsDatabase.storage().get_mob(cur_action.hero, cmd.mob_id)
+            mob = mobs_storage.get_mob(cur_action.hero, cmd.mob_id)
         if mob is None:
-            mob = MobsDatabase.storage().get_random_mob(cur_action.hero)
+            mob = mobs_storage.get_random_mob(cur_action.hero)
 
         ActionBattlePvE1x1Prototype.create(parent=cur_action, mob=mob)
 

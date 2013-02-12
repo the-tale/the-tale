@@ -12,7 +12,12 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
         def __init__(self):
             self.clear()
 
+        @property
+        def version(self): return self._version
+
         def refresh(self):
+            self.clear()
+
             self._version = settings[self.SETTINGS_KEY]
 
             for model in Model.objects.all():
@@ -88,6 +93,9 @@ def create_single_storage_class(version_key, Model, Prototype, Exception_):
 
         def __init__(self):
             self.clear()
+
+        @property
+        def version(self): return self._version
 
         def refresh(self):
             raise NotImplementedError

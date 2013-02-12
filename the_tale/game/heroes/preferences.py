@@ -4,7 +4,7 @@ import datetime
 
 from game.balance import constants as c, enums as e
 
-from game.mobs.storage import MobsDatabase
+from game.mobs.storage import mobs_storage
 
 from game.map.places.storage import places_storage
 
@@ -62,7 +62,7 @@ class HeroPreferences(object):
     def mob(self):
         if self.mob_id is None:
             return None
-        return MobsDatabase.storage()[self.mob_id]
+        return mobs_storage.get_by_uuid(self.mob_id)
 
     def get_mob_changed_at(self): return self.hero_model.pref_mob_changed_at
     def set_mob_changed_at(self, value): self.hero_model.pref_mob_changed_at = value

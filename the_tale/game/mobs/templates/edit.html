@@ -1,0 +1,60 @@
+{% extends "mobs/base.html" %}
+
+{% block title %}Редактирование монстра | {{ super() }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var showForm = new pgf.forms.Form(jQuery('#pgf-edit-mob-form'),
+                                               {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
+
+    pgf.base.AddPreview('#pgf-mob-description', 'textarea', "{{ url('portal:preview') }}");
+    pgf.base.InitBBFields('#pgf-mob-description');
+});
+
+</script>
+
+{% endblock %}
+
+{% block mobs_content %}
+
+<h2>Редактирование монстра</h2>
+
+<form id="pgf-edit-mob-form" method="post" action="{{ url('game:mobs:update', mob.id) }}">
+
+  {{ form.errors_container }}
+
+  {{ form.name.widget }}
+
+  {{ form.level.widget }}
+
+  {{ form.terrains.widget }}
+
+  {{ form.abilities.widget }}
+
+
+  <div id="pgf-mob-description">
+    <div class="pgf-edit-content">
+      {{ form.description.widget }}
+    </div>
+
+    <div class="pgf-preview-content pgf-hidden">
+    </div>
+
+    <div class="widget">
+      <input type="button" class="btn pgf-preview-button" value="Предпросмотр"/>
+      <input type="button" class="btn pgf-edit-button pgf-hidden" value="Редактировать"/>
+    </div>
+
+    <br/>
+  </div>
+
+  <div class="widget">
+    <input type="submit" class="btn" value="Сохранить"/>
+  </div>
+
+</form>
+
+{% endblock %}

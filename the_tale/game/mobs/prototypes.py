@@ -1,8 +1,20 @@
 # coding: utf-8
+import random
+
+from textgen.words import Noun
+
+from dext.utils import s11n
+
 from game.heroes.habilities import AbilitiesPrototype
 
 from game.balance import formulas as f
 from game.game_info import ATTRIBUTES
+
+from game.map.places.models import TERRAIN
+
+from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, ABILITY_TYPE
+
+from game.mobs.models import MobRecord, MOB_RECORD_STATE
 
 class MobException(Exception): pass
 
@@ -33,7 +45,7 @@ class MobPrototype(object):
         return abilities
 
     @property
-    def id(self): return self.record.id
+    def id(self): return self.record.uuid
 
     @property
     def name(self): return self.record.name
@@ -69,9 +81,10 @@ class MobPrototype(object):
                 'health': self.health}
 
     @classmethod
-    def deserialize(cls, storage, data):
+    def deserialize(cls, data):
+        from game.mobs.storage import mobs_storage
 
-        record = storage.data[data['id']]
+        record = mobs_storage.get_by_uuid(data['id'])
         level = data['level']
 
         # yes, we do not save abilities and after load, mob can has differen abilities levels
@@ -88,14 +101,159 @@ class MobPrototype(object):
 
 
     def __eq__(self, other):
-        # print '=mob='
-        # print self.id == other.id, self.id, other.id
-        # print self.level == other.level, self.level, other.level
-        # print self.max_health == other.max_health, self.max_health, other.max_health
-        # print self.health == other.health, self.health, other.health
-        # print self.abilities == other.abilities, self.abilities, other.abilities
         return (self.id == other.id and
                 self.level == other.level and
                 self.max_health == other.max_health and
                 self.health == other.health and
                 self.abilities == other.abilities)
+
+
+
+class MobRecordPrototype(object):
+
+    def __init__(self, model):
+        self.model = model
+
+    @property
+    def id(self): return self.model.id
+
+    @classmethod
+    def get_by_id(cls, id_):
+        try:
+            return cls(MobRecord.objects.get(id=id_))
+        except MobRecord.DoesNotExist:
+            return None
+
+    @property
+    def created_at(self): return self.model.created_at
+
+    def get_updated_at(self): return self.model.updated_at
+    def set_updated_at(self, value): self.model.updated_at = value
+    updated_at = property(get_updated_at, set_updated_at)
+
+    @property
+    def editor_id(self): return self.model.editor.id if self.model.editor is not None else None
+
+    def get_level(self): return self.model.level
+    def set_level(self, value): self.model.level = value
+    level = property(get_level, set_level)
+
+    def get_uuid(self): return self.model.uuid
+    def set_uuid(self, value): self.model.uuid = value
+    uuid = property(get_uuid, set_uuid)
+
+    def get_state(self):
+        if not hasattr(self, '_state'):
+            self._state = MOB_RECORD_STATE(self.model.state)
+        return self._state
+    def set_state(self, value):
+        self.state.update(value)
+        self.model.state = self.state.value
+    state = property(get_state, set_state)
+
+    def get_name(self): return self.model.name
+    def set_name(self, value): self.model.name = value
+    name = property(get_name, set_name)
+
+    def get_name_forms(self):
+        if not hasattr(self, '_normalized_name'):
+            self._name_forms = Noun.deserialize(s11n.from_json(self.model.name_forms))
+        return self._name_forms
+
+    def set_name_forms(self, word):
+        self._normalized_name = word
+        self.model.name = word.normalized
+        self.model.name_forms = s11n.to_json(word.serialize())
+
+    name_forms = property(get_name_forms, set_name_forms)
+
+    def get_description(self): return self.model.description
+    def set_description(self, value): self.model.description = value
+    description = property(get_description, set_description)
+
+    def get_abilities(self):
+        if not hasattr(self, '_abilities'):
+            self._abilities = frozenset(s11n.from_json(self.model.abilities))
+        return self._abilities
+    def set_abilities(self, value):
+        self._abilities = frozenset(value)
+        self.model.abilities = s11n.to_json(list(value))
+    abilities = property(get_abilities, set_abilities)
+
+    def get_terrains(self):
+        if not hasattr(self, '_terrains'):
+            self._terrains = frozenset(s11n.from_json(self.model.terrains))
+        return self._terrains
+    def set_terrains(self, value):
+        self._terrains = frozenset(value)
+        self.model.terrains = s11n.to_json(list(value))
+    terrains = property(get_terrains, set_terrains)
+
+    @classmethod
+    def create(cls, uuid, level, name, description, abilities, terrains, editor=None, state=MOB_RECORD_STATE.DISABLED):
+
+        from game.mobs.storage import mobs_storage
+
+        name_forms = Noun(normalized=name,
+                          forms=[name] * Noun.FORMS_NUMBER,
+                          properties=(u'мр',))
+
+        model = MobRecord.objects.create(uuid=uuid,
+                                         level=level,
+                                         name=name,
+                                         name_forms=s11n.to_json(name_forms.serialize()),
+                                         description=description,
+                                         abilities=s11n.to_json(list(abilities)),
+                                         terrains=s11n.to_json(list(terrains)),
+                                         state=state,
+                                         editor=editor.model if editor else None)
+
+        mobs_storage.update_version()
+
+        return cls(model)
+
+    @classmethod
+    def get_available_abilities(cls):
+        return filter(lambda a: a.TYPE == ABILITY_TYPE.BATTLE and a.AVAILABILITY & ABILITY_AVAILABILITY.FOR_MONSTERS, ABILITIES.values())
+
+    @classmethod
+    def create_random(cls, uuid, level=1, abilities_number=3, terrains=TERRAIN._ALL, state=MOB_RECORD_STATE.ENABLED):
+
+        name = u'mob_'+uuid.lower()
+
+        battle_abilities = cls.get_available_abilities()
+        battle_abilities = set([a.get_id() for a in battle_abilities])
+
+        abilities = set(['hit'])
+
+        for i in xrange(abilities_number-1):
+            abilities.add(random.choice(list(battle_abilities-abilities)))
+
+        return cls.create(uuid, level=level, name=name, description='description of %s' % name, abilities=abilities, terrains=terrains, state=state)
+
+    def update_by_creator(self, form):
+        self.name = form.c.name
+        self.description = form.c.description
+        self.level = form.c.level
+        self.terrains = form.c.terrains
+        self.abilities = form.c.abilities
+
+        self.save()
+
+    def update_by_moderator(self, form):
+        self.name_forms = form.c.name_forms
+        self.description = form.c.description
+        self.level = form.c.level
+        self.terrains = form.c.terrains
+        self.abilities = form.c.abilities
+        self.uuid = form.c.uuid
+        self.state = MOB_RECORD_STATE.ENABLED if form.c.approved else MOB_RECORD_STATE.DISABLED
+
+        self.save()
+
+    def save(self):
+        from game.mobs.storage import mobs_storage
+
+        self.model.save()
+
+        mobs_storage.update_version()
