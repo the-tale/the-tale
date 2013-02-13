@@ -4,7 +4,7 @@
 {% macro page_caption(caption, description) %}
 <div class="guide-page-title">
   {{ base_macros.addthis(title="Путеводитель: "+caption, description=description) }}
-  <h3 style="display: inline-block;">{{caption}}</h3>
+  <h3 style="display: inline-block;">{{caption|safe}}</h3>
 </div>
 
 {% endmacro %}

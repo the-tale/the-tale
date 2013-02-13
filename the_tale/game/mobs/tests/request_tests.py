@@ -58,40 +58,49 @@ class TestIndexRequests(BaseTestRequests):
     def test_no_mobs(self):
         MobRecord.objects.all().delete()
         mobs_storage.clear()
-        self.check_html_ok(self.client.get(reverse('game:mobs:')), texts=(('pgf-no-mobs-message', 1),))
+        self.check_html_ok(self.client.get(reverse('guide:mobs:')), texts=(('pgf-no-mobs-message', 1),))
 
     def test_simple(self):
-        texts = ['mob_1', 'mob_2', 'mob_3', ('pgf-create-mob-button', 0)]
-        self.check_html_ok(self.client.get(reverse('game:mobs:')), texts=texts)
+        texts = ['mob_1', 'mob_2', 'mob_3', ('pgf-create-mob-button', 0), ('pgf-mob-state-filter', 0)]
+        self.check_html_ok(self.client.get(reverse('guide:mobs:')), texts=texts)
 
     def test_create_mob_button(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('game:mobs:')), texts=[('pgf-create-mob-button', 1)])
+        self.check_html_ok(self.client.get(reverse('guide:mobs:')), texts=[('pgf-create-mob-button', 1)])
+
+    def test_mob_state_filter(self):
+        self.request_logout()
+        self.request_login('test_user_2@test.com')
+        self.check_html_ok(self.client.get(reverse('guide:mobs:')), texts=[('pgf-mob-state-filter', 1)])
+
+        self.request_logout()
+        self.request_login('test_user_3@test.com')
+        self.check_html_ok(self.client.get(reverse('guide:mobs:')), texts=[('pgf-mob-state-filter', 1)])
 
     def test_disabled_mobs(self):
         MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
         texts = ['mob_1', 'mob_2', 'mob_3', ('bandit', 0)]
-        self.check_html_ok(self.client.get(reverse('game:mobs:')), texts=texts)
+        self.check_html_ok(self.client.get(reverse('guide:mobs:')), texts=texts)
 
     def test_filter_by_state_no_mobs_message(self):
-        self.check_html_ok(self.client.get(reverse('game:mobs:')+('?state=%d' % MOB_RECORD_STATE.DISABLED)), texts=(('pgf-no-mobs-message', 1),))
+        self.check_html_ok(self.client.get(reverse('guide:mobs:')+('?state=%d' % MOB_RECORD_STATE.DISABLED)), texts=(('pgf-no-mobs-message', 1),))
 
     def test_filter_by_state(self):
         texts = ['mob_1', 'mob_2', 'mob_3']
-        self.check_html_ok(self.client.get(reverse('game:mobs:')+('?state=%d' % MOB_RECORD_STATE.ENABLED)), texts=texts)
+        self.check_html_ok(self.client.get(reverse('guide:mobs:')+('?state=%d' % MOB_RECORD_STATE.ENABLED)), texts=texts)
 
     def test_filter_by_terrain_no_mobs_message(self):
         MobRecord.objects.all().delete()
         mobs_storage.clear()
         MobRecordPrototype.create_random(uuid='bandit', terrains=[TERRAIN.PLANE_GRASS])
-        self.check_html_ok(self.client.get(reverse('game:mobs:')+('?terrain=%d' % TERRAIN.HILLS_GRASS)), texts=(('pgf-no-mobs-message', 1),))
+        self.check_html_ok(self.client.get(reverse('guide:mobs:')+('?terrain=%d' % TERRAIN.HILLS_GRASS)), texts=(('pgf-no-mobs-message', 1),))
 
     def test_filter_by_terrain(self):
         MobRecord.objects.all().delete()
         mobs_storage.clear()
         MobRecordPrototype.create_random(uuid='bandit', terrains=[TERRAIN.PLANE_GRASS])
-        self.check_html_ok(self.client.get(reverse('game:mobs:')+('?terrain=%d' % TERRAIN.PLANE_GRASS)), texts=['bandit'])
+        self.check_html_ok(self.client.get(reverse('guide:mobs:')+('?terrain=%d' % TERRAIN.PLANE_GRASS)), texts=['bandit'])
 
 
 class TestNewRequests(BaseTestRequests):
@@ -144,11 +153,12 @@ class TestCreateRequests(BaseTestRequests):
     def test_simple(self):
         self.assertEqual(MobRecord.objects.count(), 3)
 
-        self.check_ajax_ok(self.client.post(reverse('game:mobs:create'), self.get_post_data()))
+        response = self.client.post(reverse('game:mobs:create'), self.get_post_data())
 
         self.assertEqual(MobRecord.objects.count(), 4)
-
         mob_record = MobRecordPrototype(MobRecord.objects.all().order_by('-created_at')[0])
+
+        self.check_ajax_ok(response, data={'next_url': reverse('guide:mobs:show', args=[mob_record.id])})
 
         self.assertEqual(mob_record.name, 'mob name')
         self.assertEqual(mob_record.level, 666)
@@ -156,6 +166,7 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(mob_record.abilities, frozenset(['hit', 'strong_hit', 'sidestep']) )
         self.assertEqual(mob_record.description, 'mob description')
         self.assertTrue(mob_record.state.is_disabled)
+        self.assertTrue(mob_record.editor_id, self.account_2.id)
 
 
 class TestShowRequests(BaseTestRequests):
@@ -164,30 +175,53 @@ class TestShowRequests(BaseTestRequests):
         super(TestShowRequests, self).setUp()
 
     def test_wrong_mob_id(self):
-        self.check_html_ok(self.client.get(reverse('game:mobs:show', args=['adsd'])), texts=[('mobs.mob.wrong_format', 1)])
+        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=['adsd'])), texts=[('mobs.mob.wrong_format', 1)])
 
     def test_no_mob(self):
-        self.check_html_ok(self.client.get(reverse('game:mobs:show', args=[666])), texts=[('mobs.mob.not_found', 1)], status_code=404)
+        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[666])), texts=[('mobs.mob.not_found', 1)], status_code=404)
 
     def test_disabled_mob_declined(self):
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(reverse('game:mobs:show', args=[mob.id])), texts=[('mobs.show.mob_disabled', 1)], status_code=404)
+        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[('mobs.show.mob_disabled', 1)], status_code=404)
 
     def test_disabled_mob_accepted_for_create_rights(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(reverse('game:mobs:show', args=[mob.id])), texts=[(mob.name.capitalize(), 2)])
+        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[mob.name.capitalize()])
 
     def test_disabled_mob_accepted_for_add_rights(self):
         self.request_logout()
         self.request_login('test_user_3@test.com')
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(reverse('game:mobs:show', args=[mob.id])), texts=[(mob.name.capitalize(), 2)])
+        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[mob.name.capitalize()])
 
     def test_simple(self):
         mob = MobRecordPrototype(MobRecord.objects.all()[0])
-        self.check_html_ok(self.client.get(reverse('game:mobs:show', args=[mob.id])), texts=[(mob.name.capitalize(), 2)])
+        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[(mob.name.capitalize(), 4),
+                                                                                              ('pgf-no-description', 0),
+                                                                                              ('pgf-moderate-button', 0),
+                                                                                              ('pgf-edit-button', 0)])
+
+    def test_no_description(self):
+        mob = MobRecordPrototype(MobRecord.objects.all()[0])
+        mob.description = ''
+        mob.save()
+        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-no-description', 1)])
+
+    def test_edit_button(self):
+        self.request_logout()
+        self.request_login('test_user_2@test.com')
+        mob = MobRecordPrototype(MobRecord.objects.all()[0])
+        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-moderate-button', 0),
+                                                                                              ('pgf-edit-button', 1)])
+
+    def test_moderate_button(self):
+        self.request_logout()
+        self.request_login('test_user_3@test.com')
+        mob = MobRecordPrototype(MobRecord.objects.all()[0])
+        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-moderate-button', 1),
+                                                                                              ('pgf-edit-button', 0)])
 
 
 class TestEditRequests(BaseTestRequests):
@@ -248,6 +282,15 @@ class TestUpdateRequests(BaseTestRequests):
                 'abilities': ['hit', 'speedup'],
                 'description': 'new description'}
 
+    def check_mob(self, mob, data):
+        self.assertEqual(mob.name, data['name'])
+        self.assertEqual(mob.level, data['level'])
+        self.assertEqual(mob.terrains, frozenset(data['terrains']) )
+        self.assertEqual(mob.abilities, frozenset(data['abilities']) )
+        self.assertEqual(mob.description, data['description'])
+        self.assertTrue(mob.state.is_disabled)
+        self.assertTrue(mob.editor_id, self.account_2.id)
+
     def test_unlogined(self):
         self.request_logout()
         self.check_ajax_error(self.client.post(reverse('game:mobs:update', args=[self.mob.id]), self.get_update_data()), 'common.login_required')
@@ -256,21 +299,20 @@ class TestUpdateRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_1@test.com')
         self.check_ajax_error(self.client.post(reverse('game:mobs:update', args=[self.mob.id]), self.get_update_data()), 'mobs.create_mob_rights_required')
+        self.check_mob(MobRecordPrototype.get_by_id(self.mob.id), self.get_create_data())
 
     def test_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('game:mobs:update', args=[self.mob.id]), {}), 'mobs.update.form_errors')
+        self.check_mob(MobRecordPrototype.get_by_id(self.mob.id), self.get_create_data())
 
     def test_simple(self):
-        self.check_ajax_ok(self.client.post(reverse('game:mobs:update', args=[self.mob.id]), self.get_update_data()))
+        response = self.client.post(reverse('game:mobs:update', args=[self.mob.id]), self.get_update_data())
 
         mob_record = MobRecordPrototype.get_by_id(self.mob.id)
 
-        self.assertEqual(mob_record.name, 'new name')
-        self.assertEqual(mob_record.level, 667)
-        self.assertEqual(mob_record.terrains, frozenset([TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE]))
-        self.assertEqual(mob_record.abilities, frozenset(['hit', 'speedup']) )
-        self.assertEqual(mob_record.description, 'new description')
-        self.assertTrue(mob_record.state.is_disabled)
+        self.check_ajax_ok(response, data={'next_url': reverse('guide:mobs:show', args=[mob_record.id])})
+
+        self.check_mob(mob_record, self.get_update_data())
 
 
 class TestModerationPageRequests(BaseTestRequests):
@@ -342,14 +384,18 @@ class TestModerateRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_1@test.com')
         self.check_ajax_error(self.client.post(reverse('game:mobs:moderate', args=[self.mob.id]), self.get_moderate_data()), 'mobs.moderate_mob_rights_required')
+        self.assertEqual(MobRecordPrototype.get_by_id(self.mob.id).uuid, self.mob.uuid)
 
     def test_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('game:mobs:moderate', args=[self.mob.id]), {}), 'mobs.moderate.form_errors')
+        self.assertEqual(MobRecordPrototype.get_by_id(self.mob.id).uuid, self.mob.uuid)
 
     def test_simple(self):
-        self.check_ajax_ok(self.client.post(reverse('game:mobs:moderate', args=[self.mob.id]), self.get_moderate_data()))
+        response = self.client.post(reverse('game:mobs:moderate', args=[self.mob.id]), self.get_moderate_data())
 
         mob_record = MobRecordPrototype.get_by_id(self.mob.id)
+
+        self.check_ajax_ok(response, data={'next_url': reverse('guide:mobs:show', args=[mob_record.id])})
 
         self.assertEqual(mob_record.uuid, 'new_uuid')
         self.assertEqual(mob_record.name, 'new name 0')
@@ -359,6 +405,7 @@ class TestModerateRequests(BaseTestRequests):
         self.assertEqual(mob_record.abilities, frozenset(['hit', 'speedup']) )
         self.assertEqual(mob_record.description, 'new description')
         self.assertTrue(mob_record.state.is_enabled)
+        self.assertTrue(mob_record.editor_id, self.account_3.id)
 
     def test_simple_not_approved(self):
         self.check_ajax_ok(self.client.post(reverse('game:mobs:moderate', args=[self.mob.id]), self.get_moderate_data(approved=False)))

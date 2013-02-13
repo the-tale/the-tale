@@ -33,7 +33,7 @@ class MobRecordBaseForm(forms.Form):
 
     abilities = fields.MultipleChoiceField(label=u'способности', choices=ABILITY_CHOICES)
 
-    description = BBField(label=u'Описание')
+    description = BBField(label=u'Описание', required=False)
 
     def clean_abilities(self):
         abilities_ids = self.cleaned_data['abilities']

@@ -1,17 +1,38 @@
-{% extends "mobs/base.html" %}
+{% extends "guide/base.html" %}
+{% import 'guide/macros.html' as guide_macros with context %}
 
-{% block title %}{{mob.name|capitalize}} | {{ super() }}{% endblock %}
+{% block title %}{{mob.name|capitalize}} | Бестиарий | {{ super() }}{% endblock %}
 
-{% block mobs_content %}
+{% block guide_content %}
 
-<h2>{{mob.name|capitalize}}</h2>
+<ul class="breadcrumb">
+  <li><a href="{{url('guide:mobs:')}}">Бестиарий</a><span class="divider">/</span></li>
+  <li class="active">{{mob.name|capitalize}}</li>
 
-{{mob.level}}
+  {% if resource.can_moderate_mob %}
+  <li class="pull-right pgf-moderate-button" style="margin-left: 10px;"><a href="{{url('game:mobs:moderate', mob.id)}}">модерировать</a></li>
+  {% endif %}
 
-{{mob.abilities}}
+  {% if resource.can_create_mob %}
+  <li class="pull-right pgf-edit-button"><a href="{{url('game:mobs:edit', mob.id)}}">редактировать</a></li>
+  {% endif %}
 
-{{mob.terrains}}
+</ul>
 
-{{mob.description}}
+{{ guide_macros.page_caption(mob.name|capitalize, "Описание монстра") }}
+
+<table class="table table-condensed table-striped table-bordered table-no-highlighting">
+  <tbody>
+    <tr><th>уровень</th><td>{{mob.level}}</td></tr>
+    <tr><th>способности</th><td>{{ ', '.join(mob.get_abilities_names()) }}</td></tr>
+    <tr><th>места обитания</th><td>{{ ', '.join(mob.get_terrain_names()) }}</td></tr>
+  </tbody>
+</table>
+
+{% if mob.description %}
+{{mob.description_html|safe}}
+{% else %}
+<p class="pgf-no-description">нет описания<p>
+{% endif %}
 
 {% endblock %}

@@ -1,8 +1,11 @@
-{% extends "mobs/base.html" %}
+{% extends "guide/base.html" %}
+{% import 'guide/macros.html' as guide_macros with context %}
 
-{% block mobs_content %}
+{% block title %}Бестиарий | {{ super() }}{% endblock %}
 
-<h2 style="margin-bottom: 0.5em;">Бестиарий</h2>
+{% block guide_content %}
+
+{{ guide_macros.page_caption("Бестиарий", "Описание всех враждебных обитателей Пандоры.") }}
 
 {% if resource.can_create_mob %}
 <a class="btn btn-danger pgf-create-mob-button" href="{{url('game:mobs:new')}}">создать монстра</a>
@@ -13,11 +16,11 @@
 
     <div class="btn-group">
       <a class="btn {% if not is_filtering %}disabled{% endif %}"
-         href="{% if is_filtering %}{{ url('game:mobs:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
+         href="{% if is_filtering %}{{ url('guide:mobs:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
     </div>
 
     {% if resource.can_create_mob or resource.can_moderate_mob %}
-    <div class="btn-group">
+    <div class="btn-group pgf-mob-state-filter">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         состояние:
         {% if state.is_enabled %} в игре
@@ -48,6 +51,18 @@
       </ul>
     </div>
 
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        сортировка: {{order_by.verbose}}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        {% for order_id, order_text in INDEX_ORDER_TYPE._ID_TO_TEXT.items() %}
+        <li><a href="{{ url_builder(order_by=order_id) }}">{{order_text}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
   </div>
 
 </div>
@@ -57,15 +72,41 @@
 <table class="table table-condensed">
   <thead>
     <tr>
-      <th>уровень</th>
+      <th width="20px">уровень</th>
       <th>название</th>
+      <th width="120px">способности</th>
+      <th width="120px">места обитания</th>
     </tr>
   </thead>
   <tbody>
     {% for mob in mobs %}
     <tr>
       <td>{{mob.level}}</td>
-      <td>{{mob.name}}</td>
+      <td><a href="{{url('guide:mobs:show', mob.id)}}">{{mob.name}}</a></td>
+      <td>
+        <a class="info-link"
+           href="#"
+           onclick="return false;"
+           rel="tooltip"
+           title="<ul class='unstyled' style='text-align: left;'>
+                  {% for ability_name in mob.get_abilities_names() %}
+                  <li>{{ability_name}}</li>
+                  {% endfor %}
+                  </ul>">
+          способности
+        </a>
+      </td>
+      <td>
+        <a class="info-link"
+           href="#"
+           onclick="return false;"
+           rel="tooltip"
+           title="<ul class='unstyled' style='text-align: left;'>
+                  {% for terrain_name in mob.get_terrain_names() %}
+                  <li>{{terrain_name}}</li>
+                  {% endfor %}
+                  </ul>">места обитания</a>
+      </td>
     </tr>
     {% endfor %}
   </tbody>

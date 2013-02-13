@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from game.artifacts.prototypes import ArtifactPrototype
-from game.artifacts.conf import EQUIP_TYPE
-from game.artifacts.storage import ArtifactsDatabase
+from game.artifacts.models import ARTIFACT_TYPE
 
 class EquipmentException(Exception): pass
 
@@ -13,10 +12,11 @@ class Bag(object):
         self.bag = {}
 
     def deserialize(self, data):
+        # return
         self.next_uuid = data.get('next_uuid', 0)
         self.bag = {}
         for uuid, artifact_data in data.get('bag', {}).items():
-            artifact = ArtifactPrototype.deserialize(ArtifactsDatabase.storage(), artifact_data)
+            artifact = ArtifactPrototype.deserialize(artifact_data)
             self.bag[int(uuid)] = artifact
 
     def serialize(self):
@@ -102,19 +102,19 @@ SLOTS_DICT = dict(SLOTS_CHOICES)
 SLOTS_LIST = [ value for name, value in  SLOTS.__dict__.items() if name.isupper()]
 
 SLOTS_TO_ARTIFACT_TYPES = {
-    SLOTS.HAND_PRIMARY: [EQUIP_TYPE.WEAPON],
-    SLOTS.HAND_SECONDARY: [],
+    SLOTS.HAND_PRIMARY: [ARTIFACT_TYPE.MAIN_HAND],
+    SLOTS.HAND_SECONDARY: [ARTIFACT_TYPE.OFF_HAND],
 
-    SLOTS.HELMET: [EQUIP_TYPE.HELMET],
-    SLOTS.SHOULDERS: [EQUIP_TYPE.SHOULDERS],
-    SLOTS.PLATE: [EQUIP_TYPE.PLATE],
-    SLOTS.GLOVES: [EQUIP_TYPE.GLOVES],
-    SLOTS.CLOAK: [EQUIP_TYPE.CLOAK],
-    SLOTS.PANTS: [EQUIP_TYPE.PANTS],
-    SLOTS.BOOTS: [EQUIP_TYPE.BOOTS],
+    SLOTS.HELMET: [ARTIFACT_TYPE.HELMET],
+    SLOTS.SHOULDERS: [ARTIFACT_TYPE.SHOULDERS],
+    SLOTS.PLATE: [ARTIFACT_TYPE.PLATE],
+    SLOTS.GLOVES: [ARTIFACT_TYPE.GLOVES],
+    SLOTS.CLOAK: [ARTIFACT_TYPE.CLOAK],
+    SLOTS.PANTS: [ARTIFACT_TYPE.PANTS],
+    SLOTS.BOOTS: [ARTIFACT_TYPE.BOOTS],
 
-    SLOTS.AMULET: [EQUIP_TYPE.AMULET],
-    SLOTS.RINGS: []
+    SLOTS.AMULET: [ARTIFACT_TYPE.AMULET],
+    SLOTS.RINGS: [ARTIFACT_TYPE.RING]
     }
 
 ARTIFACT_TYPES_TO_SLOTS = {}
@@ -151,7 +151,8 @@ class Equipment(object):
         return dict( (slot, artifact.serialize()) for slot, artifact in self.equipment.items() if artifact )
 
     def deserialize(self, data):
-        self.equipment = dict( (slot, ArtifactPrototype.deserialize(ArtifactsDatabase.storage(), artifact_data)) for slot, artifact_data in data.items() if  artifact_data)
+        # return
+        self.equipment = dict( (slot, ArtifactPrototype.deserialize(artifact_data)) for slot, artifact_data in data.items() if  artifact_data)
 
     def unequip(self, slot):
         if slot not in self.equipment:

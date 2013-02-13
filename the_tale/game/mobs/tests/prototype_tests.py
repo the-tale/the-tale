@@ -26,10 +26,6 @@ class MobsPrototypeTests(TestCase):
 
         mobs_storage.sync(force=True)
 
-    # def test_load_real_data(self):
-    #     storage = MobsDatabase()
-    #     storage.load(mobs_settings.MOBS_STORAGE)
-
     def test_load_data(self):
         self.assertEqual(len(mobs_storage.all()), 3) # create_test_map create 3 random mobs
         self.assertFalse(mobs_storage.has_mob('wrong_id'))

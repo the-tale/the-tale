@@ -13,7 +13,7 @@ class MobRecord(models.Model):
     MAX_NAME_LENGTH = 32
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
-    updated_at = models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = models.DateTimeField(auto_now=True, null=False)
 
     editor = models.ForeignKey('accounts.Account', null=True, related_name='+')
 

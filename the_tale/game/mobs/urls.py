@@ -2,6 +2,6 @@
 
 from dext.views import resource_patterns
 
-from game.mobs.views import MobResource
+from game.mobs.views import GameMobResource
 
-urlpatterns = resource_patterns(MobResource)
+urlpatterns = resource_patterns(GameMobResource)

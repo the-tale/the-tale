@@ -1,28 +1,28 @@
-{% extends "mobs/base.html" %}
+{% extends "artifacts/base.html" %}
 
-{% block title %}Модерирование монстра | {{ super() }}{% endblock %}
+{% block title %}Модерирование артефакта | {{ super() }}{% endblock %}
 
 {% block head %}
 {{ super() }}
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
 
-    var moderateForm = new pgf.forms.Form(jQuery('#pgf-moderate-mob-form'),
+    var moderateForm = new pgf.forms.Form(jQuery('#pgf-moderate-artifact-form'),
                                                {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
 
-    pgf.base.AddPreview('#pgf-mob-description', 'textarea', "{{ url('portal:preview') }}");
-    pgf.base.InitBBFields('#pgf-mob-description');
+    pgf.base.AddPreview('#pgf-artifact-description', 'textarea', "{{ url('portal:preview') }}");
+    pgf.base.InitBBFields('#pgf-artifact-description');
 });
 
 </script>
 
 {% endblock %}
 
-{% block mobs_content %}
+{% block artifacts_content %}
 
-<h2>Редактирование монстра</h2>
+<h2>Редактирование артефакта</h2>
 
-<form id="pgf-moderate-mob-form" class="mobs-edit-form" method="post" action="{{ url('game:mobs:moderate', mob.id) }}">
+<form id="pgf-moderate-artifact-form" method="post" action="{{ url('game:artifacts:moderate', artifact.id) }}">
 
   {{ form.errors_container }}
 
@@ -32,19 +32,14 @@ jQuery(document).ready( function(e) {
 
   {{ form.name_forms.widget }}
 
-  {{ form.level.widget }}
+  {{ form.min_level.widget }}
+  {{ form.max_level.widget }}
 
-  <div class="terrain-and-abilities">
-    <div class="terrain">
-      {{ form.terrains.widget }}
-    </div>
+  {{ form.type.widget }}
 
-    <div class="abilities">
-      {{ form.abilities.widget }}
-    </div>
-  </div>
+  {{ form.rarity.widget }}
 
-  <div id="pgf-mob-description">
+  <div id="pgf-artifact-description">
     <div class="pgf-edit-content">
       {{ form.description.widget }}
     </div>

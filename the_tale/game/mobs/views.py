@@ -8,8 +8,8 @@ from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
-
 from common.utils.decorators import login_required
+from common.utils.enum import create_enum
 
 from game.map.places.models import TERRAIN
 
@@ -19,29 +19,28 @@ from game.mobs.storage import mobs_storage
 from game.mobs.forms import MobRecordForm, ModerateMobRecordForm
 
 
-class MobResource(Resource):
+INDEX_ORDER_TYPE = create_enum('INDEX_ORDER_TYPE', (('BY_LEVEL', 'by_level', u'по уровню'),
+                                                    ('BY_NAME', 'by_name', u'по имени'),))
+
+
+class MobResourceBase(Resource):
 
     @validate_argument('mob', MobRecordPrototype.get_by_id, 'mobs', u'Запись о монстре не найдена')
     def initialize(self, mob=None, *args, **kwargs):
-        super(MobResource, self).initialize(*args, **kwargs)
+        super(MobResourceBase, self).initialize(*args, **kwargs)
         self.mob = mob
 
         self.can_create_mob = self.user.has_perm('mobs.create_mobrecord')
         self.can_moderate_mob = self.user.has_perm('mobs.moderate_mobrecord')
 
-    @validator(code='mobs.create_mob_rights_required', message=u'Вы не можете создавать мобов')
-    def validate_create_rights(self, *args, **kwargs): return self.can_create_mob
 
-    @validator(code='mobs.moderate_mob_rights_required', message=u'Вы не можете принимать мобов в игру')
-    def validate_moderate_rights(self, *args, **kwargs): return self.can_moderate_mob
-
-    @validator(code='mobs.disabled_state_required', message=u'Для проведения этой операции монстр должен быть убран из игры')
-    def validate_disabled_state(self, *args, **kwargs): return self.mob.state.is_disabled
+class GuideMobResource(MobResourceBase):
 
     @validate_argument('state', MOB_RECORD_STATE, 'mobs', u'неверное состояние записи о монстре')
     @validate_argument('terrain', TERRAIN, 'mobs', u'неверный тип территории')
+    @validate_argument('order_by', INDEX_ORDER_TYPE, 'mobs', u'неверный тип сортировки')
     @handler('', method='get')
-    def index(self, state=MOB_RECORD_STATE(MOB_RECORD_STATE.ENABLED), terrain=None):
+    def index(self, state=MOB_RECORD_STATE(MOB_RECORD_STATE.ENABLED), terrain=None, order_by=INDEX_ORDER_TYPE(INDEX_ORDER_TYPE.BY_NAME)):
 
         mobs = mobs_storage.all()
 
@@ -49,8 +48,6 @@ class MobResource(Resource):
             mobs = filter(lambda mob: mob.state.is_enabled, mobs)
 
         is_filtering = False
-
-        print state.value
 
         if state is not None:
             if not state.is_enabled: # if not default
@@ -61,9 +58,14 @@ class MobResource(Resource):
             is_filtering = True
             mobs = filter(lambda mob: terrain.value in mob.terrains, mobs)
 
+        if order_by.is_by_name:
+            mobs = sorted(mobs, key=lambda mob: mob.name)
+        elif order_by.is_by_level:
+            mobs = sorted(mobs, key=lambda mob: mob.level)
 
-        url_builder = UrlBuilder(reverse('game:mobs:'), arguments={ 'state': state.value if state else None,
-                                                                    'terrain': terrain.value if terrain else None})
+        url_builder = UrlBuilder(reverse('guide:mobs:'), arguments={ 'state': state.value if state else None,
+                                                                     'terrain': terrain.value if terrain else None,
+                                                                     'order_by': order_by.value})
 
         return self.template('mobs/index.html',
                              {'mobs': mobs,
@@ -72,7 +74,31 @@ class MobResource(Resource):
                               'TERRAIN': TERRAIN,
                               'state': state,
                               'terrain': terrain,
-                              'url_builder': url_builder} )
+                              'order_by': order_by,
+                              'INDEX_ORDER_TYPE': INDEX_ORDER_TYPE,
+                              'url_builder': url_builder,
+                              'section': 'mobs'} )
+
+    @handler('#mob', name='show', method='get')
+    def show(self):
+
+        if self.mob.state.is_disabled and not (self.can_create_mob or self.can_moderate_mob):
+            return self.auto_error('mobs.show.mob_disabled', u'монстр находится вне игры', status_code=404)
+
+        return self.template('mobs/show.html', {'mob': self.mob,
+                                                'section': 'mobs'})
+
+
+class GameMobResource(MobResourceBase):
+
+    @validator(code='mobs.create_mob_rights_required', message=u'Вы не можете создавать мобов')
+    def validate_create_rights(self, *args, **kwargs): return self.can_create_mob
+
+    @validator(code='mobs.moderate_mob_rights_required', message=u'Вы не можете принимать мобов в игру')
+    def validate_moderate_rights(self, *args, **kwargs): return self.can_moderate_mob
+
+    @validator(code='mobs.disabled_state_required', message=u'Для проведения этой операции монстр должен быть убран из игры')
+    def validate_disabled_state(self, *args, **kwargs): return self.mob.state.is_disabled
 
     @login_required
     @validate_create_rights()
@@ -99,18 +125,8 @@ class MobResource(Resource):
                                         terrains=form.c.terrains,
                                         editor=self.account,
                                         state=MOB_RECORD_STATE.DISABLED)
-        return self.json_ok(data={'next_url': reverse('game:mobs:show', args=[mob.id])})
+        return self.json_ok(data={'next_url': reverse('guide:mobs:show', args=[mob.id])})
 
-
-
-
-    @handler('#mob', name='show', method='get')
-    def show(self):
-
-        if self.mob.state.is_disabled and not (self.can_create_mob or self.can_moderate_mob):
-            return self.auto_error('mobs.show.mob_disabled', u'монстр находится вне игры', status_code=404)
-
-        return self.template('mobs/show.html', {'mob': self.mob})
 
     @login_required
     @validate_disabled_state()
@@ -138,15 +154,9 @@ class MobResource(Resource):
         if not form.is_valid():
             return self.json_error('mobs.update.form_errors', form.errors)
 
-        self.mob.update_by_creator(form)
+        self.mob.update_by_creator(form, editor=self.account)
 
-        return self.json_ok()
-
-    # @validate_moderator_rights()
-    # @handler('#bill', 'delete', name='delete', method='post')
-    # def delete(self):
-    #     self.bill.remove(self.account)
-    #     return self.json_ok()
+        return self.json_ok(data={'next_url': reverse('guide:mobs:show', args=[self.mob.id])})
 
     @login_required
     @validate_moderate_rights()
@@ -173,6 +183,6 @@ class MobResource(Resource):
         if not form.is_valid():
             return self.json_error('mobs.moderate.form_errors', form.errors)
 
-        self.mob.update_by_moderator(form)
+        self.mob.update_by_moderator(form, editor=self.account)
 
-        return self.json_ok()
+        return self.json_ok(data={'next_url': reverse('guide:mobs:show', args=[self.mob.id])})

@@ -1,0 +1,115 @@
+{% extends "guide/base.html" %}
+{% import 'guide/macros.html' as guide_macros with context %}
+
+{% block title %}Артефакты | {{ super() }}{% endblock %}
+
+{% block guide_content %}
+
+{{ guide_macros.page_caption("Артефакты", "Описание всех артефактов, встречающихся в Пандоре.") }}
+
+{% if resource.can_create_artifact %}
+<a class="btn btn-danger pgf-create-artifact-button" href="{{url('game:artifacts:new')}}">создать артефакт</a>
+{% endif %}
+
+<div>
+  <div class="btn-toolbar">
+
+    <div class="btn-group">
+      <a class="btn {% if not is_filtering %}disabled{% endif %}"
+         href="{% if is_filtering %}{{ url('guide:artifacts:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
+    </div>
+
+    {% if resource.can_create_artifact or resource.can_moderate_artifact %}
+    <div class="btn-group pgf-artifact-state-filter">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        состояние:
+        {% if state.is_enabled %} в игре
+        {% elif state.is_disabled %} вне игры
+        {% endif %}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="{{ url_builder(state=ARTIFACT_RECORD_STATE.ENABLED) }}">в игре</a></li>
+        <li><a href="{{ url_builder(state=ARTIFACT_RECORD_STATE.DISABLED) }}">вне игры</a></li>
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        тип:
+        {% if type is not none %} {{ type.verbose }}
+        {% else %} все
+        {% endif %}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="{{ url_builder(type=none) }}">все</a></li>
+        {% for type_id, type_text in ARTIFACT_TYPE._ID_TO_TEXT.items() %}
+        <li><a href="{{ url_builder(type=type_id) }}">{{type_text}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        редкость:
+        {% if rarity is not none %} {{ rarity.verbose }}
+        {% else %} все
+        {% endif %}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="{{ url_builder(rarity=none) }}">все</a></li>
+        {% for rarity_id, rarity_text in RARITY_TYPE._ID_TO_TEXT.items() %}
+        <li><a href="{{ url_builder(rarity=rarity_id) }}">{{rarity_text}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        сортировка: {{order_by.verbose}}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        {% for order_id, order_text in INDEX_ORDER_TYPE._ID_TO_TEXT.items() %}
+        <li><a href="{{ url_builder(order_by=order_id) }}">{{order_text}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+
+{% if artifacts %}
+
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      <th width="20px">минимальный уровень</th>
+      <th width="20px">максимальный уровень</th>
+      <th>название</th>
+      <th width="120px">тип</th>
+      <th width="120px">редкость</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for artifact in artifacts %}
+    <tr>
+      <td>{{artifact.min_level}}</td>
+      <td>{{artifact.max_level}}</td>
+      <td><a href="{{url('guide:artifacts:show', artifacts.id)}}">{{artifact.name}}</a></td>
+      <td>{{artifact.type.verbose}}</td>
+      <td>{{artifact.rarity.verbose}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+<span class="pgf-no-artifacts-message">Не найдено артефактов, отвечающих условиям поиска.</span>
+{% endif %}
+
+{% endblock %}

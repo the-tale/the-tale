@@ -2,3 +2,4 @@
 
 from game.mobs.tests.prototype_tests import *
 from game.mobs.tests.request_tests import *
+from game.mobs.tests.form_tests import *

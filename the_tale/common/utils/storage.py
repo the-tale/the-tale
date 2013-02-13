@@ -77,9 +77,15 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
 
             self.update_version()
 
-        def update_version(self):
+        def update_version(self, reload=True):
+            if self.SETTINGS_KEY not in settings or self._version != settings[self.SETTINGS_KEY]:
+                reload = True
+
             self._version = uuid.uuid4().hex
             settings[self.SETTINGS_KEY] = str(self._version)
+
+            if reload:
+                self.sync(force=True)
 
 
     return Storage
@@ -127,9 +133,15 @@ def create_single_storage_class(version_key, Model, Prototype, Exception_):
             self._item = None
             self._version = -1
 
-        def update_version(self):
+        def update_version(self, reload=True):
+            if self.SETTINGS_KEY not in settings or self._version != settings[self.SETTINGS_KEY]:
+                reload = True
+
             self._version = uuid.uuid4().hex
             settings[self.SETTINGS_KEY] = str(self._version)
+
+            if reload:
+                self.sync(force=True)
 
 
     return SingleStorage

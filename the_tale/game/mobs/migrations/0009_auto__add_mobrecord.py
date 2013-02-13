@@ -7,6 +7,10 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ("accounts", "0001_initial"),
+    )
+
     def forwards(self, orm):
         # Adding model 'MobRecord'
         db.create_table('mobs_mobrecord', (

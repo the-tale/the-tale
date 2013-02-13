@@ -6,14 +6,19 @@ from django.conf import settings as project_settings
 from textgen import words
 from dext.utils import s11n
 
+from common.utils.enum import create_enum
+
 from game.heroes.bag import SLOTS
-from game.artifacts.storage import ArtifactsDatabase
 from game.bundles import BundlePrototype
 
 from game.persons.storage import persons_storage
 
 from game.mobs.prototypes import MobRecordPrototype
 from game.mobs.storage import mobs_storage
+
+from game.artifacts.prototypes import ArtifactRecordPrototype
+from game.artifacts.storage import artifacts_storage
+from game.artifacts.models import ARTIFACT_TYPE
 
 from game.map.storage import map_info_storage
 from game.map.places.storage import places_storage
@@ -24,6 +29,12 @@ from game.map.roads.logic import update_waymarks
 from game.map.prototypes import MapInfoPrototype
 from game.map.places.logic import update_nearest_cells
 from game.map.conf import map_settings
+
+DEFAULT_HERO_EQUIPMENT = create_enum('DEFAULT_HERO_EQUIPMENT', ( ('PANTS', 'default_pants', u'штаны'),
+                                                                 ('BOOTS', 'default_boots', u'обувь'),
+                                                                 ('PLATE', 'default_plate', u'доспех'),
+                                                                 ('GLOVES', 'default_gloves', u'перчатки'),
+                                                                 ('WEAPON', 'default_weapon', u'оружие') ))
 
 
 def create_test_map():
@@ -85,6 +96,22 @@ def create_test_map():
 
     mobs_storage.sync(force=True)
 
+    ArtifactRecordPrototype.create_random('loot_1')
+    ArtifactRecordPrototype.create_random('loot_2')
+    ArtifactRecordPrototype.create_random('loot_3')
+
+    ArtifactRecordPrototype.create_random('helmet_1', type_=ARTIFACT_TYPE.HELMET)
+    ArtifactRecordPrototype.create_random('plate_1', type_=ARTIFACT_TYPE.PLATE)
+    ArtifactRecordPrototype.create_random('boots_1', type_=ARTIFACT_TYPE.BOOTS)
+
+    ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.PANTS, type_=ARTIFACT_TYPE.PANTS)
+    ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.BOOTS, type_=ARTIFACT_TYPE.BOOTS)
+    ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.PLATE, type_=ARTIFACT_TYPE.PLATE)
+    ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.GLOVES, type_=ARTIFACT_TYPE.GLOVES)
+    ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.WEAPON, type_=ARTIFACT_TYPE.MAIN_HAND)
+
+    artifacts_storage.sync(force=True)
+
     return (places_storage[p1.id], places_storage[p2.id], places_storage[p3.id])
 
 
@@ -95,13 +122,11 @@ def create_test_bundle(uuid):
 
 
 def dress_new_hero(hero):
-    storage = ArtifactsDatabase.storage()
-
-    hero.equipment.equip(SLOTS.PANTS, storage.create_artifact('default_pants', level=1, power=0))
-    hero.equipment.equip(SLOTS.BOOTS, storage.create_artifact('default_boots', level=1, power=0))
-    hero.equipment.equip(SLOTS.PLATE, storage.create_artifact('default_plate', level=1, power=0))
-    hero.equipment.equip(SLOTS.GLOVES, storage.create_artifact('default_gloves', level=1, power=0))
-    hero.equipment.equip(SLOTS.HAND_PRIMARY, storage.create_artifact('default_weapon', level=1, power=0))
+    hero.equipment.equip(SLOTS.PANTS, artifacts_storage.create_artifact(DEFAULT_HERO_EQUIPMENT.PANTS, level=1, power=0))
+    hero.equipment.equip(SLOTS.BOOTS, artifacts_storage.create_artifact(DEFAULT_HERO_EQUIPMENT.BOOTS, level=1, power=0))
+    hero.equipment.equip(SLOTS.PLATE, artifacts_storage.create_artifact(DEFAULT_HERO_EQUIPMENT.PLATE, level=1, power=0))
+    hero.equipment.equip(SLOTS.GLOVES, artifacts_storage.create_artifact(DEFAULT_HERO_EQUIPMENT.GLOVES, level=1, power=0))
+    hero.equipment.equip(SLOTS.HAND_PRIMARY, artifacts_storage.create_artifact(DEFAULT_HERO_EQUIPMENT.WEAPON, level=1, power=0))
 
 
 def log_sql_queries(turn_number):

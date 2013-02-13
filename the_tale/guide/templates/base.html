@@ -21,6 +21,8 @@
           <li class="nav-element {% if section=='cities' %}active{% endif %}"><a href="{{ url('guide:cities') }}">Города</a></li>
           <li class="nav-element {% if section=='map' %}active{% endif %}"><a href="{{ url('guide:map') }}">Карта</a></li>
           <li class="nav-element {% if section=='pvp' %}active{% endif %}"><a href="{{ url('guide:pvp') }}">PvP</a></li>
+          <li class="nav-element {% if section=='mobs' %}active{% endif %}"><a href="{{ url('guide:mobs:') }}">Бестиарий</a></li>
+          <li class="nav-element {% if section=='artifacts' %}active{% endif %}"><a href="{{ url('guide:artifacts:') }}">Артефакты</a></li>
           <li class="nav-element {% if section=='how-to-help' %}active{% endif %}"><a href="{{ url('guide:how-to-help') }}">Как помочь?</a></li>
 
           <li class="nav-header {% if section=='' %}active{% endif %}">{{get_cms_section_info("world").caption}}</li>

@@ -1,0 +1,38 @@
+{% extends "guide/base.html" %}
+{% import 'guide/macros.html' as guide_macros with context %}
+
+{% block title %}{{artifact.name|capitalize}} | Артефакта | {{ super() }}{% endblock %}
+
+{% block guide_content %}
+
+<ul class="breadcrumb">
+  <li><a href="{{url('guide:artifacts:')}}">Артефакты</a><span class="divider">/</span></li>
+  <li class="active">{{artifact.name|capitalize}}</li>
+
+  {% if resource.can_moderate_artifact %}
+  <li class="pull-right pgf-moderate-button" style="margin-left: 10px;"><a href="{{url('game:artifacts:moderate', artifact.id)}}">модерировать</a></li>
+  {% endif %}
+
+  {% if resource.can_create_artifact %}
+  <li class="pull-right pgf-edit-button"><a href="{{url('game:artifacts:edit', artifact.id)}}">редактировать</a></li>
+  {% endif %}
+
+</ul>
+
+{{ guide_macros.page_caption(artifact.name|capitalize, "Описание артефакта") }}
+
+<table class="table table-condensed table-striped table-bordered table-no-highlighting">
+  <tbody>
+    <tr><th>уровни</th><td>{{artifact.min_level}}-{{artifact.max_level}}</td></tr>
+    <tr><th>тип</th><td>{{ artifact.type.verbose }}</td></tr>
+    <tr><th>редкость</th><td>{{ artifact.rarity.verbose }}</td></tr>
+  </tbody>
+</table>
+
+{% if artifact.description %}
+{{artifact.description_html|safe}}
+{% else %}
+<p class="pgf-no-description">нет описания<p>
+{% endif %}
+
+{% endblock %}

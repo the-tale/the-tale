@@ -1,5 +1,6 @@
 # coding: utf-8
 import random
+import postmarkup
 
 from textgen.words import Noun
 
@@ -72,8 +73,12 @@ class MobPrototype(object):
         pass
 
     def get_loot(self):
-        from ..artifacts.storage import ArtifactsDatabase
-        return ArtifactsDatabase.storage().generate_loot(self.artifacts, self.loot, artifact_level=self.level, loot_level=self.record.level)
+        from game.artifacts.storage import ArtifactsDatabase
+
+        if self.artifacts:
+            return ArtifactsDatabase.storage().generate_loot(self.artifacts, self.loot, artifact_level=self.level, loot_level=self.record.level)
+
+        return None
 
     def serialize(self):
         return {'level': self.level,
@@ -125,13 +130,6 @@ class MobRecordPrototype(object):
             return None
 
     @property
-    def created_at(self): return self.model.created_at
-
-    def get_updated_at(self): return self.model.updated_at
-    def set_updated_at(self, value): self.model.updated_at = value
-    updated_at = property(get_updated_at, set_updated_at)
-
-    @property
     def editor_id(self): return self.model.editor.id if self.model.editor is not None else None
 
     def get_level(self): return self.model.level
@@ -171,6 +169,9 @@ class MobRecordPrototype(object):
     def set_description(self, value): self.model.description = value
     description = property(get_description, set_description)
 
+    @property
+    def description_html(self): return postmarkup.render_bbcode(self.model.description)
+
     def get_abilities(self):
         if not hasattr(self, '_abilities'):
             self._abilities = frozenset(s11n.from_json(self.model.abilities))
@@ -180,6 +181,9 @@ class MobRecordPrototype(object):
         self.model.abilities = s11n.to_json(list(value))
     abilities = property(get_abilities, set_abilities)
 
+    def get_abilities_names(self):
+        return sorted([ABILITIES[ability_id].NAME for ability_id in self.abilities])
+
     def get_terrains(self):
         if not hasattr(self, '_terrains'):
             self._terrains = frozenset(s11n.from_json(self.model.terrains))
@@ -188,6 +192,9 @@ class MobRecordPrototype(object):
         self._terrains = frozenset(value)
         self.model.terrains = s11n.to_json(list(value))
     terrains = property(get_terrains, set_terrains)
+
+    def get_terrain_names(self):
+        return sorted([TERRAIN._ID_TO_TEXT[terrain_id] for terrain_id in self.terrains])
 
     @classmethod
     def create(cls, uuid, level, name, description, abilities, terrains, editor=None, state=MOB_RECORD_STATE.DISABLED):
@@ -231,16 +238,17 @@ class MobRecordPrototype(object):
 
         return cls.create(uuid, level=level, name=name, description='description of %s' % name, abilities=abilities, terrains=terrains, state=state)
 
-    def update_by_creator(self, form):
+    def update_by_creator(self, form, editor):
         self.name = form.c.name
         self.description = form.c.description
         self.level = form.c.level
         self.terrains = form.c.terrains
         self.abilities = form.c.abilities
+        self.editor = editor.model
 
         self.save()
 
-    def update_by_moderator(self, form):
+    def update_by_moderator(self, form, editor):
         self.name_forms = form.c.name_forms
         self.description = form.c.description
         self.level = form.c.level
@@ -248,6 +256,7 @@ class MobRecordPrototype(object):
         self.abilities = form.c.abilities
         self.uuid = form.c.uuid
         self.state = MOB_RECORD_STATE.ENABLED if form.c.approved else MOB_RECORD_STATE.DISABLED
+        self.editor = editor.model
 
         self.save()
 

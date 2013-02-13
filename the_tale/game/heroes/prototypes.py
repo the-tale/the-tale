@@ -25,7 +25,7 @@ from game.balance import constants as c, formulas as f, enums as e
 
 from game import names
 
-from game.artifacts.storage import ArtifactsDatabase
+from game.artifacts.storage import artifacts_storage
 
 from game.map.storage import map_info_storage
 
@@ -306,13 +306,13 @@ class HeroPrototype(object):
                 slots = reduce(lambda x, y: x | set(y), SLOTS_TO_ARTIFACT_TYPES.values(), set())
                 slots -= set(SLOTS_TO_ARTIFACT_TYPES[self.preferences.equipment_slot])
 
-            artifacts_list = ArtifactsDatabase.storage().artifacts_for_equip_type(slots)
+            artifacts_list = artifacts_storage.artifacts_for_type(slots)
 
         if not artifacts_list:
             # if hero has not preferences or can not get any item for preferences slot
-            artifacts_list = ArtifactsDatabase.storage().artifacts_ids
+            artifacts_list = artifacts_storage.artifacts_ids
 
-        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(artifacts_list, self.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_list, self.level)
 
         if artifact is None:
             return None, None, None
