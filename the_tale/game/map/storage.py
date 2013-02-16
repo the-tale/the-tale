@@ -10,7 +10,10 @@ from game.map.exceptions import MapException
 class MapInfoStorage(create_single_storage_class('map info change time', MapInfo, MapInfoPrototype, MapException)):
 
     def refresh(self):
-        self._item = MapInfoPrototype(MapInfo.objects.order_by('-turn_number', '-id')[0])
+        try:
+            self._item = MapInfoPrototype(MapInfo.objects.order_by('-turn_number', '-id')[0])
+        except IndexError:
+            self._item = None
 
 
 map_info_storage = MapInfoStorage()

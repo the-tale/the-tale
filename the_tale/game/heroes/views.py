@@ -25,7 +25,7 @@ from game.heroes.prototypes import HeroPrototype
 from game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask
 from game.heroes.models import PREFERENCE_TYPE
 from game.heroes.forms import ChoosePreferencesForm, EditNameForm
-from game.heroes.bag import SLOTS_LIST, SLOTS_DICT
+from game.heroes.bag import SLOTS
 
 def split_list(items):
     half = (len(items)+1)/2
@@ -170,7 +170,7 @@ class HeroResource(Resource):
             enemies = all_enemys
 
         elif type == PREFERENCE_TYPE.EQUIPMENT_SLOT:
-            equipment_slots = split_list(SLOTS_LIST)
+            equipment_slots = split_list(SLOTS._ALL)
 
         return self.template('heroes/choose_preferences.html',
                              {'type': type,
@@ -182,7 +182,7 @@ class HeroResource(Resource):
                               'enemies': enemies,
                               'equipment_slots': equipment_slots,
                               'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.CHARACTER_PREFERENCES_CHANGE_DELAY),
-                              'EQUIPMENT_SLOTS_DICT': SLOTS_DICT} )
+                              'SLOTS': SLOTS} )
 
     @login_required
     @validate_ownership()

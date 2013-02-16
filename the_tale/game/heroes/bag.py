@@ -1,4 +1,7 @@
 # coding: utf-8
+
+from common.utils.enum import create_enum
+
 from game.artifacts.prototypes import ArtifactPrototype
 from game.artifacts.models import ARTIFACT_TYPE
 
@@ -69,62 +72,35 @@ class Bag(object):
 # Equipment
 ####################################################
 
-class SLOTS:
-    HAND_PRIMARY = 'hand_primary'
-    HAND_SECONDARY = 'hand_secondary'
+SLOTS = create_enum('SLOTS', ( ('HAND_PRIMARY', 'hand_primary', u'основная рука'),
+                               ('HAND_SECONDARY', 'hand_secondary', u'вспомогательная рука'),
+                               ('HELMET', 'helmet', u'шлем'),
+                               ('SHOULDERS', 'shoulders', u'наплечники'),
+                               ('PLATE', 'plate', u'доспех'),
+                               ('GLOVES', 'gloves', u'перчатки'),
+                               ('CLOAK', 'cloak', u'плащ'),
+                               ('PANTS', 'pants', u'штаны'),
+                               ('BOOTS', 'boots', u'сапоги'),
+                               ('AMULET', 'amulet', u'амулет'),
+                               ('RING', 'ring', u'кольцо') ))
 
-    HELMET = 'helmet'
-    SHOULDERS = 'shoulders'
-    PLATE = 'plate'
-    GLOVES = 'gloves'
-    CLOAK = 'cloak'
-    PANTS = 'pants'
-    BOOTS = 'boots'
+SLOT_TO_ARTIFACT_TYPE = {
+    SLOTS.HAND_PRIMARY: ARTIFACT_TYPE.MAIN_HAND,
+    SLOTS.HAND_SECONDARY: ARTIFACT_TYPE.OFF_HAND,
 
-    AMULET = 'amulet'
+    SLOTS.HELMET: ARTIFACT_TYPE.HELMET,
+    SLOTS.SHOULDERS: ARTIFACT_TYPE.SHOULDERS,
+    SLOTS.PLATE: ARTIFACT_TYPE.PLATE,
+    SLOTS.GLOVES: ARTIFACT_TYPE.GLOVES,
+    SLOTS.CLOAK: ARTIFACT_TYPE.CLOAK,
+    SLOTS.PANTS: ARTIFACT_TYPE.PANTS,
+    SLOTS.BOOTS: ARTIFACT_TYPE.BOOTS,
 
-    RINGS = 'rings'
-
-SLOTS_CHOICES = ( (SLOTS.HAND_PRIMARY, u'правая рука'),
-                  (SLOTS.HAND_SECONDARY, u'левая рука'),
-                  (SLOTS.HELMET, u'шлем'),
-                  (SLOTS.SHOULDERS, u'наплечники'),
-                  (SLOTS.PLATE, u'доспех'),
-                  (SLOTS.GLOVES, u'перчатки'),
-                  (SLOTS.CLOAK, u'плащ'),
-                  (SLOTS.PANTS, u'штаны'),
-                  (SLOTS.BOOTS, u'сапоги'),
-                  (SLOTS.AMULET, u'амулет'),
-                  (SLOTS.RINGS, u'кольца') )
-
-SLOTS_DICT = dict(SLOTS_CHOICES)
-
-SLOTS_LIST = [ value for name, value in  SLOTS.__dict__.items() if name.isupper()]
-
-SLOTS_TO_ARTIFACT_TYPES = {
-    SLOTS.HAND_PRIMARY: [ARTIFACT_TYPE.MAIN_HAND],
-    SLOTS.HAND_SECONDARY: [ARTIFACT_TYPE.OFF_HAND],
-
-    SLOTS.HELMET: [ARTIFACT_TYPE.HELMET],
-    SLOTS.SHOULDERS: [ARTIFACT_TYPE.SHOULDERS],
-    SLOTS.PLATE: [ARTIFACT_TYPE.PLATE],
-    SLOTS.GLOVES: [ARTIFACT_TYPE.GLOVES],
-    SLOTS.CLOAK: [ARTIFACT_TYPE.CLOAK],
-    SLOTS.PANTS: [ARTIFACT_TYPE.PANTS],
-    SLOTS.BOOTS: [ARTIFACT_TYPE.BOOTS],
-
-    SLOTS.AMULET: [ARTIFACT_TYPE.AMULET],
-    SLOTS.RINGS: [ARTIFACT_TYPE.RING]
+    SLOTS.AMULET: ARTIFACT_TYPE.AMULET,
+    SLOTS.RING: ARTIFACT_TYPE.RING
     }
 
-ARTIFACT_TYPES_TO_SLOTS = {}
-
-for slot, types in SLOTS_TO_ARTIFACT_TYPES.items():
-    for tp in types:
-        if tp not in ARTIFACT_TYPES_TO_SLOTS:
-            ARTIFACT_TYPES_TO_SLOTS[tp] = [slot]
-        else:
-            ARTIFACT_TYPES_TO_SLOTS[tp].append(slot)
+ARTIFACT_TYPE_TO_SLOT = { v:k for k,v in SLOT_TO_ARTIFACT_TYPE.items()}
 
 
 class Equipment(object):
@@ -138,7 +114,7 @@ class Equipment(object):
 
     def get_power(self):
         power = 0
-        for slot in SLOTS_LIST:
+        for slot in SLOTS._ALL:
             artifact = self.get(slot)
             if artifact:
                 power += artifact.power
@@ -165,7 +141,7 @@ class Equipment(object):
     def equip(self, slot, artifact):
         if slot in self.equipment:
             raise EquipmentException('slot for equipment has already busy')
-        if slot not in SLOTS_LIST:
+        if slot not in SLOTS._ALL:
             raise EquipmentException('unknown slot id: %s' % slot)
 
         self.updated = True
@@ -175,12 +151,12 @@ class Equipment(object):
         return self.equipment.get(slot, None)
 
     def test_remove_all(self):
-        for slot in SLOTS_LIST:
+        for slot in SLOTS._ALL:
             self.unequip(slot)
         self.updated = True
 
     def test_equip_in_all_slots(self, artifact):
-        for slot in SLOTS_LIST:
+        for slot in SLOTS._ALL:
             if self.get(slot) is not None:
                 self.unequip(slot)
             self.equip(slot, artifact)

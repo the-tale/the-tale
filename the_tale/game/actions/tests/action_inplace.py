@@ -11,7 +11,7 @@ from game.logic_storage import LogicStorage
 from game.heroes.bag import SLOTS
 from game.logic import create_test_map
 from game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradingPrototype, ActionEquippingPrototype, ActionRegenerateEnergyPrototype
-from game.artifacts.storage import ArtifactsDatabase
+from game.artifacts.storage import artifacts_storage
 from game.prototypes import TimePrototype
 
 from game.balance import constants as c, formulas as f, enums as e
@@ -95,10 +95,9 @@ class InPlaceActionTest(TestCase):
         self.storage._test_save()
 
     def test_trade_action_create(self):
-        storage = ArtifactsDatabase.storage()
 
         for i in xrange(int(c.MAX_BAG_SIZE * c.BAG_SIZE_TO_SELL_LOOT_FRACTION) + 1):
-            artifact = storage.generate_artifact_from_list(storage.loot_ids, 1)
+            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1)
             self.hero.bag.put_artifact(artifact)
 
         self.storage.process_turn()
@@ -108,9 +107,7 @@ class InPlaceActionTest(TestCase):
         self.storage._test_save()
 
     def test_equip_action_create(self):
-        storage = ArtifactsDatabase.storage()
-
-        artifact = storage.generate_artifact_from_list(storage.artifacts_ids, 1)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
         artifact.power = 666
         self.hero.bag.put_artifact(artifact)
 
@@ -239,7 +236,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
             self.hero.switch_spending()
 
         # fill all slots with artifacts
-        self.hero.equipment.test_equip_in_all_slots(ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level))
+        self.hero.equipment.test_equip_in_all_slots(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level))
 
         money = f.buy_artifact_price(self.hero.level)
 

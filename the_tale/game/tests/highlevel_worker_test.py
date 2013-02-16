@@ -159,6 +159,10 @@ class HighlevelTest(TestCase):
         persons_version_2 = persons_storage._version
         places_version_2 = places_storage._version
 
+        self.p1 = places_storage[self.p1.id]
+        self.p2 = places_storage[self.p2.id]
+        self.p3 = places_storage[self.p3.id]
+
         self.assertEqual(self.p1.power, 0)
         self.assertEqual(self.p2.power, 10001099)
         self.assertEqual(self.p3.power, 110018)

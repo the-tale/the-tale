@@ -15,6 +15,8 @@ from accounts.logic import register_user, login_url
 
 from game.logic import create_test_map, DEFAULT_HERO_EQUIPMENT
 
+from game.mobs.storage import mobs_storage
+
 from game.artifacts.models import ArtifactRecord
 from game.artifacts.storage import artifacts_storage
 from game.artifacts.models import ARTIFACT_RECORD_STATE, ARTIFACT_TYPE, RARITY_TYPE
@@ -139,13 +141,15 @@ class TestCreateRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_2@test.com')
 
+        self.mob = mobs_storage.all()[0]
+
     def get_post_data(self):
         return {'name': 'artifact name',
-                'min_level': 1,
-                'max_level': 666,
+                'level': 1,
                 'rarity': RARITY_TYPE.RARE,
                 'type': ARTIFACT_TYPE.RING,
-                'description': 'artifact description'}
+                'description': 'artifact description',
+                'mob': self.mob.id}
 
     def test_unlogined(self):
         self.request_logout()
@@ -170,13 +174,13 @@ class TestCreateRequests(BaseTestRequests):
         self.check_ajax_ok(response, data={'next_url': reverse('guide:artifacts:show', args=[artifact_record.id])})
 
         self.assertEqual(artifact_record.name, 'artifact name')
-        self.assertEqual(artifact_record.min_level, 1)
-        self.assertEqual(artifact_record.max_level, 666)
+        self.assertEqual(artifact_record.level, 1)
         self.assertEqual(artifact_record.rarity, RARITY_TYPE.RARE)
         self.assertEqual(artifact_record.type, ARTIFACT_TYPE.RING)
         self.assertEqual(artifact_record.description, 'artifact description')
         self.assertTrue(artifact_record.state.is_disabled)
         self.assertTrue(artifact_record.editor_id, self.account_2.id)
+        self.assertTrue(artifact_record.mob.id, self.mob.id)
 
 
 class TestShowRequests(BaseTestRequests):
@@ -278,29 +282,35 @@ class TestUpdateRequests(BaseTestRequests):
         self.check_ajax_ok(self.client.post(reverse('game:artifacts:create'), self.get_create_data()))
         self.artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all().order_by('-created_at')[0])
 
+        self.mob = mobs_storage.all()[0]
+
     def get_create_data(self):
         return {'name': 'artifact name',
-                'min_level': 1,
-                'max_level': 666,
+                'level': 1,
                 'rarity': RARITY_TYPE.RARE,
                 'type': ARTIFACT_TYPE.RING,
                 'description': 'artifact description'}
 
     def get_update_data(self):
         return {'name': 'new artifact name',
-                'min_level': 2,
-                'max_level': 667,
+                'level': 2,
                 'rarity': RARITY_TYPE.EPIC,
                 'type': ARTIFACT_TYPE.AMULET,
-                'description': 'new artifact description'}
+                'description': 'new artifact description',
+                'mob': self.mob.id}
 
     def check_artifact(self, artifact, data):
         self.assertEqual(artifact.name, data['name'])
-        self.assertEqual(artifact.min_level, data['min_level'])
-        self.assertEqual(artifact.max_level, data['max_level'])
+        self.assertEqual(artifact.level, data['level'])
         self.assertEqual(artifact.rarity, data['rarity'])
         self.assertEqual(artifact.type, data['type'])
         self.assertEqual(artifact.description, data['description'])
+
+        mob = data.get('mob')
+        if mob is not None:
+            self.assertEqual(artifact.mob.id, mob)
+        else:
+            self.assertEqual(artifact.mob, None)
         self.assertTrue(artifact.state.is_disabled)
         self.assertTrue(artifact.editor_id, self.account_2.id)
 
@@ -362,6 +372,8 @@ class TestModerateRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_2@test.com')
 
+        self.mob = mobs_storage.all()[0]
+
         self.check_ajax_ok(self.client.post(reverse('game:artifacts:create'), self.get_create_data()))
         self.artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all().order_by('-created_at')[0])
 
@@ -374,18 +386,17 @@ class TestModerateRequests(BaseTestRequests):
 
     def get_create_data(self):
         return {'name': 'artifact name',
-                'min_level': 1,
-                'max_level': 666,
+                'level': 1,
                 'rarity': RARITY_TYPE.RARE,
                 'type': ARTIFACT_TYPE.RING,
-                'description': 'artifact description'}
+                'description': 'artifact description',
+                'mob': self.mob.id}
 
     def get_moderate_data(self, approved=True):
         return {'name_forms': s11n.to_json(self.name.serialize()),
                 'uuid': 'new_uuid',
                 'approved': approved,
-                'min_level': 2,
-                'max_level': 667,
+                'level': 2,
                 'rarity': RARITY_TYPE.EPIC,
                 'type': ARTIFACT_TYPE.AMULET,
                 'description': 'new artifact description'}
@@ -414,11 +425,11 @@ class TestModerateRequests(BaseTestRequests):
         self.assertEqual(artifact_record.uuid, 'new_uuid')
         self.assertEqual(artifact_record.name, 'new name 0')
         self.assertEqual(artifact_record.name_forms, self.name)
-        self.assertEqual(artifact_record.min_level, 2)
-        self.assertEqual(artifact_record.max_level, 667)
+        self.assertEqual(artifact_record.level, 2)
         self.assertEqual(artifact_record.description, 'new artifact description')
         self.assertTrue(artifact_record.state.is_enabled)
         self.assertTrue(artifact_record.editor_id, self.account_3.id)
+        self.assertEqual(artifact_record.mob, None)
 
     def test_simple_not_approved(self):
         self.check_ajax_ok(self.client.post(reverse('game:artifacts:moderate', args=[self.artifact.id]), self.get_moderate_data(approved=False)))

@@ -7,7 +7,6 @@ from game.heroes.prototypes import HeroPrototype
 
 from game.logic import create_test_map
 
-from game.mobs.storage import MobRecord
 from game.mobs.prototypes import MobPrototype
 
 from game.heroes.habilities import attributes
@@ -82,14 +81,25 @@ class AttributeAbiliesForHeroTest(TestCase):
 class AttributeAbiliesForMobTest(TestCase):
 
     def setUp(self):
-        self.mob1 = self.construct_mob_with_abilities(abilities=[attributes.EXTRA_SLOW.get_id(), attributes.EXTRA_THIN.get_id(), attributes.EXTRA_WEAK.get_id()])
-        self.mob2 = self.construct_mob_with_abilities(abilities=[attributes.SLOW.get_id(), attributes.THIN.get_id(), attributes.WEAK.get_id()])
-        self.mob3 = self.construct_mob_with_abilities(abilities=[attributes.FAST.get_id(), attributes.THICK.get_id(), attributes.STRONG.get_id()])
-        self.mob4 = self.construct_mob_with_abilities(abilities=[attributes.EXTRA_FAST.get_id(), attributes.EXTRA_THICK.get_id(), attributes.EXTRA_STRONG.get_id()])
+        self.mob1 = self.construct_mob_with_abilities(abilities=[attributes.EXTRA_SLOW.get_id(), attributes.EXTRA_THIN.get_id(), attributes.EXTRA_WEAK.get_id()], index=1)
+        self.mob2 = self.construct_mob_with_abilities(abilities=[attributes.SLOW.get_id(), attributes.THIN.get_id(), attributes.WEAK.get_id()], index=2)
+        self.mob3 = self.construct_mob_with_abilities(abilities=[attributes.FAST.get_id(), attributes.THICK.get_id(), attributes.STRONG.get_id()], index=3)
+        self.mob4 = self.construct_mob_with_abilities(abilities=[attributes.EXTRA_FAST.get_id(), attributes.EXTRA_THICK.get_id(), attributes.EXTRA_STRONG.get_id()], index=4)
 
     @staticmethod
-    def construct_mob_with_abilities(abilities):
-        return MobPrototype(level=1, record=MobRecord(level=1, id='test_mob', name='', normalized_name='', morph='', abilities=abilities, terrain=[], loot=[], artifacts=[]))
+    def construct_mob_with_abilities(abilities, index):
+        from game.mobs.prototypes import MobRecordPrototype
+        from game.mobs.models import MOB_RECORD_STATE
+
+        uuid = 'test_mob %d' % index
+        mob_record =  MobRecordPrototype.create(uuid,
+                                                level=1,
+                                                name=uuid,
+                                                description='',
+                                                abilities=abilities,
+                                                terrains=[],
+                                                state=MOB_RECORD_STATE.ENABLED)
+        return MobPrototype(level=1, record=mob_record)
 
     def tearDown(self):
         pass

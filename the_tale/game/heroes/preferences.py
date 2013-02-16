@@ -11,7 +11,7 @@ from game.map.places.storage import places_storage
 from game.persons.storage import persons_storage
 
 from game.heroes.models import PREFERENCE_TYPE
-from game.heroes.bag import SLOTS_DICT
+from game.heroes.bag import SLOTS
 from game.heroes.exceptions import HeroException
 
 
@@ -49,20 +49,21 @@ class HeroPreferences(object):
     def set_energy_regeneration_type_changed_at(self, value): self.hero_model.pref_energy_regeneration_type_changed_at = value
     energy_regeneration_type_changed_at = property(get_energy_regeneration_type_changed_at, set_energy_regeneration_type_changed_at)
 
-
-    # mob
-    def get_mob_id(self):
-        if not self.hero_model.pref_mob_id:
+    def get_mob(self):
+        if self.hero_model.pref_mob_id is None:
             return None
-        return self.hero_model.pref_mob_id
-    def set_mob_id(self, value): self.hero_model.pref_mob_id = value
-    mob_id = property(get_mob_id, set_mob_id)
+        mob = mobs_storage[self.hero_model.pref_mob_id]
 
-    @property
-    def mob(self):
-        if self.mob_id is None:
+        if not mob.state.is_enabled:
+            # if mob is disabled, we reset its value, so when hero save in logic, new preferences will appear in gui
+            self.hero_model.pref_mob = None
+            self.hero_model.pref_mob_changed_at = datetime.datetime(2000, 1, 1)
             return None
-        return mobs_storage.get_by_uuid(self.mob_id)
+
+        return mob
+    def set_mob(self, value):
+        self.hero_model.pref_mob = value.model if value is not None else None
+    mob = property(get_mob, set_mob)
 
     def get_mob_changed_at(self): return self.hero_model.pref_mob_changed_at
     def set_mob_changed_at(self, value): self.hero_model.pref_mob_changed_at = value
@@ -120,4 +121,4 @@ class HeroPreferences(object):
 
     @property
     def equipment_slot_name(self):
-        return SLOTS_DICT.get(self.equipment_slot)
+        return SLOTS._ID_TO_TEXT[self.equipment_slot]

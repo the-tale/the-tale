@@ -10,7 +10,7 @@ from game.logic_storage import LogicStorage
 
 from game.logic import create_test_map
 from game.actions.prototypes import ActionTradingPrototype
-from game.artifacts.storage import ArtifactsDatabase
+from game.artifacts.storage import artifacts_storage
 from game.prototypes import TimePrototype
 
 class TradingActionTest(TestCase):
@@ -50,7 +50,7 @@ class TradingActionTest(TestCase):
         old_money_statistics = self.hero.statistics.money_earned
         old_money = self.hero.money
 
-        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
         self.hero.bag.put_artifact(artifact)
 
         self.action_trade.percents_barier = 1
@@ -66,10 +66,10 @@ class TradingActionTest(TestCase):
     def test_sell_and_continue(self):
         old_money = self.hero.money
 
-        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
         self.hero.bag.put_artifact(artifact)
 
-        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
         self.hero.bag.put_artifact(artifact)
 
         self.action_trade.percents_barier = 2

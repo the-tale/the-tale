@@ -21,7 +21,7 @@ TURNS_IN_HOUR = float(60.0 * 60 / TURN_DELTA) # количество ходов 
 
 POWER_PER_LVL = int(1) # значение "чистой" силы героя (т.е. без артефактов)
 
-EQUIP_SLOTS_NUMBER = int(12) # количество слотов экипировки
+EQUIP_SLOTS_NUMBER = int(11) # количество слотов экипировки
 
 ARTIFACTS_PER_LVL = int(4) # количество новых артефактов, на уровень героя
 

@@ -90,19 +90,21 @@ def create_test_map():
 
     update_nearest_cells()
 
-    MobRecordPrototype.create_random('mob_1')
-    MobRecordPrototype.create_random('mob_2')
-    MobRecordPrototype.create_random('mob_3')
+    mob_1 = MobRecordPrototype.create_random('mob_1')
+    mob_2 = MobRecordPrototype.create_random('mob_2')
+    mob_3 = MobRecordPrototype.create_random('mob_3')
 
     mobs_storage.sync(force=True)
 
-    ArtifactRecordPrototype.create_random('loot_1')
-    ArtifactRecordPrototype.create_random('loot_2')
-    ArtifactRecordPrototype.create_random('loot_3')
+    ArtifactRecordPrototype.create_random('letter') # for delivery quests
 
-    ArtifactRecordPrototype.create_random('helmet_1', type_=ARTIFACT_TYPE.HELMET)
-    ArtifactRecordPrototype.create_random('plate_1', type_=ARTIFACT_TYPE.PLATE)
-    ArtifactRecordPrototype.create_random('boots_1', type_=ARTIFACT_TYPE.BOOTS)
+    ArtifactRecordPrototype.create_random('loot_1', mob=mob_1)
+    ArtifactRecordPrototype.create_random('loot_2', mob=mob_2)
+    ArtifactRecordPrototype.create_random('loot_3', mob=mob_3)
+
+    ArtifactRecordPrototype.create_random('helmet_1', type_=ARTIFACT_TYPE.HELMET, mob=mob_1)
+    ArtifactRecordPrototype.create_random('plate_1', type_=ARTIFACT_TYPE.PLATE, mob=mob_2)
+    ArtifactRecordPrototype.create_random('boots_1', type_=ARTIFACT_TYPE.BOOTS, mob=mob_3)
 
     ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.PANTS, type_=ARTIFACT_TYPE.PANTS)
     ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.BOOTS, type_=ARTIFACT_TYPE.BOOTS)
@@ -122,11 +124,11 @@ def create_test_bundle(uuid):
 
 
 def dress_new_hero(hero):
-    hero.equipment.equip(SLOTS.PANTS, artifacts_storage.create_artifact(DEFAULT_HERO_EQUIPMENT.PANTS, level=1, power=0))
-    hero.equipment.equip(SLOTS.BOOTS, artifacts_storage.create_artifact(DEFAULT_HERO_EQUIPMENT.BOOTS, level=1, power=0))
-    hero.equipment.equip(SLOTS.PLATE, artifacts_storage.create_artifact(DEFAULT_HERO_EQUIPMENT.PLATE, level=1, power=0))
-    hero.equipment.equip(SLOTS.GLOVES, artifacts_storage.create_artifact(DEFAULT_HERO_EQUIPMENT.GLOVES, level=1, power=0))
-    hero.equipment.equip(SLOTS.HAND_PRIMARY, artifacts_storage.create_artifact(DEFAULT_HERO_EQUIPMENT.WEAPON, level=1, power=0))
+    hero.equipment.equip(SLOTS.PANTS, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.PANTS).create_artifact(level=1, power=0))
+    hero.equipment.equip(SLOTS.BOOTS, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.BOOTS).create_artifact(level=1, power=0))
+    hero.equipment.equip(SLOTS.PLATE, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.PLATE).create_artifact(level=1, power=0))
+    hero.equipment.equip(SLOTS.GLOVES, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.GLOVES).create_artifact(level=1, power=0))
+    hero.equipment.equip(SLOTS.HAND_PRIMARY, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.WEAPON).create_artifact(level=1, power=0))
 
 
 def log_sql_queries(turn_number):

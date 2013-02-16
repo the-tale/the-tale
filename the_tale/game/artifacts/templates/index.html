@@ -88,9 +88,9 @@
 <table class="table table-condensed">
   <thead>
     <tr>
-      <th width="20px">минимальный уровень</th>
-      <th width="20px">максимальный уровень</th>
+      <th width="20px">уровень</th>
       <th>название</th>
+      <th>добывается из</th>
       <th width="120px">тип</th>
       <th width="120px">редкость</th>
     </tr>
@@ -98,9 +98,20 @@
   <tbody>
     {% for artifact in artifacts %}
     <tr>
-      <td>{{artifact.min_level}}</td>
-      <td>{{artifact.max_level}}</td>
-      <td><a href="{{url('guide:artifacts:show', artifacts.id)}}">{{artifact.name}}</a></td>
+      <td>{{artifact.level}}</td>
+      <td>
+        <a href="{{url('guide:artifacts:show', artifact.id)}}">{{artifact.name}}</a>
+        {% if artifact.description %}
+        <i class="icon-book" style="vertical-align: middle;" rel="tooltip" title="у артефакта есть описание"></i>
+        {% endif %}
+      </td>
+      <td>
+        {% if artifact.mob %}
+        <a href="{{url('guide:mobs:show', artifact.mob.id)}}">{{artifact.mob.name}}</a>
+        {% else %}
+        —
+        {% endif %}
+      </td>
       <td>{{artifact.type.verbose}}</td>
       <td>{{artifact.rarity.verbose}}</td>
     </tr>

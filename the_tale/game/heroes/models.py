@@ -91,7 +91,7 @@ class Hero(models.Model):
     pref_energy_regeneration_type = models.IntegerField(null=False, default=e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=e.ANGEL_ENERGY_REGENERATION_TYPES._CHOICES, blank=True)
     pref_energy_regeneration_type_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
-    pref_mob_id = models.CharField(max_length=32, null=True, default=None, blank=True)
+    pref_mob = models.ForeignKey('mobs.MobRecord', null=True, default=None, blank=True)
     pref_mob_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
     pref_place = models.ForeignKey('places.Place', null=True, default=None, related_name='+', blank=True)

@@ -3,6 +3,8 @@
 from game.map.places.storage import places_storage
 from game.persons.storage import persons_storage
 
+from game.artifacts.storage import artifacts_storage
+
 from game.quests.quests_generator.environment import BaseEnvironment
 
 
@@ -23,10 +25,9 @@ class Environment(BaseEnvironment):
         pass
 
     def sync_items(self):
-        from ..artifacts.storage import ArtifactsDatabase
 
         for item_id, item_data in self.items.items():
-            artifact = ArtifactsDatabase.storage().create_artifact('letter', level=1, quest=True)
+            artifact = artifacts_storage.get_by_uuid('letter').create_artifact(level=1, quest=True)
             artifact.set_quest_uuid(item_id)
             item_data['external_data']['artifact'] = artifact.serialize()
 
@@ -37,8 +38,7 @@ class Environment(BaseEnvironment):
 
     def get_game_item(self, item_id):
         from game.artifacts.prototypes import ArtifactPrototype
-        from game.artifacts.storage import ArtifactsDatabase
-        return ArtifactPrototype.deserialize(ArtifactsDatabase().storage(), data=self.items[item_id]['external_data']['artifact'])
+        return ArtifactPrototype.deserialize(data=self.items[item_id]['external_data']['artifact'])
 
     def set_game_item(self, item_id, item):
         self.items['external_data']['artifact'] = item.serialize()

@@ -12,8 +12,8 @@ from game.logic_storage import LogicStorage
 from game.logic import create_test_map
 from game.actions.prototypes import ActionEquippingPrototype
 
-from game.artifacts.storage import ArtifactsDatabase
-from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS
+from game.artifacts.storage import artifacts_storage
+from game.heroes.bag import ARTIFACT_TYPE_TO_SLOT
 
 from game.prototypes import TimePrototype
 
@@ -53,10 +53,10 @@ class ActionEquippingTest(TestCase):
 
 
     def test_equip(self):
-        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
         artifact.power = 666
 
-        equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
+        equip_slot = ARTIFACT_TYPE_TO_SLOT[artifact.type.value]
         self.hero.equipment.unequip(equip_slot)
 
         self.hero.bag.put_artifact(artifact)
@@ -66,20 +66,20 @@ class ActionEquippingTest(TestCase):
         self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_equipping)
         self.assertEqual(len(self.hero.bag.items()), 0)
 
-        equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
+        equip_slot = ARTIFACT_TYPE_TO_SLOT[artifact.type.value]
         self.assertEqual(self.hero.equipment.get(equip_slot), artifact)
 
         self.storage._test_save()
 
 
     def test_switch_artifact(self):
-        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
         artifact.power = 13
-        equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
+        equip_slot = ARTIFACT_TYPE_TO_SLOT[artifact.type.value]
         self.hero.equipment.unequip(equip_slot)
         self.hero.equipment.equip(equip_slot, artifact)
 
-        new_artifact = ArtifactsDatabase.storage().generate_artifact_from_list([artifact.id], self.hero.level+1)
+        new_artifact = artifacts_storage.generate_artifact_from_list([artifact.record], self.hero.level+1)
         new_artifact.power = 666
 
         self.hero.bag.put_artifact(new_artifact)
@@ -92,7 +92,7 @@ class ActionEquippingTest(TestCase):
         self.assertEqual(len(self.hero.bag.items()), 1)
         self.assertEqual(self.hero.bag.items()[0][1].power, 13)
 
-        equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
+        equip_slot = ARTIFACT_TYPE_TO_SLOT[artifact.type.value]
         self.assertEqual(self.hero.equipment.get(equip_slot), new_artifact)
         self.assertEqual(self.hero.equipment.get(equip_slot).power, 666)
 

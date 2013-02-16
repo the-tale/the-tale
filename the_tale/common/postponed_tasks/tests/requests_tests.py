@@ -5,14 +5,14 @@ from django.core.urlresolvers import reverse
 
 from common.utils.testcase import TestCase
 
-from common.postponed_tasks.prototypes import PostponedTaskPrototype
+from common.postponed_tasks.prototypes import PostponedTaskPrototype, autodiscover
 from common.postponed_tasks.models import POSTPONED_TASK_STATE
 from common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
-
 
 class RequestsTests(TestCase):
 
     def setUp(self):
+        autodiscover()
         self.task = PostponedTaskPrototype.create(FakePostponedInternalTask())
 
         self.client = client.Client()

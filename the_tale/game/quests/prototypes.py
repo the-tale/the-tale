@@ -342,7 +342,7 @@ class QuestPrototype(object):
 
         mob = None
         if cmd.mob_id:
-            mob = mobs_storage.get_mob(cur_action.hero, cmd.mob_id)
+            mob = mobs_storage.get_by_uuid(cmd.mob_id).create_mob(cur_action.hero)
         if mob is None:
             mob = mobs_storage.get_random_mob(cur_action.hero)
 

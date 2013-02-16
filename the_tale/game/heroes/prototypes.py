@@ -33,7 +33,7 @@ from game.text_generation import get_vocabulary, get_dictionary, prepair_substit
 
 from game.prototypes import TimePrototype, GameTime
 
-from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS_LIST, SLOTS_TO_ARTIFACT_TYPES
+from game.heroes.bag import ARTIFACT_TYPE_TO_SLOT, SLOTS, SLOT_TO_ARTIFACT_TYPE
 from game.heroes.statistics import HeroStatistics, MONEY_SOURCE
 from game.heroes.preferences import HeroPreferences
 from game.heroes.models import Hero
@@ -254,7 +254,7 @@ class HeroPrototype(object):
 
         allowed_quests = []
 
-        if self.preferences.mob_id is not None:
+        if self.preferences.mob is not None:
             allowed_quests.append(Hunt.type())
         if self.preferences.place_id is not None:
             allowed_quests.append(Hometown.type())
@@ -301,16 +301,16 @@ class HeroPrototype(object):
         artifacts_list = None
         if self.preferences.equipment_slot is not None:
             if with_preferences:
-                slots = SLOTS_TO_ARTIFACT_TYPES[self.preferences.equipment_slot]
+                artifact_types = [SLOT_TO_ARTIFACT_TYPE[self.preferences.equipment_slot]]
             else:
-                slots = reduce(lambda x, y: x | set(y), SLOTS_TO_ARTIFACT_TYPES.values(), set())
-                slots -= set(SLOTS_TO_ARTIFACT_TYPES[self.preferences.equipment_slot])
+                artifact_types = set(SLOT_TO_ARTIFACT_TYPE.values())
+                artifact_types -= set([SLOT_TO_ARTIFACT_TYPE[self.preferences.equipment_slot]])
 
-            artifacts_list = artifacts_storage.artifacts_for_type(slots)
+            artifacts_list = artifacts_storage.artifacts_for_type(artifact_types)
 
         if not artifacts_list:
             # if hero has not preferences or can not get any item for preferences slot
-            artifacts_list = artifacts_storage.artifacts_ids
+            artifacts_list = artifacts_storage.artifacts
 
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_list, self.level)
 
@@ -322,7 +322,7 @@ class HeroPrototype(object):
         if not equip:
             return artifact, None, None
 
-        slot = random.choice(ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type])
+        slot = ARTIFACT_TYPE_TO_SLOT[artifact.type.value]
         unequipped = self.equipment.get(slot)
 
         if better and unequipped is not None and artifact.power < unequipped.power:
@@ -375,7 +375,7 @@ class HeroPrototype(object):
 
 
     def sharp_artifact(self):
-        choices = copy.copy(SLOTS_LIST)
+        choices = copy.copy(SLOTS._ALL)
         random.shuffle(choices)
 
         if self.preferences.equipment_slot is not None:
@@ -405,30 +405,24 @@ class HeroPrototype(object):
         equipped_slot = None
         equipped = None
         unequipped = None
+
         for uuid, artifact in self.bag.items():
-            if not artifact.can_be_equipped or artifact.equip_type is None:
+            if not artifact.can_be_equipped:
                 continue
 
-            for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
-                equipped_artifact = self.equipment.get(slot)
-                if equipped_artifact is None:
-                    equipped_slot = slot
-                    equipped = artifact
-                    break
+            slot = ARTIFACT_TYPE_TO_SLOT[artifact.type.value]
 
-            if equipped:
+            equipped_artifact = self.equipment.get(slot)
+
+            if equipped_artifact is None:
+                equipped_slot = slot
+                equipped = artifact
                 break
 
-            for slot in ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type]:
-                equipped_artifact = self.equipment.get(slot)
-
-                if equipped_artifact.power < artifact.power:
-                    equipped = artifact
-                    unequipped = equipped_artifact
-                    equipped_slot = slot
-                    break
-
-            if equipped:
+            if equipped_artifact.power < artifact.power:
+                equipped = artifact
+                unequipped = equipped_artifact
+                equipped_slot = slot
                 break
 
         return equipped_slot, unequipped, equipped

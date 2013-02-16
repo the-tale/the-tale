@@ -55,8 +55,8 @@ def get_knowlege_base(hero):
 
     pref_mob = hero.preferences.mob
     if pref_mob:
-        base.add_special('hero_pref_mob', {'id': pref_mob.id,
-                                           'terrain': pref_mob.terrain})
+        base.add_special('hero_pref_mob', {'id': pref_mob.uuid,
+                                           'terrain': pref_mob.terrains})
 
     pref_place = hero.preferences.place
     place_uuid = 'place_%d' % pref_place.id if pref_place is not None else None

@@ -82,7 +82,12 @@
     {% for mob in mobs %}
     <tr>
       <td>{{mob.level}}</td>
-      <td><a href="{{url('guide:mobs:show', mob.id)}}">{{mob.name}}</a></td>
+      <td>
+        <a href="{{url('guide:mobs:show', mob.id)}}">{{mob.name}}</a>
+        {% if mob.description %}
+        <i class="icon-book" style="vertical-align: middle;" rel="tooltip" title="у противника есть описание"></i>
+        {% endif %}
+      </td>
       <td>
         <a class="info-link"
            href="#"

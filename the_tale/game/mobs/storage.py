@@ -15,7 +15,7 @@ class MobsStorage(create_storage_class('mob records change time', MobRecord, Mob
 
     def get_by_uuid(self, uuid):
         self.sync()
-        return self._mobs_by_uuids[uuid]
+        return self._mobs_by_uuids.get(uuid)
 
     def has_mob(self, uuid):
         self.sync()
@@ -26,11 +26,6 @@ class MobsStorage(create_storage_class('mob records change time', MobRecord, Mob
         return [record
                 for record in self.all()
                 if record.state.is_enabled and record.level <= level and (terrain is None or terrain in record.terrains)]
-
-    def get_mob(self, hero, mob_uuid):
-        self.sync()
-        mob_record = self._mobs_by_uuids[mob_uuid]
-        return MobPrototype(record=mob_record, level=hero.level)
 
     def get_random_mob(self, hero):
         self.sync()

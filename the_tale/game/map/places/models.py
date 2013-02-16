@@ -32,7 +32,7 @@ TERRAIN = create_enum('TERRAIN', ( ('WATER_DEEP',            0, u'глубока
                                    ('HILLS_SWAMP_GRASS',     20, u'заболоченные холмы'),
                                    ('HILLS_CONIFER_FOREST',  21, u'хвойный лес на холмах'),
                                    ('HILLS_GREENWOOD',       22, u'лиственный лес на холмах'),
-                                   ('HILLS_SWAMP_FOREST',    23, u'заболоченный лес холмах'),
+                                   ('HILLS_SWAMP_FOREST',    23, u'заболоченный лес на холмах'),
                                    ('HILLS_JUNGLE',          24, u'джунгли на холмах'),
                                    ('HILLS_WITHERED_FOREST', 25, u'мёртвый лес на холмах')
 

@@ -17,7 +17,7 @@ from game.persons.storage import persons_storage
 
 from game.heroes.models import PREFERENCE_TYPE
 from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
-from game.heroes.bag import SLOTS_LIST
+from game.heroes.bag import SLOTS
 
 
 CHOOSE_HERO_ABILITY_STATE = create_enum('CHOOSE_HERO_ABILITY_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
@@ -185,7 +185,8 @@ CHOOSE_PREFERENCES_TASK_STATE = create_enum('CHOOSE_PREFERENCES_TASK_STATE', ( (
                                                                                ('ENEMY_AND_FRIEND', 11, u'персонаж одновременно и друг и враг'),
                                                                                ('UNKNOWN_PERSON', 12, u'неизвестный персонаж'),
                                                                                ('UNKNOWN_EQUIPMENT_SLOT', 13, u'неизвестный тип экипировки'),
-                                                                               ('UNKNOWN_PREFERENCE', 14, u'неизвестный тип предпочтения'),) )
+                                                                               ('UNKNOWN_PREFERENCE', 14, u'неизвестный тип предпочтения'),
+                                                                               ('MOB_NOT_IN_GAME', 15, u'этот тип противника выведен из игры')) )
 
 
 @postponed_task
@@ -258,28 +259,33 @@ class ChoosePreferencesTask(object):
 
         elif self.preference_type == PREFERENCE_TYPE.MOB:
 
-            mob_id = self.preference_id
+            mob_uuid = self.preference_id
 
-            if mob_id is not None:
+            if mob_uuid is not None:
 
                 if hero.level < c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED:
                     main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED)
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
                     return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-                if  not mobs_storage.has_mob(self.preference_id):
-                    main_task.comment = u'unknown mob id: %s' % (self.preference_id, )
+                if  not mobs_storage.has_mob(mob_uuid):
+                    main_task.comment = u'unknown mob id: %s' % (mob_uuid, )
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_MOB
                     return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-                mob = mobs_storage.get_by_uuid(self.preference_id)
+                mob = mobs_storage.get_by_uuid(mob_uuid)
+
+                if not mob.state.is_enabled:
+                    main_task.comment = u'mob %s not in game' % (mob_uuid, )
+                    self.state = CHOOSE_PREFERENCES_TASK_STATE.MOB_NOT_IN_GAME
+                    return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
                 if hero.level < mob.level:
                     main_task.comment = u'hero level < mob level (%d < %d)' % (hero.level, mob.level)
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.LARGE_MOB_LEVEL
                     return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            hero.preferences.mob_id = mob_id
+            hero.preferences.mob = mobs_storage.get_by_uuid(mob_uuid)
             hero.preferences.mob_changed_at = datetime.datetime.now()
 
         elif self.preference_type == PREFERENCE_TYPE.PLACE:
@@ -369,7 +375,7 @@ class ChoosePreferencesTask(object):
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
                     return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-                if self.preference_id not in SLOTS_LIST:
+                if self.preference_id not in SLOTS._ALL:
                     main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
                     self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
                     return POSTPONED_TASK_LOGIC_RESULT.ERROR

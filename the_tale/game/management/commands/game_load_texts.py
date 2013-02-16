@@ -12,7 +12,6 @@ from textgen.conf import textgen_settings
 from textgen import logic as textgen_logic
 from textgen.templates import Dictionary
 
-from game.artifacts import logic as artifacts_logic
 from game.conf import game_settings
 
 
@@ -40,11 +39,6 @@ class Command(BaseCommand):
             print 'CLEAN STORED PHRASES'
             if os.path.exists(game_settings.TEXTGEN_STORAGE_VOCABULARY):
                 os.remove(game_settings.TEXTGEN_STORAGE_VOCABULARY)
-
-            print "LOAD ARTIFACT'S NAMES"
-            artifacts_logic.import_texts_into_database(morph,
-                                                       tech_vocabulary_path=game_settings.TEXTGEN_VOCABULARY,
-                                                       dict_storage=game_settings.TEXTGEN_STORAGE_DICTIONARY)
 
         print "LOAD MESSAGES"
         user_data = textgen_logic.import_texts(morph,

@@ -23,7 +23,17 @@
 
 <table class="table table-condensed table-striped table-bordered table-no-highlighting">
   <tbody>
-    <tr><th>уровни</th><td>{{artifact.min_level}}-{{artifact.max_level}}</td></tr>
+    <tr><th>уровень</th><td>{{artifact.level}}</td></tr>
+    <tr>
+      <th>добыча из</th>
+      <td>
+        {% if artifact.mob %}
+        <a href="{{url('guide:mobs:show', artifact.mob.id)}}">{{artifact.mob.name}}</a>
+        {% else %}
+        —
+        {% endif %}
+      </td>
+    </tr>
     <tr><th>тип</th><td>{{ artifact.type.verbose }}</td></tr>
     <tr><th>редкость</th><td>{{ artifact.rarity.verbose }}</td></tr>
   </tbody>

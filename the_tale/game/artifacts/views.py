@@ -70,7 +70,7 @@ class GuideArtifactResource(ArtifactResourceBase):
         if order_by.is_by_name:
             artifacts = sorted(artifacts, key=lambda artifact: artifact.name)
         elif order_by.is_by_level:
-            artifacts = sorted(artifacts, key=lambda artifact: artifact.min_level)
+            artifacts = sorted(artifacts, key=lambda artifact: artifact.level)
 
         url_builder = UrlBuilder(reverse('guide:artifacts:'), arguments={ 'state': state.value if state else None,
                                                                           'rarity': rarity.value if rarity else None,
@@ -130,14 +130,14 @@ class GameArtifactResource(ArtifactResourceBase):
             return self.json_error('artifacts.create.form_errors', form.errors)
 
         artifact = ArtifactRecordPrototype.create(uuid=uuid.uuid4().hex,
-                                                  min_level=form.c.min_level,
-                                                  max_level=form.c.max_level,
+                                                  level=form.c.level,
                                                   name=form.c.name,
                                                   description=form.c.description,
                                                   type_=form.c.type,
                                                   rarity=form.c.rarity,
                                                   editor=self.account,
-                                                  state=ARTIFACT_RECORD_STATE.DISABLED)
+                                                  state=ARTIFACT_RECORD_STATE.DISABLED,
+                                                  mob=form.c.mob)
         return self.json_ok(data={'next_url': reverse('guide:artifacts:show', args=[artifact.id])})
 
 
@@ -147,11 +147,11 @@ class GameArtifactResource(ArtifactResourceBase):
     @handler('#artifact', 'edit', name='edit', method='get')
     def edit(self):
         form = ArtifactRecordForm(initial={'name': self.artifact.name,
-                                           'min_level': self.artifact.min_level,
-                                           'max_level': self.artifact.max_level,
+                                           'level': self.artifact.level,
                                            'type': self.artifact.type.value,
                                            'rarity': self.artifact.type.value,
-                                           'description': self.artifact.description})
+                                           'description': self.artifact.description,
+                                           'mob': self.artifact.mob.id if self.artifact.mob is not None else None})
 
         return self.template('artifacts/edit.html', {'artifact': self.artifact,
                                                      'form': form} )
@@ -177,14 +177,14 @@ class GameArtifactResource(ArtifactResourceBase):
     @handler('#artifact', 'moderate', name='moderate', method='get')
     def moderation_page(self):
         form = ModerateArtifactRecordForm(initial={'name': self.artifact.name,
-                                                   'min_level': self.artifact.min_level,
-                                                   'max_level': self.artifact.max_level,
+                                                   'level': self.artifact.level,
                                                    'type': self.artifact.type.value,
                                                    'rarity': self.artifact.type.value,
                                                    'description': self.artifact.description,
                                                    'uuid': self.artifact.uuid,
                                                    'name_forms': self.artifact.name_forms.serialize(),
-                                                   'approved': self.artifact.state.is_enabled})
+                                                   'approved': self.artifact.state.is_enabled,
+                                                   'mob': self.artifact.mob.id if self.artifact.mob is not None else None})
 
         return self.template('artifacts/moderate.html', {'artifact': self.artifact,
                                                          'form': form} )

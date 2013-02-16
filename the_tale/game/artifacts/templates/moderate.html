@@ -28,12 +28,16 @@ jQuery(document).ready( function(e) {
 
   {{ form.uuid.widget }}
 
+  {{ form.mob.widget }}
+
   {{ form.approved.widget }}
 
+  <p class="alert alert-warning">
+    <strong>Внимание!</strong> Если название во вножественном числе, то необходимо заменить нормальную форму и добавить property "мн".
+  </p>
   {{ form.name_forms.widget }}
 
-  {{ form.min_level.widget }}
-  {{ form.max_level.widget }}
+  {{ form.level.widget }}
 
   {{ form.type.widget }}
 

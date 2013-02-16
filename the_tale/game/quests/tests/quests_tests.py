@@ -11,6 +11,8 @@ from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
 from game.logic_storage import LogicStorage
 
+from game.mobs.storage import mobs_storage
+
 from game.logic import create_test_map
 from game.prototypes import TimePrototype
 from game.quests.quests_builders import QUESTS
@@ -37,7 +39,7 @@ class QuestsTest(TestCase):
         self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
 
         self.hero.model.money += 1
-        self.hero.preferences.set_mob_id('rat')
+        self.hero.preferences.mob = mobs_storage.all()[0]
         self.hero.preferences.set_place_id(p1.id)
         self.hero.preferences.set_friend_id(p1.persons[0].id)
         self.hero.preferences.set_enemy_id(p2.persons[0].id)

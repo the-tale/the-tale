@@ -117,7 +117,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'dext.settings.middleware.SettingsMiddleware',
-    'portal.middleware.StorageMiddleware',
     'accounts.middleware.RegistrationMiddleware'
 )
 
@@ -147,6 +146,7 @@ INSTALLED_APPS = (
 
     'portal',
     'portal.newspaper',
+    'portal.developers_info',
 
     'game',
     'game.angels',

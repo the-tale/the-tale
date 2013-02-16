@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from django.test import TestCase
 
@@ -6,10 +7,11 @@ from accounts.logic import register_user
 
 from game.logic import create_test_map
 
-# from game.artifacts.storage import ArtifactsDatabase
-# from game.artifacts.conf import ITEM_TYPE
 from game.map.places.models import TERRAIN
 from game.heroes.prototypes import HeroPrototype
+
+from game.artifacts.prototypes import ArtifactRecordPrototype
+from game.artifacts.models import ARTIFACT_TYPE, ARTIFACT_RECORD_STATE
 
 from game.mobs.storage import mobs_storage
 from game.mobs.models import MOB_RECORD_STATE
@@ -25,6 +27,24 @@ class MobsPrototypeTests(TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
 
         mobs_storage.sync(force=True)
+
+    def test_serialization(self):
+        mob = mobs_storage.all()[0].create_mob(self.hero)
+        self.assertEqual(mob, MobPrototype.deserialize(mob.serialize()))
+
+    def test_deserialization_of_disabled_mob(self):
+        mob_record = mobs_storage.all()[0]
+        mob = mob_record.create_mob(self.hero)
+
+        data = mob.serialize()
+
+        mob_record.state = MOB_RECORD_STATE.DISABLED
+        mob_record.save()
+
+        mob_2 = MobPrototype.deserialize(data)
+
+        self.assertNotEqual(mob.id, mob_2.id)
+
 
     def test_load_data(self):
         self.assertEqual(len(mobs_storage.all()), 3) # create_test_map create 3 random mobs
@@ -87,46 +107,23 @@ class MobsPrototypeTests(TestCase):
         mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(0, TERRAIN.PLANE_SAND)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset())
 
+    def test_get_loot(self):
 
-    # def test_empty_loot_field(self):
-    #     storage = MobsDatabase()
-    #     storage.load(mobs_settings.TEST_STORAGE)
+        self.hero.model.level = 5
 
-    #     self.assertEqual(storage.data['jackal'].artifacts, frozenset())
+        mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=MOB_RECORD_STATE.ENABLED)
+        mob = MobPrototype(record=mob_record, level=3)
+        artifact_1 = ArtifactRecordPrototype.create_random('bandit_loot', mob=mob_record, type_=ARTIFACT_TYPE.USELESS, state=ARTIFACT_RECORD_STATE.ENABLED)
+        artifact_2 = ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=ARTIFACT_TYPE.HELMET, state=ARTIFACT_RECORD_STATE.ENABLED)
 
-    # def test_mobs_and_loot_integrity(self):
-    #     storage = MobsDatabase.storage()
-    #     loot_storage = ArtifactsDatabase.storage()
+        with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
+            artifact = mob.get_loot()
+            self.assertEqual(artifact.level, mob.level)
+            self.assertFalse(artifact.type.is_useless)
+            self.assertEqual(artifact_2.id, artifact.record.id)
 
-    #     for mob_record in storage.data.values():
-    #         self.assertTrue(mob_record.loot)
-    #         self.assertTrue(mob_record.artifacts)
-
-    #         for loot_id in mob_record.loot:
-    #             self.assertTrue(loot_id in loot_storage.data)
-
-    #         for artifact_id in mob_record.artifacts:
-    #             self.assertTrue(artifact_id in loot_storage.data)
-
-    # def test_get_loot(self):
-
-    #     self.hero.model.level = 5
-
-    #     mob = None
-
-    #     # min mob level MUST not be equal to hero level
-    #     # since in other case next check has no meaning
-    #     while mob is None or mob.record.level == self.hero.level:
-    #         mob = MobsDatabase.storage().get_random_mob(self.hero)
-
-    #     self.assertTrue(self.hero.level != mob.record.level)
-
-    #     with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
-    #         artifact = mob.get_loot()
-    #         self.assertEqual(artifact.level, 5)
-    #         self.assertTrue(artifact.type != ITEM_TYPE.USELESS)
-
-    #     with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 0),  mock.patch('game.balance.constants.GET_LOOT_PROBABILITY', 1):
-    #         artifact = mob.get_loot()
-    #         self.assertEqual(artifact.level, mob.record.level)
-    #         self.assertEqual(artifact.type, ITEM_TYPE.USELESS)
+        with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 0),  mock.patch('game.balance.constants.GET_LOOT_PROBABILITY', 1):
+            artifact = mob.get_loot()
+            self.assertEqual(artifact.level, mob.record.level)
+            self.assertTrue(artifact.type.is_useless)
+            self.assertEqual(artifact_1.id, artifact.record.id)

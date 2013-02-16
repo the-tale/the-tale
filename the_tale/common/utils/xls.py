@@ -56,8 +56,6 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
         real_columns = data[0][1:]
 
         if set(real_columns) != set(columns):
-            print columns
-            print real_columns
             raise XLSException('wrong columns ids: %r' % (real_columns, ))
 
         for row in data[1:]:

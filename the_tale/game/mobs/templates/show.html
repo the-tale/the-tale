@@ -26,6 +26,26 @@
     <tr><th>уровень</th><td>{{mob.level}}</td></tr>
     <tr><th>способности</th><td>{{ ', '.join(mob.get_abilities_names()) }}</td></tr>
     <tr><th>места обитания</th><td>{{ ', '.join(mob.get_terrain_names()) }}</td></tr>
+    <tr>
+      <th>полезная добыча</th>
+      <td>
+        <ul class="unstyled">
+          {% for artifact in mob.artifacts %}
+          <li><a href="{{url('guide:artifacts:show',artifact.id)}}">{{artifact.name}}</a></li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th>бесполезная добыча</th>
+      <td>
+        <ul class="unstyled">
+          {% for loot in mob.loot %}
+          <li><a href="{{url('guide:artifacts:show', loot.id)}}">{{loot.name}}</a></li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
   </tbody>
 </table>
 

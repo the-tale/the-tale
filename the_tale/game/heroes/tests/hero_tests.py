@@ -9,8 +9,7 @@ from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
 from game.logic import create_test_map
-from game.artifacts.storage import ArtifactsDatabase
-from game.artifacts.conf import EQUIP_TYPE
+from game.artifacts.storage import artifacts_storage
 from game.prototypes import TimePrototype
 
 
@@ -19,7 +18,7 @@ from game.logic_storage import LogicStorage
 from game.quests.quests_builders import SearchSmith
 from game.pvp.combat_styles import COMBAT_STYLES
 
-from game.heroes.bag import ARTIFACT_TYPES_TO_SLOTS, SLOTS
+from game.heroes.bag import ARTIFACT_TYPE_TO_SLOT, SLOTS
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.habilities import ABILITY_TYPE, ABILITIES
 from game.heroes.habilities import battle
@@ -355,7 +354,7 @@ class HeroEquipmentTests(TestCase):
         self.hero.preferences.equipment_slot = SLOTS.HAND_PRIMARY
 
         artifact = self.hero.sharp_artifact()
-        self.assertEqual(artifact.equip_type, EQUIP_TYPE.WEAPON)
+        self.assertTrue(artifact.type.is_main_hand)
 
 
     def test_sharp_preferences_with_max_power(self):
@@ -367,7 +366,7 @@ class HeroEquipmentTests(TestCase):
         artifact.power = max_power
 
         artifact = self.hero.sharp_artifact()
-        self.assertNotEqual(artifact.equip_type, EQUIP_TYPE.WEAPON)
+        self.assertFalse(artifact.type.is_main_hand)
 
     def test_buy_artifact_and_not_equip(self):
         old_equipment = self.hero.equipment.serialize()
@@ -381,9 +380,9 @@ class HeroEquipmentTests(TestCase):
         self.assertEqual(self.hero.get_equip_canditates(), (None, None, None))
 
         #equip artefact in empty slot
-        artifact = ArtifactsDatabase.storage().generate_artifact_from_list(ArtifactsDatabase.storage().artifacts_ids, self.hero.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
 
-        equip_slot = ARTIFACT_TYPES_TO_SLOTS[artifact.equip_type][0]
+        equip_slot = ARTIFACT_TYPE_TO_SLOT[artifact.type.value]
         self.hero.equipment.unequip(equip_slot)
 
         self.hero.bag.put_artifact(artifact)
@@ -398,7 +397,7 @@ class HeroEquipmentTests(TestCase):
         self.assertEqual(self.hero.equipment.get(slot), artifact)
 
         # change artifact
-        new_artifact = ArtifactsDatabase.storage().generate_artifact_from_list([artifact.id], self.hero.level)
+        new_artifact = artifacts_storage.generate_artifact_from_list([artifact.record], self.hero.level)
         new_artifact.power = artifact.power + 1
         self.hero.bag.put_artifact(new_artifact)
 

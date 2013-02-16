@@ -2,3 +2,4 @@
 
 from game.artifacts.tests.prototype_tests import *
 from game.artifacts.tests.request_tests import *
+from game.artifacts.tests.form_tests import *

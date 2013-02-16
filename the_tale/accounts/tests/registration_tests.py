@@ -60,7 +60,7 @@ class TestRegistration(TestCase):
         self.assertTrue(hero.equipment.get(SLOTS.SHOULDERS) is None)
         self.assertTrue(hero.equipment.get(SLOTS.CLOAK) is None)
         self.assertTrue(hero.equipment.get(SLOTS.AMULET) is None)
-        self.assertTrue(hero.equipment.get(SLOTS.RINGS) is None)
+        self.assertTrue(hero.equipment.get(SLOTS.RING) is None)
 
     def test_duplicate_username(self):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')

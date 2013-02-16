@@ -15,6 +15,8 @@ from game.map.places.models import TERRAIN
 
 from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, ABILITY_TYPE
 
+from game.artifacts.storage import artifacts_storage
+
 from game.mobs.models import MobRecord, MOB_RECORD_STATE
 
 class MobException(Exception): pass
@@ -52,13 +54,7 @@ class MobPrototype(object):
     def name(self): return self.record.name
 
     @property
-    def normalized_name(self): return (self.record.normalized_name, self.record.morph)
-
-    @property
-    def loot(self): return self.record.loot
-
-    @property
-    def artifacts(self): return self.record.artifacts
+    def normalized_name(self): return self.record.name_forms
 
     @property
     def health_percents(self): return float(self.health) / self.max_health
@@ -72,13 +68,7 @@ class MobPrototype(object):
     def kill(self):
         pass
 
-    def get_loot(self):
-        from game.artifacts.storage import ArtifactsDatabase
-
-        if self.artifacts:
-            return ArtifactsDatabase.storage().generate_loot(self.artifacts, self.loot, artifact_level=self.level, loot_level=self.record.level)
-
-        return None
+    def get_loot(self): return artifacts_storage.generate_loot(self)
 
     def serialize(self):
         return {'level': self.level,
@@ -87,12 +77,18 @@ class MobPrototype(object):
 
     @classmethod
     def deserialize(cls, data):
+        # we do not save abilities and after load, mob can has differen abilities levels
+        # if mob record is desabled or deleted, get another random record
+
         from game.mobs.storage import mobs_storage
 
         record = mobs_storage.get_by_uuid(data['id'])
+
         level = data['level']
 
-        # yes, we do not save abilities and after load, mob can has differen abilities levels
+        if record is None or record.state.is_disabled:
+            record = random.choice(mobs_storage.get_available_mobs_list(level))
+
         abilities = cls._produce_abilities(record, level)
 
         return cls(record=record,
@@ -157,12 +153,10 @@ class MobRecordPrototype(object):
         if not hasattr(self, '_normalized_name'):
             self._name_forms = Noun.deserialize(s11n.from_json(self.model.name_forms))
         return self._name_forms
-
     def set_name_forms(self, word):
         self._normalized_name = word
         self.model.name = word.normalized
         self.model.name_forms = s11n.to_json(word.serialize())
-
     name_forms = property(get_name_forms, set_name_forms)
 
     def get_description(self): return self.model.description
@@ -196,14 +190,21 @@ class MobRecordPrototype(object):
     def get_terrain_names(self):
         return sorted([TERRAIN._ID_TO_TEXT[terrain_id] for terrain_id in self.terrains])
 
+    @property
+    def artifacts(self): return artifacts_storage.get_mob_artifacts(self.id)
+
+    @property
+    def loot(self): return artifacts_storage.get_mob_loot(self.id)
+
     @classmethod
-    def create(cls, uuid, level, name, description, abilities, terrains, editor=None, state=MOB_RECORD_STATE.DISABLED):
+    def create(cls, uuid, level, name, description, abilities, terrains, editor=None, state=MOB_RECORD_STATE.DISABLED, name_forms=None):
 
         from game.mobs.storage import mobs_storage
 
-        name_forms = Noun(normalized=name,
-                          forms=[name] * Noun.FORMS_NUMBER,
-                          properties=(u'мр',))
+        if name_forms is None:
+            name_forms = Noun(normalized=name,
+                              forms=[name] * Noun.FORMS_NUMBER,
+                              properties=(u'мр',))
 
         model = MobRecord.objects.create(uuid=uuid,
                                          level=level,
@@ -222,6 +223,9 @@ class MobRecordPrototype(object):
     @classmethod
     def get_available_abilities(cls):
         return filter(lambda a: a.TYPE == ABILITY_TYPE.BATTLE and a.AVAILABILITY & ABILITY_AVAILABILITY.FOR_MONSTERS, ABILITIES.values())
+
+    def create_mob(self, hero):
+        return MobPrototype(record=self, level=hero.level)
 
     @classmethod
     def create_random(cls, uuid, level=1, abilities_number=3, terrains=TERRAIN._ALL, state=MOB_RECORD_STATE.ENABLED):

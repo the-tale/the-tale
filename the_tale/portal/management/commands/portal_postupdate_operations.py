@@ -54,8 +54,10 @@ class Command(BaseCommand):
 
         sync_group('phrase moderators group', ['phrase_candidates.moderate_phrasecandidate'])
 
-        sync_group('developers group', ['phrase_candidates.add_to_game_phrasecandidate', 'mobs.moderate_mobrecord'])
+        sync_group('developers group', ['phrase_candidates.add_to_game_phrasecandidate',
+                                        'mobs.moderate_mobrecord',
+                                        'artifacts.moderate_artifactrecord'])
 
         sync_group('folclor moderation group', ['blogs.moderate_post'])
 
-        sync_group('mobs create group', ['mobs.create_mobrecord'])
+        sync_group('mobs & artifacts create group', ['mobs.create_mobrecord', 'artifacts.create_artifactrecord'])

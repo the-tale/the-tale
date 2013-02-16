@@ -11,7 +11,7 @@ from game.actions.battle import Actor
 from game.actions.contexts import BattleContext
 
 from game.heroes.habilities.battle import RUN_UP_PUSH, HIT
-from game.mobs.storage import MobsDatabase
+from game.mobs.storage import mobs_storage
 from game.logic_storage import LogicStorage
 
 class ActorTest(TestCase):
@@ -72,7 +72,7 @@ class ActorTest(TestCase):
 
 
     def test_mob_actor(self):
-        mob = MobsDatabase.storage().get_random_mob(self.hero)
+        mob = mobs_storage.get_random_mob(self.hero)
         mob.health = 10
         mob.abilities.add(RUN_UP_PUSH.get_id())
 
