@@ -1,0 +1,12 @@
+.mobs-edit-form .terrain-and-abilities .terrain,
+.mobs-edit-form .terrain-and-abilities .abilities {
+  display: inline-block;
+}
+.mobs-edit-form .terrain-and-abilities .terrain select,
+.mobs-edit-form .terrain-and-abilities .abilities select {
+  height: 200px;
+}
+.mobs-edit-form .terrain-and-abilities .terrain select option,
+.mobs-edit-form .terrain-and-abilities .abilities select option {
+  color: #b44343;
+}

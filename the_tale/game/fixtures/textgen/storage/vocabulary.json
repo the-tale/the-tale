@@ -378,7 +378,6 @@
       "template": "%(e_0)s возвращается за наградой"
     }
   ], 
-  "quest_spying_action_get_reward_spying_money": [], 
   "quest_helpfriend_diary_intro": [
     {
       "internals": [], 
@@ -505,7 +504,6 @@
       "template": "честно выполнить свои обязательства"
     }
   ], 
-  "quest_delivery_action_delivery_get_reward_artifact": [], 
   "quest_hometown_journal_chatting": [], 
   "quest_hometown_journal_search_old_friends_description": [
     {
@@ -719,21 +717,6 @@
       "template": "Ух ты! Старый знакомый!"
     }
   ], 
-  "quest_searchsmith_action_move_to_quest": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s направляется к мастеру"
-    }
-  ], 
   "action_regenerate_energy_description_symbols": [
     {
       "internals": [], 
@@ -770,16 +753,94 @@
       "template": "%(e_0)s %(i_0)s обряд."
     }
   ], 
-  "quest_caravan_diary_choice_attack": [
+  "action_inplace_diary_spend_useless": [
     {
-      "internals": [], 
-      "externals": [], 
-      "template": "Который час любуюсь на толстый кошель караванщика… Право, с него не убудет, если он не досчитается немного товара."
+      "internals": [
+        [
+          "Рассыпал", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "Рассыпал"
+        ], 
+        [
+          "недосчитался", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "недосчитался"
+        ], 
+        [
+          "штука", 
+          [
+            "coins"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "штука"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(i_0)s монеты по мостовой, собрав, %(i_1)s %(e_0)s %(i_2)s."
     }, 
     {
       "internals": [
         [
-          "думал", 
+          "Купил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "Купил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(i_0)s билеты в цирк, всего-то %(e_0)s %(i_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "бросил", 
           [
             "hero"
           ], 
@@ -787,11 +848,145 @@
           [
             "прш"
           ], 
-          "думал"
+          "бросил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
         ]
       ], 
-      "externals": [], 
-      "template": "Странно… Я %(i_0)s охраны будет больше. Пожалуй, в этот раз добычи будет не так много."
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "hero"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s %(e_1)s %(i_1)s в шляпу нищего, с удовольствием наблюдая как от такой суммы у него округлились глаза."
+    }, 
+    {
+      "internals": [
+        [
+          "Попробовал", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "Попробовал"
+        ], 
+        [
+          "потратил", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "потратил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(i_0)s знаменитые дварфийские пироги, %(i_1)s %(e_0)s %(i_2)s на лечение зубов."
+    }, 
+    {
+      "internals": [
+        [
+          "решил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "решил"
+        ], 
+        [
+          "отдал", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "отдал"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "hero"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s сделать благое дело и %(i_1)s %(e_1)s %(i_2)s нищему."
     }
   ], 
   "quest_delivery_diary_delivery_get_reward_artifact": [
@@ -1915,8 +2110,7 @@
       "template": "%(e_0)s %(i_0)s и %(i_1)s мимо %(e_1)s."
     }
   ], 
-  "quest_delivery_action_delivery_get_reward_money": [], 
-  "quest_helpfriend_action_move_to_quest": [
+  "quest_caravan_action_good_get_reward": [
     {
       "internals": [], 
       "externals": [
@@ -1928,7 +2122,7 @@
           "hero"
         ]
       ], 
-      "template": "%(e_0)s идёт в гости"
+      "template": "%(e_0)s получает награду"
     }
   ], 
   "hero_ability_sidestep": [
@@ -2072,7 +2266,6 @@
       "template": "Неаккуратным движением %(e_0)s %(i_0)s символы, которые так долго %(i_1)s."
     }
   ], 
-  "quest_helpfriend_action_negative_get_reward_artifact": [], 
   "quest_delivery_diary_steal_get_reward_money": [
     {
       "internals": [
@@ -2117,49 +2310,57 @@
       "template": "болтает о жизни со знакомым лавочником"
     }
   ], 
+  "angel_ability_healhero_crit": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "hero"
+        ], 
+        [
+          "health", 
+          [], 
+          "e_1", 
+          [], 
+          "health"
+        ]
+      ], 
+      "template": "Зелёный луч ударил с небес, исцеляя %(e_0)s на %(e_1)s HP."
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "hero"
+        ], 
+        [
+          "health", 
+          [], 
+          "e_1", 
+          [], 
+          "health"
+        ]
+      ], 
+      "template": "Снег посыпался на %(e_0)s, восстанавливая %(e_1)s HP."
+    }
+  ], 
   "action_equipping_description": [
     {
       "internals": [], 
       "externals": [], 
       "template": "перебирает содержимое рюкзака."
-    }
-  ], 
-  "angel_ability_money": [
-    {
-      "internals": [
-        [
-          "насобирал", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "насобирал"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "Золото посыпалось с неба! %(i_0)s %(e_0)s %(i_1)s."
     }
   ], 
   "quest_helpfriend_diary_negative_get_reward_artifact": [
@@ -2256,6 +2457,7 @@
       "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
     }
   ], 
+  "quest_interfereenemy_action_get_reward": [], 
   "pvp_change_style_to_snake": [
     {
       "internals": [
@@ -2284,21 +2486,6 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s стиль боя на стиль змеи."
-    }
-  ], 
-  "quest_interfereenemy_action_intro": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s идёт на дело"
     }
   ], 
   "quest_hometown_diary_move_to_quest": [], 
@@ -2802,13 +2989,6 @@
       "template": "Впереди нелёгкий путь, о чём же меня попросят?"
     }
   ], 
-  "quest_hunt_journal_track": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "Вижу следы!"
-    }
-  ], 
   "quest_hometown_journal_drunk_song_donothing": [], 
   "quest_delivery_action_steal_item": [], 
   "action_regenerate_energy_start_meditation": [
@@ -3036,21 +3216,6 @@
       ], 
       "externals": [], 
       "template": "Слишком много сил я %(i_0)s на доставку этого письма, надо его украсть."
-    }
-  ], 
-  "quest_caravan_action_good_get_reward_artifact": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s получает награду"
     }
   ], 
   "quest_caravan_description": [
@@ -3427,7 +3592,7 @@
       "template": "Вытащив из своих необъятных карманов очередную палочку благовоний, %(e_0)s %(i_0)s ее и %(i_1)s клубами ароматного дыма."
     }
   ], 
-  "quest_helpfriend_action_positive_get_reward_money": [], 
+  "quest_hometown_journal_remember_names": [], 
   "quest_spying_journal_open_up_choice": [], 
   "quest_hunt_journal_hunt": [], 
   "quest_notmywork_choice_work_variant_diplomacy": [
@@ -4563,7 +4728,6 @@
       "template": "%(e_0)s морщит нос, но %(i_0)s дурно %(i_1)s %(e_1)s и %(i_2)s в рюкзак."
     }
   ], 
-  "quest_delivery_action_steal_get_reward_money": [], 
   "quest_caravan_action_choice_attack": [
     {
       "internals": [], 
@@ -4597,7 +4761,48 @@
       "template": "путешествует в сторону %(e_0)s"
     }
   ], 
-  "quest_interfereenemy_action_get_reward_money": [], 
+  "quest_hunt_diary_get_reward_artifact": [
+    {
+      "internals": [
+        [
+          "получил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "получил"
+        ], 
+        [
+          "положил", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "положил"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "%(i_0)s гонорар за очередные «Записки охотника». %(i_1)s в рюкзак %(e_0)s."
+    }
+  ], 
   "action_regenerate_energy_energy_received_pray": [
     {
       "internals": [
@@ -4847,6 +5052,7 @@
       "template": "%(e_0)s %(i_0)s продолжить шпионаж."
     }
   ], 
+  "quest_helpfriend_action_negative_get_reward": [], 
   "quest_delivery_diary_intro": [
     {
       "internals": [
@@ -4993,6 +5199,21 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s %(e_1)s"
+    }
+  ], 
+  "quest_helpfriend_action_move_to_quest": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s идёт в гости"
     }
   ], 
   "quest_hunt_journal_move_to_quest": [
@@ -5374,6 +5595,35 @@
       "template": "Друзья, близкие, как они там без меня, соскучились наверное не меньше моего, самое время их проведать."
     }
   ], 
+  "quest_caravan_diary_bad_get_reward_artifact": [
+    {
+      "internals": [
+        [
+          "обнаружил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "обнаружил"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "Караванщик оказался состоятельным — %(i_0)s %(e_0)s среди добычи."
+    }
+  ], 
   "quest_delivery_diary_choice_delivery": [
     {
       "internals": [], 
@@ -5472,7 +5722,21 @@
       "template": "%(e_0)s обсуждает условия доставки"
     }
   ], 
-  "quest_interfereenemy_journal_move_to_quest": [], 
+  "quest_interfereenemy_action_intro": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s идёт на дело"
+    }
+  ], 
   "action_regenerate_energy_start_pray": [
     {
       "internals": [
@@ -5542,800 +5806,53 @@
     }
   ], 
   "quest_hometown_journal_search_old_friends": [], 
-  "action_trading_sell_item": [
+  "angel_ability_healhero": [
     {
       "internals": [
         [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "«Всего %(e_0)s %(i_0)s за %(e_1)s?! Да они издеваются!»"
-    }, 
-    {
-      "internals": [
-        [
-          "Положил", 
+          "исцелён", 
           [
             "hero"
           ], 
           "i_0", 
           [
-            "прш", 
-            "загл"
-          ], 
-          "Положил"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "«Отличная цена за %(e_0)s. %(i_0)s %(e_1)s %(i_1)s в кошелёк.»"
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ], 
-        [
-          "какой", 
-          [
-            "artifact"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "какой"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "«Глупый торговец, отдал %(e_0)s %(i_0)s за %(i_1)s-то %(e_1)s.»"
-    }, 
-    {
-      "internals": [
-        [
-          "вынудил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "загл", 
             "прш"
           ], 
-          "вынудил"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
+          "исцелён"
         ]
       ], 
       "externals": [
         [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "«%(i_0)s торговца купить %(e_0)s за %(e_1)s %(i_1)s.»"
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "им"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "«%(e_0)s %(i_0)s за %(e_1)s — это надо обмыть!»"
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "им"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "им"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "«Отличная сделка! %(e_0)s %(i_0)s лучше, чем %(e_1)s.»"
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "им"
-          ], 
-          "монета"
-        ], 
-        [
-          "прекрасный", 
-          [
-            "artifact"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "прекрасный"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "«Мошенники! Всего %(e_0)s %(i_0)s за %(i_1)s %(e_1)s!»"
-    }, 
-    {
-      "internals": [
-        [
-          "остался", 
-          [
-            "artifact"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "остался"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ], 
-        [
-          "забрал", 
-          [
-            "hero"
-          ], 
-          "i_2", 
-          [
-            "прш"
-          ], 
-          "забрал"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
+          "hero", 
           [], 
           "e_0", 
           [
             "им", 
             "загл"
           ], 
-          "artifact"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ], 
-        [
-          "hero", 
-          [], 
-          "e_2", 
-          [
-            "им"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s в лавке, а %(e_1)s %(i_1)s %(i_2)s %(e_2)s."
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "им"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s за %(e_1)s. Честная сделка."
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "им"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s — достойная плата за %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "рд"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "artifact"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "«%(e_0)s стоит не меньше %(e_1)s %(i_0)s! Нет, так я найду другого покупателя! То-то же!»"
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [], 
-          "монета"
-        ], 
-        [
-          "валялся", 
-          [
-            "artifact"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "валялся"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "им"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "«Что?! %(e_0)s %(i_0)s за мои подвиги?! А %(e_1)s на обочине %(i_1)s, по-твоему?! Ладно, не ори. По рукам. Проклятый торгаш.»"
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "«%(e_0)s %(i_0)s за %(e_1)s и неприятный запах — ну что за место?!»"
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "«%(e_0)s %(i_0)s за %(e_1)s… Выйдешь ты на тракт… Нет, нет, ни чего! Удачной торговли вам! И детям вашим! Крохобор…»"
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "«За %(e_0)s %(e_1)s %(i_0)s. Вот же ей Бо… бей лавочников, спасай Пандору!»"
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
           "hero"
         ], 
         [
-          "coins", 
+          "health", 
           [], 
           "e_1", 
           [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_2", 
-          [
-            "вн"
-          ], 
-          "artifact"
+          "health"
         ]
       ], 
-      "template": "%(e_0)s, остервенело торгуясь, получает таки %(e_1)s %(i_0)s за %(e_2)s."
+      "template": "%(e_0)s %(i_0)s на %(e_1)s HP."
     }, 
     {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [], 
-          "монета"
-        ], 
-        [
-          "плохонький", 
-          [
-            "artifact"
-          ], 
-          "i_1", 
-          [
-            "рд"
-          ], 
-          "плохонький"
-        ], 
-        [
-          "согласен", 
-          [
-            "hero"
-          ], 
-          "i_2", 
-          [
-            "нст", 
-            "3л", 
-            "загл"
-          ], 
-          "согласен"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "рд"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "«%(e_0)s %(i_0)s против %(i_1)s %(e_1)s? %(i_2)s.»"
+      "internals": [], 
+      "externals": [], 
+      "template": "Банка с йодом? Что мне с ней сделать, выпить?"
     }, 
     {
-      "internals": [
-        [
-          "прекрасный", 
-          [
-            "artifact"
-          ], 
-          "i_0", 
-          [
-            "вн"
-          ], 
-          "прекрасный"
-        ], 
-        [
-          "жалкий", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн", 
-            "жр"
-          ], 
-          "жалкий"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_2", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "«За %(i_0)s %(e_0)s %(i_1)s %(e_1)s %(i_2)s. Сволочи!»"
-    }, 
-    {
-      "internals": [
-        [
-          "вшивый", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "загл", 
-            "жр"
-          ], 
-          "вшивый"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "«%(i_0)s %(e_0)s %(i_1)s за %(e_1)s. Ворьё!»"
+      "internals": [], 
+      "externals": [], 
+      "template": "Ха-ха, божественная регенерация!"
     }
   ], 
-  "quest_spying_action_get_reward_open_up_money": [], 
   "pvp_change_style_to_bear": [
     {
       "internals": [
@@ -6626,346 +6143,7 @@
       "template": "защищать торговца"
     }
   ], 
-  "quest_caravan_action_bad_get_reward_artifact": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s изучает добычу"
-    }
-  ], 
-  "action_inplace_diary_spend_useless": [
-    {
-      "internals": [
-        [
-          "Рассыпал", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш", 
-            "загл"
-          ], 
-          "Рассыпал"
-        ], 
-        [
-          "недосчитался", 
-          [
-            "hero"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "недосчитался"
-        ], 
-        [
-          "штука", 
-          [
-            "coins"
-          ], 
-          "i_2", 
-          [
-            "вн"
-          ], 
-          "штука"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(i_0)s монеты по мостовой, собрав, %(i_1)s %(e_0)s %(i_2)s."
-    }, 
-    {
-      "internals": [
-        [
-          "Купил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш", 
-            "загл"
-          ], 
-          "Купил"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(i_0)s билеты в цирк, всего-то %(e_0)s %(i_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "бросил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "бросил"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "hero"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s %(e_1)s %(i_1)s в шляпу нищего, с удовольствием наблюдая как от такой суммы у него округлились глаза."
-    }, 
-    {
-      "internals": [
-        [
-          "Попробовал", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш", 
-            "загл"
-          ], 
-          "Попробовал"
-        ], 
-        [
-          "потратил", 
-          [
-            "hero"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "потратил"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_2", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(i_0)s знаменитые дварфийские пироги, %(i_1)s %(e_0)s %(i_2)s на лечение зубов."
-    }, 
-    {
-      "internals": [
-        [
-          "решил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "решил"
-        ], 
-        [
-          "отдал", 
-          [
-            "hero"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "отдал"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_2", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "hero"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s сделать благое дело и %(i_1)s %(e_1)s %(i_2)s нищему."
-    }
-  ], 
-  "hero_common_level_up": [
-    {
-      "internals": [
-        [
-          "великий", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "загл"
-          ], 
-          "великий"
-        ], 
-        [
-          "получил", 
-          [
-            "hero"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "получил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ], 
-        [
-          "level", 
-          [], 
-          "e_1", 
-          [], 
-          "level"
-        ]
-      ], 
-      "template": "«В этот знаменательный день %(i_0)s %(e_0)s милостью богов %(i_1)s %(e_1)s уровень.» — Без сомнения, именно так и запишут в летопесях."
-    }, 
-    {
-      "internals": [
-        [
-          "стал", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "стал"
-        ]
-      ], 
-      "externals": [], 
-      "template": "«Ура! Ещё на один уровень больше! Я %(i_0)s сильнее! Умнее! Красивее! И… и… Героистее!!! Да!»"
-    }, 
-    {
-      "internals": [
-        [
-          "понял", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "понял"
-        ]
-      ], 
-      "externals": [
-        [
-          "level", 
-          [], 
-          "e_0", 
-          [], 
-          "level"
-        ]
-      ], 
-      "template": "«Я наконец-то %(i_0)s! Пора переходить на %(e_0)s уровень!»"
-    }
-  ], 
+  "quest_helpfriend_action_positive_get_reward": [], 
   "quest_searchsmith_journal_intro": [], 
   "quest_notmywork_action_intro": [
     {
@@ -7092,205 +6270,6 @@
       "template": "%(e_0)s уже никуда не %(i_0)s, а вот %(e_1)s — другое дело."
     }
   ], 
-  "action_inplace_diary_buying_artifact_and_change": [
-    {
-      "internals": [
-        [
-          "надоел", 
-          [
-            "old_artifact"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "надоел"
-        ], 
-        [
-          "он", 
-          [
-            "old_artifact"
-          ], 
-          "i_1", 
-          [
-            "рд"
-          ], 
-          "он"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_2", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ], 
-        [
-          "продал", 
-          [
-            "hero"
-          ], 
-          "i_3", 
-          [
-            "прш"
-          ], 
-          "продал"
-        ], 
-        [
-          "монета", 
-          [
-            "sell_price"
-          ], 
-          "i_4", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "old_artifact", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "old_artifact"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_2", 
-          [], 
-          "coins"
-        ], 
-        [
-          "old_artifact", 
-          [], 
-          "e_3", 
-          [
-            "вн"
-          ], 
-          "old_artifact"
-        ], 
-        [
-          "sell_price", 
-          [], 
-          "e_4", 
-          [], 
-          "sell_price"
-        ]
-      ], 
-      "template": "%(e_0)s мне %(i_0)s, купил вместо %(i_1)s %(e_1)s за %(e_2)s %(i_2)s. А %(e_3)s %(i_3)s за %(e_4)s %(i_4)s."
-    }, 
-    {
-      "internals": [
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ], 
-        [
-          "купил", 
-          [
-            "hero"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "купил"
-        ], 
-        [
-          "он", 
-          [
-            "artifact"
-          ], 
-          "i_2", 
-          [
-            "вн"
-          ], 
-          "он"
-        ], 
-        [
-          "старый", 
-          [
-            "old_artifact"
-          ], 
-          "i_3", 
-          [
-            "вн"
-          ], 
-          "старый"
-        ], 
-        [
-          "монета", 
-          [
-            "sell_price"
-          ], 
-          "i_4", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "coins", 
-          [], 
-          "e_0", 
-          [], 
-          "coins"
-        ], 
-        [
-          "artifact", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ], 
-        [
-          "old_artifact", 
-          [], 
-          "e_2", 
-          [
-            "вн"
-          ], 
-          "old_artifact"
-        ], 
-        [
-          "sell_price", 
-          [], 
-          "e_3", 
-          [], 
-          "sell_price"
-        ]
-      ], 
-      "template": "Торговец попросил всего %(e_0)s %(i_0)s за %(e_1)s. Не долго думая %(i_1)s %(i_2)s, а %(i_3)s %(e_2)s пришлось продать за %(e_3)s %(i_4)s."
-    }
-  ], 
   "quest_caravan_action_run_away": [
     {
       "internals": [], 
@@ -7314,7 +6293,7 @@
       "template": "Пойду поброжу по родным улочкам."
     }
   ], 
-  "quest_caravan_diary_good_get_reward_artefact": [
+  "quest_caravan_diary_good_get_reward_artifact": [
     {
       "internals": [
         [
@@ -7543,9 +6522,10 @@
       "template": "Нахватал полные карманы добра, теперь надо бежать."
     }
   ], 
-  "quest_spying_action_get_reward_spying_artifact": [], 
   "quest_delivery_diary_steal_item": [], 
   "quest_hometown_journal_remember_names_donothing": [], 
+  "quest_spying_action_get_reward_spying": [], 
+  "quest_delivery_action_steal_get_reward": [], 
   "hero_ability_vampire_strike": [
     {
       "internals": [
@@ -8061,7 +7041,127 @@
       "template": "«В город пришёл караван. Нужно на него взглянуть.»"
     }
   ], 
-  "quest_helpfriend_action_negative_get_reward_money": [], 
+  "quest_delivery_diary_delivery_get_reward_money": [
+    {
+      "internals": [
+        [
+          "расщедрился", 
+          [
+            "person_end"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "расщедрился"
+        ], 
+        [
+          "вручил", 
+          [
+            "person_end"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "вручил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_end", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "person_end"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s и %(i_1)s %(e_1)s %(i_2)s в награду за быструю доставку."
+    }, 
+    {
+      "internals": [
+        [
+          "шепнул", 
+          [
+            "person_end"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "шепнул"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_end", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "person_end"
+        ], 
+        [
+          "hero", 
+          [], 
+          "e_1", 
+          [], 
+          "hero"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_2", 
+          [], 
+          "coins"
+        ], 
+        [
+          "place_end", 
+          [], 
+          "e_3", 
+          [
+            "пр"
+          ], 
+          "place_end"
+        ]
+      ], 
+      "template": "%(e_0)s заговорщически %(i_0)s — «Я уже давно жду вас, %(e_1)s. Вот ваши %(e_2)s %(i_1)s. Постарайтесь здесь в %(e_3)s вести себя, как можно тише, чтобы никто не узнал о нашей сделке.»"
+    }
+  ], 
   "quest_help_description": [
     {
       "internals": [], 
@@ -8169,23 +7269,7 @@
       "template": "Прошёл слух, что %(e_0)s собирается провернуть новое дельце, что же, настало время свести старые счёты."
     }
   ], 
-  "action_resurrect_description": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "проходит курс усиленного восстановления"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "вправляет вывихнутый плечевой сустав"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "отращивает отрубленные конечности"
-    }
-  ], 
+  "quest_interfereenemy_journal_move_to_quest": [], 
   "action_regenerate_energy_no_energy_received_pray": [
     {
       "internals": [
@@ -8255,62 +7339,21 @@
       "template": "украсть-украсть-украсть"
     }
   ], 
-  "quest_searchsmith_diary_upgrade_equipment_fail": [
+  "action_resurrect_description": [
     {
-      "internals": [
-        [
-          "смог", 
-          [
-            "person_end"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "смог"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ], 
-        [
-          "забрал", 
-          [
-            "person_end"
-          ], 
-          "i_2", 
-          [
-            "прш"
-          ], 
-          "забрал"
-        ]
-      ], 
-      "externals": [
-        [
-          "person_end", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "person_end"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(e_0)s не %(i_0)s создать артефакт, но %(e_1)s %(i_1)s %(i_2)s."
+      "internals": [], 
+      "externals": [], 
+      "template": "проходит курс усиленного восстановления"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "вправляет вывихнутый плечевой сустав"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "отращивает отрубленные конечности"
     }
   ], 
   "action_battlepve1x1_periodical_fire_damage": [
@@ -8429,21 +7472,6 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s добиться исполнения обещания одним должником. Должник, %(e_1)s, живёт в %(e_2)s."
-    }
-  ], 
-  "quest_caravan_action_good_get_reward_money": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s получает награду"
     }
   ], 
   "quest_caravan_choice_bring_result_bandits": [
@@ -9424,7 +8452,21 @@
       "template": "Посетить кузнеца"
     }
   ], 
-  "quest_spying_action_get_reward_open_up_artifact": [], 
+  "quest_searchsmith_action_move_to_quest": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s направляется к мастеру"
+    }
+  ], 
   "quest_spying_diary_choice_continue_spying": [
     {
       "internals": [
@@ -9451,21 +8493,6 @@
         ]
       ], 
       "template": "%(i_0)s довести разведку до конца — не пристало герою отказываться от заданий, да и %(e_0)s действительно ведёт себя подозрительно."
-    }
-  ], 
-  "quest_spying_action_move_to_quest": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s идёт к месту жительства цели"
     }
   ], 
   "quest_notmywork_diary_choice_attack": [
@@ -10055,7 +9082,7 @@
     }
   ], 
   "quest_spying_diary_spying": [], 
-  "quest_delivery_action_choice_steal": [], 
+  "quest_spying_action_get_reward_open_up": [], 
   "action_rest_resring": [
     {
       "internals": [
@@ -10550,6 +9577,95 @@
     }
   ], 
   "quest_caravan_diary_bandits_attack": [], 
+  "hero_common_level_up": [
+    {
+      "internals": [
+        [
+          "великий", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "загл"
+          ], 
+          "великий"
+        ], 
+        [
+          "получил", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "получил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ], 
+        [
+          "level", 
+          [], 
+          "e_1", 
+          [], 
+          "level"
+        ]
+      ], 
+      "template": "«В этот знаменательный день %(i_0)s %(e_0)s милостью богов %(i_1)s %(e_1)s уровень.» — Без сомнения, именно так и запишут в летопесях."
+    }, 
+    {
+      "internals": [
+        [
+          "стал", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "стал"
+        ]
+      ], 
+      "externals": [], 
+      "template": "«Ура! Ещё на один уровень больше! Я %(i_0)s сильнее! Умнее! Красивее! И… и… Героистее!!! Да!»"
+    }, 
+    {
+      "internals": [
+        [
+          "понял", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "понял"
+        ]
+      ], 
+      "externals": [
+        [
+          "level", 
+          [], 
+          "e_0", 
+          [], 
+          "level"
+        ]
+      ], 
+      "template": "«Я наконец-то %(i_0)s! Пора переходить на %(e_0)s уровень!»"
+    }
+  ], 
   "quest_hometown_action_intro": [
     {
       "internals": [], 
@@ -10565,7 +9681,6 @@
       "template": "%(e_0)s возвращается в родной город"
     }
   ], 
-  "quest_delivery_action_steal_get_reward_artifact": [], 
   "quest_hometown_journal_chatting_donothing": [], 
   "quest_searchsmith_diary_intro": [
     {
@@ -10625,59 +9740,8 @@
       "template": "%(i_0)s поспать, но %(i_1)s с кровати — придётся идти на подвиги."
     }
   ], 
-  "quest_helpfriend_description": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "Навестить соратника"
-    }
-  ], 
-  "angel_ability_healhero_crit": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "hero"
-        ], 
-        [
-          "health", 
-          [], 
-          "e_1", 
-          [], 
-          "health"
-        ]
-      ], 
-      "template": "Зелёный луч ударил с небес, исцеляя %(e_0)s на %(e_1)s HP."
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "hero"
-        ], 
-        [
-          "health", 
-          [], 
-          "e_1", 
-          [], 
-          "health"
-        ]
-      ], 
-      "template": "Снег посыпался на %(e_0)s, восстанавливая %(e_1)s HP."
-    }
-  ], 
+  "quest_delivery_action_delivery_get_reward": [], 
+  "quest_delivery_action_choice_steal": [], 
   "quest_spying_diary_get_reward_open_up_money": [
     {
       "internals": [
@@ -10766,11 +9830,99 @@
       "template": "%(e_0)s в благодарность за помощь %(i_0)s %(e_1)s %(i_1)s."
     }
   ], 
-  "angel_ability_healhero": [
+  "quest_searchsmith_diary_upgrade_equipment_fail": [
     {
       "internals": [
         [
-          "исцелён", 
+          "смог", 
+          [
+            "person_end"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "смог"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ], 
+        [
+          "забрал", 
+          [
+            "person_end"
+          ], 
+          "i_2", 
+          [
+            "прш"
+          ], 
+          "забрал"
+        ]
+      ], 
+      "externals": [
+        [
+          "person_end", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "person_end"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(e_0)s не %(i_0)s создать артефакт, но %(e_1)s %(i_1)s %(i_2)s."
+    }
+  ], 
+  "action_movenearplace_walk": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "Оказывается, окрестности %(e_0)s очень живописны"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "тв"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "Век живи — век учись, оказывается, рядом с %(e_0)s водятся гигантские многоножки"
+    }, 
+    {
+      "internals": [
+        [
+          "вступил", 
           [
             "hero"
           ], 
@@ -10778,39 +9930,58 @@
           [
             "прш"
           ], 
-          "исцелён"
+          "вступил"
         ]
       ], 
+      "externals": [], 
+      "template": "«Ну и грязища — второй раз за день %(i_0)s в лужу»"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Вроде и город недалеко, а ни проехать ни пройти…"
+    }, 
+    {
+      "internals": [], 
       "externals": [
         [
-          "hero", 
+          "place", 
           [], 
           "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "hero"
-        ], 
-        [
-          "health", 
           [], 
-          "e_1", 
-          [], 
-          "health"
+          "place"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s на %(e_1)s HP."
+      "template": "Как вернусь в %(e_0)s, первым делом в трактир."
     }, 
     {
       "internals": [], 
       "externals": [], 
-      "template": "Банка с йодом? Что мне с ней сделать, выпить?"
+      "template": "Надеюсь, тут поблизости нет логова злобного дракона?!"
     }, 
     {
       "internals": [], 
       "externals": [], 
-      "template": "Ха-ха, божественная регенерация!"
+      "template": "А следов то сколько, словно целая роща бродячих дубов проскакала на водопой…"
+    }, 
+    {
+      "internals": [
+        [
+          "перебирался", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "загл", 
+            "нст", 
+            "3л"
+          ], 
+          "перебирался"
+        ]
+      ], 
+      "externals": [], 
+      "template": "%(i_0)s через глубокий ров"
     }
   ], 
   "quest_delivery_diary_get_item": [], 
@@ -10881,7 +10052,6 @@
       "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
     }
   ], 
-  "quest_helpfriend_action_positive_get_reward_artifact": [], 
   "angel_ability_money_crit": [
     {
       "internals": [
@@ -11032,19 +10202,28 @@
       "template": "Неожиданно объявившийся гонец сообщил %(e_0)s, что скончался %(i_0)s родственник, и вручил увесистый мешочек с наследством — %(e_1)s %(i_1)s."
     }
   ], 
-  "quest_hunt_action_move_to_city": [
+  "quest_caravan_diary_choice_attack": [
     {
       "internals": [], 
-      "externals": [
+      "externals": [], 
+      "template": "Который час любуюсь на толстый кошель караванщика… Право, с него не убудет, если он не досчитается немного товара."
+    }, 
+    {
+      "internals": [
         [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
+          "думал", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "думал"
         ]
       ], 
-      "template": "%(e_0)s возвращается с добычей"
+      "externals": [], 
+      "template": "Странно… Я %(i_0)s охраны будет больше. Пожалуй, в этот раз добычи будет не так много."
     }
   ], 
   "quest_notmywork_diary_get_reward_money": [
@@ -11451,6 +10630,21 @@
       "template": "И куда запропастился мой старый боевой товарищ, всегда же тут ошивался…"
     }
   ], 
+  "quest_caravan_action_choice_defend": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s защищает караван от бандитов"
+    }
+  ], 
   "quest_caravan_diary_bad_get_reward_money": [
     {
       "internals": [
@@ -11476,6 +10670,21 @@
         ]
       ], 
       "template": "Караванщик оказался не таким богатым — за добычу удалось выручить всего %(e_0)s %(i_0)s."
+    }
+  ], 
+  "quest_caravan_action_bad_get_reward": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s изучает добычу"
     }
   ], 
   "action_battlepve1x1_diary_hero_killed": [
@@ -12517,46 +11726,11 @@
       "template": "%(i_0)s от ран, %(e_0)s %(i_1)s голову %(e_1)s."
     }
   ], 
-  "quest_hunt_diary_get_reward_artifact": [
+  "quest_helpfriend_description": [
     {
-      "internals": [
-        [
-          "получил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш", 
-            "загл"
-          ], 
-          "получил"
-        ], 
-        [
-          "положил", 
-          [
-            "hero"
-          ], 
-          "i_1", 
-          [
-            "прш", 
-            "загл"
-          ], 
-          "положил"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "%(i_0)s гонорар за очередные «Записки охотника». %(i_1)s в рюкзак %(e_0)s."
+      "internals": [], 
+      "externals": [], 
+      "template": "Навестить соратника"
     }
   ], 
   "pvp_change_style_to_fox": [
@@ -12793,21 +11967,6 @@
       "template": "довести дело до конца"
     }
   ], 
-  "quest_caravan_action_bad_get_reward_money": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s изучает добычу"
-    }
-  ], 
   "angel_ability_shortteleport_crit": [
     {
       "internals": [
@@ -12889,6 +12048,7 @@
       "template": "Я, %(e_0)s, служу тебе верой и правдой, всевышний, пусть испепелённое тело врага моего подтвердит мою преданность."
     }
   ], 
+  "quest_hometown_journal_search_old_friends_donothing": [], 
   "angel_ability_lightning": [
     {
       "internals": [], 
@@ -13331,41 +12491,11 @@
       "template": "%(i_0)s %(e_0)s в награду за выполнение задания"
     }
   ], 
-  "action_movenearplace_walk": [
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "Оказывается, окрестности %(e_0)s очень живописны"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "тв"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "Век живи — век учись, оказывается, рядом с %(e_0)s водятся гигантские многоножки"
-    }, 
+  "angel_ability_money": [
     {
       "internals": [
         [
-          "вступил", 
+          "насобирал", 
           [
             "hero"
           ], 
@@ -13373,58 +12503,838 @@
           [
             "прш"
           ], 
-          "вступил"
+          "насобирал"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
         ]
       ], 
-      "externals": [], 
-      "template": "«Ну и грязища — второй раз за день %(i_0)s в лужу»"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "Вроде и город недалеко, а ни проехать ни пройти…"
-    }, 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "Золото посыпалось с неба! %(i_0)s %(e_0)s %(i_1)s."
+    }
+  ], 
+  "quest_hunt_action_move_to_city": [
     {
       "internals": [], 
       "externals": [
         [
-          "place", 
+          "hero", 
           [], 
           "e_0", 
           [], 
-          "place"
+          "hero"
         ]
       ], 
-      "template": "Как вернусь в %(e_0)s, первым делом в трактир."
-    }, 
+      "template": "%(e_0)s возвращается с добычей"
+    }
+  ], 
+  "action_trading_sell_item": [
     {
-      "internals": [], 
-      "externals": [], 
-      "template": "Надеюсь, тут поблизости нет логова злобного дракона?!"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "А следов то сколько, словно целая роща бродячих дубов проскакала на водопой…"
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«Всего %(e_0)s %(i_0)s за %(e_1)s?! Да они издеваются!»"
     }, 
     {
       "internals": [
         [
-          "перебирался", 
+          "Положил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "Положил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "«Отличная цена за %(e_0)s. %(i_0)s %(e_1)s %(i_1)s в кошелёк.»"
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ], 
+        [
+          "какой", 
+          [
+            "artifact"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "какой"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«Глупый торговец, отдал %(e_0)s %(i_0)s за %(i_1)s-то %(e_1)s.»"
+    }, 
+    {
+      "internals": [
+        [
+          "вынудил", 
           [
             "hero"
           ], 
           "i_0", 
           [
             "загл", 
-            "нст", 
-            "3л"
+            "прш"
           ], 
-          "перебирался"
+          "вынудил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
         ]
       ], 
-      "externals": [], 
-      "template": "%(i_0)s через глубокий ров"
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "«%(i_0)s торговца купить %(e_0)s за %(e_1)s %(i_1)s.»"
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "им"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«%(e_0)s %(i_0)s за %(e_1)s — это надо обмыть!»"
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "им"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "им"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«Отличная сделка! %(e_0)s %(i_0)s лучше, чем %(e_1)s.»"
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "им"
+          ], 
+          "монета"
+        ], 
+        [
+          "прекрасный", 
+          [
+            "artifact"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "прекрасный"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«Мошенники! Всего %(e_0)s %(i_0)s за %(i_1)s %(e_1)s!»"
+    }, 
+    {
+      "internals": [
+        [
+          "остался", 
+          [
+            "artifact"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "остался"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ], 
+        [
+          "забрал", 
+          [
+            "hero"
+          ], 
+          "i_2", 
+          [
+            "прш"
+          ], 
+          "забрал"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ], 
+        [
+          "hero", 
+          [], 
+          "e_2", 
+          [
+            "им"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s в лавке, а %(e_1)s %(i_1)s %(i_2)s %(e_2)s."
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "им"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s за %(e_1)s. Честная сделка."
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "им"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s — достойная плата за %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "рд"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "«%(e_0)s стоит не меньше %(e_1)s %(i_0)s! Нет, так я найду другого покупателя! То-то же!»"
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [], 
+          "монета"
+        ], 
+        [
+          "валялся", 
+          [
+            "artifact"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "валялся"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "им"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«Что?! %(e_0)s %(i_0)s за мои подвиги?! А %(e_1)s на обочине %(i_1)s, по-твоему?! Ладно, не ори. По рукам. Проклятый торгаш.»"
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«%(e_0)s %(i_0)s за %(e_1)s и неприятный запах — ну что за место?!»"
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«%(e_0)s %(i_0)s за %(e_1)s… Выйдешь ты на тракт… Нет, нет, ни чего! Удачной торговли вам! И детям вашим! Крохобор…»"
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "«За %(e_0)s %(e_1)s %(i_0)s. Вот же ей Бо… бей лавочников, спасай Пандору!»"
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_2", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "%(e_0)s, остервенело торгуясь, получает таки %(e_1)s %(i_0)s за %(e_2)s."
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [], 
+          "монета"
+        ], 
+        [
+          "плохонький", 
+          [
+            "artifact"
+          ], 
+          "i_1", 
+          [
+            "рд"
+          ], 
+          "плохонький"
+        ], 
+        [
+          "согласен", 
+          [
+            "hero"
+          ], 
+          "i_2", 
+          [
+            "нст", 
+            "3л", 
+            "загл"
+          ], 
+          "согласен"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«%(e_0)s %(i_0)s против %(i_1)s %(e_1)s? %(i_2)s.»"
+    }, 
+    {
+      "internals": [
+        [
+          "прекрасный", 
+          [
+            "artifact"
+          ], 
+          "i_0", 
+          [
+            "вн"
+          ], 
+          "прекрасный"
+        ], 
+        [
+          "жалкий", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн", 
+            "жр"
+          ], 
+          "жалкий"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "«За %(i_0)s %(e_0)s %(i_1)s %(e_1)s %(i_2)s. Сволочи!»"
+    }, 
+    {
+      "internals": [
+        [
+          "вшивый", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "загл", 
+            "жр"
+          ], 
+          "вшивый"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«%(i_0)s %(e_0)s %(i_1)s за %(e_1)s. Ворьё!»"
     }
   ], 
   "quest_helpfriend_diary_move_to_quest": [], 
@@ -13794,19 +13704,11 @@
       "template": "Стоит помочь бедняге."
     }
   ], 
-  "quest_caravan_action_choice_defend": [
+  "quest_hometown_description": [
     {
       "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s защищает караван от бандитов"
+      "externals": [], 
+      "template": "Посетить родной город"
     }
   ], 
   "quest_hometown_journal_stagger_streets_description": [
@@ -13901,7 +13803,13 @@
       "template": "%(e_0)s %(i_0)s помочь другу. %(e_1)s живёт в %(e_2)s."
     }
   ], 
-  "quest_hometown_journal_remember_names": [], 
+  "quest_hunt_journal_track": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Вижу следы!"
+    }
+  ], 
   "quest_spying_choice_openup_result_open_up": [
     {
       "internals": [
@@ -13968,64 +13876,19 @@
     }
   ], 
   "quest_spying_action_choice_continue_spying": [], 
-  "quest_hometown_journal_search_old_friends_donothing": [], 
-  "quest_caravan_diary_bad_get_reward_artefact": [
+  "quest_spying_action_move_to_quest": [
     {
-      "internals": [
-        [
-          "обнаружил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "обнаружил"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "Караванщик оказался состоятельным — %(i_0)s %(e_0)s среди добычи."
-    }
-  ], 
-  "pvp_change_style_to_mantis": [
-    {
-      "internals": [
-        [
-          "изменил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "изменил"
-        ]
-      ], 
+      "internals": [], 
       "externals": [
         [
           "hero", 
           [], 
           "e_0", 
-          [
-            "загл", 
-            "им"
-          ], 
+          [], 
           "hero"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s стиль боя на стиль богомола."
+      "template": "%(e_0)s идёт к месту жительства цели"
     }
   ], 
   "quest_caravan_action_move_to_point": [
@@ -14196,30 +14059,30 @@
     }
   ], 
   "quest_spying_action_open_up_choice": [], 
-  "quest_delivery_diary_delivery_get_reward_money": [
+  "action_inplace_diary_buying_artifact_and_change": [
     {
       "internals": [
         [
-          "расщедрился", 
+          "надоел", 
           [
-            "person_end"
+            "old_artifact"
           ], 
           "i_0", 
           [
             "прш"
           ], 
-          "расщедрился"
+          "надоел"
         ], 
         [
-          "вручил", 
+          "он", 
           [
-            "person_end"
+            "old_artifact"
           ], 
           "i_1", 
           [
-            "прш"
+            "рд"
           ], 
-          "вручил"
+          "он"
         ], 
         [
           "монета", 
@@ -14231,48 +14094,24 @@
             "вн"
           ], 
           "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "person_end", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "person_end"
         ], 
         [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s и %(i_1)s %(e_1)s %(i_2)s в награду за быструю доставку."
-    }, 
-    {
-      "internals": [
-        [
-          "шепнул", 
+          "продал", 
           [
-            "person_end"
+            "hero"
           ], 
-          "i_0", 
+          "i_3", 
           [
             "прш"
           ], 
-          "шепнул"
+          "продал"
         ], 
         [
           "монета", 
           [
-            "coins"
+            "sell_price"
           ], 
-          "i_1", 
+          "i_4", 
           [
             "вн"
           ], 
@@ -14281,21 +14120,22 @@
       ], 
       "externals": [
         [
-          "person_end", 
+          "old_artifact", 
           [], 
           "e_0", 
           [
-            "им", 
             "загл"
           ], 
-          "person_end"
+          "old_artifact"
         ], 
         [
-          "hero", 
+          "artifact", 
           [], 
           "e_1", 
-          [], 
-          "hero"
+          [
+            "вн"
+          ], 
+          "artifact"
         ], 
         [
           "coins", 
@@ -14305,19 +14145,119 @@
           "coins"
         ], 
         [
-          "place_end", 
+          "old_artifact", 
           [], 
           "e_3", 
           [
-            "пр"
+            "вн"
           ], 
-          "place_end"
+          "old_artifact"
+        ], 
+        [
+          "sell_price", 
+          [], 
+          "e_4", 
+          [], 
+          "sell_price"
         ]
       ], 
-      "template": "%(e_0)s заговорщически %(i_0)s — «Я уже давно жду вас, %(e_1)s. Вот ваши %(e_2)s %(i_1)s. Постарайтесь здесь в %(e_3)s вести себя, как можно тише, чтобы никто не узнал о нашей сделке.»"
+      "template": "%(e_0)s мне %(i_0)s, купил вместо %(i_1)s %(e_1)s за %(e_2)s %(i_2)s. А %(e_3)s %(i_3)s за %(e_4)s %(i_4)s."
+    }, 
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ], 
+        [
+          "купил", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "купил"
+        ], 
+        [
+          "он", 
+          [
+            "artifact"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "он"
+        ], 
+        [
+          "старый", 
+          [
+            "old_artifact"
+          ], 
+          "i_3", 
+          [
+            "вн"
+          ], 
+          "старый"
+        ], 
+        [
+          "монета", 
+          [
+            "sell_price"
+          ], 
+          "i_4", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "old_artifact", 
+          [], 
+          "e_2", 
+          [
+            "вн"
+          ], 
+          "old_artifact"
+        ], 
+        [
+          "sell_price", 
+          [], 
+          "e_3", 
+          [], 
+          "sell_price"
+        ]
+      ], 
+      "template": "Торговец попросил всего %(e_0)s %(i_0)s за %(e_1)s. Не долго думая %(i_1)s %(i_2)s, а %(i_3)s %(e_2)s пришлось продать за %(e_3)s %(i_4)s."
     }
   ], 
-  "quest_interfereenemy_action_get_reward_artifact": [], 
   "action_rest_start": [
     {
       "internals": [
@@ -14895,7 +14835,7 @@
           "mob"
         ]
       ], 
-      "template": "Тело %(i_0)s %(e_0)s испарилось прямо на глазах. Стоп! А где трофей?"
+      "template": "Останки %(i_0)s %(e_0)s испарилось прямо на глазах. Стоп! А где трофей?"
     }
   ], 
   "quest_notmywork_action_choice_do_work": [
@@ -14999,11 +14939,34 @@
     }
   ], 
   "quest_hometown_diary_drunk_song": [], 
-  "quest_hometown_description": [
+  "pvp_change_style_to_mantis": [
     {
-      "internals": [], 
-      "externals": [], 
-      "template": "Посетить родной город"
+      "internals": [
+        [
+          "изменил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "изменил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл", 
+            "им"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s стиль боя на стиль богомола."
     }
   ], 
   "quest_hometown_diary_get_reward_artifact": [

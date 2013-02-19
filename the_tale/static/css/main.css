@@ -17,6 +17,8 @@
 @import "pvp.css";
 
 @import "blogs.css";
+
+@import "mobs.css";
 html {
   height: 100%;
 }
