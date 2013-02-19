@@ -9,10 +9,11 @@ from common.utils.decorators import login_required
 
 from game.prototypes import TimePrototype
 
+from game.balance.enums import RACE
+
 from game.heroes.prototypes import HeroPrototype
 
 from game.map.storage import map_info_storage
-# from game.map.logic import get_map_info
 from game.map.places.prototypes import PlacePrototype
 from game.map.generator import descriptors
 from game.map.generator.biomes import Biom
@@ -51,6 +52,12 @@ class MapResource(Resource):
 
         place = PlacePrototype.get_by_coordinates(x, y)
 
+        dominant_race = {RACE.HUMAN: u'люди',
+                         RACE.ELF: u'эльфы',
+                         RACE.ORC: u'орки',
+                         RACE.GOBLIN: u'гоблины',
+                         RACE.DWARF: u'дварфы'}[place.get_dominant_race()]
+
         place_modifiers = place.modifiers if place else None
 
         terrain_points = []
@@ -71,6 +78,7 @@ class MapResource(Resource):
                               'descr_wetness': descriptors.wetness(randomized_cell),
                               'terrain': terrain,
                               'nearest_place_name': nearest_place_name,
+                              'dominant_race': dominant_race,
                               'x': x,
                               'y': y,
                               'terrain_points': terrain_points,

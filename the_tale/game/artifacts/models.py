@@ -19,7 +19,7 @@ RARITY_TYPE_2_PRIORITY = { RARITY_TYPE.NORMAL: c.NORMAL_LOOT_PROBABILITY,
 
 ARTIFACT_TYPE = create_enum('ARTIFACT_TYPE', ( ('USELESS', 0, u'хлам'),
                                                ('MAIN_HAND', 1, u'основная рука'),
-                                               ('OFF_HAND', 2, u'вспомогательная рука'),
+                                               ('OFF_HAND', 2, u'вторая рука'),
                                                ('PLATE', 3, u'броня'),
                                                ('AMULET', 4, u'амулет'),
                                                ('HELMET', 5, u'шлем'),
