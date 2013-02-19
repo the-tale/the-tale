@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from dext.utils import s11n
 
@@ -90,6 +91,12 @@ class PersonPrototype(object):
         if self.place.modifier:
             power = self.place.modifier.modify_power(power)
         workers_environment.highlevel.cmd_change_person_power(self.id, power)
+
+    @property
+    def time_before_unfreeze(self):
+        current_time = datetime.datetime.now()
+        return max(datetime.timedelta(seconds=0),
+                   self.model.created_at + datetime.timedelta(seconds=persons_settings.POWER_STABILITY_WEEKS*7*24*60*60) - current_time)
 
     @property
     def is_stable(self):
