@@ -11,7 +11,8 @@ class Writer(object):
 
     def __init__(self, hero, quest_type, env, local_env):
         self.substitution = prepair_substitution(env.get_msg_substitutions(local_env))
-        self.substitution['hero'] = hero.normalized_name
+        if hero is not None:
+            self.substitution['hero'] = hero.normalized_name
         self.quest_type = quest_type
 
     def get_msg_description_id(self): return 'quest_%s_description' % (self.quest_type,)

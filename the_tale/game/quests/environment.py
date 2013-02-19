@@ -17,6 +17,7 @@ class Environment(BaseEnvironment):
         self.sync_places()
         self.sync_persons()
         self.sync_items()
+        self.sync_quests()
 
     def sync_places(self):
         pass
@@ -31,6 +32,11 @@ class Environment(BaseEnvironment):
             artifact.set_quest_uuid(item_id)
             item_data['external_data']['artifact'] = artifact.serialize()
 
+    def sync_quests(self):
+        for quest_id, quest in self.quests.items():
+            writer = self.writers_constructor(None, quest.type(), self, quest.env_local)
+            quest.name = writer.get_description_msg()
+
     def get_game_place(self, place_id): return places_storage[self.places[place_id]['external_data']['id']]
 
     def get_game_person(self, person_id):
@@ -39,9 +45,6 @@ class Environment(BaseEnvironment):
     def get_game_item(self, item_id):
         from game.artifacts.prototypes import ArtifactPrototype
         return ArtifactPrototype.deserialize(data=self.items[item_id]['external_data']['artifact'])
-
-    def set_game_item(self, item_id, item):
-        self.items['external_data']['artifact'] = item.serialize()
 
     def get_msg_substitutions(self, local_env):
         subst = local_env.get_data()

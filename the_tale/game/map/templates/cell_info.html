@@ -72,9 +72,18 @@
                   <th>
                     {{ person.name }}
                     <small>{{ person.race_verbose }}-{{ person.type_verbose }}</small>
+
+                    {% if person.time_before_unfreeze.total_seconds() > 0 %}
+                    <i class="icon-time pgf-time-before-unfreeze"
+                       style="vertical-align: middle;"
+                       rel="tooltip"
+                       title="Персонаж недавно поселился в городе и может его покинуть только через {{person.time_before_unfreeze|verbose_timedelta}}"></i>
+                    {% endif %}
+
                     {% if hero and hero.preferences.friend_id == person.id %}
                     <span class="badge badge-success">соратник</span>
                     {% endif %}
+
                     {% if hero and hero.preferences.enemy_id == person.id %}
                     <span class="badge badge-important">противник</span>
                     {% endif %}

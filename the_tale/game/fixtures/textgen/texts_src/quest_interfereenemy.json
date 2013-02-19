@@ -26,8 +26,7 @@
                          "привидение идёт на дело"]]
         },
 
-        "action_get_reward_money": [],
-        "action_get_reward_artifact": [],
+        "action_get_reward": [],
 
         "action_move_to_quest": {
             "name": "Активность: путешествие к городу противника",

@@ -348,6 +348,7 @@ class Quest(object):
         self.line = None
         self.env_local = LocalEnvironment()
         self.available = None
+        self.name = None
 
     @classmethod
     def can_be_used(cls, env):
@@ -447,11 +448,13 @@ class Quest(object):
         return { 'type': self.type(),
                  'id': self.id,
                  'line': self.line,
-                 'env_local': self.env_local.serialize() }
+                 'env_local': self.env_local.serialize(),
+                 'name': self.name}
 
     def deserialize(self, data):
         self.id = data['id']
         self.line = data['line']
+        self.name = data.get('name', u'неизвестное задание')
 
         self.env_local = LocalEnvironment()
         self.env_local.deserialize(data['env_local'])

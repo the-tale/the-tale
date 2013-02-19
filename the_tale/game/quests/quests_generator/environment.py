@@ -91,9 +91,7 @@ class BaseEnvironment(object):
 
         quest = random.choice(quests_list)()
 
-        quest.initialize(quest_id,
-                         self,
-                         **kwargs)
+        quest.initialize(quest_id, self, **kwargs)
 
         self.quests[quest_id] = quest
 
@@ -142,7 +140,7 @@ class BaseEnvironment(object):
                 action_text = writer.get_action_msg(command.event)
 
             writers_chain.append({'quest_type': quest.type(),
-                                  'quest_text': writer.get_description_msg(),
+                                  'quest_text': quest.name,
                                   'action_type': command.type(),
                                   'action_text':  action_text if action_text else u'занимается чем-то полезным',
                                   'choices': quest_choices,

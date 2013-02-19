@@ -44,10 +44,8 @@
         "action_open_up_choice": [],
         "action_choice_open_up": [],
         "action_choice_continue_spying": [],
-        "action_get_reward_open_up_money": [],
-        "action_get_reward_open_up_artifact": [],
-        "action_get_reward_spying_money": [],
-        "action_get_reward_spying_artifact": [],
+        "action_get_reward_open_up": [],
+        "action_get_reward_spying": [],
 
 
         "journal_move_to_quest": [],

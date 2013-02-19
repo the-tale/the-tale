@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from django.test import client
 from django.core.urlresolvers import reverse
@@ -52,4 +53,20 @@ class TestMapRequests(TestCase):
 
         texts = [('pgf-current-modifier-marker', 1)] + [(modifier.NAME, 1 if modifier != TradeCenter else 2) for modifier in MODIFIERS.values()]
 
+        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
+
+    def test_place_info_no_freeze_time_icon(self):
+        self.request_login('test_user@test.com')
+        for person in self.place_1.persons:
+            person.model.created_at = datetime.datetime(2000, 1, 1)
+            person.save()
+        texts = [('pgf-time-before-unfreeze', 0)]
+        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
+
+    def test_place_info_freeze_time_icon(self):
+        self.request_login('test_user@test.com')
+        texts = [('pgf-time-before-unfreeze', 1)]
+        person = self.place_1.persons[0]
+        person.model.created_at = datetime.datetime(2000, 1, 1)
+        person.save()
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)

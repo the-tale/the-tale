@@ -578,7 +578,7 @@ pgf.game.map.Map = function(selector, params) {
                     point_2 = tmp;
                 }
 
-                if (point_1.x > point_2.x) {
+                if (point_1.x < point_2.x) {
                     reflectNeeded = true;
                     // heroImage = 'hero_left';
                 }
@@ -592,7 +592,7 @@ pgf.game.map.Map = function(selector, params) {
                 var to_x = hero.position.coordinates.to.x;
                 var from_x = hero.position.coordinates.from.x;
 
-                if (from_x > to_x) {
+                if (from_x < to_x) {
                     reflectNeeded = true;
                     // heroImage = 'hero_left';
                 }
@@ -607,6 +607,7 @@ pgf.game.map.Map = function(selector, params) {
                 context.save(); 
                 context.scale(-1, 1);
                 heroX *= -1;
+                heroX -= TILE_SIZE;
             }
 
             image.Draw(context, heroX, heroY);

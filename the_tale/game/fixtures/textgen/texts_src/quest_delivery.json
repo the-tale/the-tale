@@ -42,10 +42,8 @@
         "action_get_item": [],
         "action_give_item": [],
         "action_steal_item": [],
-        "action_delivery_get_reward_money": [],
-        "action_delivery_get_reward_artifact": [],
-        "action_steal_get_reward_money": [],
-        "action_steal_get_reward_artifact": [],
+        "action_delivery_get_reward": [],
+        "action_steal_get_reward": [],
 
         "journal_get_item": {
             "name": "Журнал: получение",

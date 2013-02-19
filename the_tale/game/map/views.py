@@ -52,13 +52,18 @@ class MapResource(Resource):
 
         place = PlacePrototype.get_by_coordinates(x, y)
 
-        dominant_race = {RACE.HUMAN: u'люди',
-                         RACE.ELF: u'эльфы',
-                         RACE.ORC: u'орки',
-                         RACE.GOBLIN: u'гоблины',
-                         RACE.DWARF: u'дварфы'}[place.get_dominant_race()]
+        dominant_race = None
+        place_modifiers = None
 
-        place_modifiers = place.modifiers if place else None
+        if place is not None:
+
+            dominant_race = {RACE.HUMAN: u'люди',
+                             RACE.ELF: u'эльфы',
+                             RACE.ORC: u'орки',
+                             RACE.GOBLIN: u'гоблины',
+                             RACE.DWARF: u'дварфы'}[place.get_dominant_race()]
+
+            place_modifiers = place.modifiers
 
         terrain_points = []
 
