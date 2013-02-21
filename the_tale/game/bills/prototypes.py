@@ -132,6 +132,12 @@ class BillPrototype(object):
     @property
     def is_percents_baries_passed(self): return self.votes_for_percents < bills_settings.MIN_VOTES_PERCENT
 
+    @classmethod
+    def get_minimum_created_time_of_active_bills(self):
+        from django.db.models import Min
+        created_at =  Bill.objects.filter(state=BILL_STATE.VOTING).aggregate(Min('created_at'))['created_at__min']
+        return created_at if created_at is not None else datetime.datetime.now()
+
     @nested_commit_on_success
     def apply(self):
         if not self.state.is_voting:

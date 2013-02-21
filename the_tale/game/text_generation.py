@@ -2,6 +2,9 @@
 import os
 import numbers
 
+from django.utils.log import getLogger
+from django.conf import settings as project_settings
+
 from dext.utils import s11n
 
 from textgen.words import Fake as FakeWord
@@ -12,6 +15,8 @@ from game.conf import game_settings
 _VOCABULARY = None
 _DICTIONARY = None
 _PHRASES_TYPES = None
+
+logger=getLogger('the-tale.workers.game_logic')
 
 class NamedObject(object):
 
@@ -27,6 +32,24 @@ def prepair_substitution(args):
         else:
             result[k] = v.normalized_name
     return result
+
+def get_text(error_prefix, type_, args):
+
+    vocabulary = get_vocabulary()
+
+    if type_ not in vocabulary:
+        if not project_settings.TESTS_RUNNING:
+            logger.error('%s: unknown template type: %s' % (error_prefix, type_))
+        return None
+
+    args = prepair_substitution(args)
+    template = vocabulary.get_random_phrase(type_)
+
+    if template is None:
+        # if template type exists but empty
+        return
+
+    return template.substitute(get_dictionary(), args)
 
 
 

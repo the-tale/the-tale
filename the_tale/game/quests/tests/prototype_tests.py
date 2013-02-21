@@ -11,14 +11,14 @@ from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
 from game.logic_storage import LogicStorage
 
-
+from game.prototypes import TimePrototype
 from game.logic import create_test_map
 from game.actions.prototypes import ActionQuestPrototype
 from game.quests.logic import create_random_quest_for_hero
-from game.prototypes import TimePrototype
+from game.quests.prototypes import QuestPrototype
 
 
-class QuestPrototypeTest(TestCase):
+class PrototypeTests(TestCase):
 
     def setUp(self):
 
@@ -70,3 +70,11 @@ class QuestPrototypeTest(TestCase):
             self.complete_quest()
 
         self.assertTrue(fake_cmd.commands)
+
+    def test_get_minimum_created_time_of_active_quests(self):
+        self.assertEqual(self.quest.model.created_at, QuestPrototype.get_minimum_created_time_of_active_quests())
+
+        self.quest.remove()
+
+        # not there are no anothe quests an get_minimum_created_time_of_active_quests return now()
+        self.assertTrue(self.quest.model.created_at < QuestPrototype.get_minimum_created_time_of_active_quests())

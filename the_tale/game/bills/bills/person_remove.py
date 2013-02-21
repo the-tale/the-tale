@@ -2,6 +2,10 @@
 
 from dext.forms import fields
 
+from game.game_info import GENDER
+
+from game.balance.enums import RACE, PERSON_TYPE
+
 from game.persons.models import PERSON_STATE
 
 from game.bills.models import BILL_TYPE
@@ -67,9 +71,27 @@ class PersonRemove(object):
         self.old_place_name = old_place_name
         self.person_id = person_id
 
+        if person_id is not None:
+            self.person_name = self.person.name
+            self.person_race = self.person.race
+            self.person_type = self.person.type
+            self.person_gender = self.person.gender
+
     @property
     def person(self):
         return persons_storage[self.person_id]
+
+    @property
+    def person_race_verbose(self):
+        return RACE._ID_TO_TEXT[self.person_race]
+
+    @property
+    def person_type_verbose(self):
+        return PERSON_TYPE._ID_TO_TEXT[self.person_type]
+
+    @property
+    def person_gender_verbose(self):
+        return GENDER._ID_TO_TEXT[self.person_gender]
 
     @property
     def user_form_initials(self):
@@ -105,12 +127,20 @@ class PersonRemove(object):
     def serialize(self):
         return {'type': self.type_str,
                 'person_id': self.person_id,
+                'person_name': self.person_name,
+                'person_race': self.person_race,
+                'person_type': self.person_type,
+                'person_gender': self.person_gender,
                 'old_place_name': self.old_place_name}
 
     @classmethod
     def deserialize(cls, data):
         obj = cls()
         obj.person_id = data['person_id']
+        obj.person_name = data['person_name']
+        obj.person_race = data['person_race']
+        obj.person_type = data['person_type']
+        obj.person_gender = data['person_gender']
         obj.old_place_name = data.get('old_place_name', u'неизвестно')
 
         return obj

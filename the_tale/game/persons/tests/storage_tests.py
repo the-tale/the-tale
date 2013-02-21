@@ -32,3 +32,19 @@ class PlacesStorageTest(TestCase):
         self.assertEqual(len(self.storage.filter(place_id=self.p1.id, state=PERSON_STATE.OUT_GAME)), 1)
         self.assertEqual(len(self.storage.filter(place_id=self.p2.id, state=PERSON_STATE.OUT_GAME)), 1)
         self.assertEqual(len(self.storage.filter(place_id=self.p3.id, state=PERSON_STATE.OUT_GAME)), 2)
+
+    def test_all_without_removed_records(self):
+        self.assertEqual(len(self.storage.all()), 12)
+        self.pers3.model.state = PERSON_STATE.REMOVED
+        self.pers3.save()
+        self.storage.sync(force=True)
+        self.assertEqual(len(self.storage.all()), 11)
+        self.assertFalse(self.pers3.id in self.storage)
+
+    def test_remove_old_persons(self):
+        self.assertEqual(len(self.storage.all()), 12)
+        old_version = self.storage.version
+        self.storage.remove_out_game_persons()
+        self.assertEqual(old_version, self.storage.version) # .remove_out_game_persons not change version of storage, it MUST changed separately
+        self.storage.sync(force=True)
+        self.assertEqual(len(self.storage.all()), 8)

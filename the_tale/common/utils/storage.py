@@ -15,12 +15,14 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
         @property
         def version(self): return self._version
 
+        def _get_all_query(self): return Model.objects.all()
+
         def refresh(self):
             self.clear()
 
             self._version = settings[self.SETTINGS_KEY]
 
-            for model in Model.objects.all():
+            for model in self._get_all_query():
                 self._data[model.id] = Prototype(model)
 
         def sync(self, force=False):

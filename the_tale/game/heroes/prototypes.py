@@ -7,9 +7,6 @@ import copy
 
 from textgen.words import Noun
 
-from django.utils.log import getLogger
-from django.conf import settings as project_settings
-
 from dext.utils import s11n
 from dext.utils import database
 
@@ -29,7 +26,7 @@ from game.artifacts.storage import artifacts_storage
 
 from game.map.storage import map_info_storage
 
-from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
+from game.text_generation import get_dictionary, get_text
 
 from game.prototypes import TimePrototype, GameTime
 
@@ -43,8 +40,6 @@ from game.heroes.exceptions import HeroException
 from game.heroes.logic import ValuesDict
 from game.heroes.pvp import PvPData
 
-
-logger=getLogger('the-tale.workers.game_logic')
 
 class HeroPrototype(object):
 
@@ -685,22 +680,7 @@ class HeroPrototype(object):
         return (TimePrototype.get_current_turn_number()-in_past, time.mktime(datetime.datetime.now().timetuple())-in_past*c.TURN_DELTA, msg)
 
     def add_message(self, type_, important=False, **kwargs):
-
-        vocabulary = get_vocabulary()
-
-        if type_ not in vocabulary:
-            if not project_settings.TESTS_RUNNING:
-                logger.error('hero:add_message: unknown template type: %s' % type_)
-            return None
-
-        args = prepair_substitution(kwargs)
-        template = vocabulary.get_random_phrase(type_)
-
-        if template is None:
-            # if template type exists but empty
-            return
-
-        msg = template.substitute(get_dictionary(), args)
+        msg = get_text('hero:add_message', type_, kwargs)
         self.push_message(self._prepair_message(msg), important=important)
 
 

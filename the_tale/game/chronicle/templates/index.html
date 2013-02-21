@@ -1,0 +1,44 @@
+{% extends "chronicle/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+
+{% block chronicle_content %}
+
+<p>
+  TODO:
+</p>
+
+<h2 style="margin-bottom: 0.5em;">События</h2>
+
+<div>
+  <div class="btn-toolbar">
+
+    <div class="btn-group">
+      <a class="btn {% if not is_filtering %}disabled{% endif %}"
+         href="{% if is_filtering %}{{ url('game:bills:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
+    </div>
+
+  </div>
+
+</div>
+
+{% if records %}
+
+{{ base_macros.render_paginator(paginator) }}
+
+<ul class="unstyled">
+  {% for record in records %}
+  <li style="margin-bottom: 1em;">
+    {{ record.game_time.verbose_date}}
+    {{ record.text }}
+  </li>
+  {% endfor %}
+</ul>
+
+{{ base_macros.render_paginator(paginator) }}
+
+{% else %}
+<span class="pgf-no-records-message">Не найдено записей, отвечающих условиям поиска</span>
+{% endif %}
+
+{% endblock %}

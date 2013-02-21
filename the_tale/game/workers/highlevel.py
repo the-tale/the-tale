@@ -170,6 +170,8 @@ class Worker(BaseWorker):
             place.mark_as_updated()
 
         places_storage.save_all()
+
+        persons_storage.remove_out_game_persons()
         persons_storage.save_all()
 
     def apply_bills(self):

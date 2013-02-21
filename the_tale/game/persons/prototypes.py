@@ -83,8 +83,15 @@ class PersonPrototype(object):
     @property
     def state(self): return self.model.state
 
-    def move_out_game(self): self.model.state = PERSON_STATE.OUT_GAME
-    def move_in_game(self):  self.model.state = PERSON_STATE.IN_GAME
+    @property
+    def out_game_at(self): return self.model.out_game_at
+
+    def move_out_game(self):
+        self.model.out_game_at = datetime.datetime.now()
+        self.model.state = PERSON_STATE.OUT_GAME
+
+    def remove_from_game(self):
+        self.model.state = PERSON_STATE.REMOVED
 
     def cmd_change_power(self, power):
         from game.workers.environment import workers_environment

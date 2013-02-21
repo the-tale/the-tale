@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+import datetime
 import random
 
 from dext.utils import s11n
@@ -118,6 +119,13 @@ class QuestPrototype(object):
                                    choice=choice)
 
         return True
+
+    @classmethod
+    def get_minimum_created_time_of_active_quests(self):
+        from django.db.models import Min
+        created_at = Quest.objects.all().aggregate(Min('created_at'))['created_at__min']
+
+        return created_at if created_at is not None else datetime.datetime.now()
 
     ###########################################
     # Object operations

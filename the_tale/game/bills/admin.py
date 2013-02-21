@@ -6,9 +6,9 @@ from game.bills.models import Bill, Vote
 
 
 class BillAdmin(admin.ModelAdmin):
-    list_display = ('id', 'state', 'owner', 'updated_at', 'votes_for', 'votes_against')
+    list_display = ('id', 'type', 'state', 'owner', 'updated_at', 'votes_for', 'votes_against')
 
-    list_filter= ('state',)
+    list_filter= ('state', 'type')
 
 
 class VoteAdmin(admin.ModelAdmin):

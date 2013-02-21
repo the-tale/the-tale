@@ -165,6 +165,7 @@ INSTALLED_APPS = (
     'game.ratings',
     'game.pvp',
     'game.phrase_candidates',
+    'game.chronicle',
 
     'cms',
     'cms.news',

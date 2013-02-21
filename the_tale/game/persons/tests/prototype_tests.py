@@ -1,5 +1,6 @@
 # coding: utf-8
 import mock
+import datetime
 
 from django.test import TestCase
 
@@ -91,3 +92,11 @@ class PrototypeTests(TestCase):
 
         self.assertEqual(self.person.friends_number, 0)
         self.assertEqual(self.person.enemies_number, 2)
+
+    def test_move_out_game(self):
+        current_time = datetime.datetime.now()
+        self.assertTrue(self.person.out_game_at < current_time)
+        self.assertEqual(self.person.state, PERSON_STATE.IN_GAME)
+        self.person.move_out_game()
+        self.assertTrue(self.person.out_game_at > current_time)
+        self.assertEqual(self.person.state, PERSON_STATE.OUT_GAME)

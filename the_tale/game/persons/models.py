@@ -11,13 +11,16 @@ from game.balance.enums import RACE, PERSON_TYPE
 
 
 PERSON_STATE = create_enum('PERSON_STATE', ( ('IN_GAME', 0,  u'в игре'),
-                                             ('OUT_GAME', 1, u'вне игры') ))
+                                             ('OUT_GAME', 1, u'вне игры'),
+                                             ('REMOVED', 2, u'удален')))
 
 
 class Person(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
     created_at_turn = models.IntegerField(null=False, default=0)
+
+    out_game_at = models.DateTimeField(null=False, default=datetime.datetime(2000, 1, 1))
 
     place = models.ForeignKey('places.Place', related_name='persons')
 
