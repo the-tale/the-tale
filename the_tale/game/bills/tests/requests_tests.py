@@ -267,7 +267,7 @@ class TestShowRequests(BaseTestRequests):
                  ('rationale-a2-0', 1 + 1), # 1 from social sharing
                  ('test-voting-block', 0),
                  ('test-already-voted-block', 1),
-                 (self.place2.name, 1)]
+                 (self.place2.name, 2)]
 
         self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
@@ -278,11 +278,10 @@ class TestShowRequests(BaseTestRequests):
 
         texts = [('test-voting-block', 1),
                  ('test-already-voted-block', 0),
-                 (self.place2.name, 1)]
+                 (self.place2.name, 2)]
 
         self.request_logout()
         self.request_login('test_user2@test.com')
-
         self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
 

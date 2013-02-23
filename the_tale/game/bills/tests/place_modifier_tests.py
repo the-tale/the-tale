@@ -20,7 +20,7 @@ class PlaceModifierTests(BaseTestPrototypes):
         self.place = places_storage.all()[0]
         self.place_2 = places_storage.all()[1]
 
-        bill_data = PlaceModifier(place_id=self.place.id, modifier_id=TradeCenter.get_id(), modifier_name=TradeCenter.NAME, old_modifier_name=None, old_name=self.place.name)
+        bill_data = PlaceModifier(place_id=self.place.id, modifier_id=TradeCenter.get_id(), modifier_name=TradeCenter.NAME, old_modifier_name=None)
 
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 

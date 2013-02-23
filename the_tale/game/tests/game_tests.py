@@ -1,10 +1,6 @@
 # coding: utf-8
 
-import pymorphy
-
 from django.test import TestCase
-
-from textgen.conf import textgen_settings
 
 from accounts.logic import register_user
 
@@ -16,7 +12,7 @@ from game.logic import create_test_map
 from game.prototypes import TimePrototype
 from game.logic_storage import LogicStorage
 
-morph = pymorphy.get_morph(textgen_settings.PYMORPHY_DICTS_DIRECTORY)
+from game.balance.enums import CITY_MODIFIERS
 
 class GameTest(TestCase):
 
@@ -40,3 +36,8 @@ class GameTest(TestCase):
             current_time.increment_turn()
 
         self.assertEqual(self.hero.money, self.hero.statistics.money_earned - self.hero.statistics.money_spend)
+
+    def test_city_modifiers_in_dictionary(self):
+
+        for modifier_name in CITY_MODIFIERS._ID_TO_TEXT.values():
+            self.assertTrue(modifier_name.lower() in get_dictionary())

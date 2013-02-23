@@ -50,9 +50,8 @@ class PlacePrototype(object):
     @property
     def y(self): return self.model.y
 
-    def get_name(self): return self.model.name
-    def set_name(self, value): self.model.name = value
-    name = property(get_name, set_name)
+    @property
+    def name(self): return self.model.name
 
     @property
     def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self.model.updated_at_turn))
@@ -67,16 +66,15 @@ class PlacePrototype(object):
 
     @property
     def normalized_name(self):
-
         if not hasattr(self, '_normalized_name'):
             self._normalized_name = words.WordBase.deserialize(s11n.from_json(self.model.name_forms))
-
-        return (self._normalized_name, u'загл')
+        return self._normalized_name
+        # return (self._normalized_name, u'загл')
 
     def set_name_forms(self, name_forms):
         self.model.name_forms = s11n.to_json(name_forms.serialize())
-        if hasattr(self, '_normalized_name'):
-            delattr(self, '_normalized_name')
+        self._normalized_name = name_forms
+        self.model.name = name_forms.normalized
 
     def get_descriotion(self): return self.model.description
     def set_description(self, value): self.model.description = value

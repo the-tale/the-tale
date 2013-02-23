@@ -85,6 +85,5 @@ def create_test_create_method(record_class):
     return test_create_method
 
 
-
 for record_name, record_class in records.RECORDS.items():
     setattr(RecordTests, 'test_' + record_name, create_test_create_method(record_class))

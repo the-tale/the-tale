@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from textgen.words import Noun
+
 from dext.forms import fields
 
 from game.game_info import GENDER
@@ -67,8 +69,8 @@ class PersonRemove(object):
     CAPTION = u'Закон об изгнании персонажа'
     DESCRIPTION = u'В случае если персонаж утратил доверие духов-хранителей, его можно изгнать из города. Изгонять можно только наименее влиятельных персонажей.'
 
-    def __init__(self, person_id=None, old_place_name=None):
-        self.old_place_name = old_place_name
+    def __init__(self, person_id=None, old_place_name_forms=None):
+        self.old_place_name_forms = old_place_name_forms
         self.person_id = person_id
 
         if person_id is not None:
@@ -80,6 +82,10 @@ class PersonRemove(object):
     @property
     def person(self):
         return persons_storage[self.person_id]
+
+    @property
+    def old_place_name(self):
+        return self.old_place_name_forms.normalized
 
     @property
     def person_race_verbose(self):
@@ -103,7 +109,7 @@ class PersonRemove(object):
 
     def initialize_with_user_data(self, user_form):
         self.person_id = int(user_form.c.person)
-        self.old_place_name = self.person.place.name
+        self.old_place_name_forms = self.person.place.normalized_name
 
     def initialize_with_moderator_data(self, moderator_form):
         pass
@@ -131,7 +137,7 @@ class PersonRemove(object):
                 'person_race': self.person_race,
                 'person_type': self.person_type,
                 'person_gender': self.person_gender,
-                'old_place_name': self.old_place_name}
+                'old_place_name_forms': self.old_place_name_forms.serialize()}
 
     @classmethod
     def deserialize(cls, data):
@@ -141,6 +147,6 @@ class PersonRemove(object):
         obj.person_race = data['person_race']
         obj.person_type = data['person_type']
         obj.person_gender = data['person_gender']
-        obj.old_place_name = data.get('old_place_name', u'неизвестно')
+        obj.old_place_name_forms = Noun.deserialize(data['old_place_name_forms'])
 
         return obj

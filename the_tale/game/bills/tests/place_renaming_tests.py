@@ -6,8 +6,6 @@ from textgen.words import Noun
 
 from forum.models import Post, Thread, MARKUP_METHOD
 
-from game import chronicle
-
 from game.bills.models import Vote
 from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.bills import PlaceRenaming
@@ -79,7 +77,6 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.assertEqual(Thread.objects.get(id=self.bill.forum_thread_id).caption, 'new-caption')
 
     def test_update_by_moderator(self):
-        old_chronicle_records_number = chronicle.Record.objects.all().count()
 
         self.assertEqual(self.bill.approved_by_moderator, False)
 
@@ -100,9 +97,6 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.assertTrue(self.bill.state.is_voting)
         self.assertEqual(self.bill.approved_by_moderator, True)
         self.assertEqual(self.bill.data.name_forms.forms, self.NAME_FORMS)
-
-        self.assertEqual(old_chronicle_records_number+1, chronicle.Record.objects.all().count())
-        self.assertEqual(chronicle.Record.objects.all().order_by('-id')[0].type, chronicle.RECORD_TYPE.PLACE_CHANGE_NAME_BILL_STARTED)
 
     def test_remove(self):
         thread = Thread.objects.get(id=self.bill.forum_thread_id)

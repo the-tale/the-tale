@@ -127,10 +127,10 @@ class BillPrototype(object):
         self.model.votes_against = Vote.objects.filter(bill=self.model, value=False).count()
 
     @property
-    def is_votes_baries_passed(self): return self.votes_for < bills_settings.MIN_VOTES_NUMBER
+    def is_votes_barier_not_passed(self): return self.votes_for < bills_settings.MIN_VOTES_NUMBER
 
     @property
-    def is_percents_baries_passed(self): return self.votes_for_percents < bills_settings.MIN_VOTES_PERCENT
+    def is_percents_barier_not_passed(self): return self.votes_for_percents < bills_settings.MIN_VOTES_PERCENT
 
     @classmethod
     def get_minimum_created_time_of_active_bills(self):
@@ -155,7 +155,7 @@ class BillPrototype(object):
         self.model.min_votes_percents_required = bills_settings.MIN_VOTES_PERCENT
 
 
-        if (self.is_percents_baries_passed or self.is_votes_baries_passed ):
+        if (self.is_percents_barier_not_passed or self.is_votes_barier_not_passed ):
             self.set_state(BILL_STATE.REJECTED)
             self.save()
 
@@ -214,6 +214,8 @@ class BillPrototype(object):
         self.data.initialize_with_moderator_data(form)
         self.model.approved_by_moderator = form.c.approved
         self.save()
+
+        signals.bill_moderated.send(self.__class__, bill=self)
 
 
     @classmethod

@@ -58,7 +58,7 @@ class _PlaceChangeDescription(RecordBase):
     ACTORS = ['place', 'bill']
     SUBSTITUTIONS = ['place', 'bill']
 
-class PlaceChangeDescriptionBillStated(_PlaceChangeDescription):
+class PlaceChangeDescriptionBillStarted(_PlaceChangeDescription):
     TYPE = RECORD_TYPE.PLACE_CHANGE_DESCRIPTION_BILL_STARTED
 
 class PlaceChangeDescriptionBillSuccessed(_PlaceChangeDescription):

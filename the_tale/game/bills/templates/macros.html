@@ -33,10 +33,10 @@
         {% elif bill.state.is_accepted %} принят
         {% elif bill.state.is_rejected %}
 
-        {% if bill.is_votes_baries_passed %}
+        {% if bill.is_votes_barier_not_passed %}
         не набрано достаточно голосов
 
-        {% elif bill.is_percents_baries_passed %}
+        {% elif bill.is_percents_barier_not_passed %}
         не набран необходимый процент поддержки
 
         {% endif %}

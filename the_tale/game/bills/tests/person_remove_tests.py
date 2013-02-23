@@ -19,7 +19,7 @@ class PersonRemoveTests(BaseTestPrototypes):
         self.person1 = sorted(self.place1.persons, key=lambda p: -p.power)[0]
         self.person2 = sorted(self.place2.persons, key=lambda p: -p.power)[-1]
 
-        bill_data = PersonRemove(person_id=self.person1.id)
+        bill_data = PersonRemove(person_id=self.person1.id, old_place_name_forms=self.place1.normalized_name)
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
 

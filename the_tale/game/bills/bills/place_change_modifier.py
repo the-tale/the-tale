@@ -2,6 +2,8 @@
 
 from django.forms import ValidationError
 
+from textgen.words import Noun
+
 from dext.forms import fields
 
 from game.bills.models import BILL_TYPE
@@ -56,12 +58,15 @@ class PlaceModifier(object):
     CAPTION = u'Закон об изменении специализации города'
     DESCRIPTION = u'Изменяет специализацию города. Изменить специализацию можно только на одну из доступных для этого города. Посмотреть доступные варианты можно в диалоге информации о городе на странице игры.'
 
-    def __init__(self, place_id=None, modifier_id=None, modifier_name=None, old_modifier_name=None, old_name=None):
+    def __init__(self, place_id=None, modifier_id=None, modifier_name=None, old_modifier_name=None, old_name_forms=None):
         self.place_id = place_id
         self.modifier_id = modifier_id
         self.modifier_name = modifier_name
-        self.old_name = old_name
+        self.old_name_forms = old_name_forms
         self.old_modifier_name = old_modifier_name
+
+        if self.old_name_forms is None and self.place_id is not None:
+            self.old_name_forms = self.place.normalized_name
 
     @property
     def place(self):
@@ -76,11 +81,14 @@ class PlaceModifier(object):
     def moderator_form_initials(self):
         return {}
 
+    @property
+    def old_name(self): return self.old_name_forms.normalized
+
     def initialize_with_user_data(self, user_form):
         self.place_id = int(user_form.c.place)
         self.modifier_id = user_form.c.new_modifier
         self.modifier_name = MODIFIERS[self.modifier_id].NAME
-        self.old_name = self.place.name
+        self.old_name_forms = self.place.normalized_name
         self.old_modifier_name = self.place.modifier.NAME if self.place.modifier else None
 
     def initialize_with_moderator_data(self, moderator_form):
@@ -105,7 +113,7 @@ class PlaceModifier(object):
                 'modifier_id': self.modifier_id,
                 'modifier_name': self.modifier_name,
                 'place_id': self.place_id,
-                'old_name': self.old_name,
+                'old_name_forms': self.old_name_forms.serialize(),
                 'old_modifier_name': self.old_modifier_name if self.old_modifier_name else None}
 
     @classmethod
@@ -114,7 +122,7 @@ class PlaceModifier(object):
         obj.modifier_id = data['modifier_id']
         obj.modifier_name = data['modifier_name']
         obj.place_id = data['place_id']
-        obj.old_name = data.get('old_name', u'неизвестно')
+        obj.old_name_forms = Noun.deserialize(data['old_name_forms'])
         obj.old_modifier_name = data.get('old_modifier_name')
 
         return obj

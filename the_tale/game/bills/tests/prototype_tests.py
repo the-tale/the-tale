@@ -73,7 +73,7 @@ class TestPrototypeApply(BaseTestPrototypes):
 
     def check_place(self, place_id, name, name_forms):
         self.assertEqual(places_storage[place_id].name, name)
-        self.assertEqual(places_storage[place_id].normalized_name[0].forms, name_forms)
+        self.assertEqual(places_storage[place_id].normalized_name.forms, name_forms)
 
 
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', lambda x: datetime.timedelta(seconds=0))
@@ -84,7 +84,7 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         places_storage.sync(force=True)
 
-        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name[0].forms)
+        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
 
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', lambda x: datetime.timedelta(seconds=0))
     def test_not_approved(self):
@@ -95,12 +95,12 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         places_storage.sync(force=True)
 
-        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name[0].forms)
+        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
 
     def test_wrong_time(self):
         self.assertRaises(BillException, self.bill.apply)
         places_storage.sync(force=True)
-        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name[0].forms)
+        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 2)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
@@ -119,7 +119,7 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         places_storage.sync(force=True)
 
-        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name[0].forms)
+        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
 
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 1)
@@ -140,7 +140,7 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         places_storage.sync(force=True)
 
-        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name[0].forms)
+        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 2)
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)

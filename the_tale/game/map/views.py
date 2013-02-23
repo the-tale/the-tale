@@ -46,7 +46,7 @@ class MapResource(Resource):
         cell = world.cell_info(x, y)
         cell_power = world.cell_power_info(x, y)
 
-        nearest_place_name = map_info.get_dominant_place(x, y).normalized_name[0].get_form(Args(u'рд'))
+        nearest_place_name = map_info.get_dominant_place(x, y).normalized_name.get_form(Args(u'рд'))
 
         randomized_cell = cell.randomize(seed=(x+y)*TimePrototype.get_current_time().game_time.day, fraction=map_settings.CELL_RANDOMIZE_FRACTION)
 
