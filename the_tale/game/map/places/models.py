@@ -4,7 +4,7 @@ from django.db import models
 
 from common.utils.enum import create_enum
 
-from game.balance.enums import CITY_MODIFIERS
+from game.balance.enums import CITY_MODIFIERS, RACE
 
 
 TERRAIN = create_enum('TERRAIN', ( ('WATER_DEEP',            0, u'глубокая вода'),
@@ -65,6 +65,8 @@ class Place(models.Model):
     heroes_number = models.IntegerField(default=0)
 
     modifier = models.IntegerField(null=True, default=None, choices=CITY_MODIFIERS._CHOICES)
+
+    race = models.IntegerField(null=False, default=RACE.HUMAN, choices=RACE._CHOICES)
 
     class Meta:
         ordering = ('name', )

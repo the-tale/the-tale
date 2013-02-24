@@ -15,7 +15,7 @@ from accounts.logic import register_user, login_url
 
 from game.logic import create_test_map
 
-from game.chronicle.models import RECORD_TYPE
+from game.chronicle.models import RECORD_TYPE, Record
 from game.chronicle.records import RecordBase
 from game.chronicle.conf import chronicle_settings
 
@@ -34,6 +34,8 @@ class IndexRequestsTest(TestCase):
 
     def setUp(self):
         create_test_map()
+
+        Record.objects.all().delete()
 
         self.client = client.Client()
 

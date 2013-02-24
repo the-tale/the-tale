@@ -2,40 +2,39 @@
 
 from django.dispatch import receiver
 
+from textgen.words import Fake as FakeWord
+
 from game.bills import signals as bills_signals
 from game.bills import BILL_TYPE
 
-from game.chronicle import records
+from game.map.places import signals as places_signals
 
-# BILL_TYPE = create_enum('BILL_TYPE', (('PLACE_RENAMING', 0, u'переименование места'),
-#                                       ('PERSON_REMOVE', 1, u'удаление персонажа'),
-#                                       ('PLACE_DESCRIPTION', 2, u'изменить описание места'),
-#                                       ('PLACE_MODIFIER', 3, u'изменить тип места')))
+from game.chronicle import records
 
 
 def _get_bill_place_renaming_arguments(bill):
     return {'place': bill.data.place,
-            'bill': bill,
+            'bill': FakeWord(bill.caption),
             'old_name': bill.data.old_name_forms,
             'new_name': bill.data.name_forms}
 
 def _get_bill_place_description_arguments(bill):
     return {'place': bill.data.place,
-            'bill': bill}
+            'bill': FakeWord(bill.caption)}
 
 def _get_bill_place_modifier_arguments(bill):
     return {'place': bill.data.place,
-            'bill': bill,
+            'bill': FakeWord(bill.caption),
             'old_modifier': bill.data.place.modifier.NAME.lower() if bill.data.place.modifier is not None else None,
             'new_modifier': bill.data.modifier_name}
 
 def _get_bill_person_remove_arguments(bill):
     return {'place': bill.data.person.place,
             'person': bill.data.person,
-            'bill': bill}
+            'bill': FakeWord(bill.caption)}
 
 
-@receiver(bills_signals.bill_moderated, dispatch_uid="chronicle_bill_moderated")
+@receiver(bills_signals.bill_moderated, dispatch_uid='chronicle_bill_moderated')
 def chronicle_bill_moderated(sender, bill, **kwargs):
     if not bill.approved_by_moderator: return
 
@@ -48,7 +47,7 @@ def chronicle_bill_moderated(sender, bill, **kwargs):
     elif bill.data.type == BILL_TYPE.PERSON_REMOVE:
         records.PersonRemoveBillStarted(**_get_bill_person_remove_arguments(bill)).create_record()
 
-@receiver(bills_signals.bill_processed, dispatch_uid="chronicle_bill_processed")
+@receiver(bills_signals.bill_processed, dispatch_uid='chronicle_bill_processed')
 def chronicle_bill_processed(sender, bill, **kwargs):
 
     if bill.data.type == BILL_TYPE.PLACE_RENAMING:
@@ -74,3 +73,19 @@ def chronicle_bill_processed(sender, bill, **kwargs):
         if bill.state.is_accepted:
             record_type = records.PersonRemoveBillSuccessed
         record_type(**_get_bill_person_remove_arguments(bill)).create_record()
+
+@receiver(places_signals.place_modifier_reseted, dispatch_uid='chronicle_place_modifier_reseted')
+def chronicle_place_modifier_reseted(sender, place, old_modifier, **kwargs):
+    records.PlaceLosedModifier(place=place, old_modifier=old_modifier.NAME.lower()).create_record()
+
+@receiver(places_signals.place_person_left, dispatch_uid='chronicle_place_person_left')
+def chronicle_place_person_left(sender, place, person, **kwargs):
+    records.PersonLeftPlace(place=place, person=person).create_record()
+
+@receiver(places_signals.place_person_arrived, dispatch_uid='chronicle_place_person_arrived')
+def chronicle_place_person_arrived(sender, place, person, **kwargs):
+    records.PersonArrivedToPlace(place=place, person=person).create_record()
+
+@receiver(places_signals.place_race_changed, dispatch_uid='chronicle_place_race_changed')
+def chronicle_place_race_changed(sender, place, old_race, new_race, **kwargs):
+    records.PlaceChangeRace(place=place, old_race=old_race.verbose, new_race=new_race.verbose).create_record()

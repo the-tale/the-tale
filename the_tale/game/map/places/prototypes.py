@@ -9,7 +9,10 @@ from textgen import words
 
 from game import names
 from game.prototypes import TimePrototype, GameTime
+
 from game.balance import formulas as f
+from game.balance.enums import RACE, PERSON_TYPE
+
 from game.helpers import add_power_management
 
 from game.heroes.models import Hero
@@ -18,6 +21,7 @@ from game.map.places.models import Place, PLACE_TYPE
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
 from game.map.places.modifiers import MODIFIERS, PlaceModifierBase
+from game.map.places import signals
 
 @add_power_management(places_settings.POWER_HISTORY_LENGTH, PlacesException)
 class PlacePrototype(object):
@@ -63,6 +67,12 @@ class PlacePrototype(object):
         else:
             self.model.modifier = value
     modifier = property(get_modifier, set_modifier)
+
+    def sync_modifier(self):
+        if self.modifier and not self.modifier.is_enough_power:
+            old_modifier = self.modifier
+            self.modifier = None
+            signals.place_modifier_reseted.send(self.__class__, place=self, old_modifier=old_modifier)
 
     @property
     def normalized_name(self):
@@ -128,10 +138,10 @@ class PlacePrototype(object):
         '''
         from game.persons.prototypes import PersonPrototype
         from game.persons.storage import persons_storage
-        from game.balance.enums import RACE, PERSON_TYPE
 
         for person in filter(lambda person: not person.is_stable, self.persons):
             person.move_out_game()
+            signals.place_person_left.send(self.__class__, place=self, person=person)
 
         persons_count = len(self.persons)
 
@@ -146,6 +156,9 @@ class PlacePrototype(object):
                                                 name=names.generator.get_name(race, gender))
             persons_storage.add_item(new_person.id, new_person)
             persons_count += 1
+            signals.place_person_arrived.send(self.__class__, place=self, person=new_person)
+
+        self.sync_race()
 
     @property
     def data(self):
@@ -171,7 +184,17 @@ class PlacePrototype(object):
             terrains.add(map_info.terrain[cell[1]][cell[0]])
         return terrains
 
-    def get_dominant_race(self):
+
+    def get_race(self):
+        if not hasattr(self, '_race'):
+            self._race = RACE(self.model.race)
+        return self._race
+    def set_race(self, value):
+        self.race.update(value)
+        self.model.race = self.race.value
+    race = property(get_race, set_race)
+
+    def sync_race(self):
         race_power = {}
 
         for person in self.persons:
@@ -182,7 +205,10 @@ class PlacePrototype(object):
 
         dominant_race = max(race_power.items(), key=lambda x: x[1])[0]
 
-        return dominant_race
+        if self.race != dominant_race:
+            old_race = self.race
+            self.race = dominant_race
+            signals.place_race_changed.send(self.__class__, place=self, old_race=old_race, new_race=self.race)
 
     def __unicode__(self):
         return self.model.__unicode__()
@@ -212,7 +238,7 @@ class PlacePrototype(object):
     def map_info(self):
         return {'id': self.id,
                 'pos': {'x': self.x, 'y': self.y},
-                'race': self.get_dominant_race(),
+                'race': self.race.value,
                 'name': self.name,
                 'type': self.type,
                 'size': self.size}

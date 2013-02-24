@@ -152,7 +152,7 @@ def get_places_power_points():
               _default_vegetation_points()]
 
     for place in places_storage.all():
-        race = place.get_dominant_race()
+        race = place.race.value
 
         if race == RACE.HUMAN:
             points.append(_point_circle_height(place=place, borders=(-0.2, 0.2), normalizer=normalizers.linear_2))

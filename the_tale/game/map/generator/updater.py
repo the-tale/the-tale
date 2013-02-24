@@ -32,7 +32,7 @@ def _place_info(place):
             'x': place.x,
             'y': place.y,
             'name': place.name,
-            'race': place.get_dominant_race(),
+            'race': place.race.value,
             'size': place.size}
 
 

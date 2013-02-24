@@ -61,7 +61,7 @@ class MapResource(Resource):
                              RACE.ELF: u'эльфы',
                              RACE.ORC: u'орки',
                              RACE.GOBLIN: u'гоблины',
-                             RACE.DWARF: u'дварфы'}[place.get_dominant_race()]
+                             RACE.DWARF: u'дварфы'}[place.race.value]
 
             place_modifiers = place.modifiers
 

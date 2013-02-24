@@ -2,6 +2,9 @@
 
 from django.test import TestCase
 
+from textgen import words
+from dext.utils import s11n
+
 from game.balance import constants as c
 
 from game.persons.storage import persons_storage
@@ -22,6 +25,7 @@ class PlacePowerTest(TestCase):
         self.model = Place.objects.create(x=0,
                                           y=0,
                                           name='power_test_place',
+                                          name_forms=s11n.to_json(words.Noun.fast_construct('power_test_place').serialize()),
                                           type=PLACE_TYPE.CITY,
                                           size=5 )
 

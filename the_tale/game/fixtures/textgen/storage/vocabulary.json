@@ -123,6 +123,48 @@
       "template": "%(i_0)s %(e_0)s куда лучше %(i_1)s — надо их поменять."
     }
   ], 
+  "chronicle_place_change_modifier_bill_failed_with_old_modifier": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ], 
+        [
+          "old_modifier", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "old_modifier"
+        ], 
+        [
+          "new_modifier", 
+          [], 
+          "e_2", 
+          [
+            "вн"
+          ], 
+          "new_modifier"
+        ], 
+        [
+          "bill", 
+          [], 
+          "e_3", 
+          [], 
+          "bill"
+        ]
+      ], 
+      "template": "Инициатива об изменении специализации %(e_0)s с «%(e_1)s» на «%(e_2)s» не нашла поддержки у населения. Закон «%(e_3)s» отклонён."
+    }
+  ], 
   "quest_delivery_action_choice_delivery": [], 
   "angel_ability_shortteleport": [
     {
@@ -433,6 +475,35 @@
       "template": "%(e_0)s давно не %(i_0)s о себе знать. Нужно %(i_1)s проведать."
     }
   ], 
+  "quest_hometown_journal_move_to_quest": [
+    {
+      "internals": [
+        [
+          "отправился", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "отправился"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s в родной город."
+    }
+  ], 
   "quest_caravan_action_bandits_attack": [
     {
       "internals": [], 
@@ -502,6 +573,49 @@
       "internals": [], 
       "externals": [], 
       "template": "честно выполнить свои обязательства"
+    }
+  ], 
+  "chronicle_place_change_name_bill_successed": [
+    {
+      "internals": [
+        [
+          "переименован", 
+          [
+            "old_name"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "переименован"
+        ]
+      ], 
+      "externals": [
+        [
+          "bill", 
+          [], 
+          "e_0", 
+          [], 
+          "bill"
+        ], 
+        [
+          "old_name", 
+          [], 
+          "e_1", 
+          [], 
+          "old_name"
+        ], 
+        [
+          "new_name", 
+          [], 
+          "e_2", 
+          [
+            "вн"
+          ], 
+          "new_name"
+        ]
+      ], 
+      "template": "Принят закон «%(e_0)s». «%(e_1)s» %(i_0)s в «%(e_2)s»."
     }
   ], 
   "quest_hometown_journal_chatting": [], 
@@ -2413,19 +2527,51 @@
       "template": "%(e_0)s %(i_0)s и в благодарность за попытку помочь %(i_1)s %(e_1)s."
     }
   ], 
-  "quest_hometown_action_search_old_friends": [
+  "chronicle_person_left_place": [
     {
-      "internals": [], 
+      "internals": [
+        [
+          "растерял", 
+          [
+            "person"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "растерял"
+        ], 
+        [
+          "имел", 
+          [
+            "person"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "имел"
+        ]
+      ], 
       "externals": [
         [
-          "hero", 
+          "person", 
           [], 
           "e_0", 
           [], 
-          "hero"
+          "person"
+        ], 
+        [
+          "place", 
+          [], 
+          "e_1", 
+          [
+            "пр"
+          ], 
+          "place"
         ]
       ], 
-      "template": "%(e_0)s гуляет по городу"
+      "template": "%(e_0)s %(i_0)s всё влияние, которое %(i_1)s в %(e_1)s и покинула город."
     }
   ], 
   "action_regenerate_energy_energy_received_incense": [
@@ -2457,7 +2603,72 @@
       "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
     }
   ], 
-  "quest_interfereenemy_action_get_reward": [], 
+  "action_inplace_instant_heal": [
+    {
+      "internals": [
+        [
+          "вошёл", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "вошёл"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "им"
+          ], 
+          "hero"
+        ], 
+        [
+          "place", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "Едва %(e_0)s %(i_0)s в %(e_1)s, как раны начали затягиваться."
+    }, 
+    {
+      "internals": [
+        [
+          "он", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "вн"
+          ], 
+          "он"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "дт", 
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s предложили сделать бесплатный массаж, теперь поясница больше %(i_0)s не беспокоит. Вместе с поясницей излечились и все остальные раны."
+    }
+  ], 
   "pvp_change_style_to_snake": [
     {
       "internals": [
@@ -2489,33 +2700,37 @@
     }
   ], 
   "quest_hometown_diary_move_to_quest": [], 
-  "quest_hometown_journal_move_to_quest": [
+  "chronicle_place_change_modifier_bill_failed_without_old_modifier": [
     {
-      "internals": [
-        [
-          "отправился", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "отправился"
-        ]
-      ], 
+      "internals": [], 
       "externals": [
         [
-          "hero", 
+          "place", 
           [], 
           "e_0", 
           [
-            "загл"
+            "вн"
           ], 
-          "hero"
+          "place"
+        ], 
+        [
+          "new_modifier", 
+          [], 
+          "e_1", 
+          [
+            "тв"
+          ], 
+          "new_modifier"
+        ], 
+        [
+          "bill", 
+          [], 
+          "e_2", 
+          [], 
+          "bill"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s в родной город."
+      "template": "Идея сделать %(e_0)s %(e_1)s не нашла поддержки у большинства жителей и закон «%(e_2)s» был отклонён."
     }
   ], 
   "pvp_change_style_to_monkey": [
@@ -2594,43 +2809,48 @@
       "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
     }
   ], 
-  "quest_caravan_diary_good_get_reward_money": [
+  "quest_hunt_description": [
     {
-      "internals": [
-        [
-          "получил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш", 
-            "загл"
-          ], 
-          "получил"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
+      "internals": [], 
+      "externals": [], 
+      "template": "Поохотиться в удовольствие"
+    }
+  ], 
+  "chronicle_place_change_race": [
+    {
+      "internals": [], 
       "externals": [
         [
-          "coins", 
+          "place", 
           [], 
           "e_0", 
+          [
+            "пр"
+          ], 
+          "place"
+        ], 
+        [
+          "old_race", 
           [], 
-          "coins"
+          "e_1", 
+          [
+            "мн", 
+            "рд"
+          ], 
+          "old_race"
+        ], 
+        [
+          "new_race", 
+          [], 
+          "e_2", 
+          [
+            "мн", 
+            "им"
+          ], 
+          "new_race"
         ]
       ], 
-      "template": "%(i_0)s %(e_0)s %(i_1)s в награду за хорошую охрану каравана."
+      "template": "В %(e_0)s изменилась доминирующая раса — теперь большинство населения вместо %(e_1)s составляют %(e_2)s."
     }
   ], 
   "quest_interfereenemy_diary_get_reward_money": [
@@ -2717,18 +2937,7 @@
       "template": "%(e_0)s будет защищать караван."
     }
   ], 
-  "quest_caravan_journal_caravan_attack": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "«А не взять ли мне свою долю пораньше?»"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "«Охрана отдыхает. Пора!»"
-    }
-  ], 
+  "quest_spying_diary_spying": [], 
   "action_idleness_description": [
     {
       "internals": [], 
@@ -3216,6 +3425,30 @@
       ], 
       "externals": [], 
       "template": "Слишком много сил я %(i_0)s на доставку этого письма, надо его украсть."
+    }
+  ], 
+  "chronicle_place_change_description_bill_started": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "bill", 
+          [], 
+          "e_0", 
+          [], 
+          "bill"
+        ], 
+        [
+          "place", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "Выдвинут закон «%(e_0)s» — об изменении описания %(e_1)s."
     }
   ], 
   "quest_caravan_description": [
@@ -3764,6 +3997,7 @@
       "template": "Пойдём, посмотрим на должника."
     }
   ], 
+  "quest_interfereenemy_action_get_reward": [], 
   "action_battlepve1x1_put_loot": [
     {
       "internals": [], 
@@ -4912,70 +5146,38 @@
       "template": "Помнится, в прошлый раз за тем поворотом на меня напали, нужно быть настороже!"
     }
   ], 
-  "action_inplace_instant_heal": [
+  "chronicle_place_change_name_bill_failed": [
     {
       "internals": [
         [
-          "вошёл", 
+          "остался", 
           [
-            "hero"
+            "old_name"
           ], 
           "i_0", 
           [
             "прш"
           ], 
-          "вошёл"
+          "остался"
         ]
       ], 
       "externals": [
         [
-          "hero", 
+          "bill", 
           [], 
           "e_0", 
-          [
-            "им"
-          ], 
-          "hero"
+          [], 
+          "bill"
         ], 
         [
-          "place", 
+          "old_name", 
           [], 
           "e_1", 
-          [
-            "вн"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "Едва %(e_0)s %(i_0)s в %(e_1)s, как раны начали затягиваться."
-    }, 
-    {
-      "internals": [
-        [
-          "он", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "вн"
-          ], 
-          "он"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
           [], 
-          "e_0", 
-          [
-            "дт", 
-            "загл"
-          ], 
-          "hero"
+          "old_name"
         ]
       ], 
-      "template": "%(e_0)s предложили сделать бесплатный массаж, теперь поясница больше %(i_0)s не беспокоит. Вместе с поясницей излечились и все остальные раны."
+      "template": "Закон «%(e_0)s» отклонён. «%(e_1)s» %(i_0)s с прежним названием."
     }
   ], 
   "quest_hometown_action_move_to_quest": [
@@ -5201,19 +5403,28 @@
       "template": "%(e_0)s %(i_0)s %(e_1)s"
     }
   ], 
-  "quest_helpfriend_action_move_to_quest": [
+  "chronicle_person_arrived_to_place": [
     {
       "internals": [], 
       "externals": [
         [
-          "hero", 
+          "place", 
           [], 
           "e_0", 
+          [
+            "пр"
+          ], 
+          "place"
+        ], 
+        [
+          "person", 
           [], 
-          "hero"
+          "e_1", 
+          [], 
+          "person"
         ]
       ], 
-      "template": "%(e_0)s идёт в гости"
+      "template": "В %(e_0)s появился новый влиятельный житель — %(e_1)s."
     }
   ], 
   "quest_hunt_journal_move_to_quest": [
@@ -5243,6 +5454,21 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s в исконные места обитания любимой добычи."
+    }
+  ], 
+  "quest_caravan_action_move_to_point": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s сопровождает караван"
     }
   ], 
   "quest_hometown_journal_stagger_streets": [], 
@@ -5737,6 +5963,51 @@
       "template": "%(e_0)s идёт на дело"
     }
   ], 
+  "quest_caravan_diary_good_get_reward_artifact": [
+    {
+      "internals": [
+        [
+          "получил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "получил"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "%(i_0)s %(e_0)s в награду за хорошую охрану каравана."
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "После тяжелых испытаний, караванщик вручил %(e_0)s в знак благодарности."
+    }
+  ], 
   "action_regenerate_energy_start_pray": [
     {
       "internals": [
@@ -6143,6 +6414,21 @@
       "template": "защищать торговца"
     }
   ], 
+  "quest_helpfriend_action_move_to_quest": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s идёт в гости"
+    }
+  ], 
   "quest_helpfriend_action_positive_get_reward": [], 
   "quest_searchsmith_journal_intro": [], 
   "quest_notmywork_action_intro": [
@@ -6270,6 +6556,39 @@
       "template": "%(e_0)s уже никуда не %(i_0)s, а вот %(e_1)s — другое дело."
     }
   ], 
+  "chronicle_place_change_modifier_bill_successed_without_old_modifier": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "place"
+        ], 
+        [
+          "new_modifier", 
+          [], 
+          "e_1", 
+          [
+            "тв"
+          ], 
+          "new_modifier"
+        ], 
+        [
+          "bill", 
+          [], 
+          "e_2", 
+          [], 
+          "bill"
+        ]
+      ], 
+      "template": "Идея сделать %(e_0)s %(e_1)s была поддержана большинством жителей и был принят соответствующий закон «%(e_2)s»."
+    }
+  ], 
   "quest_caravan_action_run_away": [
     {
       "internals": [], 
@@ -6286,6 +6605,7 @@
     }
   ], 
   "quest_searchsmith_diary_move_to_quest": [], 
+  "quest_delivery_action_choice_intro": [], 
   "quest_hometown_journal_stagger_streets_start": [
     {
       "internals": [], 
@@ -6293,49 +6613,47 @@
       "template": "Пойду поброжу по родным улочкам."
     }
   ], 
-  "quest_caravan_diary_good_get_reward_artifact": [
+  "chronicle_person_remove_bill_successed": [
     {
       "internals": [
         [
-          "получил", 
+          "покинул", 
           [
-            "hero"
+            "person"
           ], 
           "i_0", 
           [
-            "прш", 
-            "загл"
+            "прш"
           ], 
-          "получил"
+          "покинул"
         ]
       ], 
       "externals": [
         [
-          "artifact", 
+          "person", 
           [], 
           "e_0", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "%(i_0)s %(e_0)s в награду за хорошую охрану каравана."
-    }, 
-    {
-      "internals": [], 
-      "externals": [
+          [], 
+          "person"
+        ], 
         [
-          "artifact", 
+          "place", 
           [], 
-          "e_0", 
+          "e_1", 
           [
             "вн"
           ], 
-          "artifact"
+          "place"
+        ], 
+        [
+          "bill", 
+          [], 
+          "e_2", 
+          [], 
+          "bill"
         ]
       ], 
-      "template": "После тяжелых испытаний, караванщик вручил %(e_0)s в знак благодарности."
+      "template": "%(e_0)s %(i_0)s %(e_1)s из-за принятия жителями закона «%(e_2)s»."
     }
   ], 
   "quest_spying_diary_get_reward_spying_money": [
@@ -7169,6 +7487,21 @@
       "template": "Помочь другу"
     }
   ], 
+  "quest_hometown_action_search_old_friends": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s гуляет по городу"
+    }
+  ], 
   "quest_hometown_action_stagger_streets": [
     {
       "internals": [], 
@@ -7214,11 +7547,51 @@
       "template": "%(e_0)s выслушивает объяснения"
     }
   ], 
-  "quest_hunt_description": [
+  "chronicle_place_losed_modifier": [
     {
-      "internals": [], 
-      "externals": [], 
-      "template": "Поохотиться в удовольствие"
+      "internals": [
+        [
+          "перестал", 
+          [
+            "place"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "перестал"
+        ], 
+        [
+          "потерял", 
+          [
+            "place"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "потерял"
+        ]
+      ], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [], 
+          "place"
+        ], 
+        [
+          "old_modifier", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "old_modifier"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s поддерживать инфраструктуру, необходимую для %(e_1)s и %(i_1)s свою специализацию."
     }
   ], 
   "quest_delivery_diary_move_to_destination": [], 
@@ -7330,8 +7703,188 @@
     }
   ], 
   "quest_hometown_diary_remember_names": [], 
-  "quest_delivery_action_choice_intro": [], 
+  "chronicle_place_change_modifier_bill_started_with_old_modifier": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ], 
+        [
+          "old_modifier", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "old_modifier"
+        ], 
+        [
+          "new_modifier", 
+          [], 
+          "e_2", 
+          [
+            "вн"
+          ], 
+          "new_modifier"
+        ], 
+        [
+          "bill", 
+          [], 
+          "e_3", 
+          [], 
+          "bill"
+        ]
+      ], 
+      "template": "Группа горожан решила изменить специализацию %(e_0)s с «%(e_1)s» на «%(e_2)s». В связи с этим выдвинут закон «%(e_3)s»."
+    }
+  ], 
   "quest_notmywork_diary_work_choice": [], 
+  "action_inplace_diary_buying_artifact": [
+    {
+      "internals": [
+        [
+          "целый", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "вн", 
+            "жр"
+          ], 
+          "целый"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "Торговка впарила %(e_0)s за %(i_0)s %(e_1)s %(i_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "он", 
+          [
+            "artifact"
+          ], 
+          "i_0", 
+          [
+            "им"
+          ], 
+          "он"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "им"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "Пришлось раскошелиться на %(e_0)s, уж больно хорошо %(i_0)s на мне смотрится. И главное, всего %(e_1)s %(i_1)s!"
+    }, 
+    {
+      "internals": [
+        [
+          "Нашел", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "Нашел"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(i_0)s на прилавке торговца %(e_0)s, пришлось заплатить %(e_1)s %(i_1)s."
+    }
+  ], 
   "quest_delivery_choice_steal_variant_steal": [
     {
       "internals": [], 
@@ -7472,6 +8025,39 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s добиться исполнения обещания одним должником. Должник, %(e_1)s, живёт в %(e_2)s."
+    }
+  ], 
+  "chronicle_place_change_modifier_bill_started_without_old_modifier": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ], 
+        [
+          "new_modifier", 
+          [], 
+          "e_1", 
+          [
+            "тв"
+          ], 
+          "new_modifier"
+        ], 
+        [
+          "bill", 
+          [], 
+          "e_2", 
+          [], 
+          "bill"
+        ]
+      ], 
+      "template": "Жители %(e_0)s решили сделать свой город %(e_1)s и выдвинули закон «%(e_2)s»."
     }
   ], 
   "quest_caravan_choice_bring_result_bandits": [
@@ -8495,6 +9081,21 @@
       "template": "%(i_0)s довести разведку до конца — не пристало герою отказываться от заданий, да и %(e_0)s действительно ведёт себя подозрительно."
     }
   ], 
+  "quest_spying_action_move_to_quest": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s идёт к месту жительства цели"
+    }
+  ], 
   "quest_notmywork_diary_choice_attack": [
     {
       "internals": [], 
@@ -9081,7 +9682,18 @@
       "template": "%(e_0)s %(i_0)s себя вместо %(e_1)s."
     }
   ], 
-  "quest_spying_diary_spying": [], 
+  "quest_caravan_journal_caravan_attack": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "«А не взять ли мне свою долю пораньше?»"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "«Охрана отдыхает. Пора!»"
+    }
+  ], 
   "quest_spying_action_get_reward_open_up": [], 
   "action_rest_resring": [
     {
@@ -10266,143 +10878,28 @@
     }
   ], 
   "quest_spying_diary_move_to_quest": [], 
-  "action_inplace_diary_buying_artifact": [
+  "chronicle_place_change_description_bill_successed": [
     {
-      "internals": [
-        [
-          "целый", 
-          [
-            "coins"
-          ], 
-          "i_0", 
-          [
-            "вн", 
-            "жр"
-          ], 
-          "целый"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
+      "internals": [], 
       "externals": [
         [
-          "artifact", 
+          "place", 
           [], 
           "e_0", 
           [
-            "вн"
+            "рд"
           ], 
-          "artifact"
+          "place"
         ], 
         [
-          "coins", 
+          "bill", 
           [], 
           "e_1", 
           [], 
-          "coins"
+          "bill"
         ]
       ], 
-      "template": "Торговка впарила %(e_0)s за %(i_0)s %(e_1)s %(i_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "он", 
-          [
-            "artifact"
-          ], 
-          "i_0", 
-          [
-            "им"
-          ], 
-          "он"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "им"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "Пришлось раскошелиться на %(e_0)s, уж больно хорошо %(i_0)s на мне смотрится. И главное, всего %(e_1)s %(i_1)s!"
-    }, 
-    {
-      "internals": [
-        [
-          "Нашел", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш", 
-            "загл"
-          ], 
-          "Нашел"
-        ], 
-        [
-          "монета", 
-          [
-            "coins"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "монета"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ], 
-        [
-          "coins", 
-          [], 
-          "e_1", 
-          [], 
-          "coins"
-        ]
-      ], 
-      "template": "%(i_0)s на прилавке торговца %(e_0)s, пришлось заплатить %(e_1)s %(i_1)s."
+      "template": "Описание %(e_0)s изменено согласно закону «%(e_1)s»."
     }
   ], 
   "action_movenearplace_description": [
@@ -11967,6 +12464,51 @@
       "template": "довести дело до конца"
     }
   ], 
+  "chronicle_person_remove_bill_failed": [
+    {
+      "internals": [
+        [
+          "смог", 
+          [
+            "person"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "смог"
+        ], 
+        [
+          "он", 
+          [
+            "person"
+          ], 
+          "i_1", 
+          [
+            "рд"
+          ], 
+          "он"
+        ]
+      ], 
+      "externals": [
+        [
+          "person", 
+          [], 
+          "e_0", 
+          [], 
+          "person"
+        ], 
+        [
+          "bill", 
+          [], 
+          "e_1", 
+          [], 
+          "bill"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s удержаться в селе — закон об %(i_1)s изгнании «%(e_1)s» не получил необходимую поддержку."
+    }
+  ], 
   "angel_ability_shortteleport_crit": [
     {
       "internals": [
@@ -12048,7 +12590,6 @@
       "template": "Я, %(e_0)s, служу тебе верой и правдой, всевышний, пусть испепелённое тело врага моего подтвердит мою преданность."
     }
   ], 
-  "quest_hometown_journal_search_old_friends_donothing": [], 
   "angel_ability_lightning": [
     {
       "internals": [], 
@@ -13876,34 +14417,86 @@
     }
   ], 
   "quest_spying_action_choice_continue_spying": [], 
-  "quest_spying_action_move_to_quest": [
+  "quest_hometown_journal_search_old_friends_donothing": [], 
+  "chronicle_person_remove_bill_started": [
     {
-      "internals": [], 
+      "internals": [
+        [
+          "перестал", 
+          [
+            "person"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "перестал"
+        ], 
+        [
+          "он", 
+          [
+            "person"
+          ], 
+          "i_1", 
+          [
+            "рд"
+          ], 
+          "он"
+        ]
+      ], 
       "externals": [
         [
-          "hero", 
+          "person", 
           [], 
           "e_0", 
           [], 
-          "hero"
+          "person"
+        ], 
+        [
+          "place", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "place"
+        ], 
+        [
+          "bill", 
+          [], 
+          "e_2", 
+          [], 
+          "bill"
         ]
       ], 
-      "template": "%(e_0)s идёт к месту жительства цели"
+      "template": "%(e_0)s %(i_0)s уживаться с жителями %(e_1)s, и горожане выдвинули закон «%(e_2)s» об %(i_1)s выселении."
     }
   ], 
-  "quest_caravan_action_move_to_point": [
+  "quest_delivery_diary_steal_get_reward_artifact": [
     {
       "internals": [], 
       "externals": [
         [
-          "hero", 
+          "item_to_deliver", 
           [], 
           "e_0", 
+          [
+            "вн", 
+            "загл"
+          ], 
+          "item_to_deliver"
+        ], 
+        [
+          "artifact", 
           [], 
-          "hero"
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
         ]
       ], 
-      "template": "%(e_0)s сопровождает караван"
+      "template": "%(e_0)s удалось обменять на %(e_1)s."
     }
   ], 
   "hero_ability_fireball": [
@@ -14496,6 +15089,39 @@
       "template": "%(e_0)s %(i_0)s поистине чудесный артефакт — «%(e_1)s»! И всего за %(e_2)s %(i_1)s. %(e_3)s пришлось продать за %(e_4)s %(i_2)s."
     }
   ], 
+  "chronicle_place_change_name_bill_started": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "old_name", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "old_name"
+        ], 
+        [
+          "new_name", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "new_name"
+        ], 
+        [
+          "bill", 
+          [], 
+          "e_2", 
+          [], 
+          "bill"
+        ]
+      ], 
+      "template": "Группа горожан, в попытке переименовать «%(e_0)s» в «%(e_1)s», выдвинула закон «%(e_2)s»."
+    }
+  ], 
   "quest_notmywork_action_attack_performer": [
     {
       "internals": [
@@ -14545,8 +15171,85 @@
       "template": "%(e_0)s направляется к мастеру"
     }
   ], 
+  "chronicle_place_change_description_bill_failed": [
+    {
+      "internals": [
+        [
+          "остался", 
+          [
+            "place"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "остался"
+        ]
+      ], 
+      "externals": [
+        [
+          "bill", 
+          [], 
+          "e_0", 
+          [], 
+          "bill"
+        ], 
+        [
+          "place", 
+          [], 
+          "e_1", 
+          [], 
+          "place"
+        ]
+      ], 
+      "template": "Отклонён закон «%(e_0)s», %(e_1)s %(i_0)s со старым описанием."
+    }
+  ], 
   "quest_hometown_diary_search_old_friends": [], 
   "quest_notmywork_diary_attack_performer": [], 
+  "chronicle_place_change_modifier_bill_successed_with_old_modifier": [
+    {
+      "internals": [
+        [
+          "стал", 
+          [
+            "place"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "стал"
+        ]
+      ], 
+      "externals": [
+        [
+          "bill", 
+          [], 
+          "e_0", 
+          [], 
+          "bill"
+        ], 
+        [
+          "place", 
+          [], 
+          "e_1", 
+          [], 
+          "place"
+        ], 
+        [
+          "new_modifier", 
+          [], 
+          "e_2", 
+          [
+            "тв"
+          ], 
+          "new_modifier"
+        ]
+      ], 
+      "template": "Принят закон «%(e_0)s». %(e_1)s %(i_0)s %(e_2)s."
+    }
+  ], 
   "quest_searchsmith_journal_move_to_quest": [], 
   "quest_caravan_choice_bring_variant_bandits": [
     {
@@ -14854,31 +15557,43 @@
     }
   ], 
   "quest_caravan_diary_run_away": [], 
-  "quest_delivery_diary_steal_get_reward_artifact": [
+  "quest_caravan_diary_good_get_reward_money": [
     {
-      "internals": [], 
-      "externals": [
+      "internals": [
         [
-          "item_to_deliver", 
-          [], 
-          "e_0", 
+          "получил", 
           [
-            "вн", 
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
             "загл"
           ], 
-          "item_to_deliver"
+          "получил"
         ], 
         [
-          "artifact", 
-          [], 
-          "e_1", 
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
           [
             "вн"
           ], 
-          "artifact"
+          "монета"
         ]
       ], 
-      "template": "%(e_0)s удалось обменять на %(e_1)s."
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "%(i_0)s %(e_0)s %(i_1)s в награду за хорошую охрану каравана."
     }
   ], 
   "quest_help_diary_get_reward_artifact": [

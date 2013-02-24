@@ -13,7 +13,7 @@ class RecordBase(object):
     TYPE = None
     ACTORS = frozenset()
     SUBSTITUTIONS = frozenset()
-    TEXGEN_ID_BASE = 'chronicle_records_%s'
+    TEXGEN_ID_BASE = 'chronicle_%s'
 
     def __init__(self, **kwargs):
         self.actors = { k:v for k, v in kwargs.items() if k in self.ACTORS}
@@ -42,7 +42,7 @@ class RecordBase(object):
 # change place name
 class _PlaceChangeName(RecordBase):
     ACTORS = ['place', 'bill']
-    SUBSTITUTIONS = ['place', 'bill', 'old_name', 'new_name']
+    SUBSTITUTIONS = ['bill', 'old_name', 'new_name']
 
 class PlaceChangeNameBillStarted(_PlaceChangeName):
     TYPE = RECORD_TYPE.PLACE_CHANGE_NAME_BILL_STARTED
@@ -72,9 +72,15 @@ class _PlaceChangeModifier(RecordBase):
     ACTORS = ['place', 'bill']
     SUBSTITUTIONS = ['place', 'bill', 'old_modifier', 'new_modifier']
 
+    def __init__(self, **kwargs):
+        super(_PlaceChangeModifier, self).__init__(**kwargs)
+
+        if self.substitutions['old_modifier'] is None:
+            del self.substitutions['old_modifier']
+
     @property
     def textgen_id(self):
-        if self.substitutions['old_modifier'] is None:
+        if 'old_modifier' not in self.substitutions:
             return self.TEXGEN_ID_BASE  % RECORD_TYPE._ID_TO_STR[self.TYPE].lower() + '_without_old_modifier'
         else:
             return self.TEXGEN_ID_BASE  % RECORD_TYPE._ID_TO_STR[self.TYPE].lower() + '_with_old_modifier'

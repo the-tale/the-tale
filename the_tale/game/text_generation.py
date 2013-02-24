@@ -7,7 +7,7 @@ from django.conf import settings as project_settings
 
 from dext.utils import s11n
 
-from textgen.words import Fake as FakeWord
+from textgen.words import WordBase
 from textgen.templates import Vocabulary, Dictionary
 
 from game.conf import game_settings
@@ -27,8 +27,10 @@ class NamedObject(object):
 def prepair_substitution(args):
     result = {}
     for k, v in args.items():
-        if isinstance(v, (FakeWord, numbers.Number)):
+        if isinstance(v, (WordBase, numbers.Number)):
             result[k] = v
+        elif isinstance(v, basestring):
+            result[k] = get_dictionary().get_word(v)
         else:
             result[k] = v.normalized_name
     return result

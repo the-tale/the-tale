@@ -134,7 +134,7 @@ class MapInfoPrototype(object):
         race_cities = dict( (race_id, 0) for race_id in RACE._ALL)
         for place_model in Place.objects.all():
             place = PlacePrototype(place_model)
-            race_cities[place.get_dominant_race()] += 1
+            race_cities[place.race.value] += 1
 
 
         statistics = {'terrain_percents': terrain_percents,

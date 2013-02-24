@@ -163,10 +163,7 @@ class Worker(BaseWorker):
         for place in places_storage.all():
             place.sync_persons()
             place.update_heroes_number()
-
-            if place.modifier and not place.modifier.is_enough_power:
-                place.modifier = None
-
+            place.sync_modifier()
             place.mark_as_updated()
 
         places_storage.save_all()

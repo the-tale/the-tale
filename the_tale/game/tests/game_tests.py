@@ -12,7 +12,7 @@ from game.logic import create_test_map
 from game.prototypes import TimePrototype
 from game.logic_storage import LogicStorage
 
-from game.balance.enums import CITY_MODIFIERS
+from game.balance.enums import CITY_MODIFIERS, RACE
 
 class GameTest(TestCase):
 
@@ -41,3 +41,8 @@ class GameTest(TestCase):
 
         for modifier_name in CITY_MODIFIERS._ID_TO_TEXT.values():
             self.assertTrue(modifier_name.lower() in get_dictionary())
+
+    def test_race_in_dictionary(self):
+
+        for race_name in RACE._ID_TO_TEXT.values():
+            self.assertTrue(race_name.lower() in get_dictionary())

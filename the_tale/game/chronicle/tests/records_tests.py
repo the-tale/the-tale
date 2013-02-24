@@ -1,8 +1,6 @@
 # coding: utf-8
-import mock
-import datetime
 
-from dext.utils import s11n
+from textgen.words import Fake as FakeWord
 
 from textgen.words import Noun
 
@@ -15,8 +13,6 @@ from accounts.logic import register_user
 from forum.models import Category, SubCategory
 
 from game.logic import create_test_map
-
-from game.map.places.storage import places_storage
 
 from game.bills.conf import bills_settings
 from game.bills.bills import PlaceRenaming
@@ -68,7 +64,7 @@ def create_test_create_method(record_class):
         if 'place' in arguments:
             kwargs['place'] = self.place_1
         if 'bill' in arguments:
-            kwargs['bill'] = self.bill
+            kwargs['bill'] = FakeWord(self.bill.caption)
         if 'person' in arguments:
             kwargs['person'] = self.place_1.persons[0]
 
