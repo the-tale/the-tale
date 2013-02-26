@@ -4,11 +4,11 @@
 
 {% block chronicle_content %}
 
-<p>
-  TODO:
-</p>
+<h2 style="margin-bottom: 0.5em;">Летопись</h2>
 
-<h2 style="margin-bottom: 0.5em;">События</h2>
+<p>
+  В летопись Пандоры заносятся все важные события, происходящие в мире. Ничто не укроется от пристального взгляда духов-летописцев.
+</p>
 
 <div>
   <div class="btn-toolbar">
@@ -26,14 +26,22 @@
 
 {{ base_macros.render_paginator(paginator) }}
 
-<ul class="unstyled">
-  {% for record in records %}
-  <li style="margin-bottom: 1em;">
-    {{ record.game_time.verbose_date}}
-    {{ record.text }}
-  </li>
-  {% endfor %}
-</ul>
+<table class="table">
+  <thead>
+    <tr>
+      <th width="200px">дата</th>
+      <th>событие</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for record in records %}
+    <tr>
+      <td>{{ record.game_time.verbose_date}}</td>
+      <td>{{ record.text }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 {{ base_macros.render_paginator(paginator) }}
 

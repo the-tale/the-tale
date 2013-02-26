@@ -14,12 +14,11 @@ from forum.models import Category, SubCategory
 
 from game.logic import create_test_map
 
-from game.bills.conf import bills_settings
-from game.bills.bills import PlaceRenaming
-from game.bills.prototypes import BillPrototype
+from game.bills import bills_settings, bills, BillPrototype
 
 from game.chronicle import records
-from game.chronicle.models import RECORD_TYPE, Record
+from game.chronicle.models import RECORD_TYPE, Record, Actor
+from game.chronicle.prototypes import create_external_actor
 
 
 class RecordTests(TestCase):
@@ -37,11 +36,11 @@ class RecordTests(TestCase):
                                    slug=bills_settings.FORUM_CATEGORY_SLUG,
                                    category=forum_category)
 
-        bill_data = PlaceRenaming(place_id=self.place_1.id, base_name='new_name')
+        bill_data = bills.PlaceRenaming(place_id=self.place_1.id, base_name='new_name')
         self.bill = BillPrototype.create(self.account, 'bill-caption', 'bill-rationale', bill_data)
 
     def test_records_for_every_type(self):
-        types = set(RECORD_TYPE._ALL)
+        types = set(RECORD_TYPE._records)
 
         for record_class in records.RECORDS.values():
             if record_class.TYPE in types:
@@ -58,25 +57,36 @@ class RecordTests(TestCase):
 def create_test_create_method(record_class):
 
     def test_create_method(self):
-        arguments = set(record_class.ACTORS) | set(record_class.SUBSTITUTIONS)
-        kwargs = {}
 
-        if 'place' in arguments:
-            kwargs['place'] = self.place_1
-        if 'bill' in arguments:
-            kwargs['bill'] = FakeWord(self.bill.caption)
-        if 'person' in arguments:
-            kwargs['person'] = self.place_1.persons[0]
+        actors = {}
+        substitutions = {}
 
-        for index, argument in enumerate(arguments):
-            if argument not in ('place', 'bill', 'person'):
-                kwargs[argument] = self.create_test_word(index)
+        for index, argument in enumerate(record_class.SUBSTITUTIONS):
+            if 'place' == argument:
+                substitutions['place'] = self.place_1
+            elif 'bill' == argument:
+                substitutions['bill'] = FakeWord(self.bill.caption)
+            elif 'person' == argument:
+                substitutions['person'] = self.place_1.persons[0]
+            else:
+                substitutions[argument] = self.create_test_word(index)
 
-        record = record_class(**kwargs)
+        for role in record_class.ACTORS:
+            if role._is_PLACE:
+                actors[role] = self.place_1
+            elif role._is_BILL:
+                actors[role] = self.bill
+            elif role._is_PERSON:
+                actors[role] = self.place_1.persons[0]
+
+        record = record_class(actors=actors, substitutions=substitutions)
 
         old_records_number = Record.objects.all().count()
         record.create_record()
         self.assertEqual(old_records_number + 1, Record.objects.all().count())
+
+        for actor in actors.values():
+            self.assertTrue(Actor.objects.filter(uid=create_external_actor(actor).uid).exists())
 
     return test_create_method
 

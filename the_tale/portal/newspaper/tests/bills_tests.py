@@ -9,7 +9,7 @@ from accounts.logic import register_user
 
 from game.logic import create_test_map
 
-from game.bills.prototypes import BillPrototype, VotePrototype
+from game.bills import BillPrototype, VotePrototype
 from game.bills.bills import PlaceRenaming
 from game.bills.conf import bills_settings
 

@@ -8,16 +8,12 @@ from dext.utils import s11n
 
 from textgen.words import Noun
 
-from forum.models import Post, Thread, MARKUP_METHOD
-
 from game.balance.enums import RACE
 
-from game.bills.models import Vote
-from game.bills.prototypes import BillPrototype, VotePrototype
+from game.bills.prototypes import BillPrototype
 from game.bills import bills
 from game.bills.tests.prototype_tests import BaseTestPrototypes
 
-from game.chronicle import records
 from game.chronicle.models import Record, RECORD_TYPE
 
 from game.map.places.modifiers import TradeCenter, CraftCenter
@@ -29,7 +25,7 @@ def check_record_created(self, record_type, records_number=1):
     yield
 
     self.assertEqual(old_records_number + records_number, Record.objects.all().count())
-    self.assertEqual(Record.objects.all().order_by('-id')[0].type, record_type)
+    self.assertEqual(Record.objects.all().order_by('-id')[0].type, record_type.value)
 
 @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
 def process_bill(bill, success):

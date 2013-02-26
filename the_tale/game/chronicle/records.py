@@ -4,10 +4,9 @@ from game.prototypes import TimePrototype
 
 from game.text_generation import get_text
 
-from game.chronicle.models import RECORD_TYPE
+from game.chronicle.relations import RECORD_TYPE, ACTOR_ROLE
 from game.chronicle.exceptions import ChronicleException
-from game.chronicle.prototypes import RecordPrototype
-
+from game.chronicle.prototypes import RecordPrototype, create_external_actor
 
 class RecordBase(object):
     TYPE = None
@@ -15,9 +14,9 @@ class RecordBase(object):
     SUBSTITUTIONS = frozenset()
     TEXGEN_ID_BASE = 'chronicle_%s'
 
-    def __init__(self, **kwargs):
-        self.actors = { k:v for k, v in kwargs.items() if k in self.ACTORS}
-        self.substitutions={ k:v for k, v in kwargs.items() if k in self.SUBSTITUTIONS}
+    def __init__(self, actors, substitutions):
+        self.actors = { role:create_external_actor(actor) for role, actor in actors.items() }
+        self.substitutions = substitutions
 
         if set(self.actors.keys()) != set(self.ACTORS):
             raise ChronicleException('wrong actors for chronicle record %r' % set(self.actors.keys()).symmetric_difference(self.ACTORS))
@@ -27,21 +26,21 @@ class RecordBase(object):
         self.created_at_turn = TimePrototype.get_current_turn_number()
 
     @property
-    def textgen_id(self): return self.TEXGEN_ID_BASE  % RECORD_TYPE._ID_TO_STR[self.TYPE].lower()
+    def textgen_id(self): return self.TEXGEN_ID_BASE  % self.TYPE.name.lower()
 
     def get_text(self):
         text = get_text('chronicle:get_text', self.textgen_id, self.substitutions)
         return text if text is not None else u''
 
     def create_record(self):
-        RecordPrototype.create(self)
+        return RecordPrototype.create(self)
 
     def __repr__(self): return '<Chronicle record for %s>' % RECORD_TYPE._ID_TO_STR[self.TYPE]
 
 
 # change place name
 class _PlaceChangeName(RecordBase):
-    ACTORS = ['place', 'bill']
+    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
     SUBSTITUTIONS = ['bill', 'old_name', 'new_name']
 
 class PlaceChangeNameBillStarted(_PlaceChangeName):
@@ -55,7 +54,7 @@ class PlaceChangeNameBillFailed(_PlaceChangeName):
 
 # change place description
 class _PlaceChangeDescription(RecordBase):
-    ACTORS = ['place', 'bill']
+    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
     SUBSTITUTIONS = ['place', 'bill']
 
 class PlaceChangeDescriptionBillStarted(_PlaceChangeDescription):
@@ -69,7 +68,7 @@ class PlaceChangeDescriptionBillFailed(_PlaceChangeDescription):
 
 # change place modifier
 class _PlaceChangeModifier(RecordBase):
-    ACTORS = ['place', 'bill']
+    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
     SUBSTITUTIONS = ['place', 'bill', 'old_modifier', 'new_modifier']
 
     def __init__(self, **kwargs):
@@ -81,9 +80,9 @@ class _PlaceChangeModifier(RecordBase):
     @property
     def textgen_id(self):
         if 'old_modifier' not in self.substitutions:
-            return self.TEXGEN_ID_BASE  % RECORD_TYPE._ID_TO_STR[self.TYPE].lower() + '_without_old_modifier'
+            return self.TEXGEN_ID_BASE  % self.TYPE.name.lower() + '_without_old_modifier'
         else:
-            return self.TEXGEN_ID_BASE  % RECORD_TYPE._ID_TO_STR[self.TYPE].lower() + '_with_old_modifier'
+            return self.TEXGEN_ID_BASE  % self.TYPE.name.lower() + '_with_old_modifier'
 
 class PlaceChangeModifierBillStarted(_PlaceChangeModifier):
     TYPE = RECORD_TYPE.PLACE_CHANGE_MODIFIER_BILL_STARTED
@@ -96,12 +95,12 @@ class PlaceChangeModifierBillFailed(_PlaceChangeModifier):
 
 class PlaceLosedModifier(RecordBase):
     TYPE = RECORD_TYPE.PLACE_LOSED_MODIFIER
-    actors=['place', 'old_modifier']
+    ACTORS = [ACTOR_ROLE.PLACE]
     SUBSTITUTIONS = ['place', 'old_modifier']
 
 # person moved out city
 class _PersonRemove(RecordBase):
-    ACTORS = ['place', 'person', 'bill']
+    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]
     SUBSTITUTIONS = ['place', 'person', 'bill']
 
 class PersonRemoveBillStarted(_PersonRemove):
@@ -115,18 +114,18 @@ class PersonRemoveBillFailed(_PersonRemove):
 
 class PersonLeftPlace(RecordBase):
     TYPE = RECORD_TYPE.PERSON_LEFT_PLACE
-    ACTORS = ['place', 'person']
+    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PERSON]
     SUBSTITUTIONS  = ['place', 'person']
 
 class PersonArrivedToPlace(RecordBase):
     TYPE = RECORD_TYPE.PERSON_ARRIVED_TO_PLACE
-    ACTORS = ['place', 'person']
+    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PERSON]
     SUBSTITUTIONS  = ['place', 'person']
 
 # race
 class PlaceChangeRace(RecordBase):
     TYPE = RECORD_TYPE.PLACE_CHANGE_RACE
-    ACTORS = ['place']
+    ACTORS = [ACTOR_ROLE.PLACE]
     SUBSTITUTIONS  = ['place', 'old_race', 'new_race']
 
 RECORDS = {}

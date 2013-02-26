@@ -191,7 +191,7 @@ class TestChangeCredentialsTask(TestCase):
         self.assertEqual(user.email, 'test_user@test.ru')
         self.assertEqual(len(mail.outbox), 1)
 
-    @mock.patch('accounts.prototypes.ChangeEmailNotification', raise_exception)
+    @mock.patch('accounts.email.ChangeEmailNotification', raise_exception)
     def test_process_error(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru', new_password='222222')
         task.process(FakeLogger())

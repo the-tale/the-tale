@@ -10,28 +10,37 @@ from game.bills import BILL_TYPE
 from game.map.places import signals as places_signals
 
 from game.chronicle import records
+from game.chronicle.relations import ACTOR_ROLE
 
 
 def _get_bill_place_renaming_arguments(bill):
-    return {'place': bill.data.place,
-            'bill': FakeWord(bill.caption),
-            'old_name': bill.data.old_name_forms,
-            'new_name': bill.data.name_forms}
+    return { 'actors': {ACTOR_ROLE.BILL: bill,
+                        ACTOR_ROLE.PLACE: bill.data.place},
+             'substitutions': {'bill': FakeWord(bill.caption),
+                               'old_name': bill.data.old_name_forms,
+                               'new_name': bill.data.name_forms} }
 
 def _get_bill_place_description_arguments(bill):
-    return {'place': bill.data.place,
-            'bill': FakeWord(bill.caption)}
+    return { 'actors': {ACTOR_ROLE.BILL: bill,
+                        ACTOR_ROLE.PLACE: bill.data.place},
+             'substitutions': {'place': bill.data.place,
+                               'bill': FakeWord(bill.caption)} }
 
 def _get_bill_place_modifier_arguments(bill):
-    return {'place': bill.data.place,
-            'bill': FakeWord(bill.caption),
-            'old_modifier': bill.data.place.modifier.NAME.lower() if bill.data.place.modifier is not None else None,
-            'new_modifier': bill.data.modifier_name}
+    return { 'actors': {ACTOR_ROLE.BILL: bill,
+                        ACTOR_ROLE.PLACE: bill.data.place},
+             'substitutions': {'place': bill.data.place,
+                               'bill': FakeWord(bill.caption),
+                               'old_modifier': bill.data.place.modifier.NAME.lower() if bill.data.place.modifier is not None else None,
+                               'new_modifier': bill.data.modifier_name.lower()} }
 
 def _get_bill_person_remove_arguments(bill):
-    return {'place': bill.data.person.place,
-            'person': bill.data.person,
-            'bill': FakeWord(bill.caption)}
+    return { 'actors': {ACTOR_ROLE.BILL: bill,
+                        ACTOR_ROLE.PLACE: bill.data.person.place,
+                        ACTOR_ROLE.PERSON: bill.data.person},
+             'substitutions': {'place': bill.data.person.place,
+                               'person': bill.data.person,
+                               'bill': FakeWord(bill.caption)} }
 
 
 @receiver(bills_signals.bill_moderated, dispatch_uid='chronicle_bill_moderated')
@@ -76,16 +85,27 @@ def chronicle_bill_processed(sender, bill, **kwargs):
 
 @receiver(places_signals.place_modifier_reseted, dispatch_uid='chronicle_place_modifier_reseted')
 def chronicle_place_modifier_reseted(sender, place, old_modifier, **kwargs):
-    records.PlaceLosedModifier(place=place, old_modifier=old_modifier.NAME.lower()).create_record()
+    records.PlaceLosedModifier(actors={ACTOR_ROLE.PLACE: place},
+                               substitutions={'place': place,
+                                              'old_modifier': old_modifier.NAME.lower()}).create_record()
 
 @receiver(places_signals.place_person_left, dispatch_uid='chronicle_place_person_left')
 def chronicle_place_person_left(sender, place, person, **kwargs):
-    records.PersonLeftPlace(place=place, person=person).create_record()
+    records.PersonLeftPlace(actors={ACTOR_ROLE.PLACE: place,
+                                    ACTOR_ROLE.PERSON: person},
+                            substitutions={'place': place,
+                                           'person': person}).create_record()
 
 @receiver(places_signals.place_person_arrived, dispatch_uid='chronicle_place_person_arrived')
 def chronicle_place_person_arrived(sender, place, person, **kwargs):
-    records.PersonArrivedToPlace(place=place, person=person).create_record()
+    records.PersonArrivedToPlace(actors={ACTOR_ROLE.PLACE: place,
+                                         ACTOR_ROLE.PERSON: person},
+                                 substitutions={'place':place,
+                                                'person': person}).create_record()
 
 @receiver(places_signals.place_race_changed, dispatch_uid='chronicle_place_race_changed')
 def chronicle_place_race_changed(sender, place, old_race, new_race, **kwargs):
-    records.PlaceChangeRace(place=place, old_race=old_race.verbose, new_race=new_race.verbose).create_record()
+    records.PlaceChangeRace(actors={ACTOR_ROLE.PLACE: place},
+                            substitutions={'place': place,
+                                           'old_race': old_race.verbose,
+                                           'new_race': new_race.verbose}).create_record()

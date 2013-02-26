@@ -1,0 +1,61 @@
+# coding: utf-8
+
+class PrototypeError(Exception): pass
+
+
+class _PrototypeMetaclass(type):
+
+    @classmethod
+    def create_property(cls, property_name):
+        return lambda self: getattr(self._model, property_name)
+
+    @classmethod
+    def create_get_by(cls, method_name, attribute_name):
+
+        def get_by(cls, identifier):
+            try:
+                return cls(cls._model_class.objects.get(**{attribute_name: identifier}))
+            except cls._model_class.DoesNotExist:
+                return None
+
+        get_by.__name__ = method_name
+
+        return classmethod(get_by)
+
+
+    def __new__(cls, name, bases, attributes):
+
+        # create readonly properties
+        readonly_attributes = attributes.get('_readonly', ())
+        for readonly_attribute in readonly_attributes:
+            if readonly_attribute in attributes:
+                raise PrototypeError('can not set readonly attribute "%s" class has already had attribue with such name' % readonly_attribute)
+            attributes[readonly_attribute] = property(cls.create_property(readonly_attribute))
+
+        # create get_by_<unique_key> methods
+        model_class = attributes['_model_class']
+        if model_class is not None:
+            for field_name in model_class._meta.get_all_field_names():
+                field = model_class._meta.get_field_by_name(field_name)[0]
+                if getattr(field, 'unique', False):
+                    method_name = 'get_by_%s' % field.name
+                    if method_name in attributes:
+                        raise PrototypeError('can not set attribute "%s" class has already had attribue with such name' % method_name)
+                    attributes[method_name] = cls.create_get_by(method_name, field.name)
+
+        return super(_PrototypeMetaclass, cls).__new__(cls, name, bases, attributes)
+
+
+
+class BasePrototype(object):
+
+    __metaclass__ = _PrototypeMetaclass
+
+    _model_class = None
+    _readonly = ()
+
+    def __init__(self, model):
+        self._model = model
+
+    def create(self):
+        raise NotImplemented

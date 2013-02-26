@@ -16,19 +16,8 @@ from accounts.logic import register_user, login_url
 from game.logic import create_test_map
 
 from game.chronicle.models import RECORD_TYPE, Record
-from game.chronicle.records import RecordBase
 from game.chronicle.conf import chronicle_settings
-
-
-class FakeRecord(RecordBase):
-    def __init__(self, type_, index, turn_number):
-        self.TYPE = type_
-        self.index = index
-        self.created_at_turn = turn_number
-
-    def get_text(self): return 'record_text_%d_%d' % (self.created_at_turn, self.index)
-
-
+from game.chronicle.tests.helpers import FakeRecord
 
 class IndexRequestsTest(TestCase):
 

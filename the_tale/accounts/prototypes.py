@@ -13,7 +13,6 @@ from common.utils.password import generate_password
 
 from accounts.models import Account, ChangeCredentialsTask, CHANGE_CREDENTIALS_TASK_STATE
 from accounts.conf import accounts_settings
-from accounts.email import ChangeEmailNotification, ResetPasswordNotification
 from accounts.exceptions import AccountsException
 
 from game.workers.environment import workers_environment as game_workers_environment
@@ -92,6 +91,7 @@ class AccountPrototype(object):
         self.model.new_messages_number = self.model.new_messages_number + 1
 
     def reset_password(self):
+        from accounts.email import ResetPasswordNotification
         new_password = generate_password(len_=accounts_settings.RESET_PASSWORD_LENGTH)
         self.user.set_password(new_password)
         self.user.save()
@@ -206,6 +206,7 @@ class ChangeCredentialsTaskPrototype(object):
         self.account.change_credentials(new_email=self.model.new_email, new_password=self.model.new_password, new_nick=self.model.new_nick)
 
     def request_email_confirmation(self):
+        from accounts.email import ChangeEmailNotification
         if self.model.new_email is None:
             raise AccountsException('email not specified')
         email = ChangeEmailNotification({'task': self})
