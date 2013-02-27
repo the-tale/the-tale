@@ -1,6 +1,7 @@
 {% extends "chronicle/base.html" %}
 
 {% import 'macros.html' as base_macros with context %}
+{% import 'chronicle/macros.html' as chronicle_macros with context %}
 
 {% block chronicle_content %}
 
@@ -29,16 +30,13 @@
 <table class="table">
   <thead>
     <tr>
-      <th width="200px">дата</th>
+      <th>дата</th>
       <th>событие</th>
     </tr>
   </thead>
   <tbody>
     {% for record in records %}
-    <tr>
-      <td>{{ record.game_time.verbose_date}}</td>
-      <td>{{ record.text }}</td>
-    </tr>
+    {{ chronicle_macros.chronicle_record(record) }}
     {% endfor %}
   </tbody>
 </table>

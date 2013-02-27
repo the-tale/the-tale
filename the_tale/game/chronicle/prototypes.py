@@ -10,22 +10,13 @@ from game.bills import BillPrototype
 from game.map.places import PlacePrototype
 from game.persons import PersonPrototype
 
-from game.chronicle.models import Record, RECORD_TYPE, Actor, RecordToActor
+from game.chronicle.models import Record, Actor, RecordToActor
 from game.chronicle.exceptions import ChronicleException
 
 
 class RecordPrototype(BasePrototype):
     _model_class = Record
     _readonly = ('id', 'text')
-
-    def get_type(self):
-        if not hasattr(self, '_type'):
-            self._type = RECORD_TYPE(self._model.type)
-        return self._type
-    def set_type(self, value):
-        self.type.update(value)
-        self._model.type = self.type.value
-    type = property(get_type, set_type)
 
     @property
     def game_time(self):
@@ -46,9 +37,17 @@ class RecordPrototype(BasePrototype):
 
         return prototype
 
+    @classmethod
+    def get_actor_records_query(cls, external_actor_prototype):
+        external_actor = create_external_actor(external_actor_prototype)
+        return Record.objects.filter(actors__uid=external_actor.uid)
+
+    @classmethod
+    def get_last_actor_records(cls, external_actor_prototype, number):
+        return [cls(record) for record in cls.get_actor_records_query(external_actor_prototype).order_by('-created_at')[:number]]
+
 
 class RecordToActorPrototype(BasePrototype):
-    _model_class = RecordToActor
 
     @classmethod
     def create(cls, role, record, external_actor):
@@ -104,13 +103,14 @@ def create_external_actor(actor):
 
 class ActorPrototype(BasePrototype):
     _model_class = Actor
+    _get_by = ('uid',)
 
     @classmethod
     def create(cls, external_object):
 
         model = Actor.objects.create(uid=external_object.uid,
                                      bill=external_object.bill.model if external_object.bill else None,
-                                     place=external_object.place.model if external_object.place else None,
+                                     place=external_object.place._model if external_object.place else None,
                                      person=external_object.person.model if external_object.person else None)
 
         return cls(model)

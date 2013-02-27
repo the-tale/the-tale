@@ -7,6 +7,8 @@ from dext.utils import s11n
 from game.game_info import GENDER
 from textgen import words
 
+from common.utils.prototypes import BasePrototype
+
 from game import names
 from game.prototypes import TimePrototype, GameTime
 
@@ -17,26 +19,18 @@ from game.helpers import add_power_management
 
 from game.heroes.models import Hero
 
-from game.map.places.models import Place, PLACE_TYPE
+from game.map.places.models import Place
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
 from game.map.places.modifiers import MODIFIERS, PlaceModifierBase
 from game.map.places import signals
 
 @add_power_management(places_settings.POWER_HISTORY_LENGTH, PlacesException)
-class PlacePrototype(object):
-
-    TYPE = 'BASE'
-
-    def __init__(self, model):
-        self.model = model
-
-    @classmethod
-    def get_by_id(cls, id_):
-        try:
-            return cls(Place.objects.get(id=id_))
-        except Place.DoesNotExist:
-            return None
+class PlacePrototype(BasePrototype):
+    _model_class = Place
+    _readonly = ('id', 'x', 'y', 'name', 'type', 'heroes_number')
+    _bidirectional = ('description', 'size')
+    _get_by = ('id',)
 
     @classmethod
     def get_by_coordinates(cls, x, y):
@@ -46,26 +40,14 @@ class PlacePrototype(object):
             return None
 
     @property
-    def id(self): return self.model.id
+    def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self._model.updated_at_turn))
 
-    @property
-    def x(self): return self.model.x
-
-    @property
-    def y(self): return self.model.y
-
-    @property
-    def name(self): return self.model.name
-
-    @property
-    def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self.model.updated_at_turn))
-
-    def get_modifier(self): return MODIFIERS[self.model.modifier](self) if self.model.modifier is not None else None
+    def get_modifier(self): return MODIFIERS[self._model.modifier](self) if self._model.modifier is not None else None
     def set_modifier(self, value):
         if isinstance(value, PlaceModifierBase):
-            self.model.modifier = value.get_id()
+            self._model.modifier = value.get_id()
         else:
-            self.model.modifier = value
+            self._model.modifier = value
     modifier = property(get_modifier, set_modifier)
 
     def sync_modifier(self):
@@ -77,28 +59,17 @@ class PlacePrototype(object):
     @property
     def normalized_name(self):
         if not hasattr(self, '_normalized_name'):
-            self._normalized_name = words.WordBase.deserialize(s11n.from_json(self.model.name_forms))
+            self._normalized_name = words.WordBase.deserialize(s11n.from_json(self._model.name_forms))
         return self._normalized_name
         # return (self._normalized_name, u'загл')
 
     def set_name_forms(self, name_forms):
-        self.model.name_forms = s11n.to_json(name_forms.serialize())
+        self._model.name_forms = s11n.to_json(name_forms.serialize())
         self._normalized_name = name_forms
-        self.model.name = name_forms.normalized
-
-    def get_descriotion(self): return self.model.description
-    def set_description(self, value): self.model.description = value
-    description = property(get_descriotion, set_description)
+        self._model.name = name_forms.normalized
 
     @property
-    def description_html(self): return postmarkup.render_bbcode(self.model.description)
-
-    @property
-    def type(self): return self.model.type
-
-    def get_size(self): return self.model.size
-    def set_size(self, value): self.model.size = value
-    size = property(get_size, set_size)
+    def description_html(self): return postmarkup.render_bbcode(self._model.description)
 
     @property
     def terrain_change_power(self):
@@ -107,11 +78,9 @@ class PlacePrototype(object):
             power = self.modifier.modify_terrain_change_power(power)
         return int(round(power))
 
-    @property
-    def heroes_number(self): return self.model.heroes_number
     def update_heroes_number(self):
         current_turn = TimePrototype.get_current_turn_number()
-        self.model.heroes_number = Hero.objects.filter(pref_place_id=self.id, active_state_end_at__gte=current_turn).count()
+        self._model.heroes_number = Hero.objects.filter(pref_place_id=self.id, active_state_end_at__gte=current_turn).count()
 
     @property
     def persons(self):
@@ -127,7 +96,7 @@ class PlacePrototype(object):
         from game.map.places.modifiers import MODIFIERS
         return sorted([modifier(self) for modifier in MODIFIERS.values()], key=lambda m: -m.power)
 
-    def mark_as_updated(self): self.model.updated_at_turn = TimePrototype.get_current_turn_number()
+    def mark_as_updated(self): self._model.updated_at_turn = TimePrototype.get_current_turn_number()
 
     @property
     def max_persons_number(self): return places_settings.SIZE_TO_PERSONS_NUMBER[self.size]
@@ -163,7 +132,7 @@ class PlacePrototype(object):
     @property
     def data(self):
         if not hasattr(self, '_data'):
-            self._data = s11n.from_json(self.model.data)
+            self._data = s11n.from_json(self._model.data)
             if 'nearest_cells' in self._data:
                 self._data['nearest_cells'] = map(tuple, self._data['nearest_cells'])
         return self._data
@@ -187,11 +156,11 @@ class PlacePrototype(object):
 
     def get_race(self):
         if not hasattr(self, '_race'):
-            self._race = RACE(self.model.race)
+            self._race = RACE(self._model.race)
         return self._race
     def set_race(self, value):
         self.race.update(value)
-        self.model.race = self.race.value
+        self._model.race = self.race.value
     race = property(get_race, set_race)
 
     def sync_race(self):
@@ -210,30 +179,15 @@ class PlacePrototype(object):
             self.race = dominant_race
             signals.place_race_changed.send(self.__class__, place=self, old_race=old_race, new_race=self.race)
 
-    def __unicode__(self):
-        return self.model.__unicode__()
-
-    def __repr__(self):
-        return self.model.__repr__()
-
-    ###########################################
-    # Checks
-    ###########################################
-
-    @property
-    def is_settlement(self): return self.type in [PLACE_TYPE.CITY]
 
     ###########################################
     # Object operations
     ###########################################
 
-    def remove(self): self.model.delete()
+    def remove(self): self._model.delete()
     def save(self):
-        self.model.data = s11n.to_json(self.data)
-        self.model.save(force_update=True)
-
-    # def __eq__(self, other):
-    #     return self.id == other.id
+        self._model.data = s11n.to_json(self.data)
+        self._model.save(force_update=True)
 
     def map_info(self):
         return {'id': self.id,

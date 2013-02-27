@@ -69,7 +69,7 @@ def update_waymarks():
             else:
                 road = None
 
-            waymark = waymarks_storage.look_for_road(point_from=places[i].model.id, point_to=places[j].model.id)
+            waymark = waymarks_storage.look_for_road(point_from=places[i].id, point_to=places[j].id)
 
             if waymark:
                 waymark.road = road

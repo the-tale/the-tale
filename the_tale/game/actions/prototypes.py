@@ -523,7 +523,7 @@ class ActionMoveToPrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       place=destination.model,
+                                       place=destination._model,
                                        break_at=break_at,
                                        state=cls.STATE.CHOOSE_ROAD,
                                        created_at_turn=TimePrototype.get_current_turn_number())
@@ -881,9 +881,7 @@ class ActionInPlacePrototype(ActionPrototype):
         return args
 
     def process(self):
-
-        if self.hero.position.place.is_settlement:
-            return self.process_settlement()
+        return self.process_settlement()
 
     def try_to_spend_money(self, gold_amount, money_source):
         if gold_amount <= self.hero.money:
@@ -1176,7 +1174,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero.model,
                                        order=parent.order+1,
-                                       place=place.model,
+                                       place=place._model,
                                        destination_x=x,
                                        destination_y=y,
                                        state=cls.STATE.MOVING,

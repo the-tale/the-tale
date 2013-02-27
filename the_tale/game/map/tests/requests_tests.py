@@ -11,6 +11,8 @@ from accounts.logic import register_user
 
 from game.logic import create_test_map
 
+from game.chronicle import RecordPrototype as ChronicleRecordPrototype
+
 from game.map.places.modifiers import MODIFIERS, TradeCenter
 
 class TestMapRequests(TestCase):
@@ -23,31 +25,27 @@ class TestMapRequests(TestCase):
         self.account = AccountPrototype.get_by_id(account_id)
 
         self.client = client.Client()
+        self.request_login('test_user@test.com')
 
     def test_place_info_anonimouse(self):
+        self.request_logout()
         self.check_ajax_error(self.client.get(reverse('game:map:cell-info') + '?x=5&y=5', HTTP_X_REQUESTED_WITH='XMLHttpRequest'),
                               'common.login_required')
 
     def test_place_info_logined(self):
-        self.request_login('test_user@test.com')
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + '?x=5&y=5'), texts=[('pgf-cell-debug', 0)])
 
     def test_place_info_logined_staff(self):
-        self.request_login('test_user@test.com')
         self.account.user.is_staff = True
         self.account.user.save()
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + '?x=5&y=5'), texts=[('pgf-cell-debug', 3)])
 
     def test_place_info_no_modifier(self):
-        self.request_login('test_user@test.com')
-
         texts = [('pgf-current-modifier-marker', 0)] + [(modifier.NAME, 1) for modifier in MODIFIERS.values()]
 
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_place_info_modifier(self):
-        self.request_login('test_user@test.com')
-
         self.place_1.modifier = TradeCenter(self.place_1)
         self.place_1.save()
 
@@ -56,7 +54,6 @@ class TestMapRequests(TestCase):
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_place_info_no_freeze_time_icon(self):
-        self.request_login('test_user@test.com')
         for person in self.place_1.persons:
             person.model.created_at = datetime.datetime(2000, 1, 1)
             person.save()
@@ -64,9 +61,12 @@ class TestMapRequests(TestCase):
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_place_info_freeze_time_icon(self):
-        self.request_login('test_user@test.com')
         texts = [('pgf-time-before-unfreeze', 1)]
         person = self.place_1.persons[0]
         person.model.created_at = datetime.datetime(2000, 1, 1)
         person.save()
+        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
+
+    def test_place_chronicle(self):
+        texts = [record.text for record in ChronicleRecordPrototype.get_last_actor_records(self.place_1, 1000)]
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)

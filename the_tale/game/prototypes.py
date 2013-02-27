@@ -27,6 +27,10 @@ class GameTime(namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'min
                                                           'month': self.MONTH_NAMES[self.month],
                                                           'year': self.year}
     @property
+    def verbose_date_short(self):
+        return '%d-%d-%d' % (self.day, self.month, self.year)
+
+    @property
     def verbose_time(self):
         return u'%(hour).2d:%(minute).2d' % {'hour': self.hour,
                                              'minute': self.minute}

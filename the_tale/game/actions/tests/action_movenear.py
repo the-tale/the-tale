@@ -105,8 +105,8 @@ class MoveNearActionTest(TestCase):
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place)  # can end in start place
 
         ActionMoveNearPlacePrototype.create(self.action_idl, self.p1, True)
-        self.p1.model.x = self.p1.x + 1
-        self.p1.model.y = self.p1.y + 1
+        self.p1._model.x = self.p1.x + 1
+        self.p1._model.y = self.p1.y + 1
         self.p1.save()
 
         while self.hero.position.place is None or self.hero.position.place.id != self.p1.id:

@@ -25,7 +25,7 @@ def check_record_created(self, record_type, records_number=1):
     yield
 
     self.assertEqual(old_records_number + records_number, Record.objects.all().count())
-    self.assertEqual(Record.objects.all().order_by('-id')[0].type, record_type.value)
+    self.assertEqual(Record.objects.all().order_by('-id')[0].type, record_type)
 
 @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
 def process_bill(bill, success):

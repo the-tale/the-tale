@@ -7,9 +7,9 @@ from accounts.logic import register_user
 
 from game.logic import create_test_map
 
-from game.chronicle.models import Actor, RecordToActor
+from game.chronicle.models import Actor, RecordToActor, Record
 from game.chronicle.relations import RECORD_TYPE, ACTOR_ROLE
-from game.chronicle.prototypes import create_external_actor, RecordToActorPrototype
+from game.chronicle.prototypes import create_external_actor, RecordToActorPrototype, RecordPrototype
 from game.chronicle.tests.helpers import FakeRecord
 
 
@@ -27,6 +27,24 @@ class RecordPrototypeTests(TestCase):
                    actors={ACTOR_ROLE.PLACE: create_external_actor(self.place_1),
                            ACTOR_ROLE.PERSON: create_external_actor(self.place_1.persons[0])}).create_record()
         self.assertEqual(old_connections_number + 2, RecordToActor.objects.all().count())
+
+    def test_get_actor_records_query(self):
+        self.assertTrue(Record.objects.all().exists())
+
+        records_ids = RecordPrototype.get_actor_records_query(self.place_1).values_list('id', flat=True)
+        actor = Actor.objects.get(place_id=self.place_1.id)
+
+        for record in Record.objects.all():
+            if actor.id in record.actors.all().values_list('id', flat=True):
+                self.assertTrue(record.id in records_ids)
+            else:
+                self.assertFalse(record.id in records_ids)
+
+    def test_get_last_actor_records(self):
+        records = RecordPrototype.get_last_actor_records(self.place_1, 10000)
+        self.assertTrue(len(records) < 10000)
+        for i, record in enumerate(records[:-1]):
+            self.assertTrue(record._model.created_at > records[i+1]._model.created_at)
 
 
 class RecordToActorPrototypeTests(TestCase):

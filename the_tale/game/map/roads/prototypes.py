@@ -78,16 +78,16 @@ class RoadPrototype(object):
             point_1, point_2 = point_2, point_1
 
         try:
-            Road.objects.get(point_1=point_1.model,
-                             point_2=point_2.model)
+            Road.objects.get(point_1=point_1.id,
+                             point_2=point_2.id)
             raise RoadsException('road (%i, %i) has already exist' % (point_1.id, point_2.id) )
         except Road.DoesNotExist:
             pass
 
         distance = math.sqrt( (point_1.x - point_2.x)**2 + (point_1.y - point_2.y)**2 )
 
-        model = Road.objects.create(point_1=point_1.model,
-                                    point_2=point_2.model,
+        model = Road.objects.create(point_1=point_1._model,
+                                    point_2=point_2._model,
                                     length=distance * map_settings.CELL_LENGTH)
 
         return cls(model)
@@ -152,14 +152,14 @@ class WaymarkPrototype(object):
     def create(cls, point_from, point_to, road, length):
 
         try:
-            Waymark.objects.get(point_from=point_from.model,
-                                point_to=point_to.model)
+            Waymark.objects.get(point_from=point_from.id,
+                                point_to=point_to.id)
             raise RoadsException('waymark (%i, %i) has already exist' % (point_from.id, point_to.id) )
         except Waymark.DoesNotExist:
             pass
 
-        model = Waymark.objects.create(point_from=point_from.model,
-                                       point_to=point_to.model,
+        model = Waymark.objects.create(point_from=point_from._model,
+                                       point_to=point_to._model,
                                        road=road.model if road else None,
                                        length=length)
 

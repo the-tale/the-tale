@@ -292,6 +292,7 @@ pgf.game.map.Map = function(selector, params) {
                                                            [[jQuery('.pgf-cell-description-button', dialog), 'description'], 
                                                             [jQuery('.pgf-cell-persons-button', dialog), 'persons'], 
                                                             [jQuery('.pgf-cell-place-modifiers-button', dialog), 'place-modifiers'], 
+                                                            [jQuery('.pgf-cell-place-chronicle-button', dialog), 'place-chronicle'], 
                                                             [jQuery('.pgf-cell-map-button', dialog), 'map'], 
                                                             [jQuery('.pgf-cell-debug-button', dialog), 'debug']]);
                                    jQuery('[rel="tooltip"]', dialog).tooltip(pgf.base.tooltipsArgs);

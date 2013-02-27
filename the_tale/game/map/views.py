@@ -13,6 +13,8 @@ from game.balance.enums import RACE
 
 from game.heroes.prototypes import HeroPrototype
 
+from game.chronicle import RecordPrototype
+
 from game.map.storage import map_info_storage
 from game.map.places.prototypes import PlacePrototype
 from game.map.generator import descriptors
@@ -24,11 +26,6 @@ class MapResource(Resource):
 
     def __init__(self, request, *args, **kwargs):
         super(MapResource, self).__init__(request, *args, **kwargs)
-
-    # @handler('', method='get')
-    # def info(self):
-    #     map_info = get_map_info()
-    #     return self.json(status='ok', data=map_info)
 
     @login_required
     @handler('cell-info', method='get')
@@ -55,6 +52,8 @@ class MapResource(Resource):
         dominant_race = None
         place_modifiers = None
 
+        chronicle_records = []
+
         if place is not None:
 
             dominant_race = {RACE.HUMAN: u'люди',
@@ -65,6 +64,8 @@ class MapResource(Resource):
 
             place_modifiers = place.modifiers
 
+            chronicle_records = RecordPrototype.get_last_actor_records(place, map_settings.CHRONICLE_RECORDS_NUMBER)
+
         terrain_points = []
 
         if self.user.is_staff:
@@ -72,6 +73,7 @@ class MapResource(Resource):
                 biom = Biom(id_=terrain_id)
                 terrain_points.append((text, biom.check(cell), biom.get_points(cell)))
             terrain_points = sorted(terrain_points, key=lambda x: -x[1])
+
 
         return self.template('map/cell_info.html',
                              {'place': place,
@@ -87,4 +89,5 @@ class MapResource(Resource):
                               'x': x,
                               'y': y,
                               'terrain_points': terrain_points,
+                              'chronicle_records': chronicle_records,
                               'hero': HeroPrototype.get_by_account_id(self.account.id) if self.account else None} )

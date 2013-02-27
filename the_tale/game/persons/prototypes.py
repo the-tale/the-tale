@@ -155,7 +155,7 @@ class PersonPrototype(object):
     @classmethod
     def create(cls, place, race, tp, name, gender, state=None):
 
-        instance = Person.objects.create(place=place.model,
+        instance = Person.objects.create(place=place._model,
                                          state=state if state is not None else PERSON_STATE.IN_GAME,
                                          race=race,
                                          type=tp,

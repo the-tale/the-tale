@@ -13,6 +13,7 @@ map_settings = app_settings('MAP',
                             HEIGHT=22,
                             CELL_SIZE=20,
                             CELL_LENGTH=c.MAP_CELL_LENGTH,
+                            CHRONICLE_RECORDS_NUMBER=10,
 
                             CELL_RANDOMIZE_FRACTION=0.1,
 

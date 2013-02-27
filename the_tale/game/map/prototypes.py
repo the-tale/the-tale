@@ -7,6 +7,8 @@ from dext.utils import s11n
 import deworld
 from deworld.layers import VEGETATION_TYPE
 
+from common.utils.prototypes import BasePrototype
+
 from game.balance.enums import RACE
 
 from game.persons.models import Person, PERSON_STATE
@@ -20,27 +22,20 @@ from game.map.models import MapInfo, MAP_STATISTICS
 from game.map.conf import map_settings
 
 
-class MapInfoPrototype(object):
-
-    def __init__(self, model):
-        self.model = model
-
-    @property
-    def id(self): return self.model.id
-
-    @property
-    def turn_number(self): return self.model.turn_number
+class MapInfoPrototype(BasePrototype):
+    _model_class = MapInfo
+    _readonly = ('id', 'turn_number')
 
     @property
     def terrain(self):
         if not hasattr(self, '_terrain'):
-            self._terrain = s11n.from_json(self.model.terrain)
+            self._terrain = s11n.from_json(self._model.terrain)
         return self._terrain
 
     @property
     def statistics(self):
         if not hasattr(self, '_statistics'):
-            self._statistics = s11n.from_json(self.model.statistics)
+            self._statistics = s11n.from_json(self._model.statistics)
             self._statistics['race_percents'] = dict( (int(key), value) for key, value in self._statistics['race_percents'].items())
             self._statistics['race_cities'] = dict( (int(key), value) for key, value in self._statistics['race_cities'].items())
             self._statistics['terrain_percents'] = dict( (int(key), value) for key, value in self._statistics['terrain_percents'].items())
@@ -59,10 +54,10 @@ class MapInfoPrototype(object):
     @property
     def world(self):
         if not hasattr(self, '_world'):
-            if not self.model.world:
+            if not self._model.world:
                 self._world = self._create_world(w=map_settings.WIDTH, h=map_settings.HEIGHT)
             else:
-                world_data = s11n.from_json(self.model.world)
+                world_data = s11n.from_json(self._model.world)
                 self._world = deworld.World.deserialize(config=deworld.BaseConfig, data=world_data)
         return self._world
 

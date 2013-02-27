@@ -867,7 +867,7 @@ class HeroPrototype(object):
                                    name=name,
                                    health=f.hp_on_lvl(1),
                                    energy=c.ANGEL_ENERGY_MAX,
-                                   pos_place = start_place.model)
+                                   pos_place = start_place._model)
 
         hero = cls(model=hero)
 
@@ -927,7 +927,7 @@ class HeroPositionPrototype(object):
 
     def set_place(self, place):
         self._reset_position()
-        self.hero_model.pos_place = place.model
+        self.hero_model.pos_place = place._model
 
     @property
     def road_id(self): return self.hero_model.pos_road_id
@@ -1031,13 +1031,6 @@ class HeroPositionPrototype(object):
 
         return random.uniform(0, 1) <= battles_per_turn
 
-
-    ###########################################
-    # Checks
-    ###########################################
-
-    @property
-    def is_settlement(self): return self.place and self.place.is_settlement
 
     ###########################################
     # Object operations
