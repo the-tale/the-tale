@@ -5,6 +5,8 @@ from deworld import power_points, layers, normalizers
 
 from game.balance.enums import RACE
 
+from game.prototypes import TimePrototype, MONTHS
+
 from game.map.places.storage import places_storage
 from game.map.exceptions import MapException
 from game.map.conf import map_settings
@@ -112,22 +114,22 @@ def _point_circle_wetness(place, power, normalizer):
                                         power=power,
                                         normalizer=normalizer)
 
-def _default_temperature_points():
+def _default_temperature_points(delta=0.0):
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.TEMPERATURE,
                                         name='default_temperature',
                                         x=map_settings.WIDTH/2,
                                         y=map_settings.HEIGHT/2,
-                                        power=0.5,
+                                        power=0.5 + delta,
                                         radius=int(math.hypot(map_settings.WIDTH, map_settings.HEIGHT)/2)+1,
                                         normalizer=normalizers.equal)
 
 
-def _default_wetness_points():
+def _default_wetness_points(delta=0.0):
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.WETNESS,
                                         name='default_wetness',
                                         x=map_settings.WIDTH/2,
                                         y=map_settings.HEIGHT/2,
-                                        power=0.6,
+                                        power=0.6 + delta,
                                         radius=int(math.hypot(map_settings.WIDTH, map_settings.HEIGHT)/2)+1,
                                         normalizer=normalizers.equal)
 
@@ -145,10 +147,12 @@ def _default_vegetation_points():
 
 def get_places_power_points():
 
+    month = TimePrototype.get_current_time().game_time.month_record
+
     points = []
 
-    points = [_default_temperature_points(),
-              _default_wetness_points(),
+    points = [_default_temperature_points(delta={MONTHS.COLD: -0.1, MONTHS.HOT: 0.1}.get(month, 0)),
+              _default_wetness_points(delta={MONTHS.DRY: -0.1, MONTHS.CRUDE: 0.1}.get(month, 0)),
               _default_vegetation_points()]
 
     for place in places_storage.all():

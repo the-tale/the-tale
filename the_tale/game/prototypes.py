@@ -3,6 +3,8 @@
 from dext.settings import settings
 from dext.utils.decorators import nested_commit_on_success
 
+import rels
+
 from collections import namedtuple
 
 from game.balance import formulas as f
@@ -10,12 +12,17 @@ from game.balance import formulas as f
 from game.models import SupervisorTask, SupervisorTaskMember, SUPERVISOR_TASK_TYPE
 from game.exceptions import GameException
 
-class GameTime(namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'minute', 'second'))):
 
-    MONTH_NAMES = {1: u'холодного месяца',
-                   2: u'сырого месяца',
-                   3: u'жаркого месяца',
-                   4: u'сухого месяца'}
+class MONTHS(rels.DjangoEnum):
+    date_text = rels.Column()
+
+    _records = ( ('COLD',  1, u'холодный месяц', u'холодного месяца'),
+                 ('CRUDE', 2, u'сырой месяц',    u'сырого месяца'),
+                 ('HOT',   3, u'жаркий месяц',   u'жаркого месяца'),
+                 ('DRY',   4, u'сухой месяц',    u'сухого месяца') )
+
+
+class GameTime(namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'minute', 'second'))):
 
     @classmethod
     def create_from_turn(cls, turn_number):
@@ -24,7 +31,7 @@ class GameTime(namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'min
     @property
     def verbose_date(self):
         return u'%(day)d день %(month)s %(year)d года' % {'day': self.day,
-                                                          'month': self.MONTH_NAMES[self.month],
+                                                          'month': MONTHS(self.month).date_text,
                                                           'year': self.year}
     @property
     def verbose_date_short(self):
@@ -34,6 +41,7 @@ class GameTime(namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'min
     def verbose_time(self):
         return u'%(hour).2d:%(minute).2d' % {'hour': self.hour,
                                              'minute': self.minute}
+    def month_record(self): return MONTHS(self.month)
 
 
 class TimePrototype(object):
