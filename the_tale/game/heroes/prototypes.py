@@ -534,7 +534,7 @@ class HeroPrototype(object):
             power *= c.HERO_POWER_PREFERENCE_MULTIPLIER
         if person.place_id == self.preferences.place_id:
             power *= c.HERO_POWER_PREFERENCE_MULTIPLIER
-        return power
+        return int(power)
 
     ###########################################
     # Secondary attributes
