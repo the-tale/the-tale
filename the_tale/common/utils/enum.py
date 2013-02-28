@@ -46,6 +46,9 @@ def create_enum(class_name, records):
                 return self.value == other.value
             return self.value == other
 
+        def __ne__(self, other):
+            return not self.__eq__(other)
+
     for field_name, field_id, help_text in records:
         setattr(Enum, field_name, field_id)
         Enum._CHOICES.append((field_id, help_text))

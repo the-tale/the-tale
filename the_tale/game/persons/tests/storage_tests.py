@@ -35,7 +35,7 @@ class PlacesStorageTest(TestCase):
 
     def test_all_without_removed_records(self):
         self.assertEqual(len(self.storage.all()), 12)
-        self.pers3.model.state = PERSON_STATE.REMOVED
+        self.pers3._model.state = PERSON_STATE.REMOVED
         self.pers3.save()
         self.storage.sync(force=True)
         self.assertEqual(len(self.storage.all()), 11)

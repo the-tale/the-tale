@@ -292,6 +292,7 @@ class HeroPreferencesPlaceTest(TestCase):
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE)
 
     def test_set_place(self):
+        self.assertEqual(HeroPrototype.get_place_heroes(self.place), [])
         changed_at = self.hero.preferences.place_changed_at
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, self.place.id)
         self.assertEqual(self.hero.preferences.place_id, None)
@@ -299,6 +300,12 @@ class HeroPreferencesPlaceTest(TestCase):
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.place_id, self.place.id)
         self.assertTrue(changed_at < self.hero.preferences.place_changed_at)
+
+        self.assertEqual([hero.id for hero in HeroPrototype.get_place_heroes(self.place)], [self.hero.id])
+
+        self.hero.model.active_state_end_at = -1
+        self.hero.save()
+        self.assertEqual(HeroPrototype.get_place_heroes(self.place), [])
 
 
     def check_change_place(self, new_place_id, expected_place_id, expected_state):
@@ -385,6 +392,7 @@ class HeroPreferencesFriendTest(TestCase):
 
 
     def test_set_friend(self):
+        self.assertEqual(HeroPrototype.get_friendly_heroes(persons_storage[self.friend_id]), [])
         changed_at = self.hero.preferences.friend_changed_at
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
         self.assertEqual(self.hero.preferences.friend_id, None)
@@ -392,6 +400,11 @@ class HeroPreferencesFriendTest(TestCase):
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
         self.assertTrue(changed_at < self.hero.preferences.friend_changed_at)
+        self.assertEqual([hero.id for hero in HeroPrototype.get_friendly_heroes(persons_storage[self.friend_id])], [self.hero.id])
+
+        self.hero.model.active_state_end_at = -1
+        self.hero.save()
+        self.assertEqual(HeroPrototype.get_friendly_heroes(persons_storage[self.friend_id]), [])
 
     def check_change_friend(self, new_friend_id, expected_friend_id, expected_state):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
@@ -466,6 +479,7 @@ class HeroPreferencesEnemyTest(TestCase):
         self.assertEqual(self.hero.preferences.enemy_id, None)
 
     def test_set_enemy(self):
+        self.assertEqual(HeroPrototype.get_friendly_heroes(persons_storage[self.enemy_id]), [])
         changed_at = self.hero.preferences.enemy_changed_at
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.enemy_id)
         self.assertEqual(self.hero.preferences.enemy_id, None)
@@ -473,6 +487,11 @@ class HeroPreferencesEnemyTest(TestCase):
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
         self.assertTrue(changed_at < self.hero.preferences.enemy_changed_at)
+        self.assertEqual([hero.id for hero in HeroPrototype.get_enemy_heroes(persons_storage[self.enemy_id])], [self.hero.id])
+
+        self.hero.model.active_state_end_at = -1
+        self.hero.save()
+        self.assertEqual(HeroPrototype.get_enemy_heroes(persons_storage[self.enemy_id]), [])
 
     def test_set_friend_as_enemy(self):
         self.hero.preferences.friend_id = self.friend_id

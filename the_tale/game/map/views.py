@@ -9,7 +9,7 @@ from common.utils.decorators import login_required
 
 from game.prototypes import TimePrototype
 
-from game.balance.enums import RACE
+from game.balance.enums import RACE_MULTIPLE_VERBOSE
 
 from game.heroes.prototypes import HeroPrototype
 
@@ -24,8 +24,8 @@ from game.map.places.models import TERRAIN
 
 class MapResource(Resource):
 
-    def __init__(self, request, *args, **kwargs):
-        super(MapResource, self).__init__(request, *args, **kwargs)
+    def initialize(self, *args, **kwargs):
+        super(MapResource, self).initialize(*args, **kwargs)
 
     @login_required
     @handler('cell-info', method='get')
@@ -56,11 +56,7 @@ class MapResource(Resource):
 
         if place is not None:
 
-            dominant_race = {RACE.HUMAN: u'люди',
-                             RACE.ELF: u'эльфы',
-                             RACE.ORC: u'орки',
-                             RACE.GOBLIN: u'гоблины',
-                             RACE.DWARF: u'дварфы'}[place.race.value]
+            dominant_race = RACE_MULTIPLE_VERBOSE[place.race.value]
 
             place_modifiers = place.modifiers
 

@@ -86,7 +86,7 @@ class PlacePowerTest(TestCase):
     def test_sync_persons_remove_unstable_person(self):
         persons = self.place.persons
         unstable_person = persons[-1]
-        unstable_person.model.created_at_turn -= persons_settings.POWER_STABILITY_WEEKS*7*24*c.TURNS_IN_HOUR+1
+        unstable_person._model.created_at_turn -= persons_settings.POWER_STABILITY_WEEKS*7*24*c.TURNS_IN_HOUR+1
         self.place.sync_persons()
         self.assertEqual([p.id for p in persons[:-1]], [p.id for p in self.place.persons[:-1]])
         self.assertNotEqual(unstable_person.id, self.place.persons[-1].id)

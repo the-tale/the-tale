@@ -752,6 +752,22 @@ class HeroPrototype(object):
 
         return True
 
+
+    @classmethod
+    def get_friendly_heroes(self, person):
+        current_turn = TimePrototype.get_current_turn_number()
+        return [HeroPrototype(record) for record in Hero.objects.filter(pref_friend_id=person.id, active_state_end_at__gte=current_turn)]
+
+    @classmethod
+    def get_enemy_heroes(self, person):
+        current_turn = TimePrototype.get_current_turn_number()
+        return [HeroPrototype(record) for record in Hero.objects.filter(pref_enemy_id=person.id, active_state_end_at__gte=current_turn)]
+
+    @classmethod
+    def get_place_heroes(self, place):
+        current_turn = TimePrototype.get_current_turn_number()
+        return [HeroPrototype(record) for record in Hero.objects.filter(pref_place_id=place.id, active_state_end_at__gte=current_turn)]
+
     def __eq__(self, other):
 
         return (self.id == other.id and
@@ -1030,7 +1046,6 @@ class HeroPositionPrototype(object):
             battles_per_turn = dominant_place.modifier.modify_battles_per_turn(battles_per_turn)
 
         return random.uniform(0, 1) <= battles_per_turn
-
 
     ###########################################
     # Object operations

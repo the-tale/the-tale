@@ -43,7 +43,7 @@ class PrototypeTests(TestCase):
     def test_initialize(self):
         self.assertEqual(self.person.friends_number, 0)
         self.assertEqual(self.person.enemies_number, 0)
-        self.assertEqual(self.person.model.created_at_turn, TimePrototype.get_current_turn_number() - 1)
+        self.assertEqual(self.person.created_at_turn, TimePrototype.get_current_turn_number() - 1)
         self.assertTrue(self.person.is_stable)
 
     @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', 1.0)

@@ -46,7 +46,7 @@ class QuestsTest(TestCase):
         self.hero.preferences.set_equipment_slot(SLOTS.PLATE)
         self.hero.save()
 
-        persons_storage.all()[0].model.type = PERSON_TYPE.BLACKSMITH
+        persons_storage.all()[0]._model.type = PERSON_TYPE.BLACKSMITH
         persons_storage.save_all()
 
 

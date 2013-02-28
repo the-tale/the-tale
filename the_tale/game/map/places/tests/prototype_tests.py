@@ -1,11 +1,14 @@
 # coding: utf-8
-from django.test import TestCase
+import mock
+
+from common.utils.testcase import TestCase, CallCounter
 
 from accounts.logic import register_user
 
 from game.prototypes import TimePrototype
 from game.logic import create_test_map
 from game.heroes.prototypes import HeroPrototype
+from game.balance.enums import RACE
 
 class PrototypeTests(TestCase):
 
@@ -44,3 +47,11 @@ class PrototypeTests(TestCase):
         self.p1.update_heroes_number()
 
         self.assertEqual(self.p1.heroes_number, 2)
+
+    def test_sync_race_no_signal_when_race_not_changed(self):
+        race_changed_signal_counter = CallCounter()
+
+        with mock.patch('game.map.places.signals.place_race_changed.send', race_changed_signal_counter):
+            self.p1.sync_race()
+
+        self.assertEqual(race_changed_signal_counter.count, 0)

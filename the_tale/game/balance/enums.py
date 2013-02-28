@@ -8,6 +8,12 @@ RACE = create_enum('RACE', ( ('HUMAN', 0, u'человек'),
                              ('GOBLIN', 3, u'гоблин'),
                              ('DWARF', 4, u'дварф') ))
 
+RACE_MULTIPLE_VERBOSE = {RACE.HUMAN: u'люди',
+                         RACE.ELF: u'эльфы',
+                         RACE.ORC: u'орки',
+                         RACE.GOBLIN: u'гоблины',
+                         RACE.DWARF: u'дварфы'}
+
 ITEMS_OF_EXPENDITURE = create_enum('ITEMS_OF_EXPENDITURE',
                                    ( ('INSTANT_HEAL', 0, u'лечение'),
                                      ('BUYING_ARTIFACT', 1, u'покупка артефакта'),

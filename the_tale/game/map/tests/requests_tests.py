@@ -55,7 +55,7 @@ class TestMapRequests(TestCase):
 
     def test_place_info_no_freeze_time_icon(self):
         for person in self.place_1.persons:
-            person.model.created_at = datetime.datetime(2000, 1, 1)
+            person._model.created_at = datetime.datetime(2000, 1, 1)
             person.save()
         texts = [('pgf-time-before-unfreeze', 0)]
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
@@ -63,7 +63,7 @@ class TestMapRequests(TestCase):
     def test_place_info_freeze_time_icon(self):
         texts = [('pgf-time-before-unfreeze', 1)]
         person = self.place_1.persons[0]
-        person.model.created_at = datetime.datetime(2000, 1, 1)
+        person._model.created_at = datetime.datetime(2000, 1, 1)
         person.save()
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 

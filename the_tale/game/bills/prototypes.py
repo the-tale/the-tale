@@ -17,7 +17,6 @@ from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototyp
 from forum.models import MARKUP_METHOD
 
 from game.bills.models import Bill, Vote, BILL_STATE
-from game.bills.bills import deserialize_bill
 from game.bills.conf import bills_settings
 from game.bills.exceptions import BillException
 from game.bills import signals
@@ -58,6 +57,7 @@ class BillPrototype(object):
 
     @property
     def data(self):
+        from game.bills.bills import deserialize_bill
         if not hasattr(self, '_data'):
             self._data = deserialize_bill(s11n.from_json(self.model.technical_data))
         return self._data

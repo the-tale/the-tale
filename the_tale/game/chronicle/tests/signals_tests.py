@@ -186,7 +186,7 @@ class PlaceChangeRace(BaseTestPrototypes):
 
     def test_place_race_changed(self):
         for person in self.place1.persons:
-            person.model.race = self.next_race_id
+            person._model.race = self.next_race_id
             person.save()
 
         with check_record_created(self, RECORD_TYPE.PLACE_CHANGE_RACE):

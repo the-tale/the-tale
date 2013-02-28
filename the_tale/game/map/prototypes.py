@@ -11,8 +11,7 @@ from common.utils.prototypes import BasePrototype
 
 from game.balance.enums import RACE
 
-from game.persons.models import Person, PERSON_STATE
-from game.persons.prototypes import PersonPrototype
+from game.persons import persons_storage, PERSON_STATE
 
 from game.map.places.models import Place
 from game.map.places.prototypes import PlacePrototype
@@ -20,6 +19,7 @@ from game.map.places.storage import places_storage
 
 from game.map.models import MapInfo, MAP_STATISTICS
 from game.map.conf import map_settings
+from game.map.utils import get_race_percents
 
 
 class MapInfoPrototype(BasePrototype):
@@ -115,15 +115,7 @@ class MapInfoPrototype(BasePrototype):
 
             terrain_percents = dict( (id_, float(square) / total_cells) for id_, square in terrain_squares.items())
 
-        # race percents
-        race_powers = dict( (race_id, 0) for race_id in RACE._ALL)
-        for person_model in Person.objects.filter(state=PERSON_STATE.IN_GAME):
-            person = PersonPrototype(person_model)
-            race_powers[person.race] += person.power
-
-        total_power = sum(race_powers.values()) + 1 # +1 - to prevent division by 0
-
-        race_percents = dict( (race_id, float(power) / total_power) for race_id, power in race_powers.items())
+        race_percents = get_race_percents(persons_storage.filter(state=PERSON_STATE.IN_GAME))
 
         #race to cities percents
         race_cities = dict( (race_id, 0) for race_id in RACE._ALL)

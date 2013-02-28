@@ -1,0 +1,130 @@
+{% extends "places/base.html" %}
+
+{% block title %} {{ place.name }} | {{ super() }}{% endblock %}
+
+{% macro hero_record(hero) %}
+<td>
+  {% if hero %}
+  {{hero.gender_verbose}}-{{hero.race_verbose}}
+  <a href="{{url('game:heroes:show', hero.id)}}">{{hero.name}}</a>
+  {{ hero.level }} уровня,
+  {% set owner = accounts[hero.account_id] %}
+  покровитель: <a href="{{ url('accounts:show', owner.id) }}">{{owner.nick}}</a>
+  {% endif %}
+</td>
+{% endmacro %}
+
+
+{% block places_content %}
+
+<h3>{{place.name}} <small>подробная информация о населении</small></h3>
+
+<br/>
+
+<p>
+  Доли каждой расы в населении города.
+</p>
+
+<table class="table table-condensed table-striped table-bordered table-no-highlighting" style="width: auto;">
+  <tbody>
+    <tr>
+      <th width="75px">раса</th>
+      <th width="50px">доля</th>
+    </tr>
+    {% for race_id, race_percent in race_percents %}
+    {% if race_percent < 0.001 %}{% break %}{% endif %}
+    <tr>
+      <td>{{RACE_MULTIPLE_VERBOSE[race_id]}}</td>
+      <td>{{race_percent|percents}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p>
+  Списки героев, выбравших город родным или сотрудничающих/враждующих с одним из его влиятельных жителей.
+</p>
+
+<div class="accordion" id="pgf-place-heroes-accordion">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-heroes-accordion" href="#pgf-place-{{place.id}}">
+        Герои, поселившиеся в городе
+      </a>
+    </div>
+    <div id="pgf-place-{{place.id}}" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        {% if not city_heroes %}
+        <p class="pgf-no-heroes-message">Ни один из активных персонажей не выбрал этот город родным</p>
+        {% else %}
+
+        <table class="table table-condensed">
+          <tbody>
+            {% for hero in city_heroes %}
+            <tr>
+              {{ hero_record(hero) }}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+
+  {% for person in persons %}
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-heroes-accordion" href="#pgf-person-{{person.id}}">
+        {{ person.name }}
+        <small>
+          {{ person.race_verbose }}-{{ person.type_verbose }},
+
+          {% if place.total_persons_power %}
+          {% set power = (person.power/place.total_persons_power) %}
+          {% else %}
+          {% set power = 0 %}
+          {% endif %}
+          влиятельность: {{ power|percents }}
+        </small>
+      </a>
+    </div>
+    <div id="pgf-person-{{person.id}}" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        {% if not persons_heroes[person.id] %}
+        <p class="pgf-no-heroes-message">У этого персонажа нет друзей или врагов среди активных героев</p>
+        {% else %}
+
+        <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th width="50%">друзья</th>
+              <th>враги</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for friend, enemy in persons_heroes[person.id] %}
+            <tr>
+              {{ hero_record(friend) }}
+              {{ hero_record(enemy) }}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+
+{% endblock %}

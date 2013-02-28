@@ -115,6 +115,6 @@ class ActorPrototype(BasePrototype):
         model = Actor.objects.create(uid=external_object.uid,
                                      bill=external_object.bill.model if external_object.bill else None,
                                      place=external_object.place._model if external_object.place else None,
-                                     person=external_object.person.model if external_object.person else None)
+                                     person=external_object.person._model if external_object.person else None)
 
         return cls(model)
