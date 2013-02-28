@@ -8,7 +8,7 @@ from accounts.logic import register_user
 from game.prototypes import TimePrototype
 from game.logic import create_test_map
 from game.heroes.prototypes import HeroPrototype
-from game.balance.enums import RACE
+
 
 class PrototypeTests(TestCase):
 

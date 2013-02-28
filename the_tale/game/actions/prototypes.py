@@ -417,6 +417,7 @@ class ActionIdlenessPrototype(ActionPrototype):
         self.state = self.STATE.WAITING
 
         self.percents = 1.0
+        self.hero.last_action_percents = self.percents
 
         self.updated = True
 
