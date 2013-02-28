@@ -15,8 +15,6 @@ from accounts.models import Account, ChangeCredentialsTask, CHANGE_CREDENTIALS_T
 from accounts.conf import accounts_settings
 from accounts.exceptions import AccountsException
 
-from game.workers.environment import workers_environment as game_workers_environment
-
 class AccountPrototype(object):
 
     def __init__(self, model=None):
@@ -101,6 +99,7 @@ class AccountPrototype(object):
     @nested_commit_on_success
     def change_credentials(self, new_email=None, new_password=None, new_nick=None):
         from game.heroes.prototypes import HeroPrototype
+        from game.workers.environment import workers_environment as game_workers_environment
 
         if new_password:
             self.user.password = new_password

@@ -20,6 +20,8 @@ from game.map.prototypes import MapInfoPrototype
 from game.map.models import MapInfo, MAP_STATISTICS
 from game.map.places.models import TERRAIN
 
+from game.chronicle import RecordPrototype as ChronicleRecordPrototype
+
 from portal.conf import portal_settings
 from portal.newspaper.models import NewspaperEvent, NEWSPAPER_EVENT_SECTION
 from portal.newspaper.prototypes import NewspaperEventPrototype
@@ -45,6 +47,8 @@ class PortalResource(Resource):
 
         map_info = MapInfoPrototype(MapInfo.objects.all().order_by('-turn_number')[0])
 
+        chronicle_records = ChronicleRecordPrototype.get_last_records(portal_settings.CHRONICLE_RECORDS_ON_INDEX)
+
         return self.template('portal/index.html',
                              {'news': news,
                               'forum_threads': forum_threads,
@@ -54,6 +58,7 @@ class PortalResource(Resource):
                               'blog_posts': blog_posts,
                               'TERRAIN': TERRAIN,
                               'MAP_STATISTICS': MAP_STATISTICS,
+                              'chronicle_records': chronicle_records,
                               'RACE': RACE})
 
     @handler('404')

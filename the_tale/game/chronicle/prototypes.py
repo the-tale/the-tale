@@ -46,6 +46,10 @@ class RecordPrototype(BasePrototype):
     def get_last_actor_records(cls, external_actor_prototype, number):
         return [cls(record) for record in cls.get_actor_records_query(external_actor_prototype).order_by('-created_at')[:number]]
 
+    @classmethod
+    def get_last_records(cls, number):
+        return [cls(record) for record in Record.objects.all().order_by('-created_at')[:number]]
+
 
 class RecordToActorPrototype(BasePrototype):
 

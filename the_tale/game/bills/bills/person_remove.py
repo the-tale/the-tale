@@ -111,6 +111,12 @@ class PersonRemove(object):
         self.person_id = int(user_form.c.person)
         self.old_place_name_forms = self.person.place.normalized_name
 
+        self.person_name = self.person.name
+        self.person_race = self.person.race
+        self.person_type = self.person.type
+        self.person_gender = self.person.gender
+
+
     def initialize_with_moderator_data(self, moderator_form):
         pass
 

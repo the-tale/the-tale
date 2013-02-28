@@ -186,6 +186,19 @@
       </ul>
     </div>
 
+    <div class="block">
+      <h4 class="newspaper-column-header">Последние события</h4>
+
+      <ul class="unstyled">
+        {% for record in chronicle_records %}
+        <li class="newspaper-link-list">
+          <span class="newspaper-link-time">{{record.game_time.verbose_date}}</span><br/>
+          {{ record.text }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
   </div>
 
 </div>
