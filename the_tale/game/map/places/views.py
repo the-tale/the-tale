@@ -65,6 +65,7 @@ class PlaceResource(Resource):
 
         return self.template('places/show.html',
                              {'place': self.place,
+                              'hero': HeroPrototype.get_by_account_id(self.account.id) if self.account else None,
                               'RACE_MULTIPLE_VERBOSE': RACE_MULTIPLE_VERBOSE,
                               'race_percents': race_percents,
                               'persons': persons,

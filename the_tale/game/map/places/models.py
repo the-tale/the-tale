@@ -64,7 +64,7 @@ class Place(models.Model):
 
     heroes_number = models.IntegerField(default=0)
 
-    modifier = models.IntegerField(null=True, default=None, choices=CITY_MODIFIERS._CHOICES)
+    modifier = models.IntegerField(null=True, default=None, choices=CITY_MODIFIERS._CHOICES, blank=True)
 
     race = models.IntegerField(null=False, default=RACE.HUMAN, choices=RACE._CHOICES)
 

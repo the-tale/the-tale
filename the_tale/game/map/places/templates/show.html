@@ -22,6 +22,10 @@
 <br/>
 
 <p>
+  Hамер города: {{place.size}}
+</p>
+
+<p>
   Доли каждой расы в населении города.
 </p>
 
@@ -49,9 +53,17 @@
 
   <div class="accordion-group">
     <div class="accordion-heading">
-      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-heroes-accordion" href="#pgf-place-{{place.id}}">
-        Герои, поселившиеся в городе
-      </a>
+      <div class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-heroes-accordion" href="#pgf-place-{{place.id}}">
+        <a href="#">
+          Герои, поселившиеся в городе
+          <small>
+            всего: {{place.heroes_number}}
+          </small>
+        </a>
+        {% if hero and hero.preferences.place_id == place.id %}
+        <span class="badge badge-success">родной город</span>
+        {% endif %}
+      </div>
     </div>
     <div id="pgf-place-{{place.id}}" class="accordion-body collapse" style="height: 0px;">
       <div class="accordion-inner">
@@ -80,19 +92,30 @@
 
   <div class="accordion-group">
     <div class="accordion-heading">
-      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-heroes-accordion" href="#pgf-person-{{person.id}}">
-        {{ person.name }}
-        <small>
-          {{ person.race_verbose }}-{{ person.type_verbose }},
+      <div class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-heroes-accordion" href="#pgf-person-{{person.id}}">
+        <a href="#">
+          {{ person.name }}
+          <small>
+            {{ person.race_verbose }}-{{ person.type_verbose }},
+            {{person.mastery_verbose}},
+            {% if place.total_persons_power %}
+            {% set power = (person.power/place.total_persons_power) %}
+            {% else %}
+            {% set power = 0 %}
+            {% endif %}
+            влиятельность: {{ power|percents }},
+            соратников/противников: {{person.friends_number}}/{{person.enemies_number}}
+          </small>
 
-          {% if place.total_persons_power %}
-          {% set power = (person.power/place.total_persons_power) %}
-          {% else %}
-          {% set power = 0 %}
-          {% endif %}
-          влиятельность: {{ power|percents }}
-        </small>
-      </a>
+        </a>
+        {% if hero and hero.preferences.friend_id == person.id %}
+        <span class="badge badge-success">соратник</span>
+        {% endif %}
+
+        {% if hero and hero.preferences.enemy_id == person.id %}
+        <span class="badge badge-important">противник</span>
+        {% endif %}
+      </div>
     </div>
     <div id="pgf-person-{{person.id}}" class="accordion-body collapse" style="height: 0px;">
       <div class="accordion-inner">
