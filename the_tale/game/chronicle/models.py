@@ -20,7 +20,7 @@ class Actor(models.Model):
     def __unicode__(self):
         if self.bill_id is not None: return unicode(self.bill)
         if self.place_id is not None: return unicode(self.place)
-        if self.person_id is not None: return unicode(self.unicode)
+        if self.person_id is not None: return unicode(self.person)
 
 
 class Record(models.Model):
@@ -35,7 +35,7 @@ class Record(models.Model):
     actors = models.ManyToManyField(Actor, through='RecordToActor')
 
     def __unicode__(self):
-        return RECORD_TYPE(self.type).text
+        return self.type.text
 
 
 class RecordToActor(models.Model):
