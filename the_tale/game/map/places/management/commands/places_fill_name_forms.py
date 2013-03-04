@@ -16,11 +16,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         for place in places_storage.all():
-            if not place.model.name_forms:
+            if not place._model.name_forms:
                 forms = [place.name] * 12
                 if ' ' in place.name:
-                    place.model.name_forms = s11n.to_json(words.NounGroup(place.name, forms=forms).serialize())
+                    place._model.name_forms = s11n.to_json(words.NounGroup(place.name, forms=forms).serialize())
                 else:
-                    place.model.name_forms = s11n.to_json(words.Noun(place.name, forms=forms).serialize())
+                    place._model.name_forms = s11n.to_json(words.Noun(place.name, forms=forms).serialize())
 
             place.save()
