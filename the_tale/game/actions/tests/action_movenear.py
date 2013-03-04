@@ -34,7 +34,6 @@ class MoveNearActionTest(TestCase):
         self.hero.position.set_place(self.p1)
 
         self.action_move = ActionMoveNearPlacePrototype.create(self.action_idl, self.p1, False)
-
     def tearDown(self):
         pass
 
@@ -59,8 +58,9 @@ class MoveNearActionTest(TestCase):
         current_time.increment_turn()
         self.storage.process_turn()
 
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionIdlenessPrototype.TYPE)
-        self.assertTrue(self.hero.position.is_walking or self.hero.position.place) # can end in start place
+        # can end in field or in start place
+        self.assertTrue(self.storage.heroes_to_actions[self.hero.id][-1].TYPE in [ActionIdlenessPrototype.TYPE, ActionInPlacePrototype.TYPE])
+        self.assertTrue(self.hero.position.is_walking or self.hero.position.place)
 
         self.storage._test_save()
 

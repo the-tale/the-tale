@@ -9,7 +9,7 @@ from django.conf import settings as project_settings
 
 from dext.utils.meta_config import MetaConfig
 
-FABFILE = '/home/tie/repos/mine/devops/the_tale_2/deploy.py'
+FABFILE = '/home/tie/repos/mine/devops/the_tale/deploy.py'
 
 USER = 'root'
 HOST = 'the-tale.org'

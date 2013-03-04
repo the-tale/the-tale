@@ -68,6 +68,8 @@ SECRET_KEY = 'i@oi33(3f0vlezy$aj3_3q%q=#fb1ehovw0k&==w3ycs+#5f)y'
 GA_CODE = 'UA-10915391-4'
 ADDTHIS = True
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
 ################################
 # Mail settings
 ################################
@@ -297,3 +299,17 @@ try:
     from settings_check import *
 except:
     pass
+
+
+################
+# CACHING
+################
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+CACHE_MIDDLEWARE_SECONDS = 24*60*60
+CACHE_MIDDLEWARE_KEY_PREFIX = ''
