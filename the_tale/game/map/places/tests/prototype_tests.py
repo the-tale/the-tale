@@ -5,6 +5,8 @@ from common.utils.testcase import TestCase, CallCounter
 
 from accounts.logic import register_user
 
+from game.balance.enums import RACE
+
 from game.prototypes import TimePrototype
 from game.logic import create_test_map
 from game.heroes.prototypes import HeroPrototype
@@ -55,3 +57,17 @@ class PrototypeTests(TestCase):
             self.p1.sync_race()
 
         self.assertEqual(race_changed_signal_counter.count, 0)
+
+    def test_sync_race_signal_when_race_changed(self):
+        race_changed_signal_counter = CallCounter()
+
+        for race in RACE._ALL:
+            if self.p1.race != race:
+                self.p1.race = race
+                self.p1.save()
+                break
+
+        with mock.patch('game.map.places.signals.place_race_changed.send', race_changed_signal_counter):
+            self.p1.sync_race()
+
+        self.assertEqual(race_changed_signal_counter.count, 1)
