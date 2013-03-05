@@ -175,7 +175,7 @@ class PlacePrototype(BasePrototype):
         dominant_race = max(race_power.items(), key=lambda x: x[1])[0]
 
         if self.race != dominant_race:
-            old_race = self.race
+            old_race = RACE(self.race.value)
             self.race = dominant_race
             signals.place_race_changed.send(self.__class__, place=self, old_race=old_race, new_race=self.race)
 

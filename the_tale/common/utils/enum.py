@@ -39,7 +39,7 @@ def create_enum(class_name, records):
             if value not in self._ALL:
                 raise EnumException('try to set wrong value <%r> for enum %r' % (value, self))
             self.value = value
-
+            self.verbose = self._ID_TO_TEXT[value]
 
         def __eq__(self, other):
             if isinstance(other, self.__class__):

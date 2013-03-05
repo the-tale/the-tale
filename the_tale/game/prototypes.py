@@ -4,6 +4,7 @@ from dext.settings import settings
 from dext.utils.decorators import nested_commit_on_success
 
 import rels
+from rels.django_staff import DjangoEnum
 
 from collections import namedtuple
 
@@ -13,7 +14,7 @@ from game.models import SupervisorTask, SupervisorTaskMember, SUPERVISOR_TASK_TY
 from game.exceptions import GameException
 
 
-class MONTHS(rels.DjangoEnum):
+class MONTHS(DjangoEnum):
     date_text = rels.Column()
 
     _records = ( ('COLD',  1, u'холодный месяц', u'холодного месяца'),
