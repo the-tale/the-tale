@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from rels import DjangoEnum
+from rels.django_staff import DjangoEnum
 
 
 class RECORD_TYPE(DjangoEnum):

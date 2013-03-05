@@ -105,8 +105,6 @@ def chronicle_place_person_arrived(sender, place, person, **kwargs):
 
 @receiver(places_signals.place_race_changed, dispatch_uid='chronicle_place_race_changed')
 def chronicle_place_race_changed(sender, place, old_race, new_race, **kwargs):
-    print old_race.value, '->', new_race.value
-    print old_race.verbose, '->', new_race.verbose
     records.PlaceChangeRace(actors={ACTOR_ROLE.PLACE: place},
                             substitutions={'place': place,
                                            'old_race': old_race.verbose,
