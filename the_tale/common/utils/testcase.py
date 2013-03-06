@@ -19,14 +19,3 @@ class TestCase(DextTestCase):
     def request_logout(self):
         response = self.client.post(reverse('accounts:auth:logout'))
         self.check_ajax_ok(response)
-
-
-class CallCounter(object):
-
-    def __init__(self, return_value=None):
-        self.count = 0
-        self.return_value = return_value
-
-    def __call__(self, *argv, **kwargs):
-        self.count += 1
-        return self.return_value

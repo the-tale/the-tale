@@ -194,6 +194,19 @@ AMQP_BROKER_VHOST = '/the-tale'
 # TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
 
 
+################
+# CACHING
+################
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+CACHE_MIDDLEWARE_SECONDS = 24*60*60
+CACHE_MIDDLEWARE_KEY_PREFIX = ''
+
 try:
     from settings_local import *
 except:
@@ -299,17 +312,3 @@ try:
     from settings_check import *
 except:
     pass
-
-
-################
-# CACHING
-################
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-        'LOCATION': '127.0.0.1:11211',
-    }
-}
-CACHE_MIDDLEWARE_SECONDS = 24*60*60
-CACHE_MIDDLEWARE_KEY_PREFIX = ''

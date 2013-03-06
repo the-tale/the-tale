@@ -1,7 +1,7 @@
 # coding: utf-8
 import mock
 
-from common.utils.testcase import TestCase, CallCounter
+from common.utils import testcase
 from common.utils.fake import FakeLogger
 
 from common.postponed_tasks.exceptions import PostponedTaskException
@@ -9,7 +9,7 @@ from common.postponed_tasks.prototypes import PostponedTaskPrototype, postponed_
 from common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE
 from common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
 
-class PrototypeTests(TestCase):
+class PrototypeTests(testcase.TestCase):
 
     def setUp(self):
         autodiscover()
@@ -61,55 +61,50 @@ class PrototypeTests(TestCase):
 
             self.task.state = state
 
-            process_call_counter = CallCounter(return_value=POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-
-            with mock.patch.object(FakePostponedInternalTask, 'process', process_call_counter):
+            with mock.patch.object(FakePostponedInternalTask, 'process',
+                                   mock.Mock(return_value=POSTPONED_TASK_LOGIC_RESULT.SUCCESS)) as call_counter:
                 self.task.process(FakeLogger())
 
-            self.assertEqual(process_call_counter.count, 0)
+            self.assertEqual(call_counter.call_count, 0)
             self.assertEqual(self.task.state, state)
 
     def test_process_timeout(self):
 
         self.task.model.live_time = -1
 
-        process_call_counter = CallCounter(return_value=POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-
-        with mock.patch.object(FakePostponedInternalTask, 'process', process_call_counter):
+        with mock.patch.object(FakePostponedInternalTask, 'process',
+                               mock.Mock(return_value=POSTPONED_TASK_LOGIC_RESULT.SUCCESS)) as call_counter:
             self.task.process(FakeLogger())
 
-        self.assertEqual(process_call_counter.count, 0)
+        self.assertEqual(call_counter.call_count, 0)
         self.assertTrue(self.task.state.is_timeout)
 
 
     def test_process_success(self):
-        process_call_counter = CallCounter(return_value=POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-
-        with mock.patch.object(FakePostponedInternalTask, 'process', process_call_counter):
+        with mock.patch.object(FakePostponedInternalTask, 'process',
+                               mock.Mock(return_value=POSTPONED_TASK_LOGIC_RESULT.SUCCESS)) as call_counter:
             self.task.process(FakeLogger())
 
-        self.assertEqual(process_call_counter.count, 1)
+        self.assertEqual(call_counter.call_count, 1)
         self.assertTrue(self.task.state.is_processed)
 
 
     def test_process_internal_error(self):
 
-        process_call_counter = CallCounter(return_value=POSTPONED_TASK_LOGIC_RESULT.ERROR)
-
-        with mock.patch.object(FakePostponedInternalTask, 'process', process_call_counter):
+        with mock.patch.object(FakePostponedInternalTask, 'process',
+                               mock.Mock(return_value=POSTPONED_TASK_LOGIC_RESULT.ERROR)) as call_counter:
             self.task.process(FakeLogger())
 
-        self.assertEqual(process_call_counter.count, 1)
+        self.assertEqual(call_counter.call_count, 1)
         self.assertTrue(self.task.state.is_error)
 
     def test_process_internal_continue(self):
 
-        process_call_counter = CallCounter(return_value=POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
-
-        with mock.patch.object(FakePostponedInternalTask, 'process', process_call_counter):
+        with mock.patch.object(FakePostponedInternalTask, 'process',
+                               mock.Mock(return_value=POSTPONED_TASK_LOGIC_RESULT.CONTINUE)) as call_counter:
             self.task.process(FakeLogger())
 
-        self.assertEqual(process_call_counter.count, 1)
+        self.assertEqual(call_counter.call_count, 1)
         self.assertTrue(self.task.state.is_waiting)
 
 

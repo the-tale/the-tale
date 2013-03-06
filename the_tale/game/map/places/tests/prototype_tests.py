@@ -1,7 +1,7 @@
 # coding: utf-8
 import mock
 
-from common.utils.testcase import TestCase, CallCounter
+from common.utils import testcase
 
 from accounts.logic import register_user
 
@@ -12,7 +12,7 @@ from game.logic import create_test_map
 from game.heroes.prototypes import HeroPrototype
 
 
-class PrototypeTests(TestCase):
+class PrototypeTests(testcase.TestCase):
 
     def setUp(self):
         self.p1, self.p2, self.p3 = create_test_map()
@@ -51,23 +51,19 @@ class PrototypeTests(TestCase):
         self.assertEqual(self.p1.heroes_number, 2)
 
     def test_sync_race_no_signal_when_race_not_changed(self):
-        race_changed_signal_counter = CallCounter()
-
-        with mock.patch('game.map.places.signals.place_race_changed.send', race_changed_signal_counter):
+        with mock.patch('game.map.places.signals.place_race_changed.send') as signal_counter:
             self.p1.sync_race()
 
-        self.assertEqual(race_changed_signal_counter.count, 0)
+        self.assertEqual(signal_counter.call_count, 0)
 
     def test_sync_race_signal_when_race_changed(self):
-        race_changed_signal_counter = CallCounter()
-
         for race in RACE._ALL:
             if self.p1.race != race:
                 self.p1.race = race
                 self.p1.save()
                 break
 
-        with mock.patch('game.map.places.signals.place_race_changed.send', race_changed_signal_counter):
+        with mock.patch('game.map.places.signals.place_race_changed.send') as signal_counter:
             self.p1.sync_race()
 
-        self.assertEqual(race_changed_signal_counter.count, 1)
+        self.assertEqual(signal_counter.call_count, 1)

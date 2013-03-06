@@ -1,7 +1,7 @@
 # coding: utf-8
 import mock
 
-from common.utils.testcase import TestCase, CallCounter
+from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -13,11 +13,10 @@ from game.logic import create_test_map
 
 from game.abilities.deck.arena_pvp_1x1_leave_queue import ArenaPvP1x1LeaveQueue, ABILITY_TASK_STEP
 
-from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.models import BATTLE_1X1_STATE, Battle1x1
 
 
-class ArenaPvP1x1LeaveQueueAbilityTest(TestCase):
+class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
 
     def setUp(self):
         self.p1, self.p2, self.p3 = create_test_map()
@@ -48,12 +47,10 @@ class ArenaPvP1x1LeaveQueueAbilityTest(TestCase):
 
     def test_use_no_battle(self):
 
-        balancer_cmd_counter = CallCounter()
-
-        with mock.patch('game.pvp.workers.balancer.Worker.leave_arena_queue', balancer_cmd_counter):
+        with mock.patch('game.pvp.workers.balancer.Worker.leave_arena_queue') as balancer_cmd_counter:
             self.assertEqual(self.ability.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id)), (True, None, ()))
 
-        self.assertEqual(balancer_cmd_counter.count, 0)
+        self.assertEqual(balancer_cmd_counter.call_count, 0)
 
     def test_use_waiting_battle_state(self):
 
@@ -64,12 +61,10 @@ class ArenaPvP1x1LeaveQueueAbilityTest(TestCase):
         self.assertEqual((result, step), (None, ABILITY_TASK_STEP.PVP_BALANCER))
         self.assertEqual(len(postsave_actions), 1)
 
-        pvp_balancer_logic_task_counter = CallCounter()
-
-        with mock.patch('game.pvp.workers.balancer.Worker.cmd_logic_task', pvp_balancer_logic_task_counter):
+        with mock.patch('game.pvp.workers.balancer.Worker.cmd_logic_task') as pvp_balancer_logic_task_counter:
             postsave_actions[0]()
 
-        self.assertEqual(pvp_balancer_logic_task_counter.count, 1)
+        self.assertEqual(pvp_balancer_logic_task_counter.call_count, 1)
 
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).count(), 1)
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.LEAVE_QUEUE).count(), 0)

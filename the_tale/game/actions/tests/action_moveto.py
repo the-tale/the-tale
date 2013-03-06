@@ -3,7 +3,7 @@ import mock
 
 from dext.settings import settings
 
-from common.utils.testcase import TestCase, CallCounter
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -17,7 +17,7 @@ from game.actions.prototypes import ActionMoveToPrototype, ActionInPlacePrototyp
 from game.actions.prototypes import ActionResurrectPrototype, ActionBattlePvE1x1Prototype, ActionRegenerateEnergyPrototype
 from game.prototypes import TimePrototype
 
-class MoveToActionTest(TestCase):
+class MoveToActionTest(testcase.TestCase):
 
     def setUp(self):
         settings.refresh()
@@ -91,14 +91,11 @@ class MoveToActionTest(TestCase):
 
         self.hero.position.place.modifier = TransportNode(self.hero.position.place)
 
-        speed_modifier_call_counter = CallCounter(self.hero.move_speed)
-
-        self.assertEqual(speed_modifier_call_counter.count, 0)
-
-        with mock.patch('game.map.places.modifiers.prototypes.TransportNode.modify_move_speed', speed_modifier_call_counter):
+        with mock.patch('game.map.places.modifiers.prototypes.TransportNode.modify_move_speed',
+                        mock.Mock(return_value=self.hero.move_speed)) as speed_modifier_call_counter:
             self.storage.process_turn()
 
-        self.assertEqual(speed_modifier_call_counter.count, 1)
+        self.assertEqual(speed_modifier_call_counter.call_count, 1)
 
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
     def test_short_teleport(self):
@@ -206,7 +203,7 @@ class MoveToActionTest(TestCase):
         self.storage._test_save()
 
 
-class MoveToActionWithBreaksTest(TestCase):
+class MoveToActionWithBreaksTest(testcase.TestCase):
 
     def setUp(self):
         self.p1, self.p2, self.p3 = create_test_map()

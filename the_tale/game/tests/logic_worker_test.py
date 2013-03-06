@@ -3,7 +3,7 @@ import mock
 
 from dext.settings import settings
 
-from common.utils.testcase import TestCase, CallCounter
+from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -15,7 +15,7 @@ from game.workers.environment import workers_environment
 from game.prototypes import TimePrototype
 
 
-class LogicWorkerTests(TestCase):
+class LogicWorkerTests(testcase.TestCase):
 
     def setUp(self):
         settings.refresh()
@@ -63,15 +63,12 @@ class LogicWorkerTests(TestCase):
 
         self.worker.process_register_account(self.account.id)
 
-        release_required_counter = CallCounter()
-        save_counter = CallCounter()
-
-        with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required', release_required_counter):
-            with mock.patch('game.heroes.prototypes.HeroPrototype.save', save_counter):
+        with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
+            with mock.patch('game.heroes.prototypes.HeroPrototype.save') as save_counter:
                 self.worker.process_next_turn(current_time.turn_number)
 
-        self.assertEqual(save_counter.count, 1)
-        self.assertEqual(release_required_counter.count, 0)
+        self.assertEqual(save_counter.call_count, 1)
+        self.assertEqual(release_required_counter.call_count, 0)
 
 
     def test_process_next_turn_with_skipped_hero(self):
@@ -84,12 +81,9 @@ class LogicWorkerTests(TestCase):
 
         self.worker.storage.skipped_heroes.add(self.hero.id)
 
-        release_required_counter = CallCounter()
-        save_counter = CallCounter()
-
-        with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required', release_required_counter):
-            with mock.patch('game.heroes.prototypes.HeroPrototype.save', save_counter):
+        with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
+            with mock.patch('game.heroes.prototypes.HeroPrototype.save') as save_counter:
                 self.worker.process_next_turn(TimePrototype.get_current_turn_number())
 
-        self.assertEqual(save_counter.count, 0)
-        self.assertEqual(release_required_counter.count, 1)
+        self.assertEqual(save_counter.call_count, 0)
+        self.assertEqual(release_required_counter.call_count, 1)

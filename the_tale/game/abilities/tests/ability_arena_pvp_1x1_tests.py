@@ -1,7 +1,7 @@
 # coding: utf-8
 import mock
 
-from common.utils.testcase import TestCase, CallCounter
+from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -13,7 +13,7 @@ from game.logic import create_test_map
 from game.abilities.deck.arena_pvp_1x1 import ArenaPvP1x1, ABILITY_TASK_STEP
 from game.pvp.models import Battle1x1
 
-class ArenaPvP1x1AbilityTest(TestCase):
+class ArenaPvP1x1AbilityTest(testcase.TestCase):
 
     def setUp(self):
         self.p1, self.p2, self.p3 = create_test_map()
@@ -56,12 +56,10 @@ class ArenaPvP1x1AbilityTest(TestCase):
         self.assertEqual((result, step), (None, ABILITY_TASK_STEP.PVP_BALANCER))
         self.assertEqual(len(postsave_actions), 1)
 
-        pvp_balancer_logic_task_counter = CallCounter()
-
-        with mock.patch('game.pvp.workers.balancer.Worker.cmd_logic_task', pvp_balancer_logic_task_counter):
+        with mock.patch('game.pvp.workers.balancer.Worker.cmd_logic_task') as pvp_balancer_logic_task_counter:
             postsave_actions[0]()
 
-        self.assertEqual(pvp_balancer_logic_task_counter.count, 1)
+        self.assertEqual(pvp_balancer_logic_task_counter.call_count, 1)
 
         self.assertEqual(Battle1x1.objects.all().count(), 0)
 

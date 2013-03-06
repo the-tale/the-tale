@@ -3,7 +3,7 @@ import mock
 
 from dext.settings import settings
 
-from common.utils.testcase import TestCase, CallCounter
+from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -18,7 +18,7 @@ from game.logic_storage import LogicStorage
 from game.exceptions import GameException
 
 
-class LogicStorageTestsBasic(TestCase):
+class LogicStorageTestsBasic(testcase.TestCase):
 
     def setUp(self):
         settings.refresh()
@@ -39,7 +39,7 @@ class LogicStorageTestsBasic(TestCase):
         self.assertEqual(self.storage.accounts_to_heroes, {})
 
 
-class LogicStorageTests(TestCase):
+class LogicStorageTests(testcase.TestCase):
 
     def setUp(self):
         settings.refresh()
@@ -159,20 +159,18 @@ class LogicStorageTests(TestCase):
         ActionMetaProxyPrototype.create(self.action_idl_1, meta_action_battle)
         ActionMetaProxyPrototype.create(self.action_idl_2, meta_action_battle)
 
-        save_counter = CallCounter()
-
-        with mock.patch('game.actions.meta_actions.MetaActionPrototype.save', save_counter):
+        with mock.patch('game.actions.meta_actions.MetaActionPrototype.save') as save_counter:
             self.storage.save_hero_data(self.hero_1.id)
             self.storage.save_hero_data(self.hero_2.id)
 
-        self.assertEqual(save_counter.count, 0)
+        self.assertEqual(save_counter.call_count, 0)
 
         self.storage.meta_actions.values()[0].updated = True
         with mock.patch('game.actions.meta_actions.MetaActionPrototype.save', save_counter):
             self.storage.save_hero_data(self.hero_1.id)
             self.storage.save_hero_data(self.hero_2.id)
 
-        self.assertEqual(save_counter.count, 0) # meta action saved by proxy actions
+        self.assertEqual(save_counter.call_count, 0) # meta action saved by proxy actions
 
         self.storage.heroes_to_actions[self.hero_1.id][-1].updated = True
         self.storage.heroes_to_actions[self.hero_2.id][-1].updated = True
@@ -181,7 +179,7 @@ class LogicStorageTests(TestCase):
             self.storage.save_hero_data(self.hero_1.id)
             self.storage.save_hero_data(self.hero_2.id)
 
-        self.assertEqual(save_counter.count, 2) # meta action saved by every proxy actions
+        self.assertEqual(save_counter.call_count, 2) # meta action saved by every proxy actions
 
 
     def test_process_turn(self):
@@ -197,9 +195,7 @@ class LogicStorageTests(TestCase):
 
         self.storage.skipped_heroes.add(self.hero_1.id)
 
-        release_required_counter = CallCounter()
-
-        with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required', release_required_counter):
+        with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required'):
             self.storage.process_turn()
 
         self.assertEqual(len(self.storage.save_required), 1)

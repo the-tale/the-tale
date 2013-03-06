@@ -6,7 +6,7 @@ import mock
 
 from dext.settings import settings
 
-from common.utils.testcase import TestCase, CallCounter
+from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -26,7 +26,7 @@ from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.tests.helpers import PvPTestsMixin
 from game.pvp.combat_styles import COMBAT_STYLES
 
-class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
+class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
 
     def setUp(self):
         settings.refresh()
@@ -191,13 +191,11 @@ class ArenaPvP1x1MetaActionTest(TestCase, PvPTestsMixin):
 
     def test_second_process_call_in_one_turn(self):
 
-        meta_action_process_counter = CallCounter()
-
-        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process', meta_action_process_counter):
+        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process') as meta_action_process_counter:
             self.meta_action_battle.process()
             self.meta_action_battle.process()
 
-        self.assertEqual(meta_action_process_counter.count, 1)
+        self.assertEqual(meta_action_process_counter.call_count, 1)
 
     def test_update_hero_pvp_info(self):
         self.hero_2.pvp.effectiveness = 50

@@ -3,7 +3,7 @@ import mock
 
 from dext.settings import settings
 
-from common.utils.testcase import TestCase, CallCounter
+from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -17,7 +17,7 @@ from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
 from game.pvp.models import BATTLE_1X1_STATE
 from game.pvp.tests.helpers import PvPTestsMixin
 
-class MetaProxyActionForArenaPvP1x1Tests(TestCase, PvPTestsMixin):
+class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
 
     @mock.patch('game.actions.prototypes.ActionPrototype.get_description', lambda self: 'abrakadabra')
     def setUp(self):
@@ -73,29 +73,23 @@ class MetaProxyActionForArenaPvP1x1Tests(TestCase, PvPTestsMixin):
         self.assertEqual(len(self.storage.meta_actions), 1)
 
     def test_one_action_step_one_meta_step(self):
-        meta_action_process_counter = CallCounter()
-
-        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process', meta_action_process_counter):
+        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process') as meta_action_process_counter:
             self.action_proxy_1.process()
 
-        self.assertEqual(meta_action_process_counter.count, 1)
+        self.assertEqual(meta_action_process_counter.call_count, 1)
 
     def test_two_actions_step_one_meta_step(self):
-        meta_action_process_counter = CallCounter()
-
-        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process', meta_action_process_counter):
+        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process') as meta_action_process_counter:
             self.action_proxy_1.process()
             self.action_proxy_2.process()
 
-        self.assertEqual(meta_action_process_counter.count, 1)
+        self.assertEqual(meta_action_process_counter.call_count, 1)
 
     def test_two_actions_step_one_meta_step_from_storage(self):
-        meta_action_process_counter = CallCounter()
-
-        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process', meta_action_process_counter):
+        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process') as meta_action_process_counter:
             self.storage.process_turn()
 
-        self.assertEqual(meta_action_process_counter.count, 1)
+        self.assertEqual(meta_action_process_counter.call_count, 1)
 
     def test_success_processing(self):
         self.action_proxy_1.process()
