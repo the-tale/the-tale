@@ -45,11 +45,6 @@ class PvPResource(Resource):
         if not self.own_hero.can_participate_in_pvp:
             return self.auto_error('pvp.no_rights', u'Вы не можете участвовать в PvP.')
 
-    def fill_account_info(self, data, account, for_last_turn):
-        hero = HeroPrototype.get_by_account_id(account.id)
-
-        data['hero'] = hero.ui_info(for_last_turn=for_last_turn)
-
     @handler('', method='get')
     def pvp_page(self):
 
@@ -92,8 +87,8 @@ class PvPResource(Resource):
         account = self.account
         enemy = AccountPrototype.get_by_id(battle.enemy_id)
 
-        self.fill_account_info(data['account'], account, for_last_turn=False)
-        self.fill_account_info(data['enemy'], enemy, for_last_turn=True)
+        data['account']['hero'] = HeroPrototype.get_by_account_id(account.id).cached_ui_info(from_cache=True)
+        data['enemy']['hero'] = HeroPrototype.get_by_account_id(enemy.id).ui_info(for_last_turn=True)
 
         return self.json_ok(data=data)
 
@@ -126,7 +121,7 @@ class PvPResource(Resource):
 
         accounts_ids = [battle.account_id for battle in battles]
 
-        heroes = [HeroPrototype(hero_model) for hero_model in Hero.objects.filter(account_id__in=accounts_ids)]
+        heroes = [HeroPrototype(model=hero_model) for hero_model in Hero.objects.filter(account_id__in=accounts_ids)]
         heroes = dict( (hero.account_id, hero) for hero in heroes)
 
         ACCEPTED_LEVEL_MIN, ACCEPTED_LEVEL_MAX = accept_call_valid_levels(self.own_hero.level)

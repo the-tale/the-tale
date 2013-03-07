@@ -91,7 +91,7 @@ class AbilityPrototype(object):
 
     @classmethod
     def create(cls, hero):
-        AbilitiesData.objects.create(hero=hero.model)
+        AbilitiesData.objects.create(hero=hero._model)
 
     def __eq__(self, other):
         return ( self.available_at == other.available_at and

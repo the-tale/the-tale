@@ -99,7 +99,7 @@ class RatingResource(Resource):
 
         accounts_ids = [rating.account_id for rating in ratings]
 
-        heroes = dict( (hero_model.account_id, HeroPrototype(hero_model)) for hero_model in Hero.objects.filter(account_id__in=accounts_ids))
+        heroes = dict( (hero_model.account_id, HeroPrototype(model=hero_model)) for hero_model in Hero.objects.filter(account_id__in=accounts_ids))
 
         values = dict( (values_model.account_id, RatingValuesPrototype(values_model)) for values_model in RatingValues.objects.filter(account_id__in=accounts_ids))
 

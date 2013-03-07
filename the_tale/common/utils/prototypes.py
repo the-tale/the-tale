@@ -18,7 +18,7 @@ class _PrototypeMetaclass(type):
 
         def get_by(cls, identifier):
             try:
-                return cls(cls._model_class.objects.get(**{attribute_name: identifier}))
+                return cls(model=cls._model_class.objects.get(**{attribute_name: identifier}))
             except cls._model_class.DoesNotExist:
                 return None
 

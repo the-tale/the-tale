@@ -94,7 +94,7 @@ class ChangePreferencesRequestsTests(HeroRequestsTestBase):
     def test_chooce_preferences_dialog(self):
         from game.heroes.models import PREFERENCE_TYPE
 
-        self.hero.model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
+        self.hero._model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
         self.hero.save()
 
         for preference_type in PREFERENCE_TYPE._ALL:

@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 import mock
 
 from dext.settings import settings
@@ -54,6 +55,14 @@ class LogicWorkerTests(testcase.TestCase):
         self.assertTrue(self.worker.storage.heroes[self.hero.id].is_fast)
         self.worker.process_mark_hero_as_not_fast(self.hero.account_id, self.hero.id)
         self.assertFalse(self.worker.storage.heroes[self.hero.id].is_fast)
+
+    def test_process_start_hero_caching(self):
+        current_time = datetime.datetime.now()
+        self.worker.process_register_account(self.account.id)
+        self.assertTrue(self.worker.storage.heroes[self.hero.id].ui_caching_started_at < current_time)
+        self.worker.process_start_hero_caching(self.account.id, self.hero.id)
+        self.assertTrue(self.worker.storage.heroes[self.hero.id].ui_caching_started_at > current_time)
+
 
     def test_process_next_turn(self):
 

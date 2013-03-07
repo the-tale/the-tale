@@ -28,9 +28,11 @@ class Hero(models.Model):
 
     is_fast = models.BooleanField(default=True, db_index=True) # copy from account.is_fast
 
-    alive = models.BooleanField(default=True)
+    is_alive = models.BooleanField(default=True)
 
     active_state_end_at = models.BigIntegerField(default=0, db_index=True)
+
+    ui_caching_started_at = models.DateTimeField(auto_now_add=True, default=datetime.datetime(2000, 1, 1))
 
     #base
     name = models.CharField(max_length=MAX_NAME_LENGTH, null=False)

@@ -41,7 +41,7 @@ def newspaper_day_started(sender, **kwargs):
 
     hero_model = Hero.objects.filter(is_fast=False)[random.randint(0, heroes_number-1)]
 
-    hero = HeroPrototype(hero_model)
+    hero = HeroPrototype(model=hero_model)
     account = AccountPrototype.get_by_id(hero.account_id)
 
     NewspaperEventPrototype.create(events.EventHeroOfTheDay(hero_id=hero.id, hero_name=hero.name, race=hero.race,

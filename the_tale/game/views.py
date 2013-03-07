@@ -2,13 +2,11 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views import handler, validate_argument
+from dext.views import handler, validate_argument_with_resource
 from dext.utils.decorators import debug_required
 
 from common.utils.decorators import staff_required, login_required
 from common.utils.resources import Resource
-
-from accounts.prototypes import AccountPrototype
 
 from game.abilities.models import AbilitiesData
 from game.abilities.deck import ABILITIES
@@ -16,7 +14,6 @@ from game.abilities.deck import ABILITIES
 from game.heroes.prototypes import HeroPrototype
 
 from game.map.conf import map_settings
-from game.quests.prototypes import QuestPrototype
 
 from game.conf import game_settings
 from game.pvp.prototypes import Battle1x1Prototype
@@ -39,7 +36,7 @@ class GameResource(Resource):
                              {'map_settings': map_settings,
                               'game_settings': game_settings } )
 
-    @validate_argument('account', AccountPrototype.get_by_id, 'game.info', u'неверный идентификатор аккаунта')
+    @validate_argument_with_resource('account', Resource.validate_account_argument, 'game.info', u'неверный идентификатор аккаунта')
     @handler('info', method='get')
     def info(self, account):
 
@@ -50,17 +47,13 @@ class GameResource(Resource):
         data['turn'] = self.time.ui_info()
 
         hero = HeroPrototype.get_by_account_id(account.id)
-        data['hero'] = hero.ui_info(for_last_turn=False)
 
-        if self.account and self.account.id == account.id:
+        is_own_hero = self.account and self.account.id == account.id
+
+        if is_own_hero:
+            data['hero'] = hero.cached_ui_info(from_cache=True)
             abilities_data = AbilitiesData.objects.get(hero_id=hero.id)
             data['abilities'] = [ability(abilities_data).ui_info() for ability_type, ability in ABILITIES.items()]
-
-            quest = QuestPrototype.get_for_hero(hero.id)
-            if quest:
-                data['hero']['quests'] = quest.ui_info(hero)
-            else:
-                data['hero']['quests'] = {}
 
             data['pvp'] = {'waiting': False}
 
@@ -71,6 +64,8 @@ class GameResource(Resource):
                     data['pvp']['waiting'] = True
                 if battle.state.is_processing or battle.state.is_prepairing:
                     data['mode'] = 'pvp'
+        else:
+            data['hero'] = hero.ui_info(for_last_turn=True, quests_info=False)
 
         return self.json_ok(data=data)
 

@@ -205,8 +205,8 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
                                                              'hero_2_old_health': hero_2_old_health}),
                                           state=cls.STATE.BATTLE_RUNNING )
 
-        member_1 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_1.model, role=cls.ROLES.HERO_1)
-        member_2 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_2.model, role=cls.ROLES.HERO_2)
+        member_1 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_1._model, role=cls.ROLES.HERO_1)
+        member_2 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_2._model, role=cls.ROLES.HERO_2)
 
         meta_action = cls(model, members=[member_1, member_2])
         meta_action.set_storage(storage)

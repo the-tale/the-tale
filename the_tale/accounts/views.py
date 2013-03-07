@@ -282,7 +282,7 @@ class AccountResource(Resource):
 
         accounts_ids = [ model.id for model in accounts_models]
 
-        heroes = dict( (model.account_id, HeroPrototype(model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
+        heroes = dict( (model.account_id, HeroPrototype(model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
 
         return self.template('accounts/index.html',
                              {'heroes': heroes,

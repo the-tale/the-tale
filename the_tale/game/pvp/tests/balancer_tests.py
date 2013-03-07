@@ -283,7 +283,7 @@ class BalancerBalancingTests(BalancerTestsBase):
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
-        self.hero_1.model.level = 100
+        self.hero_1._model.level = 100
         self.hero_1.save()
 
         self.worker._initiate_battle(self.battle_1_record(), self.battle_2_record())

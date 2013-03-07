@@ -78,9 +78,9 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero.model.level = c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED
-        self.hero.model.pref_energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
-        self.hero.model.save()
+        self.hero._model.level = c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED
+        self.hero._model.pref_energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero._model.save()
 
     def tearDown(self):
         pass
@@ -144,8 +144,8 @@ class HeroPreferencesMobTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero.model.level = c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED
-        self.hero.model.save()
+        self.hero._model.level = c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED
+        self.hero._model.save()
 
         self.mob_uuid = mobs_storage.get_available_mobs_list(level=self.hero.level)[0].uuid
         self.mob_2_uuid = mobs_storage.get_available_mobs_list(level=self.hero.level)[1].uuid
@@ -172,7 +172,7 @@ class HeroPreferencesMobTest(TestCase):
         self.assertEqual(self.hero.preferences.mob, None)
 
     def test_wrong_level(self):
-        self.hero.model.level = 1
+        self.hero._model.level = 1
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, self.mob_uuid)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -266,7 +266,7 @@ class HeroPreferencesPlaceTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero.model.level = c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED
+        self.hero._model.level = c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED
         self.hero.save()
 
         self.place = place_1
@@ -281,7 +281,7 @@ class HeroPreferencesPlaceTest(TestCase):
         self.assertEqual(self.hero.preferences.place_id, None)
 
     def test_wrong_level(self):
-        self.hero.model.level = 1
+        self.hero._model.level = 1
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, self.place.id)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -303,7 +303,7 @@ class HeroPreferencesPlaceTest(TestCase):
 
         self.assertEqual([hero.id for hero in HeroPrototype.get_place_heroes(self.place)], [self.hero.id])
 
-        self.hero.model.active_state_end_at = -1
+        self.hero._model.active_state_end_at = -1
         self.hero.save()
         self.assertEqual(HeroPrototype.get_place_heroes(self.place), [])
 
@@ -346,8 +346,8 @@ class HeroPreferencesFriendTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero.model.level = c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED
-        self.hero.model.save()
+        self.hero._model.level = c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED
+        self.hero._model.save()
 
         self.friend_id = Person.objects.all()[0].id
         self.friend_2_id = Person.objects.all()[1].id
@@ -362,7 +362,7 @@ class HeroPreferencesFriendTest(TestCase):
         self.assertEqual(self.hero.preferences.friend_id, None)
 
     def test_wrong_level(self):
-        self.hero.model.level = 1
+        self.hero._model.level = 1
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -402,7 +402,7 @@ class HeroPreferencesFriendTest(TestCase):
         self.assertTrue(changed_at < self.hero.preferences.friend_changed_at)
         self.assertEqual([hero.id for hero in HeroPrototype.get_friendly_heroes(persons_storage[self.friend_id])], [self.hero.id])
 
-        self.hero.model.active_state_end_at = -1
+        self.hero._model.active_state_end_at = -1
         self.hero.save()
         self.assertEqual(HeroPrototype.get_friendly_heroes(persons_storage[self.friend_id]), [])
 
@@ -442,8 +442,8 @@ class HeroPreferencesEnemyTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero.model.level = c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED
-        self.hero.model.save()
+        self.hero._model.level = c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED
+        self.hero._model.save()
 
         self.enemy_id = Person.objects.all()[0].id
         self.enemy_2_id = Person.objects.all()[1].id
@@ -458,7 +458,7 @@ class HeroPreferencesEnemyTest(TestCase):
         self.assertEqual(self.hero.preferences.enemy_id, None)
 
     def test_wrong_level(self):
-        self.hero.model.level = 1
+        self.hero._model.level = 1
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.enemy_id)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -489,7 +489,7 @@ class HeroPreferencesEnemyTest(TestCase):
         self.assertTrue(changed_at < self.hero.preferences.enemy_changed_at)
         self.assertEqual([hero.id for hero in HeroPrototype.get_enemy_heroes(persons_storage[self.enemy_id])], [self.hero.id])
 
-        self.hero.model.active_state_end_at = -1
+        self.hero._model.active_state_end_at = -1
         self.hero.save()
         self.assertEqual(HeroPrototype.get_enemy_heroes(persons_storage[self.enemy_id]), [])
 
@@ -537,8 +537,8 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero.model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
-        self.hero.model.save()
+        self.hero._model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
+        self.hero._model.save()
 
         self.slot_1 = SLOTS.HAND_PRIMARY
         self.slot_2 = SLOTS.PLATE
@@ -552,7 +552,7 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
         self.assertEqual(self.hero.preferences.equipment_slot, None)
 
     def test_wrong_level(self):
-        self.hero.model.level = 1
+        self.hero._model.level = 1
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -612,8 +612,8 @@ class HeroPreferencesRequestsTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero.model.level = c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED # maximum blocking level
-        self.hero.model.save()
+        self.hero._model.level = c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED # maximum blocking level
+        self.hero._model.save()
 
         register_user('test_user_2', 'test_user_2@test.com', '111111')
 

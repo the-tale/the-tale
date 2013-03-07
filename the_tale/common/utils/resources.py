@@ -51,3 +51,10 @@ class Resource(BaseResource):
         if not hasattr(self, '_time'):
             self._time = TimePrototype.get_current_time()
         return self._time
+
+
+    def validate_account_argument(self, account_id):
+        if self.account and self.account.id == int(account_id):
+            return self.account
+
+        return AccountPrototype.get_by_id(account_id)

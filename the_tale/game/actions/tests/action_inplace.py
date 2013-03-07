@@ -151,7 +151,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
     def test_no_money(self):
 
-        self.hero.model.money = 1
+        self.hero._model.money = 1
         self.storage.process_turn()
         self.assertEqual(self.hero.money, 1)
         self.assertEqual(self.hero.statistics.money_spend, 0)
@@ -164,7 +164,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         money = f.instant_heal_price(self.hero.level)
 
-        self.hero.model.money = money
+        self.hero._model.money = money
         self.hero.health = 1
         self.storage.process_turn()
         self.assertTrue(self.hero.money < f.instant_heal_price(self.hero.level) * c.PRICE_DELTA + 1)
@@ -190,7 +190,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.hero.save()
 
         #buy artifact
-        self.hero.model.money = money
+        self.hero._model.money = money
 
         self.storage.process_turn()
         self.assertTrue(self.hero.money < f.buy_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
@@ -220,7 +220,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         self.hero.save()
 
         #buy artifact
-        self.hero.model.money = money
+        self.hero._model.money = money
 
         self.storage.process_turn()
         self.assertTrue(self.hero.money < f.buy_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
@@ -241,7 +241,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         money = f.buy_artifact_price(self.hero.level)
 
         #buy artifact
-        self.hero.model.money = money
+        self.hero._model.money = money
 
         self.assertEqual(self.hero.statistics.money_spend, 0)
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
@@ -265,7 +265,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         old_power = self.hero.power
 
-        self.hero.model.money = money
+        self.hero._model.money = money
         self.storage.process_turn()
         self.assertTrue(self.hero.money < f.sharpening_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(old_power + 1, self.hero.power)
@@ -286,7 +286,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
         old_power = self.hero.power
         old_plate_power = self.hero.equipment.get(SLOTS.PLATE).power
 
-        self.hero.model.money = money
+        self.hero._model.money = money
         self.storage.process_turn()
         self.assertTrue(self.hero.money < f.sharpening_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(old_power + 1, self.hero.power)
@@ -302,7 +302,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
             self.hero.switch_spending()
 
         money = f.useless_price(self.hero.level)
-        self.hero.model.money = money
+        self.hero._model.money = money
         self.storage.process_turn()
         self.assertTrue(self.hero.money < f.useless_price(self.hero.level) * c.PRICE_DELTA + 1)
 
@@ -316,7 +316,7 @@ class InPlaceActionSpendMoneyTest(TestCase):
             self.hero.switch_spending()
 
         money = f.impact_price(self.hero.level)
-        self.hero.model.money = money
+        self.hero._model.money = money
         self.storage.process_turn()
         self.assertTrue(self.hero.money < f.impact_price(self.hero.level) * c.PRICE_DELTA + 1)
 

@@ -38,7 +38,7 @@ class QuestsTest(TestCase):
         self.storage.add_hero(self.hero)
         self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
 
-        self.hero.model.money += 1
+        self.hero._model.money += 1
         self.hero.preferences.mob = mobs_storage.all()[0]
         self.hero.preferences.set_place_id(p1.id)
         self.hero.preferences.set_friend_id(p1.persons[0].id)

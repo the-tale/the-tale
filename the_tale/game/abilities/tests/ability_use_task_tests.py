@@ -44,7 +44,7 @@ class UseAbilityTasksTests(TestCase):
         self.assertEqual(self.task.response_data, {'available_at': 666})
 
     def test_process_no_energy(self):
-        self.hero.model.energy = 0
+        self.hero._model.energy = 0
         self.hero.save()
         self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(self.task.state, ABILITY_TASK_STATE.NO_ENERGY)

@@ -199,3 +199,14 @@ class LogicStorageTests(testcase.TestCase):
             self.storage.process_turn()
 
         self.assertEqual(len(self.storage.save_required), 1)
+
+    def test_save_changed_data(self):
+        self.storage.process_turn()
+
+        with mock.patch('dext.utils.cache.set_many') as set_many:
+            with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info') as cached_ui_info:
+                self.storage.save_changed_data()
+
+        self.assertEqual(set_many.call_count, 1)
+        self.assertEqual(cached_ui_info.call_count, 2)
+        self.assertEqual(cached_ui_info.call_args, mock.call(from_cache=False))

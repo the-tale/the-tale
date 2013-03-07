@@ -1,8 +1,11 @@
 # coding: utf-8
 
+from dext.utils import cache
+
 from game.actions.models import Action
 
 from game.heroes.prototypes import HeroPrototype
+from game.heroes.conf import heroes_settings
 
 from game.exceptions import GameException
 
@@ -134,8 +137,16 @@ class LogicStorage(object):
             self.save_required.add(hero.id)
 
     def save_changed_data(self):
+        cached_ui_info = {}
+
         for hero_id in self.save_required:
             self.save_hero_data(hero_id)
+
+            hero = self.heroes[hero_id]
+            if hero.is_ui_caching_required:
+                cached_ui_info[hero.cached_ui_info_key] = hero.cached_ui_info(from_cache=False)
+
+        cache.set_many(cached_ui_info, heroes_settings.UI_CACHING_TIMEOUT)
 
         self.save_required.clear()
 

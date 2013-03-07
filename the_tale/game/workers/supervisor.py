@@ -247,6 +247,14 @@ class Worker(BaseWorker):
         self.dispatch_logic_cmd(account_id, 'mark_hero_as_not_fast', {'account_id': account_id,
                                                                        'hero_id': hero_id} )
 
+    def cmd_start_hero_caching(self, account_id, hero_id):
+        self.send_cmd('start_hero_caching', {'hero_id': hero_id,
+                                             'account_id': account_id})
+
+    def process_start_hero_caching(self, account_id, hero_id):
+        self.dispatch_logic_cmd(account_id, 'start_hero_caching', {'account_id': account_id,
+                                                                   'hero_id': hero_id} )
+
     def cmd_mark_hero_as_active(self, account_id, hero_id):
         self.send_cmd('mark_hero_as_active', {'hero_id': hero_id,
                                               'account_id': account_id})

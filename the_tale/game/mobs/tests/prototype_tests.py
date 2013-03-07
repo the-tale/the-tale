@@ -109,7 +109,7 @@ class MobsPrototypeTests(TestCase):
 
     def test_get_loot(self):
 
-        self.hero.model.level = 5
+        self.hero._model.level = 5
 
         mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=MOB_RECORD_STATE.ENABLED)
         mob = MobPrototype(record=mob_record, level=3)

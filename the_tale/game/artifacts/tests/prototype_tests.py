@@ -128,7 +128,7 @@ class PrototypeTests(TestCase):
         from game.mobs.prototypes import MobPrototype, MobRecordPrototype
         from game.mobs.models import MOB_RECORD_STATE
 
-        self.hero.model.level = 5
+        self.hero._model.level = 5
 
         mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=MOB_RECORD_STATE.ENABLED)
         mob = MobPrototype(record=mob_record, level=3)

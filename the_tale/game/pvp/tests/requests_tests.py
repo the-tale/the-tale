@@ -110,6 +110,17 @@ class TestRequests(TestRequestsBase):
 
         self.assertEqual(data['data']['enemy']['hero']['pvp']['combat_style'], COMBAT_STYLES[self.hero_2.pvp.combat_style].type)
 
+    def test_game_info_caching(self):
+        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
+        self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
+
+        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info', mock.Mock(return_value={})) as cached_ui_info:
+            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info', mock.Mock(return_value={})) as ui_info:
+                self.client.get(reverse('game:pvp:info'))
+
+        self.assertEqual(cached_ui_info.call_args_list, [mock.call(from_cache=True)])
+        self.assertEqual(ui_info.call_args_list, [mock.call(for_last_turn=True)])
+
 class SayRequestsTests(TestRequestsBase):
 
     def test_no_battle(self):
@@ -179,14 +190,14 @@ class TestCallsPage(TestRequestsBase):
                                                                               ('pgf-own-battle-message', 1)])
 
     def test_low_level_battle(self):
-        self.hero_1.model.level = 100
+        self.hero_1._model.level = 100
         self.hero_1.save()
         self.pvp_create_battle(self.account_2, None, BATTLE_1X1_STATE.WAITING)
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 0),
                                                                               ('pgf-can-not-accept-call', 1)])
 
     def test_height_level_battle(self):
-        self.hero_2.model.level = 100
+        self.hero_2._model.level = 100
         self.hero_2.save()
         self.pvp_create_battle(self.account_2, None, BATTLE_1X1_STATE.WAITING)
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 0),
@@ -233,12 +244,12 @@ class AcceptCallRequestsTests(TestRequestsBase):
         self.check_ajax_error(self.client.post(self.accept_url), 'pvp.accept_call.own_battle')
 
     def test_low_level_battle(self):
-        self.hero_1.model.level = 100
+        self.hero_1._model.level = 100
         self.hero_1.save()
         self.check_ajax_error(self.client.post(self.accept_url), 'pvp.accept_call.wrong_enemy_level')
 
     def test_height_level_battle(self):
-        self.hero_2.model.level = 100
+        self.hero_2._model.level = 100
         self.hero_2.save()
         self.check_ajax_error(self.client.post(self.accept_url), 'pvp.accept_call.wrong_enemy_level')
 

@@ -145,14 +145,14 @@ class QuestPrototype(object):
         data = { 'pointer': env.get_start_pointer(),
                  'last_pointer': env.get_start_pointer()}
 
-        if QuestsHeroes.objects.filter(hero=hero.model).exists():
+        if QuestsHeroes.objects.filter(hero=hero._model).exists():
             raise Exception('Hero %s has already had quest' % hero.id)
 
         model = Quest.objects.create(env=s11n.to_json(env.serialize()),
                                      created_at_turn=TimePrototype.get_current_turn_number(),
                                      data=s11n.to_json(data))
 
-        QuestsHeroes.objects.create(quest=model, hero=hero.model)
+        QuestsHeroes.objects.create(quest=model, hero=hero._model)
 
         quest = QuestPrototype(model=model)
 

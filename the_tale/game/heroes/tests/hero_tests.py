@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 import random
 
 import mock
@@ -22,6 +23,7 @@ from game.heroes.bag import ARTIFACT_TYPE_TO_SLOT, SLOTS
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.habilities import ABILITY_TYPE, ABILITIES
 from game.heroes.habilities import battle
+from game.heroes.conf import heroes_settings
 
 
 class HeroTest(TestCase):
@@ -37,7 +39,6 @@ class HeroTest(TestCase):
 
     def tearDown(self):
         pass
-
 
     def test_create(self):
         self.assertTrue(self.hero.is_alive)
@@ -106,6 +107,36 @@ class HeroTest(TestCase):
         self.assertTrue(self.hero.pvp.effectiveness > 1.0)
 
 
+    def test_is_ui_caching_required(self):
+        self.assertTrue(self.hero.is_ui_caching_required) # new hero must be cached, since player, who created him, is in game
+        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME + 1)
+        self.assertFalse(self.hero.is_ui_caching_required)
+
+    def test_cached_ui_info_from_cache__from_cache_is_true__for_not_visited_heroes(self):
+        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME+1)
+        self.hero.save()
+
+        with mock.patch('game.workers.supervisor.Worker.cmd_start_hero_caching') as call_counter:
+            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                self.hero.cached_ui_info(from_cache=True)
+        self.assertEqual(call_counter.call_count, 1)
+        self.assertEqual(ui_info.call_args, mock.call(for_last_turn=False, quests_info=True))
+
+    def test_cached_ui_info_from_cache__from_cache_is_true__for_visited_heroes(self):
+        with mock.patch('game.workers.supervisor.Worker.cmd_start_hero_caching') as call_counter:
+            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                self.hero.cached_ui_info(from_cache=True)
+        self.assertEqual(call_counter.call_count, 0)
+        self.assertEqual(ui_info.call_args, mock.call(for_last_turn=False, quests_info=True))
+
+    def test_cached_ui_info_from_cache__from_cache_is_false(self):
+        with mock.patch('game.workers.supervisor.Worker.cmd_start_hero_caching') as call_counter:
+            self.hero.cached_ui_info(from_cache=False)
+        self.assertEqual(call_counter.call_count, 0)
+
+    def test_ui_caching_timeout_greate_then_turn_delta(self):
+        self.assertTrue(heroes_settings.UI_CACHING_TIMEOUT > c.TURN_DELTA)
+
 
 class HeroLevelUpTests(TestCase):
 
@@ -146,7 +177,7 @@ class HeroLevelUpTests(TestCase):
                                    5: 4}
 
         for level, points_number in level_to_points_number.items():
-            self.hero.model.level = level
+            self.hero._model.level = level
             self.assertEqual(self.hero.max_ability_points_number, points_number)
 
 
@@ -175,7 +206,7 @@ class HeroLevelUpTests(TestCase):
                                 17: 19}
 
         for level, next_level in level_to_next_level.items():
-            self.hero.model.level = level
+            self.hero._model.level = level
             self.assertEqual(self.hero.next_battle_ability_point_lvl, next_level)
 
     def test_next_nonbattle_ability_point_lvl(self):
@@ -198,7 +229,7 @@ class HeroLevelUpTests(TestCase):
                                 17: 23}
 
         for level, next_level in level_to_next_level.items():
-            self.hero.model.level = level
+            self.hero._model.level = level
             self.assertEqual(self.hero.next_nonbattle_ability_point_lvl, next_level)
 
     def test_next_ability_type(self):
@@ -327,7 +358,7 @@ class HeroEquipmentTests(TestCase):
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
 
         self.hero = self.storage.accounts_to_heroes[account_id]
-        self.hero.model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
+        self.hero._model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
         self.hero.save()
 
     def test_sharp_artifact(self):

@@ -7,9 +7,9 @@ import copy
 
 from textgen.words import Noun
 
-from dext.utils import s11n
-from dext.utils import database
+from dext.utils import s11n, database, cache
 
+from common.utils.prototypes import BasePrototype
 from common.utils.logic import random_value_by_priority
 
 from game.map.places.storage import places_storage
@@ -41,47 +41,27 @@ from game.heroes.logic import ValuesDict
 from game.heroes.pvp import PvPData
 
 
-class HeroPrototype(object):
+class HeroPrototype(BasePrototype):
+    _model_class = Hero
+    _readonly = ('id', 'account_id', 'created_at_turn', 'name', 'experience', 'money', 'next_spending', 'energy', 'level')
+    _bidirectional = ('is_alive',
+                      'is_fast',
+                      'gender',
+                      'race',
+                      'destiny_points_spend',
+                      'last_energy_regeneration_at_turn',
+                      'might',
+                      'might_updated_time',
+                      'last_action_percents',
+                      'ui_caching_started_at')
+    _get_by = ('id', 'account_id')
 
-    def __init__(self, model=None):
-        self.model = model
+    def __init__(self, **kwargs):
+        super(HeroPrototype, self).__init__(**kwargs)
         self.messages_updated = False
         self.diary_updated = False
         self.name_updated = False
         self.actions_descriptions_updated = False
-
-    @classmethod
-    def get_by_id(cls, model_id):
-        try:
-            return cls(model=Hero.objects.get(id=model_id))
-        except Hero.DoesNotExist:
-            return None
-
-    @classmethod
-    def get_by_account_id(cls, account_id):
-        try:
-            return cls(model=Hero.objects.get(account_id=account_id))
-        except Hero.DoesNotExist:
-            return None
-
-
-    def get_is_alive(self): return self.model.alive
-    def set_is_alive(self, value): self.model.alive = value
-    is_alive = property(get_is_alive, set_is_alive)
-
-
-    def get_is_fast(self): return self.model.is_fast
-    def set_is_fast(self, value): self.model.is_fast = value
-    is_fast = property(get_is_fast, set_is_fast)
-
-    @property
-    def id(self): return self.model.id
-
-    @property
-    def account_id(self): return self.model.account_id
-
-    @property
-    def created_at_turn(self): return self.model.created_at_turn
 
     @property
     def birthday(self): return TimePrototype(self.created_at_turn).game_time
@@ -92,26 +72,21 @@ class HeroPrototype(object):
 
     @property
     def is_active(self):
-        return TimePrototype.get_current_turn_number() < self.model.active_state_end_at
+        return TimePrototype.get_current_turn_number() < self._model.active_state_end_at
 
     def mark_as_active(self):
-        self.model.active_state_end_at = TimePrototype.get_current_turn_number() + c.EXP_ACTIVE_STATE_LENGTH
+        self._model.active_state_end_at = TimePrototype.get_current_turn_number() + c.EXP_ACTIVE_STATE_LENGTH
 
+    @property
+    def is_ui_caching_required(self):
+        return (datetime.datetime.now() - self._model.ui_caching_started_at).seconds < heroes_settings.UI_CACHING_TIME
 
     ###########################################
     # Base attributes
     ###########################################
 
     @property
-    def name(self): return self.model.name
-
-    def get_gender(self): return self.model.gender
-    def set_gender(self, value): self.model.gender = value
-    gender = property(get_gender, set_gender)
-
-    @property
-    def gender_verbose(self):
-        return GENDER._ID_TO_TEXT[self.gender]
+    def gender_verbose(self): return GENDER._ID_TO_TEXT[self.gender]
 
     @property
     def power(self): return f.clean_power_to_lvl(self.level) + self.equipment.get_power()
@@ -119,24 +94,14 @@ class HeroPrototype(object):
     @property
     def basic_damage(self): return f.damage_from_power(self.power) * self.damage_modifier
 
-    def get_race(self): return self.model.race
-    def set_race(self, value): self.model.race = value
-    race = property(get_race, set_race)
-
     @property
-    def race_verbose(self):
-        return RACE._ID_TO_TEXT[self.race]
+    def race_verbose(self): return RACE._ID_TO_TEXT[self.race]
 
-    @property
-    def level(self): return self.model.level
-
-    @property
-    def experience(self): return self.model.experience
     def add_experience(self, value):
-        self.model.experience += self.abilities.modify_attribute(ATTRIBUTES.EXPERIENCE, value * self.experience_modifier)
-        while f.exp_on_lvl(self.level) <= self.model.experience:
-            self.model.experience -= f.exp_on_lvl(self.level)
-            self.model.level += 1
+        self._model.experience += self.abilities.modify_attribute(ATTRIBUTES.EXPERIENCE, value * self.experience_modifier)
+        while f.exp_on_lvl(self.level) <= self._model.experience:
+            self._model.experience -= f.exp_on_lvl(self.level)
+            self._model.level += 1
             self.add_message('hero_common_level_up', hero=self, level=self.level)
 
     @property
@@ -171,33 +136,25 @@ class HeroPrototype(object):
                 4: 1,
                 5: 6}[delta] + self.level
 
-    def get_destiny_points_spend(self): return self.model.destiny_points_spend
-    def set_destiny_points_spend(self, value): self.model.destiny_points_spend = value
-    destiny_points_spend = property(get_destiny_points_spend, set_destiny_points_spend)
-
-
-    def get_health(self): return self.model.health
-    def set_health(self, value): self.model.health = int(value)
+    def get_health(self): return self._model.health
+    def set_health(self, value): self._model.health = int(value)
     health = property(get_health, set_health)
 
     @property
     def health_percents(self): return float(self.health) / self.max_health
 
-    @property
-    def money(self): return self.model.money
-
     def change_money(self, source, value):
         self.statistics.change_money(source, abs(value))
-        self.model.money += value
+        self._model.money += value
 
     @property
     def abilities(self):
         if not hasattr(self, '_abilities'):
-            if not self.model.abilities:
+            if not self._model.abilities:
                 # TODO: for migration to new ability representation
                 self._abilities = AbilitiesPrototype.create()
             else:
-                self._abilities = AbilitiesPrototype.deserialize(s11n.from_json(self.model.abilities))
+                self._abilities = AbilitiesPrototype.deserialize(s11n.from_json(self._model.abilities))
         return self._abilities
 
 
@@ -237,7 +194,7 @@ class HeroPrototype(object):
     @property
     def quests_history(self):
         if not hasattr(self, '_quests_history'):
-            self._quests_history = ValuesDict.deserialize(s11n.from_json(self.model.quests_history))
+            self._quests_history = ValuesDict.deserialize(s11n.from_json(self._model.quests_history))
         return self._quests_history
 
     def get_special_quests(self):
@@ -271,7 +228,7 @@ class HeroPrototype(object):
         if not hasattr(self, '_bag'):
             from .bag import Bag
             self._bag = Bag()
-            self._bag.deserialize(s11n.from_json(self.model.bag))
+            self._bag.deserialize(s11n.from_json(self._model.bag))
         return self._bag
 
     @property
@@ -449,12 +406,12 @@ class HeroPrototype(object):
         if not hasattr(self, '_equipment'):
             from .bag import Equipment
             self._equipment = Equipment()
-            self._equipment.deserialize(s11n.from_json(self.model.equipment))
+            self._equipment.deserialize(s11n.from_json(self._model.equipment))
         return self._equipment
 
     @property
     def is_name_changed(self):
-        return bool(self.model.name_forms)
+        return bool(self._model.name_forms)
 
     def get_normalized_name(self):
         if not hasattr(self, '_normalized_name'):
@@ -464,55 +421,36 @@ class HeroPrototype(object):
                 elif self.gender == GENDER.FEMININE:
                     self._normalized_name = get_dictionary().get_word(u'героиня')
             else:
-                self._normalized_name = Noun.deserialize(s11n.from_json(self.model.name_forms))
+                self._normalized_name = Noun.deserialize(s11n.from_json(self._model.name_forms))
         return self._normalized_name
     def set_normalized_name(self, word):
         self._normalized_name = word
-        self.model.name = word.normalized
-        self.model.name_forms = s11n.to_json(word.serialize()) # need to correct work of is_name_changed
+        self._model.name = word.normalized
+        self._model.name_forms = s11n.to_json(word.serialize()) # need to correct work of is_name_changed
         self.name_updated = True
 
     normalized_name = property(get_normalized_name, set_normalized_name)
 
-    @property
-    def next_spending(self): return self.model.next_spending
-
     def switch_spending(self):
         priorities = self.abilities.update_items_of_expenditure_priorities(self, c.ITEMS_OF_EXPENDITURE_PRIORITY)
-        self.model.next_spending = random_value_by_priority(list(priorities.items()))
+        self._model.next_spending = random_value_by_priority(list(priorities.items()))
 
     @property
     def energy_maximum(self): return c.ANGEL_ENERGY_MAX
 
-    @property
-    def energy(self): return self.model.energy
-
     def change_energy(self, value):
-        old_energy = self.model.energy
+        old_energy = self._model.energy
 
-        self.model.energy += value
-        if self.model.energy < 0:
-            self.model.energy = 0
-        elif self.model.energy > self.energy_maximum:
-            self.model.energy = self.energy_maximum
+        self._model.energy += value
+        if self._model.energy < 0:
+            self._model.energy = 0
+        elif self._model.energy > self.energy_maximum:
+            self._model.energy = self.energy_maximum
 
-        if self.model.energy != old_energy:
+        if self._model.energy != old_energy:
             self.updated = True
 
-        return self.model.energy - old_energy
-
-
-    def get_last_energy_regeneration_at_turn(self): return self.model.last_energy_regeneration_at_turn
-    def set_last_energy_regeneration_at_turn(self, value): self.model.last_energy_regeneration_at_turn = value
-    last_energy_regeneration_at_turn = property(get_last_energy_regeneration_at_turn, set_last_energy_regeneration_at_turn)
-
-    def get_might(self): return self.model.might
-    def set_might(self, value): self.model.might = value
-    might = property(get_might, set_might)
-
-    def get_might_updated_time(self): return self.model.might_updated_time
-    def set_might_updated_time(self, value): self.model.might_updated_time = value
-    might_updated_time = property(get_might_updated_time, set_might_updated_time)
+        return self._model.energy - old_energy
 
     @property
     def might_crit_chance(self): return self.abilities.modify_attribute(ATTRIBUTES.MIGHT_CRIT_CHANCE, f.might_crit_chance(self.might))
@@ -598,29 +536,25 @@ class HeroPrototype(object):
     @property
     def position(self):
         if not hasattr(self, '_position'):
-            self._position = HeroPositionPrototype(hero_model=self.model)
+            self._position = HeroPositionPrototype(hero_model=self._model)
         return self._position
 
     @property
     def statistics(self):
         if not hasattr(self, '_statistics'):
-            self._statistics = HeroStatistics(hero_model=self.model)
+            self._statistics = HeroStatistics(hero_model=self._model)
         return self._statistics
 
     @property
     def preferences(self):
         if not hasattr(self, '_preferences'):
-            self._preferences = HeroPreferences(hero_model=self.model)
+            self._preferences = HeroPreferences(hero_model=self._model)
         return self._preferences
-
-    def get_last_action_percents(self): return self.model.last_action_percents
-    def set_last_action_percents(self, value): self.model.last_action_percents = value
-    last_action_percents = property(get_last_action_percents, set_last_action_percents)
 
     @property
     def actions_descriptions(self):
         if not hasattr(self, '_actions_descriptions'):
-            self._actions_descriptions = s11n.from_json(self.model.actions_descriptions)
+            self._actions_descriptions = s11n.from_json(self._model.actions_descriptions)
         return self._actions_descriptions
 
     def push_action_description(self, description):
@@ -634,7 +568,7 @@ class HeroPrototype(object):
     @property
     def pvp(self):
         if not hasattr(self, '_pvp'):
-            self._pvp = PvPData.deserialize(s11n.from_json(self.model.pvp))
+            self._pvp = PvPData.deserialize(s11n.from_json(self._model.pvp))
         return self._pvp
 
     def get_pvp_effectiveness_modified(self, enemy_hero):
@@ -654,13 +588,13 @@ class HeroPrototype(object):
     @property
     def messages(self):
         if not hasattr(self, '_messages'):
-            self._messages = s11n.from_json(self.model.messages)
+            self._messages = s11n.from_json(self._model.messages)
         return self._messages
 
     @property
     def diary(self):
         if not hasattr(self, '_diary'):
-            self._diary = s11n.from_json(self.model.diary)
+            self._diary = s11n.from_json(self._model.diary)
         return self._diary
 
     def push_message(self, msg, important=False):
@@ -698,48 +632,48 @@ class HeroPrototype(object):
     def remove(self):
         for action in reversed(self.get_actions()):
             action.remove(force=True)
-        self.model.delete()
+        self._model.delete()
 
     def save(self):
 
         if self.bag.updated:
-            self.model.bag = s11n.to_json(self.bag.serialize())
+            self._model.bag = s11n.to_json(self.bag.serialize())
             self.bag.updated = False
 
         if self.equipment.updated:
-            self.model.equipment = s11n.to_json(self.equipment.serialize())
-            self.model.raw_power = self.power
+            self._model.equipment = s11n.to_json(self.equipment.serialize())
+            self._model.raw_power = self.power
             self.equipment.updated = False
 
         if self.abilities.updated:
-            self.model.abilities = s11n.to_json(self.abilities.serialize())
+            self._model.abilities = s11n.to_json(self.abilities.serialize())
             self.abilities.updated = False
 
         if self.quests_history.updated:
-            self.model.quests_history = s11n.to_json(self.quests_history.serialize())
+            self._model.quests_history = s11n.to_json(self.quests_history.serialize())
             self.quests_history.updated = False
 
         if self.messages_updated:
-            self.model.messages = s11n.to_json(self.messages)
+            self._model.messages = s11n.to_json(self.messages)
             self.messages_updated = False
 
         if self.diary_updated:
-            self.model.diary = s11n.to_json(self.diary)
+            self._model.diary = s11n.to_json(self.diary)
             self.diary_updated = False
 
         if self.actions_descriptions_updated:
-            self.model.actions_descriptions = s11n.to_json(self.actions_descriptions)
+            self._model.actions_descriptions = s11n.to_json(self.actions_descriptions)
             self.actions_descriptions_updated = False
 
         if self.name_updated:
-            self.model.name_forms = s11n.to_json(self.normalized_name.serialize())
+            self._model.name_forms = s11n.to_json(self.normalized_name.serialize())
             self.name_updated = False
 
         if self.pvp.updated:
-            self.model.pvp = s11n.to_json(self.pvp.serialize())
+            self._model.pvp = s11n.to_json(self.pvp.serialize())
             self.pvp.updated = False
 
-        database.raw_save(self.model)
+        database.raw_save(self._model)
 
     @staticmethod
     def _compare_messages(first, second):
@@ -756,17 +690,17 @@ class HeroPrototype(object):
     @classmethod
     def get_friendly_heroes(self, person):
         current_turn = TimePrototype.get_current_turn_number()
-        return [HeroPrototype(record) for record in Hero.objects.filter(pref_friend_id=person.id, active_state_end_at__gte=current_turn)]
+        return [HeroPrototype(model=record) for record in Hero.objects.filter(pref_friend_id=person.id, active_state_end_at__gte=current_turn)]
 
     @classmethod
     def get_enemy_heroes(self, person):
         current_turn = TimePrototype.get_current_turn_number()
-        return [HeroPrototype(record) for record in Hero.objects.filter(pref_enemy_id=person.id, active_state_end_at__gte=current_turn)]
+        return [HeroPrototype(model=record) for record in Hero.objects.filter(pref_enemy_id=person.id, active_state_end_at__gte=current_turn)]
 
     @classmethod
     def get_place_heroes(self, place):
         current_turn = TimePrototype.get_current_turn_number()
-        return [HeroPrototype(record) for record in Hero.objects.filter(pref_place_id=place.id, active_state_end_at__gte=current_turn)]
+        return [HeroPrototype(model=record) for record in Hero.objects.filter(pref_place_id=place.id, active_state_end_at__gte=current_turn)]
 
     def __eq__(self, other):
 
@@ -791,7 +725,8 @@ class HeroPrototype(object):
                 self._compare_messages(self.diary, other.diary) and
                 self.actions_descriptions == other.actions_descriptions)
 
-    def ui_info(self, for_last_turn=False):
+    def ui_info(self, for_last_turn=False, quests_info=False):
+        from game.quests.prototypes import QuestPrototype
 
         quest_items_count, loot_items_count = self.bag.occupation
 
@@ -804,6 +739,11 @@ class HeroPrototype(object):
         for turn_number, timestamp, msg in self.diary:
             game_time = GameTime.create_from_turn(turn_number)
             diary.append((timestamp, game_time.verbose_time, msg, game_time.verbose_date))
+
+        quests = None
+        if quests_info:
+            quest = QuestPrototype.get_for_hero(self.id)
+            quests = quest.ui_info(self) if quest else {}
 
         return {'id': self.id,
                 'messages': messages,
@@ -841,8 +781,29 @@ class HeroPrototype(object):
                                'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': loot_items_count,
-                               'quest_items_count': quest_items_count}
+                               'quest_items_count': quest_items_count},
+                'quests': quests
                 }
+
+    @property
+    def cached_ui_info_key(self):
+        return heroes_settings.UI_CACHING_KEY % self.id
+
+    def cached_ui_info(self, from_cache):
+        from game.workers.environment import workers_environment as game_workers_environment
+
+        if from_cache:
+            data = cache.get(self.cached_ui_info_key)
+
+            if data is None:
+                data = self.ui_info(for_last_turn=False, quests_info=True)
+
+                if not self.is_ui_caching_required:
+                    # in other case it is probably some delay in turn processing and we shouldn't spam unnecessary messages
+                    game_workers_environment.supervisor.cmd_start_hero_caching(self.account_id, self.id)
+            return data
+
+        return self.ui_info(for_last_turn=False, quests_info=True)
 
 
     @classmethod

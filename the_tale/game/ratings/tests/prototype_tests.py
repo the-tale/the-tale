@@ -49,12 +49,12 @@ class RatingPrototypeTests(PrototypeTestsBase):
 
     def set_values(self, account, might=0, level=0, power=0, pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0):
         hero = HeroPrototype.get_by_account_id(account.id)
-        hero.model.might = might
-        hero.model.level = level
-        hero.model.raw_power = power
-        hero.model.stat_pvp_battles_1x1_number = pvp_battles_1x1_number
-        hero.model.stat_pvp_battles_1x1_victories = pvp_battles_1x1_victories
-        hero.model.save()
+        hero._model.might = might
+        hero._model.level = level
+        hero._model.raw_power = power
+        hero._model.stat_pvp_battles_1x1_number = pvp_battles_1x1_number
+        hero._model.stat_pvp_battles_1x1_victories = pvp_battles_1x1_victories
+        hero._model.save()
 
     def test_might(self):
         self.set_values(self.account_1, might=10)

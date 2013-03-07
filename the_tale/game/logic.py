@@ -9,7 +9,6 @@ from dext.utils import s11n
 from common.utils.enum import create_enum
 
 from game.heroes.bag import SLOTS
-from game.bundles import BundlePrototype
 
 from game.persons.storage import persons_storage
 
@@ -115,12 +114,6 @@ def create_test_map():
     artifacts_storage.sync(force=True)
 
     return (places_storage[p1.id], places_storage[p2.id], places_storage[p3.id])
-
-
-def create_test_bundle(uuid):
-    from accounts.logic import register_user
-    result, account_id, bundle_id = register_user(uuid, uuid + '@test.com', '111111')
-    return BundlePrototype.get_by_id(bundle_id)
 
 
 def dress_new_hero(hero):
