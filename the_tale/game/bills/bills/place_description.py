@@ -109,7 +109,12 @@ class PlaceDescripton(object):
         obj = cls()
         obj.description = data['description']
         obj.place_id = data['place_id']
-        obj.old_name_forms = Noun.deserialize(data['old_name_forms'])
+
+        if 'old_name_forms' in data:
+            obj.old_name_forms = Noun.deserialize(data['old_name_forms'])
+        else:
+            obj.old_name_forms = Noun.fast_construct(u'название неизвестно')
+
         obj.old_description = data.get('old_description', u'неизвестно')
 
         return obj

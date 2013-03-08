@@ -117,7 +117,11 @@ class PlaceRenaming(object):
     def deserialize(cls, data):
         obj = cls()
 
-        obj.old_name_forms = Noun.deserialize(data['old_name_forms'])
+        if 'old_name_forms' in data:
+            obj.old_name_forms = Noun.deserialize(data['old_name_forms'])
+        else:
+            obj.old_name_forms = Noun.fast_construct(u'название неизвестно')
+
         obj.name_forms = Noun.deserialize(data['name_forms'])
         obj.place_id = data['place_id']
 

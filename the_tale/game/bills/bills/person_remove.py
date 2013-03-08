@@ -153,6 +153,11 @@ class PersonRemove(object):
         obj.person_race = data['person_race']
         obj.person_type = data['person_type']
         obj.person_gender = data['person_gender']
-        obj.old_place_name_forms = Noun.deserialize(data['old_place_name_forms'])
+
+        if 'old_name_forms' in data:
+            obj.old_place_name_forms = Noun.deserialize(data['old_place_name_forms'])
+        else:
+            obj.old_place_name_forms = Noun.fast_construct(u'название неизвестно')
+
 
         return obj
