@@ -39,13 +39,14 @@
     {% set persons = friends %}
     {% set _is_friend = true %}
     {% set person_id = resource.hero.preferences.friend_id %}
-    {% set person_place_id = resource.hero.preferences.friend.place_id if person_id %}
+    {% set person_place_id = resource.hero.preferences.friend.place_id if person_id else none %}
     {% include "heroes/choose_preferences_person.html" with context %}
 
     {% elif type == PREFERENCE_TYPE.ENEMY %}
     {% set persons = enemies %}
+    {% set _is_friend = false %}
     {% set person_id = resource.hero.preferences.enemy_id %}
-    {% set person_place_id = resource.hero.preferences.enemy.place_id if person_id %}
+    {% set person_place_id = resource.hero.preferences.enemy.place_id if person_id else none %}
     {% include "heroes/choose_preferences_person.html" with context %}
 
     {% elif type == PREFERENCE_TYPE.EQUIPMENT_SLOT %}

@@ -81,7 +81,7 @@ class DevelopersInfoResource(Resource):
                               'mobs_without_loot': mobs_without_loot,
                               'mobs_without_artifacts': mobs_without_artifacts,
                               'mobs_without_loot_on_first_level': mobs_without_loot_on_first_level,
-                              'mobs_without_loot_on_first_level': mobs_without_loot_on_first_level,
+                              'mobs_without_artifacts_on_first_level': mobs_without_artifacts_on_first_level,
                               'mobs_by_territory': mobs_by_territory,
                               'territory_levels_checks': territory_levels_checks,
                               'artifacts_without_mobs': artifacts_without_mobs})

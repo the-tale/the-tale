@@ -50,7 +50,7 @@
     <tr>
       <th>до конца голосования</th>
       <td>
-        {% if bill.state.is_proposal or bill.state.is_voting %}
+        {% if bill.state.is_voting %}
         {{ bill.time_before_end_step|verbose_timedelta }}
         {% else %}
         —
@@ -73,13 +73,7 @@
       <th>обсуждение</th>
       <td><a href="{{ url('forum:threads:show', bill.forum_thread_id) }}">форум</a></td>
       <th>результаты</th>
-      <td>
-        {% if not bill.state.is_proposal %}
-        {{ _voting_results(bill) }}
-        {% else %}
-        —
-        {% endif %}
-      </td>
+      <td>{{ _voting_results(bill) }}</td>
     </tr>
   </tbody>
 </table>

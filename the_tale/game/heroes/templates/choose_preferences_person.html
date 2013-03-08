@@ -36,7 +36,11 @@
 
 <select id="pgf-places-selector">
   {% for place_id, place in all_places.items() %}
-  <option value="{{place_id}}" {% if person_place_id == place_id %}selected='selected'{% endif %}>{{place.name}}</option>
+  <option value="{{place_id}}"
+          {% if person_place_id == place_id %}selected='selected'
+          {% endif %}>
+    {{place.name}}
+  </option>
   {% endfor %}
 </select>
 

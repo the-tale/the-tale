@@ -14,7 +14,7 @@
     {{ base_macros.addthis(title=post.caption, description=post.text_html|safe) }}
   </li>
 
-  {% if resource.account.id == post.author.id %}
+  {% if resource.account and resource.account.id == post.author.id %}
   <li class="pull-right" style="margin-left: 0.5em;">
     <a href="{{ url('blogs:posts:edit', post.id) }}">редактировать</a>
   </li>

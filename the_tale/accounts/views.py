@@ -168,30 +168,37 @@ class ProfileResource(Resource):
 
         task = ChangeCredentialsTaskPrototype.get_by_uuid(uuid)
 
+        context = {'already_processed': False,
+                   'timeout': False,
+                   'error_occured': False,
+                   'task': None}
+
         if task is None:
-            return self.template('accounts/confirm_email.html',
-                                 {'error': u'Неверная ссылка, убедитесь, что верно скопировали адрес'} )
+            context['error'] = u'Неверная ссылка, убедитесь, что верно скопировали адрес'
+            return self.template('accounts/confirm_email.html', context)
 
         if task.has_already_processed:
-            return self.template('accounts/confirm_email.html',
-                                 {'already_processed': True} )
+            context['already_processed'] = True
+            return self.template('accounts/confirm_email.html', context)
 
         task.process(logger)
 
         if task.state == CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT:
-            return self.template('accounts/confirm_email.html',
-                                 {'timout': True} )
+            context['timeout'] = True
+            return self.template('accounts/confirm_email.html', context)
 
         if task.state == CHANGE_CREDENTIALS_TASK_STATE.ERROR:
-            return self.template('accounts/confirm_email.html',
-                                 {'error_occured': True} )
+            context['error_occured'] = True
+            return self.template('accounts/confirm_email.html', context)
 
         force_login_user(self.request, task.account.user)
 
         self._account = task.account
 
-        return self.template('accounts/confirm_email.html',
-                             {'task': task} )
+        context['task'] = task
+
+        return self.template('accounts/confirm_email.html', context)
+
 
     @handler('reset-password', method='get')
     def reset_password_page(self):

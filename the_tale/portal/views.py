@@ -16,8 +16,8 @@ from blogs.prototypes import PostPrototype as BlogPostPrototype
 
 from game.balance.enums import RACE
 
-from game.map.prototypes import MapInfoPrototype
-from game.map.models import MapInfo, MAP_STATISTICS
+from game.map.storage import map_info_storage
+from game.map.models import MAP_STATISTICS
 from game.map.places.models import TERRAIN
 
 from game.chronicle import RecordPrototype as ChronicleRecordPrototype
@@ -45,7 +45,7 @@ class PortalResource(Resource):
                        for blog_post_model in BlogPost.objects.filter(state__in=[BLOG_POST_STATE.ACCEPTED, BLOG_POST_STATE.NOT_MODERATED],
                                                                       votes__gt=0).order_by('-created_at')[:portal_settings.BLOG_POSTS_ON_INDEX] ]
 
-        map_info = MapInfoPrototype(MapInfo.objects.all().order_by('-turn_number')[0])
+        map_info = map_info_storage.item
 
         chronicle_records = ChronicleRecordPrototype.get_last_records(portal_settings.CHRONICLE_RECORDS_ON_INDEX)
 

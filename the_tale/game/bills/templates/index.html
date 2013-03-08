@@ -39,10 +39,10 @@
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         состояние:
-        {% if state.is_voting %} голосование
+        {% if state is none %} все
+        {% elif state.is_voting %} голосование
         {% elif state.is_accepted %} принятые
         {% elif state.is_rejected %} отклонённые
-        {% else %} все
         {% endif %}
         <span class="caret"></span>
       </a>
