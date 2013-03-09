@@ -2,6 +2,7 @@
 
 {% import 'macros.html' as base_macros with context %}
 {% import 'bills/macros.html' as bills_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
 
 {% block bills_content %}
 
@@ -22,73 +23,7 @@
 
 <h2 style="margin-bottom: 0.5em;">Список законов</h2>
 
-<div>
-  <div class="btn-toolbar">
-
-    <div class="btn-group">
-      <a class="btn {% if not is_filtering %}disabled{% endif %}"
-         href="{% if is_filtering %}{{ url('game:bills:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
-    </div>
-
-    {% if owner_account %}
-    <div class="btn-group">
-      <a class="btn disabled" href="#">автор: {{owner_account.nick}}</a>
-    </div>
-    {% endif %}
-
-    <div class="btn-group">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        состояние:
-        {% if state is none %} все
-        {% elif state.is_voting %} голосование
-        {% elif state.is_accepted %} принятые
-        {% elif state.is_rejected %} отклонённые
-        {% endif %}
-        <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-        <li><a href="{{ url_builder(state=none) }}">все</a></li>
-        <li><a href="{{ url_builder(state=BILL_STATE.VOTING) }}">голосование</a></li>
-        <li><a href="{{ url_builder(state=BILL_STATE.ACCEPTED) }}">принятые</a></li>
-        <li><a href="{{ url_builder(state=BILL_STATE.REJECTED) }}">отклонённые</a></li>
-      </ul>
-    </div>
-
-    <div class="btn-group">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        голосование:
-        {% if voted is not none %} {{ voted.verbose }}
-        {% else %} все
-        {% endif %}
-        <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-        <li><a href="{{ url_builder(voted=none) }}">все</a></li>
-        {% for voted_id, voted_text in VOTED_TYPE._ID_TO_TEXT.items() %}
-        <li><a href="{{ url_builder(voted=voted_id) }}">{{voted_text}}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <div class="btn-group">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        тип:
-        {% if bill_type is not none %} {{bill_type.verbose}}
-        {% else %} все
-        {% endif %}
-        <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-        <li><a href="{{ url_builder(bill_type=none) }}">все</a></li>
-        {% for bill_id, bill_type_ in BILLS_BY_ID.items() %}
-        <li><a href="{{ url_builder(bill_type=bill_type_.type) }}">{{bill_type_.CAPTION}}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-
-  </div>
-
-</div>
+{{ list_filter_macros.html_filter(index_filter) }}
 
 {% if bills %}
 

@@ -7,9 +7,9 @@ from dext.views import handler, validator, validate_argument
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
+from common.utils import list_filter
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
-from common.utils.enum import create_enum
 from common.utils.decorators import login_required
 
 from accounts.prototypes import AccountPrototype
@@ -18,12 +18,24 @@ from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.conf import bills_settings
 from game.bills.models import Bill, Vote, BILL_STATE, BILL_TYPE
 from game.bills.bills import BILLS_BY_ID
+from game.bills.relations import VOTED_TYPE
 
 
-VOTED_TYPE = create_enum('VOTED_TYPE', (('NO', 0, u'воздержался'),
-                                        ('YES', 1, u'проголосовал'),
-                                        ('FOR', 2, u'«за»'),
-                                        ('AGAINST', 3, u'«против»')))
+class IndexFilter(list_filter.ListFilter):
+    ELEMENTS = [list_filter.reset_element(),
+                list_filter.static_element(u'автор:', attribute='owner'),
+                list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все'),
+                                                                                     (BILL_STATE.VOTING.value, u'голосование'),
+                                                                                     (BILL_STATE.ACCEPTED.value, u'принятые'),
+                                                                                     (BILL_STATE.REJECTED.value, u'отклонённые') ]),
+                list_filter.choice_element(u'голосование:', attribute='voted', choices=[(None, u'все')] + list(VOTED_TYPE._select('value', 'text'))),
+                list_filter.choice_element(u'тип:', attribute='bill_type', choices=[(None, u'все')] + list(BILL_TYPE._select('value', 'text'))) ]
+
+
+def argument_to_bill_type(value):
+    print value
+    return BILL_TYPE(int(value))
+def argument_to_bill_state(value): return BILL_STATE(int(value))
 
 
 class BillResource(Resource):
@@ -35,7 +47,7 @@ class BillResource(Resource):
 
         self.bill = bill
 
-        if self.bill and self.bill.state.is_removed:
+        if self.bill and self.bill.state._is_REMOVED:
             return self.auto_error('bills.removed', u'Законопроект удалён')
 
         if self.account.is_fast:
@@ -45,7 +57,7 @@ class BillResource(Resource):
         return self.user.has_perm('bills.moderate_bill')
 
     @validator(code='bills.voting_state_required')
-    def validate_voting_state(self, *args, **kwargs): return self.bill.state.is_voting
+    def validate_voting_state(self, *args, **kwargs): return self.bill.state._is_VOTING
 
     @validator(code='bills.not_owner', message=u'Вы не являетесь владельцем данного законопроекта')
     def validate_ownership(self, *args, **kwargs): return self.account.id == self.bill.owner.id
@@ -55,42 +67,40 @@ class BillResource(Resource):
 
     @validate_argument('page', int, 'bills', u'неверная страница')
     @validate_argument('owner', AccountPrototype.get_by_id, 'bills', u'неверный владелец закона')
-    @validate_argument('state', BILL_STATE, 'bills', u'неверное состояние закона')
-    @validate_argument('bill_type', BILL_TYPE, 'bills', u'неверный тип закона')
+    @validate_argument('state', argument_to_bill_state, 'bills', u'неверное состояние закона')
+    @validate_argument('bill_type', argument_to_bill_type, 'bills', u'неверный тип закона')
     @validate_argument('voted', VOTED_TYPE, 'bills', u'неверный тип фильтра голосования')
     @handler('', method='get')
     def index(self, page=1, owner=None, state=None, bill_type=None, voted=None):
 
         bills_query = Bill.objects.exclude(state=BILL_STATE.REMOVED)
 
-        is_filtering = False
-
         if owner is not None:
             bills_query = bills_query.filter(owner_id=owner.id)
-            is_filtering = True
 
         if state is not None:
-            is_filtering = True
             bills_query = bills_query.filter(state=state.value)
 
         if bill_type is not None:
-            is_filtering = True
             bills_query = bills_query.filter(type=bill_type.value)
 
         if voted is not None:
 
-            is_filtering = True
-
-            if voted.is_no:
+            if voted._is_NO:
                 bills_query = bills_query.filter(~models.Q(vote__owner=self.account.model)).distinct()
-            elif voted.is_yes:
+            elif voted._is_YES:
                 bills_query = bills_query.filter(vote__owner=self.account.model).distinct()
-            elif voted.is_for:
+            elif voted._is_FOR:
                 bills_query = bills_query.filter(vote__owner=self.account.model, vote__value=True).distinct()
-            elif voted.is_against:
+            elif voted._is_AGAINST:
                 bills_query = bills_query.filter(vote__owner=self.account.model, vote__value=False).distinct()
 
         url_builder = UrlBuilder(reverse('game:bills:'), arguments={'owner': owner.id if owner else None,
+                                                                    'state': state.value if state else None,
+                                                                    'bill_type': bill_type.value if bill_type else None,
+                                                                    'voted': voted.value if voted else None})
+
+        index_filter = IndexFilter(url_builder=url_builder, values={'owner': owner.nick if owner else None,
                                                                     'state': state.value if state else None,
                                                                     'bill_type': bill_type.value if bill_type else None,
                                                                     'voted': voted.value if voted else None})
@@ -113,28 +123,19 @@ class BillResource(Resource):
         return self.template('bills/index.html',
                              {'bills': bills,
                               'votes': votes,
-                              'is_filtering': is_filtering,
                               'BILLS_BY_ID': BILLS_BY_ID,
-                              'BILL_STATE': BILL_STATE,
-                              'BILL_TYPE': BILL_TYPE,
-                              'VOTED_TYPE': VOTED_TYPE,
-                              'current_page_number': page,
-                              'owner_account': owner,
-                              'state': state,
-                              'voted': voted,
-                              'bill_type': bill_type,
                               'paginator': paginator,
-                              'url_builder': url_builder} )
+                              'index_filter': index_filter} )
 
 
-    @validate_argument('bill_type', BILL_TYPE, 'bills.new', u'неверный тип закона')
+    @validate_argument('bill_type', argument_to_bill_type, 'bills.new', u'неверный тип закона')
     @handler('new', method='get')
     def new(self, bill_type):
         bill_class = BILLS_BY_ID[bill_type.value]
         return self.template('bills/new.html', {'bill_class': bill_class,
                                                 'form': bill_class.get_user_form_create()})
 
-    @validate_argument('bill_type', BILL_TYPE, 'bills.create', u'неверный тип закона')
+    @validate_argument('bill_type', argument_to_bill_type, 'bills.create', u'неверный тип закона')
     @handler('create', method='post')
     def create(self, bill_type):
 

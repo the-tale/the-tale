@@ -3,20 +3,11 @@ import datetime
 
 from django.db import models
 
-from common.utils.enum import create_enum
+from rels.django_staff import TableIntegerField
 
 from forum.models import Thread
 
-BILL_STATE = create_enum('BILL_STATE', (('VOTING', 1, u'на голосовании'),
-                                        ('ACCEPTED', 2, u'принят'),
-                                        ('REJECTED', 3, u'отклонён'),
-                                        ('REMOVED', 4, u'удалён')))
-
-BILL_TYPE = create_enum('BILL_TYPE', (('PLACE_RENAMING', 0, u'переименование места'),
-                                      ('PERSON_REMOVE', 1, u'удаление персонажа'),
-                                      ('PLACE_DESCRIPTION', 2, u'изменить описание места'),
-                                      ('PLACE_MODIFIER', 3, u'изменить тип места')))
-
+from game.bills.relations import BILL_STATE, BILL_TYPE
 
 
 class Bill(models.Model):
@@ -33,8 +24,8 @@ class Bill(models.Model):
 
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
 
-    type = models.IntegerField(null=False, choices=BILL_TYPE._CHOICES, db_index=True)
-    state = models.IntegerField(null=False, default=BILL_STATE.VOTING, choices=BILL_STATE._CHOICES, db_index=True)
+    type = TableIntegerField(relation=BILL_TYPE, relation_column='value', db_index=True)
+    state = TableIntegerField(relation=BILL_STATE, default=BILL_STATE.VOTING, relation_column='value', db_index=True)
 
     approved_by_moderator = models.BooleanField(default=False, db_index=True)
 

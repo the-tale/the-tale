@@ -109,13 +109,13 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.assertEqual(Post.objects.all().count(), 1)
 
         self.assertFalse(self.bill.apply())
-        self.assertTrue(self.bill.state.is_rejected)
+        self.assertTrue(self.bill.state._is_REJECTED)
 
         self.assertEqual(Post.objects.all().count(), 2)
 
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state.is_rejected)
+        self.assertTrue(bill.state._is_REJECTED)
 
         places_storage.sync(force=True)
 
@@ -131,12 +131,12 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.assertEqual(Post.objects.all().count(), 1)
 
         self.assertFalse(self.bill.apply())
-        self.assertTrue(self.bill.state.is_rejected)
+        self.assertTrue(self.bill.state._is_REJECTED)
 
         self.assertEqual(Post.objects.all().count(), 2)
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state.is_rejected)
+        self.assertTrue(bill.state._is_REJECTED)
 
         places_storage.sync(force=True)
 
@@ -165,12 +165,12 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.assertEqual(Post.objects.all().count(), 1)
 
         self.assertTrue(self.bill.apply())
-        self.assertTrue(self.bill.state.is_accepted)
+        self.assertTrue(self.bill.state._is_ACCEPTED)
 
         self.assertEqual(Post.objects.all().count(), 2)
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state.is_accepted)
+        self.assertTrue(bill.state._is_ACCEPTED)
 
         places_storage.sync(force=True)
 

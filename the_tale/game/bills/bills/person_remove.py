@@ -10,7 +10,7 @@ from game.balance.enums import RACE, PERSON_TYPE
 
 from game.persons.models import PERSON_STATE
 
-from game.bills.models import BILL_TYPE
+from game.bills.relations import BILL_TYPE
 from game.bills.forms import BaseUserForm, BaseModeratorForm
 
 from game.persons.storage import persons_storage
@@ -57,7 +57,6 @@ class ModeratorForm(BaseModeratorForm):
 class PersonRemove(object):
 
     type = BILL_TYPE.PERSON_REMOVE
-    type_str = BILL_TYPE._ID_TO_STR[BILL_TYPE.PERSON_REMOVE].lower()
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm
@@ -137,7 +136,7 @@ class PersonRemove(object):
         persons_storage.update_version()
 
     def serialize(self):
-        return {'type': self.type_str,
+        return {'type': self.type.name.lower(),
                 'person_id': self.person_id,
                 'person_name': self.person_name,
                 'person_race': self.person_race,

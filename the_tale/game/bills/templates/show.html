@@ -15,7 +15,7 @@
 
 {{ bills_macros.bill_info(bill) }}
 
-{% if bill.state.is_voting %}
+{% if bill.state._is_VOTING %}
 
 {% if resource.account == bill.owner %}
 <a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('game:bills:edit', bill.id) }}">редактировать</a>
@@ -40,7 +40,7 @@
 
 {% else %}
 
-{% if bill.state.is_voting %}
+{% if bill.state._is_VOTING %}
 <div class="well test-voting-block">
   <h3>Идёт голосование</h3>
 

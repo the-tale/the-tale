@@ -51,7 +51,7 @@ class TestBillsEvents(TestCase):
         event = NewspaperEventPrototype(NewspaperEvent.objects.all().order_by('created_at')[0])
         self.assertEqual(event.data.TYPE, NEWSPAPER_EVENT_TYPE.BILL_CREATED)
         self.assertEqual(event.data.bill_id, bill.id)
-        self.assertEqual(event.data.bill_type, bill.type)
+        self.assertEqual(event.data.bill_type, bill.type.value)
         self.assertEqual(event.data.caption, bill.caption)
 
     def test_bill_edited(self):
@@ -71,7 +71,7 @@ class TestBillsEvents(TestCase):
 
         self.assertEqual(event.data.TYPE, NEWSPAPER_EVENT_TYPE.BILL_EDITED)
         self.assertEqual(event.data.bill_id, bill.id)
-        self.assertEqual(event.data.bill_type, bill.type)
+        self.assertEqual(event.data.bill_type, bill.type.value)
         self.assertEqual(event.data.caption, bill.caption)
 
     def test_bill_removed(self):
@@ -85,7 +85,7 @@ class TestBillsEvents(TestCase):
 
         self.assertEqual(event.data.TYPE, NEWSPAPER_EVENT_TYPE.BILL_REMOVED)
         self.assertEqual(event.data.bill_id, bill.id)
-        self.assertEqual(event.data.bill_type, bill.type)
+        self.assertEqual(event.data.bill_type, bill.type.value)
         self.assertEqual(event.data.caption, bill.caption)
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 2)
@@ -103,7 +103,7 @@ class TestBillsEvents(TestCase):
 
         self.assertEqual(event.data.TYPE, NEWSPAPER_EVENT_TYPE.BILL_PROCESSED)
         self.assertEqual(event.data.bill_id, bill.id)
-        self.assertEqual(event.data.bill_type, bill.type)
+        self.assertEqual(event.data.bill_type, bill.type.value)
         self.assertEqual(event.data.caption, bill.caption)
         self.assertEqual(event.data.accepted, False)
 
@@ -127,6 +127,6 @@ class TestBillsEvents(TestCase):
 
         self.assertEqual(event.data.TYPE, NEWSPAPER_EVENT_TYPE.BILL_PROCESSED)
         self.assertEqual(event.data.bill_id, bill.id)
-        self.assertEqual(event.data.bill_type, bill.type)
+        self.assertEqual(event.data.bill_type, bill.type.value)
         self.assertEqual(event.data.caption, bill.caption)
         self.assertEqual(event.data.accepted, True)

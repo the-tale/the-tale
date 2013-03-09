@@ -66,7 +66,7 @@ class MightCalculatorTests(TestCase):
         old_might = workers_environment.might_calculator.calculate_might(self.hero)
         bill_data = PlaceRenaming(place_id=self.place_1.id, base_name='bill_place')
         bill = BillPrototype.create(self.account, 'caption', 'rationale', bill_data)
-        bill.set_state(BILL_STATE.ACCEPTED)
+        bill.state = BILL_STATE.ACCEPTED
         bill.save()
 
         Thread.objects.all().delete()
@@ -80,7 +80,7 @@ class MightCalculatorTests(TestCase):
         old_might = workers_environment.might_calculator.calculate_might(self.hero)
         bill_data = PlaceRenaming(place_id=self.place_1.id, base_name='bill_place')
         bill = BillPrototype.create(self.account, 'caption', 'rationale', bill_data)
-        bill.set_state(BILL_STATE.VOTING)
+        bill.state = BILL_STATE.VOTING
         bill.save()
 
         Thread.objects.all().delete()
@@ -94,7 +94,7 @@ class MightCalculatorTests(TestCase):
         old_might = workers_environment.might_calculator.calculate_might(self.hero)
         bill_data = PlaceRenaming(place_id=self.place_1.id, base_name='bill_place')
         bill = BillPrototype.create(self.account, 'caption', 'rationale', bill_data)
-        bill.set_state(BILL_STATE.REJECTED)
+        bill.state = BILL_STATE.REJECTED
         bill.save()
 
         Thread.objects.all().delete()
@@ -108,7 +108,7 @@ class MightCalculatorTests(TestCase):
         old_might = workers_environment.might_calculator.calculate_might(self.hero)
         bill_data = PlaceRenaming(place_id=self.place_1.id, base_name='bill_place')
         bill = BillPrototype.create(self.account_2, 'caption', 'rationale', bill_data)
-        bill.set_state(BILL_STATE.REJECTED)
+        bill.state = BILL_STATE.REJECTED
         bill.save()
 
         Thread.objects.all().delete()

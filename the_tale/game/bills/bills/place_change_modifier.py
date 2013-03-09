@@ -46,7 +46,6 @@ class ModeratorForm(BaseModeratorForm):
 class PlaceModifier(object):
 
     type = BILL_TYPE.PLACE_MODIFIER
-    type_str = BILL_TYPE._ID_TO_STR[BILL_TYPE.PLACE_MODIFIER].lower()
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm
@@ -109,7 +108,7 @@ class PlaceModifier(object):
         places_storage.update_version()
 
     def serialize(self):
-        return {'type': self.type_str,
+        return {'type': self.type.name.lower(),
                 'modifier_id': self.modifier_id,
                 'modifier_name': self.modifier_name,
                 'place_id': self.place_id,

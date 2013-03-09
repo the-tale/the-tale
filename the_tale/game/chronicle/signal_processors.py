@@ -61,25 +61,25 @@ def chronicle_bill_processed(sender, bill, **kwargs):
 
     if bill.data.type == BILL_TYPE.PLACE_RENAMING:
         record_type = records.PlaceChangeNameBillFailed
-        if bill.state.is_accepted:
+        if bill.state._is_ACCEPTED:
             record_type = records.PlaceChangeNameBillSuccessed
         record_type(**_get_bill_place_renaming_arguments(bill)).create_record()
 
     elif bill.data.type == BILL_TYPE.PLACE_DESCRIPTION:
         record_type = records.PlaceChangeDescriptionBillFailed
-        if bill.state.is_accepted:
+        if bill.state._is_ACCEPTED:
             record_type = records.PlaceChangeDescriptionBillSuccessed
         record_type(**_get_bill_place_description_arguments(bill)).create_record()
 
     elif bill.data.type == BILL_TYPE.PLACE_MODIFIER:
         record_type = records.PlaceChangeModifierBillFailed
-        if bill.state.is_accepted:
+        if bill.state._is_ACCEPTED:
             record_type = records.PlaceChangeModifierBillSuccessed
         record_type(**_get_bill_place_modifier_arguments(bill)).create_record()
 
     elif bill.data.type == BILL_TYPE.PERSON_REMOVE:
         record_type = records.PersonRemoveBillFailed
-        if bill.state.is_accepted:
+        if bill.state._is_ACCEPTED:
             record_type = records.PersonRemoveBillSuccessed
         record_type(**_get_bill_person_remove_arguments(bill)).create_record()
 

@@ -113,7 +113,7 @@ class ActorPrototype(BasePrototype):
     def create(cls, external_object):
 
         model = Actor.objects.create(uid=external_object.uid,
-                                     bill=external_object.bill.model if external_object.bill else None,
+                                     bill=external_object.bill._model if external_object.bill else None,
                                      place=external_object.place._model if external_object.place else None,
                                      person=external_object.person._model if external_object.person else None)
 

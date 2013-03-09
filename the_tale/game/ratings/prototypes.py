@@ -91,7 +91,7 @@ WHERE NOT %(accounts)s.is_fast
                                      'accounts': Account._meta.db_table,
                                      'heroes': Hero._meta.db_table,
                                      'bills': Bill._meta.db_table,
-                                     'bill_accepted_state': BILL_STATE.ACCEPTED,
+                                     'bill_accepted_state': BILL_STATE.ACCEPTED.value,
                                      'phrase_candidates': PhraseCandidate._meta.db_table,
                                      'phrase_candidate_added_state': PHRASE_CANDIDATE_STATE.ADDED }
 

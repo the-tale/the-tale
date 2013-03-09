@@ -30,7 +30,6 @@ class ModeratorForm(BaseModeratorForm):
 class PlaceDescripton(object):
 
     type = BILL_TYPE.PLACE_DESCRIPTION
-    type_str = BILL_TYPE._ID_TO_STR[BILL_TYPE.PLACE_DESCRIPTION].lower()
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm
@@ -98,7 +97,7 @@ class PlaceDescripton(object):
 
 
     def serialize(self):
-        return {'type': self.type_str,
+        return {'type': self.type.name.lower(),
                 'description': self.description,
                 'place_id': self.place_id,
                 'old_name_forms': self.old_name_forms.serialize(),

@@ -78,7 +78,7 @@ class PersonRemoveTests(BaseTestPrototypes):
         self.assertTrue(self.bill.apply())
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state.is_accepted)
+        self.assertTrue(bill.state._is_ACCEPTED)
 
         self.assertNotEqual(self.place1.persons[0].id, self.person1.id)
         self.assertTrue(self.person1.out_game)

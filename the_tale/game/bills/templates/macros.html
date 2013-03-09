@@ -23,15 +23,15 @@
       <td><span class="pgf-format-datetime" data-timestamp="{{ bill.updated_at|timestamp }}"></span></td>
       <th>состояние</th>
       <td>
-        {% if bill.state.is_voting %}
+        {% if bill.state._is_VOTING %}
         голосование
         {% if bill.approved_by_moderator %}
         (проверено модератором)
         {% else %}
         (в очереди на проверку модератором)
         {% endif %}
-        {% elif bill.state.is_accepted %} принят
-        {% elif bill.state.is_rejected %}
+        {% elif bill.state._is_ACCEPTED %} принят
+        {% elif bill.state._is_REJECTED %}
 
         {% if bill.is_votes_barier_not_passed %}
         не набрано достаточно голосов
@@ -41,7 +41,7 @@
 
         {% endif %}
 
-        {% elif bill.state.is_removed %} удалён
+        {% elif bill.state._is_REMOVED %} удалён
 
         {% endif %}
       </td>
@@ -50,7 +50,7 @@
     <tr>
       <th>до конца голосования</th>
       <td>
-        {% if bill.state.is_voting %}
+        {% if bill.state._is_VOTING %}
         {{ bill.time_before_end_step|verbose_timedelta }}
         {% else %}
         —
@@ -58,7 +58,7 @@
       </td>
       <th>требования</th>
 
-      {% if bill.state.is_voting %}
+      {% if bill.state._is_VOTING %}
       {% set min_votes_percents = bills_settings.MIN_VOTES_PERCENT %}
       {% set min_votes_number = bills_settings.MIN_VOTES_NUMBER %}
       {% else %}

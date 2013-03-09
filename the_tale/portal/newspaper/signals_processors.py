@@ -11,21 +11,21 @@ from portal.newspaper import events
 
 @receiver(bills_signals.bill_created, dispatch_uid="newspaper_bill_created")
 def newspaper_bill_created(sender, bill, **kwargs):
-    NewspaperEventPrototype.create(events.EventBillCreated(bill_id=bill.id, bill_type=bill.type, caption=bill.caption))
+    NewspaperEventPrototype.create(events.EventBillCreated(bill_id=bill.id, bill_type=bill.type.value, caption=bill.caption))
 
 
 @receiver(bills_signals.bill_edited, dispatch_uid="newspaper_bill_edited")
 def newspaper_bill_edited(sender, bill, **kwargs):
-    NewspaperEventPrototype.create(events.EventBillEdited(bill_id=bill.id, bill_type=bill.type, caption=bill.caption))
+    NewspaperEventPrototype.create(events.EventBillEdited(bill_id=bill.id, bill_type=bill.type.value, caption=bill.caption))
 
 
 @receiver(bills_signals.bill_processed, dispatch_uid="newspaper_bill_processed")
 def newspaper_bill_processed(sender, bill, **kwargs):
-    NewspaperEventPrototype.create(events.EventBillProcessed(bill_id=bill.id, bill_type=bill.type, caption=bill.caption, accepted=bill.state.is_accepted))
+    NewspaperEventPrototype.create(events.EventBillProcessed(bill_id=bill.id, bill_type=bill.type.value, caption=bill.caption, accepted=bill.state._is_ACCEPTED))
 
 @receiver(bills_signals.bill_removed, dispatch_uid="newspaper_bill_removed")
 def newspaper_bill_removed(sender, bill, **kwargs):
-    NewspaperEventPrototype.create(events.EventBillRemoved(bill_id=bill.id, bill_type=bill.type, caption=bill.caption))
+    NewspaperEventPrototype.create(events.EventBillRemoved(bill_id=bill.id, bill_type=bill.type.value, caption=bill.caption))
 
 
 @receiver(game_signals.day_started, dispatch_uid='newspaper_day_started')
