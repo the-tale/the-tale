@@ -20,7 +20,7 @@ class UserForm(BaseUserForm):
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['place'].choices = [(place.id, place.name) for place in sorted(places_storage.all(), key=lambda p: p.name)]
+        self.fields['place'].choices = places_storage.get_choices()
 
 
 class ModeratorForm(BaseModeratorForm):

@@ -32,9 +32,7 @@ class IndexFilter(list_filter.ListFilter):
                 list_filter.choice_element(u'тип:', attribute='bill_type', choices=[(None, u'все')] + list(BILL_TYPE._select('value', 'text'))) ]
 
 
-def argument_to_bill_type(value):
-    print value
-    return BILL_TYPE(int(value))
+def argument_to_bill_type(value): return BILL_TYPE(int(value))
 def argument_to_bill_state(value): return BILL_STATE(int(value))
 
 

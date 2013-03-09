@@ -25,7 +25,7 @@
         {{element.CAPTION}} {{element.choice_name}} <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        {% for choice_id, choice_name in element.CHOICES %}
+        {% for choice_id, choice_name in element.choices %}
         <li><a href="{{ list_filter.url_builder(**{element.ATTRIBUTE: choice_id}) }}">{{choice_name}}</a></li>
         {% endfor %}
       </ul>

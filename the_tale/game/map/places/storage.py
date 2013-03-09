@@ -15,5 +15,9 @@ class PlacesStorage(create_storage_class('places change time', Place, PlaceProto
 
         return random.choice(self._data.values())
 
+    def get_choices(self):
+        self.sync()
+        return [(place.id, place.name) for place in sorted(self.all(), key=lambda p: p.name)]
+
 
 places_storage = PlacesStorage()

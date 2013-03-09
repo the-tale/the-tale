@@ -2,6 +2,7 @@
 
 {% import 'macros.html' as base_macros with context %}
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
 
 {% block chronicle_content %}
 
@@ -11,17 +12,7 @@
   В летопись Пандоры заносятся все важные события, происходящие в мире. Ничто не укроется от пристального взгляда духов-летописцев.
 </p>
 
-<div>
-  <div class="btn-toolbar">
-
-    <div class="btn-group">
-      <a class="btn {% if not is_filtering %}disabled{% endif %}"
-         href="{% if is_filtering %}{{ url('game:bills:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
-    </div>
-
-  </div>
-
-</div>
+{{ list_filter_macros.html_filter(index_filter) }}
 
 {% if records %}
 
