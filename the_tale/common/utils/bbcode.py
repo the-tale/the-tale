@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import uuid
 import jinja2
 
 import postmarkup
@@ -22,14 +22,21 @@ class SpoilerTag(postmarkup.TagBase):
             caption = u'спойлер'
 
         return u'''
-<div class="pgf-spoiler">
-<a href="#" class="pgf-spoiler-show">[%s]</a>
-<a href="#" class="pgf-spoiler-hide pgf-hidden">[скрыть]</a>
-<div class="block white pgf-spoiler-content pgf-hidden">''' % caption
+<div class="accordion" id="pgf-spoiler-%(accordion_id)s">
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-spoiler%(accordion_id)s" href="#pgf-spoiler-element-%(accordion_id)s">
+      %(caption)s
+      </a>
+    </div>
+    <div id="pgf-spoiler-element-%(accordion_id)s" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+''' % {'accordion_id': uuid.uuid4().hex,
+       'caption': caption}
 
     def render_close(self, parser, node_index):
         parser.tag_data[self.tag_key] -= 1
-        return u'</div></div>'
+        return u'</div></div></div></div>'
 
 
 render = postmarkup.create(use_pygments=False)

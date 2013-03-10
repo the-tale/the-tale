@@ -246,22 +246,3 @@ jQuery('.pgf-link-load-on-success').live('click', function(e){
                     }
                    });
 });
-
-/////////////////////////////////
-// spoilers
-/////////////////////////////////
-pgf.base._toggleSpoiler = function(root, show) {
-    jQuery('.pgf-spoiler-hide:first', root).toggleClass('pgf-hidden', !show);
-    jQuery('.pgf-spoiler-content:first', root).toggleClass('pgf-hidden', !show);
-    jQuery('.pgf-spoiler-show:first', root).toggleClass('pgf-hidden', show);
-}
-
-jQuery('.pgf-spoiler-show').live('click', function(e){
-    e.preventDefault();
-    pgf.base._toggleSpoiler(jQuery(this).closest('.pgf-spoiler'), true);
-});
-
-jQuery('.pgf-spoiler-hide').live('click', function(e){
-    e.preventDefault();
-    pgf.base._toggleSpoiler(jQuery(this).closest('.pgf-spoiler'), false);
-});
