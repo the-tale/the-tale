@@ -118,28 +118,28 @@ pgf.game.map.MapManager = function(params) {
     var mapData = {};
     var calculatedData = {};
     var dynamicData = { heroes: {} };
-    var updater = params.updater;
     var instance = this;
 
-    jQuery.ajax({
-        dataType: 'json',
-        type: 'get',
-        url: params.regionUrl,
-        success: function(data, request, status) {
-            mapData = data;
+    function LoadMap() {
+        jQuery.ajax({   dataType: 'json',
+                        type: 'get',
+                        url: params.regionUrl,
+                        success: function(data, request, status) {
+                            mapData = data;
 
-            calculatedData.roadsMap = CalculateRoads(mapData);
+                            calculatedData.roadsMap = CalculateRoads(mapData);
 
-            instance.mapWidth = data.width;
-            instance.mapHeight = data.height;
+                            instance.mapWidth = data.width;
+                            instance.mapHeight = data.height;
 
-            jQuery(document).trigger(pgf.game.map.events.DATA_UPDATED);
-        },
-        error: function() {
-        },
-        complete: function() {
-        }
-    });
+                            jQuery(document).trigger(pgf.game.map.events.DATA_UPDATED);
+                        },
+                        error: function() {
+                        },
+                        complete: function() {
+                        }
+                    });
+    }
 
     function CalculateRoads(mapData) {
         var w = mapData.width;
@@ -181,12 +181,6 @@ pgf.game.map.MapManager = function(params) {
         return roadsMap;
     }
 
-    function RefreshHero(hero) {
-        if (hero) {
-            dynamicData.heroes[hero.id] = hero;
-        }
-    }
-
     function GetMapDataForRect(x, y, w, h) {
         return { mapData: mapData,
                  dynamicData: dynamicData,
@@ -212,14 +206,14 @@ pgf.game.map.MapManager = function(params) {
         return data;
     }
 
-    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
-
-        RefreshHero(game_data.hero);
-
-        if (params.OnDataUpdated) {
-            params.OnDataUpdated();
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data) {
+        if (game_data.hero) {
+            dynamicData.hero = game_data.hero;
         }
 
+        if (mapData && game_data.map_version != mapData.map_version) {
+            LoadMap();
+        }
     });
 
     this.mapWidth = 0;
@@ -228,6 +222,8 @@ pgf.game.map.MapManager = function(params) {
     this.GetMapDataForRect = GetMapDataForRect;
     this.GetPlaceData = GetPlaceData;
     this.GetCellData = GetCellData;
+
+    LoadMap();
 };
 
 pgf.game.map.Map = function(selector, params) {
@@ -240,7 +236,7 @@ pgf.game.map.Map = function(selector, params) {
 
     // TODO: do something with this
     var canvasWidth = jQuery('#pgf-map-container').width()-20;
-    var canvasHeight = 400; //jQuery('#pgf-map-container').height();
+    var canvasHeight = params.canvasWidth; 
 
     canvas.get(0).width = canvasWidth;
     canvas.get(0).height = canvasHeight;
@@ -344,18 +340,16 @@ pgf.game.map.Map = function(selector, params) {
         var data = fullData.mapData;
         var dynamicData = fullData.dynamicData;
 
-        for (var hero_id in dynamicData.heroes) {
-            var hero = dynamicData.heroes[hero_id];
+        var hero = dynamicData.hero;
 
-            var heroPosition = GetHeroPosition(data, hero);
+        var heroPosition = GetHeroPosition(data, hero);
 
-            var x = heroPosition.x * TILE_SIZE - canvasWidth / 2;
-            var y = heroPosition.y * TILE_SIZE - canvasHeight / 2;
+        var x = heroPosition.x * TILE_SIZE - canvasWidth / 2;
+        var y = heroPosition.y * TILE_SIZE - canvasHeight / 2;
 
-            OnMove(x + pos.x, y + pos.y);
+        OnMove(x + pos.x, y + pos.y);
 
-            return;
-        }
+        return;
     }
 
     function GetRoadTile(map, y, x) {
@@ -556,66 +550,62 @@ pgf.game.map.Map = function(selector, params) {
             context.fillText(text, textX, textY);
         }
 
-        for (var hero_id in dynamicData.heroes) {
-            var hero = dynamicData.heroes[hero_id];
+        var hero = dynamicData.hero;
 
-            var heroPosition = GetHeroPosition(data, hero);
-            // hero.base.race/gender
-            var heroImage = 'hero_'+ 
-                pgf.game.constants.RACE_TO_STR[hero.base.race].toLowerCase() +
-                '_' + pgf.game.constants.GENDER_TO_STR[hero.base.gender].toLowerCase();
+        var heroPosition = GetHeroPosition(data, hero);
+        // hero.base.race/gender
+        var heroImage = 'hero_'+ 
+            pgf.game.constants.RACE_TO_STR[hero.base.race].toLowerCase() +
+            '_' + pgf.game.constants.GENDER_TO_STR[hero.base.gender].toLowerCase();
 
-            var reflectNeeded = false;
+        var reflectNeeded = false;
 
-            if (hero.position.road) {
-                var road = data.roads[hero.position.road.id];
-                var point_1 = data.places[road.point_1_id];
-                var point_2 = data.places[road.point_2_id];
+        if (hero.position.road) {
+            var road = data.roads[hero.position.road.id];
+            var point_1 = data.places[road.point_1_id];
+            var point_2 = data.places[road.point_2_id];
 
 
-                if (hero.position.invert_direction) {
-                    var tmp = point_1;
-                    point_1 = point_2;
-                    point_2 = tmp;
-                }
-
-                if (point_1.x < point_2.x) {
-                    reflectNeeded = true;
-                    // heroImage = 'hero_left';
-                }
+            if (hero.position.invert_direction) {
+                var tmp = point_1;
+                point_1 = point_2;
+                point_2 = tmp;
             }
 
-            if (hero.position.coordinates.to.x ||
-                hero.position.coordinates.to.y ||
-                hero.position.coordinates.from.x ||
-                hero.position.coordinates.from.y) {
-
-                var to_x = hero.position.coordinates.to.x;
-                var from_x = hero.position.coordinates.from.x;
-
-                if (from_x < to_x) {
-                    reflectNeeded = true;
-                    // heroImage = 'hero_left';
-                }
+            if (point_1.x < point_2.x) {
+                reflectNeeded = true;
             }
+        }
 
-            var image = spritesManager.GetImage(heroImage);
+        if (hero.position.coordinates.to.x ||
+            hero.position.coordinates.to.y ||
+            hero.position.coordinates.from.x ||
+            hero.position.coordinates.from.y) {
 
-            var heroX = parseInt(posX + heroPosition.x * TILE_SIZE, 10);
-            var heroY = parseInt(posY + heroPosition.y * TILE_SIZE, 10) - 12;
+            var to_x = hero.position.coordinates.to.x;
+            var from_x = hero.position.coordinates.from.x;
 
-            if (reflectNeeded) {
-                context.save(); 
-                context.scale(-1, 1);
-                heroX *= -1;
-                heroX -= TILE_SIZE;
+            if (from_x < to_x) {
+                reflectNeeded = true;
             }
+        }
 
-            image.Draw(context, heroX, heroY);
+        var image = spritesManager.GetImage(heroImage);
+        
+        var heroX = parseInt(posX + heroPosition.x * TILE_SIZE, 10);
+        var heroY = parseInt(posY + heroPosition.y * TILE_SIZE, 10) - 12;
 
-            if (reflectNeeded) {
-                context.restore();
-            }
+        if (reflectNeeded) {
+            context.save(); 
+            context.scale(-1, 1);
+            heroX *= -1;
+            heroX -= TILE_SIZE;
+        }
+
+        image.Draw(context, heroX, heroY);
+
+        if (reflectNeeded) {
+            context.restore();
         }
 
         if (selectedTile) {

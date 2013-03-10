@@ -21,7 +21,7 @@ class RoadsStorageTest(TestCase):
     def test_initialization(self):
         storage = RoadsStorage()
         self.assertEqual(storage._data, {})
-        self.assertEqual(storage._version, -1)
+        self.assertEqual(storage._version, None)
 
     def test_sync(self):
         self.assertEqual(len(self.storage._data), 2)

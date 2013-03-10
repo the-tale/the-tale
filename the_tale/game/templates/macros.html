@@ -42,6 +42,11 @@
                        });
     }
 
+    jQuery('.pgf-refresh').click(function(e){
+        e.preventDefault();
+        RefreshData()
+    });
+
     jQuery('.pgf-next-turn').click(function(e){
         e.preventDefault();
         DoTurns(1);

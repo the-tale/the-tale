@@ -70,12 +70,12 @@ class InfoRequestTests(RequestTestsBase):
     def test_logined(self):
         response = self.client.get(self.game_info_url_1)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'abilities', 'mode', 'pvp')))
+        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'abilities', 'mode', 'pvp', 'map_version')))
 
     def test_other_account(self):
         response = self.client.get(self.game_info_url_2)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'mode')))
+        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'mode', 'map_version')))
 
     def test_account_not_exists(self):
         response = self.client.get(reverse('game:info') + '?account=666', HTTP_X_REQUESTED_WITH='XMLHttpRequest')

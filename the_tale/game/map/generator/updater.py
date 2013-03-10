@@ -115,6 +115,7 @@ def update_map(index):
 
     data = {'width': world.w,
             'height': world.h,
+            'map_version': map_info_storage.version,
             'terrain': [ row for row in terrain ],
             'places': dict( (place.id, _place_info(place) ) for place in places_storage.all() ),
             'roads': dict( (road.id, _road_info(road) ) for road in roads_storage.all() ) }

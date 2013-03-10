@@ -28,6 +28,11 @@ class MapResource(Resource):
         super(MapResource, self).initialize(*args, **kwargs)
 
     @login_required
+    @handler('', method='get')
+    def index(self):
+        return self.template('map/index.html')
+
+    @login_required
     @handler('cell-info', method='get')
     def cell_info(self, x, y):
 

@@ -22,5 +22,4 @@ class MapInfoStorage(create_single_storage_class('map info change time', MapInfo
         self._version = settings[self.SETTINGS_KEY]
 
 
-
 map_info_storage = MapInfoStorage()

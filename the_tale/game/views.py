@@ -14,6 +14,7 @@ from game.abilities.deck import ABILITIES
 from game.heroes.prototypes import HeroPrototype
 
 from game.map.conf import map_settings
+from game.map.storage import map_info_storage
 
 from game.conf import game_settings
 from game.pvp.prototypes import Battle1x1Prototype
@@ -40,11 +41,9 @@ class GameResource(Resource):
     @handler('info', method='get')
     def info(self, account):
 
-        data = {}
-
-        data['mode'] = 'pve'
-
-        data['turn'] = self.time.ui_info()
+        data = {'mode': 'pve',
+                'turn': self.time.ui_info(),
+                'map_version': map_info_storage.version}
 
         hero = HeroPrototype.get_by_account_id(account.id)
 

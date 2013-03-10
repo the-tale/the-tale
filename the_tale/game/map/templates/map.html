@@ -1,4 +1,6 @@
 
+{% macro render_map(height) %}
+
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
@@ -8,14 +10,12 @@ jQuery(document).ready(function(e) {
                                                              { staticUrl: "{{ STATIC_URL }}",
                                                              });
 
-    widgets.mapManager = new pgf.game.map.MapManager({regionUrl:  '{{ settings.DCONT_URL }}map/region.js',
-                                                      updater: updater
-                                                     });
+    widgets.mapManager = new pgf.game.map.MapManager({regionUrl:  '{{ settings.DCONT_URL }}map/region.js'});
 
     widgets.map = new pgf.game.map.Map('#pgf-game-map',
                                        {spritesManager: spritesManager,
                                         tileSize: tileset.TILE_SIZE,
-                                        updater: updater,
+                                        canvasWidth: {{height}},
                                         widgets: widgets});
 
     jQuery('.pgf-center-on-hero').click(function(e){
@@ -31,6 +31,8 @@ jQuery(document).ready(function(e) {
 
 <div class="block" id="pgf-map-block">
   <div class="map-commands">
+    <a href="{{url('game:map:')}}" target="_blank" class="">в отдельном окне</a>
+    |
     <a href="#" class="pgf-center-on-hero">найти героя</a>
   </div>
 
@@ -39,3 +41,5 @@ jQuery(document).ready(function(e) {
     <canvas class="pgf-map-canvas"></canvas>
   </div>
 </div>
+
+{% endmacro %}

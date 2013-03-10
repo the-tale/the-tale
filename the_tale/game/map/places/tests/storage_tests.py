@@ -21,7 +21,7 @@ class PlacesStorageTest(TestCase):
     def test_initialization(self):
         storage = PlacesStorage()
         self.assertEqual(storage._data, {})
-        self.assertEqual(storage._version, -1)
+        self.assertEqual(storage._version, None)
 
     def test_sync(self):
         self.assertEqual(len(self.storage._data), 3)

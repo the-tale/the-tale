@@ -4,6 +4,7 @@
 {% import 'heroes/hero_equipment.html' as hero_equipment_macros with context %}
 {% import 'game/macros.html' as game_macros with context %}
 {% import 'game/log.html' as log_macros with context %}
+{% import 'map/map.html' as map_macros with context %}
 
 {% block title %}Игра | {{ super() }}{% endblock %}
 
@@ -63,6 +64,7 @@ jQuery(document).ready(function(e){
 
 {% block debug_menu %}
 {{ super() }}
+<li><a href="#" class="pgf-refresh">refresh</a></li>
 <li><a href="#" class="pgf-next-turn">next turn</a></li>
 <li><a href="#" class="pgf-next-10-turns">10 turns</a></li>
 <li><a href="#" class="pgf-next-100-turns">100 turns</a></li>
@@ -165,7 +167,7 @@ jQuery(document).ready(function(e){
       </div>
 
       <div class="tab-pane span8" id="pgf-map-container">
-        {% include "game/map.html" %}
+        {{map_macros.render_map(height=400)}}
       </div>
 
     </div>

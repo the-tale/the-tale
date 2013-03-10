@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from common.utils.testcase import TestCase
 
 from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from accounts.logic import register_user, login_url
 
 from game.logic import create_test_map
 
@@ -15,8 +15,7 @@ from game.chronicle import RecordPrototype as ChronicleRecordPrototype
 
 from game.map.places.modifiers import MODIFIERS, TradeCenter
 
-class TestMapRequests(TestCase):
-
+class RequestsTestsBase(TestCase):
     def setUp(self):
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
@@ -26,6 +25,19 @@ class TestMapRequests(TestCase):
 
         self.client = client.Client()
         self.request_login('test_user@test.com')
+
+
+class IndexTests(RequestsTestsBase):
+
+    def test_place_info_anonimouse(self):
+        self.request_logout()
+        self.check_redirect(reverse('game:map:'), login_url(reverse('game:map:')))
+
+    def test_place_info_logined(self):
+        self.check_html_ok(self.client.get(reverse('game:map:')))
+
+
+class CellInfoTests(RequestsTestsBase):
 
     def test_place_info_anonimouse(self):
         self.request_logout()

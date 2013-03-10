@@ -13,7 +13,9 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
             self.clear()
 
         @property
-        def version(self): return self._version
+        def version(self):
+            self.sync()
+            return self._version
 
         def _get_all_query(self): return Model.objects.all()
 
@@ -71,7 +73,7 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
 
         def clear(self):
             self._data = {}
-            self._version = -1
+            self._version = None
 
         def save_all(self):
             for record in self._data.values():
@@ -103,7 +105,9 @@ def create_single_storage_class(version_key, Model, Prototype, Exception_):
             self.clear()
 
         @property
-        def version(self): return self._version
+        def version(self):
+            self.sync()
+            return self._version
 
         def refresh(self):
             raise NotImplementedError
@@ -133,7 +137,7 @@ def create_single_storage_class(version_key, Model, Prototype, Exception_):
 
         def clear(self):
             self._item = None
-            self._version = -1
+            self._version = None
 
         def update_version(self, reload=True):
             if self.SETTINGS_KEY not in settings or self._version != settings[self.SETTINGS_KEY]:
