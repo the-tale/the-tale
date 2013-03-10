@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import datetime
-import postmarkup
 
 from django.core.urlresolvers import reverse
 from django.conf import settings as project_settings
@@ -9,6 +8,7 @@ from django.conf import settings as project_settings
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
 
+from common.utils import bbcode
 from common.utils.prototypes import BasePrototype
 
 from accounts.prototypes import AccountPrototype
@@ -39,7 +39,7 @@ class BillPrototype(BasePrototype):
         return self._data
 
     @property
-    def rationale_html(self): return postmarkup.render_bbcode(self._model.rationale)
+    def rationale_html(self): return bbcode.render(self._model.rationale)
 
     @property
     def votes_for_percents(self):

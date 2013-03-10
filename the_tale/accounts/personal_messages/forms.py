@@ -2,9 +2,9 @@
 
 from dext.forms import forms
 
-from common.utils.forms import BBField
+from common.utils import bbcode
 
 
 class NewMessageForm(forms.Form):
 
-    text = BBField(label=u'Сообщение')
+    text = bbcode.BBField(label=u'Сообщение')

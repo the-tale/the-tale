@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import random
-import postmarkup
 
 from dext.utils import s11n
 
 from game.game_info import GENDER
 from textgen import words
 
+from common.utils import bbcode
 from common.utils.prototypes import BasePrototype
 
 from game import names
@@ -69,7 +69,7 @@ class PlacePrototype(BasePrototype):
         self._model.name = name_forms.normalized
 
     @property
-    def description_html(self): return postmarkup.render_bbcode(self._model.description)
+    def description_html(self): return bbcode.render(self._model.description)
 
     @property
     def terrain_change_power(self):

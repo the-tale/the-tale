@@ -1,29 +1,8 @@
 # coding: utf-8
 
-import jinja2
-
 from django import forms as django_forms
 
 from dext.forms import fields
-
-class BBField(fields.TextField):
-
-    @property
-    def command_line(self):
-        return u'''
-<div class="pgf-bb-command-line command-line">
-<a class="pgf-bb-command" href="#" data-tag="b" rel="tooltip" title="<strong>жирный</strong>">[b]</a>
-<a class="pgf-bb-command" href="#" data-tag="i" rel="tooltip" title="<i>курсив</i>">[i]</a>
-<a class="pgf-bb-command" href="#" data-tag="u" rel="tooltip" title="<u>подчёрнутый</u>">[u]</a>
-<a class="pgf-bb-command" href="#" data-tag="s" rel="tooltip" title="<strike>зачёркнутый</strike>">[s]</a>
-<a class="pgf-bb-command" href="#" data-tag="quote" rel="tooltip" title="<blockquote>цитата</blockquote>">[quote]</a>
-<a class="pgf-bb-command" href="#" data-tag="img" rel="tooltip" title="[img]http://адрес картинки[/img]">[img]</a>
-<a class="pgf-bb-command" href="#" data-tag="url" rel="tooltip" title='[url="http://адрес"]текст[/url]'>[url]</a>
-</div>
-'''
-
-    def html(self, bound_field):
-        return jinja2.Markup(bound_field.label_tag()) + jinja2.Markup(self.command_line) + jinja2.Markup(bound_field) + bound_field.errors_container
 
 
 class NounFormsWithoutNumberWidget(django_forms.MultiWidget):

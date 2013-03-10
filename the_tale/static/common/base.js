@@ -28,7 +28,7 @@ else {
         init: function(prefix) {},
         set: function(key, value) {},
         get: function(key, def) {return def;}
-    };    
+    };
 }
 
 pgf.base.InitializeTabs = function(settingName, def, tabs) {
@@ -37,7 +37,7 @@ pgf.base.InitializeTabs = function(settingName, def, tabs) {
 
     for (var i in tabs) {
         var selector = jQuery(tabs[i][0]);
-        
+
         if (selector.length == 0) {
             continue;
         }
@@ -48,18 +48,18 @@ pgf.base.InitializeTabs = function(settingName, def, tabs) {
             selector.tab('show');
             tabShowed = true;
         }
-        
+
         (function(id) {
             selector.click(function(e){
                                pgf.base.settings.set(settingName, id);
-                           });            
+                           });
         })(id);
     }
 
     if (!tabShowed) {
         for (var i in tabs) {
             var selector = jQuery(tabs[i][0]);
-        
+
             if (selector.length) {
                 selector.tab('show');
                 break;
@@ -99,20 +99,20 @@ pgf.base.HideTooltips = function(clearedContainer) {
         jQuery('.pgf-has-popover', clearedContainer).each(function(i, el){
                                                               el = jQuery(el);
                                                               el.data('popover').enabled = false;
-                                                          });        
+                                                          });
         jQuery('[rel="popover"]', clearedContainer).each(function(i, el){
                                                              el = jQuery(el);
                                                              el.data('popover').enabled = false;
-                                                         });        
+                                                         });
         jQuery('[rel="tooltip"]', clearedContainer).each(function(i, el){
                                                              el = jQuery(el);
                                                              el.data('tooltip').enabled = false;
-                                                         });        
+                                                         });
     }
 };
 
 pgf.base.RenderTemplateList = function(selector, data, newElementCallback, params) {
-    
+
     var container = jQuery(selector);
     var template = jQuery('.pgf-template', container).eq(0);
     var emptyTemplate = jQuery('.pgf-empty-template', container).eq(0);
@@ -193,19 +193,6 @@ pgf.base.AddPreview = function(blockSelector, contentSourceSelector, previewUrl)
     });
 };
 
-pgf.base.UpdateStatsBar = function(selector) {
-    
-    var widget = jQuery(selector);
-    var width = widget.width();
-
-    var base = arguments[1];
-
-    for (var i=1; i<arguments.length; ++i)
-    {
-        var bar = jQuery('.pgf-layer-'+(i-1), widget);
-        bar.width( Math.ceil( Math.min(arguments[i], base) / (base + 0.0) * width) );
-    }
-};
 
 pgf.base.InitBBFields = function(containerSelector) {
     var container = jQuery(containerSelector);
@@ -219,21 +206,29 @@ pgf.base.InitBBFields = function(containerSelector) {
         var text = content.val();
 
         var textarea = content.get(0);
-        
+
         var selectionStart = textarea.selectionStart;
         var selectionEnd = textarea.selectionEnd;
 
         var tagName = target.data('tag');
-        
-        text = text.substring(0, selectionStart) + 
-            '[' + tagName + ']' + text.substring(selectionStart, selectionEnd) + '[/' + tagName + ']' + 
-            text.substring(selectionEnd, text.length);
+
+        var single = target.data('single');
+
+        if (single) {
+            text = text.substring(0, selectionStart) +
+                '[' + tagName + ']' + text.substring(selectionStart, selectionEnd) +
+                text.substring(selectionEnd, text.length);
+        }
+        else {
+            text = text.substring(0, selectionStart) +
+                '[' + tagName + ']' + text.substring(selectionStart, selectionEnd) + '[/' + tagName + ']' +
+                text.substring(selectionEnd, text.length);
+        }
 
         content.val(text);
-        
+
     });
 };
-
 
 jQuery('.pgf-link-load-on-success').live('click', function(e){
     e.preventDefault();
@@ -250,4 +245,23 @@ jQuery('.pgf-link-load-on-success').live('click', function(e){
                         alert(data.error);
                     }
                    });
+});
+
+/////////////////////////////////
+// spoilers
+/////////////////////////////////
+pgf.base._toggleSpoiler = function(root, show) {
+    jQuery('.pgf-spoiler-hide:first', root).toggleClass('pgf-hidden', !show);
+    jQuery('.pgf-spoiler-content:first', root).toggleClass('pgf-hidden', !show);
+    jQuery('.pgf-spoiler-show:first', root).toggleClass('pgf-hidden', show);
+}
+
+jQuery('.pgf-spoiler-show').live('click', function(e){
+    e.preventDefault();
+    pgf.base._toggleSpoiler(jQuery(this).closest('.pgf-spoiler'), true);
+});
+
+jQuery('.pgf-spoiler-hide').live('click', function(e){
+    e.preventDefault();
+    pgf.base._toggleSpoiler(jQuery(this).closest('.pgf-spoiler'), false);
 });

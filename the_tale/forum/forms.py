@@ -1,12 +1,12 @@
 # coding: utf-8
 from dext.forms import forms, fields
 
-from common.utils.forms import BBField
+from common.utils import bbcode
 
 
 class NewPostForm(forms.Form):
 
-    text = BBField(label=u'Сообщение')
+    text = bbcode.BBField(label=u'Сообщение')
 
 
 class NewThreadForm(NewPostForm):

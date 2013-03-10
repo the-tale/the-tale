@@ -1,6 +1,5 @@
 # coding: utf-8
 import markdown
-import postmarkup
 
 from django.core.urlresolvers import reverse
 
@@ -9,6 +8,7 @@ from dext.utils.urls import UrlBuilder
 
 from accounts.prototypes import AccountPrototype
 
+from common.utils import bbcode
 from common.utils.pagination import Paginator
 
 from forum.conf import forum_settings
@@ -321,7 +321,7 @@ class PostPrototype(object):
     @property
     def html(self):
         if self.markup_method == MARKUP_METHOD.POSTMARKUP:
-            return postmarkup.render_bbcode(self.text)
+            return bbcode.render(self.text)
         elif self.markup_method == MARKUP_METHOD.MARKDOWN:
             return markdown.markdown(self.text)
 

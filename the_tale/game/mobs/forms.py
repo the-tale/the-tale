@@ -6,7 +6,7 @@ from textgen.words import Noun
 
 from dext.forms import forms, fields
 
-from common.utils.forms import BBField
+from common.utils import bbcode
 
 from game.map.places.models import TERRAIN
 
@@ -33,7 +33,7 @@ class MobRecordBaseForm(forms.Form):
 
     abilities = fields.MultipleChoiceField(label=u'способности', choices=ABILITY_CHOICES)
 
-    description = BBField(label=u'Описание', required=False)
+    description = bbcode.BBField(label=u'Описание', required=False)
 
     def clean_abilities(self):
         abilities_ids = self.cleaned_data['abilities']

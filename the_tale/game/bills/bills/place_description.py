@@ -1,11 +1,10 @@
 # coding: utf-8
-import postmarkup
 
 from dext.forms import fields
 
 from textgen.words import Noun
 
-from common.utils.forms import BBField
+from common.utils import bbcode
 
 from game.bills.models import BILL_TYPE
 from game.bills.forms import BaseUserForm, BaseModeratorForm
@@ -16,7 +15,7 @@ from game.map.places.conf import places_settings
 class UserForm(BaseUserForm):
 
     place = fields.ChoiceField(label=u'Город')
-    new_description = BBField(label=u'Новое описание', max_length=places_settings.MAX_DESCRIPTION_LENGTH)
+    new_description = bbcode.BBField(label=u'Новое описание', max_length=places_settings.MAX_DESCRIPTION_LENGTH)
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -51,10 +50,10 @@ class PlaceDescripton(object):
             self.old_name_forms = self.place.normalized_name
 
     @property
-    def description_html(self): return postmarkup.render_bbcode(self.description)
+    def description_html(self): return bbcode.render(self.description)
 
     @property
-    def old_description_html(self): return postmarkup.render_bbcode(self.old_description)
+    def old_description_html(self): return bbcode.render(self.old_description)
 
     @property
     def old_name(self): return self.old_name_forms.normalized

@@ -1,10 +1,11 @@
 # coding: utf-8
 import random
-import postmarkup
 
 from textgen.words import Noun
 
 from dext.utils import s11n
+
+from common.utils import bbcode
 
 from game.balance import constants as c, formulas as f
 
@@ -187,7 +188,7 @@ class ArtifactRecordPrototype(object):
     description = property(get_description, set_description)
 
     @property
-    def description_html(self): return postmarkup.render_bbcode(self.model.description)
+    def description_html(self): return bbcode.render(self.model.description)
 
     def accepted_for_level(self, level): return self.level <= level
 

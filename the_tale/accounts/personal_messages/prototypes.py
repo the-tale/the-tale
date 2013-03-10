@@ -1,8 +1,8 @@
 # coding: utf-8
 
-import postmarkup
-
 from dext.utils.decorators import nested_commit_on_success
+
+from common.utils import bbcode
 
 from accounts.prototypes import AccountPrototype
 from accounts.personal_messages.models import Message
@@ -28,7 +28,7 @@ class MessagePrototype(object):
     def text(self): return self.model.text
 
     @property
-    def text_html(self): return postmarkup.render_bbcode(self.model.text)
+    def text_html(self): return bbcode.render(self.model.text)
 
     @property
     def created_at(self): return self.model.created_at

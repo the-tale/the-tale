@@ -1,11 +1,11 @@
 # coding: utf-8
 
-import postmarkup
-
 from django.core.urlresolvers import reverse
 from django.conf import settings as project_settings
 
 from dext.utils.decorators import nested_commit_on_success
+
+from common.utils import bbcode
 
 from accounts.prototypes import AccountPrototype
 
@@ -67,7 +67,7 @@ class PostPrototype(object):
     text = property(get_text, set_text)
 
     @property
-    def text_html(self): return postmarkup.render_bbcode(self.text)
+    def text_html(self): return bbcode.render(self.text)
 
     @property
     def author(self):

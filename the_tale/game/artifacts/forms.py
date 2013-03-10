@@ -6,7 +6,7 @@ from textgen.words import Noun
 
 from dext.forms import forms, fields
 
-from common.utils.forms import BBField
+from common.utils import bbcode
 
 from game.mobs.storage import mobs_storage
 
@@ -17,7 +17,7 @@ class ArtifactRecordBaseForm(forms.Form):
 
     level = fields.IntegerField(label=u'минимальный уровень')
 
-    description = BBField(label=u'Описание', required=False)
+    description = bbcode.BBField(label=u'Описание', required=False)
 
     type = fields.TypedChoiceField(label=u'тип', choices=ARTIFACT_TYPE._CHOICES, coerce=int)
 

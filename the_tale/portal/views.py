@@ -1,9 +1,8 @@
 # coding: utf-8
 
-import postmarkup
-
 from dext.views import handler
 
+from common.utils import bbcode
 from common.utils.resources import Resource
 
 from forum.models import Thread
@@ -74,4 +73,4 @@ class PortalResource(Resource):
 
     @handler('preview', name='preview', method='post')
     def preview(self):
-        return self.string(postmarkup.render_bbcode(self.request.POST.get('text', '')))
+        return self.string(bbcode.render(self.request.POST.get('text', '')))
