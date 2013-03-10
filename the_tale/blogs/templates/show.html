@@ -37,6 +37,7 @@
 </ul>
 
 <div class="blog-post-info">
+  <span class="text"><span class="pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp }}"></span>,</span>
   <span class="text">автор:</span> <a href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</a>
 
   <a class="pgf-forms-post-simple blog-post-vote-link"

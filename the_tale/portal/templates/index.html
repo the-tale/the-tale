@@ -98,7 +98,7 @@
       <ul class="unstyled">
         {% for blog_post in blog_posts %}
         <li class="newspaper-link-list">
-          <span class="pgf-format-time newspaper-link-time" data-timestamp="{{ blog_post.created_at|timestamp }}"></span>
+          <span class="pgf-format-date newspaper-link-time" data-timestamp="{{ blog_post.created_at|timestamp }}"></span>
           <span class="newspaper-forum-user">{{blog_post.author.nick}}</span>
           <br/>
           {{ blog_post.caption }}&nbsp;<a style="font-size: 10pt;" href="{{ url('blogs:posts:show', blog_post.id) }}">➔</a>
@@ -179,7 +179,7 @@
       <ul class="unstyled">
         {% for bill_event in bills_events %}
         <li class="newspaper-link-list">
-          <span class="pgf-format-datetime newspaper-link-time" data-timestamp="{{ bill_event.created_at|timestamp }}"></span><br/>
+          <span class="pgf-format-date newspaper-link-time" data-timestamp="{{ bill_event.created_at|timestamp }}"></span><br/>
           {% include bill_event.data.TEMPLATE with context %}
         </li>
         {% endfor %}

@@ -55,6 +55,7 @@
   <li style="margin-bottom: 1em;">
     <table class="table">
       <tr>
+        <td width="75px"><span class="pgf-format-date" data-timestamp="{{ post.created_at|timestamp }}"></span></td>
         <td width="100px"><a href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</td>
         <td width="20px" rel="tooltip" title="рейтинг" style="cursor: default;">
           <span class="label {% if post.votes > 0 %}label-success{% endif %} {% if post.votes < 0 %}label-important{% endif %}">

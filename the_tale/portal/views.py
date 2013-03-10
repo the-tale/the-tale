@@ -43,7 +43,7 @@ class PortalResource(Resource):
 
         blog_posts = [ BlogPostPrototype(blog_post_model)
                        for blog_post_model in BlogPost.objects.filter(state__in=[BLOG_POST_STATE.ACCEPTED, BLOG_POST_STATE.NOT_MODERATED],
-                                                                      votes__gt=0).order_by('-created_at')[:portal_settings.BLOG_POSTS_ON_INDEX] ]
+                                                                      votes__gte=0).order_by('-created_at')[:portal_settings.BLOG_POSTS_ON_INDEX] ]
 
         map_info = map_info_storage.item
 
