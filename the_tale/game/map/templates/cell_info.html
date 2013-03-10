@@ -144,7 +144,8 @@
             <td>{{modifier.power|round(2)}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
-                 title="<p style='text-align: left;'><i>{{modifier.DESCRIPTION}}</i></p><ul class='unstyled' style='text-align: left; width: 250px;'>
+                 title="<p style='text-align: left;'><i>{{modifier.DESCRIPTION}}</i></p>
+                        <ul class='unstyled' style='text-align: left; width: 300px;'>
                         {% for effect_source, name, power in modifier.power_effects %}
                         <li>{{name}} <span class='pull-right'
                                            style='margin-right: 5em; color:{%if power>1%}Chartreuse{%elif power<-1%}red{%else%}yellow{%endif%};'>{{power|round(2)}}</span>
