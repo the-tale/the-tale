@@ -50,4 +50,4 @@ class CMSResource(Resource):
         if self.page is None:
             raise Http404
 
-        return self.template(self.section.template_page)
+        return self.template(self.section.template_page, {'section': self.section})

@@ -27,7 +27,7 @@
 
           <li class="nav-header {% if section=='' %}active{% endif %}">{{get_cms_section_info("world").caption}}</li>
           {% for menu_page in get_cms_section_pages('world') %}
-          <li class="nav-element {% if resource.page and menu_page.id==resource.page.id %}active{% endif %}">
+          <li class="nav-element {% if resource.page is not undefined and menu_page.id==resource.page.id %}active{% endif %}">
             <a href="{{ url('cms:world:page', menu_page.slug) }}">{{menu_page.caption}}</a>
           </li>
           {% endfor %}
