@@ -29,7 +29,7 @@ jQuery(document).ready(function(e) {
 
   {% if health_bar %}
   <div class="record-with-progress" rel="tooltip" title="здоровье героя">
-    <img src="{{ STATIC_URL }}game/images/attrs/hp.png"/>
+    <i class="game-ui-icon health"></i>
     <div class="progress progress-danger" style="">
       <div class="bar pgf-health-percents"></div>
     </div>
@@ -39,7 +39,7 @@ jQuery(document).ready(function(e) {
 
   {% if is_owner %}
   <div class="record-with-progress" rel="tooltip" title="опыта до следующего уровня">
-    <img src="{{ STATIC_URL }}game/images/attrs/exp.png"/>
+    <i class="game-ui-icon experience"></i>
     <div class="progress progress-warning" style="">
       <div class="bar pgf-experience-percents"></div>
     </div>
@@ -47,7 +47,7 @@ jQuery(document).ready(function(e) {
   </div>
 
   <div class="record-with-progress" rel="tooltip" title="запас энергии (примерно +{{ (c.ANGEL_ENERGY_REGENERATION_AMAUNT/c.ANGEL_ENERGY_REGENERATION_TIME)|int}} в час)">
-    <img src="{{ STATIC_URL }}game/images/attrs/energy.png"/>
+    <i class="game-ui-icon energy"></i>
     <div class="progress progress-info" style="">
       <div class="bar pgf-energy-percents"></div>
     </div>
@@ -59,24 +59,24 @@ jQuery(document).ready(function(e) {
 
     {% if not is_owner and not health_bar %}
     <div class="attribute-record" rel="tooltip" title="здоровье">
-      <img src="{{ STATIC_URL }}game/images/attrs/hp.png"/>
+      <i class="game-ui-icon health"></i>
       <span class="pgf-max-health"></span>
     </div>
     {% endif %}
 
     <div class="attribute-record pgf-might-record">
-      <img src="{{ STATIC_URL }}game/images/attrs/might.gif"/>
+      <i class="game-ui-icon might"></i>
       <span class="pgf-might value"></span>
     </div>
 
     <div class="attribute-record" rel="tooltip" title="сила">
-      <img src="{{ STATIC_URL }}game/images/attrs/damage.png"/>
+      <i class="game-ui-icon power"></i>
       <span class="pgf-power value"></span>
     </div>
 
     {% if is_owner %}
     <div class="attribute-record" rel="tooltip" title="собранное золото">
-      <img src="{{ STATIC_URL }}game/images/attrs/gold.png"/>
+      <i class="game-ui-icon gold"></i>
       <span class="pgf-money"></span>
     </div>
     {% endif %}

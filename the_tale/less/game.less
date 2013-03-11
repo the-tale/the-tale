@@ -34,7 +34,7 @@
          background-color: @hover-color;
       }
 
-      img {
+      .game-ui-icon {
          position: absolute;
          left: 0px;
       }
@@ -61,7 +61,7 @@
          background-color: @hover-color;
       }
 
-      img {
+      .game-ui-icon {
          vertical-align: middle;
       }
 
@@ -79,6 +79,10 @@
 
       &:hover {
          background-color: @hover-color;
+      }
+
+      .game-ui-icon {
+         vertical-align: middle;
       }
 
       .name {
@@ -390,5 +394,81 @@
       left: 0 !important;
       top: 0 !important;
    }
+
+}
+
+.game-ui-icon {
+   width: 16px;
+   height: 16px;
+   display: inline-block;
+
+   &.health {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 0 transparent;
+   }
+
+   &.experience {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -16px transparent;
+   }
+
+   &.energy {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -32px transparent;
+   }
+
+   &.power {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -48px transparent;
+   }
+
+   &.might {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -64px transparent;
+   }
+
+   &.gold {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -80px transparent;
+   }
+
+   &.main-hand {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -96px transparent;
+   }
+
+   &.off-hand {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -112px transparent;
+   }
+
+   &.helmet {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -128px transparent;
+   }
+
+   &.amulet {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -144px transparent;
+   }
+
+   &.shoulders {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -160px transparent;
+   }
+
+   &.plate {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -176px transparent;
+   }
+
+   &.gloves {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -192px transparent;
+   }
+
+   &.cloak {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -208px transparent;
+   }
+
+   &.pants {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -224px transparent;
+   }
+
+   &.boots {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -240px transparent;
+   }
+
+   &.ring {
+      background: url('../game/images/game_ui.png') no-repeat scroll 0 -256px transparent;
+   }
+
 
 }
