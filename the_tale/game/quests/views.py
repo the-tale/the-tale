@@ -1,9 +1,12 @@
 # coding: utf-8
 
 from dext.views import handler
+from dext.utils import cache
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
+
+from game.heroes.prototypes import HeroPrototype
 
 from .prototypes import get_quest_by_id
 
@@ -43,5 +46,9 @@ class QuestsResource(Resource):
 
         if not self.quest.make_choice(choice_point, choice):
             return self.json_error('quests.choose.already_choosed', u'Вы уже сделали выбор')
+
+        #reset here cache cache
+        for hero_id in self.quest.heroes_ids():
+            cache.delete(HeroPrototype.get_by_id(hero_id).cached_ui_info_key)
 
         return self.json(status='ok')
