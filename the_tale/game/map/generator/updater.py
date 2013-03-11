@@ -86,6 +86,9 @@ def update_map(index):
     world.clear_power_points()
     world.clear_biomes()
 
+    if world.w != map_settings.WIDTH or world.h != map_settings.HEIGHT:
+        world.resize(map_settings.WIDTH, map_settings.HEIGHT)
+
     for point in get_places_power_points():
         world.add_power_point(point)
 

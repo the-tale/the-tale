@@ -61,7 +61,6 @@ class PlacePrototype(BasePrototype):
         if not hasattr(self, '_normalized_name'):
             self._normalized_name = words.WordBase.deserialize(s11n.from_json(self._model.name_forms))
         return self._normalized_name
-        # return (self._normalized_name, u'загл')
 
     def set_name_forms(self, name_forms):
         self._model.name_forms = s11n.to_json(name_forms.serialize())
@@ -123,7 +122,7 @@ class PlacePrototype(BasePrototype):
                                                 gender=gender,
                                                 tp=random.choice(PERSON_TYPE._ALL),
                                                 name=names.generator.get_name(race, gender))
-            persons_storage.add_item(new_person.id, new_person)
+            persons_storage.add_item(new_person.id, new_person) # persons storage MUST be sinced code, that call this method
             persons_count += 1
             signals.place_person_arrived.send(self.__class__, place=self, person=new_person)
 

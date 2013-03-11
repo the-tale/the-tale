@@ -10,7 +10,7 @@ from game.balance import constants as c
 
 map_settings = app_settings('MAP',
                             WIDTH=36,
-                            HEIGHT=22,
+                            HEIGHT=26,
                             CELL_SIZE=20,
                             CELL_LENGTH=c.MAP_CELL_LENGTH,
                             CHRONICLE_RECORDS_NUMBER=10,
