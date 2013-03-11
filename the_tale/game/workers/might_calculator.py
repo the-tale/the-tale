@@ -39,7 +39,7 @@ class Worker(BaseWorker):
 
     def update_one_hero(self):
         try:
-            hero = HeroPrototype(Hero.objects.filter(is_fast=False).order_by('might_updated_time')[0])
+            hero = HeroPrototype(model=Hero.objects.filter(is_fast=False).order_by('might_updated_time')[0])
         except IndexError:
             return
         self.logger.info('calculate might of hero %d' % hero.id)
