@@ -16,7 +16,7 @@
 .hero-base-block .record-with-progress:hover {
   background-color: #dddddd;
 }
-.hero-base-block .record-with-progress img {
+.hero-base-block .record-with-progress .game-ui-icon {
   position: absolute;
   left: 0px;
 }
@@ -39,7 +39,7 @@
 .hero-base-block .attribute-record:hover {
   background-color: #dddddd;
 }
-.hero-base-block .attribute-record img {
+.hero-base-block .attribute-record .game-ui-icon {
   vertical-align: middle;
 }
 .hero-base-block .attribute-record .value {
@@ -51,6 +51,9 @@
 }
 .hero-equipment-block .equip-record:hover {
   background-color: #dddddd;
+}
+.hero-equipment-block .equip-record .game-ui-icon {
+  vertical-align: middle;
 }
 .hero-equipment-block .equip-record .name {
   font-size: 10pt;
@@ -280,4 +283,60 @@
   margin: 5px;
   left: 0 !important;
   top: 0 !important;
+}
+.game-ui-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+.game-ui-icon.health {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 0 transparent;
+}
+.game-ui-icon.experience {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -16px transparent;
+}
+.game-ui-icon.energy {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -32px transparent;
+}
+.game-ui-icon.power {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -48px transparent;
+}
+.game-ui-icon.might {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -64px transparent;
+}
+.game-ui-icon.gold {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -80px transparent;
+}
+.game-ui-icon.main-hand {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -96px transparent;
+}
+.game-ui-icon.off-hand {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -112px transparent;
+}
+.game-ui-icon.helmet {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -128px transparent;
+}
+.game-ui-icon.amulet {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -144px transparent;
+}
+.game-ui-icon.shoulders {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -160px transparent;
+}
+.game-ui-icon.plate {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -176px transparent;
+}
+.game-ui-icon.gloves {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -192px transparent;
+}
+.game-ui-icon.cloak {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -208px transparent;
+}
+.game-ui-icon.pants {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -224px transparent;
+}
+.game-ui-icon.boots {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -240px transparent;
+}
+.game-ui-icon.ring {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -256px transparent;
 }
