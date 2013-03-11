@@ -90,9 +90,14 @@ pgf.base.popoverArgs = { animation: true,
                          delay: { show: 500,
                                   hide: 100 } };
 
-pgf.base.HideTooltips = function(clearedContainer) {
-    jQuery('.popover').remove();
-    jQuery('.tooltip').remove();
+pgf.base._FindParentsForChildren = function(parent, child) {
+    if (child) return jQuery('.'+parent+' .'+child).closest('.'+parent);
+    return jQuery('.'+parent);
+};
+
+pgf.base.HideTooltips = function(clearedContainer, child_class) {
+    pgf.base._FindParentsForChildren('popover', child_class).remove();
+    pgf.base._FindParentsForChildren('tooltip', child_class).remove();
 
     if (clearedContainer) {
         // TODO: is first processing needed????
@@ -229,6 +234,42 @@ pgf.base.InitBBFields = function(containerSelector) {
 
     });
 };
+
+pgf.base.CompareObjects = function(a, b)
+{
+  if (a == undefined && b != undefined) return false; 
+  if (b == undefined && a != undefined) return false; 
+
+  var p;
+  for(p in a) {
+      if(typeof(b[p])=='undefined') {return false;}
+  }
+
+  for(p in a) {
+      if (a[p]) {
+          switch(typeof(a[p])) {
+              case 'object':
+                  if (!pgf.base.CompareObjects(a[p],b[p])) { return false; } break;
+              case 'function':
+                  if (typeof(b[p])=='undefined' ||
+                      (a[p].toString() != b[p].toString()))
+                      return false;
+                  break;
+              default:
+                  if (a[p] != b[p]) { return false; }
+          }
+      } else {
+          if (b[p])
+              return false;
+      }
+  }
+
+  for(p in b) {
+      if(typeof(a[p])=='undefined') {return false;}
+  }
+
+  return true;
+}
 
 jQuery('.pgf-link-load-on-success').live('click', function(e){
     e.preventDefault();

@@ -58,7 +58,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
     var data = undefined;
 
-    var tooltipArgs = jQuery.extend(true, {}, pgf.base.popoverArgs, {title: function(){return jQuery('.pgf-might-tooltip', content).html();} });
+    var tooltipArgs = jQuery.extend(true, {}, pgf.base.tooltipsArgs, {title: function(){return jQuery('.pgf-might-tooltip', content).html();} });
     jQuery('.pgf-might-record', content).tooltip(tooltipArgs);
 
     this.RenderHero = function(data, widget) {
@@ -183,8 +183,6 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         if (data.mastery_verbose) {
             jQuery('.pgf-mastery', content).text(data.mastery_verbose);            
         }
-
-        popoverContent = content.html();
     }
 
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.PLACE) {
@@ -197,7 +195,6 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
 
         var content = jQuery('#pgf-popover-place').clone();
         jQuery('.pgf-size', content).text(place.size);
-        popoverContent = content.html();
     }
 
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.MONEY_SPENDING) {
@@ -205,8 +202,10 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         popoverTitle = 'цель накопления';
         var content = jQuery('#pgf-popover-money-spending').clone();
         jQuery('.pgf-description', content).text(data.description);
-        popoverContent = content.html();
     }
+
+    content.children(':first').toggleClass('pgf-actor-tooltip', true);
+    popoverContent = content.html();
 
     var popoverArgs = jQuery.extend(true, {}, pgf.base.popoverArgs, {title: popoverTitle,
                                                                      content: popoverContent});
@@ -260,7 +259,7 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
     var data = {};
 
     function RenderQuests() {
-        pgf.base.HideTooltips(widget);
+        pgf.base.HideTooltips(widget, 'pgf-actor-tooltip');
         if (data.quests.line && data.quests.line.length > 0) {
             pgf.game.widgets._RenderQuest(0, data.quests.line[data.quests.line.length-1], currentQuest);
         }
@@ -342,13 +341,18 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
     this.Refresh = function(game_data) {
 
         var hero = widgets.heroes.CurrentHero();
+        var newQuests = [];
 
         if (hero) {
-            data.quests = hero.quests;
+            newQuests = hero.quests;
         }
-        else {
-            data.quests = [];
+
+        if (!pgf.base.CompareObjects(data.quests, newQuests)) {
+            data.quests = newQuests;
+            return true;
         }
+
+        return false;
     };
 
     this.Render = function() {
@@ -357,8 +361,9 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
     };
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
-        instance.Refresh(game_data);
-        instance.Render();
+        if (instance.Refresh(game_data)) {
+            instance.Render();            
+        }
     });
 };
 
@@ -374,7 +379,7 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
     var data = {};
 
     function RenderQuests() {
-        pgf.base.HideTooltips(widget);
+        pgf.base.HideTooltips(widget, 'pgf-actor-tooltip');
 
         noQuestsMsg.toggleClass('pgf-hidden', !!(data.quests.line && data.quests.line.length > 0) );
         questsContainer.toggleClass('pgf-hidden', !(data.quests.line && data.quests.line.length > 0) );
@@ -388,21 +393,19 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
 
     function RenderMoneySpentInfo() {
 
-        var hero = widgets.heroes.CurrentHero();
-
         moneySpentInfo.removeClass('pgf-hidden');
 
         var goalText = {'heal': 'лечение',
                         'useless': 'на себя',
                         'artifact': 'новая экипировка',
                         'sharpening': 'улучшение экипировки',
-                        'impact': 'изменение влияния'}[hero.next_spending];
+                        'impact': 'изменение влияния'}[data.nextSpending];
 
         descriptionText = {'heal': 'Собирает деньги, чтобы поправить здоровье, когда понадобится.',
                            'useless': 'Копит золото для не очень полезных но безусловно необходимых трат.',
                            'artifact': 'Планирует приобритение новой экипировки.',
                            'sharpening': 'Собирает на улучшение экипировки.',
-                           'impact': 'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» персонажа.'}[hero.next_spending];;
+                           'impact': 'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» персонажа.'}[data.nextSpending];
 
         var moneySpendData = {quest_type: 'next-spending',
                               quest_text:  'Накопить золото',
@@ -416,13 +419,23 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
     this.Refresh = function(game_data) {
 
         var hero = widgets.heroes.CurrentHero();
+        var newQuests = [];
 
         if (hero) {
-            data.quests = hero.quests;
+            newQuests = hero.quests;
         }
-        else {
-            data.quests = [];
+
+        var dataChanged = false;
+
+        if (data.nextSpending != hero.next_spending ||
+            !pgf.base.CompareObjects(data.quests, newQuests)) {
+            dataChanged = true;
         }
+
+        data.quests = newQuests;
+        data.nextSpending = hero.next_spending;
+
+        return dataChanged;
     };
 
     this.Render = function() {
@@ -431,8 +444,9 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
     };
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
-        instance.Refresh(game_data);
-        instance.Render();
+        if (instance.Refresh(game_data)) {
+            instance.Render();            
+        }
     });
 };
 
