@@ -785,26 +785,33 @@ class HeroPrototype(BasePrototype):
                 'quests': quests
                 }
 
-    @property
-    def cached_ui_info_key(self):
-        return heroes_settings.UI_CACHING_KEY % self.id
-
-    def cached_ui_info(self, from_cache):
-        from game.workers.environment import workers_environment as game_workers_environment
-
-        if from_cache:
-            data = cache.get(self.cached_ui_info_key)
-
-            if data is None:
-                data = self.ui_info(for_last_turn=False, quests_info=True)
-
-                if not self.is_ui_caching_required:
-                    # in other case it is probably some delay in turn processing and we shouldn't spam unnecessary messages
-                    game_workers_environment.supervisor.cmd_start_hero_caching(self.account_id, self.id)
-            return data
-
+    def ui_info_for_cache(self):
         return self.ui_info(for_last_turn=False, quests_info=True)
 
+
+    @classmethod
+    def cached_ui_info_key_for_hero(cls, account_id):
+        return heroes_settings.UI_CACHING_KEY % account_id
+
+    @property
+    def cached_ui_info_key(self):
+        return self.cached_ui_info_key_for_hero(self.account_id)
+
+    @classmethod
+    def cached_ui_info_for_hero(cls, account_id):
+        from game.workers.environment import workers_environment as game_workers_environment
+
+        data = cache.get(cls.cached_ui_info_key_for_hero(account_id))
+
+        if data is None:
+            hero = cls.get_by_account_id(account_id)
+            data = hero.ui_info_for_cache()
+
+            if not hero.is_ui_caching_required:
+                # in other case it is probably some delay in turn processing and we shouldn't spam unnecessary messages
+                game_workers_environment.supervisor.cmd_start_hero_caching(hero.account_id, hero.id)
+
+        return data
 
     @classmethod
     def create(cls, account, bundle, storage, is_fast=False):

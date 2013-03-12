@@ -45,13 +45,11 @@ class GameResource(Resource):
                 'turn': self.time.ui_info(),
                 'map_version': map_info_storage.version}
 
-        hero = HeroPrototype.get_by_account_id(account.id)
-
         is_own_hero = self.account and self.account.id == account.id
 
         if is_own_hero:
-            data['hero'] = hero.cached_ui_info(from_cache=True)
-            abilities_data = AbilitiesData.objects.get(hero_id=hero.id)
+            data['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
+            abilities_data = AbilitiesData.objects.get(hero_id=data['hero']['id'])
             data['abilities'] = [ability(abilities_data).ui_info() for ability_type, ability in ABILITIES.items()]
 
             data['pvp'] = {'waiting': False}
@@ -64,7 +62,7 @@ class GameResource(Resource):
                 if battle.state.is_processing or battle.state.is_prepairing:
                     data['mode'] = 'pvp'
         else:
-            data['hero'] = hero.ui_info(for_last_turn=True, quests_info=False)
+            data['hero'] = HeroPrototype.get_by_account_id(account.id).ui_info(for_last_turn=True, quests_info=False)
 
         return self.json_ok(data=data)
 

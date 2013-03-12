@@ -7,6 +7,7 @@ from common.utils.resources import Resource
 from common.utils.decorators import login_required
 
 from game.heroes.prototypes import HeroPrototype
+from game.heroes.conf import heroes_settings
 
 from .prototypes import get_quest_by_id
 
@@ -49,6 +50,7 @@ class QuestsResource(Resource):
 
         #reset here cache cache
         for hero_id in self.quest.heroes_ids():
-            cache.delete(HeroPrototype.get_by_id(hero_id).cached_ui_info_key)
+            hero = HeroPrototype.get_by_id(hero_id)
+            cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(), heroes_settings.UI_CACHING_TIMEOUT)
 
         return self.json(status='ok')

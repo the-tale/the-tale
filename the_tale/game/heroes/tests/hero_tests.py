@@ -118,20 +118,20 @@ class HeroTest(TestCase):
 
         with mock.patch('game.workers.supervisor.Worker.cmd_start_hero_caching') as call_counter:
             with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                self.hero.cached_ui_info(from_cache=True)
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
         self.assertEqual(call_counter.call_count, 1)
         self.assertEqual(ui_info.call_args, mock.call(for_last_turn=False, quests_info=True))
 
     def test_cached_ui_info_from_cache__from_cache_is_true__for_visited_heroes(self):
         with mock.patch('game.workers.supervisor.Worker.cmd_start_hero_caching') as call_counter:
             with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                self.hero.cached_ui_info(from_cache=True)
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
         self.assertEqual(call_counter.call_count, 0)
         self.assertEqual(ui_info.call_args, mock.call(for_last_turn=False, quests_info=True))
 
     def test_cached_ui_info_from_cache__from_cache_is_false(self):
         with mock.patch('game.workers.supervisor.Worker.cmd_start_hero_caching') as call_counter:
-            self.hero.cached_ui_info(from_cache=False)
+            HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
         self.assertEqual(call_counter.call_count, 0)
 
     def test_ui_caching_timeout_greate_then_turn_delta(self):

@@ -57,7 +57,7 @@ class LogicStorage(object):
                 action.save()
 
         if update_cache:
-            cache.set(hero.cached_ui_info_key, hero.cached_ui_info(from_cache=False), heroes_settings.UI_CACHING_TIMEOUT)
+            cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(), heroes_settings.UI_CACHING_TIMEOUT)
 
 
     def add_hero(self, hero):
@@ -147,7 +147,7 @@ class LogicStorage(object):
 
             hero = self.heroes[hero_id]
             if hero.is_ui_caching_required:
-                cached_ui_info[hero.cached_ui_info_key] = hero.cached_ui_info(from_cache=False)
+                cached_ui_info[hero.cached_ui_info_key] = hero.ui_info_for_cache()
 
         cache.set_many(cached_ui_info, heroes_settings.UI_CACHING_TIMEOUT)
 
