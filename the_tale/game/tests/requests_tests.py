@@ -14,9 +14,11 @@ from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user, login_url
 
 from game.logic import create_test_map
-from game.pvp.models import BATTLE_1X1_STATE
 
+from game.pvp.models import BATTLE_1X1_STATE
 from game.pvp.tests.helpers import PvPTestsMixin
+
+from game.heroes.prototypes import HeroPrototype
 
 from cms.news.models import News
 
@@ -101,16 +103,17 @@ class InfoRequestTests(RequestTestsBase):
         self.assertEqual(s11n.from_json(self.client.get(self.game_info_url_1).content)['data']['mode'], 'pvp')
 
     def test_own_hero_get_cached_data(self):
-        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info', mock.Mock(return_value={})) as cached_ui_info:
+        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
+                        mock.Mock(return_value={'id': HeroPrototype.get_by_account_id(self.account_1_id).id})) as cached_ui_info_for_hero:
             with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info', mock.Mock(return_value={})) as ui_info:
                 self.client.get(self.game_info_url_1)
 
-        self.assertEqual(cached_ui_info.call_count, 1)
-        self.assertEqual(cached_ui_info.call_args, mock.call(from_cache=True))
+        self.assertEqual(cached_ui_info_for_hero.call_count, 1)
+        self.assertEqual(cached_ui_info_for_hero.call_args, mock.call(self.account_1_id))
         self.assertEqual(ui_info.call_count, 0)
 
     def test_other_hero_get_not_cached_data(self):
-        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info') as cached_ui_info:
+        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero') as cached_ui_info:
             with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info', mock.Mock(return_value={})) as ui_info:
                 self.client.get(self.game_info_url_2)
 

@@ -87,7 +87,7 @@ class PvPResource(Resource):
         account = self.account
         enemy = AccountPrototype.get_by_id(battle.enemy_id)
 
-        data['account']['hero'] = HeroPrototype.get_by_account_id(account.id).cached_ui_info(from_cache=True)
+        data['account']['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
         data['enemy']['hero'] = HeroPrototype.get_by_account_id(enemy.id).ui_info(for_last_turn=True)
 
         return self.json_ok(data=data)

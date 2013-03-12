@@ -114,11 +114,11 @@ class TestRequests(TestRequestsBase):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info', mock.Mock(return_value={})) as cached_ui_info:
+        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero', mock.Mock(return_value={})) as cached_ui_info_for_hero:
             with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info', mock.Mock(return_value={})) as ui_info:
                 self.client.get(reverse('game:pvp:info'))
 
-        self.assertEqual(cached_ui_info.call_args_list, [mock.call(from_cache=True)])
+        self.assertEqual(cached_ui_info_for_hero.call_args_list, [mock.call(self.account_1.id)])
         self.assertEqual(ui_info.call_args_list, [mock.call(for_last_turn=True)])
 
 class SayRequestsTests(TestRequestsBase):
