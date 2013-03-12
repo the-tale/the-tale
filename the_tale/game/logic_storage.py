@@ -33,7 +33,7 @@ class LogicStorage(object):
 
     def release_account_data(self, account):
         hero = self.accounts_to_heroes[account.id]
-        self.save_hero_data(hero.id)
+        self.save_hero_data(hero.id, update_cache=True)
 
         for action_id in Action.objects.filter(hero_id=hero.id).values_list('id', flat=True):
             del self.actions[action_id]
@@ -45,16 +45,19 @@ class LogicStorage(object):
         del self.heroes_to_actions[hero.id]
         del self.accounts_to_heroes[account.id]
 
-    def save_account_data(self, account_id):
-        return self.save_hero_data(self.accounts_to_heroes[account_id].id)
+    def save_account_data(self, account_id, update_cache):
+        return self.save_hero_data(self.accounts_to_heroes[account_id].id, update_cache=update_cache)
 
-    def save_hero_data(self, hero_id):
+    def save_hero_data(self, hero_id, update_cache):
         hero = self.heroes[hero_id]
         hero.save()
 
         for action in self.heroes_to_actions[hero_id]:
             if action.updated:
                 action.save()
+
+        if update_cache:
+            cache.set(hero.cached_ui_info_key, hero.cached_ui_info(from_cache=False), heroes_settings.UI_CACHING_TIMEOUT)
 
 
     def add_hero(self, hero):
@@ -140,7 +143,7 @@ class LogicStorage(object):
         cached_ui_info = {}
 
         for hero_id in self.save_required:
-            self.save_hero_data(hero_id)
+            self.save_hero_data(hero_id, update_cache=False)
 
             hero = self.heroes[hero_id]
             if hero.is_ui_caching_required:
@@ -153,7 +156,7 @@ class LogicStorage(object):
 
     def _test_save(self):
         for hero_id in self.heroes:
-            self.save_hero_data(hero_id)
+            self.save_hero_data(hero_id, update_cache=False)
 
         test_storage = LogicStorage()
         for hero_id in self.heroes:

@@ -98,7 +98,7 @@ class UseAbilityTask(object):
                 ability.available_at = self.available_at
                 ability.save()
 
-                storage.save_hero_data(hero.id)
+                storage.save_hero_data(hero.id, update_cache=True)
 
             if result is True:
                 self.state = ABILITY_TASK_STATE.PROCESSED

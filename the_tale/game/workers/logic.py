@@ -129,7 +129,7 @@ class Worker(BaseWorker):
 
     def process_mark_hero_as_not_fast(self, account_id, hero_id):
         self.storage.heroes[hero_id].is_fast = False
-        self.storage.save_account_data(account_id)
+        self.storage.save_account_data(account_id, update_cache=True)
 
     def cmd_start_hero_caching(self, account_id, hero_id):
         self.send_cmd('start_hero_caching', {'hero_id': hero_id,
@@ -137,7 +137,7 @@ class Worker(BaseWorker):
 
     def process_start_hero_caching(self, account_id, hero_id):
         self.storage.heroes[hero_id].ui_caching_started_at = datetime.datetime.now()
-        self.storage.save_account_data(account_id)
+        self.storage.save_account_data(account_id, update_cache=True)
 
     def cmd_mark_hero_as_active(self, account_id, hero_id):
         self.send_cmd('mark_hero_as_active', {'hero_id': hero_id,
@@ -145,7 +145,7 @@ class Worker(BaseWorker):
 
     def process_mark_hero_as_active(self, account_id, hero_id):
         self.storage.heroes[hero_id].mark_as_active()
-        self.storage.save_account_data(account_id)
+        self.storage.save_account_data(account_id, update_cache=True)
 
     def cmd_highlevel_data_updated(self):
         self.send_cmd('highlevel_data_updated')

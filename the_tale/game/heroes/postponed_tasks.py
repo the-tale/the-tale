@@ -103,7 +103,7 @@ class ChooseHeroAbilityTask(object):
         hero.destiny_points_spend += 1
 
         with nested_commit_on_success():
-            storage.save_hero_data(hero.id)
+            storage.save_hero_data(hero.id, update_cache=True)
 
         self.state = CHOOSE_HERO_ABILITY_STATE.PROCESSED
 
@@ -164,7 +164,7 @@ class ChangeHeroTask(object):
         hero.race = self.race
 
         with nested_commit_on_success():
-            storage.save_hero_data(hero.id)
+            storage.save_hero_data(hero.id, update_cache=True)
 
         self.state = CHANGE_HERO_TASK_STATE.PROCESSED
 
@@ -389,7 +389,7 @@ class ChoosePreferencesTask(object):
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         with nested_commit_on_success():
-            storage.save_hero_data(hero.id)
+            storage.save_hero_data(hero.id, update_cache=True)
 
         self.state = CHOOSE_PREFERENCES_TASK_STATE.PROCESSED
 

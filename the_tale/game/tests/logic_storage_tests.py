@@ -144,7 +144,7 @@ class LogicStorageTests(testcase.TestCase):
         self.action_idl_1.updated = True
         action_regenerate.updated = True
 
-        self.storage.save_hero_data(self.hero_1.id)
+        self.storage.save_hero_data(self.hero_1.id, update_cache=False)
 
         self.assertEqual(self.hero_1.health, HeroPrototype.get_by_id(self.hero_1.id).health)
         self.assertNotEqual(self.hero_2.health, HeroPrototype.get_by_id(self.hero_2.id).health)
@@ -160,15 +160,15 @@ class LogicStorageTests(testcase.TestCase):
         ActionMetaProxyPrototype.create(self.action_idl_2, meta_action_battle)
 
         with mock.patch('game.actions.meta_actions.MetaActionPrototype.save') as save_counter:
-            self.storage.save_hero_data(self.hero_1.id)
-            self.storage.save_hero_data(self.hero_2.id)
+            self.storage.save_hero_data(self.hero_1.id, update_cache=False)
+            self.storage.save_hero_data(self.hero_2.id, update_cache=False)
 
         self.assertEqual(save_counter.call_count, 0)
 
         self.storage.meta_actions.values()[0].updated = True
         with mock.patch('game.actions.meta_actions.MetaActionPrototype.save', save_counter):
-            self.storage.save_hero_data(self.hero_1.id)
-            self.storage.save_hero_data(self.hero_2.id)
+            self.storage.save_hero_data(self.hero_1.id, update_cache=False)
+            self.storage.save_hero_data(self.hero_2.id, update_cache=False)
 
         self.assertEqual(save_counter.call_count, 0) # meta action saved by proxy actions
 
@@ -176,8 +176,8 @@ class LogicStorageTests(testcase.TestCase):
         self.storage.heroes_to_actions[self.hero_2.id][-1].updated = True
 
         with mock.patch('game.actions.meta_actions.MetaActionPrototype.save', save_counter):
-            self.storage.save_hero_data(self.hero_1.id)
-            self.storage.save_hero_data(self.hero_2.id)
+            self.storage.save_hero_data(self.hero_1.id, update_cache=False)
+            self.storage.save_hero_data(self.hero_2.id, update_cache=False)
 
         self.assertEqual(save_counter.call_count, 2) # meta action saved by every proxy actions
 

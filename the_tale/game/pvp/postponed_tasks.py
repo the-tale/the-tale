@@ -67,10 +67,10 @@ class SayInBattleLogTask(object):
             enemy_hero.add_message('pvp_say', text=Fake(self.text))
 
         with nested_commit_on_success():
-            storage.save_account_data(battle.account_id)
+            storage.save_account_data(battle.account_id, update_cache=True)
 
             if enemy_hero is not None:
-                storage.save_account_data(battle.enemy_id)
+                storage.save_account_data(battle.enemy_id, update_cache=True)
 
         self.state = SAY_IN_HERO_LOG_TASK_STATE.PROCESSED
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
@@ -228,10 +228,10 @@ class ChangePvPStyleTask(object):
             enemy_hero.add_message('pvp_change_style_to_%s' % pvp_style.str_id.lower(), hero=hero)
 
         with nested_commit_on_success():
-            storage.save_account_data(battle.account_id)
+            storage.save_account_data(battle.account_id, update_cache=True)
 
             if enemy_hero is not None:
-                storage.save_account_data(battle.enemy_id)
+                storage.save_account_data(battle.enemy_id, update_cache=True)
 
         self.state = CHANGE_PVP_STYLE_TASK_STATE.PROCESSED
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
