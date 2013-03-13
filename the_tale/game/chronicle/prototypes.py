@@ -6,10 +6,6 @@ from common.utils.prototypes import BasePrototype
 
 from game.prototypes import TimePrototype
 
-from game.bills import BillPrototype
-from game.map.places import PlacePrototype
-from game.persons import PersonPrototype
-
 from game.chronicle.models import Record, Actor, RecordToActor
 from game.chronicle.exceptions import ChronicleException
 
@@ -99,6 +95,10 @@ class ExternalPerson(ExternalActorBase):
         self.person = self.object
 
 def create_external_actor(actor):
+    from game.bills.prototypes import BillPrototype
+    from game.map.places.prototypes import PlacePrototype
+    from game.persons.prototypes import PersonPrototype
+
     if isinstance(actor, BillPrototype): return ExternalBill(actor)
     if isinstance(actor, PersonPrototype): return ExternalPerson(actor)
     if isinstance(actor, PlacePrototype): return ExternalPlace(actor)

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from game.logic import create_test_map
 
@@ -12,9 +12,10 @@ from game.models import Bundle
 from game.logic import clean_database
 
 
-class LogicTests(TestCase):
+class LogicTests(testcase.TestCase):
 
     def setUp(self):
+        super(LogicTests, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')

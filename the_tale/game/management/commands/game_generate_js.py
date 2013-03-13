@@ -7,12 +7,15 @@ from dext.utils import s11n
 
 from game.conf import game_settings
 
-from game.balance.enums import PERSON_TYPE, RACE
+from game.balance.enums import RACE
 
 from game.quests.quests_generator.quest_line import ACTOR_TYPE
 from game.game_info import GENDER
 from game.balance import constants as c
-from game.map.places.models import TERRAIN
+from game.map.relations import TERRAIN
+from game.map.places.relations import BUILDING_TYPE
+from game.persons.relations import PERSON_TYPE
+
 
 class Command(BaseCommand):
 
@@ -29,9 +32,10 @@ class Command(BaseCommand):
                            {'actor_type': s11n.to_json(ACTOR_TYPE._STR_TO_ID),
                             'gender_to_text': s11n.to_json(GENDER._ID_TO_TEXT),
                             'gender_to_str': s11n.to_json(GENDER._ID_TO_STR),
-                            'person_type_to_text': s11n.to_json(PERSON_TYPE._ID_TO_TEXT),
+                            'person_type_to_text': s11n.to_json(dict(PERSON_TYPE._select('value', 'text'))),
                             'race_to_text': s11n.to_json(RACE._ID_TO_TEXT),
                             'race_to_str': s11n.to_json(RACE._ID_TO_STR),
                             'pvp_combat_styles_advantages': s11n.to_json(c.PVP_COMBAT_STYLES_ADVANTAGES),
-                            'terrain_id_to_str': s11n.to_json(TERRAIN._ID_TO_STR)
+                            'terrain_id_to_str': s11n.to_json(TERRAIN._ID_TO_STR),
+                            'building_type_to_str': s11n.to_json(dict(BUILDING_TYPE._select('value', 'name')))
                             }).encode('utf-8'))

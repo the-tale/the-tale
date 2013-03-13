@@ -1,8 +1,6 @@
 # coding: utf-8
 import mock
 
-from dext.settings import settings
-
 from common.utils.testcase import TestCase
 from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
@@ -18,7 +16,7 @@ from game.abilities.deck.help import Help
 class UseAbilityTasksTests(TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(UseAbilityTasksTests, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')

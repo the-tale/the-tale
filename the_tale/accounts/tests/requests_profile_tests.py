@@ -19,6 +19,7 @@ from accounts.prototypes import AccountPrototype
 class ProfileRequestsTests(TestCase):
 
     def setUp(self):
+        super(ProfileRequestsTests, self).setUp()
         create_test_map()
         self.client = client.Client()
 

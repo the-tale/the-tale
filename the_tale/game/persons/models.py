@@ -4,10 +4,13 @@ import datetime
 
 from django.db import models
 
+from rels.django_staff import TableIntegerField
+
 from common.utils.enum import create_enum
 
 from game.game_info import GENDER
-from game.balance.enums import RACE, PERSON_TYPE
+from game.balance.enums import RACE
+from game.persons.relations import PERSON_TYPE
 
 
 PERSON_STATE = create_enum('PERSON_STATE', ( ('IN_GAME', 0,  u'в игре'),
@@ -32,7 +35,7 @@ class Person(models.Model):
 
     race = models.IntegerField(choices=RACE._CHOICES, default=RACE.HUMAN)
 
-    type = models.IntegerField(choices=PERSON_TYPE._CHOICES)
+    type = TableIntegerField(relation=PERSON_TYPE, relation_column='value')
 
     friends_number = models.IntegerField(default=0)
 

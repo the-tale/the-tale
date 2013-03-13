@@ -1,10 +1,10 @@
 # coding: utf-8
-# coding: utf-8
+
 import datetime
 
 import mock
 
-from django.test import TestCase
+from common.utils import testcase
 from django.contrib.auth import authenticate as django_authenticate
 from django.core import mail
 
@@ -19,9 +19,10 @@ from game.logic import create_test_map
 
 def raise_exception(*argv, **kwargs): raise Exception('unknown error')
 
-class TestChangeCredentialsTask(TestCase):
+class TestChangeCredentialsTask(testcase.TestCase):
 
     def setUp(self):
+        super(TestChangeCredentialsTask, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')

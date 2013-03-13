@@ -1,8 +1,10 @@
 # coding: utf-8
 
-from django.test import TestCase, client
+from django.test import client
 from django.db import IntegrityError
 from django.core.urlresolvers import reverse
+
+from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -13,9 +15,10 @@ from cms.models import Page
 from cms.conf import cms_settings
 
 
-class TestCMSRequests(TestCase):
+class TestCMSRequests(testcase.TestCase):
 
     def setUp(self):
+        super(TestCMSRequests, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')

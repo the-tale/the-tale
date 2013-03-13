@@ -2,7 +2,7 @@
 import datetime
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from common.utils import testcase
 
 from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
@@ -16,9 +16,10 @@ from accounts.logic import block_expired_accounts
 from accounts.models import Account
 from accounts.postponed_tasks import RegistrationTask
 
-class TestLogic(TestCase):
+class TestLogic(testcase.TestCase):
 
     def setUp(self):
+        super(TestLogic, self).setUp()
         create_test_map()
 
 

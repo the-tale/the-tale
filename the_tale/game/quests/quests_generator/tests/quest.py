@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from game.quests.quests_generator import commands as cmd
 from game.quests.quests_generator.environment import BaseEnvironment
@@ -12,9 +12,10 @@ from game.quests.quests_generator.tests.helpers import JustQuest, FakeCmd
 quests_source = QuestsSource()
 writers_constructor = lambda hero, quest_type, env, quest_env_local: 0
 
-class QuestTest(TestCase):
+class QuestTest(testcase.TestCase):
 
     def setUp(self):
+        super(QuestTest, self).setUp()
         self.knowlege_base = KnowlegeBase()
         self.knowlege_base.add_place('place_1')
         self.knowlege_base.add_place('place_2')

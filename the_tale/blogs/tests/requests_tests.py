@@ -20,6 +20,7 @@ from blogs.conf import blogs_settings
 class BaseTestRequests(TestCase):
 
     def setUp(self):
+        super(BaseTestRequests, self).setUp()
         self.place1, self.place2, self.place3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')

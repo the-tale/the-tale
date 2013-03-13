@@ -2,7 +2,7 @@
 import mock
 import random
 
-from django.test import TestCase
+from common.utils import testcase
 
 from textgen.words import Noun
 
@@ -20,9 +20,11 @@ from game.artifacts.prototypes import ArtifactRecordPrototype, ArtifactPrototype
 from game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE, ARTIFACT_TYPE
 from game.artifacts.forms import ModerateArtifactRecordForm
 
-class PrototypeTests(TestCase):
+
+class PrototypeTests(testcase.TestCase):
 
     def setUp(self):
+        super(PrototypeTests, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')

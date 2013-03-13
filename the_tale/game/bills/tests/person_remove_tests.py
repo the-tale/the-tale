@@ -55,13 +55,20 @@ class PersonRemoveTests(BaseTestPrototypes):
     def test_user_form_choices(self):
         form = self.bill.data.get_user_form_update(initial={'person': self.bill.data.person_id })
 
-        places_ids = [ choice_id for choice_id, choice_name in form.fields['person'].choices]
+        persons_ids = []
 
-        self.assertTrue(self.bill.data.person_id in places_ids)
+        for city_name, person_choices in form.fields['person'].choices:
+            persons_ids.extend(choice_id for choice_id, choice_name in person_choices)
 
-        self.check_persons_from_place_in_choices(self.place1, places_ids, self.bill.data.person_id)
-        self.check_persons_from_place_in_choices(self.place2, places_ids, self.bill.data.person_id)
-        self.check_persons_from_place_in_choices(self.place3, places_ids, self.bill.data.person_id)
+
+        # this statement test situation, when bill is editing after person get alot of power
+        # and leave list of persons, whom can be removed
+        # it MUST be added to choices
+        self.assertTrue(self.bill.data.person_id in persons_ids)
+
+        self.check_persons_from_place_in_choices(self.place1, persons_ids, self.bill.data.person_id)
+        self.check_persons_from_place_in_choices(self.place2, persons_ids, self.bill.data.person_id)
+        self.check_persons_from_place_in_choices(self.place3, persons_ids, self.bill.data.person_id)
 
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 2)

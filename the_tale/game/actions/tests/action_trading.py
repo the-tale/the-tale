@@ -1,8 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -13,10 +11,10 @@ from game.actions.prototypes import ActionTradingPrototype
 from game.artifacts.storage import artifacts_storage
 from game.prototypes import TimePrototype
 
-class TradingActionTest(TestCase):
+class TradingActionTest(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(TradingActionTest, self).setUp()
 
         create_test_map()
 

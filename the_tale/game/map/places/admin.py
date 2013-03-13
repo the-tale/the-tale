@@ -1,10 +1,17 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from django.contrib import admin
 
-from .models import Place
+from game.map.places.models import Place, Building
+
 
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'type', 'size', 'x', 'y')
+    list_display = ('id', 'name', 'size', 'x', 'y')
+
+
+class BuildingAdmin(admin.ModelAdmin):
+    list_display = ('id', 'type', 'person', 'type', 'x', 'y')
+
 
 admin.site.register(Place, PlaceAdmin)
+admin.site.register(Building, BuildingAdmin)

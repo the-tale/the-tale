@@ -16,6 +16,7 @@ from accounts.personal_messages.conf import personal_messages_settings
 class BaseRequestsTests(TestCase):
 
     def setUp(self):
+        super(BaseRequestsTests, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')

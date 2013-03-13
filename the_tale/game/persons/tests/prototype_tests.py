@@ -2,7 +2,7 @@
 import mock
 import datetime
 
-from django.test import TestCase
+from common.utils import testcase
 
 from accounts.logic import register_user
 
@@ -14,9 +14,10 @@ from game.persons.models import PERSON_STATE
 
 from game.persons.tests.helpers import create_person
 
-class PrototypeTests(TestCase):
+class PrototypeTests(testcase.TestCase):
 
     def setUp(self):
+        super(PrototypeTests, self).setUp()
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()
 

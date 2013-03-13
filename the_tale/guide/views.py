@@ -42,14 +42,14 @@ class GuideResource(Resource):
 
     @handler('cities', method='get')
     def cities(self):
-        from game.balance.enums import PERSON_TYPE
         from game.map.places.modifiers import MODIFIERS
         from game.persons.prototypes import MASTERY_VERBOSE
+        from game.persons.relations import PERSON_TYPE
         return self.template('guide/cities.html', {'section': 'cities',
                                                    'places_settings': places_settings,
                                                    'persons_settings': persons_settings,
                                                    'MASTERY_LEVELS': [mastery[1] for mastery in MASTERY_VERBOSE],
-                                                   'PROFESSIONS': sorted(PERSON_TYPE._ID_TO_TEXT.values()),
+                                                   'PROFESSIONS': sorted(zip(*PERSON_TYPE._select('text'))[0]),
                                                    'MODIFIERS': sorted(MODIFIERS.values(), key=lambda modifier: modifier.NAME) })
 
     @handler('politics', method='get')

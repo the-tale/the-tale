@@ -5,21 +5,25 @@ from collections import defaultdict
 from dext.utils import s11n
 
 import deworld
+
 from deworld.layers import VEGETATION_TYPE
 
 from common.utils.prototypes import BasePrototype
 
 from game.balance.enums import RACE
 
-from game.persons import persons_storage, PERSON_STATE
+from game.persons.models import PERSON_STATE
+from game.persons.storage import persons_storage
 
 from game.map.places.models import Place
 from game.map.places.prototypes import PlacePrototype
 from game.map.places.storage import places_storage
 
-from game.map.models import MapInfo, MAP_STATISTICS
+from game.map.models import MapInfo
 from game.map.conf import map_settings
 from game.map.utils import get_race_percents
+
+from game.map.relations import MAP_STATISTICS
 
 
 class MapInfoPrototype(BasePrototype):

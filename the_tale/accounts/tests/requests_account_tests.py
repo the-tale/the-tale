@@ -14,6 +14,7 @@ from accounts.conf import accounts_settings
 class AccountRequestsTests(TestCase):
 
     def setUp(self):
+        super(AccountRequestsTests, self).setUp()
         self.place1, self.place2, self.place3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')

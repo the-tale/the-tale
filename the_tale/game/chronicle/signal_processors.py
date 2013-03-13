@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from textgen.words import Fake as FakeWord
 
 from game.bills import signals as bills_signals
-from game.bills import BILL_TYPE
+from game.bills.models import BILL_TYPE
 
 from game.map.places import signals as places_signals
 

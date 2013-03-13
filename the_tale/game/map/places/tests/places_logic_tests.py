@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from textgen import words
 from dext.utils import s11n
@@ -11,14 +11,15 @@ from game.persons.storage import persons_storage
 from game.persons.conf import persons_settings
 
 from game.map.places.prototypes import PlacePrototype
-from game.map.places.models import Place, PLACE_TYPE
+from game.map.places.models import Place
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
 from game.map.places.storage import places_storage
 
-class PlacePowerTest(TestCase):
+class PlacePowerTest(testcase.TestCase):
 
     def setUp(self):
+        super(PlacePowerTest, self).setUp()
         places_storage.clear()
         persons_storage.clear()
 
@@ -26,7 +27,6 @@ class PlacePowerTest(TestCase):
                                           y=0,
                                           name='power_test_place',
                                           name_forms=s11n.to_json(words.Noun.fast_construct('power_test_place').serialize()),
-                                          type=PLACE_TYPE.CITY,
                                           size=5 )
 
         self.place = PlacePrototype(self.model)

@@ -13,6 +13,7 @@ from game.logic import create_test_map
 class RequestsRegistrationTests(TestCase):
 
     def setUp(self):
+        super(RequestsRegistrationTests, self).setUp()
         create_test_map()
         register_user('test_user', 'test_user@test.com', '111111')
         self.client = client.Client()

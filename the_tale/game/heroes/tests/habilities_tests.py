@@ -33,6 +33,7 @@ E = 0.0001
 class HabilitiesContainerTest(TestCase):
 
     def setUp(self):
+        super(HabilitiesContainerTest, self).setUp()
         self.abilities = AbilitiesPrototype.create()
 
     def test_simple_level_up(self):
@@ -68,6 +69,7 @@ class HabilitiesContainerTest(TestCase):
 class HabilitiesTest(TestCase):
 
     def setUp(self):
+        super(HabilitiesTest, self).setUp()
         self.messanger = FakeMessanger()
         self.attacker = FakeActor(name='attacker')
         self.defender = FakeActor(name='defender')
@@ -227,6 +229,7 @@ class HabilitiesTest(TestCase):
 class ChooseAbilityTaskTest(TestCase):
 
     def setUp(self):
+        super(ChooseAbilityTaskTest, self).setUp()
         create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.hero = HeroPrototype.get_by_account_id(account_id)
@@ -314,6 +317,7 @@ class ChooseAbilityTaskTest(TestCase):
 class HabilitiesViewsTest(TestCase):
 
     def setUp(self):
+        super(HabilitiesViewsTest, self).setUp()
         create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.hero = HeroPrototype.get_by_account_id(account_id)

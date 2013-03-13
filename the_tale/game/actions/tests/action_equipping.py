@@ -1,8 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -17,10 +15,10 @@ from game.heroes.bag import ARTIFACT_TYPE_TO_SLOT
 
 from game.prototypes import TimePrototype
 
-class ActionEquippingTest(TestCase):
+class ActionEquippingTest(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(ActionEquippingTest, self).setUp()
 
         create_test_map()
 

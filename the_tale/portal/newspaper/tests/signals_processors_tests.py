@@ -1,9 +1,5 @@
 # coding: utf-8
 
-# coding: utf-8
-import mock
-import datetime
-
 from common.utils.testcase import TestCase
 
 from accounts.prototypes import AccountPrototype
@@ -11,11 +7,7 @@ from accounts.logic import register_user
 
 from game.logic import create_test_map
 
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import PlaceRenaming
-from game.bills.conf import bills_settings
-
-from portal.newspaper.models import NewspaperEvent, NEWSPAPER_EVENT_TYPE
+from portal.newspaper.models import NewspaperEvent
 from portal.newspaper.prototypes import NewspaperEventPrototype
 
 from game.workers.highlevel import Worker as HighlevelWorker
@@ -26,6 +18,7 @@ from game.heroes.prototypes import HeroPrototype
 class NewspaperDayStartedEvents(TestCase):
 
     def setUp(self):
+        super(NewspaperDayStartedEvents, self).setUp()
         self.place1, self.place2, self.place3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')

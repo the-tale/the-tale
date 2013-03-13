@@ -1,8 +1,6 @@
 # coding: utf-8
 import mock
 
-from dext.settings import settings
-
 from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
@@ -21,7 +19,7 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
 
     @mock.patch('game.actions.prototypes.ActionPrototype.get_description', lambda self: 'abrakadabra')
     def setUp(self):
-        settings.refresh()
+        super(MetaProxyActionForArenaPvP1x1Tests, self).setUp()
 
         create_test_map()
 

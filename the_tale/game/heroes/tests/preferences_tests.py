@@ -33,6 +33,7 @@ from game.heroes.postponed_tasks import ChoosePreferencesTask, CHOOSE_PREFERENCE
 class HeroPreferencesCommonTests(TestCase):
 
     def setUp(self):
+        super(HeroPreferencesCommonTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -71,6 +72,7 @@ class HeroPreferencesCommonTests(TestCase):
 class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 
     def setUp(self):
+        super(HeroPreferencesEnergyRegenerationTypeTest, self).setUp()
         place_1, place_2, place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -137,6 +139,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 class HeroPreferencesMobTest(TestCase):
 
     def setUp(self):
+        super(HeroPreferencesMobTest, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -259,6 +262,7 @@ class HeroPreferencesMobTest(TestCase):
 class HeroPreferencesPlaceTest(TestCase):
 
     def setUp(self):
+        super(HeroPreferencesPlaceTest, self).setUp()
         place_1, place_2, place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -339,6 +343,7 @@ class HeroPreferencesPlaceTest(TestCase):
 class HeroPreferencesFriendTest(TestCase):
 
     def setUp(self):
+        super(HeroPreferencesFriendTest, self).setUp()
         place_1, place_2, place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -435,6 +440,7 @@ class HeroPreferencesFriendTest(TestCase):
 class HeroPreferencesEnemyTest(TestCase):
 
     def setUp(self):
+        super(HeroPreferencesEnemyTest, self).setUp()
         place_1, place_2, place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -530,6 +536,7 @@ class HeroPreferencesEnemyTest(TestCase):
 class HeroPreferencesEquipmentSlotTest(TestCase):
 
     def setUp(self):
+        super(HeroPreferencesEquipmentSlotTest, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -605,6 +612,7 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
 class HeroPreferencesRequestsTest(TestCase):
 
     def setUp(self):
+        super(HeroPreferencesRequestsTest, self).setUp()
         place_1, place_2, place_3 = create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 

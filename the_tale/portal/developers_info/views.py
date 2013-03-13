@@ -35,7 +35,7 @@ class DevelopersInfoResource(Resource):
     def mobs_and_artifacts(self):
         from game.mobs.storage import mobs_storage
         from game.artifacts.storage import artifacts_storage
-        from game.map.places.models import TERRAIN
+        from game.map.relations import TERRAIN
         from game.logic import DEFAULT_HERO_EQUIPMENT
 
         mobs_without_loot = []

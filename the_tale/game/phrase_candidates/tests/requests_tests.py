@@ -21,6 +21,7 @@ from game.phrase_candidates.forms import SUBTYPE_CHOICES_IDS, UNKNOWN_TYPE_ID
 class RequestsTestsBase(TestCase):
 
     def setUp(self):
+        super(RequestsTestsBase, self).setUp()
 
         self.place1, self.place2, self.place3 = create_test_map()
 

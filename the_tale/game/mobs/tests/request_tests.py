@@ -15,7 +15,7 @@ from accounts.logic import register_user, login_url
 
 from game.logic import create_test_map
 
-from game.map.places.models import TERRAIN
+from game.map.relations import TERRAIN
 
 from game.mobs.models import MobRecord
 from game.mobs.storage import mobs_storage
@@ -26,6 +26,7 @@ from game.mobs.prototypes import MobRecordPrototype
 class BaseTestRequests(TestCase):
 
     def setUp(self):
+        super(BaseTestRequests, self).setUp()
         mobs_storage.sync(force=True)
 
         self.place_1, self.place_2, self.place_3 = create_test_map()

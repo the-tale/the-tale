@@ -1,22 +1,24 @@
 # coding: utf-8
-from django.test import TestCase
+from common.utils import testcase
 
-from game.balance.enums import PERSON_TYPE
 from game.logic import create_test_map
+
+from game.persons.relations import PERSON_TYPE
 
 from game.map.places.modifiers import MODIFIERS
 from game.map.places.modifiers.prototypes import TradeCenter, CraftCenter, Fort, PoliticalCenter, Polic, Resort, TransportNode
 from game.map.places.conf import places_settings
 
-class ModifiersTests(TestCase):
+class ModifiersTests(testcase.TestCase):
 
     def setUp(self):
+        super(ModifiersTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
     def test_all_professions_covered(self):
         for modifier in MODIFIERS.values():
-            for person_type in PERSON_TYPE._ALL:
-                self.assertTrue(person_type in modifier.PERSON_EFFECTS)
+            for person_type in PERSON_TYPE._records:
+                self.assertTrue(person_type.value in modifier.PERSON_EFFECTS)
 
     def test_trade_center(self):
         self.assertEqual(CraftCenter(self.place_1).modify_sell_price(100), 100)

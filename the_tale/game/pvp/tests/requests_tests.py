@@ -25,6 +25,7 @@ from game.pvp.combat_styles import COMBAT_STYLES
 class TestRequestsBase(TestCase, PvPTestsMixin):
 
     def setUp(self):
+        super(TestRequestsBase, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')

@@ -1,10 +1,10 @@
 # coding: utf-8
 import mock
 
-from common.utils.testcase import TestCase
+from common.utils import testcase
 
 from game.heroes.bag import SLOTS
-from game.balance.enums import PERSON_TYPE
+from game.persons.relations import PERSON_TYPE
 from game.persons.storage import persons_storage
 
 from accounts.logic import register_user
@@ -26,9 +26,10 @@ from game.quests.quests_builders.interfere_enemy import InterfereEnemy
 from game.quests.quests_builders.search_smith import SearchSmith
 
 
-class QuestsTest(TestCase):
+class QuestsTest(testcase.TestCase):
 
     def setUp(self):
+        super(QuestsTest, self).setUp()
         p1, p2, p3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
@@ -49,9 +50,6 @@ class QuestsTest(TestCase):
         persons_storage.all()[0]._model.type = PERSON_TYPE.BLACKSMITH
         persons_storage.save_all()
 
-
-    def tearDown(self):
-        pass
 
     def complete_quest(self):
         current_time = TimePrototype.get_current_time()

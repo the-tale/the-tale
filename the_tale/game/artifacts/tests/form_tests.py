@@ -1,10 +1,11 @@
 # coding: utf-8
 
-from django.test import TestCase
 
 from textgen.words import Noun
 
 from dext.utils import s11n
+
+from common.utils import testcase
 
 from game.logic import create_test_map
 
@@ -12,9 +13,10 @@ from game.artifacts.models import RARITY_TYPE, ARTIFACT_TYPE
 from game.artifacts.forms import ArtifactRecordForm, ModerateArtifactRecordForm
 
 
-class ArtifactFormsTests(TestCase):
+class ArtifactFormsTests(testcase.TestCase):
 
     def setUp(self):
+        super(ArtifactFormsTests, self).setUp()
         create_test_map()
 
     def test_success_mob_record_form(self):

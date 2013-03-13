@@ -16,8 +16,7 @@ from blogs.prototypes import PostPrototype as BlogPostPrototype
 from game.balance.enums import RACE
 
 from game.map.storage import map_info_storage
-from game.map.models import MAP_STATISTICS
-from game.map.places.models import TERRAIN
+from game.map.relations import TERRAIN, MAP_STATISTICS
 
 from game.chronicle import RecordPrototype as ChronicleRecordPrototype
 

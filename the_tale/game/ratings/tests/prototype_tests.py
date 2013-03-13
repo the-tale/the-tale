@@ -18,6 +18,7 @@ from game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
 class PrototypeTestsBase(TestCase):
 
     def setUp(self):
+        super(PrototypeTestsBase, self).setUp()
         self.place1, self.place2, self.place3 = create_test_map()
 
         register_user('user_1', 'user_1@test.com', '111111')

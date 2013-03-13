@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from game.quests.quests_generator.quest_line import Line, Quest
 from game.quests.quests_generator import commands as cmd
@@ -75,10 +75,10 @@ def get_quests_source(person_1_power, person_2_power, person_3_power):
 writers_constructor = lambda hero, quest_type, env, quest_env_local: 0
 
 
-class LineAvailabilityTest(TestCase):
+class LineAvailabilityTest(testcase.TestCase):
 
     def setUp(self):
-        pass
+        super(LineAvailabilityTest, self).setUp()
 
     def create_quest(self, person_1_power, person_2_power, person_3_power, friend=None, enemy=None):
         self.knowlege_base = KnowlegeBase()
@@ -227,10 +227,10 @@ def get_quests_source_for_switch(cond1, cond2, cond3, disable_line_x=False):
     return QuestsSource()
 
 
-class LineAvailabilitySwitchTest(TestCase):
+class LineAvailabilitySwitchTest(testcase.TestCase):
 
     def setUp(self):
-        pass
+        super(LineAvailabilitySwitchTest, self).setUp()
 
     def create_quest(self, cond1, cond2, cond3, disable_line_x=False):
         self.knowlege_base = KnowlegeBase()

@@ -92,8 +92,6 @@ class PlaceDescripton(object):
     def apply(self):
         self.place.description= self.description
         self.place.save()
-        places_storage.update_version()
-
 
     def serialize(self):
         return {'type': self.type.name.lower(),

@@ -16,6 +16,7 @@ from game.chronicle.prototypes import ExternalPlace
 class IndexRequestsTest(TestCase):
 
     def setUp(self):
+        super(IndexRequestsTest, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
         Record.objects.all().delete()

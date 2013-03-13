@@ -2,8 +2,7 @@
 import mock
 import datetime
 
-from django.test import TestCase
-from dext.settings import settings
+from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -22,10 +21,10 @@ from game.pvp.exceptions import PvPException
 
 from game.pvp.conf import pvp_settings
 
-class BalancerTestsBase(TestCase):
+class BalancerTestsBase(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(BalancerTestsBase, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 

@@ -8,8 +8,7 @@ from common.utils import xls
 class XLSTests(TestCase):
 
     def setUp(self):
-        pass
-
+        super(XLSTests, self).setUp()
 
     def test_load_table_simple(self):
         data = xls.load_table(os.path.join(os.path.dirname(__file__), 'fixtures/xls_table_simple.xls'), sheet_index=0)

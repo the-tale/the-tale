@@ -3,8 +3,8 @@
 import mock
 
 from django.contrib.auth.models import User
-from django.test import TestCase
 
+from common.utils import testcase
 from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
 from accounts.logic import register_user, REGISTER_USER_RESULT
@@ -20,9 +20,10 @@ from game.logic import create_test_map
 
 def raise_exception(*argv, **kwargs): raise Exception('unknown error')
 
-class TestRegistration(TestCase):
+class TestRegistration(testcase.TestCase):
 
     def setUp(self):
+        super(TestRegistration, self).setUp()
         create_test_map()
 
     def test_successfull_result(self):
@@ -79,7 +80,7 @@ class TestRegistration(TestCase):
         self.assertTrue(bundle_id is None)
 
 
-class TestRegistrationTask(TestCase):
+class TestRegistrationTask(testcase.TestCase):
 
     def setUp(self):
         create_test_map()

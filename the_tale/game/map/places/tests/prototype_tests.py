@@ -11,10 +11,15 @@ from game.prototypes import TimePrototype
 from game.logic import create_test_map
 from game.heroes.prototypes import HeroPrototype
 
+from game.map.places.models import Building
+from game.map.places.prototypes import BuildingPrototype
+from game.map.places.storage import places_storage, buildings_storage
 
-class PrototypeTests(testcase.TestCase):
+
+class PlacePrototypeTests(testcase.TestCase):
 
     def setUp(self):
+        super(PlacePrototypeTests, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
@@ -67,3 +72,45 @@ class PrototypeTests(testcase.TestCase):
             self.p1.sync_race()
 
         self.assertEqual(signal_counter.call_count, 1)
+
+
+
+class BuildingPrototypeTests(testcase.TestCase):
+
+    def setUp(self):
+        super(BuildingPrototypeTests, self).setUp()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+
+    def test_get_available_positions(self):
+
+        building = BuildingPrototype.create(self.place_1.persons[0])
+
+        positions = BuildingPrototype.get_available_positions(self.place_1.x, self.place_1.y)
+
+        self.assertTrue(positions)
+
+        for place in places_storage.all():
+            self.assertFalse((place.x, place.y) in positions)
+
+        for building in buildings_storage.all():
+            self.assertFalse((building.x, building.y) in positions)
+
+    def test_create(self):
+        self.assertEqual(Building.objects.all().count(), 0)
+
+        old_version = buildings_storage.version
+
+        building = BuildingPrototype.create(self.place_1.persons[0])
+
+        self.assertNotEqual(old_version, buildings_storage.version)
+
+        self.assertEqual(Building.objects.all().count(), 1)
+
+        old_version = buildings_storage.version
+
+        building_2 = BuildingPrototype.create(self.place_1.persons[0])
+
+        self.assertEqual(old_version, buildings_storage.version)
+        self.assertEqual(Building.objects.all().count(), 1)
+        self.assertEqual(hash(building), hash(building_2))

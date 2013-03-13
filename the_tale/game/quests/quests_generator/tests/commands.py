@@ -1,12 +1,12 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 
 from game.quests.quests_generator import commands
 
 
-class MessageTest(TestCase):
+class MessageTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.Message(event='event_1')
@@ -14,7 +14,7 @@ class MessageTest(TestCase):
         self.assertEqual(cmd, commands.deserialize_command(data))
 
 
-class DoNothingTest(TestCase):
+class DoNothingTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.DoNothing(event='event_1', duration=13, messages_probability=0.3)
@@ -22,7 +22,7 @@ class DoNothingTest(TestCase):
         self.assertEqual(cmd, commands.deserialize_command(data))
 
 
-class UpgradeEquipmentTest(TestCase):
+class UpgradeEquipmentTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.UpgradeEquipment(event='event_1', equipment_slot='slot_1')
@@ -30,7 +30,7 @@ class UpgradeEquipmentTest(TestCase):
         self.assertEqual(cmd, commands.deserialize_command(data))
 
 
-class MoveTest(TestCase):
+class MoveTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.Move(event='event_1', place='place_1', break_at=0.3)
@@ -38,7 +38,7 @@ class MoveTest(TestCase):
         self.assertEqual(cmd, commands.deserialize_command(data))
 
 
-class MoveNearTest(TestCase):
+class MoveNearTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.MoveNear(event='event_1', place='place_1', back=True)
@@ -47,7 +47,7 @@ class MoveNearTest(TestCase):
 
 
 
-class GetItemTest(TestCase):
+class GetItemTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.GetItem(event='event_1', item='item_1')
@@ -55,7 +55,7 @@ class GetItemTest(TestCase):
         self.assertEqual(cmd, commands.deserialize_command(data))
 
 
-class GiveItemTest(TestCase):
+class GiveItemTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.GiveItem(event='event_1', item='item_1')
@@ -63,7 +63,7 @@ class GiveItemTest(TestCase):
         self.assertEqual(cmd, commands.deserialize_command(data))
 
 
-class GetRewardTest(TestCase):
+class GetRewardTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.GetReward(event='event_1', person='person_1')
@@ -71,7 +71,7 @@ class GetRewardTest(TestCase):
         self.assertEqual(cmd, commands.deserialize_command(data))
 
 
-class QuestResultTest(TestCase):
+class QuestResultTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.QuestResult(event='event_1', result='success')
@@ -79,7 +79,7 @@ class QuestResultTest(TestCase):
         self.assertEqual(cmd, commands.deserialize_command(data))
 
 
-class GivePowerTest(TestCase):
+class GivePowerTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.GivePower(event='event_1', person='person_1', power=2)
@@ -87,7 +87,7 @@ class GivePowerTest(TestCase):
         self.assertEqual(cmd, commands.deserialize_command(data))
 
 
-class ChooseTest(TestCase):
+class ChooseTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.Choose(event='event_1',
@@ -99,7 +99,7 @@ class ChooseTest(TestCase):
         data = cmd.serialize()
         self.assertEqual(cmd, commands.deserialize_command(data))
 
-class SwitchTest(TestCase):
+class SwitchTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.Switch(event='event_1',
@@ -125,7 +125,7 @@ class SwitchTest(TestCase):
     #                                 (None, 'line_4') ] )
 
 
-class QuestTest(TestCase):
+class QuestTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.Quest(event='event_1', quest='quest_1')
@@ -133,7 +133,7 @@ class QuestTest(TestCase):
         self.assertEqual(cmd, commands.deserialize_command(data))
 
 
-class BattleTest(TestCase):
+class BattleTest(testcase.TestCase):
 
     def test_serialization(self):
         cmd = commands.Battle(event='event_1', number=13)

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -11,9 +11,10 @@ from game.mobs.prototypes import MobPrototype
 
 from game.heroes.habilities import attributes
 
-class AttributeAbiliesForHeroTest(TestCase):
+class AttributeAbiliesForHeroTest(testcase.TestCase):
 
     def setUp(self):
+        super(AttributeAbiliesForHeroTest, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
@@ -78,9 +79,10 @@ class AttributeAbiliesForHeroTest(TestCase):
         self.assertTrue(attributes.EXTRA_STRONG().availability.is_for_monsters)
 
 
-class AttributeAbiliesForMobTest(TestCase):
+class AttributeAbiliesForMobTest(testcase.TestCase):
 
     def setUp(self):
+        super(AttributeAbiliesForMobTest, self).setUp()
         self.mob1 = self.construct_mob_with_abilities(abilities=[attributes.EXTRA_SLOW.get_id(), attributes.EXTRA_THIN.get_id(), attributes.EXTRA_WEAK.get_id()], index=1)
         self.mob2 = self.construct_mob_with_abilities(abilities=[attributes.SLOW.get_id(), attributes.THIN.get_id(), attributes.WEAK.get_id()], index=2)
         self.mob3 = self.construct_mob_with_abilities(abilities=[attributes.FAST.get_id(), attributes.THICK.get_id(), attributes.STRONG.get_id()], index=3)

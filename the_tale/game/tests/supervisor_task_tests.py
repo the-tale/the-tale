@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from dext.settings import settings
-
 from common.utils.testcase import TestCase
 
 from accounts.prototypes import AccountPrototype
@@ -23,7 +21,7 @@ from game.models import Bundle
 class SupervisorTaskTests(TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(SupervisorTaskTests, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 

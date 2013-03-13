@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from game.quests.quests_generator.quest_line import Line
 from game.quests.quests_generator import commands as cmd
@@ -14,9 +14,10 @@ quests_source = BaseQuestsSource()
 writers_constructor = lambda hero, quest_type, env, quest_env_local: 0
 
 
-class LineTest(TestCase):
+class LineTest(testcase.TestCase):
 
     def setUp(self):
+        super(LineTest, self).setUp()
         self.knowlege_base = KnowlegeBase()
 
         self.env = BaseEnvironment(quests_source=quests_source, writers_constructor=writers_constructor, knowlege_base=self.knowlege_base)

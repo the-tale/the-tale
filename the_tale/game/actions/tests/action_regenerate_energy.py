@@ -1,7 +1,5 @@
 # coding: utf-8
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -13,11 +11,10 @@ from game.actions.prototypes import ActionRegenerateEnergyPrototype
 from game.prototypes import TimePrototype
 
 
-class RegenerateEnergyActionTest(TestCase):
+class RegenerateEnergyActionTest(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
-
+        super(RegenerateEnergyActionTest, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')

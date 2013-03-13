@@ -1,31 +1,15 @@
 # coding: utf-8
 
-from dext.views import handler
-
-from textgen.logic import Args
-
-from dext.views import handler, validator, validate_argument
+from dext.views import handler, validate_argument
 
 from common.utils.resources import Resource
-from common.utils.decorators import login_required
 
 from accounts.models import Account
 from accounts.prototypes import AccountPrototype
 
-from game.prototypes import TimePrototype
-
-from game.balance.enums import RACE
-
 from game.heroes.prototypes import HeroPrototype
 
-from game.chronicle import RecordPrototype
-
-from game.map.storage import map_info_storage
 from game.map.places.prototypes import PlacePrototype
-from game.map.generator import descriptors
-from game.map.generator.biomes import Biom
-from game.map.conf import map_settings
-from game.map.places.models import TERRAIN
 
 from game.balance.enums import RACE_MULTIPLE_VERBOSE
 

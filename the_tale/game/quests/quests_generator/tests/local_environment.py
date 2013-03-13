@@ -1,13 +1,14 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from game.quests.quests_generator.environment import LocalEnvironment
 
 
-class LocalEnvironmentTest(TestCase):
+class LocalEnvironmentTest(testcase.TestCase):
 
     def setUp(self):
+        super(LocalEnvironmentTest, self).setUp()
         self.env = LocalEnvironment()
 
     def test_after_constuction(self):

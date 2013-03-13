@@ -262,20 +262,6 @@ ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM = 2
 ABILITIES_FOR_CHOOSE_MAXIMUM = 4
 
 
-##########################
-# профессии
-##########################
-
-_professions_xls_file = os.path.join(os.path.dirname(__file__), 'fixtures/professions.xls')
-
-PROFESSION_TO_RACE_MASTERY = xls.load_table_for_enums(_professions_xls_file, sheet_index=0,
-                                                      rows_enum=e.PERSON_TYPE, columns_enum=e.RACE,
-                                                      data_type=float)
-
-PROFESSION_TO_CITY_MODIFIERS = xls.load_table_for_enums(_professions_xls_file, sheet_index=1,
-                                                        rows_enum=e.PERSON_TYPE, columns_enum=e.CITY_MODIFIERS,
-                                                        data_type=float)
-
 ###########################
 # стили pvp боя
 ###########################

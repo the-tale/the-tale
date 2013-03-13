@@ -19,6 +19,7 @@ from game.pvp.models import BATTLE_1X1_STATE, Battle1x1
 class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
 
     def setUp(self):
+        super(ArenaPvP1x1LeaveQueueAbilityTest, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')

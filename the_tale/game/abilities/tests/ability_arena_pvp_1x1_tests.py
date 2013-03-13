@@ -16,6 +16,7 @@ from game.pvp.models import Battle1x1
 class ArenaPvP1x1AbilityTest(testcase.TestCase):
 
     def setUp(self):
+        super(ArenaPvP1x1AbilityTest, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
 
 

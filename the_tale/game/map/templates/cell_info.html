@@ -74,7 +74,7 @@
 
                   <th>
                     {{ person.name }}
-                    <small>{{ person.race_verbose }}-{{ person.type_verbose }}</small>
+                    <small>{{ person.race_verbose }}-{{ person.type.text }}</small>
 
                     {% if person.time_before_unfreeze.total_seconds() > 0 %}
                     <i class="icon-time pgf-time-before-unfreeze"

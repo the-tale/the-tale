@@ -1,13 +1,13 @@
 # coding: utf-8
 import mock
 
-from django.test import TestCase
+from common.utils import testcase
 
 from accounts.logic import register_user
 
 from game.logic import create_test_map
 
-from game.map.places.models import TERRAIN
+from game.map.relations import TERRAIN
 from game.heroes.prototypes import HeroPrototype
 
 from game.artifacts.prototypes import ArtifactRecordPrototype
@@ -18,9 +18,10 @@ from game.mobs.models import MOB_RECORD_STATE
 from game.mobs.prototypes import MobPrototype, MobRecordPrototype
 
 
-class MobsPrototypeTests(TestCase):
+class MobsPrototypeTests(testcase.TestCase):
 
     def setUp(self):
+        super(MobsPrototypeTests, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')

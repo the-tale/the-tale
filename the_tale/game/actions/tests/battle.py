@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -14,9 +14,10 @@ from game.heroes.habilities.battle import RUN_UP_PUSH, HIT
 from game.mobs.storage import mobs_storage
 from game.logic_storage import LogicStorage
 
-class ActorTest(TestCase):
+class ActorTest(testcase.TestCase):
 
     def setUp(self):
+        super(ActorTest, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')

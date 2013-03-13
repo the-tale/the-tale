@@ -11,7 +11,7 @@ from common.utils.resources import Resource
 from common.utils.decorators import login_required
 from common.utils.enum import create_enum
 
-from game.map.places.models import TERRAIN
+from game.map.relations import TERRAIN
 
 from game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE, ARTIFACT_TYPE
 from game.artifacts.prototypes import ArtifactRecordPrototype

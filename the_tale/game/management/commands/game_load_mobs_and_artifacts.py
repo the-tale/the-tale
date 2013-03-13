@@ -12,7 +12,7 @@ from game.artifacts.prototypes import ArtifactRecordPrototype
 from game.mobs.models import MobRecord
 from game.mobs.prototypes import MobRecordPrototype
 
-from game.map.places.models import TERRAIN
+from game.map.relations import TERRAIN
 
 dictionary = get_dictionary()
 

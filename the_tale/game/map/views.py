@@ -20,7 +20,7 @@ from game.map.places.prototypes import PlacePrototype
 from game.map.generator import descriptors
 from game.map.generator.biomes import Biom
 from game.map.conf import map_settings
-from game.map.places.models import TERRAIN
+from game.map.relations import TERRAIN
 
 class MapResource(Resource):
 

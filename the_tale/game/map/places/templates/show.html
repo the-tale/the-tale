@@ -96,7 +96,7 @@
         <a href="#">
           {{ person.name }}
           <small>
-            {{ person.race_verbose }}-{{ person.type_verbose }},
+            {{ person.race_verbose }}-{{ person.type.text }},
             {{person.mastery_verbose}},
             {% if place.total_persons_power %}
             {% set power = (person.power/place.total_persons_power) %}

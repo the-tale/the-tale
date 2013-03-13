@@ -1,8 +1,6 @@
 # coding: utf-8
 import mock
 
-from dext.settings import settings
-
 from common.utils import testcase
 
 from accounts.logic import register_user
@@ -20,7 +18,7 @@ from game.prototypes import TimePrototype
 class MoveToActionTest(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(MoveToActionTest, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 
@@ -206,6 +204,7 @@ class MoveToActionTest(testcase.TestCase):
 class MoveToActionWithBreaksTest(testcase.TestCase):
 
     def setUp(self):
+        super(MoveToActionWithBreaksTest, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')

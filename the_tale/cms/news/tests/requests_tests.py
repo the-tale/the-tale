@@ -17,6 +17,7 @@ from forum.models import Category, SubCategory, Thread
 class TestRequests(TestCase):
 
     def setUp(self):
+        super(TestRequests, self).setUp()
         self.client = client.Client()
 
         self.news1 = News.objects.create(caption='news1-caption', description='news1-description', content='news1-content')

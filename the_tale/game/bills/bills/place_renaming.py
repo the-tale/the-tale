@@ -103,7 +103,6 @@ class PlaceRenaming(object):
     def apply(self):
         self.place.set_name_forms(self.name_forms)
         self.place.save()
-        places_storage.update_version()
 
 
     def serialize(self):

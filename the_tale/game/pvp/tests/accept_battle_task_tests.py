@@ -1,10 +1,6 @@
 # coding: utf-8
 
-# coding: utf-8
-
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
@@ -22,10 +18,10 @@ from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.postponed_tasks import AcceptBattleTask, ACCEPT_BATTLE_TASK_STATE
 
-class AcceptBattleTaskTests(TestCase):
+class AcceptBattleTaskTests(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(AcceptBattleTaskTests, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 

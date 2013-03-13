@@ -1,9 +1,7 @@
 # coding: utf-8
 import random
 
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -14,10 +12,10 @@ from game.logic import create_test_map
 from game.pvp.combat_styles import COMBAT_STYLES
 from game.pvp.exceptions import PvPException
 
-class CombatStyleTests(TestCase):
+class CombatStyleTests(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(CombatStyleTests, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 

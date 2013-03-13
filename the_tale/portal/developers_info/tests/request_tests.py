@@ -13,6 +13,7 @@ from game.logic import create_test_map
 class TestRequestsBase(TestCase):
 
     def setUp(self):
+        super(TestRequestsBase, self).setUp()
         create_test_map()
         self.client = client.Client()
 

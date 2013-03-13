@@ -16,6 +16,7 @@ from game.chronicle.tests.helpers import FakeRecord
 class RecordPrototypeTests(TestCase):
 
     def setUp(self):
+        super(RecordPrototypeTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -50,6 +51,7 @@ class RecordPrototypeTests(TestCase):
 class RecordToActorPrototypeTests(TestCase):
 
     def setUp(self):
+        super(RecordToActorPrototypeTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')

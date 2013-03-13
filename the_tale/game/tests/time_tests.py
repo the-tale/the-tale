@@ -1,29 +1,22 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from dext.settings.models import Setting
-from dext.settings import settings
 
 from game.prototypes import TimePrototype, GameTime
 
 
-class TimeTest(TestCase):
-
-    def setUp(self):
-        settings.refresh()
-
-    def tearDown(self):
-        settings.refresh()
+class TimeTest(testcase.TestCase):
 
     def test_creation(self):
-        self.assertEqual(Setting.objects.all().count(), 0)
+        settings_number = Setting.objects.all().count()
         time = TimePrototype.get_current_time()
         self.assertEqual(time.turn_number, 0)
-        self.assertEqual(Setting.objects.all().count(), 1)
+        self.assertEqual(Setting.objects.all().count(), settings_number+1)
         time = TimePrototype.get_current_time()
         self.assertEqual(time.turn_number, 0)
-        self.assertEqual(Setting.objects.all().count(), 1)
+        self.assertEqual(Setting.objects.all().count(), settings_number+1)
 
     def test_get_current_time(self):
         time = TimePrototype.get_current_time()

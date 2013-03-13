@@ -1,13 +1,13 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 
 from . import formulas as f, constants as c, enums as e
 
 E = 0.00001
 
-class ConstantsTest(TestCase):
+class ConstantsTest(testcase.TestCase):
 
     def test_constants_values(self):
 
@@ -168,25 +168,6 @@ class ConstantsTest(TestCase):
         self.assertEqual(round(c.PVP_MAX_EFFECTIVENESS_MULTIPLIER, 2), 1.33)
         self.assertEqual(c.PVP_ADVANTAGE_BARIER, 0.95)
 
-    def test_profession_to_race_mastery(self):
-        for profession, masteries in c.PROFESSION_TO_RACE_MASTERY.items():
-            self.assertEqual(len(masteries), len(e.RACE._ALL))
-
-            self.assertTrue(all([0 < mastery < 1.0001 for mastery in masteries.values()]))
-
-        # check, if race id's not changed
-        self.assertEqual(e.RACE.HUMAN, 0)
-        self.assertEqual(e.RACE.ELF, 1)
-        self.assertEqual(e.RACE.ORC, 2)
-        self.assertEqual(e.RACE.GOBLIN, 3)
-        self.assertEqual(e.RACE.DWARF, 4)
-
-    def test_profession_to_city_specialization(self):
-        for profession, specializations in c.PROFESSION_TO_CITY_MODIFIERS.items():
-            self.assertEqual(len(specializations), len(e.CITY_MODIFIERS._ALL))
-
-            self.assertTrue(all([-10 <= effect <= 10 for effect in specializations.values()]))
-
     def test_pvp_combat_styles_advantages_balanced(self):
         test_value = len(e.PVP_COMBAT_STYLES._ALL)
         for combat_style in e.PVP_COMBAT_STYLES._ALL:
@@ -194,7 +175,7 @@ class ConstantsTest(TestCase):
 
 
 
-class FormulasTest(TestCase):
+class FormulasTest(testcase.TestCase):
 
     LVLS = [1, 2, 3, 4, 5, 7, 11, 17, 19, 25, 30, 40, 60, 71, 82, 99, 101]
 

@@ -6,7 +6,7 @@ from deworld.layers import VEGETATION_TYPE
 from common.utils import xls
 
 from game.map.conf import map_settings
-from game.map.places.models import TERRAIN
+from game.map.relations import TERRAIN
 
 
 _xls_attributes = {'filename': map_settings.TERRAIN_PRIORITIES_FIXTURE,

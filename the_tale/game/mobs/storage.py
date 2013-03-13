@@ -9,9 +9,17 @@ from game.mobs.models import MobRecord
 
 class MobsStorage(create_storage_class('mob records change time', MobRecord, MobRecordPrototype, MobsException)):
 
-    def refresh(self):
-        super(MobsStorage, self).refresh()
-        self._mobs_by_uuids = dict( (mob.uuid, mob) for mob in self.all())
+    def __init__(self):
+        super(MobsStorage, self).__init__()
+        self._mobs_by_uuids = {}
+
+    def clear(self):
+        super(MobsStorage, self).clear()
+        self._mobs_by_uuids = {}
+
+    def add_item(self, id_, item):
+        super(MobsStorage, self).add_item(id_, item)
+        self._mobs_by_uuids[item.uuid] = item
 
     def get_by_uuid(self, uuid):
         self.sync()

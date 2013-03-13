@@ -44,10 +44,10 @@ def get_knowlege_base(hero):
         place_uuid = 'place_%d' % person.place_id
         base.add_person(person_uuid,
                         place=place_uuid,
-                        profession=person.type,
+                        profession=person.type.value,
                         external_data={'id': person.id,
                                        'name': person.name,
-                                       'type': person.type,
+                                       'type': person.type.value,
                                        'gender': person.gender,
                                        'race': person.race,
                                        'mastery_verbose': person.mastery_verbose,

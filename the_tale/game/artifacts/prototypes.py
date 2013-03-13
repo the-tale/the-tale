@@ -230,9 +230,12 @@ class ArtifactRecordPrototype(object):
                                               state=state,
                                               editor=editor.model if editor else None)
 
+        prototype = cls(model)
+
+        artifacts_storage.add_item(prototype.id, prototype)
         artifacts_storage.update_version()
 
-        return cls(model)
+        return prototype
 
     @classmethod
     def create_random(cls, uuid, level=1, mob=None, type_=ARTIFACT_TYPE.USELESS, rarity=RARITY_TYPE.NORMAL, state=ARTIFACT_RECORD_STATE.ENABLED):

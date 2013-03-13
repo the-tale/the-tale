@@ -1,8 +1,6 @@
 # coding: utf-8
 import mock
 
-from dext.settings import settings
-
 from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
@@ -21,7 +19,7 @@ from game.exceptions import GameException
 class LogicStorageTestsBasic(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(LogicStorageTestsBasic, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 
@@ -42,7 +40,7 @@ class LogicStorageTestsBasic(testcase.TestCase):
 class LogicStorageTests(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(LogicStorageTests, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 

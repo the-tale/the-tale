@@ -1,9 +1,7 @@
 # coding: utf-8
 import mock
 
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from accounts.logic import register_user
 
@@ -15,11 +13,11 @@ from game.actions.prototypes import ActionDoNothingPrototype
 from game.prototypes import TimePrototype
 
 
-class DoNothingActionTest(TestCase):
+class DoNothingActionTest(testcase.TestCase):
 
     @mock.patch('game.actions.prototypes.ActionPrototype.get_description', lambda self: 'abrakadabra')
     def setUp(self):
-        settings.refresh()
+        super(DoNothingActionTest, self).setUp()
 
         create_test_map()
 

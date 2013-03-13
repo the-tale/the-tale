@@ -160,8 +160,9 @@ pgf.game.map.MapManager = function(params) {
             if (!road.exists) continue;
 
             var point_1 = mapData.places[road.point_1_id];
-            var x = point_1.x;
-            var y = point_1.y;
+            var pos = point_1.pos;
+            var x = point_1.pos.x;
+            var y = point_1.pos.y;
 
             for(var i=0; i<road.path.length; ++i) {
 
@@ -191,14 +192,28 @@ pgf.game.map.MapManager = function(params) {
         return mapData.places[placeId];
     }
 
+    function GetBuildingData(buildingId) {
+        return mapData.buildings[buildingId];
+    }
+
     function GetCellData(x, y) {
-        var data = { place: undefined };
+        var data = { place: undefined,
+                     building: undefined};
 
         for (var placeId in mapData.places) {
             var place = mapData.places[placeId];
 
-            if (place.x == x && place.y == y) {
+            if (place.pos.x == x && place.pos.y == y) {
                 data.place = place;
+                break;
+            }
+        }
+
+        for (var buildingId in mapData.buildings) {
+            var building = mapData.buildings[buildingId];
+
+            if (building.pos.x == x && building.pos.y == y) {
+                data.building = building;
                 break;
             }
         }
@@ -402,20 +417,20 @@ pgf.game.map.Map = function(selector, params) {
 
     function GetHeroPosition(data, hero) {
 
-        if (hero.position.place) {
-            var place = data.places[hero.position.place.id];
-            return {x: place.x, y: place.y};
+        if (hero.position.place_id != null) {
+            var place = data.places[hero.position.place_id];
+            return {x: place.pos.x, y: place.pos.y};
         }
 
-        if (hero.position.road) {
-            var road = data.roads[hero.position.road.id];
+        if (hero.position.road_id != null) {
+            var road = data.roads[hero.position.road_id];
             var point_1 = data.places[road.point_1_id];
             var point_2 = data.places[road.point_2_id];
 
             var percents = hero.position.percents;
             var path = road.path;
-            var x = point_1.x;
-            var y = point_1.y;
+            var x = point_1.pos.x;
+            var y = point_1.pos.y;
             if (hero.position.invert_direction) {
                 percents = 1 - percents;
             }
@@ -510,6 +525,17 @@ pgf.game.map.Map = function(selector, params) {
             }
         }
 
+        for (var building_id in data.buildings) {
+            var building = data.buildings[building_id];
+            var spriteName = 'BUILDING_' + pgf.game.constants.BUILDING_TYPE_TO_STR[building.type];
+
+                                 
+            var image = spritesManager.GetImage(spriteName);
+            image.Draw(context,
+                       posX + building.pos.x * TILE_SIZE,
+                       posY + building.pos.y * TILE_SIZE);
+        }
+
         context.fillStyle    = '#000';
         context.font         = 'bold 14px sans-serif';
         context.textBaseline = 'top';
@@ -525,16 +551,16 @@ pgf.game.map.Map = function(selector, params) {
                                   
             var image = spritesManager.GetImage(spriteName);
             image.Draw(context,
-                       posX + place.x * TILE_SIZE,
-                       posY + place.y * TILE_SIZE);
+                       posX + place.pos.x * TILE_SIZE,
+                       posY + place.pos.y * TILE_SIZE);
 
             var text = '('+place.size+') '+place.name;
 
             context.font="12px sans-serif";
             var textSize = context.measureText(text);
 
-            var textX = Math.round(posX + place.x * TILE_SIZE + TILE_SIZE / 2 - textSize.width / 2);
-            var textY = Math.round(posY + (place.y + 1) * TILE_SIZE) + 2;
+            var textX = Math.round(posX + place.pos.x * TILE_SIZE + TILE_SIZE / 2 - textSize.width / 2);
+            var textY = Math.round(posY + (place.pos.y + 1) * TILE_SIZE) + 2;
 
             var rectDelta = 2;
             var textHeight = 12;
@@ -560,8 +586,8 @@ pgf.game.map.Map = function(selector, params) {
 
         var reflectNeeded = false;
 
-        if (hero.position.road) {
-            var road = data.roads[hero.position.road.id];
+        if (hero.position.road_id != null) {
+            var road = data.roads[hero.position.road_id];
             var point_1 = data.places[road.point_1_id];
             var point_2 = data.places[road.point_2_id];
 
@@ -572,7 +598,7 @@ pgf.game.map.Map = function(selector, params) {
                 point_2 = tmp;
             }
 
-            if (point_1.x < point_2.x) {
+            if (point_1.pos.x < point_2.pos.x) {
                 reflectNeeded = true;
             }
         }

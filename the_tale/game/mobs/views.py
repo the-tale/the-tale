@@ -11,7 +11,7 @@ from common.utils.resources import Resource
 from common.utils.decorators import login_required
 from common.utils.enum import create_enum
 
-from game.map.places.models import TERRAIN
+from game.map.relations import TERRAIN
 
 from game.mobs.models import MOB_RECORD_STATE
 from game.mobs.prototypes import MobRecordPrototype

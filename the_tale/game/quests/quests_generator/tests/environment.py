@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from game.quests.quests_generator import commands as cmd
 from game.quests.quests_generator.knowlege_base import KnowlegeBase
@@ -12,9 +12,10 @@ from game.quests.quests_generator.tests.helpers import FakeWriter
 
 quests_source = QuestsSource()
 
-class EnvironmentTest(TestCase):
+class EnvironmentTest(testcase.TestCase):
 
     def setUp(self):
+        super(EnvironmentTest, self).setUp()
         self.knowlege_base = KnowlegeBase()
         self.knowlege_base.add_place('place_1')
         self.knowlege_base.add_place('place_2')

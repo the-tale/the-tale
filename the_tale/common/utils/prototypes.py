@@ -55,7 +55,6 @@ class _PrototypeMetaclass(type):
         return super(_PrototypeMetaclass, cls).__new__(cls, name, bases, attributes)
 
 
-
 class BasePrototype(object):
 
     __metaclass__ = _PrototypeMetaclass
@@ -68,5 +67,11 @@ class BasePrototype(object):
     def __init__(self, model):
         self._model = model
 
-    def create(self):
+    def create(self, *argv, **kwargs):
         raise NotImplemented
+
+    def __unicode__(self):
+        return self._model.__unicode__()
+
+    def __repr__(self):
+        return self._model.__repr__()

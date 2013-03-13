@@ -11,6 +11,7 @@ from game.map.storage import map_info_storage
 class PrototypeTests(TestCase):
 
     def setUp(self):
+        super(PrototypeTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
     def test_get_dominant_place(self):

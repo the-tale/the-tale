@@ -3,18 +3,14 @@ import datetime
 
 from collections import Counter
 
-from django.test import TestCase
+from common.utils import testcase
 
 from common.utils.logic import random_value_by_priority, verbose_timedelta
 
-class LogicTest(TestCase):
+class LogicTest(testcase.TestCase):
 
     def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
+        super(LogicTest, self).setUp()
 
     def test_random_value_by_priority(self):
         counter = Counter()

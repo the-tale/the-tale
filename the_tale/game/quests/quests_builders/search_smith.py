@@ -3,7 +3,7 @@
 from game.quests.quests_generator.quest_line import Quest, Line, ACTOR_TYPE, DEFAULT_RESULTS
 from game.quests.quests_generator import commands as cmd
 
-from game.balance.enums import PERSON_TYPE
+from game.persons.relations import PERSON_TYPE
 
 class SearchSmith(Quest):
 
@@ -18,7 +18,7 @@ class SearchSmith(Quest):
 
         self.env_local.register('place_start', place_start or env.new_place())
 
-        self.env_local.register('person_end', env.new_person(profession=PERSON_TYPE.BLACKSMITH))
+        self.env_local.register('person_end', env.new_person(profession=PERSON_TYPE.BLACKSMITH.value))
         self.env_local.register('place_end', env.new_place(person_uuid=self.env_local.person_end))
 
     def create_line(self, env):

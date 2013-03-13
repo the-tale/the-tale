@@ -11,6 +11,7 @@ from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototyp
 class TestGetThreadsWithLastUsersPosts(TestCase):
 
     def setUp(self):
+        super(TestGetThreadsWithLastUsersPosts, self).setUp()
         create_test_map()
 
         register_user('user_1', 'user_1@test.com', '111111')

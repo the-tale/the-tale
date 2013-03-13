@@ -1,5 +1,7 @@
 # coding: utf-8
 import uuid
+import contextlib
+import functools
 
 from dext.settings import settings
 
@@ -11,6 +13,8 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
 
         def __init__(self):
             self.clear()
+            self._postpone_version_update_nesting = 0
+            self._update_version_requested = False
 
         @property
         def version(self):
@@ -25,7 +29,7 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
             self._version = settings[self.SETTINGS_KEY]
 
             for model in self._get_all_query():
-                self._data[model.id] = Prototype(model)
+                self.add_item(model.id, Prototype(model))
 
         def sync(self, force=False):
             if self.SETTINGS_KEY not in settings:
@@ -76,20 +80,51 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
             self._version = None
 
         def save_all(self):
-            for record in self._data.values():
-                record.save()
+            with self.postpone_version_update():
+                for record in self._data.values():
+                    record.save()
 
-            self.update_version()
-
-        def update_version(self, reload=True):
-            if self.SETTINGS_KEY not in settings or self._version != settings[self.SETTINGS_KEY]:
-                reload = True
-
+        def _setup_version(self):
             self._version = uuid.uuid4().hex
             settings[self.SETTINGS_KEY] = str(self._version)
 
+        def update_version(self, reload=False):
+            self._update_version_requested = True
+
+            if self._postpone_version_update_nesting > 0:
+                return
+
+            if self.SETTINGS_KEY not in settings or self._version != settings[self.SETTINGS_KEY]:
+                reload = True
+
+            self._setup_version()
+
             if reload:
                 self.sync(force=True)
+
+        @contextlib.contextmanager
+        def _postpone_version_update(self):
+            self._postpone_version_update_nesting += 1
+            self._update_version_requested = False
+
+            yield
+
+            self._postpone_version_update_nesting -= 1
+
+            if self._update_version_requested:
+                self.update_version()
+
+        def postpone_version_update(self, func=None):
+
+            if func is None:
+                return self._postpone_version_update()
+
+            @functools.wraps(func)
+            def wrapper(*argv, **kwargs):
+                with self._postpone_version_update():
+                    return func(*argv, **kwargs)
+
+            return wrapper
 
 
     return Storage
@@ -139,12 +174,15 @@ def create_single_storage_class(version_key, Model, Prototype, Exception_):
             self._item = None
             self._version = None
 
-        def update_version(self, reload=True):
+        def _setup_version(self):
+            self._version = uuid.uuid4().hex
+            settings[self.SETTINGS_KEY] = str(self._version)
+
+        def update_version(self, reload=False):
             if self.SETTINGS_KEY not in settings or self._version != settings[self.SETTINGS_KEY]:
                 reload = True
 
-            self._version = uuid.uuid4().hex
-            settings[self.SETTINGS_KEY] = str(self._version)
+            self._setup_version()
 
             if reload:
                 self.sync(force=True)

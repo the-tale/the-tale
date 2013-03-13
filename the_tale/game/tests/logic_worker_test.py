@@ -2,8 +2,6 @@
 import datetime
 import mock
 
-from dext.settings import settings
-
 from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
@@ -19,7 +17,7 @@ from game.prototypes import TimePrototype
 class LogicWorkerTests(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(LogicWorkerTests, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 

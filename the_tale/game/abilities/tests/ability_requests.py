@@ -19,6 +19,7 @@ from game.abilities.deck.help import Help
 class AbilityRequests(TestCase):
 
     def setUp(self):
+        super(AbilityRequests, self).setUp()
         create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.account = AccountPrototype.get_by_id(account_id)

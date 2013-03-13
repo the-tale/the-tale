@@ -6,7 +6,8 @@ from django.core.management.base import BaseCommand
 from dext.utils.decorators import nested_commit_on_success
 
 from game.map.roads.models import Road
-from game.map.places.models import Place, PLACE_TYPE, TERRAIN
+from game.map.places.models import Place
+from game.map.relations import TERRAIN
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage
 from game.map.storage import map_info_storage
@@ -29,7 +30,6 @@ class Command(BaseCommand):
         return Place.objects.create( x=x,
                                      y=y,
                                      name='%dx%d' % (x, y),
-                                     type=PLACE_TYPE.CITY,
                                      size=size)
 
     def create_road(self, p1, p2):
@@ -85,14 +85,12 @@ class Command(BaseCommand):
         self.create_road(p28x19, p24x13)
         self.create_road(p28x19, p27x13)
 
-        places_storage.update_version()
-        places_storage.sync(force=True)
+        places_storage.update_version(reload=True)
 
         for place in places_storage.all():
             place.sync_persons()
 
-        roads_storage.update_version()
-        roads_storage.sync(force=True)
+        roads_storage.update_version(reload=True)
 
         terrain = []
         for y in xrange(0, map_settings.HEIGHT):

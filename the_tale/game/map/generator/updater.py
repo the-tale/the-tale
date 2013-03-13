@@ -1,6 +1,5 @@
 # coding: utf-8
 import os
-import math
 
 import deworld
 
@@ -15,68 +14,9 @@ from game.map.storage import map_info_storage
 from game.map.prototypes import MapInfoPrototype
 from game.map.generator.biomes import Biom
 from game.map.generator.power_points import get_places_power_points
-from game.map.places.storage import places_storage
-from game.map.places.models import TERRAIN
+from game.map.places.storage import places_storage, buildings_storage
+from game.map.relations import TERRAIN
 from game.map.roads.storage import roads_storage
-
-
-class PATH_DIRECTION:
-    LEFT = 'l'
-    RIGHT = 'r'
-    UP = 'u'
-    DOWN = 'd'
-
-
-def _place_info(place):
-    return {'id': place.id,
-            'x': place.x,
-            'y': place.y,
-            'name': place.name,
-            'race': place.race.value,
-            'size': place.size}
-
-
-def _road_info(road):
-    return {'id': road.id,
-            'point_1_id': road.point_1.id,
-            'point_2_id': road.point_2.id,
-            'path': roll_road(road.point_1.x, road.point_1.y, road.point_2.x, road.point_2.y),
-            'length': road.length,
-            'exists': road.exists}
-
-
-def roll_road(start_x, start_y, finish_x, finish_y):
-
-    path = []
-
-    x = start_x
-    y = start_y
-
-    if math.fabs(finish_x - start_x) >  math.fabs(finish_y - start_y):
-        dx = math.copysign(1.0, finish_x - start_x)
-        dy = dx * float(finish_y - start_y) / (finish_x - start_x)
-    else:
-        dy = math.copysign(1.0, finish_y - start_y)
-        dx = dy * float(finish_x - start_x) / (finish_y - start_y)
-
-    real_x = float(x)
-    real_y = float(y)
-
-    while x != finish_x or y != finish_y:
-
-        real_x += dx
-        real_y += dy
-
-        if int(round(real_x)) == x + 1: path.append(PATH_DIRECTION.RIGHT)
-        elif int(round(real_x)) == x - 1: path.append(PATH_DIRECTION.LEFT)
-
-        if int(round(real_y)) == y + 1: path.append(PATH_DIRECTION.DOWN)
-        elif int(round(real_y)) == y - 1: path.append(PATH_DIRECTION.UP)
-
-        x = int(round(real_x))
-        y = int(round(real_y))
-
-    return ''.join(path)
 
 
 def update_map(index):
@@ -120,8 +60,9 @@ def update_map(index):
             'height': world.h,
             'map_version': map_info_storage.version,
             'terrain': [ row for row in terrain ],
-            'places': dict( (place.id, _place_info(place) ) for place in places_storage.all() ),
-            'roads': dict( (road.id, _road_info(road) ) for road in roads_storage.all() ) }
+            'places': dict( (place.id, place.map_info() ) for place in places_storage.all() ),
+            'buildings': dict( (building.id, building.map_info() ) for building in buildings_storage.all() ),
+            'roads': dict( (road.id, road.map_info() ) for road in roads_storage.all() ) }
 
 
     output_dir_name = os.path.dirname(map_settings.GEN_REGION_OUTPUT)

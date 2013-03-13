@@ -1,5 +1,5 @@
 # coding: utf-8
-import copy
+
 import random
 
 from game.quests.quests_generator.exceptions import QuestGeneratorException, RollBackException

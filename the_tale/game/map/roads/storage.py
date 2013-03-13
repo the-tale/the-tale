@@ -18,12 +18,16 @@ roads_storage = RoadsStorage()
 class WaymarksStorage(create_storage_class('waymarks change time', Waymark, WaymarkPrototype, RoadsException)):
 
     def __init__(self, *argv, **kwargs):
-        super(WaymarksStorage, self).__init__(*argv, **kwargs)
         self._waymarks_map = {}
+        super(WaymarksStorage, self).__init__(*argv, **kwargs)
 
-    def refresh(self, *argv, **kwargs):
-        super(WaymarksStorage, self).refresh(*argv, **kwargs)
-        self._waymarks_map = dict([ ((waymark.point_from_id, waymark.point_to_id), waymark) for waymark in self.all() ])
+    def clear(self):
+        self._waymarks_map = {}
+        super(WaymarksStorage, self).clear()
+
+    def add_item(self, id_, item):
+        super(WaymarksStorage, self).add_item(id_, item)
+        self._waymarks_map[(item.point_from_id, item.point_to_id)] = item
 
     def look_for_road(self, point_from, point_to):
         self.sync()

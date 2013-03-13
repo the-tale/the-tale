@@ -20,6 +20,7 @@ from game.heroes.prototypes import HeroPrototype
 class HeroRequestsTestBase(TestCase):
 
     def setUp(self):
+        super(HeroRequestsTestBase, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')

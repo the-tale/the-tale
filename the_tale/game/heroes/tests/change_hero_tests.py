@@ -19,6 +19,7 @@ from game.heroes.postponed_tasks import ChangeHeroTask, CHANGE_HERO_TASK_STATE
 class ChangeHeroTest(TestCase):
 
     def setUp(self):
+        super(ChangeHeroTest, self).setUp()
         place_1, place_2, place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')

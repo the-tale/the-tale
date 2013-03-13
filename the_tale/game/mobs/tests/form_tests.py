@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from textgen.words import Noun
 
@@ -8,14 +8,15 @@ from dext.utils import s11n
 
 from game.logic import create_test_map
 
-from game.map.places.models import TERRAIN
+from game.map.relations import TERRAIN
 
 from game.mobs.forms import MobRecordForm, ModerateMobRecordForm
 
 
-class MobsFormsTests(TestCase):
+class MobsFormsTests(testcase.TestCase):
 
     def setUp(self):
+        super(MobsFormsTests, self).setUp()
         create_test_map()
 
     def test_no_abilities_choosen(self):

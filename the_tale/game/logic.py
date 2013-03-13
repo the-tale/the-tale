@@ -4,7 +4,6 @@ import os
 from django.conf import settings as project_settings
 
 from textgen import words
-from dext.utils import s11n
 
 from common.utils.enum import create_enum
 
@@ -20,14 +19,18 @@ from game.artifacts.storage import artifacts_storage
 from game.artifacts.models import ARTIFACT_TYPE
 
 from game.map.storage import map_info_storage
+from game.map.relations import TERRAIN
+from game.map.prototypes import MapInfoPrototype
+from game.map.conf import map_settings
+
 from game.map.places.storage import places_storage
+from game.map.places.prototypes import PlacePrototype
+from game.map.places.logic import update_nearest_cells
+
 from game.map.roads.storage import roads_storage, waymarks_storage
-from game.map.places.models import Place, TERRAIN, PLACE_TYPE
 from game.map.roads.prototypes import RoadPrototype
 from game.map.roads.logic import update_waymarks
-from game.map.prototypes import MapInfoPrototype
-from game.map.places.logic import update_nearest_cells
-from game.map.conf import map_settings
+
 
 DEFAULT_HERO_EQUIPMENT = create_enum('DEFAULT_HERO_EQUIPMENT', ( ('PANTS', 'default_pants', u'штаны'),
                                                                  ('BOOTS', 'default_boots', u'обувь'),
@@ -36,50 +39,24 @@ DEFAULT_HERO_EQUIPMENT = create_enum('DEFAULT_HERO_EQUIPMENT', ( ('PANTS', 'defa
                                                                  ('WEAPON', 'default_weapon', u'оружие') ))
 
 
+@places_storage.postpone_version_update
+@persons_storage.postpone_version_update
+@waymarks_storage.postpone_version_update
+@roads_storage.postpone_version_update
+@mobs_storage.postpone_version_update
+@artifacts_storage.postpone_version_update
 def create_test_map():
-    places_storage.clear()
-    persons_storage.clear()
-    roads_storage.clear()
-
-    """
-    map: p1-p2-p3
-    """
-    p1 = Place.objects.create( x=1,
-                               y=1,
-                               name='1x1',
-                               name_forms=s11n.to_json(words.Noun.fast_construct('1x1').serialize()),
-                               type=PLACE_TYPE.CITY,
-                               size=1)
-
-    p2 = Place.objects.create( x=10,
-                               y=10,
-                               name='10x10',
-                               name_forms=s11n.to_json(words.Noun.fast_construct('10x10').serialize()),
-                               type=PLACE_TYPE.CITY,
-                               size=3)
-
-    p3 = Place.objects.create( x=1,
-                               y=10,
-                               name='1x10',
-                               name_forms=s11n.to_json(words.Noun.fast_construct('1x10').serialize()),
-                               type=PLACE_TYPE.CITY,
-                               size=3)
-
-    places_storage.sync(force=True)
+    p1 = PlacePrototype.create( x=1, y=1, size=1, name_forms=words.Noun.fast_construct('1x1'))
+    p2 = PlacePrototype.create( x=10, y=10, size=3, name_forms=words.Noun.fast_construct('10x10'))
+    p3 = PlacePrototype.create( x=1, y=10, size=3, name_forms=words.Noun.fast_construct('1x10'))
 
     for place in places_storage.all():
         place.sync_persons()
 
-    persons_storage.sync(force=True)
-
-    RoadPrototype.create(point_1=places_storage[p1.id], point_2=places_storage[p2.id])
-    RoadPrototype.create(point_1=places_storage[p2.id], point_2=places_storage[p3.id])
+    RoadPrototype.create(point_1=p1, point_2=p2)
+    RoadPrototype.create(point_1=p2, point_2=p3)
 
     update_waymarks()
-
-    waymarks_storage.sync(force=True)
-
-    roads_storage.sync(force=True)
 
     map_info_storage.set_item(MapInfoPrototype.create(turn_number=0,
                                                       width=map_settings.WIDTH,
@@ -92,8 +69,6 @@ def create_test_map():
     mob_1 = MobRecordPrototype.create_random('mob_1')
     mob_2 = MobRecordPrototype.create_random('mob_2')
     mob_3 = MobRecordPrototype.create_random('mob_3')
-
-    mobs_storage.sync(force=True)
 
     ArtifactRecordPrototype.create_random('letter') # for delivery quests
 
@@ -111,9 +86,7 @@ def create_test_map():
     ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.GLOVES, type_=ARTIFACT_TYPE.GLOVES)
     ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.WEAPON, type_=ARTIFACT_TYPE.MAIN_HAND)
 
-    artifacts_storage.sync(force=True)
-
-    return (places_storage[p1.id], places_storage[p2.id], places_storage[p3.id])
+    return p1, p2, p3
 
 
 def dress_new_hero(hero):

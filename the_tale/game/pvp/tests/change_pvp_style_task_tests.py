@@ -1,9 +1,7 @@
 # coding: utf-8
 import random
 
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
@@ -17,10 +15,10 @@ from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.postponed_tasks import ChangePvPStyleTask, CHANGE_PVP_STYLE_TASK_STATE
 from game.pvp.combat_styles import COMBAT_STYLES
 
-class ChangePvPStyleTests(TestCase):
+class ChangePvPStyleTests(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(ChangePvPStyleTests, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 

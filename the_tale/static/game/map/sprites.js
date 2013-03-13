@@ -123,7 +123,30 @@ pgf.tilesets = {
             r1:      { x: 0 * 32, y: 3 * 32 },
 
             select_land: { x: 0*32, y: 9 * 32},
-            select_hero: { x: 1*32, y: 9 * 32}
+            select_hero: { x: 1*32, y: 9 * 32},
+
+            BUILDING_SAWMILL :       {y: 4 * 32, x: 0 * 32},
+            BUILDING_WATCHTOWER :    {y: 4 * 32, x: 1 * 32},
+            BUILDING_MAGE_TOWER :    {y: 4 * 32, x: 2 * 32},
+            BUILDING_SCAFFOLD :      {y: 4 * 32, x: 3 * 32},
+            BUILDING_RANCH :         {y: 4 * 32, x: 4 * 32},
+            BUILDING_SMITHY :        {y: 4 * 32, x: 5 * 32},
+            BUILDING_HUNTER_HOUSE :  {y: 4 * 32, x: 6 * 32},
+            BUILDING_FISHING_LODGE : {y: 4 * 32, x: 7 * 32},
+            BUILDING_TRADING_POST :  {y: 4 * 32, x: 8 * 32},
+            BUILDING_INN :           {y: 4 * 32, x: 9 * 32},
+            BUILDING_FARM :          {y: 4 * 32, x: 10 * 32},
+            BUILDING_MINE :          {y: 4 * 32, x: 11 * 32},            
+            BUILDING_TEMPLE :        {y: 5 * 32, x: 0 * 32},
+            BUILDING_LABORATORY :    {y: 5 * 32, x: 1 * 32},
+            BUILDING_HOSPITAL :      {y: 5 * 32, x: 2 * 32},
+            BUILDING_MANOR :         {y: 5 * 32, x: 3 * 32},
+            BUILDING_DEN_OF_THIEVE : {y: 5 * 32, x: 4 * 32},
+            BUILDING_GUILDHALL :     {y: 5 * 32, x: 5 * 32},
+            BUILDING_MEWS :          {y: 5 * 32, x: 6 * 32},
+            BUILDING_SCENE :         {y: 5 * 32, x: 7 * 32},
+            BUILDING_TAILOR_SHOP :   {y: 5 * 32, x: 8 * 32},
+            BUILDING_BUREAU :        {y: 5 * 32, x: 9 * 32}
         }
     }
 };

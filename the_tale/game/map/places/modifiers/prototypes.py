@@ -5,17 +5,18 @@ import random
 
 from game.balance import constants as c, enums as e
 
-# from game.map.places.modifiers.exceptions import PlaceModifierException
 
 from common.utils.enum import create_enum
 
 from game.map.places.conf import places_settings
 
+from game.persons.relations import PROFESSION_TO_CITY_MODIFIERS
+
 
 EFFECT_SOURCES = create_enum('EFFECT_SOURCES', (('PERSON', 0, u'персонаж'),))
 
 def _get_profession_effects(type_):
-    return dict( (profession_id, modifiers[type_]) for profession_id, modifiers in c.PROFESSION_TO_CITY_MODIFIERS.items())
+    return dict( (profession_id, modifiers[type_]) for profession_id, modifiers in PROFESSION_TO_CITY_MODIFIERS.items())
 
 class PlaceModifierBase(object):
 
@@ -59,11 +60,11 @@ class PlaceModifierBase(object):
         for person in self.place.persons:
             person_power_percent = float(person.power) / (total_persons_power+1)
 
-            person_effect = self.PERSON_POWER_MODIFIER * self.PERSON_EFFECTS[person.type] * person.mastery
+            person_effect = self.PERSON_POWER_MODIFIER * self.PERSON_EFFECTS[person.type.value] * person.mastery
 
             if  person_effect == 0: continue
 
-            effects.append((EFFECT_SOURCES.PERSON, '%s %s-%s' % (person.name, person.race_verbose, person.type_verbose), person_power_percent * person_effect))
+            effects.append((EFFECT_SOURCES.PERSON, '%s %s-%s' % (person.name, person.race_verbose, person.type.text), person_power_percent * person_effect))
 
         return effects
 

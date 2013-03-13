@@ -12,6 +12,7 @@ from common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
 class RequestsTests(TestCase):
 
     def setUp(self):
+        super(RequestsTests, self).setUp()
         autodiscover()
         self.task = PostponedTaskPrototype.create(FakePostponedInternalTask())
 

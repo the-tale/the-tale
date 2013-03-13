@@ -1,7 +1,7 @@
 # coding: utf-8
 import uuid
 
-from django.test import TestCase
+from common.utils import testcase
 
 from dext.settings import settings
 
@@ -11,9 +11,10 @@ from game.map.places.models import Place
 from game.map.places.storage import PlacesStorage
 from game.map.places.exceptions import PlacesException
 
-class PlacesStorageTest(TestCase):
+class PlacesStorageTest(testcase.TestCase):
 
     def setUp(self):
+        super(PlacesStorageTest, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
         self.storage = PlacesStorage()
         self.storage.sync()

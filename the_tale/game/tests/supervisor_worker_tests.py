@@ -1,8 +1,6 @@
 # coding: utf-8
 import mock
 
-from dext.settings import settings
-
 from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
@@ -23,7 +21,7 @@ from game.pvp.prototypes import Battle1x1Prototype
 class SupervisorWorkerTests(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(SupervisorWorkerTests, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 

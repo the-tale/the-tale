@@ -14,20 +14,41 @@ from game.artifacts.models import ArtifactRecord, ARTIFACT_TYPE
 
 class ArtifactsStorage(create_storage_class('artifacts records change time', ArtifactRecord, ArtifactRecordPrototype, ArtifactsException)):
 
+    def _reset_cache(self):
+        self._artifacts_by_uuids = {}
+        self.artifacts = []
+        self.loot = []
+        self._artifacts_by_types = { artifact_type: [] for artifact_type in ARTIFACT_TYPE._ALL}
+        self._mob_artifacts = {}
+        self._mob_loot = {}
+
     def refresh(self):
+        self._reset_cache()
         super(ArtifactsStorage, self).refresh()
-        self._artifacts_by_uuids = dict( (mob.uuid, mob) for mob in self.all())
 
-        self.artifacts = filter(lambda artifact_record: artifact_record.state.is_enabled and not artifact_record.type.is_useless, self.all())
-        self.loot = filter(lambda artifact_record: artifact_record.state.is_enabled and artifact_record.type.is_useless, self.all())
+    def clear(self):
+        self._reset_cache()
+        super(ArtifactsStorage, self).clear()
 
-        self._artifacts_by_types = {}
-        for artifact_type in ARTIFACT_TYPE._ALL:
-            self._artifacts_by_types[artifact_type] = filter(lambda artifact_record: artifact_record.state.is_enabled and artifact_record.type == artifact_type, self.all())
+    def update_cached_data(self, item):
+        self._artifacts_by_uuids[item.uuid] = item
+
+        if not item.state.is_enabled:
+            return
+
+        if item.type.is_useless:
+            self.loot.append(item)
+        else:
+            self.artifacts.append(item)
+
+        self._artifacts_by_types[item.type.value].append(item)
 
         self._mob_artifacts = {}
         self._mob_loot = {}
 
+    def add_item(self, id_, item):
+        super(ArtifactsStorage, self).add_item(id_, item)
+        self.update_cached_data(item)
 
     def get_by_uuid(self, uuid):
         self.sync()

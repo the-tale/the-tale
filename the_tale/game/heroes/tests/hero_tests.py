@@ -29,6 +29,7 @@ from game.heroes.conf import heroes_settings
 class HeroTest(TestCase):
 
     def setUp(self):
+        super(HeroTest, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')

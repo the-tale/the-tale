@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from forum.prototypes import CategoryPrototype, SubCategoryPrototype, ThreadPrototype, PostPrototype
 from forum.models import Thread, Post
@@ -25,9 +25,10 @@ from game.bills.conf import bills_settings
 from game.phrase_candidates.prototypes import PhraseCandidatePrototype
 from game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
 
-class MightCalculatorTests(TestCase):
+class MightCalculatorTests(testcase.TestCase):
 
     def setUp(self):
+        super(MightCalculatorTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')

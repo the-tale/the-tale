@@ -1,6 +1,6 @@
 # coding: utf-8
 import copy
-from django.test import TestCase
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -10,9 +10,10 @@ from game.balance import constants as c, enums as e
 from game.heroes.habilities import nonbattle
 
 
-class HabilitiesNonBattleTest(TestCase):
+class HabilitiesNonBattleTest(testcase.TestCase):
 
     def setUp(self):
+        super(HabilitiesNonBattleTest, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')

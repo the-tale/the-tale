@@ -9,6 +9,7 @@ from common.utils.testcase import TestCase
 class TestRequests(TestCase):
 
     def setUp(self):
+        super(TestRequests, self).setUp()
         self.client = client.Client()
 
     def test_index(self):

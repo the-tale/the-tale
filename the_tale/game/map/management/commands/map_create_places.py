@@ -10,13 +10,13 @@ from django.core.management.base import BaseCommand
 from dext.utils.decorators import nested_commit_on_success
 
 from game.balance import constants as c
-from game.balance.enums import RACE, PERSON_TYPE
+from game.balance.enums import RACE
 
 from game.game_info import GENDER
 from game.prototypes import TimePrototype
 
 from game.map.roads.models import Road
-from game.map.places.models import Place, PLACE_TYPE
+from game.map.places.models import Place
 from game.map.places.prototypes import PlacePrototype
 from game.map.places.conf import places_settings
 from game.map.places.storage import places_storage
@@ -25,6 +25,7 @@ from game.map.roads.storage import roads_storage
 from game.persons.prototypes import PersonPrototype
 from game.persons.storage import persons_storage
 from game.persons.conf import persons_settings
+from game.persons.relations import PERSON_TYPE
 
 
 class Command(BaseCommand):
@@ -76,7 +77,6 @@ class Command(BaseCommand):
         place = PlacePrototype(Place.objects.create( x=x,
                                                      y=y,
                                                      name=name,
-                                                     type=PLACE_TYPE.CITY,
                                                      name_forms=s11n.to_json(Noun.fast_construct(name).serialize()),
                                                      size=size))
 
@@ -98,8 +98,7 @@ class Command(BaseCommand):
                 person.push_power(int(initial_turn+i*c.MAP_SYNC_TIME), int(person_power_per_step))
             person.save()
 
-        persons_storage.update_version()
-        persons_storage.sync(force=True)
+        persons_storage.update_version(reload=True)
 
         place.sync_race()
         place.save()
@@ -107,8 +106,6 @@ class Command(BaseCommand):
         for destination in roads_to:
             Road.objects.create(point_1=place._model, point_2=destination._model)
 
-        places_storage.update_version()
-        places_storage.sync(force=True)
+        places_storage.update_version(reload=True)
 
-        roads_storage.update_version()
-        roads_storage.sync(force=True)
+        roads_storage.update_version(reload=True)

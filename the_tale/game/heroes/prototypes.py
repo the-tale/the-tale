@@ -921,7 +921,7 @@ class HeroPositionPrototype(object):
 
     def set_road(self, road, percents=0, invert=False):
         self._reset_position()
-        self.hero_model.pos_road = road.model
+        self.hero_model.pos_road = road._model
         self.hero_model.pos_invert_direction = invert
         self.hero_model.pos_percents = percents
 
@@ -1020,8 +1020,8 @@ class HeroPositionPrototype(object):
     ###########################################
 
     def ui_info(self):
-        return {'place': self.place.map_info() if self.place else None,
-                'road': self.road.map_info() if self.road else None,
+        return {'place_id': self.place.id if self.place else None,
+                'road_id': self.road.id if self.road else None,
                 'invert_direction': self.invert_direction,
                 'percents': self.percents,
                 'coordinates': { 'to': { 'x': self.coordinates_to[0],

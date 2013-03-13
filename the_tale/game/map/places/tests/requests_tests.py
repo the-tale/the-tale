@@ -15,6 +15,7 @@ from game.logic import create_test_map
 class TestShowRequests(TestCase):
 
     def setUp(self):
+        super(TestShowRequests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
         self.client = client.Client()

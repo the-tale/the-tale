@@ -1,13 +1,14 @@
 # coding: utf-8
-from django.test import TestCase
+from common.utils import testcase
 
 from game.quests.quests_generator.knowlege_base import KnowlegeBase
 from game.quests.quests_generator.exceptions import QuestGeneratorException, RollBackException
 
 
-class KnowlegeBaseInitializationTest(TestCase):
+class KnowlegeBaseInitializationTest(testcase.TestCase):
 
     def setUp(self):
+        super(KnowlegeBaseInitializationTest, self).setUp()
         self.base = KnowlegeBase()
 
     def test_after_constuction(self):
@@ -37,9 +38,10 @@ class KnowlegeBaseInitializationTest(TestCase):
         self.assertRaises(QuestGeneratorException, self.base.initialize)
 
 
-class KnowlegeBaseTest(TestCase):
+class KnowlegeBaseTest(testcase.TestCase):
 
     def setUp(self):
+        super(KnowlegeBaseTest, self).setUp()
         self.base = KnowlegeBase()
 
         self.base.add_place('place_1', terrains=['f'], external_data={'id': 1, 'name': 'place_1_name'})

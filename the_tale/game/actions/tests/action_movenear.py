@@ -1,9 +1,7 @@
 # coding: utf-8
 import mock
 
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -17,10 +15,10 @@ from game.actions.prototypes import ActionMoveNearPlacePrototype, ActionRestProt
 from game.actions.prototypes import ActionIdlenessPrototype, ActionBattlePvE1x1Prototype, ActionInPlacePrototype, ActionRegenerateEnergyPrototype
 from game.prototypes import TimePrototype
 
-class MoveNearActionTest(TestCase):
+class MoveNearActionTest(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(MoveNearActionTest, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 

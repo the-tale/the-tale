@@ -27,6 +27,8 @@ from game.map.places.storage import places_storage
 class BaseTestRequests(TestCase):
 
     def setUp(self):
+        super(BaseTestRequests, self).setUp()
+
         self.place1, self.place2, self.place3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
@@ -498,9 +500,9 @@ class TestModerationPageRequests(BaseTestRequests):
         super(TestModerationPageRequests, self).setUp()
 
         self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), {'caption': 'bill-caption',
-                                                                                                'rationale': 'bill-rationale',
-                                                                                                'place': self.place1.id,
-                                                                                                'new_name': 'new-name'})
+                                                                                                       'rationale': 'bill-rationale',
+                                                                                                       'place': self.place1.id,
+                                                                                                       'new_name': 'new-name'})
         self.bill = BillPrototype(Bill.objects.all()[0])
 
         self.request_logout()

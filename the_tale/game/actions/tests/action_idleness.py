@@ -1,8 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -13,10 +11,10 @@ from game.actions.prototypes import ActionIdlenessPrototype, ActionQuestPrototyp
 from game.balance import constants as c, formulas as f, enums as e
 from game.prototypes import TimePrototype
 
-class IdlenessActionTest(TestCase):
+class IdlenessActionTest(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(IdlenessActionTest, self).setUp()
 
         create_test_map()
 

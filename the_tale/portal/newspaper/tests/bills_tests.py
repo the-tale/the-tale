@@ -9,7 +9,7 @@ from accounts.logic import register_user
 
 from game.logic import create_test_map
 
-from game.bills import BillPrototype, VotePrototype
+from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.bills import PlaceRenaming
 from game.bills.conf import bills_settings
 
@@ -20,6 +20,7 @@ from portal.newspaper.prototypes import NewspaperEventPrototype
 class TestBillsEvents(TestCase):
 
     def setUp(self):
+        super(TestBillsEvents, self).setUp()
         self.place1, self.place2, self.place3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')

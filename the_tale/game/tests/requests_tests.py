@@ -25,6 +25,7 @@ from cms.news.models import News
 class RequestTestsBase(TestCase, PvPTestsMixin):
 
     def setUp(self):
+        super(RequestTestsBase, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -126,6 +127,7 @@ class InfoRequestTests(RequestTestsBase):
 class NewsAlertsTests(TestCase):
 
     def setUp(self):
+        super(NewsAlertsTests, self).setUp()
         create_test_map()
         self.client = client.Client()
 

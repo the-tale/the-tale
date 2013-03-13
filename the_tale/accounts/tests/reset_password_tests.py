@@ -18,6 +18,7 @@ def raise_exception(*argv, **kwargs): raise Exception('unknown error')
 class TestResetPassword(TestCase):
 
     def setUp(self):
+        super(TestResetPassword, self).setUp()
         create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.account = AccountPrototype.get_by_id(account_id)

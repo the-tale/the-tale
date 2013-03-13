@@ -1,7 +1,7 @@
 # coding: utf-8
 import mock
 
-from django.test import TestCase
+from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
@@ -18,9 +18,10 @@ from game.prototypes import TimePrototype
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.models import BATTLE_1X1_STATE
 
-class HelpAbilityTest(TestCase):
+class HelpAbilityTest(testcase.TestCase):
 
     def setUp(self):
+        super(HelpAbilityTest, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
 
 

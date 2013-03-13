@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from game.logic import create_test_map
 
@@ -16,9 +16,10 @@ from game.prototypes import TimePrototype
 from game.logic_storage import LogicStorage
 
 
-class BundleTest(TestCase):
+class BundleTest(testcase.TestCase):
 
     def setUp(self):
+        super(BundleTest, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')

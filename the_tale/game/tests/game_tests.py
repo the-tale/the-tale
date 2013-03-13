@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
+from common.utils import testcase
 
 from accounts.logic import register_user
 
@@ -14,7 +14,7 @@ from game.logic_storage import LogicStorage
 
 from game.balance.enums import CITY_MODIFIERS, RACE
 
-class GameTest(TestCase):
+class GameTest(testcase.TestCase):
 
     def test_dictionary_consistency(self):
         dictionary = get_dictionary()

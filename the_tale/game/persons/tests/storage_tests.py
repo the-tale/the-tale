@@ -1,6 +1,7 @@
 # coding: utf-8
 
-from django.test import TestCase
+
+from common.utils import testcase
 
 from game.logic import create_test_map
 
@@ -9,9 +10,10 @@ from game.persons.models import PERSON_STATE
 
 from game.persons.tests.helpers import create_person
 
-class PlacesStorageTest(TestCase):
+class PlacesStorageTest(testcase.TestCase):
 
     def setUp(self):
+        super(PlacesStorageTest, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
 
         self.pers1 = create_person(self.p1, PERSON_STATE.OUT_GAME)
@@ -45,6 +47,7 @@ class PlacesStorageTest(TestCase):
         self.assertEqual(len(self.storage.all()), 12)
         old_version = self.storage.version
         self.storage.remove_out_game_persons()
-        self.assertEqual(old_version, self.storage.version) # .remove_out_game_persons not change version of storage, it MUST changed separately
+        self.assertNotEqual(old_version, self.storage.version)
+        self.storage.save_all()
         self.storage.sync(force=True)
         self.assertEqual(len(self.storage.all()), 8)

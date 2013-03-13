@@ -17,6 +17,7 @@ from game.conf import game_settings
 class ResourceTest(TestCase):
 
     def setUp(self):
+        super(ResourceTest, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')

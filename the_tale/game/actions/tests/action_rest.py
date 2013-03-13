@@ -1,9 +1,7 @@
 # coding: utf-8
 import mock
 
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -16,10 +14,10 @@ from game.actions.prototypes import ActionRestPrototype
 from game.abilities.deck.help import Help
 from game.prototypes import TimePrototype
 
-class RestActionTest(TestCase):
+class RestActionTest(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(RestActionTest, self).setUp()
 
         create_test_map()
 

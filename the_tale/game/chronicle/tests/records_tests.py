@@ -14,7 +14,9 @@ from forum.models import Category, SubCategory
 
 from game.logic import create_test_map
 
-from game.bills import bills_settings, bills, BillPrototype
+from game.bills.conf import bills_settings
+from game.bills import bills
+from game.bills.prototypes import BillPrototype
 
 from game.chronicle import records
 from game.chronicle.models import RECORD_TYPE, Record, Actor
@@ -24,6 +26,7 @@ from game.chronicle.prototypes import create_external_actor
 class RecordTests(TestCase):
 
     def setUp(self):
+        super(RecordTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')

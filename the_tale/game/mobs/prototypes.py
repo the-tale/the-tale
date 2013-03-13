@@ -12,7 +12,7 @@ from game.heroes.habilities import AbilitiesPrototype
 from game.balance import formulas as f
 from game.game_info import ATTRIBUTES
 
-from game.map.places.models import TERRAIN
+from game.map.relations import TERRAIN
 
 from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, ABILITY_TYPE
 
@@ -217,9 +217,12 @@ class MobRecordPrototype(object):
                                          state=state,
                                          editor=editor.model if editor else None)
 
+        prototype = cls(model)
+
+        mobs_storage.add_item(prototype.id, prototype)
         mobs_storage.update_version()
 
-        return cls(model)
+        return prototype
 
     @classmethod
     def get_available_abilities(cls):

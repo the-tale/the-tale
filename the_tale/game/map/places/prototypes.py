@@ -13,22 +13,24 @@ from game import names
 from game.prototypes import TimePrototype, GameTime
 
 from game.balance import formulas as f
-from game.balance.enums import RACE, PERSON_TYPE
+from game.balance.enums import RACE
 
 from game.helpers import add_power_management
 
 from game.heroes.models import Hero
 
-from game.map.places.models import Place
+from game.map.places.models import Place, Building
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
 from game.map.places.modifiers import MODIFIERS, PlaceModifierBase
 from game.map.places import signals
 
+
+
 @add_power_management(places_settings.POWER_HISTORY_LENGTH, PlacesException)
 class PlacePrototype(BasePrototype):
     _model_class = Place
-    _readonly = ('id', 'x', 'y', 'name', 'type', 'heroes_number')
+    _readonly = ('id', 'x', 'y', 'name', 'heroes_number')
     _bidirectional = ('description', 'size')
     _get_by = ('id',)
 
@@ -101,14 +103,13 @@ class PlacePrototype(BasePrototype):
     def max_persons_number(self): return places_settings.SIZE_TO_PERSONS_NUMBER[self.size]
 
     def sync_persons(self):
-        '''
-        DO NOT SAVE CHANGES - this MUST do parent code
-        '''
+        from game.persons.relations import PERSON_TYPE
         from game.persons.prototypes import PersonPrototype
         from game.persons.storage import persons_storage
 
         for person in filter(lambda person: not person.is_stable, self.persons):
             person.move_out_game()
+            person.save()
             signals.place_person_left.send(self.__class__, place=self, person=person)
 
         persons_count = len(self.persons)
@@ -120,9 +121,11 @@ class PlacePrototype(BasePrototype):
             new_person = PersonPrototype.create(place=self,
                                                 race=race,
                                                 gender=gender,
-                                                tp=random.choice(PERSON_TYPE._ALL),
+                                                tp=random.choice(PERSON_TYPE._records),
                                                 name=names.generator.get_name(race, gender))
-            persons_storage.add_item(new_person.id, new_person) # persons storage MUST be sinced code, that call this method
+            persons_storage.add_item(new_person.id, new_person)
+            persons_storage.update_version()
+
             persons_count += 1
             signals.place_person_arrived.send(self.__class__, place=self, person=new_person)
 
@@ -179,19 +182,121 @@ class PlacePrototype(BasePrototype):
             signals.place_race_changed.send(self.__class__, place=self, old_race=old_race, new_race=self.race)
 
 
-    ###########################################
-    # Object operations
-    ###########################################
+    @classmethod
+    def create(cls, x, y, size, name_forms):
+        from game.map.places.storage import places_storage
 
-    def remove(self): self._model.delete()
+        model = Place.objects.create( x=x,
+                                      y=y,
+                                      name=name_forms.normalized,
+                                      name_forms=s11n.to_json(name_forms.serialize()),
+                                      size=size)
+        prototype = cls(model)
+
+        places_storage.add_item(prototype.id, prototype)
+        places_storage.update_version()
+
+        return prototype
+
     def save(self):
+        from game.map.places.storage import places_storage
+
         self._model.data = s11n.to_json(self.data)
         self._model.save(force_update=True)
+
+        places_storage.update_version()
+
 
     def map_info(self):
         return {'id': self.id,
                 'pos': {'x': self.x, 'y': self.y},
                 'race': self.race.value,
                 'name': self.name,
-                'type': self.type,
                 'size': self.size}
+
+
+class BuildingPrototype(BasePrototype):
+    _model_class = Building
+    _readonly = ('id', 'x', 'y', 'type')
+    _bidirectional = ()
+    _get_by = ('id',)
+
+    @classmethod
+    def get_by_coordinates(cls, x, y):
+        try:
+            return cls(Place.objects.get(x=x, y=y))
+        except Place.DoesNotExist:
+            return None
+
+    @property
+    def person(self):
+        from game.persons.storage import persons_storage
+        return persons_storage[self._model.person_id]
+
+    @property
+    def place(self):
+        from game.map.places.storage import places_storage
+        return places_storage[self._model.place_id]
+
+    @classmethod
+    def get_available_positions(cls, center_x, center_y):
+        from game.map.places.storage import places_storage, buildings_storage
+        from game.map.roads.storage import roads_storage
+        from game.map.roads.relations import PATH_DIRECTION
+
+        positions = set()
+
+        for i in xrange(0, places_settings.BUILDING_POSITION_RADIUS+1):
+            for j in xrange(0, places_settings.BUILDING_POSITION_RADIUS+1):
+                positions.add((center_x+i, center_y+j))
+                positions.add((center_x-i, center_y+j))
+                positions.add((center_x+i, center_y-j))
+                positions.add((center_x-i, center_y-j))
+
+        removed_positions = set()
+
+        for place in places_storage.all():
+            removed_positions.add((place.x, place.y))
+
+        for building in buildings_storage.all():
+            removed_positions.add((building.x, building.y))
+
+        for road in roads_storage.all():
+            x, y = road.point_1.x, road.point_1.y
+            for direction in road.path:
+                if direction == PATH_DIRECTION.LEFT: x -= 1
+                elif direction == PATH_DIRECTION.RIGHT: x += 1
+                elif direction == PATH_DIRECTION.UP: y -= 1
+                elif direction == PATH_DIRECTION.DOWN: y += 1
+
+                removed_positions.add((x, y))
+
+        return positions - removed_positions
+
+
+    @classmethod
+    def create(cls, person):
+        from game.map.places.storage import buildings_storage
+
+        if person.id in buildings_storage.persons_to_buildings:
+            return buildings_storage.persons_to_buildings[person.id]
+
+        model = Building.objects.create(x=0,
+                                        y=0,
+                                        place=person.place._model,
+                                        person=person._model,
+                                        type=person.type.building_type)
+
+        prototype = cls(model=model)
+
+        buildings_storage.add_item(prototype.id, prototype)
+        buildings_storage.update_version()
+
+        return prototype
+
+    def map_info(self):
+        return {'id': self.id,
+                'pos': {'x': self.x, 'y': self.y},
+                'person': self._model.person_id,
+                'place': self._model.place_id,
+                'type': self.type.value}

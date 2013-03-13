@@ -4,8 +4,6 @@ import random
 
 import mock
 
-from dext.settings import settings
-
 from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
@@ -29,7 +27,7 @@ from game.pvp.combat_styles import COMBAT_STYLES
 class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
 
     def setUp(self):
-        settings.refresh()
+        super(ArenaPvP1x1MetaActionTest, self).setUp()
 
         create_test_map()
 

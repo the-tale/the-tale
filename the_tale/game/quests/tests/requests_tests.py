@@ -23,6 +23,7 @@ from game.quests.quests_generator.tests.helpers import QuestWith2ChoicePoints, p
 class RequestsTests(TestCase):
 
     def setUp(self):
+        super(RequestsTests, self).setUp()
         create_test_map()
         register_user('test_user', 'test_user@test.com', '111111')
         register_user('test_user_2', 'test_user_2@test.com', '111111')

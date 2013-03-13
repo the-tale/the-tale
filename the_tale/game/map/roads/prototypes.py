@@ -1,24 +1,21 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import math
+
+from common.utils.prototypes import BasePrototype
 
 from game.map.conf import map_settings
 from game.map.places.storage import places_storage
 
 from game.map.roads.models import Road, Waymark
 from game.map.roads.exceptions import RoadsException
+from game.map.roads.relations import PATH_DIRECTION
 
 
-class RoadPrototype(object):
-
-    def __init__(self, model):
-        self.model = model
-
-    @classmethod
-    def get_by_id(cls, id_):
-        try:
-            return cls(Road.objects.get(id=id_))
-        except Road.DoesNotExist:
-            return None
+class RoadPrototype(BasePrototype):
+    _model_class = Road
+    _readonly = ('id', 'path', 'point_1_id', 'point_2_id')
+    _bidirectional = ('length', 'exists')
+    _get_by = ('id',)
 
     @classmethod
     def get_by_places(cls, p1, p2):
@@ -30,49 +27,21 @@ class RoadPrototype(object):
             return None
 
     @property
-    def id(self): return self.model.id
+    def point_1(self): return places_storage[self._model.point_1_id]
 
     @property
-    def point_1_id(self): return self.model.point_1_id
-
-    @property
-    def point_1(self): return places_storage[self.model.point_1_id]
-
-    @property
-    def point_2_id(self): return self.model.point_2_id
-
-    @property
-    def point_2(self): return places_storage[self.model.point_2_id]
-
-    def get_length(self): return self.model.length
-    def set_length(self, value): self.model.length = value
-    length = property(get_length, set_length)
-
-    def get_exists(self): return self.model.exists
-    def set_exists(self, value): self.model.exists = value
-    exists = property(get_exists, set_exists)
-
-    def __unicode__(self):
-        return self.model.__unicode__()
-
-    def __repr__(self):
-        return self.model.__repr__()
+    def point_2(self): return places_storage[self._model.point_2_id]
 
     ###########################################
     # Object operations
     ###########################################
 
-    def remove(self): self.model.delete()
-    def save(self): self.model.save(force_update=True)
-
-    def map_info(self):
-        return {'id': self.id,
-                'point_1': self.point_1.map_info(),
-                'point_2': self.point_2.map_info(),
-                'length': self.length}
+    def remove(self): self._model.delete()
+    def save(self): self._model.save(force_update=True)
 
     @classmethod
     def create(cls, point_1, point_2):
+        from game.map.roads.storage import roads_storage
 
         if point_1.id > point_2.id:
             point_1, point_2 = point_2, point_1
@@ -90,7 +59,12 @@ class RoadPrototype(object):
                                     point_2=point_2._model,
                                     length=distance * map_settings.CELL_LENGTH)
 
-        return cls(model)
+        prototype = cls(model)
+
+        roads_storage.add_item(prototype.id, prototype)
+        roads_storage.update_version()
+
+        return prototype
 
 
     def update(self):
@@ -98,58 +72,92 @@ class RoadPrototype(object):
         self.length = distance * map_settings.CELL_LENGTH
 
         if self.point_1.id > self.point_2.id:
-            self.model.point_1, self.model.point_2 = self.model.point_2, self.model.point_1
+            self._model.point_1, self._model.point_2 = self._model.point_2, self._model.point_1
+
+        self.roll()
+
+    def roll(self):
+        self._model.path = self._roll(self.point_1.x, self.point_1.y, self.point_2.x, self.point_2.y)
+
+    @classmethod
+    def _roll(cls, start_x, start_y, finish_x, finish_y):
+
+        path = []
+
+        x = start_x
+        y = start_y
+
+        if math.fabs(finish_x - start_x) >  math.fabs(finish_y - start_y):
+            dx = math.copysign(1.0, finish_x - start_x)
+            dy = dx * float(finish_y - start_y) / (finish_x - start_x)
+        else:
+            dy = math.copysign(1.0, finish_y - start_y)
+            dx = dy * float(finish_x - start_x) / (finish_y - start_y)
+
+        real_x = float(x)
+        real_y = float(y)
+
+        while x != finish_x or y != finish_y:
+
+            real_x += dx
+            real_y += dy
+
+            if int(round(real_x)) == x + 1: path.append(PATH_DIRECTION.RIGHT.value)
+            elif int(round(real_x)) == x - 1: path.append(PATH_DIRECTION.LEFT.value)
+
+            if int(round(real_y)) == y + 1: path.append(PATH_DIRECTION.DOWN.value)
+            elif int(round(real_y)) == y - 1: path.append(PATH_DIRECTION.UP.value)
+
+            x = int(round(real_x))
+            y = int(round(real_y))
+
+        return ''.join(path)
+
+    def map_info(self):
+        return {'id': self.id,
+                'point_1_id': self.point_1.id,
+                'point_2_id': self.point_2.id,
+                'path': self.path,
+                'length': self.length,
+                'exists': self.exists}
 
 
-class WaymarkPrototype(object):
 
-    def __init__(self, model):
-        self.model = model
+class WaymarkPrototype(BasePrototype):
+    _model_class = Waymark
+    _readonly = ('id', 'point_from_id', 'point_to_id', 'road_id')
+    _bidirectional = ('length',)
+    _get_by = ('id',)
 
     @property
-    def id(self): return self.model.id
+    def point_from(self): return places_storage[self._model.point_from_id]
 
     @property
-    def point_from_id(self): return self.model.point_from_id
-
-    @property
-    def point_from(self): return places_storage[self.model.point_from_id]
-
-    @property
-    def point_to_id(self): return self.model.point_to_id
-
-    @property
-    def point_to(self): return places_storage[self.model.point_to_id]
-
-    @property
-    def road_id(self): return self.model.road_id
+    def point_to(self): return places_storage[self._model.point_to_id]
 
     def get_road(self):
-        if self.model.road_id is None:
+        if self._model.road_id is None:
             return None
         from game.map.roads.storage import roads_storage
-        return roads_storage[self.model.road_id]
+        return roads_storage[self._model.road_id]
 
     def set_road(self, value):
         if value is None:
-            self.model.road = None
+            self._model.road = None
             return
-        self.model.road = value.model
+        self._model.road = value._model
     road = property(get_road, set_road)
-
-    def get_length(self): return self.model.length
-    def set_length(self, value): self.model.length = value
-    length = property(get_length, set_length)
 
     ###########################################
     # Object operations
     ###########################################
 
-    def remove(self): self.model.delete()
-    def save(self): self.model.save()
+    def remove(self): self._model.delete()
+    def save(self): self._model.save()
 
     @classmethod
     def create(cls, point_from, point_to, road, length):
+        from game.map.roads.storage import waymarks_storage
 
         try:
             Waymark.objects.get(point_from=point_from.id,
@@ -160,7 +168,12 @@ class WaymarkPrototype(object):
 
         model = Waymark.objects.create(point_from=point_from._model,
                                        point_to=point_to._model,
-                                       road=road.model if road else None,
+                                       road=road._model if road else None,
                                        length=length)
 
-        return cls(model)
+        prototype = cls(model)
+
+        waymarks_storage.add_item(prototype.id, prototype)
+        waymarks_storage.update_version()
+
+        return prototype

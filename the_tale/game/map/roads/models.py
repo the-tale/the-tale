@@ -9,6 +9,8 @@ class Road(models.Model):
 
     exists = models.BooleanField(default=True)
 
+    path = models.TextField(null=False, default='')
+
     class Meta:
         unique_together = (('point_1', 'point_2'), )
 

@@ -17,6 +17,7 @@ from forum.prototypes import ThreadPrototype, PostPrototype, CategoryPrototype, 
 class TestModeration(TestCase):
 
     def setUp(self):
+        super(TestModeration, self).setUp()
         create_test_map()
         register_user('main_user', 'main_user@test.com', '111111')
         register_user('moderator', 'moderator@test.com', '111111')

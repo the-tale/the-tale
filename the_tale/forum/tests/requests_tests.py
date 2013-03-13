@@ -16,6 +16,7 @@ from forum.conf import forum_settings
 class TestRequests(TestCase):
 
     def setUp(self):
+        super(TestRequests, self).setUp()
         create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 

@@ -14,12 +14,14 @@ from game.heroes.models import Hero
 from game.prototypes import TimePrototype
 from game.helpers import add_power_management
 
-from game.balance.enums import RACE, PERSON_TYPE
+from game.balance.enums import RACE
 from game.balance import constants as c
 
 from game.persons.models import Person, PERSON_STATE
 from game.persons.conf import persons_settings
 from game.persons.exceptions import PersonsException
+from game.persons.relations import PROFESSION_TO_RACE_MASTERY
+
 
 MASTERY_VERBOSE = ( (0.0, u'полная непригодность'),
                     (0.1, u'бездарность'),
@@ -51,7 +53,7 @@ class PersonPrototype(BasePrototype):
         return RACE._ID_TO_TEXT[self.race]
 
     @property
-    def mastery(self): return c.PROFESSION_TO_RACE_MASTERY[self.type][self.race]
+    def mastery(self): return PROFESSION_TO_RACE_MASTERY[self.type.value][self.race]
 
     @property
     def mastery_verbose(self): return choose_from_interval(self.mastery, MASTERY_VERBOSE)
@@ -100,10 +102,6 @@ class PersonPrototype(BasePrototype):
         return self._data
 
     @property
-    def type_verbose(self):
-        return PERSON_TYPE._ID_TO_TEXT[self.type]
-
-    @property
     def friends_number(self): return self._model.friends_number
     def update_friends_number(self):
         current_turn = TimePrototype.get_current_turn_number()
@@ -116,14 +114,20 @@ class PersonPrototype(BasePrototype):
         self._model.enemies_number = Hero.objects.filter(pref_enemy_id=self.id, active_state_end_at__gte=current_turn).count()
 
     def save(self):
+        from game.persons.storage import persons_storage
+
         self._model.data = s11n.to_json(self.data)
         self._model.save()
+
+        persons_storage.update_version()
+
 
     def remove(self):
         self._model.remove()
 
     @classmethod
     def create(cls, place, race, tp, name, gender, state=None):
+        from game.persons.storage import persons_storage
 
         instance = Person.objects.create(place=place._model,
                                          state=state if state is not None else PERSON_STATE.IN_GAME,
@@ -133,4 +137,29 @@ class PersonPrototype(BasePrototype):
                                          name=name,
                                          created_at_turn=TimePrototype.get_current_turn_number())
 
-        return cls(model=instance)
+        prototype = cls(model=instance)
+
+        persons_storage.add_item(prototype.id, prototype)
+        persons_storage.update_version()
+
+        return prototype
+
+
+    @classmethod
+    def form_choices(cls, only_weak=False, choosen_person=None):
+        choices = []
+
+        for place in places_storage.all():
+            accepted_persons = place.persons[place.max_persons_number/2:] if only_weak else place.persons
+
+            if choosen_person is not None and choosen_person.place.id == place.id:
+                if choosen_person.id not in [p.id for p in accepted_persons]:
+                    accepted_persons.append(choosen_person)
+
+            accepted_persons = sorted(accepted_persons, key=lambda p: p.name)
+
+            persons = tuple( (person.id, person.name) for person in accepted_persons )
+
+            choices.append( ( place.name, persons ) )
+
+        return choices

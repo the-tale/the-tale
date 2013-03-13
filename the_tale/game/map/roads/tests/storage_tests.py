@@ -1,7 +1,7 @@
 # coding: utf-8
 import uuid
 
-from django.test import TestCase
+from common.utils import testcase
 
 from dext.settings import settings
 
@@ -11,9 +11,10 @@ from game.map.roads.models import Road
 from game.map.roads.storage import RoadsStorage
 from game.map.roads.exceptions import RoadsException
 
-class RoadsStorageTest(TestCase):
+class RoadsStorageTest(testcase.TestCase):
 
     def setUp(self):
+        super(RoadsStorageTest, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
         self.storage = RoadsStorage()
         self.storage.sync()

@@ -105,7 +105,6 @@ class PlaceModifier(object):
     def apply(self):
         self.place.modifier = self.modifier_id
         self.place.save()
-        places_storage.update_version()
 
     def serialize(self):
         return {'type': self.type.name.lower(),

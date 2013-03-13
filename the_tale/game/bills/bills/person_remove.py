@@ -6,15 +6,16 @@ from dext.forms import fields
 
 from game.game_info import GENDER
 
-from game.balance.enums import RACE, PERSON_TYPE
+from game.balance.enums import RACE
 
-from game.persons.models import PERSON_STATE
+from game.persons.relations import PERSON_TYPE
+from game.persons.prototypes import PersonPrototype
 
 from game.bills.relations import BILL_TYPE
 from game.bills.forms import BaseUserForm, BaseModeratorForm
 
 from game.persons.storage import persons_storage
-from game.map.places.storage import places_storage
+
 
 class UserForm(BaseUserForm):
 
@@ -22,33 +23,7 @@ class UserForm(BaseUserForm):
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-
-        persons_by_place = {}
-
-        for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
-            if person.place_id not in persons_by_place:
-                persons_by_place[person.place_id] = []
-            persons_by_place[person.place_id].append(person)
-
-        candidates = []
-
-        for place_id, persons in persons_by_place.items():
-            place = places_storage[place_id]
-            sorted_persons = sorted(persons, key=lambda p: -p.power)
-            candidates.extend(sorted_persons[place.max_persons_number/2:])
-
-        choices = [(person.id, u'%s (%s)' % (person.name, person.place.name)) for person in candidates]
-
-        for person_id, name in choices:
-            if person.id == choosen_person_id:
-                choosen_person_id = None
-                break
-
-        if choosen_person_id:
-            person = persons_storage[choosen_person_id]
-            choices.append((choosen_person_id, u'%s (%s)' % (person.name, person.place.name)))
-
-        self.fields['person'].choices = sorted(choices, key=lambda p: p[1])
+        self.fields['person'].choices = PersonPrototype.form_choices(only_weak=True, choosen_person=persons_storage[choosen_person_id])
 
 
 class ModeratorForm(BaseModeratorForm):
@@ -91,10 +66,6 @@ class PersonRemove(object):
         return RACE._ID_TO_TEXT[self.person_race]
 
     @property
-    def person_type_verbose(self):
-        return PERSON_TYPE._ID_TO_TEXT[self.person_type]
-
-    @property
     def person_gender_verbose(self):
         return GENDER._ID_TO_TEXT[self.person_gender]
 
@@ -131,16 +102,15 @@ class PersonRemove(object):
     def apply(self):
         self.person.move_out_game()
         self.person.place.sync_persons()
-
         self.person.save()
-        persons_storage.update_version()
+
 
     def serialize(self):
         return {'type': self.type.name.lower(),
                 'person_id': self.person_id,
                 'person_name': self.person_name,
                 'person_race': self.person_race,
-                'person_type': self.person_type,
+                'person_type': self.person_type.value,
                 'person_gender': self.person_gender,
                 'old_place_name_forms': self.old_place_name_forms.serialize()}
 
@@ -150,7 +120,7 @@ class PersonRemove(object):
         obj.person_id = data['person_id']
         obj.person_name = data['person_name']
         obj.person_race = data['person_race']
-        obj.person_type = data['person_type']
+        obj.person_type = PERSON_TYPE(data['person_type'])
         obj.person_gender = data['person_gender']
 
         if 'old_name_forms' in data:

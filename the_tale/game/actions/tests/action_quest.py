@@ -1,8 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -14,10 +12,10 @@ from game.actions.prototypes import ActionQuestPrototype
 from game.quests.logic import create_random_quest_for_hero
 from game.prototypes import TimePrototype
 
-class QuestActionTest(TestCase):
+class QuestActionTest(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(QuestActionTest, self).setUp()
 
         create_test_map()
 

@@ -23,5 +23,7 @@ pgf.game.constants = {
     
     PVP_COMBAT_STYLES_ADVANTAGES: {{pvp_combat_styles_advantages|safe}},
     
-    TERRAIN_ID_TO_STR: {{terrain_id_to_str|safe}}
+    TERRAIN_ID_TO_STR: {{terrain_id_to_str|safe}},
+
+    BUILDING_TYPE_TO_STR: {{building_type_to_str|safe}}
 };

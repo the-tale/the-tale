@@ -1,8 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -16,10 +14,11 @@ from game.prototypes import TimePrototype
 
 from game.balance import constants as c, formulas as f, enums as e
 
-class InPlaceActionTest(TestCase):
+
+class InPlaceActionTest(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(InPlaceActionTest, self).setUp()
 
         create_test_map()
         result, account_id, bundle_id = register_user('test_user')
@@ -30,9 +29,6 @@ class InPlaceActionTest(TestCase):
         self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
 
         self.action_inplace = ActionInPlacePrototype.create(self.action_idl)
-
-    def tearDown(self):
-        pass
 
 
     def test_create(self):
@@ -130,9 +126,10 @@ class InPlaceActionTest(TestCase):
         self.storage._test_save()
 
 
-class InPlaceActionSpendMoneyTest(TestCase):
+class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
     def setUp(self):
+        super(InPlaceActionSpendMoneyTest, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
@@ -191,7 +188,6 @@ class InPlaceActionSpendMoneyTest(TestCase):
 
         #buy artifact
         self.hero._model.money = money
-
         self.storage.process_turn()
         self.assertTrue(self.hero.money < f.buy_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
         self.assertEqual(len(self.hero.bag.items()), 0)

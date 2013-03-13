@@ -8,7 +8,7 @@ from dext.forms import forms, fields
 
 from common.utils import bbcode
 
-from game.map.places.models import TERRAIN
+from game.map.relations import TERRAIN
 
 from game.heroes.habilities import ABILITIES
 from game.heroes.habilities.battle import HIT

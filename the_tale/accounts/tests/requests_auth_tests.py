@@ -11,6 +11,7 @@ from game.logic import create_test_map
 class AuthRequestsTests(TestCase):
 
     def setUp(self):
+        super(AuthRequestsTests, self).setUp()
         create_test_map()
         register_user('test_user', 'test_user@test.com', '111111')
         self.client = client.Client()

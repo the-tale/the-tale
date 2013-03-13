@@ -1,7 +1,7 @@
 # coding: utf-8
 import mock
 
-from django.test import TestCase
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -15,9 +15,10 @@ from game.heroes.logic import create_mob_for_hero
 
 from game.actions.prototypes import ACTION_TYPES, ActionBattlePvE1x1Prototype
 
-class GeneralTest(TestCase):
+class GeneralTest(testcase.TestCase):
 
     def setUp(self):
+        super(GeneralTest, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')

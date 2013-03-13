@@ -1,8 +1,6 @@
 # coding: utf-8
 
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
@@ -13,10 +11,10 @@ from game.actions.prototypes import ActionResurrectPrototype
 from game.balance import constants as c
 from game.prototypes import TimePrototype
 
-class ResurrectActionTest(TestCase):
+class ResurrectActionTest(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(ResurrectActionTest, self).setUp()
 
         create_test_map()
 

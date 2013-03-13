@@ -1,15 +1,16 @@
 # coding: utf-8
 import mock
 
-from django.test import TestCase
+from common.utils import testcase
 
 from game.balance import constants as c
 
 from game.actions.contexts import BattleContext, Damage
 
-class BattleContextTest(TestCase):
+class BattleContextTest(testcase.TestCase):
 
     def setUp(self):
+        super(BattleContextTest, self).setUp()
         self.context = BattleContext()
 
     def tearDown(self):

@@ -1,9 +1,9 @@
 # coding: utf-8
 import mock
 
-from django.test import TestCase
-
 from dext.settings import settings
+
+from common.utils import testcase
 
 from accounts.logic import register_user
 
@@ -29,10 +29,11 @@ def fake_apply_bills(self):
         self._bills_applied = 0
     self._bills_applied += 1
 
-class HighlevelTest(TestCase):
+
+class HighlevelTest(testcase.TestCase):
 
     def setUp(self):
-        settings.refresh()
+        super(HighlevelTest, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 

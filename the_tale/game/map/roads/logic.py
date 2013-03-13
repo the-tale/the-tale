@@ -1,20 +1,7 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage, waymarks_storage
 from game.map.roads.prototypes import WaymarkPrototype
-
-def get_roads_info():
-    roads = {}
-    for road in roads_storage.all():
-
-        road_info = road.map_info()
-
-        if road.point_1_id not in roads:
-            roads[road.point_1_id] = {}
-
-        roads[road.point_1_id][road.point_1_id] = road_info
-
-    return roads
 
 
 class Path(object):
@@ -28,6 +15,7 @@ class Path(object):
             self.road_id = new_road_id
             self.length = new_length
 
+@waymarks_storage.postpone_version_update
 def update_waymarks():
 
     places = places_storage.all()
@@ -74,11 +62,11 @@ def update_waymarks():
             if waymark:
                 waymark.road = road
                 waymark.length = paths[i][j].length
+                waymark.save()
             else:
                 waymark = WaymarkPrototype.create(point_from=places[i],
                                                   point_to=places[j],
                                                   road=road,
                                                   length=paths[i][j].length)
-                waymarks_storage.add_item(waymark.id, waymark)
 
-    waymarks_storage.save_all()
+    waymarks_storage.update_version()

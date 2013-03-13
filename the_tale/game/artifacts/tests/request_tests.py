@@ -26,6 +26,7 @@ from game.artifacts.prototypes import ArtifactRecordPrototype
 class BaseTestRequests(TestCase):
 
     def setUp(self):
+        super(BaseTestRequests, self).setUp()
         artifacts_storage.sync(force=True)
 
         self.place_1, self.place_2, self.place_3 = create_test_map()

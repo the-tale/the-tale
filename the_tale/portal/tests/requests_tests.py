@@ -10,6 +10,7 @@ from game.logic import create_test_map
 class TestRequests(TestCase):
 
     def setUp(self):
+        super(TestRequests, self).setUp()
         create_test_map()
         self.client = client.Client()
 

@@ -1,9 +1,7 @@
 # coding: utf-8
 import mock
 
-from django.test import TestCase
-
-from dext.settings import settings
+from common.utils import testcase
 
 from common.utils.fake import FakeWorkerCommand
 
@@ -18,11 +16,10 @@ from game.quests.logic import create_random_quest_for_hero
 from game.quests.prototypes import QuestPrototype
 
 
-class PrototypeTests(TestCase):
+class PrototypeTests(testcase.TestCase):
 
     def setUp(self):
-
-        settings.refresh()
+        super(PrototypeTests, self).setUp()
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()
 
