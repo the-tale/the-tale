@@ -11,6 +11,8 @@ from game.prototypes import TimePrototype
 from game.logic import create_test_map
 from game.heroes.prototypes import HeroPrototype
 
+from game.map.conf import map_settings
+
 from game.map.places.models import Building
 from game.map.places.prototypes import BuildingPrototype
 from game.map.places.storage import places_storage, buildings_storage
@@ -96,6 +98,10 @@ class BuildingPrototypeTests(testcase.TestCase):
         for building in buildings_storage.all():
             self.assertFalse((building.x, building.y) in positions)
 
+        for x, y in positions:
+            self.assertTrue(0 <= x < map_settings.WIDTH)
+            self.assertTrue(0 <= y < map_settings.HEIGHT)
+
     def test_create(self):
         self.assertEqual(Building.objects.all().count(), 0)
 
@@ -114,3 +120,31 @@ class BuildingPrototypeTests(testcase.TestCase):
         self.assertEqual(old_version, buildings_storage.version)
         self.assertEqual(Building.objects.all().count(), 1)
         self.assertEqual(hash(building), hash(building_2))
+
+    def test_amortize(self):
+        building = BuildingPrototype.create(self.place_1.persons[0])
+
+        old_integrity = building.integrity
+
+        building.amortize(1000)
+
+        self.assertTrue(old_integrity > building.integrity)
+
+        building._model.integrity = 0
+        self.assertTrue(building.is_destroed)
+
+
+    def test_amortization_grows(self):
+        building = BuildingPrototype.create(self.place_1.persons[0])
+
+        old_integrity = building.integrity
+        building.amortize(1000)
+        amortization_delta = old_integrity - building.integrity
+
+        building_2 = BuildingPrototype.create(self.place_1.persons[1])
+
+        old_integrity_2 = building_2.integrity
+        building_2.amortize(1000)
+        amortization_delta_2 = old_integrity_2 - building_2.integrity
+
+        self.assertTrue(amortization_delta < amortization_delta_2)

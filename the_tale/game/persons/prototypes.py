@@ -9,10 +9,12 @@ from common.utils.prototypes import BasePrototype
 from common.utils.logic import choose_from_interval
 
 from game.game_info import GENDER_ID_2_STR
-from game.map.places.storage import places_storage
-from game.heroes.models import Hero
-from game.prototypes import TimePrototype
 from game.helpers import add_power_management
+from game.prototypes import TimePrototype
+
+from game.heroes.models import Hero
+
+from game.map.places.storage import places_storage, buildings_storage
 
 from game.balance.enums import RACE
 from game.balance import constants as c
@@ -53,7 +55,15 @@ class PersonPrototype(BasePrototype):
         return RACE._ID_TO_TEXT[self.race]
 
     @property
-    def mastery(self): return PROFESSION_TO_RACE_MASTERY[self.type.value][self.race]
+    def mastery(self):
+        mastery = PROFESSION_TO_RACE_MASTERY[self.type.value][self.race]
+        building = buildings_storage.get_by_person_id(self.id)
+        if building:
+           mastery += c.BUILDING_MASTERY_BONUS * building.integrity
+        return min(mastery, 1)
+
+    @property
+    def has_building(self): return buildings_storage.get_by_person_id(self.id) is not None
 
     @property
     def mastery_verbose(self): return choose_from_interval(self.mastery, MASTERY_VERBOSE)
@@ -146,11 +156,12 @@ class PersonPrototype(BasePrototype):
 
 
     @classmethod
-    def form_choices(cls, only_weak=False, choosen_person=None):
+    def form_choices(cls, only_weak=False, choosen_person=None, predicate=lambda place, person: True):
         choices = []
 
         for place in places_storage.all():
-            accepted_persons = place.persons[place.max_persons_number/2:] if only_weak else place.persons
+            persons_choices = filter(lambda person: predicate(place, person), place.persons)
+            accepted_persons = persons_choices[place.max_persons_number/2:] if only_weak else persons_choices
 
             if choosen_person is not None and choosen_person.place.id == place.id:
                 if choosen_person.id not in [p.id for p in accepted_persons]:
@@ -162,4 +173,4 @@ class PersonPrototype(BasePrototype):
 
             choices.append( ( place.name, persons ) )
 
-        return choices
+        return sorted(choices, key=lambda choice: choice[0])

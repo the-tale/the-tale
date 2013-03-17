@@ -16,7 +16,7 @@ from game.heroes.prototypes import HeroPrototype
 from game.chronicle import RecordPrototype
 
 from game.map.storage import map_info_storage
-from game.map.places.prototypes import PlacePrototype
+from game.map.places.storage import places_storage, buildings_storage
 from game.map.generator import descriptors
 from game.map.generator.biomes import Biom
 from game.map.conf import map_settings
@@ -52,7 +52,7 @@ class MapResource(Resource):
 
         randomized_cell = cell.randomize(seed=(x+y)*TimePrototype.get_current_time().game_time.day, fraction=map_settings.CELL_RANDOMIZE_FRACTION)
 
-        place = PlacePrototype.get_by_coordinates(x, y)
+        place = places_storage.get_by_coordinates(x, y)
 
         dominant_race = None
         place_modifiers = None
@@ -75,9 +75,12 @@ class MapResource(Resource):
                 terrain_points.append((text, biom.check(cell), biom.get_points(cell)))
             terrain_points = sorted(terrain_points, key=lambda x: -x[1])
 
+        building = buildings_storage.get_by_coordinates(x, y)
+
 
         return self.template('map/cell_info.html',
                              {'place': place,
+                              'building': building,
                               'place_modifiers': place_modifiers,
                               'cell': cell,
                               'cell_power': cell_power,

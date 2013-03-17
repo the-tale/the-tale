@@ -9018,6 +9018,39 @@
       "template": "проявляет беспримерное мужество и героизм"
     }
   ], 
+  "chronicle_place_change_name_bill_started": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "old_name", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "old_name"
+        ], 
+        [
+          "new_name", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "new_name"
+        ], 
+        [
+          "bill", 
+          [], 
+          "e_2", 
+          [], 
+          "bill"
+        ]
+      ], 
+      "template": "Группа горожан, в попытке переименовать «%(e_0)s» в «%(e_1)s», выдвинула закон «%(e_2)s»."
+    }
+  ], 
   "quest_notmywork_diary_intro": [
     {
       "internals": [
@@ -16731,37 +16764,24 @@
       "template": "%(e_0)s %(i_0)s поистине чудесный артефакт — «%(e_1)s»! И всего за %(e_2)s %(i_1)s. %(e_3)s пришлось продать за %(e_4)s %(i_2)s."
     }
   ], 
-  "chronicle_place_change_name_bill_started": [
+  "angel_ability_building_repair": [
     {
-      "internals": [], 
-      "externals": [
+      "internals": [
         [
-          "old_name", 
-          [], 
-          "e_0", 
+          "почувствовал", 
           [
-            "вн"
+            "hero"
           ], 
-          "old_name"
-        ], 
-        [
-          "new_name", 
-          [], 
-          "e_1", 
+          "i_0", 
           [
-            "вн"
+            "прш", 
+            "загл"
           ], 
-          "new_name"
-        ], 
-        [
-          "bill", 
-          [], 
-          "e_2", 
-          [], 
-          "bill"
+          "почувствовал"
         ]
       ], 
-      "template": "Группа горожан, в попытке переименовать «%(e_0)s» в «%(e_1)s», выдвинула закон «%(e_2)s»."
+      "externals": [], 
+      "template": "«%(i_0)s небольшую слабость, похоже Хранитель опять тратит энергию налево.»"
     }
   ], 
   "quest_notmywork_action_attack_performer": [

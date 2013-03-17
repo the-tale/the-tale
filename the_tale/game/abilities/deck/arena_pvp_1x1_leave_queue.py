@@ -22,7 +22,7 @@ class ArenaPvP1x1LeaveQueue(AbilityPrototype):
     NAME = u'Выйти из очереди'
     DESCRIPTION = u'Выйти из очереди на арену'
 
-    def use(self, data, step, main_task_id, storage, pvp_balancer):
+    def use(self, data, step, main_task_id, storage, pvp_balancer, **kwargs):
 
         if step is None:
 

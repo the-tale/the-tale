@@ -30,6 +30,9 @@
       <li><a href="#pgf-cell-place-modifiers" class="pgf-cell-place-modifiers-button" data-toggle="tab">Специализация</a></li>
       <li><a href="#pgf-cell-place-chronicle" class="pgf-cell-place-chronicle-button" data-toggle="tab">События</a></li>
       {% endif %}
+      {% if building %}
+      <li><a href="#pgf-cell-building" class="pgf-cell-building-button" data-toggle="tab">Строение</a></li>
+      {% endif %}
       <li><a href="#pgf-cell-map" class="pgf-cell-map-button" data-toggle="tab">Карта</a></li>
       {% if resource.user.is_staff %}
       <li><a href="#pgf-cell-debug" class="pgf-cell-debug-button" data-toggle="tab">Отладка</a></li>
@@ -39,7 +42,6 @@
     <div class="tab-content" style="max-height: 350px; overflow-y: auto;">
       {% if place %}
       <div class="tab-pane active description" id="pgf-cell-description">
-        <img src="{{ STATIC_URL }}tmp/city.png"/>
         {% if place.description %}
         {{ place.description_html|safe }}
         {% else %}
@@ -81,6 +83,12 @@
                        style="vertical-align: middle;"
                        rel="tooltip"
                        title="Персонаж недавно поселился в городе и может его покинуть только через {{person.time_before_unfreeze|verbose_timedelta}}"></i>
+                    {% endif %}
+
+                    {% if person.has_building %}
+                    <i class="icon-home"
+                       rel="tooltip"
+                       title="Персонаж является владельцем строения в окрестностях города"></i>
                     {% endif %}
 
                     {% if hero and hero.preferences.friend_id == person.id %}
@@ -186,6 +194,47 @@
       </div>
 
       {% endif %}
+
+      {% if building %}
+      <div class="tab-pane active description" id="pgf-cell-building">
+        <table class="table table-striped table-condensed table-bordered table-no-highlighting">
+          <tbody>
+            <tr><th width="200px">строение</th><td>{{building.type.text}}</td></tr>
+            <tr><th width="200px">город</th><td>{{building.place.name}}</td></tr>
+            <tr><th width="200px">владелец</th><td>{{building.person.name}} {{ building.person.race_verbose }}-{{ building.person.type.text }}</td></tr>
+            <tr>
+              <th width="200px">целостность</th>
+              <td>
+                <span class="pgf-building-integrity"
+                      data-building-integrity="{{building.integrity}}">
+                  {{building.integrity|percents}}
+                </span>
+              </td>
+            </tr>
+            <tr><th width="200px">скорость амортизации</th><td>-{{building.amortization_in_day|percents}} в день</td></tr>
+            <tr>
+              <th width="200px">рабочих для ремонта</th>
+              <td>
+                <span class="pgf-building-workers"
+                      data-building-workers="{{building.workers_to_full_repairing}}">
+                  {{building.workers_to_full_repairing}}
+                </span>
+
+                <a href="#"
+                   class="angel-ability pgf-ability-buildingrepair pgf-hidden"
+                   data-building-id="{{building.id}}"
+                   data-building-repair-delta="{{building.repair_delta}}">
+                  <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
+                  <i class="icon-ban-circle" rel="tooltip" title="необходимо завершить регистрацию"></i>
+                  вызвать рабочего
+                </a> (+{{building.repair_delta|percents}} за рабочего)
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
 
       <div class="tab-pane" id="pgf-cell-map">
         <ul class="unstyled">

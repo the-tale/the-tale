@@ -18,7 +18,7 @@ class Help(AbilityPrototype):
     NAME = u'Помочь'
     DESCRIPTION = u'Попытаться помочь герою, чем бы тот не занимался'
 
-    def use(self, data, step, main_task_id, storage, pvp_balancer):
+    def use(self, data, step, main_task_id, storage, **kwargs):
 
         hero = storage.heroes[data['hero_id']]
 

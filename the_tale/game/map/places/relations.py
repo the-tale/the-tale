@@ -6,6 +6,11 @@ from rels.django_staff import DjangoEnum
 from game.persons.relations import PERSON_TYPE
 
 
+class BUILDING_STATE(DjangoEnum):
+    _records = ( ('WORKING', 0, u'работает'),
+                 ('DESTROED', 1, u'уничтожено') )
+
+
 class BUILDING_TYPE(DjangoEnum):
     person_type = Column(related_name='building_type')
 

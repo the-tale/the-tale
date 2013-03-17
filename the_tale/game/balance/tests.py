@@ -168,6 +168,14 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(round(c.PVP_MAX_EFFECTIVENESS_MULTIPLIER, 2), 1.33)
         self.assertEqual(c.PVP_ADVANTAGE_BARIER, 0.95)
 
+        self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
+        self.assertEqual(c.BUILDING_FULL_DESTRUCTION_TIME, 2*7*24)
+        self.assertTrue(0.0029 < c.BUILDING_AMORTIZATION_SPEED < 0.0030)
+        self.assertEqual(c.BUILDING_FULL_REPAIR_ENERGY_COST, 168.0)
+        self.assertEqual(c.BUILDING_AMORTIZATION_MODIFIER, 1.5)
+        self.assertEqual(c.BUILDING_WORKERS_ENERGY_COST, 3)
+
+
     def test_pvp_combat_styles_advantages_balanced(self):
         test_value = len(e.PVP_COMBAT_STYLES._ALL)
         for combat_style in e.PVP_COMBAT_STYLES._ALL:

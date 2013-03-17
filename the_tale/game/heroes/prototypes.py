@@ -507,7 +507,10 @@ class HeroPrototype(BasePrototype):
     def can_change_persons_power(self): return not self.is_fast and self.is_active
 
     @property
-    def can_participate_in_pvp(self): return not self.is_fast and self.is_active
+    def can_participate_in_pvp(self): return not self.is_fast
+
+    @property
+    def can_repair_building(self): return not self.is_fast
 
     ###########################################
     # Needs attributes
@@ -757,6 +760,7 @@ class HeroPrototype(BasePrototype):
                 'might_crit_chance': '%.2f' % (self.might_crit_chance*100),
                 'might_pvp_effectiveness_bonus': '%.2f' % (self.might_pvp_effectiveness_bonus*100),
                 'can_participate_in_pvp': self.can_participate_in_pvp,
+                'can_repair_building': self.can_repair_building,
                 'energy': { 'max': self.energy_maximum,
                             'value': self.energy },
                 'next_spending': { e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 'heal',

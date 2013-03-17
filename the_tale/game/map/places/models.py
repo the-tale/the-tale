@@ -6,7 +6,7 @@ from rels.django_staff import TableIntegerField
 
 from game.balance.enums import CITY_MODIFIERS, RACE
 
-from game.map.places.relations import BUILDING_TYPE
+from game.map.places.relations import BUILDING_TYPE, BUILDING_STATE
 
 
 class Place(models.Model):
@@ -48,8 +48,11 @@ class Building(models.Model):
     x = models.BigIntegerField(null=False)
     y = models.BigIntegerField(null=False)
 
+    state = TableIntegerField(relation=BUILDING_STATE, relation_column='value', default=BUILDING_STATE.WORKING, db_index=True)
     type = TableIntegerField(relation=BUILDING_TYPE, relation_column='value')
+
+    integrity = models.FloatField(default=1.0, null=False)
 
     place = models.ForeignKey(Place, null=False)
 
-    person = models.ForeignKey('persons.Person', null=False)
+    person = models.ForeignKey('persons.Person', null=False, unique=True)

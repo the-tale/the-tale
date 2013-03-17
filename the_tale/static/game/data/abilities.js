@@ -21,6 +21,13 @@ pgf.game.data.abilities = {
         "description": "Отправить героя на гладиаторскую арену",
         "cost": 1
     },
+    "buildingrepair": {
+        "type": "buildingrepair",
+        "use_form": false,
+        "name": "Вызвать рабочего",
+        "description": "Вызвать рабочего для ремонта здания",
+        "cost": 3
+    },
     "arenapvp1x1leavequeue": {
         "type": "arenapvp1x1leavequeue",
         "use_form": false,

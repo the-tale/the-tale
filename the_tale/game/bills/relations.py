@@ -14,7 +14,8 @@ class BILL_TYPE(DjangoEnum):
                  ('PERSON_REMOVE', 1, u'удаление персонажа'),
                  ('PLACE_DESCRIPTION', 2, u'изменить описание места'),
                  ('PLACE_MODIFIER', 3, u'изменить тип места'),
-                 ('BUILDING_CREATE', 4, u'возвести постройку'))
+                 ('BUILDING_CREATE', 4, u'возвести постройку'),
+                 ('BUILDING_DESTROY', 5, u'разрушить постройку'))
 
 
 class VOTED_TYPE(DjangoEnum):

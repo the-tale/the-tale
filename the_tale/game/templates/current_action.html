@@ -4,9 +4,7 @@ jQuery(document).ready(function(e) {
 
     widgets.actions = new pgf.game.widgets.Action('#current-action-block', updater, widgets);
 
-    widgets.abilities = new pgf.game.widgets.Abilities('#abilities-block',
-                                                       widgets,
-                                                       {tooltipTemplate: '#pgf-ability-tooltip-template'});
+    widgets.abilities = new pgf.game.widgets.Abilities('#abilities-block', widgets);
 
 });
 </script>
@@ -21,7 +19,7 @@ jQuery(document).ready(function(e) {
 
   <div id="abilities-block">
 
-    <a href="#" class="pgf-ability-help pgf-hidden">
+    <a href="#" class="angel-ability pgf-ability-help pgf-hidden">
       <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
       <i class="icon-ban-circle" rel="tooltip" title="необходимо завершить регистрацию"></i>
       помочь
@@ -29,14 +27,14 @@ jQuery(document).ready(function(e) {
 
     <span style="width: 5em; display: inline-block;"></span>
 
-    <a href="#" class="pgf-ability-arenapvp1x1 pgf-hidden">
+    <a href="#" class="angel-ability pgf-ability-arenapvp1x1 pgf-hidden">
       <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
       <i class="icon-ban-circle" rel="tooltip" title="необходимо завершить регистрацию"></i>
       на арену
     </a>
 
     <span class="pgf-in-pvp-queue-message pgf-hidden" style="vertical-align: middle;">
-      <a href="#" class="pgf-ability-arenapvp1x1leavequeue">
+      <a href="#" class="angel-ability pgf-ability-arenapvp1x1leavequeue">
         <i class="icon-remove" rel="tooltip" title="выйти из очереди" style="vertical-align: middle;"></i>
       </a>
       <span rel="tooltip" title="идёт поиск противника для битвы на арене">

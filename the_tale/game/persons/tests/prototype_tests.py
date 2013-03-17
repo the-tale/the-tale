@@ -10,8 +10,9 @@ from game.prototypes import TimePrototype
 from game.logic import create_test_map
 from game.heroes.prototypes import HeroPrototype
 
-from game.persons.models import PERSON_STATE
+from game.map.places.prototypes import BuildingPrototype
 
+from game.persons.models import PERSON_STATE
 from game.persons.tests.helpers import create_person
 
 class PrototypeTests(testcase.TestCase):
@@ -101,3 +102,20 @@ class PrototypeTests(testcase.TestCase):
         self.person.move_out_game()
         self.assertTrue(self.person.out_game_at > current_time)
         self.assertEqual(self.person.state, PERSON_STATE.OUT_GAME)
+
+    def test_mastery_from_building(self):
+
+        while True:
+            person = create_person(self.p1, PERSON_STATE.IN_GAME)
+            old_mastery = person.mastery
+
+            if old_mastery < 0.8:
+                break
+
+        building = BuildingPrototype.create(person)
+
+        max_mastery = person.mastery
+
+        building._model.integrity = 0.5
+
+        self.assertTrue(old_mastery < person.mastery < max_mastery)

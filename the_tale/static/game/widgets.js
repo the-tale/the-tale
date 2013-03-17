@@ -861,3 +861,194 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
         instance.Render();
     });
 };
+
+pgf.game.widgets.Abilities = function(selector, widgets, params) {
+    var instance = this;
+
+    var abilities = pgf.game.data.abilities;
+
+    var widget = jQuery(selector);
+    var deckContainer = jQuery('.pgf-abilities-list', widget);
+    var activateAbilityWidget = jQuery('#activate-ability-block');
+    var activateAbilityFormWidget = jQuery('.pgf-activate-form', activateAbilityWidget);
+
+    jQuery('.pgf-cancel', activateAbilityWidget).click(function(e){
+        e.preventDefault();
+        //TODO: replace with some kind of api not related to widgets
+        widgets.switcher.ShowMapWidget();
+    });
+    var MINIMUM_LOCK_DELAY = 750;
+    var abilitiesWaitingStartTimes = {};
+
+    var angelEnergy = 0;
+    var pvpWaiting = false;
+    var canParticipateInPvp = true;
+    var canRepairBuilding = true;
+    var deck = {};
+    var turn = {};
+
+    var allowAbilityUnlock = {};
+
+    function ChangeAbilityEnergyState(abilityType, energy) {
+        jQuery('.pgf-ability-'+abilityType).toggleClass('no-energy', energy);
+    }
+
+    function ToggleWait(ability, wait) {
+        ability.spin(wait ? 'tiny' : false);
+        ability.toggleClass('wait', wait).toggleClass('pgf-wait', wait);
+    }
+
+    function ChangeAbilityWaitingState(abilityType, wait) {
+        var ability = jQuery('.pgf-ability-'+abilityType);//, widget);
+
+        if (wait) {
+            var date = new Date();
+            abilitiesWaitingStartTimes[abilityType] = date.getTime();
+
+            ToggleWait(ability, true);
+        }
+        else {
+            var date = new Date();
+            var curTime = date.getTime();
+            var minCloseTime =  abilitiesWaitingStartTimes[abilityType] + MINIMUM_LOCK_DELAY;
+
+            if ( minCloseTime <= curTime) {
+                ToggleWait(ability, false);
+            }
+            else {
+                window.setTimeout(function() { ToggleWait(ability, false); }, minCloseTime - curTime);
+            }
+        }
+    }
+
+    function IsProcessingAbility(abilityType) {
+        return jQuery('.pgf-ability-'+abilityType).hasClass('pgf-wait');
+    }
+
+    function IsDisablingAbility(abilityType) {
+        return jQuery('.pgf-ability-'+abilityType).hasClass('pgf-disable');
+    }
+
+    function ActivateAbility(ability) {
+
+        var abilityInfo = abilities[ability.type];
+
+        if (abilityInfo.cost > angelEnergy) {
+            return;
+        }
+
+        if (IsProcessingAbility(ability.type)) {
+            return;
+        }
+
+        if (IsDisablingAbility(ability.type)) {
+            return;
+        }
+
+        ChangeAbilityWaitingState(ability.type, true);
+
+        //TODO: replace with some kind of api not related to widgets
+        var currentHero = widgets.heroes.CurrentHero();
+
+        var heroId = -1;
+        var buildingId = jQuery('.pgf-ability-'+ability.type).data('building-id');
+
+        if (currentHero) {
+            heroId = currentHero.id;
+        }
+
+        var ajax_data = {building_id: buildingId};
+        if (heroId !== undefined) {
+            ajax_data.hero_id = heroId;
+        }
+        pgf.forms.Post({action: pgf.urls['game:abilities:activate'](ability.type),
+                        data: ajax_data,
+                        wait: false,
+                        OnError: function() {
+                            ChangeAbilityWaitingState(ability.type, false);
+                        },
+                        OnSuccess: function(data) {
+                            allowAbilityUnlock[ability.type] = true;
+                            ability.available_at = data.data.available_at;
+                            jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
+
+                            if (buildingId) {
+                                var buildingRepairDelta = jQuery('.pgf-ability-'+ability.type).data('building-repair-delta');                                
+                                var buildingIntegrity = jQuery('.pgf-building-integrity').data('building-integrity');
+                                var newIntegrity = Math.min(buildingIntegrity + buildingRepairDelta, 1.0);
+                                jQuery('.pgf-building-integrity')
+                                    .data('building-integrity', newIntegrity)
+                                    .text(Math.round(newIntegrity*100)+'%');
+
+                                var buildingWorkers = jQuery('.pgf-building-workers').data('building-workers');
+                                buildingWorkers = Math.max(0, buildingWorkers-1);
+                                jQuery('.pgf-building-workers')
+                                    .data('building-workers', buildingWorkers)
+                                    .text(buildingWorkers);
+                            }
+                        }
+                       });
+    }
+
+    function RenderAbility(ability) {
+
+        var abilityInfo = abilities[ability.type];
+        var element = jQuery('.pgf-ability-'+abilityInfo.type.toLowerCase());
+
+        ChangeAbilityEnergyState(ability.type, abilityInfo.cost > angelEnergy);
+
+        element.unbind('click');
+
+        element.click(function(e){
+            e.preventDefault();
+            ActivateAbility(ability);
+        });
+    }
+
+    function UpdateButtons() {
+        jQuery('.pgf-ability-help').toggleClass('pgf-hidden', false);
+
+        jQuery('.pgf-ability-arenapvp1x1').toggleClass('pgf-hidden', pvpWaiting);
+        jQuery('.pgf-in-pvp-queue-message').toggleClass('pgf-hidden', !pvpWaiting);
+
+        jQuery('.pgf-ability-arenapvp1x1').toggleClass('no-registration', !canParticipateInPvp).toggleClass('pgf-disable', !canParticipateInPvp);
+        jQuery('.pgf-ability-buildingrepair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable', !canRepairBuilding);
+    }
+
+    function RenderDeck() {
+        for (var i in deck) {
+            RenderAbility(deck[i]);
+        }
+        UpdateButtons();
+    };
+
+    function Refresh(game_data) {
+        turn = game_data.turn;
+
+        deck = game_data.abilities;
+        angelEnergy = game_data.hero.energy.value;
+        pvpWaiting = game_data.pvp.waiting;
+        canParticipateInPvp = game_data.hero.can_participate_in_pvp;
+        canRepairBuilding = game_data.hero.can_repair_building;
+    };
+
+    function Render() {
+        RenderDeck();
+    };
+
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        Refresh(game_data);
+        Render();
+
+        for (abilityType in allowAbilityUnlock) {
+            if (allowAbilityUnlock[abilityType]) {
+                allowAbilityUnlock[abilityType] = false;
+                ChangeAbilityWaitingState(abilityType, false);
+            }
+        }
+
+    });
+
+    this.RenderAbility = RenderAbility;
+    this.UpdateButtons = UpdateButtons;
+};

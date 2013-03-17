@@ -22,7 +22,7 @@ class ArenaPvP1x1(AbilityPrototype):
     NAME = u'Отправить на арену'
     DESCRIPTION = u'Отправить героя на гладиаторскую арену'
 
-    def use(self, data, step, main_task_id, storage, pvp_balancer):
+    def use(self, data, step, main_task_id, storage, pvp_balancer, **kwargs):
 
         if step is None:
 

@@ -127,7 +127,7 @@ pgf.game.map.MapManager = function(params) {
                         success: function(data, request, status) {
                             mapData = data;
 
-                            calculatedData.roadsMap = CalculateRoads(mapData);
+                            calculatedData.mapInfo = CalculateMapInfo(mapData);
 
                             instance.mapWidth = data.width;
                             instance.mapHeight = data.height;
@@ -141,17 +141,17 @@ pgf.game.map.MapManager = function(params) {
                     });
     }
 
-    function CalculateRoads(mapData) {
+    function CalculateMapInfo(mapData) {
         var w = mapData.width;
         var h = mapData.height;
 
-        var roadsMap = [];
+        var mapInfo = [];
         for (var i=0; i<h; ++i) {
             var row = [];
             for (var j=0; j<w; ++j) {
                 row.push({});
             }
-            roadsMap.push(row);
+            mapInfo.push(row);
         }
 
         for(var road_id in mapData.roads) {
@@ -166,8 +166,8 @@ pgf.game.map.MapManager = function(params) {
 
             for(var i=0; i<road.path.length; ++i) {
 
-                roadsMap[y][x][road.path[i]] = true;
-                roadsMap[y][x].road = true;
+                mapInfo[y][x][road.path[i]] = true;
+                mapInfo[y][x].road = true;
 
                 switch(road.path[i]) {
                 case 'l': x -= 1; break;
@@ -176,10 +176,15 @@ pgf.game.map.MapManager = function(params) {
                 case 'd': y += 1; break;
                 }
             }
-            roadsMap[y][x].road = true;
+            mapInfo[y][x].road = true;
         }
 
-        return roadsMap;
+        for(var building_id in mapData.buildings) {
+            var building = mapData.buildings[building_id];
+            mapInfo[building.pos.y][building.pos.x].building = true;
+        }
+
+        return mapInfo;
     }
 
     function GetMapDataForRect(x, y, w, h) {
@@ -304,9 +309,17 @@ pgf.game.map.Map = function(selector, params) {
                                                             [jQuery('.pgf-cell-persons-button', dialog), 'persons'], 
                                                             [jQuery('.pgf-cell-place-modifiers-button', dialog), 'place-modifiers'], 
                                                             [jQuery('.pgf-cell-place-chronicle-button', dialog), 'place-chronicle'], 
+                                                            [jQuery('.pgf-cell-building-button', dialog), 'building'], 
                                                             [jQuery('.pgf-cell-map-button', dialog), 'map'], 
                                                             [jQuery('.pgf-cell-debug-button', dialog), 'debug']]);
                                    jQuery('[rel="tooltip"]', dialog).tooltip(pgf.base.tooltipsArgs);
+
+                                   if (widgets.abilities) {
+                                       widgets.abilities.UpdateButtons();
+                                       widgets.abilities.RenderAbility(pgf.game.data.abilities.buildingrepair);                                       
+                                       jQuery('.angel-ability', dialog).toggleClass('pgf-hidden', false);
+                                   }
+
                                },
                                OnClosed: function(dialog) {
                                    pgf.base.HideTooltips(dialog);
@@ -473,6 +486,23 @@ pgf.game.map.Map = function(selector, params) {
         }
     }
 
+    function DrawText(context, text, textWidth, textHeight, x, y) {
+
+        var rectDelta = 2;
+
+        context.textBaseline = 'top';
+
+        context.fillStyle="#000000";
+        context.globalAlpha=0.75;
+        context.fillRect(x-rectDelta, y, textWidth+rectDelta*2, textHeight+rectDelta*2);
+        context.globalAlpha=1;
+        context.strokeStyle="#000000";
+        context.strokeRect(x-rectDelta, y, textWidth+rectDelta*2, textHeight+rectDelta*2);
+
+        context.fillStyle="#ffffff";
+        context.fillText(text, x, y);
+    }
+
     function Draw(fullData) {
 
         if (!IsInitialized()) return;
@@ -501,12 +531,19 @@ pgf.game.map.Map = function(selector, params) {
 
                 var imageName = pgf.game.constants.TERRAIN_ID_TO_STR[terrain[i][j]];
 
-                if (calculatedData.roadsMap[i][j].road) {
+                var cellInfo = calculatedData.mapInfo[i][j];
 
-                    image = spritesManager.GetImage('ROAD_'+imageName);
+                if (cellInfo.road || cellInfo.building) {
+                    image = spritesManager.GetImage('BOARD_'+imageName);
                     image.Draw(context, x, y);
+                }
+                else {
+                    image = spritesManager.GetImage(imageName);
+                    image.Draw(context, x, y);    
+                }
 
-                    var roadTile = GetRoadTile(calculatedData.roadsMap, i, j);
+                if (calculatedData.mapInfo[i][j].road) {
+                    var roadTile = GetRoadTile(calculatedData.mapInfo, i, j);
                     image = spritesManager.GetImage(roadTile.name);
                     rotate = roadTile.rotate * Math.PI / 180;
 
@@ -518,27 +555,21 @@ pgf.game.map.Map = function(selector, params) {
                     image.Draw(context, -TILE_SIZE/2, -TILE_SIZE/2);
                     context.restore();
                 }
-                else {
-                    image = spritesManager.GetImage(imageName);
-                    image.Draw(context, x, y);
-                }
+
             }
         }
 
+        context.font="10px sans-serif";
         for (var building_id in data.buildings) {
             var building = data.buildings[building_id];
             var spriteName = 'BUILDING_' + pgf.game.constants.BUILDING_TYPE_TO_STR[building.type];
-
-                                 
             var image = spritesManager.GetImage(spriteName);
             image.Draw(context,
                        posX + building.pos.x * TILE_SIZE,
                        posY + building.pos.y * TILE_SIZE);
         }
 
-        context.fillStyle    = '#000';
-        context.font         = 'bold 14px sans-serif';
-        context.textBaseline = 'top';
+        context.font="12px sans-serif";
         for (var place_id in data.places) {
             var place = data.places[place_id];
             var spriteName = 'city_' + pgf.game.constants.RACE_TO_STR[place.race].toLowerCase();
@@ -555,25 +586,14 @@ pgf.game.map.Map = function(selector, params) {
                        posY + place.pos.y * TILE_SIZE);
 
             var text = '('+place.size+') '+place.name;
+            var textWidth = context.measureText(text).width;
 
-            context.font="12px sans-serif";
-            var textSize = context.measureText(text);
-
-            var textX = Math.round(posX + place.pos.x * TILE_SIZE + TILE_SIZE / 2 - textSize.width / 2);
-            var textY = Math.round(posY + (place.pos.y + 1) * TILE_SIZE) + 2;
-
-            var rectDelta = 2;
-            var textHeight = 12;
-
-            context.fillStyle="#000000";
-            context.globalAlpha=0.75;
-            context.fillRect(textX-rectDelta, textY, textSize.width+rectDelta*2, textHeight+rectDelta*2);
-            context.globalAlpha=1;
-            context.strokeStyle="#000000";
-            context.strokeRect(textX-rectDelta, textY, textSize.width+rectDelta*2, textHeight+rectDelta*2);
-
-            context.fillStyle="#ffffff";
-            context.fillText(text, textX, textY);
+            DrawText(context, 
+                     text, 
+                     textWidth,
+                     12,
+                     Math.round(posX + place.pos.x * TILE_SIZE + TILE_SIZE / 2 - textWidth / 2), 
+                     Math.round(posY + (place.pos.y + 1) * TILE_SIZE) + 2);
         }
 
         var hero = dynamicData.hero;

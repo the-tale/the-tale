@@ -320,3 +320,21 @@ PVP_ADVANTAGE_BARIER = 0.95
 
 PLACE_TYPE_NECESSARY_BORDER = 75
 PLACE_TYPE_ENOUGH_BORDER = 50
+
+###########################
+# здания
+###########################
+
+BUILDING_MASTERY_BONUS = 0.15
+
+# на починку зданий игроки тратят энергию
+# желательно, чтобы для единственного здания в городе эффект единичной траты энергии был заметен
+
+BUILDING_FULL_DESTRUCTION_TIME = 2*7*24 # in hours
+BUILDING_AMORTIZATION_SPEED = 1.0 / BUILDING_FULL_DESTRUCTION_TIME # percents/hour
+
+# единственное здание города  может поддерживаться одним человеком при условии траты всей энергии
+BUILDING_FULL_REPAIR_ENERGY_COST = BUILDING_FULL_DESTRUCTION_TIME * ANGEL_ENERGY_REGENERATION_AMAUNT * ANGEL_ENERGY_REGENERATION_PERIOD / TURNS_IN_HOUR
+
+BUILDING_AMORTIZATION_MODIFIER = 1.5 # цена ремонта здания зависит от количества зданий в городе и равно <цена>*BULDING_AMORTIZATION_MODIFIER^<количество зданий - 1>
+BUILDING_WORKERS_ENERGY_COST = 3 # цена вызова одного рабочего

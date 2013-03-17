@@ -61,7 +61,7 @@ class UseAbilityTask(object):
     @property
     def error_message(self): return ABILITY_TASK_STATE._CHOICES[self.state][1]
 
-    def process(self, main_task, storage=None, pvp_balancer=None):
+    def process(self, main_task, storage=None, pvp_balancer=None, highlevel=None):
         from game.abilities.deck import ABILITIES
         ability = ABILITIES[self.ability_type](AbilitiesData.objects.get(hero_id=self.hero_id))
 
@@ -83,7 +83,12 @@ class UseAbilityTask(object):
                 self.state = ABILITY_TASK_STATE.COOLDOWN
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            result, self.step, postsave_actions = ability.use(data=self.data, step=self.step, main_task_id=main_task.id, storage=storage, pvp_balancer=pvp_balancer)
+            result, self.step, postsave_actions = ability.use(data=self.data,
+                                                              step=self.step,
+                                                              main_task_id=main_task.id,
+                                                              storage=storage,
+                                                              pvp_balancer=pvp_balancer,
+                                                              highlevel=highlevel)
 
             main_task.extend_postsave_actions(postsave_actions)
 
@@ -107,8 +112,12 @@ class UseAbilityTask(object):
             return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
 
         else:
-
-            result, self.step, postsave_actions = ability.use(data=self.data, step=self.step, main_task_id=main_task.id, storage=storage, pvp_balancer=pvp_balancer)
+            result, self.step, postsave_actions = ability.use(data=self.data,
+                                                              step=self.step,
+                                                              main_task_id=main_task.id,
+                                                              storage=storage,
+                                                              pvp_balancer=pvp_balancer,
+                                                              highlevel=highlevel)
 
             main_task.extend_postsave_actions(postsave_actions)
 

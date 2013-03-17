@@ -10,7 +10,7 @@ class PlaceAdmin(admin.ModelAdmin):
 
 
 class BuildingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'type', 'person', 'type', 'x', 'y')
+    list_display = ('id', 'type', 'state', 'person', 'type', 'x', 'y')
 
 
 admin.site.register(Place, PlaceAdmin)

@@ -10,12 +10,13 @@ from django.utils.log import getLogger
 from dext.utils.decorators import nested_commit_on_success
 
 from common.amqp_queues import BaseWorker
+from common import postponed_tasks
 
 from game.balance import constants as c
 
 from game.persons.models import PERSON_STATE
 from game.persons.storage import persons_storage
-from game.map.places.storage import places_storage
+from game.map.places.storage import places_storage, buildings_storage
 from game.map.places.conf import places_settings
 
 from game.bills.conf import bills_settings
@@ -47,6 +48,8 @@ class Worker(BaseWorker):
 
         if self.initialized:
             self.logger.warn('highlevel already initialized, do reinitialization')
+
+        postponed_tasks.autodiscover()
 
         self.initialized = True
         self.worker_id = worker_id
@@ -120,6 +123,9 @@ class Worker(BaseWorker):
         self.logger.info('HIGHLEVEL STOPPED')
 
 
+    @places_storage.postpone_version_update
+    @buildings_storage.postpone_version_update
+    @persons_storage.postpone_version_update
     def sync_data(self):
 
         places_power_delta = {}
@@ -171,6 +177,14 @@ class Worker(BaseWorker):
         persons_storage.remove_out_game_persons()
         persons_storage.save_all()
 
+        for building in buildings_storage.all():
+            building.amortize(c.MAP_SYNC_TIME)
+
+            if building.is_destroed:
+                building.destroy()
+
+        buildings_storage.save_all()
+
     def apply_bills(self):
         import datetime
         from game.bills.models import Bill, BILL_STATE
@@ -195,3 +209,12 @@ class Worker(BaseWorker):
     def process_change_person_power(self, person_id, power_delta):
         person_power = self.persons_power.get(person_id, 0)
         self.persons_power[person_id] = person_power + power_delta
+
+    def cmd_logic_task(self, account_id, task_id):
+        return self.send_cmd('logic_task', {'task_id': task_id,
+                                            'account_id': account_id})
+
+    def process_logic_task(self, account_id, task_id):
+        task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
+        task.process(self.logger, highlevel=self)
+        task.do_postsave_actions()

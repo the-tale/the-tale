@@ -14,6 +14,7 @@ from game.logic import create_test_map
 from game.chronicle import RecordPrototype as ChronicleRecordPrototype
 
 from game.map.places.modifiers import MODIFIERS, TradeCenter
+from game.map.places.prototypes import BuildingPrototype
 
 class RequestsTestsBase(TestCase):
     def setUp(self):
@@ -83,3 +84,8 @@ class CellInfoTests(RequestsTestsBase):
     def test_place_chronicle(self):
         texts = [record.text for record in ChronicleRecordPrototype.get_last_actor_records(self.place_1, 1000)]
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
+
+    def test_building(self):
+        building = BuildingPrototype.create(self.place_1.persons[0])
+        texts = [building.type.text, building.person.name, self.place_1.name]
+        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (building.x, building.y))), texts=texts)

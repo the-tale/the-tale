@@ -1,5 +1,6 @@
 # coding: utf-8
 import random
+import math
 
 from dext.utils import s11n
 
@@ -10,6 +11,7 @@ from common.utils import bbcode
 from common.utils.prototypes import BasePrototype
 
 from game import names
+from game.balance import constants as c
 from game.prototypes import TimePrototype, GameTime
 
 from game.balance import formulas as f
@@ -19,12 +21,14 @@ from game.helpers import add_power_management
 
 from game.heroes.models import Hero
 
+from game.map.conf import map_settings
+
 from game.map.places.models import Place, Building
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
 from game.map.places.modifiers import MODIFIERS, PlaceModifierBase
+from game.map.places.relations import BUILDING_STATE
 from game.map.places import signals
-
 
 
 @add_power_management(places_settings.POWER_HISTORY_LENGTH, PlacesException)
@@ -33,13 +37,6 @@ class PlacePrototype(BasePrototype):
     _readonly = ('id', 'x', 'y', 'name', 'heroes_number')
     _bidirectional = ('description', 'size')
     _get_by = ('id',)
-
-    @classmethod
-    def get_by_coordinates(cls, x, y):
-        try:
-            return cls(Place.objects.get(x=x, y=y))
-        except Place.DoesNotExist:
-            return None
 
     @property
     def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self._model.updated_at_turn))
@@ -217,8 +214,8 @@ class PlacePrototype(BasePrototype):
 
 class BuildingPrototype(BasePrototype):
     _model_class = Building
-    _readonly = ('id', 'x', 'y', 'type')
-    _bidirectional = ()
+    _readonly = ('id', 'x', 'y', 'type', 'integrity')
+    _bidirectional = ('state',)
     _get_by = ('id',)
 
     @classmethod
@@ -238,6 +235,35 @@ class BuildingPrototype(BasePrototype):
         from game.map.places.storage import places_storage
         return places_storage[self._model.place_id]
 
+
+    def amortization_delta(self, turns_number):
+        from game.map.places.storage import buildings_storage
+
+        buildings_number = len(filter(lambda p: buildings_storage.get_by_person_id(p.id), self.place.persons))
+
+        per_one_building = float(turns_number) / c.TURNS_IN_HOUR * c.BUILDING_AMORTIZATION_SPEED
+        return per_one_building * c.BUILDING_AMORTIZATION_MODIFIER**(buildings_number-1)
+
+    @property
+    def amortization_in_day(self):
+        return self.amortization_delta(c.TURNS_IN_HOUR*24)
+
+    def amortize(self, turns_number):
+        self._model.integrity -= self.amortization_delta(turns_number)
+
+    @property
+    def workers_to_full_repairing(self):
+        return int(math.ceil((1.0 - self.integrity) * c.BUILDING_FULL_REPAIR_ENERGY_COST / c.BUILDING_WORKERS_ENERGY_COST))
+
+    @property
+    def is_destroed(self): return self.integrity <= 0.0001
+
+    @property
+    def repair_delta(self): return float(c.BUILDING_WORKERS_ENERGY_COST) / c.BUILDING_FULL_REPAIR_ENERGY_COST
+
+    def repair(self):
+        self._model.integrity = min(1.0, self.integrity + self.repair_delta)
+
     @classmethod
     def get_available_positions(cls, center_x, center_y):
         from game.map.places.storage import places_storage, buildings_storage
@@ -252,6 +278,9 @@ class BuildingPrototype(BasePrototype):
                 positions.add((center_x-i, center_y+j))
                 positions.add((center_x+i, center_y-j))
                 positions.add((center_x-i, center_y-j))
+
+        positions = set(filter(lambda pos: 0 <= pos[0] < map_settings.WIDTH and 0 <= pos[1] < map_settings.HEIGHT,
+                               positions))
 
         removed_positions = set()
 
@@ -278,11 +307,15 @@ class BuildingPrototype(BasePrototype):
     def create(cls, person):
         from game.map.places.storage import buildings_storage
 
-        if person.id in buildings_storage.persons_to_buildings:
-            return buildings_storage.persons_to_buildings[person.id]
+        building = buildings_storage.get_by_person_id(person.id)
 
-        model = Building.objects.create(x=0,
-                                        y=0,
+        if building:
+            return building
+
+        x, y = random.choice(list(cls.get_available_positions(person.place.x, person.place.y)))
+
+        model = Building.objects.create(x=x,
+                                        y=y,
                                         place=person.place._model,
                                         person=person._model,
                                         type=person.type.building_type)
@@ -294,9 +327,15 @@ class BuildingPrototype(BasePrototype):
 
         return prototype
 
+    def destroy(self):
+        self.state = BUILDING_STATE.DESTROED
+
     def map_info(self):
         return {'id': self.id,
                 'pos': {'x': self.x, 'y': self.y},
                 'person': self._model.person_id,
                 'place': self._model.place_id,
                 'type': self.type.value}
+
+    def save(self):
+        self._model.save()

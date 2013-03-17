@@ -9,7 +9,7 @@ from game.persons.storage import persons_storage
 from game.mobs.storage import mobs_storage
 from game.artifacts.storage import artifacts_storage
 from game.map.storage import map_info_storage
-from game.map.places.storage import places_storage
+from game.map.places.storage import places_storage, buildings_storage
 from game.map.roads.storage import roads_storage, waymarks_storage
 
 
@@ -20,6 +20,7 @@ class TestCase(DextTestCase):
         settings.refresh(force=True)
 
         places_storage.clear()
+        buildings_storage.clear()
         persons_storage.clear()
         waymarks_storage.clear()
         roads_storage.clear()
@@ -28,6 +29,7 @@ class TestCase(DextTestCase):
         map_info_storage.clear()
 
         places_storage._setup_version()
+        buildings_storage._setup_version()
         persons_storage._setup_version()
         waymarks_storage._setup_version()
         roads_storage._setup_version()

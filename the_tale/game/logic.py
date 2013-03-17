@@ -23,7 +23,7 @@ from game.map.relations import TERRAIN
 from game.map.prototypes import MapInfoPrototype
 from game.map.conf import map_settings
 
-from game.map.places.storage import places_storage
+from game.map.places.storage import places_storage, buildings_storage
 from game.map.places.prototypes import PlacePrototype
 from game.map.places.logic import update_nearest_cells
 
@@ -40,6 +40,7 @@ DEFAULT_HERO_EQUIPMENT = create_enum('DEFAULT_HERO_EQUIPMENT', ( ('PANTS', 'defa
 
 
 @places_storage.postpone_version_update
+@buildings_storage.postpone_version_update
 @persons_storage.postpone_version_update
 @waymarks_storage.postpone_version_update
 @roads_storage.postpone_version_update
