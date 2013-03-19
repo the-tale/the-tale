@@ -8,7 +8,7 @@ from game.persons.relations import PERSON_TYPE
 
 class BUILDING_STATE(DjangoEnum):
     _records = ( ('WORKING', 0, u'работает'),
-                 ('DESTROED', 1, u'уничтожено') )
+                 ('DESTROYED', 1, u'уничтожено') )
 
 
 class BUILDING_TYPE(DjangoEnum):

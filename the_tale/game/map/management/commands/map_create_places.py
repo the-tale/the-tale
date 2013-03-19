@@ -98,7 +98,7 @@ class Command(BaseCommand):
                 person.push_power(int(initial_turn+i*c.MAP_SYNC_TIME), int(person_power_per_step))
             person.save()
 
-        persons_storage.update_version(reload=True)
+        persons_storage.update_version()
 
         place.sync_race()
         place.save()
@@ -106,6 +106,5 @@ class Command(BaseCommand):
         for destination in roads_to:
             Road.objects.create(point_1=place._model, point_2=destination._model)
 
-        places_storage.update_version(reload=True)
-
-        roads_storage.update_version(reload=True)
+        places_storage.update_version()
+        roads_storage.update_version()

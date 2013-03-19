@@ -250,13 +250,13 @@ class BuildingPrototype(BasePrototype):
 
     def amortize(self, turns_number):
         self._model.integrity -= self.amortization_delta(turns_number)
+        if self.integrity <= 0.0001:
+            self.destroy()
+            signals.building_destroyed_by_amortization.send(self.__class__, place=self.place, person=self.person)
 
     @property
     def workers_to_full_repairing(self):
         return int(math.ceil((1.0 - self.integrity) * c.BUILDING_FULL_REPAIR_ENERGY_COST / c.BUILDING_WORKERS_ENERGY_COST))
-
-    @property
-    def is_destroed(self): return self.integrity <= 0.0001
 
     @property
     def repair_delta(self): return float(c.BUILDING_WORKERS_ENERGY_COST) / c.BUILDING_FULL_REPAIR_ENERGY_COST
@@ -328,7 +328,8 @@ class BuildingPrototype(BasePrototype):
         return prototype
 
     def destroy(self):
-        self.state = BUILDING_STATE.DESTROED
+        self.state = BUILDING_STATE.DESTROYED
+        self.save()
 
     def map_info(self):
         return {'id': self.id,
@@ -338,4 +339,6 @@ class BuildingPrototype(BasePrototype):
                 'type': self.type.value}
 
     def save(self):
+        from game.map.places.storage import buildings_storage
         self._model.save()
+        buildings_storage.update_version()

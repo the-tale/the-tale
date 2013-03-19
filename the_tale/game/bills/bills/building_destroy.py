@@ -44,10 +44,7 @@ class BuildingDestroy(BasePersonBill):
     def apply(self):
         building = buildings_storage.get_by_person_id(self.person.id)
 
-        if building is None:
+        if building is None or building.state._is_DESTROYED:
             return
 
         building.destroy()
-        building.save()
-
-        buildings_storage.update_version(reload=True)

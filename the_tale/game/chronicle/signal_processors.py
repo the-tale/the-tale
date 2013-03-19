@@ -42,6 +42,14 @@ def _get_bill_person_remove_arguments(bill):
                                'person': bill.data.person,
                                'bill': FakeWord(bill.caption)} }
 
+def _get_bill_building_arguments(bill):
+    return { 'actors': {ACTOR_ROLE.BILL: bill,
+                        ACTOR_ROLE.PLACE: bill.data.person.place,
+                        ACTOR_ROLE.PERSON: bill.data.person},
+             'substitutions': {'place': bill.data.person.place,
+                               'person': bill.data.person,
+                               'bill': FakeWord(bill.caption)} }
+
 
 @receiver(bills_signals.bill_moderated, dispatch_uid='chronicle_bill_moderated')
 def chronicle_bill_moderated(sender, bill, **kwargs):
@@ -55,6 +63,10 @@ def chronicle_bill_moderated(sender, bill, **kwargs):
         records.PlaceChangeModifierBillStarted(**_get_bill_place_modifier_arguments(bill)).create_record()
     elif bill.data.type == BILL_TYPE.PERSON_REMOVE:
         records.PersonRemoveBillStarted(**_get_bill_person_remove_arguments(bill)).create_record()
+    elif bill.data.type == BILL_TYPE.BUILDING_CREATE:
+        records.BuildingCreateBillStarted(**_get_bill_building_arguments(bill)).create_record()
+    elif bill.data.type == BILL_TYPE.BUILDING_DESTROY:
+        records.BuildingDestroyBillStarted(**_get_bill_building_arguments(bill)).create_record()
 
 @receiver(bills_signals.bill_processed, dispatch_uid='chronicle_bill_processed')
 def chronicle_bill_processed(sender, bill, **kwargs):
@@ -83,6 +95,19 @@ def chronicle_bill_processed(sender, bill, **kwargs):
             record_type = records.PersonRemoveBillSuccessed
         record_type(**_get_bill_person_remove_arguments(bill)).create_record()
 
+    elif bill.data.type == BILL_TYPE.BUILDING_CREATE:
+        record_type = records.BuildingCreateBillFailed
+        if bill.state._is_ACCEPTED:
+            record_type = records.BuildingCreateBillSuccessed
+        record_type(**_get_bill_building_arguments(bill)).create_record()
+
+    elif bill.data.type == BILL_TYPE.BUILDING_DESTROY:
+        record_type = records.BuildingDestroyBillFailed
+        if bill.state._is_ACCEPTED:
+            record_type = records.BuildingDestroyBillSuccessed
+        record_type(**_get_bill_building_arguments(bill)).create_record()
+
+
 @receiver(places_signals.place_modifier_reseted, dispatch_uid='chronicle_place_modifier_reseted')
 def chronicle_place_modifier_reseted(sender, place, old_modifier, **kwargs):
     records.PlaceLosedModifier(actors={ACTOR_ROLE.PLACE: place},
@@ -109,3 +134,11 @@ def chronicle_place_race_changed(sender, place, old_race, new_race, **kwargs):
                             substitutions={'place': place,
                                            'old_race': old_race.verbose,
                                            'new_race': new_race.verbose}).create_record()
+
+
+@receiver(places_signals.building_destroyed_by_amortization, dispatch_uid='chronicle_building_destroyed_by_amortization')
+def chronicle_building_destroyed_by_amortization(sender, place, person, **kwargs):
+    records.BuildingDestroyedByAmortization(actors={ACTOR_ROLE.PLACE: place,
+                                                    ACTOR_ROLE.PERSON: person},
+                                            substitutions={'place': place,
+                                                           'person': person}).create_record()

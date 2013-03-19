@@ -54,7 +54,7 @@ class UseAbilityTasksTests(TestCase):
 
     def test_process_can_not_process(self):
 
-        with mock.patch('game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer: (False, None, ())):
+        with mock.patch('game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (False, None, ())):
             self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
             self.assertEqual(self.task.state, ABILITY_TASK_STATE.CAN_NOT_PROCESS)
 
@@ -64,7 +64,7 @@ class UseAbilityTasksTests(TestCase):
 
     def test_process_second_step_success(self):
 
-        with mock.patch('game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer: (None, 'second-step', ())):
+        with mock.patch('game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (None, 'second-step', ())):
             self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
 
         self.assertEqual(self.task.step, 'second-step')
@@ -76,13 +76,13 @@ class UseAbilityTasksTests(TestCase):
 
     def test_process_second_step_error(self):
 
-        with mock.patch('game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer: (None, 'second-step', ())):
+        with mock.patch('game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (None, 'second-step', ())):
             self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
 
         self.assertEqual(self.task.step, 'second-step')
         self.assertEqual(self.task.state, ABILITY_TASK_STATE.UNPROCESSED)
 
-        with mock.patch('game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer: (False, None, ())):
+        with mock.patch('game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (False, None, ())):
             self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
 
         self.assertEqual(self.task.state, ABILITY_TASK_STATE.CAN_NOT_PROCESS)

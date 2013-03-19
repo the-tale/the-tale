@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import jinja2
+
 from django.test import client
 from django.core.urlresolvers import reverse
 
@@ -106,7 +108,7 @@ class ChangePreferencesRequestsTests(HeroRequestsTestBase):
 class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
     def test_hero_page(self):
-        self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=[(self.hero.name, 7),
+        self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=[(jinja2.escape(self.hero.name), 7),
                                                                                                      ('pgf-change-name-warning', 1)])
 
     def test_hero_page_change_name_warning_hidden(self):

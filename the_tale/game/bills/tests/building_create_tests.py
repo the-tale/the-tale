@@ -106,3 +106,29 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.assertTrue(bill.apply())
 
         self.assertEqual(Building.objects.all().count(), 1)
+
+
+    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 2)
+    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    def test_apply_without_person(self):
+        self.assertEqual(Building.objects.all().count(), 0)
+
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        form = BuildingCreate.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.person_1.move_out_game()
+
+        self.assertTrue(self.bill.apply())
+
+        bill = BillPrototype.get_by_id(self.bill.id)
+        bill.state = BILL_STATE.VOTING
+        bill.save()
+
+        self.assertTrue(bill.apply())
+
+        self.assertEqual(Building.objects.all().count(), 0)

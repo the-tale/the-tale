@@ -37,7 +37,7 @@ class BasePersonBill(object):
 
     @property
     def person(self):
-        return persons_storage[self.person_id]
+        return persons_storage.get(self.person_id)
 
     @property
     def old_place_name(self):

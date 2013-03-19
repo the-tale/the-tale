@@ -6,6 +6,7 @@ import datetime
 from game.map.places.models import Building
 from game.map.places.prototypes import BuildingPrototype
 from game.map.places.storage import buildings_storage
+from game.map.places.relations import BUILDING_STATE
 
 from game.bills.relations import BILL_STATE
 from game.bills.prototypes import BillPrototype, VotePrototype
@@ -60,7 +61,7 @@ class BuildingDestroyTests(BaseTestPrototypes):
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_apply(self):
-        self.assertEqual(Building.objects.all().count(), 2)
+        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
@@ -74,19 +75,19 @@ class BuildingDestroyTests(BaseTestPrototypes):
         bill = BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state._is_ACCEPTED)
 
-        self.assertEqual(Building.objects.all().count(), 1)
+        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
 
         building = buildings_storage.all()[0]
 
-        self.assertEqual(building.person.id, self.person_2.id)
-        self.assertEqual(building.place.id, self.place2.id)
+        self.assertEqual(building.person.id, self.person_1.id)
+        self.assertEqual(building.place.id, self.place1.id)
 
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 2)
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_duplicate_apply(self):
-        self.assertEqual(Building.objects.all().count(), 2)
+        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
@@ -102,4 +103,24 @@ class BuildingDestroyTests(BaseTestPrototypes):
 
         self.assertTrue(bill.apply())
 
-        self.assertEqual(Building.objects.all().count(), 1)
+        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
+
+    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 2)
+    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    def test_no_building(self):
+        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
+
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        form = BuildingDestroy.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.building_1.destroy()
+        self.building_1.save()
+
+        self.assertTrue(self.bill.apply())
+
+        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)

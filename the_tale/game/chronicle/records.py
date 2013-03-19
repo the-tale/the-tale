@@ -122,6 +122,38 @@ class PersonArrivedToPlace(RecordBase):
     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PERSON]
     SUBSTITUTIONS  = ['place', 'person']
 
+
+# building create
+class _BuildingBase(RecordBase):
+    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]
+    SUBSTITUTIONS = ['place', 'person', 'bill']
+
+class BuildingCreateBillStarted(_BuildingBase):
+    TYPE = RECORD_TYPE.BUILDING_CREATE_BILL_STARTED
+
+class BuildingCreateBillSuccessed(_BuildingBase):
+    TYPE = RECORD_TYPE.BUILDING_CREATE_BILL_SUCCESSED
+
+class BuildingCreateBillFailed(_BuildingBase):
+    TYPE = RECORD_TYPE.BUILDING_CREATE_BILL_FAILED
+
+# building destroy
+class BuildingDestroyBillStarted(_BuildingBase):
+    TYPE = RECORD_TYPE.BUILDING_DESTROY_BILL_STARTED
+
+class BuildingDestroyBillSuccessed(_BuildingBase):
+    TYPE = RECORD_TYPE.BUILDING_DESTROY_BILL_SUCCESSED
+
+class BuildingDestroyBillFailed(_BuildingBase):
+    TYPE = RECORD_TYPE.BUILDING_DESTROY_BILL_FAILED
+
+
+class BuildingDestroyedByAmortization(RecordBase):
+    TYPE = RECORD_TYPE.BUILDING_DESTROYED_BY_AMORTIZATION
+    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PERSON]
+    SUBSTITUTIONS  = ['place', 'person']
+
+
 # race
 class PlaceChangeRace(RecordBase):
     TYPE = RECORD_TYPE.PLACE_CHANGE_RACE

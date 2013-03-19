@@ -36,7 +36,10 @@ class BuildingCreate(BasePersonBill):
     SHOW_TEMPLATE = 'bills/bills/building_create_show.html'
 
     CAPTION = u'Закон о возведение постройки'
-    DESCRIPTION = u'Возводит здание, принадлежащее выбранному персонажу (и соответствующее его профессии). Один персонаж может иметь только одну постройку.'
+    DESCRIPTION = u'Возводит здание, принадлежащее выбранному персонажу (и соответствующее его профессии). Один персонаж может иметь только одну постройку. Помните, что для поддержания работы здания потребуется участие игроков, иначе оно обветшает и разрушится.'
 
     def apply(self):
+        if self.person is None or self.person.out_game:
+            return
+
         BuildingPrototype.create(self.person)

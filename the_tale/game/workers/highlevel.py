@@ -180,9 +180,6 @@ class Worker(BaseWorker):
         for building in buildings_storage.all():
             building.amortize(c.MAP_SYNC_TIME)
 
-            if building.is_destroed:
-                building.destroy()
-
         buildings_storage.save_all()
 
     def apply_bills(self):

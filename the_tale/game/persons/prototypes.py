@@ -72,6 +72,11 @@ class PersonPrototype(BasePrototype):
         self._model.out_game_at = datetime.datetime.now()
         self._model.state = PERSON_STATE.OUT_GAME
 
+        building = buildings_storage.get_by_person_id(self.id)
+
+        if building:
+            building.destroy()
+
     def remove_from_game(self):
         self._model.state = PERSON_STATE.REMOVED
 
@@ -79,6 +84,12 @@ class PersonPrototype(BasePrototype):
         from game.workers.environment import workers_environment
         if self.place.modifier:
             power = self.place.modifier.modify_power(power)
+
+        building = buildings_storage.get_by_person_id(self.id)
+
+        if building and power > 0:
+            power *= c.BUILDING_PERSON_POWER_MULTIPLIER
+
         workers_environment.highlevel.cmd_change_person_power(self.id, power)
 
     @property

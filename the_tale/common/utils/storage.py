@@ -88,19 +88,13 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
             self._version = uuid.uuid4().hex
             settings[self.SETTINGS_KEY] = str(self._version)
 
-        def update_version(self, reload=False):
+        def update_version(self):
             self._update_version_requested = True
 
             if self._postpone_version_update_nesting > 0:
                 return
 
-            if self.SETTINGS_KEY not in settings or self._version != settings[self.SETTINGS_KEY]:
-                reload = True
-
             self._setup_version()
-
-            if reload:
-                self.sync(force=True)
 
         @contextlib.contextmanager
         def _postpone_version_update(self):
@@ -178,14 +172,8 @@ def create_single_storage_class(version_key, Model, Prototype, Exception_):
             self._version = uuid.uuid4().hex
             settings[self.SETTINGS_KEY] = str(self._version)
 
-        def update_version(self, reload=False):
-            if self.SETTINGS_KEY not in settings or self._version != settings[self.SETTINGS_KEY]:
-                reload = True
-
+        def update_version(self):
             self._setup_version()
-
-            if reload:
-                self.sync(force=True)
 
 
     return SingleStorage

@@ -103,6 +103,12 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(self.person.out_game_at > current_time)
         self.assertEqual(self.person.state, PERSON_STATE.OUT_GAME)
 
+    def test_move_out_game_with_building(self):
+        building = BuildingPrototype.create(self.person)
+        self.assertTrue(building.state._is_WORKING)
+        self.person.move_out_game()
+        self.assertTrue(building.state._is_DESTROYED)
+
     def test_mastery_from_building(self):
 
         while True:
@@ -119,3 +125,17 @@ class PrototypeTests(testcase.TestCase):
         building._model.integrity = 0.5
 
         self.assertTrue(old_mastery < person.mastery < max_mastery)
+
+    def test_power_from_building(self):
+
+        with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power') as change_person_power_call:
+            self.person.cmd_change_power(100)
+
+        self.assertEqual(change_person_power_call.call_args, mock.call(self.person.id, 100))
+
+        BuildingPrototype.create(self.person)
+
+        with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power') as change_person_power_call:
+            self.person.cmd_change_power(100)
+
+        self.assertTrue(change_person_power_call.call_args[0][1] > 100)

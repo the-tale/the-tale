@@ -23,7 +23,17 @@ class RECORD_TYPE(DjangoEnum):
                 ('PERSON_LEFT_PLACE', 13, u'персонаж: покину место из-за потери влияния'),
                 ('PERSON_ARRIVED_TO_PLACE', 14, u'персонаж: приехал в город'),
 
-                ('PLACE_CHANGE_RACE', 15, u'раса города: изменение основной расы') )
+                ('PLACE_CHANGE_RACE', 15, u'раса города: изменение основной расы'),
+
+                ('BUILDING_CREATE_BILL_STARTED', 16, u'строение: предложен закон о возведении '),
+                ('BUILDING_CREATE_BILL_SUCCESSED', 17, u'строение: принят закон о возведении'),
+                ('BUILDING_CREATE_BILL_FAILED', 18, u'строение: отклонён закон о возведении'),
+
+                ('BUILDING_DESTROY_BILL_STARTED', 19, u'строение: предложен закон об удалении '),
+                ('BUILDING_DESTROY_BILL_SUCCESSED', 20, u'строение: принят закон об удалении'),
+                ('BUILDING_DESTROY_BILL_FAILED', 21, u'строение: отклонён закон об удалении'),
+
+                ('BUILDING_DESTROYED_BY_AMORTIZATION', 22, u'строение: разрушено из-за амортизации') )
 
 
 class ACTOR_ROLE(DjangoEnum):

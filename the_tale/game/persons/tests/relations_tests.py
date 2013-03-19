@@ -6,10 +6,10 @@ from game.balance.enums import RACE, CITY_MODIFIERS
 
 from game.persons.relations import PROFESSION_TO_RACE_MASTERY, PROFESSION_TO_CITY_MODIFIERS
 
-class PrototypeTests(testcase.TestCase):
+class RelationsTests(testcase.TestCase):
 
     def setUp(self):
-        super(PrototypeTests, self).setUp()
+        super(RelationsTests, self).setUp()
 
     def test_profession_to_race_mastery(self):
         for profession, masteries in PROFESSION_TO_RACE_MASTERY.items():

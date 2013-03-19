@@ -16,6 +16,7 @@ from game.bills.tests.prototype_tests import BaseTestPrototypes
 
 from game.chronicle.models import Record, RECORD_TYPE
 
+from game.map.places.prototypes import BuildingPrototype
 from game.map.places.modifiers import TradeCenter, CraftCenter
 
 @contextmanager
@@ -98,7 +99,7 @@ class BillPlaceChangeModifierTests(BaseTestPrototypes):
         bill_data = bills.PlaceModifier(place_id=self.place1.id, modifier_id=TradeCenter.get_id(), modifier_name=TradeCenter.NAME, old_modifier_name=None)
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
-        self.form = bills.PlaceDescripton.ModeratorForm({'approved': True})
+        self.form = bills.PlaceModifier.ModeratorForm({'approved': True})
         self.assertTrue(self.form.is_valid())
 
     def test_bill_started(self):
@@ -123,7 +124,7 @@ class BillPersonRemoveTests(BaseTestPrototypes):
         bill_data = bills.PersonRemove(person_id=self.place1.persons[0].id, old_place_name_forms=self.place1.normalized_name)
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
-        self.form = bills.PlaceDescripton.ModeratorForm({'approved': True})
+        self.form = bills.PersonRemove.ModeratorForm({'approved': True})
         self.assertTrue(self.form.is_valid())
 
     def test_bill_started(self):
@@ -140,6 +141,56 @@ class BillPersonRemoveTests(BaseTestPrototypes):
     def test_bill_failed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.PERSON_REMOVE_BILL_FAILED):
+            process_bill(self.bill, False)
+
+class BillBuildingCreateTests(BaseTestPrototypes):
+
+    def setUp(self):
+        super(BillBuildingCreateTests, self).setUp()
+
+        bill_data = bills.BuildingCreate(person_id=self.place1.persons[0].id, old_place_name_forms=self.place1.normalized_name)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+
+        self.form = bills.BuildingCreate.ModeratorForm({'approved': True})
+        self.assertTrue(self.form.is_valid())
+
+    def test_bill_started(self):
+        with check_record_created(self, RECORD_TYPE.BUILDING_CREATE_BILL_STARTED):
+            self.bill.update_by_moderator(self.form)
+
+    def test_bill_successed(self):
+        self.bill.update_by_moderator(self.form)
+        with check_record_created(self, RECORD_TYPE.BUILDING_CREATE_BILL_SUCCESSED):
+            process_bill(self.bill, True)
+
+    def test_bill_failed(self):
+        self.bill.update_by_moderator(self.form)
+        with check_record_created(self, RECORD_TYPE.BUILDING_CREATE_BILL_FAILED):
+            process_bill(self.bill, False)
+
+class BillBuildingDestroyTests(BaseTestPrototypes):
+
+    def setUp(self):
+        super(BillBuildingDestroyTests, self).setUp()
+
+        bill_data = bills.BuildingDestroy(person_id=self.place1.persons[0].id, old_place_name_forms=self.place1.normalized_name)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+
+        self.form = bills.BuildingDestroy.ModeratorForm({'approved': True})
+        self.assertTrue(self.form.is_valid())
+
+    def test_bill_started(self):
+        with check_record_created(self, RECORD_TYPE.BUILDING_DESTROY_BILL_STARTED):
+            self.bill.update_by_moderator(self.form)
+
+    def test_bill_successed(self):
+        self.bill.update_by_moderator(self.form)
+        with check_record_created(self, RECORD_TYPE.BUILDING_DESTROY_BILL_SUCCESSED):
+            process_bill(self.bill, True)
+
+    def test_bill_failed(self):
+        self.bill.update_by_moderator(self.form)
+        with check_record_created(self, RECORD_TYPE.BUILDING_DESTROY_BILL_FAILED):
             process_bill(self.bill, False)
 
 
@@ -173,6 +224,20 @@ class PersonMovementsTests(BaseTestPrototypes):
         with check_record_created(self, RECORD_TYPE.PERSON_ARRIVED_TO_PLACE):
             with mock.patch('game.map.places.prototypes.PlacePrototype.max_persons_number', len(self.place1.persons) + 1):
                 self.place1.sync_persons()
+
+
+class BuildingTests(BaseTestPrototypes):
+
+    def setUp(self):
+        super(BuildingTests, self).setUp()
+        self.building = BuildingPrototype.create(self.place1.persons[0])
+
+    # @mock.patch('game.persons.prototypes.PersonPrototype.is_stable', True)
+    # @mock.patch('game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
+    def test_building_destroyed_by_amortization(self):
+        with check_record_created(self, RECORD_TYPE.BUILDING_DESTROYED_BY_AMORTIZATION):
+            self.building._model.integrity = 0
+            self.building.amortize(1)
 
 
 class PlaceChangeRace(BaseTestPrototypes):
