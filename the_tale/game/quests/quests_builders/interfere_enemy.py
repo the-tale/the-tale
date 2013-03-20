@@ -31,8 +31,8 @@ class InterfereEnemy(Quest):
 
         sequence = [ cmd.Message(event='intro') ]
 
-        if self.env_local.place_start != self.env_local.place_end:
-            sequence += [ cmd.Move(place=self.env_local.place_end, event='move_to_quest') ]
+        # if self.env_local.place_start != self.env_local.place_end:
+        #     sequence += [ cmd.Move(place=self.env_local.place_end, event='move_to_quest') ]
 
         positive_line = Line(sequence = [cmd.QuestResult(result=DEFAULT_RESULTS.POSITIVE),
                                          cmd.GetReward(person=self.env_local.person_end, event='get_reward'),
