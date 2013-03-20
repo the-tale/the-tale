@@ -73,6 +73,11 @@ class PrototypeTests(testcase.TestCase):
         self.hero_2.preferences.friend_id = self.person.id
         self.hero_2.save()
 
+        result, account_id, bundle_id = register_user('test_user_4') # fast_account
+        hero_4 = HeroPrototype.get_by_account_id(account_id)
+        hero_4.preferences.friend_id = self.person.id
+        hero_4.save()
+
         self.person.update_friends_number()
         self.person.update_enemies_number()
 
@@ -88,6 +93,11 @@ class PrototypeTests(testcase.TestCase):
 
         self.hero_2.preferences.enemy_id = self.person.id
         self.hero_2.save()
+
+        result, account_id, bundle_id = register_user('test_user_4') # fast_account
+        hero_4 = HeroPrototype.get_by_account_id(account_id)
+        hero_4.preferences.friend_id = self.person.id
+        hero_4.save()
 
         self.person.update_friends_number()
         self.person.update_enemies_number()

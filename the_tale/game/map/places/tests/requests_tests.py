@@ -1,4 +1,5 @@
 # coding: utf-8
+import jinja2
 
 from django.test import client
 from django.core.urlresolvers import reverse
@@ -47,7 +48,7 @@ class TestShowRequests(TestCase):
         hero_2.preferences.set_enemy_id(self.place_1.persons[0].id)
         hero_2.save()
 
-        texts = [(hero_1.name, 3),
-                 (hero_2.name, 3)]
+        texts = [(jinja2.escape(hero_1.name), 3),
+                 (jinja2.escape(hero_2.name), 3)]
 
         self.check_html_ok(self.client.get(reverse('game:map:places:show', args=[self.place_1.id])), texts=texts)
