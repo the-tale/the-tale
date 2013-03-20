@@ -340,3 +340,4 @@ BUILDING_AMORTIZATION_MODIFIER = 1.5 # цена ремонта здания за
 BUILDING_WORKERS_ENERGY_COST = 3 # цена вызова одного рабочего
 
 BUILDING_PERSON_POWER_MULTIPLIER = 1.1
+BUILDING_TERRAIN_POWER_MULTIPLIER = 0.5 # building terrain power is percent from city power

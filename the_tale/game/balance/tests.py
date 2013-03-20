@@ -175,6 +175,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.BUILDING_AMORTIZATION_MODIFIER, 1.5)
         self.assertEqual(c.BUILDING_WORKERS_ENERGY_COST, 3)
         self.assertEqual(c.BUILDING_PERSON_POWER_MULTIPLIER, 1.1)
+        self.assertEqual(c.BUILDING_TERRAIN_POWER_MULTIPLIER, 0.5)
 
     def test_pvp_combat_styles_advantages_balanced(self):
         test_value = len(e.PVP_COMBAT_STYLES._ALL)

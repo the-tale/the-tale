@@ -235,6 +235,10 @@ class BuildingPrototype(BasePrototype):
         from game.map.places.storage import places_storage
         return places_storage[self._model.place_id]
 
+    @property
+    def terrain_change_power(self):
+        power = self.place.terrain_change_power * self.integrity * c.BUILDING_TERRAIN_POWER_MULTIPLIER
+        return int(round(power))
 
     def amortization_delta(self, turns_number):
         from game.map.places.storage import buildings_storage
