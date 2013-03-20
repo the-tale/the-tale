@@ -175,7 +175,7 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         var profeccion = pgf.game.constants.PERSON_TYPE_TO_TEXT[data.type];
 
         var content = jQuery('#pgf-popover-person').clone();
-        jQuery('.pgf-place', content).text(place.name);
+        if (place) jQuery('.pgf-place', content).text(place.name);            
         jQuery('.pgf-race', content).text(race);
         jQuery('.pgf-gender', content).text(gender);
         jQuery('.pgf-type', content).text(profeccion);
@@ -188,13 +188,14 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.PLACE) {
 
         var place = widgets.mapManager.GetPlaceData(data.id);
-
-        nameElement.text(place.name);
+        
+        if (place) nameElement.text(place.name);
 
         popoverTitle = 'город';
 
         var content = jQuery('#pgf-popover-place').clone();
-        jQuery('.pgf-size', content).text(place.size);
+
+        if (place) jQuery('.pgf-size', content).text(place.size);
     }
 
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.MONEY_SPENDING) {

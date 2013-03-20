@@ -194,7 +194,8 @@ pgf.game.map.MapManager = function(params) {
     }
 
     function GetPlaceData(placeId) {
-        return mapData.places[placeId];
+        if (mapData.places) return mapData.places[placeId];
+        return undefined;
     }
 
     function GetBuildingData(buildingId) {
