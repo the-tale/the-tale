@@ -83,6 +83,7 @@ class TestRegistration(testcase.TestCase):
 class TestRegistrationTask(testcase.TestCase):
 
     def setUp(self):
+        super(TestRegistrationTask, self).setUp()
         create_test_map()
         self.task = RegistrationTask(account_id=None)
 

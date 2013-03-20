@@ -33,7 +33,7 @@ places_storage = PlacesStorage()
 
 class BuildingsStorage(create_storage_class('buildings change time', Building, BuildingPrototype, PlacesException)):
 
-    def _get_all_query(self): return Building.objects.exclude(state=BUILDING_STATE.DESTROED)
+    def _get_all_query(self): return Building.objects.exclude(state=BUILDING_STATE.DESTROYED)
 
     def __init__(self, *argv, **kwargs):
         self._persons_to_buildings = {}

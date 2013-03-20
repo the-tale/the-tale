@@ -276,7 +276,7 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
     function RenderChoiceVariant(index, variant, element) {
 
         var variantLink = jQuery('.pgf-choice-link', element);
-        variantLink.text(variant[1]);
+        variantLink.text(' ' + variant[1]);
 
         if (variant[0] == null) {
             element.addClass('disabled');
@@ -286,37 +286,20 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
         var url = pgf.urls['game:quests:choose'](data.quests.id, data.quests.choice_id, variant[0]);
 
         variantLink.click( function(e){
+                               pgf.base.ToggleWait(variantLink, true);
+                               variantLink.toggleClass('disabled', true);
+
                                e.preventDefault();
 
-                               jQuery.ajax({   dataType: 'json',
-                                               type: 'post',
-                                               url: url,
-                                               success: function(data, request, status) {
-
-                                                   if (data.status == 'error') {
-                                                       if (data.error) {
-                                                           pgf.ui.dialog.Error({ message: data.error });                                                           
-                                                       }
-                                                       else{
-                                                           pgf.ui.dialog.Error({ message: data.errors });                                                               
-                                                       }
-
-                                                       return;
-                                                   }
-
-                                                   if (data.status == 'ok') {
-                                                       updater.Refresh();
-                                                       return;
-                                                   }
-
-                                                   pgf.ui.dialog.Error({ message: 'unknown error while making choice' });
-
-                                               },
-                                               error: function() {
-                                               },
-                                               complete: function() {
+                               pgf.forms.Post({action: url,
+                                               data: {},
+                                               wait: false,
+                                               OnSuccess: function(data) {
+                                                   updater.Refresh();
+                                                   // no need to enable choices or disable spinner
+                                                   // after refresh they will be redrawed
                                                }
-                                           });
+                                              });            
                            });
     }
 
@@ -894,11 +877,6 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         jQuery('.pgf-ability-'+abilityType).toggleClass('no-energy', energy);
     }
 
-    function ToggleWait(ability, wait) {
-        ability.spin(wait ? 'tiny' : false);
-        ability.toggleClass('wait', wait).toggleClass('pgf-wait', wait);
-    }
-
     function ChangeAbilityWaitingState(abilityType, wait) {
         var ability = jQuery('.pgf-ability-'+abilityType);//, widget);
 
@@ -906,7 +884,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
             var date = new Date();
             abilitiesWaitingStartTimes[abilityType] = date.getTime();
 
-            ToggleWait(ability, true);
+            pgf.base.ToggleWait(ability, true);
         }
         else {
             var date = new Date();
@@ -914,10 +892,10 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
             var minCloseTime =  abilitiesWaitingStartTimes[abilityType] + MINIMUM_LOCK_DELAY;
 
             if ( minCloseTime <= curTime) {
-                ToggleWait(ability, false);
+                pgf.base.ToggleWait(ability, false);
             }
             else {
-                window.setTimeout(function() { ToggleWait(ability, false); }, minCloseTime - curTime);
+                window.setTimeout(function() { pgf.base.ToggleWait(ability, false); }, minCloseTime - curTime);
             }
         }
     }

@@ -31,6 +31,12 @@ else {
     };
 }
 
+
+pgf.base.ToggleWait = function(element, wait) {
+    element.spin(wait ? 'tiny' : false);
+    element.toggleClass('wait', wait).toggleClass('pgf-wait', wait);
+};
+
 pgf.base.InitializeTabs = function(settingName, def, tabs) {
 
     var tabShowed = false;
@@ -269,7 +275,7 @@ pgf.base.CompareObjects = function(a, b)
   }
 
   return true;
-}
+};
 
 jQuery('.pgf-link-load-on-success').live('click', function(e){
     e.preventDefault();

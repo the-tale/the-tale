@@ -131,6 +131,6 @@ def _create_random_quest_for_hero(hero, knowlege_base, special):
 
     quest_prototype = QuestPrototype.create(hero, env)
 
-    _quests_logger.info('hero: %d\n\n\n%s' % (hero.id, quest_prototype.model.env))
+    _quests_logger.info('hero: %d\n\n\n%s' % (hero.id, quest_prototype._model.env))
 
     return quest_prototype

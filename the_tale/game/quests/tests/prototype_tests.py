@@ -69,9 +69,9 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(fake_cmd.commands)
 
     def test_get_minimum_created_time_of_active_quests(self):
-        self.assertEqual(self.quest.model.created_at, QuestPrototype.get_minimum_created_time_of_active_quests())
+        self.assertEqual(self.quest._model.created_at, QuestPrototype.get_minimum_created_time_of_active_quests())
 
         self.quest.remove()
 
         # not there are no anothe quests an get_minimum_created_time_of_active_quests return now()
-        self.assertTrue(self.quest.model.created_at < QuestPrototype.get_minimum_created_time_of_active_quests())
+        self.assertTrue(self.quest._model.created_at < QuestPrototype.get_minimum_created_time_of_active_quests())

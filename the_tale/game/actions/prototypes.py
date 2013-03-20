@@ -138,11 +138,11 @@ class ActionPrototype(object):
 
     @property
     def quest(self):
-        from game.quests.prototypes import get_quest_by_model
+        from game.quests.prototypes import QuestPrototype
         if not hasattr(self, '_quest'):
             self._quest = None
             if self.model.quest:
-                self._quest = get_quest_by_model(model=self.model.quest)
+                self._quest = QuestPrototype(model=self.model.quest)
         return self._quest
 
     @property
@@ -308,7 +308,7 @@ class ActionPrototype(object):
             self.model.context = s11n.to_json(self.context.serialize())
         if self.mob_context:
             self.model.mob_context = s11n.to_json(self.mob_context.serialize())
-        if hasattr(self, '_quest'):
+        if self.quest is not None:
             self._quest.save()
 
         database.raw_save(self.model)
@@ -476,7 +476,7 @@ class ActionQuestPrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero._model,
                                        order=parent.order+1,
-                                       quest=quest.model,
+                                       quest=quest._model,
                                        state=cls.STATE.PROCESSING,
                                        created_at_turn=TimePrototype.get_current_turn_number())
         return cls(model=model)

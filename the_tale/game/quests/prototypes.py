@@ -4,6 +4,8 @@ import random
 
 from dext.utils import s11n
 
+from common.utils.prototypes import BasePrototype
+
 from game.prototypes import TimePrototype
 
 from game.balance import constants as c, formulas as f
@@ -16,21 +18,12 @@ from game.heroes.statistics import MONEY_SOURCE
 from game.quests.models import Quest, QuestsHeroes
 from game.quests.exceptions import QuestException
 
-def get_quest_by_id(id):
-    try:
-        return QuestPrototype(model=Quest.objects.get(id=id))
-    except Quest.DoesNotExist:
-        return None
 
-def get_quest_by_model(model):
-    return QuestPrototype(model=model)
-
-
-class QuestPrototype(object):
-
-    def __init__(self, model, *argv, **kwargs):
-        super(QuestPrototype, self).__init__(*argv, **kwargs)
-        self.model = model
+class QuestPrototype(BasePrototype):
+    _model_class = Quest
+    _readonly = ('id',)
+    _bidirectional = ()
+    _get_by = ('id',)
 
     @classmethod
     def get_for_hero(cls, hero_id):
@@ -44,16 +37,13 @@ class QuestPrototype(object):
         return None
 
     @property
-    def id(self): return self.model.id
-
-    @property
     def percents(self):
         return self.env.percents(self.pointer)
 
     @property
     def data(self):
         if not hasattr(self, '_data'):
-            self._data = s11n.from_json(self.model.data)
+            self._data = s11n.from_json(self._model.data)
         return self._data
 
     @property
@@ -63,9 +53,10 @@ class QuestPrototype(object):
         from .writer import Writer
 
         if not hasattr(self, '_env'):
+
             self._env = Environment(writers_constructor=Writer,
                                     quests_source=QuestsSource() )
-            self._env.deserialize(s11n.from_json(self.model.env))
+            self._env.deserialize(s11n.from_json(self._model.env))
         return self._env
 
     def get_pointer(self): return self.data['pointer']
@@ -90,17 +81,10 @@ class QuestPrototype(object):
     def is_processed(self):
         return len(self.pos) == 0
 
-    def heroes_ids(self):
-        return set(self.model.heroes.values_list('id', flat=True))
-
-    def accounts_ids(self):
-        return set(self.model.heroes.values_list('account_id', flat=True))
-
-
     def get_choices(self):
         # MUST be always actual
         choices = {}
-        choices_list = list(self.model.choices.all())
+        choices_list = list(self._model.choices.all())
         for choice in choices_list:
             choices[choice.choice_point] = choice.choice
         return choices
@@ -109,12 +93,12 @@ class QuestPrototype(object):
         return self.env.lines[choice].available
 
     def make_choice(self, choice_point, choice):
-        from .models import QuestChoice
+        from game.quests.models import QuestChoice
 
-        if QuestChoice.objects.filter(quest=self.model, choice_point=choice_point).exists():
+        if QuestChoice.objects.filter(quest=self._model, choice_point=choice_point).exists():
             return False
 
-        QuestChoice.objects.create(quest=self.model,
+        QuestChoice.objects.create(quest=self._model,
                                    choice_point=choice_point,
                                    choice=choice)
 
@@ -132,12 +116,12 @@ class QuestPrototype(object):
     ###########################################
 
     def remove(self):
-        self.model.delete()
+        self._model.delete()
 
     def save(self):
-        self.model.data = s11n.to_json(self.data)
-        self.model.env = s11n.to_json(self.env.serialize())
-        self.model.save(force_update=True)
+        self._model.data = s11n.to_json(self.data)
+        self._model.env = s11n.to_json(self.env.serialize())
+        self._model.save(force_update=True)
 
     @classmethod
     def create(cls, hero, env):
@@ -388,4 +372,4 @@ class QuestPrototype(object):
                 'choice_id': cmd_id,
                 'choice_variants': choice_variants,
                 'future_choice': future_choice,
-                'id': self.model.id}
+                'id': self._model.id}
