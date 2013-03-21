@@ -14,6 +14,7 @@ from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
 from game.logic import create_test_map
 from game.logic_storage import LogicStorage
 from game.exceptions import GameException
+from game.prototypes import TimePrototype
 
 
 class LogicStorageTestsBasic(testcase.TestCase):
@@ -208,3 +209,23 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(set_many.call_count, 1)
         self.assertEqual(ui_info_for_cache.call_count, 2)
         self.assertEqual(ui_info_for_cache.call_args, mock.call())
+
+    def test__destroy_account_data(self):
+        from game.actions.models import Action
+        from game.heroes.models import Hero
+
+        current_time = TimePrototype.get_current_time()
+
+        # make some actions
+        while self.hero_1.position.place is not None:
+            self.storage.process_turn()
+            current_time.increment_turn()
+
+        self.assertTrue(Action.objects.all().count() > 2)
+        self.assertEqual(Hero.objects.all().count(), 2)
+
+        self.storage._destroy_account_data(self.account_1)
+        self.storage._destroy_account_data(self.account_2)
+
+        self.assertEqual(Action.objects.all().count(), 0)
+        self.assertEqual(Hero.objects.all().count(), 0)

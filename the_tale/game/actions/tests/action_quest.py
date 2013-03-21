@@ -9,7 +9,9 @@ from game.logic_storage import LogicStorage
 
 from game.logic import create_test_map
 from game.actions.prototypes import ActionQuestPrototype
+from game.actions.models import Action
 from game.quests.logic import create_random_quest_for_hero
+from game.quests.models import Quest, QuestsHeroes
 from game.prototypes import TimePrototype
 
 class QuestActionTest(testcase.TestCase):
@@ -31,7 +33,6 @@ class QuestActionTest(testcase.TestCase):
 
     def tearDown(self):
         pass
-
 
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
@@ -56,3 +57,14 @@ class QuestActionTest(testcase.TestCase):
             current_time.increment_turn()
 
         self.storage._test_save()
+
+    def test_remove(self):
+        self.assertEqual(Quest.objects.all().count(), 1)
+        self.assertEqual(Action.objects.all().count(), 2)
+        self.assertEqual(QuestsHeroes.objects.all().count(), 1)
+
+        self.action_quest.remove()
+
+        self.assertEqual(Quest.objects.all().count(), 0)
+        self.assertEqual(Action.objects.all().count(), 1)
+        self.assertEqual(QuestsHeroes.objects.all().count(), 0)

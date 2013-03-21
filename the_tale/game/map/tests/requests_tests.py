@@ -1,4 +1,5 @@
 # coding: utf-8
+import jinja2
 import datetime
 
 from django.test import client
@@ -87,5 +88,5 @@ class CellInfoTests(RequestsTestsBase):
 
     def test_building(self):
         building = BuildingPrototype.create(self.place_1.persons[0])
-        texts = [building.type.text, building.person.name, self.place_1.name]
+        texts = [building.type.text, jinja2.escape(building.person.name), jinja2.escape(self.place_1.name)]
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (building.x, building.y))), texts=texts)

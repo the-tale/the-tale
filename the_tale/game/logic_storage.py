@@ -31,11 +31,13 @@ class LogicStorage(object):
         # if hero: # hero can be None if we at process of creating account
         self.add_hero(hero)
 
-    def release_account_data(self, account):
+    def release_account_data(self, account, save_required=True):
         hero = self.accounts_to_heroes[account.id]
-        self.save_hero_data(hero.id, update_cache=True)
 
-        for action_id in Action.objects.filter(hero_id=hero.id).values_list('id', flat=True):
+        if save_required:
+            self.save_hero_data(hero.id, update_cache=True)
+
+        for action_id in  [a.id for a in self.heroes_to_actions[hero.id]]:
             del self.actions[action_id]
 
         if hero.id in self.skipped_heroes:
@@ -153,6 +155,18 @@ class LogicStorage(object):
 
         self.save_required.clear()
 
+    def _destroy_account_data(self, account):
+
+        hero = self.accounts_to_heroes[account.id]
+
+        actions = self.heroes_to_actions[hero.id]
+
+        for action in reversed(actions):
+            self.remove_action(action)
+
+        self.release_account_data(account, save_required=False)
+
+        hero.remove()
 
     def _test_save(self):
         for hero_id in self.heroes:

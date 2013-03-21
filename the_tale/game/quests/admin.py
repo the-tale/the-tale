@@ -9,7 +9,7 @@ class QuestChoiceInline(admin.TabularInline):
     model = QuestChoice
 
 class QuestAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cmd_number', 'percents', 'created_at', 'hero')
+    list_display = ('id', 'percents', 'created_at', 'hero')
 
     inlines = [QuestChoiceInline]
 

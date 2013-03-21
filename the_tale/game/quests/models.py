@@ -9,8 +9,6 @@ class Quest(models.Model):
 
     created_at_turn = models.BigIntegerField(null=False, default=0)
 
-    cmd_number = models.IntegerField(null=False, default=0)
-
     data = models.TextField(null=False, default='{}')
     env = models.TextField(null=False, default='{}')
 

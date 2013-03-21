@@ -633,8 +633,6 @@ class HeroPrototype(BasePrototype):
     ###########################################
 
     def remove(self):
-        for action in reversed(self.get_actions()):
-            action.remove(force=True)
         self._model.delete()
 
     def save(self):

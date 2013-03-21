@@ -86,13 +86,14 @@ def logout_user(request):
 
 
 def remove_account(account):
+    from game.logic import remove_game_data
     if account.can_be_removed():
         with nested_commit_on_success():
-            bundle = BundlePrototype.get_by_account_id(account.id)
             user = account.user
 
+            remove_game_data(account)
+
             account.remove()
-            bundle.remove()
             user.delete()
 
 

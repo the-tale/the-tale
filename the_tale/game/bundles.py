@@ -1,20 +1,16 @@
 # coding utf-8
 
+from common.utils.prototypes import BasePrototype
+
 from game.models import Bundle, BUNDLE_TYPE
 
 class BundleException(Exception): pass
 
-class BundlePrototype(object):
-
-    def __init__(self, model):
-        self.model = model
-
-    @classmethod
-    def get_by_id(cls, model_id):
-        try:
-            return cls(model=Bundle.objects.get(id=model_id))
-        except Bundle.DoesNotExist:
-            return None
+class BundlePrototype(BasePrototype):
+    _model_class = Bundle
+    _readonly = ('id', 'type')
+    _bidirectional = ('owner', )
+    _get_by = ('id',)
 
     @classmethod
     def get_by_account_id(cls, account_id):
@@ -26,26 +22,16 @@ class BundlePrototype(object):
         except IndexError:
             return None
 
-    @property
-    def id(self): return self.model.id
-
-    @property
-    def type(self): return self.model.type
-
-    def get_owner(self): return self.model.owner
-    def set_owner(self, value): self.model.owner = value
-    owner = property(get_owner, set_owner)
-
     @classmethod
     def create(cls):
         bundle = Bundle.objects.create(type=BUNDLE_TYPE.BASIC)
         return BundlePrototype(model=bundle)
 
     def remove(self):
-        self.model.delete() # must delete all members automaticaly
+        self._model.delete() # must delete all members automaticaly
 
     def save(self):
-        self.model.save()
+        self._model.save()
 
     def __eq__(self, other):
-        return self.model == other.model
+        return self._model == other._model

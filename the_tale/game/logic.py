@@ -114,3 +114,16 @@ def clean_database():
 
     # remove unused bundles
     Bundle.objects.annotate(actions_number=models.Count('action')).filter(actions_number=0).delete()
+
+
+def remove_game_data(account):
+    from game.logic_storage import LogicStorage
+    from game.bundles import BundlePrototype
+
+    bundle = BundlePrototype.get_by_account_id(account.id)
+
+    storage = LogicStorage()
+    storage.load_account_data(account)
+    storage._destroy_account_data(account)
+
+    bundle.remove()
