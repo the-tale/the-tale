@@ -75,8 +75,8 @@
             <table class="person-table table table-striped table-condensed table-no-highlighting">
               <tbody>
                 <tr>
-                  <td class="profession-icon" rowspan="2">
-                    <img src="{{ STATIC_URL }}tmp/profession.gif"/>
+                  <td rowspan="2">
+                    <i class="profession-icon {{person.type.name.lower()}}"></i>
                   </td>
 
                   <th>
