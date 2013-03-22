@@ -78,6 +78,7 @@ class Worker(BaseWorker):
         if (time.time() - float(settings.get(game_settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY, 0)) > 23.5*60*60 and
             datetime.datetime.now().hour >= game_settings.CLEANING_RUN_TIME):
             settings[game_settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY] = str(time.time())
+            self.supervisor_worker.cmd_run_cleaning()
 
         map_update_needed = False
         with nested_commit_on_success():

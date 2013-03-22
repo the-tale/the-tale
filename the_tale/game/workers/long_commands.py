@@ -55,7 +55,7 @@ class Worker(BaseWorker):
         subprocess.call(['./manage.py', 'ratings_recalculate_ratings'])
 
     def cmd_run_cleaning(self):
-        return self.send_cmd('recalculate_ratings')
+        return self.send_cmd('run_cleaning')
 
     def process_run_cleaning(self):
         vacuum_result = subprocess.call(['vacuumdb', '-q',
@@ -71,3 +71,9 @@ class Worker(BaseWorker):
             self.logger.error('CLEAN COMMAND ENDED WITH CODE %d' % clean_result)
         else:
             self.logger.info('clean command was processed correctly')
+
+        clearsessions_result = subprocess.call(['./manage.py', 'clearsessions'])
+        if clearsessions_result:
+            self.logger.error('CLEARSESSIONS COMMAND ENDED WITH CODE %d' % clearsessions_result)
+        else:
+            self.logger.info('clearsessions command was processed correctly')

@@ -284,7 +284,7 @@ class Worker(BaseWorker):
         self.long_commands_worker.cmd_recalculate_ratings()
 
     def cmd_run_cleaning(self):
-        return self.send_cmd('recalculate_ratings')
+        return self.send_cmd('run_cleaning')
 
     def process_run_cleaning(self):
         self.long_commands_worker.cmd_run_cleaning()

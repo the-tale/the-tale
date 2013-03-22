@@ -1,5 +1,9 @@
-from django.conf.urls.defaults import patterns, url, include
+# coding: utf-8
 
+import os
+
+from django.conf.urls.defaults import patterns, url, include
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.conf import settings as project_settings
 
@@ -27,13 +31,15 @@ urlpatterns = patterns('',
                        (r'^', include('portal.urls', namespace='portal') ),
 )
 
+
 if project_settings.DEBUG:
-    from django.conf.urls.static import static
+    urlpatterns += static(project_settings.ADMIN_MEDIA_PREFIX, document_root=os.path.join(os.path.dirname(admin.__file__), 'static', 'admin'))
     urlpatterns += patterns('',
                             url(r'^%s' % project_settings.LESS_CSS_URL[1:], include('dext.less.urls') )
                             )
     urlpatterns += static(project_settings.DCONT_URL, document_root=project_settings.DCONT_DIR)
     urlpatterns += static(project_settings.STATIC_URL, document_root=project_settings.STATIC_DIR)
+
 
 handler404 = create_handler_view(PortalResource, 'handler404')
 handler500 = create_handler_view(PortalResource, 'handler500')
