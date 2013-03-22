@@ -3,6 +3,12 @@ import datetime
 
 from django.db import models
 
+class WorldInfo(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    data = models.TextField(null=False, default='', blank=True)
+
 
 class MapInfo(models.Model):
 
@@ -15,6 +21,8 @@ class MapInfo(models.Model):
 
     terrain = models.TextField(null=False, default='[]')
 
-    world = models.TextField(null=False, default='', blank=True)
+    cells = models.TextField(null=False, default='')
+
+    world = models.ForeignKey(WorldInfo, null=False, related_name='+')
 
     statistics = models.TextField(null=False, default='{}')

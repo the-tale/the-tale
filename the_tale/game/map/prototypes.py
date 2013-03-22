@@ -9,6 +9,7 @@ import deworld
 from deworld.layers import VEGETATION_TYPE
 
 from common.utils.prototypes import BasePrototype
+from common.utils.decorators import lazy_property
 
 from game.balance.enums import RACE
 
@@ -19,55 +20,40 @@ from game.map.places.models import Place
 from game.map.places.prototypes import PlacePrototype
 from game.map.places.storage import places_storage
 
-from game.map.models import MapInfo
-from game.map.conf import map_settings
+from game.map.models import MapInfo, WorldInfo
 from game.map.utils import get_race_percents
-
 from game.map.relations import MAP_STATISTICS
+
 
 
 class MapInfoPrototype(BasePrototype):
     _model_class = MapInfo
-    _readonly = ('id', 'turn_number')
+    _readonly = ('id', 'turn_number', 'world_id')
 
-    @property
-    def terrain(self):
-        if not hasattr(self, '_terrain'):
-            self._terrain = s11n.from_json(self._model.terrain)
-        return self._terrain
+    @lazy_property
+    def terrain(self): return s11n.from_json(self._model.terrain)
 
-    @property
+    @lazy_property
     def statistics(self):
-        if not hasattr(self, '_statistics'):
-            self._statistics = s11n.from_json(self._model.statistics)
-            self._statistics['race_percents'] = dict( (int(key), value) for key, value in self._statistics['race_percents'].items())
-            self._statistics['race_cities'] = dict( (int(key), value) for key, value in self._statistics['race_cities'].items())
-            self._statistics['terrain_percents'] = dict( (int(key), value) for key, value in self._statistics['terrain_percents'].items())
-        return self._statistics
+        statistics = s11n.from_json(self._model.statistics)
+        statistics['race_percents'] = dict( (int(key), value) for key, value in statistics['race_percents'].items())
+        statistics['race_cities'] = dict( (int(key), value) for key, value in statistics['race_cities'].items())
+        statistics['terrain_percents'] = dict( (int(key), value) for key, value in statistics['terrain_percents'].items())
+        return statistics
+
+    @lazy_property
+    def cells(self):
+        from game.map.generator.descriptors import UICells
+        return UICells.deserialize(s11n.from_json(self._model.cells))
 
     @property
-    def terrain_percents(self):
-        return self.statistics['terrain_percents']
+    def terrain_percents(self): return self.statistics['terrain_percents']
 
     @property
     def race_percents(self): return self.statistics['race_percents']
 
     @property
     def race_cities(self): return self.statistics['race_cities']
-
-    @property
-    def world(self):
-        if not hasattr(self, '_world'):
-            if not self._model.world:
-                self._world = self._create_world(w=map_settings.WIDTH, h=map_settings.HEIGHT)
-            else:
-                world_data = s11n.from_json(self._model.world)
-                self._world = deworld.World.deserialize(config=deworld.BaseConfig, data=world_data)
-        return self._world
-
-    @classmethod
-    def _create_world(self, w, h):
-        return deworld.World(w=w, h=h, config=deworld.BaseConfig)
 
     def get_dominant_place(self, x, y):
         for place in places_storage.all():
@@ -81,43 +67,39 @@ class MapInfoPrototype(BasePrototype):
 
     @classmethod
     def remove_old_infos(cls):
-        new_ids =  MapInfo.objects.order_by('-created_at', '-turn_number')[:2].values_list('id', flat=True)
-        MapInfo.objects.exclude(id__in=new_ids).delete()
+        map_info_ids, world_info_ids =  zip(*MapInfo.objects.order_by('-created_at', '-turn_number')[:2].values_list('id', 'world_id'))
+        MapInfo.objects.exclude(id__in=map_info_ids).delete()
+        WorldInfo.objects.exclude(id__in=world_info_ids).delete()
 
     @classmethod
-    def create(cls, turn_number, width, height, terrain, world=None):
-        '''
-        if world is None, it will be created in world property
-        '''
+    def create(cls, turn_number, width, height, terrain, world):
+        from game.map.generator.descriptors import UICells
 
-        # terrain percents
         terrain_percents = {}
 
-        if world:
+        terrain_squares = defaultdict(int)
 
-            terrain_squares = defaultdict(int)
+        for y in xrange(0, height):
+            for x in xrange(0, width):
+                cell = world.generator.cell_info(x, y)
 
-            for y in xrange(0, height):
-                for x in xrange(0, width):
-                    cell = world.cell_info(x, y)
+                if cell.height < -0.2:
+                    terrain_squares[MAP_STATISTICS.LOWLANDS] += 1
+                elif cell.height < 0.3:
+                    terrain_squares[MAP_STATISTICS.PLAINS] += 1
+                else:
+                    terrain_squares[MAP_STATISTICS.UPLANDS] += 1
 
-                    if cell.height < -0.2:
-                        terrain_squares[MAP_STATISTICS.LOWLANDS] += 1
-                    elif cell.height < 0.3:
-                        terrain_squares[MAP_STATISTICS.PLAINS] += 1
-                    else:
-                        terrain_squares[MAP_STATISTICS.UPLANDS] += 1
+                if cell.vegetation == VEGETATION_TYPE.DESERT:
+                    terrain_squares[MAP_STATISTICS.DESERTS] += 1
+                elif cell.vegetation == VEGETATION_TYPE.GRASS:
+                    terrain_squares[MAP_STATISTICS.GRASS] += 1
+                else:
+                    terrain_squares[MAP_STATISTICS.FORESTS] += 1
 
-                    if cell.vegetation == VEGETATION_TYPE.DESERT:
-                        terrain_squares[MAP_STATISTICS.DESERTS] += 1
-                    elif cell.vegetation == VEGETATION_TYPE.GRASS:
-                        terrain_squares[MAP_STATISTICS.GRASS] += 1
-                    else:
-                        terrain_squares[MAP_STATISTICS.FORESTS] += 1
+        total_cells = width * height
 
-            total_cells = width * height
-
-            terrain_percents = dict( (id_, float(square) / total_cells) for id_, square in terrain_squares.items())
+        terrain_percents = dict( (id_, float(square) / total_cells) for id_, square in terrain_squares.items())
 
         race_percents = get_race_percents(persons_storage.filter(state=PERSON_STATE.IN_GAME))
 
@@ -136,6 +118,32 @@ class MapInfoPrototype(BasePrototype):
                                        width=width,
                                        height=height,
                                        terrain=s11n.to_json(terrain),
-                                       world=s11n.to_json(world.serialize()) if world else '',
+                                       cells=s11n.to_json(UICells.create(world.generator).serialize()),
+                                       world=world._model,
                                        statistics=s11n.to_json(statistics))
+        return cls(model)
+
+
+
+class WorldInfoPrototype(BasePrototype):
+    _model_class = WorldInfo
+    _readonly = ('id',)
+    _get_by = ('id', )
+
+    @lazy_property
+    def generator(self):
+        world_data = s11n.from_json(self._model.data)
+        return deworld.World.deserialize(config=deworld.BaseConfig, data=world_data)
+
+    @classmethod
+    def create(cls, w, h):
+        generator = deworld.World(w=w, h=h, config=deworld.BaseConfig)
+
+        model = WorldInfo.objects.create(data=s11n.to_json(generator.serialize()))
+
+        return cls(model)
+
+    @classmethod
+    def create_from_generator(cls, generator):
+        model = WorldInfo.objects.create(data=s11n.to_json(generator.serialize()))
         return cls(model)

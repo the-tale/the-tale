@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import functools
 
-from accounts.logic import login_url
-
 def login_required(func):
 
     @functools.wraps(func)
     def wrapper(resource, *argv, **kwargs):
+        from accounts.logic import login_url
+
         if resource.account is not None:
             return func(resource, *argv, **kwargs)
         else:
@@ -33,3 +33,17 @@ def staff_required(permissions=[]):
         return login_required(wrapper)
 
     return decorator
+
+
+def lazy_property(func):
+
+    lazy_name = '_%s__lazy' % func.__name__
+
+    @property
+    @functools.wraps(func)
+    def wrapper(self):
+        if not hasattr(self, lazy_name):
+            setattr(self, lazy_name, func(self))
+        return getattr(self, lazy_name)
+
+    return wrapper

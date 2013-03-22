@@ -44,16 +44,16 @@ class CellInfoTests(RequestsTestsBase):
 
     def test_place_info_anonimouse(self):
         self.request_logout()
-        self.check_ajax_error(self.client.get(reverse('game:map:cell-info') + '?x=5&y=5', HTTP_X_REQUESTED_WITH='XMLHttpRequest'),
+        self.check_ajax_error(self.client.get(reverse('game:map:cell-info') + '?x=2&y=3', HTTP_X_REQUESTED_WITH='XMLHttpRequest'),
                               'common.login_required')
 
     def test_place_info_logined(self):
-        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + '?x=5&y=5'), texts=[('pgf-cell-debug', 0)])
+        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + '?x=2&y=3'), texts=[('pgf-cell-debug', 0)])
 
     def test_place_info_logined_staff(self):
         self.account.user.is_staff = True
         self.account.user.save()
-        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + '?x=5&y=5'), texts=[('pgf-cell-debug', 3)])
+        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + '?x=3&y=2'), texts=[('pgf-cell-debug', 3)])
 
     def test_place_info_no_modifier(self):
         texts = [('pgf-current-modifier-marker', 0)] + [(modifier.NAME, 1) for modifier in MODIFIERS.values()]

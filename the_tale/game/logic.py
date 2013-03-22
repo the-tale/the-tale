@@ -20,7 +20,7 @@ from game.artifacts.models import ARTIFACT_TYPE
 
 from game.map.storage import map_info_storage
 from game.map.relations import TERRAIN
-from game.map.prototypes import MapInfoPrototype
+from game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
 from game.map.conf import map_settings
 
 from game.map.places.storage import places_storage, buildings_storage
@@ -48,8 +48,8 @@ DEFAULT_HERO_EQUIPMENT = create_enum('DEFAULT_HERO_EQUIPMENT', ( ('PANTS', 'defa
 @artifacts_storage.postpone_version_update
 def create_test_map():
     p1 = PlacePrototype.create( x=1, y=1, size=1, name_forms=words.Noun.fast_construct('1x1'))
-    p2 = PlacePrototype.create( x=10, y=10, size=3, name_forms=words.Noun.fast_construct('10x10'))
-    p3 = PlacePrototype.create( x=1, y=10, size=3, name_forms=words.Noun.fast_construct('1x10'))
+    p2 = PlacePrototype.create( x=3, y=3, size=3, name_forms=words.Noun.fast_construct('10x10'))
+    p3 = PlacePrototype.create( x=1, y=3, size=3, name_forms=words.Noun.fast_construct('1x10'))
 
     for place in places_storage.all():
         place.sync_persons()
@@ -63,7 +63,7 @@ def create_test_map():
                                                       width=map_settings.WIDTH,
                                                       height=map_settings.HEIGHT,
                                                       terrain=[ [TERRAIN.PLANE_GREENWOOD for j in xrange(map_settings.WIDTH)] for j in xrange(map_settings.HEIGHT)],
-                                                      world=MapInfoPrototype._create_world(w=map_settings.WIDTH, h=map_settings.HEIGHT)))
+                                                      world=WorldInfoPrototype.create(w=map_settings.WIDTH, h=map_settings.HEIGHT)))
 
     update_nearest_cells()
 

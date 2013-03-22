@@ -247,52 +247,13 @@
       <div class="tab-pane" id="pgf-cell-map">
         <ul class="unstyled">
           <li>{{terrain}}, окрестности {{nearest_place_name}}</li>
-          <li>дует {{descr_wind}}</li>
-          <li>вокруг {{descr_temperature}} и {{descr_wetness}}</li>
+          <li>дует {{cell.wind_direction.text}} {{cell.wind_power.text}}</li>
+          <li>вокруг {{cell.temperature.text}} и {{cell.wetness.text}}</li>
         </ul>
       </div>
 
       {% if resource.user.is_staff %}
       <div class="tab-pane" id="pgf-cell-debug">
-        <h3>общее</h3>
-        <table class="table table-condensed">
-          <tbody>
-            <tr><th>параметр</th><th>величина</th><th>изменение</th></tr>
-            <tr><td>высота</td><td>{{ cell.height }}</td><td>{{cell_power.height}}</td></tr>
-            <tr><td>температура</td><td>{{ cell.temperature }}</td><td>{{cell_power.temperature}}</td></tr>
-            <tr><td>ветер</td><td>{{ cell.wind }}</td><td>{{cell_power.wind}}</td></tr>
-            <tr><td>влажность</td><td>{{ cell.wetness }}</td><td>{{cell_power.wetness}}</td></tr>
-            <tr><td>растительность</td><td>{{ cell.vegetation }}</td><td>{{cell_power.vegetation}}</td></tr>
-            <tr><td>качество почвы</td><td>{{ cell.soil }}</td><td>{{cell_power.soil}}</td></tr>
-          </tbody>
-        </table>
-
-        <h3>атмосфера</h3>
-        <ul class="unstyled">
-          <li><strong>ветер</strong>: {{ cell.atmo_wind }}</li>
-          <li><strong>температура</strong>: {{ cell.atmo_temperature }}</li>
-          <li><strong>влажность</strong>: {{ cell.atmo_wetness }}</li>
-        </ul>
-
-        <h3>территории</h3>
-        <table class="table table-condensed">
-          <tbody>
-            {% for text, total_points, points in terrain_points %}
-            <tr rel="tooltip"
-                title="<table class='table table-condensed'>
-                       <tbody>
-                         {% for name, value in points %}
-                         <tr><td>{{name}}</td><td>{{value}}</td></tr>
-                         {% endfor %}
-                       </tbody>
-                       </table>">
-              <td>{{text}}</td>
-              <td>{{total_points}}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-
       </div>
       {% endif %}
     </div>

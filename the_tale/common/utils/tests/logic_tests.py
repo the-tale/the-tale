@@ -1,4 +1,5 @@
 # coding: utf-8
+
 import datetime
 
 from collections import Counter
@@ -6,6 +7,7 @@ from collections import Counter
 from common.utils import testcase
 
 from common.utils.logic import random_value_by_priority, verbose_timedelta
+from common.utils.decorators import lazy_property
 
 class LogicTest(testcase.TestCase):
 
@@ -51,3 +53,24 @@ class LogicTest(testcase.TestCase):
         self.assertEqual(u'5 минут', verbose_timedelta(datetime.timedelta(seconds=5*60)))
 
         self.assertEqual(u'меньше минуты', verbose_timedelta(datetime.timedelta(seconds=49)))
+
+    def test_lazy_property_decorator(self):
+
+        class X(object):
+
+            def __init__(self):
+                self.count = 0
+
+            @lazy_property
+            def test(self):
+                self.count += 1
+                return self.count
+
+        x = X()
+
+        self.assertEqual(x.count, 0)
+        x.test
+        x.test
+        self.assertEqual(x.count, 1)
+        x.test
+        self.assertEqual(x.count, 1)

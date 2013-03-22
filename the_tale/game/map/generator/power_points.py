@@ -31,13 +31,23 @@ def get_height_power_function(borders):
 
 def _point_circle_height(place, borders, normalizer):
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.HEIGHT,
-                                        name='place_height_point_%d' % place.id,
+                                        name='height_point_' + _point_uid(place),
                                         x=place.x,
                                         y=place.y,
                                         radius=place.terrain_change_power,
                                         power=get_height_power_function(borders),
                                         default_power=(0.0, 0.0),
                                         normalizer=normalizer)
+
+def _point_uid(point_object):
+    from game.map.places.prototypes import PlacePrototype, BuildingPrototype
+
+    if isinstance(point_object, PlacePrototype):
+        return 'place_%d' % point_object.id
+    elif isinstance(point_object, BuildingPrototype):
+        return 'building_%d' % point_object.id
+    else:
+        raise MapException('try to get uid for unknown power point source %r' % point_object)
 
 
 def _point_arrow_height(place, borders, length_normalizer, width_normalizer):
@@ -67,7 +77,7 @@ def _point_arrow_height(place, borders, length_normalizer, width_normalizer):
         arrows.extend([arrow, arrow.rounded_arrow])
 
     return power_points.ArrowAreaPoint(layer_type=layers.LAYER_TYPE.HEIGHT,
-                                       name='place_height_point_%d' % place.id,
+                                       name='place_height_' + _point_uid(place),
                                        x=place.x,
                                        y=place.y,
                                        power=get_height_power_function(borders),
@@ -78,7 +88,7 @@ def _point_arrow_height(place, borders, length_normalizer, width_normalizer):
 
 def _point_circle_vegetation(place, power, normalizer):
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.VEGETATION,
-                                        name='place_vegetation_point_%d' % place.id,
+                                        name='place_vegetation_' + _point_uid(place),
                                         x=place.x,
                                         y=place.y,
                                         radius=place.terrain_change_power,
@@ -88,7 +98,7 @@ def _point_circle_vegetation(place, power, normalizer):
 
 def _point_circle_soil(place, power, normalizer):
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.SOIL,
-                                        name='place_soil_point_%d' % place.id,
+                                        name='place_soil_' + _point_uid(place),
                                         x=place.x,
                                         y=place.y,
                                         radius=place.terrain_change_power,
@@ -98,7 +108,7 @@ def _point_circle_soil(place, power, normalizer):
 
 def _point_circle_temperature(place, power, normalizer):
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.TEMPERATURE,
-                                        name='place_temperature_point_%d' % place.id,
+                                        name='place_temperature_' + _point_uid(place),
                                         x=place.x,
                                         y=place.y,
                                         radius=place.terrain_change_power,
@@ -107,7 +117,7 @@ def _point_circle_temperature(place, power, normalizer):
 
 def _point_circle_wetness(place, power, normalizer):
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.WETNESS,
-                                        name='place_wetness_point_%d' % place.id,
+                                        name='place_wetness_' + _point_uid(place),
                                         x=place.x,
                                         y=place.y,
                                         radius=place.terrain_change_power,
@@ -218,7 +228,7 @@ def get_building_power_points(building):
     return points
 
 
-def get_places_power_points():
+def get_power_points():
 
     month = TimePrototype.get_current_time().game_time.month_record
 

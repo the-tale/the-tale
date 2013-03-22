@@ -1,4 +1,5 @@
 # coding: utf-8
+import math
 import random
 
 def random_value_by_priority(values):
@@ -47,10 +48,21 @@ def verbose_timedelta(value):
 
 def choose_from_interval(value, intervals):
 
-    choose_result = None
+    choosen_result = None
     for test_value, result in reversed(intervals):
         if test_value <= value:
-            choose_result = result
+            choosen_result = result
             break
 
-    return choose_result
+    return choosen_result
+
+def choose_nearest(value, intervals):
+    choosen_result = None
+    min_delta = 999999
+    for test_value, result in intervals:
+        delta = math.fabs(test_value - value)
+        if delta < min_delta:
+            min_delta = delta
+            choosen_result = result
+
+    return choosen_result

@@ -13,7 +13,7 @@ from game.map.relations import TERRAIN
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage
 from game.map.storage import map_info_storage
-from game.map.prototypes import MapInfoPrototype
+from game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
 from game.map.conf import map_settings
 
 class Command(BaseCommand):
@@ -105,6 +105,7 @@ class Command(BaseCommand):
         map_info_storage.set_item(MapInfoPrototype.create(turn_number=0,
                                                           width=map_settings.WIDTH,
                                                           height=map_settings.HEIGHT,
-                                                          terrain=terrain))
+                                                          terrain=terrain,
+                                                          world=WorldInfoPrototype.create(w=map_settings.WIDTH, h=map_settings.HEIGHT)))
 
         map_info_storage.update_version()
