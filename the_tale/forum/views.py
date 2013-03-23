@@ -34,7 +34,7 @@ class BaseForumResource(Resource):
 
 
     def can_delete_thread(self, thread):
-        return self.account == thread.author or self.user.has_perm('forum.moderate_thread')
+        return (self.account == thread.author and not thread.subcategory.closed) or self.user.has_perm('forum.moderate_thread')
 
     def can_change_thread(self, thread):
         return self.account == thread.author or self.user.has_perm('forum.moderate_thread')

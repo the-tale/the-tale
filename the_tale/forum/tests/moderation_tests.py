@@ -260,6 +260,15 @@ class TestModeration(TestCase):
         self.assertEqual(Thread.objects.all().count(), 2)
         self.assertEqual(Post.objects.all().count(), 4)
 
+    def test_main_user_remove_thread_in_closed_subcategory(self):
+        self.subcategory.model.closed = True
+        self.subcategory.save()
+
+        self.request_login('main_user@test.com')
+        self.check_ajax_error(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])), 'forum.delete_thread.no_permissions')
+        self.assertEqual(Thread.objects.all().count(), 3)
+        self.assertEqual(Post.objects.all().count(), 8)
+
     def test_moderator_remove_thread(self):
         self.request_login('moderator@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])))
