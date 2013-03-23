@@ -2,7 +2,7 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views import handler, validator
+from dext.views import handler, validator, validate_argument
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
@@ -25,18 +25,10 @@ ORDER_BY = create_enum('ORDER_BY', (('ALPHABET', 'alphabet', u'по алфави
 
 class PostResource(Resource):
 
-    def initialize(self, post_id=None, *args, **kwargs):
+    @validate_argument('post', PostPrototype.get_by_id, 'blogs.posts', u'Запись не найдена')
+    def initialize(self, post=None, *args, **kwargs):
         super(PostResource, self).initialize(*args, **kwargs)
-
-        if post_id is not None:
-            self.post_id = int(post_id)
-            self.post = PostPrototype.get_by_id(self.post_id)
-            if self.post is None:
-                return self.auto_error('blogs.posts.wrong_post_id', u'Запись не найдена', status_code=404)
-        else:
-            self.post_id = None
-            self.post = None
-
+        self.post = post
         self.can_moderate_post = self.user.has_perm('blogs.moderate_post')
 
     @validator(code='blogs.posts.fast_account', message=u'Для выполнения этого действия необходимо завершить регистрацию')
@@ -133,7 +125,7 @@ class PostResource(Resource):
         return self.json_ok(data={'next_url': reverse('blogs:posts:show', args=[post.id])})
 
     @validate_declined_state()
-    @handler('#post_id', name='show', method='get')
+    @handler('#post', name='show', method='get')
     def show(self):
         return self.template('blogs/show.html', {'post': self.post,
                                                  'vote': None if not self.account else VotePrototype.get_for(self.account, self.post)})
@@ -142,7 +134,7 @@ class PostResource(Resource):
     @validate_fast_account_restrictions()
     @validate_edit_rights()
     @validate_declined_state()
-    @handler('#post_id', 'edit', method='get')
+    @handler('#post', 'edit', method='get')
     def edit(self):
         form = PostForm(initial={'caption': self.post.caption,
                                  'text': self.post.text})
@@ -154,7 +146,7 @@ class PostResource(Resource):
     @validate_edit_rights()
     @validate_declined_state()
     @nested_commit_on_success
-    @handler('#post_id', 'update', method='post')
+    @handler('#post', 'update', method='post')
     def update(self):
         form = PostForm(self.request.POST)
 
@@ -178,7 +170,7 @@ class PostResource(Resource):
     @login_required
     @validate_fast_account_restrictions()
     @validate_moderator_rights()
-    @handler('#post_id', 'accept', method='post')
+    @handler('#post', 'accept', method='post')
     def accept(self):
         self.post.state = POST_STATE.ACCEPTED
         self.post.moderator_id = self.account.id
@@ -189,7 +181,7 @@ class PostResource(Resource):
     @login_required
     @validate_fast_account_restrictions()
     @validate_moderator_rights()
-    @handler('#post_id', 'decline', method='post')
+    @handler('#post', 'decline', method='post')
     def decline(self):
         self.post.state = POST_STATE.DECLINED
         self.post.moderator_id = self.account.id
@@ -200,7 +192,7 @@ class PostResource(Resource):
     @login_required
     @validate_fast_account_restrictions()
     @nested_commit_on_success
-    @handler('#post_id', 'vote', method='post')
+    @handler('#post', 'vote', method='post')
     def vote(self, value):
 
         value = {'for': True, 'against': False}.get(value)

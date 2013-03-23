@@ -295,7 +295,7 @@ class TestVoteRequests(BaseTestRequests):
         self.check_post_votes(self.post.id, 1)
 
     def test_post_not_exists(self):
-        self.check_ajax_error(self.client.post(reverse('blogs:posts:vote', args=[666]) + '?value=for', {}), 'blogs.posts.wrong_post_id')
+        self.check_ajax_error(self.client.post(reverse('blogs:posts:vote', args=[666]) + '?value=for', {}), 'blogs.posts.post.not_found')
 
     def test_wrong_value(self):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]) + '?value=xxx', {}), 'blogs.posts.vote.wrong_value')
@@ -455,8 +455,8 @@ class TestModerateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:decline', args=[self.post.id]), {}), 'blogs.posts.fast_account')
 
     def test_type_not_exist(self):
-        self.check_ajax_error(self.client.post(reverse('blogs:posts:accept', args=[666]), {}), 'blogs.posts.wrong_post_id')
-        self.check_ajax_error(self.client.post(reverse('blogs:posts:decline', args=[666]), {}), 'blogs.posts.wrong_post_id')
+        self.check_ajax_error(self.client.post(reverse('blogs:posts:accept', args=[666]), {}), 'blogs.posts.post.not_found')
+        self.check_ajax_error(self.client.post(reverse('blogs:posts:decline', args=[666]), {}), 'blogs.posts.post.not_found')
 
     def test_no_permissions(self):
         self.request_logout()
