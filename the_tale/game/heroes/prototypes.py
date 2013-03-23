@@ -618,6 +618,9 @@ class HeroPrototype(BasePrototype):
 
     def add_message(self, type_, important=False, **kwargs):
         msg = get_text('hero:add_message', type_, kwargs)
+
+        if msg is None: return
+
         self.push_message(self._prepair_message(msg), important=important)
 
 

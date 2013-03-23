@@ -49,7 +49,7 @@ def get_text(error_prefix, type_, args):
 
     if template is None:
         # if template type exists but empty
-        return
+        return None
 
     return template.substitute(get_dictionary(), args)
 
