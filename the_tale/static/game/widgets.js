@@ -86,7 +86,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
         jQuery('.pgf-power', widget).text(data.secondary.power);
         jQuery('.pgf-money', widget).text(data.money);
-        jQuery('.pgf-might', widget).text(data.might);
+        jQuery('.pgf-might', widget).text(Math.round(data.might*100)/100);
         jQuery('.pgf-might-crit-chance', widget).text(data.might_crit_chance);
         jQuery('.pgf-might-pvp-effectiveness-bonus', widget).text(data.might_pvp_effectiveness_bonus);
 
