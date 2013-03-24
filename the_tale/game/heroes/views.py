@@ -21,6 +21,8 @@ from game.persons.storage import persons_storage
 
 from game.workers.environment import workers_environment
 
+from game import names
+
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask
 from game.heroes.models import PREFERENCE_TYPE
@@ -50,11 +52,16 @@ class HeroResource(Resource):
             if self.hero is None:
                 return self.auto_error('heroes.hero_not_exists', u'Вы не можете просматривать данные этого игрока')
 
+        self.can_moderate_heroes = self.user.has_perm('accounts.moderate_account')
+
     @property
     def is_owner(self): return self.account and self.account.id == self.hero.account_id
 
     @validator(code='heroes.not_owner', message=u'Вы не являетесь владельцем данного аккаунта')
     def validate_ownership(self, *args, **kwargs): return self.is_owner
+
+    @validator(code='heroes.moderator_rights_required', message=u'Вы не являетесь модератором')
+    def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_heroes
 
     @property
     def hero(self):
@@ -116,6 +123,26 @@ class HeroResource(Resource):
         workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
+
+    @login_required
+    @validate_moderator_rights()
+    @handler('#hero_id', 'reset-name', method='post')
+    def reset_name(self):
+        from textgen.words import Noun
+
+        name = names.generator.get_name(self.hero.race, self.hero.gender)
+
+        change_task = ChangeHeroTask(hero_id=self.hero.id,
+                                     name=Noun.fast_construct(name),
+                                     race=self.hero.race,
+                                     gender=self.hero.gender)
+
+        task = PostponedTaskPrototype.create(change_task)
+
+        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+
+        return self.json_processing(task.status_url)
+
 
 
     @login_required

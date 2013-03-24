@@ -72,4 +72,37 @@
   </tbody>
 </table>
 
+{% if resource.can_moderate_accounts %}
+
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var awardForm = new pgf.forms.Form(jQuery('#pgf-give-award-form'),
+                                               {OnSuccess: function(form, data){location.reload();}});
+});
+</script>
+
+<h3>Выдать награду</h3>
+
+<div class="pgf-account-moderator-block">
+
+  <form id="pgf-give-award-form" method="post" action="{{ url('accounts:give-award', master_account.id) }}" class="block">
+
+    {{ give_award_form.errors_container }}
+
+    {{ give_award_form.type.widget}}
+    {{ give_award_form.description.widget }}
+
+    <input type="submit" value="Выдать награду"/>
+
+  </form>
+
+</div>
+
+<h3>Сброс ника</h3>
+
+<a class="btn btn-success pgf-forms-post-simple" href="{{ url('accounts:reset-nick', master_account.id) }}">сбросить</a>
+
+{% endif %}
+
 {% endblock %}

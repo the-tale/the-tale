@@ -3,6 +3,7 @@
 from dext.forms import forms, fields
 
 from accounts.conf import accounts_settings
+from accounts.models import AWARD_TYPE
 
 
 class EditProfileForm(forms.Form):
@@ -27,3 +28,8 @@ class LoginForm(forms.Form):
 class ResetPasswordForm(forms.Form):
 
     email = fields.EmailField(label=u'Email')
+
+
+class GiveAwardForm(forms.Form):
+    type = fields.TypedChoiceField(label=u'тип', choices=AWARD_TYPE._CHOICES, coerce=int)
+    description = fields.TextField(label=u'обоснование', required=False)

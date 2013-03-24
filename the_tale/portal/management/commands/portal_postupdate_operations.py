@@ -63,3 +63,5 @@ class Command(BaseCommand):
         sync_group('folclor moderation group', ['blogs.moderate_post'])
 
         sync_group('mobs & artifacts create group', ['mobs.create_mobrecord', 'artifacts.create_artifactrecord'])
+
+        sync_group('accounts moderators group', ['accounts.moderate_account'])

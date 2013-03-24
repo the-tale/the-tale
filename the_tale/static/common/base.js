@@ -276,20 +276,3 @@ pgf.base.CompareObjects = function(a, b)
 
   return true;
 };
-
-jQuery('.pgf-link-load-on-success').live('click', function(e){
-    e.preventDefault();
-
-    var el = jQuery(this);
-    var href = el.attr('href');
-    var dest = el.data('dest');
-
-    pgf.forms.Post({action: href,
-                    OnSuccess: function(data){
-                        location.href = dest;
-                    },
-                    OnError: function(data){
-                        alert(data.error);
-                    }
-                   });
-});

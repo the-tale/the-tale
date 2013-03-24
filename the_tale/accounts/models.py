@@ -30,6 +30,7 @@ class Account(models.Model):
 
     class Meta:
         ordering = ['nick']
+        permissions = (("moderate_account", u"Может редактировать аккаунты и т.п."), )
 
     def __unicode__(self): return self.nick
 

@@ -1,11 +1,12 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+import uuid
 import datetime
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout
 from django.utils.log import getLogger
 
-from dext.views import handler
+from dext.views import handler, validator
 from dext.utils.urls import UrlBuilder
 
 from common.postponed_tasks import PostponedTaskPrototype
@@ -15,7 +16,7 @@ from common.utils.decorators import login_required
 
 from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 from accounts.postponed_tasks import RegistrationTask
-from accounts.models import CHANGE_CREDENTIALS_TASK_STATE, Account
+from accounts.models import CHANGE_CREDENTIALS_TASK_STATE, Account, Award
 from accounts import forms
 from accounts.conf import accounts_settings
 from accounts.logic import logout_user, login_user, force_login_user
@@ -151,8 +152,6 @@ class ProfileResource(Resource):
                                                          new_password=edit_profile_form.c.password,
                                                          new_nick=edit_profile_form.c.nick)
 
-            # print task.uuid
-
             task.process(logger)
 
             next_url = reverse('accounts:profile:edited')
@@ -261,6 +260,12 @@ class AccountResource(Resource):
             if self.master_account is None:
                 return self.auto_error('accounts.account_not_found', u'Игрок не найден', status_code=404)
 
+
+        self.can_moderate_accounts = self.user.has_perm('accounts.moderate_account')
+
+    @validator(code='accounts.account.moderator_rights_required', message=u'Вы не являетесь модератором')
+    def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_accounts
+
     @property
     def master_account(self):
         if not hasattr(self, '_master_account'):
@@ -327,4 +332,29 @@ class AccountResource(Resource):
                               'threads_with_posts': threads_with_posts,
                               'threads_count': threads_count,
                               'folclor_posts_count': folclor_posts_count,
+                              'give_award_form': forms.GiveAwardForm(),
                               'phrases_count': phrases_count} )
+
+    @validate_moderator_rights()
+    @handler('#account_id', 'give-award', name='give-award', method='post')
+    def give_award(self):
+
+        form = forms.GiveAwardForm(self.request.POST)
+
+        if not form.is_valid():
+            return self.json_error('accounts.account.give_award.form_errors', form.errors)
+
+        Award.objects.create(description=form.c.description,
+                             type=form.c.type,
+                             account=self.master_account.model)
+
+        return self.json_ok()
+
+
+
+    @validate_moderator_rights()
+    @handler('#account_id', 'reset-nick', name='reset-nick', method='post')
+    def reset_nick(self):
+        self.master_account.nick = u'имя игрока сброшено (%s)' % uuid.uuid4().hex
+        self.master_account.save()
+        return self.json_ok()

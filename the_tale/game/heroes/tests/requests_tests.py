@@ -9,8 +9,10 @@ from textgen.words import Noun
 
 from common.utils.testcase import TestCase
 from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
+from common.utils.permissions import sync_group
 
 from accounts.logic import register_user
+from accounts.prototypes import AccountPrototype
 
 from game.balance import constants as c
 from game.game_info import GENDER, GENDER_ID_2_STR
@@ -63,8 +65,8 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                                   ('pgf-choose-preference-button', 2),
                                   ('pgf-free-destiny-points', 1),
                                   ('pgf-settings-container',2),
-                                  ('pgf-settings-tab-button', 2)))
-
+                                  ('pgf-settings-tab-button', 2),
+                                  ('pgf-moderation-container', 0)))
 
     def test_other_hero_page(self):
         texts = (('pgf-health-percents', 0),
@@ -78,7 +80,8 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                  ('pgf-choose-preference-button', 0),
                  ('pgf-free-destiny-points', 0),
                  ('pgf-settings-container',0),
-                 ('pgf-settings-tab-button', 1))
+                 ('pgf-settings-tab-button', 1),
+                 ('pgf-moderation-container', 0))
 
         self.request_logout()
         self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=texts)
@@ -87,6 +90,18 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
 
         self.request_login('test_user_2@test.com')
         self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=texts)
+
+    def test_moderation_tab(self):
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        account_2 = AccountPrototype.get_by_id(account_id)
+        self.request_login('test_user_2@test.com')
+
+        group = sync_group('accounts moderators group', ['accounts.moderate_account'])
+        group.user_set.add(account_2.user)
+
+        self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=['pgf-moderation-container'])
+
+
 
 
 class ChangePreferencesRequestsTests(HeroRequestsTestBase):
@@ -160,3 +175,39 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
         self.assertEqual(task.internal_logic.name, self.get_name())
         self.assertEqual(task.internal_logic.gender, GENDER.MASCULINE)
         self.assertEqual(task.internal_logic.race, RACE.DWARF)
+
+
+class ResetNameRequestsTests(HeroRequestsTestBase):
+
+    def setUp(self):
+        super(ResetNameRequestsTests, self).setUp()
+
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        self.account_2 = AccountPrototype.get_by_id(account_id)
+
+        group = sync_group('accounts moderators group', ['accounts.moderate_account'])
+        group.user_set.add(self.account_2.user)
+
+        self.request_login('test_user_2@test.com')
+
+    def test_chane_hero_moderation(self):
+        self.request_logout()
+        self.request_login('test_user@test.com')
+
+        self.check_ajax_error(self.client.post(reverse('game:heroes:reset-name', args=[self.hero.id])), 'heroes.moderator_rights_required')
+
+    def test_change_hero(self):
+        self.hero._model.name = '111'
+        self.hero.save()
+
+        self.assertEqual(PostponedTask.objects.all().count(), 0)
+        response = self.client.post(reverse('game:heroes:reset-name', args=[self.hero.id]))
+        self.assertEqual(PostponedTask.objects.all().count(), 1)
+
+        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+
+        self.check_ajax_processing(response, task.status_url)
+
+        self.assertNotEqual(task.internal_logic.name, self.hero.name)
+        self.assertEqual(task.internal_logic.gender, self.hero.gender)
+        self.assertEqual(task.internal_logic.race, self.hero.race)

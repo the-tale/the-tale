@@ -57,6 +57,10 @@ jQuery(document).ready(function(e){
         </a>
       </li>
       {% endif %}
+
+      {% if resource.can_moderate_heroes %}
+      <li class=""><a href="#pgf-moderation-container" class="pgf-moderation-tab-button" data-toggle="tab">Модерация</a></li>
+      {% endif %}
     </ul>
 
     <div class="row tab-content">
@@ -81,6 +85,17 @@ jQuery(document).ready(function(e){
       <div class="tab-pane" id="pgf-settings-container">
         <div class="span8">
           {% include "heroes/hero_settings.html" with context %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if resource.can_moderate_heroes %}
+      <div class="tab-pane" id="pgf-moderation-container">
+        <div class="span8">
+          <h3>Сброс имени героя</h3>
+
+          <a class="btn btn-success pgf-forms-post-simple" href="{{ url('game:heroes:reset-name', resource.hero_id) }}">сбросить имя</a>
+
         </div>
       </div>
       {% endif %}
