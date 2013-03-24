@@ -37,37 +37,26 @@ class Command(BaseCommand):
         # to sync map size and do other unpredictable operations
         subprocess.call(['./manage.py', 'map_update_map'])
 
-        self.create_place(name=u'Ашур-Донал',
-                          x=32,
-                          y=6,
-                          size=1,
-                          roads_to=[places_storage[3],
-                                    places_storage[13]],
-                          persons=[(u'Лаз',         0.12, RACE.HUMAN,  GENDER.MASCULINE, PERSON_TYPE.MERCHANT),
-                                   (u'Antermil',    0.12, RACE.ELF,    GENDER.MASCULINE, PERSON_TYPE.WARDEN),
-                                   (u'Snorri',      0.12, RACE.ORC,    GENDER.MASCULINE, PERSON_TYPE.WARDEN),
-                                   (u'Dooluni',     0.40, RACE.DWARF,  GENDER.MASCULINE, PERSON_TYPE.BLACKSMITH),
-                                   (u'Soo-Ju-Seer', 0.26, RACE.GOBLIN, GENDER.MASCULINE, PERSON_TYPE.ALCHEMIST),
-                                   (u'Faerlysi',    0.08, RACE.ELF,    GENDER.FEMININE,  PERSON_TYPE.ALCHEMIST)])
+        with nested_commit_on_success():
 
-        self.create_place(name=u'Лорадо',
-                          x=8,
-                          y=24,
-                          size=10,
-                          roads_to=[places_storage[8]],
-                          persons=[(u'San-Joon',    0.27, RACE.GOBLIN,  GENDER.MASCULINE, PERSON_TYPE.CARPENTER),
-                                   (u'Laon-Hu',     0.24, RACE.GOBLIN,  GENDER.MASCULINE, PERSON_TYPE.INNKEEPER),
-                                   (u'Dafar',       0.24, RACE.ELF,     GENDER.MASCULINE, PERSON_TYPE.BUREAUCRAT),
-                                   (u'Venhil',      0.19, RACE.ELF,     GENDER.MASCULINE, PERSON_TYPE.HUNTER),
-                                   (u'Размаил',     0.12, RACE.HUMAN,   GENDER.MASCULINE, PERSON_TYPE.WARDEN),
-                                   (u'Qasad',       0.06, RACE.ORC,     GENDER.MASCULINE,  PERSON_TYPE.BLACKSMITH)])
+            self.create_place(name=u'33x11', x=33, y=11, size=1, roads_to=[places_storage[19],
+                                                                           places_storage[17]])
+
+            self.create_place(name=u'30x23', x=30, y=23, size=1, roads_to=[places_storage[18]])
+
+            p22x20 = self.create_place(name=u'22x23', x=22, y=23, size=1, roads_to=[places_storage[18],
+                                                                                    places_storage[15]])
+
+            self.create_place(name=u'15x21', x=15, y=21, size=1, roads_to=[p22x20,
+                                                                           places_storage[15],
+                                                                           places_storage[20]])
 
         # update map with new places
         subprocess.call(['./manage.py', 'map_update_map'])
 
 
     @nested_commit_on_success
-    def create_place(self, name, x, y, size, roads_to, persons):
+    def create_place(self, name, x, y, size, roads_to, persons=[]):
 
         place_power = int(max(place.power for place in places_storage.all()) * float(size) / places_settings.MAX_SIZE)
 
@@ -100,6 +89,7 @@ class Command(BaseCommand):
 
         persons_storage.update_version()
 
+        place.sync_persons()
         place.sync_race()
         place.save()
 
@@ -108,3 +98,5 @@ class Command(BaseCommand):
 
         places_storage.update_version()
         roads_storage.update_version()
+
+        return place
