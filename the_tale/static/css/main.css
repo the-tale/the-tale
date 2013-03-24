@@ -138,6 +138,10 @@ small {
   height: 32px;
   width: 32px;
 }
+.wait-indicator-backdrop .wait-indicator .spinner {
+  left: 10px !important;
+  top: 5px !important;
+}
 /* remove table row highlighting */
 table.table-no-highlighting.table tbody tr:hover td {
   background-color: white;
@@ -183,4 +187,19 @@ li .game-link {
 }
 li.active .game-link {
   font-weight: normal;
+}
+.spinner {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 5px;
+  left: 0 !important;
+  top: 0 !important;
+}
+a.disabled {
+  color: #999999;
+  text-decoration: none;
+}
+a.disabled:hover {
+  color: #999999;
+  text-decoration: none;
 }

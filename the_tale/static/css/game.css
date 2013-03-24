@@ -93,41 +93,41 @@
   margin-right: 5px;
   margin-bottom: 0;
 }
-.quest-icon.help {
+.quest-icon.caravan {
   background: url('../game/images/quests.png') no-repeat scroll 0 0 transparent;
 }
 .quest-icon.delivery {
-  background: url('../game/images/quests.png') no-repeat scroll -64px 0 transparent;
+  background: url('../game/images/quests.png') no-repeat scroll 0 -64px transparent;
 }
-.quest-icon.spying {
-  background: url('../game/images/quests.png') no-repeat scroll -128px 0 transparent;
-}
-.quest-icon.notmywork {
-  background: url('../game/images/quests.png') no-repeat scroll -192px 0 transparent;
-}
-.quest-icon.caravan {
-  background: url('../game/images/quests.png') no-repeat scroll -256px 0 transparent;
-}
-.quest-icon.no-quest {
-  background: url('../game/images/quests.png') no-repeat scroll -320px 0 transparent;
-}
-.quest-icon.hunt {
-  background: url('../game/images/quests.png') no-repeat scroll -384px 0 transparent;
-}
-.quest-icon.hometown {
-  background: url('../game/images/quests.png') no-repeat scroll -448px 0 transparent;
-}
-.quest-icon.searchsmith {
-  background: url('../game/images/quests.png') no-repeat scroll -512px 0 transparent;
-}
-.quest-icon.interfereenemy {
-  background: url('../game/images/quests.png') no-repeat scroll -576px 0 transparent;
+.quest-icon.help {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -128px transparent;
 }
 .quest-icon.helpfriend {
-  background: url('../game/images/quests.png') no-repeat scroll -640px 0 transparent;
+  background: url('../game/images/quests.png') no-repeat scroll 0 -192px transparent;
+}
+.quest-icon.hometown {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -256px transparent;
+}
+.quest-icon.hunt {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -320px transparent;
+}
+.quest-icon.interfereenemy {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -384px transparent;
+}
+.quest-icon.notmywork {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -448px transparent;
+}
+.quest-icon.spying {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -512px transparent;
+}
+.quest-icon.searchsmith {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -576px transparent;
+}
+.quest-icon.no-quest {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -640px transparent;
 }
 .quest-icon.next-spending {
-  background: url('../game/images/quests.png') no-repeat scroll -704px 0 transparent;
+  background: url('../game/images/quests.png') no-repeat scroll 0 -704px transparent;
 }
 .quest-record {
   min-height: 64px;
@@ -234,10 +234,6 @@
 .place-description-dialog .person-table {
   margin-bottom: 0;
 }
-.place-description-dialog .person-table .profession-icon {
-  width: 32px;
-  vertical-align: middle;
-}
 .place-description-dialog .person-table .person-power {
   width: 150px;
 }
@@ -257,32 +253,25 @@
   text-align: center;
   font-size: 14pt;
 }
-#abilities-block .wait,
-#abilities-block .no-energy,
-#abilities-block .no-registration {
+.angel-ability.wait,
+.angel-ability.no-energy,
+.angel-ability.no-registration {
   color: #999999;
   text-decoration: none;
 }
-#abilities-block .icon-tint {
+.angel-ability .icon-tint {
   display: none;
 }
-#abilities-block .icon-ban-circle {
+.angel-ability .icon-ban-circle {
   display: none;
 }
-#abilities-block .no-energy .icon-tint {
+.angel-ability.no-energy .icon-tint {
   display: inline-block;
   vertical-align: middle;
 }
-#abilities-block .no-registration .icon-ban-circle {
+.angel-ability.no-registration .icon-ban-circle {
   display: inline-block;
   vertical-align: middle;
-}
-#abilities-block .spinner {
-  display: inline-block;
-  vertical-align: middle;
-  margin: 5px;
-  left: 0 !important;
-  top: 0 !important;
 }
 .game-ui-icon {
   width: 16px;
@@ -339,4 +328,76 @@
 }
 .game-ui-icon.ring {
   background: url('../game/images/game_ui.png') no-repeat scroll 0 -256px transparent;
+}
+.profession-icon {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.profession-icon.alchemist {
+  background: url('../game/images/professions.png') no-repeat scroll 0 0 transparent;
+}
+.profession-icon.aristocrat {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -32px transparent;
+}
+.profession-icon.bard {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -64px transparent;
+}
+.profession-icon.bureaucrat {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -96px transparent;
+}
+.profession-icon.magician {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -128px transparent;
+}
+.profession-icon.rogue {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -160px transparent;
+}
+.profession-icon.tamer {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -192px transparent;
+}
+.profession-icon.blacksmith {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -224px transparent;
+}
+.profession-icon.physician {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -256px transparent;
+}
+.profession-icon.mayor {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -288px transparent;
+}
+.profession-icon.hunter {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -320px transparent;
+}
+.profession-icon.executioner {
+  background: url('../game/images/professions.png') no-repeat scroll -32px 0 transparent;
+}
+.profession-icon.carpenter {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -32px transparent;
+}
+.profession-icon.tailor {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -64px transparent;
+}
+.profession-icon.fisherman {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -96px transparent;
+}
+.profession-icon.priest {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -128px transparent;
+}
+.profession-icon.herdsman {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -160px transparent;
+}
+.profession-icon.warden {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -192px transparent;
+}
+.profession-icon.merchant {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -224px transparent;
+}
+.profession-icon.innkeeper {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -256px transparent;
+}
+.profession-icon.farmer {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -288px transparent;
+}
+.profession-icon.miner {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -320px transparent;
 }
