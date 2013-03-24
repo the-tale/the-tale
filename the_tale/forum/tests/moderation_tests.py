@@ -12,6 +12,7 @@ from game.logic import create_test_map
 
 from forum.models import Category, SubCategory, Thread, Post
 from forum.prototypes import ThreadPrototype, PostPrototype, CategoryPrototype, SubCategoryPrototype
+from forum.conf import forum_settings
 
 
 class TestModeration(TestCase):
@@ -27,7 +28,7 @@ class TestModeration(TestCase):
         self.moderator = AccountPrototype.get_by_nick('moderator')
         self.second_account = AccountPrototype.get_by_nick('second_user')
 
-        group = sync_group('forum moderators group', ['forum.moderate_post', 'forum.moderate_thread'])
+        group = sync_group(forum_settings.MODERATOR_GROUP_NAME, ['forum.moderate_post', 'forum.moderate_thread'])
 
         group.user_set.add(self.moderator.user)
 
@@ -340,6 +341,12 @@ class TestModeration(TestCase):
         post = Post.objects.filter(thread=self.thread.id).order_by('created_at')[0]
         self.check_ajax_error(self.client.post(reverse('forum:posts:delete', args=[post.id])), 'forum.delete_post.remove_first_post')
         self.assertEqual(Post.objects.all().count(), 8)
+
+    def test_main_user_remove_moderators_post(self):
+        post = PostPrototype.create(self.thread, self.moderator, 'moderator-post-text')
+        self.request_login('main_user@test.com')
+        self.check_ajax_error(self.client.post(reverse('forum:posts:delete', args=[post.id])), 'forum.delete_post.remove_moderator_post')
+        self.assertEqual(Post.objects.all().count(), 9)
 
     # moderator
     def test_moderator_remove_post(self):

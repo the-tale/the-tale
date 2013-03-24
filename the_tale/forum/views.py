@@ -54,6 +54,9 @@ class BaseForumResource(Resource):
     def can_change_posts(self):
         return self.user.has_perm('forum.moderate_post')
 
+    def is_moderator(self, account):
+        return account.user.groups.filter(name=forum_settings.MODERATOR_GROUP_NAME).exists()
+
 
 class PostsResource(BaseForumResource):
 
@@ -86,6 +89,9 @@ class PostsResource(BaseForumResource):
 
         if Post.objects.filter(thread=self.thread.model, created_at__lt=self.post.created_at).count() == 0:
             return self.json_error('forum.delete_post.remove_first_post', u'Вы не можете удалить первое сообщение в теме')
+
+        if self.post.author.id != self.account.id and self.is_moderator(self.post.author):
+            return self.auto_error('forum.delete_post.remove_moderator_post', u'Вы не можете удалить сообщение модератора')
 
         self.post.delete(self.account, self.thread)
 

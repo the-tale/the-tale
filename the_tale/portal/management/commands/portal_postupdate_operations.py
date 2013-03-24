@@ -8,6 +8,8 @@ from game.prototypes import TimePrototype
 
 from common.utils.permissions import sync_group
 
+from forum.conf import forum_settings
+
 class Command(BaseCommand):
 
     help = 'do post update operations'
@@ -48,7 +50,7 @@ class Command(BaseCommand):
         sync_group('content group', ['cms.add_page', 'cms.change_page', 'cms.delete_page',
                                     'news.add_news', 'news.change_news', 'news.delete_news'])
 
-        sync_group('forum moderators group', ['forum.moderate_thread', 'forum.moderate_post'])
+        sync_group(forum_settings.MODERATOR_GROUP_NAME, ['forum.moderate_thread', 'forum.moderate_post'])
 
         sync_group('bills moderators group', ['bills.moderate_bill'])
 
