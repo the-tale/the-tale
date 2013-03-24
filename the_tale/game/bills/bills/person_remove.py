@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from textgen.words import Noun
-
 from dext.forms import fields
 
 from game.persons.prototypes import PersonPrototype
@@ -18,7 +16,7 @@ class UserForm(BaseUserForm):
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['person'].choices = PersonPrototype.form_choices(only_weak=True, choosen_person=persons_storage[choosen_person_id])
+        self.fields['person'].choices = PersonPrototype.form_choices(only_weak=True, choosen_person=persons_storage.get(choosen_person_id))
 
 
 class ModeratorForm(BaseModeratorForm):
