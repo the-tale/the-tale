@@ -838,7 +838,7 @@ class HeroPrototype(BasePrototype):
 
         hero = Hero.objects.create(created_at_turn=current_turn_number,
                                    active_state_end_at=current_turn_number + c.EXP_ACTIVE_STATE_LENGTH,
-                                   account=account.model,
+                                   account=account._model,
                                    gender=gender,
                                    race=race,
                                    is_fast=is_fast,

@@ -26,9 +26,9 @@ class TestCMSRequests(testcase.TestCase):
 
         self.client = client.Client()
 
-        self.p1 = Page.objects.create(section='test', slug='slug1', caption='caption1', content='content1', order=0, active=False, author=self.staff_account.model)
-        self.p1 = Page.objects.create(section='test', slug='slug2', caption='caption2', content='content2', order=1, active=True, author=self.staff_account.model)
-        self.p1 = Page.objects.create(section='test', slug='slug3', caption='caption3', content='content3', order=2, active=True, author=self.staff_account.model)
+        self.p1 = Page.objects.create(section='test', slug='slug1', caption='caption1', content='content1', order=0, active=False, author=self.staff_account._model)
+        self.p1 = Page.objects.create(section='test', slug='slug2', caption='caption2', content='content2', order=1, active=True, author=self.staff_account._model)
+        self.p1 = Page.objects.create(section='test', slug='slug3', caption='caption3', content='content3', order=2, active=True, author=self.staff_account._model)
 
     def test_sections_list(self):
         for section in cms_settings.SECTIONS:
@@ -57,7 +57,7 @@ class TestCMSRequests(testcase.TestCase):
         self.assertEqual(response['location'], 'http://testserver%s' % reverse('cms:test:page', args=['slug2']))
 
     def test_index_page(self):
-        Page.objects.create(section='test', slug='', caption='caption4', content='content4', order=4, active=True, author=self.staff_account.model)
+        Page.objects.create(section='test', slug='', caption='caption4', content='content4', order=4, active=True, author=self.staff_account._model)
         response = self.client.get(reverse('cms:test:'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('caption4' in response.content)

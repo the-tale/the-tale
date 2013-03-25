@@ -30,8 +30,8 @@ class MobResourceBase(Resource):
         super(MobResourceBase, self).initialize(*args, **kwargs)
         self.mob = mob
 
-        self.can_create_mob = self.user.has_perm('mobs.create_mobrecord')
-        self.can_moderate_mob = self.user.has_perm('mobs.moderate_mobrecord')
+        self.can_create_mob = self.account.has_perm('mobs.create_mobrecord')
+        self.can_moderate_mob = self.account.has_perm('mobs.moderate_mobrecord')
 
 
 class GuideMobResource(MobResourceBase):

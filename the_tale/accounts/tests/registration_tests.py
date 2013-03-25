@@ -2,8 +2,6 @@
 
 import mock
 
-from django.contrib.auth.models import User
-
 from common.utils import testcase
 from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
@@ -34,14 +32,10 @@ class TestRegistration(testcase.TestCase):
         self.assertTrue(bundle_id is not None)
 
         #test basic structure
-        user = User.objects.get(username='test_user')
+        account = AccountPrototype.get_by_id(account_id)
 
-        self.assertEqual(user.username, 'test_user')
-        self.assertEqual(user.get_profile().nick, 'test_user')
-        self.assertEqual(user.email, 'test_user@test.com')
-        self.assertEqual(user.get_profile().email, 'test_user@test.com')
-
-        account = AccountPrototype(user.get_profile())
+        self.assertEqual(account.nick, 'test_user')
+        self.assertEqual(account.email, 'test_user@test.com')
 
         self.assertTrue(not account.is_fast)
 
@@ -63,7 +57,7 @@ class TestRegistration(testcase.TestCase):
         self.assertTrue(hero.equipment.get(SLOTS.AMULET) is None)
         self.assertTrue(hero.equipment.get(SLOTS.RING) is None)
 
-    def test_duplicate_username(self):
+    def test_duplicate_nick(self):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.assertEqual(result, REGISTER_USER_RESULT.OK)
         self.assertTrue(bundle_id is not None)

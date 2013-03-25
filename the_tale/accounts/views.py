@@ -35,7 +35,7 @@ class RegistrationResource(Resource):
     @handler('fast', method='post')
     def fast(self):
 
-        if not self.user.is_anonymous():
+        if self.account.is_authenticated():
             return self.json_error('accounts.registration.fast.already_registered', u'Вы уже зарегистрированы')
 
         if accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY in self.request.session:
@@ -66,7 +66,7 @@ class AuthResource(Resource):
 
     @handler('login', method='get')
     def login_page(self, next_url='/'):
-        if not self.user.is_anonymous():
+        if self.account.is_authenticated():
             return self.redirect(next_url)
 
         login_form = forms.LoginForm()
@@ -84,10 +84,10 @@ class AuthResource(Resource):
             if account is None:
                 return self.json_error('accounts.auth.login.wrong_credentials', u'Неверный логин или пароль')
 
-            if not account.user.check_password(login_form.c.password):
+            if not account.check_password(login_form.c.password):
                 return self.json_error('accounts.auth.login.wrong_credentials', u'Неверный логин или пароль')
 
-            login_user(self.request, username=account.nick, password=login_form.c.password)
+            login_user(self.request, nick=account.nick, password=login_form.c.password)
 
             return self.json_ok(data={'next_url': next_url})
 
@@ -190,7 +190,7 @@ class ProfileResource(Resource):
             context['error_occured'] = True
             return self.template('accounts/confirm_email.html', context)
 
-        force_login_user(self.request, task.account.user)
+        force_login_user(self.request, task.account._model)
 
         self._account = task.account
 
@@ -201,7 +201,7 @@ class ProfileResource(Resource):
 
     @handler('reset-password', method='get')
     def reset_password_page(self):
-        if not self.user.is_anonymous():
+        if self.account.is_authenticated():
             return self.redirect('/')
 
         reset_password_form = forms.ResetPasswordForm()
@@ -210,7 +210,7 @@ class ProfileResource(Resource):
 
     @handler('reset-password-done', method='get')
     def reset_password_done(self):
-        if not self.user.is_anonymous():
+        if self.account.is_authenticated():
             return self.redirect('/')
 
         reset_password_form = forms.ResetPasswordForm()
@@ -220,7 +220,7 @@ class ProfileResource(Resource):
     @handler('reset-password', method='post')
     def reset_password(self):
 
-        if not self.user.is_anonymous():
+        if self.account.is_authenticated():
             return self.json_error('accounts.profile.reset_password.already_logined', u'Вы уже вошли на сайт и можете просто изменить пароль')
 
         reset_password_form = forms.ResetPasswordForm(self.request.POST)
@@ -261,7 +261,7 @@ class AccountResource(Resource):
                 return self.auto_error('accounts.account_not_found', u'Игрок не найден', status_code=404)
 
 
-        self.can_moderate_accounts = self.user.has_perm('accounts.moderate_account')
+        self.can_moderate_accounts = self.account.has_perm('accounts.moderate_account')
 
     @validator(code='accounts.account.moderator_rights_required', message=u'Вы не являетесь модератором')
     def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_accounts
@@ -309,19 +309,19 @@ class AccountResource(Resource):
         from game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
         from game.phrase_candidates.models import PhraseCandidate
 
-        bills_count = Bill.objects.filter(owner=self.master_account.model).count()
+        bills_count = Bill.objects.filter(owner=self.master_account._model).count()
 
-        threads_count = Thread.objects.filter(author=self.master_account.model).count()
+        threads_count = Thread.objects.filter(author=self.master_account._model).count()
 
-        threads_with_posts = Thread.objects.filter(post__author=self.master_account.model).distinct().count()
+        threads_with_posts = Thread.objects.filter(post__author=self.master_account._model).distinct().count()
 
         rating_places = RatingPlacesPrototype.get_for_account(self.master_account)
 
         rating_values = RatingValuesPrototype.get_for_account(self.master_account)
 
-        phrases_count = PhraseCandidate.objects.filter(author=self.master_account.model).count()
+        phrases_count = PhraseCandidate.objects.filter(author=self.master_account._model).count()
 
-        folclor_posts_count = BlogPost.objects.filter(author=self.master_account.model, state=BLOG_POST_STATE.ACCEPTED).count()
+        folclor_posts_count = BlogPost.objects.filter(author=self.master_account._model, state=BLOG_POST_STATE.ACCEPTED).count()
 
         return self.template('accounts/show.html',
                              {'master_hero': HeroPrototype.get_by_account_id(self.master_account_id),
@@ -346,7 +346,7 @@ class AccountResource(Resource):
 
         Award.objects.create(description=form.c.description,
                              type=form.c.type,
-                             account=self.master_account.model)
+                             account=self.master_account._model)
 
         return self.json_ok()
 

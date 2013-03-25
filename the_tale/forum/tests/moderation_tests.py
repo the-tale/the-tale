@@ -30,7 +30,7 @@ class TestModeration(TestCase):
 
         group = sync_group(forum_settings.MODERATOR_GROUP_NAME, ['forum.moderate_post', 'forum.moderate_thread'])
 
-        group.user_set.add(self.moderator.user)
+        group.account_set.add(self.moderator._model)
 
         self.client = client.Client()
 

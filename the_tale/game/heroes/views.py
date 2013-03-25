@@ -52,7 +52,7 @@ class HeroResource(Resource):
             if self.hero is None:
                 return self.auto_error('heroes.hero_not_exists', u'Вы не можете просматривать данные этого игрока')
 
-        self.can_moderate_heroes = self.user.has_perm('accounts.moderate_account')
+        self.can_moderate_heroes = self.account.has_perm('accounts.moderate_account')
 
     @property
     def is_owner(self): return self.account and self.account.id == self.hero.account_id

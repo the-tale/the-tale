@@ -20,9 +20,9 @@ class TestRequestsBase(TestCase):
         register_user('test_user', 'test_user@test.com', '111111')
         register_user('test_user_2', 'test_user_2@test.com', '111111')
 
-        user = django_authenticate(username='test_user_2', password='111111')
-        user.is_staff = True
-        user.save()
+        account = django_authenticate(nick='test_user_2', password='111111')
+        account.is_staff = True
+        account.save()
 
 
 class TestIndexRequests(TestRequestsBase):

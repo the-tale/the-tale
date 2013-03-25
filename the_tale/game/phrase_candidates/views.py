@@ -34,8 +34,8 @@ class PhraseCandidateResource(Resource):
             if self.phrase is None:
                 return self.auto_error('phrase_candidates.phrase_not_found', u'Фраза не найдена', status_code=404)
 
-        self.can_moderate_phrase = self.user.has_perm('phrase_candidates.moderate_phrasecandidate')
-        self.can_add_phrase_to_game = self.user.has_perm('phrase_candidates.add_to_game_phrasecandidate')
+        self.can_moderate_phrase = self.account.has_perm('phrase_candidates.moderate_phrasecandidate')
+        self.can_add_phrase_to_game = self.account.has_perm('phrase_candidates.add_to_game_phrasecandidate')
 
     @validator(code='phrase_candidates.moderate_rights_required')
     def validate_moderation_rights(self, *args, **kwargs): return self.can_moderate_phrase

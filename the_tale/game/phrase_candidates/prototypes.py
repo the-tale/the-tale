@@ -77,7 +77,7 @@ class PhraseCandidatePrototype(object):
                                                type_name=type_name,
                                                subtype=subtype,
                                                subtype_name=subtype_name,
-                                               author=author.model,
+                                               author=author._model,
                                                text=text)
 
         return cls(model)

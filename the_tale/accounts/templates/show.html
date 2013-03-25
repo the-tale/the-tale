@@ -9,7 +9,7 @@
 
 <h2 style="display: inline-block;">{{ master_account.nick_verbose }} <small>могущество: {{ master_hero.might|int }}</small></h2>
 
-{% if resource.account and master_account.id != resource.account.id %}
+{% if resource.account.is_authenticated() and master_account.id != resource.account.id %}
 &nbsp;<a href="{{ url('accounts:messages:new', recipient=master_account.id) }}">отправить сообщение</a>
 {% endif %}
 

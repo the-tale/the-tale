@@ -75,9 +75,9 @@ class TestRequests(TestCase):
         create_test_map()
         register_user('test_user', 'test_user@test.com', '111111')
 
-        self.user = django_authenticate(username='test_user', password='111111')
-        self.user.is_staff = True
-        self.user.save()
+        self.account = django_authenticate(nick='test_user', password='111111')
+        self.account.is_staff = True
+        self.account.save()
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
         SubCategory.objects.create(caption=news_settings.FORUM_CATEGORY_SLUG,

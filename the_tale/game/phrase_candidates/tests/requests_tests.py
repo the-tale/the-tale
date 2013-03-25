@@ -163,14 +163,14 @@ class IndexRequestsTests(RequestsTestsBase):
                                                                                        (u'pgf-add-to-game-phrase-button', 0),])
 
     def test_edit_controls_shown(self):
-        self.moderators_group.user_set.add(self.account_1.user)
+        self.moderators_group.account_set.add(self.account_1._model)
         self.check_html_ok(self.client.get(reverse('game:phrase-candidates:')), texts=[(u'pgf-edit-phrase-button', 1+1*3),
                                                                                        (u'pgf-approve-phrase-button', 1*3),
                                                                                        (u'pgf-remove-phrase-button', 1*3),
                                                                                        (u'pgf-add-to-game-phrase-button', 0),])
 
     def test_add_to_game_controls_shown(self):
-        self.developers_group.user_set.add(self.account_1.user)
+        self.developers_group.account_set.add(self.account_1._model)
         self.check_html_ok(self.client.get(reverse('game:phrase-candidates:')), texts=[(u'pgf-edit-phrase-button', 0),
                                                                                        (u'pgf-approve-phrase-button', 0),
                                                                                        (u'pgf-remove-phrase-button', 0),
@@ -284,7 +284,7 @@ class EditRequestsTests(RequestsTestsBase):
 
         self.request_login('test_user_1@test.com')
 
-        self.moderators_group.user_set.add(self.account_1.user)
+        self.moderators_group.account_set.add(self.account_1._model)
 
 
     def test_success(self):
@@ -312,7 +312,7 @@ class UpdateRequestsTests(RequestsTestsBase):
 
         self.request_login('test_user_3@test.com')
 
-        self.moderators_group.user_set.add(self.account_3.user)
+        self.moderators_group.account_set.add(self.account_3._model)
 
 
     def test_success(self):
@@ -363,7 +363,7 @@ class RemoveRequestsTests(RequestsTestsBase):
 
         self.request_login('test_user_1@test.com')
 
-        self.moderators_group.user_set.add(self.account_1.user)
+        self.moderators_group.account_set.add(self.account_1._model)
 
 
     def test_no_permissions(self):
@@ -391,7 +391,7 @@ class ApproveRequestsTests(RequestsTestsBase):
 
         self.request_login('test_user_1@test.com')
 
-        self.moderators_group.user_set.add(self.account_1.user)
+        self.moderators_group.account_set.add(self.account_1._model)
 
 
     def test_no_permissions(self):
@@ -418,7 +418,7 @@ class AddRequestsTests(RequestsTestsBase):
 
         self.request_login('test_user_1@test.com')
 
-        self.developers_group.user_set.add(self.account_1.user)
+        self.developers_group.account_set.add(self.account_1._model)
 
 
     def test_no_permissions(self):

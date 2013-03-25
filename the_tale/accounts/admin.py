@@ -1,19 +1,13 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from django.contrib import admin
-from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
 from accounts.models import Account, ChangeCredentialsTask, Award
 
-class AccountAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nick', 'is_fast', 'email')
-
-    def email(self, obj):
-        return obj.user.email
-
-class UserAdmin(DjangoUserAdmin):
-    list_display = ('id', 'email', 'username', 'is_staff', 'last_login')
+class AccountAdmin(DjangoUserAdmin):
+    list_display = ('id', 'email', 'nick', 'is_staff', 'last_login', 'created_at')
+    ordering = ('-created_at',)
 
 class ChangeCredentialsTaskAdmin(admin.ModelAdmin):
     list_display = ('id', 'state', 'account', )
@@ -26,6 +20,3 @@ class AwardAdmin(admin.ModelAdmin):
 admin.site.register(Account, AccountAdmin)
 admin.site.register(Award, AwardAdmin)
 admin.site.register(ChangeCredentialsTask, ChangeCredentialsTaskAdmin)
-
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)

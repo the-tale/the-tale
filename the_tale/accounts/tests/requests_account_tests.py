@@ -63,7 +63,7 @@ class ShowRequestsTests(AccountRequestsTests):
         self.request_login('test_user3@test.com')
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
-        group.user_set.add(self.account3.user)
+        group.account_set.add(self.account3._model)
 
         texts = [('pgf-account-moderator-block', 1)]
         self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
@@ -79,7 +79,7 @@ class GiveAwardRequestsTests(AccountRequestsTests):
         super(GiveAwardRequestsTests, self).setUp()
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
-        group.user_set.add(self.account3.user)
+        group.account_set.add(self.account3._model)
 
         self.request_login('test_user3@test.com')
 
@@ -115,7 +115,7 @@ class ResetNickdRequestsTests(AccountRequestsTests):
         super(ResetNickdRequestsTests, self).setUp()
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
-        group.user_set.add(self.account3.user)
+        group.account_set.add(self.account3._model)
 
         self.request_login('test_user3@test.com')
 

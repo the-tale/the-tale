@@ -97,7 +97,7 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
         self.request_login('test_user_2@test.com')
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
-        group.user_set.add(account_2.user)
+        group.account_set.add(account_2._model)
 
         self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=['pgf-moderation-container'])
 
@@ -186,7 +186,7 @@ class ResetNameRequestsTests(HeroRequestsTestBase):
         self.account_2 = AccountPrototype.get_by_id(account_id)
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
-        group.user_set.add(self.account_2.user)
+        group.account_set.add(self.account_2._model)
 
         self.request_login('test_user_2@test.com')
 

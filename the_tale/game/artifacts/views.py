@@ -30,8 +30,8 @@ class ArtifactResourceBase(Resource):
         super(ArtifactResourceBase, self).initialize(*args, **kwargs)
         self.artifact = artifact
 
-        self.can_create_artifact = self.user.has_perm('artifacts.create_artifactrecord')
-        self.can_moderate_artifact = self.user.has_perm('artifacts.moderate_artifactrecord')
+        self.can_create_artifact = self.account.has_perm('artifacts.create_artifactrecord')
+        self.can_moderate_artifact = self.account.has_perm('artifacts.moderate_artifactrecord')
 
 
 class GuideArtifactResource(ArtifactResourceBase):

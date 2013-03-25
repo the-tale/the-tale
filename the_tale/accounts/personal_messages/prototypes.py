@@ -56,8 +56,8 @@ class MessagePrototype(object):
     @nested_commit_on_success
     def create(cls, sender, recipient, text):
 
-        model = Message.objects.create(recipient=recipient.model,
-                                       sender=sender.model,
+        model = Message.objects.create(recipient=recipient._model,
+                                       sender=sender._model,
                                        text=text)
         recipient.increment_new_messages_number()
 

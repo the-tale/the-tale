@@ -215,7 +215,7 @@ class TestShowRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         group = sync_group('folclor moderation group', ['blogs.moderate_post'])
-        group.user_set.add(self.account_2.user)
+        group.account_set.add(self.account_2._model)
 
         texts = [(reverse('blogs:posts:accept', args=[self.post.id]), 1),
                  (reverse('blogs:posts:decline', args=[self.post.id]), 1) ]
@@ -352,7 +352,7 @@ class TestEditRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         group = sync_group('folclor moderation group', ['blogs.moderate_post'])
-        group.user_set.add(self.account_2.user)
+        group.account_set.add(self.account_2._model)
         self.check_html_ok(self.client.get(reverse('blogs:posts:edit', args=[self.post.id])), texts=((self.post.caption, 1),
                                                                                                      (self.post.text, 1)))
 
@@ -397,7 +397,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         group = sync_group('folclor moderation group', ['blogs.moderate_post'])
-        group.user_set.add(self.account_2.user)
+        group.account_set.add(self.account_2._model)
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data()))
 
     def test_wrong_state(self):
@@ -441,7 +441,7 @@ class TestModerateRequests(BaseTestRequests):
         self.request_login('test_user_2@test.com')
 
         group = sync_group('folclor moderation group', ['blogs.moderate_post'])
-        group.user_set.add(self.account_2.user)
+        group.account_set.add(self.account_2._model)
 
     def test_unlogined(self):
         self.request_logout()

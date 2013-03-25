@@ -34,28 +34,28 @@ class BaseForumResource(Resource):
 
 
     def can_delete_thread(self, thread):
-        return (self.account == thread.author and not thread.subcategory.closed) or self.user.has_perm('forum.moderate_thread')
+        return (self.account.id == thread.author.id and not thread.subcategory.closed) or self.account.has_perm('forum.moderate_thread')
 
     def can_change_thread(self, thread):
-        return self.account == thread.author or self.user.has_perm('forum.moderate_thread')
+        return self.account.id == thread.author.id or self.account.has_perm('forum.moderate_thread')
 
     def can_change_thread_category(self):
-        return self.user.has_perm('forum.moderate_thread')
+        return self.account.has_perm('forum.moderate_thread')
 
     def can_delete_posts(self, thread):
-        return self.account == thread.author or self.user.has_perm('forum.moderate_post')
+        return self.account.id == thread.author.id or self.account.has_perm('forum.moderate_post')
 
     def can_create_thread(self, subcategory):
         if not subcategory.closed:
-            return self.account and not self.account.is_fast
+            return self.account.is_authenticated() and not self.account.is_fast
 
-        return self.user.has_perm('forum.moderate_thread')
+        return self.account.has_perm('forum.moderate_thread')
 
     def can_change_posts(self):
-        return self.user.has_perm('forum.moderate_post')
+        return self.account.has_perm('forum.moderate_post')
 
     def is_moderator(self, account):
-        return account.user.groups.filter(name=forum_settings.MODERATOR_GROUP_NAME).exists()
+        return account._model.groups.filter(name=forum_settings.MODERATOR_GROUP_NAME).exists()
 
 
 class PostsResource(BaseForumResource):
@@ -309,7 +309,7 @@ class ThreadsResource(BaseForumResource):
         pages_on_page_slice = posts
         if post_from == 0:
             pages_on_page_slice = pages_on_page_slice[1:]
-        has_post_on_page = any([post.author == self.account for post in pages_on_page_slice])
+        has_post_on_page = any([post.author.id == self.account.id for post in pages_on_page_slice])
 
         return self.template('forum/thread.html',
                              {'category': self.category,

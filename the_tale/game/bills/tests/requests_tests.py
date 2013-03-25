@@ -509,7 +509,7 @@ class TestModerationPageRequests(BaseTestRequests):
         self.request_login('test_user2@test.com')
 
         group = sync_group('bills moderators group', ['bills.moderate_bill'])
-        group.user_set.add(self.account2.user)
+        group.account_set.add(self.account2._model)
 
 
     def test_unlogined(self):
@@ -558,7 +558,7 @@ class TestModerateRequests(BaseTestRequests):
         self.request_login('test_user2@test.com')
 
         group = sync_group('bills moderators group', ['bills.moderate_bill'])
-        group.user_set.add(self.account2.user)
+        group.account_set.add(self.account2._model)
 
 
     def get_post_data(self):
@@ -632,7 +632,7 @@ class TestDeleteRequests(BaseTestRequests):
         self.request_login('test_user2@test.com')
 
         group = sync_group('bills moderators group', ['bills.moderate_bill'])
-        group.user_set.add(self.account2.user)
+        group.account_set.add(self.account2._model)
 
     def test_unlogined(self):
         self.request_logout()

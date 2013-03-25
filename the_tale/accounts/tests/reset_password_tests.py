@@ -26,9 +26,9 @@ class TestResetPassword(TestCase):
         self.client = client.Client()
 
     def test_reset_password(self):
-        self.assertEqual(django_authenticate(username='test_user', password='111111').id, self.account.user.id)
+        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, self.account.id)
         self.account.reset_password()
-        self.assertEqual(django_authenticate(username='test_user', password='111111'), None)
+        self.assertEqual(django_authenticate(nick='test_user', password='111111'), None)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_reset_password_page_for_loggined_user(self):
@@ -44,12 +44,12 @@ class TestResetPassword(TestCase):
         response = self.client.post(reverse('accounts:profile:reset-password'), {'email': 'wrong@test.com'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content), {'status': 'ok'})
-        self.assertEqual(django_authenticate(username='test_user', password='111111').id, self.account.user.id)
+        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, self.account.id)
         self.assertEqual(len(mail.outbox), 0)
 
     def test_reset_password_success(self):
         self.check_ajax_ok(self.client.post(reverse('accounts:profile:reset-password'), {'email': 'test_user@test.com'}))
-        self.assertEqual(django_authenticate(username='test_user', password='111111'), None)
+        self.assertEqual(django_authenticate(nick='test_user', password='111111'), None)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_reset_password_done(self):

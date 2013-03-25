@@ -181,5 +181,5 @@ class MightCalculatorTests(testcase.TestCase):
 
 
     def test_custom_might(self):
-        Award.objects.create(account=self.account.model, type=AWARD_TYPE.BUG_MINOR)
+        Award.objects.create(account=self.account._model, type=AWARD_TYPE.BUG_MINOR)
         self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > 0)

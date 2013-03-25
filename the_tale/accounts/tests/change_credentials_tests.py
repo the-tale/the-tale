@@ -69,9 +69,9 @@ class TestChangeCredentialsTask(testcase.TestCase):
         with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_mark_hero_as_not_fast', fake_cmd):
             task.change_credentials()
 
-        self.assertEqual(task.account.user.email, 'fast_user@test.ru')
-        user = django_authenticate(username='test_nick', password='222222')
-        self.assertEqual(user.id, task.account.user.id)
+        self.assertEqual(task.account.email, 'fast_user@test.ru')
+        user = django_authenticate(nick='test_nick', password='222222')
+        self.assertEqual(user.id, task.account.id)
 
         self.assertFalse(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
         self.assertTrue(fake_cmd.commands)
@@ -80,10 +80,10 @@ class TestChangeCredentialsTask(testcase.TestCase):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_password='222222')
         task.change_credentials()
 
-        self.assertEqual(task.account.user.email, 'test_user@test.com')
-        user = django_authenticate(username='test_user', password='222222')
+        self.assertEqual(task.account.email, 'test_user@test.com')
+        user = django_authenticate(nick='test_user', password='222222')
 
-        self.assertEqual(user.id, task.account.user.id)
+        self.assertEqual(user.id, task.account.id)
 
     def test_change_credentials_nick(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_nick='test_nick')
@@ -96,18 +96,17 @@ class TestChangeCredentialsTask(testcase.TestCase):
         self.assertFalse(fake_cmd.commands)
 
         self.assertEqual(task.account.nick, 'test_nick')
-        user = django_authenticate(username='test_nick', password='111111')
-        self.assertEqual(user.id, task.account.user.id)
+        user = django_authenticate(nick='test_nick', password='111111')
+        self.assertEqual(user.id, task.account.id)
 
     def test_change_credentials_email(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')
         task.change_credentials()
 
-        self.assertEqual(task.account.user.email, 'test_user@test.ru')
         self.assertEqual(task.account.email, 'test_user@test.ru')
-        self.assertEqual(django_authenticate(username='test_user', password='111111').id, task.account.user.id)
-        self.assertEqual(django_authenticate(username='test_user', password='111111').username, 'test_user')
-        self.assertEqual(django_authenticate(username='test_user', password='111111').get_profile().nick, 'test_user')
+        self.assertEqual(task.account.email, 'test_user@test.ru')
+        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
+        self.assertEqual(django_authenticate(nick='test_user', password='111111').nick, 'test_user')
 
     def test_request_email_confirmation_exceptions(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_password='222222')
@@ -152,14 +151,14 @@ class TestChangeCredentialsTask(testcase.TestCase):
         task.process(FakeLogger())
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT)
         self.assertEqual(task.model.comment, 'timeout')
-        self.assertEqual(django_authenticate(username='test_user', password='111111').id, task.account.user.id)
+        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
 
     def test_process_waiting_and_email_confirmation(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')
         task.process(FakeLogger())
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(django_authenticate(username='test_user', password='111111').id, task.account.user.id)
+        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
 
 
     def test_process_waiting_and_password_change(self):
@@ -167,14 +166,14 @@ class TestChangeCredentialsTask(testcase.TestCase):
         task.process(FakeLogger())
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
         self.assertEqual(len(mail.outbox), 0)
-        self.assertEqual(django_authenticate(username='test_user', password='222222').id, task.account.user.id)
+        self.assertEqual(django_authenticate(nick='test_user', password='222222').id, task.account.id)
 
     def test_process_waiting_and_nick_change(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_nick='test_nick')
         task.process(FakeLogger())
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
         self.assertEqual(len(mail.outbox), 0)
-        self.assertEqual(django_authenticate(username='test_nick', password='111111').id, self.test_account.user.id)
+        self.assertEqual(django_authenticate(nick='test_nick', password='111111').id, self.test_account.id)
 
 
     def test_process_email_sent(self):
@@ -182,13 +181,13 @@ class TestChangeCredentialsTask(testcase.TestCase):
         task.process(FakeLogger())
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(django_authenticate(username='test_user', password='111111').id, task.account.user.id)
-        self.assertEqual(django_authenticate(username='test_user', password='222222'), None)
+        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
+        self.assertEqual(django_authenticate(nick='test_user', password='222222'), None)
 
         task.process(FakeLogger())
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        user = django_authenticate(username='test_user', password='222222')
-        self.assertEqual(user.id, task.account.user.id)
+        user = django_authenticate(nick='test_user', password='222222')
+        self.assertEqual(user.id, task.account.id)
         self.assertEqual(user.email, 'test_user@test.ru')
         self.assertEqual(len(mail.outbox), 1)
 

@@ -53,7 +53,7 @@
 
 STATIC_URL = "{{ STATIC_URL }}"
 
-{% if resource.account %}
+{% if resource.account.is_authenticated() %}
 pgf.base.settings.init("account_{{resource.account.id}}");
 {% else %}
 pgf.base.settings.init("anonimues");
@@ -131,14 +131,14 @@ jQuery(document).ready(function() {
                                                                            (url("game:ratings:"), "Рейтинги"),
                                                                            (url("game:pvp:calls"), "Арена")]) }}
 
-            {% if request.user.is_authenticated() %}
+            {% if resource.account.is_authenticated() %}
             {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Политика"),
                                                                 (url("game:phrase-candidates:"), "Лингвистика"),
                                                                 (url("blogs:posts:"), "Фольклор"),
                                                                 (url("game:chronicle:"), "Летопись") ] ) }}
             {% endif %}
 
-            {% if request.user.is_authenticated() %}
+            {% if resource.account.is_authenticated() %}
             {{ base_macros.main_menu_item("game", url("game:"), "<span class='game-link'>Игра</span>") }}
             {% else %}
             <li><a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link"><strong>создать героя</strong></a></li>
@@ -156,7 +156,7 @@ jQuery(document).ready(function() {
             </li>
             <li class="divider-vertical"></li>
 
-            {% if request.user.is_authenticated() %}
+            {% if resource.account.is_authenticated() %}
 
             {% if resource.account.new_messages_number > 0 %}
             <li rel="tooltip"  title="У вас есть новые сообщения">
@@ -199,7 +199,7 @@ jQuery(document).ready(function() {
 
         {% block content_header %}
 
-        {% if resource.account and resource.account.is_fast %}
+        {% if resource.account.is_authenticated() and resource.account.is_fast %}
         <div class="alert alert-info">
           {% block fast_account_warning %}
           ВНИМАНИЕ! Ваша игра доступна только с этого компьютера. Для игры из другого места необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile:show') }}">профиле</a> (подробнее о быстрой регистрации можно почитать в <a href="{{ url('guide:') }}">Путеводителе по Сказке</a>).

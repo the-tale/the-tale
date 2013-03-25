@@ -88,7 +88,7 @@ class PostPrototype(object):
     @nested_commit_on_success
     def create(cls, author, caption, text):
 
-        model = Post.objects.create(author=author.model,
+        model = Post.objects.create(author=author._model,
                                     caption=caption,
                                     text=text,
                                     votes=1)
@@ -145,7 +145,7 @@ class VotePrototype(object):
     @classmethod
     def create(cls, post, voter, value):
         model = Vote.objects.create(post=post.model,
-                                    voter=voter.model,
+                                    voter=voter._model,
                                     value=value)
         return cls(model)
 

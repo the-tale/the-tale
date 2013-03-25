@@ -1,7 +1,6 @@
 # coding: utf-8
 import datetime
 
-from django.contrib.auth.models import User
 from common.utils import testcase
 
 from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
@@ -27,8 +26,8 @@ class TestLogic(testcase.TestCase):
         task = RegistrationTask(account_id=None)
         self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
-        task.account.model.created_at = datetime.datetime.fromtimestamp(0)
-        task.account.model.save()
+        task.account._model.created_at = datetime.datetime.fromtimestamp(0)
+        task.account._model.save()
 
         block_expired_accounts()
 
@@ -39,4 +38,3 @@ class TestLogic(testcase.TestCase):
         self.assertEqual(Bundle.objects.all().count(), 0)
 
         self.assertEqual(Account.objects.all().count(), 0)
-        self.assertEqual(User.objects.all().count(), 0)

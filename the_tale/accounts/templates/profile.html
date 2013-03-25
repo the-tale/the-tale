@@ -21,7 +21,7 @@ jQuery(document).ready( function(e) {
   <div class="span12">
     <div class="block">
 
-      {% if resource.account and resource.account.is_fast %}
+      {% if resource.account.is_authenticated() and resource.account.is_fast %}
       <div class="alert alert-error">
         <h3>Вы не закончили регистрацию!</h3>
         Для завершения регистрации укажите имя, email и пароль в форме ниже (до завершения регистрации Ваш аккаунт имеет ограниченную функциональность). <br/>

@@ -39,7 +39,7 @@
       <li><a href="#pgf-cell-building" class="pgf-cell-building-button" data-toggle="tab">Строение</a></li>
       {% endif %}
       <li><a href="#pgf-cell-map" class="pgf-cell-map-button" data-toggle="tab">Карта</a></li>
-      {% if resource.user.is_staff %}
+      {% if resource.account.is_authenticated() and resource.account.is_staff %}
       <li><a href="#pgf-cell-debug" class="pgf-cell-debug-button" data-toggle="tab">Отладка</a></li>
       {% endif %}
     </ul>
@@ -252,7 +252,7 @@
         </ul>
       </div>
 
-      {% if resource.user.is_staff %}
+      {% if resource.account.is_authenticated() and resource.account.is_staff %}
       <div class="tab-pane" id="pgf-cell-debug">
       </div>
       {% endif %}

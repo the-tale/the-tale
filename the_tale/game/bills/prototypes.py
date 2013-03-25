@@ -53,7 +53,7 @@ class BillPrototype(BasePrototype):
             self._owner = AccountPrototype(self._model.owner)
         return self._owner
 
-    def set_remove_initiator(self, initiator): self._model.remove_initiator = initiator.model
+    def set_remove_initiator(self, initiator): self._model.remove_initiator = initiator._model
 
     @property
     def user_form_initials(self):
@@ -174,7 +174,7 @@ class BillPrototype(BasePrototype):
     @nested_commit_on_success
     def create(cls, owner, caption, rationale, bill):
 
-        model = Bill.objects.create(owner=owner.model,
+        model = Bill.objects.create(owner=owner._model,
                                     type=bill.type,
                                     caption=caption,
                                     rationale=rationale,
@@ -234,7 +234,7 @@ class VotePrototype(BasePrototype):
     @classmethod
     def get_for(cls, owner, bill):
         try:
-            return Vote.objects.get(owner=owner.model, bill=bill._model)
+            return Vote.objects.get(owner=owner._model, bill=bill._model)
         except Vote.DoesNotExist:
             return None
 
@@ -244,7 +244,7 @@ class VotePrototype(BasePrototype):
     @classmethod
     def create(cls, owner, bill, value):
 
-        model = Vote.objects.create(owner=owner.model,
+        model = Vote.objects.create(owner=owner._model,
                                     bill=bill._model,
                                     value=value)
 

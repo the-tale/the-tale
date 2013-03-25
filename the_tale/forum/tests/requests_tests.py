@@ -118,11 +118,11 @@ class TestRequests(TestCase):
 
         self.assertEqual(thread.posts_count, 0)
         self.assertEqual(thread.caption, 'thread4-caption')
-        self.assertEqual(thread.author, self.account.model)
+        self.assertEqual(thread.author.id, self.account.id)
 
         post = Post.objects.filter(thread=thread)[0]
         self.assertEqual(post.text, 'thread4-text')
-        self.assertEqual(post.author, self.account.model)
+        self.assertEqual(post.author.id, self.account.id)
 
         self.assertEqual(Thread.objects.all().count(), 4)
         self.assertEqual(Post.objects.all().count(), 5)

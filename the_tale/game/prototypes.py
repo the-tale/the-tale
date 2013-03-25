@@ -118,8 +118,8 @@ class SupervisorTaskPrototype(object):
 
         model = SupervisorTask.objects.create(type=SUPERVISOR_TASK_TYPE.ARENA_PVP_1X1)
 
-        SupervisorTaskMember.objects.create(task=model, account=account_1.model)
-        SupervisorTaskMember.objects.create(task=model, account=account_2.model)
+        SupervisorTaskMember.objects.create(task=model, account=account_1._model)
+        SupervisorTaskMember.objects.create(task=model, account=account_2._model)
 
         return cls(model)
 

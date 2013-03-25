@@ -20,4 +20,4 @@ class RegistrationMiddleware(object):
             return
 
         if task.state.is_processed:
-            login_user(request, username=task.internal_logic.account.nick, password=accounts_settings.FAST_REGISTRATION_USER_PASSWORD)
+            login_user(request, nick=task.internal_logic.account.nick, password=accounts_settings.FAST_REGISTRATION_USER_PASSWORD)

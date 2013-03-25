@@ -29,10 +29,11 @@ class PostResource(Resource):
     def initialize(self, post=None, *args, **kwargs):
         super(PostResource, self).initialize(*args, **kwargs)
         self.post = post
-        self.can_moderate_post = self.user.has_perm('blogs.moderate_post')
+        self.can_moderate_post = self.account.has_perm('blogs.moderate_post')
 
     @validator(code='blogs.posts.fast_account', message=u'Для выполнения этого действия необходимо завершить регистрацию')
-    def validate_fast_account_restrictions(self, *args, **kwargs): return not self.account.is_fast
+    def validate_fast_account_restrictions(self, *args, **kwargs):
+        return self.account.is_authenticated() and not self.account.is_fast
 
     @validator(code='blogs.posts.no_edit_rights', message=u'Вы не можете редактировать это произведение')
     def validate_edit_rights(self, *args, **kwargs): return self.account.id == self.post.author.id or self.can_moderate_post
@@ -91,8 +92,8 @@ class PostResource(Resource):
 
         votes = {}
 
-        if self.account:
-            votes = dict( (vote.post_id, VotePrototype(vote)) for vote in Vote.objects.filter(post_id__in=[post.id for post in posts], voter=self.account.model) )
+        if self.account.is_authenticated():
+            votes = dict( (vote.post_id, VotePrototype(vote)) for vote in Vote.objects.filter(post_id__in=[post.id for post in posts], voter=self.account._model) )
 
         return self.template('blogs/index.html',
                              {'posts': posts,
@@ -128,7 +129,7 @@ class PostResource(Resource):
     @handler('#post', name='show', method='get')
     def show(self):
         return self.template('blogs/show.html', {'post': self.post,
-                                                 'vote': None if not self.account else VotePrototype.get_for(self.account, self.post)})
+                                                 'vote': None if not self.account.is_authenticated() else VotePrototype.get_for(self.account, self.post)})
 
     @login_required
     @validate_fast_account_restrictions()

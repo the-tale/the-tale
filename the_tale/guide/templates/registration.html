@@ -7,7 +7,7 @@
 
 {{ guide_macros.page_caption("Регистрация", "Руководство по регистрации") }}
 
-{% if resource.account and resource.account.is_fast %}
+{% if resource.account.is_authenticated() and resource.account.is_fast %}
 <p class="alert alert-info">
   Если Вам лень читать про регистрацию, то просто перейдите на <a href="{{ url('accounts:profile:show') }}">страницу своего профиля</a> и укажите Ваше имя, email и пароль.
 </p>

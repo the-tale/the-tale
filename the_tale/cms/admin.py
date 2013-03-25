@@ -18,14 +18,14 @@ class PageAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if not change:
-            obj.author = request.user.get_profile()
+            obj.author = request.user
             obj.order = Page.objects.filter(section=obj.section).aggregate(Max('order'))['order__max']
             if obj.order is not None:
                 obj.order += 1
             else:
                 obj.order = 0
         else:
-            obj.editor = request.user.get_profile()
+            obj.editor = request.user
 
         obj.save()
 

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import functools
 
 def login_required(func):
@@ -7,7 +7,7 @@ def login_required(func):
     def wrapper(resource, *argv, **kwargs):
         from accounts.logic import login_url
 
-        if resource.account is not None:
+        if resource.account.is_authenticated():
             return func(resource, *argv, **kwargs)
         else:
             if resource.request.is_ajax() or resource.request.method.lower() == 'post':
@@ -25,7 +25,7 @@ def staff_required(permissions=[]):
             if permissions:
                 raise NotImplemented('staff required decorator has not emplimented for working with permissions list')
             else:
-                if resource.request.user.is_active and resource.request.user.is_staff:
+                if resource.account.is_authenticated() and resource.account.is_active and resource.account.is_staff:
                     return func(resource, *argv, **kwargs)
                 else:
                     return resource.auto_error('common.staff_required', u'У Вас нет прав для проведения данной операции')

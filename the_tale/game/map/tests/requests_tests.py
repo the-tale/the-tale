@@ -51,8 +51,8 @@ class CellInfoTests(RequestsTestsBase):
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + '?x=2&y=3'), texts=[('pgf-cell-debug', 0)])
 
     def test_place_info_logined_staff(self):
-        self.account.user.is_staff = True
-        self.account.user.save()
+        self.account._model.is_staff = True
+        self.account.save()
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + '?x=3&y=2'), texts=[('pgf-cell-debug', 3)])
 
     def test_place_info_no_modifier(self):

@@ -115,7 +115,7 @@ class SubCategoryPrototype(object):
         self.update_posts_count()
 
         if author:
-            self.model.last_poster = author.model
+            self.model.last_poster = author._model
 
         if date:
             self.model.updated_at = date
@@ -187,10 +187,10 @@ class ThreadPrototype(object):
         return Paginator(1, self.posts_count+1, forum_settings.POSTS_ON_PAGE, url_builder)
 
     @classmethod
-    def get_threads_with_last_users_posts(cls, user, limit=None):
+    def get_threads_with_last_users_posts(cls, account, limit=None):
         from django.db import models
 
-        threads = Thread.objects.filter(post__author=user.model).annotate(last_user_post_time=models.Max('post__updated_at')).order_by('-last_user_post_time')
+        threads = Thread.objects.filter(post__author=account._model).annotate(last_user_post_time=models.Max('post__updated_at')).order_by('-last_user_post_time')
 
         if limit:
             threads = threads[:limit]
@@ -207,12 +207,12 @@ class ThreadPrototype(object):
 
         thread_model = Thread.objects.create(subcategory=subcategory.model,
                                              caption=caption,
-                                             author=author.model,
-                                             last_poster=author.model,
+                                             author=author._model,
+                                             last_poster=author._model,
                                              posts_count=0)
 
         post_model = Post.objects.create(thread=thread_model,
-                                         author=author.model,
+                                         author=author._model,
                                          markup_method=markup_method,
                                          text=text)
 
@@ -244,7 +244,7 @@ class ThreadPrototype(object):
             self.model.updated_at = date
 
         if author:
-            self.model.last_poster = author.model
+            self.model.last_poster = author._model
 
         subcategory_changed = new_subcategory_id is not None and self.subcategory.id != new_subcategory_id
 
@@ -342,7 +342,7 @@ class PostPrototype(object):
     @nested_commit_on_success
     def create(cls, thread, author, text, technical=False):
 
-        post = Post.objects.create(thread=thread.model, author=author.model, text=text, technical=technical)
+        post = Post.objects.create(thread=thread.model, author=author._model, text=text, technical=technical)
 
         thread.update(author=author, date=post.created_at)
 
@@ -363,7 +363,7 @@ class PostPrototype(object):
         else:
             self.model.removed_by = POST_REMOVED_BY.MODERATOR
 
-        self.model.remove_initiator = initiator.model
+        self.model.remove_initiator = initiator._model
 
         self.save()
 

@@ -3,7 +3,6 @@ import urllib
 import datetime
 
 from django.conf import settings as project_settings
-from django.contrib.auth.models import User
 from django.contrib.auth import login as django_login, authenticate as django_authenticate, logout as django_logout
 from django.core.urlresolvers import reverse
 
@@ -33,10 +32,10 @@ def register_user(nick, email=None, password=None):
 
     from game.logic_storage import LogicStorage
 
-    if User.objects.filter(username=nick).exists():
+    if Account.objects.filter(nick=nick).exists():
         return REGISTER_USER_RESULT.DUPLICATE_USERNAME, None, None
 
-    if email and User.objects.filter(email=email).exists():
+    if email and Account.objects.filter(email=email).exists():
         return REGISTER_USER_RESULT.DUPLICATE_EMAIL, None, None
 
     if (email and not password) or (not email and password):
@@ -45,9 +44,7 @@ def register_user(nick, email=None, password=None):
     if password is None:
         password = accounts_settings.FAST_REGISTRATION_USER_PASSWORD
 
-    user = User.objects.create_user(nick, email, password)
-
-    account = AccountPrototype.create(user=user, nick=nick, email=email, is_fast=not (email and password))
+    account = AccountPrototype.create(nick=nick, email=email, is_fast=not (email and password), password=password)
 
     bundle = BundlePrototype.create()
 
@@ -60,8 +57,8 @@ def register_user(nick, email=None, password=None):
     return REGISTER_USER_RESULT.OK, account.id, bundle.id
 
 
-def login_user(request, username=None, password=None):
-    user = django_authenticate(username=username, password=password)
+def login_user(request, nick=None, password=None):
+    user = django_authenticate(nick=nick, password=password)
 
     if request.user.id != user.id:
         request.session.flush()
@@ -89,12 +86,8 @@ def remove_account(account):
     from game.logic import remove_game_data
     if account.can_be_removed():
         with nested_commit_on_success():
-            user = account.user
-
             remove_game_data(account)
-
             account.remove()
-            user.delete()
 
 
 def block_expired_accounts():

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import sys
 import uuid
 import datetime
@@ -10,91 +10,46 @@ from django.db import models
 from dext.utils.decorators import nested_commit_on_success
 
 from common.utils.password import generate_password
+from common.utils.prototypes import BasePrototype
 
 from accounts.models import Account, ChangeCredentialsTask, CHANGE_CREDENTIALS_TASK_STATE
 from accounts.conf import accounts_settings
 from accounts.exceptions import AccountsException
 
-class AccountPrototype(object):
+class AccountPrototype(BasePrototype):
+    _model_class = Account
+    _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_active', 'is_superuser', 'has_perm')
+    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time')
+    _get_by = ('id', 'email', 'nick')
 
-    def __init__(self, model=None):
-        self.model = model
-
-    @classmethod
-    def get_by_id(cls, model_id):
-        try:
-            return AccountPrototype(model=Account.objects.select_related().get(id=model_id))
-        except Account.DoesNotExist:
-            return None
-
-    @classmethod
-    def get_by_email(cls, email):
-        if email is None:
-            return None
-
-        try:
-            return cls(Account.objects.select_related().get(email=email))
-        except Account.DoesNotExist:
-            return None
-
-    @classmethod
-    def get_by_nick(cls, nick):
-        if nick is None:
-            return None
-
-        try:
-            return cls(Account.objects.select_related().get(nick=nick))
-        except Account.DoesNotExist:
-            return None
+    # def is_authenticated(self): return self.model.is_authenticated()
 
     def get_hero(self):
         from game.heroes.prototypes import HeroPrototype
         return HeroPrototype.get_by_account_id(self.id)
 
     @property
-    def id(self): return self.model.id
+    def nick_verbose(self): return self._model.nick if not self._model.is_fast else u'Игрок'
 
     @property
-    def user(self): return self.model.user
-
-    @property
-    def created_at(self): return self.model.created_at
-
-    def get_is_fast(self): return self.model.is_fast
-    def set_is_fast(self, value): self.model.is_fast = value
-    is_fast = property(get_is_fast, set_is_fast)
-
-    def get_nick(self): return self.model.nick
-    def set_nick(self, value): self.model.nick = value
-    nick = property(get_nick, set_nick)
-
-    @property
-    def nick_verbose(self): return self.model.nick if not self.model.is_fast else u'Игрок'
-
-    def get_email(self): return self.model.email
-    def set_email(self, value): self.model.email = value
-    email = property(get_email, set_email)
-
-    def get_last_news_remind_time(self): return self.model.last_news_remind_time
-    def set_last_news_remind_time(self, value): self.model.last_news_remind_time = value
-    last_news_remind_time = property(get_last_news_remind_time, set_last_news_remind_time)
-
-    @property
-    def new_messages_number(self): return self.model.new_messages_number
+    def new_messages_number(self): return self._model.new_messages_number
     def reset_new_messages_number(self):
         Account.objects.filter(id=self.id).update(new_messages_number=0)
-        self.model.new_messages_number = 0
+        self._model.new_messages_number = 0
     def increment_new_messages_number(self):
         Account.objects.filter(id=self.id).update(new_messages_number=models.F('new_messages_number')+1)
-        self.model.new_messages_number = self.model.new_messages_number + 1
+        self._model.new_messages_number = self._model.new_messages_number + 1
 
     def reset_password(self):
         from accounts.email import ResetPasswordNotification
         new_password = generate_password(len_=accounts_settings.RESET_PASSWORD_LENGTH)
-        self.user.set_password(new_password)
-        self.user.save()
+        self._model.set_password(new_password)
+        self._model.save()
         email = ResetPasswordNotification({'password': new_password})
-        email.send([self.user.email])
+        email.send([self._model.email])
+
+    def check_password(self, password):
+        return self._model.check_password(password)
 
     @nested_commit_on_success
     def change_credentials(self, new_email=None, new_password=None, new_nick=None):
@@ -102,12 +57,10 @@ class AccountPrototype(object):
         from game.workers.environment import workers_environment as game_workers_environment
 
         if new_password:
-            self.user.password = new_password
+            self._model.password = new_password
         if new_email:
-            self.user.email = new_email
-            self.model.email = new_email
+            self._model.email = new_email
         if new_nick:
-            self.user.username = new_nick
             self.nick = new_nick
 
         if self.is_fast:
@@ -115,8 +68,10 @@ class AccountPrototype(object):
 
         self.is_fast = False
 
-        self.user.save()
         self.save()
+
+    # def has_perm(self, perm, obj=None):
+    #     return self._model.has_perm(perm, obj=obj)
 
 
     ###########################################
@@ -131,20 +86,19 @@ class AccountPrototype(object):
         # if registration_task:
         #     registration_task.unbind_from_account()
 
-        return self.model.delete()
+        return self._model.delete()
 
-    def save(self): self.model.save(force_update=True)
+    def save(self): self._model.save(force_update=True)
 
     def ui_info(self, ignore_actions=False, ignore_quests=False):
         return {}
 
     @classmethod
-    def create(cls, user, nick, email, is_fast):
-        account_model = Account.objects.create(user=user, nick=nick, email=email, is_fast=is_fast, last_news_remind_time=datetime.datetime.now())
-        return AccountPrototype(model=account_model)
+    def create(cls, nick, email, is_fast, password=None):
+        return AccountPrototype(model=Account.objects.create_user(nick=nick, email=email, is_fast=is_fast, password=password))
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.model == other.model
+        return isinstance(other, self.__class__) and self._model == other._model
 
 
 
@@ -163,7 +117,7 @@ class ChangeCredentialsTaskPrototype(object):
 
     @classmethod
     def create(cls, account, new_email=None, new_password=None, new_nick=None):
-        old_email = account.user.email
+        old_email = account.email
         if account.is_fast and new_email is None:
             raise AccountsException('new_email must be specified for fast account')
         if account.is_fast and new_password is None:
@@ -175,7 +129,7 @@ class ChangeCredentialsTaskPrototype(object):
             new_email = None
 
         model = ChangeCredentialsTask.objects.create(uuid=uuid.uuid4().hex,
-                                                     account=account.model,
+                                                     account=account._model,
                                                      old_email=old_email,
                                                      new_email=new_email,
                                                      new_password=make_password(new_password) if new_password else '',

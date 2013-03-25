@@ -228,7 +228,7 @@ class ArtifactRecordPrototype(object):
                                               type=type_,
                                               rarity=rarity,
                                               state=state,
-                                              editor=editor.model if editor else None)
+                                              editor=editor._model if editor else None)
 
         prototype = cls(model)
 
@@ -249,7 +249,7 @@ class ArtifactRecordPrototype(object):
         self.type = form.c.type
         self.rarity = form.c.rarity
         self.description = form.c.description
-        self.editor = editor.model
+        self.editor = editor._model
         self.mob = form.c.mob
 
         self.save()
@@ -268,7 +268,7 @@ class ArtifactRecordPrototype(object):
         self.type = form.c.type
         self.rarity = form.c.rarity
         self.description = form.c.description
-        self.editor = editor.model if editor else None
+        self.editor = editor._model if editor else None
         self.mob = form.c.mob
 
         self.uuid = form.c.uuid

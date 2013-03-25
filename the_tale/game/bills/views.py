@@ -52,7 +52,7 @@ class BillResource(Resource):
             return self.auto_error('bills.is_fast', u'Вам необходимо завершить регистрацию, чтобы просматривать данный раздел')
 
     def can_moderate_bill(self, bill):
-        return self.user.has_perm('bills.moderate_bill')
+        return self.account.has_perm('bills.moderate_bill')
 
     @validator(code='bills.voting_state_required')
     def validate_voting_state(self, *args, **kwargs): return self.bill.state._is_VOTING
@@ -85,13 +85,13 @@ class BillResource(Resource):
         if voted is not None:
 
             if voted._is_NO:
-                bills_query = bills_query.filter(~models.Q(vote__owner=self.account.model)).distinct()
+                bills_query = bills_query.filter(~models.Q(vote__owner=self.account._model)).distinct()
             elif voted._is_YES:
-                bills_query = bills_query.filter(vote__owner=self.account.model).distinct()
+                bills_query = bills_query.filter(vote__owner=self.account._model).distinct()
             elif voted._is_FOR:
-                bills_query = bills_query.filter(vote__owner=self.account.model, vote__value=True).distinct()
+                bills_query = bills_query.filter(vote__owner=self.account._model, vote__value=True).distinct()
             elif voted._is_AGAINST:
-                bills_query = bills_query.filter(vote__owner=self.account.model, vote__value=False).distinct()
+                bills_query = bills_query.filter(vote__owner=self.account._model, vote__value=False).distinct()
 
         url_builder = UrlBuilder(reverse('game:bills:'), arguments={'owner': owner.id if owner else None,
                                                                     'state': state.value if state else None,
@@ -116,7 +116,7 @@ class BillResource(Resource):
 
         bills = [ BillPrototype(bill) for bill in bills_query.select_related().order_by('-updated_at')[bill_from:bill_to]]
 
-        votes = dict( (vote.bill_id, VotePrototype(vote)) for vote in Vote.objects.filter(bill_id__in=[bill.id for bill in bills], owner=self.account.model) )
+        votes = dict( (vote.bill_id, VotePrototype(vote)) for vote in Vote.objects.filter(bill_id__in=[bill.id for bill in bills], owner=self.account._model) )
 
         return self.template('bills/index.html',
                              {'bills': bills,

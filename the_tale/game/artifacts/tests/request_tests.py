@@ -47,8 +47,8 @@ class BaseTestRequests(TestCase):
         group_create = sync_group('create artifact', ['artifacts.create_artifactrecord'])
         group_add = sync_group('add create_artifact', ['artifacts.moderate_artifactrecord'])
 
-        group_create.user_set.add(self.account_2.user)
-        group_add.user_set.add(self.account_3.user)
+        group_create.account_set.add(self.account_2._model)
+        group_add.account_set.add(self.account_3._model)
 
 
 class TestIndexRequests(BaseTestRequests):

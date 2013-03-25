@@ -85,7 +85,7 @@ class Battle1x1Prototype(object):
     state = property(get_state, set_state)
 
     def set_enemy(self, enemy):
-        self.model.enemy = enemy.model
+        self.model.enemy = enemy._model
         self.state = BATTLE_1X1_STATE.PREPAIRING
 
     def save(self):
@@ -97,10 +97,10 @@ class Battle1x1Prototype(object):
     @classmethod
     def create(cls, account):
 
-        if Battle1x1.objects.filter(account=account.model, state=BATTLE_1X1_STATE.WAITING).count():
+        if Battle1x1.objects.filter(account=account._model, state=BATTLE_1X1_STATE.WAITING).count():
             raise PvPException('try to create second pvp battle invitation for account %d' % account.id)
 
-        model = Battle1x1.objects.create(account=account.model)
+        model = Battle1x1.objects.create(account=account._model)
 
         return cls(model)
 

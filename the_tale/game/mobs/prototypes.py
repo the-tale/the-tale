@@ -215,7 +215,7 @@ class MobRecordPrototype(object):
                                          abilities=s11n.to_json(list(abilities)),
                                          terrains=s11n.to_json(list(terrains)),
                                          state=state,
-                                         editor=editor.model if editor else None)
+                                         editor=editor._model if editor else None)
 
         prototype = cls(model)
 
@@ -252,7 +252,7 @@ class MobRecordPrototype(object):
         self.level = form.c.level
         self.terrains = form.c.terrains
         self.abilities = form.c.abilities
-        self.editor = editor.model
+        self.editor = editor._model
 
         self.save()
 
@@ -264,7 +264,7 @@ class MobRecordPrototype(object):
         self.abilities = form.c.abilities
         self.uuid = form.c.uuid
         self.state = MOB_RECORD_STATE.ENABLED if form.c.approved else MOB_RECORD_STATE.DISABLED
-        self.editor = editor.model
+        self.editor = editor._model
 
         self.save()
 
