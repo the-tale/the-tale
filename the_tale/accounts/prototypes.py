@@ -22,8 +22,6 @@ class AccountPrototype(BasePrototype):
     _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time')
     _get_by = ('id', 'email', 'nick')
 
-    # def is_authenticated(self): return self.model.is_authenticated()
-
     def get_hero(self):
         from game.heroes.prototypes import HeroPrototype
         return HeroPrototype.get_by_account_id(self.id)
@@ -70,10 +68,6 @@ class AccountPrototype(BasePrototype):
 
         self.save()
 
-    # def has_perm(self, perm, obj=None):
-    #     return self._model.has_perm(perm, obj=obj)
-
-
     ###########################################
     # Object operations
     ###########################################
@@ -82,10 +76,6 @@ class AccountPrototype(BasePrototype):
         return self.is_fast
 
     def remove(self):
-        # registration_task = RegistrationTaskPrototype.get_by_account_id(self.id)
-        # if registration_task:
-        #     registration_task.unbind_from_account()
-
         return self._model.delete()
 
     def save(self): self._model.save(force_update=True)
@@ -102,18 +92,11 @@ class AccountPrototype(BasePrototype):
 
 
 
-class ChangeCredentialsTaskPrototype(object):
-
-    def __init__(self, model=None):
-        self.model = model
-
-    @classmethod
-    def get_by_uuid(cls, task_uuid):
-        try:
-            model = ChangeCredentialsTask.objects.get(uuid=task_uuid)
-            return cls(model=model)
-        except ChangeCredentialsTask.DoesNotExist:
-            return None
+class ChangeCredentialsTaskPrototype(BasePrototype):
+    _model_class = ChangeCredentialsTask
+    _readonly = ('id', 'uuid', 'state')
+    _bidirectional = ()
+    _get_by = ('id', 'uuid')
 
     @classmethod
     def create(cls, account, new_email=None, new_password=None, new_nick=None):
@@ -137,33 +120,24 @@ class ChangeCredentialsTaskPrototype(object):
         return cls(model=model)
 
     @property
-    def id(self): return self.model.id
-
-    @property
-    def uuid(self): return self.model.uuid
-
-    @property
-    def state(self): return self.model.state
-
-    @property
     def account(self):
         if not hasattr(self, '_account'):
-            self._account = AccountPrototype.get_by_id(self.model.account_id)
+            self._account = AccountPrototype.get_by_id(self._model.account_id)
         return self._account
 
     @property
     def email_changed(self):
-        return self.model.new_email is not None and (self.model.old_email != self.model.new_email)
+        return self._model.new_email is not None and (self._model.old_email != self._model.new_email)
 
     def change_credentials(self):
-        self.account.change_credentials(new_email=self.model.new_email, new_password=self.model.new_password, new_nick=self.model.new_nick)
+        self.account.change_credentials(new_email=self._model.new_email, new_password=self._model.new_password, new_nick=self._model.new_nick)
 
     def request_email_confirmation(self):
         from accounts.email import ChangeEmailNotification
-        if self.model.new_email is None:
+        if self._model.new_email is None:
             raise AccountsException('email not specified')
         email = ChangeEmailNotification({'task': self})
-        email.send([self.model.new_email])
+        email.send([self._model.new_email])
 
     @property
     def has_already_processed(self):
@@ -175,35 +149,35 @@ class ChangeCredentialsTaskPrototype(object):
         if self.has_already_processed:
             return
 
-        if self.model.created_at + datetime.timedelta(seconds=accounts_settings.CHANGE_EMAIL_TIMEOUT) < datetime.datetime.now():
-            self.model.state = CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT
-            self.model.comment = 'timeout'
-            self.model.save()
+        if self._model.created_at + datetime.timedelta(seconds=accounts_settings.CHANGE_EMAIL_TIMEOUT) < datetime.datetime.now():
+            self._model.state = CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT
+            self._model.comment = 'timeout'
+            self._model.save()
             return
 
         try:
             if self.state == CHANGE_CREDENTIALS_TASK_STATE.WAITING:
                 if self.email_changed:
                     self.request_email_confirmation()
-                    self.model.state = CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
-                    self.model.save()
+                    self._model.state = CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
+                    self._model.save()
                     return
                 else:
                     self.change_credentials()
-                    self.model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
-                    self.model.save()
+                    self._model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
+                    self._model.save()
                     return
 
             if self.state == CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT:
-                if AccountPrototype.get_by_email(self.model.new_email):
-                    self.model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
-                    self.model.comment = 'duplicate email'
-                    self.model.save()
+                if AccountPrototype.get_by_email(self._model.new_email):
+                    self._model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
+                    self._model.comment = 'duplicate email'
+                    self._model.save()
                     return
 
                 self.change_credentials()
-                self.model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
-                self.model.save()
+                self._model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
+                self._model.save()
                 return
 
         except Exception, e:
@@ -217,6 +191,6 @@ class ChangeCredentialsTaskPrototype(object):
                          exc_info=exception_info,
                          extra={} )
 
-            self.model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
-            self.model.comment = u'%s' % traceback_strings
-            self.model.save()
+            self._model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
+            self._model.comment = u'%s' % traceback_strings
+            self._model.save()

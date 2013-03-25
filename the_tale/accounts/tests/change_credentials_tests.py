@@ -34,8 +34,8 @@ class TestChangeCredentialsTask(testcase.TestCase):
     def test_create(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru', new_password='222222', new_nick='test_nick')
 
-        self.assertTrue(task.model.new_password != '222222')
-        self.assertTrue(task.model.new_nick == 'test_nick')
+        self.assertTrue(task._model.new_password != '222222')
+        self.assertTrue(task._model.new_nick == 'test_nick')
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.WAITING)
         self.assertEqual(task.account.id, self.test_account.id)
         self.assertTrue(not AccountPrototype.get_by_id(self.test_account.id).is_fast)
@@ -125,32 +125,32 @@ class TestChangeCredentialsTask(testcase.TestCase):
 
     def test_process_completed_state(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')
-        task.model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
+        task._model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
         task.process(FakeLogger())
-        self.assertEqual(task.model.state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
+        self.assertEqual(task._model.state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
 
-        task.model.state = CHANGE_CREDENTIALS_TASK_STATE.UNPROCESSED
+        task._model.state = CHANGE_CREDENTIALS_TASK_STATE.UNPROCESSED
         task.process(FakeLogger())
-        self.assertEqual(task.model.state, CHANGE_CREDENTIALS_TASK_STATE.UNPROCESSED)
+        self.assertEqual(task._model.state, CHANGE_CREDENTIALS_TASK_STATE.UNPROCESSED)
 
-        task.model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
+        task._model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
         task.process(FakeLogger())
-        self.assertEqual(task.model.state, CHANGE_CREDENTIALS_TASK_STATE.ERROR)
+        self.assertEqual(task._model.state, CHANGE_CREDENTIALS_TASK_STATE.ERROR)
 
     def test_process_duplicated_email(self):
         register_user('duplicated_user', 'duplicated@test.com', '111111')
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='duplicated@test.com')
-        task.model.state = CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
+        task._model.state = CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
         task.process(FakeLogger())
-        self.assertEqual(task.model.state, CHANGE_CREDENTIALS_TASK_STATE.ERROR)
+        self.assertEqual(task._model.state, CHANGE_CREDENTIALS_TASK_STATE.ERROR)
 
 
     def test_process_timeout(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')
-        task.model.created_at = datetime.datetime.fromtimestamp(0)
+        task._model.created_at = datetime.datetime.fromtimestamp(0)
         task.process(FakeLogger())
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT)
-        self.assertEqual(task.model.comment, 'timeout')
+        self.assertEqual(task._model.comment, 'timeout')
         self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
 
     def test_process_waiting_and_email_confirmation(self):
