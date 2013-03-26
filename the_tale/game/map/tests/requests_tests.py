@@ -83,7 +83,7 @@ class CellInfoTests(RequestsTestsBase):
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_place_chronicle(self):
-        texts = [record.text for record in ChronicleRecordPrototype.get_last_actor_records(self.place_1, 1000)]
+        texts = [jinja2.escape(record.text) for record in ChronicleRecordPrototype.get_last_actor_records(self.place_1, 1000)]
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_building(self):
