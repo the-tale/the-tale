@@ -78,6 +78,7 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
         def clear(self):
             self._data = {}
             self._version = None
+            self._update_version_requested = False
 
         def save_all(self):
             with self.postpone_version_update():
@@ -87,6 +88,7 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
         def _setup_version(self):
             self._version = uuid.uuid4().hex
             settings[self.SETTINGS_KEY] = str(self._version)
+            self._update_version_requested = False
 
         def update_version(self):
             self._update_version_requested = True
@@ -99,7 +101,6 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
         @contextlib.contextmanager
         def _postpone_version_update(self):
             self._postpone_version_update_nesting += 1
-            self._update_version_requested = False
 
             yield
 

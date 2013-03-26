@@ -196,7 +196,7 @@ class Worker(BaseWorker):
 
         for bill_model in bills_models:
             bill = BillPrototype(bill_model)
-            applied = applied or bill.apply()
+            applied = bill.apply() or applied
 
         return applied
 

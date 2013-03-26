@@ -102,7 +102,6 @@ class PlacePrototype(BasePrototype):
     def sync_persons(self):
         from game.persons.relations import PERSON_TYPE
         from game.persons.prototypes import PersonPrototype
-        from game.persons.storage import persons_storage
 
         for person in filter(lambda person: not person.is_stable, self.persons):
             person.move_out_game()
@@ -120,9 +119,6 @@ class PlacePrototype(BasePrototype):
                                                 gender=gender,
                                                 tp=random.choice(PERSON_TYPE._records),
                                                 name=names.generator.get_name(race, gender))
-            persons_storage.add_item(new_person.id, new_person)
-            persons_storage.update_version()
-
             persons_count += 1
             signals.place_person_arrived.send(self.__class__, place=self, person=new_person)
 

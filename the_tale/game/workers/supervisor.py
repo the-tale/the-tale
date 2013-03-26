@@ -176,7 +176,6 @@ class Worker(BaseWorker):
 
     def process_next_turn(self):
         self.time.increment_turn()
-        self.time.save()
 
         settings.refresh()
 
