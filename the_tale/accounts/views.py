@@ -14,9 +14,9 @@ from common.utils.resources import Resource
 from common.utils.pagination import Paginator
 from common.utils.decorators import login_required
 
-from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
+from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype
 from accounts.postponed_tasks import RegistrationTask
-from accounts.models import CHANGE_CREDENTIALS_TASK_STATE, Account, Award
+from accounts.models import CHANGE_CREDENTIALS_TASK_STATE, Account
 from accounts import forms
 from accounts.conf import accounts_settings
 from accounts.logic import logout_user, login_user, force_login_user
@@ -344,9 +344,9 @@ class AccountResource(Resource):
         if not form.is_valid():
             return self.json_error('accounts.account.give_award.form_errors', form.errors)
 
-        Award.objects.create(description=form.c.description,
-                             type=form.c.type,
-                             account=self.master_account._model)
+        AwardPrototype.create(description=form.c.description,
+                              type=form.c.type,
+                              account=self.master_account)
 
         return self.json_ok()
 

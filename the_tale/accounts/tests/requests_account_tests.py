@@ -7,8 +7,9 @@ from common.utils.permissions import sync_group
 
 from game.logic import create_test_map
 
-from accounts.models import Award, AWARD_TYPE
+from accounts.models import Award
 from accounts.prototypes import AccountPrototype
+from accounts.relations import AWARD_TYPE
 from accounts.logic import register_user
 from accounts.conf import accounts_settings
 

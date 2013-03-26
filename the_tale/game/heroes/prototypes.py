@@ -819,10 +819,11 @@ class HeroPrototype(BasePrototype):
         return data
 
     @classmethod
-    def create(cls, account, bundle, storage, is_fast=False):
+    def create(cls, account, bundle, is_fast=False):
 
         from game.abilities.prototypes import AbilityPrototype
         from game.actions.prototypes import ActionIdlenessPrototype
+        from game.logic_storage import LogicStorage
 
         start_place = places_storage.random_place()
 
@@ -861,6 +862,8 @@ class HeroPrototype(BasePrototype):
         hero = cls(model=hero)
 
         AbilityPrototype.create(hero)
+
+        storage = LogicStorage() # tmp storage for creating Idleness action
 
         storage.add_hero(hero)
 

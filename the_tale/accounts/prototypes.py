@@ -12,7 +12,7 @@ from dext.utils.decorators import nested_commit_on_success
 from common.utils.password import generate_password
 from common.utils.prototypes import BasePrototype
 
-from accounts.models import Account, ChangeCredentialsTask, CHANGE_CREDENTIALS_TASK_STATE
+from accounts.models import Account, ChangeCredentialsTask, CHANGE_CREDENTIALS_TASK_STATE, Award
 from accounts.conf import accounts_settings
 from accounts.exceptions import AccountsException
 
@@ -21,10 +21,6 @@ class AccountPrototype(BasePrototype):
     _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_active', 'is_superuser', 'has_perm')
     _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time')
     _get_by = ('id', 'email', 'nick')
-
-    def get_hero(self):
-        from game.heroes.prototypes import HeroPrototype
-        return HeroPrototype.get_by_account_id(self.id)
 
     @property
     def nick_verbose(self): return self._model.nick if not self._model.is_fast else u'Игрок'
@@ -194,3 +190,17 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
             self._model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
             self._model.comment = u'%s' % traceback_strings
             self._model.save()
+
+
+class AwardPrototype(BasePrototype):
+    _model_class = Award
+    _readonly = ('id', 'type')
+    _bidirectional = ()
+    _get_by = ('id',)
+
+
+    @classmethod
+    def create(cls, description, type, account):
+        return cls(model=Award.objects.create(description=description,
+                                              type=type,
+                                              account=account._model) )

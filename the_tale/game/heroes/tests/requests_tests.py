@@ -11,7 +11,7 @@ from common.utils.testcase import TestCase
 from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
 from common.utils.permissions import sync_group
 
-from accounts.logic import register_user
+from accounts.logic import register_user, login_url
 from accounts.prototypes import AccountPrototype
 
 from game.balance import constants as c
@@ -42,6 +42,17 @@ class HeroIndexRequestsTests(HeroRequestsTestBase):
     def test_index(self):
         response = self.client.get(reverse('game:heroes:'))
         self.assertRedirects(response, '/', status_code=302, target_status_code=200)
+
+
+class MyHeroRequestsTests(HeroRequestsTestBase):
+
+    def test_unloginned(self):
+        self.request_logout()
+        url = reverse('game:heroes:my-hero')
+        self.check_redirect(url, login_url(url))
+
+    def test_redirect(self):
+        self.check_redirect(reverse('game:heroes:my-hero'), reverse('game:heroes:show', args=[self.hero.id]))
 
 
 class HeroPageRequestsTests(HeroRequestsTestBase):

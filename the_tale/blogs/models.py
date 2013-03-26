@@ -23,7 +23,7 @@ class Post(models.Model):
 
     state = models.IntegerField(default=POST_STATE.NOT_MODERATED, choices=POST_STATE._CHOICES)
 
-    moderator = models.ForeignKey('accounts.Account', null=True, related_name='+')
+    moderator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+')
 
     votes = models.IntegerField(default=0)
 

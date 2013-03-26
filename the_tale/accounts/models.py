@@ -4,17 +4,25 @@ import datetime
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
-from common.utils.enum import create_enum
+
+from rels.django_staff import TableIntegerField
+
+from accounts.relations import AWARD_TYPE
 
 
 class AccountManager(BaseUserManager):
+
+    @classmethod
+    def normalize_email(cls, email):
+        email = super(AccountManager, cls).normalize_email(email)
+        return email if email else None
 
     def create_user(self, nick, email, is_fast=None, password=None):
 
         if not nick:
             raise ValueError('Users must have nick')
 
-        account = self.model(email=self.normalize_email(email) if email is not None else None,
+        account = self.model(email=self.normalize_email(email),
                              nick=nick,
                              is_fast=is_fast)
         account.set_password(password)
@@ -25,7 +33,7 @@ class AccountManager(BaseUserManager):
         if not nick:
             raise ValueError('Users must have nick')
 
-        account = self.model(email=self.normalize_email(email) if email is not None else None,
+        account = self.model(email=self.normalize_email(email),
                              nick=nick,
                              is_fast=False,
                              is_superuser=True,
@@ -50,7 +58,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_fast = models.BooleanField(default=True, db_index=True)
 
     # duplicate django user email - add unique constraints
-    email = models.EmailField(max_length=254, null=True, unique=True)
+    email = models.EmailField(max_length=254, null=True, unique=True, blank=True)
 
     new_messages_number = models.IntegerField(null=False, default=0)
 
@@ -73,21 +81,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self): return self.nick
 
 
-AWARD_TYPE = create_enum('AWARD_TYPE', (('BUG_MINOR', 0, u'найдена ошибка: небольшая'),
-                                        ('BUG_NORMAL', 1, u'найдена ошибка: обычная'),
-                                        ('BUG_MAJOR', 2, u'найдена ошибка: существенная'),
-                                        ('CONTEST_1_PLACE', 3, u'конкурс: 1-ое место'),
-                                        ('CONTEST_2_PLACE', 4, u'конкурс: 2-ое место'),
-                                        ('CONTEST_3_PLACE', 5, u'конкурс: 3-е место'),
-                                        ('STANDARD_MINOR', 6, u'стандартная награда: небольшая'),
-                                        ('STANDARD_NORMAL', 7, u'стандартная награда: обычная'),
-                                        ('STANDARD_MAJOR', 8, u'стандартная награда: существенная'),))
-
 class Award(models.Model):
 
     account = models.ForeignKey(Account,  related_name='+', null=False)
 
-    type = models.IntegerField(choices=AWARD_TYPE._CHOICES, null=False)
+    type = TableIntegerField(relation=AWARD_TYPE, relation_column='value', db_index=True)
 
     description = models.TextField(default='', blank=True)
 

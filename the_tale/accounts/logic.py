@@ -30,8 +30,6 @@ def login_url(target_url='/'):
 
 def register_user(nick, email=None, password=None):
 
-    from game.logic_storage import LogicStorage
-
     if Account.objects.filter(nick=nick).exists():
         return REGISTER_USER_RESULT.DUPLICATE_USERNAME, None, None
 
@@ -48,9 +46,7 @@ def register_user(nick, email=None, password=None):
 
     bundle = BundlePrototype.create()
 
-    storage = LogicStorage()
-
-    hero = HeroPrototype.create(account=account, bundle=bundle, storage=storage, is_fast=account.is_fast)
+    hero = HeroPrototype.create(account=account, bundle=bundle, is_fast=account.is_fast)
     dress_new_hero(hero)
     hero.save()
 

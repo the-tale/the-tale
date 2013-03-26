@@ -31,5 +31,5 @@ class ResetPasswordForm(forms.Form):
 
 
 class GiveAwardForm(forms.Form):
-    type = fields.TypedChoiceField(label=u'тип', choices=AWARD_TYPE._CHOICES, coerce=int)
+    type = fields.TypedChoiceField(label=u'тип', choices=AWARD_TYPE._choices(), coerce=AWARD_TYPE._get_from_name)
     description = fields.TextField(label=u'обоснование', required=False)

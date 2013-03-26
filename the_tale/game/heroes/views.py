@@ -2,6 +2,8 @@
 
 import datetime
 
+from django.core.urlresolvers import reverse
+
 from dext.views import handler, validator
 
 from common.utils.resources import Resource
@@ -72,6 +74,13 @@ class HeroResource(Resource):
     @handler('', method='get')
     def index(self):
         return self.redirect('/')
+
+    @login_required
+    @handler('my-hero', method='get')
+    def my_hero(self):
+        hero = HeroPrototype.get_by_account_id(self.account.id)
+        return self.redirect(reverse('game:heroes:show', args=[hero.id]))
+
 
     @handler('#hero_id', name='show', method='get')
     def hero_page(self):
