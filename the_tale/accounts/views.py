@@ -306,10 +306,11 @@ class AccountResource(Resource):
     def show(self):
         from forum.models import Thread
         from game.bills.models import Bill
+        from game.bills.relations import BILL_STATE
         from game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
         from game.phrase_candidates.models import PhraseCandidate
 
-        bills_count = Bill.objects.filter(owner=self.master_account._model).count()
+        bills_count = Bill.objects.filter(owner=self.master_account._model).exclude(state=BILL_STATE.REMOVED).count()
 
         threads_count = Thread.objects.filter(author=self.master_account._model).count()
 
