@@ -33,7 +33,10 @@ class MessageResource(Resource):
 
     def show_messages(self, query, page, incoming):
 
-        url_builder = UrlBuilder(reverse('accounts:messages:'), arguments={'page': page})
+        if incoming:
+            url_builder = UrlBuilder(reverse('accounts:messages:'), arguments={'page': page})
+        else:
+            url_builder = UrlBuilder(reverse('accounts:messages:sent'), arguments={'page': page})
 
         messages_count = query.count()
 
