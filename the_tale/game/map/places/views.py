@@ -32,13 +32,13 @@ class PlaceResource(Resource):
 
         persons_heroes = {}
 
-        city_heroes = HeroPrototype.get_place_heroes(self.place)
+        city_heroes = filter(lambda h: not h.is_fast, HeroPrototype.get_place_heroes(self.place))
 
         accounts_ids = [hero.account_id for hero in city_heroes]
 
         for person in persons:
-            friends = HeroPrototype.get_friendly_heroes(person)
-            enemies = HeroPrototype.get_enemy_heroes(person)
+            friends = filter(lambda h: not h.is_fast, HeroPrototype.get_friendly_heroes(person))
+            enemies = filter(lambda h: not h.is_fast, HeroPrototype.get_enemy_heroes(person))
 
             persons_heroes[person.id] = map(None, friends, enemies)
 

@@ -38,6 +38,9 @@ class TestShowRequests(TestCase):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         hero_2 = HeroPrototype.get_by_account_id(account_id)
 
+        result, account_id, bundle_id = register_user('test_user_3')
+        hero_3 = HeroPrototype.get_by_account_id(account_id)
+
         hero_1.preferences.set_place_id(self.place_1.id)
         hero_1.preferences.set_friend_id(self.place_1.persons[0].id)
         hero_1.preferences.set_enemy_id(self.place_1.persons[-1].id)
@@ -48,7 +51,13 @@ class TestShowRequests(TestCase):
         hero_2.preferences.set_enemy_id(self.place_1.persons[0].id)
         hero_2.save()
 
+        hero_3.preferences.set_place_id(self.place_1.id)
+        hero_3.preferences.set_friend_id(self.place_1.persons[-1].id)
+        hero_3.preferences.set_enemy_id(self.place_1.persons[0].id)
+        hero_3.save()
+
         texts = [(jinja2.escape(hero_1.name), 3),
-                 (jinja2.escape(hero_2.name), 3)]
+                 (jinja2.escape(hero_2.name), 3),
+                 (jinja2.escape(hero_3.name), 0)]
 
         self.check_html_ok(self.client.get(reverse('game:map:places:show', args=[self.place_1.id])), texts=texts)
