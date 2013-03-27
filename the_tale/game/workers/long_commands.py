@@ -59,8 +59,8 @@ class Worker(BaseWorker):
 
     def process_run_cleaning(self):
         vacuum_result = subprocess.call(['vacuumdb', '-q',
-                                         '-U "%s"' % project_settings.DATABASES['default']['USER'],
-                                         '-d "%s"' % project_settings.DATABASES['default']['NAME']])
+                                         '-U', project_settings.DATABASES['default']['USER'],
+                                         '-d', project_settings.DATABASES['default']['NAME']])
         if vacuum_result:
             self.logger.error('VACUUM COMMAND ENDED WITH CODE %d' % vacuum_result)
         else:
