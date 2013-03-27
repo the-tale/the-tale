@@ -1,7 +1,10 @@
 # coding: utf-8
 
+import datetime
+
 from game.pvp.models import Battle1x1, BATTLE_1X1_STATE, BATTLE_RESULT
 from game.pvp.exceptions import PvPException
+from game.pvp.conf import pvp_settings
 
 
 class Battle1x1Prototype(object):
@@ -47,6 +50,12 @@ class Battle1x1Prototype(object):
     @classmethod
     def reset_waiting_battles(self):
         Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).delete()
+
+    @classmethod
+    def remove_unprocessed_battles(self):
+        Battle1x1.objects.filter(state__in=[BATTLE_1X1_STATE.ENEMY_NOT_FOND,
+                                            BATTLE_1X1_STATE.LEAVE_QUEUE],
+                                 updated_at__lt=datetime.datetime.now()-datetime.timedelta(seconds=pvp_settings.UNPROCESSED_LIVE_TIME)).delete()
 
     @property
     def id(self): return self.model.id

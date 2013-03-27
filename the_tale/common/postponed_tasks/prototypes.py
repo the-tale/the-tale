@@ -11,7 +11,7 @@ from common.utils.enum import create_enum
 
 from common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE
 from common.postponed_tasks.exceptions import PostponedTaskException
-
+from common.postponed_tasks.conf import postponed_tasks_settings
 
 
 POSTPONED_TASK_LOGIC_RESULT = create_enum('POSTPONED_TASK_LOGIC_RESULT', (('SUCCESS', 0, u'удачное выполнение'),
@@ -130,6 +130,13 @@ class PostponedTaskPrototype(object):
                                             internal_uuid=internal_uuid,
                                             state=POSTPONED_TASK_STATE.WAITING).exists()
 
+    @classmethod
+    def get_processed_tasks_query(cls):
+        return PostponedTask.objects.exclude(state=POSTPONED_TASK_STATE.WAITING)
+
+    @classmethod
+    def remove_old_tasks(cls):
+        cls.get_processed_tasks_query().filter(updated_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=postponed_tasks_settings.TASK_LIVE_TIME)).delete()
 
     @classmethod
     def create(cls, task_logic, live_time=None):

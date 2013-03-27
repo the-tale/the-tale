@@ -1,4 +1,7 @@
 # coding: utf-8
+
+import datetime
+
 import mock
 
 from common.utils import testcase
@@ -8,6 +11,7 @@ from common.postponed_tasks.exceptions import PostponedTaskException
 from common.postponed_tasks.prototypes import PostponedTaskPrototype, postponed_task, _register_postponed_tasks, autodiscover, POSTPONED_TASK_LOGIC_RESULT
 from common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE
 from common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
+
 
 class PrototypeTests(testcase.TestCase):
 
@@ -34,6 +38,26 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(self.task.internal_state, FakePostponedInternalTask.INITIAL_STATE)
         self.assertEqual(self.task.internal_logic.TYPE, FakePostponedInternalTask.TYPE)
         self.assertTrue(PostponedTaskPrototype.check_if_used(FakePostponedInternalTask.TYPE, 777))
+
+    def test_remove_old_tasks(self):
+        task = PostponedTaskPrototype.create(FakePostponedInternalTask())
+        task.state = POSTPONED_TASK_STATE.PROCESSED
+        task.save()
+
+        removed_task = PostponedTaskPrototype.create(FakePostponedInternalTask())
+        removed_task.state = POSTPONED_TASK_STATE.ERROR
+        removed_task.save()
+
+        PostponedTaskPrototype.remove_old_tasks()
+
+        self.assertEqual(PostponedTask.objects.all().count(), 3)
+
+        with mock.patch('common.postponed_tasks.conf.postponed_tasks_settings.TASK_LIVE_TIME', -1):
+            PostponedTaskPrototype.remove_old_tasks()
+
+        self.assertEqual(PostponedTask.objects.all().count(), 1)
+
+
 
     def test_reset_all(self):
         task = PostponedTaskPrototype.create(FakePostponedInternalTask())

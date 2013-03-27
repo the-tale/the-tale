@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import datetime
 
 from django.conf import settings as project_settings
 
@@ -107,13 +108,6 @@ def log_sql_queries(turn_number):
             f.write('%s\t %s\n\n' % (querie['time'], querie['sql']))
 
     connection.queries = []
-
-def clean_database():
-    from django.db import models
-    from game.models import Bundle
-
-    # remove unused bundles
-    Bundle.objects.annotate(actions_number=models.Count('action')).filter(actions_number=0).delete()
 
 
 def remove_game_data(account):

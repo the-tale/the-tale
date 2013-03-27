@@ -25,6 +25,7 @@ class Battle1x1(models.Model):
     enemy = models.ForeignKey('accounts.Account', null=True, related_name='+')
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = models.DateTimeField(auto_now=True, null=False)
 
     state = models.IntegerField(default=BATTLE_1X1_STATE.WAITING, choices=BATTLE_1X1_STATE._CHOICES, db_index=True)
 

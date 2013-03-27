@@ -4,7 +4,9 @@ from common.utils.prototypes import BasePrototype
 
 from game.models import Bundle, BUNDLE_TYPE
 
+
 class BundleException(Exception): pass
+
 
 class BundlePrototype(BasePrototype):
     _model_class = Bundle
@@ -26,6 +28,11 @@ class BundlePrototype(BasePrototype):
     def create(cls):
         bundle = Bundle.objects.create(type=BUNDLE_TYPE.BASIC)
         return BundlePrototype(model=bundle)
+
+    @classmethod
+    def remove_unused_bundles(cls):
+        from django.db import models
+        Bundle.objects.annotate(actions_number=models.Count('action')).filter(actions_number=0).delete()
 
     def remove(self):
         self._model.delete() # must delete all members automaticaly
