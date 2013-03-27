@@ -7,8 +7,9 @@ from game.game_info import GENDER
 from game.balance.enums import RACE
 
 from game.persons.relations import PERSON_TYPE
-
 from game.persons.storage import persons_storage
+
+from game.map.places.storage import places_storage
 
 
 class BasePersonBill(object):
@@ -25,19 +26,25 @@ class BasePersonBill(object):
     CAPTION = None
     DESCRIPTION = None
 
-    def __init__(self, person_id=None, old_place_name_forms=None):
+    def __init__(self, person_id=None, old_place_name_forms=None, place_id=None):
         self.old_place_name_forms = old_place_name_forms
         self.person_id = person_id
+        self.place_id = place_id
 
-        if person_id is not None:
+        if self.person is not None:
             self.person_name = self.person.name
             self.person_race = self.person.race
             self.person_type = self.person.type
             self.person_gender = self.person.gender
+            self.place_id = self.person.place.id
 
     @property
     def person(self):
         return persons_storage.get(self.person_id)
+
+    @property
+    def place(self):
+        return places_storage.get(self.place_id)
 
     @property
     def old_place_name(self):
@@ -67,6 +74,7 @@ class BasePersonBill(object):
         self.person_race = self.person.race
         self.person_type = self.person.type
         self.person_gender = self.person.gender
+        self.place_id = self.person.place.id
 
 
     def initialize_with_moderator_data(self, moderator_form):
@@ -91,6 +99,7 @@ class BasePersonBill(object):
                 'person_race': self.person_race,
                 'person_type': self.person_type.value,
                 'person_gender': self.person_gender,
+                'place_id': self.place_id,
                 'old_place_name_forms': self.old_place_name_forms.serialize()}
 
     @classmethod
@@ -101,8 +110,9 @@ class BasePersonBill(object):
         obj.person_race = data['person_race']
         obj.person_type = PERSON_TYPE(data['person_type'])
         obj.person_gender = data['person_gender']
+        obj.place_id = data['place_id']
 
-        if 'old_name_forms' in data:
+        if 'old_place_name_forms' in data:
             obj.old_place_name_forms = Noun.deserialize(data['old_place_name_forms'])
         else:
             obj.old_place_name_forms = Noun.fast_construct(u'название неизвестно')

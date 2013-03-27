@@ -29,7 +29,7 @@ class Bill(models.Model):
 
     approved_by_moderator = models.BooleanField(default=False, db_index=True)
 
-    remove_initiator = models.ForeignKey('accounts.Account', null=True, related_name='+')
+    remove_initiator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+')
 
     rationale = models.TextField(null=False, blank=True)
     technical_data = models.TextField(null=False, blank=True, default={})
