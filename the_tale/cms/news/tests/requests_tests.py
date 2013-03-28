@@ -69,7 +69,8 @@ class TestRequests(TestCase):
     def test_show_page(self):
         self.check_html_ok(self.client.get(reverse('news:show', args=[self.news1.id])), texts=(('news1-caption', 3), # third caption in addthis widget
                                                                                                ('news1-description', 1), # description in addthis widget
-                                                                                               ('news1-content', 1)))
+                                                                                               ('news1-content', 1),
+                                                                                               ('pgf-forum-block', 0),))
 
     def prepair_forum(self):
         create_test_map()
@@ -103,7 +104,8 @@ class TestRequests(TestCase):
                                                                                                     ('news1-description', 0),
                                                                                                     ('news1-content', 1)))
 
-        self.check_html_ok(self.client.get(reverse('news:show', args=[self.news1.id])), texts=(('pgf-forum-link', 1), ))
+        self.check_html_ok(self.client.get(reverse('news:show', args=[self.news1.id])), texts=(('pgf-forum-link', 1),
+                                                                                               ('pgf-forum-block', 1),))
         self.check_html_ok(self.client.get(reverse('news:')), texts=(('pgf-forum-link', 1), ))
 
     def test_post_on_forum_unloggined(self):

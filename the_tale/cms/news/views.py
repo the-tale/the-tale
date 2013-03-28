@@ -57,7 +57,16 @@ class NewsResource(Resource):
 
     @handler('#news_id', name='show', method='get')
     def show(self):
-        return self.template('news/show.html', {'news': self.news} )
+        from forum.views import ThreadPageData
+
+        thread_data = None
+
+        if self.news.forum_thread_id is not None:
+            thread_data = ThreadPageData()
+            thread_data.initialize(thread=ThreadPrototype.get_by_id(self.news.forum_thread_id), page=1, ignore_first_post=True, inline=True)
+
+        return self.template('news/show.html', {'news': self.news,
+                                                'thread_data': thread_data} )
 
 
     @handler('#news_id', 'publish-on-forum', method='get') #TODO: change to post

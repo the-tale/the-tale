@@ -48,7 +48,7 @@ class BaseTestRequests(TestCase):
     def check_vote(self, vote, voter, value, post_id):
         self.assertEqual(vote.voter, voter)
         self.assertEqual(vote.value, value)
-        self.assertEqual(vote.model.post.id, post_id)
+        self.assertEqual(vote._model.post.id, post_id)
 
 
 
@@ -149,21 +149,21 @@ class TestIndexRequests(BaseTestRequests):
         self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('caption-a2-2', 1),))
 
         # created_at
-        post.model.created_at -= datetime.timedelta(seconds=60)
+        post._model.created_at -= datetime.timedelta(seconds=60)
         post.save()
 
         self.check_html_ok(self.client.get(reverse('blogs:posts:')), texts=(('caption-a2-2', 0),))
         self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('caption-a2-2', 0),))
 
         # rating
-        post.model.votes = 10
+        post._model.votes = 10
         post.save()
 
         self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('caption-a2-2', 0),))
         self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=rating'), texts=(('caption-a2-2', 1),))
 
         # alphabet
-        post.model.caption = 'aaaaaaaa-caption'
+        post._model.caption = 'aaaaaaaa-caption'
         post.save()
 
         self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('aaaaaaaa-caption', 0),))
@@ -205,6 +205,7 @@ class TestShowRequests(BaseTestRequests):
 
         texts = [('caption-a2-0', 3 + 1), # 1 from social sharing
                  ('text-a2-0', 1 + 1),  # 1 from social sharing
+                 ('pgf-forum-block', 1),
                  (reverse('blogs:posts:accept', args=[self.post.id]), 0),
                  (reverse('blogs:posts:decline', args=[self.post.id]), 0) ]
 

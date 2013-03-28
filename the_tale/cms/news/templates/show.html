@@ -1,12 +1,13 @@
 {% extends "news/base.html" %}
 
 {% import 'macros.html' as base_macros with context %}
+{% import 'forum/thread_page.html' as thread_page with context %}
 
 {% block title %}{{ news.caption }} | {{ super() }}{% endblock %}
 
 {% block news_content %}
 
-<div class="block">
+<div class="block white">
 
   <h2>{{news.caption}}</h2>
 
@@ -19,6 +20,10 @@
   </div>
 
   {{ news.html_content|safe }}
+
+  {% if thread_data %}
+  {{ thread_page.thread_page(thread_data) }}
+  {% endif %}
 
 </div>
 

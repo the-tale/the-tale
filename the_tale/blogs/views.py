@@ -128,7 +128,13 @@ class PostResource(Resource):
     @validate_declined_state()
     @handler('#post', name='show', method='get')
     def show(self):
+        from forum.views import ThreadPageData
+
+        thread_data = ThreadPageData()
+        thread_data.initialize(thread=self.post.forum_thread, page=1, ignore_first_post=True, inline=True)
+
         return self.template('blogs/show.html', {'post': self.post,
+                                                 'thread_data': thread_data,
                                                  'vote': None if not self.account.is_authenticated() else VotePrototype.get_for(self.account, self.post)})
 
     @login_required

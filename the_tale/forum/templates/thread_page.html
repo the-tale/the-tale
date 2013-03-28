@@ -1,0 +1,149 @@
+{% import 'macros.html' as base_macros with context %}
+
+
+{% macro thread_page(thread_data) %}
+
+<div class="pgf-forum-block">
+
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    {% if resource.account.is_authenticated() and not resource.account.is_fast %}
+    var newPostForm = new pgf.forms.Form(jQuery('#pgf-new-post-form'),
+                                         { OnSuccess: function(form, data){
+                                             location.href = data.data.thread_url;
+                                         }
+                                         });
+
+    pgf.base.AddPreview('#pgf-new-post-form', 'textarea', "{{ url('portal:preview') }}");
+    pgf.base.InitBBFields('#pgf-new-post-form');
+    {% endif %}
+
+    {% if thread_data.can_delete_posts or thread_data.has_post_on_page %}
+    jQuery('.pgf-remove-post-button').click(function(e) {
+        e.preventDefault();
+        var deleteUrl = jQuery(e.target).data('delete-url');
+
+        var DeleteRequest = function(e) {
+            e.preventDefault();
+
+            pgf.forms.Post({ action: deleteUrl,
+                             OnSuccess: function(e){
+                                 location.reload();
+                             }
+                           });
+        };
+
+        pgf.ui.dialog.Question({message: 'Вы действительно хотите это сообщение?',
+                                title: 'Подтвердите удаление',
+                                buttons: [{text: 'Удалить', classes: 'btn-danger', callback: DeleteRequest},
+                                          {text: 'Отменить', classes: 'btn-success'}]
+                               })
+    });
+    {% endif %}
+});
+
+</script>
+
+  {% if thread_data.inline %}
+  <br/><hr/><br/><h4>ОБСУЖДЕНИЕ</h4>
+  {% if thread_data.paginator.pages_count == 1 %}<br/>{% endif %}
+
+  {% if thread_data.no_posts %}
+  <p class="alert alert-info">
+    Напишите первый комментарий!
+  </p>
+  {% endif %}
+  {% endif %}
+
+
+{{ base_macros.render_paginator(thread_data.paginator) }}
+
+<ul class="unstyled">
+  {% for post in thread_data.posts %}
+
+  {% if loop.index==1 and thread_data.ignore_first_post %}{% continue %}{% endif %}
+
+  {# give anchor to previous element, if we give anchor to current element#}
+  {% set message_id = thread_data.start_posts_from + loop.index%}
+  <li class="post">
+    <table class="table post-table table-striped table-no-highlighting">
+      <tbody>
+        <tr class="head">
+          <td class="index"><a href="#m{{message_id}}" >#{{message_id}}</a><div class="anchor" id="m{{message_id}}"></div></td>
+          <td class="author">
+            <a href="{{url('accounts:show', post.author.id)}}">{{ post.author.nick }}</a>
+          </td>
+
+          {% if not (post.is_removed or post.technical) %}
+
+          {% if thread_data.can_change_posts or post.author.id == resource.account.id %}
+          <td class="change-post">
+            <a href="{{ url('forum:posts:edit', post.id) }}" class="pgf-change-post-button">правка</a>
+          </td>
+          {% endif %}
+
+          {% if (thread_data.can_delete_posts or post.author.id == resource.account.id) and (loop.index!=1 or thread_data.paginator.current_page_number!=0) %}
+          <td class="delete-post">
+            <a href="#" class="pgf-remove-post-button" data-delete-url="{{ url('forum:posts:delete', post.id) }}">удалить</a>
+          </td>
+          {% endif %}
+
+          {% endif %}
+
+          <td class="created-at pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp}}"></td>
+        </tr>
+
+        <tr class="body">
+          <td colspan="5">
+            {% if post.is_removed %}
+            <span class="post-removed-message">
+              {% if post.is_removed_by_author %}
+              Сообщение удалено автором
+              {% elif post.is_removed_by_thread_owner %}
+              Соообщение удалено владельцем темы
+              {% else %}
+              Сообщение удалено модератором
+              {% endif %}
+            </span>
+            {% else %}
+            {{ post.html|safe }}
+            {% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  {% endfor %}
+</ul>
+
+{{ base_macros.render_paginator(thread_data.paginator) }}
+
+{% if resource.account.is_authenticated() and not resource.account.is_fast %}
+
+<form action="{{ url('forum:posts:create', thread=thread_data.thread.id) }}"
+      method="post"
+      id="pgf-new-post-form"
+      class="new-post-form">
+
+  {{ thread_data.new_post_form.errors_container }}
+
+  <div class="pgf-edit-content">
+    {{ thread_data.new_post_form.text.widget }}
+  </div>
+
+  <div class="pgf-preview-content pgf-hidden">
+  </div>
+
+  <div class="widget">
+    <input type="submit" class="btn" value="Ответить"/>
+    <input type="button" class="btn pgf-preview-button" value="Предпросмотр"/>
+    <input type="button" class="btn pgf-edit-button pgf-hidden" value="Редактировать"/>
+  </div>
+
+</form>
+{% endif %}
+
+</div>
+
+{% endmacro %}

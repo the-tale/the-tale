@@ -161,7 +161,13 @@ class BillResource(Resource):
 
     @handler('#bill', name='show', method='get')
     def show(self):
+        from forum.views import ThreadPageData
+
+        thread_data = ThreadPageData()
+        thread_data.initialize(thread=self.bill.forum_thread, page=1, ignore_first_post=True, inline=True)
+
         return self.template('bills/show.html', {'bill': self.bill,
+                                                 'thread_data': thread_data,
                                                  'vote': VotePrototype.get_for(self.account, self.bill)})
 
     @validate_ownership()

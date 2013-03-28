@@ -8,6 +8,7 @@ from django.conf import settings as project_settings
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
 
+from common.utils.decorators import lazy_property
 from common.utils import bbcode
 from common.utils.prototypes import BasePrototype
 
@@ -41,6 +42,9 @@ class BillPrototype(BasePrototype):
 
     @property
     def rationale_html(self): return bbcode.render(self._model.rationale)
+
+    @lazy_property
+    def forum_thread(self): return ThreadPrototype.get_by_id(self.forum_thread_id)
 
     @property
     def votes_for_percents(self):

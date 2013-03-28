@@ -1,6 +1,7 @@
 {% extends "blogs/base.html" %}
 
 {% import 'macros.html' as base_macros with context %}
+{% import 'forum/thread_page.html' as thread_page with context %}
 
 {% block title %} {{ post.caption }} | {{ super() }}{% endblock %}
 
@@ -64,5 +65,7 @@
 <div class="blog-post-content">
   {{ post.text_html|safe }}
 </div>
+
+{{ thread_page.thread_page(thread_data) }}
 
 {% endblock %}

@@ -292,40 +292,61 @@ class ThreadsResource(BaseForumResource):
     @handler('#thread', name='show', method='get')
     def get_thread(self, page=1):
 
+        thread_data = ThreadPageData()
+
+        if not thread_data.initialize(thread=self.thread,
+                                      page=page,
+                                      account=self.account,
+                                      can_delete_posts=self.can_delete_posts(self.thread),
+                                      can_change_posts=self.can_change_posts()):
+            return self.redirect(thread_data.paginator.last_page_url, permanent=False)
+
+        return self.template('forum/thread.html',
+                             {'category': self.category,
+                              'thread': self.thread,
+                              'thread_data': thread_data,
+                              'can_delete_thread': self.can_delete_thread(self.thread),
+                              'can_change_thread': self.can_change_thread(self.thread)} )
+
+
+class ThreadPageData(object):
+
+    def __init__(self):
+        pass
+
+    def initialize(self, thread, page, inline=False, account=None, can_delete_posts=False, can_change_posts=False, ignore_first_post=False):
+
+        self.thread = thread
+
         url_builder = UrlBuilder(reverse('forum:threads:show', args=[self.thread.id]),
                                  arguments={'page': page})
 
         page -= 1
 
-        paginator = Paginator(page, self.thread.posts_count+1, forum_settings.POSTS_ON_PAGE, url_builder)
+        self.paginator = Paginator(page, thread.posts_count+1, forum_settings.POSTS_ON_PAGE, url_builder)
 
-        if paginator.wrong_page_number:
-            return self.redirect(paginator.last_page_url, permanent=False)
+        if self.paginator.wrong_page_number:
+            return False
 
-        post_from, post_to = paginator.page_borders(page)
+        post_from, post_to = self.paginator.page_borders(page)
 
-        posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread.model).order_by('created_at')[post_from:post_to]]
+        self.posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread.model).order_by('created_at')[post_from:post_to]]
 
-        pages_on_page_slice = posts
+        pages_on_page_slice = self.posts
         if post_from == 0:
             pages_on_page_slice = pages_on_page_slice[1:]
-        has_post_on_page = any([post.author.id == self.account.id for post in pages_on_page_slice])
 
-        return self.template('forum/thread.html',
-                             {'category': self.category,
-                              'subcategory': self.subcategory,
-                              'thread': self.thread,
-                              'new_post_form': NewPostForm(),
-                              'posts': posts,
-                              'paginator': paginator,
-                              'start_posts_from': page * forum_settings.POSTS_ON_PAGE,
-                              'can_delete_thread': self.can_delete_thread(self.thread),
-                              'can_change_thread': self.can_change_thread(self.thread),
-                              'can_delete_posts': self.can_delete_posts(self.thread),
-                              'can_change_posts': self.can_change_posts(),
-                              'has_post_on_page': has_post_on_page,
-                              'current_page_number': page} )
+        self.has_post_on_page = account is not None and any([post.author.id == account.id for post in pages_on_page_slice])
+        self.new_post_form = NewPostForm()
+        self.start_posts_from = page * forum_settings.POSTS_ON_PAGE
+        self.can_delete_posts = can_delete_posts
+        self.can_change_posts = can_change_posts
+        self.ignore_first_post = ignore_first_post
+        self.inline = inline
 
+        self.no_posts = (len(self.posts) == 0) or (self.ignore_first_post and len(self.posts) == 1)
+
+        return True
 
 
 class ForumResource(BaseForumResource):

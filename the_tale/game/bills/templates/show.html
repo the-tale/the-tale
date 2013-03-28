@@ -2,6 +2,7 @@
 
 {% import 'macros.html' as base_macros with context %}
 {% import 'bills/macros.html' as bills_macros with context %}
+{% import 'forum/thread_page.html' as thread_page with context %}
 
 {% block title %} {{ bill.caption }} | {{ super() }}{% endblock %}
 
@@ -69,5 +70,6 @@
   {{ bill.rationale_html|safe }}
 </p>
 
+{{ thread_page.thread_page(thread_data) }}
 
 {% endblock %}
