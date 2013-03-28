@@ -206,6 +206,38 @@ class TestIndexRequests(BaseTestRequests):
                                   ('caption-1', 1),
                                   ('caption-2', 1)])
 
+    def test_filter_by_place_no_bills_message(self):
+        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        self.create_bills(3, self.account1, 'caption-%d', 'rationale-%d', bill_data)
+
+        self.check_html_ok(self.client.get(reverse('game:bills:')+('?place=%d' % self.place2.id)),
+                           texts=[('pgf-no-bills-message', 1)])
+
+    def test_filter_by_place(self):
+        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        self.create_bills(3, self.account1, 'caption-%d', 'rationale-%d', bill_data)
+
+        bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_1')
+        self.create_bills(3, self.account1, 'caption-2-%d', 'rationale-2-%d', bill_data)
+
+        self.check_html_ok(self.client.get(reverse('game:bills:')+('?place=%d' % self.place1.id)),
+                           texts=[('pgf-no-bills-message', 0),
+                                  ('caption-0', 1),
+                                  ('caption-1', 1),
+                                  ('caption-2', 1),
+                                  ('caption-2-0', 0),
+                                  ('caption-2-1', 0),
+                                  ('caption-2-2', 0)])
+
+        self.check_html_ok(self.client.get(reverse('game:bills:')+('?place=%d' % self.place2.id)),
+                           texts=[('pgf-no-bills-message', 0),
+                                  ('caption-0', 0),
+                                  ('caption-1', 0),
+                                  ('caption-2', 3),
+                                  ('caption-2-0', 1),
+                                  ('caption-2-1', 1),
+                                  ('caption-2-2', 1)])
+
 
 class TestNewRequests(BaseTestRequests):
 

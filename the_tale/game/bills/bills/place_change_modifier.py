@@ -68,8 +68,10 @@ class PlaceModifier(object):
             self.old_name_forms = self.place.normalized_name
 
     @property
-    def place(self):
-        return places_storage[self.place_id]
+    def place(self): return places_storage[self.place_id]
+
+    @property
+    def actors(self): return [self.place]
 
     @property
     def user_form_initials(self):

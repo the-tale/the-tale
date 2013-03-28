@@ -22,12 +22,15 @@ class PlaceDescriptionTests(BaseTestPrototypes):
 
         self.place_2 = places_storage.all()[1]
 
-        bill_data = PlaceDescripton(place_id=self.place.id, description='new description')
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.bill_data = PlaceDescripton(place_id=self.place.id, description='new description')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
 
     def test_create(self):
         self.assertEqual(self.bill.data.place_id, self.place.id)
         self.assertEqual(self.bill.data.description, 'new description')
+
+    def test_actors(self):
+        self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.place)])
 
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',

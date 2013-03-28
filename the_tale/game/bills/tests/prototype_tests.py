@@ -15,8 +15,9 @@ from forum.models import Post
 
 from game.logic import create_test_map
 
-from game.bills.models import BILL_STATE
-from game.bills.prototypes import BillPrototype, VotePrototype
+from game.bills.models import Actor
+from game.bills.relations import BILL_STATE
+from game.bills.prototypes import BillPrototype, VotePrototype, ActorPrototype
 from game.bills.bills import PlaceRenaming
 from game.bills.conf import bills_settings
 from game.bills.exceptions import BillException
@@ -176,3 +177,31 @@ class TestPrototypeApply(BaseTestPrototypes):
         places_storage.sync(force=True)
 
         self.check_place(self.place1.id, 'new_name_1', self.NAME_FORMS)
+
+
+class TestActorPrototype(BaseTestPrototypes):
+
+    def setUp(self):
+        super(TestActorPrototype, self).setUp()
+
+        self.bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+
+    def test_actors_created(self):
+        self.assertTrue(Actor.objects.all().exists())
+
+    def test_actors_after_user_update(self):
+        old_actors_timestamps = list(Actor.objects.all().values_list('created_at', flat=True))
+
+        form = PlaceRenaming.UserForm({'caption': 'new-caption',
+                                       'rationale': 'new-rationale',
+                                       'place': self.place2.id,
+                                       'new_name': 'new-new-name'})
+
+        self.assertTrue(form.is_valid())
+        self.bill.update(form)
+
+        new_actors_timestamps = list(Actor.objects.all().values_list('created_at', flat=True))
+
+        self.assertFalse(set(old_actors_timestamps) & set(new_actors_timestamps))
+        self.assertTrue(new_actors_timestamps)

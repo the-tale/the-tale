@@ -14,6 +14,9 @@ from common.utils.decorators import login_required
 
 from accounts.prototypes import AccountPrototype
 
+from game.map.places.prototypes import PlacePrototype
+from game.map.places.storage import places_storage
+
 from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.conf import bills_settings
 from game.bills.models import Bill, Vote, BILL_STATE, BILL_TYPE
@@ -29,7 +32,8 @@ class IndexFilter(list_filter.ListFilter):
                                                                                      (BILL_STATE.ACCEPTED.value, u'принятые'),
                                                                                      (BILL_STATE.REJECTED.value, u'отклонённые') ]),
                 list_filter.choice_element(u'голосование:', attribute='voted', choices=[(None, u'все')] + list(VOTED_TYPE._select('value', 'text'))),
-                list_filter.choice_element(u'тип:', attribute='bill_type', choices=[(None, u'все')] + list(BILL_TYPE._select('value', 'text'))) ]
+                list_filter.choice_element(u'тип:', attribute='bill_type', choices=[(None, u'все')] + list(BILL_TYPE._select('value', 'text'))),
+                list_filter.choice_element(u'город:', attribute='place', choices=lambda x: [(None, u'все')] + places_storage.get_choices()) ]
 
 
 def argument_to_bill_type(value): return BILL_TYPE(int(value))
@@ -68,8 +72,9 @@ class BillResource(Resource):
     @validate_argument('state', argument_to_bill_state, 'bills', u'неверное состояние закона')
     @validate_argument('bill_type', argument_to_bill_type, 'bills', u'неверный тип закона')
     @validate_argument('voted', VOTED_TYPE, 'bills', u'неверный тип фильтра голосования')
+    @validate_argument('place', PlacePrototype.get_by_id, 'bills', u'не существует такого города')
     @handler('', method='get')
-    def index(self, page=1, owner=None, state=None, bill_type=None, voted=None):
+    def index(self, page=1, owner=None, state=None, bill_type=None, voted=None, place=None):
 
         bills_query = Bill.objects.exclude(state=BILL_STATE.REMOVED)
 
@@ -81,6 +86,9 @@ class BillResource(Resource):
 
         if bill_type is not None:
             bills_query = bills_query.filter(type=bill_type.value)
+
+        if place is not None:
+            bills_query = bills_query.filter(actor__place_id=place.id)
 
         if voted is not None:
 
@@ -96,12 +104,14 @@ class BillResource(Resource):
         url_builder = UrlBuilder(reverse('game:bills:'), arguments={'owner': owner.id if owner else None,
                                                                     'state': state.value if state else None,
                                                                     'bill_type': bill_type.value if bill_type else None,
-                                                                    'voted': voted.value if voted else None})
+                                                                    'voted': voted.value if voted else None,
+                                                                    'place': place.id if place else None})
 
         index_filter = IndexFilter(url_builder=url_builder, values={'owner': owner.nick if owner else None,
                                                                     'state': state.value if state else None,
                                                                     'bill_type': bill_type.value if bill_type else None,
-                                                                    'voted': voted.value if voted else None})
+                                                                    'voted': voted.value if voted else None,
+                                                                    'place': place.id if place else None})
 
         bills_count = bills_query.count()
 

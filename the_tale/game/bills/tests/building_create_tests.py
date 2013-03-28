@@ -20,12 +20,15 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.person_1 = sorted(self.place1.persons, key=lambda p: -p.power)[0]
         self.person_2 = sorted(self.place2.persons, key=lambda p: -p.power)[-1]
 
-        bill_data = BuildingCreate(person_id=self.person_1.id, old_place_name_forms=self.place1.normalized_name)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.bill_data = BuildingCreate(person_id=self.person_1.id, old_place_name_forms=self.place1.normalized_name)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
 
 
     def test_create(self):
         self.assertEqual(self.bill.data.person_id, self.person_1.id)
+
+    def test_actors(self):
+        self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person_1.place)])
 
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',

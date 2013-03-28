@@ -18,9 +18,10 @@ from game.prototypes import TimePrototype
 from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype
 from forum.models import MARKUP_METHOD
 
-from game.bills.models import Bill, Vote, BILL_STATE
+from game.bills.models import Bill, Vote, Actor
 from game.bills.conf import bills_settings
 from game.bills.exceptions import BillException
+from game.bills.relations import BILL_STATE
 from game.bills import signals
 
 
@@ -139,6 +140,7 @@ class BillPrototype(BasePrototype):
         Vote.objects.filter(bill_id=self.id).delete()
 
         self.data.initialize_with_user_data(form)
+
         self._model.updated_at = datetime.datetime.now()
         self._model.caption = form.c.caption
         self._model.rationale = form.c.rationale
@@ -147,6 +149,8 @@ class BillPrototype(BasePrototype):
         self._model.approved_by_moderator = False
 
         self.save()
+
+        ActorPrototype.update_actors(self, self.data.actors)
 
         VotePrototype.create(self.owner, self, True)
 
@@ -197,6 +201,8 @@ class BillPrototype(BasePrototype):
 
         bill_prototype = cls(model)
 
+        ActorPrototype.update_actors(bill_prototype, bill_prototype.data.actors)
+
         VotePrototype.create(owner, bill_prototype, True)
 
         signals.bill_created.send(sender=cls, bill=bill_prototype)
@@ -224,6 +230,37 @@ class BillPrototype(BasePrototype):
 
         signals.bill_removed.send(self.__class__, bill=self)
 
+
+class ActorPrototype(BasePrototype):
+    _model_class = Actor
+    _readonly = ('id',)
+    _bidirectional = ()
+
+    @classmethod
+    def get_query_for_bill(cls, bill):
+        return list(Actor.objects.filter(bill_id=bill.id))
+
+    @classmethod
+    def create(cls, bill, place=None):
+
+        model = Actor.objects.create(bill=bill._model,
+                                     place=place._model if place else None)
+        return cls(model)
+
+    @classmethod
+    @nested_commit_on_success
+    def update_actors(cls, bill, actors):
+        from game.map.places.prototypes import PlacePrototype
+
+        Actor.objects.filter(bill_id=bill.id).delete()
+
+        for actor in actors:
+            cls.create(bill,
+                       place=actor if isinstance(actor, PlacePrototype) else None)
+
+
+    def save(self):
+        self._model.save()
 
 
 class VotePrototype(BasePrototype):

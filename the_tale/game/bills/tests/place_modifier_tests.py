@@ -20,15 +20,18 @@ class PlaceModifierTests(BaseTestPrototypes):
         self.place = places_storage.all()[0]
         self.place_2 = places_storage.all()[1]
 
-        bill_data = PlaceModifier(place_id=self.place.id, modifier_id=TradeCenter.get_id(), modifier_name=TradeCenter.NAME, old_modifier_name=None)
+        self.bill_data = PlaceModifier(place_id=self.place.id, modifier_id=TradeCenter.get_id(), modifier_name=TradeCenter.NAME, old_modifier_name=None)
 
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
 
     def test_create(self):
         self.assertEqual(self.bill.data.place_id, self.place.id)
         self.assertEqual(self.bill.data.modifier_id, TradeCenter.get_id())
         self.assertEqual(self.bill.data.modifier_name, TradeCenter.NAME)
         self.assertEqual(self.bill.data.old_modifier_name, None)
+
+    def test_actors(self):
+        self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.place)])
 
     @mock.patch('game.map.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', True)
     def test_update(self):

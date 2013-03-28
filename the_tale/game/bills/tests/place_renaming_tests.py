@@ -20,8 +20,8 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.bill = self.create_place_renaming_bill(1)
 
     def create_place_renaming_bill(self, index):
-        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_%d' % index)
-        return BillPrototype.create(self.account1, 'bill-%d-caption' % index, 'bill-%d-rationale' % index, bill_data)
+        self.bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_%d' % index)
+        return BillPrototype.create(self.account1, 'bill-%d-caption' % index, 'bill-%d-rationale' % index, self.bill_data)
 
     def test_create(self):
         self.assertEqual(self.bill.caption, 'bill-1-caption')
@@ -31,6 +31,9 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.assertEqual(self.bill.votes_against, 0)
         self.assertEqual(Post.objects.all().count(), 1)
         self.assertEqual(Post.objects.all()[0].markup_method, MARKUP_METHOD.POSTMARKUP)
+
+    def test_actors(self):
+        self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.place1)])
 
 
     def test_update(self):

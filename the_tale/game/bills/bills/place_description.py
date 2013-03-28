@@ -59,8 +59,10 @@ class PlaceDescripton(object):
     def old_name(self): return self.old_name_forms.normalized
 
     @property
-    def place(self):
-        return places_storage[self.place_id]
+    def place(self): return places_storage[self.place_id]
+
+    @property
+    def actors(self): return [self.place]
 
     @property
     def user_form_initials(self):

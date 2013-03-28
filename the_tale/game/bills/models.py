@@ -49,6 +49,15 @@ class Bill(models.Model):
         permissions = (("moderate_bill", u"Может администрировать законопроекты"), )
 
 
+class Actor(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
+
+    bill = models.ForeignKey(Bill, null=False)
+
+    place = models.ForeignKey('places.Place', null=True, related_name='+')
+
+
 class Vote(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)

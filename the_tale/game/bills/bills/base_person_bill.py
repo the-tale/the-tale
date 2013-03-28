@@ -47,6 +47,9 @@ class BasePersonBill(object):
         return places_storage.get(self.place_id)
 
     @property
+    def actors(self): return [self.place]
+
+    @property
     def old_place_name(self):
         return self.old_place_name_forms.normalized
 
