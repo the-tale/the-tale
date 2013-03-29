@@ -9,7 +9,7 @@ from dext.utils import pid
 
 from game.workers.environment import workers_environment
 
-logger = getLogger('the-tale.workers.game_logic')
+logger = getLogger('the-tale.workers.game_highlevel')
 
 class Command(BaseCommand):
 

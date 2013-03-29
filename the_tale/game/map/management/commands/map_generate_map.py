@@ -1,13 +1,16 @@
 # coding: utf-8
+import sys
+import traceback
 
 from django.core.management.base import BaseCommand
-
-# from game.prototypes import TimePrototype
+from django.utils.log import getLogger
 
 from game.map.storage import map_info_storage
 from game.map.generator import update_map
 
 from optparse import make_option
+
+logger = getLogger('the-tale.workers.game_highlevel')
 
 class Command(BaseCommand):
 
@@ -25,5 +28,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        for i in xrange(options['repeate_number']):
-            update_map(index=map_info_storage.item.id+1)
+        try:
+            for i in xrange(options['repeate_number']):
+                update_map(index=map_info_storage.item.id+1)
+        except Exception:
+            traceback.print_exc()
+            logger.error('Map generation exception',
+                         exc_info=sys.exc_info(),
+                         extra={} )
