@@ -290,13 +290,13 @@ class BuildingPrototype(BasePrototype):
         for building in buildings_storage.all():
             removed_positions.add((building.x, building.y))
 
-        for road in roads_storage.all():
+        for road in roads_storage.all_exists_roads():
             x, y = road.point_1.x, road.point_1.y
             for direction in road.path:
-                if direction == PATH_DIRECTION.LEFT: x -= 1
-                elif direction == PATH_DIRECTION.RIGHT: x += 1
-                elif direction == PATH_DIRECTION.UP: y -= 1
-                elif direction == PATH_DIRECTION.DOWN: y += 1
+                if direction == PATH_DIRECTION.LEFT.value: x -= 1
+                elif direction == PATH_DIRECTION.RIGHT.value: x += 1
+                elif direction == PATH_DIRECTION.UP.value: y -= 1
+                elif direction == PATH_DIRECTION.DOWN.value: y += 1
 
                 removed_positions.add((x, y))
 
