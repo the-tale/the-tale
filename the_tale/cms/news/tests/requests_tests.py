@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import datetime
+
 from django.test import client
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate as django_authenticate
@@ -56,12 +58,24 @@ class TestRequests(TestCase):
         self.check_redirect(reverse('news:')+'?page=666', reverse('news:')+'?page=1')
 
     def test_feed_page(self):
-        texts = []
 
-        for i in xrange(1, 4):
-            texts.extend([('news%d-caption' %i, 1),
-                          ('news%d-description' %i, 0),
-                          ('news%d-content' %i, 1)])
+        self.news1.created_at -= datetime.timedelta(seconds=news_settings.FEED_ITEMS_DELAT+1)
+        self.news1.save()
+
+        self.news3.created_at -= datetime.timedelta(seconds=news_settings.FEED_ITEMS_DELAT+1)
+        self.news3.save()
+
+        texts = [('news1-caption', 1),
+                 ('news1-description', 0),
+                 ('news1-content', 1),
+
+                 ('news2-caption', 0), # not pass throught time limit
+                 ('news2-description', 0),
+                 ('news2-content', 0),
+
+                 ('news3-caption', 1),
+                 ('news3-description', 0),
+                 ('news3-content', 1)]
 
         self.check_html_ok(self.client.get(reverse('news:feed')), texts=texts, content_type='application/atom+xml')
 

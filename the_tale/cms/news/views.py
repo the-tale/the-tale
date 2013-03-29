@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+
+import datetime
 
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
@@ -109,6 +111,10 @@ class NewsResource(Resource):
         news = News.objects.order_by('-created_at')[:news_settings.FEED_ITEMS_NUMBER]
 
         for news_item in news:
+
+            if datetime.datetime.now() - news_item.created_at < datetime.timedelta(seconds=news_settings.FEED_ITEMS_DELAT):
+                continue
+
             feed.add_item(title=news_item.caption,
                           link=self.request.build_absolute_uri(reverse('news:show', args=[news_item.id])),
                           description=news_item.html_content,
