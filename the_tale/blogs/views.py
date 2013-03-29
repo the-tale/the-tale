@@ -131,7 +131,7 @@ class PostResource(Resource):
         from forum.views import ThreadPageData
 
         thread_data = ThreadPageData()
-        thread_data.initialize(thread=self.post.forum_thread, page=1, ignore_first_post=True, inline=True)
+        thread_data.initialize(account=self.account, thread=self.post.forum_thread, page=1, inline=True)
 
         return self.template('blogs/show.html', {'post': self.post,
                                                  'thread_data': thread_data,

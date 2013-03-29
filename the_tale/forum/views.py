@@ -16,6 +16,33 @@ from forum.forms import NewPostForm, NewThreadForm, EditThreadForm
 from forum.conf import forum_settings
 from forum.prototypes import CategoryPrototype, SubCategoryPrototype, ThreadPrototype, PostPrototype
 
+
+def can_delete_thread(account, thread):
+    return (account.id == thread.author.id and not thread.subcategory.closed) or account.has_perm('forum.moderate_thread')
+
+def can_change_thread(account, thread):
+    return account.id == thread.author.id or account.has_perm('forum.moderate_thread')
+
+def can_change_thread_category(account):
+    return account.has_perm('forum.moderate_thread')
+
+def can_delete_posts(account, thread):
+    return account.id == thread.author.id or account.has_perm('forum.moderate_post')
+
+def can_create_thread(account, subcategory):
+    if not subcategory.closed:
+        return account.is_authenticated() and not account.is_fast
+
+    return account.has_perm('forum.moderate_thread')
+
+def can_change_posts(account):
+    return account.has_perm('forum.moderate_post')
+
+def is_moderator(account):
+    return account._model.groups.filter(name=forum_settings.MODERATOR_GROUP_NAME).exists()
+
+
+
 class BaseForumResource(Resource):
 
     @validate_argument('category', CategoryPrototype.get_by_slug, 'forum', u'категория не найдена')
@@ -31,31 +58,6 @@ class BaseForumResource(Resource):
         self.category = self.subcategory.category if self.subcategory and category is None else category
 
         # TODO: check consistency
-
-
-    def can_delete_thread(self, thread):
-        return (self.account.id == thread.author.id and not thread.subcategory.closed) or self.account.has_perm('forum.moderate_thread')
-
-    def can_change_thread(self, thread):
-        return self.account.id == thread.author.id or self.account.has_perm('forum.moderate_thread')
-
-    def can_change_thread_category(self):
-        return self.account.has_perm('forum.moderate_thread')
-
-    def can_delete_posts(self, thread):
-        return self.account.id == thread.author.id or self.account.has_perm('forum.moderate_post')
-
-    def can_create_thread(self, subcategory):
-        if not subcategory.closed:
-            return self.account.is_authenticated() and not self.account.is_fast
-
-        return self.account.has_perm('forum.moderate_thread')
-
-    def can_change_posts(self):
-        return self.account.has_perm('forum.moderate_post')
-
-    def is_moderator(self, account):
-        return account._model.groups.filter(name=forum_settings.MODERATOR_GROUP_NAME).exists()
 
 
 class PostsResource(BaseForumResource):
@@ -84,13 +86,13 @@ class PostsResource(BaseForumResource):
         if self.account.is_fast:
             return self.json_error('forum.delete_post.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
 
-        if not (self.can_delete_posts(self.thread) or self.post.author == self.account):
+        if not (can_delete_posts(self.account, self.thread) or self.post.author == self.account):
             return self.json_error('forum.delete_post.no_permissions', u'У Вас нет прав для удаления сообщения')
 
         if Post.objects.filter(thread=self.thread.model, created_at__lt=self.post.created_at).count() == 0:
             return self.json_error('forum.delete_post.remove_first_post', u'Вы не можете удалить первое сообщение в теме')
 
-        if self.post.author.id != self.account.id and self.is_moderator(self.post.author):
+        if self.post.author.id != self.account.id and is_moderator(self.post.author):
             return self.auto_error('forum.delete_post.remove_moderator_post', u'Вы не можете удалить сообщение модератора')
 
         self.post.delete(self.account, self.thread)
@@ -105,7 +107,7 @@ class PostsResource(BaseForumResource):
             return self.template('error.html', {'msg': u'Вы не закончили регистрацию, чтобы редактировать сообщения',
                                                 'error_code': 'forum.edit_thread.fast_account'})
 
-        if not (self.can_change_posts() or self.post.author == self.account):
+        if not (can_change_posts(self.account) or self.post.author == self.account):
             return self.template('error.html', {'msg': u'У Вас нет прав для редактирования сообщения',
                                                 'error_code': 'forum.edit_thread.no_permissions'})
 
@@ -123,7 +125,7 @@ class PostsResource(BaseForumResource):
         if self.account.is_fast:
             return self.json_error('forum.update_post.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
 
-        if not (self.can_change_posts() or self.post.author == self.account):
+        if not (can_change_posts(self.account) or self.post.author == self.account):
             return self.json_error('forum.update_post.no_permissions', u'У Вас нет прав для редактирования сообщения')
 
         edit_post_form = NewPostForm(self.request.POST)
@@ -190,7 +192,7 @@ class ThreadsResource(BaseForumResource):
             return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете писать на форуме',
                                                 'error_code': 'forum.new_thread.fast_account'})
 
-        if not self.can_create_thread(subcategory):
+        if not can_create_thread(self.account, subcategory):
             return self.template('error.html', {'msg': u'Вы не можете создавать темы в данном разделе',
                                                 'error_code': 'forum.new_thread.no_permissions'})
 
@@ -207,7 +209,7 @@ class ThreadsResource(BaseForumResource):
         if self.account.is_fast:
             return self.json_error('forum.create_thread.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
 
-        if not self.can_create_thread(subcategory):
+        if not can_create_thread(self.account, subcategory):
             return self.json_error('forum.create_thread.no_permissions', u'Вы не можете создавать темы в данном разделе')
 
         new_thread_form = NewThreadForm(self.request.POST)
@@ -230,7 +232,7 @@ class ThreadsResource(BaseForumResource):
         if self.account.is_fast:
             return self.json_error('forum.delete_thread.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
 
-        if not self.can_delete_thread(self.thread):
+        if not can_delete_thread(self.account, self.thread):
             return self.json_error('forum.delete_thread.no_permissions', u'У Вас нет прав для удаления темы')
 
         self.thread.delete()
@@ -244,7 +246,7 @@ class ThreadsResource(BaseForumResource):
         if self.account.is_fast:
             return self.json_error('forum.update_thread.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
 
-        if not self.can_change_thread(self.thread):
+        if not can_change_thread(self.account, self.thread):
             return self.json_error('forum.update_thread.no_permissions', u'У Вас нет прав для редактирования темы')
 
         edit_thread_form = EditThreadForm(subcategories=[SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all()],
@@ -259,7 +261,7 @@ class ThreadsResource(BaseForumResource):
             new_subcategory_id = None
 
         if new_subcategory_id is not None and self.thread.subcategory.id != edit_thread_form.c.subcategory:
-            if not self.can_change_thread_category():
+            if not can_change_thread_category(self.account):
                 return self.json_error('forum.update_thread.no_permissions_to_change_subcategory', u'У вас нет прав для переноса темы в другой раздел')
 
         self.thread.update(caption=edit_thread_form.c.caption, new_subcategory_id=new_subcategory_id)
@@ -274,7 +276,7 @@ class ThreadsResource(BaseForumResource):
             return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете работать с форумом',
                                                 'error_code': 'forum.edit_thread.fast_account'})
 
-        if not self.can_change_thread(self.thread):
+        if not can_change_thread(self.account, self.thread):
             return self.template('error.html', {'msg': u'Вы не можете редактировать эту тему',
                                                 'error_code': 'forum.edit_thread.no_permissions'})
 
@@ -285,7 +287,7 @@ class ThreadsResource(BaseForumResource):
                               'edit_thread_form': EditThreadForm(subcategories=[SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all()],
                                                                  initial={'subcategory': self.subcategory.id,
                                                                           'caption': self.thread.caption}),
-                              'can_change_thread_category': self.can_change_thread_category()} )
+                              'can_change_thread_category': can_change_thread_category(self.account)} )
 
 
     @validate_argument('page', int, 'forum.threads.show', u'неверный номер страницы')
@@ -294,28 +296,25 @@ class ThreadsResource(BaseForumResource):
 
         thread_data = ThreadPageData()
 
-        if not thread_data.initialize(thread=self.thread,
-                                      page=page,
-                                      account=self.account,
-                                      can_delete_posts=self.can_delete_posts(self.thread),
-                                      can_change_posts=self.can_change_posts()):
+        if not thread_data.initialize(account=self.account, thread=self.thread, page=page):
             return self.redirect(thread_data.paginator.last_page_url, permanent=False)
 
         return self.template('forum/thread.html',
                              {'category': self.category,
                               'thread': self.thread,
                               'thread_data': thread_data,
-                              'can_delete_thread': self.can_delete_thread(self.thread),
-                              'can_change_thread': self.can_change_thread(self.thread)} )
+                              'can_delete_thread': can_delete_thread(self.account, self.thread),
+                              'can_change_thread': can_change_thread(self.account, self.thread)} )
 
 
-class ThreadPageData(object):
+class ThreadPageData():
 
     def __init__(self):
         pass
 
-    def initialize(self, thread, page, inline=False, account=None, can_delete_posts=False, can_change_posts=False, ignore_first_post=False):
+    def initialize(self, account, thread, page, inline=False):
 
+        self.account = account
         self.thread = thread
 
         url_builder = UrlBuilder(reverse('forum:threads:show', args=[self.thread.id]),
@@ -336,13 +335,14 @@ class ThreadPageData(object):
         if post_from == 0:
             pages_on_page_slice = pages_on_page_slice[1:]
 
-        self.has_post_on_page = account is not None and any([post.author.id == account.id for post in pages_on_page_slice])
+        self.has_post_on_page = any([post.author.id == self.account.id for post in pages_on_page_slice])
         self.new_post_form = NewPostForm()
         self.start_posts_from = page * forum_settings.POSTS_ON_PAGE
-        self.can_delete_posts = can_delete_posts
-        self.can_change_posts = can_change_posts
-        self.ignore_first_post = ignore_first_post
+        self.can_delete_posts = can_delete_posts(self.account, self.thread)
+        self.can_change_posts = can_change_posts(self.account)
         self.inline = inline
+        self.ignore_first_post = (self.inline and self.paginator.current_page_number==0)
+        self.can_post = self.account.is_authenticated() and not self.account.is_fast
 
         self.no_posts = (len(self.posts) == 0) or (self.ignore_first_post and len(self.posts) == 1)
 
@@ -395,6 +395,6 @@ class ForumResource(BaseForumResource):
         return self.template('forum/subcategory.html',
                              {'category': self.category,
                               'subcategory': self.subcategory,
-                              'can_create_thread': self.can_create_thread(self.subcategory),
+                              'can_create_thread': can_create_thread(self.account, self.subcategory),
                               'paginator': paginator,
                               'threads': threads} )

@@ -63,7 +63,10 @@ class NewsResource(Resource):
 
         if self.news.forum_thread_id is not None:
             thread_data = ThreadPageData()
-            thread_data.initialize(thread=ThreadPrototype.get_by_id(self.news.forum_thread_id), page=1, ignore_first_post=True, inline=True)
+            thread_data.initialize(account=self.account,
+                                   thread=ThreadPrototype.get_by_id(self.news.forum_thread_id),
+                                   page=1,
+                                   inline=True)
 
         return self.template('news/show.html', {'news': self.news,
                                                 'thread_data': thread_data} )

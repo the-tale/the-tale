@@ -161,7 +161,7 @@ class MightCalculatorTests(testcase.TestCase):
         self.assertEqual(old_might, workers_environment.might_calculator.calculate_might(self.hero))
 
         post.state = BLOG_POST_STATE.ACCEPTED
-        post.model.votes = 1
+        post._model.votes = 1
         post.save()
 
         new_might = workers_environment.might_calculator.calculate_might(self.hero)
@@ -174,7 +174,7 @@ class MightCalculatorTests(testcase.TestCase):
         Vote.objects.all().delete()
 
         post.state = BLOG_POST_STATE.ACCEPTED
-        post.model.votes = 1
+        post._model.votes = 1
         post.save()
 
         self.assertEqual(new_might, workers_environment.might_calculator.calculate_might(self.hero))

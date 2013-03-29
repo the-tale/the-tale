@@ -164,7 +164,7 @@ class BillResource(Resource):
         from forum.views import ThreadPageData
 
         thread_data = ThreadPageData()
-        thread_data.initialize(thread=self.bill.forum_thread, page=1, ignore_first_post=True, inline=True)
+        thread_data.initialize(account=self.account, thread=self.bill.forum_thread, page=1, inline=True)
 
         return self.template('bills/show.html', {'bill': self.bill,
                                                  'thread_data': thread_data,

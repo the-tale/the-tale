@@ -8,7 +8,7 @@
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
 
-    {% if resource.account.is_authenticated() and not resource.account.is_fast %}
+    {% if thread_data.can_post %}
     var newPostForm = new pgf.forms.Form(jQuery('#pgf-new-post-form'),
                                          { OnSuccess: function(form, data){
                                              location.href = data.data.thread_url;
@@ -51,7 +51,9 @@ jQuery(document).ready( function(e) {
 
   {% if thread_data.no_posts %}
   <p class="alert alert-info">
-    Напишите первый комментарий!
+    {% if thread_data.can_post %}Напишите первый комментарий!
+    {% else %}Нет комментариев.
+    {% endif %}
   </p>
   {% endif %}
   {% endif %}
@@ -119,7 +121,7 @@ jQuery(document).ready( function(e) {
 
 {{ base_macros.render_paginator(thread_data.paginator) }}
 
-{% if resource.account.is_authenticated() and not resource.account.is_fast %}
+{% if thread_data.can_post %}
 
 <form action="{{ url('forum:posts:create', thread=thread_data.thread.id) }}"
       method="post"
