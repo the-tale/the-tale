@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from django.test import client
 from django.core.urlresolvers import reverse
@@ -12,6 +13,7 @@ from game.logic import create_test_map
 from forum.models import Category, SubCategory, Thread, Post
 from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype, CategoryPrototype
 from forum.conf import forum_settings
+
 
 class TestRequests(TestCase):
 
@@ -202,3 +204,30 @@ class TestRequests(TestCase):
     def test_create_post_thread_not_found(self):
         self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=666'), {'text': 'thread3-test-post'}),
                               'forum.posts.create.thread.not_found')
+
+    def test_feed_page(self):
+
+        self.thread1._model.created_at -= datetime.timedelta(seconds=forum_settings.FEED_ITEMS_DELAY+1)
+        self.thread1.save()
+
+        self.thread3._model.created_at -= datetime.timedelta(seconds=forum_settings.FEED_ITEMS_DELAY+1)
+        self.thread3.save()
+
+        PostPrototype.create(self.thread1, self.account, 'post2-text')
+        PostPrototype.create(self.thread1, self.account, 'post3-text')
+        PostPrototype.create(self.thread2, self.account, 'post4-text')
+        PostPrototype.create(self.thread2, self.account, 'post5-text')
+        PostPrototype.create(self.thread3, self.account, 'post6-text')
+
+        texts = [('thread1-caption', 1),
+                 ('thread1-text', 1),
+
+                 ('thread2-caption', 0), # not pass throught time limit
+                 ('thread2-text', 0),
+
+                 ('thread3-caption', 1),
+                 ('thread3-text', 1), ]
+
+        texts.extend([('post%d-text' % i, 0) for i in xrange(0, 6)])
+
+        self.check_html_ok(self.client.get(reverse('forum:feed')), texts=texts, content_type='application/atom+xml')

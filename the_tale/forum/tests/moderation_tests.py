@@ -262,7 +262,7 @@ class TestModeration(TestCase):
         self.assertEqual(Post.objects.all().count(), 4)
 
     def test_main_user_remove_thread_in_closed_subcategory(self):
-        self.subcategory.model.closed = True
+        self.subcategory._model.closed = True
         self.subcategory.save()
 
         self.request_login('main_user@test.com')

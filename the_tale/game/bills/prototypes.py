@@ -199,7 +199,7 @@ class BillPrototype(BasePrototype):
                                         text=text + u'\n\n' + rationale,
                                         markup_method=MARKUP_METHOD.POSTMARKUP)
 
-        model.forum_thread = thread.model
+        model.forum_thread = thread._model
         model.save()
 
 

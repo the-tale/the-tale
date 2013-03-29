@@ -59,10 +59,10 @@ class TestRequests(TestCase):
 
     def test_feed_page(self):
 
-        self.news1.created_at -= datetime.timedelta(seconds=news_settings.FEED_ITEMS_DELAT+1)
+        self.news1.created_at -= datetime.timedelta(seconds=news_settings.FEED_ITEMS_DELAY+1)
         self.news1.save()
 
-        self.news3.created_at -= datetime.timedelta(seconds=news_settings.FEED_ITEMS_DELAT+1)
+        self.news3.created_at -= datetime.timedelta(seconds=news_settings.FEED_ITEMS_DELAY+1)
         self.news3.save()
 
         texts = [('news1-caption', 1),

@@ -1,6 +1,8 @@
 # coding: utf-8
+import datetime
 
 from django.core.urlresolvers import reverse
+from django.utils.feedgenerator import Atom1Feed
 
 from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder
@@ -89,7 +91,7 @@ class PostsResource(BaseForumResource):
         if not (can_delete_posts(self.account, self.thread) or self.post.author == self.account):
             return self.json_error('forum.delete_post.no_permissions', u'У Вас нет прав для удаления сообщения')
 
-        if Post.objects.filter(thread=self.thread.model, created_at__lt=self.post.created_at).count() == 0:
+        if Post.objects.filter(thread=self.thread._model, created_at__lt=self.post.created_at).count() == 0:
             return self.json_error('forum.delete_post.remove_first_post', u'Вы не можете удалить первое сообщение в теме')
 
         if self.post.author.id != self.account.id and is_moderator(self.post.author):
@@ -329,7 +331,7 @@ class ThreadPageData():
 
         post_from, post_to = self.paginator.page_borders(page)
 
-        self.posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread.model).order_by('created_at')[post_from:post_to]]
+        self.posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread._model).order_by('created_at')[post_from:post_to]]
 
         pages_on_page_slice = self.posts
         if post_from == 0:
@@ -377,7 +379,7 @@ class ForumResource(BaseForumResource):
     @handler('categories', '#subcategory', name='subcategory', method='get')
     def get_subcategory(self, page=1):
 
-        threads_query = Thread.objects.filter(subcategory=self.subcategory.model)
+        threads_query = Thread.objects.filter(subcategory=self.subcategory._model)
 
         url_builder = UrlBuilder(reverse('forum:subcategory', args=[self.subcategory.slug]), arguments={'page': page})
 
@@ -398,3 +400,29 @@ class ForumResource(BaseForumResource):
                               'can_create_thread': can_create_thread(self.account, self.subcategory),
                               'paginator': paginator,
                               'threads': threads} )
+
+
+    @handler('feed', method='get')
+    def feed(self):
+        feed = Atom1Feed(u'Сказка: Форум',
+                         self.request.build_absolute_uri('/'),
+                         u'Новые темы на форуме мморпг «Сказка»',
+                         language=u'ru',
+                         feed_url=self.request.build_absolute_uri(reverse('forum:feed')))
+
+        threads = [ThreadPrototype(model=thread) for thread in Thread.objects.order_by('-created_at')[:forum_settings.FEED_ITEMS_NUMBER]]
+
+        for thread in threads:
+
+            if datetime.datetime.now() - thread.created_at < datetime.timedelta(seconds=forum_settings.FEED_ITEMS_DELAY):
+                continue
+
+            post = PostPrototype(model=Post.objects.filter(thread_id=thread.id).order_by('created_at')[0])
+
+            feed.add_item(title=thread.caption,
+                          link=self.request.build_absolute_uri(reverse('forum:threads:show', args=[thread.id])),
+                          description=post.html,
+                          pubdate=thread.created_at,
+                          unique_id=str(thread.id))
+
+        return self.atom(feed.writeString('utf-8'))

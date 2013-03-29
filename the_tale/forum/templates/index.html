@@ -4,12 +4,20 @@
 
 {% block forum_content %}
 
+<h2>
+  Форум
+  <a href="{{ url('forum:feed') }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss форума">
+    <img src="{{STATIC_URL}}images/rss.png" style="margin: 2px;"/>
+  </a>
+</h2>
+
+
 {% for category_data in forum_structure %}
 
 {% set category = category_data['category'] %}
 {% set subcategories = category_data['subcategories'] %}
 
-<h2>{{ category.caption }}</h2>
+<h3>{{ category.caption }}</h3>
 <table class="table table-striped forum-table table-no-highlighting">
     <thead>
       <tr>

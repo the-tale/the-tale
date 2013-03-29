@@ -5,6 +5,7 @@
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <link href="{{ url('news:feed') }}" type="application/atom+xml" rel="alternate" title="Новости" />
+    <link href="{{ url('forum:feed') }}" type="application/atom+xml" rel="alternate" title="Форум" />
     <title>{% block title%}Сказка{% endblock %}</title>
 
     {% if settings.GA_CODE %}

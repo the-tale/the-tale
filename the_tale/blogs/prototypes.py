@@ -62,7 +62,7 @@ class PostPrototype(BasePrototype):
                                                                                                   reverse('blogs:posts:show', args=[model.id])),
                                              markup_method=MARKUP_METHOD.POSTMARKUP)
 
-        model.forum_thread = thread.model
+        model.forum_thread = thread._model
         model.save()
 
         post = cls(model)

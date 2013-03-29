@@ -94,7 +94,7 @@ class NewsResource(Resource):
                                         text=self.news.content,
                                         markup_method=MARKUP_METHOD.MARKDOWN)
 
-        self.news.forum_thread = thread.model
+        self.news.forum_thread = thread._model
         self.news.save()
 
         return self.redirect(reverse('forum:threads:show', args=[thread.id]))
@@ -104,7 +104,7 @@ class NewsResource(Resource):
     def feed(self):
         feed = Atom1Feed(u'Сказка: Новости',
                          self.request.build_absolute_uri('/'),
-                         u'Новости мморпг "Сказка"',
+                         u'Новости мморпг «Сказка»',
                          language=u'ru',
                          feed_url=self.request.build_absolute_uri(reverse('news:feed')))
 
@@ -112,7 +112,7 @@ class NewsResource(Resource):
 
         for news_item in news:
 
-            if datetime.datetime.now() - news_item.created_at < datetime.timedelta(seconds=news_settings.FEED_ITEMS_DELAT):
+            if datetime.datetime.now() - news_item.created_at < datetime.timedelta(seconds=news_settings.FEED_ITEMS_DELAY):
                 continue
 
             feed.add_item(title=news_item.caption,

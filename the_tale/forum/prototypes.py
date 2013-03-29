@@ -10,175 +10,79 @@ from accounts.prototypes import AccountPrototype
 
 from common.utils import bbcode
 from common.utils.pagination import Paginator
+from common.utils.prototypes import BasePrototype
+from common.utils.decorators import lazy_property
 
 from forum.conf import forum_settings
 from forum.models import Category, SubCategory, Thread, Post, MARKUP_METHOD, POST_STATE, POST_REMOVED_BY
 
 
-class CategoryPrototype(object):
-
-    def __init__(self, model):
-        self.model = model
-
-    @classmethod
-    def get_by_slug(cls, slug):
-        try:
-            return cls(Category.objects.get(slug=slug))
-        except Category.DoesNotExist:
-            return None
-
-    @property
-    def id(self): return self.model.id
-
-    @property
-    def caption(self): return self.model.caption
-
-    @property
-    def slug(self): return self.model.slug
-
-    @property
-    def order(self): return self.model.order
+class CategoryPrototype(BasePrototype):
+    _model_class = Category
+    _readonly = ('id', 'caption', 'slug', 'order')
+    _bidirectional = ()
+    _get_by = ('slug', )
 
     @classmethod
     def create(cls, caption, slug, order):
-
         model = Category.objects.create(caption=caption, slug=slug, order=order)
-
         return cls(model)
 
 
-class SubCategoryPrototype(object):
+class SubCategoryPrototype(BasePrototype):
+    _model_class = SubCategory
+    _readonly = ('id', 'caption', 'slug', 'order', 'created_at', 'category_id', 'updated_at', 'threads_count', 'posts_count', 'closed')
+    _bidirectional = ()
+    _get_by = ('slug', 'id')
 
-    def __init__(self, model):
-        self.model = model
+    @lazy_property
+    def category(self): return CategoryPrototype(self._model.category)
 
-    @classmethod
-    def get_by_slug(cls, slug):
-        try:
-            return cls(SubCategory.objects.get(slug=slug))
-        except SubCategory.DoesNotExist:
-            return None
+    def update_threads_count(self): self._model.threads_count = Thread.objects.filter(subcategory=self._model).count()
 
-    @classmethod
-    def get_by_id(cls, id_):
-        try:
-            return cls(SubCategory.objects.get(id=id_))
-        except SubCategory.DoesNotExist:
-            return None
+    def update_posts_count(self): self._model.posts_count = sum(Thread.objects.filter(subcategory=self._model).values_list('posts_count', flat=True))
 
-    @property
-    def id(self): return self.model.id
-
-    @property
-    def created_at(self): return self.model.created_at
-
-    @property
-    def category(self):
-        if not hasattr(self, '_category'):
-            self._category = CategoryPrototype(self.model.category)
-        return self._category
-
-    @property
-    def category_id(self): return self.model.category_id
-
-    @property
-    def slug(self): return self.model.slug
-
-    @property
-    def caption(self): return self.model.caption
-
-    @property
-    def order(self): return self.model.order
-
-    @property
-    def updated_at(self): return self.model.updated_at
-
-    @property
-    def threads_count(self): return self.model.threads_count
-    def update_threads_count(self): self.model.threads_count = Thread.objects.filter(subcategory=self.model).count()
-
-    @property
-    def posts_count(self): return self.model.posts_count
-    def update_posts_count(self): self.model.posts_count = sum(Thread.objects.filter(subcategory=self.model).values_list('posts_count', flat=True))
-
-    @property
-    def last_poster(self):
-        if not hasattr(self, '_last_poster'):
-            self._last_poster = AccountPrototype(self.model.last_poster) if self.model.last_poster else None
-        return self._last_poster
-
-    @property
-    def closed(self): return self.model.closed
+    @lazy_property
+    def last_poster(self): return AccountPrototype(self._model.last_poster) if self._model.last_poster else None
 
     def update(self, author=None, date=None):
         self.update_threads_count()
         self.update_posts_count()
 
         if author:
-            self.model.last_poster = author._model
+            self._model.last_poster = author._model
 
         if date:
-            self.model.updated_at = date
+            self._model.updated_at = date
 
         self.save()
 
     def save(self):
-        self.model.save()
+        self._model.save()
 
     @classmethod
     @nested_commit_on_success
     def create(cls, category, caption, slug, order, closed=False):
 
-        model = SubCategory.objects.create(category=category.model, caption=caption, slug=slug, order=order, closed=closed)
+        model = SubCategory.objects.create(category=category._model, caption=caption, slug=slug, order=order, closed=closed)
 
-        return cls(model)
+        return cls(model=model)
 
 
-class ThreadPrototype(object):
+class ThreadPrototype(BasePrototype):
+    _model_class = Thread
+    _readonly = ('id', 'created_at', 'posts_count', 'updated_at')
+    _bidirectional = ('caption', )
+    _get_by = ('id', )
 
-    def __init__(self, model):
-        self.model = model
+    @lazy_property
+    def subcategory(self): return SubCategoryPrototype(self._model.subcategory)
 
-    @classmethod
-    def get_by_id(cls, id_):
-        try:
-            return cls(Thread.objects.get(id=id_))
-        except Thread.DoesNotExist:
-            return None
+    @lazy_property
+    def author(self): return AccountPrototype(self._model.author) if self._model.author else None
 
-    @property
-    def id(self): return self.model.id
-
-    @property
-    def created_at(self): return self.model.created_at
-
-    @property
-    def subcategory(self):
-        if not hasattr(self, '_subcategory'):
-            self._subcategory = SubCategoryPrototype(self.model.subcategory)
-        return self._subcategory
-
-    def get_caption(self): return self.model.caption
-    def set_caption(self, value): self.model.caption = value
-    caption = property(get_caption, set_caption)
-
-    @property
-    def author(self):
-        if not hasattr(self, '_author'):
-            self._author = AccountPrototype(self.model.author) if self.model.author else None
-        return self._author
-
-    @property
-    def last_poster(self):
-        if not hasattr(self, '_last_poster'):
-            self._last_poster = AccountPrototype(self.model.last_poster) if self.model.last_poster else None
-        return self._last_poster
-
-    @property
-    def posts_count(self): return self.model.posts_count
-
-    @property
-    def updated_at(self): return self.model.updated_at
+    @lazy_property
+    def last_poster(self): return AccountPrototype(self._model.last_poster) if self._model.last_poster else None
 
     @property
     def paginator(self):
@@ -205,7 +109,7 @@ class ThreadPrototype(object):
         if isinstance(subcategory, int):
             subcategory = SubCategoryPrototype.get_by_id(subcategory)
 
-        thread_model = Thread.objects.create(subcategory=subcategory.model,
+        thread_model = Thread.objects.create(subcategory=subcategory._model,
                                              caption=caption,
                                              author=author._model,
                                              last_poster=author._model,
@@ -226,8 +130,8 @@ class ThreadPrototype(object):
 
         subcategory = self.subcategory
 
-        Post.objects.filter(thread=self.model).delete()
-        self.model.delete()
+        Post.objects.filter(thread=self._model).delete()
+        self._model.delete()
 
         subcategory.update()
 
@@ -238,19 +142,19 @@ class ThreadPrototype(object):
         subcategory = self.subcategory
 
         if caption is not None:
-            self.model.caption = caption
+            self._model.caption = caption
 
         if date is not None:
-            self.model.updated_at = date
+            self._model.updated_at = date
 
         if author:
-            self.model.last_poster = author._model
+            self._model.last_poster = author._model
 
         subcategory_changed = new_subcategory_id is not None and self.subcategory.id != new_subcategory_id
 
         if subcategory_changed:
             new_subcategory = SubCategoryPrototype.get_by_id(new_subcategory_id)
-            self.model.subcategory = new_subcategory.model
+            self._model.subcategory = new_subcategory._model
 
         self.update_posts_count()
 
@@ -260,63 +164,27 @@ class ThreadPrototype(object):
             subcategory.update()
             new_subcategory.update()
 
-    def update_posts_count(self): self.model.posts_count = Post.objects.filter(thread=self.model).count() - 1
+    def update_posts_count(self): self._model.posts_count = Post.objects.filter(thread=self._model).count() - 1
 
     def save(self):
-        self.model.save()
+        self._model.save()
 
 
 
-class PostPrototype(object):
+class PostPrototype(BasePrototype):
+    _model_class = Post
+    _readonly = ('id', 'created_at', 'updated_at', 'text', 'markup_method', 'state', 'removed_by', 'technical')
+    _bidirectional = ()
+    _get_by = ('id', )
 
-    def __init__(self, model):
-        self.model = model
+    @lazy_property
+    def thread(self): return ThreadPrototype(self._model.thread)
 
-    @classmethod
-    def get_by_id(cls, id_):
-        try:
-            return cls(Post.objects.get(id=id_))
-        except Post.DoesNotExist:
-            return None
+    @lazy_property
+    def author(self): return AccountPrototype(self._model.author) if self._model.author else None
 
-    @property
-    def id(self): return self.model.id
-
-    @property
-    def thread(self):
-        if not hasattr(self, '_thread'):
-            self._thread = ThreadPrototype(self.model.thread)
-        return self._thread
-
-    @property
-    def created_at(self): return self.model.created_at
-
-    @property
-    def updated_at(self): return self.model.updated_at
-
-    @property
-    def author(self):
-        if not hasattr(self, '_author'):
-            self._author = AccountPrototype(self.model.author) if self.model.author else None
-        return self._author
-
-    @property
-    def text(self): return self.model.text
-
-    @property
-    def markup_method(self): return self.model.markup_method
-
-    @property
-    def state(self): return self.model.state
-
-    @property
-    def removed_by(self): return self.model.removed_by
-
-    @property
-    def remove_initiator(self): return self.model.remove_initiator
-
-    @property
-    def technical(self): return self.model.technical
+    # @property
+    # def remove_initiator(self): return self._model.remove_initiator
 
     @property
     def html(self):
@@ -337,12 +205,11 @@ class PostPrototype(object):
     @property
     def is_removed_by_moderator(self): return self.removed_by == POST_REMOVED_BY.MODERATOR
 
-
     @classmethod
     @nested_commit_on_success
     def create(cls, thread, author, text, technical=False):
 
-        post = Post.objects.create(thread=thread.model, author=author._model, text=text, technical=technical)
+        post = Post.objects.create(thread=thread._model, author=author._model, text=text, technical=technical)
 
         thread.update(author=author, date=post.created_at)
 
@@ -354,22 +221,22 @@ class PostPrototype(object):
     @nested_commit_on_success
     def delete(self, initiator, thread):
 
-        self.model.state = POST_STATE.REMOVED
+        self._model.state = POST_STATE.REMOVED
 
         if self.author == initiator:
-            self.model.removed_by = POST_REMOVED_BY.AUTHOR
+            self._model.removed_by = POST_REMOVED_BY.AUTHOR
         elif thread.author == initiator:
-            self.model.removed_by = POST_REMOVED_BY.THREAD_OWNER
+            self._model.removed_by = POST_REMOVED_BY.THREAD_OWNER
         else:
-            self.model.removed_by = POST_REMOVED_BY.MODERATOR
+            self._model.removed_by = POST_REMOVED_BY.MODERATOR
 
-        self.model.remove_initiator = initiator._model
+        self._model.remove_initiator = initiator._model
 
         self.save()
 
     def update(self, text):
-        self.model.text = text
+        self._model.text = text
         self.save()
 
     def save(self):
-        self.model.save()
+        self._model.save()
