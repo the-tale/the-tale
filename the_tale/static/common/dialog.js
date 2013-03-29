@@ -33,15 +33,22 @@ pgf.ui.dialog.Create = function(params) {
     else CreateFromSelector(params.fromSelector);
 
     function CreateFromAjax(url) {
+        pgf.ui.dialog.wait('start');
         jQuery.ajax({
             dataType: 'html',
             type: 'get',
             url: url,
             success: function(data, request, status) {
-                CreateFromString(data);
+                pgf.ui.dialog.wait('stop', 
+                                   stopCallback=function(){
+                                       CreateFromString(data);
+                                   });
             },
             error: function(request, status, error) {
-                pgf.ui.dialog.Error({ message: 'dialog.Create: error while getting: ' + url });
+                pgf.ui.dialog.wait('stop', 
+                                   stopCallback=function(){
+                                       pgf.ui.dialog.Error({ message: 'dialog.Create: error while getting: ' + url });
+                                   });
             },
             complete: function(request, status) {
             }
@@ -176,7 +183,11 @@ pgf.ui.dialog.closeWait = function() {
     jQuery('.pgf-wait-backdrop').remove();
     jQuery('.pgf-wait-indicator-backdrop').remove();
 };
-pgf.ui.dialog.wait = function(command) {
+pgf.ui.dialog.wait = function(command, stopCallback) {
+
+    if (!stopCallback) {
+        stopCallback = function(){};
+    }
 
     if (command == 'start') {
         pgf.ui.dialog._wait_counter += 1;
@@ -206,9 +217,11 @@ pgf.ui.dialog.wait = function(command) {
 
         if ( minCloseTime <= curTime) {
             pgf.ui.dialog.closeWait();
+            stopCallback();
         }
         else {
-            pgf.ui.dialog._wait_close_timer = window.setTimeout(function() { pgf.ui.dialog.closeWait(); }, minCloseTime - curTime);
+            pgf.ui.dialog._wait_close_timer = window.setTimeout(function() { pgf.ui.dialog.closeWait();
+                                                                             stopCallback(); }, minCloseTime - curTime);
         }
     }
 };
