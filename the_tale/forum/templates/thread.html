@@ -4,52 +4,17 @@
 
 {% block title %}{{ thread.caption }} | {{thread.subcategory.caption}} | {{ super() }}{% endblock %}
 
-{% block head %}
-
-<script type="text/javascript">
-jQuery(document).ready( function(e) {
-
-    {% if can_delete_thread %}
-    jQuery('.pgf-remove-thread-button').click(function(e) {
-        e.preventDefault();
-        var DeleteRequest = function(e) {
-            e.preventDefault();
-
-            pgf.forms.Post({ action: "{{ url('forum:threads:delete', thread.id) }}",
-                             OnSuccess: function(e){
-                                 location.href = "{{ url('forum:subcategory', thread.subcategory.slug) }}";
-                             }
-                           });
-        };
-
-        pgf.ui.dialog.Question({message: 'Вы действительно хотите удалить эту тему?',
-                                title: 'Подтвердите удаление',
-                                buttons: [{text: 'Удалить', classes: 'btn-danger', callback: DeleteRequest},
-                                          {text: 'Отменить', classes: 'btn-success'}]
-                               })
-    });
-    {% endif %}
-
-});
-
-</script>
-
-{% endblock %}
-
-
 {% block forum_content %}
 
 <ul class="breadcrumb">
-  <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
+  <li>
+    <a href="{{ url('forum:feed') }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss форума">
+      <img src="{{STATIC_URL}}images/rss.png" style="margin: 2px;"/>
+    </a>
+    <a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span>
+  </li>
   <li><a href="{{ url('forum:subcategory', thread.subcategory.slug) }}">{{ thread.subcategory.caption }}</a><span class="divider">/</span></li>
   <li class="active">{{ thread.caption }}</li>
-  <li class="pull-right" style="margin-top: 1px; margin-left: 1em;">{{ base_macros.addthis("Форум: "+ thread.caption, '', url=full_url('http', 'forum:threads:show', thread.id)) }}</li>
-  {% if can_delete_thread %}
-  <li class="pull-right"><a href="#" class="pgf-remove-thread-button">удалить</a></li>
-  {% endif %}
-  {% if can_change_thread %}
-  <li class="pull-right" style="margin-right: 1em;"><a href="{{ url('forum:threads:edit', thread.id) }}" class="pgf-change-thread-button">редактировать</a></li>
-  {% endif %}
 </ul>
 
 {{ thread_page.thread_page(thread_data) }}

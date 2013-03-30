@@ -51,10 +51,42 @@
     <a class="addthis_button_preferred_2"></a>
     <a class="addthis_button_preferred_3"></a>
     <a class="addthis_button_preferred_4"></a>
-    <a class="addthis_button_compact"></a>
+    <a class="addthis_button_compact"
+       addthis:ui_delay="500"></a>
     <a class="addthis_counter addthis_bubble_style"></a>
   </div>
 {% endmacro %}
+
+
+{% macro addthis_short(title, description, url=none) %}
+
+{% if url is none %}
+{% set url = resource.request.build_absolute_uri()%}
+{% endif %}
+
+  <div class="addthis_toolbox addthis_default_style short"
+       addthis:ui_language="ru"
+       addthis:services_exclude="print"
+
+       {% if settings.GA_CODE %}
+       addthis:ga_property="{{settings.GA_CODE}}"
+       addthis:ga_social="true"
+       {% endif %}
+       >
+    <a class="addthis_button"
+       addthis:title="«Сказка»: {{title}}"
+       addthis:description="{{description}}"
+       addthis:url="{{url}}"
+       addthis:ui_delay="500"
+       addthis:data_track_addressbar="false"
+       addthis:data_track_clickback="false"
+       addthis:track_addressbar="false"
+       addthis:track_clickback="false">
+       поделиться
+    </a>
+  </div>
+{% endmacro %}
+
 
 {% macro render_paginator(paginator) %}
 

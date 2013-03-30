@@ -1,0 +1,13 @@
+{% extends "email.txt" %}
+
+{% block content %}
+
+{{post.author.nick}}:
+
+{{ post.html|striptags }}
+
+
+
+Сообщение находится на странице: {{ post.thread.paginator.last_page_url }}
+
+{% endblock %}

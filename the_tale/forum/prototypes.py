@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
+from accounts.models import Account
 from accounts.prototypes import AccountPrototype
 
 from common.utils import bbcode
@@ -14,7 +15,7 @@ from common.utils.prototypes import BasePrototype
 from common.utils.decorators import lazy_property
 
 from forum.conf import forum_settings
-from forum.models import Category, SubCategory, Thread, Post, MARKUP_METHOD, POST_STATE, POST_REMOVED_BY
+from forum.models import Category, SubCategory, Thread, Post, Subscription, MARKUP_METHOD, POST_STATE, POST_REMOVED_BY
 
 
 class CategoryPrototype(BasePrototype):
@@ -71,7 +72,7 @@ class SubCategoryPrototype(BasePrototype):
 
 class ThreadPrototype(BasePrototype):
     _model_class = Thread
-    _readonly = ('id', 'created_at', 'posts_count', 'updated_at')
+    _readonly = ('id', 'created_at', 'posts_count', 'updated_at', 'technical')
     _bidirectional = ('caption', )
     _get_by = ('id', )
 
@@ -104,7 +105,7 @@ class ThreadPrototype(BasePrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, subcategory, caption, author, text, markup_method=MARKUP_METHOD.POSTMARKUP):
+    def create(cls, subcategory, caption, author, text, markup_method=MARKUP_METHOD.POSTMARKUP, technical=False):
 
         if isinstance(subcategory, int):
             subcategory = SubCategoryPrototype.get_by_id(subcategory)
@@ -113,11 +114,13 @@ class ThreadPrototype(BasePrototype):
                                              caption=caption,
                                              author=author._model,
                                              last_poster=author._model,
+                                             technical=technical,
                                              posts_count=0)
 
         post_model = Post.objects.create(thread=thread_model,
                                          author=author._model,
                                          markup_method=markup_method,
+                                         technical=technical,
                                          text=text)
 
         subcategory.update(author, post_model.created_at)
@@ -183,9 +186,6 @@ class PostPrototype(BasePrototype):
     @lazy_property
     def author(self): return AccountPrototype(self._model.author) if self._model.author else None
 
-    # @property
-    # def remove_initiator(self): return self._model.remove_initiator
-
     @property
     def html(self):
         if self.markup_method == MARKUP_METHOD.POSTMARKUP:
@@ -209,13 +209,20 @@ class PostPrototype(BasePrototype):
     @nested_commit_on_success
     def create(cls, thread, author, text, technical=False):
 
+        from post_service.prototypes import MessagePrototype
+        from post_service.message_handlers import ForumPostHandler
+
         post = Post.objects.create(thread=thread._model, author=author._model, text=text, technical=technical)
 
         thread.update(author=author, date=post.created_at)
 
         thread.subcategory.update(author, post.created_at)
 
-        return cls(post)
+        prototype = cls(post)
+
+        MessagePrototype.create(ForumPostHandler(post_id=prototype.id))
+
+        return prototype
 
 
     @nested_commit_on_success
@@ -240,3 +247,39 @@ class PostPrototype(BasePrototype):
 
     def save(self):
         self._model.save()
+
+
+class SubscriptionPrototype(BasePrototype):
+    _model_class = Subscription
+    _readonly = ()
+    _bidirectional = ()
+    _get_by = ()
+
+    @classmethod
+    def get_for(cls, account, thread):
+        try:
+            return cls(cls._model_class.objects.get(account_id=account.id, thread_id=thread.id))
+        except cls._model_class.DoesNotExist:
+            return None
+
+    @classmethod
+    def get_threads_for_account(cls, account):
+        threads = Thread.objects.filter(subscription__account_id=account.id).order_by('updated_at')
+        return [ThreadPrototype(model=thread) for thread in threads]
+
+    @classmethod
+    def get_accounts_for_thread(cls, thread):
+        accounts = Account.objects.filter(subscription__thread_id=thread.id)
+        return [AccountPrototype(model=account) for account in accounts]
+
+    @classmethod
+    def create(cls, account, thread):
+        model = cls._model_class.objects.create(account=account._model, thread=thread._model)
+        return cls(model)
+
+    @classmethod
+    def has_subscription(cls, account, thread):
+        return cls._model_class.objects.filter(account_id=account.id, thread_id=thread.id).exists()
+
+    def remove(self):
+        self._model.delete()

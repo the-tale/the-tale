@@ -4,7 +4,7 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.utils.feedgenerator import Atom1Feed
 
-from dext.views import handler, validate_argument
+from dext.views import handler, validate_argument, validator
 from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
@@ -16,14 +16,14 @@ from accounts.prototypes import AccountPrototype
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm, EditThreadForm
 from forum.conf import forum_settings
-from forum.prototypes import CategoryPrototype, SubCategoryPrototype, ThreadPrototype, PostPrototype
+from forum.prototypes import CategoryPrototype, SubCategoryPrototype, ThreadPrototype, PostPrototype, SubscriptionPrototype
 
 
 def can_delete_thread(account, thread):
     return (account.id == thread.author.id and not thread.subcategory.closed) or account.has_perm('forum.moderate_thread')
 
 def can_change_thread(account, thread):
-    return account.id == thread.author.id or account.has_perm('forum.moderate_thread')
+    return (account.id == thread.author.id and not thread.technical) or account.has_perm('forum.moderate_thread')
 
 def can_change_thread_category(account):
     return account.has_perm('forum.moderate_thread')
@@ -44,6 +44,8 @@ def is_moderator(account):
     return account._model.groups.filter(name=forum_settings.MODERATOR_GROUP_NAME).exists()
 
 
+@validator(code='forum.fast_account', message=u'Вы не закончили регистрацию и данная функция форума вам не доступна')
+def validate_fast_account(self, *args, **kwargs): return not self.account.is_fast
 
 class BaseForumResource(Resource):
 
@@ -65,12 +67,10 @@ class BaseForumResource(Resource):
 class PostsResource(BaseForumResource):
 
     @login_required
+    @validate_fast_account()
     @validate_argument('thread', ThreadPrototype.get_by_id, 'forum.posts.create', u'обсуждение не найдено')
     @handler('create', method='post')
     def create_post(self, thread):
-
-        if self.account.is_fast:
-            return self.json_error('forum.create_post.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
 
         new_post_form = NewPostForm(self.request.POST)
 
@@ -82,11 +82,9 @@ class PostsResource(BaseForumResource):
         return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]) + ('?page=%d' % thread.paginator.pages_count)})
 
     @login_required
+    @validate_fast_account()
     @handler('#post', 'delete', method='post')
     def delete_post(self):
-
-        if self.account.is_fast:
-            return self.json_error('forum.delete_post.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
 
         if not (can_delete_posts(self.account, self.thread) or self.post.author == self.account):
             return self.json_error('forum.delete_post.no_permissions', u'У Вас нет прав для удаления сообщения')
@@ -102,12 +100,9 @@ class PostsResource(BaseForumResource):
         return self.json_ok()
 
     @login_required
+    @validate_fast_account()
     @handler('#post', 'edit', method='get')
     def edit_post(self):
-
-        if self.account.is_fast:
-            return self.template('error.html', {'msg': u'Вы не закончили регистрацию, чтобы редактировать сообщения',
-                                                'error_code': 'forum.edit_thread.fast_account'})
 
         if not (can_change_posts(self.account) or self.post.author == self.account):
             return self.template('error.html', {'msg': u'У Вас нет прав для редактирования сообщения',
@@ -121,11 +116,9 @@ class PostsResource(BaseForumResource):
                               'new_post_form': NewPostForm(initial={'text': self.post.text})} )
 
     @login_required
+    @validate_fast_account()
     @handler('#post', 'update', method='post')
     def update_post(self):
-
-        if self.account.is_fast:
-            return self.json_error('forum.update_post.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
 
         if not (can_change_posts(self.account) or self.post.author == self.account):
             return self.json_error('forum.update_post.no_permissions', u'У Вас нет прав для редактирования сообщения')
@@ -186,13 +179,10 @@ class ThreadsResource(BaseForumResource):
 
 
     @login_required
+    @validate_fast_account()
     @validate_argument('subcategory', SubCategoryPrototype.get_by_slug, 'forum', u'подкатегория не найдена')
     @handler('new', method='get')
     def new_thread(self, subcategory):
-
-        if self.account.is_fast:
-            return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете писать на форуме',
-                                                'error_code': 'forum.new_thread.fast_account'})
 
         if not can_create_thread(self.account, subcategory):
             return self.template('error.html', {'msg': u'Вы не можете создавать темы в данном разделе',
@@ -204,12 +194,10 @@ class ThreadsResource(BaseForumResource):
                               'new_thread_form': NewThreadForm()} )
 
     @login_required
+    @validate_fast_account()
     @validate_argument('subcategory', SubCategoryPrototype.get_by_slug, 'forum', u'подкатегория не найдена')
     @handler('create', method='post')
     def create_thread(self, subcategory):
-
-        if self.account.is_fast:
-            return self.json_error('forum.create_thread.fast_account', u'Вы не закончили регистрацию и не можете писать на форуме')
 
         if not can_create_thread(self.account, subcategory):
             return self.json_error('forum.create_thread.no_permissions', u'Вы не можете создавать темы в данном разделе')
@@ -228,11 +216,9 @@ class ThreadsResource(BaseForumResource):
                                   'thread_id': thread.id})
 
     @login_required
+    @validate_fast_account()
     @handler('#thread', 'delete', method='post')
     def delete_thread(self):
-
-        if self.account.is_fast:
-            return self.json_error('forum.delete_thread.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
 
         if not can_delete_thread(self.account, self.thread):
             return self.json_error('forum.delete_thread.no_permissions', u'У Вас нет прав для удаления темы')
@@ -242,11 +228,9 @@ class ThreadsResource(BaseForumResource):
         return self.json_ok()
 
     @login_required
+    @validate_fast_account()
     @handler('#thread', 'update', method='post')
     def update_thread(self):
-
-        if self.account.is_fast:
-            return self.json_error('forum.update_thread.fast_account', u'Вы не закончили регистрацию и не можете работать с форумом')
 
         if not can_change_thread(self.account, self.thread):
             return self.json_error('forum.update_thread.no_permissions', u'У Вас нет прав для редактирования темы')
@@ -271,12 +255,9 @@ class ThreadsResource(BaseForumResource):
         return self.json_ok()
 
     @login_required
+    @validate_fast_account()
     @handler('#thread', 'edit', method='get')
     def edit_thread(self):
-
-        if self.account.is_fast:
-            return self.template('error.html', {'msg': u'Вы не закончили регистрацию и не можете работать с форумом',
-                                                'error_code': 'forum.edit_thread.fast_account'})
 
         if not can_change_thread(self.account, self.thread):
             return self.template('error.html', {'msg': u'Вы не можете редактировать эту тему',
@@ -304,10 +285,7 @@ class ThreadsResource(BaseForumResource):
         return self.template('forum/thread.html',
                              {'category': self.category,
                               'thread': self.thread,
-                              'thread_data': thread_data,
-                              'can_delete_thread': can_delete_thread(self.account, self.thread),
-                              'can_change_thread': can_change_thread(self.account, self.thread)} )
-
+                              'thread_data': thread_data} )
 
 class ThreadPageData():
 
@@ -340,15 +318,56 @@ class ThreadPageData():
         self.has_post_on_page = any([post.author.id == self.account.id for post in pages_on_page_slice])
         self.new_post_form = NewPostForm()
         self.start_posts_from = page * forum_settings.POSTS_ON_PAGE
+
+        self.inline = inline
+
         self.can_delete_posts = can_delete_posts(self.account, self.thread)
         self.can_change_posts = can_change_posts(self.account)
-        self.inline = inline
+        self.can_delete_thread = not self.inline and can_delete_thread(self.account, self.thread)
+        self.can_change_thread = not self.inline and can_change_thread(self.account, self.thread)
+
         self.ignore_first_post = (self.inline and self.paginator.current_page_number==0)
         self.can_post = self.account.is_authenticated() and not self.account.is_fast
 
         self.no_posts = (len(self.posts) == 0) or (self.ignore_first_post and len(self.posts) == 1)
+        self.can_subscribe = self.account.is_authenticated()
+
+        self.has_subscription = SubscriptionPrototype.has_subscription(self.account, self.thread)
 
         return True
+
+class SubscriptionsResource(Resource):
+
+    @login_required
+    @validate_fast_account()
+    def initialize(self, *args, **kwargs):
+        super(SubscriptionsResource, self).initialize(*args, **kwargs)
+
+    @validate_argument('thread', ThreadPrototype.get_by_id, 'forum', u'обсуждение не найдено')
+    @handler('subscribe', method='post')
+    def subscribe(self, thread):
+
+        if not SubscriptionPrototype.has_subscription(self.account, thread):
+            SubscriptionPrototype.create(self.account, thread)
+
+        return self.json_ok()
+
+    @validate_argument('thread', ThreadPrototype.get_by_id, 'forum', u'обсуждение не найдено')
+    @handler('unsubscribe', method='post')
+    def unsubscribe(self, thread):
+
+        subscription = SubscriptionPrototype.get_for(self.account, thread)
+
+        if subscription:
+            subscription.remove()
+
+        return self.json_ok()
+
+    @handler('', method='get')
+    def subscriptions(self):
+        return self.template('forum/subscriptions.html',
+                             {'threads': SubscriptionPrototype.get_threads_for_account(self.account)} )
+
 
 
 class ForumResource(BaseForumResource):

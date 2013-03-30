@@ -21,7 +21,19 @@
 {% endmacro %}
 
 
-{% macro thread_record(thread) %}
+{% macro thread_record_heading(subscription=false) %}
+<th class="caption">название</th>
+<th class="author">автор</th>
+<th class="posts-count">ответов</th>
+<th class="last-poster">последний</th>
+<th class="updated-at">обновлено</th>
+{% if subscription %}
+<th class="subscription">подписка</th>
+{% endif %}
+{% endmacro %}
+
+
+{% macro thread_record(thread, subscription=false) %}
 
 <td class="caption">
   <a href="{{ url('forum:threads:show', thread.id) }}">{{ thread.caption }}</a>
@@ -37,5 +49,8 @@
   {% endif %}
 </td>
 <td class="updated-at pgf-format-datetime" data-timestamp="{{ thread.updated_at|timestamp }}"></td>
+{% if subscription %}
+<td><a href="{{ url('forum:subscriptions:unsubscribe') }}?thread={{thread.id}}" class="pgf-forms-post-simple">отписаться</a></td>
+{% endif %}
 
 {% endmacro %}

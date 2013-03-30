@@ -147,6 +147,8 @@ INSTALLED_APPS = (
     'common.utils',
     'common.postponed_tasks',
 
+    'post_service',
+
     'accounts',
     'accounts.personal_messages',
 
@@ -289,7 +291,8 @@ LOGGING = {
         'file_game_might_calculator': get_worker_log_file_handler('game_might_calculator'),
         'file_game_long_commands': get_worker_log_file_handler('game_long_commands'),
         'file_game_pvp_balancer': get_worker_log_file_handler('game_pvp_balancer'),
-        'file_accounts_registration': get_worker_log_file_handler('accounts_registration')
+        'file_accounts_registration': get_worker_log_file_handler('accounts_registration'),
+        'file_post_service_message_sender': get_worker_log_file_handler('post_service_message_sender')
     },
     'loggers': {
         'django.request': {
@@ -311,6 +314,7 @@ LOGGING = {
         'the-tale.workers.game_long_commands': get_worker_logger('game_long_commands'),
         'the-tale.workers.game_pvp_balancer': get_worker_logger('game_pvp_balancer'),
         'accounts.workers.registration': get_worker_logger('accounts_registration'),
+        'post_service.workers.message_sender': get_worker_logger('post_service_message_sender'),
     } if not TESTS_RUNNING else {}
 }
 

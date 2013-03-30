@@ -198,6 +198,16 @@ blockquote {
    float: right;
    width: 300px;
 
+   &.short {
+      display: inline;
+      float: none;
+      width: auto;
+
+      .atclear {
+         display: inline;
+      }
+   }
+
    .invitation {
       float: left;
       color: @disabled-text-color;

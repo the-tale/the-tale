@@ -172,6 +172,7 @@ jQuery(document).ready(function() {
                                           resource.account.nick if not resource.account.is_fast else "Настройки",
                                           [(url("accounts:profile:show"), "Профиль"),
                                            (url("accounts:messages:"), "Сообщения"),
+                                           (url("forum:subscriptions:"), "Подписки"),
                                            (url("accounts:show", resource.account.id), "Моя страница"),
                                            (url("game:heroes:my-hero"), "Мой герой"),
                                            ('-', '<li class="divider"></li>'),

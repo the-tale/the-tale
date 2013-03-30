@@ -8,7 +8,11 @@
 {% block forum_content %}
 
 <ul class="breadcrumb">
-  <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
+  <li>
+    <a href="{{ url('forum:feed') }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss форума">
+      <img src="{{STATIC_URL}}images/rss.png" style="margin: 2px;"/>
+    </a>
+    <a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
   <li class="active">{{ subcategory.caption }}</li>
 </ul>
 
@@ -17,11 +21,7 @@
 <table class="table table-striped forum-table table-no-highlighting">
   <thead>
     <tr>
-      <th class="caption">название</th>
-      <th class="author">автор</th>
-      <th class="posts-count">ответов</th>
-      <th class="last-poster">последний</th>
-      <th class="updated-at">обновлено</th>
+      {{ forum_macros.thread_record_heading() }}
     </tr>
   </thead>
   <tbody>

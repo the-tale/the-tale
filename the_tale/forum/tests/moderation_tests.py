@@ -293,7 +293,7 @@ class TestModeration(TestCase):
         self.main_account.is_fast = True
         self.main_account.save()
 
-        self.check_ajax_error(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])), 'forum.delete_thread.fast_account')
+        self.check_ajax_error(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])), 'forum.fast_account')
         self.assertEqual(Thread.objects.all().count(), 3)
         self.assertEqual(Post.objects.all().count(), 8)
 
@@ -420,7 +420,7 @@ class TestModeration(TestCase):
         self.main_account.is_fast = True
         self.main_account.save()
 
-        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=['forum.edit_thread.fast_account'])
+        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=['forum.fast_account'])
 
     def test_edit_page_no_permissions(self):
         self.request_login('main_user@test.com')
@@ -446,7 +446,7 @@ class TestModeration(TestCase):
         self.main_account.is_fast = True
         self.main_account.save()
 
-        self.check_ajax_error(self.client.post(reverse('forum:posts:update', args=[self.post.id])), 'forum.update_post.fast_account')
+        self.check_ajax_error(self.client.post(reverse('forum:posts:update', args=[self.post.id])), 'forum.fast_account')
         self.assertEqual(self.post.text, Post.objects.get(id=self.post.id).text)
 
     def test_update_post_no_permissions(self):

@@ -34,6 +34,9 @@ class Paginator(object):
     @property
     def last_page_url(self): return self.url_builder(page=max(self.pages_count, 1))
 
+    @property
+    def last_page_full_url(self): return self.url_builder(page=max(self.pages_count, 1))
+
     def page_borders(self, page):
         '''
         page numbers must start with 0

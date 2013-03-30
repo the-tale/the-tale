@@ -197,6 +197,7 @@ class BillPrototype(BasePrototype):
                                         caption=caption,
                                         author=owner,
                                         text=text + u'\n\n' + rationale,
+                                        technical=True,
                                         markup_method=MARKUP_METHOD.POSTMARKUP)
 
         model.forum_thread = thread._model

@@ -1,0 +1,14 @@
+{% extends "email.html" %}
+
+{% block content %}
+
+<strong>{{post.author.nick}}:</strong>
+
+{{ post.html|safe }}
+
+<br/>
+<br/>
+
+Сообщение находится на странице: <a href="{{ post.thread.paginator.last_page_url }}">{{ post.thread.paginator.last_page_url }}</a>
+
+{% endblock %}

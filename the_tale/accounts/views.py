@@ -14,19 +14,18 @@ from common.utils.resources import Resource
 from common.utils.pagination import Paginator
 from common.utils.decorators import login_required
 
+from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
+
+from game.heroes.models import Hero
+from game.heroes.prototypes import HeroPrototype
+
 from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype
 from accounts.postponed_tasks import RegistrationTask
 from accounts.models import CHANGE_CREDENTIALS_TASK_STATE, Account
 from accounts import forms
 from accounts.conf import accounts_settings
 from accounts.logic import logout_user, login_user, force_login_user
-
-from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
-
-from game.heroes.models import Hero
-from game.heroes.prototypes import HeroPrototype
-
-from portal.workers.environment import workers_environment as infrastructure_workers_environment
+from accounts.workers.environment import workers_environment as infrastructure_workers_environment
 
 logger = getLogger('django.request')
 

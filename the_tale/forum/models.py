@@ -56,6 +56,8 @@ class Thread(models.Model):
 
     updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
 
+    technical = models.BooleanField(default=False)
+
     class Meta:
         permissions = (("moderate_thread", u"Может редактировать темы на форуме"), )
 
@@ -63,6 +65,15 @@ class Thread(models.Model):
         return reverse('forum:threads:show', args=[self.id])
 
     def __unicode__(self): return u'%d - %s' % (self.id, self.caption)
+
+
+class Subscription(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    account = models.ForeignKey('accounts.Account')
+    thread = models.ForeignKey(Thread)
+
+    class Meta:
+        unique_together = (('account', 'thread'),)
 
 
 class MARKUP_METHOD:

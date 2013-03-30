@@ -1,0 +1,41 @@
+{% extends "forum/base.html" %}
+
+{% import 'forum/macros.html' as forum_macros with context %}
+
+{% block title %}Подписки | {{ super() }}{% endblock %}
+
+{% block forum_content %}
+
+<h2>Подписки</h2>
+
+<div class="alert alert-info">
+  <p>
+    Все новые сообщения в перечисленых ниже обсуждений, будут отправляться на вашу почту.
+  </p>
+  {% if not threads %}
+  <p>
+    <strong class="pgf-no-subscriptions-message">Сейчас Вы не подписаны ни на одно из обсуждений.</strong>
+  </p>
+  {% endif %}
+</div>
+
+
+{% if threads %}
+<table class="table table-striped forum-table table-no-highlighting">
+  <thead>
+    <tr>
+      {{ forum_macros.thread_record_heading(subscription=true) }}
+    </tr>
+  </thead>
+  <tbody>
+    {% for thread in threads %}
+    <tr>
+      {{ forum_macros.thread_record(thread, subscription=true) }}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endif %}
+
+{% endblock %}

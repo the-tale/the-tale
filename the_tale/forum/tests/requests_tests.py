@@ -4,21 +4,21 @@ import datetime
 from django.test import client
 from django.core.urlresolvers import reverse
 
-from common.utils.testcase import TestCase
+from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user, login_url
 from game.logic import create_test_map
 
-from forum.models import Category, SubCategory, Thread, Post
+from forum.models import Category, SubCategory, Thread, Post, Subscription
 from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype, CategoryPrototype
 from forum.conf import forum_settings
 
 
-class TestRequests(TestCase):
+class BaseTestRequests(testcase.TestCase):
 
     def setUp(self):
-        super(TestRequests, self).setUp()
+        super(BaseTestRequests, self).setUp()
         create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 
@@ -51,6 +51,9 @@ class TestRequests(TestCase):
         self.thread3 = ThreadPrototype.create(self.subcat3, 'thread3-caption', self.account, 'thread3-text')
 
         self.post1 = PostPrototype.create(self.thread1, self.account, 'post1-text')
+
+
+class TestRequests(BaseTestRequests):
 
     def test_initialization(self):
         self.assertEqual(Category.objects.all().count(), 3)
@@ -89,7 +92,7 @@ class TestRequests(TestCase):
     def test_new_thread_fast(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-forum.new_thread.fast_account'])
+        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-forum.fast_account'])
 
     def test_create_thread_unlogined(self):
         self.request_logout()
@@ -100,7 +103,7 @@ class TestRequests(TestCase):
         self.account.is_fast = True
         self.account.save()
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug)),
-                              code='forum.create_thread.fast_account')
+                              code='forum.fast_account')
 
     def test_create_thread_closed_subcategory(self):
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat2.slug)),
@@ -190,7 +193,7 @@ class TestRequests(TestCase):
         self.account.is_fast = True
         self.account.save()
         self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
-                              code='forum.create_post.fast_account')
+                              code='forum.fast_account')
 
     def test_create_post_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
@@ -231,3 +234,91 @@ class TestRequests(TestCase):
         texts.extend([('post%d-text' % i, 0) for i in xrange(0, 6)])
 
         self.check_html_ok(self.client.get(reverse('forum:feed')), texts=texts, content_type='application/atom+xml')
+
+
+class ThreadSubscribeTests(BaseTestRequests):
+
+    def test_login_required(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)),
+                              'common.login_required')
+
+    def test_fast_account(self):
+        self.account.is_fast = True
+        self.account.save()
+        self.check_ajax_error(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)),
+                              'forum.fast_account')
+
+    def test_create(self):
+        self.assertEqual(Subscription.objects.all().count(), 0)
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
+        self.assertEqual(Subscription.objects.all().count(), 1)
+
+    def test_create_when_exists(self):
+        self.assertEqual(Subscription.objects.all().count(), 0)
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
+        self.assertEqual(Subscription.objects.all().count(), 1)
+
+
+class ThreadUnsubscribeTests(BaseTestRequests):
+
+    def setUp(self):
+        super(ThreadUnsubscribeTests, self).setUp()
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
+
+    def test_login_required(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)),
+                              'common.login_required')
+
+    def test_fast_account(self):
+        self.account.is_fast = True
+        self.account.save()
+        self.check_ajax_error(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)),
+                              'forum.fast_account')
+
+    def test_remove(self):
+        self.assertEqual(Subscription.objects.all().count(), 1)
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)))
+        self.assertEqual(Subscription.objects.all().count(), 0)
+
+    def test_remove_when_not_exists(self):
+        self.assertEqual(Subscription.objects.all().count(), 1)
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)))
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)))
+        self.assertEqual(Subscription.objects.all().count(), 0)
+
+
+class SubscriptionsTests(BaseTestRequests):
+
+    def setUp(self):
+        super(SubscriptionsTests, self).setUp()
+
+    def test_login_required(self):
+        self.request_logout()
+        url = reverse('forum:subscriptions:')
+        self.check_redirect(url, login_url(url))
+
+    def test_fast_account(self):
+        self.account.is_fast = True
+        self.account.save()
+        self.check_ajax_error(self.client.post(reverse('forum:subscriptions:')),
+                              'forum.fast_account')
+
+    def test_empty(self):
+        texts = [('thread1-caption', 0),
+                 ('thread2-caption', 0),
+                 ('thread3-caption', 0),
+                 ('pgf-no-subscriptions-message', 1)]
+        self.check_html_ok(self.client.get(reverse('forum:subscriptions:'), texts=texts))
+
+    def test_subscriptions(self):
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread3.id)))
+
+        texts = [('thread1-caption', 1),
+                 ('thread2-caption', 0),
+                 ('thread3-caption', 1),
+                 ('pgf-no-subscriptions-message', 1)]
+        self.check_html_ok(self.client.get(reverse('forum:subscriptions:'), texts=texts))

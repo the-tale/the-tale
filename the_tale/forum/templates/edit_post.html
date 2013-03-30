@@ -25,7 +25,12 @@ jQuery(document).ready( function(e) {
 {% block forum_content %}
 
 <ul class="breadcrumb">
-  <li><a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
+  <li>
+    <a href="{{ url('forum:feed') }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss форума">
+      <img src="{{STATIC_URL}}images/rss.png" style="margin: 2px;"/>
+    </a>
+    <a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span>
+  </li>
   <li><a href="{{ url('forum:subcategory', subcategory.slug) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
   <li><a href="{{ url('forum:threads:show', thread.id) }}">{{ thread.caption }}</a><span class="divider">/</span></li>
   <li class="active">редактирование сообщения</li>

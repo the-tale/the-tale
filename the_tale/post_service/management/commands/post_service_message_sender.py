@@ -7,31 +7,29 @@ from django.utils.log import getLogger
 
 from dext.utils import pid
 
-from accounts.workers.environment import workers_environment
+from post_service.workers.environment import workers_environment
 
-
-logger = getLogger('accounts.workers.registration')
+logger = getLogger('post_service.workers.message_sender')
 
 class Command(BaseCommand):
 
-    help = 'run accounts registration'
+    help = 'run post service message sender worker'
 
     requires_model_validation = False
 
-    @pid.protector('accounts_registration')
+    @pid.protector('post_service_message_sender')
     def handle(self, *args, **options):
 
         try:
             workers_environment.clean_queues()
-            workers_environment.registration.initialize()
-            workers_environment.registration.run()
+            workers_environment.message_sender.initialize()
+            workers_environment.message_sender.run()
         except KeyboardInterrupt:
             pass
         except Exception:
             traceback.print_exc()
-            logger.error('Infrastructure worker exception: accounts_registration',
+            logger.error('Infrastructure worker exception: post_service_message_sender',
                          exc_info=sys.exc_info(),
                          extra={} )
-
 
         workers_environment.deinitialize()

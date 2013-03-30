@@ -14,7 +14,6 @@ class Worker(BaseWorker):
     def __init__(self, registration_queue, stop_queue):
         super(Worker, self).__init__(logger=getLogger('accounts.workers.registration'), command_queue=registration_queue)
         self.stop_queue = connection.SimpleQueue(stop_queue)
-
         self.initialized = True
 
     def clean_queues(self):
@@ -48,6 +47,7 @@ class Worker(BaseWorker):
         return self.send_cmd('stop')
 
     def process_stop(self):
+        self.initialized = False
         self.stop_required = True
         self.stop_queue.put({'code': 'stopped', 'worker': 'registration'}, serializer='json', compression=None)
         self.logger.info('REGISTRATION STOPPED')

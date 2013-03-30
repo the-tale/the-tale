@@ -1,5 +1,38 @@
 {% import 'macros.html' as base_macros with context %}
 
+{% macro forum_paginator_line(thread_data, delete_thread_button=false, edit_thread_button=false) %}
+  <div class="pagination pull-left">
+    <ul>
+      {% if thread_data.can_subscribe %}
+      <li>
+        {% if not thread_data.has_subscription %}
+        <a href="{{ url('forum:subscriptions:subscribe') }}?thread={{thread_data.thread.id}}" class="pgf-forms-post-simple">подписаться</a>
+        {% else %}
+        <a href="{{ url('forum:subscriptions:unsubscribe') }}?thread={{thread_data.thread.id}}" class="pgf-forms-post-simple">отписаться</a>
+        {% endif %}
+      </li>
+      {% endif %}
+
+      {% if not thread_data.inline %}
+      <li>
+        {{ base_macros.addthis_short("Форум: "+ thread_data.thread.caption, '', url=full_url('http', 'forum:threads:show', thread_data.thread.id)) }}
+      </li>
+      {% endif %}
+
+      {% if edit_thread_button and thread_data.can_change_thread %}
+      <li><a href="{{ url('forum:threads:edit', thread.id) }}" class="pgf-change-thread-button">редактировать</a></li>
+      {% endif %}
+
+      {% if delete_thread_button and thread_data.can_delete_thread %}
+      <li><a href="#" class="pgf-remove-thread-button">удалить</a></li>
+      {% endif %}
+
+    </ul>
+  </div>
+
+  {{ base_macros.render_paginator(thread_data.paginator) }}
+
+{% endmacro %}
 
 {% macro thread_page(thread_data) %}
 
@@ -41,13 +74,34 @@ jQuery(document).ready( function(e) {
                                })
     });
     {% endif %}
+
+    {% if thread_data.can_delete_thread %}
+    jQuery('.pgf-remove-thread-button').click(function(e) {
+        e.preventDefault();
+        var DeleteRequest = function(e) {
+            e.preventDefault();
+
+            pgf.forms.Post({ action: "{{ url('forum:threads:delete', thread_data.thread.id) }}",
+                             OnSuccess: function(e){
+                                 location.href = "{{ url('forum:subcategory', thread_data.thread.subcategory.slug) }}";
+                             }
+                           });
+        };
+
+        pgf.ui.dialog.Question({message: 'Вы действительно хотите удалить эту тему?',
+                                title: 'Подтвердите удаление',
+                                buttons: [{text: 'Удалить', classes: 'btn-danger', callback: DeleteRequest},
+                                          {text: 'Отменить', classes: 'btn-success'}]
+                               })
+    });
+    {% endif %}
+
 });
 
 </script>
 
   {% if thread_data.inline %}
-  <br/><hr/><br/><h4>ОБСУЖДЕНИЕ</h4>
-  {% if thread_data.paginator.pages_count == 1 %}<br/>{% endif %}
+  <br/><hr/><br/><h4>ОБСУЖДЕНИЕ</h4><br/>
 
   {% if thread_data.no_posts %}
   <p class="alert alert-info">
@@ -58,8 +112,7 @@ jQuery(document).ready( function(e) {
   {% endif %}
   {% endif %}
 
-
-{{ base_macros.render_paginator(thread_data.paginator) }}
+  {{ forum_paginator_line(thread_data, delete_thread_button=true, edit_thread_button=true) }}
 
 <ul class="unstyled">
   {% for post in thread_data.posts %}
@@ -119,7 +172,13 @@ jQuery(document).ready( function(e) {
   {% endfor %}
 </ul>
 
-{{ base_macros.render_paginator(thread_data.paginator) }}
+{% if not thread_data.no_posts %}
+{{ forum_paginator_line(thread_data) }}
+{% endif %}
+
+{% if thread_data.paginator.pages_count == 1 %}
+<br/><br/>
+{% endif %}
 
 {% if thread_data.can_post %}
 
