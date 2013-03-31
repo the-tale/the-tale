@@ -7,9 +7,10 @@ from django.core.management.base import BaseCommand
 
 # from game.prototypes import TimePrototype
 
+from game.map.relations import TERRAIN
 from game.map.storage import map_info_storage
 from game.map.prototypes import WorldInfoPrototype
-
+from game.map.generator.biomes import Biom
 
 
 class Command(BaseCommand):
@@ -43,7 +44,7 @@ class Command(BaseCommand):
         cell = generator.cell_info(x, y)
         power_cell = generator.cell_power_info(x, y)
 
-        print '----CELL--%d--%d--' % (x, y)
+        print '----CELL--x=%d--y=%d--' % (x, y)
         print 'height:            %.2f \t\t| %r       ' % (cell.height, power_cell.height)
         print 'temperature:       %.2f \t\t| %f       ' % (cell.temperature, power_cell.temperature)
         print 'wind:              (%.2f, %.2f) \t| %r ' % (cell.wind[0], cell.wind[1], power_cell.wind)
@@ -53,3 +54,17 @@ class Command(BaseCommand):
         print 'atmo_wind:         (%.2f, %.2f) \t|    ' % cell.atmo_wind
         print 'atmo_temperature:  %.2f \t\t|          ' % (cell.atmo_temperature,)
         print 'atmo_wetness:      %.2f \t\t|          ' % (cell.atmo_wetness,)
+
+        terrain_points = []
+        for terrain_id, text in TERRAIN._ID_TO_TEXT.items():
+            biom = Biom(id_=terrain_id)
+            terrain_points.append((text, biom.check(cell), biom.get_points(cell)))
+        terrain_points = sorted(terrain_points, key=lambda x: -x[1])
+
+        print
+        print '----TERRAIN----'
+        for biom_name, total_power, aspects in terrain_points:
+            print '%.2f\t%s' % (total_power, biom_name)
+
+            for aspect_name, aspect_value in aspects:
+                print '\t%.2f\t%s' % (aspect_value, aspect_name)
