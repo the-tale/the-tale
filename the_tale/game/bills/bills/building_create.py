@@ -35,7 +35,7 @@ class BuildingCreate(BasePersonBill):
     MODERATOR_FORM_TEMPLATE = 'bills/bills/building_create_moderator_form.html'
     SHOW_TEMPLATE = 'bills/bills/building_create_show.html'
 
-    CAPTION = u'Закон о возведение постройки'
+    CAPTION = u'Закон о возведении постройки'
     DESCRIPTION = u'Возводит здание, принадлежащее выбранному персонажу (и соответствующее его профессии). Один персонаж может иметь только одну постройку. Помните, что для поддержания работы здания потребуется участие игроков, иначе оно обветшает и разрушится.'
 
     def apply(self):
