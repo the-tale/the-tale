@@ -165,6 +165,14 @@ blockquote {
   float: right;
   width: 300px;
 }
+.addthis_toolbox.short {
+  display: inline;
+  float: none;
+  width: auto;
+}
+.addthis_toolbox.short .atclear {
+  display: inline;
+}
 .addthis_toolbox .invitation {
   float: left;
   color: #999999;

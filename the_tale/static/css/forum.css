@@ -16,6 +16,9 @@
 .forum-table .thread-page-links {
   color: #4A516B;
 }
+.forum-table .subscription {
+  width: 10em;
+}
 .post-table .index {
   width: 3em;
 }
