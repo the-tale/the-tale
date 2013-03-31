@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.core import mail
+from django.conf import settings as project_settings
 
 from common.utils import testcase
 
@@ -53,10 +54,12 @@ class NewForumPostTests(testcase.TestCase):
         self.assertTrue(self.post.author.nick in mail.outbox[0].body)
         self.assertTrue(self.post.thread.caption in mail.outbox[0].body)
         self.assertTrue(self.post.thread.paginator.last_page_url in mail.outbox[0].body)
+        self.assertTrue(project_settings.SITE_URL in mail.outbox[0].body)
 
         self.assertTrue(self.post.author.nick in mail.outbox[0].alternatives[0][0])
         self.assertTrue(self.post.thread.caption in mail.outbox[0].alternatives[0][0])
         self.assertTrue(self.post.thread.paginator.last_page_url in mail.outbox[0].alternatives[0][0])
+        self.assertTrue(project_settings.SITE_URL in mail.outbox[0].alternatives[0][0])
 
     def test_many_subscriptions(self):
         register_user('user_2', 'user_2@test.com', '111111')
