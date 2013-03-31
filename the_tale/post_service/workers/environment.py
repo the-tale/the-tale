@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from post_service.workers.registration import Worker as MessageSender
+from post_service.workers.message_sender import Worker as MessageSender
 
 class QUEUE:
     MESSAGE_SENDER_MESSAGES = 'message_sender_messages_queue'
@@ -13,7 +13,7 @@ class Environment(object):
         pass
 
     def initialize(self):
-        self.message_sender = MessageSender(messages_queue=QUEUE.MESSAGE_SENDER_MESSAGES_QUEUE, stop_queue=QUEUE.MESSAGE_SENDER_STOP)
+        self.message_sender = MessageSender(messages_queue=QUEUE.MESSAGE_SENDER_MESSAGES, stop_queue=QUEUE.MESSAGE_SENDER_STOP)
 
     def deinitialize(self):
         self.message_sender.close_queries()

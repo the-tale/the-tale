@@ -11,6 +11,8 @@ pgf.tilesets = {
 
         sprites: {
 
+            tardis: { x: 0, y: 0, src: "/images/tardis.png" },
+
             hero_human_masculine:  { x: 0 * 32, y: 8 * 32 },
             hero_human_feminine:   { x: 1 * 32, y: 8 * 32 },
             hero_dwarf_masculine:  { x: 2 * 32, y: 8 * 32 },

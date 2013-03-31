@@ -19,6 +19,9 @@ class BaseMessageHandler(object):
 
     def process(self): raise NotImplemented
 
+    @property
+    def uid(self): raise NotImplemented
+
 
 class TestHandler(BaseMessageHandler):
 
@@ -38,6 +41,9 @@ class TestHandler(BaseMessageHandler):
     def process(self):
         return True
 
+    @property
+    def uid(self): return 'test-message'
+
 
 class ForumPostHandler(BaseMessageHandler):
 
@@ -56,6 +62,9 @@ class ForumPostHandler(BaseMessageHandler):
         obj = cls()
         obj.post_id = data['post_id']
         return obj
+
+    @property
+    def uid(self): return 'forum-post-%d-message' % self.post_id
 
     def process(self):
         from forum.prototypes import PostPrototype, SubscriptionPrototype

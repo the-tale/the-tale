@@ -34,6 +34,9 @@ class MessagePrototype(BasePrototype):
 
         self.save()
 
+    @property
+    def uid(self): return self.handler.uid
+
 
     @classmethod
     def create(cls, handler):

@@ -49,7 +49,14 @@ class NewForumPostTests(testcase.TestCase):
         self.assertTrue(self.message.state._is_PROCESSED)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, [self.account_1.email])
-        print mail.outbox[0].body
+
+        self.assertTrue(self.post.author.nick in mail.outbox[0].body)
+        self.assertTrue(self.post.thread.caption in mail.outbox[0].body)
+        self.assertTrue(self.post.thread.paginator.last_page_url in mail.outbox[0].body)
+
+        self.assertTrue(self.post.author.nick in mail.outbox[0].alternatives[0][0])
+        self.assertTrue(self.post.thread.caption in mail.outbox[0].alternatives[0][0])
+        self.assertTrue(self.post.thread.paginator.last_page_url in mail.outbox[0].alternatives[0][0])
 
     def test_many_subscriptions(self):
         register_user('user_2', 'user_2@test.com', '111111')

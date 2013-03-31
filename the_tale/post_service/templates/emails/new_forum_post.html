@@ -10,5 +10,7 @@
 <br/>
 
 Сообщение находится на странице: <a href="{{ post.thread.paginator.last_page_url }}">{{ post.thread.paginator.last_page_url }}</a>
+Ответить на это сообщение вы можете только на форуме по указанной ссылке.
 
+P.S.: Вы получили это письмо, так как подписаны на обсуждение: <a href="{{ post.thread.paginator.first_page_url }}">{{ post.thread.caption }}</a>
 {% endblock %}
