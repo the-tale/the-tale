@@ -90,8 +90,6 @@
 
 {% macro render_paginator(paginator) %}
 
-{% if paginator.pages_count > 1 %}
-
 <div class="pagination pagination-right">
   <ul>
       {% for page_number in paginator.pages_numbers %}
@@ -103,7 +101,5 @@
       {% endfor %}
   </ul>
 </div>
-
-{% endif %}
 
 {% endmacro %}

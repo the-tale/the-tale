@@ -173,10 +173,6 @@ jQuery(document).ready( function(e) {
 {{ forum_paginator_line(thread_data) }}
 {% endif %}
 
-{% if thread_data.paginator.pages_count == 1 %}
-<br/><br/>
-{% endif %}
-
 {% if thread_data.can_post %}
 
 <form action="{{ url('forum:posts:create', thread=thread_data.thread.id) }}"
