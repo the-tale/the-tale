@@ -165,7 +165,7 @@ def get_building_power_points(building):
         points.append(_point_circle_wetness(place=building, power=-0.2, normalizer=normalizers.linear))
         points.append(_point_circle_temperature(place=building, power=0.1, normalizer=normalizers.linear))
     elif building.type._is_FISHING_LODGE:
-        points.append(_point_circle_height(place=building, borders=(-0.8, -0.4), normalizer=normalizers.linear_2))
+        # points.append(_point_circle_height(place=building, borders=(-0.8, -0.4), normalizer=normalizers.linear_2))
         points.append(_point_circle_wetness(place=building, power=0.3, normalizer=normalizers.linear))
     elif building.type._is_TAILOR_SHOP:
         points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
@@ -178,10 +178,11 @@ def get_building_power_points(building):
     elif building.type._is_WATCHTOWER:
         points.append(_point_circle_vegetation(place=building, power=(0.0, -0.5), normalizer=normalizers.linear_2))
     elif building.type._is_TRADING_POST:
-        points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
+        # points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
         points.append(_point_circle_soil(place=building, power=-0.1, normalizer=normalizers.linear))
     elif building.type._is_INN:
-        points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
+        # points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
+        pass
     elif building.type._is_DEN_OF_THIEVE:
         points.append(_point_circle_vegetation(place=building, power=(0.0, 0.3), normalizer=normalizers.linear_2))
     elif building.type._is_FARM:
@@ -206,13 +207,16 @@ def get_building_power_points(building):
         points.append(_point_circle_soil(place=building, power=-0.1, normalizer=normalizers.linear))
         points.append(_point_circle_temperature(place=building, power=0.1, normalizer=normalizers.linear))
     elif building.type._is_GUILDHALL:
-        points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
+        # points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
+        pass
     elif building.type._is_BUREAU:
-        points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
+        # points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
+        pass
     elif building.type._is_MANOR:
-        points.append(_point_circle_height(place=building, borders=(0.2, 0.5), normalizer=normalizers.linear_2))
+        # points.append(_point_circle_height(place=building, borders=(0.2, 0.5), normalizer=normalizers.linear_2))
+        pass
     elif building.type._is_SCENE:
-        points.append(_point_circle_height(place=building, borders=(0.2, 0.4), normalizer=normalizers.linear_2))
+        # points.append(_point_circle_height(place=building, borders=(0.2, 0.4), normalizer=normalizers.linear_2))
         points.append(_point_circle_vegetation(place=building, power=(0.0, -0.1), normalizer=normalizers.linear_2))
     elif building.type._is_MEWS:
         points.append(_point_circle_height(place=building, borders=(-0.2, 0.2), normalizer=normalizers.linear_2))
