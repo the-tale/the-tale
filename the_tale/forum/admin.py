@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from forum.models import Category, SubCategory, Thread, Post
+from forum.models import Category, SubCategory, Thread, Post, Subscription
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'slug', 'caption')
@@ -21,6 +21,9 @@ class ThreadAdmin(admin.ModelAdmin):
 
     list_filter = ('subcategory',)
 
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'account', 'thread', 'created_at')
+
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'state', 'technical', 'thread', 'author', 'created_at', 'updated_at')
@@ -37,3 +40,4 @@ admin.site.register(Category, CategoryAdmin)
 admin.site.register(SubCategory, SubCategoryAdmin)
 admin.site.register(Thread, ThreadAdmin)
 admin.site.register(Post, PostAdmin)
+admin.site.register(Subscription, SubscriptionAdmin)
