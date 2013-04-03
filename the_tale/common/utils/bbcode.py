@@ -4,6 +4,8 @@ import jinja2
 
 import postmarkup
 
+from django.core.urlresolvers import reverse
+
 from dext.forms import fields
 
 
@@ -63,4 +65,34 @@ class BBField(fields.TextField):
 '''
 
     def html(self, bound_field):
-        return jinja2.Markup(bound_field.label_tag()) + jinja2.Markup(self.command_line) + jinja2.Markup(bound_field) + bound_field.errors_container
+        html = u"""
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+    pgf.base.AddPreview('#pgf-bbfield-%(field_id)s', 'textarea', "%(preview_url)s");
+    pgf.base.InitBBFields('#pgf-bbfield-%(field_id)s');
+});
+</script>
+
+<div id="pgf-bbfield-%(field_id)s">
+  %(label)s
+  <div class="pgf-edit-content">
+    %(command_line)s
+    %(bound_field)s
+  </div>
+  <div class="pgf-preview-content pgf-hidden"></div>
+  %(errors_container)s
+  <div class="widget">
+    <button type="button" class="btn pgf-preview-button">Предпросмотр</button>
+    <button type="button" class="btn pgf-edit-button pgf-hidden"/>Редактировать</button>
+  </div>
+  <br/>
+</div>
+
+""" % {'field_id': uuid.uuid4().hex,
+       'preview_url': reverse('portal:preview'),
+       'label': bound_field.label_tag(),
+       'command_line': self.command_line,
+       'bound_field': bound_field,
+       'errors_container': bound_field.errors_container}
+
+        return jinja2.Markup(html)

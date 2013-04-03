@@ -10,9 +10,6 @@ jQuery(document).ready( function(e) {
 
     var editForm = new pgf.forms.Form(jQuery('#pgf-edit-post-form'),
                                                {OnSuccess: function(instance, data){location.href = "{{url('blogs:posts:show', post.id)}}";}});
-
-    pgf.base.AddPreview('#pgf-post-text', 'textarea', "{{ url('portal:preview') }}");
-    pgf.base.InitBBFields('#pgf-post-text');
 });
 
 </script>
@@ -29,21 +26,7 @@ jQuery(document).ready( function(e) {
 
   {{ form.caption.widget }}
 
-  <div id="pgf-post-text">
-    <div class="pgf-edit-content">
-      {{ form.text.widget }}
-    </div>
-
-    <div class="pgf-preview-content pgf-hidden">
-    </div>
-
-    <div class="widget">
-      <input type="button" class="btn pgf-preview-button" value="Предпросмотр"/>
-      <input type="button" class="btn pgf-edit-button pgf-hidden" value="Редактировать"/>
-    </div>
-
-    <br/>
-  </div>
+  {{ form.text.widget }}
 
   <div class="widget">
     <input type="submit" class="btn" value="Сохранить"/>

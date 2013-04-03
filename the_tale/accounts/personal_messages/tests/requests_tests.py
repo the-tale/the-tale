@@ -141,13 +141,13 @@ class NewRequestsTests(BaseRequestsTests):
 
     def test_success(self):
         self.check_html_ok(self.client.get(reverse('accounts:messages:new') + ('?recipient=%d' % self.account2.id)),
-                           texts=[('pgf-new-message-form', 4)])
+                           texts=[('pgf-new-message-form', 2)])
 
 
     def test_answer_to(self):
         message = MessagePrototype.create(self.account2, self.account1, 'message_2_1 1')
         self.check_html_ok(self.client.get(reverse('accounts:messages:new') + ('?recipient=%d&answer_to=%d' % (self.account2.id, message.id))),
-                           texts=[('pgf-new-message-form', 4),
+                           texts=[('pgf-new-message-form', 2),
                                   ('message_2_1 1', 1)])
 
 

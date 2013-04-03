@@ -47,9 +47,6 @@ jQuery(document).ready( function(e) {
                                              location.href = data.data.thread_url;
                                          }
                                          });
-
-    pgf.base.AddPreview('#pgf-new-post-form', 'textarea', "{{ url('portal:preview') }}");
-    pgf.base.InitBBFields('#pgf-new-post-form');
     {% endif %}
 
     {% if thread_data.can_delete_posts or thread_data.has_post_on_page %}
@@ -189,17 +186,10 @@ jQuery(document).ready( function(e) {
 
   {{ thread_data.new_post_form.errors_container }}
 
-  <div class="pgf-edit-content">
-    {{ thread_data.new_post_form.text.widget }}
-  </div>
-
-  <div class="pgf-preview-content pgf-hidden">
-  </div>
+  {{ thread_data.new_post_form.text.widget }}
 
   <div class="widget">
     <input type="submit" class="btn" value="Ответить"/>
-    <input type="button" class="btn pgf-preview-button" value="Предпросмотр"/>
-    <input type="button" class="btn pgf-edit-button pgf-hidden" value="Редактировать"/>
   </div>
 
 </form>

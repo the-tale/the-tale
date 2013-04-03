@@ -6,72 +6,6 @@ if (!pgf.forms) {
     pgf.forms = {};
 }
 
-// owner - dom element
-// form - pgf.form object
-pgf.widgets = {
-
-    'static-value': function(name, widget, owner, form) {
-
-        var value = jQuery('.pgf-value', widget);
-
-        var displayedValue = jQuery('.pgf-displayed-value', widget);
-
-        this.value = function() {
-            return value.val();
-        };
-
-        this.set = function(newVal) {
-            displayedValue.text(newVal);
-            value.val(newVal);
-        };
-    },
-
-    'integer-interval': function(name, widget, owner, form) {
-        var plus = jQuery('.pgf-plus', widget);
-        var minus = jQuery('.pgf-minus', widget);
-        var value = jQuery('.pgf-value', widget);
-
-        var interval = {min: parseInt(widget.data('interval-min')),
-                        max: parseInt(widget.data('interval-max')) };
-
-        var limitedByWidget = widget.data('limited-by');
-
-        var instance = this;
-
-        function CreateBtnCallback(delta) {
-            return function(e){
-                e.preventDefault();
-                if (form && form.widgets && limitedByWidget in form.widgets) {
-                    var limit = form.widgets[limitedByWidget];
-                    var free = parseInt(limit.value());
-
-                    if (free - delta < 0) return;
-
-                    if (instance.change(delta)) {
-                        limit.set(free - delta);
-                    }
-                    return;
-                }
-                instance.change(delta);
-            };
-        }
-
-        plus.click( CreateBtnCallback(1) );
-        minus.click( CreateBtnCallback(-1) );
-
-        this.change = function(delta) {
-            var val = parseInt(value.val());
-            var newVal = val + delta;
-
-            if (interval.min <= newVal && newVal <= interval.max) {
-                value.val(newVal);
-                return true;
-            }
-            return false;
-        };
-    }
-};
-
 pgf.forms.Form = function(selector, params) {
 
     var instance = this;
@@ -98,19 +32,7 @@ pgf.forms.Form = function(selector, params) {
             this.params.action = form.attr('action');
         }
 
-        this.widgets = {};
-
         var instance = this;
-
-        jQuery('.pgf-widget', form).each( function(i, v) {
-            el = jQuery(v);
-            var widgetName = el.data('widget-name');
-            var widgetType = el.data('widget-type');
-
-            if (widgetType in pgf.widgets) {
-                instance.widgets[widgetName] = new pgf.widgets[widgetType](widgetName, el, form, instance);
-            }
-        });
     };
 
     this.ClearErrors = function() {

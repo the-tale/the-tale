@@ -12,9 +12,6 @@ jQuery(document).ready( function(e) {
                                                location.href = data.data.thread_url;
                                            }
                                            });
-    pgf.base.AddPreview('#pgf-new-thread-form', 'textarea', "{{ url('portal:preview') }}");
-
-    pgf.base.InitBBFields('#pgf-new-thread-form');
 });
 
 </script>
@@ -43,16 +40,10 @@ jQuery(document).ready( function(e) {
     {{ new_thread_form.caption.widget}}
   </div>
 
-  <div class="pgf-edit-content">
-    {{ new_thread_form.text.widget }}
-  </div>
-  <div class="pgf-preview-content pgf-hidden">
-  </div>
+  {{ new_thread_form.text.widget }}
 
   <div class="widget">
     <input type="submit" class="btn" value="Создать"/>
-    <input type="button" class="btn pgf-preview-button" value="Предпросмотр"/>
-    <input type="button" class="btn pgf-edit-button pgf-hidden" value="Редактировать"/>
   </div>
 
 </form>

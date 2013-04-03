@@ -1,28 +1,5 @@
 
 
-<script type="text/javascript">
-jQuery(document).ready( function(e) {
-
-    pgf.base.AddPreview('#pgf-place-description', 'textarea', "{{ url('portal:preview') }}");
-    pgf.base.InitBBFields('#pgf-place-description');
-});
-</script>
-
 {{ form.place.widget }}
 
-<div id="pgf-place-description">
-  <div class="pgf-edit-content">
-    {{ form.new_description.widget }}
-  </div>
-
-  <div class="pgf-preview-content pgf-hidden">
-  </div>
-
-  <div class="widget">
-    <input type="button" class="btn pgf-preview-button" value="Предпросмотр"/>
-    <input type="button" class="btn pgf-edit-button pgf-hidden" value="Редактировать"/>
-  </div>
-
-  <br/>
-
-</div>
+{{ form.new_description.widget }}
