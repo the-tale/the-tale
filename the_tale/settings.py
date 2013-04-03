@@ -80,11 +80,12 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 # Mail settings
 ################################
 
-SERVER_EMAIL = 'no-reply@the-tale.org'
+SERVER_EMAIL = u'«Сказка»: системное сообщение <no-reply@the-tale.org>'
 ADMINS = (('Tiendil', 'admin@the-tale.org'), )
 
-EMAIL_NOREPLY = 'no-reply@the-tale.org'
-EMAIL_SUPPORT = 'support@the-tale.org'
+EMAIL_NOREPLY = u'«Сказка» <no-reply@the-tale.org>'
+EMAIL_SUPPORT = u'«Сказка» <support@the-tale.org>'
+EMAIL_SUPPORT_SHORT = u'support@the-tale.org'
 
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
