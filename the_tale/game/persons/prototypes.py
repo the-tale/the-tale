@@ -8,7 +8,7 @@ from textgen.words import Fake
 from common.utils.prototypes import BasePrototype
 from common.utils.logic import choose_from_interval
 
-from game.game_info import GENDER_ID_2_STR
+from game.game_info import GENDER_ID_2_STR, GENDER
 from game.helpers import add_power_management
 from game.prototypes import TimePrototype
 
@@ -53,6 +53,10 @@ class PersonPrototype(BasePrototype):
     @property
     def race_verbose(self):
         return RACE._ID_TO_TEXT[self.race]
+
+    @property
+    def gender_verbose(self):
+        return GENDER._ID_TO_TEXT[self.gender]
 
     @property
     def mastery(self):

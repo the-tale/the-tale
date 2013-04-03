@@ -75,13 +75,16 @@
             <table class="person-table table table-striped table-condensed table-no-highlighting">
               <tbody>
                 <tr>
-                  <td rowspan="2">
+                  <td rowspan="2"
+                      class="profession-icon-container"
+                      rel="tooltil"
+                      title="{{ person.type.text }}">
                     <i class="profession-icon {{person.type.name.lower()}}"></i>
                   </td>
 
                   <th>
                     {{ person.name }}
-                    <small>{{ person.race_verbose }}-{{ person.type.text }}</small>
+                    <small>{{ person.gender_verbose }}-{{ person.race_verbose }}</small>
 
                     {% if person.time_before_unfreeze.total_seconds() > 0 %}
                     <i class="icon-time pgf-time-before-unfreeze"

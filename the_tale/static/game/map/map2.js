@@ -597,16 +597,6 @@ pgf.game.map.Map = function(selector, params) {
                      Math.round(posY + (place.pos.y + 1) * TILE_SIZE) + 2);
         }
 
-        // DRAW TARDIS
-        //////////////////////////
-        if (!window.tardisX) tardisX = Math.floor(Math.random() * w);
-        if (!window.tardisY) tardisY = Math.floor(Math.random() * h);
-        var image = spritesManager.GetImage('tardis');
-        image.Draw(context,
-                   posX + tardisX * TILE_SIZE,
-                   posY + tardisY * TILE_SIZE);
-        /////////////////////////
-
         var hero = dynamicData.hero;
 
         var heroPosition = GetHeroPosition(data, hero);
