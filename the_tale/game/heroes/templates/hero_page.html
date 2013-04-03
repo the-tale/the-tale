@@ -94,7 +94,9 @@ jQuery(document).ready(function(e){
         <div class="span8">
           <h3>Сброс имени героя</h3>
 
-          <a class="btn btn-success pgf-forms-post-simple" href="{{ url('game:heroes:reset-name', resource.hero_id) }}">сбросить имя</a>
+          <a class="btn btn-success pgf-forms-post-simple"
+             href="{{ url('game:heroes:reset-name', resource.hero_id) }}"
+             data-confirmation="Вы действительно хотите сбросить имя героя?">сбросить имя</a>
 
         </div>
       </div>

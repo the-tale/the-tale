@@ -101,7 +101,9 @@ jQuery(document).ready( function(e) {
 
 <h3>Сброс ника</h3>
 
-<a class="btn btn-success pgf-forms-post-simple" href="{{ url('accounts:reset-nick', master_account.id) }}">сбросить</a>
+<a class="btn btn-success pgf-forms-post-simple"
+   href="{{ url('accounts:reset-nick', master_account.id) }}"
+   data-confirmation="Вы действительно хотите сбросить ник игрока?">сбросить</a>
 
 {% endif %}
 

@@ -217,8 +217,12 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
 
     if (!actionType) actionType = 'reload';
 
-    if (el.attr('href')) {
-        pgf.forms.Post({ action: el.attr('href'),
+    var url = el.attr('href');
+
+    if (!url) return;
+
+    var Operation = function() {
+        pgf.forms.Post({ action: url,
                          OnSuccess: function(data){
                              if (actionType == 'quietly') {
                              }
@@ -228,8 +232,20 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
                              if (actionType == 'redirect') {
                                  location.href = el.data('redirect-url');
                              }
-                             
+
                          }
-                       });
+                       }) }
+
+    var confirmation = el.data('confirmation');
+
+    if (confirmation) {
+        pgf.ui.dialog.Question({message: confirmation,
+                                title: 'Подтвердите операцию',
+                                buttons: [{text: 'Подтверждаю', classes: 'btn-danger', callback: Operation},
+                                          {text: 'Отмена', classes: 'btn-success'}]
+                               });
+    }
+    else {
+        Operation();
     }
 });
