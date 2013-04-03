@@ -266,15 +266,15 @@ class BuildingPrototype(BasePrototype):
         self._model.integrity = min(1.0, self.integrity + self.repair_delta)
 
     @classmethod
-    def get_available_positions(cls, center_x, center_y):
+    def get_available_positions(cls, center_x, center_y, building_position_radius=places_settings.BUILDING_POSITION_RADIUS):
         from game.map.places.storage import places_storage, buildings_storage
         from game.map.roads.storage import roads_storage
         from game.map.roads.relations import PATH_DIRECTION
 
         positions = set()
 
-        for i in xrange(0, places_settings.BUILDING_POSITION_RADIUS+1):
-            for j in xrange(0, places_settings.BUILDING_POSITION_RADIUS+1):
+        for i in xrange(0, building_position_radius+1):
+            for j in xrange(0, building_position_radius+1):
                 positions.add((center_x+i, center_y+j))
                 positions.add((center_x-i, center_y+j))
                 positions.add((center_x+i, center_y-j))
@@ -301,7 +301,9 @@ class BuildingPrototype(BasePrototype):
 
                 removed_positions.add((x, y))
 
-        return positions - removed_positions
+        result = positions - removed_positions
+
+        return result if result else cls.get_available_positions(center_x, center_y, building_position_radius=building_position_radius+1)
 
 
     @classmethod

@@ -107,6 +107,16 @@ class BuildingPrototypeTests(testcase.TestCase):
             self.assertTrue(0 <= x < map_settings.WIDTH)
             self.assertTrue(0 <= y < map_settings.HEIGHT)
 
+
+    def test_dynamic_position_radius(self):
+        with mock.patch('game.map.places.conf.places_settings.BUILDING_POSITION_RADIUS', 2):
+            positions = BuildingPrototype.get_available_positions(-3, -1)
+            self.assertEqual(positions, set([(0, 0), (0, 1), (0, 2)]))
+
+        with mock.patch('game.map.places.conf.places_settings.BUILDING_POSITION_RADIUS', 2):
+            positions = BuildingPrototype.get_available_positions(-4, -1)
+            self.assertEqual(positions, set([(0, 0), (0, 1), (0, 2), (0, 3)]))
+
     def test_create(self):
         self.assertEqual(Building.objects.all().count(), 0)
 
