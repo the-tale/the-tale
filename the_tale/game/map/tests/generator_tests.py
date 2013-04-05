@@ -1,5 +1,4 @@
 # coding: utf-8
-import math
 import random
 
 from common.utils.testcase import TestCase
@@ -10,7 +9,7 @@ from game.logic import create_test_map
 from game.map.places.prototypes import BuildingPrototype
 from game.map.places.relations import BUILDING_TYPE
 from game.map.generator.power_points import get_building_power_points
-from game.map.generator.descriptors import UICell, UICells, _get_wind_direction
+from game.map.generator.descriptors import UICell, UICells
 from game.map.storage import map_info_storage
 from game.map.prototypes import WorldInfoPrototype
 

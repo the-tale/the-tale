@@ -93,6 +93,12 @@ class Award(models.Model):
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
 
+class ResetPasswordTask(models.Model):
+    account = models.ForeignKey(Account,  related_name='+', null=False)
+    uuid = models.CharField(max_length=32)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_processed = models.BooleanField(default=False, db_index=True)
+
 
 class CHANGE_CREDENTIALS_TASK_STATE:
     WAITING = 0

@@ -5,6 +5,8 @@ from django.conf import settings as project_settings
 
 from dext.jinja2 import render
 
+from accounts.prototypes import AccountPrototype
+
 # TODO: rewrite to autodiscover() logic
 #       code for this can be chosen form postponed_tasks and moved to utils
 
@@ -50,7 +52,7 @@ class ForumPostHandler(BaseMessageHandler):
     TYPE = 'forum_post'
 
     def __init__(self, post_id=None):
-        super(BaseMessageHandler, self).__init__()
+        super(ForumPostHandler, self).__init__()
         self.post_id = post_id
 
     def serialize(self):
@@ -96,6 +98,56 @@ class ForumPostHandler(BaseMessageHandler):
             email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
             email.attach_alternative(html_content, "text/html")
             email.send()
+
+        connection.close()
+
+        return True
+
+
+class ResetPasswordHandler(BaseMessageHandler):
+
+    TYPE = 'reset_password'
+
+    def __init__(self, account_id=None, task_uuid=None):
+        super(ResetPasswordHandler, self).__init__()
+        self.account_id = account_id
+        self.task_uuid = task_uuid
+
+    def serialize(self):
+        return {'type': self.TYPE,
+                'account_id': self.account_id,
+                'task_uuid': self.task_uuid}
+
+    @classmethod
+    def deserialize(cls, data):
+        obj = cls()
+        obj.account_id = data['account_id']
+        obj.task_uuid = data['task_uuid']
+        return obj
+
+    @property
+    def uid(self): return 'reset-password-%d-%s-message' % (self.account_id, self.task_uuid)
+
+    def process(self):
+        account = AccountPrototype.get_by_id(self.account_id)
+
+        EMAIL_HTML_TEMPLATE = 'post_service/emails/reset_password.html'
+        EMAIL_TEXT_TEMPLATE = 'post_service/emails/reset_password.txt'
+
+        subject = u'«Сказка»: сброс пароля'
+
+        context = {'account': account,
+                   'task_uuid': self.task_uuid}
+
+        html_content = render.template(EMAIL_HTML_TEMPLATE, context)
+        text_content = render.template(EMAIL_TEXT_TEMPLATE, context)
+
+        connection = mail.get_connection()
+        connection.open()
+
+        email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
+        email.attach_alternative(html_content, "text/html")
+        email.send()
 
         connection.close()
 

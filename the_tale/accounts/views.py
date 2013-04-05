@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout
 from django.utils.log import getLogger
 
-from dext.views import handler, validator
+from dext.views import handler, validator, validate_argument
 from dext.utils.urls import UrlBuilder
 
 from common.postponed_tasks import PostponedTaskPrototype
@@ -19,7 +19,7 @@ from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
 from game.heroes.models import Hero
 from game.heroes.prototypes import HeroPrototype
 
-from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype
+from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype, ResetPasswordTaskPrototype
 from accounts.postponed_tasks import RegistrationTask
 from accounts.models import CHANGE_CREDENTIALS_TASK_STATE, Account
 from accounts import forms
@@ -212,9 +212,25 @@ class ProfileResource(Resource):
         if self.account.is_authenticated():
             return self.redirect('/')
 
-        reset_password_form = forms.ResetPasswordForm()
-        return self.template('accounts/reset_password_done.html',
-                             {'reset_password_form': reset_password_form} )
+        return self.template('accounts/reset_password_done.html', {} )
+
+    @validate_argument('task', ResetPasswordTaskPrototype.get_by_uuid,
+                       'accounts.profile.reset_password_done', u'Не получилось сбросить пароль, возможно вы используете неверную ссылку')
+    @handler('reset-password-processed', method='get')
+    def reset_password_processed(self, task):
+        if self.account.is_authenticated():
+            return self.redirect('/')
+
+        if task.is_time_expired:
+            return self.auto_error('accounts.profile.reset_password_processed.time_expired', u'Срок действия ссылки закончился, попробуйте восстановить пароль ещё раз')
+
+        if task.is_processed:
+            return self.auto_error('accounts.profile.reset_password_processed.already_processed',
+                                   u'Эта ссылка уже была использована для восстановления пароля, одну ссылку можно использовать только один раз')
+
+        password = task.process()
+
+        return self.template('accounts/reset_password_processed.html', {'password': password} )
 
     @handler('reset-password', method='post')
     def reset_password(self):
@@ -224,16 +240,17 @@ class ProfileResource(Resource):
 
         reset_password_form = forms.ResetPasswordForm(self.request.POST)
 
-        if reset_password_form.is_valid():
+        if not reset_password_form.is_valid():
+            return self.json_error('accounts.profile.reset_password.form_errors', reset_password_form.errors)
 
-            account = AccountPrototype.get_by_email(reset_password_form.c.email)
+        account = AccountPrototype.get_by_email(reset_password_form.c.email)
 
-            if account is not None:
-                account.reset_password()
+        if account is None:
+            return self.auto_error('accounts.profile.reset_password.wrong_email', u'На указаный email аккаунт не зарегистрирован')
 
-            return self.json_ok()
+        ResetPasswordTaskPrototype.create(account)
 
-        return self.json_error('accounts.profile.reset_password.form_errors', reset_password_form.errors)
+        return self.json_ok()
 
     @login_required
     @handler('update-last-news-reminder-time', method='post')

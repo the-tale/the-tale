@@ -7,7 +7,7 @@ from dext.jinja2.decorators import jinjaglobal
 from accounts import logic
 
 @jinjaglobal
-def login_url(next_url=''):
+def login_url(next_url='/'):
     return logic.login_url(next_url)
 
 @jinjaglobal

@@ -11,8 +11,9 @@ from dext.utils.decorators import nested_commit_on_success
 
 from common.utils.password import generate_password
 from common.utils.prototypes import BasePrototype
+from common.utils.decorators import lazy_property
 
-from accounts.models import Account, ChangeCredentialsTask, CHANGE_CREDENTIALS_TASK_STATE, Award
+from accounts.models import Account, ChangeCredentialsTask, CHANGE_CREDENTIALS_TASK_STATE, Award, ResetPasswordTask
 from accounts.conf import accounts_settings
 from accounts.exceptions import AccountsException
 
@@ -35,12 +36,11 @@ class AccountPrototype(BasePrototype):
         self._model.new_messages_number = self._model.new_messages_number + 1
 
     def reset_password(self):
-        from accounts.email import ResetPasswordNotification
         new_password = generate_password(len_=accounts_settings.RESET_PASSWORD_LENGTH)
         self._model.set_password(new_password)
         self._model.save()
-        email = ResetPasswordNotification({'password': new_password})
-        email.send([self._model.email])
+
+        return new_password
 
     def check_password(self, password):
         return self._model.check_password(password)
@@ -115,11 +115,8 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                                                      new_nick=new_nick)
         return cls(model=model)
 
-    @property
-    def account(self):
-        if not hasattr(self, '_account'):
-            self._account = AccountPrototype.get_by_id(self._model.account_id)
-        return self._account
+    @lazy_property
+    def account(self): return AccountPrototype.get_by_id(self._model.account_id)
 
     @property
     def email_changed(self):
@@ -204,3 +201,37 @@ class AwardPrototype(BasePrototype):
         return cls(model=Award.objects.create(description=description,
                                               type=type,
                                               account=account._model) )
+
+
+class ResetPasswordTaskPrototype(BasePrototype):
+    _model_class = ResetPasswordTask
+    _readonly = ('uuid', 'is_processed')
+    _bidirectional = ()
+    _get_by = ('uuid',)
+
+    @property
+    def is_time_expired(self): return datetime.datetime.now() > self._model.created_at + datetime.timedelta(seconds=accounts_settings.RESET_PASSWORD_TASK_LIVE_TIME)
+
+    @classmethod
+    def create(cls, account):
+        from post_service.prototypes import MessagePrototype
+        from post_service.message_handlers import ResetPasswordHandler
+
+        model = cls._model_class.objects.create(account=account._model,
+                                                uuid=uuid.uuid4().hex)
+        prototype = cls(model=model)
+
+        MessagePrototype.create(ResetPasswordHandler(account_id=account.id, task_uuid=prototype.uuid))
+
+        return prototype
+
+    def process(self):
+        account = AccountPrototype.get_by_id(self._model.account_id)
+        new_password = account.reset_password()
+        self._model.is_processed = True
+        self.save()
+
+        return new_password
+
+    def save(self):
+        self._model.save()

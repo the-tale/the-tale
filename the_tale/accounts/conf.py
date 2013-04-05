@@ -13,6 +13,7 @@ accounts_settings = app_settings('ACCOUNTS',
                                  FAST_ACCOUNT_EXPIRED_TIME=3*24*60*60,
                                  REGISTRATION_TIMEOUT=1*60,
                                  RESET_PASSWORD_LENGTH=8,
+                                 RESET_PASSWORD_TASK_LIVE_TIME=60*60,
                                  CHANGE_EMAIL_TIMEOUT=2*24*60*60,
 
                                  ACCOUNTS_ON_PAGE=25,

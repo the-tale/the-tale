@@ -181,8 +181,8 @@ def get_building_power_points(building):
         # points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
         points.append(_point_circle_soil(place=building, power=-0.1, normalizer=normalizers.linear))
     elif building.type._is_INN:
+        points.append(_point_circle_soil(place=building, power=-0.01, normalizer=normalizers.linear))
         # points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
-        pass
     elif building.type._is_DEN_OF_THIEVE:
         points.append(_point_circle_vegetation(place=building, power=(0.0, 0.3), normalizer=normalizers.linear_2))
     elif building.type._is_FARM:
@@ -207,14 +207,14 @@ def get_building_power_points(building):
         points.append(_point_circle_soil(place=building, power=-0.1, normalizer=normalizers.linear))
         points.append(_point_circle_temperature(place=building, power=0.1, normalizer=normalizers.linear))
     elif building.type._is_GUILDHALL:
+        points.append(_point_circle_soil(place=building, power=-0.01, normalizer=normalizers.linear))
         # points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
-        pass
     elif building.type._is_BUREAU:
+        points.append(_point_circle_soil(place=building, power=-0.01, normalizer=normalizers.linear))
         # points.append(_point_circle_height(place=building, borders=(-0.5, 0.5), normalizer=normalizers.linear_2))
-        pass
     elif building.type._is_MANOR:
+        points.append(_point_circle_soil(place=building, power=-0.01, normalizer=normalizers.linear))
         # points.append(_point_circle_height(place=building, borders=(0.2, 0.5), normalizer=normalizers.linear_2))
-        pass
     elif building.type._is_SCENE:
         # points.append(_point_circle_height(place=building, borders=(0.2, 0.4), normalizer=normalizers.linear_2))
         points.append(_point_circle_vegetation(place=building, power=(0.0, -0.1), normalizer=normalizers.linear_2))
