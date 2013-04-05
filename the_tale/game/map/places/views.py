@@ -31,6 +31,7 @@ class PlaceResource(Resource):
         persons = self.place.persons
 
         persons_heroes = {}
+        persons_numbers = {}
 
         city_heroes = filter(lambda h: not h.is_fast, HeroPrototype.get_place_heroes(self.place))
 
@@ -41,6 +42,7 @@ class PlaceResource(Resource):
             enemies = filter(lambda h: not h.is_fast, HeroPrototype.get_enemy_heroes(person))
 
             persons_heroes[person.id] = map(None, friends, enemies)
+            persons_numbers[person.id] = (len(friends), len(enemies))
 
             accounts_ids.extend(hero.account_id for hero in friends)
             accounts_ids.extend(hero.account_id for hero in enemies)
@@ -55,4 +57,5 @@ class PlaceResource(Resource):
                               'persons': persons,
                               'accounts': accounts,
                               'persons_heroes': persons_heroes,
+                              'persons_numbers': persons_numbers,
                               'city_heroes': city_heroes} )
