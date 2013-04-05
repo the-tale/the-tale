@@ -117,12 +117,11 @@ jQuery(document).ready( function(e) {
   {% if loop.index==1 and thread_data.ignore_first_post %}{% continue %}{% endif %}
 
   {# give anchor to previous element, if we give anchor to current element#}
-  {% set message_id = thread_data.start_posts_from + loop.index%}
   <li class="post">
     <table class="table post-table table-striped table-no-highlighting">
       <tbody>
         <tr class="head">
-          <td class="index"><a href="#m{{message_id}}" >#{{message_id}}</a><div class="anchor" id="m{{message_id}}"></div></td>
+          <td class="index"><a href="#m{{post.id}}" >#{{post.id}}</a><div class="anchor" id="m{{post.id}}"></div></td>
           <td class="author">
             <a href="{{url('accounts:show', post.author.id)}}">{{ post.author.nick }}</a>
           </td>

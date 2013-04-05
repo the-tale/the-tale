@@ -9,7 +9,7 @@
 <br/>
 <br/>
 
-Сообщение находится на странице: <a href="{{ absolute_url(post.thread.paginator.last_page_url) }}">{{ absolute_url(post.thread.paginator.last_page_url) }}</a><br/>
+Сообщение находится на странице: <a href="{{ absolute_url(post.thread.paginator.last_page_url) }}#m{{post.id}}">{{ absolute_url(post.thread.paginator.last_page_url) }}</a><br/>
 Ответить на это сообщение вы можете только на форуме по указанной ссылке.<br/>
 
 P.S.: Вы получили это письмо, так как подписаны на обсуждение: <a href="{{ absolute_url(post.thread.paginator.first_page_url) }}">{{ post.thread.caption }}</a><br/>

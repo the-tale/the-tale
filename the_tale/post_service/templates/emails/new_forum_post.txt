@@ -8,7 +8,7 @@
 
 
 
-Сообщение находится на странице: {{ absolute_url(post.thread.paginator.last_page_url) }}
+Сообщение находится на странице: {{ absolute_url(post.thread.paginator.last_page_url) }}#m{{post.id}}
 Ответить на это сообщение вы можете только на форуме по указанной ссылке.
 
 P.S.: Вы получили это письмо, так как подписаны на обсуждение: {{ post.thread.caption }} ({{absolute_url(post.thread.paginator.first_page_url)}})
