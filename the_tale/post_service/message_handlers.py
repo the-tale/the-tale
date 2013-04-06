@@ -107,6 +107,66 @@ class ForumPostHandler(BaseMessageHandler):
         return True
 
 
+class ForumThreadHandler(BaseMessageHandler):
+
+    TYPE = 'forum_thread'
+
+    def __init__(self, thread_id=None):
+        super(ForumThreadHandler, self).__init__()
+        self.thread_id = thread_id
+
+    def serialize(self):
+        return {'type': self.TYPE,
+                'thread_id': self.thread_id}
+
+    @classmethod
+    def deserialize(cls, data):
+        obj = cls()
+        obj.thread_id = data['thread_id']
+        return obj
+
+    @property
+    def uid(self): return 'forum-thread-%d-message' % self.thread_id
+
+    def process(self):
+        from forum.prototypes import ThreadPrototype, SubscriptionPrototype
+
+        thread = ThreadPrototype.get_by_id(self.thread_id)
+
+        if thread is None:
+            return True # thread can be removed by admins or with removed thread
+
+        post = thread.get_first_post()
+
+        accounts = SubscriptionPrototype.get_accounts_for_subcategory(thread.subcategory)
+
+        EMAIL_HTML_TEMPLATE = 'post_service/emails/new_forum_thread.html'
+        EMAIL_TEXT_TEMPLATE = 'post_service/emails/new_forum_thread.txt'
+
+        subject = u'«Сказка»: новая тема на форуме'
+
+        context = {'thread': thread,
+                   'post': post}
+
+        html_content = render.template(EMAIL_HTML_TEMPLATE, context)
+        text_content = render.template(EMAIL_TEXT_TEMPLATE, context)
+
+        connection = mail.get_connection()
+        connection.open()
+
+        for account in accounts:
+            if not account.email:
+                continue
+
+            email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
+        connection.close()
+
+        return True
+
+
 class ResetPasswordHandler(BaseMessageHandler):
 
     TYPE = 'reset_password'

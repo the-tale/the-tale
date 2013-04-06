@@ -249,9 +249,14 @@ class ThreadSubscribeTests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)),
                               'forum.fast_account')
 
-    def test_create(self):
+    def test_create_for_thread(self):
         self.assertEqual(Subscription.objects.all().count(), 0)
         self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
+        self.assertEqual(Subscription.objects.all().count(), 1)
+
+    def test_create_for_subcategory(self):
+        self.assertEqual(Subscription.objects.all().count(), 0)
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?subcategory=%d' % self.subcat2.id)))
         self.assertEqual(Subscription.objects.all().count(), 1)
 
     def test_create_when_exists(self):
@@ -266,6 +271,7 @@ class ThreadUnsubscribeTests(BaseTestRequests):
     def setUp(self):
         super(ThreadUnsubscribeTests, self).setUp()
         self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?subcategory=%d' % self.subcat2.id)))
 
     def test_login_required(self):
         self.request_logout()
@@ -278,16 +284,21 @@ class ThreadUnsubscribeTests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)),
                               'forum.fast_account')
 
-    def test_remove(self):
-        self.assertEqual(Subscription.objects.all().count(), 1)
+    def test_remove_for_thread(self):
+        self.assertEqual(Subscription.objects.all().count(), 2)
         self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)))
-        self.assertEqual(Subscription.objects.all().count(), 0)
+        self.assertEqual(Subscription.objects.all().count(), 1)
+
+    def test_remove_for_subcategory(self):
+        self.assertEqual(Subscription.objects.all().count(), 2)
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?subcategory=%d' % self.subcat2.id)))
+        self.assertEqual(Subscription.objects.all().count(), 1)
 
     def test_remove_when_not_exists(self):
+        self.assertEqual(Subscription.objects.all().count(), 2)
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)))
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)))
         self.assertEqual(Subscription.objects.all().count(), 1)
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)))
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)))
-        self.assertEqual(Subscription.objects.all().count(), 0)
 
 
 class SubscriptionsTests(BaseTestRequests):
@@ -310,15 +321,22 @@ class SubscriptionsTests(BaseTestRequests):
         texts = [('thread1-caption', 0),
                  ('thread2-caption', 0),
                  ('thread3-caption', 0),
-                 ('pgf-no-subscriptions-message', 1)]
+                 ('subcat1-caption', 0),
+                 ('subcat2-caption', 0),
+                 ('pgf-no-thread-subscriptions-message', 1),
+                 ('pgf-no-subcategory-subscriptions-message', 1)]
         self.check_html_ok(self.client.get(reverse('forum:subscriptions:'), texts=texts))
 
     def test_subscriptions(self):
         self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
         self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread3.id)))
+        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?subcategory=%d' % self.subcat2.id)))
 
         texts = [('thread1-caption', 1),
                  ('thread2-caption', 0),
                  ('thread3-caption', 1),
-                 ('pgf-no-subscriptions-message', 1)]
+                 ('subcat1-caption', 0),
+                 ('subcat2-caption', 1),
+                 ('pgf-no-thread-subscriptions-message', 0),
+                 ('pgf-no-subcategory-subscriptions-message', 0)]
         self.check_html_ok(self.client.get(reverse('forum:subscriptions:'), texts=texts))

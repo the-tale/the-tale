@@ -16,6 +16,7 @@ from common.utils.decorators import lazy_property
 
 from forum.conf import forum_settings
 from forum.models import Category, SubCategory, Thread, Post, Subscription, MARKUP_METHOD, POST_STATE, POST_REMOVED_BY
+from forum.exceptions import ForumException
 
 
 class CategoryPrototype(BasePrototype):
@@ -102,10 +103,15 @@ class ThreadPrototype(BasePrototype):
 
         return [cls(thread) for thread in threads]
 
+    def get_first_post(self):
+        return PostPrototype(model=Post.objects.filter(thread=self._model).order_by('created_at')[0])
 
     @classmethod
     @nested_commit_on_success
     def create(cls, subcategory, caption, author, text, markup_method=MARKUP_METHOD.POSTMARKUP, technical=False):
+
+        from post_service.prototypes import MessagePrototype
+        from post_service.message_handlers import ForumThreadHandler
 
         if isinstance(subcategory, int):
             subcategory = SubCategoryPrototype.get_by_id(subcategory)
@@ -125,7 +131,11 @@ class ThreadPrototype(BasePrototype):
 
         subcategory.update(author, post_model.created_at)
 
-        return cls(thread_model)
+        prototype = cls(model=thread_model)
+
+        MessagePrototype.create(ForumThreadHandler(thread_id=prototype.id))
+
+        return prototype
 
 
     @nested_commit_on_success
@@ -256,16 +266,31 @@ class SubscriptionPrototype(BasePrototype):
     _get_by = ()
 
     @classmethod
-    def get_for(cls, account, thread):
+    def get_for(cls, account, thread=None, subcategory=None):
+
+        if thread is not None and subcategory is not None:
+            raise ForumException('only one value (thread or subcategory) must be defined')
+
         try:
-            return cls(cls._model_class.objects.get(account_id=account.id, thread_id=thread.id))
+            return cls(cls._model_class.objects.get(account_id=account.id,
+                                                    thread_id=thread.id if thread is not None else None,
+                                                    subcategory_id=subcategory.id if subcategory is not None else None))
         except cls._model_class.DoesNotExist:
             return None
 
     @classmethod
+    def has_subscription(cls, account, thread=None, subcategory=None):
+        return cls.get_for(account, thread, subcategory) is not None
+
+    @classmethod
     def get_threads_for_account(cls, account):
-        threads = Thread.objects.filter(subscription__account_id=account.id).order_by('updated_at')
+        threads = Thread.objects.filter(subscription__account_id=account.id).order_by('-updated_at')
         return [ThreadPrototype(model=thread) for thread in threads]
+
+    @classmethod
+    def get_subcategories_for_account(cls, account):
+        subcategories = SubCategory.objects.filter(subscription__account_id=account.id).order_by('-updated_at')
+        return [SubCategoryPrototype(model=subcategory) for subcategory in subcategories]
 
     @classmethod
     def get_accounts_for_thread(cls, thread):
@@ -273,13 +298,23 @@ class SubscriptionPrototype(BasePrototype):
         return [AccountPrototype(model=account) for account in accounts]
 
     @classmethod
-    def create(cls, account, thread):
-        model = cls._model_class.objects.create(account=account._model, thread=thread._model)
-        return cls(model)
+    def get_accounts_for_subcategory(cls, subcategory):
+        accounts = Account.objects.filter(subscription__subcategory_id=subcategory.id)
+        return [AccountPrototype(model=account) for account in accounts]
 
     @classmethod
-    def has_subscription(cls, account, thread):
-        return cls._model_class.objects.filter(account_id=account.id, thread_id=thread.id).exists()
+    def create(cls, account, thread=None, subcategory=None):
+        if (thread is not None and subcategory is not None) or (thread is None and subcategory is None):
+            raise ForumException('only one value (thread or subcategory) must be defined')
+
+        exist_subscription = SubscriptionPrototype.get_for(account, thread=thread, subcategory=subcategory)
+        if exist_subscription is not None:
+            return exist_subscription
+
+        model = cls._model_class.objects.create(account=account._model,
+                                                thread=thread._model if thread is not None else None,
+                                                subcategory=subcategory._model if subcategory is not None else None)
+        return cls(model)
 
     def remove(self):
         self._model.delete()

@@ -1,0 +1,14 @@
+{% extends "email.txt" %}
+
+{% block content %}
+
+тема обсуждения: {{ thread.caption }}
+
+ссылка: {{absolute_url(thread.paginator.first_page_url)}}
+
+{{post.author.nick}}:
+
+{{ post.html|striptags }}
+
+P.S.: Вы получили это письмо, так как подписаны на новые темы в категории «{{thread.subcategory.caption}}» (full_url('http', 'forum:subcategory:show', thread.subcategory.slug))
+{% endblock %}

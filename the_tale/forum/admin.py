@@ -22,7 +22,7 @@ class ThreadAdmin(admin.ModelAdmin):
     list_filter = ('subcategory',)
 
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'account', 'thread', 'created_at')
+    list_display = ('id', 'account', 'thread', 'subcategory', 'created_at')
 
 
 class PostAdmin(admin.ModelAdmin):

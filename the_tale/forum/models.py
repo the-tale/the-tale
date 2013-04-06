@@ -70,10 +70,12 @@ class Thread(models.Model):
 class Subscription(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     account = models.ForeignKey('accounts.Account')
-    thread = models.ForeignKey(Thread)
+    thread = models.ForeignKey(Thread, null=True)
+    subcategory = models.ForeignKey(SubCategory, null=True)
 
     class Meta:
-        unique_together = (('account', 'thread'),)
+        unique_together = (('account', 'thread'),
+                           ('account', 'subcategory'),)
 
 
 class MARKUP_METHOD:

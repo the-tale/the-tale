@@ -330,7 +330,7 @@ class ThreadPageData():
         self.can_post = self.account.is_authenticated() and not self.account.is_fast
 
         self.no_posts = (len(self.posts) == 0) or (self.ignore_first_post and len(self.posts) == 1)
-        self.can_subscribe = self.account.is_authenticated()
+        self.can_subscribe = self.account.is_authenticated() and not self.account.is_fast
 
         self.has_subscription = SubscriptionPrototype.has_subscription(self.account, self.thread)
 
@@ -344,19 +344,18 @@ class SubscriptionsResource(Resource):
         super(SubscriptionsResource, self).initialize(*args, **kwargs)
 
     @validate_argument('thread', ThreadPrototype.get_by_id, 'forum', u'обсуждение не найдено')
+    @validate_argument('subcategory', SubCategoryPrototype.get_by_id, 'forum', u'раздел на найден')
     @handler('subscribe', method='post')
-    def subscribe(self, thread):
-
-        if not SubscriptionPrototype.has_subscription(self.account, thread):
-            SubscriptionPrototype.create(self.account, thread)
-
+    def subscribe(self, thread=None, subcategory=None):
+        SubscriptionPrototype.create(self.account, thread=thread, subcategory=subcategory)
         return self.json_ok()
 
     @validate_argument('thread', ThreadPrototype.get_by_id, 'forum', u'обсуждение не найдено')
+    @validate_argument('subcategory', SubCategoryPrototype.get_by_id, 'forum', u'раздел на найден')
     @handler('unsubscribe', method='post')
-    def unsubscribe(self, thread):
+    def unsubscribe(self, thread=None, subcategory=None):
 
-        subscription = SubscriptionPrototype.get_for(self.account, thread)
+        subscription = SubscriptionPrototype.get_for(self.account, thread=thread, subcategory=subcategory)
 
         if subscription:
             subscription.remove()
@@ -366,7 +365,9 @@ class SubscriptionsResource(Resource):
     @handler('', method='get')
     def subscriptions(self):
         return self.template('forum/subscriptions.html',
-                             {'threads': SubscriptionPrototype.get_threads_for_account(self.account)} )
+                             {'threads': SubscriptionPrototype.get_threads_for_account(self.account),
+                              'subcategories': SubscriptionPrototype.get_subcategories_for_account(self.account)} )
+
 
 
 
@@ -418,6 +419,8 @@ class ForumResource(BaseForumResource):
                               'subcategory': self.subcategory,
                               'can_create_thread': can_create_thread(self.account, self.subcategory),
                               'paginator': paginator,
+                              'can_subscribe': self.account.is_authenticated() and not self.account.is_fast,
+                              'has_subscription': SubscriptionPrototype.has_subscription(self.account, subcategory=self.subcategory),
                               'threads': threads} )
 
 

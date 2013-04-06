@@ -27,9 +27,7 @@
 <th class="posts-count">ответов</th>
 <th class="last-poster">последний</th>
 <th class="updated-at">обновлено</th>
-{% if subscription %}
-<th class="subscription">подписка</th>
-{% endif %}
+{% if subscription %}<th class="subscription">подписка</th>{% endif %}
 {% endmacro %}
 
 
@@ -51,6 +49,39 @@
 <td class="updated-at pgf-format-datetime" data-timestamp="{{ thread.updated_at|timestamp }}"></td>
 {% if subscription %}
 <td><a href="{{ url('forum:subscriptions:unsubscribe') }}?thread={{thread.id}}" class="pgf-forms-post-simple">отписаться</a></td>
+{% endif %}
+
+{% endmacro %}
+
+{% macro subcategory_record_heading(subscription=false) %}
+<th class="caption">раздел</th>
+<th class="threads-count">тем</th>
+<th class="posts-count">ответов</th>
+<th class="last-poster">последний</th>
+<th class="updated-at">обновлено</th>
+{% if subscription %}<th class="subscription">подписка</th>{% endif %}
+{% endmacro %}
+
+
+{% macro subcategory_record(subcategory, subscription=false) %}
+<td class="caption">
+  <a href="{{ url('forum:subcategory', subcategory.slug) }}">
+    {{ subcategory.caption }}
+  </a>
+</td>
+<td class="threads-count">{{ subcategory.threads_count }}</td>
+<td class="posts-count">{{ subcategory.posts_count }}</td>
+<td class="last-poster">
+  {% if subcategory.last_poster %}
+  <a href="{{url('accounts:show', subcategory.last_poster.id)}}">{{ subcategory.last_poster.nick }}</a>
+  {% else %}
+  —
+  {% endif %}
+</td>
+<td class="updated-at pgf-format-datetime" data-timestamp="{{ subcategory.updated_at|timestamp }}"></td>
+
+{% if subscription %}
+<td><a href="{{ url('forum:subscriptions:unsubscribe') }}?subcategory={{subcategory.id}}" class="pgf-forms-post-simple">отписаться</a></td>
 {% endif %}
 
 {% endmacro %}

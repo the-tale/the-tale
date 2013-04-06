@@ -1,0 +1,15 @@
+{% extends "email.txt" %}
+
+{% block content %}
+
+тема обсуждения: {{ thread.caption }}
+<br/><br/>
+<strong>{{post.author.nick}}</strong>:
+<br/><br/>
+
+{{ post.html|safe }}
+
+Обсуждение находится на странице: <a href="{{ absolute_url(post.thread.paginator.first_page_url) }}">{{ absolute_url(post.thread.paginator.first_page_url) }}</a><br/>
+
+P.S.: Вы получили это письмо, так как подписаны на новые темы в категории <a href="full_url('http', 'forum:subcategory:show', thread.subcategory.slug)">«{{thread.subcategory.caption}}»</a>
+{% endblock %}

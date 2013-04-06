@@ -3,6 +3,26 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'forum/macros.html' as forum_macros with context %}
 
+{% macro forum_paginator_line() %}
+  <div class="pagination pull-left">
+    <ul>
+      {% if can_subscribe %}
+      <li>
+        {% if not has_subscription %}
+        <a href="{{ url('forum:subscriptions:subscribe') }}?subcategory={{subcategory.id}}" class="pgf-forms-post-simple">подписаться</a>
+        {% else %}
+        <a href="{{ url('forum:subscriptions:unsubscribe') }}?subcategory={{subcategory.id}}" class="pgf-forms-post-simple">отписаться</a>
+        {% endif %}
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+
+  {{ base_macros.render_paginator(paginator) }}
+
+{% endmacro %}
+
+
 {% block title %}{{subcategory.caption}} | {{ super() }}{% endblock %}
 
 {% block forum_content %}
@@ -16,7 +36,7 @@
   <li class="active">{{ subcategory.caption }}</li>
 </ul>
 
-{{ base_macros.render_paginator(paginator) }}
+{{ forum_paginator_line() }}
 
 <table class="table table-striped forum-table table-no-highlighting">
   <thead>
@@ -33,7 +53,7 @@
   </tbody>
 </table>
 
-{{ base_macros.render_paginator(paginator) }}
+{{ forum_paginator_line() }}
 
 {% if can_create_thread %}
 <form action="{{ url('forum:threads:new')}}" method="get">

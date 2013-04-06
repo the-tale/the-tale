@@ -1,4 +1,5 @@
 {% extends "forum/base.html" %}
+{% import 'forum/macros.html' as forum_macros with context %}
 
 {% block title %}{{ super() }}{% endblock %}
 
@@ -21,31 +22,13 @@
 <table class="table table-striped forum-table table-no-highlighting">
     <thead>
       <tr>
-        <th class="caption">раздел</th>
-        <th class="threads-count">тем</th>
-        <th class="posts-count">ответов</th>
-        <th class="last-poster">последний</th>
-        <th class="updated-at">обновлено</th>
+        {{ forum_macros.subcategory_record_heading() }}
       </tr>
     </thead>
     <tbody>
       {% for subcategory in subcategories %}
       <tr>
-        <td class="caption">
-          <a href="{{ url('forum:subcategory', subcategory.slug) }}">
-            {{ subcategory.caption }}
-          </a>
-        </td>
-        <td class="threads-count">{{ subcategory.threads_count }}</td>
-        <td class="posts-count">{{ subcategory.posts_count }}</td>
-        <td class="last-poster">
-          {% if subcategory.last_poster %}
-          <a href="{{url('accounts:show', subcategory.last_poster.id)}}">{{ subcategory.last_poster.nick }}</a>
-          {% else %}
-          —
-          {% endif %}
-        </td>
-        <td class="updated-at pgf-format-datetime" data-timestamp="{{ subcategory.updated_at|timestamp }}"></td>
+        {{ forum_macros.subcategory_record(subcategory) }}
       </tr>
       {% endfor %}
     </tbody>
