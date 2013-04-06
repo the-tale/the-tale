@@ -14,6 +14,9 @@ from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 class BaseMessageHandler(object):
     TYPE = None
 
+    @property
+    def settings_type_uid(self): return '<%s>' % self.TYPE
+
     def serialize(self): raise NotImplemented
 
     @classmethod
@@ -36,7 +39,7 @@ class TestHandler(BaseMessageHandler):
         return {'type': self.TYPE}
 
     @classmethod
-    def deserialize(cls):
+    def deserialize(cls, data):
         obj = cls()
         return obj
 

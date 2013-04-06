@@ -34,6 +34,10 @@ class MessagePrototype(BasePrototype):
 
         self.save()
 
+    def skip(self):
+        self._model.state = MESSAGE_STATE.SKIPPED
+        self.save()
+
     @property
     def uid(self): return self.handler.uid
 

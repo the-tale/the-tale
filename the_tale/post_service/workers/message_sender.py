@@ -5,6 +5,8 @@ import datetime
 
 from django.utils.log import getLogger
 
+from dext.settings import settings
+
 from common.amqp_queues import connection, BaseWorker
 
 from post_service.prototypes import MessagePrototype
@@ -18,14 +20,14 @@ class Worker(BaseWorker):
     def __init__(self, messages_queue, stop_queue):
         super(Worker, self).__init__(logger=getLogger('post_service.workers.message_sender'), command_queue=messages_queue)
         self.stop_queue = connection.SimpleQueue(stop_queue)
-        self.initialized = True
-        self.next_message_process_time = datetime.datetime.now()
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
         self.stop_queue.queue.purge()
 
     def initialize(self):
+        self.initialized = True
+        self.next_message_process_time = datetime.datetime.now()
         self.logger.info('MESSAGE SENDER INITIALIZED')
 
     def run(self):
@@ -43,8 +45,16 @@ class Worker(BaseWorker):
 
     def send_message(self, message):
 
+        settings.refresh()
+
         if message is None:
             return False
+
+        if (settings.get(post_service_settings.SETTINGS_ALLOWED_KEY) is None and
+            message.handler.settings_type_uid not in settings.get(post_service_settings.SETTINGS_FORCE_ALLOWED_KEY, '')):
+            self.logger.info('skip message %s' % message.uid)
+            message.skip()
+            return True
 
         self.logger.info('process message %s' % message.uid)
 
