@@ -50,6 +50,65 @@ class TestHandler(BaseMessageHandler):
     def uid(self): return 'test-message'
 
 
+class PersonalMessageHandler(BaseMessageHandler):
+
+    TYPE = 'personal_message'
+
+    def __init__(self, message_id=None):
+        super(PersonalMessageHandler, self).__init__()
+        self.message_id = message_id
+
+    def serialize(self):
+        return {'type': self.TYPE,
+                'message_id': self.message_id}
+
+    @classmethod
+    def deserialize(cls, data):
+        obj = cls()
+        obj.message_id = data['message_id']
+        return obj
+
+    @property
+    def uid(self): return 'personal-message-%d-message' % self.message_id
+
+    def process(self):
+        from accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
+
+        message = PersonalMessagePrototype.get_by_id(self.message_id)
+
+        if message is None:
+            return True # message can be removed by admins or with removed thread
+
+        account = message.recipient
+
+        if not account.personal_messages_subscription:
+            return True
+
+        EMAIL_HTML_TEMPLATE = 'post_service/emails/personal_message.html'
+        EMAIL_TEXT_TEMPLATE = 'post_service/emails/personal_message.txt'
+
+        subject = u'«Сказка»: личное сообщение'
+
+        context = {'message': message}
+
+        html_content = render.template(EMAIL_HTML_TEMPLATE, context)
+        text_content = render.template(EMAIL_TEXT_TEMPLATE, context)
+
+        connection = mail.get_connection()
+        connection.open()
+
+        if not account.email:
+            return True
+
+        email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+
+        connection.close()
+
+        return True
+
+
 class ForumPostHandler(BaseMessageHandler):
 
     TYPE = 'forum_post'

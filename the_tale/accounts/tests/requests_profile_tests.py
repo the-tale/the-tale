@@ -176,3 +176,10 @@ class ProfileRequestsTests(TestCase):
         self.check_ajax_ok(self.client.post(reverse('accounts:profile:update-last-news-reminder-time')))
 
         self.assertTrue(self.account.last_news_remind_time < AccountPrototype.get_by_id(self.account.id).last_news_remind_time)
+
+    def test_profile_update_settings(self):
+        self.request_login('test_user@test.com')
+        self.assertTrue(self.account.personal_messages_subscription)
+        response = self.client.post(reverse('accounts:profile:update-settings'), {'personal_messages_subscription': False})
+        self.assertFalse(AccountPrototype.get_by_id(self.account.id).personal_messages_subscription)
+        self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})

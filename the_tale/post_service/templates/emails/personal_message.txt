@@ -1,0 +1,12 @@
+{% extends "email.txt" %}
+
+{% block content %}
+
+{{message.sender.nick}}:
+
+{{ message.text_html|striptags }}
+
+Ваши личные сообщения: {{ full_url('http', 'accounts:messages:') }}
+
+P.S.: Вы получили это письмо, так как подписаны на новые личные сообщения, отписаться можно на странице вашего профиля в игре: {{ full_url('http', 'accounts:profile:show') }}
+{% endblock %}

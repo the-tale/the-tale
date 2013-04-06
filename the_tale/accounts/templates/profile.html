@@ -11,6 +11,11 @@ jQuery(document).ready( function(e) {
                                                    {OnSuccess: function(instance, data){
                                                        location.href = data.data.next_url;}
                                                    });
+
+    var changeCredentialsForm = new pgf.forms.Form(jQuery('#pgf-settings-form'),
+                                                   {OnSuccess: function(instance, data){
+                                                       location.href = data.data.next_url;}
+                                                   });
 });
 </script>
 {% endblock %}
@@ -39,8 +44,8 @@ jQuery(document).ready( function(e) {
       <h2>Изменение email и пароля</h2>
 
       <ul>
-        <li>имя будет отображаться в ваших сообщениях на форуме. Выбирайте имя аккуратно — по нему другие игроки составят первое впечатление о Вас</li>
-        <li>email является вашим идентификатором в игре. С помощью него вы входите на сайт. На указанный адрес будет выслан новый пароль в случае, если вы забудете текущий.</li>
+        <li>имя будет отображаться в ваших сообщениях на форуме. Выбирайте имя аккуратно — по нему другие игроки составят первое впечатление о вас;</li>
+        <li>email является вашим идентификатором в игре. С помощью него вы входите на сайт. На указанный адрес будет выслан новый пароль в случае, если вы забудете текущий;</li>
         <li>будьте внимательны при смене пароля, убедитесь, что включена верная раскладка клавиатуры и выключен режим ввода прописных букв.</li>
       </ul>
 
@@ -49,13 +54,25 @@ jQuery(document).ready( function(e) {
         допустимые символы для пароля: 0-9, a-z, A-Z, !@#$%^&*()-_=+
       </div>
 
-      <form id="pgf-edit-form" method="post" action="{{ url('accounts:profile:update') }}" class="block">
+      <form id="pgf-edit-form" method="post" action="{{ url('accounts:profile:update') }}">
 
         {{ edit_profile_form.errors_container }}
 
         {{ edit_profile_form.nick.widget }}
         {{ edit_profile_form.email.widget }}
         {{ edit_profile_form.password.widget }}
+
+        <input type="submit" value="Изменить"/>
+
+      </form>
+
+      <h2>Прочие настройки</h2>
+
+      <form id="pgf-settings-form" method="post" action="{{ url('accounts:profile:update-settings') }}">
+
+        {{ settings_form.errors_container }}
+
+        {{ settings_form.personal_messages_subscription.widget }}
 
         <input type="submit" value="Изменить"/>
 

@@ -4,6 +4,8 @@ from common.utils import testcase
 
 from game.logic import create_test_map
 
+from post_service.models import Message as PostServiceMessage
+
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
@@ -33,6 +35,7 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(Message.objects.all().count(), 2)
         self.assertEqual(self.account1.new_messages_number, 0)
         self.assertEqual(self.account2.new_messages_number, 2)
+        self.assertEqual(PostServiceMessage.objects.all().count(), 2)
 
     def test_reset_new_messages_number(self):
         self.account2.reset_new_messages_number()

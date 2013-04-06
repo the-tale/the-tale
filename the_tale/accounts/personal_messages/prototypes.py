@@ -3,71 +3,51 @@
 from dext.utils.decorators import nested_commit_on_success
 
 from common.utils import bbcode
+from common.utils.prototypes import BasePrototype
+from common.utils.decorators import lazy_property
 
 from accounts.prototypes import AccountPrototype
 from accounts.personal_messages.models import Message
 
 
 
-class MessagePrototype(object):
-
-    def __init__(self, model):
-        self.model = model
-
-    @classmethod
-    def get_by_id(cls, id_):
-        try:
-            return cls(Message.objects.get(id=id_))
-        except:
-            return None
+class MessagePrototype(BasePrototype):
+    _model_class = Message
+    _readonly = ('id', 'text', 'created_at', 'recipient_id', 'sender_id', 'hide_from_sender', 'hide_from_recipient')
+    _bidirectional = ()
+    _get_by = ('id',)
 
     @property
-    def id(self): return self.model.id
+    def text_html(self): return bbcode.render(self._model.text)
 
-    @property
-    def text(self): return self.model.text
+    @lazy_property
+    def recipient(self): return AccountPrototype(self._model.recipient)
 
-    @property
-    def text_html(self): return bbcode.render(self.model.text)
-
-    @property
-    def created_at(self): return self.model.created_at
-
-    @property
-    def recipient_id(self): return self.model.recipient_id
-
-    @property
-    def sender_id(self): return self.model.sender_id
-
-    @property
-    def recipient(self): return AccountPrototype(self.model.recipient)
-
-    @property
-    def sender(self): return AccountPrototype(self.model.sender)
-
-    @property
-    def hide_from_sender(self): return self.model.hide_from_sender
-
-    @property
-    def hide_from_recipient(self): return self.model.hide_from_recipient
-
+    @lazy_property
+    def sender(self): return AccountPrototype(self._model.sender)
 
     @classmethod
     @nested_commit_on_success
     def create(cls, sender, recipient, text):
+        from post_service.prototypes import MessagePrototype as PostServiceMessagePrototype
+        from post_service.message_handlers import PersonalMessageHandler
 
         model = Message.objects.create(recipient=recipient._model,
                                        sender=sender._model,
                                        text=text)
         recipient.increment_new_messages_number()
 
-        return cls(model)
+        prototype = cls(model=model)
+
+        PostServiceMessagePrototype.create(PersonalMessageHandler(message_id=prototype.id))
+
+        return prototype
 
     def hide_from(self, sender=False, recipient=False):
         if sender:
-            self.model.hide_from_sender = True
+            self._model.hide_from_sender = True
 
         if recipient:
-            self.model.hide_from_recipient = True
+            self._model.hide_from_recipient = True
 
-        self.model.save()
+        self._model.save()

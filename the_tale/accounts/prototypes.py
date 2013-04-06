@@ -20,7 +20,7 @@ from accounts.exceptions import AccountsException
 class AccountPrototype(BasePrototype):
     _model_class = Account
     _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_active', 'is_superuser', 'has_perm')
-    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time')
+    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription')
     _get_by = ('id', 'email', 'nick')
 
     @property

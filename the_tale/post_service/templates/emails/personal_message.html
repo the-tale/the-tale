@@ -1,0 +1,15 @@
+{% extends "email.html" %}
+
+{% block content %}
+
+<strong>{{message.sender.nick}}:</strong><br/><br/>
+
+{{ message.text_html|safe }}
+
+<br/>
+<br/>
+
+Ваши личные сообщения: <a href="{{ full_url('http', 'accounts:messages:') }}">{{ full_url('http', 'accounts:messages:') }}</a><br/>
+
+P.S.: Вы получили это письмо, так как подписаны на новые личные сообщения, отписаться можно на странице вашего профиля в игре: <a href="{{ full_url('http', 'accounts:profile:show') }}">{{ full_url('http', 'accounts:profile:show') }}</a><br/>
+{% endblock %}

@@ -18,6 +18,10 @@ class EditProfileForm(forms.Form):
     password = fields.PasswordField(label=u'Новый пароль',
                                     required=False)
 
+class SettingsForm(forms.Form):
+    personal_messages_subscription = fields.BooleanField(required=False,
+                                                         label=u'получать письма о новых личных сообщениях')
+
 
 class LoginForm(forms.Form):
 

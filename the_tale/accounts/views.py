@@ -112,8 +112,12 @@ class ProfileResource(Resource):
         data = {'email': self.account.email if self.account.email else u'укажите email',
                 'nick': self.account.nick if not self.account.is_fast and self.account.nick else u'укажите ваше имя'}
         edit_profile_form = forms.EditProfileForm(data)
+
+        settings_form = forms.SettingsForm({'personal_messages_subscription': self.account.personal_messages_subscription})
+
         return self.template('accounts/profile.html',
-                             {'edit_profile_form': edit_profile_form} )
+                             {'edit_profile_form': edit_profile_form,
+                              'settings_form': settings_form} )
 
     @login_required
     @handler('edited', name='edited', method='get')
@@ -160,6 +164,22 @@ class ProfileResource(Resource):
             return self.json_ok(data={'next_url': next_url})
 
         return self.json_error('accounts.profile.update.form_errors', edit_profile_form.errors)
+
+    @login_required
+    @handler('update-settings', name='update-settings', method='post')
+    def update_settings(self):
+
+        settings_form = forms.SettingsForm(self.request.POST)
+
+        if not settings_form.is_valid():
+            return self.json_error('accounts.profile.update_settings.form_errors', settings_form.errors)
+
+        self.account.personal_messages_subscription = settings_form.c.personal_messages_subscription
+        self.account.save()
+
+        next_url = reverse('accounts:profile:edited')
+
+        return self.json_ok(data={'next_url': next_url})
 
     @handler('confirm-email', method='get')
     def confirm_email(self, uuid):
