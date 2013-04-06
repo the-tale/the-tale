@@ -126,11 +126,14 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
         self.account.change_credentials(new_email=self._model.new_email, new_password=self._model.new_password, new_nick=self._model.new_nick)
 
     def request_email_confirmation(self):
-        from accounts.email import ChangeEmailNotification
+        from post_service.prototypes import MessagePrototype
+        from post_service.message_handlers import ChangeEmailNotificationHandler
+
         if self._model.new_email is None:
             raise AccountsException('email not specified')
-        email = ChangeEmailNotification({'task': self})
-        email.send([self._model.new_email])
+
+        MessagePrototype.create(ChangeEmailNotificationHandler(task_id=self.id), now=True)
+
 
     @property
     def has_already_processed(self):
@@ -221,7 +224,7 @@ class ResetPasswordTaskPrototype(BasePrototype):
                                                 uuid=uuid.uuid4().hex)
         prototype = cls(model=model)
 
-        MessagePrototype.create(ResetPasswordHandler(account_id=account.id, task_uuid=prototype.uuid))
+        MessagePrototype.create(ResetPasswordHandler(account_id=account.id, task_uuid=prototype.uuid), now=True)
 
         return prototype
 

@@ -6,9 +6,10 @@ import mock
 
 from common.utils import testcase
 from django.contrib.auth import authenticate as django_authenticate
-from django.core import mail
 
 from common.utils.fake import FakeLogger, FakeWorkerCommand
+
+from post_service.models import Message
 
 from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 from accounts.models import CHANGE_CREDENTIALS_TASK_STATE
@@ -115,13 +116,11 @@ class TestChangeCredentialsTask(testcase.TestCase):
     def test_request_email_confirmation(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')
         task.request_email_confirmation()
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[-1].to, ['test_user@test.ru'])
+        self.assertEqual(Message.objects.all().count(), 1)
 
         task = ChangeCredentialsTaskPrototype.create(self.fast_account, new_email='fast_user@test.com', new_password='222222', new_nick='test_nick')
         task.request_email_confirmation()
-        self.assertEqual(len(mail.outbox), 2)
-        self.assertEqual(mail.outbox[-1].to, ['fast_user@test.com'])
+        self.assertEqual(Message.objects.all().count(), 2)
 
     def test_process_completed_state(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')
@@ -157,7 +156,7 @@ class TestChangeCredentialsTask(testcase.TestCase):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')
         task.process(FakeLogger())
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(Message.objects.all().count(), 1)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
 
 
@@ -165,14 +164,14 @@ class TestChangeCredentialsTask(testcase.TestCase):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_password='222222')
         task.process(FakeLogger())
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(Message.objects.all().count(), 0)
         self.assertEqual(django_authenticate(nick='test_user', password='222222').id, task.account.id)
 
     def test_process_waiting_and_nick_change(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_nick='test_nick')
         task.process(FakeLogger())
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(Message.objects.all().count(), 0)
         self.assertEqual(django_authenticate(nick='test_nick', password='111111').id, self.test_account.id)
 
 
@@ -180,7 +179,7 @@ class TestChangeCredentialsTask(testcase.TestCase):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru', new_password='222222')
         task.process(FakeLogger())
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(Message.objects.all().count(), 1)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
         self.assertEqual(django_authenticate(nick='test_user', password='222222'), None)
 
@@ -189,11 +188,11 @@ class TestChangeCredentialsTask(testcase.TestCase):
         user = django_authenticate(nick='test_user', password='222222')
         self.assertEqual(user.id, task.account.id)
         self.assertEqual(user.email, 'test_user@test.ru')
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(Message.objects.all().count(), 1)
 
-    @mock.patch('accounts.email.ChangeEmailNotification', raise_exception)
+    @mock.patch('post_service.message_handlers.ChangeEmailNotificationHandler', raise_exception)
     def test_process_error(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru', new_password='222222')
         task.process(FakeLogger())
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.ERROR)
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(Message.objects.all().count(), 0)

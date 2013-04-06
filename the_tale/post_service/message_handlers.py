@@ -5,7 +5,7 @@ from django.conf import settings as project_settings
 
 from dext.jinja2 import render
 
-from accounts.prototypes import AccountPrototype
+from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 
 # TODO: rewrite to autodiscover() logic
 #       code for this can be chosen form postponed_tasks and moved to utils
@@ -152,6 +152,53 @@ class ResetPasswordHandler(BaseMessageHandler):
         connection.close()
 
         return True
+
+class ChangeEmailNotificationHandler(BaseMessageHandler):
+
+    TYPE = 'change-email-notification'
+
+    def __init__(self, task_id=None):
+        super(ChangeEmailNotificationHandler, self).__init__()
+        self.task_id = task_id
+
+    def serialize(self):
+        return {'type': self.TYPE,
+                'task_id': self.task_id}
+
+    @classmethod
+    def deserialize(cls, data):
+        obj = cls()
+        obj.task_id = data['task_id']
+        return obj
+
+    @property
+    def uid(self): return 'change-email-notificatoon-%d-message' % self.task_id
+
+    def process(self):
+
+        EMAIL_HTML_TEMPLATE = 'post_service/emails/change_email_notification.html'
+        EMAIL_TEXT_TEMPLATE = 'post_service/emails/change_email_notification.txt'
+
+        subject = u'«Сказка»: подтвердите email'
+
+        task = ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
+
+        context = {'task': task}
+
+        html_content = render.template(EMAIL_HTML_TEMPLATE, context)
+        text_content = render.template(EMAIL_TEXT_TEMPLATE, context)
+
+        connection = mail.get_connection()
+        connection.open()
+
+        email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [task.account.email], connection=connection)
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+
+        connection.close()
+
+        return True
+
 
 
 

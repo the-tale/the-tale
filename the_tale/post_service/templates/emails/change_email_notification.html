@@ -8,8 +8,6 @@
 
 <p>Для подтверждения e-mail адреса, перейдите по ссылке:<p>
 
-{% set email_confirmation_link = 'http://' + settings.SITE_URL + url('accounts:profile:confirm-email') + '?uuid=' + task.uuid %}
-<a href="{{ email_confirmation_link }}">{{ email_confirmation_link }}</a>
-
+<a href="{{ full_url('http', 'accounts:profile:confirm-email', uuid=task.uuid) }}">{{ full_url('http', 'accounts:profile:confirm-email', uuid=task.uuid) }}</a>
 
 {% endblock %}

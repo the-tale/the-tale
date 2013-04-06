@@ -39,12 +39,18 @@ class MessagePrototype(BasePrototype):
 
 
     @classmethod
-    def create(cls, handler):
+    def create(cls, handler, now=False):
+        from post_service.workers.environment import workers_environment as post_service_workers_environment
 
         model = cls._model_class.objects.create(state=MESSAGE_STATE.WAITING,
                                                 handler=s11n.to_json(handler.serialize()))
 
-        return cls(model=model)
+        prototype = cls(model=model)
+
+        if now:
+            post_service_workers_environment.message_sender.cmd_send_now(prototype.id)
+
+        return prototype
 
     def save(self):
         self._model.save()

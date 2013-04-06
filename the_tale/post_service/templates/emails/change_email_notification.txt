@@ -6,7 +6,6 @@
 
 Для подтверждения e-mail адреса, перейдите по ссылке:
 
-{% set email_confirmation_link = settings.SITE_URL + url('accounts:profile:confirm-email') + '?uuid=' + task.uuid %}
-{{ email_confirmation_link }}
+{{ full_url('http', 'accounts:profile:confirm-email', uuid=task.uuid) }}
 
 {% endblock %}

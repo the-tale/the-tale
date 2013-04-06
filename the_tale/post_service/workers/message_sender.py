@@ -37,14 +37,11 @@ class Worker(BaseWorker):
                 self.process_cmd(cmd.payload)
             except Queue.Empty:
                 if self.next_message_process_time < datetime.datetime.now():
-                    if not self.send_messages():
+                    if not self.send_message(MessagePrototype.get_priority_message()):
                         self.next_message_process_time = datetime.datetime.now() + datetime.timedelta(seconds=post_service_settings.MESSAGE_SENDER_DELAY)
                 time.sleep(1.0)
 
-    def send_messages(self):
-        self.logger.info('search for unprocessed messages')
-
-        message = MessagePrototype.get_priority_message()
+    def send_message(self, message):
 
         if message is None:
             return False
@@ -60,6 +57,11 @@ class Worker(BaseWorker):
 
         return True
 
+    def cmd_send_now(self, message_id):
+        return self.send_cmd('send_now', {'message_id': message_id})
+
+    def process_send_now(self, message_id):
+        self.send_message(MessagePrototype.get_by_id(message_id))
 
     def cmd_stop(self):
         return self.send_cmd('stop')

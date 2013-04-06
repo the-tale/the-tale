@@ -1,12 +1,13 @@
 # coding: utf-8
 from django.test import client
 from django.core.urlresolvers import reverse
-from django.core import mail
 from django.contrib.auth import authenticate as django_authenticate
 
 from common.utils.fake import FakeLogger
 from common.utils.testcase import TestCase
 from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
+
+from post_service.models import Message
 
 from accounts.logic import register_user, login_url
 
@@ -51,7 +52,7 @@ class ProfileRequestsTests(TestCase):
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(Message.objects.all().count(), 0)
         self.assertEqual(django_authenticate(nick='test_user', password='222222').id, self.account.id)
 
     def test_profile_update_nick(self):
@@ -61,7 +62,7 @@ class ProfileRequestsTests(TestCase):
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(Message.objects.all().count(), 0)
         self.assertEqual(django_authenticate(nick='test_nick', password='111111').id, self.account.id)
 
     def test_profile_update_email(self):
@@ -71,7 +72,7 @@ class ProfileRequestsTests(TestCase):
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:confirm-email-request')})
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(Message.objects.all().count(), 1)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').id, self.account.id)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').email, 'test_user@test.com')
 
@@ -81,7 +82,7 @@ class ProfileRequestsTests(TestCase):
         response = self.client.post(reverse('accounts:profile:update'), {'nick': 'duplicated_user_2', 'email': 'duplicated@test.com'})
         self.check_ajax_error(response, 'accounts.profile.update.used_email')
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 0)
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(Message.objects.all().count(), 0)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').id, self.account.id)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').email, 'test_user@test.com')
 
@@ -91,7 +92,7 @@ class ProfileRequestsTests(TestCase):
         response = self.client.post(reverse('accounts:profile:update'), {'nick': 'duplicated_user', 'email': 'duplicated_@test.com'})
         self.check_ajax_error(response, 'accounts.profile.update.used_nick')
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 0)
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(Message.objects.all().count(), 0)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').id, self.account.id)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').email, 'test_user@test.com')
 
@@ -118,7 +119,7 @@ class ProfileRequestsTests(TestCase):
         self.check_ajax_error(response, 'accounts.profile.update.form_errors')
 
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 0)
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(Message.objects.all().count(), 0)
 
 
     def test_profile_confirm_email(self):
@@ -132,7 +133,7 @@ class ProfileRequestsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(Message.objects.all().count(), 1)
         self.assertEqual(django_authenticate(nick='test_nick', password='111111').email, 'test_user@test.ru')
 
     def test_fast_profile_confirm_email(self):
@@ -148,7 +149,7 @@ class ProfileRequestsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(Message.objects.all().count(), 1)
         self.assertEqual(django_authenticate(nick='test_nick', password='123456').email, 'test_user@test.ru')
 
 
