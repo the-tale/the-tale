@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from dext.settings import settings
 
@@ -11,6 +12,7 @@ from post_service.message_handlers import TestHandler
 from post_service.workers.environment import workers_environment as post_service_workers_environment
 
 
+@mock.patch('post_service.conf.post_service_settings.ENABLE_MESSAGE_SENDER', True)
 class MessageSenderTests(testcase.TestCase):
 
     def setUp(self):

@@ -50,8 +50,9 @@ class Worker(BaseWorker):
         if message is None:
             return False
 
-        if (settings.get(post_service_settings.SETTINGS_ALLOWED_KEY) is None and
-            message.handler.settings_type_uid not in settings.get(post_service_settings.SETTINGS_FORCE_ALLOWED_KEY, '')):
+        if (not post_service_settings.ENABLE_MESSAGE_SENDER or
+            (settings.get(post_service_settings.SETTINGS_ALLOWED_KEY) is None and
+             message.handler.settings_type_uid not in settings.get(post_service_settings.SETTINGS_FORCE_ALLOWED_KEY, ''))):
             self.logger.info('skip message %s' % message.uid)
             message.skip()
             return True
