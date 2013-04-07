@@ -4,7 +4,7 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.utils.feedgenerator import Atom1Feed
 
-from dext.views import handler, validate_argument, validator
+from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
@@ -12,6 +12,7 @@ from common.utils.pagination import Paginator
 from common.utils.decorators import login_required
 
 from accounts.prototypes import AccountPrototype
+from accounts.views import validate_fast_account
 
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm, EditThreadForm
@@ -43,9 +44,6 @@ def can_change_posts(account):
 def is_moderator(account):
     return account._model.groups.filter(name=forum_settings.MODERATOR_GROUP_NAME).exists()
 
-
-@validator(code='forum.fast_account', message=u'Вы не закончили регистрацию и данная функция форума вам не доступна')
-def validate_fast_account(self, *args, **kwargs): return not self.account.is_fast
 
 class BaseForumResource(Resource):
 

@@ -152,6 +152,7 @@ INSTALLED_APPS = (
 
     'accounts',
     'accounts.personal_messages',
+    'accounts.friends',
 
     'guide',
 

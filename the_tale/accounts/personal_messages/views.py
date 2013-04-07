@@ -2,7 +2,7 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views import handler
+from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
@@ -70,36 +70,19 @@ class MessageResource(Resource):
                                   page,
                                   False)
 
+    @validate_argument('recipient', AccountPrototype.get_by_id, 'personal_messages', u'Неверный идентификатор получателя')
+    @validate_argument('answer_to', MessagePrototype.get_by_id, 'personal_messages', u'Неверный идентификатор сообщения')
     @handler('new', method='get')
     def new(self, recipient, answer_to=None):
 
-        try:
-            recipient = int(recipient)
-        except ValueError:
-            return self.auto_error('personal_messages.new.wrong_recipient_id', u'Неверный идентификатор получателя', status_code=404)
-
-        recipient = AccountPrototype.get_by_id(int(recipient))
-
-        if recipient is None:
-            return self.auto_error('personal_messages.new.recipient_not_found', u'Получатель не найден', status_code=404)
-
         text = u''
+
         if answer_to is not None:
-            try:
-                answer_to = int(answer_to)
-            except:
-                return self.auto_error('personal_messages.new.wrong_answer_id', u'Неверный идентификатор сообщения', status_code=404)
+            if answer_to.recipient_id != self.account.id:
+                return self.auto_error('personal_messages.new.not_permissions_to_answer_to', u'Вы пытаетесь ответить на чужое сообщение, а-та-та')
 
-            parent_message = MessagePrototype.get_by_id(int(answer_to))
-
-            if parent_message is None:
-                return self.auto_error('personal_messages.new.message_not_found', u'Сообщение не найдено', status_code=404)
-
-            if parent_message.recipient_id != self.account.id:
-                return self.auto_error('personal_messages.new.not_permissions_to_answer_to', u'Вы пытаетесь ответить на чужое сообщние, а-та-та')
-
-            if parent_message:
-                text = u'[quote]\n%s\n[/quote]\n' % parent_message.text
+            if answer_to:
+                text = u'[quote]\n%s\n[/quote]\n' % answer_to.text
 
         form = NewMessageForm(initial={'text': text})
 

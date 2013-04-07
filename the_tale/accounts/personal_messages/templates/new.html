@@ -1,40 +1,30 @@
-{% extends "personal_messages/base.html" %}
 
-{% block title %} Новое сообщение | {{ super() }}{% endblock %}
 
-{% block head %}
-{{ super() }}
-<script type="text/javascript">
-jQuery(document).ready( function(e) {
+<div class="modal hide new-personal-message-dialog">
 
-    var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form'),
-                                           { OnSuccess: function(form, data){
-                                               location.href = "{{ url('accounts:messages:sent') }}";
-                                           }
-                                         });
-});
-
-</script>
-
-{% endblock %}
-
-{% block messages_content %}
-
-<h2>Сообщение для игрока <a href="{{ url('accounts:show', recipient.id) }}">{{recipient.nick}}</a></h2>
-
-<form action="{{ url('accounts:messages:create', recipient=recipient.id) }}"
-      method="post"
-      id="pgf-new-message-form">
-
-  {{ form.errors_container }}
-
-  {{ form.text.widget }}
-
-  <div class="widget">
-    <input type="submit" class="btn" value="Отправить"/>
-    <input type="button" class="btn" value="Отмена" onclick="location.href='{{ url('accounts:show', recipient.id) }}';"/>
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Новое сообщение</h3>
   </div>
 
-</form>
+  <div class="modal-body">
 
-{% endblock %}
+    <p>Сообщение для игрока <a href="{{ url('accounts:show', recipient.id) }}">{{recipient.nick}}</a></p>
+
+    <form action="{{ url('accounts:messages:create', recipient=recipient.id) }}"
+          method="post"
+          id="pgf-new-message-form">
+
+      {{ form.errors_container }}
+
+      {{ form.text.widget }}
+
+      <div class="widget">
+        <input type="submit" class="btn btn-success" value="Отправить"/>
+        <input type="button" class="btn btn-danger pull-right" data-dismiss="modal" value="отмена"/>
+      </div>
+
+    </form>
+
+  </div>
+</div>

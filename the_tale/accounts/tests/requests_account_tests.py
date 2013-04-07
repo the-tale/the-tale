@@ -7,6 +7,8 @@ from common.utils.permissions import sync_group
 
 from game.logic import create_test_map
 
+from accounts.friends.prototypes import FriendshipPrototype
+
 from accounts.models import Award
 from accounts.prototypes import AccountPrototype
 from accounts.relations import AWARD_TYPE
@@ -54,7 +56,46 @@ class IndexRequestsTests(AccountRequestsTests):
 class ShowRequestsTests(AccountRequestsTests):
 
     def test_show(self):
-        texts = [('pgf-account-moderator-block', 0)]
+        texts = [('pgf-account-moderator-block', 0),
+                 ('pgf-friends-request-friendship', 0),
+                 ('pgf-friends-in-list', 0),
+                 ('pgf-friends-request-from', 0),
+                 ('pgf-friends-request-to', 0)]
+        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+
+    def test_show_friends_no_friendship(self):
+        self.request_login('test_user2@test.com')
+        texts = [('pgf-friends-request-friendship', 2), # +1 from javascript
+                 ('pgf-friends-in-list', 0),
+                 ('pgf-friends-request-from', 0),
+                 ('pgf-friends-request-to', 0)]
+        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+
+    def test_show_friends_in_list_button(self):
+        self.request_login('test_user2@test.com')
+        texts = [('pgf-friends-request-friendship', 0),
+                 ('pgf-friends-in-list', 1),
+                 ('pgf-friends-request-from', 0),
+                 ('pgf-friends-request-to', 0)]
+        FriendshipPrototype.request_friendship(self.account2, self.account1, text=u'text')._confirm()
+        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+
+    def test_show_friends_request_from_button(self):
+        self.request_login('test_user2@test.com')
+        texts = [('pgf-friends-request-friendship', 0),
+                 ('pgf-friends-in-list', 0),
+                 ('pgf-friends-request-from', 1),
+                 ('pgf-friends-request-to', 0)]
+        FriendshipPrototype.request_friendship(self.account1, self.account2, text=u'text')
+        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+
+    def test_show_friends_request_to_button(self):
+        self.request_login('test_user2@test.com')
+        texts = [('pgf-friends-request-friendship', 0),
+                 ('pgf-friends-in-list', 0),
+                 ('pgf-friends-request-from', 0),
+                 ('pgf-friends-request-to', 1)]
+        FriendshipPrototype.request_friendship(self.account2, self.account1, text=u'text')
         self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_fast_account(self):

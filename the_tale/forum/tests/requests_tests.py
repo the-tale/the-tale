@@ -92,7 +92,7 @@ class TestRequests(BaseTestRequests):
     def test_new_thread_fast(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-forum.fast_account'])
+        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-common.fast_account'])
 
     def test_create_thread_unlogined(self):
         self.request_logout()
@@ -103,7 +103,7 @@ class TestRequests(BaseTestRequests):
         self.account.is_fast = True
         self.account.save()
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug)),
-                              code='forum.fast_account')
+                              code='common.fast_account')
 
     def test_create_thread_closed_subcategory(self):
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat2.slug)),
@@ -193,7 +193,7 @@ class TestRequests(BaseTestRequests):
         self.account.is_fast = True
         self.account.save()
         self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
-                              code='forum.fast_account')
+                              code='common.fast_account')
 
     def test_create_post_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
@@ -247,7 +247,7 @@ class ThreadSubscribeTests(BaseTestRequests):
         self.account.is_fast = True
         self.account.save()
         self.check_ajax_error(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)),
-                              'forum.fast_account')
+                              'common.fast_account')
 
     def test_create_for_thread(self):
         self.assertEqual(Subscription.objects.all().count(), 0)
@@ -282,7 +282,7 @@ class ThreadUnsubscribeTests(BaseTestRequests):
         self.account.is_fast = True
         self.account.save()
         self.check_ajax_error(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)),
-                              'forum.fast_account')
+                              'common.fast_account')
 
     def test_remove_for_thread(self):
         self.assertEqual(Subscription.objects.all().count(), 2)
@@ -315,7 +315,7 @@ class SubscriptionsTests(BaseTestRequests):
         self.account.is_fast = True
         self.account.save()
         self.check_ajax_error(self.client.post(reverse('forum:subscriptions:')),
-                              'forum.fast_account')
+                              'common.fast_account')
 
     def test_empty(self):
         texts = [('thread1-caption', 0),

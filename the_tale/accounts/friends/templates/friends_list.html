@@ -1,0 +1,44 @@
+{% extends "friends/base.html" %}
+
+{% import 'accounts/macros.html' as accounts_macros with context %}
+
+{% block friends_content %}
+
+<h2 style="margin-bottom: 0.5em;">Друзья</h2>
+
+<ul class="nav nav-pills">
+  <li class="active"><a href="{{ url('accounts:friends:') }}">список друзей</a></li>
+  <li>
+    <a href="{{ url('accounts:friends:candidates') }}">
+      предложения дружбы ({% if candidates %}{{candidates|length}}{% else %}нет{%endif %})
+    </a>
+  </li>
+</ul>
+
+{% if friends %}
+
+<table class="table">
+
+  <thead>
+    <tr>
+      {{ accounts_macros.account_record_heading() }}
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for account in friends %}
+    <tr class="pgf-account-record">
+      {{ accounts_macros.account_record(account, heroes[account.id]) }}
+    </tr>
+    {% endfor %}
+  </tbody>
+
+</table>
+
+{% else %}
+<p class="alert alert-info pgf-no-friends-message">
+  Вы ещё не выбрали себе друзей в игре. Предложить игроку дружить можно на его странице.
+</p>
+{% endif %}
+
+{% endblock %}

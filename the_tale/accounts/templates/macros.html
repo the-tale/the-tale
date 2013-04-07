@@ -1,0 +1,24 @@
+
+
+{% macro account_record_heading() %}
+<th>имя</th>
+<th>могущество</th>
+<th>зарегистрирован</th>
+<th>герой</th>
+<th>уровень</th>
+<th>сила</th>
+{% endmacro %}
+
+
+{% macro account_record(account, hero) %}
+<td><a href="{{ url('accounts:show', account.id) }}">{{ account.nick }}</a></td>
+<td>{{ hero.might|int }}</td>
+<td class="updated-at pgf-format-date" data-timestamp="{{ account.created_at|timestamp }}"></td>
+<td>
+  {{ hero.gender_verbose }}
+  {{ hero.race_verbose }}
+  <a href="{{ url('game:heroes:show', hero.id) }}">{{ hero.name }}</a>
+</td>
+<td>{{ hero.level }}</td>
+<td>{{ hero.power }}</td>
+{% endmacro %}

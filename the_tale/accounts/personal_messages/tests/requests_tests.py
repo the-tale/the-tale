@@ -114,24 +114,22 @@ class NewRequestsTests(BaseRequestsTests):
 
     def test_wrong_recipient_id(self):
         self.check_html_ok(self.client.get(reverse('accounts:messages:new') + '?recipient=aaa'),
-                           texts=[('personal_messages.new.wrong_recipient_id', 1)],
-                           status_code=404)
+                           texts=[('personal_messages.recipient.wrong_format', 1)])
 
     def test_recipient_not_found(self):
         self.check_html_ok(self.client.get(reverse('accounts:messages:new') + '?recipient=666'),
-                           texts=[('personal_messages.new.recipient_not_found', 1)],
+                           texts=[('personal_messages.recipient.not_found', 1)],
                            status_code=404)
 
     def test_answer_wrong_message_id(self):
         MessagePrototype.create(self.account2, self.account1, 'message_2_1 1')
         self.check_html_ok(self.client.get(reverse('accounts:messages:new') + ('?recipient=%d&answer_to=aaa' % self.account2.id)),
-                           texts=[('personal_messages.new.wrong_answer_id', 1)],
-                           status_code=404)
+                           texts=[('personal_messages.answer_to.wrong_format', 1)])
 
     def test_answer_to_not_found(self):
         MessagePrototype.create(self.account2, self.account1, 'message_2_1 1')
         self.check_html_ok(self.client.get(reverse('accounts:messages:new') + ('?recipient=%d&answer_to=666' % self.account2.id)),
-                           texts=[('personal_messages.new.message_not_found', 1)],
+                           texts=[('personal_messages.answer_to.not_found', 1)],
                            status_code=404)
 
     def test_answer_to_no_permissionsd(self):

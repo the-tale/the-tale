@@ -99,6 +99,24 @@ jQuery(document).ready(function() {
     });
 
     jQuery('[rel="tooltip"]').tooltip(pgf.base.tooltipsArgs)
+
+    ///////////////////////////
+    // BBField processing
+    function InitializeBBFileds(container) {
+
+        jQuery('.pgf-bbfield', container).each(function(i, e){
+            var id = jQuery(e).attr('id');
+            pgf.base.AddPreview('#'+id, 'textarea', "{{url('portal:preview')}}");
+            pgf.base.InitBBFields('#'+id);
+        });
+    }
+
+    InitializeBBFileds(document);
+
+    jQuery(document).bind(pgf.ui.dialog.DIALOG_OPENED, function(e, dialog) {
+        InitializeBBFileds(dialog);
+    });
+    /////////////////////////
 });
     </script>
 
@@ -171,6 +189,7 @@ jQuery(document).ready(function() {
                                           "#",
                                           resource.account.nick if not resource.account.is_fast else "Настройки",
                                           [(url("accounts:profile:show"), "Профиль"),
+                                           (url("accounts:friends:"), "Друзья"),
                                            (url("accounts:messages:"), "Сообщения"),
                                            (url("forum:subscriptions:"), "Подписки"),
                                            (url("accounts:show", resource.account.id), "Моя страница"),

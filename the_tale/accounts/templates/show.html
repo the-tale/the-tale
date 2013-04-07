@@ -4,13 +4,67 @@
 
 {% block title %} {{ master_account.nick }} | {{ super() }}{% endblock %}
 
+{% block head %}
+{{ super() }}
+
+<script type="text/javascript">
+
+{% if resource.account.is_authenticated() and master_account.id != resource.account.id%}
+
+jQuery(document).ready(function(){
+
+    jQuery('.pgf-new-message').click(function(e){
+        e.preventDefault();
+        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:messages:new', recipient=master_account.id) }}",
+                               OnOpen: function(dialog) {
+                                   var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form', dialog),
+                                                                           { OnSuccess: function(form, data){ dialog.modal('hide'); }
+                                                                           });
+                               }
+                             });
+    });
+
+{% if friendship is none %}
+
+    jQuery('.pgf-friends-request-friendship').click(function(e){
+        e.preventDefault();
+        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:friends:request', friend=master_account.id) }}",
+                               OnOpen: function(dialog) {
+                                   var friendshipForm = new pgf.forms.Form(jQuery('.pgf-friendship-request', dialog),
+                                                                           { OnSuccess: function(form, data){ location.reload(); }
+                                                                           });
+                               }
+                             });
+    });
+
+{% endif %}
+
+});
+
+{% endif %}
+
+</script>
+{% endblock %}
+
 
 {% block accounts_content %}
 
 <h2 style="display: inline-block;">{{ master_account.nick_verbose }} <small>могущество: {{ master_hero.might|int }}</small></h2>
 
 {% if resource.account.is_authenticated() and master_account.id != resource.account.id %}
-&nbsp;<a href="{{ url('accounts:messages:new', recipient=master_account.id) }}">отправить сообщение</a>
+&nbsp;<a class="pgf-new-message" href="#">отправить сообщение</a> /
+
+{% if friendship is none %}<a class="pgf-friends-request-friendship" href="#">добавить в друзья</a>
+{% elif friendship.is_confirmed %}<span class="pgf-friends-in-list">в списке друзей</span>
+{% elif friendship.friend_1_id == master_account.id %}
+<span class="pgf-friends-request-from">
+игрок предлагает дружить
+<a class="pgf-forms-post-simple" href="{{url('accounts:friends:accept', friend=master_account.id)}}">принять</a> /
+<a class="pgf-forms-post-simple" href="{{url('accounts:friends:remove', friend=master_account.id)}}">отказать</a>
+</span>
+{% else %}<span class="pgf-friends-request-to">вы предложили этому игроку дружить</span>
+{% endif %}
+
 {% endif %}
 
 <table class="account-info-table table table-condensed table-striped table-bordered table-no-highlighting">

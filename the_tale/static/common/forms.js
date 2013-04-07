@@ -234,7 +234,7 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
                              }
 
                          }
-                       }) }
+                       }); };
 
     var confirmation = el.data('confirmation');
 

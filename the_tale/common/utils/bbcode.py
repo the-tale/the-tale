@@ -4,8 +4,6 @@ import jinja2
 
 import postmarkup
 
-from django.core.urlresolvers import reverse
-
 from dext.forms import fields
 
 
@@ -66,14 +64,7 @@ class BBField(fields.TextField):
 
     def html(self, bound_field):
         html = u"""
-<script type="text/javascript">
-jQuery(document).ready( function(e) {
-    pgf.base.AddPreview('#pgf-bbfield-%(field_id)s', 'textarea', "%(preview_url)s");
-    pgf.base.InitBBFields('#pgf-bbfield-%(field_id)s');
-});
-</script>
-
-<div id="pgf-bbfield-%(field_id)s">
+<div id="pgf-bbfield-%(field_id)s" class="pgf-bbfield">
   %(label)s
   <div class="pgf-edit-content">
     %(command_line)s
@@ -83,13 +74,12 @@ jQuery(document).ready( function(e) {
   %(errors_container)s
   <div class="widget">
     <button type="button" class="btn pgf-preview-button">Предпросмотр</button>
-    <button type="button" class="btn pgf-edit-button pgf-hidden"/>Редактировать</button>
+    <button type="button" class="btn pgf-edit-button pgf-hidden">Редактировать</button>
   </div>
   <br/>
 </div>
 
 """ % {'field_id': uuid.uuid4().hex,
-       'preview_url': reverse('portal:preview'),
        'label': bound_field.label_tag(),
        'command_line': self.command_line,
        'bound_field': bound_field,

@@ -8,6 +8,8 @@ from django.core.urlresolvers import reverse
 
 from dext.utils.decorators import nested_commit_on_success
 
+from common.utils.password import generate_password
+
 from accounts.models import Account
 from accounts.prototypes import AccountPrototype
 from accounts.exceptions  import AccountsException
@@ -26,6 +28,17 @@ class REGISTER_USER_RESULT:
 
 def login_url(target_url='/'):
     return reverse('accounts:auth:login') + '?next_url=' + urllib.quote(target_url)
+
+
+def get_system_user():
+    account = AccountPrototype.get_by_nick(accounts_settings.SYSTEM_USER_NICK)
+    if account: return account
+
+    register_result, account_id, bundle_id = register_user(accounts_settings.SYSTEM_USER_NICK,
+                                                           email=project_settings.EMAIL_NOREPLY,
+                                                           password=generate_password(len_=accounts_settings.RESET_PASSWORD_LENGTH))
+
+    return AccountPrototype.get_by_id(account_id)
 
 
 def register_user(nick, email=None, password=None):

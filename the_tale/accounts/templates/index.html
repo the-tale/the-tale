@@ -1,6 +1,7 @@
 {% extends "accounts/base.html" %}
 
 {% import 'macros.html' as base_macros with context %}
+{% import 'accounts/macros.html' as accounts_macros with context %}
 
 
 {% block accounts_content %}
@@ -19,36 +20,16 @@
 
   <thead>
     <tr>
-      <th>имя</th>
-      <th>могущество</th>
-      <th>зарегистрирован</th>
-      <th>герой</th>
-      <th>уровень</th>
-      <th>сила</th>
+      {{ accounts_macros.account_record_heading() }}
     </tr>
   </thead>
 
   <tbody>
     {% for account in accounts %}
-
-    {% set hero = heroes[account.id] %}
-
     <tr class="pgf-account-record">
-
-      <td><a href="{{ url('accounts:show', account.id) }}">{{ account.nick }}</a></td>
-      <td>{{ hero.might|int }}</td>
-      <td class="updated-at pgf-format-date" data-timestamp="{{ account.created_at|timestamp }}"></td>
-      <td>
-        {{ hero.gender_verbose }}
-        {{ hero.race_verbose }}
-        <a href="{{ url('game:heroes:show', hero.id) }}">{{ hero.name }}</a>
-      </td>
-      <td>{{ hero.level }}</td>
-      <td>{{ hero.power }}</td>
+      {{ accounts_macros.account_record(account, heroes[account.id]) }}
     </tr>
-
     {% endfor %}
-
   </tbody>
 
 </table>

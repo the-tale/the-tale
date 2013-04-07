@@ -19,6 +19,8 @@ from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
 from game.heroes.models import Hero
 from game.heroes.prototypes import HeroPrototype
 
+from accounts.friends.prototypes import FriendshipPrototype
+
 from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype, ResetPasswordTaskPrototype
 from accounts.postponed_tasks import RegistrationTask
 from accounts.models import CHANGE_CREDENTIALS_TASK_STATE, Account
@@ -28,6 +30,9 @@ from accounts.logic import logout_user, login_user, force_login_user
 from accounts.workers.environment import workers_environment as infrastructure_workers_environment
 
 logger = getLogger('django.request')
+
+@validator(code='common.fast_account', message=u'Вы не закончили регистрацию и данная функция вам не доступна')
+def validate_fast_account(self, *args, **kwargs): return not self.account.is_fast
 
 class RegistrationResource(Resource):
 
@@ -360,6 +365,8 @@ class AccountResource(Resource):
 
         folclor_posts_count = BlogPost.objects.filter(author=self.master_account._model, state=BLOG_POST_STATE.ACCEPTED).count()
 
+        friendship = FriendshipPrototype.get_for_bidirectional(self.account, self.master_account)
+
         return self.template('accounts/show.html',
                              {'master_hero': HeroPrototype.get_by_account_id(self.master_account_id),
                               'master_account': self.master_account,
@@ -370,7 +377,8 @@ class AccountResource(Resource):
                               'threads_count': threads_count,
                               'folclor_posts_count': folclor_posts_count,
                               'give_award_form': forms.GiveAwardForm(),
-                              'phrases_count': phrases_count} )
+                              'phrases_count': phrases_count,
+                              'friendship': friendship} )
 
     @validate_moderator_rights()
     @handler('#account_id', 'give-award', name='give-award', method='post')

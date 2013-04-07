@@ -12,6 +12,9 @@ if (!pgf.ui.dialog) {
     pgf.ui.dialog = {};
 }
 
+pgf.ui.dialog.DIALOG_OPENED = 'pgf-ui-dialog-opened';
+pgf.ui.dialog.DIALOG_CLOSED = 'pgf-ui-dialog-closed';
+
 // arguments
 // from_selector - jQuery dialog content selector
 // from_string - string with html data
@@ -86,6 +89,8 @@ pgf.ui.dialog.Create = function(params) {
             if (params.OnOpened) {
                 params.OnOpened(dialog);
             }            
+
+            jQuery(document).trigger(pgf.ui.dialog.DIALOG_OPENED, dialog);
         };
 
         var OnHide = function() {
@@ -99,7 +104,7 @@ pgf.ui.dialog.Create = function(params) {
             if (params.OnClosed) {
                 params.OnClosed(dialog);
             }
-
+            jQuery(document).trigger(pgf.ui.dialog.DIALOG_CLOSED, dialog);
             dialog.remove();
         };
 
