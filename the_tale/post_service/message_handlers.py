@@ -313,7 +313,7 @@ class ChangeEmailNotificationHandler(BaseMessageHandler):
         connection = mail.get_connection()
         connection.open()
 
-        email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [task.account.email], connection=connection)
+        email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [task.account.new_email], connection=connection)
         email.attach_alternative(html_content, "text/html")
         email.send()
 

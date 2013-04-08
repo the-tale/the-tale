@@ -2,6 +2,31 @@
 
 {% import 'macros.html' as base_macros with context %}
 
+{% block head %}
+{{ super() }}
+
+<script type="text/javascript">
+
+jQuery(document).ready(function(){
+
+    jQuery('.pgf-answer-to-message').click(function(e){
+        e.preventDefault();
+        pgf.ui.dialog.Create({ fromUrl: jQuery(e.currentTarget).attr("href"),
+                               OnOpen: function(dialog) {
+                                   var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form', dialog),
+                                                                           { OnSuccess: function(form, data){ dialog.modal('hide'); }
+                                                                           });
+                               }
+                             });
+    });
+
+
+});
+
+</script>
+{% endblock %}
+
+
 {% block messages_content %}
 
 <h2 style="margin-bottom: 0.5em;">Сообщения</h2>
@@ -29,7 +54,7 @@
 
           {% if incoming %}
           <td style="width: 4em;">
-            <a href="{{ url('accounts:messages:new', recipient=message.sender.id, answer_to=message.id) }}">ответить</a>
+            <a class="pgf-answer-to-message" href="{{ url('accounts:messages:new', recipients=message.sender.id, answer_to=message.id) }}">ответить</a>
           </td>
           {% endif %}
 
