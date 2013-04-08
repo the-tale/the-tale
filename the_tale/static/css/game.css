@@ -329,6 +329,13 @@
 .game-ui-icon.ring {
   background: url('../game/images/game_ui.png') no-repeat scroll 0 -256px transparent;
 }
+.profession-icon-container {
+  vertical-align: middle !important;
+  width: 32px;
+}
+.profession-icon-container:hover {
+  background-color: #dddddd !important;
+}
 .profession-icon {
   width: 32px;
   height: 32px;
