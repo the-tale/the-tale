@@ -214,6 +214,10 @@ class BillPrototype(BasePrototype):
 
         return bill_prototype
 
+    @classmethod
+    def is_active_bills_limit_reached(cls, account):
+        return cls._model_class.objects.filter(owner_id=account.id, state=BILL_STATE.VOTING).exists()
+
     def save(self):
         self._model.technical_data=s11n.to_json(self.data.serialize())
         self._model.save()

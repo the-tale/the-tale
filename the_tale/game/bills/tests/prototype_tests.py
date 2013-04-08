@@ -17,7 +17,7 @@ from game.logic import create_test_map
 
 from game.bills.models import Actor
 from game.bills.relations import BILL_STATE
-from game.bills.prototypes import BillPrototype, VotePrototype, ActorPrototype
+from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.bills import PlaceRenaming
 from game.bills.conf import bills_settings
 from game.bills.exceptions import BillException
@@ -60,6 +60,16 @@ class BaseTestPrototypes(TestCase):
         SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_SLUG + '-caption',
                                    slug=bills_settings.FORUM_CATEGORY_SLUG,
                                    category=forum_category)
+
+class BillPrototypeTests(BaseTestPrototypes):
+
+    def test_is_active_bills_limit_reached(self):
+        self.assertFalse(BillPrototype.is_active_bills_limit_reached(self.account1))
+
+        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+
+        self.assertTrue(BillPrototype.is_active_bills_limit_reached(self.account1))
 
 
 class TestPrototypeApply(BaseTestPrototypes):

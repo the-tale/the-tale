@@ -133,7 +133,8 @@ class BillResource(Resource):
                               'votes': votes,
                               'BILLS_BY_ID': BILLS_BY_ID,
                               'paginator': paginator,
-                              'index_filter': index_filter} )
+                              'index_filter': index_filter,
+                              'active_bills_limit_reached': BillPrototype.is_active_bills_limit_reached(self.account)} )
 
 
     @validate_argument('bill_type', argument_to_bill_type, 'bills.new', u'неверный тип закона')
@@ -146,6 +147,9 @@ class BillResource(Resource):
     @validate_argument('bill_type', argument_to_bill_type, 'bills.create', u'неверный тип закона')
     @handler('create', method='post')
     def create(self, bill_type):
+
+        if BillPrototype.is_active_bills_limit_reached(self.account):
+            return self.json_error('bills.create.active_bills_limit_reached', u'Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению')
 
         bill_data = BILLS_BY_ID[bill_type.value]()
 

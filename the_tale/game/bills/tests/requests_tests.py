@@ -78,6 +78,16 @@ class TestIndexRequests(BaseTestRequests):
     def test_no_bills(self):
         self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-no-bills-message', 1),))
 
+    def test_bill_creation_locked_message(self):
+        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        self.create_bills(1, self.account1, 'caption-a1-%d', 'rationale-a1-%d', bill_data)
+        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 1),
+                                                                           ('pgf-create-new-bill-buttons', 0)))
+
+    def test_bill_creation_unlocked_message(self):
+        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 0),
+                                                                           ('pgf-create-new-bill-buttons', 1)))
+
     def test_one_page(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
         self.create_bills(2, self.account1, 'caption-a1-%d', 'rationale-a1-%d', bill_data)
@@ -355,6 +365,12 @@ class TestCreateRequests(BaseTestRequests):
         self.check_vote(vote, self.account1, True, bill.id)
 
         self.check_ajax_ok(response, data={'next_url': reverse('game:bills:show', args=[bill.id])})
+
+    def test_success_second_bill_error(self):
+        self.check_ajax_ok(self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), self.get_post_data()))
+        self.check_ajax_error(self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), self.get_post_data()),
+                              'bills.create.active_bills_limit_reached')
+        self.assertEqual(Bill.objects.all().count(), 1)
 
 
 

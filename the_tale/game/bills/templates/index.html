@@ -6,8 +6,13 @@
 
 {% block bills_content %}
 
+{% if active_bills_limit_reached %}
+<p class="alert alert-info pgf-active-bills-limit-reached">
+  Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению.
+</p>
+{% else %}
 <p>
-  <div class="btn-group" style="display: inline-block; vertical-align: middle;">
+  <div class="btn-group pgf-create-new-bill-buttons" style="display: inline-block; vertical-align: middle;">
     <a class="btn btn-danger btn-primary dropdown-toggle" data-toggle="dropdown">
       Предложить закон <span class="caret"></span>
     </a>
@@ -20,6 +25,7 @@
 
   Жизнью Пандоры управляют игроки. В этом разделе Вы можете напрямую принять участие в управлении миром, жизни его городов и персонажей.
 </p>
+{% endif %}
 
 <h2 style="margin-bottom: 0.5em;">Список законов</h2>
 
