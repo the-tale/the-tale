@@ -39,7 +39,7 @@ class SpoilerTag(postmarkup.TagBase):
         return u'</div></div></div></div>'
 
 
-render = postmarkup.create(use_pygments=False)
+render = postmarkup.create(use_pygments=False, annotate_links=False)
 render.tag_factory.add_tag(SpoilerTag, 'spoiler')
 
 
