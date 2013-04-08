@@ -26,6 +26,16 @@ class _PrototypeMetaclass(type):
 
         return classmethod(get_by)
 
+    @classmethod
+    def create_get_list_by(cls, method_name, attribute_name):
+
+        def get_list_by(cls, identifiers):
+            return [cls(model=model) for model in cls._model_class.objects.filter(**{'%s__in' % attribute_name: identifiers})]
+
+        get_list_by.__name__ = method_name
+
+        return classmethod(get_list_by)
+
 
     def __new__(cls, name, bases, attributes):
 
@@ -44,13 +54,18 @@ class _PrototypeMetaclass(type):
             attributes[bidirectional_attribute] = property(cls.create_get_property(bidirectional_attribute),
                                                            cls.create_set_property(bidirectional_attribute))
 
-        # create get_by_<unique_key> methods
+        # create get_by_<unique_key> and get_list_by_<unique_key> methods
         get_by_attributes = attributes.get('_get_by', ())
         for get_by_attribute in get_by_attributes:
             method_name = 'get_by_%s' % get_by_attribute
             if method_name in attributes:
                 raise PrototypeError('can not set attribute "%s" class has already had attribue with such name' % method_name)
             attributes[method_name] = cls.create_get_by(method_name, get_by_attribute)
+
+            method_name = 'get_list_by_%s' % get_by_attribute
+            if method_name in attributes:
+                raise PrototypeError('can not set attribute "%s" class has already had attribue with such name' % method_name)
+            attributes[method_name] = cls.create_get_list_by(method_name, get_by_attribute)
 
         return super(_PrototypeMetaclass, cls).__new__(cls, name, bases, attributes)
 

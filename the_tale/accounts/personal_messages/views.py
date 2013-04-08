@@ -17,6 +17,13 @@ from accounts.personal_messages.forms import NewMessageForm
 from accounts.personal_messages.conf import personal_messages_settings
 
 
+def get_accounts_list_by_ids(ids_string):
+    ids = [int(id.strip()) for id in ids_string.split(',')]
+    accounts = AccountPrototype.get_list_by_id(ids)
+
+    if len(ids) != len(accounts): return None
+    return accounts
+
 class MessageResource(Resource):
 
     @login_required
@@ -70,10 +77,10 @@ class MessageResource(Resource):
                                   page,
                                   False)
 
-    @validate_argument('recipient', AccountPrototype.get_by_id, 'personal_messages', u'Неверный идентификатор получателя')
+    @validate_argument('recipients', get_accounts_list_by_ids, 'personal_messages', u'Неверные идентификаторы получателей')
     @validate_argument('answer_to', MessagePrototype.get_by_id, 'personal_messages', u'Неверный идентификатор сообщения')
     @handler('new', method='get')
-    def new(self, recipient, answer_to=None):
+    def new(self, recipients=[], answer_to=None):
 
         text = u''
 
@@ -87,30 +94,25 @@ class MessageResource(Resource):
         form = NewMessageForm(initial={'text': text})
 
         return self.template('personal_messages/new.html',
-                             {'recipient': recipient,
+                             {'recipients': recipients,
+                              'recipients_url_string': ','.join([str(recipient.id) for recipient in recipients]),
                               'form': form})
 
+    @validate_argument('recipients', get_accounts_list_by_ids, 'personal_messages', u'Неверный идентификатор получателя')
     @handler('create', method='post')
-    def create(self, recipient):
-
-        try:
-            recipient = int(recipient)
-        except ValueError:
-            return self.auto_error('personal_messages.create.wrong_recipient_id', u'Неверный идентификатор получателя', status_code=404)
-
-
-        recipient = AccountPrototype.get_by_id(int(recipient))
-
-        if recipient is None:
-            return self.auto_error('personal_messages.create.recipient_not_found', u'Получатель не найден', status_code=404)
+    def create(self, recipients=[]):
 
         form = NewMessageForm(self.request.POST)
 
-        if form.is_valid():
-            MessagePrototype.create(self.account, recipient, form.c.text)
-            return self.json_ok()
+        if not form.is_valid():
+            return self.json_error('personal_messages.create.form_errors', form.errors)
 
-        return self.json_error('personal_messages.create.form_errors', form.errors)
+        for recipient in recipients:
+            MessagePrototype.create(self.account, recipient, form.c.text)
+
+        return self.json_ok()
+
+
 
     @handler('#message_id', 'delete', method='post')
     def delete(self):

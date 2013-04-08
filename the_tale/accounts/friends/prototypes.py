@@ -70,11 +70,20 @@ class FriendshipPrototype(BasePrototype):
 
     @classmethod
     def get_friends_for(cls, account):
-        return cls._get_accounts_for(account, is_confirmed=True)
+        friendship_query = cls._model_class.objects.filter(models.Q(friend_1_id=account.id)|models.Q(friend_2_id=account.id), is_confirmed=True)
+        values = list(friendship_query.values_list('friend_1_id', 'friend_2_id'))
+
+        if not values: return []
+
+        friends_1_ids, friends_2_ids = zip(*values)
+        accounts_ids = (set(friends_1_ids) | set(friends_2_ids)) - set([account.id])
+        return [AccountPrototype(model=model) for model in Account.objects.filter(id__in=accounts_ids)]
 
     @classmethod
     def get_candidates_for(cls, account):
-        return cls._get_accounts_for(account, is_confirmed=False)
+        friendship_query = cls._model_class.objects.filter(friend_2_id=account.id, is_confirmed=False)
+        accounts_ids = friendship_query.values_list('friend_1_id', flat=True)
+        return [AccountPrototype(model=model) for model in Account.objects.filter(id__in=accounts_ids)]
 
     @classmethod
     def request_friendship(cls, friend_1, friend_2, text=None):

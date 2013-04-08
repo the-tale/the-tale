@@ -101,4 +101,4 @@ class FriendshipPrototypeTests(testcase.TestCase):
     def test_get_candidates_for__candidates_exists(self):
         FriendshipPrototype.request_friendship(self.account_1, self.account_2, u'text 1')
         FriendshipPrototype.request_friendship(self.account_3, self.account_1, u'text 2')
-        self.assertEqual(set(account.id for account in FriendshipPrototype.get_candidates_for(self.account_1)), set([self.account_2.id, self.account_3.id]))
+        self.assertEqual([account.id for account in FriendshipPrototype.get_candidates_for(self.account_1)], [self.account_3.id])

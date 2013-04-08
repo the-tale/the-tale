@@ -15,7 +15,7 @@ jQuery(document).ready(function(){
 
     jQuery('.pgf-new-message').click(function(e){
         e.preventDefault();
-        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:messages:new', recipient=master_account.id) }}",
+        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:messages:new', recipients=master_account.id) }}",
                                OnOpen: function(dialog) {
                                    var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form', dialog),
                                                                            { OnSuccess: function(form, data){ dialog.modal('hide'); }

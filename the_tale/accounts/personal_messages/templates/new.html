@@ -9,9 +9,19 @@
 
   <div class="modal-body">
 
-    <p>Сообщение для игрока <a href="{{ url('accounts:show', recipient.id) }}">{{recipient.nick}}</a></p>
+    <p>
+      {% if recipients|length == 1 %}
+      Сообщение для игрока <a href="{{ url('accounts:show', recipients[0].id) }}">{{recipients[0].nick}}</a>
+      {% else %}
+      Сообщение для игроков:
+      {% for recipient in recipients -%}
+      {%- if loop.index != 1 %},{% endif %}
+      <a href="{{ url('accounts:show', recipient.id) }}">{{recipient.nick}}</a>
+      {%- endfor %}
+      {% endif %}
+    </p>
 
-    <form action="{{ url('accounts:messages:create', recipient=recipient.id) }}"
+    <form action="{{ url('accounts:messages:create', recipients=recipients_url_string) }}"
           method="post"
           id="pgf-new-message-form">
 
