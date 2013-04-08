@@ -5,6 +5,7 @@ import datetime
 
 from game.map.places.models import Building
 from game.map.places.storage import buildings_storage
+from game.map.places.prototypes import BuildingPrototype
 
 from game.bills.relations import BILL_STATE
 from game.bills.prototypes import BillPrototype, VotePrototype
@@ -44,10 +45,16 @@ class BuildingCreateTests(BaseTestPrototypes):
 
     def check_persons_from_place_in_choices(self, place, persons_ids):
         for person in place.persons:
-            self.assertTrue(person.id in persons_ids)
+            if not person.has_building:
+                self.assertTrue(person.id in persons_ids)
+            else:
+                self.assertFalse(person.id in persons_ids)
 
 
     def test_user_form_choices(self):
+
+        BuildingPrototype.create(self.place2.persons[0])
+
         form = self.bill.data.get_user_form_update(initial={'person': self.bill.data.person_id })
 
         persons_ids = []

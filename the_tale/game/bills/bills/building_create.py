@@ -17,7 +17,7 @@ class UserForm(BaseUserForm):
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['person'].choices = PersonPrototype.form_choices()
+        self.fields['person'].choices = PersonPrototype.form_choices(predicate=lambda place, person: not person.has_building)
 
 
 class ModeratorForm(BaseModeratorForm):
