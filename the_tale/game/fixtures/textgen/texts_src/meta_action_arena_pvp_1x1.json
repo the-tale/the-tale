@@ -4,8 +4,8 @@
     "prefix": "meta_action_arena_pvp_1x1",
     "variables_verbose": {"hero": "герой",
                           "attacker": "атакующий",
-                          "duelist_1": "1-ый участник дуэали",
-                          "duelist_2": "2-ой участник дуэали",
+                          "duelist_1": "1-ый участник дуэли",
+                          "duelist_2": "2-ой участник дуэли",
                           "victim": "проигравший",
                           "killer": "победитель"},
     "types": {
