@@ -3,15 +3,20 @@
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
 
-from game.actions.models import MetaAction, MetaActionMember, UNINITIALIZED_STATE
+from common.utils.prototypes import BasePrototype
+from common.utils.decorators import lazy_property
 
+from accounts.prototypes import AccountPrototype
+
+from game.actions.models import MetaAction, MetaActionMember, UNINITIALIZED_STATE
 from game.actions import battle, contexts
 
 from game.prototypes import TimePrototype
 
 from game.balance import constants as c
 
-from game.pvp.prototypes import Battle1x1Prototype, BATTLE_1X1_STATE, BATTLE_RESULT
+from game.pvp.prototypes import Battle1x1Prototype, Battle1x1ResultPrototype
+from game.pvp.relations import BATTLE_1X1_RESULT
 
 
 def get_meta_actions_types():
@@ -29,7 +34,11 @@ def get_meta_action_by_model(model):
     return META_ACTION_TYPES[model.type](model=model)
 
 
-class MetaActionPrototype(object):
+class MetaActionPrototype(BasePrototype):
+    _model_class = MetaAction
+    _readonly = ('id', 'created_at', 'type')
+    _bidirectional = ('percents', 'state')
+    _get_by = ('id',)
 
     TYPE = None
     TEXTGEN_TYPE = None
@@ -39,7 +48,7 @@ class MetaActionPrototype(object):
         PROCESSED = 'processed'
 
     def __init__(self, model, members=None):
-        self.model = model
+        super(MetaActionPrototype, self).__init__(model=model)
 
         if members is None:
             members = [MetaActionMemberPrototype(member_model) for member_model in MetaActionMember.objects.filter(action=model)]
@@ -50,35 +59,14 @@ class MetaActionPrototype(object):
         self.last_processed_turn = -1
         self.updated = False
 
-    @property
-    def id(self): return self.model.id
-
-    @property
-    def created_at(self): return self.model.created_at
-
-    @property
-    def type(self): return self.model.type
-
-    @property
-    def data(self):
-        if not hasattr(self, '_data'):
-            self._data = s11n.from_json(self.model.data)
-        return self._data
+    @lazy_property
+    def data(self): return s11n.from_json(self._model.data)
 
     @property
     def description_text_name(self):
         return '%s_description' % self.TEXTGEN_TYPE
 
     def set_storage(self, storage): self.storage = storage
-
-    def get_percents(self): return self.model.percents
-    def set_percents(self, value): self.model.percents = value
-    percents = property(get_percents, set_percents)
-
-    def get_state(self): return self.model.state
-    def set_state(self, value): self.model.state = value
-    state = property(get_state, set_state)
-
 
     def process(self):
         turn_number = TimePrototype.get_current_turn_number()
@@ -93,31 +81,20 @@ class MetaActionPrototype(object):
 
 
     def remove(self):
-        self.model.delete()
+        self._model.delete()
 
     def save(self):
         if hasattr(self, '_data'):
-            self.model.data = s11n.to_json(self._data)
-        self.model.save()
+            self._model.data = s11n.to_json(self._data)
+        self._model.save()
         self.updated = False
 
 
-class MetaActionMemberPrototype(object):
-
-    def __init__(self, model):
-        self.model = model
-
-    @property
-    def id(self): return self.model.id
-
-    @property
-    def hero_id(self): return self.model.hero_id
-
-    @property
-    def role(self): return self.model.role
-
-    @property
-    def context_str(self): return self.model.context
+class MetaActionMemberPrototype(BasePrototype):
+    _model_class = MetaActionMember
+    _readonly = ('id', 'hero_id', 'role', 'context')
+    _bidirectional = ('percents', 'state')
+    _get_by = ('id',)
 
     @classmethod
     def create(cls, meta_action_model, hero_model, role):
@@ -126,7 +103,7 @@ class MetaActionMemberPrototype(object):
                                                 hero=hero_model,
                                                 role=role)
 
-        return cls(model)
+        return cls(model=model)
 
 
 class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
@@ -152,7 +129,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
     @property
     def hero_1_context(self):
         if not hasattr(self, '_hero_1_context'):
-            self._hero_1_context = contexts.BattleContext.deserialize(s11n.from_json(self.members_by_roles[self.ROLES.HERO_1].context_str))
+            self._hero_1_context = contexts.BattleContext.deserialize(s11n.from_json(self.members_by_roles[self.ROLES.HERO_1].context))
             self._hero_1_context.use_pvp_advantage_stike_damage(self.hero_1.basic_damage * c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER)
         return self._hero_1_context
 
@@ -166,7 +143,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
     @property
     def hero_2_context(self):
         if not hasattr(self, '_hero_2_context'):
-            self._hero_2_context = contexts.BattleContext.deserialize(s11n.from_json(self.members_by_roles[self.ROLES.HERO_2].context_str))
+            self._hero_2_context = contexts.BattleContext.deserialize(s11n.from_json(self.members_by_roles[self.ROLES.HERO_2].context))
             self._hero_2_context.use_pvp_advantage_stike_damage(self.hero_2.basic_damage * c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER)
         return self._hero_2_context
 
@@ -234,39 +211,36 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         # check processed state before battle turn, to give delay to players to see battle result
 
         if self.state == self.STATE.BATTLE_ENDING:
-            battle_1 = Battle1x1Prototype.get_active_by_account_id(self.hero_1.account_id)
-            battle_1.set_state(BATTLE_1X1_STATE.PROCESSED)
-
-            battle_2 = Battle1x1Prototype.get_active_by_account_id(self.hero_2.account_id)
-            battle_2.set_state(BATTLE_1X1_STATE.PROCESSED)
+            battle_1 = Battle1x1Prototype.get_by_account_id(self.hero_1.account_id)
+            battle_2 = Battle1x1Prototype.get_by_account_id(self.hero_2.account_id)
 
             if battle_1.calculate_rating and battle_2.calculate_rating:
                 self.hero_1.statistics.change_pvp_battles_1x1_number(1)
                 self.hero_2.statistics.change_pvp_battles_1x1_number(1)
 
+            participant_1=AccountPrototype.get_by_id(self.hero_1.account_id)
+            participant_2=AccountPrototype.get_by_id(self.hero_1.account_id)
+
             if self.hero_1.health <= 0:
                 if self.hero_2.health <= 0:
-                    battle_1.set_result(BATTLE_RESULT.DRAW)
-                    battle_2.set_result(BATTLE_RESULT.DRAW)
+                    Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.DRAW)
 
                     if battle_1.calculate_rating and battle_2.calculate_rating:
                         self.hero_1.statistics.change_pvp_battles_1x1_draws(1)
                         self.hero_2.statistics.change_pvp_battles_1x1_draws(1)
                 else:
-                    battle_1.set_result(BATTLE_RESULT.DEFEAT)
-                    battle_2.set_result(BATTLE_RESULT.VICTORY)
+                    Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.DEFEAT)
 
                     if battle_1.calculate_rating and battle_2.calculate_rating:
                         self.hero_2.statistics.change_pvp_battles_1x1_victories(1)
             else:
-                battle_1.set_result(BATTLE_RESULT.VICTORY)
-                battle_2.set_result(BATTLE_RESULT.DEFEAT)
+                Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.VICTORY)
 
                 if battle_1.calculate_rating and battle_2.calculate_rating:
                     self.hero_1.statistics.change_pvp_battles_1x1_victories(1)
 
-            battle_1.save()
-            battle_2.save()
+            battle_1.remove()
+            battle_2.remove()
 
             self.hero_1.health = self.hero_1_old_health
             self.hero_2.health = self.hero_2_old_health

@@ -1421,7 +1421,7 @@ class ActionMetaProxyPrototype(ActionPrototype):
                                        parent=parent.model,
                                        hero=parent.hero._model,
                                        order=parent.order+1,
-                                       meta_action=meta_action.model,
+                                       meta_action=meta_action._model,
                                        state=meta_action.state,
                                        created_at_turn=TimePrototype.get_current_turn_number())
         return cls(model=model)

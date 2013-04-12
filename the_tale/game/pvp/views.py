@@ -48,9 +48,9 @@ class PvPResource(Resource):
     @handler('', method='get')
     def pvp_page(self):
 
-        battle = Battle1x1Prototype.get_active_by_account_id(self.account.id)
+        battle = Battle1x1Prototype.get_by_account_id(self.account.id)
 
-        if battle is None or not (battle.state.is_processing or battle.state.is_prepairing):
+        if battle is None or not (battle.state._is_PROCESSING or battle.state._is_PREPAIRING):
             return self.redirect(reverse('game:'))
 
         own_abilities = sorted(self.own_hero.abilities.all, key=lambda x: x.NAME)
@@ -73,9 +73,9 @@ class PvPResource(Resource):
     @handler('info', method='get')
     def info(self):
 
-        battle = Battle1x1Prototype.get_active_by_account_id(self.account.id)
+        battle = Battle1x1Prototype.get_by_account_id(self.account.id)
 
-        if battle is None or not (battle.state.is_processing or battle.state.is_prepairing):
+        if battle is None or not (battle.state._is_PROCESSING or battle.state._is_PREPAIRING):
             return self.json_ok(data={'mode': 'pve',
                                       'turn': self.time.ui_info()})
 
@@ -95,9 +95,9 @@ class PvPResource(Resource):
     @handler('say', method='post')
     def say(self):
 
-        battle = Battle1x1Prototype.get_active_by_account_id(self.account.id)
+        battle = Battle1x1Prototype.get_by_account_id(self.account.id)
 
-        if battle is None or not (battle.state.is_processing or battle.state.is_prepairing):
+        if battle is None or not (battle.state._is_PROCESSING or battle.state._is_PREPAIRING):
             return self.json_error('pvp.say.no_battle', u'Бой не идёт, вы не можете говорить')
 
         say_form = SayForm(self.request.POST)
@@ -137,7 +137,7 @@ class PvPResource(Resource):
     @handler('accept-call', method='post')
     def accept_call(self, battle):
 
-        if not battle.state.is_waiting:
+        if not battle.state._is_WAITING:
             return self.json_error('pvp.accept_call.wrong_battle_state', u'Вызов уже принят другим героем или отклонён.')
 
         if battle.account_id == self.account.id:
@@ -162,9 +162,9 @@ class PvPResource(Resource):
     @handler('change-style', name='change-style', method='post')
     def change_style(self, combat_style):
 
-        battle = Battle1x1Prototype.get_active_by_account_id(self.account.id)
+        battle = Battle1x1Prototype.get_by_account_id(self.account.id)
 
-        if battle is None or not (battle.state.is_processing or battle.state.is_prepairing):
+        if battle is None or not (battle.state._is_PROCESSING or battle.state._is_PREPAIRING):
             return self.json_error('pvp.combat_style.no_battle', u'Бой не идёт, вы не можете изменить стиль боя')
 
         change_style_task = ChangePvPStyleTask(battle_id=battle.id, account_id=self.account.id, combat_style_id=combat_style.type)

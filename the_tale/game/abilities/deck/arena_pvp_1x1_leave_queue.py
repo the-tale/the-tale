@@ -28,7 +28,7 @@ class ArenaPvP1x1LeaveQueue(AbilityPrototype):
 
             hero = storage.heroes[data['hero_id']]
 
-            battle = Battle1x1Prototype.get_active_by_account_id(hero.account_id)
+            battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
 
             if battle is None:
                 return True, None, ()

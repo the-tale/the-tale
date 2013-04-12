@@ -65,8 +65,10 @@ class BalancerTests(BalancerTestsBase):
 
 
     def test_process_add_to_arena_queue_two_requests_from_one_account(self):
-        Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_1.id))
-        self.assertRaises(PvPException, Battle1x1Prototype.create, AccountPrototype.get_by_id(self.account_1.id))
+        battle_1 = Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_1.id))
+        battle_2 = Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_1.id))
+        self.assertEqual(Battle1x1.objects.all().count(), 1)
+        self.assertEqual(battle_1.id, battle_2.id)
 
     def test_process_add_to_arena_queue_second_record(self):
         self.worker.add_to_arena_queue(self.hero_1.id)
@@ -79,11 +81,11 @@ class BalancerTests(BalancerTestsBase):
         battle_1.set_enemy(self.account_2)
         battle_1.save()
 
-        self.assertTrue(Battle1x1Prototype.get_by_id(battle_1.id).state.is_prepairing)
+        self.assertTrue(Battle1x1Prototype.get_by_id(battle_1.id).state._is_PREPAIRING)
 
         self.worker.leave_arena_queue(self.hero_1.id)
 
-        self.assertTrue(Battle1x1Prototype.get_by_id(battle_1.id).state.is_prepairing)
+        self.assertTrue(Battle1x1Prototype.get_by_id(battle_1.id).state._is_PREPAIRING)
 
     def test_process_leave_queue_waiting_state(self):
         battle = self.worker.add_to_arena_queue(self.hero_1.id)
@@ -94,7 +96,7 @@ class BalancerTests(BalancerTestsBase):
 
         self.assertEqual(len(self.worker.arena_queue), 0)
 
-        self.assertTrue(Battle1x1Prototype.get_by_id(battle.id).state.is_leave_queue)
+        self.assertEqual(Battle1x1Prototype.get_by_id(battle.id), None)
 
 
 
@@ -242,7 +244,7 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).count(), 2)
         self.worker._clean_queue([self.battle_1_record()], [self.battle_2_record()])
         self.assertEqual(self.worker.arena_queue, {})
-        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.ENEMY_NOT_FOND).count(), 1)
+        self.assertEqual(Battle1x1.objects.all().count(), 1)
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).count(), 1)
 
 

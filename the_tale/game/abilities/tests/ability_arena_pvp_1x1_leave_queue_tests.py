@@ -68,7 +68,6 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
         self.assertEqual(pvp_balancer_logic_task_counter.call_count, 1)
 
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).count(), 1)
-        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.LEAVE_QUEUE).count(), 0)
 
         result, step, postsave_actions = self.ability.use(**self.use_attributes(hero_id=self.hero.id,
                                                                                 step=step,
@@ -77,4 +76,4 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
         self.assertEqual((result, step, postsave_actions), (True, ABILITY_TASK_STEP.SUCCESS, ()))
 
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).count(), 0)
-        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.LEAVE_QUEUE).count(), 1)
+        self.assertEqual(Battle1x1.objects.all().count(), 0)

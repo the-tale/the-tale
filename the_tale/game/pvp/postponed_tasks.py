@@ -126,7 +126,7 @@ class AcceptBattleTask(object):
             main_task.comment = 'battle %d not found' % self.battle_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        if not accepted_battle.state.is_waiting:
+        if not accepted_battle.state._is_WAITING:
             self.state = ACCEPT_BATTLE_TASK_STATE.WRONG_ACCEPTED_BATTLE_STATE
             main_task.comment = 'battle %d has wrong state %s' % (self.battle_id, accepted_battle.state.value)
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -136,9 +136,9 @@ class AcceptBattleTask(object):
             main_task.comment = 'battle %d not in queue' % self.battle_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        initiator_battle = Battle1x1Prototype.get_active_by_account_id(self.accept_initiator_id)
+        initiator_battle = Battle1x1Prototype.get_by_account_id(self.accept_initiator_id)
 
-        if initiator_battle is not None and not initiator_battle.state.is_waiting:
+        if initiator_battle is not None and not initiator_battle.state._is_WAITING:
             self.state = ACCEPT_BATTLE_TASK_STATE.WRONG_INITIATOR_BATTLE_STATE
             main_task.comment = 'initiator battle %d has wrong state %s' % (initiator_battle.id, initiator_battle.state.value)
             return POSTPONED_TASK_LOGIC_RESULT.ERROR

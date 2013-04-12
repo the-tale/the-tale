@@ -28,9 +28,9 @@ class GameResource(Resource):
     @handler('', method='get')
     def game_page(self):
 
-        battle = Battle1x1Prototype.get_active_by_account_id(self.account.id)
+        battle = Battle1x1Prototype.get_by_account_id(self.account.id)
 
-        if battle and battle.state.is_processing:
+        if battle and battle.state._is_PROCESSING:
             return self.redirect(reverse('game:pvp:'))
 
         return self.template('game/game_page.html',
@@ -54,12 +54,12 @@ class GameResource(Resource):
 
             data['pvp'] = {'waiting': False}
 
-            battle = Battle1x1Prototype.get_active_by_account_id(account.id)
+            battle = Battle1x1Prototype.get_by_account_id(account.id)
 
             if battle:
-                if battle.state.is_waiting:
+                if battle.state._is_WAITING:
                     data['pvp']['waiting'] = True
-                if battle.state.is_processing or battle.state.is_prepairing:
+                if battle.state._is_PROCESSING or battle.state._is_PREPAIRING:
                     data['mode'] = 'pvp'
         else:
             data['hero'] = HeroPrototype.get_by_account_id(account.id).ui_info(for_last_turn=True, quests_info=False)

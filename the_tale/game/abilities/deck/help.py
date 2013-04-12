@@ -22,9 +22,9 @@ class Help(AbilityPrototype):
 
         hero = storage.heroes[data['hero_id']]
 
-        battle = Battle1x1Prototype.get_active_by_account_id(hero.account_id)
+        battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
 
-        if battle and not battle.state.is_waiting:
+        if battle and not battle.state._is_WAITING:
             return False, None, ()
 
         action = storage.current_hero_action(hero.id)

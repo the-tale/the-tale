@@ -14,7 +14,8 @@ from game.logic import create_test_map
 
 from game.workers.environment import workers_environment
 
-from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
+from game.pvp.models import Battle1x1
+from game.pvp.relations import BATTLE_1X1_STATE
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.postponed_tasks import AcceptBattleTask, ACCEPT_BATTLE_TASK_STATE
 
@@ -61,7 +62,7 @@ class AcceptBattleTaskTests(testcase.TestCase):
         self.assertEqual(self.task.state, ACCEPT_BATTLE_TASK_STATE.BATTLE_NOT_FOUND)
 
     def test_process_wrong_accepted_battle_state(self):
-        self.battle.state = BATTLE_1X1_STATE.PROCESSED
+        self.battle.state = BATTLE_1X1_STATE.PROCESSING
         self.battle.save()
         self.task.process(FakePostpondTaskPrototype(), self.balancer)
         self.assertEqual(self.task.state, ACCEPT_BATTLE_TASK_STATE.WRONG_ACCEPTED_BATTLE_STATE)

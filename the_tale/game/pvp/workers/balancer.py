@@ -127,9 +127,9 @@ class Worker(BaseWorker):
 
         hero = HeroPrototype.get_by_account_id(hero_id)
 
-        battle = Battle1x1Prototype.get_active_by_account_id(hero.account_id)
+        battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
 
-        if not battle.state.is_waiting:
+        if not battle.state._is_WAITING:
             return
 
         if battle.account_id not in self.arena_queue:
@@ -138,8 +138,7 @@ class Worker(BaseWorker):
 
         del self.arena_queue[battle.account_id]
 
-        battle.state = BATTLE_1X1_STATE.LEAVE_QUEUE
-        battle.save()
+        battle.remove()
 
 
     def _get_prepaired_queue(self):
@@ -192,7 +191,8 @@ class Worker(BaseWorker):
             del self.arena_queue[record.account_id]
 
         if records_to_remove:
-            Battle1x1Prototype.set_enemy_not_found_state_by_ids([record.battle_id for record in records_to_remove])
+            for record in records_to_remove:
+                Battle1x1Prototype.get_by_id(record.battle_id).remove()
             self.logger.info('remove from queue request from accounts %r' % (records_to_remove, ))
 
 

@@ -17,9 +17,8 @@ from game.prototypes import TimePrototype
 from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
 from game.actions.models import MetaAction, MetaActionMember
 
-from game.pvp.models import Battle1x1
-
-from game.pvp.models import BATTLE_1X1_STATE, BATTLE_RESULT
+from game.pvp.models import Battle1x1, Battle1x1Result
+from game.pvp.relations import BATTLE_1X1_STATE
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.tests.helpers import PvPTestsMixin
 from game.pvp.combat_styles import COMBAT_STYLES
@@ -141,8 +140,7 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
     def test_hero_1_win(self):
         self._end_battle(hero_1_health=self.hero_1.max_health, hero_2_health=0)
 
-        self.assertTrue(Battle1x1Prototype.get_by_id(self.battle_1.id).result.is_victory)
-        self.assertTrue(Battle1x1Prototype.get_by_id(self.battle_2.id).result.is_defeat)
+        self.assertEqual(Battle1x1Prototype._model_class.objects.all().count(), 0)
 
         self.check_hero_pvp_statistics(self.hero_1, 1, 1, 0, 0)
         self.check_hero_pvp_statistics(self.hero_2, 1, 0, 0, 1)
@@ -150,8 +148,7 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
     def test_hero_2_win(self):
         self._end_battle(hero_1_health=0, hero_2_health=self.hero_2.max_health)
 
-        self.assertTrue(Battle1x1Prototype.get_by_id(self.battle_1.id).result.is_defeat)
-        self.assertTrue(Battle1x1Prototype.get_by_id(self.battle_2.id).result.is_victory)
+        self.assertEqual(Battle1x1Prototype._model_class.objects.all().count(), 0)
 
         self.check_hero_pvp_statistics(self.hero_1, 1, 0, 0, 1)
         self.check_hero_pvp_statistics(self.hero_2, 1, 1, 0, 0)
@@ -159,8 +156,7 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
     def test_draw(self):
         self._end_battle(hero_1_health=0, hero_2_health=0)
 
-        self.assertTrue(Battle1x1Prototype.get_by_id(self.battle_1.id).result.is_draw)
-        self.assertTrue(Battle1x1Prototype.get_by_id(self.battle_2.id).result.is_draw)
+        self.assertEqual(Battle1x1Prototype._model_class.objects.all().count(), 0)
 
         self.check_hero_pvp_statistics(self.hero_1, 1, 0, 1, 0)
         self.check_hero_pvp_statistics(self.hero_2, 1, 0, 1, 0)
@@ -252,8 +248,8 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(self.hero_1.health, self.hero_1.max_health / 2)
         self.assertEqual(self.hero_2.health, self.hero_2.max_health)
 
-        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.PROCESSED).count(), 2)
-        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_RESULT.UNKNOWN).count(), 0)
+        self.assertEqual(Battle1x1.objects.all().count(), 0)
+        self.assertEqual(Battle1x1Result.objects.all().count(), 1)
 
     def test_remove(self):
         self.assertEqual(MetaAction.objects.all().count(), 1)

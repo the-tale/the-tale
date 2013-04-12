@@ -210,8 +210,8 @@ class TestCallsPage(TestRequestsBase):
                                                                               ('pgf-accept-battle', 1)])
 
     def test_only_waiting_battles(self):
-        for state in BATTLE_1X1_STATE._ALL:
-            if state == BATTLE_1X1_STATE.WAITING:
+        for state in BATTLE_1X1_STATE._records:
+            if state._is_WAITING:
                 continue
             self.pvp_create_battle(self.account_2, None, state)
             self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 1)])
