@@ -40,4 +40,5 @@ class PersonRemove(BasePersonBill):
     def apply(self):
         self.person.move_out_game()
         self.person.place.sync_persons()
+        self.person.place.save()
         self.person.save()
