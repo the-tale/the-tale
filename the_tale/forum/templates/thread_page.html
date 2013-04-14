@@ -116,10 +116,12 @@ jQuery(document).ready( function(e) {
 
   {% if loop.index==1 and thread_data.ignore_first_post %}{% continue %}{% endif %}
 
+  {% set message_number = loop.index + thread_data.post_from %}
+
   {# give anchor to previous element, if we give anchor to current element#}
   <li class="post">
     <div class="head">
-      <div class="index"><a href="#m{{post.id}}" >#{{post.id}}</a><div class="anchor" id="m{{post.id}}"></div></div>
+      <div class="index"><a href="#m{{post.id}}" >#{{message_number}}</a><div class="anchor" id="m{{post.id}}"></div></div>
 
       <div class="author">
         <a href="{{url('accounts:show', post.author.id)}}">{{ post.author.nick }}</a>

@@ -306,6 +306,7 @@ class ThreadPageData():
             return False
 
         post_from, post_to = self.paginator.page_borders(page)
+        self.post_from = post_from
 
         self.posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread._model).order_by('created_at')[post_from:post_to]]
 
