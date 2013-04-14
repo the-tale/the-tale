@@ -89,11 +89,28 @@ class BillPrototype(BasePrototype):
     @property
     def is_percents_barier_not_passed(self): return self.votes_for_percents < bills_settings.MIN_VOTES_PERCENT
 
+    @property
+    def last_bill_event_text(self):
+        if self.state._is_ACCEPTED:
+            return u'принят закон'
+        if self.state._is_REJECTED:
+            return u'отклонён закон'
+        if self.state._is_VOTING:
+            if (self.updated_at - self.created_at).seconds > 1:
+                return u'исправлен закон'
+            else:
+                return u'выдвинут закон'
+        raise BillException('unknown last event text for bill %d' % self.id)
+
     @classmethod
     def get_minimum_created_time_of_active_bills(self):
         from django.db.models import Min
         created_at =  Bill.objects.filter(state=BILL_STATE.VOTING).aggregate(Min('created_at'))['created_at__min']
         return created_at if created_at is not None else datetime.datetime.now()
+
+    @classmethod
+    def get_recently_modified_bills(cls, bills_number):
+        return [cls(model=model) for model in cls._model_class.objects.exclude(state=BILL_STATE.REMOVED).order_by('-updated_at')[:bills_number]]
 
     @nested_commit_on_success
     def apply(self):

@@ -73,7 +73,18 @@
     <div class="block">
       <h4 class="newspaper-column-header">Герой дня</h4>
       {% if hero_of_the_day %}
-      {% include hero_of_the_day.data.TEMPLATE with context %}
+      <ul class="unstyled">
+        <li>
+          <h4>
+            <a href="{{ url('game:heroes:show', hero_of_the_day.id) }}">{{ hero_of_the_day.name }}</a>
+            <small>{{ hero_of_the_day.gender_verbose }} {{ hero_of_the_day.race_verbose}}</small>
+          </h4>
+        </li>
+        <li><strong>уровень:</strong> {{ hero_of_the_day.level}}</li>
+        <li><strong>сила:</strong> {{ hero_of_the_day.power }}</li>
+        <li><strong>покровитель:</strong> <a href="{{ url('accounts:show', account_of_the_day.id) }}">{{ account_of_the_day.nick}}</a></li>
+        <li><strong>могущество:</strong>{{ hero_of_the_day.might }}</li>
+      </ul>
       {% else %}
       Здесь может быть Ваша реклама.
       {% endif %}
@@ -183,10 +194,11 @@
       <h4 class="newspaper-column-header">Законотворчество</h4>
 
       <ul class="unstyled">
-        {% for bill_event in bills_events %}
+        {% for bill in bills %}
         <li class="newspaper-link-list">
-          <span class="pgf-format-date newspaper-link-time" data-timestamp="{{ bill_event.created_at|timestamp }}"></span><br/>
-          {% include bill_event.data.TEMPLATE with context %}
+          <span class="pgf-format-datetime newspaper-link-time" data-timestamp="{{ bill.updated_at|timestamp }}"></span><br/>
+          <strong>{{bill.last_bill_event_text}}</strong>
+          «{{ bill.caption }}»&nbsp;<a href="{{ url('game:bills:show', bill.id) }}">➔</a>
         </li>
         {% endfor %}
       </ul>

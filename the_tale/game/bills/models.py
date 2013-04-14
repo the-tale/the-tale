@@ -1,6 +1,4 @@
 # coding: utf-8
-import datetime
-
 from django.db import models
 
 from rels.django_staff import TableIntegerField
@@ -16,7 +14,7 @@ class Bill(models.Model):
     CAPTION_MAX_LENGTH = 256
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
-    updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
+    updated_at = models.DateTimeField(auto_now=True, null=False)
 
     created_at_turn = models.IntegerField(null=False)
 

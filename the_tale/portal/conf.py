@@ -1,5 +1,6 @@
 # coding: utf-8
 import re
+import datetime
 
 from django.core.urlresolvers import reverse_lazy
 
@@ -30,4 +31,6 @@ portal_settings = app_settings('PORTAL',
                                CHRONICLE_RECORDS_ON_INDEX=5,
                                FORUM_THREADS_ON_INDEX=5,
                                BLOG_POSTS_ON_INDEX=3,
+                               SETTINGS_ACCOUNT_OF_THE_DAY_KEY='account of the day',
+                               FIRST_EDITION_DATE=datetime.datetime(2012, 10, 29),
                                NEWS_ON_INDEX=3)
