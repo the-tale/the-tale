@@ -175,20 +175,20 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         var profeccion = pgf.game.constants.PERSON_TYPE_TO_TEXT[data.type];
 
         var content = jQuery('#pgf-popover-person').clone();
-        if (place) jQuery('.pgf-place', content).text(place.name);            
+        if (place) jQuery('.pgf-place', content).text(place.name);
         jQuery('.pgf-race', content).text(race);
         jQuery('.pgf-gender', content).text(gender);
         jQuery('.pgf-type', content).text(profeccion);
-        
+
         if (data.mastery_verbose) {
-            jQuery('.pgf-mastery', content).text(data.mastery_verbose);            
+            jQuery('.pgf-mastery', content).text(data.mastery_verbose);
         }
     }
 
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.PLACE) {
 
         var place = widgets.mapManager.GetPlaceData(data.id);
-        
+
         if (place) nameElement.text(place.name);
 
         popoverTitle = 'город';
@@ -299,7 +299,7 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
                                                    // no need to enable choices or disable spinner
                                                    // after refresh they will be redrawed
                                                }
-                                              });            
+                                              });
                            });
     }
 
@@ -344,10 +344,21 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
         RenderChoices();
     };
 
+    var MAP_LOADED = false;
+    var QUEST_LOADED = false;
+
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        QUEST_LOADED = true;
         if (instance.Refresh(game_data)) {
-            instance.Render();            
+            instance.Render();
         }
+    });
+
+    jQuery(document).bind(pgf.game.map.events.DATA_UPDATED, function() {
+        if (MAP_LOADED) return;
+        MAP_LOADED = true;
+        if (!QUEST_LOADED) return;
+        instance.Render();
     });
 };
 
@@ -427,10 +438,21 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
         RenderMoneySpentInfo();
     };
 
+    var MAP_LOADED = false;
+    var QUEST_LOADED = false;
+
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        QUEST_LOADED = true;
         if (instance.Refresh(game_data)) {
-            instance.Render();            
+            instance.Render();
         }
+    });
+
+    jQuery(document).bind(pgf.game.map.events.DATA_UPDATED, function() {
+        if (MAP_LOADED) return;
+        MAP_LOADED = true;
+        if (!QUEST_LOADED) return;
+        instance.Render();
     });
 };
 
@@ -459,7 +481,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         data.actions = [];
 
         if (game_data.hero) {
-            data.action = game_data.hero.action;                            
+            data.action = game_data.hero.action;
         }
     };
 
@@ -500,16 +522,16 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
 
                 var ownPvP = data.own_hero.pvp;
 
-                var disable = processingChangeStyleRequest || 
-                    ownPvP.rage < rage || 
-                    ownPvP.initiative < initiative || 
+                var disable = processingChangeStyleRequest ||
+                    ownPvP.rage < rage ||
+                    ownPvP.initiative < initiative ||
                     ownPvP.concentration < concentration;
-                
+
                 el.toggleClass('disabled pgf-disabled', disable);
             });
     }
 
-    styleRecords.click( 
+    styleRecords.click(
         function(e) {
             var target = jQuery(e.currentTarget);
             e.preventDefault();
@@ -536,7 +558,7 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
                                 RefreshStylesStates();
                                 jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
                             }
-                           });            
+                           });
         });
 
     function ToggleAdwantageColors(greate, good, bad, worse) {
@@ -544,12 +566,12 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
             .toggleClass('progress-success', greate)
             .toggleClass('progress-info', good)
             .toggleClass('progress-warning', bad)
-            .toggleClass('progress-danger', worse);        
-        jQuery('.pgf-advantage', widget)      
+            .toggleClass('progress-danger', worse);
+        jQuery('.pgf-advantage', widget)
             .toggleClass('label-success', greate)
             .toggleClass('label-info', good)
             .toggleClass('label-warning', bad)
-            .toggleClass('label-danger', worse);        
+            .toggleClass('label-danger', worse);
     }
 
     function RenderResources(element, rage, initiative, concentration) {
@@ -576,7 +598,7 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
         var enemyAdvantage = 1.0 ;
 
         if (ownPvP.combat_style != null && enemyPvP.combat_style != null) {
-            ownAdvantage = pgf.game.constants.PVP_COMBAT_STYLES_ADVANTAGES[ownPvP.combat_style][enemyPvP.combat_style];            
+            ownAdvantage = pgf.game.constants.PVP_COMBAT_STYLES_ADVANTAGES[ownPvP.combat_style][enemyPvP.combat_style];
             enemyAdvantage = pgf.game.constants.PVP_COMBAT_STYLES_ADVANTAGES[enemyPvP.combat_style][ownPvP.combat_style];
         }
 
@@ -587,20 +609,20 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
         jQuery('.pvp-enemy-style', widget).removeClass('pvp-enemy-style');
 
         if (ownPvP.combat_style_str) {
-            jQuery('.pvp-style-icon.'+ownPvP.combat_style_str, widget).toggleClass('pvp-own-style', true);            
+            jQuery('.pvp-style-icon.'+ownPvP.combat_style_str, widget).toggleClass('pvp-own-style', true);
         }
 
         if (enemyPvP.combat_style_str) {
             jQuery('.pvp-style-icon.'+enemyPvP.combat_style_str, widget).toggleClass('pvp-enemy-style', true);
         }
-            
+
         if (0.5 <= ownPvP.advantage) { ToggleAdwantageColors(true, false, false, false);}
         else {
-            if (0 <= ownPvP.advantage && ownPvP.advantage < 0.5) { ToggleAdwantageColors(false, true, false, false);}   
+            if (0 <= ownPvP.advantage && ownPvP.advantage < 0.5) { ToggleAdwantageColors(false, true, false, false);}
             else {
-                if (-0.5 <= ownPvP.advantage && ownPvP.advantage < 0) { ToggleAdwantageColors(false, false, true, false);}                   
+                if (-0.5 <= ownPvP.advantage && ownPvP.advantage < 0) { ToggleAdwantageColors(false, false, true, false);}
                 else {
-                    ToggleAdwantageColors(false, false, false, true);   
+                    ToggleAdwantageColors(false, false, false, true);
                 }
             }
         }
@@ -710,19 +732,19 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
 
         if (params.dataMode == 'pve') {
             if (game_data.hero) {
-                data = game_data.hero.equipment;                            
+                data = game_data.hero.equipment;
             }
         }
 
         if (params.dataMode == 'pvp_account') {
             if (game_data.account.hero) {
-                data = game_data.account.hero.equipment;                            
+                data = game_data.account.hero.equipment;
             }
         }
 
         if (params.dataMode == 'pvp_enemy') {
             if (game_data.account.hero) {
-                data = game_data.enemy.hero.equipment;                            
+                data = game_data.enemy.hero.equipment;
             }
         }
     };
@@ -751,7 +773,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
         var text = "";
         for (var i in message[1]) {
             if (i == 0) {
-                text += "<div class='submessage' style='vertical-align: top;'>" + message[1][i][2] + "</div>";                
+                text += "<div class='submessage' style='vertical-align: top;'>" + message[1][i][2] + "</div>";
             }
             else {
                 text += "<div class='submessage'>" + message[1][i][2] + "</div>";
@@ -765,11 +787,11 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     function RenderLogMessage(index, message, element) {
         jQuery('.pgf-time', element).text(message[0]);
-        
+
         var text = "";
         for (var i in message[1]) {
             if (i == 0) {
-                text += "<div class='submessage' style='vertical-align: top;'>" + message[1][i][2] + "</div>";                
+                text += "<div class='submessage' style='vertical-align: top;'>" + message[1][i][2] + "</div>";
             }
             else {
                 text += "<br/><div class='submessage'>" + message[1][i][2] + "</div>";
@@ -819,7 +841,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
         if (messages.length > 0) lastTimestamp = messages[0][1][messages[0][1].length-1][0]; //get linux timestamp
         if (messages.length > 0) lastGameTime = messages[0][0]; //get game time
-        
+
         for (var i=0; i<=turnMessages.length-1; ++i) {
 
             if (turnMessages[i][0] <= lastTimestamp) continue;
@@ -828,7 +850,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
                 messages[0][1].push(turnMessages[i]);
             }
             else {
-                messages.unshift([turnMessages[i][1], [turnMessages[i]]]);                    
+                messages.unshift([turnMessages[i][1], [turnMessages[i]]]);
             }
 
             lastGameTime = turnMessages[i][1];
@@ -952,7 +974,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
                             jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
 
                             if (buildingId) {
-                                var buildingRepairDelta = jQuery('.pgf-ability-'+ability.type).data('building-repair-delta');                                
+                                var buildingRepairDelta = jQuery('.pgf-ability-'+ability.type).data('building-repair-delta');
                                 var buildingIntegrity = jQuery('.pgf-building-integrity').data('building-integrity');
                                 var newIntegrity = Math.min(buildingIntegrity + buildingRepairDelta, 1.0);
                                 jQuery('.pgf-building-integrity')
