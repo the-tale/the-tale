@@ -281,7 +281,10 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
         variantLink.text(' ' + variant[1]);
 
         if (variant[0] == null) {
-            element.addClass('disabled');
+            variantLink.addClass('disabled');
+            var tooltipArgs = jQuery.extend(true, {}, pgf.base.tooltipArgs, {title: 'выбор недоступен из-за характера героя',
+                                                                             placement: pgf.base.HorizTooltipPlacement});
+            variantLink.tooltip(tooltipArgs);
             return;
         }
 
