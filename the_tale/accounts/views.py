@@ -216,7 +216,8 @@ class ProfileResource(Resource):
 
         force_login_user(self.request, task.account._model)
 
-        self._account = task.account
+        # update account settuped on start of this request processing
+        self.account = task.account
 
         context['task'] = task
 
