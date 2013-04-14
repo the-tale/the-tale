@@ -7,7 +7,12 @@
 
 {% block ratings_content %}
 
-<h2>Рейтинги</h2>
+<h2>
+  Рейтинги
+  {% if ratings_updated_at_timestamp is not none %}
+  <small style="font-size: 10pt;">время обновления: <span class="pgf-format-datetime" data-timestamp="{{ratings_updated_at_timestamp}}"></span></small>
+  {% endif %}
+</h2>
 
 <ul class="nav nav-pills">
   <li {% if rating_type == RATING_TYPE.MIGHT %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.MIGHT) }}">Могущество</a></li>

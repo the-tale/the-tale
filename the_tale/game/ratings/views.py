@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 
 from dext.views import handler
 from dext.utils.urls import UrlBuilder
+from dext.settings import settings
 
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
@@ -40,6 +41,8 @@ class RatingResource(Resource):
 
     @handler('#rating_type', name='show', method='get')
     def show(self, page=1):
+
+        ratings_updated_at_timestamp = settings.get(ratings_settings.SETTINGS_UPDATE_TIMESTEMP_KEY, None)
 
         ratings_query = RatingPlaces.objects.all().select_related()
 
@@ -105,6 +108,7 @@ class RatingResource(Resource):
 
         return self.template('ratings/show.html',
                              {'ratings': ratings,
+                              'ratings_updated_at_timestamp': ratings_updated_at_timestamp,
                               'heroes': heroes,
                               'values': values,
                               'paginator': paginator,

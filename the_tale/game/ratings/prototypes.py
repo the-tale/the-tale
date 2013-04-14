@@ -1,6 +1,11 @@
 # coding: utf-8
+import time
 
 from dext.utils.decorators import nested_commit_on_success
+from dext.settings import settings
+
+from common.utils.decorators import lazy_property
+from common.utils.prototypes import BasePrototype
 
 from accounts.models import Account
 from accounts.prototypes import AccountPrototype
@@ -10,48 +15,17 @@ from game.bills.models import Bill, BILL_STATE
 from game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
 
 from game.ratings.models import RatingValues, RatingPlaces
+from game.ratings.conf import ratings_settings
 
-class RatingValuesPrototype(object):
 
-    def __init__(self, model):
-        self.model = model
+class RatingValuesPrototype(BasePrototype):
+    _model_class = RatingValues
+    _readonly = ('id', 'account_id', 'might', 'bills_count', 'power', 'level', 'phrases_count', 'pvp_battles_1x1_number', 'pvp_battles_1x1_victories')
+    _bidirectional = ()
+    _get_by = ('account_id', )
 
-    @classmethod
-    def get_for_account(cls, account):
-        try:
-            return cls(RatingValues.objects.get(account_id=account.id))
-        except RatingValues.DoesNotExist:
-            return None
-
-    @property
-    def account(self):
-        if not hasattr(self, '_account'):
-            self._account = AccountPrototype(self.model.account)
-        return self._account
-
-    @property
-    def account_id(self): return self.model.account_id
-
-    @property
-    def might(self): return self.model.might
-
-    @property
-    def bills_count(self): return self.model.bills_count
-
-    @property
-    def power(self): return self.model.power
-
-    @property
-    def level(self): return self.model.level
-
-    @property
-    def phrases_count(self): return self.model.phrases_count
-
-    @property
-    def pvp_battles_1x1_number(self): return self.model.pvp_battles_1x1_number
-
-    @property
-    def pvp_battles_1x1_victories(self): return self.model.pvp_battles_1x1_victories
+    @lazy_property
+    def account(self): return AccountPrototype(self._model.account)
 
     @classmethod
     @nested_commit_on_success
@@ -102,50 +76,15 @@ WHERE NOT %(accounts)s.is_fast
 
 
 
-class RatingPlacesPrototype(object):
+class RatingPlacesPrototype(BasePrototype):
+    _model_class = RatingPlaces
+    _readonly = ('id', 'account_id', 'might_place', 'bills_count_place', 'power_place',
+                 'level_place', 'phrases_count_place', 'pvp_battles_1x1_number_place', 'pvp_battles_1x1_victories_place')
+    _bidirectional = ()
+    _get_by = ('account_id', )
 
-
-    def __init__(self, model):
-        self.model = model
-
-    @classmethod
-    def get_for_account(cls, account):
-        try:
-            return cls(RatingPlaces.objects.get(account_id=account.id))
-        except RatingPlaces.DoesNotExist:
-            return None
-
-
-    @property
-    def account(self):
-        if not hasattr(self, '_account'):
-            self._account = AccountPrototype(self.model.account)
-        return self._account
-
-    @property
-    def account_id(self): return self.model.account_id
-
-    @property
-    def might_place(self): return self.model.might_place
-
-    @property
-    def bills_count_place(self): return self.model.bills_count_place
-
-    @property
-    def power_place(self): return self.model.power_place
-
-    @property
-    def level_place(self): return self.model.level_place
-
-    @property
-    def phrases_count_place(self): return self.model.phrases_count_place
-
-    @property
-    def pvp_battles_1x1_number_place(self): return self.model.pvp_battles_1x1_number_place
-
-    @property
-    def pvp_battles_1x1_victories_place(self): return self.model.pvp_battles_1x1_victories_place
-
+    @lazy_property
+    def account(self): return AccountPrototype(self._model.account)
 
     @classmethod
     @nested_commit_on_success
@@ -188,3 +127,5 @@ JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %
         cursor.execute(sql_request)
 
         transaction.commit_unless_managed()
+
+        settings[ratings_settings.SETTINGS_UPDATE_TIMESTEMP_KEY] = str(time.time())

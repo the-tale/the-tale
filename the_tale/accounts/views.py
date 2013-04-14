@@ -358,9 +358,9 @@ class AccountResource(Resource):
 
         threads_with_posts = Thread.objects.filter(post__author=self.master_account._model).distinct().count()
 
-        rating_places = RatingPlacesPrototype.get_for_account(self.master_account)
+        rating_places = RatingPlacesPrototype.get_by_account_id(self.master_account.id)
 
-        rating_values = RatingValuesPrototype.get_for_account(self.master_account)
+        rating_values = RatingValuesPrototype.get_by_account_id(self.master_account.id)
 
         phrases_count = PhraseCandidate.objects.filter(author=self.master_account._model).count()
 
