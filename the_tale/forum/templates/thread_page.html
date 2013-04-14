@@ -118,52 +118,48 @@ jQuery(document).ready( function(e) {
 
   {# give anchor to previous element, if we give anchor to current element#}
   <li class="post">
-    <table class="table post-table table-striped table-no-highlighting">
-      <tbody>
-        <tr class="head">
-          <td class="index"><a href="#m{{post.id}}" >#{{post.id}}</a><div class="anchor" id="m{{post.id}}"></div></td>
-          <td class="author">
-            <a href="{{url('accounts:show', post.author.id)}}">{{ post.author.nick }}</a>
-          </td>
+    <div class="head">
+      <div class="index"><a href="#m{{post.id}}" >#{{post.id}}</a><div class="anchor" id="m{{post.id}}"></div></div>
 
-          {% if not (post.is_removed or post.technical) %}
+      <div class="author">
+        <a href="{{url('accounts:show', post.author.id)}}">{{ post.author.nick }}</a>
+      </div>
 
-          {% if thread_data.can_change_posts or post.author.id == resource.account.id %}
-          <td class="change-post">
-            <a href="{{ url('forum:posts:edit', post.id) }}" class="pgf-change-post-button">правка</a>
-          </td>
-          {% endif %}
+      <div class="created-at pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp}}"></div>
 
-          {% if (thread_data.can_delete_posts or post.author.id == resource.account.id) and (loop.index!=1 or thread_data.paginator.current_page_number!=0) %}
-          <td class="delete-post">
-            <a href="#" class="pgf-remove-post-button" data-delete-url="{{ url('forum:posts:delete', post.id) }}">удалить</a>
-          </td>
-          {% endif %}
+      {% if not (post.is_removed or post.technical) %}
 
-          {% endif %}
+      {% if (thread_data.can_delete_posts or post.author.id == resource.account.id) and (loop.index!=1 or thread_data.paginator.current_page_number!=0) %}
+      <div class="delete-post">
+        <a href="#" class="pgf-remove-post-button" data-delete-url="{{ url('forum:posts:delete', post.id) }}">удалить</a>
+      </div>
+      {% endif %}
 
-          <td class="created-at pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp}}"></td>
-        </tr>
+      {% if thread_data.can_change_posts or post.author.id == resource.account.id %}
+      <div class="change-post">
+        <a href="{{ url('forum:posts:edit', post.id) }}" class="pgf-change-post-button">правка</a>
+      </div>
+      {% endif %}
 
-        <tr class="body">
-          <td colspan="5">
-            {% if post.is_removed %}
-            <span class="post-removed-message">
-              {% if post.is_removed_by_author %}
-              Сообщение удалено автором
-              {% elif post.is_removed_by_thread_owner %}
-              Соообщение удалено владельцем темы
-              {% else %}
-              Сообщение удалено модератором
-              {% endif %}
-            </span>
-            {% else %}
-            {{ post.html|safe }}
-            {% endif %}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      {% endif %}
+
+    </div>
+
+    <div class="body">
+      {% if post.is_removed %}
+      <span class="post-removed-message">
+        {% if post.is_removed_by_author %}
+        Сообщение удалено автором
+        {% elif post.is_removed_by_thread_owner %}
+        Соообщение удалено владельцем темы
+        {% else %}
+        Сообщение удалено модератором
+        {% endif %}
+      </span>
+      {% else %}
+      {{ post.html|safe }}
+      {% endif %}
+    </div>
   </li>
   {% endfor %}
 </ul>
