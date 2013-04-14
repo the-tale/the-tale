@@ -58,7 +58,8 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
     var data = undefined;
 
-    var tooltipArgs = jQuery.extend(true, {}, pgf.base.tooltipsArgs, {title: function(){return jQuery('.pgf-might-tooltip', content).html();} });
+    var tooltipArgs = jQuery.extend(true, {}, pgf.base.tooltipsArgs, {title: function(){return jQuery('.pgf-might-tooltip', content).html();},
+                                                                      placement: "bottom"});
     jQuery('.pgf-might-record', content).tooltip(tooltipArgs);
 
     this.RenderHero = function(data, widget) {
@@ -209,6 +210,7 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
     popoverContent = content.html();
 
     var popoverArgs = jQuery.extend(true, {}, pgf.base.popoverArgs, {title: popoverTitle,
+                                                                     placement: pgf.base.HorizTooltipPlacement,
                                                                      content: popoverContent});
     nameElement.toggleClass('pgf-has-popover', true).popover(popoverArgs);
 };

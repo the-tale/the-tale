@@ -75,14 +75,35 @@ pgf.base.InitializeTabs = function(settingName, def, tabs) {
 };
 
 pgf.base.TooltipPlacement = function (tip, element) {
-    var offset = $(element).offset();
-    height = $(document).outerHeight();
-    width = $(document).outerWidth();
-    vert = 0.5 * height - offset.top;
-    vertPlacement = vert > 0 ? 'bottom' : 'top';
-    horiz = 0.5 * width - offset.left;
-    horizPlacement = horiz > 0 ? 'right' : 'left';
-    placement = horizPlacement; //Math.abs(horiz) > Math.abs(vert) ?  horizPlacement : vertPlacement;
+    element = jQuery(element);
+
+    var offset = element.offset();
+    var placement = element.data('tooltip-placement');
+
+    if (!placement) {
+        var height = jQuery(document).outerHeight();
+        var width = jQuery(document).outerWidth();
+        var vert = 0.5 * height - offset.top;
+        var vertPlacement = vert > 0 ? 'bottom' : 'top';
+        var horiz = 0.5 * width - offset.left;
+        var horizPlacement = horiz > 0 ? 'right' : 'left';
+        placement = Math.abs(horiz) > Math.abs(vert) ?  horizPlacement : vertPlacement;        
+    }
+    return placement;
+};
+
+pgf.base.HorizTooltipPlacement = function (tip, element) {
+    element = jQuery(element);
+
+    var offset = element.offset();
+    var placement = element.data('tooltip-placement');
+
+    if (!placement) {
+        var width = jQuery(document).outerWidth();
+        var horiz = 0.5 * width - offset.left;
+        var horizPlacement = horiz > 0 ? 'right' : 'left';
+        placement = horizPlacement; 
+    }
     return placement;
 };
 
