@@ -312,7 +312,21 @@ class TestShowRequests(BaseTestRequests):
                  ('test-voting-block', 0),
                  ('test-already-voted-block', 1),
                  ('pgf-forum-block', 1),
+                 ('pgf-bills-results-summary', 1),
+                 ('pgf-bills-results-detailed', 0),
                  (self.place2.name, 2)]
+
+        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
+
+    def test_show_when_not_voting_state(self):
+        bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_2')
+        self.create_bills(1, self.account1, 'caption-a2-%d', 'rationale-a2-%d', bill_data)
+        bill = Bill.objects.all()[0]
+        bill.state = BILL_STATE.ACCEPTED
+        bill.save()
+
+        texts = [('pgf-bills-results-summary', 0),
+                 ('pgf-bills-results-detailed', 1)]
 
         self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
 

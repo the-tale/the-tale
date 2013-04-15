@@ -1,9 +1,18 @@
 
 {% macro _voting_results(bill) %}
 
-<span>«за» {{ bill.votes_for }}</span>,
-<span>«против» {{ bill.votes_against }}</span>
-<span>(итого {{ bill.votes_for_percents|percents }} «за»)</span>
+{% if bill.state._is_VOTING %}
+<span class="pgf-bills-results-summary">
+  всего проголосовало: {{bill.votes_for + bill.votes_against}}
+  (результаты будут известны после завершения голосования)
+</span>
+{% else %}
+<span class="pgf-bills-results-detailed">
+  «за» {{ bill.votes_for }},
+  «против» {{ bill.votes_against }}
+  (итого {{ bill.votes_for_percents|percents }} «за»)
+</span>
+{% endif %}
 {% endmacro %}
 
 {% macro bill_info(bill, vote=none) %}
