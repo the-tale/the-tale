@@ -12,6 +12,7 @@ from common.utils.decorators import lazy_property
 from common.utils import bbcode
 from common.utils.prototypes import BasePrototype
 
+from accounts.logic import get_system_user
 from accounts.prototypes import AccountPrototype
 
 from game.prototypes import TimePrototype
@@ -134,7 +135,7 @@ class BillPrototype(BasePrototype):
             self.save()
 
             PostPrototype.create(ThreadPrototype(self._model.forum_thread),
-                                 self.owner,
+                                 get_system_user(),
                                  u'Законопроект отклонён.',
                                  technical=True)
 
@@ -147,7 +148,7 @@ class BillPrototype(BasePrototype):
         self.save()
 
         PostPrototype.create(ThreadPrototype(self._model.forum_thread),
-                             self.owner,
+                             get_system_user(),
                              u'Законопроект принят. Изменения вступят в силу в ближайшее время.',
                              technical=True)
 
@@ -180,7 +181,7 @@ class BillPrototype(BasePrototype):
         thread.save()
 
         PostPrototype.create(thread,
-                             self.owner,
+                             get_system_user(),
                              u'Законопроект был отредактирован, все голоса сброшены.',
                              technical=True)
 
@@ -212,7 +213,7 @@ class BillPrototype(BasePrototype):
 
         thread = ThreadPrototype.create(SubCategoryPrototype.get_by_slug(bills_settings.FORUM_CATEGORY_SLUG),
                                         caption=caption,
-                                        author=owner,
+                                        author=get_system_user(),
                                         text=text + u'\n\n' + rationale,
                                         technical=True,
                                         markup_method=MARKUP_METHOD.POSTMARKUP)
@@ -250,7 +251,7 @@ class BillPrototype(BasePrototype):
         thread.save()
 
         PostPrototype.create(thread,
-                             initiator,
+                             get_system_user(),
                              u'Законопроект был удалён',
                              technical=True)
 

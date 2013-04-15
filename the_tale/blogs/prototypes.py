@@ -10,6 +10,7 @@ from common.utils.decorators import lazy_property
 from common.utils.prototypes import BasePrototype
 
 from accounts.prototypes import AccountPrototype
+from accounts.logic import get_system_user
 
 from forum.prototypes import ThreadPrototype as ForumThreadPrototype
 from forum.prototypes import SubCategoryPrototype as ForumSubCategoryPrototype
@@ -57,7 +58,7 @@ class PostPrototype(BasePrototype):
 
         thread = ForumThreadPrototype.create(ForumSubCategoryPrototype.get_by_slug(blogs_settings.FORUM_CATEGORY_SLUG),
                                              caption=caption,
-                                             author=author,
+                                             author=get_system_user(),
                                              text=u'обсуждение [url="%s%s"]произведения[/url]' % (project_settings.SITE_URL,
                                                                                                   reverse('blogs:posts:show', args=[model.id])),
                                              markup_method=MARKUP_METHOD.POSTMARKUP)

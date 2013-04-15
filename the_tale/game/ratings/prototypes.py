@@ -9,6 +9,7 @@ from common.utils.prototypes import BasePrototype
 
 from accounts.models import Account
 from accounts.prototypes import AccountPrototype
+from accounts.logic import get_system_user
 
 from game.heroes.models import Hero
 from game.bills.models import Bill, BILL_STATE
@@ -58,7 +59,7 @@ LEFT OUTER JOIN ( SELECT %(phrase_candidates)s.author_id AS phrase_author_id, CO
                   FROM %(phrase_candidates)s
                   WHERE %(phrase_candidates)s.state=%(phrase_candidate_added_state)s GROUP BY %(phrase_candidates)s.author_id ) AS phrases_subquery
            ON %(accounts)s.id=phrase_author_id
-WHERE NOT %(accounts)s.is_fast
+WHERE NOT %(accounts)s.is_fast AND %(accounts)s.id <> %(system_user_id)s
 '''
 
         sql_request = sql_request % {'ratings': RatingValues._meta.db_table,
@@ -67,7 +68,8 @@ WHERE NOT %(accounts)s.is_fast
                                      'bills': Bill._meta.db_table,
                                      'bill_accepted_state': BILL_STATE.ACCEPTED.value,
                                      'phrase_candidates': PhraseCandidate._meta.db_table,
-                                     'phrase_candidate_added_state': PHRASE_CANDIDATE_STATE.ADDED }
+                                     'phrase_candidate_added_state': PHRASE_CANDIDATE_STATE.ADDED,
+                                     'system_user_id': get_system_user().id}
 
         cursor.execute(sql_request)
 

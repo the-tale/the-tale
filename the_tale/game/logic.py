@@ -1,6 +1,5 @@
 # coding: utf-8
 import os
-import datetime
 
 from django.conf import settings as project_settings
 

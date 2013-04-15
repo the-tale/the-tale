@@ -14,6 +14,8 @@ from common.utils.decorators import staff_required
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
 
+from accounts.logic import get_system_user
+
 from cms.news.models import News
 from cms.news.conf import news_settings
 
@@ -90,7 +92,7 @@ class NewsResource(Resource):
 
         thread = ThreadPrototype.create(SubCategoryPrototype.get_by_slug(news_settings.FORUM_CATEGORY_SLUG ),
                                         caption=self.news.caption,
-                                        author=self.account,
+                                        author=get_system_user(),
                                         text=self.news.content,
                                         markup_method=MARKUP_METHOD.MARKDOWN)
 
