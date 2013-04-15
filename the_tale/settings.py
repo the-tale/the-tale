@@ -315,8 +315,8 @@ LOGGING = {
         'the-tale.workers.game_might_calculator': get_worker_logger('game_might_calculator'),
         'the-tale.workers.game_long_commands': get_worker_logger('game_long_commands'),
         'the-tale.workers.game_pvp_balancer': get_worker_logger('game_pvp_balancer'),
-        'accounts.workers.registration': get_worker_logger('accounts_registration'),
-        'post_service.workers.message_sender': get_worker_logger('post_service_message_sender'),
+        'the-tale.workers.accounts_registration': get_worker_logger('accounts_registration'),
+        'the-tale.workers.post_service_message_sender': get_worker_logger('post_service_message_sender'),
     } if not TESTS_RUNNING else {}
 }
 

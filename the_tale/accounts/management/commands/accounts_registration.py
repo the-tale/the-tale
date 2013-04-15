@@ -10,7 +10,7 @@ from dext.utils import pid
 from accounts.workers.environment import workers_environment
 
 
-logger = getLogger('accounts.workers.registration')
+logger = getLogger('the-tale.workers.accounts_registration')
 
 class Command(BaseCommand):
 

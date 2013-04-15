@@ -9,7 +9,7 @@ from dext.utils import pid
 
 from post_service.workers.environment import workers_environment
 
-logger = getLogger('post_service.workers.message_sender')
+logger = getLogger('the-tale.workers.post_service_message_sender')
 
 class Command(BaseCommand):
 
