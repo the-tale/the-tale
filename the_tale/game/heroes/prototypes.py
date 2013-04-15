@@ -144,6 +144,7 @@ class HeroPrototype(BasePrototype):
     def health_percents(self): return float(self.health) / self.max_health
 
     def change_money(self, source, value):
+        value = int(round(value))
         self.statistics.change_money(source, abs(value))
         self._model.money += value
 
@@ -315,7 +316,7 @@ class HeroPrototype(BasePrototype):
         if self.position.place and self.position.place.modifier:
             price = self.position.place.modifier.modify_sell_price(price)
 
-        return price
+        return int(round(price))
 
     def modify_buy_price(self, price):
         price = self.abilities.update_buy_price(self, price)

@@ -73,7 +73,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-name', widget).text(data.base.name);
         jQuery('.pgf-hero-page-link', widget).attr('href', heroPageUrl);
         jQuery('.pgf-free-destiny-points', widget).attr('href', heroPageUrl).toggleClass('pgf-hidden', !data.base.destiny_points);
-        jQuery('.pgf-health', widget).text(data.base.health);
+        jQuery('.pgf-health', widget).text(parseInt(data.base.health));
         jQuery('.pgf-max-health', widget).text(data.base.max_health);
         jQuery('.pgf-experience', widget).text(parseInt(data.base.experience));
         jQuery('.pgf-experience-to-level', widget).text(data.base.experience_to_level);
@@ -86,7 +86,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-experience-percents', widget).width( (100 * data.base.experience / data.base.experience_to_level) + '%');
 
         jQuery('.pgf-power', widget).text(data.secondary.power);
-        jQuery('.pgf-money', widget).text(data.money);
+        jQuery('.pgf-money', widget).text(parseInt(data.money));
         jQuery('.pgf-might', widget).text(Math.round(data.might*100)/100);
         jQuery('.pgf-might-crit-chance', widget).text(data.might_crit_chance);
         jQuery('.pgf-might-pvp-effectiveness-bonus', widget).text(data.might_pvp_effectiveness_bonus);
