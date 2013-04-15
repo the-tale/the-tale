@@ -64,13 +64,13 @@ class BBField(fields.TextField):
 
     def html(self, bound_field):
         html = u"""
-<div id="pgf-bbfield-%(field_id)s" class="pgf-bbfield">
+<div id="pgf-bbfield-%(field_id)s" class="pgf-bbfield bbfield">
   %(label)s
   <div class="pgf-edit-content">
     %(command_line)s
     %(bound_field)s
   </div>
-  <div class="pgf-preview-content pgf-hidden"></div>
+  <div class="pgf-preview-content pgf-hidden bbfield-preview block white"></div>
   %(errors_container)s
   <div class="widget">
     <button type="button" class="btn pgf-preview-button">Предпросмотр</button>
