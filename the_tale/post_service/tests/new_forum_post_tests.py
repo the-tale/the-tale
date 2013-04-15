@@ -63,6 +63,15 @@ class NewForumPostTests(testcase.TestCase):
         self.assertTrue(self.post.thread.paginator.last_page_url in mail.outbox[0].alternatives[0][0])
         self.assertTrue(project_settings.SITE_URL in mail.outbox[0].alternatives[0][0])
 
+    def test_mail_send__to_system_user(self):
+        from accounts.logic import get_system_user
+
+        SubscriptionPrototype.create(get_system_user(), self.thread)
+        self.assertEqual(len(mail.outbox), 0)
+        self.message.process()
+        self.assertTrue(self.message.state._is_PROCESSED)
+        self.assertEqual(len(mail.outbox), 0)
+
     def test_many_subscriptions(self):
         register_user('user_2', 'user_2@test.com', '111111')
         account_2 = AccountPrototype.get_by_nick('user_2')

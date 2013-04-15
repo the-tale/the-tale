@@ -38,3 +38,16 @@ class ResetPasswordTests(testcase.TestCase):
 
         self.assertTrue(self.reset_task.uuid in mail.outbox[0].body)
         self.assertTrue(self.reset_task.uuid in mail.outbox[0].alternatives[0][0])
+
+    def test_mail_send__to_system_user(self):
+        from accounts.logic import get_system_user
+
+        Message.objects.all().delete()
+
+        ResetPasswordTaskPrototype.create(get_system_user())
+        message = MessagePrototype.get_priority_message()
+
+        self.assertEqual(len(mail.outbox), 0)
+        message.process()
+        self.assertTrue(message.state._is_PROCESSED)
+        self.assertEqual(len(mail.outbox), 0)

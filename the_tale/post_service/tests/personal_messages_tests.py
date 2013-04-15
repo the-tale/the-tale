@@ -60,3 +60,17 @@ class PersonalMessagesTests(testcase.TestCase):
         self.assertFalse(self.account_2.nick in mail.outbox[0].alternatives[0][0])
         self.assertTrue(self.personal_message.text in mail.outbox[0].alternatives[0][0])
         self.assertTrue(project_settings.SITE_URL in mail.outbox[0].alternatives[0][0])
+
+    def test_mail_send__to_system_user(self):
+        from accounts.logic import get_system_user
+
+        Message.objects.all().delete()
+
+        PersonalMessagePrototype.create(self.account_1, get_system_user(), 'test text')
+
+        message = MessagePrototype.get_priority_message()
+
+        self.assertEqual(len(mail.outbox), 0)
+        message.process()
+        self.assertTrue(message.state._is_PROCESSED)
+        self.assertEqual(len(mail.outbox), 0)

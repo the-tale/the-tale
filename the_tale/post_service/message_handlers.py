@@ -6,6 +6,7 @@ from django.conf import settings as project_settings
 from dext.jinja2 import render
 
 from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
+from accounts.logic import get_system_user
 
 # TODO: rewrite to autodiscover() logic
 #       code for this can be chosen form postponed_tasks and moved to utils
@@ -84,6 +85,9 @@ class PersonalMessageHandler(BaseMessageHandler):
         if not account.personal_messages_subscription:
             return True
 
+        if account.id == get_system_user().id:
+            return True
+
         EMAIL_HTML_TEMPLATE = 'post_service/emails/personal_message.html'
         EMAIL_TEXT_TEMPLATE = 'post_service/emails/personal_message.txt'
 
@@ -153,8 +157,13 @@ class ForumPostHandler(BaseMessageHandler):
         connection = mail.get_connection()
         connection.open()
 
+        system_user = get_system_user()
+
         for account in accounts:
             if not account.email:
+                continue
+
+            if account.id == system_user.id:
                 continue
 
             email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
@@ -213,8 +222,13 @@ class ForumThreadHandler(BaseMessageHandler):
         connection = mail.get_connection()
         connection.open()
 
+        system_user = get_system_user()
+
         for account in accounts:
             if not account.email:
+                continue
+
+            if account.id == system_user.id:
                 continue
 
             email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
@@ -252,6 +266,9 @@ class ResetPasswordHandler(BaseMessageHandler):
 
     def process(self):
         account = AccountPrototype.get_by_id(self.account_id)
+
+        if account.id == get_system_user().id:
+            return True
 
         EMAIL_HTML_TEMPLATE = 'post_service/emails/reset_password.html'
         EMAIL_TEXT_TEMPLATE = 'post_service/emails/reset_password.txt'
@@ -305,6 +322,9 @@ class ChangeEmailNotificationHandler(BaseMessageHandler):
 
         task = ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
 
+        if task.account.id == get_system_user().id:
+            return True
+
         context = {'task': task}
 
         html_content = render.template(EMAIL_HTML_TEMPLATE, context)
@@ -320,8 +340,6 @@ class ChangeEmailNotificationHandler(BaseMessageHandler):
         connection.close()
 
         return True
-
-
 
 
 HANDLERS = dict( (handler.TYPE, handler)

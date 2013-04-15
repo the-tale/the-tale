@@ -47,6 +47,14 @@ class ChangeEmailNotificationTests(testcase.TestCase):
         self.assertTrue(task.uuid in mail.outbox[0].body)
         self.assertTrue(task.uuid in mail.outbox[0].alternatives[0][0])
 
+    def test_mail_send__to_system_user(self):
+        from accounts.logic import get_system_user
+        task, message = self.create_task_and_message(get_system_user(), 'user_1_new')
+        self.assertEqual(len(mail.outbox), 0)
+        message.process()
+        self.assertTrue(message.state._is_PROCESSED)
+        self.assertEqual(len(mail.outbox), 0)
+
     def test_mail_send_for_fast_account(self):
         register_user('user_2')
         account = AccountPrototype.get_by_nick('user_2')
