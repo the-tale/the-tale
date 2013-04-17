@@ -159,6 +159,23 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertEqual(artifacts_storage.generate_artifact_from_list([loot, artifact], level=1), None)
 
+    def test_change_uuid(self):
+        loot = ArtifactRecordPrototype.create_random('some_loot', type_=ARTIFACT_TYPE.USELESS, state=ARTIFACT_RECORD_STATE.DISABLED)
+
+        form = ModerateArtifactRecordForm({'level': '1',
+                                           'type': ARTIFACT_TYPE.USELESS,
+                                           'rarity': RARITY_TYPE.NORMAL,
+                                           'uuid': 'new_uid',
+                                           'name_forms': s11n.to_json(Noun.fast_construct('artifact name').serialize())})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(loot.uuid, artifacts_storage.get_by_uuid(loot.uuid).uuid)
+
+        loot.update_by_moderator(form)
+
+        self.assertEqual(loot.uuid, 'new_uid')
+        self.assertEqual(loot.uuid, artifacts_storage.get_by_uuid(loot.uuid).uuid)
+
+
     def test_change_uuid_of_default_equipment(self):
         form = ModerateArtifactRecordForm({'level': '1',
                                            'type': ARTIFACT_TYPE.USELESS,

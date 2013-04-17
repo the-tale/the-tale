@@ -282,6 +282,7 @@ class ArtifactRecordPrototype(object):
 
         self.model.save()
 
+        artifacts_storage.update_cached_data(self)
         artifacts_storage.update_version()
 
     def create_artifact(self, level, power=0, quest=False):
