@@ -7,6 +7,7 @@ from django.test import client
 from django.core.urlresolvers import reverse
 
 from dext.utils import s11n
+from dext.utils.urls import url
 
 from common.utils.testcase import TestCase
 from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
@@ -20,7 +21,8 @@ from game.heroes.prototypes import HeroPrototype
 
 from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 from game.pvp.tests.helpers import PvPTestsMixin
-from game.pvp.combat_styles import COMBAT_STYLES
+from game.pvp.abilities import ABILITIES
+
 
 class TestRequestsBase(TestCase, PvPTestsMixin):
 
@@ -93,23 +95,23 @@ class TestRequests(TestRequestsBase):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        self.hero_1.pvp.combat_style = random.choice(COMBAT_STYLES.values()).type
+        self.hero_1.pvp.energy = 1
         self.hero_1.save()
 
-        self.hero_2.pvp.combat_style = random.choice(COMBAT_STYLES.values()).type
+        self.hero_2.pvp.energy = 2
         self.hero_2.save()
 
         data = s11n.from_json(self.client.get(reverse('game:pvp:info')).content)
 
-        self.assertEqual(data['data']['account']['hero']['pvp']['combat_style'], COMBAT_STYLES[self.hero_1.pvp.combat_style].type)
-        self.assertEqual(data['data']['enemy']['hero']['pvp']['combat_style'], None)
+        self.assertEqual(data['data']['account']['hero']['pvp']['energy'], 1)
+        self.assertEqual(data['data']['enemy']['hero']['pvp']['energy'], 0)
 
         self.hero_2.pvp.store_turn_data()
         self.hero_2.save()
 
         data = s11n.from_json(self.client.get(reverse('game:pvp:info')).content)
 
-        self.assertEqual(data['data']['enemy']['hero']['pvp']['combat_style'], COMBAT_STYLES[self.hero_2.pvp.combat_style].type)
+        self.assertEqual(data['data']['enemy']['hero']['pvp']['energy'], 2)
 
     def test_game_info_caching(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
@@ -142,24 +144,24 @@ class SayRequestsTests(TestRequestsBase):
         self.check_ajax_processing(response, task.status_url)
 
 
-class ChangePvPStyleRequestsTests(TestRequestsBase):
+class UsePvPAbilityRequestsTests(TestRequestsBase):
 
     def setUp(self):
-        super(ChangePvPStyleRequestsTests, self).setUp()
-        self.combat_style = random.choice(COMBAT_STYLES.values())
-        self.change_style_url = reverse('game:pvp:change-style') + ('?combat_style=%d' % self.combat_style.type)
+        super(UsePvPAbilityRequestsTests, self).setUp()
+        self.ability = random.choice(ABILITIES.values())
+        self.change_style_url = url('game:pvp:use-ability', ability=self.ability.TYPE)
 
     def test_no_battle(self):
-        self.check_ajax_error(self.client.post(self.change_style_url), 'pvp.combat_style.no_battle')
+        self.check_ajax_error(self.client.post(self.change_style_url), 'pvp.use_ability.no_battle')
 
     def test_battle_not_in_processing_state(self):
         self.pvp_create_battle(self.account_1, None)
-        self.check_ajax_error(self.client.post(self.change_style_url), 'pvp.combat_style.no_battle')
+        self.check_ajax_error(self.client.post(self.change_style_url), 'pvp.use_ability.no_battle')
 
     def test_wrong_style_id(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_1, None)
-        self.check_ajax_error(self.client.post(reverse('game:pvp:change-style') + '?combat_style=666'), 'pvp.combat_style.wrong_format')
+        self.check_ajax_error(self.client.post(url('game:pvp:use-ability', ability=666)), 'pvp.ability.wrong_format')
 
     def test_success(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)

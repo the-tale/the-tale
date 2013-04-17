@@ -161,12 +161,12 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM, 2)
         self.assertEqual(c.ABILITIES_FOR_CHOOSE_MAXIMUM, 4)
 
-        # different pvp constants
-        self.assertEqual(c._PVP_K, 3.0/4) # if this constant changed, check all pvp balancing
-        self.assertEqual(c.PVP_RESOURCES_PER_TURN, 1)
+        self.assertEqual(c.DAMAGE_PVP_ADVANTAGE_MODIFIER,0.5)
+        self.assertEqual(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, 5)
         self.assertEqual(c.PVP_MAX_ADVANTAGE_STEP, 0.3)
-        self.assertEqual(round(c.PVP_MAX_EFFECTIVENESS_MULTIPLIER, 2), 1.33)
+        self.assertEqual(c.PVP_MAX_EFFECTIVENESS_MULTIPLIER, 2)
         self.assertEqual(c.PVP_ADVANTAGE_BARIER, 0.95)
+        self.assertEqual(c.PVP_COMBAT_STYLE_EXTINCTION_FRACTION, 0.1)
 
         self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
         self.assertEqual(c.BUILDING_FULL_DESTRUCTION_TIME, 2*7*24)
@@ -176,12 +176,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.BUILDING_WORKERS_ENERGY_COST, 3)
         self.assertEqual(c.BUILDING_PERSON_POWER_MULTIPLIER, 1.1)
         self.assertEqual(c.BUILDING_TERRAIN_POWER_MULTIPLIER, 0.5)
-
-    def test_pvp_combat_styles_advantages_balanced(self):
-        test_value = len(e.PVP_COMBAT_STYLES._ALL)
-        for combat_style in e.PVP_COMBAT_STYLES._ALL:
-            self.assertEqual(sum(c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style][combat_style_2] for combat_style_2 in e.PVP_COMBAT_STYLES._ALL), test_value)
-
 
 
 class FormulasTest(testcase.TestCase):

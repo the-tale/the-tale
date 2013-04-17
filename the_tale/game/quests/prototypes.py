@@ -187,18 +187,20 @@ class QuestPrototype(BasePrototype):
             person.cmd_change_power(power)
 
     def push_message(self, writer, messanger, event, **kwargs):
+        from game.heroes.messages import MessagesContainer
 
         if event is None:
             return
 
         diary_msg = writer.get_diary_msg(event, **kwargs)
         if diary_msg:
-            messanger.push_message(HeroPrototype._prepair_message(diary_msg), important=True)
+            messanger.messages.push_message(MessagesContainer._prepair_message(diary_msg))
+            messanger.diary.push_message(MessagesContainer._prepair_message(diary_msg))
             return
 
         journal_msg = writer.get_journal_msg(event, **kwargs)
         if journal_msg:
-            messanger.push_message(HeroPrototype._prepair_message(journal_msg))
+            messanger.messages.push_message(MessagesContainer._prepair_message(journal_msg))
 
 
     def process_current_command(self, cur_action):

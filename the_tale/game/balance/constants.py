@@ -1,9 +1,5 @@
 # coding: utf-8
-import os
 import math
-import itertools
-
-from common.utils import xls
 
 from game.balance import enums as e
 
@@ -111,8 +107,6 @@ DAMAGE_TO_MOB_PER_HIT_FRACTION = float(1.0 / (BATTLE_LENGTH / 2)) # доля у�
 DAMAGE_DELTA = float(0.2) # разброс в значениях урона [1-DAMAGE_DELTA, 1+DAMAGE_DELTA]
 
 DAMAGE_CRIT_MULTIPLIER = float(2.0) # во сколько раз увеличивается урон при критическом ударе
-DAMAGE_PVP_ADVANTAGE_MODIFIER = float(0.5) # на какую долю изменяется урон при максимальной разнице в преимуществе между бойцами
-DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER = float(5) # во сколько раз увеличится урон удара при максимальном преимушестве
 
 EXP_PER_HOUR = float(BATTLES_PER_HOUR * EXP_PER_MOB)  # опыт в час ;
 
@@ -263,56 +257,17 @@ ABILITIES_FOR_CHOOSE_MAXIMUM = 4
 
 
 ###########################
-# стили pvp боя
+# pvp
 ###########################
 
-PVP_RESOURCES_PER_TURN = 1
+DAMAGE_PVP_ADVANTAGE_MODIFIER = float(0.5) # на какую долю изменяется урон при максимальной разнице в преимуществе между бойцами
+DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER = float(5) # во сколько раз увеличится урон удара при максимальном преимушестве
 
-_pvp_combat_styles_file = os.path.join(os.path.dirname(__file__), 'fixtures/combat_styles.xls')
-
-PVP_COMBAT_STYLES_ADVANTAGES = xls.load_table_for_enums(_pvp_combat_styles_file, sheet_index=0,
-                                                        rows_enum=e.PVP_COMBAT_STYLES, columns_enum=e.PVP_COMBAT_STYLES)
-
-PVP_COMBAT_STYLES_COSTS = xls.load_table_for_enums(_pvp_combat_styles_file, sheet_index=1, data_type=int,
-                                                   rows_enum=e.PVP_COMBAT_STYLES, columns_enum=e.PVP_COMBAT_RESOURCES)
-
-# параметр используется для расчёта прочих игровых параметров
-# характеризует долю силы стиля
-_PVP_K = 3.0/4
-
-# стили должны угасать с такой скоростью
-# чтобы за время опускания силы до k-ой доли на него накапливалась d-ая часть ресурсов (d < 1)
-# решаем уравнение: x(1-p)^(dn) = kx, где x - сила стиля, p - коофициент угасания, k - остающаяся доля, n - ходы, за которе накапливается все ресурсы
-# p = 1 - math.pow(k, 1/n)
-_pvp_d = (1-_PVP_K) * 3/4
-_pvp_combat_styles_cost_turns = [ int(math.ceil(float(max(*cost.values()))/PVP_RESOURCES_PER_TURN))
-                                  for combat_style_id, cost in PVP_COMBAT_STYLES_COSTS.items()]
-_pvp_combat_styles_extinction_fractions = [1 - math.pow(_PVP_K, 1.0/(turns*_pvp_d)) for turns in _pvp_combat_styles_cost_turns]
-PVP_COMBAT_STYLE_EXTINCTION_FRACTION = sum(_pvp_combat_styles_extinction_fractions) / len(_pvp_combat_styles_extinction_fractions)
-
-# максимальный коофициент превосходства должен быть таким
-# чтобы силы ослабшего (до l, например, 0.5) но превосходящего стиля и свежего, но проигрывающего были равны
-# уравнение: lp(1+x) = p(1-x), где p - эффективность x - доля изменения
-# x = (1-l)/(1+l)
-# округляем, чтобы игрокам было легче
-
-_pvp_max_combat_style_advantage = (1 - 0.5) / (1 + 0.5)
-
-# normalize combat style advantages
-_pvp_max_advantage = max(itertools.chain(*[[math.fabs(advantage) for advantage in style_advantages.values()]
-                                       for style_advantages in PVP_COMBAT_STYLES_ADVANTAGES.values()]))
-
-for combat_style_id in e.PVP_COMBAT_STYLES._ALL:
-    for combat_style_id_2 in e.PVP_COMBAT_STYLES._ALL:
-        advantage = PVP_COMBAT_STYLES_ADVANTAGES[combat_style_id][combat_style_id_2]
-        PVP_COMBAT_STYLES_ADVANTAGES[combat_style_id][combat_style_id_2] = round(1 + advantage / _pvp_max_advantage * _pvp_max_combat_style_advantage, 2)
-
-# максимальный сдвиг преимушества устанавливается для максимальной разницы в силе стилей (т.е. между 0-ом и максимальной силой с максимальным бонусом)
 PVP_MAX_ADVANTAGE_STEP = 0.3
-PVP_MAX_EFFECTIVENESS_MULTIPLIER = 1 + _pvp_max_combat_style_advantage
+PVP_MAX_EFFECTIVENESS_MULTIPLIER = 2
 
 PVP_ADVANTAGE_BARIER = 0.95
-
+PVP_COMBAT_STYLE_EXTINCTION_FRACTION = 0.1
 
 ###########################
 # типы городов

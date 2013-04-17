@@ -1,7 +1,5 @@
 # coding: utf-8
 
-import random
-
 import mock
 
 from common.utils import testcase
@@ -21,7 +19,7 @@ from game.pvp.models import Battle1x1, Battle1x1Result
 from game.pvp.relations import BATTLE_1X1_STATE
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.tests.helpers import PvPTestsMixin
-from game.pvp.combat_styles import COMBAT_STYLES
+
 
 class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
 
@@ -45,13 +43,11 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
 
         # for test data reset
         self.hero_1.health = self.hero_1.max_health / 2
-        self.hero_1.pvp.combat_style = random.choice(COMBAT_STYLES.values()).type
         self.hero_1.pvp.advantage = 1
         self.hero_1.pvp.rage = 390
         self.hero_1.pvp.effectiveness = 0.5
 
         # for test data reset
-        self.hero_2.pvp.combat_style = random.choice(COMBAT_STYLES.values()).type
         self.hero_2.pvp.advantage = 1
         self.hero_2.pvp.rage = 390
         self.hero_2.pvp.effectiveness = 0.5
@@ -81,33 +77,25 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
 
         # test reset of pvp_data
         self.assertEqual(self.meta_action_battle.hero_1.health, self.hero_1.max_health)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.combat_style, None)
         self.assertEqual(self.meta_action_battle.hero_1.pvp.advantage, 0)
         self.assertEqual(self.meta_action_battle.hero_1.pvp.effectiveness, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.rage, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.initiative, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.concentration, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_combat_style, None)
+        self.assertEqual(self.meta_action_battle.hero_1.pvp.energy, 0)
+        self.assertEqual(self.meta_action_battle.hero_1.pvp.energy_speed, 1)
         self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_advantage, 0)
         self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_effectiveness, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_rage, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_initiative, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_concentration, 0)
+        self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_energy, 0)
+        self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_energy_speed, 1)
         self.assertTrue(self.meta_action_battle.hero_1_context.pvp_advantage_strike_damage > 0)
 
         self.assertEqual(self.meta_action_battle.hero_2.health, self.hero_2.max_health)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.combat_style, None)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.advantage, 0)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.effectiveness, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.rage, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.initiative, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.concentration, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_combat_style, None)
+        self.assertEqual(self.meta_action_battle.hero_2.pvp.energy, 0)
+        self.assertEqual(self.meta_action_battle.hero_2.pvp.energy_speed, 1)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_advantage, 0)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_effectiveness, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_rage, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_initiative, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_concentration, 0)
+        self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_energy, 0)
+        self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_energy_speed, 1)
         self.assertTrue(self.meta_action_battle.hero_2_context.pvp_advantage_strike_damage > 0)
 
     def test_one_hero_killed(self):
@@ -195,38 +183,13 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         self.hero_2.pvp.effectiveness = 50
 
         self.meta_action_battle.update_hero_pvp_info(self.hero_2)
-
-        self.assertTrue(self.hero_2.pvp.rage > self.hero_1.pvp.rage)
-        self.assertTrue(self.hero_2.pvp.initiative > self.hero_1.pvp.initiative)
-        self.assertTrue(self.hero_2.pvp.concentration > self.hero_1.pvp.concentration)
+        self.assertTrue(self.hero_2.pvp.energy > self.hero_1.pvp.energy)
 
         self.assertTrue(0 < self.hero_2.pvp.effectiveness < 50)
 
-
-    def test_update_hero_pvp_info_with_styles(self):
-        combat_style_1 = random.choice(COMBAT_STYLES.values())
-        combat_style_2 = COMBAT_STYLES[combat_style_1.advantages[0][0]]
-
-        combat_style_1._give_resources_to_hero(self.hero_1)
-        combat_style_1.apply_to_hero(self.hero_1)
-
-        combat_style_2._give_resources_to_hero(self.hero_2)
-        combat_style_2.apply_to_hero(self.hero_2)
-
-        self.meta_action_battle.update_hero_pvp_info(self.hero_1)
-
-        self.assertTrue(0 < self.hero_1.pvp.effectiveness)
-
     def test_advantage_after_turn(self):
-
-        combat_style_1 = random.choice(COMBAT_STYLES.values())
-        combat_style_2 = COMBAT_STYLES[combat_style_1.advantages[0][0]]
-
-        combat_style_1._give_resources_to_hero(self.hero_1)
-        combat_style_1.apply_to_hero(self.hero_1)
-
-        combat_style_2._give_resources_to_hero(self.hero_2)
-        combat_style_2.apply_to_hero(self.hero_2)
+        self.hero_1.pvp.effectiveness = 50
+        self.hero_2.pvp.effectiveness = 25
 
         self.meta_action_battle.process()
 

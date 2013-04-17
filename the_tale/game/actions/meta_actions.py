@@ -157,9 +157,8 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         hero.pvp.advantage = 0
         hero.pvp.effectiveness = 0
         hero.pvp.effectiveness_modified = 0
-        hero.pvp.rage = 0
-        hero.pvp.initiative = 0
-        hero.pvp.concentration = 0
+        hero.pvp.energy = 0
+        hero.pvp.energy_speed = 1
 
         hero.pvp.store_turn_data()
 
@@ -200,11 +199,9 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
             self.state = self.STATE.BATTLE_ENDING
             self.percents = 1.0
 
-    def update_hero_pvp_info(self, hero_1):
-        hero_1.pvp.rage += c.PVP_RESOURCES_PER_TURN
-        hero_1.pvp.initiative += c.PVP_RESOURCES_PER_TURN
-        hero_1.pvp.concentration += c.PVP_RESOURCES_PER_TURN
-        hero_1.pvp.effectiveness -= hero_1.pvp.effectiveness * c.PVP_COMBAT_STYLE_EXTINCTION_FRACTION
+    def update_hero_pvp_info(self, hero):
+        hero.pvp.energy += hero.pvp.energy_speed
+        hero.pvp.effectiveness -= hero.pvp.effectiveness * c.PVP_COMBAT_STYLE_EXTINCTION_FRACTION
 
     def _process(self):
 
@@ -253,8 +250,8 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         if self.state == self.STATE.BATTLE_RUNNING:
 
             # apply all changes made by player
-            hero_1_effectivenes = self.hero_1.get_pvp_effectiveness_modified(self.hero_2)
-            hero_2_effectivenes = self.hero_2.get_pvp_effectiveness_modified(self.hero_1)
+            hero_1_effectivenes = self.hero_1.pvp.effectiveness
+            hero_2_effectivenes = self.hero_2.pvp.effectiveness
 
             # modify advantage
             effectiveness_delta = hero_1_effectivenes - hero_2_effectivenes

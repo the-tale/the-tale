@@ -9,7 +9,7 @@
 {% macro render_abilities(abilities) %}
 <h4>Способности</h4>
 <ul class="pvp-abilities-list unstyled">
-  {% for ability in abilities%}
+  {% for ability in abilities %}
   <li rel="tooltip" title="{{ability.DESCRIPTION}}">
     {{ ability.NAME }} <span class="pull-right">{{ability.level}}</span>
   </li>

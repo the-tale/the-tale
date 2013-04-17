@@ -17,7 +17,6 @@ from game.prototypes import TimePrototype
 from game.balance import formulas as f, constants as c
 from game.logic_storage import LogicStorage
 from game.quests.quests_builders import SearchSmith
-from game.pvp.combat_styles import COMBAT_STYLES
 
 from game.heroes.bag import ARTIFACT_TYPE_TO_SLOT, SLOTS
 from game.heroes.prototypes import HeroPrototype
@@ -87,26 +86,6 @@ class HeroTest(TestCase):
         self.assertEqual(self.hero.modify_person_power(self.place_3.persons[0], 100), 100)
         self.assertTrue(self.hero.modify_person_power(enemy, 100) > 100)
         self.assertTrue(self.hero.modify_person_power(friend, 100) > self.hero.modify_person_power(enemy, 100))
-
-    def test_might_for_pvp_effectiveness(self):
-
-        combat_style = random.choice(COMBAT_STYLES.values())
-
-        combat_style._give_resources_to_hero(self.hero)
-
-        self.assertEqual(self.hero.pvp.effectiveness, 0)
-
-        combat_style.apply_to_hero(self.hero)
-
-        self.assertEqual(self.hero.pvp.effectiveness, 1.0)
-
-        self.hero.might = 100000
-
-        combat_style._give_resources_to_hero(self.hero)
-        combat_style.apply_to_hero(self.hero)
-
-        self.assertTrue(self.hero.pvp.effectiveness > 1.0)
-
 
     def test_is_ui_caching_required(self):
         self.assertTrue(self.hero.is_ui_caching_required) # new hero must be cached, since player, who created him, is in game

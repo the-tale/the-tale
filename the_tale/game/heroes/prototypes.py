@@ -1,6 +1,5 @@
 # coding: utf-8
 import math
-import time
 import datetime
 import random
 import copy
@@ -29,7 +28,7 @@ from game.map.storage import map_info_storage
 
 from game.text_generation import get_dictionary, get_text
 
-from game.prototypes import TimePrototype, GameTime
+from game.prototypes import TimePrototype
 
 from game.heroes.bag import ARTIFACT_TYPE_TO_SLOT, SLOTS, SLOT_TO_ARTIFACT_TYPE
 from game.heroes.statistics import HeroStatistics, MONEY_SOURCE
@@ -40,6 +39,7 @@ from game.heroes.conf import heroes_settings
 from game.heroes.exceptions import HeroException
 from game.heroes.logic import ValuesDict
 from game.heroes.pvp import PvPData
+from game.heroes.messages import MessagesContainer
 
 
 class HeroPrototype(BasePrototype):
@@ -59,8 +59,6 @@ class HeroPrototype(BasePrototype):
 
     def __init__(self, **kwargs):
         super(HeroPrototype, self).__init__(**kwargs)
-        self.messages_updated = False
-        self.diary_updated = False
         self.name_updated = False
         self.actions_descriptions_updated = False
 
@@ -573,54 +571,22 @@ class HeroPrototype(BasePrototype):
     @lazy_property
     def pvp(self): return PvPData.deserialize(s11n.from_json(self._model.pvp))
 
-    def get_pvp_effectiveness_modified(self, enemy_hero):
-        '''
-        ATTENTION! We use enemy pvp data on start of the turn!
-        '''
+    @lazy_property
+    def messages(self): return MessagesContainer.deserialize(s11n.from_json(self._model.messages))
 
-        enemy_style = enemy_hero.pvp.combat_style if enemy_hero else None
-
-        if None in (self.pvp.combat_style, enemy_style):
-            effectiveness_modified = self.pvp.effectiveness
-        else:
-            effectiveness_modified = self.pvp.effectiveness * c.PVP_COMBAT_STYLES_ADVANTAGES[self.pvp.combat_style][enemy_style]
-
-        return effectiveness_modified
-
-    @property
-    def messages(self):
-        if not hasattr(self, '_messages'):
-            self._messages = s11n.from_json(self._model.messages)
-        return self._messages
-
-    @property
-    def diary(self):
-        if not hasattr(self, '_diary'):
-            self._diary = s11n.from_json(self._model.diary)
-        return self._diary
+    @lazy_property
+    def diary(self): return MessagesContainer.deserialize(s11n.from_json(self._model.diary))
 
     def push_message(self, msg, important=False):
-        self.messages_updated = True
-        self.messages.append(msg)
-        if len(self.messages) > heroes_settings.MESSAGES_LOG_LENGTH:
-            self.messages.pop(0)
+        self.messages.push_message(msg)
 
         if important:
-            self.diary_updated = True
-            self.diary.append(msg)
-            if len(self.diary) > heroes_settings.MESSAGES_LOG_LENGTH:
-                self.diary.pop(0)
-
-    @staticmethod
-    def _prepair_message(msg, in_past=0):
-        return (TimePrototype.get_current_turn_number()-in_past, time.mktime(datetime.datetime.now().timetuple())-in_past*c.TURN_DELTA, msg)
+            self.diary.push_message(msg)
 
     def add_message(self, type_, important=False, **kwargs):
         msg = get_text('hero:add_message', type_, kwargs)
-
         if msg is None: return
-
-        self.push_message(self._prepair_message(msg), important=important)
+        self.push_message(MessagesContainer._prepair_message(msg), important=important)
 
 
     def heal(self, delta):
@@ -656,13 +622,13 @@ class HeroPrototype(BasePrototype):
             self._model.quests_history = s11n.to_json(self.quests_history.serialize())
             self.quests_history.updated = False
 
-        if self.messages_updated:
-            self._model.messages = s11n.to_json(self.messages)
-            self.messages_updated = False
+        if self.messages.updated:
+            self._model.messages = s11n.to_json(self.messages.serialize())
+            self.messages.updated = False
 
-        if self.diary_updated:
-            self._model.diary = s11n.to_json(self.diary)
-            self.diary_updated = False
+        if self.diary.updated:
+            self._model.diary = s11n.to_json(self.diary.serialize())
+            self.diary.updated = False
 
         if self.actions_descriptions_updated:
             self._model.actions_descriptions = s11n.to_json(self.actions_descriptions)
@@ -677,18 +643,6 @@ class HeroPrototype(BasePrototype):
             self.pvp.updated = False
 
         database.raw_save(self._model)
-
-    @staticmethod
-    def _compare_messages(first, second):
-        if len(first) != len(second):
-            return False
-
-        for a,b in zip(first, second):
-            if a[0] != b[0] or a[2] != b[2] or abs(a[1] - b[1]) > 0.0001:
-                return False
-
-        return True
-
 
     @classmethod
     def get_friendly_heroes(self, person):
@@ -724,8 +678,8 @@ class HeroPrototype(BasePrototype):
                 self.next_spending == other.next_spending and
                 self.position == other.position and
                 self.statistics == other.statistics and
-                self._compare_messages(self.messages, other.messages) and
-                self._compare_messages(self.diary, other.diary) and
+                self.messages == other.messages and
+                self.diary == other.diary and
                 self.actions_descriptions == other.actions_descriptions)
 
     def ui_info(self, for_last_turn=False, quests_info=False):
@@ -733,24 +687,14 @@ class HeroPrototype(BasePrototype):
 
         quest_items_count, loot_items_count = self.bag.occupation
 
-        messages = []
-        for turn_number, timestamp, msg in self.messages:
-            game_time = GameTime.create_from_turn(turn_number)
-            messages.append((timestamp, game_time.verbose_time, msg))
-
-        diary = []
-        for turn_number, timestamp, msg in self.diary:
-            game_time = GameTime.create_from_turn(turn_number)
-            diary.append((timestamp, game_time.verbose_time, msg, game_time.verbose_date))
-
         quests = None
         if quests_info:
             quest = QuestPrototype.get_for_hero(self.id)
             quests = quest.ui_info(self) if quest else {}
 
         return {'id': self.id,
-                'messages': messages,
-                'diary': diary,
+                'messages': self.messages.ui_info(),
+                'diary': self.diary.ui_info(),
                 'position': self.position.ui_info(),
                 'alive': self.is_alive,
                 'bag': self.bag.ui_info(),
@@ -836,6 +780,19 @@ class HeroPrototype(BasePrototype):
 
         name = names.generator.get_name(race, gender)
 
+        messages = MessagesContainer()
+        messages.push_message(messages._prepair_message(u'Тучи сгущаются (и как быстро!), к непогоде...', turn_delta=-7))
+        messages.push_message(messages._prepair_message(u'Аааааа, по всюду молниции, спрячусь ка я под этим большим дубом.', turn_delta=-6))
+        messages.push_message(messages._prepair_message(u'Бабах!!!', turn_delta=-5))
+        messages.push_message(messages._prepair_message(u'Темно, страшно, кажется, я в коридоре...', turn_delta=-4))
+        messages.push_message(messages._prepair_message(u'Свет! Надо идти на свет!', turn_delta=-3))
+        messages.push_message(messages._prepair_message(u'Свет сказал, что избрал меня для великих дел, взял кровь из пальца и поставил ей крестик в каком-то пергаменте.', turn_delta=-2))
+        messages.push_message(messages._prepair_message(u'Приказано идти обратно и геройствовать, как именно геройствовать — не уточняется', turn_delta=-1))
+        messages.push_message(messages._prepair_message(u'Эх, опять в этом мире, в том было хотя бы чисто и сухо. Голова болит. Палец болит. Тянет на подвиги.', turn_delta=-0))
+
+        diary = MessagesContainer()
+        diary.push_message(diary._prepair_message(u'Вот же ж угораздило. У всех ангелы-хранители нормальные, сидят себе и попаданию подопечных в загробный мир не мешают. А у моего, значит, шило в заднице! Где ты был, когда я лотерейные билеты покупал?! Молнию отвести он значит не может, а воскресить — запросто. Как же всё болит, кажется теперь у меня две печёнки (это, конечно, тебе спасибо, всегда пригодится). Ну ничего, рано или поздно я к твоему начальству попаду и там уж всё расскажу! А пока буду записывать в свой дневник.'))
+
         hero = Hero.objects.create(created_at_turn=current_turn_number,
                                    active_state_end_at=current_turn_number + c.EXP_ACTIVE_STATE_LENGTH,
                                    account=account._model,
@@ -844,15 +801,8 @@ class HeroPrototype(BasePrototype):
                                    is_fast=is_fast,
                                    pref_energy_regeneration_type=energy_regeneration_type,
                                    abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
-                                   messages=s11n.to_json([cls._prepair_message(u'Тучи сгущаются (и как быстро!), к непогоде...', in_past=7),
-                                                          cls._prepair_message(u'Аааааа, по всюду молниции, спрячусь ка я под этим большим дубом.', in_past=6),
-                                                          cls._prepair_message(u'Бабах!!!', in_past=5),
-                                                          cls._prepair_message(u'Темно, страшно, кажется, я в коридоре...', in_past=4),
-                                                          cls._prepair_message(u'Свет! Надо идти на свет!', in_past=3),
-                                                          cls._prepair_message(u'Свет сказал, что избрал меня для великих дел, взял кровь из пальца и поставил ей крестик в каком-то пергаменте.', in_past=2),
-                                                          cls._prepair_message(u'Приказано идти обратно и геройствовать, как именно геройствовать - не уточняется', in_past=1),
-                                                          cls._prepair_message(u'Эх, опять в этом мире, в том было хотя бы чисто и сухо. Голова болит. Палец болит. Тянет на подвиги.', in_past=0)]),
-                                   diary=s11n.to_json([cls._prepair_message(u'Вот же ж угораздило. У всех ангелы-хранители нормальные, сидят себе и попаданию подопечных в загробный мир не мешают. А у моего, значит, шило в заднице! Где ты был, когда я лотерейные билеты покупал?! Молнию отвести он значит не может, а воскресить - запросто. Как же всё болит, кажется теперь у меня две печёнки (это, конечно, тебе спасибо, всегда пригодится). Ну ничего, рано или поздно я к твоему начальству попаду и там уж всё расскажу! А пока буду записывать в свой дневник.')]),
+                                   messages=s11n.to_json(messages.serialize()),
+                                   diary=s11n.to_json(diary.serialize()),
                                    name=name,
                                    health=f.hp_on_lvl(1),
                                    energy=c.ANGEL_ENERGY_MAX,

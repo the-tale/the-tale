@@ -42,10 +42,10 @@ class InPlaceActionTest(testcase.TestCase):
 
         self.hero.health = 1
         self.hero.position.place.modifier = Resort(self.hero.position.place)
-        old_messages_len = len (self.hero.messages)
+        old_messages_len = len (self.hero.messages.messages)
         ActionInPlacePrototype.create(self.action_inplace)
         self.assertEqual(self.hero.health, self.hero.max_health)
-        self.assertEqual(len(self.hero.messages), old_messages_len + 1)
+        self.assertEqual(len(self.hero.messages.messages), old_messages_len + 1)
         self.storage._test_save()
 
     def test_no_instant_heal_in_resort(self):
@@ -53,10 +53,10 @@ class InPlaceActionTest(testcase.TestCase):
 
         self.hero.health = self.hero.max_health
         self.hero.position.place.modifier = Resort(self.hero.position.place)
-        old_messages_len = len (self.hero.messages)
+        old_messages_len = len (self.hero.messages.messages)
         ActionInPlacePrototype.create(self.action_inplace)
         self.assertEqual(self.hero.health, self.hero.max_health)
-        self.assertEqual(len(self.hero.messages), old_messages_len)
+        self.assertEqual(len(self.hero.messages.messages), old_messages_len)
         self.storage._test_save()
 
     def test_processed(self):

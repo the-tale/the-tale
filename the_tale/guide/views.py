@@ -7,14 +7,11 @@ from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
 
-from game.balance.enums import PVP_COMBAT_STYLES
-
 from game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 
 from game.map.places.conf import places_settings
 from game.persons.conf import persons_settings
 from game.pvp.conf import pvp_settings
-from game.pvp.combat_styles import COMBAT_STYLES
 
 from portal.conf import portal_settings
 
@@ -67,9 +64,7 @@ class GuideResource(Resource):
     @handler('pvp', method='get')
     def pvp(self):
         return self.template('guide/pvp.html', {'section': 'pvp',
-                                                'pvp_settings': pvp_settings,
-                                                'COMBAT_STYLES': COMBAT_STYLES,
-                                                'PVP_COMBAT_STYLES': PVP_COMBAT_STYLES})
+                                                'pvp_settings': pvp_settings})
 
     @handler('hero-abilities', method='get')
     def hero_abilities(self, ability_type=None, activation_type=None, availability=ABILITY_AVAILABILITY.FOR_ALL):

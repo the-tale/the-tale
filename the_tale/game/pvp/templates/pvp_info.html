@@ -1,25 +1,12 @@
 
-{% macro pvp_style_record(image, combat_style) %}
-
-<a class="pvp-style-record pull-left pgf-style-record disabled pgf-disabled"
-   href="{{url('game:pvp:change-style')}}?combat_style={{combat_style.type}}"
+{% macro pvp_ability_record(ability_class) %}
+<a href="{{url('game:pvp:use-ability', ability=ability_class.TYPE)}}"
+   style="text-transform:uppercase;"
    rel="tooltip"
-   data-rage="{{combat_style.cost_rage}}" data-initiative="{{combat_style.cost_initiative}}" data-concentration="{{combat_style.cost_concentration}}"
-   title="<strong>{{combat_style.name}}</strong><br/>
-          <div class='pvp-resource label label-important'>{{combat_style.cost_rage}}</div> <div class='pvp-resource label label-info'>{{combat_style.cost_initiative}}</div> <div class='pvp-resource label label-success'>{{combat_style.cost_concentration}}</div><br/>
-          <strong>эффективность {{combat_style.effectiveness|percents}}</strong><br/>
-          <i>преимущество над</i>
-          <ul class='unstyled' style='text-align: left; min-width: 150px;'>
-            {% for style_id, advantage in combat_style.advantages %}
-            <li>{{COMBAT_STYLES[style_id].name}} <span class='pull-right'
-                                                       style='margin-right: 5px; color:{%if advantage>1%}Chartreuse{%elif advantage<1%}red{%else%}{%endif%};'>x {{advantage}}</span></li>
-            {% endfor %}
-          </ul>">
-  <i class="pvp-style-icon {{image}}">
-    <div class="pvp-style-hover"></div>
-  </i>
+   title="{{ability_class.DESCRIPTION}}"
+   class="pgf-pvp-ability pvp-ability">
+  {{ability_class.NAME}}
 </a>
-
 {% endmacro %}
 
 {% macro pvp_info(say_form) %}
@@ -48,40 +35,37 @@ jQuery(document).ready(function(e) {
       <table class="pvp-info-table table table-condensed" style="width: 100%; margin-bottom: 0;">
         <tbody>
           <tr style="width: 100%; text-align: center;">
-            <td class="pvp-resources-record pgf-own-pvp-resources" rel="tooltip" title="ярость">
-              <div class="pgf-pvp-rage label pvp-resource label-important"></div>
-            </td>
-            <td class="pvp-resources-record pgf-own-pvp-resources" rel="tooltip" title="инициатива">
-              <div class="pgf-pvp-initiative pvp-resource label label-info"></div>
-            </td>
-            <td class="pvp-resources-record pgf-own-pvp-resources" rel="tooltip" title="концентрация">
-              <div class="pgf-pvp-concentration pvp-resource label label-success"></div>
+            <td class="pvp-resources-record pgf-own-pvp-resources" rel="tooltip" title="количество и прирост энергии">
+              <div class="pvp-energy-block label label-success">
+                энергия:
+                <span class="pgf-pvp-energy"></span>
+                +
+                <span class="pgf-pvp-energy-speed"></span>
+              </div>
             </td>
 
-            <td width="30px" class="pvp-effectiveness pgf-own-effectiveness" rel="tooltip" title="эффективность вашего стиля"></td>
+            <td width="30px" class="pvp-effectiveness pgf-own-effectiveness" rel="tooltip" title="эффективность вашего героя"></td>
             <td width="10px">VS</td>
-            <td width="30px" class="pvp-effectiveness pgf-enemy-effectiveness" rel="tooltip" title="эффективность стиля противника"></td>
+            <td width="30px" class="pvp-effectiveness pgf-enemy-effectiveness" rel="tooltip" title="эффективность героя противника"></td>
 
-            <td class="pvp-resources-record pgf-enemy-pvp-resources" rel="tooltip" title="ярость">
-              <div class="pgf-pvp-rage label pvp-resource label-important"></div>
+            <td class="pvp-resources-record pgf-enemy-pvp-resources" rel="tooltip" title="количество и прирост энергии">
+              <div class="pvp-energy-block label label-important">
+                энергия:
+                <span class="pgf-pvp-energy"></span>
+                +
+                <span class="pgf-pvp-energy-speed"></span>
+              </div>
             </td>
-            <td class="pvp-resources-record pgf-enemy-pvp-resources" rel="tooltip" title="инициатива">
-              <div class="pgf-pvp-initiative pvp-resource label label-info"></div>
-            </td>
-            <td class="pvp-resources-record pgf-enemy-pvp-resources" rel="tooltip" title="концентрация">
-              <div class="pgf-pvp-concentration pvp-resource label label-success"></div>
-            </td>
-
 
           </tr>
           <tr>
-            <td colspan="9" class="pvp-style-container">
-              {{ pvp_style_record("tiger", COMBAT_STYLES[PVP_COMBAT_STYLES.TIGER]) }}
-              {{ pvp_style_record("monkey", COMBAT_STYLES[PVP_COMBAT_STYLES.MONKEY]) }}
-              {{ pvp_style_record("mantis", COMBAT_STYLES[PVP_COMBAT_STYLES.MANTIS]) }}
-              {{ pvp_style_record("bear", COMBAT_STYLES[PVP_COMBAT_STYLES.BEAR]) }}
-              {{ pvp_style_record("snake", COMBAT_STYLES[PVP_COMBAT_STYLES.SNAKE]) }}
-              {{ pvp_style_record("fox", COMBAT_STYLES[PVP_COMBAT_STYLES.FOX]) }}
+            <td>
+              шанс удачи: <span class="pgf-pvp-probability"></span>
+            </td>
+            <td colspan="9" class="pvp-abilities-container">
+              {% for ability_class in ABILITIES %}
+              {{ pvp_ability_record(ability_class) }}
+              {% endfor %}
             </td>
           </tr>
         </tbody>

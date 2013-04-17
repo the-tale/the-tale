@@ -10,8 +10,6 @@ from common.postponed_tasks import PostponedTaskPrototype
 
 from accounts.prototypes import AccountPrototype
 
-from game.balance.enums import PVP_COMBAT_STYLES
-
 from game.conf import game_settings
 
 from game.workers.environment import workers_environment
@@ -21,10 +19,10 @@ from game.heroes.models import Hero
 
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.forms import SayForm
-from game.pvp.postponed_tasks import SayInBattleLogTask, AcceptBattleTask, ChangePvPStyleTask
+from game.pvp.postponed_tasks import SayInBattleLogTask, AcceptBattleTask, UsePvPAbilityTask
 from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 from game.pvp.conf import pvp_settings
-from game.pvp.combat_styles import COMBAT_STYLES
+from game.pvp.abilities import ABILITIES, Ice, Blood, Flame
 
 def accept_call_valid_levels(hero_level):
     return (max(0, hero_level - pvp_settings.BALANCING_MIN_LEVEL_DELTA),
@@ -67,8 +65,7 @@ class PvPResource(Resource):
                               'enemy_abilities': enemy_abilities,
                               'game_settings': game_settings,
                               'say_form': say_form,
-                              'COMBAT_STYLES': COMBAT_STYLES,
-                              'PVP_COMBAT_STYLES': PVP_COMBAT_STYLES} )
+                              'ABILITIES': (Ice, Blood, Flame)} )
 
     @handler('info', method='get')
     def info(self):
@@ -158,18 +155,18 @@ class PvPResource(Resource):
 
         return self.json_processing(task.status_url)
 
-    @validate_argument('combat_style', lambda combat_style: COMBAT_STYLES[int(combat_style)], 'pvp', u'неверный тип стиля')
-    @handler('change-style', name='change-style', method='post')
-    def change_style(self, combat_style):
+    @validate_argument('ability', lambda ability: ABILITIES[ability], 'pvp', u'неверный тип способности')
+    @handler('use-ability', name='use-ability', method='post')
+    def use_ability(self, ability):
 
         battle = Battle1x1Prototype.get_by_account_id(self.account.id)
 
         if battle is None or not (battle.state._is_PROCESSING or battle.state._is_PREPAIRING):
-            return self.json_error('pvp.combat_style.no_battle', u'Бой не идёт, вы не можете изменить стиль боя')
+            return self.json_error('pvp.use_ability.no_battle', u'Бой не идёт, вы не можете использовать способность')
 
-        change_style_task = ChangePvPStyleTask(battle_id=battle.id, account_id=self.account.id, combat_style_id=combat_style.type)
+        use_ability_task = UsePvPAbilityTask(battle_id=battle.id, account_id=self.account.id, ability_id=ability.TYPE)
 
-        task = PostponedTaskPrototype.create(change_style_task)
+        task = PostponedTaskPrototype.create(use_ability_task)
 
         workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
 

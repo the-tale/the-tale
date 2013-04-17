@@ -511,56 +511,48 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
 
     var pvpInfoBlock = jQuery('.pgf-info-block-block', widget);
 
-    var styleRecords = jQuery('.pvp-style-record', widget);
+    var abilitiesRecords = jQuery('.pgf-pvp-ability', widget);
 
     var data = {};
 
-    var processingChangeStyleRequest = false;
+    var processingChangeAbilitiesRequest = false;
 
-    function RefreshStylesStates() {
-        styleRecords.each(
+    function RefreshAbilitiesStates() {
+        abilitiesRecords.each(
             function(i, el) {
                 el = jQuery(el);
-                var rage = parseInt(el.data('rage'));
-                var initiative = parseInt(el.data('initiative'));
-                var concentration = parseInt(el.data('concentration'));
 
-                var ownPvP = data.own_hero.pvp;
-
-                var disable = processingChangeStyleRequest ||
-                    ownPvP.rage < rage ||
-                    ownPvP.initiative < initiative ||
-                    ownPvP.concentration < concentration;
+                var disable = processingChangeAbilitiesRequest || data.own_hero.pvp.energy == 0;
 
                 el.toggleClass('disabled pgf-disabled', disable);
             });
     }
 
-    styleRecords.click(
+    abilitiesRecords.click(
         function(e) {
             var target = jQuery(e.currentTarget);
             e.preventDefault();
 
             if (target.hasClass("pgf-disabled")) {
-                pgf.ui.dialog.Alert({title: "Нельзя изменить стиль",
-                                     message: "Нельзя изменить стиль: не хватает ресурсов либо изменение уже применяется."});
+                pgf.ui.dialog.Alert({title: "Нельзя использовать способность",
+                                     message: "Нельзя использовать способность: не хватает ресурсов либо изменение уже применяется."});
                 return;
             }
 
-            processingChangeStyleRequest = true;
+            processingChangeAbilitiesRequest = true;
 
-            RefreshStylesStates();
+            RefreshAbilitiesStates();
 
             pgf.forms.Post({action: target.attr("href"),
                             data: {},
                             wait: false,
                             OnError: function() {
-                                processingChangeStyleRequest = false;
-                                RefreshStylesStates();
+                                processingChangeAbilitiesRequest = false;
+                                RefreshAbilitiesStates();
                             },
                             OnSuccess: function(data) {
-                                processingChangeStyleRequest = false;
-                                RefreshStylesStates();
+                                processingChangeAbilitiesRequest = false;
+                                RefreshAbilitiesStates();
                                 jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
                             }
                            });
@@ -579,10 +571,9 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
             .toggleClass('label-danger', worse);
     }
 
-    function RenderResources(element, rage, initiative, concentration) {
-        jQuery('.pgf-pvp-rage', element).text(rage);
-        jQuery('.pgf-pvp-initiative', element).text(initiative);
-        jQuery('.pgf-pvp-concentration', element).text(concentration);
+    function RenderResources(element, energy, energySpeed) {
+        jQuery('.pgf-pvp-energy', element).text(energy);
+        jQuery('.pgf-pvp-energy-speed', element).text(energySpeed);
     }
 
     function RenderPvpInfo() {
@@ -595,9 +586,11 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
         jQuery('.pgf-advantage-percents', widget).width( ((0.5 + ownPvP.advantage * 0.5) * 100) + '%');
         jQuery('.pgf-advantage', widget).text(parseInt(ownPvP.advantage * 100) + '%');
 
-        RenderResources(jQuery('.pgf-own-pvp-resources', widget), ownPvP.rage, ownPvP.initiative, ownPvP.concentration);
+        jQuery('.pgf-pvp-probability', widget).text(parseInt(ownPvP.probability * 100) + '%');
 
-        RenderResources(jQuery('.pgf-enemy-pvp-resources', widget), enemyPvP.rage, enemyPvP.initiative, enemyPvP.concentration);
+        RenderResources(jQuery('.pgf-own-pvp-resources', widget), ownPvP.energy, ownPvP.energy_speed);
+
+        RenderResources(jQuery('.pgf-enemy-pvp-resources', widget), enemyPvP.energy, enemyPvP.energy_speed);
 
         var ownAdvantage = 1.0;
         var enemyAdvantage = 1.0 ;
@@ -607,19 +600,8 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
             enemyAdvantage = pgf.game.constants.PVP_COMBAT_STYLES_ADVANTAGES[enemyPvP.combat_style][ownPvP.combat_style];
         }
 
-        jQuery('.pgf-own-effectiveness', widget).text(Math.round(ownPvP.effectiveness*ownAdvantage*100) + '%');
-        jQuery('.pgf-enemy-effectiveness', widget).text(Math.round(enemyPvP.effectiveness*enemyAdvantage*100) + '%');
-
-        jQuery('.pvp-own-style', widget).removeClass('pvp-own-style');
-        jQuery('.pvp-enemy-style', widget).removeClass('pvp-enemy-style');
-
-        if (ownPvP.combat_style_str) {
-            jQuery('.pvp-style-icon.'+ownPvP.combat_style_str, widget).toggleClass('pvp-own-style', true);
-        }
-
-        if (enemyPvP.combat_style_str) {
-            jQuery('.pvp-style-icon.'+enemyPvP.combat_style_str, widget).toggleClass('pvp-enemy-style', true);
-        }
+        jQuery('.pgf-own-effectiveness', widget).text(Math.round(ownPvP.effectiveness*ownAdvantage*100));
+        jQuery('.pgf-enemy-effectiveness', widget).text(Math.round(enemyPvP.effectiveness*enemyAdvantage*100));
 
         if (0.5 <= ownPvP.advantage) { ToggleAdwantageColors(true, false, false, false);}
         else {
@@ -638,7 +620,7 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
         if (game_data.account.hero) {
             data.own_hero = game_data.account.hero;
             data.enemy_hero = game_data.enemy.hero;
-            RefreshStylesStates();
+            RefreshAbilitiesStates();
         }
     };
 
