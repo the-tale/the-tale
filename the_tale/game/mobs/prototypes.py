@@ -256,7 +256,7 @@ class MobRecordPrototype(object):
 
         self.save()
 
-    def update_by_moderator(self, form, editor):
+    def update_by_moderator(self, form, editor=None):
         self.name_forms = form.c.name_forms
         self.description = form.c.description
         self.level = form.c.level
@@ -264,7 +264,7 @@ class MobRecordPrototype(object):
         self.abilities = form.c.abilities
         self.uuid = form.c.uuid
         self.state = MOB_RECORD_STATE.ENABLED if form.c.approved else MOB_RECORD_STATE.DISABLED
-        self.editor = editor._model
+        self.editor = editor._model if editor is not None else None
 
         self.save()
 
@@ -273,4 +273,5 @@ class MobRecordPrototype(object):
 
         self.model.save()
 
+        mobs_storage.update_cached_data(self)
         mobs_storage.update_version()

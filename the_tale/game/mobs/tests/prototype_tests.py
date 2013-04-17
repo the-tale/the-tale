@@ -1,6 +1,10 @@
 # coding: utf-8
 import mock
 
+from dext.utils import s11n
+
+from textgen.words import Noun
+
 from common.utils import testcase
 
 from accounts.logic import register_user
@@ -16,6 +20,7 @@ from game.artifacts.models import ARTIFACT_TYPE, ARTIFACT_RECORD_STATE
 from game.mobs.storage import mobs_storage
 from game.mobs.models import MOB_RECORD_STATE
 from game.mobs.prototypes import MobPrototype, MobRecordPrototype
+from game.mobs.forms import ModerateMobRecordForm
 
 
 class MobsPrototypeTests(testcase.TestCase):
@@ -128,3 +133,21 @@ class MobsPrototypeTests(testcase.TestCase):
             self.assertEqual(artifact.level, mob.record.level)
             self.assertTrue(artifact.type.is_useless)
             self.assertEqual(artifact_1.id, artifact.record.id)
+
+    def test_change_uuid(self):
+        mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
+
+        form = ModerateMobRecordForm({'name_forms': s11n.to_json(Noun.fast_construct('artifact name').serialize()),
+                                      'uuid': 'new_uid',
+                                      'level': '667',
+                                      'terrains': [TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE],
+                                      'approved': True,
+                                      'abilities': ['hit', 'speedup'],
+                                      'description': 'new description'})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(mob.uuid, mobs_storage.get_by_uuid(mob.uuid).uuid)
+
+        mob.update_by_moderator(form)
+
+        self.assertEqual(mob.uuid, 'new_uid')
+        self.assertEqual(mob.uuid, mobs_storage.get_by_uuid(mob.uuid).uuid)

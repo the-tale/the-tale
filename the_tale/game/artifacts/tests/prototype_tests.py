@@ -2,11 +2,11 @@
 import mock
 import random
 
-from common.utils import testcase
-
 from textgen.words import Noun
 
 from dext.utils import s11n
+
+from common.utils import testcase
 
 from accounts.logic import register_user
 

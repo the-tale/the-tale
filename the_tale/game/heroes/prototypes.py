@@ -11,6 +11,7 @@ from dext.utils import s11n, database, cache
 
 from common.utils.prototypes import BasePrototype
 from common.utils.logic import random_value_by_priority
+from common.utils.decorators import lazy_property
 
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage
@@ -569,11 +570,8 @@ class HeroPrototype(BasePrototype):
         self.actions_descriptions_updated = True
         self.actions_descriptions.pop()
 
-    @property
-    def pvp(self):
-        if not hasattr(self, '_pvp'):
-            self._pvp = PvPData.deserialize(s11n.from_json(self._model.pvp))
-        return self._pvp
+    @lazy_property
+    def pvp(self): return PvPData.deserialize(s11n.from_json(self._model.pvp))
 
     def get_pvp_effectiveness_modified(self, enemy_hero):
         '''
