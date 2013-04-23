@@ -153,7 +153,6 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
     @classmethod
     def reset_hero_info(cls, hero):
-        hero.pvp.combat_style = None
         hero.pvp.advantage = 0
         hero.pvp.effectiveness = 0
         hero.pvp.effectiveness_modified = 0
@@ -201,7 +200,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
     def update_hero_pvp_info(self, hero):
         hero.pvp.energy += hero.pvp.energy_speed
-        hero.pvp.effectiveness -= hero.pvp.effectiveness * c.PVP_COMBAT_STYLE_EXTINCTION_FRACTION
+        hero.pvp.effectiveness -= hero.pvp.effectiveness * c.PVP_EFFECTIVENESS_EXTINCTION_FRACTION
 
     def _process(self):
 
@@ -254,8 +253,12 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
             hero_2_effectivenes = self.hero_2.pvp.effectiveness
 
             # modify advantage
-            effectiveness_delta = hero_1_effectivenes - hero_2_effectivenes
-            advantage_delta = c.PVP_MAX_ADVANTAGE_STEP * effectiveness_delta / c.PVP_MAX_EFFECTIVENESS_MULTIPLIER
+            max_effectivenes = float(max(hero_1_effectivenes, hero_2_effectivenes))
+            if max_effectivenes < 0.01:
+                effectiveness_fraction = 0
+            else:
+                effectiveness_fraction = (hero_1_effectivenes - hero_2_effectivenes) / max_effectivenes
+            advantage_delta = c.PVP_MAX_ADVANTAGE_STEP * effectiveness_fraction
 
             self.hero_1.pvp.advantage = self.hero_1.pvp.advantage + advantage_delta
             self.hero_1_context.use_pvp_advantage(self.hero_1.pvp.advantage)

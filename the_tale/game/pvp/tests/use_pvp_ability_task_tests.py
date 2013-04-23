@@ -78,4 +78,7 @@ class UsePvPAbilityTests(testcase.TestCase):
         self.assertNotEqual(old_hero_1_last_message, self.hero_1.messages.messages[-1])
         self.assertNotEqual(old_hero_2_last_message, self.hero_2.messages.messages[-1])
 
+        self.assertNotEqual(old_hero_1_last_message[2], self.hero_1.messages.ui_info()[-1][2])
+        self.assertEqual(old_hero_2_last_message[2], self.hero_2.messages.ui_info()[-1][2])
+
         self.assertEqual(self.hero_1.pvp.energy, 0)

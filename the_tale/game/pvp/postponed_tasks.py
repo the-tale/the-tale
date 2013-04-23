@@ -227,11 +227,8 @@ class UsePvPAbilityTask(object):
 
         if random.uniform(0, 1.0) < pvp_ability.probability:
             pvp_ability.apply()
-            hero.add_message('pvp_use_ability_%s' % pvp_ability.str_id.lower(), hero=hero)
-            enemy_hero.add_message('pvp_use_ability_%s' % pvp_ability.str_id.lower(), hero=hero)
         else:
-            hero.add_message('pvp_miss_ability_%s' % pvp_ability.str_id.lower(), hero=hero)
-            enemy_hero.add_message('pvp_miss_ability_%s' % pvp_ability.str_id.lower(), hero=hero)
+            pvp_ability.miss()
 
         with nested_commit_on_success():
             storage.save_account_data(battle.account_id, update_cache=True)

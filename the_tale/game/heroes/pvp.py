@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from game.pvp.abilities import BasePvPAbility
+from game.pvp.abilities import Ice, Blood, Flame
 
 class PvPData(object):
 
@@ -65,14 +65,18 @@ class PvPData(object):
     def ui_info(self):
         return  { 'advantage': self.advantage,
                   'effectiveness': self.effectiveness,
-                  'probability': BasePvPAbility.get_probability(self.energy),
+                  'probabilities': { 'ice': Ice.get_probability(self.energy, self.energy_speed),
+                                     'blood': Blood.get_probability(self.energy, self.energy_speed),
+                                     'flame': Flame.get_probability(self.energy, self.energy_speed) },
                   'energy': self.energy,
                   'energy_speed': self.energy_speed }
 
     def turn_ui_info(self):
         return  { 'advantage': self.turn_advantage,
                   'effectiveness': self.turn_effectiveness,
-                  'probability': BasePvPAbility.get_probability(self.turn_energy),
+                  'probabilities': { 'ice': Ice.get_probability(self.turn_energy, self.turn_energy_speed),
+                                     'blood': Blood.get_probability(self.turn_energy, self.turn_energy_speed),
+                                     'flame': Flame.get_probability(self.turn_energy, self.turn_energy_speed) },
                   'energy': self.turn_energy,
                   'energy_speed': self.turn_energy_speed }
 

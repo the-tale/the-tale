@@ -164,9 +164,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.DAMAGE_PVP_ADVANTAGE_MODIFIER,0.5)
         self.assertEqual(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, 5)
         self.assertEqual(c.PVP_MAX_ADVANTAGE_STEP, 0.3)
-        self.assertEqual(c.PVP_MAX_EFFECTIVENESS_MULTIPLIER, 2)
         self.assertEqual(c.PVP_ADVANTAGE_BARIER, 0.95)
-        self.assertEqual(c.PVP_COMBAT_STYLE_EXTINCTION_FRACTION, 0.1)
+        self.assertEqual(c.PVP_EFFECTIVENESS_EXTINCTION_FRACTION, 0.1)
 
         self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
         self.assertEqual(c.BUILDING_FULL_DESTRUCTION_TIME, 2*7*24)

@@ -583,10 +583,10 @@ class HeroPrototype(BasePrototype):
         if important:
             self.diary.push_message(msg)
 
-    def add_message(self, type_, important=False, **kwargs):
+    def add_message(self, type_, important=False, turn_delta=0, **kwargs):
         msg = get_text('hero:add_message', type_, kwargs)
         if msg is None: return
-        self.push_message(MessagesContainer._prepair_message(msg), important=important)
+        self.push_message(MessagesContainer._prepair_message(msg, turn_delta=turn_delta), important=important)
 
 
     def heal(self, delta):

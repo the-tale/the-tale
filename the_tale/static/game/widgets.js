@@ -586,22 +586,16 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
         jQuery('.pgf-advantage-percents', widget).width( ((0.5 + ownPvP.advantage * 0.5) * 100) + '%');
         jQuery('.pgf-advantage', widget).text(parseInt(ownPvP.advantage * 100) + '%');
 
-        jQuery('.pgf-pvp-probability', widget).text(parseInt(ownPvP.probability * 100) + '%');
+        jQuery('.pgf-pvp-ability-ice-probability', widget).text(parseInt(ownPvP.probabilities.ice * 100) + '%');
+        jQuery('.pgf-pvp-ability-blood-probability', widget).text(parseInt(ownPvP.probabilities.blood * 100) + '%');
+        jQuery('.pgf-pvp-ability-flame-probability', widget).text(parseInt(ownPvP.probabilities.flame * 100) + '%');
 
         RenderResources(jQuery('.pgf-own-pvp-resources', widget), ownPvP.energy, ownPvP.energy_speed);
 
         RenderResources(jQuery('.pgf-enemy-pvp-resources', widget), enemyPvP.energy, enemyPvP.energy_speed);
 
-        var ownAdvantage = 1.0;
-        var enemyAdvantage = 1.0 ;
-
-        if (ownPvP.combat_style != null && enemyPvP.combat_style != null) {
-            ownAdvantage = pgf.game.constants.PVP_COMBAT_STYLES_ADVANTAGES[ownPvP.combat_style][enemyPvP.combat_style];
-            enemyAdvantage = pgf.game.constants.PVP_COMBAT_STYLES_ADVANTAGES[enemyPvP.combat_style][ownPvP.combat_style];
-        }
-
-        jQuery('.pgf-own-effectiveness', widget).text(Math.round(ownPvP.effectiveness*ownAdvantage*100));
-        jQuery('.pgf-enemy-effectiveness', widget).text(Math.round(enemyPvP.effectiveness*enemyAdvantage*100));
+        jQuery('.pgf-own-effectiveness', widget).text(Math.round(ownPvP.effectiveness));
+        jQuery('.pgf-enemy-effectiveness', widget).text(Math.round(enemyPvP.effectiveness));
 
         if (0.5 <= ownPvP.advantage) { ToggleAdwantageColors(true, false, false, false);}
         else {

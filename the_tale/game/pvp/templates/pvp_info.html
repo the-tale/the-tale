@@ -1,12 +1,19 @@
 
 {% macro pvp_ability_record(ability_class) %}
-<a href="{{url('game:pvp:use-ability', ability=ability_class.TYPE)}}"
-   style="text-transform:uppercase;"
-   rel="tooltip"
-   title="{{ability_class.DESCRIPTION}}"
-   class="pgf-pvp-ability pvp-ability">
-  {{ability_class.NAME}}
-</a>
+<div style="width: 30%; display: inline-block;">
+  <a href="{{url('game:pvp:use-ability', ability=ability_class.TYPE)}}"
+     style="text-transform:uppercase;"
+     rel="tooltip"
+     title="{{ability_class.DESCRIPTION}}"
+     class="pgf-pvp-ability pvp-ability">
+    {{ability_class.NAME}}
+  </a>
+  <br/>
+  <span class="pgf-pvp-ability-{{ability_class.TYPE}}-probability pvp-ability-probability"
+        rel="tooltip"
+        title="вероятность успешного применения способности">
+  </span>
+</div>
 {% endmacro %}
 
 {% macro pvp_info(say_form) %}
@@ -59,9 +66,6 @@ jQuery(document).ready(function(e) {
 
           </tr>
           <tr>
-            <td>
-              шанс удачи: <span class="pgf-pvp-probability"></span>
-            </td>
             <td colspan="9" class="pvp-abilities-container">
               {% for ability_class in ABILITIES %}
               {{ pvp_ability_record(ability_class) }}
