@@ -840,6 +840,7 @@ class ActionResurrectPrototype(ActionPrototype):
                 self.percents = 1
                 self.hero.resurrect()
                 self.state = self.STATE.PROCESSED
+                self.hero.add_message('action_resurrect_finish', hero=self.hero)
 
 
 class ActionInPlacePrototype(ActionPrototype):
