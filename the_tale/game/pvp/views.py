@@ -65,6 +65,7 @@ class PvPResource(Resource):
                               'enemy_abilities': enemy_abilities,
                               'game_settings': game_settings,
                               'say_form': say_form,
+                              'battle': battle,
                               'ABILITIES': (Ice, Blood, Flame)} )
 
     @handler('info', method='get')

@@ -2,8 +2,6 @@
 
 from dext.utils import cache
 
-from game.actions.models import Action
-
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.conf import heroes_settings
 

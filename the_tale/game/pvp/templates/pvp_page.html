@@ -85,6 +85,13 @@ jQuery(document).ready(function(e){
 </div>
 {% endif %}
 
+{% if not battle.calculate_rating %}
+<div class="alert alert-info pgf-battle-not-in-rating">
+  Этот бой не попадёт в статистику героя и не будет учитываться в рейтингах. О правилах проведения боёв между игроками можно узнать в разделе Путеводителя <a href="{{url('guide:pvp')}}">PvP</a>.
+</div>
+{% endif %}
+
+
 <div class="row">
   <div class="span3">
     {{ hero_short_macros.hero_short("hero-short-pvp-account", false, true, master_account=resource.account, data_mode="pvp_account") }}
