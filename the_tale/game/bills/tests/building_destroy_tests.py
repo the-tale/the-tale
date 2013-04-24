@@ -79,11 +79,11 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.assertTrue(bill.state._is_ACCEPTED)
 
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
+        self.assertEqual(len(buildings_storage.all()), 1)
 
         building = buildings_storage.all()[0]
 
-        self.assertEqual(building.person.id, self.person_1.id)
-        self.assertEqual(building.place.id, self.place1.id)
+        self.assertNotEqual(building.id, self.building_1.id)
 
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 2)

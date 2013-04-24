@@ -13,5 +13,6 @@ class Section(object):
 
 cms_settings = app_settings('CMS',
                             SECTIONS=(Section('test', u'Тест', 'cms/test/', 'cms/test_page.html'),
-                                      Section('world', u'Мифология', 'guide/world/', 'guide/cms_page.html'))
+                                      Section('world', u'Мифология', 'guide/world/', 'guide/cms_page.html'),
+                                      Section('development', u'Разработка', 'guide/development/', 'guide/cms_page.html'))
     )

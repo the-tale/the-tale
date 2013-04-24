@@ -23,12 +23,18 @@
           <li class="nav-element {% if section=='pvp' %}active{% endif %}"><a href="{{ url('guide:pvp') }}">PvP</a></li>
           <li class="nav-element {% if section=='mobs' %}active{% endif %}"><a href="{{ url('guide:mobs:') }}">Бестиарий</a></li>
           <li class="nav-element {% if section=='artifacts' %}active{% endif %}"><a href="{{ url('guide:artifacts:') }}">Артефакты</a></li>
-          <li class="nav-element {% if section=='how-to-help' %}active{% endif %}"><a href="{{ url('guide:how-to-help') }}">Как помочь?</a></li>
 
           <li class="nav-header {% if section=='' %}active{% endif %}">{{get_cms_section_info("world").caption}}</li>
           {% for menu_page in get_cms_section_pages('world') %}
           <li class="nav-element {% if resource.page is not undefined and menu_page.id==resource.page.id %}active{% endif %}">
             <a href="{{ url('cms:world:page', menu_page.slug) }}">{{menu_page.caption}}</a>
+          </li>
+          {% endfor %}
+
+          <li class="nav-header {% if section=='' %}active{% endif %}">{{get_cms_section_info("development").caption}}</li>
+          {% for menu_page in get_cms_section_pages('development') %}
+          <li class="nav-element {% if resource.page is not undefined and menu_page.id==resource.page.id %}active{% endif %}">
+            <a href="{{ url('cms:development:page', menu_page.slug) }}">{{menu_page.caption}}</a>
           </li>
           {% endfor %}
         </ul>

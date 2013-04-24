@@ -143,8 +143,8 @@ jQuery(document).ready(function() {
                                                                          (url("guide:pvp"), "PvP"),
                                                                          (url("guide:mobs:"), "Бестиарий"),
                                                                          (url("guide:artifacts:"), "Артефакты"),
-                                                                         (url("guide:how-to-help"), "Как помочь?"),
                                                                          (url("cms:world:"), get_cms_section_info("world").caption),
+                                                                         (url("cms:development:"), get_cms_section_info("development").caption),
                                                                          (faq_url(), "FAQ")]) }}
             {{ base_macros.main_menu_item("community", "#", "Сообщество", [(url("accounts:"), "Игроки"),
                                                                            (url("game:ratings:"), "Рейтинги"),
@@ -241,7 +241,6 @@ jQuery(document).ready(function() {
             <li>© 2011-{{now().year}} Елецкий Алексей (Tiendil)</li>
             <li>поддержка: <a href="mailto:{{ settings.EMAIL_SUPPORT }}">{{ settings.EMAIL_SUPPORT_SHORT }}</a></li>
             <li>использована часть иконок из набора <a href="http://glyphicons.com" target="_blank">Glyphicons</a></li>
-            <li>использована часть иконок из  <a href="http://eu.battle.net/wow/en/" target="_blank">WoW</a>, будут убраны, как только нарисуются альтернативные, близы не обижайтесь :-)</li>
           </ul>
         </div>
       </div>
