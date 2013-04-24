@@ -21,8 +21,6 @@ pgf.game.constants = {
 
     RACE_TO_TEXT: {"0": "человек", "1": "эльф", "2": "орк", "3": "гоблин", "4": "дварф"},
     
-    PVP_COMBAT_STYLES_ADVANTAGES: {"0": {"0": 1.0, "1": 1.33, "2": 0.67, "3": 1.17, "4": 0.83, "5": 1.0}, "1": {"0": 0.67, "1": 1.0, "2": 1.33, "3": 0.83, "4": 1.0, "5": 1.17}, "2": {"0": 1.33, "1": 0.67, "2": 1.0, "3": 1.0, "4": 1.17, "5": 0.83}, "3": {"0": 0.83, "1": 1.17, "2": 1.0, "3": 1.0, "4": 0.92, "5": 1.08}, "4": {"0": 1.17, "1": 1.0, "2": 0.83, "3": 1.08, "4": 1.0, "5": 0.92}, "5": {"0": 1.0, "1": 0.83, "2": 1.17, "3": 0.92, "4": 1.08, "5": 1.0}},
-    
     TERRAIN_ID_TO_STR: {"0": "WATER_DEEP", "1": "WATER_SHOAL", "2": "MOUNTAINS_HIGH", "3": "MOUNTAINS_LOW", "4": "PLANE_SAND", "5": "PLANE_DRY_LAND", "6": "PLANE_MUD", "7": "PLANE_DRY_GRASS", "8": "PLANE_GRASS", "9": "PLANE_SWAMP_GRASS", "10": "PLANE_CONIFER_FOREST", "11": "PLANE_GREENWOOD", "12": "PLANE_SWAMP_FOREST", "13": "PLANE_JUNGLE", "14": "PLANE_WITHERED_FOREST", "15": "HILLS_SAND", "16": "HILLS_DRY_LAND", "17": "HILLS_MUD", "18": "HILLS_DRY_GRASS", "19": "HILLS_GRASS", "20": "HILLS_SWAMP_GRASS", "21": "HILLS_CONIFER_FOREST", "22": "HILLS_GREENWOOD", "23": "HILLS_SWAMP_FOREST", "24": "HILLS_JUNGLE", "25": "HILLS_WITHERED_FOREST"},
 
     BUILDING_TYPE_TO_STR: {"0": "SMITHY", "1": "FISHING_LODGE", "2": "TAILOR_SHOP", "3": "SAWMILL", "4": "HUNTER_HOUSE", "5": "WATCHTOWER", "6": "TRADING_POST", "7": "INN", "8": "DEN_OF_THIEVE", "9": "FARM", "10": "MINE", "11": "TEMPLE", "12": "HOSPITAL", "13": "LABORATORY", "14": "SCAFFOLD", "15": "MAGE_TOWER", "16": "GUILDHALL", "17": "BUREAU", "18": "MANOR", "19": "SCENE", "20": "MEWS", "21": "RANCH"}

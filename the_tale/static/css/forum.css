@@ -19,20 +19,38 @@
 .forum-table .subscription {
   width: 10em;
 }
-.post-table .index {
+.post .head {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  margin-bottom: 0.5em;
+  border-top: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
+  background-color: #f9f9f9;
+}
+.post .head div {
+  display: inline-block;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+.post .head .index {
   width: 3em;
 }
-.post-table .change-post {
-  width: 4em;
+.post .head .change-post {
+  float: right;
 }
-.post-table .delete-post {
-  width: 4em;
+.post .head .delete-post {
+  float: right;
 }
-.post-table .created-at {
-  width: 15em;
+.post .head .created-at {
+  float: right;
+  text-align: right;
 }
-.post-table .post-removed-message {
+.post .head .post-removed-message {
   color: #b94a48;
+}
+.post .body {
+  padding: 0.5em;
+  margin-bottom: 1em;
 }
 .new-post-form,
 .change-post-form {

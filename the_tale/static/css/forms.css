@@ -9,6 +9,9 @@ form .control-group input[type="radio"],
 form .control-group input[type="checkbox"] {
   width: auto;
 }
+form .widget {
+  margin-top: 0.5em;
+}
 .noun-forms-table td,
 .noun-forms-table th,
 .noun-forms-table input {

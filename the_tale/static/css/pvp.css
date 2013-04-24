@@ -6,108 +6,21 @@
   background-color: #dddddd;
 }
 .pvp-resources-record {
-  /* text-align: center !important; */
-
   margin: 1px;
 }
-.pvp-resources-record:hover {
-  background-color: #dddddd !important;
+.pvp-energy-block {
+  padding-left: 1em !important;
 }
 .pvp-info-table td {
   text-align: center !important;
 }
-.pvp-power {
-  /* text-align: center !important; */
-
-}
-.pvp-power:hover {
+.pvp-info-table td.pvp-effectiveness:hover {
   background-color: #dddddd !important;
 }
-.pvp-resource {
-  vertical-align: middle;
-  margin-bottom: 2px;
-  width: 20px;
-  display: inline-block;
+.pvp-ability {
+  padding-left: 2em;
+  padding-right: 2em;
 }
-.pvp-style-container {
-  width: 100%;
-  height: 40px;
-  margin-top: 0.25em;
-  margin-bottom: 0.25em;
-}
-.pvp-style-record {
-  /* text-align: center !important; */
-
-  display: inline-block;
-  width: 16.6%;
-}
-.pvp-style-record.disabled .pvp-style-hover {
-  opacity: 0.7 !important;
-}
-.pvp-style-record.disabled .pvp-style-hover:hover {
-  opacity: 0.7 !important;
-}
-.pvp-style-icon {
-  width: 40px;
-  height: 40px;
-  display: block;
-  margin: auto;
-  /* float: left; */
-
-  /* margin-right: 5px; */
-
-  /* margin-bottom: 0; */
-
-  margin-top: 3px;
-  border-radius: 7px;
-}
-.pvp-style-icon .pvp-style-hover {
-  width: 40px;
-  height: 40px;
-  display: block;
-  background-color: black;
-  opacity: 0.2;
-  border-radius: 7px;
-}
-.pvp-style-icon .pvp-style-hover:hover {
-  opacity: 0;
-}
-.pvp-style-icon.pvp-own-style {
-  border: 3px #008000 solid;
-  margin-top: 0;
-}
-.pvp-style-icon.pvp-enemy-style {
-  border: 3px #ff0000 solid;
-  margin-top: 0;
-}
-.pvp-style-icon.pvp-own-style.pvp-enemy-style {
-  border-left: 3px #008000 solid;
-  border-top: 3px #008000 solid;
-  border-right: 3px #ff0000 solid;
-  border-bottom: 3px #ff0000 solid;
-  margin-top: 0;
-}
-.pvp-style-icon.tiger {
-  background: url('../game/images/pvp_combat_styles.png') no-repeat scroll 0 0 transparent;
-}
-.pvp-style-icon.owl {
-  background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -40px 0 transparent;
-}
-.pvp-style-icon.fox {
-  background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -80px 0 transparent;
-}
-.pvp-style-icon.monkey {
-  background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -120px 0 transparent;
-}
-.pvp-style-icon.bear {
-  background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -160px 0 transparent;
-}
-.pvp-style-icon.mantis {
-  background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -200px 0 transparent;
-}
-.pvp-style-icon.scorpion {
-  background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -240px 0 transparent;
-}
-.pvp-style-icon.snake {
-  background: url('../game/images/pvp_combat_styles.png') no-repeat scroll -280px 0 transparent;
+.pvp-ability-probability:hover {
+  background-color: #dddddd !important;
 }

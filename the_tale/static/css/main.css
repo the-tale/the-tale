@@ -94,6 +94,7 @@ small {
   color: #999999 !important;
 }
 .anchor {
+  display: block !important;
   position: relative;
   top: -70px;
 }
@@ -111,6 +112,11 @@ small {
 }
 .modal-body {
   max-height: none !important;
+}
+.modal-body .bbfield .bbfield-preview {
+  max-height: 300px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .pagination {
   margin-top: 0 !important;
