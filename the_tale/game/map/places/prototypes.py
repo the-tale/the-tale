@@ -331,8 +331,11 @@ class BuildingPrototype(BasePrototype):
         return prototype
 
     def destroy(self):
+        from game.map.places.storage import buildings_storage
         self.state = BUILDING_STATE.DESTROYED
         self.save()
+        buildings_storage.update_version()
+        buildings_storage.refresh()
 
     def map_info(self):
         return {'id': self.id,

@@ -166,3 +166,19 @@ class BuildingPrototypeTests(testcase.TestCase):
         amortization_delta_2 = old_integrity_2 - building_2.integrity
 
         self.assertTrue(amortization_delta < amortization_delta_2)
+
+    def test_save__update_storage(self):
+        building = BuildingPrototype.create(self.place_1.persons[0])
+
+        old_version = buildings_storage.version
+        building.save()
+        self.assertNotEqual(old_version, buildings_storage.version)
+
+
+    def test_destroy__update_storage(self):
+        building = BuildingPrototype.create(self.place_1.persons[0])
+
+        old_version = buildings_storage.version
+        building.destroy()
+        self.assertNotEqual(old_version, buildings_storage.version)
+        self.assertFalse(building.id in buildings_storage)
