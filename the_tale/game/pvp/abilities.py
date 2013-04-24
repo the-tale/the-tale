@@ -2,6 +2,8 @@
 
 from common.utils.discovering import discover_classes
 
+from game.balance import constants as c
+
 
 class BasePvPAbility(object):
     TYPE = None
@@ -32,7 +34,7 @@ class BasePvPAbility(object):
 class Ice(BasePvPAbility):
     TYPE = 'ice'
     NAME = u'Лёд'
-    DESCRIPTION = u'Сконцентрироваться и увеличить прирост энергии'
+    DESCRIPTION = u'Сконцентрироваться и увеличить прирост энергии. Чем больше энергии накоплено, тем вероятнее успех применения способности.'
 
     @staticmethod
     def get_probability(energy, energy_speed): return min(1.0, energy * 10 / 100.0 / energy_speed)
@@ -48,7 +50,7 @@ class Ice(BasePvPAbility):
 class Blood(BasePvPAbility):
     TYPE = 'blood'
     NAME = u'Кровь'
-    DESCRIPTION = u'Усилить связь с героем и увеличить его эффективность'
+    DESCRIPTION = u'Усилить связь с героем и увеличить его эффективность. Чем больше энергии накоплено, тем вероятнее неудачное применение способности и тем больше прирост эффективности при удачном применении.'
 
     @staticmethod
     def get_probability(energy, energy_speed): return max(0.01, (100 - energy) / 100.0)
@@ -58,7 +60,7 @@ class Blood(BasePvPAbility):
     def modify_effect(self, expected): return self.hero.pvp.energy * expected / self.probability
 
     def apply(self):
-        effectiveness_delta = int(round(100 * self.modify_effect(1.0)*(1 + self.hero.might_pvp_effectiveness_bonus)))
+        effectiveness_delta = int(round(c.PVP_EFFECTIVENESS_STEP * self.modify_effect(1.0)*(1 + self.hero.might_pvp_effectiveness_bonus)))
         self.hero.pvp.effectiveness += effectiveness_delta
         self.hero.pvp.energy = 0
         self.hero.add_message('pvp_use_ability_%s' % self.TYPE, hero=self.hero, effectiveness=effectiveness_delta)
@@ -68,7 +70,7 @@ class Blood(BasePvPAbility):
 class Flame(BasePvPAbility):
     TYPE = 'flame'
     NAME = u'Пламя'
-    DESCRIPTION = u'Нарушить концентрацию противника и уменьшить прирост его энергии'
+    DESCRIPTION = u'Нарушить концентрацию противника и уменьшить прирост его энергии. Чем больше энергии накоплено, тем вероятнее успех применения способности.'
 
     @staticmethod
     def get_probability(energy, energy_speed): return min(1.0, energy * 10 / 100.0 / energy_speed)

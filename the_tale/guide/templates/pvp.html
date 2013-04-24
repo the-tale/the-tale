@@ -18,98 +18,40 @@
 </p>
 
 <p>
-  Если не терпится отправить героя в бой, то можно попытать счастье на странице со <a href="{{url('game:pvp:calls')}}">списком вызовов на арену</a>, где сразу можно принять любой вызов равного или более сильного героя. Но следует помнить, что созданный таким образом бой не учитывается в рейтингах и статистике.
+  Если не терпится отправить героя в бой, то можно попытать счастье на странице со <a href="{{url('game:pvp:calls')}}">списком вызовов на арену</a>, где сразу можно принять любой вызов равного или более сильного героя. Но следует помнить, что созданный таким образом, бой не учитывается в рейтингах и статистике.
 </p>
 
 <p>
-  При отправке героя на арену, его здоровье полностью восстанавливается; по завершении боя, герой возвращается к своим занятиям, его здоровье восстанавливается до уровня, который был во время отправки на арену.
+  При отправке героя на арену, его здоровье полностью восстанавливается; по завершении боя, герой возвращается к своим занятиям, его здоровье возвращается в состояние, которое было до отправки на арену.
 </p>
 
 <h4>Ход боя</h4>
 
-<p>
-  Столкнувшись со сложным противником, приключенцы вспоминают, что (оказывается) сражаться можно не просто пытаясь изрубить супостата в капусту, но и применяя различные боевые стили. Правда, дальше вспоминания дело не идёт и для успешного сражения, необходима помощь игрока.
-</p>
-
-<p>
-  Во время боя герой каждый ход накапливает <span class="label label-important">ярость</span>, <span class="label label-info">инициативу</span> и <span class="label label-success">концентрацию</span>, которые можно тратить на изменение стиля боя. Каждый стиль обладает своей <strong>эффективностью</strong>, а также имеет преимущество или слабость перед другими стилями. Если стиль А (выбранный 1-ым героем) имеет преимущество перед стилем Б (выбранным 2-ым героем), то эффективность сражения 1-ого героя будет дополнительно увеличена, а второго уменьшена. Необходимо помнить, что герои не могут долго сражаться с использованием сложных стилей боя, они всегда скатываются в привычный им традиционный геройский стиль «кроши всё что движется», поэтому каждый ход эффективность, получаемая от стилей, падает.
-</p>
-
 <p class="alert alert-error">
-  Не пытайтесь принудительно обновлять страницу игры в надежде узнать какой выбор сделал противник на этом ходу — не получится. Разработчики пробовали — бесперспективняк.
+  Не пытайтесь принудительно обновлять страницу игры в надежде узнать, что сделал ваш противник на этом ходу — не получится. Разработчики пробовали — бесперспективняк.
 <p>
 
 <p>
-  <strong>Эффективность</strong> боя влияет на <strong>преимущество</strong>, которое один герой может получить над другим. В начале боя ни один из героев не обладает преимуществом. В случает, если эффективность боя одного из героев выше, тот получает определённое количество преимущества. Преимущество даёт хороший бонус к урону (при максимальном преимуществе урон героя увеличивается на {{c.DAMAGE_PVP_ADVANTAGE_MODIFIER|percents}}). При получении полного преимущества над противником, следующий удачный удар героя нанесёт очень большой урон ({{c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER|percents}}). После нанесения подобного удара, обоим героям необходимо время что-бы придти в себя, поэтому преимущество сбрасывается на начальное значение.
+  Столкнувшись со сложным противником, приключенцы вспоминают, что (оказывается) сражаться можно не просто пытаясь изрубить супостата в капусту, но и применяя различные боевые стили и прочие ухищрения. В результате, герои начинают вести бой стратегически и пытатются захватить инициативу. Мерой успешности стратегических и тактических успехов героя является его <strong>эффективность</strong>.
 </p>
 
 <p>
-  Небольшое влияние на эффективности оказывает также <a href="{{ url('guide:might') }}">могущество</a> игрока.
+  <strong>Эффективность</strong> боя влияет на <strong>преимущество</strong>, которое один герой может получить над другим. В начале боя ни один из героев не обладает преимуществом. В случает, если эффективность боя одного из героев выше, тот получает определённое количество преимущества. Преимущество даёт хороший бонус к урону (при максимальном преимуществе урон героя увеличивается на {{c.DAMAGE_PVP_ADVANTAGE_MODIFIER|percents}}). При получении полного преимущества над противником, следующий удачный удар героя нанесёт очень большой урон ({{c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER|percents}}). После нанесения подобного удара, обоим героям необходимо время чтобы придти в себя, поэтому преимущество сбрасывается на начальное значение.
 </p>
 
-{% macro combat_style_info(combat_style) %}
-<tr>
-  <th>{{combat_style.name}}</th>
-  <td>{{combat_style.effectiveness|percents}}</td>
-  <td>{{combat_style.cost_rage}}</td>
-  <td>{{combat_style.cost_initiative}}</td>
-  <td>{{combat_style.cost_concentration}}</td>
-</tr>
-{% endmacro %}
+<p>
+  Небольшое влияние на эффективность оказывает также <a href="{{ url('guide:might') }}">могущество</a> игрока.
+</p>
 
-<table class="table table-condensed">
-  <caption>Всего существует 6 стилей боя, они различаются эффективностью и ценой активации</caption>
-  <tbody>
-    <tr>
-      <th width="20%"></th>
-      <th width="20%">эффективность</th>
-      <th width="20%"><span class="label label-important">ярость</span></th>
-      <th width="20%"><span class="label label-info">инициатива</span></th>
-      <th width="20%"><span class="label label-success">концентрация</span></th>
-    </tr>
+<p>
+  Во время сражения хранители накапливают энергию, которую могут тратить на помощь своим подопечным. Для этого им доступны несколько способностей:
+</p>
 
-    {{ combat_style_info(COMBAT_STYLES[PVP_COMBAT_STYLES.TIGER]) }}
-    {{ combat_style_info(COMBAT_STYLES[PVP_COMBAT_STYLES.MONKEY]) }}
-    {{ combat_style_info(COMBAT_STYLES[PVP_COMBAT_STYLES.MANTIS]) }}
-    {{ combat_style_info(COMBAT_STYLES[PVP_COMBAT_STYLES.BEAR]) }}
-    {{ combat_style_info(COMBAT_STYLES[PVP_COMBAT_STYLES.SNAKE]) }}
-    {{ combat_style_info(COMBAT_STYLES[PVP_COMBAT_STYLES.FOX]) }}
-  </tbody>
-</table>
-
-{% macro combat_style_advantages(combat_style) %}
-<tr>
-  <th>{{combat_style.name}}</th>
-  <td>{{c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style.type][PVP_COMBAT_STYLES.TIGER]}}</td>
-  <td>{{c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style.type][PVP_COMBAT_STYLES.MONKEY]}}</td>
-  <td>{{c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style.type][PVP_COMBAT_STYLES.MANTIS]}}</td>
-  <td>{{c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style.type][PVP_COMBAT_STYLES.BEAR]}}</td>
-  <td>{{c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style.type][PVP_COMBAT_STYLES.SNAKE]}}</td>
-  <td>{{c.PVP_COMBAT_STYLES_ADVANTAGES[combat_style.type][PVP_COMBAT_STYLES.FOX]}}</td>
-</tr>
-{% endmacro %}
-
-<table class="table table-condensed">
-  <caption>Отношения между стилями<br>в ячейках таблицы коофициент, на который домножается эффективность стиля из строки, если против него выступает стиль из столбца</caption>
-  <tbody>
-    <tr>
-      <th width="120px"></th>
-      <th>{{COMBAT_STYLES[PVP_COMBAT_STYLES.TIGER].name}}</th>
-      <th>{{COMBAT_STYLES[PVP_COMBAT_STYLES.MONKEY].name}}</th>
-      <th>{{COMBAT_STYLES[PVP_COMBAT_STYLES.MANTIS].name}}</th>
-      <th>{{COMBAT_STYLES[PVP_COMBAT_STYLES.BEAR].name}}</th>
-      <th>{{COMBAT_STYLES[PVP_COMBAT_STYLES.SNAKE].name}}</th>
-      <th>{{COMBAT_STYLES[PVP_COMBAT_STYLES.FOX].name}}</th>
-
-    </tr>
-    {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.TIGER]) }}
-    {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.MONKEY]) }}
-    {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.MANTIS]) }}
-    {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.BEAR]) }}
-    {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.SNAKE]) }}
-    {{ combat_style_advantages(COMBAT_STYLES[PVP_COMBAT_STYLES.FOX]) }}
-  </tbody>
-</table>
+<ul>
+  <li><strong>{{pvp_abilities.Ice.NAME}}</strong> — {{pvp_abilities.Ice.DESCRIPTION}}</li>
+  <li><strong>{{pvp_abilities.Blood.NAME}}</strong> — {{pvp_abilities.Blood.DESCRIPTION}}</li>
+  <li><strong>{{pvp_abilities.Flame.NAME}}</strong> — {{pvp_abilities.Flame.DESCRIPTION}}</li>
+</ul>
 
 <h4>Рейтинги и статистика</h4>
 

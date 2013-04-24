@@ -20,7 +20,11 @@ class PvPData(object):
         self.turn_energy_speed = 1
 
     def get_advantage(self): return self._advantage
-    def set_advantage(self, value): self.updated = True; self._advantage = value
+    def set_advantage(self, value):
+        self.updated = True;
+        self._advantage = value
+        if self._advantage < -1: self._advantage = -1
+        if self._advantage > 1: self._advantage = 1
     advantage = property(get_advantage, set_advantage)
 
     def get_effectiveness(self): return self._effectiveness

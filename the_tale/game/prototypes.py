@@ -8,6 +8,9 @@ from rels.django_staff import DjangoEnum
 
 from collections import namedtuple
 
+from common.utils.prototypes import BasePrototype
+from common.utils.decorators import lazy_property
+
 from game.balance import formulas as f
 
 from game.models import SupervisorTask, SupervisorTaskMember, SUPERVISOR_TASK_TYPE
@@ -78,33 +81,18 @@ class TimePrototype(object):
 
 
 
-class SupervisorTaskPrototype(object):
+class SupervisorTaskPrototype(BasePrototype):
+    _model_class = SupervisorTask
+    _readonly = ('id', 'type')
+    _bidirectional = ()
+    _get_by = ('id', )
 
     def __init__(self, model):
-        self.model = model
+        super(SupervisorTaskPrototype, self).__init__(model=model)
         self.captured_members = set()
 
-
-    @classmethod
-    def get_by_id(cls, id_):
-        try:
-            return cls(SupervisorTask.objects.get(id=id_))
-        except SupervisorTask.DoesNotExist:
-            return None
-
-
-    @property
-    def id(self): return self.model.id
-
-    @property
-    def type(self): return self.model.type
-
-
-    @property
-    def members(self):
-        if not hasattr(self, '_members'):
-            self._members = set(SupervisorTaskMember.objects.filter(task=self.model).values_list('account_id', flat=True))
-        return self._members
+    @lazy_property
+    def members(self): return set(SupervisorTaskMember.objects.filter(task=self._model).values_list('account_id', flat=True))
 
     def capture_member(self, account_id):
         self.captured_members.add(account_id)
@@ -116,13 +104,12 @@ class SupervisorTaskPrototype(object):
     @nested_commit_on_success
     def create_arena_pvp_1x1(cls, account_1, account_2):
 
-        model = SupervisorTask.objects.create(type=SUPERVISOR_TASK_TYPE.ARENA_PVP_1X1)
+        model = cls._model_class.objects.create(type=SUPERVISOR_TASK_TYPE.ARENA_PVP_1X1)
 
         SupervisorTaskMember.objects.create(task=model, account=account_1._model)
         SupervisorTaskMember.objects.create(task=model, account=account_2._model)
 
         return cls(model)
-
 
     @nested_commit_on_success
     def process(self):
@@ -176,4 +163,4 @@ class SupervisorTaskPrototype(object):
         battle_2.save()
 
     def remove(self):
-        self.model.delete()
+        self._model.delete()

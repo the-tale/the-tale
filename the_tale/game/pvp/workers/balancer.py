@@ -19,7 +19,6 @@ from game.heroes.prototypes import HeroPrototype
 
 from game.prototypes import SupervisorTaskPrototype
 
-from game.pvp.models import BATTLE_1X1_STATE
 from game.pvp.conf import pvp_settings
 from game.pvp.prototypes import Battle1x1Prototype
 

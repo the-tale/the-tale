@@ -63,8 +63,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.DAMAGE_TO_MOB_PER_HIT_FRACTION, 1.0 / (16/2))
         self.assertEqual(c.DAMAGE_DELTA, 0.2)
         self.assertEqual(c.DAMAGE_CRIT_MULTIPLIER, 2.0)
-        self.assertEqual(c.DAMAGE_PVP_ADVANTAGE_MODIFIER, 0.5)
-        self.assertEqual(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, 5.0)
 
         self.assertEqual(c.EXP_PER_HOUR, (360.0 / (int(8*(16+5)-5 + (8*(16+5)-5) * 0.2)) * 8) * 1)
 
@@ -163,9 +161,11 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.DAMAGE_PVP_ADVANTAGE_MODIFIER,0.5)
         self.assertEqual(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, 5)
-        self.assertEqual(c.PVP_MAX_ADVANTAGE_STEP, 0.3)
+        self.assertEqual(c.PVP_MAX_ADVANTAGE_STEP, 0.25)
         self.assertEqual(c.PVP_ADVANTAGE_BARIER, 0.95)
         self.assertEqual(c.PVP_EFFECTIVENESS_EXTINCTION_FRACTION, 0.1)
+        self.assertEqual(c.PVP_EFFECTIVENESS_STEP, 10)
+        self.assertEqual(c.PVP_EFFECTIVENESS_INITIAL, 300)
 
         self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
         self.assertEqual(c.BUILDING_FULL_DESTRUCTION_TIME, 2*7*24)

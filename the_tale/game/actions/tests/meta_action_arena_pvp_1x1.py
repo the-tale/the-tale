@@ -8,9 +8,10 @@ from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
 from game.logic_storage import LogicStorage
-
 from game.logic import create_test_map
 from game.prototypes import TimePrototype
+
+from game.balance import constants as c
 
 from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
 from game.actions.models import MetaAction, MetaActionMember
@@ -78,22 +79,22 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         # test reset of pvp_data
         self.assertEqual(self.meta_action_battle.hero_1.health, self.hero_1.max_health)
         self.assertEqual(self.meta_action_battle.hero_1.pvp.advantage, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.effectiveness, 0)
+        self.assertEqual(self.meta_action_battle.hero_1.pvp.effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
         self.assertEqual(self.meta_action_battle.hero_1.pvp.energy, 0)
         self.assertEqual(self.meta_action_battle.hero_1.pvp.energy_speed, 1)
         self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_advantage, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_effectiveness, 0)
+        self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
         self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_energy, 0)
         self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_energy_speed, 1)
         self.assertTrue(self.meta_action_battle.hero_1_context.pvp_advantage_strike_damage > 0)
 
         self.assertEqual(self.meta_action_battle.hero_2.health, self.hero_2.max_health)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.advantage, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.effectiveness, 0)
+        self.assertEqual(self.meta_action_battle.hero_2.pvp.effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.energy, 0)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.energy_speed, 1)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_advantage, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_effectiveness, 0)
+        self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_energy, 0)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_energy_speed, 1)
         self.assertTrue(self.meta_action_battle.hero_2_context.pvp_advantage_strike_damage > 0)

@@ -263,10 +263,13 @@ ABILITIES_FOR_CHOOSE_MAXIMUM = 4
 DAMAGE_PVP_ADVANTAGE_MODIFIER = float(0.5) # на какую долю изменяется урон при максимальной разнице в преимуществе между бойцами
 DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER = float(5) # во сколько раз увеличится урон удара при максимальном преимушестве
 
-PVP_MAX_ADVANTAGE_STEP = 0.3
+PVP_MAX_ADVANTAGE_STEP = 0.25
 
 PVP_ADVANTAGE_BARIER = 0.95
 PVP_EFFECTIVENESS_EXTINCTION_FRACTION = 0.1
+
+PVP_EFFECTIVENESS_STEP = 10
+PVP_EFFECTIVENESS_INITIAL = 300
 
 ###########################
 # типы городов
