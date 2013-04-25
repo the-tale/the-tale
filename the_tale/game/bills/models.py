@@ -14,7 +14,7 @@ class Bill(models.Model):
     CAPTION_MAX_LENGTH = 256
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
-    updated_at = models.DateTimeField(auto_now=True, null=False)
+    updated_at = models.DateTimeField(auto_now_add=True, null=False) # MUST setupped by hand
 
     created_at_turn = models.IntegerField(null=False)
 
