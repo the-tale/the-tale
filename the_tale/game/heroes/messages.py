@@ -30,7 +30,7 @@ class MessagesContainer(object):
             self.messages.pop(0)
 
 
-    def ui_info(self):
+    def ui_info(self, with_date=False):
         current_turn = TimePrototype.get_current_turn_number()
 
         messages = []
@@ -39,7 +39,11 @@ class MessagesContainer(object):
             if turn_number > current_turn:
                 break
             game_time = GameTime.create_from_turn(turn_number)
-            messages.append((timestamp, game_time.verbose_time, msg))
+
+            if with_date:
+                messages.append((timestamp, game_time.verbose_time, msg, game_time.verbose_date))
+            else:
+                messages.append((timestamp, game_time.verbose_time, msg))
 
         return messages
 

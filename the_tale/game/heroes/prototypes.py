@@ -694,7 +694,7 @@ class HeroPrototype(BasePrototype):
 
         return {'id': self.id,
                 'messages': self.messages.ui_info(),
-                'diary': self.diary.ui_info(),
+                'diary': self.diary.ui_info(with_date=True),
                 'position': self.position.ui_info(),
                 'alive': self.is_alive,
                 'bag': self.bag.ui_info(),

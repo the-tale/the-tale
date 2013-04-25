@@ -4,7 +4,7 @@
     "prefix": "pvp",
     "variables_verbose": {"text": "любой текст",
                           "hero": "герой",
-                          "effectiveness": "измененеи эффективности"},
+                          "effectiveness": "изменение эффективности"},
     "types": {
         "say": {
             "name": "Сообщение",
