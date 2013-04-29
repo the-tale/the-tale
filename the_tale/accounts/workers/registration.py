@@ -12,7 +12,7 @@ class RegistrationException(Exception): pass
 class Worker(BaseWorker):
 
     def __init__(self, registration_queue, stop_queue):
-        super(Worker, self).__init__(logger=getLogger('accounts.workers.registration'), command_queue=registration_queue)
+        super(Worker, self).__init__(logger=getLogger('the-tale.workers.registration'), command_queue=registration_queue)
         self.stop_queue = connection.SimpleQueue(stop_queue)
         self.initialized = True
 

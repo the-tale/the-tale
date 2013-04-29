@@ -185,6 +185,8 @@ INSTALLED_APPS = (
     'forum',
     'blogs',
 
+    'bank',
+
     'south'
 )
 
@@ -294,7 +296,8 @@ LOGGING = {
         'file_game_long_commands': get_worker_log_file_handler('game_long_commands'),
         'file_game_pvp_balancer': get_worker_log_file_handler('game_pvp_balancer'),
         'file_accounts_registration': get_worker_log_file_handler('accounts_registration'),
-        'file_post_service_message_sender': get_worker_log_file_handler('post_service_message_sender')
+        'file_post_service_message_sender': get_worker_log_file_handler('post_service_message_sender'),
+        'file_bank_bank': get_worker_log_file_handler('bank_bank')
     },
     'loggers': {
         'django.request': {
@@ -317,6 +320,7 @@ LOGGING = {
         'the-tale.workers.game_pvp_balancer': get_worker_logger('game_pvp_balancer'),
         'the-tale.workers.accounts_registration': get_worker_logger('accounts_registration'),
         'the-tale.workers.post_service_message_sender': get_worker_logger('post_service_message_sender'),
+        'the-tale.workers.bank_bank': get_worker_logger('bank_bank'),
     } if not TESTS_RUNNING else {}
 }
 
