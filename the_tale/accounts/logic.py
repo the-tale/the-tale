@@ -59,7 +59,7 @@ def register_user(nick, email=None, password=None):
 
     bundle = BundlePrototype.create()
 
-    hero = HeroPrototype.create(account=account, bundle=bundle, is_fast=account.is_fast)
+    hero = HeroPrototype.create(account=account, bundle=bundle)
     dress_new_hero(hero)
     hero.save()
 

@@ -17,14 +17,15 @@ class AccountManager(BaseUserManager):
         email = super(AccountManager, cls).normalize_email(email)
         return email if email else None
 
-    def create_user(self, nick, email, is_fast=None, password=None):
+    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None):
 
         if not nick:
             raise ValueError('Users must have nick')
 
         account = self.model(email=self.normalize_email(email),
                              nick=nick,
-                             is_fast=is_fast)
+                             is_fast=is_fast,
+                             active_end_at=active_end_at)
         account.set_password(password)
         account.save(using=self._db)
         return account
@@ -54,6 +55,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, default=datetime.datetime.fromtimestamp(0))
 
     updated_at = models.DateTimeField(auto_now=True, db_index=True, default=datetime.datetime.fromtimestamp(0))
+
+    premium_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
+    active_end_at = models.DateTimeField(db_index=True)
 
     is_fast = models.BooleanField(default=True, db_index=True)
 

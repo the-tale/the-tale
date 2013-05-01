@@ -64,14 +64,14 @@ class HeroTest(TestCase):
     def test_set_active_inactive_state(self):
         self.assertEqual(self.hero.experience_modifier, 1)
 
-        time = TimePrototype.get_current_time()
-        time.turn_number += 2 * c.EXP_ACTIVE_STATE_LENGTH
-        time.save()
+        self.hero._model.active_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=-60)
+        self.hero.save()
 
         self.assertTrue(self.hero.experience_modifier < 1)
 
-        self.hero.mark_as_active()
-        self.hero.save()
+        self.hero.update_with_account_data(is_fast=False,
+                                           premium_end_at=datetime.datetime.now(),
+                                           active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60))
 
         self.assertEqual(self.hero.experience_modifier, 1)
 

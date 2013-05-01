@@ -1,5 +1,6 @@
 # coding: utf-8
 import mock
+import datetime
 
 from common.utils import testcase
 
@@ -60,13 +61,12 @@ class PrototypeTests(testcase.TestCase):
     def test_power_on_end_quest_for_normal_account_hero(self):
 
         self.hero.is_fast = False
+        self.hero.change_person_power_allowed_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
-        fake_cmd = FakeWorkerCommand()
-
-        with mock.patch('game.workers.environment.workers_environment.highlevel.cmd_change_person_power', fake_cmd):
+        with mock.patch('game.workers.environment.workers_environment.highlevel.cmd_change_person_power') as fake_cmd:
             self.complete_quest()
 
-        self.assertTrue(fake_cmd.commands)
+        self.assertTrue(fake_cmd.call_count > 0)
 
     def test_get_minimum_created_time_of_active_quests(self):
         self.assertEqual(self.quest._model.created_at, QuestPrototype.get_minimum_created_time_of_active_quests())

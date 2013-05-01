@@ -65,9 +65,7 @@ class TestChangeCredentialsTask(testcase.TestCase):
 
         self.assertTrue(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
 
-        fake_cmd = FakeWorkerCommand()
-
-        with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_mark_hero_as_not_fast', fake_cmd):
+        with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
             task.change_credentials()
 
         self.assertEqual(task.account.email, 'fast_user@test.ru')
@@ -75,7 +73,8 @@ class TestChangeCredentialsTask(testcase.TestCase):
         self.assertEqual(user.id, task.account.id)
 
         self.assertFalse(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
-        self.assertTrue(fake_cmd.commands)
+        self.assertEqual(fake_cmd.call_count, 1)
+        self.assertFalse(fake_cmd.call_args[1]['is_fast'])
 
     def test_change_credentials_password(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_password='222222')
@@ -91,10 +90,10 @@ class TestChangeCredentialsTask(testcase.TestCase):
 
         fake_cmd = FakeWorkerCommand()
 
-        with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_mark_hero_as_not_fast', fake_cmd):
+        with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
             task.change_credentials()
 
-        self.assertFalse(fake_cmd.commands)
+        self.assertEqual(fake_cmd.call_count, 0)
 
         self.assertEqual(task.account.nick, 'test_nick')
         user = django_authenticate(nick='test_nick', password='111111')

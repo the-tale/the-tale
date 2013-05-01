@@ -11,6 +11,7 @@ from dext.utils import pid
 
 from accounts.workers.environment import workers_environment as accounts_workers_environment
 from post_service.workers.environment import workers_environment as post_service_workers_environment
+from bank.workers.environment import workers_environment as bank_workers_environment
 
 def start():
     with open(os.devnull, 'w') as devnull:
@@ -18,6 +19,9 @@ def start():
 
     with open(os.devnull, 'w') as devnull:
         subprocess.Popen(['./manage.py', 'post_service_message_sender'], stdin=devnull, stdout=devnull, stderr=devnull)
+
+    with open(os.devnull, 'w') as devnull:
+        subprocess.Popen(['./manage.py', 'bank_bank_processor'], stdin=devnull, stdout=devnull, stderr=devnull)
 
     print 'infrastructure started'
 
@@ -38,8 +42,17 @@ def stop():
         answer_cmd.ack()
         print 'answer received'
 
+    if pid.check('bank_bank_processor'):
+        print 'bank processor found, send stop command'
+        bank_workers_environment.bank_processor.cmd_stop()
+        print 'waiting answer'
+        answer_cmd = bank_workers_environment.bank_processor.stop_queue.get(block=True)
+        answer_cmd.ack()
+        print 'answer received'
+
     while (pid.check('accounts_registration') or
-           pid.check('post_service_message_sender')):
+           pid.check('post_service_message_sender') or
+           pid.check('bank_bank_processor')):
         time.sleep(0.1)
 
     print 'infrastructure stopped'

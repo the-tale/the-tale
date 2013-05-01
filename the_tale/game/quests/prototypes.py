@@ -12,7 +12,6 @@ from game.balance import constants as c, formulas as f
 
 from game.mobs.storage import mobs_storage
 
-from game.heroes.prototypes import HeroPrototype
 from game.heroes.statistics import MONEY_SOURCE
 
 from game.quests.models import Quest, QuestsHeroes

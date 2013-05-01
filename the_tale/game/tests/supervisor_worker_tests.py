@@ -185,11 +185,16 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         result, account_3_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
 
+        account_3 = AccountPrototype.get_by_id(account_3_id)
         hero_3 = HeroPrototype.get_by_id(account_3_id)
 
         with mock.patch('game.workers.logic.Worker.cmd_logic_task') as logic_task_counter:
             with mock.patch.object(self.worker.logger, 'warn') as logger_warn_counter:
-                self.worker.process_mark_hero_as_active(account_3_id, hero_3.id)
+                self.worker.process_update_hero_with_account_data(account_3_id,
+                                                                  hero_3.id,
+                                                                  is_fast=account_3.is_fast,
+                                                                  premium_end_at=account_3.premium_end_at,
+                                                                  active_end_at=account_3.active_end_at )
 
         self.assertEqual(logic_task_counter.call_count, 0)
         self.assertEqual(logger_warn_counter.call_count, 1)

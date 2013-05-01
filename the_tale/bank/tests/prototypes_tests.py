@@ -4,8 +4,12 @@ from django.db import IntegrityError
 
 from common.utils import testcase
 
+from bank.tests.helpers import BankTestsMixin
+
 from bank.prototypes import AccountPrototype, InvoicePrototype
 from bank.relations import ENTITY_TYPE, CURRENCY_TYPE, INVOICE_STATE
+from bank.conf import bank_settings
+from bank.exceptions import BankError
 
 
 class AccountPrototypeTests(testcase.TestCase):
@@ -127,80 +131,300 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertFalse(self.account.has_money(10000+1-10-100+1000 + 1))
 
 
-# class InvoicePrototypeTests(testcase.TestCase):
+class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
 
-#     def setUp(self):
-#         super(InvoicePrototypeTests, self).setUp()
-#         self.recipient_id = 3
-#         self.sender_id = 8
-#         self.amount = 317
-#         self.invoice = InvoicePrototype.create(recipient_type=ENTITY_TYPE,
-#                                                recipient_id=self.recipient_id,
-#                                                sender_type=ENTITY_2_TYPE,
-#                                                sender_id=self.sender_id,
-#                                                currency=CURRENCY,
-#                                                amount=self.amount)
+    def setUp(self):
+        super(InvoicePrototypeTests, self).setUp()
+        self.recipient_id = 3
+        self.sender_id = 8
+        self.amount = 317
+
+    def test_create(self):
+        invoice = self.create_invoice()
+
+        self.assertTrue(invoice.recipient_type._is_GAME_ACCOUNT)
+        self.assertEqual(invoice.recipient_id, self.recipient_id)
+        self.assertTrue(invoice.sender_type._is_GAME_LOGIC)
+        self.assertEqual(invoice.sender_id, self.sender_id)
+        self.assertEqual(invoice.amount, self.amount)
+        self.assertTrue(invoice.state._is_REQUESTED)
+        self.assertTrue(invoice.currency._is_PREMIUM)
+
+    def check_freeze(self, recipient_type, sender_type, amount, initial_accounts_number=0, recipient_amount=0, sender_amount=0):
+        self.assertEqual(AccountPrototype._model_class.objects.all().count(), initial_accounts_number)
+
+        invoice = self.create_invoice(recipient_type=recipient_type, sender_type=sender_type, amount=amount)
+        invoice.freeze()
+        self.assertTrue(invoice.state._is_FROZEN)
+
+        self.assertEqual(AccountPrototype._model_class.objects.all().count(), 2)
+
+        recipient = AccountPrototype(model=AccountPrototype._model_class.objects.all().order_by('created_at')[0])
+        self.assertEqual(recipient.amount, recipient_amount)
+        self.assertEqual(recipient.entity_type, recipient_type)
+        self.assertEqual(recipient.entity_id, self.recipient_id)
+        self.assertTrue(recipient.currency._is_PREMIUM)
+
+        sender = AccountPrototype(model=AccountPrototype._model_class.objects.all().order_by('created_at')[1])
+        self.assertEqual(sender.amount, sender_amount)
+        self.assertEqual(sender.entity_type, sender_type)
+        self.assertEqual(sender.entity_id, self.sender_id)
+        self.assertTrue(sender.currency._is_PREMIUM)
 
 
-#     def test_create(self):
-#         self.assertEqual(self.invoice.recipient_type, ENTITY_TYPE)
-#         self.assertEqual(self.invoice.recipient_id, self.recipient_id)
-#         self.assertEqual(self.invoice.sender_type, ENTITY_2_TYPE)
-#         self.assertEqual(self.invoice.sender_id, self.sender_id)
-#         self.assertEqual(self.invoice.amount, self.amount)
-#         self.assertTrue(self.invoice.state._is_REQUESTED)
+    def test_freeze__for_infinite_sender(self):
+        self.check_freeze(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                          sender_type=ENTITY_TYPE.GAME_LOGIC,
+                          amount=100,
+                          recipient_amount=0,
+                          sender_amount=bank_settings.INFINIT_MONEY_AMOUNT)
 
-#     def test_freeze(self):
-#         self.assertEqual(AccountPrototype._model_class.objects.all().count(), 0)
-#         self.invoice.freeze()
-#         self.assertEqual(AccountPrototype._model_class.objects.all().count(), 1)
+    def test_freeze__for_infinite_recipient(self):
+        self.check_freeze(recipient_type=ENTITY_TYPE.GAME_LOGIC,
+                          sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                          amount=-100,
+                          recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                          sender_amount=0)
 
-#         account = AccountPrototype(model=AccountPrototype._model_class.objects.all()[0])
-#         self.assertEqual(account.amount, 0)
-#         self.assertEqual(account.entity_type, ENTITY_TYPE)
-#         self.assertEqual(account.entity_id, self.recipient_id)
+    def test_freeze__for_infinite_both(self):
+        self.check_freeze(recipient_type=ENTITY_TYPE.GAME_LOGIC,
+                          sender_type=ENTITY_TYPE.GAME_LOGIC,
+                          amount=100,
+                          recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                          sender_amount=bank_settings.INFINIT_MONEY_AMOUNT)
+        self.check_freeze(recipient_type=ENTITY_TYPE.GAME_LOGIC,
+                          sender_type=ENTITY_TYPE.GAME_LOGIC,
+                          amount=-100,
+                          initial_accounts_number=2,
+                          recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                          sender_amount=bank_settings.INFINIT_MONEY_AMOUNT)
 
-#     def test_freeze__for_infinite_recipient(self):
-#         pass
+    def test_freeze__for_noninfinite_both(self):
+        recipient = AccountPrototype.create(entity_type=ENTITY_TYPE.GAME_ACCOUNT, entity_id=self.recipient_id, currency=CURRENCY_TYPE.PREMIUM)
+        recipient.amount = 100
+        recipient.save()
 
-#     def test_freeze__for_infinite_sender(self):
-#         pass
+        sender = AccountPrototype.create(entity_type=ENTITY_TYPE.GAME_ACCOUNT, entity_id=self.sender_id, currency=CURRENCY_TYPE.PREMIUM)
+        sender.amount = 100
+        sender.save()
 
-#     def test_freeze__for_infinite_both(self):
-#         pass
+        self.check_freeze(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                          sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                          amount=100,
+                          initial_accounts_number=2,
+                          recipient_amount=100,
+                          sender_amount=100)
 
-#     def test_freeze__reject(self):
-#         pass
+        self.check_freeze(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                          sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                          amount=-50,
+                          initial_accounts_number=2,
+                          recipient_amount=100,
+                          sender_amount=100)
 
-#     def test_freeze__reject_for_infinite_recipient(self):
-#         pass
+    def check_reject(self, recipient_type, sender_type, amount, initial_accounts_number=0, processed_accounts_number=2, recipient_amount=0, sender_amount=0):
+        self.assertEqual(AccountPrototype._model_class.objects.all().count(), initial_accounts_number)
 
-#     def test_freeze__reject_for_infinite_sender(self):
-#         pass
+        invoice = self.create_invoice(recipient_type=recipient_type, sender_type=sender_type, amount=amount)
+        invoice.freeze()
+        self.assertTrue(invoice.state._is_REJECTED)
 
-#     def test_freeze__reject_for_both(self):
-#         pass
+        self.assertEqual(AccountPrototype._model_class.objects.all().count(), processed_accounts_number)
 
-#     def test_reject(self):
-#         pass
+        if processed_accounts_number == 0:
+            return
 
-#     def test_reject__not_reqested_state(self):
-#         pass
+        recipient = AccountPrototype(model=AccountPrototype._model_class.objects.all().order_by('created_at')[0])
+        self.assertEqual(recipient.amount, recipient_amount)
+        self.assertEqual(recipient.entity_type, recipient_type)
+        self.assertEqual(recipient.entity_id, self.recipient_id)
+        self.assertTrue(recipient.currency._is_PREMIUM)
 
-#     def test_confirm(self):
-#         pass
+        if processed_accounts_number == 1:
+            return
 
-#     def test_confirm__not_frozen_state(self):
-#         pass
+        sender = AccountPrototype(model=AccountPrototype._model_class.objects.all().order_by('created_at')[1])
+        self.assertEqual(sender.amount, sender_amount)
+        self.assertEqual(sender.entity_type, sender_type)
+        self.assertEqual(sender.entity_id, self.sender_id)
+        self.assertTrue(sender.currency._is_PREMIUM)
 
-#     def test_cancel(self):
-#         pass
+    def test_freeze__reject_for_infinit_recipient(self):
+        self.check_reject(recipient_type=ENTITY_TYPE.GAME_LOGIC,
+                          sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                          amount=100,
+                          recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                          sender_amount=0,
+                          processed_accounts_number=2)
 
-#     def test_cancel__not_in_frozen_state(self):
-#         pass
+    def test_freeze__reject_for_infinit_sender(self):
+        self.check_reject(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                          sender_type=ENTITY_TYPE.GAME_LOGIC,
+                          amount=-100,
+                          recipient_amount=0,
+                          processed_accounts_number=1)
 
-#     def test_reset(self):
-#         pass
+    def test_freeze__reject_for_infinit_both(self):
+        # always successed
+        pass
 
-#     def test_reset__not_in_frozen_or_requested_states(self):
-#         pass
+    def test_freeze__reject_for_noninfinit_both(self):
+        self.check_reject(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                          sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                          amount=-50,
+                          processed_accounts_number=1)
+
+        self.check_reject(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                          sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                          amount=100,
+                          initial_accounts_number=1,
+                          processed_accounts_number=2)
+
+    def test_reject__not_reqested_state(self):
+        invoice = self.create_invoice()
+        invoice.state = INVOICE_STATE.CONFIRMED
+        self.assertRaises(BankError, invoice.freeze)
+
+    def check_confirm(self, recipient_type, sender_type, initial_recipient_amount, initial_sender_amount, amount, result_recipient_amount, result_sender_amount):
+        recipient = AccountPrototype.get_for_or_create(entity_type=recipient_type, entity_id=self.recipient_id, currency=CURRENCY_TYPE.PREMIUM)
+        recipient.amount = initial_recipient_amount
+        recipient.save()
+
+        sender = AccountPrototype.get_for_or_create(entity_type=sender_type, entity_id=self.sender_id, currency=CURRENCY_TYPE.PREMIUM)
+        sender.amount = initial_sender_amount
+        sender.save()
+
+        invoice = self.create_invoice(recipient_type=recipient_type,
+                                      recipient_id=self.recipient_id,
+                                      sender_type=sender_type,
+                                      sender_id=self.sender_id,
+                                      amount=amount)
+        invoice.freeze()
+        self.assertTrue(invoice.state._is_FROZEN)
+
+        recipient.reload()
+        sender.reload()
+
+        self.assertEqual(recipient.amount, initial_recipient_amount)
+        self.assertEqual(sender.amount, initial_sender_amount)
+
+        invoice.confirm()
+
+        recipient.reload()
+        sender.reload()
+
+        self.assertEqual(recipient.amount, result_recipient_amount)
+        self.assertEqual(sender.amount, result_sender_amount)
+
+        self.assertTrue(invoice.state._is_CONFIRMED)
+
+
+    def test_confirm__noninfinit(self):
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           initial_recipient_amount=1000,
+                           initial_sender_amount=1000,
+                           amount=299,
+                           result_recipient_amount=1299,
+                           result_sender_amount=701)
+
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           initial_recipient_amount=1000,
+                           initial_sender_amount=1000,
+                           amount=-299,
+                           result_recipient_amount=701,
+                           result_sender_amount=1299)
+
+    def test_confirm__infinit_sender(self):
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           sender_type=ENTITY_TYPE.GAME_LOGIC,
+                           initial_recipient_amount=1000,
+                           initial_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           amount=299,
+                           result_recipient_amount=1299,
+                           result_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT)
+
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           sender_type=ENTITY_TYPE.GAME_LOGIC,
+                           initial_recipient_amount=1000,
+                           initial_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           amount=-299,
+                           result_recipient_amount=701,
+                           result_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT)
+
+    def test_confirm__infinit_recipient(self):
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_LOGIC,
+                           sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           initial_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           initial_sender_amount=1000,
+                           amount=299,
+                           result_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           result_sender_amount=701)
+
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_LOGIC,
+                           sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           initial_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           initial_sender_amount=1000,
+                           amount=-299,
+                           result_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           result_sender_amount=1299)
+
+    def test_confirm__infinit_both(self):
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_LOGIC,
+                           sender_type=ENTITY_TYPE.GAME_LOGIC,
+                           initial_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           initial_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           amount=299,
+                           result_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           result_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT)
+
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_LOGIC,
+                           sender_type=ENTITY_TYPE.GAME_LOGIC,
+                           initial_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           initial_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           amount=-299,
+                           result_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           result_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT)
+
+    def test_confirm__not_frozen_state(self):
+        invoice = self.create_invoice()
+        self.assertRaises(BankError, invoice.confirm)
+
+    def test_cancel(self):
+        invoice = self.create_invoice()
+        invoice.freeze()
+        invoice.cancel()
+        self.assertTrue(invoice.state._is_CANCELED)
+
+    def test_cancel__not_in_frozen_state(self):
+        invoice = self.create_invoice()
+        self.assertRaises(BankError, invoice.cancel)
+
+    def test_reset_all(self):
+        for state in INVOICE_STATE._records:
+            invoice = self.create_invoice()
+            invoice.state = state
+            invoice.save()
+
+        InvoicePrototype.reset_all()
+
+        self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.RESETED).count(), len(INVOICE_STATE._records) - 3)
+        self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.CONFIRMED).count(), 1)
+        self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.CANCELED).count(), 1)
+        self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.REJECTED).count(), 1)
+
+    def test_get_unprocessed_invoice_success(self):
+        self.create_invoice(state=INVOICE_STATE.CONFIRMED)
+        unprocessed_invoice = self.create_invoice()
+        self.create_invoice()
+
+        self.assertEqual(InvoicePrototype.get_unprocessed_invoice().id, unprocessed_invoice.id)
+
+    def test_get_priority_message_no_messages(self):
+        for state in INVOICE_STATE._records:
+            if state._is_REQUESTED:
+                continue
+            self.create_invoice(state=state)
+
+        self.assertEqual(InvoicePrototype.get_unprocessed_invoice(), None)

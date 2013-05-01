@@ -38,9 +38,6 @@ class PrototypeTests(testcase.TestCase):
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()
 
-        self.hero_1.mark_as_active()
-        self.hero_2.mark_as_active()
-
 
     def test_initialize(self):
         self.assertEqual(self.person.friends_number, 0)

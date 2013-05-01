@@ -82,6 +82,9 @@ class BasePrototype(object):
     def __init__(self, model):
         self._model = model
 
+    def reload(self):
+        self._model = self._model_class.objects.get(id=self._model.id)
+
     def create(self, *argv, **kwargs):
         raise NotImplemented
 

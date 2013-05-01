@@ -54,7 +54,10 @@ class HeroPrototype(BasePrototype):
                       'might',
                       'might_updated_time',
                       'last_action_percents',
-                      'ui_caching_started_at')
+                      'ui_caching_started_at',
+                      'active_state_end_at',
+                      'change_person_power_allowed_end_at',
+                      'normal_experience_rate_end_at')
     _get_by = ('id', 'account_id')
 
     def __init__(self, **kwargs):
@@ -68,13 +71,6 @@ class HeroPrototype(BasePrototype):
     @property
     def age(self):
         return TimePrototype(TimePrototype.get_current_turn_number() - self.created_at_turn).game_time
-
-    @property
-    def is_active(self):
-        return TimePrototype.get_current_turn_number() < self._model.active_state_end_at
-
-    def mark_as_active(self):
-        self._model.active_state_end_at = TimePrototype.get_current_turn_number() + c.EXP_ACTIVE_STATE_LENGTH
 
     @property
     def is_ui_caching_required(self):
@@ -495,16 +491,17 @@ class HeroPrototype(BasePrototype):
 
     @property
     def experience_modifier(self):
-        if self.is_active:
-            return 1
-        return 1.0 / c.EXP_PENALTY_MULTIPLIER
+        if self.normal_experience_rate_end_at > datetime.datetime.now() or self._model.active_state_end_at > datetime.datetime.now():
+            return 1.0
+        return 1.0 * c.EXP_PENALTY_MULTIPLIER
 
     ###########################################
     # Permissions
     ###########################################
 
     @property
-    def can_change_persons_power(self): return not self.is_fast and self.is_active
+    def can_change_persons_power(self):
+        return self.change_person_power_allowed_end_at > datetime.datetime.now()
 
     @property
     def can_participate_in_pvp(self): return not self.is_fast
@@ -646,18 +643,15 @@ class HeroPrototype(BasePrototype):
 
     @classmethod
     def get_friendly_heroes(self, person):
-        current_turn = TimePrototype.get_current_turn_number()
-        return [HeroPrototype(model=record) for record in Hero.objects.filter(pref_friend_id=person.id, active_state_end_at__gte=current_turn)]
+        return [HeroPrototype(model=record) for record in Hero.objects.filter(pref_friend_id=person.id, active_state_end_at__gte=datetime.datetime.now())]
 
     @classmethod
     def get_enemy_heroes(self, person):
-        current_turn = TimePrototype.get_current_turn_number()
-        return [HeroPrototype(model=record) for record in Hero.objects.filter(pref_enemy_id=person.id, active_state_end_at__gte=current_turn)]
+        return [HeroPrototype(model=record) for record in Hero.objects.filter(pref_enemy_id=person.id, active_state_end_at__gte=datetime.datetime.now())]
 
     @classmethod
     def get_place_heroes(self, place):
-        current_turn = TimePrototype.get_current_turn_number()
-        return [HeroPrototype(model=record) for record in Hero.objects.filter(pref_place_id=place.id, active_state_end_at__gte=current_turn)]
+        return [HeroPrototype(model=record) for record in Hero.objects.filter(pref_place_id=place.id, active_state_end_at__gte=datetime.datetime.now())]
 
     def __eq__(self, other):
 
@@ -762,7 +756,7 @@ class HeroPrototype(BasePrototype):
         return data
 
     @classmethod
-    def create(cls, account, bundle, is_fast=False):
+    def create(cls, account, bundle):
 
         from game.abilities.prototypes import AbilityPrototype
         from game.actions.prototypes import ActionIdlenessPrototype
@@ -794,11 +788,13 @@ class HeroPrototype(BasePrototype):
         diary.push_message(diary._prepair_message(u'«Вот же ж угораздило. У всех ангелы-хранители нормальные, сидят себе и попаданию подопечных в загробный мир не мешают. А у моего, значит, шило в заднице! Где ты был, когда я лотерейные билеты покупал?! Молнию отвести он значит не может, а воскресить — запросто. Как же всё болит, кажется теперь у меня две печёнки (это, конечно, тебе спасибо, всегда пригодится). Ну ничего, рано или поздно я к твоему начальству попаду и там уж всё расскажу! А пока буду записывать в свой дневник».'))
 
         hero = Hero.objects.create(created_at_turn=current_turn_number,
-                                   active_state_end_at=current_turn_number + c.EXP_ACTIVE_STATE_LENGTH,
+                                   active_state_end_at=account.active_end_at,
+                                   change_person_power_allowed_end_at=account.premium_end_at,
+                                   normal_experience_rate_end_at=account.premium_end_at,
                                    account=account._model,
                                    gender=gender,
                                    race=race,
-                                   is_fast=is_fast,
+                                   is_fast=account.is_fast,
                                    pref_energy_regeneration_type=energy_regeneration_type,
                                    abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
                                    messages=s11n.to_json(messages.serialize()),
@@ -819,6 +815,22 @@ class HeroPrototype(BasePrototype):
         ActionIdlenessPrototype.create(parent=None, _bundle_id=bundle.id, hero=hero, _storage=storage)
 
         return hero
+
+    def update_with_account_data(self, is_fast, premium_end_at, active_end_at):
+        self.is_fast = is_fast
+        self.active_state_end_at = active_end_at
+        self.change_person_power_allowed_end_at = premium_end_at
+        self.normal_experience_rate_end_at = premium_end_at
+
+    def cmd_update_with_account_data(self, account):
+        from game.workers.environment import workers_environment as game_workers_environment
+
+        game_workers_environment.supervisor.cmd_update_hero_with_account_data(account.id,
+                                                                              self.id,
+                                                                              is_fast=account.is_fast,
+                                                                              premium_end_at=account.premium_end_at,
+                                                                              active_end_at=account.active_end_at)
+
 
     ###########################################
     # Game operations

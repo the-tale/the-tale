@@ -44,16 +44,6 @@ class LogicWorkerTests(testcase.TestCase):
         self.assertEqual(self.worker.storage.heroes_to_actions, {})
         self.assertEqual(self.worker.queue, [])
 
-    def test_process_mark_hero_as_not_fast(self):
-
-        self.account.is_fast = True
-        self.account.save()
-
-        self.worker.process_register_account(self.account.id)
-        self.assertTrue(self.worker.storage.heroes[self.hero.id].is_fast)
-        self.worker.process_mark_hero_as_not_fast(self.hero.account_id, self.hero.id)
-        self.assertFalse(self.worker.storage.heroes[self.hero.id].is_fast)
-
     def test_process_start_hero_caching(self):
         current_time = datetime.datetime.now()
         self.worker.process_register_account(self.account.id)
