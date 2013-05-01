@@ -8,13 +8,15 @@ class FakePostponedInternalTask(object):
     TYPE = 'fake-task'
     INITIAL_STATE = 666
 
-    def __init__(self, state=888):
+    def __init__(self, state=888, result_state=POSTPONED_TASK_LOGIC_RESULT.SUCCESS):
         self.state = state
+        self.result_state = result_state
 
     def process(self, main_task):
-        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+        return self.result_state
 
-    def serialize(self): return {'state': self.state}
+    def serialize(self): return {'state': self.state,
+                                 'result_state': self.result_state}
 
     @classmethod
     def deserialize(cls, data):

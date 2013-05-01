@@ -19,12 +19,15 @@ from accounts.exceptions import AccountsException
 
 class AccountPrototype(BasePrototype):
     _model_class = Account
-    _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_active', 'is_superuser', 'has_perm')
-    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription')
+    _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_superuser', 'has_perm', 'active_end_at')
+    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription', 'premium_end_at')
     _get_by = ('id', 'email', 'nick')
 
     @property
     def nick_verbose(self): return self._model.nick if not self._model.is_fast else u'Игрок'
+
+    @property
+    def is_premium(self): return self.premium_ended_at > datetime.datetime.now()
 
     @property
     def new_messages_number(self): return self._model.new_messages_number
@@ -48,7 +51,6 @@ class AccountPrototype(BasePrototype):
     @nested_commit_on_success
     def change_credentials(self, new_email=None, new_password=None, new_nick=None):
         from game.heroes.prototypes import HeroPrototype
-        from game.workers.environment import workers_environment as game_workers_environment
 
         if new_password:
             self._model.password = new_password
@@ -57,12 +59,15 @@ class AccountPrototype(BasePrototype):
         if new_nick:
             self.nick = new_nick
 
-        if self.is_fast:
-            game_workers_environment.supervisor.cmd_mark_hero_as_not_fast(self.id, HeroPrototype.get_by_account_id(self.id).id)
+        old_fast = self.is_fast
 
         self.is_fast = False
 
         self.save()
+
+        if old_fast:
+            HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
+
 
     ###########################################
     # Object operations
@@ -80,8 +85,25 @@ class AccountPrototype(BasePrototype):
         return {}
 
     @classmethod
+    def _next_active_end_at(cls):
+        return datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)
+
+    def update_active_state(self):
+        from game.heroes.prototypes import HeroPrototype
+
+        if datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT - accounts_settings.ACTIVE_STATE_REFRESH_PERIOD) > self.active_end_at:
+            self._model.active_end_at = self._next_active_end_at()
+            self.save()
+            HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
+
+
+    @classmethod
     def create(cls, nick, email, is_fast, password=None):
-        return AccountPrototype(model=Account.objects.create_user(nick=nick, email=email, is_fast=is_fast, password=password))
+        return AccountPrototype(model=Account.objects.create_user(nick=nick,
+                                                                  email=email,
+                                                                  is_fast=is_fast,
+                                                                  password=password,
+                                                                  active_end_at=cls._next_active_end_at()))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self._model == other._model

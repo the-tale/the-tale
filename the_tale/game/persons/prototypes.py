@@ -129,14 +129,12 @@ class PersonPrototype(BasePrototype):
     @property
     def friends_number(self): return self._model.friends_number
     def update_friends_number(self):
-        current_turn = TimePrototype.get_current_turn_number()
-        self._model.friends_number = Hero.objects.filter(is_fast=False, pref_friend_id=self.id, active_state_end_at__gte=current_turn).count()
+        self._model.friends_number = Hero.objects.filter(is_fast=False, pref_friend_id=self.id, active_state_end_at__gte=datetime.datetime.now()).count()
 
     @property
     def enemies_number(self): return self._model.enemies_number
     def update_enemies_number(self):
-        current_turn = TimePrototype.get_current_turn_number()
-        self._model.enemies_number = Hero.objects.filter(is_fast=False, pref_enemy_id=self.id, active_state_end_at__gte=current_turn).count()
+        self._model.enemies_number = Hero.objects.filter(is_fast=False, pref_enemy_id=self.id, active_state_end_at__gte=datetime.datetime.now()).count()
 
     def save(self):
         from game.persons.storage import persons_storage

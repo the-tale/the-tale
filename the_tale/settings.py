@@ -297,7 +297,8 @@ LOGGING = {
         'file_game_pvp_balancer': get_worker_log_file_handler('game_pvp_balancer'),
         'file_accounts_registration': get_worker_log_file_handler('accounts_registration'),
         'file_post_service_message_sender': get_worker_log_file_handler('post_service_message_sender'),
-        'file_bank_bank': get_worker_log_file_handler('bank_bank')
+        'file_bank_bank_processor': get_worker_log_file_handler('bank_bank_processor'),
+        'file_postponed_tasks_refrigerator': get_worker_log_file_handler('postponed_tasks_refrigerator')
     },
     'loggers': {
         'django.request': {
@@ -320,7 +321,8 @@ LOGGING = {
         'the-tale.workers.game_pvp_balancer': get_worker_logger('game_pvp_balancer'),
         'the-tale.workers.accounts_registration': get_worker_logger('accounts_registration'),
         'the-tale.workers.post_service_message_sender': get_worker_logger('post_service_message_sender'),
-        'the-tale.workers.bank_bank': get_worker_logger('bank_bank'),
+        'the-tale.workers.bank_bank_processor': get_worker_logger('bank_bank_processor'),
+        'the-tale.workers.postponed_tasks_refrigerator': get_worker_logger('postponed_tasks_refrigerator')
     } if not TESTS_RUNNING else {}
 }
 

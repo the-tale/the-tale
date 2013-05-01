@@ -25,7 +25,7 @@ def staff_required(permissions=[]):
             if permissions:
                 raise NotImplemented('staff required decorator has not emplimented for working with permissions list')
             else:
-                if resource.account.is_authenticated() and resource.account.is_active and resource.account.is_staff:
+                if resource.account.is_authenticated() and resource.account.is_staff:
                     return func(resource, *argv, **kwargs)
                 else:
                     return resource.auto_error('common.staff_required', u'У Вас нет прав для проведения данной операции')

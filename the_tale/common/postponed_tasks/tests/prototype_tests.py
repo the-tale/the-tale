@@ -1,7 +1,5 @@
 # coding: utf-8
 
-import datetime
-
 import mock
 
 from common.utils import testcase
@@ -127,6 +125,16 @@ class PrototypeTests(testcase.TestCase):
 
         with mock.patch.object(FakePostponedInternalTask, 'process',
                                mock.Mock(return_value=POSTPONED_TASK_LOGIC_RESULT.CONTINUE)) as call_counter:
+            self.task.process(FakeLogger())
+
+        self.assertEqual(call_counter.call_count, 1)
+        self.assertTrue(self.task.state.is_waiting)
+
+
+    def test_process_internal_wait(self):
+
+        with mock.patch.object(FakePostponedInternalTask, 'process',
+                               mock.Mock(return_value=POSTPONED_TASK_LOGIC_RESULT.WAIT)) as call_counter:
             self.task.process(FakeLogger())
 
         self.assertEqual(call_counter.call_count, 1)

@@ -10,6 +10,13 @@ class Transaction(object):
     def __init__(self, invoice_id):
         self.invoice_id = invoice_id
 
+    def serialize(self):
+        return {'invoice_id': self.invoice_id}
+
+    @classmethod
+    def deserialize(cls, data):
+        return cls(**data)
+
     @classmethod
     def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount):
         invoice = InvoicePrototype.create(recipient_type=recipient_type,
@@ -19,7 +26,7 @@ class Transaction(object):
                                           currency=currency,
                                           amount=amount)
 
-        bank_workers_environment.bank.freeze_invoice()
+        bank_workers_environment.bank_processor.cmd_freeze_invoice()
 
         return cls(invoice_id=invoice.id)
 
@@ -27,7 +34,7 @@ class Transaction(object):
         return InvoicePrototype.get_by_id(self.invoice_id).state
 
     def confirm(self):
-        bank_workers_environment.bank.confirm_invoice()
+        bank_workers_environment.bank_processor.cmd_confirm_invoice()
 
     def cancel(self):
-        bank_workers_environment.bank.cancel_invoice()
+        bank_workers_environment.bank_processor.cmd_cancel_invoice()

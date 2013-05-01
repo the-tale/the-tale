@@ -15,6 +15,8 @@ accounts_settings = app_settings('ACCOUNTS',
                                  RESET_PASSWORD_LENGTH=8,
                                  RESET_PASSWORD_TASK_LIVE_TIME=60*60,
                                  CHANGE_EMAIL_TIMEOUT=2*24*60*60,
+                                 ACTIVE_STATE_TIMEOUT = 3*24*60*60,
+                                 ACTIVE_STATE_REFRESH_PERIOD=3*60*60,
                                  SYSTEM_USER_NICK=u'Смотритель',
 
                                  ACCOUNTS_ON_PAGE=25,

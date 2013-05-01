@@ -11,9 +11,6 @@ APP_DIR = os.path.abspath(os.path.dirname(__file__))
 
 game_settings = app_settings('GAME',
 
-                             SESSION_REFRESH_TIME_KEY='session_refresh_time',
-                             SESSION_REFRESH_PERIOD=60*60,
-
                              TURN_DELAY=c.TURN_DELTA,
                              MIGHT_CALCULATOR_DELAY=7,
                              RATINGS_SYNC_TIME=4*60*60,

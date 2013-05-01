@@ -11,6 +11,11 @@ POSTPONED_TASK_STATE = create_enum('POSTPONED_TASK_STATE', (('WAITING', 0, u'о�
                                                             ('EXCEPTION', 4, u'исключение при обработке'),
                                                             ('TIMEOUT', 5, u'превышено время выполнения')) )
 
+POSTPONED_TASK_LOGIC_RESULT = create_enum('POSTPONED_TASK_LOGIC_RESULT', (('SUCCESS', 0, u'удачное выполнение'),
+                                                                          ('ERROR', 1, u'ошибка'),
+                                                                          ('CONTINUE', 2, u'необходимо продолжить выполнение'),
+                                                                          ('WAIT', 3, u'ожидает других задач') ) )
+
 
 class PostponedTask(models.Model):
 
@@ -23,6 +28,8 @@ class PostponedTask(models.Model):
     state = models.IntegerField(default=POSTPONED_TASK_STATE.WAITING, db_index=True, choices=POSTPONED_TASK_STATE._CHOICES)
 
     comment = models.CharField(max_length=256, blank=True, default='')
+
+    internal_result = models.IntegerField(null=True, db_index=True, choices=POSTPONED_TASK_LOGIC_RESULT._CHOICES)
 
     internal_type = models.CharField(max_length=64, db_index=True)
 

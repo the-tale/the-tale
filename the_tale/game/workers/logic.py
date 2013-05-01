@@ -123,14 +123,6 @@ class Worker(BaseWorker):
         task.process(self.logger, storage=self.storage)
         task.do_postsave_actions()
 
-    def cmd_mark_hero_as_not_fast(self, account_id, hero_id):
-        self.send_cmd('mark_hero_as_not_fast', {'hero_id': hero_id,
-                                                'account_id': account_id})
-
-    def process_mark_hero_as_not_fast(self, account_id, hero_id):
-        self.storage.heroes[hero_id].is_fast = False
-        self.storage.save_account_data(account_id, update_cache=True)
-
     def cmd_start_hero_caching(self, account_id, hero_id):
         self.send_cmd('start_hero_caching', {'hero_id': hero_id,
                                              'account_id': account_id})
@@ -139,12 +131,17 @@ class Worker(BaseWorker):
         self.storage.heroes[hero_id].ui_caching_started_at = datetime.datetime.now()
         self.storage.save_account_data(account_id, update_cache=True)
 
-    def cmd_mark_hero_as_active(self, account_id, hero_id):
-        self.send_cmd('mark_hero_as_active', {'hero_id': hero_id,
-                                              'account_id': account_id})
+    def cmd_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at):
+        self.send_cmd('update_hero_with_account_data', {'hero_id': hero_id,
+                                                        'account_id': account_id,
+                                                        'is_fast': is_fast,
+                                                        'premium_end_at': premium_end_at,
+                                                        'active_end_at': active_end_at})
 
-    def process_mark_hero_as_active(self, account_id, hero_id):
-        self.storage.heroes[hero_id].mark_as_active()
+    def process_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at):
+        self.storage.heroes[hero_id].update_with_account_data(is_fast=datetime.fromtimestamp(is_fast),
+                                                              premium_end_at=datetime.fromtimestamp(premium_end_at),
+                                                              active_end_at=datetime.fromtimestamp(active_end_at))
         self.storage.save_account_data(account_id, update_cache=True)
 
     def cmd_highlevel_data_updated(self):

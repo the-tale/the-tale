@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from accounts.tests.account_prototype_tests import *
 from accounts.tests.registration_tests import *
 from accounts.tests.change_credentials_tests import *
 from accounts.tests.logic_tests import *

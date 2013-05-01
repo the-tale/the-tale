@@ -1,5 +1,6 @@
 # coding: utf-8
 import itertools
+import datetime
 
 from dext.views import handler
 
@@ -8,9 +9,6 @@ from common.utils.resources import Resource
 
 from accounts.models import Account
 
-from game.heroes.models import Hero
-
-from game.prototypes import TimePrototype
 
 class DevelopersInfoResource(Resource):
 
@@ -23,7 +21,7 @@ class DevelopersInfoResource(Resource):
 
         accounts_total = Account.objects.all().count()
         accounts_registered = Account.objects.filter(is_fast=False).count()
-        accounts_active = Hero.objects.filter(is_fast=False, active_state_end_at__gt=TimePrototype.get_current_turn_number()).count()
+        accounts_active = Account.objects.filter(is_fast=False, active_end_at__gt=datetime.datetime.now()).count()
 
         return self.template('developers_info/index.html',
                              {'accounts_total': accounts_total,

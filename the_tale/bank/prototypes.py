@@ -51,7 +51,6 @@ class AccountPrototype(BasePrototype):
                                                 currency=currency)
         return cls(model=model)
 
-
     def has_money(self, test_amount):
 
         if test_amount < 0:
@@ -72,12 +71,22 @@ class AccountPrototype(BasePrototype):
 
         return self.amount + (frozen_incoming if frozen_incoming else 0) - (frozen_outcoming if frozen_outcoming else 0) >= test_amount
 
+    def save(self):
+        self._model.save()
+
 
 class InvoicePrototype(BasePrototype):
     _model_class = Invoice
     _readonly = ('id', 'updated_at', 'recipient_id', 'recipient_type', 'sender_id', 'sender_type', 'amount', 'currency')
     _bidirectional = ('state', )
     _get_by = ('id', )
+
+    @classmethod
+    def get_unprocessed_invoice(cls):
+        try:
+            return cls(model=cls._model_class.objects.filter(state=INVOICE_STATE.REQUESTED).order_by('created_at')[0])
+        except IndexError:
+            return None
 
     @classmethod
     def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount):
@@ -93,6 +102,9 @@ class InvoicePrototype(BasePrototype):
 
     @nested_commit_on_success
     def freeze(self):
+
+        if not self.state._is_REQUESTED:
+            raise BankError(u'try to freeze not requested invoice "%d"' % self.id)
 
         recipient = AccountPrototype.get_for_or_create(entity_type=self.recipient_type, entity_id=self.recipient_id, currency=self.currency)
 
@@ -111,23 +123,18 @@ class InvoicePrototype(BasePrototype):
         self.state = INVOICE_STATE.FROZEN
         self.save()
 
-
-    def reject(self):
-        if not self.state._is_REQUESTED:
-            raise BankError(u'try to cancel not requested invoice "%d"' % self.id)
-
-        self.state = INVOICE_STATE.REJECTED
-        self.save()
-
-
     @nested_commit_on_success
     def confirm(self):
         if not self.state._is_FROZEN:
             raise BankError(u'try to confirm not frozen invoice "%d"' % self.id)
 
-        account = AccountPrototype.get_for(account_type=self.account_type, account_id=self.account_id, currency=self.currency)
-        account.amount += self.amount
-        account.save()
+        recipient = AccountPrototype.get_for(entity_type=self.recipient_type, entity_id=self.recipient_id, currency=self.currency)
+        recipient.amount += self.amount
+        recipient.save()
+
+        sender = AccountPrototype.get_for(entity_type=self.sender_type, entity_id=self.sender_id, currency=self.currency)
+        sender.amount -= self.amount
+        sender.save()
 
         self.state = INVOICE_STATE.CONFIRMED
         self.save()
@@ -139,12 +146,9 @@ class InvoicePrototype(BasePrototype):
         self.state = INVOICE_STATE.CANCELED
         self.save()
 
-    def reset(self):
-        if not (self.state._is_FROZEN or self.state._is_REQUESTED):
-            raise BankError(u'try to reset invoice not in frozen or requested state "%d"' % self.id)
-
-        self.state = INVOICE_STATE.RESETED
-        self.save()
+    @classmethod
+    def reset_all(self):
+        self._model_class.objects.filter(state__in=(INVOICE_STATE.FROZEN, INVOICE_STATE.REQUESTED)).update(state=INVOICE_STATE.RESETED)
 
     def save(self):
         self._model.save()

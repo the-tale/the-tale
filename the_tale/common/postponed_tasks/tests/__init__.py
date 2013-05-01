@@ -2,3 +2,4 @@
 
 from common.postponed_tasks.tests.prototype_tests import *
 from common.postponed_tasks.tests.requests_tests import *
+from common.postponed_tasks.tests.refrigerator_tests import *

@@ -20,13 +20,8 @@ class LogicStorage(object):
         self.save_required = set()
 
     def load_account_data(self, account):
-
         hero = HeroPrototype.get_by_account_id(account.id)
-
-        # sync hero is_fast state
-        hero.is_fast = account.is_fast
-
-        # if hero: # hero can be None if we at process of creating account
+        hero.update_with_account_data(is_fast=account.is_fast, premium_end_at=account.premium_end_at, active_end_at=account.active_end_at)
         self.add_hero(hero)
 
     def release_account_data(self, account, save_required=True):

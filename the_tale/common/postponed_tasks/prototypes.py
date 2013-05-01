@@ -7,16 +7,9 @@ from django.core.urlresolvers import reverse
 
 from dext.utils import s11n
 
-from common.utils.enum import create_enum
-
-from common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE
+from common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE, POSTPONED_TASK_LOGIC_RESULT
 from common.postponed_tasks.exceptions import PostponedTaskException
 from common.postponed_tasks.conf import postponed_tasks_settings
-
-
-POSTPONED_TASK_LOGIC_RESULT = create_enum('POSTPONED_TASK_LOGIC_RESULT', (('SUCCESS', 0, u'удачное выполнение'),
-                                                                          ('ERROR', 1, u'ошибка'),
-                                                                          ('CONTINUE', 2, u'необходимо продолжить выполнение') ) )
 
 
 _INTERNAL_LOGICS = {}
@@ -96,6 +89,10 @@ class PostponedTaskPrototype(object):
     def set_internal_state(self, value): self.model.internal_state = value
     internal_state = property(get_internal_state, set_internal_state)
 
+    def get_internal_result(self): return self.model.internal_result
+    def set_internal_result(self, value): self.model.internal_result = value
+    internal_result = property(get_internal_result, set_internal_result)
+
     def get_comment(self): return self.model.comment
     def set_comment(self, value): self.model.comment = value
     comment = property(get_comment, set_comment)
@@ -170,16 +167,18 @@ class PostponedTaskPrototype(object):
             return
 
         try:
-            process_result = self.internal_logic.process(self, **kwargs)
+            self.internal_result = self.internal_logic.process(self, **kwargs)
 
-            if process_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS:
+            if self.internal_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS:
                 self.state = POSTPONED_TASK_STATE.PROCESSED
-            elif process_result == POSTPONED_TASK_LOGIC_RESULT.ERROR:
+            elif self.internal_result == POSTPONED_TASK_LOGIC_RESULT.ERROR:
                 self.state = POSTPONED_TASK_STATE.ERROR
-            elif process_result == POSTPONED_TASK_LOGIC_RESULT.CONTINUE:
+            elif self.internal_result == POSTPONED_TASK_LOGIC_RESULT.CONTINUE:
+                pass
+            elif self.internal_result == POSTPONED_TASK_LOGIC_RESULT.WAIT:
                 pass
             else:
-                raise PostponedTaskException(u'unknown process result %r' % (process_result, ))
+                raise PostponedTaskException(u'unknown process result %r' % (self.process_result, ))
 
             self.internal_state = self.internal_logic.state
             self.save()
