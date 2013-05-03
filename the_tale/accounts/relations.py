@@ -14,3 +14,12 @@ class AWARD_TYPE(DjangoEnum):
                  ('STANDARD_MINOR', 6, u'стандартная награда: небольшая'),
                  ('STANDARD_NORMAL', 7, u'стандартная награда: обычная'),
                  ('STANDARD_MAJOR', 8, u'стандартная награда: существенная') )
+
+class CHANGE_CREDENTIALS_TASK_STATE(DjangoEnum):
+    _records = ( ('WAITING', 0, u'ожидает обработки'),
+                 ('EMAIL_SENT', 1, u'отослано письмо'),
+                 ('PROCESSED', 2, u'обработана'),
+                 ('UNPROCESSED', 3, u'не обработана'),
+                 ('ERROR', 4, u'ошибка'),
+                 ('TIMEOUT', 5, u'таймаут'),
+                 ('CHANGING', 6, u'применяются изменения'))

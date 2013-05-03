@@ -2,7 +2,7 @@
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.postponed_tasks import postponed_task, POSTPONED_TASK_LOGIC_RESULT
+from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from common.utils.enum import create_enum
 
 from game.prototypes import TimePrototype
@@ -16,8 +16,7 @@ ABILITY_TASK_STATE = create_enum('ABILITY_TASK_STATE', (('UNPROCESSED', 0, u'в 
                                                         ('COOLDOWN', 3, u'способность не готова'),
                                                         ('CAN_NOT_PROCESS', 4, u'способность нельзя применить'), ))
 
-@postponed_task
-class UseAbilityTask(object):
+class UseAbilityTask(PostponedLogic):
 
     TYPE = 'use-ability'
 
@@ -48,15 +47,11 @@ class UseAbilityTask(object):
                  'state': self.state,
                  'step': self.step}
 
-    @classmethod
-    def deserialize(cls, data):
-        return cls(**data)
-
     @property
     def uuid(self): return self.hero_id
 
     @property
-    def response_data(self): return {'available_at': self.available_at}
+    def processed_data(self): return {'available_at': self.available_at}
 
     @property
     def error_message(self): return ABILITY_TASK_STATE._CHOICES[self.state][1]

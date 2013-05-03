@@ -21,8 +21,12 @@ class SupervisorException(Exception): pass
 
 class Worker(BaseWorker):
 
+    logger = getLogger('the-tale.workers.game_supervisor')
+    name = 'game supervisor'
+    command_name = 'game_supervisor'
+
     def __init__(self, supervisor_queue, answers_queue, stop_queue):
-        super(Worker, self).__init__(logger=getLogger('the-tale.workers.game_supervisor'), command_queue=supervisor_queue)
+        super(Worker, self).__init__(command_queue=supervisor_queue)
         self.answers_queue = connection.SimpleQueue(answers_queue)
         self.stop_queue = connection.SimpleQueue(stop_queue)
 
@@ -54,6 +58,9 @@ class Worker(BaseWorker):
             game_cmd = self.command_queue.get(block=True)
             game_cmd.ack()
             self.process_cmd(game_cmd.payload)
+
+    def initialize(self):
+        self.cmd_initialize()
 
     def cmd_initialize(self):
         self.send_cmd('initialize', {})

@@ -66,24 +66,17 @@ class TestChangeCredentialsTask(testcase.TestCase):
         self.assertTrue(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
 
         with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
-            task.change_credentials()
+            postponed_task = task.change_credentials()
 
-        self.assertEqual(task.account.email, 'fast_user@test.ru')
-        user = django_authenticate(nick='test_nick', password='222222')
-        self.assertEqual(user.id, task.account.id)
-
-        self.assertFalse(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
-        self.assertEqual(fake_cmd.call_count, 1)
-        self.assertFalse(fake_cmd.call_args[1]['is_fast'])
+        self.assertNotEqual(postponed_task, None)
+        self.assertEqual(fake_cmd.call_count, 0)
 
     def test_change_credentials_password(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_password='222222')
-        task.change_credentials()
+        postponed_task = task.change_credentials()
 
-        self.assertEqual(task.account.email, 'test_user@test.com')
-        user = django_authenticate(nick='test_user', password='222222')
-
-        self.assertEqual(user.id, task.account.id)
+        self.assertNotEqual(postponed_task, None)
+        self.assertEqual(Message.objects.all().count(), 0)
 
     def test_change_credentials_nick(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_nick='test_nick')
@@ -91,22 +84,21 @@ class TestChangeCredentialsTask(testcase.TestCase):
         fake_cmd = FakeWorkerCommand()
 
         with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
-            task.change_credentials()
+            postponed_task = task.change_credentials()
+
+        self.assertNotEqual(postponed_task, None)
+
+        self.assertEqual(Message.objects.all().count(), 0)
 
         self.assertEqual(fake_cmd.call_count, 0)
 
-        self.assertEqual(task.account.nick, 'test_nick')
-        user = django_authenticate(nick='test_nick', password='111111')
-        self.assertEqual(user.id, task.account.id)
+        self.assertEqual(django_authenticate(nick='test_nick', password='111111'), None)
 
     def test_change_credentials_email(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')
-        task.change_credentials()
-
-        self.assertEqual(task.account.email, 'test_user@test.ru')
-        self.assertEqual(task.account.email, 'test_user@test.ru')
-        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
-        self.assertEqual(django_authenticate(nick='test_user', password='111111').nick, 'test_user')
+        postponed_task = task.change_credentials()
+        self.assertNotEqual(postponed_task, None)
+        self.assertEqual(Message.objects.all().count(), 0)
 
     def test_request_email_confirmation_exceptions(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_password='222222')
@@ -158,36 +150,32 @@ class TestChangeCredentialsTask(testcase.TestCase):
         self.assertEqual(Message.objects.all().count(), 1)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
 
-
     def test_process_waiting_and_password_change(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_password='222222')
-        task.process(FakeLogger())
-        self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        self.assertEqual(Message.objects.all().count(), 0)
-        self.assertEqual(django_authenticate(nick='test_user', password='222222').id, task.account.id)
+        postponed_task = task.process(FakeLogger())
+        self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
+        self.assertNotEqual(postponed_task, None)
+        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
 
     def test_process_waiting_and_nick_change(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_nick='test_nick')
-        task.process(FakeLogger())
-        self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        self.assertEqual(Message.objects.all().count(), 0)
-        self.assertEqual(django_authenticate(nick='test_nick', password='111111').id, self.test_account.id)
-
+        postponed_task = task.process(FakeLogger())
+        self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
+        self.assertNotEqual(postponed_task, None)
+        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
 
     def test_process_email_sent(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru', new_password='222222')
-        task.process(FakeLogger())
+        postponed_task = task.process(FakeLogger())
+        self.assertEqual(postponed_task, None)
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
         self.assertEqual(Message.objects.all().count(), 1)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
         self.assertEqual(django_authenticate(nick='test_user', password='222222'), None)
 
-        task.process(FakeLogger())
-        self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        user = django_authenticate(nick='test_user', password='222222')
-        self.assertEqual(user.id, task.account.id)
-        self.assertEqual(user.email, 'test_user@test.ru')
-        self.assertEqual(Message.objects.all().count(), 1)
+        postponed_task = task.process(FakeLogger())
+        self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
+        self.assertNotEqual(postponed_task, None)
 
     @mock.patch('post_service.message_handlers.ChangeEmailNotificationHandler', raise_exception)
     def test_process_error(self):

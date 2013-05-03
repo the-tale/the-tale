@@ -49,21 +49,17 @@ class ProfileRequestsTests(TestCase):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.com', 'password': '222222', 'nick': 'test_user'})
         self.assertEqual(response.status_code, 200)
-        self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
+        self.check_ajax_processing(response, PostponedTaskPrototype._get_task(0).status_url)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
-        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        self.assertEqual(Message.objects.all().count(), 0)
-        self.assertEqual(django_authenticate(nick='test_user', password='222222').id, self.account.id)
+        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
 
     def test_profile_update_nick(self):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.com', 'nick': 'test_nick'})
         self.assertEqual(response.status_code, 200)
-        self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
+        self.check_ajax_processing(response, PostponedTaskPrototype._get_task(0).status_url)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
-        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        self.assertEqual(Message.objects.all().count(), 0)
-        self.assertEqual(django_authenticate(nick='test_nick', password='111111').id, self.account.id)
+        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
 
     def test_profile_update_email(self):
         self.request_login('test_user@test.com')
@@ -98,7 +94,7 @@ class ProfileRequestsTests(TestCase):
 
     def test_profile_update_fast_errors(self):
         response = self.client.post(reverse('accounts:registration:fast'))
-        PostponedTaskPrototype(PostponedTask.objects.all()[0]).process(FakeLogger())
+        PostponedTaskPrototype(model=PostponedTask.objects.all()[0]).process(FakeLogger())
 
         response = self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru'})
         self.check_ajax_error(response, 'accounts.profile.update.form_errors')
@@ -124,33 +120,33 @@ class ProfileRequestsTests(TestCase):
 
     def test_profile_confirm_email(self):
         self.request_login('test_user@test.com')
-        response = self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
-
+        self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
+        self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
-        response = self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid)
+        self.check_ajax_processing(self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid),
+                                                   PostponedTaskPrototype._get_task(0).status_url)
 
-        self.assertEqual(response.status_code, 200)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
-        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
+        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
         self.assertEqual(Message.objects.all().count(), 1)
-        self.assertEqual(django_authenticate(nick='test_nick', password='111111').email, 'test_user@test.ru')
 
     def test_fast_profile_confirm_email(self):
-        response = self.client.post(reverse('accounts:registration:fast'))
-        PostponedTaskPrototype(PostponedTask.objects.all()[0]).process(FakeLogger())
+        self.client.post(reverse('accounts:registration:fast'))
+        PostponedTaskPrototype(model=PostponedTask.objects.all()[0]).process(FakeLogger())
 
-        response = self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick', 'password': '123456'})
+        self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick', 'password': '123456'})
+        self.assertEqual(Message.objects.all().count(), 1)
 
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
-        response = self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid)
+        self.check_ajax_processing(self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid),
+                                   PostponedTaskPrototype._get_task(1).status_url)
 
-        self.assertEqual(response.status_code, 200)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
-        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.PROCESSED)
-        self.assertEqual(Message.objects.all().count(), 1)
-        self.assertEqual(django_authenticate(nick='test_nick', password='123456').email, 'test_user@test.ru')
+        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
+
+        self.assertEqual(django_authenticate(nick='test_nick', password='123456'), None)
 
 
     def test_profile_confirm_email_for_unlogined(self):
@@ -160,10 +156,8 @@ class ProfileRequestsTests(TestCase):
 
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
-        self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid)
-
-        # check if we loggined - there will be redirect from login page
-        self.check_redirect(reverse('accounts:auth:login'), '/')
+        self.check_ajax_processing(self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid),
+                                   PostponedTaskPrototype._get_task(0).status_url)
 
     def test_update_last_news_reminder_time_unlogined(self):
         self.check_ajax_error(self.client.post(reverse('accounts:profile:update-last-news-reminder-time')), 'common.login_required')

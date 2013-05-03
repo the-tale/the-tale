@@ -36,7 +36,7 @@ class ResourceTest(TestCase):
         self.assertEqual(fake_cmd.call_count, 0)
 
     def test_hero_activate_loginned(self):
-        with mock.patch('accounts.prototypes.AccountPrototype.update_active_state') as fake_cmd:
+        with mock.patch('accounts.workers.accounts_manager.Worker.cmd_update_active_state') as fake_cmd:
             self.request_login('test_user@test.com')
             self.client.get('/')
 

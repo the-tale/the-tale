@@ -20,8 +20,13 @@ class LogicException(Exception): pass
 
 class Worker(BaseWorker):
 
+    logger = getLogger('the-tale.workers.game_logic')
+    name = 'game logic'
+    command_name = 'game_logic'
+    stop_signal_required = False
+
     def __init__(self, game_queue):
-        super(Worker, self).__init__(logger=getLogger('the-tale.workers.game_logic'), command_queue=game_queue)
+        super(Worker, self).__init__(command_queue=game_queue)
 
     def set_supervisor_worker(self, supervisor_worker):
         self.supervisor_worker = supervisor_worker

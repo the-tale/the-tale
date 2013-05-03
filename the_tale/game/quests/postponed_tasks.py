@@ -2,7 +2,7 @@
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.postponed_tasks import postponed_task, POSTPONED_TASK_LOGIC_RESULT
+from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from common.utils.enum import create_enum
 
 
@@ -15,8 +15,7 @@ CHOOSE_QUEST_LINE_STATE = create_enum('CHOOSE_QUEST_LINE_STATE', ( ('UNPROCESSED
                                                                    ('QUEST_NOT_FOUND', 6, u'задание не найдено') ) )
 
 
-@postponed_task
-class ChooseQuestLineTask(object):
+class ChooseQuestLineTask(PostponedLogic):
 
     TYPE = 'choose-quest-line-task'
 
@@ -41,15 +40,8 @@ class ChooseQuestLineTask(object):
                  'choice': self.choice,
                  'state': self.state}
 
-    @classmethod
-    def deserialize(cls, data):
-        return cls(**data)
-
     @property
     def uuid(self): return self.account_id
-
-    @property
-    def response_data(self): return {}
 
     @property
     def error_message(self): return CHOOSE_QUEST_LINE_STATE._CHOICES[self.state][1]

@@ -1,14 +1,9 @@
 # coding: utf-8
 import datetime
 
-import mock
-
 from common.utils import testcase
-from common.utils.fake import FakeLogger
 
-from common.postponed_tasks.exceptions import PostponedTaskException
-from common.postponed_tasks.prototypes import PostponedTaskPrototype, postponed_task, _register_postponed_tasks, autodiscover, POSTPONED_TASK_LOGIC_RESULT
-from common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE
+from common.postponed_tasks.prototypes import PostponedTaskPrototype, autodiscover, POSTPONED_TASK_LOGIC_RESULT
 from common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
 from common.postponed_tasks.workers.environment import workers_environment as postponed_tasks_workers_environment
 
@@ -18,14 +13,15 @@ class RefrigeratorTests(testcase.TestCase):
     def setUp(self):
         super(RefrigeratorTests, self).setUp()
         autodiscover()
-        self.task_1 = PostponedTaskPrototype.create(FakePostponedInternalTask(result_state=POSTPONED_TASK_LOGIC_RESULT.WAIT))
-        self.task_2 = PostponedTaskPrototype.create(FakePostponedInternalTask())
 
         postponed_tasks_workers_environment.deinitialize()
         postponed_tasks_workers_environment.initialize()
 
         self.worker = postponed_tasks_workers_environment.refrigerator
         self.worker.initialize()
+
+        self.task_1 = PostponedTaskPrototype.create(FakePostponedInternalTask(result_state=POSTPONED_TASK_LOGIC_RESULT.WAIT))
+        self.task_2 = PostponedTaskPrototype.create(FakePostponedInternalTask())
 
     def test_initialize(self):
         self.assertEqual(self.worker.tasks, {})

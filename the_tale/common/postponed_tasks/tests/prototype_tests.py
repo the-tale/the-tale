@@ -6,7 +6,7 @@ from common.utils import testcase
 from common.utils.fake import FakeLogger
 
 from common.postponed_tasks.exceptions import PostponedTaskException
-from common.postponed_tasks.prototypes import PostponedTaskPrototype, postponed_task, _register_postponed_tasks, autodiscover, POSTPONED_TASK_LOGIC_RESULT
+from common.postponed_tasks.prototypes import PostponedTaskPrototype, PostponedLogic, _register_postponed_tasks, autodiscover, POSTPONED_TASK_LOGIC_RESULT
 from common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE
 from common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
 
@@ -23,12 +23,20 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(_INTERNAL_LOGICS['fake-task'], FakePostponedInternalTask)
 
     def test_internals_tasks_collection_duplicate_registration(self):
+        from common.postponed_tasks.prototypes import _INTERNAL_LOGICS
 
-        @postponed_task
-        class Fake2PostponedInternalTask(object):
+        class Fake2PostponedInternalTask(PostponedLogic):
             TYPE = 'fake-task'
 
-        self.assertRaises(PostponedTaskException, _register_postponed_tasks, [Fake2PostponedInternalTask])
+        self.assertRaises(PostponedTaskException, _register_postponed_tasks, _INTERNAL_LOGICS, [Fake2PostponedInternalTask])
+
+    def test_internals_tasks_collection_no_type(self):
+        from common.postponed_tasks.prototypes import _INTERNAL_LOGICS
+
+        class Fake3PostponedInternalTask(PostponedLogic):
+            pass
+
+        self.assertRaises(PostponedTaskException, _register_postponed_tasks, _INTERNAL_LOGICS, [Fake3PostponedInternalTask])
 
 
     def test_create(self):
@@ -93,7 +101,7 @@ class PrototypeTests(testcase.TestCase):
 
     def test_process_timeout(self):
 
-        self.task.model.live_time = -1
+        self.task._model.live_time = -1
 
         with mock.patch.object(FakePostponedInternalTask, 'process',
                                mock.Mock(return_value=POSTPONED_TASK_LOGIC_RESULT.SUCCESS)) as call_counter:

@@ -1,15 +1,18 @@
 # coding: utf-8
 
 import sys
-import traceback
 
 from common.amqp_queues.exceptions import AmqpQueueException
 from common.amqp_queues.connection import connection
 
 class BaseWorker(object):
 
-    def __init__(self, logger, command_queue):
-        self.logger = logger
+    logger = None
+    name = None
+    command_name = None
+    stop_signal_required = True
+
+    def __init__(self, command_queue):
         self.command_queue = connection.SimpleQueue(command_queue)
 
         self.exception_raised = False
@@ -19,6 +22,9 @@ class BaseWorker(object):
         self.commands = {}
 
         self.prepair_commands_map()
+
+    @property
+    def pid(self): return self.command_name
 
     def close_queries(self):
         # TODO: implement

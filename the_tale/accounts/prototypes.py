@@ -9,18 +9,22 @@ from django.db import models
 
 from dext.utils.decorators import nested_commit_on_success
 
+from common.postponed_tasks import PostponedTaskPrototype
+
 from common.utils.password import generate_password
 from common.utils.prototypes import BasePrototype
 from common.utils.decorators import lazy_property
 
-from accounts.models import Account, ChangeCredentialsTask, CHANGE_CREDENTIALS_TASK_STATE, Award, ResetPasswordTask
+from accounts.models import Account, ChangeCredentialsTask, Award, ResetPasswordTask
 from accounts.conf import accounts_settings
 from accounts.exceptions import AccountsException
+from accounts.relations import CHANGE_CREDENTIALS_TASK_STATE
+
 
 class AccountPrototype(BasePrototype):
     _model_class = Account
-    _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_superuser', 'has_perm', 'active_end_at')
-    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription', 'premium_end_at')
+    _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_superuser', 'has_perm')
+    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription', 'premium_end_at', 'active_end_at')
     _get_by = ('id', 'email', 'nick')
 
     @property
@@ -88,13 +92,17 @@ class AccountPrototype(BasePrototype):
     def _next_active_end_at(cls):
         return datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)
 
+    @property
+    def is_update_active_state_needed(self):
+        return datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT - accounts_settings.ACTIVE_STATE_REFRESH_PERIOD) > self.active_end_at
+
     def update_active_state(self):
         from game.heroes.prototypes import HeroPrototype
 
-        if datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT - accounts_settings.ACTIVE_STATE_REFRESH_PERIOD) > self.active_end_at:
-            self._model.active_end_at = self._next_active_end_at()
-            self.save()
-            HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
+        self._model.active_end_at = self._next_active_end_at()
+        self.save()
+
+        HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
 
 
     @classmethod
@@ -134,6 +142,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                                                      old_email=old_email,
                                                      new_email=new_email,
                                                      new_password=make_password(new_password) if new_password else '',
+                                                     state=CHANGE_CREDENTIALS_TASK_STATE.WAITING,
                                                      new_nick=new_nick)
         return cls(model=model)
 
@@ -145,7 +154,15 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
         return self._model.new_email is not None and (self._model.old_email != self._model.new_email)
 
     def change_credentials(self):
-        self.account.change_credentials(new_email=self._model.new_email, new_password=self._model.new_password, new_nick=self._model.new_nick)
+        from accounts.postponed_tasks import ChangeCredentials
+        from accounts.workers.environment import workers_environment
+
+        change_credentials_task = ChangeCredentials(task_id=self.id)
+        task = PostponedTaskPrototype.create(change_credentials_task)
+
+        workers_environment.accounts_manager.cmd_task(task.id)
+
+        return task
 
     def request_email_confirmation(self):
         from post_service.prototypes import MessagePrototype
@@ -156,10 +173,13 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
 
         MessagePrototype.create(ChangeEmailNotificationHandler(task_id=self.id), now=True)
 
-
     @property
     def has_already_processed(self):
-        return self.state not in (CHANGE_CREDENTIALS_TASK_STATE.WAITING, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
+        return not (self.state._is_WAITING or self.state._is_EMAIL_SENT)
+
+    def mark_as_processed(self):
+        self._model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
+        self._model.save()
 
     @nested_commit_on_success
     def process(self, logger):
@@ -174,29 +194,29 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
             return
 
         try:
-            if self.state == CHANGE_CREDENTIALS_TASK_STATE.WAITING:
+            if self.state._is_WAITING:
                 if self.email_changed:
                     self.request_email_confirmation()
                     self._model.state = CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
                     self._model.save()
                     return
                 else:
-                    self.change_credentials()
-                    self._model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
+                    postponed_task = self.change_credentials()
+                    self._model.state = CHANGE_CREDENTIALS_TASK_STATE.CHANGING
                     self._model.save()
-                    return
+                    return postponed_task
 
-            if self.state == CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT:
+            if self.state._is_EMAIL_SENT:
                 if AccountPrototype.get_by_email(self._model.new_email):
                     self._model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
                     self._model.comment = 'duplicate email'
                     self._model.save()
                     return
 
-                self.change_credentials()
-                self._model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
+                postponed_task = self.change_credentials()
+                self._model.state = CHANGE_CREDENTIALS_TASK_STATE.CHANGING
                 self._model.save()
-                return
+                return postponed_task
 
         except Exception, e:
             logger.error('EXCEPTION: %s' % e)

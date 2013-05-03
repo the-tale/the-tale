@@ -21,7 +21,7 @@ class RequestsRegistrationTests(TestCase):
     def test_fast_registration_processing(self):
         response = self.client.post(reverse('accounts:registration:fast'))
         self.assertEqual(response.status_code, 200)
-        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+        task = PostponedTaskPrototype(model=PostponedTask.objects.all()[0])
         self.check_ajax_processing(response, task.status_url)
         self.assertEqual(PostponedTask.objects.all().count(), 1)
 
@@ -32,7 +32,7 @@ class RequestsRegistrationTests(TestCase):
 
     def test_fast_registration_second_request(self):
         response = self.client.post(reverse('accounts:registration:fast'))
-        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+        task = PostponedTaskPrototype(model=PostponedTask.objects.all()[0])
 
         response = self.client.post(reverse('accounts:registration:fast'))
 
@@ -42,13 +42,13 @@ class RequestsRegistrationTests(TestCase):
     def test_fast_registration_second_request_after_error(self):
         response = self.client.post(reverse('accounts:registration:fast'))
 
-        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+        task = PostponedTaskPrototype(model=PostponedTask.objects.all()[0])
         task.state = POSTPONED_TASK_STATE.ERROR
         task.save()
 
         response = self.client.post(reverse('accounts:registration:fast'))
 
-        task_2 = PostponedTaskPrototype(PostponedTask.objects.all()[1])
+        task_2 = PostponedTaskPrototype(model=PostponedTask.objects.all()[1])
 
         self.check_ajax_processing(response, task_2.status_url)
         self.assertEqual(PostponedTask.objects.all().count(), 2)
@@ -58,7 +58,7 @@ class RequestsRegistrationTests(TestCase):
 
         response = self.client.post(reverse('accounts:registration:fast'))
 
-        task_3 = PostponedTaskPrototype(PostponedTask.objects.all()[2])
+        task_3 = PostponedTaskPrototype(model=PostponedTask.objects.all()[2])
 
         self.check_ajax_processing(response, task_3.status_url)
         self.assertEqual(PostponedTask.objects.all().count(), 3)
@@ -67,7 +67,7 @@ class RequestsRegistrationTests(TestCase):
 
         response = self.client.post(reverse('accounts:registration:fast'))
 
-        task_4 = PostponedTaskPrototype(PostponedTask.objects.all()[2])
+        task_4 = PostponedTaskPrototype(model=PostponedTask.objects.all()[2])
 
         self.check_ajax_processing(response, task_4.status_url)
         self.assertEqual(PostponedTask.objects.all().count(), 3)

@@ -27,8 +27,13 @@ class HighlevelException(Exception): pass
 
 class Worker(BaseWorker):
 
+    logger = getLogger('the-tale.workers.game_highlevel')
+    name = 'game highlevel'
+    command_name = 'game_highlevel'
+    stop_signal_required = False
+
     def __init__(self, highlevel_queue):
-        super(Worker, self).__init__(logger=getLogger('the-tale.workers.game_highlevel'), command_queue=highlevel_queue)
+        super(Worker, self).__init__(command_queue=highlevel_queue)
 
     def set_supervisor_worker(self, supervisor_worker):
         self.supervisor_worker = supervisor_worker

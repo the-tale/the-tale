@@ -1,12 +1,11 @@
 # coding: utf-8
-import copy
 import datetime
 
 from dext.utils.decorators import nested_commit_on_success
 
 from textgen.words import Noun
 
-from common.postponed_tasks import postponed_task, POSTPONED_TASK_LOGIC_RESULT
+from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from common.utils.enum import create_enum
 
 from game.balance import constants as c
@@ -28,8 +27,7 @@ CHOOSE_HERO_ABILITY_STATE = create_enum('CHOOSE_HERO_ABILITY_STATE', ( ('UNPROCE
                                                                        ('MAXIMUM_ABILITY_POINTS_NUMBER', 5, u'все доступные способности выбраны'),
                                                                        ('ALREADY_MAX_LEVEL', 6, u'способность уже имеет максимальный уровень') ) )
 
-@postponed_task
-class ChooseHeroAbilityTask(object):
+class ChooseHeroAbilityTask(PostponedLogic):
 
     TYPE = 'choose-hero-ability'
 
@@ -48,15 +46,8 @@ class ChooseHeroAbilityTask(object):
                  'ability_id': self.ability_id,
                  'state': self.state}
 
-    @classmethod
-    def deserialize(cls, data):
-        return cls(**data)
-
     @property
     def uuid(self): return self.hero_id
-
-    @property
-    def response_data(self): return {}
 
     @property
     def error_message(self): return CHOOSE_HERO_ABILITY_STATE._CHOICES[self.state][1]
@@ -113,14 +104,13 @@ class ChooseHeroAbilityTask(object):
 CHANGE_HERO_TASK_STATE = create_enum('CHANGE_HERO_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
                                                                  ('PROCESSED', 1, u'обработана') ) )
 
-@postponed_task
-class ChangeHeroTask(object):
+class ChangeHeroTask(PostponedLogic):
 
     TYPE = 'change-hero'
 
     def __init__(self, hero_id, name, race, gender, state=CHANGE_HERO_TASK_STATE.UNPROCESSED):
         self.hero_id = hero_id
-        self.name = name
+        self.name = name if isinstance(name, Noun) else Noun.deserialize(name)
         self.race = race
         self.gender = gender
         self.state = state
@@ -139,17 +129,8 @@ class ChangeHeroTask(object):
                  'gender': self.gender,
                  'state': self.state}
 
-    @classmethod
-    def deserialize(cls, data):
-        kwargs = copy.deepcopy(data)
-        kwargs['name'] = Noun.deserialize(kwargs['name'])
-        return cls(**kwargs)
-
     @property
     def uuid(self): return self.hero_id
-
-    @property
-    def response_data(self): return {}
 
     @property
     def error_message(self): return CHANGE_HERO_TASK_STATE._CHOICES[self.state][1]
@@ -189,8 +170,7 @@ CHOOSE_PREFERENCES_TASK_STATE = create_enum('CHOOSE_PREFERENCES_TASK_STATE', ( (
                                                                                ('MOB_NOT_IN_GAME', 15, u'этот тип противника выведен из игры')) )
 
 
-@postponed_task
-class ChoosePreferencesTask(object):
+class ChoosePreferencesTask(PostponedLogic):
 
     TYPE = 'choose-hero-preferences'
 
@@ -212,15 +192,8 @@ class ChoosePreferencesTask(object):
                  'preference_id': self.preference_id,
                  'state': self.state }
 
-    @classmethod
-    def deserialize(cls, data):
-        return cls(**data)
-
     @property
     def uuid(self): return self.hero_id
-
-    @property
-    def response_data(self): return {}
 
     @property
     def error_message(self): return CHOOSE_PREFERENCES_TASK_STATE._CHOICES[self.state][1]

@@ -9,15 +9,19 @@ from django.utils.log import getLogger
 from common.amqp_queues import connection, BaseWorker
 
 from common.postponed_tasks.conf import postponed_tasks_settings
-from common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
+from common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT, autodiscover
 
 
 class RefrigeratorException(Exception): pass
 
 class Worker(BaseWorker):
 
+    logger = getLogger('the-tale.workers.postponed_tasks_refrigerator')
+    name = 'postponed tasks refrigerator'
+    command_name = 'postponed_tasks_refrigerator'
+
     def __init__(self, messages_queue, stop_queue):
-        super(Worker, self).__init__(logger=getLogger('the-tale.workers.postponed_tasks_refrigerator'), command_queue=messages_queue)
+        super(Worker, self).__init__(command_queue=messages_queue)
         self.stop_queue = connection.SimpleQueue(stop_queue)
 
     def clean_queues(self):
@@ -28,6 +32,8 @@ class Worker(BaseWorker):
         self.initialized = True
         self.next_task_process_time = datetime.datetime.now()
         self.tasks = {}
+        autodiscover()
+        PostponedTaskPrototype.reset_all()
         self.logger.info('REFRIGERATOR INITIALIZED')
 
     def run(self):
@@ -48,6 +54,7 @@ class Worker(BaseWorker):
         for task in list(self.tasks.values()):
             task.process(self.logger)
             task.do_postsave_actions()
+
             if task.internal_result != POSTPONED_TASK_LOGIC_RESULT.WAIT:
                 del self.tasks[task.id]
 

@@ -17,8 +17,12 @@ class MessageSenderException(Exception): pass
 
 class Worker(BaseWorker):
 
+    logger = getLogger('the-tale.workers.message_sender')
+    name = 'message sender'
+    command_name = 'post_service_message_sender'
+
     def __init__(self, messages_queue, stop_queue):
-        super(Worker, self).__init__(logger=getLogger('the-tale.workers.message_sender'), command_queue=messages_queue)
+        super(Worker, self).__init__(command_queue=messages_queue)
         self.stop_queue = connection.SimpleQueue(stop_queue)
 
     def clean_queues(self):

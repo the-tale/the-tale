@@ -18,8 +18,9 @@ class Resource(BaseResource):
     def initialize(self, *args, **kwargs):
         super(Resource, self).initialize(*args, **kwargs)
 
-        if self.account.is_authenticated():
-            self.account.update_active_state()
+        if self.account.is_authenticated() and self.account.is_update_active_state_needed:
+            from accounts.workers.environment import workers_environment
+            workers_environment.accounts_manager.cmd_update_active_state(self.account.id)
 
     @property
     def time(self):

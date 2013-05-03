@@ -12,9 +12,13 @@ class TurnsLoopException(Exception): pass
 
 class Worker(BaseWorker):
 
-    def __init__(self, game_queue):
-        super(Worker, self).__init__(logger=getLogger('the-tale.workers.game_turns_loop'), command_queue=game_queue)
+    logger = getLogger('the-tale.workers.game_turns_loop')
+    name = 'game turns loop'
+    command_name = 'game_turns_loop'
+    stop_signal_required = False
 
+    def __init__(self, game_queue):
+        super(Worker, self).__init__(command_queue=game_queue)
 
     def set_supervisor_worker(self, supervisor_worker):
         self.supervisor_worker = supervisor_worker

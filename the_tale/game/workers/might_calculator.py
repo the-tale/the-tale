@@ -19,9 +19,13 @@ class MightCalculatorException(Exception): pass
 
 class Worker(BaseWorker):
 
-    def __init__(self, game_queue):
-        super(Worker, self).__init__(logger=getLogger('the-tale.workers.game_might_calculator'), command_queue=game_queue)
+    logger = getLogger('the-tale.workers.game_might_calculator')
+    name = 'game might calculator'
+    command_name = 'game_might_calculator'
+    stop_signal_required = False
 
+    def __init__(self, game_queue):
+        super(Worker, self).__init__(command_queue=game_queue)
 
     def set_supervisor_worker(self, supervisor_worker):
         self.supervisor_worker = supervisor_worker

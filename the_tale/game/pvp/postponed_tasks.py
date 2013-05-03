@@ -5,7 +5,7 @@ from dext.utils.decorators import nested_commit_on_success
 
 from textgen.words import Fake
 
-from common.postponed_tasks import postponed_task, POSTPONED_TASK_LOGIC_RESULT
+from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from common.utils.enum import create_enum
 
 from game.heroes.prototypes import HeroPrototype
@@ -19,8 +19,7 @@ SAY_IN_HERO_LOG_TASK_STATE = create_enum('SAY_IN_HERO_LOG_TASK_STATE', ( ('UNPRO
 
 
 
-@postponed_task
-class SayInBattleLogTask(object):
+class SayInBattleLogTask(PostponedLogic):
 
     TYPE = 'say-in-hero-log'
 
@@ -39,15 +38,8 @@ class SayInBattleLogTask(object):
                  'text': self.text,
                  'state': self.state}
 
-    @classmethod
-    def deserialize(cls, data):
-        return cls(**data)
-
     @property
     def uuid(self): return self.battle_id
-
-    @property
-    def response_data(self): return {}
 
     @property
     def error_message(self): return SAY_IN_HERO_LOG_TASK_STATE._CHOICES[self.state][1]
@@ -87,8 +79,7 @@ ACCEPT_BATTLE_TASK_STATE = create_enum('ACCEPT_BATTLE_TASK_STATE', ( ('UNPROCESS
                                                                      ('NOT_IN_QUEUE', 4, u'битва не находится в очереди балансировщика'),
                                                                      ('PROCESSED', 5, u'обработана') ) )
 
-@postponed_task
-class AcceptBattleTask(object):
+class AcceptBattleTask(PostponedLogic):
 
     TYPE = 'accept-battle-task'
 
@@ -107,15 +98,8 @@ class AcceptBattleTask(object):
                  'accept_initiator_id': self.accept_initiator_id,
                  'state': self.state}
 
-    @classmethod
-    def deserialize(cls, data):
-        return cls(**data)
-
     @property
     def uuid(self): return self.accept_initiator_id
-
-    @property
-    def response_data(self): return {}
 
     @property
     def error_message(self): return ACCEPT_BATTLE_TASK_STATE._CHOICES[self.state][1]
@@ -163,8 +147,7 @@ USE_PVP_ABILITY_TASK_STATE = create_enum('USE_PVP_ABILITY_TASK_STATE', ( ('UNPRO
                                                                          ('NO_ENERGY', 3, u'недостаточно энергии'),
                                                                          ('PROCESSED', 4, u'обработана') ) )
 
-@postponed_task
-class UsePvPAbilityTask(object):
+class UsePvPAbilityTask(PostponedLogic):
 
     TYPE = 'use-pvp-ability'
 
@@ -186,15 +169,8 @@ class UsePvPAbilityTask(object):
                  'ability_id': self.ability_id,
                  'state': self.state}
 
-    @classmethod
-    def deserialize(cls, data):
-        return cls(**data)
-
     @property
     def uuid(self): return self.account_id
-
-    @property
-    def response_data(self): return {}
 
     @property
     def error_message(self): return USE_PVP_ABILITY_TASK_STATE._CHOICES[self.state][1]

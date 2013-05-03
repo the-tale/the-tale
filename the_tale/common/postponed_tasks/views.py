@@ -32,7 +32,8 @@ class PostponedTaskResource(Resource):
             return self.json_processing(reverse('postponed-tasks:status', args=[self.task.id]))
 
         if self.task.state.is_processed:
-            return self.json_ok(data=self.task.internal_logic.response_data)
+            self.task.internal_logic.processed_view(self)
+            return self.json_ok(data=self.task.internal_logic.processed_data)
 
         if self.task.state.is_reseted:
             return self.json_error('postponed_task.task_reseted', u'Обработка задачи отменена')

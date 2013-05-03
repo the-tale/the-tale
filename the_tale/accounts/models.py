@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from rels.django_staff import TableIntegerField
 
-from accounts.relations import AWARD_TYPE
+from accounts.relations import AWARD_TYPE, CHANGE_CREDENTIALS_TASK_STATE
 
 
 class AccountManager(BaseUserManager):
@@ -105,30 +105,13 @@ class ResetPasswordTask(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_processed = models.BooleanField(default=False, db_index=True)
 
-
-class CHANGE_CREDENTIALS_TASK_STATE:
-    WAITING = 0
-    EMAIL_SENT = 1
-    PROCESSED = 2
-    UNPROCESSED = 3
-    ERROR = 4
-    TIMEOUT = 5
-
-CHANGE_CREDENTIALS_TASK_STATE_CHOICES = ( (CHANGE_CREDENTIALS_TASK_STATE.WAITING, u'ожидает обработки'),
-                                          (CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT, u'отослано письмо'),
-                                          (CHANGE_CREDENTIALS_TASK_STATE.PROCESSED, u'обработана'),
-                                          (CHANGE_CREDENTIALS_TASK_STATE.UNPROCESSED, u'не обработана'),
-                                          (CHANGE_CREDENTIALS_TASK_STATE.ERROR, u'ошибка'),
-                                          (CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT, u'таймаут') )
-
-
 class ChangeCredentialsTask(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
-    state = models.IntegerField(default=CHANGE_CREDENTIALS_TASK_STATE.WAITING, db_index=True, choices=CHANGE_CREDENTIALS_TASK_STATE_CHOICES)
+    state = TableIntegerField(relation=CHANGE_CREDENTIALS_TASK_STATE, relation_column='value', db_index=True)
 
     comment = models.CharField(max_length=256, blank=True, null=True, default='')
 
