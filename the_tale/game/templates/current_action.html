@@ -1,4 +1,6 @@
 
+{% import 'accounts/macros.html' as accounts_macros with context %}
+
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
@@ -8,6 +10,12 @@ jQuery(document).ready(function(e) {
 
 });
 </script>
+
+{% if not resource.account.is_premium %}
+<div style="margin-bottom: 0.5em;">
+  {{ accounts_macros.account_type_label(resource.account) }}
+</div>
+{% endif %}
 
 <div id="current-action-block" class="block" style="cursor: default;">
 

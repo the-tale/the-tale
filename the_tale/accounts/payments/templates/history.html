@@ -1,0 +1,34 @@
+{% extends "payments/base.html" %}
+
+{% block payments_content %}
+
+{% if history %}
+
+<table class="table table-condensed table-striped table-bordered table-no-highlighting">
+  <thead>
+    <tr>
+      <th style="text-align: center" width="125px">дата</th>
+      <th style="text-align: center" width="100px">печеньки</th>
+      <th>описание</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for record in history %}
+    <tr>
+      <td style="text-align: center" class="pgf-format-datetime" data-timestamp="{{ record.updated_at|timestamp }}"></td>
+      <td style="text-align: center">{{ record.amount }}</td>
+      <td>{{ record.description }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-history-message">
+  Вы ещё не совершали покупок.
+</p>
+
+{% endif %}
+
+{% endblock %}

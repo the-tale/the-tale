@@ -1,16 +1,12 @@
 # coding: utf-8
 import mock
 
-from dext.settings import settings
-
 from common.utils import testcase
 
 from bank.tests.helpers import BankTestsMixin
 
-from bank.prototypes import AccountPrototype, InvoicePrototype
-from bank.relations import ENTITY_TYPE, CURRENCY_TYPE, INVOICE_STATE
-from bank.conf import bank_settings
-from bank.exceptions import BankError
+from bank.prototypes import InvoicePrototype
+from bank.relations import ENTITY_TYPE, CURRENCY_TYPE
 from bank.transaction import Transaction
 
 
@@ -25,16 +21,31 @@ class TransactionTests(testcase.TestCase, BankTestsMixin):
                                   sender_type=ENTITY_TYPE.GAME_LOGIC,
                                   sender_id=3,
                                   currency=CURRENCY_TYPE.PREMIUM,
-                                  amount=113)
+                                  amount=113,
+                                  description='transaction description',
+                                  operation_uid='transaction-operation-uid')
 
 
     def test_create(self):
         with mock.patch('bank.workers.bank_processor.Worker.cmd_freeze_invoice') as cmd_freeze_invoice:
             transaction = self.create_transaction()
         self.assertEqual(cmd_freeze_invoice.call_count, 1)
+
         self.assertEqual(InvoicePrototype._model_class.objects.all().count(), 1)
-        self.assertEqual(transaction.invoice_id, InvoicePrototype._model_class.objects.all()[0].id)
-        self.assertTrue(InvoicePrototype._model_class.objects.all()[0].state._is_REQUESTED)
+
+        invoice = InvoicePrototype._get_object(0)
+
+        self.assertEqual(transaction.invoice_id, InvoicePrototype._get_object(0).id)
+
+        self.assertTrue(invoice.state._is_REQUESTED)
+        self.assertEqual(invoice.recipient_type, ENTITY_TYPE.GAME_ACCOUNT)
+        self.assertEqual(invoice.recipient_id, 2)
+        self.assertEqual(invoice.sender_type, ENTITY_TYPE.GAME_LOGIC)
+        self.assertEqual(invoice.sender_id, 3)
+        self.assertEqual(invoice.currency, CURRENCY_TYPE.PREMIUM)
+        self.assertEqual(invoice.amount, 113)
+        self.assertEqual(invoice.description, 'transaction description')
+        self.assertEqual(invoice.operation_uid, 'transaction-operation-uid')
 
     def test_confirm(self):
         transaction = self.create_transaction()

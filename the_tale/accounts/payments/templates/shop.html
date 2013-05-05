@@ -1,0 +1,37 @@
+{% extends "payments/base.html" %}
+
+{% block payments_content %}
+
+
+{% if PRICE_LIST %}
+
+<table class="table table-condensed table-striped table-bordered table-no-highlighting">
+  <tbody>
+    {% for purchase in PRICE_LIST %}
+    <tr>
+      <th colspan="2" style="padding-left: 117px;">{{purchase.name}}</th>
+    </tr>
+    <tr>
+      <td width="100px" style="text-align: center; margin-bottom: 1em; vertical-align: middle;">
+        <span style="font-size: 20pt;">{{ purchase.cost }}</span><br/>
+        <span>ПЕЧЕНЕК</span><br/>
+        <a class="btn btn-success pgf-forms-post-simple"
+           href="{{url('accounts:payments:buy', purchase=purchase.uid)}}">Купить</a>
+      </td>
+      <td>
+        {{ purchase.description|safe }}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-goods-message">
+  На текущий момент, в магазине нет товаров.
+</p>
+
+{% endif %}
+
+{% endblock %}

@@ -99,6 +99,7 @@ jQuery(document).ready(function() {
     });
 
     jQuery('[rel="tooltip"]').tooltip(pgf.base.tooltipsArgs)
+    jQuery('[rel="popover"]').popover(pgf.base.popoverArgs)
 
     ///////////////////////////
     // BBField processing
@@ -189,6 +190,7 @@ jQuery(document).ready(function() {
                                           "#",
                                           resource.account.nick if not resource.account.is_fast else "Настройки",
                                           [(url("accounts:profile:show"), "Профиль"),
+                                           (url("accounts:payments:shop"), "Магазин"),
                                            (url("accounts:friends:"), "Друзья"),
                                            (url("accounts:messages:"), "Сообщения"),
                                            (url("forum:subscriptions:"), "Подписки"),

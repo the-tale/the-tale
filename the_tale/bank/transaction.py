@@ -18,13 +18,15 @@ class Transaction(object):
         return cls(**data)
 
     @classmethod
-    def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount):
+    def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount, description, operation_uid):
         invoice = InvoicePrototype.create(recipient_type=recipient_type,
                                           recipient_id=recipient_id,
                                           sender_type=sender_type,
                                           sender_id=sender_id,
                                           currency=currency,
-                                          amount=amount)
+                                          amount=amount,
+                                          description=description,
+                                          operation_uid=operation_uid)
 
         bank_workers_environment.bank_processor.cmd_freeze_invoice()
 
@@ -34,7 +36,7 @@ class Transaction(object):
         return InvoicePrototype.get_by_id(self.invoice_id).state
 
     def confirm(self):
-        bank_workers_environment.bank_processor.cmd_confirm_invoice()
+        bank_workers_environment.bank_processor.cmd_confirm_invoice(self.invoice_id)
 
     def cancel(self):
-        bank_workers_environment.bank_processor.cmd_cancel_invoice()
+        bank_workers_environment.bank_processor.cmd_cancel_invoice(self.invoice_id)

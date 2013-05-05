@@ -1,5 +1,6 @@
 # coding: utf-8
 import datetime
+
 import mock
 
 from common.utils import testcase
@@ -84,3 +85,17 @@ class LogicWorkerTests(testcase.TestCase):
 
         self.assertEqual(save_counter.call_count, 0)
         self.assertEqual(release_required_counter.call_count, 1)
+
+    def test_process_update_hero_with_account_data(self):
+        self.worker.process_register_account(self.account.id)
+
+        with mock.patch('game.heroes.prototypes.HeroPrototype.update_with_account_data') as update_method:
+            self.worker.process_update_hero_with_account_data(account_id=self.account.id,
+                                                              hero_id=self.hero.id,
+                                                              is_fast=False,
+                                                              premium_end_at=666,
+                                                              active_end_at=666666)
+        args = update_method.call_args[1]
+        self.assertFalse(args['is_fast'])
+        self.assertEqual(args['premium_end_at'], datetime.datetime.fromtimestamp(666))
+        self.assertEqual(args['active_end_at'], datetime.datetime.fromtimestamp(666666))

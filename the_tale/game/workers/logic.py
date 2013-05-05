@@ -39,6 +39,10 @@ class Worker(BaseWorker):
             cmd.ack()
             self.process_cmd(cmd.payload)
 
+    def initialize(self):
+        # worker initialized by supervisor
+        pass
+
     def cmd_initialize(self, turn_number, worker_id):
         self.send_cmd('initialize', {'turn_number': turn_number, 'worker_id': worker_id})
 
@@ -144,9 +148,9 @@ class Worker(BaseWorker):
                                                         'active_end_at': active_end_at})
 
     def process_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at):
-        self.storage.heroes[hero_id].update_with_account_data(is_fast=datetime.fromtimestamp(is_fast),
-                                                              premium_end_at=datetime.fromtimestamp(premium_end_at),
-                                                              active_end_at=datetime.fromtimestamp(active_end_at))
+        self.storage.heroes[hero_id].update_with_account_data(is_fast=is_fast,
+                                                              premium_end_at=datetime.datetime.fromtimestamp(premium_end_at),
+                                                              active_end_at=datetime.datetime.fromtimestamp(active_end_at))
         self.storage.save_account_data(account_id, update_cache=True)
 
     def cmd_highlevel_data_updated(self):

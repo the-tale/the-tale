@@ -44,7 +44,7 @@ class Worker(BaseWorker):
 
     logger = getLogger('the-tale.workers.game_pvp_balancer')
     name = 'game pvp balancer'
-    command_name = 'game_pvp_balancer'
+    command_name = 'pvp_balancer'
     stop_signal_required = False
 
     def __init__(self, game_queue):
@@ -64,6 +64,10 @@ class Worker(BaseWorker):
                 if self.initialized:
                     self.do_balancing()
                 time.sleep(pvp_settings.BALANCER_SLEEP_TIME)
+
+    def initialize(self):
+        # worker initialized by supervisor
+        pass
 
     def cmd_initialize(self, worker_id):
         self.send_cmd('initialize', {'worker_id': worker_id})

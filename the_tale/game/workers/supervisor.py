@@ -72,31 +72,52 @@ class Worker(BaseWorker):
         postponed_tasks.PostponedTaskPrototype.reset_all()
 
         #initialization
+        self.logger.info('initialize logic')
         self.logic_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='logic')
         self.wait_answers_from('initialize', workers=['logic'])
 
         if game_settings.ENABLE_WORKER_HIGHLEVEL:
+            self.logger.info('initialize highlevel')
             self.highlevel_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='highlevel')
             self.wait_answers_from('initialize', workers=['highlevel'])
+        else:
+            self.logger.info('skip initialization of highlevel')
 
         if game_settings.ENABLE_WORKER_TURNS_LOOP:
+            self.logger.info('initialize turns loop')
             self.turns_loop_worker.cmd_initialize(worker_id='turns_loop')
             self.wait_answers_from('initialize', workers=['turns_loop'])
+        else:
+            self.logger.info('skip initialization of turns loop')
 
         if game_settings.ENABLE_WORKER_MIGHT_CALCULATOR:
+            self.logger.info('initialize might calculator')
             self.might_calculator_worker.cmd_initialize(worker_id='might_calculator')
             self.wait_answers_from('initialize', workers=['might_calculator'])
+        else:
+            self.logger.info('skip initialization of might calculator')
 
         if game_settings.ENABLE_WORKER_LONG_COMMANDS:
+            self.logger.info('initialize long commands')
             self.long_commands_worker.cmd_initialize(worker_id='long_commands')
             self.wait_answers_from('initialize', workers=['long_commands'])
+        else:
+            self.logger.info('skip initialization of long commands')
 
         if game_settings.ENABLE_PVP:
+            self.logger.info('initialize pvp balancer')
             self.pvp_balancer.cmd_initialize(worker_id='pvp_balancer')
             self.wait_answers_from('initialize', workers=['pvp_balancer'])
+        else:
+            self.logger.info('skip initialization of pvp balancer')
+
+        self.logger.info('child workers initialized')
 
         ####################################
         # register all tasks
+
+        self.logger.info('register task')
+
         self.tasks = {}
         self.accounts_for_tasks = {}
         self.accounts_owners = {}
@@ -109,13 +130,20 @@ class Worker(BaseWorker):
         ####################################
         # load accounts
 
+        self.logger.info('load accounts')
+
         # distribute bundles
+        self.logger.info('distribute bundles')
+
         for bundle_model in Bundle.objects.all():
             bundle = BundlePrototype(bundle_model)
             bundle.owner = 'worker'
             bundle.save()
 
         # distribute accounts
+
+        self.logger.info('distribute accounts')
+
         for account_id in Account.objects.all().values_list('id', flat=True):
             self.register_account(account_id)
 

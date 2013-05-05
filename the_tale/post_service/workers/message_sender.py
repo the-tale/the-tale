@@ -17,7 +17,7 @@ class MessageSenderException(Exception): pass
 
 class Worker(BaseWorker):
 
-    logger = getLogger('the-tale.workers.message_sender')
+    logger = getLogger('the-tale.workers.post_service_message_sender')
     name = 'message sender'
     command_name = 'post_service_message_sender'
 

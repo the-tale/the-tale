@@ -9,7 +9,7 @@ class AccountAdmin(admin.ModelAdmin):
     list_filter= ('entity_type', 'currency')
 
 class InvoiceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'state', 'recipient_type', 'recipient_id', 'sender_type', 'sender_id', 'currency', 'amount', 'created_at', 'updated_at')
+    list_display = ('id', 'operation_uid', 'state', 'recipient_type', 'recipient_id', 'sender_type', 'sender_id', 'currency', 'amount', 'created_at', 'updated_at')
     list_filter= ('state', 'recipient_type', 'sender_type', 'currency')
 
 

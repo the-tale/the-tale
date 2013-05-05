@@ -20,6 +20,8 @@ class BankTests(testcase.TestCase, BankTestsMixin):
         bank_workers_environment.deinitialize()
         bank_workers_environment.initialize()
 
+        settings[bank_settings.SETTINGS_ALLOWED_KEY] = 'allowed'
+
         self.worker = bank_workers_environment.bank_processor
 
     def test_initialize__reset_invoices(self):
@@ -28,30 +30,21 @@ class BankTests(testcase.TestCase, BankTestsMixin):
 
         self.assertEqual(reset_all.call_count, 1)
 
-    def test_run__allowed(self):
-        settings[bank_settings.SETTINGS_ALLOWED_KEY] = 'allowed'
-        cmd = mock.Mock()
-        with mock.patch.object(self.worker.command_queue, 'get', mock.Mock(return_value=cmd)):
-            with mock.patch.object(self.worker, 'process_cmd') as process_cmd:
-                self.worker._single_run()
-        self.assertEqual(cmd.ack.call_count, 1)
-        self.assertEqual(process_cmd.call_count, 1)
-
     @mock.patch('bank.conf.bank_settings.ENABLE_BANK', False)
     @mock.patch('bank.conf.bank_settings.BANK_PROCESSOR_SLEEP_TIME', 0)
     def test_run__turn_off_by_configs(self):
-        settings[bank_settings.SETTINGS_ALLOWED_KEY] = 'allowed'
-        cmd = mock.Mock()
-        with mock.patch.object(self.worker.command_queue, 'get', mock.Mock(return_value=cmd)):
-            self.worker._single_run()
-        self.assertEqual(cmd.ack.call_count, 0)
+        invoice = self.create_invoice()
+        self.worker.process_freeze_invoice()
+        invoice.reload()
+        self.assertTrue(invoice.state._is_REQUESTED)
 
     @mock.patch('bank.conf.bank_settings.BANK_PROCESSOR_SLEEP_TIME', 0)
-    def test_run__turn_off_by_settings(self):
-        cmd = mock.Mock()
-        with mock.patch.object(self.worker.command_queue, 'get', mock.Mock(return_value=cmd)):
-            self.worker._single_run()
-        self.assertEqual(cmd.ack.call_count, 0)
+    def test_freeze_invoice__turn_off_by_settings(self):
+        del settings[bank_settings.SETTINGS_ALLOWED_KEY]
+        invoice = self.create_invoice()
+        self.worker.process_freeze_invoice()
+        invoice.reload()
+        self.assertTrue(invoice.state._is_REQUESTED)
 
     def test_freeze_invoice__no_invoice(self):
         self.worker.process_freeze_invoice()

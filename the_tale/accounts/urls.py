@@ -12,5 +12,6 @@ urlpatterns = patterns('',
                        (r'^auth/', include(resource_patterns(AuthResource), namespace='auth')),
                        (r'^messages/', include('accounts.personal_messages.urls', namespace='messages') ),
                        (r'^friends/', include('accounts.friends.urls', namespace='friends')),
+                       (r'^payments/', include('accounts.payments.urls', namespace='payments')),
                        (r'^', include(resource_patterns(AccountResource))),
 )

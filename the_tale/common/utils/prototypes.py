@@ -94,7 +94,12 @@ class BasePrototype(object):
     def __repr__(self):
         return self._model.__repr__()
 
-    # for tests
+    # most for tests
+
     @classmethod
-    def _get_task(cls, number=0):
+    def _get_object(cls, number=0):
         return cls(model=cls._model_class.objects.all().order_by('id')[number])
+
+    @classmethod
+    def _all(cls):
+        return [cls(model=model) for model in cls._model_class.objects.all()]

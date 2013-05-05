@@ -28,6 +28,10 @@ class Worker(BaseWorker):
             cmd.ack()
             self.process_cmd(cmd.payload)
 
+    def initialize(self):
+        # worker initialized by supervisor
+        pass
+
     def cmd_initialize(self, worker_id):
         self.send_cmd('initialize', {'worker_id': worker_id})
 

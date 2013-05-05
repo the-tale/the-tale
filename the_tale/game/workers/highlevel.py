@@ -45,6 +45,9 @@ class Worker(BaseWorker):
             cmd.ack()
             self.process_cmd(cmd.payload)
 
+    def initialize(self):
+        # worker initialized by supervisor
+        pass
 
     def cmd_initialize(self, turn_number, worker_id):
         self.send_cmd('initialize', {'turn_number': turn_number, 'worker_id': worker_id})

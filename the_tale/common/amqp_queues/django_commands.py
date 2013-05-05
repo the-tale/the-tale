@@ -25,7 +25,7 @@ def construct_command(environment, worker):
         def handle(self, *args, **options):
 
             try:
-                environment.clean_queues()
+                # environment.clean_queues()
                 worker.initialize()
                 worker.run()
             except KeyboardInterrupt:
@@ -42,7 +42,7 @@ def construct_command(environment, worker):
     return Command
 
 
-def construct_workers_manager(help, pid, workers):
+def construct_workers_manager(help, process_pid, environments, workers):
 
     workers = filter(lambda worker: worker is not None, workers)
 
@@ -59,7 +59,11 @@ def construct_workers_manager(help, pid, workers):
                                                               help='start|stop|restart|status'), )
 
         def start(self):
+            for environment in environments:
+                environment.clean_queues()
+
             for worker in workers:
+                print 'start %s' % worker.command_name
                 with open(os.devnull, 'w') as devnull:
                     subprocess.Popen(['./manage.py', worker.command_name], stdin=devnull, stdout=devnull, stderr=devnull)
 
@@ -80,16 +84,18 @@ def construct_workers_manager(help, pid, workers):
 
         def force_stop(self):
             for worker in reversed(workers):
+                print 'force stop %s' % worker.command_name
                 pid.force_kill(worker.command_name)
 
 
-        @pid.protector(pid)
+        @pid.protector(process_pid)
         def handle(self, *args, **options):
+
             command = options['command']
 
             if command == 'start':
                 self.start()
-                print 'infrastructure start'
+                print 'infrastructure started'
 
             elif command == 'stop':
                 self.stop()
@@ -109,3 +115,6 @@ def construct_workers_manager(help, pid, workers):
 
             else:
                 print 'command did not specified'
+
+
+    return Command

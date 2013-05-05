@@ -79,3 +79,24 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertEqual(self.account.email, 'test_user@test.ru')
         self.assertEqual(django_authenticate(nick='test_user', password='111111').id, self.account.id)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').nick, 'test_user')
+
+    def test_prolong_premium__for_new_premium(self):
+        self.account._model.premium_end_at = datetime.datetime.now() - datetime.timedelta(days=100)
+
+        self.account.prolong_premium(days=30)
+
+        self.assertTrue(datetime.datetime.now() + datetime.timedelta(days=29) < self.account.premium_end_at)
+        self.assertTrue(datetime.datetime.now() + datetime.timedelta(days=31) > self.account.premium_end_at)
+
+    def test_prolong_premium__for_existed_premium(self):
+        self.account._model.premium_end_at = datetime.datetime.now() + datetime.timedelta(days=100)
+
+        self.account.prolong_premium(days=30)
+
+        self.assertTrue(datetime.datetime.now() + datetime.timedelta(days=129) < self.account.premium_end_at)
+        self.assertTrue(datetime.datetime.now() + datetime.timedelta(days=131) > self.account.premium_end_at)
+
+    def test_is_premium(self):
+        self.assertFalse(self.account.is_premium)
+        self.account.prolong_premium(days=1)
+        self.assertTrue(self.account.is_premium)

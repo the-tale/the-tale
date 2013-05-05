@@ -11,7 +11,7 @@ class RegistrationException(Exception): pass
 
 class Worker(BaseWorker):
 
-    logger = getLogger('the-tale.workers.registration')
+    logger = getLogger('the-tale.workers.accounts_registration')
     name = 'accounts registration'
     command_name = 'accounts_registration'
 

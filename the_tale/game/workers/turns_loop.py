@@ -35,6 +35,10 @@ class Worker(BaseWorker):
                 self.supervisor_worker.cmd_next_turn()
                 time.sleep(game_settings.TURN_DELAY)
 
+    def initialize(self):
+        # worker initialized by supervisor
+        pass
+
     def cmd_initialize(self, worker_id):
         self.send_cmd('initialize', {'worker_id': worker_id})
 

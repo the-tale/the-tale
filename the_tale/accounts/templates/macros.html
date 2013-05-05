@@ -22,3 +22,29 @@
 <td>{{ hero.level }}</td>
 <td>{{ hero.power }}</td>
 {% endmacro %}
+
+{% macro account_type_label(account) %}
+
+{% if account.is_premium %}
+<a href="{{url('accounts:payments:shop')}}"
+   class="label label-success"
+   rel="popover"
+   title="бонусы"
+   data-content="<li>задания, выполняемые героями, оказывают влияние на мир игры;</li>
+                 <li>герои не получают штраф к опыту при длительном отсутствии игрока в игре;</li>
+                 <li>вы можете участвовать в политике (выдвигать законы и голосовать за них).</li>">
+  подписка
+</a>
+{% else %}
+<a href="{{url('accounts:payments:shop')}}"
+   class="label"
+   rel="popover"
+   title="ограничения"
+   data-content="<li>задания, выполняемые героями, не оказывают влияние на мир игры;</li>
+                 <li>герои получают штраф к опыту при длительном отсутствии игрока в игре;</li>
+                 <li>вы не можете участвовать в политике (выдвигать законы и голосовать за них).</li>">
+  базовый аккаунт
+</a>
+{% endif %}
+
+{% endmacro %}

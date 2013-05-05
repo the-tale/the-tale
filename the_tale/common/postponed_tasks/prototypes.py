@@ -139,6 +139,9 @@ class PostponedTaskPrototype(BasePrototype):
             for action in self._postsave_actions:
                 action()
 
+    def cmd_wait(self):
+        from common.postponed_tasks.workers.environment import workers_environment
+        workers_environment.refrigerator.cmd_wait_task(self.id)
 
     def process(self, logger, **kwargs):
 
@@ -151,6 +154,9 @@ class PostponedTaskPrototype(BasePrototype):
             return
 
         try:
+
+            old_internal_result = self.internal_result
+
             self.internal_result = self.internal_logic.process(self, **kwargs)
 
             if self.internal_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS:
@@ -160,7 +166,8 @@ class PostponedTaskPrototype(BasePrototype):
             elif self.internal_result == POSTPONED_TASK_LOGIC_RESULT.CONTINUE:
                 pass
             elif self.internal_result == POSTPONED_TASK_LOGIC_RESULT.WAIT:
-                pass
+                if old_internal_result != POSTPONED_TASK_LOGIC_RESULT.WAIT:
+                    self.extend_postsave_actions([lambda: self.cmd_wait()])
             else:
                 raise PostponedTaskException(u'unknown process result %r' % (self.process_result, ))
 

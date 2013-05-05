@@ -75,6 +75,22 @@ class HeroTest(TestCase):
 
         self.assertEqual(self.hero.experience_modifier, 1)
 
+    def test_update_with_account_data(self):
+        self.hero.is_fast = True
+        self.hero.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=1)
+        self.hero.change_person_power_allowed_end_at = datetime.datetime.now() - datetime.timedelta(seconds=1)
+        self.hero.normal_experience_rate_end_at = datetime.datetime.now() - datetime.timedelta(seconds=1)
+
+        self.hero.update_with_account_data(is_fast=False,
+                                           premium_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
+                                           active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60))
+
+        self.assertFalse(self.hero.is_fast)
+        self.assertTrue(self.hero.active_state_end_at > datetime.datetime.now())
+        self.assertTrue(self.hero.change_person_power_allowed_end_at > datetime.datetime.now())
+        self.assertTrue(self.hero.normal_experience_rate_end_at > datetime.datetime.now())
+
+
     def test_modify_person_power(self):
         friend = self.place_1.persons[0]
         enemy = self.place_2.persons[0]
