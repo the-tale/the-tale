@@ -1,4 +1,7 @@
 # coding: utf-8
+
+import datetime
+
 import mock
 
 from django.test import client
@@ -28,13 +31,15 @@ class ResourceTest(TestCase):
     def tearDown(self):
         pass
 
+    @mock.patch('accounts.prototypes.AccountPrototype.active_end_at', datetime.datetime.now() -datetime.timedelta(seconds=1))
     def test_hero_activate_unloginned(self):
 
-        with mock.patch('accounts.prototypes.AccountPrototype.update_active_state') as fake_cmd:
+        with mock.patch('accounts.workers.accounts_manager.Worker.cmd_update_active_state') as fake_cmd:
             self.client.get('/')
 
         self.assertEqual(fake_cmd.call_count, 0)
 
+    @mock.patch('accounts.prototypes.AccountPrototype.active_end_at', datetime.datetime.now() - datetime.timedelta(seconds=1))
     def test_hero_activate_loginned(self):
         with mock.patch('accounts.workers.accounts_manager.Worker.cmd_update_active_state') as fake_cmd:
             self.request_login('test_user@test.com')

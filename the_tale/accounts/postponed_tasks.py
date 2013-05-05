@@ -202,10 +202,9 @@ class ChangeCredentials(PostponedLogic):
     def error_message(self): return self.state.text
 
     @lazy_property
-    def task(self): return ChangeCredentialsTaskPrototype.get_by_id(self)
+    def task(self): return ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
 
     def process(self, main_task):
-
         if self.state._is_UNPROCESSED:
             self.task.account.change_credentials(new_email=self.task.new_email,
                                                  new_password=self.task.new_password,

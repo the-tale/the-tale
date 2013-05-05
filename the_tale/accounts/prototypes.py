@@ -120,7 +120,7 @@ class AccountPrototype(BasePrototype):
 
 class ChangeCredentialsTaskPrototype(BasePrototype):
     _model_class = ChangeCredentialsTask
-    _readonly = ('id', 'uuid', 'state', 'new_email')
+    _readonly = ('id', 'uuid', 'state', 'new_email', 'new_nick', 'new_password')
     _bidirectional = ()
     _get_by = ('id', 'uuid')
 

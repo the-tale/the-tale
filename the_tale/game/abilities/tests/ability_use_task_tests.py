@@ -39,7 +39,7 @@ class UseAbilityTasksTests(TestCase):
         self.assertEqual(self.task, UseAbilityTask.deserialize(self.task.serialize()))
 
     def test_response_data(self):
-        self.assertEqual(self.task.response_data, {'available_at': 666})
+        self.assertEqual(self.task.processed_data, {'available_at': 666})
 
     def test_process_no_energy(self):
         self.hero._model.energy = 0

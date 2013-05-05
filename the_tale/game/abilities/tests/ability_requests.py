@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from dext.utils import s11n
 
 from common.utils.testcase import TestCase
-from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
+from common.postponed_tasks import PostponedTaskPrototype
 
 from accounts.logic import register_user
 from accounts.prototypes import AccountPrototype
@@ -33,5 +33,5 @@ class AbilityRequests(TestCase):
     def test_activate_ability(self):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:abilities:activate', args=[Help.get_type()]), {'hero_id': HeroPrototype.get_by_account_id(self.account.id).id})
-        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+        task = PostponedTaskPrototype._get_task(0)
         self.check_ajax_processing(response, task.status_url)

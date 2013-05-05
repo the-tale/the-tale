@@ -709,7 +709,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB, 'preference_id': self.mob_uuid})
 
-        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+        task = PostponedTaskPrototype._get_task(0)
 
         self.check_ajax_processing(response, task.status_url)
 
@@ -720,7 +720,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': PREFERENCE_TYPE.MOB})
 
-        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+        task = PostponedTaskPrototype._get_task(0)
 
         self.check_ajax_processing(response, task.status_url)
 

@@ -72,11 +72,6 @@ class PostponedTaskPrototype(BasePrototype):
         super(PostponedTaskPrototype, self).__init__(**kwargs)
         self._postsave_actions = []
 
-    # for tests
-    @classmethod
-    def _get_task(cls, number=0):
-        return cls(model=cls._model_class.objects.all().order_by('id')[number])
-
     @property
     def type(self): return self.internal_type
 
@@ -100,6 +95,7 @@ class PostponedTaskPrototype(BasePrototype):
 
     def save(self):
         self._model.internal_data = s11n.to_json(self.internal_logic.serialize())
+        self._model.internal_state = self._model.internal_state if isinstance(self._model.internal_state, int) else self._model.internal_state.value
         self._model.save()
 
     def remove(self):

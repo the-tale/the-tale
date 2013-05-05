@@ -150,7 +150,7 @@ class SayRequestsTests(TestRequestsBase):
     def test_success(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         response = self.client.post(reverse('game:pvp:say'), {'text': u'some text'})
-        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+        task = PostponedTaskPrototype._get_task(0)
         self.check_ajax_processing(response, task.status_url)
 
 
@@ -176,7 +176,7 @@ class UsePvPAbilityRequestsTests(TestRequestsBase):
     def test_success(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         response = self.client.post(self.change_style_url)
-        task = PostponedTaskPrototype(PostponedTask.objects.all()[0])
+        task = PostponedTaskPrototype._get_task(0)
         self.check_ajax_processing(response, task.status_url)
 
 
