@@ -7,9 +7,21 @@ from dext.utils.decorators import nested_commit_on_success
 from common.utils.prototypes import BasePrototype
 
 from bank.models import Invoice, Account
-from bank.relations import INVOICE_STATE
+from bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
 from bank.exceptions import BankError
 from bank.conf import bank_settings
+
+
+class FakeAccountPrototype(object):
+
+    def __init__(self, amount=0, entity_type=ENTITY_TYPE.GAME_ACCOUNT, currency=CURRENCY_TYPE.PREMIUM, entity_id=0):
+        self.amount = amount
+        self.entity_type = entity_type
+        self.currency = currency
+        self.entity_id = entity_id
+
+    def get_history_list(self):
+        return []
 
 
 class AccountPrototype(BasePrototype):
@@ -29,10 +41,14 @@ class AccountPrototype(BasePrototype):
     amount = property(get_amount, set_amount)
 
     @classmethod
-    def get_for(cls, entity_type, entity_id, currency):
+    def get_for(cls, entity_type, entity_id, currency, null_object=False):
         try:
             return cls(model=cls._model_class.objects.get(entity_type=entity_type, entity_id=entity_id, currency=currency))
         except cls._model_class.DoesNotExist:
+            if null_object:
+                return FakeAccountPrototype(entity_id=entity_id,
+                                            entity_type=entity_type,
+                                            currency=currency)
             return None
 
     @classmethod
@@ -71,14 +87,19 @@ class AccountPrototype(BasePrototype):
 
         return self.amount + (frozen_incoming if frozen_incoming else 0) - (frozen_outcoming if frozen_outcoming else 0) >= test_amount
 
+    def get_history_list(self):
+        condition = models.Q(recipient_type=self.entity_type, recipient_id=self.entity_id) | models.Q(sender_type=self.entity_type, sender_id=self.entity_id)
+        invoice_models = list(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.CONFIRMED).filter(condition).order_by('-updated_at'))
+        return [InvoicePrototype(model=model) for model in invoice_models]
+
     def save(self):
         self._model.save()
 
 
 class InvoicePrototype(BasePrototype):
     _model_class = Invoice
-    _readonly = ('id', 'updated_at', 'recipient_id', 'recipient_type', 'sender_id', 'sender_type', 'amount', 'currency')
-    _bidirectional = ('state', )
+    _readonly = ('id', 'updated_at', 'recipient_id', 'recipient_type', 'sender_id', 'sender_type', 'amount', 'currency', 'description')
+    _bidirectional = ('state',)
     _get_by = ('id', )
 
     @classmethod
@@ -89,14 +110,15 @@ class InvoicePrototype(BasePrototype):
             return None
 
     @classmethod
-    def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount):
+    def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount, description):
         model = cls._model_class.objects.create(recipient_type=recipient_type,
                                                 recipient_id=recipient_id,
                                                 sender_type=sender_type,
                                                 sender_id=sender_id,
                                                 currency=currency,
                                                 amount=amount,
-                                                state=INVOICE_STATE.REQUESTED)
+                                                state=INVOICE_STATE.REQUESTED,
+                                                description=description)
 
         return cls(model=model)
 

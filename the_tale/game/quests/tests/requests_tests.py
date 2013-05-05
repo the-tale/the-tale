@@ -47,6 +47,6 @@ class RequestsTests(testcase.TestCase, QuestTestsMixin):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=choose_1&choice=choice_1_1')
 
-        task = PostponedTaskPrototype._get_task(0)
+        task = PostponedTaskPrototype._get_object(0)
         self.check_ajax_processing(response, task.status_url)
         self.assertEqual(PostponedTask.objects.all().count(), 1)

@@ -23,15 +23,28 @@ from accounts.relations import CHANGE_CREDENTIALS_TASK_STATE
 
 class AccountPrototype(BasePrototype):
     _model_class = Account
-    _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_superuser', 'has_perm')
-    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription', 'premium_end_at', 'active_end_at')
+    _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_superuser', 'has_perm', 'premium_end_at', 'active_end_at')
+    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription')
     _get_by = ('id', 'email', 'nick')
 
     @property
     def nick_verbose(self): return self._model.nick if not self._model.is_fast else u'Игрок'
 
     @property
-    def is_premium(self): return self.premium_ended_at > datetime.datetime.now()
+    def is_premium(self): return self.premium_end_at > datetime.datetime.now()
+
+    def prolong_premium(self, days):
+        self._model.premium_end_at = max(self.premium_end_at, datetime.datetime.now()) + datetime.timedelta(days=days)
+
+    @lazy_property
+    def bank_account(self):
+        from bank.prototypes import AccountPrototype as BankAccountPrototype
+        from bank.relations import ENTITY_TYPE, CURRENCY_TYPE
+
+        return BankAccountPrototype.get_for(entity_type=ENTITY_TYPE.GAME_ACCOUNT,
+                                            entity_id=self.id,
+                                            currency=CURRENCY_TYPE.PREMIUM,
+                                            null_object=True)
 
     @property
     def new_messages_number(self): return self._model.new_messages_number

@@ -49,7 +49,7 @@ class ProfileRequestsTests(TestCase):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.com', 'password': '222222', 'nick': 'test_user'})
         self.assertEqual(response.status_code, 200)
-        self.check_ajax_processing(response, PostponedTaskPrototype._get_task(0).status_url)
+        self.check_ajax_processing(response, PostponedTaskPrototype._get_object(0).status_url)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
 
@@ -57,7 +57,7 @@ class ProfileRequestsTests(TestCase):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.com', 'nick': 'test_nick'})
         self.assertEqual(response.status_code, 200)
-        self.check_ajax_processing(response, PostponedTaskPrototype._get_task(0).status_url)
+        self.check_ajax_processing(response, PostponedTaskPrototype._get_object(0).status_url)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
 
@@ -125,7 +125,7 @@ class ProfileRequestsTests(TestCase):
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
         self.check_ajax_processing(self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid),
-                                                   PostponedTaskPrototype._get_task(0).status_url)
+                                                   PostponedTaskPrototype._get_object(0).status_url)
 
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
@@ -141,7 +141,7 @@ class ProfileRequestsTests(TestCase):
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
         self.check_ajax_processing(self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid),
-                                   PostponedTaskPrototype._get_task(1).status_url)
+                                   PostponedTaskPrototype._get_object(1).status_url)
 
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
@@ -157,7 +157,7 @@ class ProfileRequestsTests(TestCase):
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
         self.check_ajax_processing(self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid),
-                                   PostponedTaskPrototype._get_task(0).status_url)
+                                   PostponedTaskPrototype._get_object(0).status_url)
 
     def test_update_last_news_reminder_time_unlogined(self):
         self.check_ajax_error(self.client.post(reverse('accounts:profile:update-last-news-reminder-time')), 'common.login_required')

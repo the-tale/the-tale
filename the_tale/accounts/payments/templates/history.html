@@ -1,0 +1,24 @@
+{% extends "payments/base.html" %}
+
+{% block payments_content %}
+
+{% if history %}
+
+<ul class="unstyled">
+  {% for record in history %}
+  <li>
+    {{ record.amount }}
+    {{ record.description }}
+  </li>
+  {% endfor %}
+</ul>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-history-message">
+  Вы ещё не совершали покупок.
+</p>
+
+{% endif %}
+
+{% endblock %}

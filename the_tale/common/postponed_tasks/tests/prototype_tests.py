@@ -145,6 +145,13 @@ class PrototypeTests(testcase.TestCase):
                                mock.Mock(return_value=POSTPONED_TASK_LOGIC_RESULT.WAIT)) as call_counter:
             self.task.process(FakeLogger())
 
+        self.assertEqual(len(self.task._postsave_actions), 1)
+
+        with mock.patch('common.postponed_tasks.workers.refrigerator.Worker.cmd_wait_task') as cmd_wait_task:
+            self.task.do_postsave_actions()
+
+        self.assertEqual(cmd_wait_task.call_count, 1)
+
         self.assertEqual(call_counter.call_count, 1)
         self.assertTrue(self.task.state.is_waiting)
 

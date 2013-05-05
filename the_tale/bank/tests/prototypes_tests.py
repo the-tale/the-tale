@@ -12,7 +12,7 @@ from bank.conf import bank_settings
 from bank.exceptions import BankError
 
 
-class AccountPrototypeTests(testcase.TestCase):
+class AccountPrototypeTests(testcase.TestCase, BankTestsMixin):
 
     def setUp(self):
         super(AccountPrototypeTests, self).setUp()
@@ -69,7 +69,8 @@ class AccountPrototypeTests(testcase.TestCase):
                                           sender_type=ENTITY_TYPE.GAME_LOGIC,
                                           sender_id=0,
                                           currency=CURRENCY_TYPE.PREMIUM,
-                                          amount=amount)
+                                          amount=amount,
+                                          description='incoming invoice')
         invoice.state = state
         invoice.save()
 
@@ -79,7 +80,8 @@ class AccountPrototypeTests(testcase.TestCase):
                                           recipient_type=ENTITY_TYPE.GAME_LOGIC,
                                           recipient_id=0,
                                           currency=CURRENCY_TYPE.PREMIUM,
-                                          amount=amount)
+                                          amount=amount,
+                                          description='outcoming invoice')
         invoice.state = state
         invoice.save()
 
@@ -129,6 +131,14 @@ class AccountPrototypeTests(testcase.TestCase):
 
         self.assertTrue(self.account.has_money(10000+1-10-100+1000))
         self.assertFalse(self.account.has_money(10000+1-10-100+1000 + 1))
+
+    def test_get_history_list(self):
+
+        invoices = self.create_entity_history(self.account.entity_id)
+
+        self.assertEqual([invoice.id for invoice in self.account.get_history_list()],
+                         [invoice.id for invoice in invoices])
+
 
 
 class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):

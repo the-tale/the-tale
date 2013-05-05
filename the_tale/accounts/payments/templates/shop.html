@@ -1,0 +1,28 @@
+{% extends "payments/base.html" %}
+
+{% block payments_content %}
+
+
+{% if PRICE_LIST %}
+
+<ul class="unstyled">
+  {% for purchase in PRICE_LIST %}
+  <li>
+    <h4>{{purchase.name}}</h4>
+    <p>
+      {{ purchase.uid }}
+      {{ purchase.description }}
+    </p>
+  </li>
+  {% endfor %}
+</ul>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-goods-message">
+  На текущий момент, в магазине нет товаров.
+</p>
+
+{% endif %}
+
+{% endblock %}

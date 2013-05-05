@@ -38,6 +38,8 @@ class Invoice(models.Model):
     currency = TableIntegerField(relation=CURRENCY_TYPE, relation_column='value', db_index=True)
     amount = models.BigIntegerField()
 
+    description = models.TextField()
+
     class Meta:
         index_together = ( ('recipient_type', 'recipient_id', 'currency'),
                            ('sender_type', 'sender_id', 'currency') )

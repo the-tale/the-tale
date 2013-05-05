@@ -1,0 +1,46 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}Платежи | {{ super() }}{% endblock %}
+
+{% block accounts_content %}
+
+<h2>Платежи</h2>
+
+<ul class="nav nav-pills">
+  <li {% if page_type == 'shop' %}class="active"{% endif %}><a href="{{ url('accounts:payments:shop') }}">Магазин</a></li>
+  <li {% if page_type == 'history' %}class="active"{% endif %}><a href="{{ url('accounts:payments:history') }}">История</a></li>
+</ul>
+
+<table>
+  <tbody>
+    <tr>
+      <th>тип аккаунта</th>
+      <td>
+        {% if account.is_premium %}подписка
+        {% else %}базовый аккаунт
+        {% endif %}
+      </td>
+    </tr>
+
+    <tr>
+      <th>окончание подписки</th>
+      <td>
+        {% if account.is_premium %}
+        <span class="updated-at pgf-format-datetime" data-timestamp="{{ account.premium_end_at|timestamp }}"></spann>
+        {% else %}
+        —
+        {% endif %}
+      </td>
+    </tr>
+
+    <tr>
+      <th>количество печенек</th>
+      <td>{{ account.bank_account.amount }}</td>
+    </tr>
+  </tbody>
+</table>
+
+{% block payments_content %}
+{% endblock %}
+
+{% endblock %}
