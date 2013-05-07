@@ -7,8 +7,6 @@ import traceback
 from django.contrib.auth.hashers import make_password
 from django.db import models
 
-from dext.utils.decorators import nested_commit_on_success
-
 from common.postponed_tasks import PostponedTaskPrototype
 
 from common.utils.password import generate_password
@@ -32,6 +30,15 @@ class AccountPrototype(BasePrototype):
 
     @property
     def is_premium(self): return self.premium_end_at > datetime.datetime.now()
+
+    def update_last_news_remind_time(self):
+        current_time = datetime.datetime.now()
+        self._model_class.objects.filter(id=self.id).update(last_news_remind_time=current_time)
+        self._model.last_news_remind_time = current_time
+
+    def update_settings(self, form):
+        self._model_class.objects.filter(id=self.id).update(personal_messages_subscription=form.c.personal_messages_subscription)
+        self._model.personal_messages_subscription = form.c.personal_messages_subscription
 
     def prolong_premium(self, days):
         self._model.premium_end_at = max(self.premium_end_at, datetime.datetime.now()) + datetime.timedelta(days=days)
@@ -64,17 +71,9 @@ class AccountPrototype(BasePrototype):
         Account.objects.filter(id=self.id).update(new_messages_number=models.F('new_messages_number')+1)
         self._model.new_messages_number = self._model.new_messages_number + 1
 
-    def reset_password(self):
-        new_password = generate_password(len_=accounts_settings.RESET_PASSWORD_LENGTH)
-        self._model.set_password(new_password)
-        self._model.save()
-
-        return new_password
-
     def check_password(self, password):
         return self._model.check_password(password)
 
-    @nested_commit_on_success
     def change_credentials(self, new_email=None, new_password=None, new_nick=None):
         from game.heroes.prototypes import HeroPrototype
 
@@ -142,12 +141,12 @@ class AccountPrototype(BasePrototype):
 
 class ChangeCredentialsTaskPrototype(BasePrototype):
     _model_class = ChangeCredentialsTask
-    _readonly = ('id', 'uuid', 'state', 'new_email', 'new_nick', 'new_password')
+    _readonly = ('id', 'uuid', 'state', 'new_email', 'new_nick', 'new_password', 'relogin_required')
     _bidirectional = ()
     _get_by = ('id', 'uuid')
 
     @classmethod
-    def create(cls, account, new_email=None, new_password=None, new_nick=None):
+    def create(cls, account, new_email=None, new_password=None, new_nick=None, relogin_required=False):
         old_email = account.email
         if account.is_fast and new_email is None:
             raise AccountsException('new_email must be specified for fast account')
@@ -165,7 +164,8 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                                                      new_email=new_email,
                                                      new_password=make_password(new_password) if new_password else '',
                                                      state=CHANGE_CREDENTIALS_TASK_STATE.WAITING,
-                                                     new_nick=new_nick)
+                                                     new_nick=new_nick,
+                                                     relogin_required=relogin_required)
         return cls(model=model)
 
     @lazy_property
@@ -203,7 +203,6 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
         self._model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
         self._model.save()
 
-    @nested_commit_on_success
     def process(self, logger):
 
         if self.has_already_processed:
@@ -292,9 +291,19 @@ class ResetPasswordTaskPrototype(BasePrototype):
 
         return prototype
 
-    def process(self):
-        account = AccountPrototype.get_by_id(self._model.account_id)
-        new_password = account.reset_password()
+    @lazy_property
+    def account(self): return AccountPrototype.get_by_id(self._model.account_id)
+
+    def process(self, logger):
+
+        new_password = generate_password(len_=accounts_settings.RESET_PASSWORD_LENGTH)
+
+        task = ChangeCredentialsTaskPrototype.create(account=self.account,
+                                                     new_password=new_password)
+
+        # here postponed task is created, but we will not wait for it processed, just  display new password
+        task.process(logger)
+
         self._model.is_processed = True
         self.save()
 

@@ -14,6 +14,16 @@
   <tr><th>всего аккаунтов</th><td>{{accounts_total}}</td><td></td></tr>
   <tr><th>зарегистрированных</th><td>{{accounts_registered}}</td><td>если образовалось много незарегистрированных аккаунтов, их надо почистить</td></tr>
   <tr><th>активных</th><td>{{accounts_active}}</td><td>{{(accounts_active|float/accounts_registered)|percents}} от зарегистрированых</td></tr>
+  <tr>
+    <th>премиум</th><td>{{accounts_premium}}</td>
+    <td>
+      {{(accounts_premium|float/accounts_registered)|percents}} от зарегистрированых
+      {{(accounts_premium|float/accounts_active)|percents}} от активных
+    </td>
+  </tr>
+  <tr><th>золота начислено</th><td>{{gold_bought}}</td><td>{{gold_bought/100}}$</td></tr>
+  <tr><th>золота потрачено</th><td>{{gold_spent}}</td><td>{{gold_spent/100}}$</td></tr>
+  <tr><th>золота в игре</th><td>{{gold_in_game}}</td><td>{{gold_in_game/100}}$</td></tr>
 </table>
 
 

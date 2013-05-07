@@ -104,7 +104,7 @@ class ChangeCredentials(PostponedLogic):
 
     def serialize(self):
         return { 'state': self.state.value,
-                 'task_id': self.task_id }
+                 'task_id': self.task_id}
 
     @property
     def uuid(self): return self.task_id
@@ -114,6 +114,10 @@ class ChangeCredentials(PostponedLogic):
 
     def processed_view(self, resource):
         from accounts.logic import force_login_user
+
+        if not self.task.relogin_required:
+            return
+
         force_login_user(resource.request, self.task.account._model)
 
         # update account settuped on start of this request processing

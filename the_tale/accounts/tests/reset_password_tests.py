@@ -6,12 +6,13 @@ from django.contrib.auth import authenticate as django_authenticate
 from django.core.urlresolvers import reverse
 
 from common.utils import testcase
+from common.postponed_tasks import PostponedTaskPrototype
 
 from game.logic import create_test_map
 
 from post_service.models import Message
 
-from accounts.prototypes import AccountPrototype, ResetPasswordTaskPrototype
+from accounts.prototypes import AccountPrototype, ResetPasswordTaskPrototype, ChangeCredentialsTaskPrototype
 from accounts.logic import register_user
 from accounts.models import ResetPasswordTask
 
@@ -34,9 +35,23 @@ class ResetPasswordTaskTests(testcase.TestCase):
         self.assertEqual(ResetPasswordTask.objects.all().count(), 1)
 
     def test_process(self):
-        self.task.process()
+        from common.postponed_tasks import autodiscover
+        autodiscover()
+
+        self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
+        self.assertEqual(ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 0)
+
+        new_password = self.task.process(logger=mock.Mock())
         self.assertTrue(self.task.is_processed)
+        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, self.account.id)
+
+        self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 1)
+        self.assertEqual(ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 1)
+
+        PostponedTaskPrototype._get_object(0).process(logger=mock.Mock())
+
         self.assertEqual(django_authenticate(nick='test_user', password='111111'), None)
+        self.assertEqual(django_authenticate(nick='test_user', password=new_password).id, self.account.id)
 
 
 class ResetPasswordRequestsTests(testcase.TestCase):
@@ -71,8 +86,16 @@ class ResetPasswordRequestsTests(testcase.TestCase):
 
     def test_reset_password_processed(self):
         task = ResetPasswordTaskPrototype.create(self.account)
+
+        self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
+        self.assertEqual(ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 0)
+
         self.check_html_ok(self.client.get(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)))
-        self.assertEqual(django_authenticate(nick='test_user', password='111111'), None)
+
+        self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 1)
+        self.assertEqual(ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 1)
+
+        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, self.account.id)
 
     def test_reset_password_expired(self):
         task = ResetPasswordTaskPrototype.create(self.account)

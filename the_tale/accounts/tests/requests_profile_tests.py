@@ -3,6 +3,8 @@ from django.test import client
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate as django_authenticate
 
+from dext.utils.urls import url
+
 from common.utils.fake import FakeLogger
 from common.utils.testcase import TestCase
 from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
@@ -14,7 +16,7 @@ from accounts.logic import register_user, login_url
 from game.logic import create_test_map
 
 from accounts.models import CHANGE_CREDENTIALS_TASK_STATE, ChangeCredentialsTask
-from accounts.prototypes import AccountPrototype
+from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 
 
 class ProfileRequestsTests(TestCase):
@@ -124,8 +126,8 @@ class ProfileRequestsTests(TestCase):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
-        self.check_ajax_processing(self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid),
-                                                   PostponedTaskPrototype._get_object(0).status_url)
+        response = self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid)
+        self.check_response_redirect(response, PostponedTaskPrototype._get_object(0).wait_url)
 
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
@@ -140,8 +142,8 @@ class ProfileRequestsTests(TestCase):
 
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
-        self.check_ajax_processing(self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid),
-                                   PostponedTaskPrototype._get_object(1).status_url)
+        response = self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid)
+        self.check_response_redirect(response, PostponedTaskPrototype._get_object(1).wait_url)
 
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
@@ -156,12 +158,48 @@ class ProfileRequestsTests(TestCase):
 
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
-        self.check_ajax_processing(self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid),
-                                   PostponedTaskPrototype._get_object(0).status_url)
+        response = self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid)
+        self.check_response_redirect(response, PostponedTaskPrototype._get_object(0).wait_url)
+
+    def test_confirm_email__wrong_task(self):
+        self.request_login('test_user@test.com')
+        self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
+
+        self.check_html_ok(self.client.get(url('accounts:profile:confirm-email', uuid='wronguuid'), texts=['pgf-change-credentials-wrong-link']))
+
+    def test_confirm_email__already_processed(self):
+        self.request_login('test_user@test.com')
+        self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
+
+        task = ChangeCredentialsTaskPrototype._get_object(0)
+        task._model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
+        task._model.save()
+
+        self.check_html_ok(self.client.get(url('accounts:profile:confirm-email', uuid=task.uuid), texts=['pgf-change-credentials-already-processed']))
+
+    def test_confirm_email__wrong_timeout(self):
+        self.request_login('test_user@test.com')
+        self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
+
+        task = ChangeCredentialsTaskPrototype._get_object(0)
+        task._model.state = CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT
+        task._model.save()
+
+        self.check_html_ok(self.client.get(url('accounts:profile:confirm-email', uuid=task.uuid), texts=['pgf-change-credentials-timeout']))
+
+    def test_confirm_email__error_occured(self):
+        self.request_login('test_user@test.com')
+        self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
+
+        task = ChangeCredentialsTaskPrototype._get_object(0)
+        task._model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
+        task._model.save()
+
+        self.check_html_ok(self.client.get(url('accounts:profile:confirm-email', uuid=task.uuid), texts=['pgf-change-credentials-error']))
+
 
     def test_update_last_news_reminder_time_unlogined(self):
         self.check_ajax_error(self.client.post(reverse('accounts:profile:update-last-news-reminder-time')), 'common.login_required')
-
 
     def test_update_last_news_reminder_time(self):
 

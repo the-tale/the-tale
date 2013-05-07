@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Ожидание завершения операции | {{ super() }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    pgf.forms.Post({action: "{{url('postponed-tasks:status', task.id)}}",
+                    type: 'get',
+                    OnSuccess: function(data){
+                        location.href = data.data.next_url;}
+                   });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="span12">
+    <p class="alert alert-info">
+      Пожалуйста, подождите.
+    </p>
+  </div>
+</div>
+
+{% endblock %}

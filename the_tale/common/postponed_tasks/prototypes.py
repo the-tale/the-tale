@@ -78,6 +78,9 @@ class PostponedTaskPrototype(BasePrototype):
     @property
     def status_url(self): return reverse('postponed-tasks:status', args=[self.id])
 
+    @property
+    def wait_url(self): return reverse('postponed-tasks:wait', args=[self.id])
+
     def get_state(self):
         if not hasattr(self, '_state'):
             self._state = POSTPONED_TASK_STATE(self._model.state)
@@ -126,6 +129,7 @@ class PostponedTaskPrototype(BasePrototype):
                                              internal_state=task_logic.state if isinstance(task_logic.state, int) else task_logic.state.value,
                                              internal_data=s11n.to_json(task_logic.serialize()),
                                              live_time=live_time)
+
         return cls(model=model)
 
     def add_postsave_action(self, action):

@@ -158,7 +158,8 @@ class ProfileResource(Resource):
             task = ChangeCredentialsTaskPrototype.create(account=self.account,
                                                          new_email=edit_profile_form.c.email,
                                                          new_password=edit_profile_form.c.password,
-                                                         new_nick=edit_profile_form.c.nick)
+                                                         new_nick=edit_profile_form.c.nick,
+                                                         relogin_required=True)
 
             postponed_task = task.process(logger)
 
@@ -180,7 +181,7 @@ class ProfileResource(Resource):
                    'task': None}
 
         if task is None:
-            context['error'] = u'Неверная ссылка, убедитесь, что верно скопировали адрес'
+            context['wrong_link'] = True
             return self.template('accounts/confirm_email.html', context)
 
         if task.has_already_processed:
@@ -197,7 +198,7 @@ class ProfileResource(Resource):
             context['error_occured'] = True
             return self.template('accounts/confirm_email.html', context)
 
-        return self.json_processing(postponed_task.status_url)
+        return self.redirect(postponed_task.wait_url)
 
     @login_required
     @handler('update-settings', name='update-settings', method='post')
@@ -208,12 +209,9 @@ class ProfileResource(Resource):
         if not settings_form.is_valid():
             return self.json_error('accounts.profile.update_settings.form_errors', settings_form.errors)
 
-        self.account.personal_messages_subscription = settings_form.c.personal_messages_subscription
-        self.account.save()
+        self.account.update_settings(settings_form)
 
-        next_url = reverse('accounts:profile:edited')
-
-        return self.json_ok(data={'next_url': next_url})
+        return self.json_ok(data={'next_url': reverse('accounts:profile:edited')})
 
     @handler('reset-password', method='get')
     def reset_password_page(self):
@@ -245,7 +243,7 @@ class ProfileResource(Resource):
             return self.auto_error('accounts.profile.reset_password_processed.already_processed',
                                    u'Эта ссылка уже была использована для восстановления пароля, одну ссылку можно использовать только один раз')
 
-        password = task.process()
+        password = task.process(logger=logger)
 
         return self.template('accounts/reset_password_processed.html', {'password': password} )
 
@@ -272,10 +270,7 @@ class ProfileResource(Resource):
     @login_required
     @handler('update-last-news-reminder-time', method='post')
     def update_last_news_reminder_time(self):
-
-        self.account.last_news_remind_time = datetime.datetime.now()
-        self.account.save()
-
+        self.account.update_last_news_remind_time()
         return self.json_ok()
 
 
@@ -392,6 +387,9 @@ class AccountResource(Resource):
     @validate_moderator_rights()
     @handler('#account_id', 'reset-nick', name='reset-nick', method='post')
     def reset_nick(self):
-        self.master_account.nick = u'имя игрока сброшено (%s)' % uuid.uuid4().hex
-        self.master_account.save()
-        return self.json_ok()
+        task = ChangeCredentialsTaskPrototype.create(account=self.master_account,
+                                                     new_nick=u'имя игрока сброшено (%s)' % uuid.uuid4().hex)
+
+        postponed_task = task.process(logger)
+
+        return self.json_processing(postponed_task.status_url)

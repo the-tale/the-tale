@@ -165,14 +165,22 @@ pgf.ui.dialog.Alert = function(params) {
         pgf.ui.dialog.Error({message: 'dialog.Alert: message does not specified'});
     }
 
+    function OkCallback(e) {
+        if (params.OnOk) params.OnOk();
+    }
+
     pgf.ui.dialog.Question({message: params.message,
                             title: title,
-                            buttons: [{text: 'Ok'}]
+                            buttons: [{text: 'Ok',
+                                       callback: OkCallback}]
                            });
 
 };
 
 pgf.ui.dialog.Error = function(params) {
+    
+    params.message = '<div class="alert alert-error">' + params.message + '</div>';
+
     pgf.ui.dialog.Alert(params);
 };
 

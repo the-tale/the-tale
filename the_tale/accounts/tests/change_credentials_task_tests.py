@@ -24,7 +24,11 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.account = AccountPrototype.get_by_id(account_id)
 
-        self.task = ChangeCredentialsTaskPrototype.create(self.account, new_email='test_user@test.ru', new_password='222222', new_nick='test_nick')
+        self.task = ChangeCredentialsTaskPrototype.create(self.account,
+                                                          new_email='test_user@test.ru',
+                                                          new_password='222222',
+                                                          new_nick='test_nick',
+                                                          relogin_required=True)
 
         self.postponed_task = ChangeCredentials(task_id=self.task.id)
 
@@ -53,6 +57,19 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
         postponed_taks.process(logger=mock.Mock())
         self.check_ajax_ok(self.client.get(url('postponed-tasks:status', postponed_taks.id)))
         self.assertEqual(self.client.session['_auth_user_id'], self.account.id)
+
+    def test_processed_view__real__without_relogin(self):
+        from common.postponed_tasks import autodiscover
+        autodiscover()
+
+        self.task._model.relogin_required = False
+        self.task._model.save()
+
+        self.assertEqual(self.task.process(logger=mock.Mock()), None) # sent mail
+        postponed_taks = self.task.process(logger=mock.Mock()) # create task
+        postponed_taks.process(logger=mock.Mock())
+        self.check_ajax_ok(self.client.get(url('postponed-tasks:status', postponed_taks.id)))
+        self.assertEqual(self.client.session.get('_auth_user_id'), None)
 
     def test_process__wrong_state(self):
         self.postponed_task.state = CHANGE_CREDENTIALS_STATE.PROCESSED

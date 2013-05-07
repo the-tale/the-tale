@@ -4,13 +4,14 @@ from django.core.urlresolvers import reverse
 
 from common.utils.testcase import TestCase
 from common.utils.permissions import sync_group
+from common.postponed_tasks import PostponedTaskPrototype
 
 from game.logic import create_test_map
 
 from accounts.friends.prototypes import FriendshipPrototype
 
 from accounts.models import Award
-from accounts.prototypes import AccountPrototype
+from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 from accounts.relations import AWARD_TYPE
 from accounts.logic import register_user
 from accounts.conf import accounts_settings
@@ -175,5 +176,17 @@ class ResetNickdRequestsTests(AccountRequestsTests):
 
     def test_success(self):
         old_nick = self.account1.nick
-        self.check_ajax_ok(self.client.post(reverse('accounts:reset-nick', args=[self.account1.id])))
-        self.assertNotEqual(old_nick, AccountPrototype.get_by_id(self.account1.id).nick)
+
+        response = self.client.post(reverse('accounts:reset-nick', args=[self.account1.id]))
+
+        postponed_task = PostponedTaskPrototype._get_object(0)
+
+        self.check_ajax_processing(response, reverse('postponed-tasks:status', args=[postponed_task.id]))
+
+        task = ChangeCredentialsTaskPrototype._get_object(0)
+
+        self.assertFalse(task.relogin_required)
+        self.assertEqual(self.account1.id, task.account.id)
+        self.assertNotEqual(self.account1.nick, task.new_nick)
+
+        self.assertEqual(old_nick, AccountPrototype.get_by_id(self.account1.id).nick)

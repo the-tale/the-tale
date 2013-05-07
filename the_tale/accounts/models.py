@@ -123,6 +123,8 @@ class ChangeCredentialsTask(models.Model):
 
     new_password = models.TextField(default=None, null=True) # django password hash
 
-    new_nick = models.CharField(default=None, null=True, max_length=30)
+    new_nick = models.CharField(default=None, null=True, max_length=Account.MAX_NICK_LENGTH)
 
     uuid = models.CharField(max_length=32, db_index=True)
+
+    relogin_required = models.BooleanField(blank=True, default=False)

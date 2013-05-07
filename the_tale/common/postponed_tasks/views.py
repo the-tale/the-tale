@@ -2,7 +2,7 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views import handler
+from dext.views import handler, validate_argument
 
 from common.utils.resources import Resource
 
@@ -11,23 +11,13 @@ from common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 class PostponedTaskResource(Resource):
 
-    def initialize(self, task_id, *args, **kwargs):
+    @validate_argument('task', PostponedTaskPrototype.get_by_id, 'postponed_task', u'Задача не найдена')
+    def initialize(self, task, *args, **kwargs):
         super(PostponedTaskResource, self).initialize(*args, **kwargs)
+        self.task = task
 
-        try:
-            task_id = int(task_id)
-        except:
-            return self.auto_error('postponed_task.wrong_task_id', u'Неверный иденификатор задачи', status_code=404)
-
-        self.task = PostponedTaskPrototype.get_by_id(task_id)
-
-        if self.task is None:
-            return self.auto_error('postponed_task.task_no_found', u'Задача не найдена', status_code=404)
-
-
-    @handler('#task_id', 'status', method='get')
+    @handler('#task', 'status', method='get')
     def status(self):
-
         if self.task.state.is_waiting:
             return self.json_processing(reverse('postponed-tasks:status', args=[self.task.id]))
 
@@ -48,3 +38,8 @@ class PostponedTaskResource(Resource):
             return self.json_error('postponed_task.exception', u'Неизвестная ошибка, повторите попытку позже')
 
         return self.json_error('postponed_task.unknown_error', u'Неизвестная ошибка, повторите попытку позже')
+
+    @handler('#task', 'wait', method='get')
+    def wait(self):
+        return self.template('postponed_tasks/wait.html',
+                             {'task': self.task})

@@ -135,6 +135,8 @@ pgf.forms.Post = function(params) {
 
     if (!('wait' in params)) params.wait = true;
 
+    if (!('type' in params)) params.type = 'post';
+
     function OnSuccess(data, request, status) {
         if (data.status == 'ok') {
             if (params.OnSuccess) {
@@ -144,14 +146,14 @@ pgf.forms.Post = function(params) {
 
         if (data.status == 'error') {
             if (data.error) {
-                alert(data.error);
+                pgf.ui.dialog.Error({message: data.error});
             }
             else {
                 if (data.errors && data.errors.length > 0) {
-                    alert(data.errors[0]);
+                    pgf.ui.dialog.Error({message: data.errors[0]});
                 }
                 else {
-                    alert('Произошла ошибка, мы уже работаем над её устранением, повторите попытку через некоторое время');
+                    pgf.ui.dialog.Error({message: 'Произошла ошибка, мы уже работаем над её устранением, повторите попытку через некоторое время'});
                 }
             }
             if (params.OnError) {
@@ -180,7 +182,7 @@ pgf.forms.Post = function(params) {
             params.OnError(data);
         }
         else {
-            alert('Произошла ошибка, мы уже работаем над её устранением, повторите попытку через некоторое время');
+            pgf.ui.dialog.Error({message: 'Произошла ошибка, мы уже работаем над её устранением, повторите попытку через некоторое время'});
         }
     }
 
@@ -198,7 +200,7 @@ pgf.forms.Post = function(params) {
     }
     jQuery.ajax({
         dataType: 'json',
-        type: 'post',
+        type: params.type,
         url: params.action,
         data: params.data,
         success: OnSuccess,
@@ -221,22 +223,32 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
 
     if (!url) return;
 
+    var confirmation = el.data('confirmation');
+    var successMessage = el.data('success-message');
+
+    function ProcessData(data) {
+        if (actionType == 'quietly') {
+        }
+        if (actionType == 'reload') {
+            location.reload(true);
+        }
+        if (actionType == 'redirect') {
+            location.href = el.data('redirect-url');
+        }
+    }
+
     var Operation = function() {
         pgf.forms.Post({ action: url,
                          OnSuccess: function(data){
-                             if (actionType == 'quietly') {
+                             if (successMessage) {
+                                 pgf.ui.dialog.Alert({message: successMessage,
+                                                      title: 'Операция завершена',
+                                                      OnOk: function(e){ProcessData(data)}});
+                                 return;
                              }
-                             if (actionType == 'reload') {
-                                 location.reload(true);
-                             }
-                             if (actionType == 'redirect') {
-                                 location.href = el.data('redirect-url');
-                             }
-
+                             ProcessData(data);
                          }
                        }); };
-
-    var confirmation = el.data('confirmation');
 
     if (confirmation) {
         pgf.ui.dialog.Question({message: confirmation,

@@ -7,6 +7,8 @@ from dext.views import handler
 from common.utils.decorators import staff_required
 from common.utils.resources import Resource
 
+from bank.prototypes import AccountPrototype as BankAccountPrototype
+
 from accounts.models import Account
 
 
@@ -22,11 +24,20 @@ class DevelopersInfoResource(Resource):
         accounts_total = Account.objects.all().count()
         accounts_registered = Account.objects.filter(is_fast=False).count()
         accounts_active = Account.objects.filter(is_fast=False, active_end_at__gt=datetime.datetime.now()).count()
+        accounts_premium = Account.objects.filter(is_fast=False, premium_end_at__gt=datetime.datetime.now()).count()
+
+        gold_bought = BankAccountPrototype._money_received()
+        gold_spent = BankAccountPrototype._money_spent()
+        gold_in_game = gold_bought - gold_spent
 
         return self.template('developers_info/index.html',
                              {'accounts_total': accounts_total,
                               'accounts_registered': accounts_registered,
                               'accounts_active': accounts_active,
+                              'accounts_premium': accounts_premium,
+                              'gold_bought': gold_bought,
+                              'gold_spent': gold_spent,
+                              'gold_in_game': gold_in_game,
                               'page_type': 'index'})
 
     @handler('mobs-and-artifacts', method='get')

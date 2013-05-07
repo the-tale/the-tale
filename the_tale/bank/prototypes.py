@@ -96,6 +96,17 @@ class AccountPrototype(BasePrototype):
         invoice_models = list(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.CONFIRMED).filter(condition).order_by('-updated_at'))
         return [InvoicePrototype(model=model) for model in invoice_models]
 
+    @classmethod
+    def _money_received(cls, currency=CURRENCY_TYPE.PREMIUM): return 0
+
+    @classmethod
+    def _money_spent(cls, currency=CURRENCY_TYPE.PREMIUM):
+        incoming_query = Invoice.objects.filter(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                                                currency=currency,
+                                                state=INVOICE_STATE.CONFIRMED,
+                                                amount__lt=0)
+        return -incoming_query.aggregate(total_amount=models.Sum('amount')).get('total_amount', 0)
+
     def save(self):
         self._model.save()
 

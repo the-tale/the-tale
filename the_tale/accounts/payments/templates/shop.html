@@ -16,6 +16,8 @@
         <span style="font-size: 20pt;">{{ purchase.cost }}</span><br/>
         <span>ПЕЧЕНЕК</span><br/>
         <a class="btn btn-success pgf-forms-post-simple"
+           data-confirmation="Вы уверены, что хотите совершить покупку, потратив {{purchase.cost}} печенек?"
+           data-success-message="Поздравляем с покупкой!"
            href="{{url('accounts:payments:buy', purchase=purchase.uid)}}">Купить</a>
       </td>
       <td>
