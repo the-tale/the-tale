@@ -22,6 +22,3 @@ class FakePostponedInternalTask(PostponedLogic):
 
     @property
     def error_message(self): return u'some error message'
-
-    @property
-    def uuid(self): return 777

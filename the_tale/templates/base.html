@@ -134,6 +134,7 @@ jQuery(document).ready(function() {
           <ul class="nav">
             {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
             {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:registration"), "Регистрация"),
+                                                                         (url("guide:account-types"), "Типы аккаунтов"),
                                                                          (url("guide:game"), "Описание игры"),
                                                                          (url("guide:might"), "Могущество игрока"),
                                                                          (url("guide:hero-abilities"), "Способности героев"),

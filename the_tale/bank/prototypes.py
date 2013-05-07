@@ -105,7 +105,8 @@ class AccountPrototype(BasePrototype):
                                                 currency=currency,
                                                 state=INVOICE_STATE.CONFIRMED,
                                                 amount__lt=0)
-        return -incoming_query.aggregate(total_amount=models.Sum('amount')).get('total_amount', 0)
+        amount = incoming_query.aggregate(total_amount=models.Sum('amount')).get('total_amount')
+        return -amount if amount else 0
 
     def save(self):
         self._model.save()

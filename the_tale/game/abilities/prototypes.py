@@ -47,8 +47,6 @@ class AbilityPrototype(object):
             return False
         if self.available_at < time.turn_number:
             return False
-        if PostponedTaskPrototype.check_if_used(self.get_type(), hero_id):
-            return True
         return False
 
     def ui_info(self):

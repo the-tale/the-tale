@@ -28,18 +28,10 @@ class SayInBattleLogTask(PostponedLogic):
         self.text = text
         self.state = state
 
-    def __eq__(self, other):
-        return (self.battle_id == other.battle_id and
-                self.text == other.text and
-                self.state == other.state )
-
     def serialize(self):
         return { 'battle_id': self.battle_id,
                  'text': self.text,
                  'state': self.state}
-
-    @property
-    def uuid(self): return self.battle_id
 
     @property
     def error_message(self): return SAY_IN_HERO_LOG_TASK_STATE._CHOICES[self.state][1]
@@ -88,18 +80,10 @@ class AcceptBattleTask(PostponedLogic):
         self.accept_initiator_id = accept_initiator_id
         self.state = state
 
-    def __eq__(self, other):
-        return (self.battle_id == other.battle_id and
-                self.accept_initiator_id == other.accept_initiator_id and
-                self.state == other.state )
-
     def serialize(self):
         return { 'battle_id': self.battle_id,
                  'accept_initiator_id': self.accept_initiator_id,
                  'state': self.state}
-
-    @property
-    def uuid(self): return self.accept_initiator_id
 
     @property
     def error_message(self): return ACCEPT_BATTLE_TASK_STATE._CHOICES[self.state][1]
@@ -157,20 +141,11 @@ class UsePvPAbilityTask(PostponedLogic):
         self.ability_id = ability_id
         self.state = state
 
-    def __eq__(self, other):
-        return (self.battle_id == other.battle_id and
-                self.account_id == other.account_id and
-                self.ability_id == other.ability_id and
-                self.state == other.state )
-
     def serialize(self):
         return { 'battle_id': self.battle_id,
                  'account_id': self.account_id,
                  'ability_id': self.ability_id,
                  'state': self.state}
-
-    @property
-    def uuid(self): return self.account_id
 
     @property
     def error_message(self): return USE_PVP_ABILITY_TASK_STATE._CHOICES[self.state][1]

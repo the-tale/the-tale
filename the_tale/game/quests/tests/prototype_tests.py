@@ -58,15 +58,24 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertFalse(fake_cmd.commands)
 
-    def test_power_on_end_quest_for_normal_account_hero(self):
+    def test_power_on_end_quest_for_premium_account_hero(self):
 
         self.hero.is_fast = False
-        self.hero.change_person_power_allowed_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
         with mock.patch('game.workers.environment.workers_environment.highlevel.cmd_change_person_power') as fake_cmd:
             self.complete_quest()
 
         self.assertTrue(fake_cmd.call_count > 0)
+
+    def test_power_on_end_quest_for_normal_account_hero(self):
+
+        self.hero.is_fast = False
+
+        with mock.patch('game.workers.environment.workers_environment.highlevel.cmd_change_person_power') as fake_cmd:
+            self.complete_quest()
+
+        self.assertEqual(fake_cmd.call_count, 0)
 
     def test_get_minimum_created_time_of_active_quests(self):
         self.assertEqual(self.quest._model.created_at, QuestPrototype.get_minimum_created_time_of_active_quests())

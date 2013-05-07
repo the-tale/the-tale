@@ -33,8 +33,6 @@ class PostponedTask(models.Model):
 
     internal_type = models.CharField(max_length=64, db_index=True)
 
-    internal_uuid = models.BigIntegerField(db_index=True)
-
     internal_state = models.IntegerField(db_index=True)
 
     internal_data = models.TextField(default=u'{}')

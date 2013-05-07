@@ -48,9 +48,9 @@ class ChangeHeroTest(TestCase):
         self.assertEqual(task.race, self.race)
         self.assertEqual(task.gender, self.gender)
 
-    def test_serializatino(self):
+    def test_serialization(self):
         task = ChangeHeroTask(self.hero.id, name=self.noun, race=self.race, gender=self.gender)
-        self.assertEqual(task, ChangeHeroTask.deserialize(task.serialize()))
+        self.assertEqual(task.serialize(), ChangeHeroTask.deserialize(task.serialize()).serialize())
 
     def test_check_change(self):
         task = ChangeHeroTask(self.hero.id, name=self.noun, race=self.race, gender=self.gender)

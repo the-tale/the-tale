@@ -1,6 +1,5 @@
 # coding: utf-8
 import uuid
-import datetime
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout

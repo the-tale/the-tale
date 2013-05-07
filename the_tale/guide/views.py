@@ -14,9 +14,6 @@ from game.persons.conf import persons_settings
 from game.pvp.conf import pvp_settings
 from game.pvp import abilities as pvp_abilities
 
-from portal.conf import portal_settings
-
-
 class GuideResource(Resource):
 
     def initialize(self, *args, **kwargs):
@@ -29,6 +26,10 @@ class GuideResource(Resource):
     @handler('registration', method='get')
     def registration(self):
         return self.template('guide/registration.html', {'section': 'registration'})
+
+    @handler('account-types', method='get')
+    def account_types(self):
+        return self.template('guide/account_types.html', {'section': 'account-types'})
 
     @handler('game', method='get')
     def game(self):

@@ -61,11 +61,10 @@ class HeroTest(TestCase):
         self.assertTrue(hero.created_at_turn != self.hero.created_at_turn)
 
 
-    def test_set_active_inactive_state(self):
+    def test_experience_modifier__active_inactive_state(self):
         self.assertEqual(self.hero.experience_modifier, 1)
 
-        self.hero._model.active_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=-60)
-        self.hero.save()
+        self.hero._model.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
 
         self.assertTrue(self.hero.experience_modifier < 1)
 
@@ -74,6 +73,30 @@ class HeroTest(TestCase):
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60))
 
         self.assertEqual(self.hero.experience_modifier, 1)
+
+    def test_experience_modifier__with_premium(self):
+        self.assertEqual(self.hero.experience_modifier, 1)
+
+        self.hero._model.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
+        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+
+        self.assertEqual(self.hero.experience_modifier, 1)
+
+        self.hero.update_with_account_data(is_fast=False,
+                                           premium_end_at=datetime.datetime.now(),
+                                           active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60))
+
+        self.assertEqual(self.hero.experience_modifier, 1)
+
+    def test_can_change_persons_power(self):
+        self.assertFalse(self.hero.can_change_persons_power)
+        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.assertTrue(self.hero.can_change_persons_power)
+
+    def test_can_repair_building(self):
+        self.assertFalse(self.hero.can_repair_building)
+        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.assertTrue(self.hero.can_repair_building)
 
     def test_update_with_account_data(self):
         self.hero.is_fast = True
@@ -87,8 +110,7 @@ class HeroTest(TestCase):
 
         self.assertFalse(self.hero.is_fast)
         self.assertTrue(self.hero.active_state_end_at > datetime.datetime.now())
-        self.assertTrue(self.hero.change_person_power_allowed_end_at > datetime.datetime.now())
-        self.assertTrue(self.hero.normal_experience_rate_end_at > datetime.datetime.now())
+        self.assertTrue(self.hero.premium_state_end_at > datetime.datetime.now())
 
 
     def test_modify_person_power(self):

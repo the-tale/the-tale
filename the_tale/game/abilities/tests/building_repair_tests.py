@@ -55,7 +55,7 @@ class BuildingRepairTest(testcase.TestCase):
                 'storage': storage,
                 'highlevel': highlevel}
 
-
+    @mock.patch('game.heroes.prototypes.HeroPrototype.can_repair_building', True)
     def test_use(self):
 
         result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id, storage=self.storage))
@@ -82,6 +82,12 @@ class BuildingRepairTest(testcase.TestCase):
         self.assertEqual(self.building.integrity, 0.5)
         self.assertEqual(self.ability_2.use(**self.use_attributes(hero_id=self.hero_2.id, storage=self.storage)), (False, ABILITY_TASK_STEP.ERROR, ()))
         self.assertEqual(self.building.integrity, 0.5)
+
+    def test_use_for_not_allowed_account(self):
+        self.assertEqual(self.building.integrity, 0.5)
+        self.assertEqual(self.ability_2.use(**self.use_attributes(hero_id=self.hero_2.id, storage=self.storage)), (False, ABILITY_TASK_STEP.ERROR, ()))
+        self.assertEqual(self.building.integrity, 0.5)
+
 
     def test_use_for_wrong_building_id(self):
         self.assertEqual(self.building.integrity, 0.5)

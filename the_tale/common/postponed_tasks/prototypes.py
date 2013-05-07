@@ -109,12 +109,6 @@ class PostponedTaskPrototype(BasePrototype):
         PostponedTask.objects.filter(state=POSTPONED_TASK_STATE.WAITING).update(state=POSTPONED_TASK_STATE.RESETED)
 
     @classmethod
-    def check_if_used(cls, internal_type, internal_uuid):
-        return PostponedTask.objects.filter(internal_type=internal_type,
-                                            internal_uuid=internal_uuid,
-                                            state=POSTPONED_TASK_STATE.WAITING).exists()
-
-    @classmethod
     def get_processed_tasks_query(cls):
         return PostponedTask.objects.exclude(state=POSTPONED_TASK_STATE.WAITING)
 
@@ -125,7 +119,6 @@ class PostponedTaskPrototype(BasePrototype):
     @classmethod
     def create(cls, task_logic, live_time=None):
         model = PostponedTask.objects.create(internal_type=task_logic.TYPE,
-                                             internal_uuid=task_logic.uuid,
                                              internal_state=task_logic.state if isinstance(task_logic.state, int) else task_logic.state.value,
                                              internal_data=s11n.to_json(task_logic.serialize()),
                                              live_time=live_time)

@@ -94,7 +94,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 
     def test_serialization(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
-        self.assertEqual(task, ChoosePreferencesTask.deserialize(task.serialize()))
+        self.assertEqual(task.serialize(), ChoosePreferencesTask.deserialize(task.serialize()).serialize())
 
     # can not test wrong level, since energy regeneration choice available on 1 level
     def test_wrong_level(self):

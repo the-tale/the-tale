@@ -7,9 +7,17 @@
 {% block bills_content %}
 
 {% if active_bills_limit_reached %}
+
 <p class="alert alert-info pgf-active-bills-limit-reached">
   Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению.
 </p>
+
+{% elif not resource.can_participate_in_politics %}
+
+<p class="alert alert-info pgf-can-not-participate-in-politics">
+  Предлагать законы и голосовать могут только подписчики, оформить подписку можно на странице <a href="{{url('accounts:payments:shop')}}">магазина</a>.
+</p>
+
 {% else %}
 <p>
   <div class="btn-group pgf-create-new-bill-buttons" style="display: inline-block; vertical-align: middle;">

@@ -36,7 +36,7 @@ class UseAbilityTasksTests(TestCase):
         self.assertEqual(self.task.state, ABILITY_TASK_STATE.UNPROCESSED)
 
     def test_serialization(self):
-        self.assertEqual(self.task, UseAbilityTask.deserialize(self.task.serialize()))
+        self.assertEqual(self.task.serialize(), UseAbilityTask.deserialize(self.task.serialize()).serialize())
 
     def test_response_data(self):
         self.assertEqual(self.task.processed_data, {'available_at': 666})

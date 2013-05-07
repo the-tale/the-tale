@@ -26,22 +26,12 @@ class ChooseQuestLineTask(PostponedLogic):
         self.choice = choice
         self.state = state
 
-    def __eq__(self, other):
-        return (self.quest_id == other.quest_id and
-                self.account_id == other.account_id and
-                self.choice_point == other.choice_point and
-                self.choice == other.choice and
-                self.state == other.state )
-
     def serialize(self):
         return { 'quest_id': self.quest_id,
                  'account_id': self.account_id,
                  'choice_point': self.choice_point,
                  'choice': self.choice,
                  'state': self.state}
-
-    @property
-    def uuid(self): return self.account_id
 
     @property
     def error_message(self): return CHOOSE_QUEST_LINE_STATE._CHOICES[self.state][1]

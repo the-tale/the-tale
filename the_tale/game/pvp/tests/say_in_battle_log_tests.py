@@ -44,7 +44,7 @@ class SayInBattleLogTests(testcase.TestCase):
         self.assertEqual(self.task.battle_id, self.battle.id)
 
     def test_serialize(self):
-        self.assertEqual(self.task, SayInBattleLogTask.deserialize(self.task.serialize()))
+        self.assertEqual(self.task.serialize(), SayInBattleLogTask.deserialize(self.task.serialize()).serialize())
 
     def test_process_account_hero_not_found(self):
         self.storage.release_account_data(self.account_1)

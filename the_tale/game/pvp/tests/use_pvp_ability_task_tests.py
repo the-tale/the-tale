@@ -50,7 +50,7 @@ class UsePvPAbilityTests(testcase.TestCase):
         self.assertEqual(self.task.ability_id, self.ability.TYPE)
 
     def test_serialize(self):
-        self.assertEqual(self.task, UsePvPAbilityTask.deserialize(self.task.serialize()))
+        self.assertEqual(self.task.serialize(), UsePvPAbilityTask.deserialize(self.task.serialize()).serialize())
 
     def test_process_hero_not_found(self):
         self.storage.release_account_data(self.account_1)

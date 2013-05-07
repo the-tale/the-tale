@@ -267,7 +267,7 @@ class ChooseAbilityTaskTest(TestCase):
 
     def test_serialization(self):
         task = ChooseHeroAbilityTask(self.hero.id, self.get_new_ability_id())
-        self.assertEqual(task, ChooseHeroAbilityTask.deserialize(task.serialize()))
+        self.assertEqual(task.serialize(), ChooseHeroAbilityTask.deserialize(task.serialize()).serialize())
 
     def test_process_wrong_id(self):
         task = ChooseHeroAbilityTask(self.hero.id, 'ssadasda')

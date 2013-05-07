@@ -31,8 +31,7 @@ class Hero(models.Model):
     is_alive = models.BooleanField(default=True)
 
     active_state_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
-    change_person_power_allowed_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0)) # from premium
-    normal_experience_rate_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0)) # from premium
+    premium_state_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
     ui_caching_started_at = models.DateTimeField(auto_now_add=True, default=datetime.datetime(2000, 1, 1))
 

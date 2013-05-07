@@ -54,7 +54,7 @@ class AcceptBattleTaskTests(testcase.TestCase):
         self.assertEqual(self.task.accept_initiator_id, self.account_2.id)
 
     def test_serialize(self):
-        self.assertEqual(self.task, AcceptBattleTask.deserialize(self.task.serialize()))
+        self.assertEqual(self.task.serialize(), AcceptBattleTask.deserialize(self.task.serialize()).serialize())
 
     def test_process_battle_not_found(self):
         Battle1x1.objects.all().delete()

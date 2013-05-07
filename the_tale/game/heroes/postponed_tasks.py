@@ -36,18 +36,10 @@ class ChooseHeroAbilityTask(PostponedLogic):
         self.ability_id = ability_id
         self.state = state
 
-    def __eq__(self, other):
-        return (self.hero_id == other.hero_id and
-                self.ability_id == other.ability_id and
-                self.state == other.state )
-
     def serialize(self):
         return { 'hero_id': self.hero_id,
                  'ability_id': self.ability_id,
                  'state': self.state}
-
-    @property
-    def uuid(self): return self.hero_id
 
     @property
     def error_message(self): return CHOOSE_HERO_ABILITY_STATE._CHOICES[self.state][1]
@@ -115,22 +107,12 @@ class ChangeHeroTask(PostponedLogic):
         self.gender = gender
         self.state = state
 
-    def __eq__(self, other):
-        return (self.hero_id == other.hero_id and
-                self.name == other.name and
-                self.race == other.race and
-                self.gender == other.gender and
-                self.state == other.state )
-
     def serialize(self):
         return { 'hero_id': self.hero_id,
                  'name': self.name.serialize(),
                  'race': self.race,
                  'gender': self.gender,
                  'state': self.state}
-
-    @property
-    def uuid(self): return self.hero_id
 
     @property
     def error_message(self): return CHANGE_HERO_TASK_STATE._CHOICES[self.state][1]
@@ -180,20 +162,11 @@ class ChoosePreferencesTask(PostponedLogic):
         self.preference_id = preference_id
         self.state = state
 
-    def __eq__(self, other):
-        return (self.hero_id == other.hero_id and
-                self.preference_type == other.preference_type and
-                self.preference_id == other.preference_id and
-                self.state == other.state )
-
     def serialize(self):
         return { 'hero_id': self.hero_id,
                  'preference_type': self.preference_type,
                  'preference_id': self.preference_id,
                  'state': self.state }
-
-    @property
-    def uuid(self): return self.hero_id
 
     @property
     def error_message(self): return CHOOSE_PREFERENCES_TASK_STATE._CHOICES[self.state][1]

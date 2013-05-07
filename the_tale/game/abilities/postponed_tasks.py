@@ -29,15 +29,6 @@ class UseAbilityTask(PostponedLogic):
         self.state = state
         self.step = step
 
-    def __eq__(self, other):
-        return ( self.ability_type == other.ability_type and
-                 self.hero_id == other.hero_id and
-                 self.activated_at == other.activated_at and
-                 self.available_at == other.available_at and
-                 self.data == other.data and
-                 self.state == other.state and
-                 self.step == other.step)
-
     def serialize(self):
         return { 'ability_type': self.ability_type,
                  'hero_id': self.hero_id,
@@ -46,9 +37,6 @@ class UseAbilityTask(PostponedLogic):
                  'data': self.data,
                  'state': self.state,
                  'step': self.step}
-
-    @property
-    def uuid(self): return self.hero_id
 
     @property
     def processed_data(self): return {'available_at': self.available_at}

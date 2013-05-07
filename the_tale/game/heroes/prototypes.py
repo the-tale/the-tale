@@ -56,14 +56,21 @@ class HeroPrototype(BasePrototype):
                       'last_action_percents',
                       'ui_caching_started_at',
                       'active_state_end_at',
-                      'change_person_power_allowed_end_at',
-                      'normal_experience_rate_end_at')
+                      'premium_state_end_at')
     _get_by = ('id', 'account_id')
 
     def __init__(self, **kwargs):
         super(HeroPrototype, self).__init__(**kwargs)
         self.name_updated = False
         self.actions_descriptions_updated = False
+
+    @property
+    def is_premium(self):
+        return self.premium_state_end_at > datetime.datetime.now()
+
+    @property
+    def is_active(self):
+        return self.active_state_end_at > datetime.datetime.now()
 
     @property
     def birthday(self): return TimePrototype(self.created_at_turn).game_time
@@ -491,7 +498,7 @@ class HeroPrototype(BasePrototype):
 
     @property
     def experience_modifier(self):
-        if self.normal_experience_rate_end_at > datetime.datetime.now() or self._model.active_state_end_at > datetime.datetime.now():
+        if self.is_premium or self.is_active:
             return 1.0
         return 1.0 * c.EXP_PENALTY_MULTIPLIER
 
@@ -500,14 +507,13 @@ class HeroPrototype(BasePrototype):
     ###########################################
 
     @property
-    def can_change_persons_power(self):
-        return self.change_person_power_allowed_end_at > datetime.datetime.now()
+    def can_change_persons_power(self): return self.is_premium
 
     @property
     def can_participate_in_pvp(self): return not self.is_fast
 
     @property
-    def can_repair_building(self): return not self.is_fast
+    def can_repair_building(self):  return self.is_premium
 
     ###########################################
     # Needs attributes
@@ -789,8 +795,7 @@ class HeroPrototype(BasePrototype):
 
         hero = Hero.objects.create(created_at_turn=current_turn_number,
                                    active_state_end_at=account.active_end_at,
-                                   change_person_power_allowed_end_at=account.premium_end_at,
-                                   normal_experience_rate_end_at=account.premium_end_at,
+                                   premium_state_end_at=account.premium_end_at,
                                    account=account._model,
                                    gender=gender,
                                    race=race,
@@ -819,8 +824,7 @@ class HeroPrototype(BasePrototype):
     def update_with_account_data(self, is_fast, premium_end_at, active_end_at):
         self.is_fast = is_fast
         self.active_state_end_at = active_end_at
-        self.change_person_power_allowed_end_at = premium_end_at
-        self.normal_experience_rate_end_at = premium_end_at
+        self.premium_state_end_at = premium_end_at
 
     def cmd_update_with_account_data(self, account):
         from game.workers.environment import workers_environment as game_workers_environment

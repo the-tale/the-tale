@@ -55,6 +55,10 @@ class BillResource(Resource):
         if self.account.is_fast:
             return self.auto_error('bills.is_fast', u'Вам необходимо завершить регистрацию, чтобы просматривать данный раздел')
 
+
+    @property
+    def can_participate_in_politics(self): return self.account.is_premium
+
     def can_moderate_bill(self, bill):
         return self.account.has_perm('bills.moderate_bill')
 
@@ -66,6 +70,9 @@ class BillResource(Resource):
 
     @validator(code='bills.moderator_rights_required', message=u'Вы не являетесь модератором')
     def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_bill(self.bill)
+
+    @validator(code='bills.can_not_participate_in_politics', message=u'Выдвигать законы и голосовать могут только подписчики')
+    def validate_participate_in_politics(self, *args, **kwargs): return self.can_participate_in_politics
 
     @validate_argument('page', int, 'bills', u'неверная страница')
     @validate_argument('owner', AccountPrototype.get_by_id, 'bills', u'неверный владелец закона')
@@ -137,6 +144,7 @@ class BillResource(Resource):
                               'active_bills_limit_reached': BillPrototype.is_active_bills_limit_reached(self.account)} )
 
 
+    @validate_participate_in_politics()
     @validate_argument('bill_type', argument_to_bill_type, 'bills.new', u'неверный тип закона')
     @handler('new', method='get')
     def new(self, bill_type):
@@ -144,6 +152,7 @@ class BillResource(Resource):
         return self.template('bills/new.html', {'bill_class': bill_class,
                                                 'form': bill_class.get_user_form_create()})
 
+    @validate_participate_in_politics()
     @validate_argument('bill_type', argument_to_bill_type, 'bills.create', u'неверный тип закона')
     @handler('create', method='post')
     def create(self, bill_type):
@@ -174,6 +183,7 @@ class BillResource(Resource):
                                                  'thread_data': thread_data,
                                                  'vote': VotePrototype.get_for(self.account, self.bill)})
 
+    @validate_participate_in_politics()
     @validate_ownership()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill', 'edit', name='edit', method='get')
@@ -182,6 +192,7 @@ class BillResource(Resource):
         return self.template('bills/edit.html', {'bill': self.bill,
                                                  'form': user_form} )
 
+    @validate_participate_in_politics()
     @validate_ownership()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill', 'update', name='update', method='post')
@@ -193,7 +204,6 @@ class BillResource(Resource):
             return self.json_ok()
 
         return self.json_error('bills.update.form_errors', user_form.errors)
-
 
     @validate_moderator_rights()
     @handler('#bill', 'delete', name='delete', method='post')
@@ -222,6 +232,7 @@ class BillResource(Resource):
         return self.json_error('bills.moderate.form_errors', moderator_form.errors)
 
     @nested_commit_on_success
+    @validate_participate_in_politics()
     @validate_voting_state(message=u'На данной стадии за закон нельзя голосовать')
     @validate_argument('value', {'for': True, 'against': False}.__getitem__, 'bills.vote', u'Неверно указан тип голоса')
     @handler('#bill', 'vote', name='vote', method='post')

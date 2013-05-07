@@ -57,7 +57,7 @@ class AccountPrototype(BasePrototype):
             bank_account = BankAccountPrototype.get_for_or_create(entity_type=ENTITY_TYPE.GAME_ACCOUNT,
                                                                   entity_id=self.id,
                                                                   currency=CURRENCY_TYPE.PREMIUM)
-            bank_account.amount = 1000
+            bank_account.amount = 10000
             bank_account.save()
 
         return bank_account

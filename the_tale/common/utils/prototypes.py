@@ -73,6 +73,7 @@ class _PrototypeMetaclass(type):
 class BasePrototype(object):
 
     __metaclass__ = _PrototypeMetaclass
+    __slots__ = ('_model',)
 
     _model_class = None
     _readonly = ()

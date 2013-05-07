@@ -43,7 +43,6 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(self.task.state.is_waiting)
         self.assertTrue(self.task.internal_state, FakePostponedInternalTask.INITIAL_STATE)
         self.assertEqual(self.task.internal_logic.TYPE, FakePostponedInternalTask.TYPE)
-        self.assertTrue(PostponedTaskPrototype.check_if_used(FakePostponedInternalTask.TYPE, 777))
 
     def test_remove_old_tasks(self):
         task = PostponedTaskPrototype.create(FakePostponedInternalTask())

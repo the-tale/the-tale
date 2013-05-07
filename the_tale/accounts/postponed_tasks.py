@@ -31,16 +31,9 @@ class RegistrationTask(PostponedLogic):
         self.account_id = account_id
         self.state = state
 
-    def __eq__(self, other):
-        return (self.state == other.state and
-                self.account_id == other.account_id)
-
     def serialize(self):
         return { 'state': self.state,
                  'account_id': self.account_id }
-
-    @property
-    def uuid(self): return 0
 
     @property
     def error_message(self): return REGISTRATION_TASK_STATE._CHOICES[self.state][1]
@@ -98,16 +91,9 @@ class ChangeCredentials(PostponedLogic):
         self.task_id = task_id
         self.state = state if isinstance(state, rels.Record) else CHANGE_CREDENTIALS_STATE._index_value[state]
 
-    def __eq__(self, other):
-        return (self.state == other.state and
-                self.task_id == other.task_id)
-
     def serialize(self):
         return { 'state': self.state.value,
                  'task_id': self.task_id}
-
-    @property
-    def uuid(self): return self.task_id
 
     @property
     def processed_data(self): return {'next_url': reverse('accounts:profile:edited') }

@@ -20,14 +20,14 @@ PREMIUM_DAYS_DESCRIPTION = u'''
 PRICE_LIST = [  PremiumDays(uid=u'subscription-30',
                             name=u'30 дней подписки',
                             description=PREMIUM_DAYS_DESCRIPTION,
-                            cost=100,
+                            cost=400,
                             days=30,
                             transaction_description=u'Продление подписки на 30 дней.'),
 
                 PremiumDays(uid=u'subscription-90',
                             name=u'90 дней подписки',
                             description=PREMIUM_DAYS_DESCRIPTION,
-                            cost=250,
+                            cost=1000,
                             days=90,
                             transaction_description=u'Продление подписки на 90 дней.') ]
 

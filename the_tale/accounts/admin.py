@@ -55,7 +55,7 @@ class AccountAdmin(DjangoUserAdmin):
                                                  'is_superuser',
                                                  'groups',
                                                  'user_permissions')}),
-                 (_('Important dates'), {'fields': ('last_login',)}),  )
+                 (_('Important dates'), {'fields': ('last_login', 'active_end_at', 'premium_end_at')}),  )
 
 
 class ChangeCredentialsTaskAdmin(admin.ModelAdmin):
