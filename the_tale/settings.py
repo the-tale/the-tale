@@ -158,7 +158,6 @@ INSTALLED_APPS = (
     'guide',
 
     'portal',
-    'portal.newspaper',
     'portal.developers_info',
 
     'game',
