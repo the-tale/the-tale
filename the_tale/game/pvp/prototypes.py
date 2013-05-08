@@ -18,10 +18,6 @@ class Battle1x1Prototype(BasePrototype):
     def reset_waiting_battles(self):
         Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).delete()
 
-    # @classmethod
-    # def remove_unprocessed_battles(self):
-    #     Battle1x1.objects.filter(state__in=[BATTLE_1X1_STATE.ENEMY_NOT_FOND, BATTLE_1X1_STATE.LEAVE_QUEUE]).delete()
-
     def set_enemy(self, enemy):
         self._model.enemy = enemy._model
         self.state = BATTLE_1X1_STATE.PREPAIRING

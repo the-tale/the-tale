@@ -215,6 +215,10 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(Battle1x1.objects.all().count(), 0)
         self.assertEqual(Battle1x1Result.objects.all().count(), 1)
 
+        battle_result = Battle1x1Result.objects.all()[0]
+
+        self.assertNotEqual(battle_result.participant_1_id, battle_result.participant_2_id)
+
     def test_remove(self):
         self.assertEqual(MetaAction.objects.all().count(), 1)
         self.assertEqual(MetaActionMember.objects.all().count(), 2)

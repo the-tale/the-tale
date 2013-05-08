@@ -214,8 +214,8 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
                 self.hero_1.statistics.change_pvp_battles_1x1_number(1)
                 self.hero_2.statistics.change_pvp_battles_1x1_number(1)
 
-            participant_1=AccountPrototype.get_by_id(self.hero_1.account_id)
-            participant_2=AccountPrototype.get_by_id(self.hero_1.account_id)
+            participant_1 = AccountPrototype.get_by_id(self.hero_1.account_id)
+            participant_2 = AccountPrototype.get_by_id(self.hero_2.account_id)
 
             if self.hero_1.health <= 0:
                 if self.hero_2.health <= 0:
