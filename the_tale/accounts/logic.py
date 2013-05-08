@@ -27,7 +27,7 @@ class REGISTER_USER_RESULT:
 
 
 def login_url(target_url='/'):
-    return reverse('accounts:auth:login') + '?next_url=' + urllib.quote(target_url)
+    return reverse('accounts:auth:login') + '?next_url=' + urllib.quote(target_url.encode('utf-8'))
 
 
 def get_system_user():
