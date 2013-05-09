@@ -130,6 +130,11 @@ class BillPrototype(BasePrototype):
         self._model.min_votes_required = bills_settings.MIN_VOTES_NUMBER
         self._model.min_votes_percents_required = bills_settings.MIN_VOTES_PERCENT
 
+        results_text = u'Итоги голосования: %d «за», %d «против» (итого %d%% «за»), %d «воздержалось».' % (self.votes_for,
+                                                                                                           self.votes_against,
+                                                                                                           self.votes_for_percents*100,
+                                                                                                           self.votes_refrained)
+
 
         if (self.is_percents_barier_not_passed or self.is_votes_barier_not_passed ):
             self.state = BILL_STATE.REJECTED
@@ -137,7 +142,7 @@ class BillPrototype(BasePrototype):
 
             PostPrototype.create(ThreadPrototype(self._model.forum_thread),
                                  get_system_user(),
-                                 u'Законопроект отклонён.',
+                                 u'Законопроект отклонён.\n\n%s' % results_text,
                                  technical=True)
 
             signals.bill_processed.send(self.__class__, bill=self)
@@ -150,7 +155,7 @@ class BillPrototype(BasePrototype):
 
         PostPrototype.create(ThreadPrototype(self._model.forum_thread),
                              get_system_user(),
-                             u'Законопроект принят. Изменения вступят в силу в ближайшее время.',
+                             u'Законопроект принят. Изменения вступят в силу в ближайшее время.\n\n%s' % results_text,
                              technical=True)
 
         signals.bill_processed.send(self.__class__, bill=self)
