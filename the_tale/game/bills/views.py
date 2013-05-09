@@ -19,9 +19,9 @@ from game.map.places.storage import places_storage
 
 from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.conf import bills_settings
-from game.bills.models import Bill, Vote, BILL_STATE, BILL_TYPE
+from game.bills.models import Bill, Vote
 from game.bills.bills import BILLS_BY_ID
-from game.bills.relations import VOTED_TYPE
+from game.bills.relations import VOTED_TYPE, VOTE_TYPE, BILL_STATE, BILL_TYPE
 
 
 class IndexFilter(list_filter.ListFilter):
@@ -103,10 +103,8 @@ class BillResource(Resource):
                 bills_query = bills_query.filter(~models.Q(vote__owner=self.account._model)).distinct()
             elif voted._is_YES:
                 bills_query = bills_query.filter(vote__owner=self.account._model).distinct()
-            elif voted._is_FOR:
-                bills_query = bills_query.filter(vote__owner=self.account._model, vote__value=True).distinct()
-            elif voted._is_AGAINST:
-                bills_query = bills_query.filter(vote__owner=self.account._model, vote__value=False).distinct()
+            else:
+                bills_query = bills_query.filter(vote__owner=self.account._model, vote__type=voted.vote_type).distinct()
 
         url_builder = UrlBuilder(reverse('game:bills:'), arguments={'owner': owner.id if owner else None,
                                                                     'state': state.value if state else None,
@@ -181,6 +179,7 @@ class BillResource(Resource):
 
         return self.template('bills/show.html', {'bill': self.bill,
                                                  'thread_data': thread_data,
+                                                 'VOTE_TYPE': VOTE_TYPE,
                                                  'vote': VotePrototype.get_for(self.account, self.bill)})
 
     @validate_participate_in_politics()
@@ -234,14 +233,14 @@ class BillResource(Resource):
     @nested_commit_on_success
     @validate_participate_in_politics()
     @validate_voting_state(message=u'На данной стадии за закон нельзя голосовать')
-    @validate_argument('value', {'for': True, 'against': False}.__getitem__, 'bills.vote', u'Неверно указан тип голоса')
+    @validate_argument('type', lambda t: VOTE_TYPE._index_value[int(t)], 'bills.vote', u'Неверно указан тип голоса')
     @handler('#bill', 'vote', name='vote', method='post')
-    def vote(self, value):
+    def vote(self, type):
 
         if VotePrototype.get_for(self.account, self.bill):
             return self.json_error('bills.vote.vote_exists', u'Вы уже проголосовали')
 
-        VotePrototype.create(self.account, self.bill, value)
+        VotePrototype.create(self.account, self.bill, type)
         self.bill.recalculate_votes()
         self.bill.save()
 

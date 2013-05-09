@@ -13,8 +13,8 @@ class ActorAdmin(admin.ModelAdmin):
     list_display = ('id', 'bill', 'place')
 
 class VoteAdmin(admin.ModelAdmin):
-    list_display = ('id', 'owner', 'value')
-    list_filter= ('value',)
+    list_display = ('id', 'owner', 'type')
+    list_filter= ('type',)
 
 
 admin.site.register(Bill, BillAdmin)

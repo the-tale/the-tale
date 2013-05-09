@@ -6,6 +6,7 @@ from django.test import client
 from django.core.urlresolvers import reverse
 
 from dext.utils import s11n
+from dext.utils.urls import url
 
 from textgen.words import Noun
 
@@ -19,7 +20,8 @@ from game.logic import create_test_map
 
 from forum.models import Post
 
-from game.bills.models import Bill, Vote, BILL_STATE
+from game.bills.models import Bill, Vote
+from game.bills.relations import VOTE_TYPE, BILL_STATE
 from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.bills import PlaceRenaming, PersonRemove
 from game.bills.conf import bills_settings
@@ -62,9 +64,9 @@ class BaseTestRequests(TestCase):
         self.assertEqual(bill.votes_for, votes_for)
         self.assertEqual(bill.votes_against, votes_against)
 
-    def check_vote(self, vote, owner, value, bill_id):
+    def check_vote(self, vote, owner, type, bill_id):
         self.assertEqual(vote.owner, owner)
-        self.assertEqual(vote.value, value)
+        self.assertEqual(vote.type, type)
         self.assertEqual(vote._model.bill.id, bill_id)
 
 
@@ -299,8 +301,8 @@ class TestShowRequests(BaseTestRequests):
         bill = Bill.objects.all()[0]
 
         self.request_logout()
-        url = reverse('game:bills:show', args=[bill.id])
-        self.check_redirect(url, login_url(url))
+        requested_url = reverse('game:bills:show', args=[bill.id])
+        self.check_redirect(requested_url, login_url(requested_url))
 
 
     def test_is_fast(self):
@@ -348,7 +350,7 @@ class TestShowRequests(BaseTestRequests):
 
         texts = [('caption-a2-0', 2 + 1), # 1 from social sharing
                  ('rationale-a2-0', 1 + 1), # 1 from social sharing
-                 ('test-voting-block', 0),
+                 ('pgf-voting-block', 0),
                  ('test-already-voted-block', 1),
                  ('pgf-forum-block', 1),
                  ('pgf-bills-results-summary', 1),
@@ -356,6 +358,48 @@ class TestShowRequests(BaseTestRequests):
                  (self.place2.name, 2)]
 
         self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
+
+
+    def test_show__vote_for(self):
+        bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_2')
+        self.create_bills(1, self.account1, 'caption-a2-%d', 'rationale-a2-%d', bill_data)
+        bill = Bill.objects.all()[0]
+
+        texts = [('pgf-voted-for-message', 1),
+                 ('pgf-voted-against-message', 0),
+                 ('pgf-voted-refrained-message', 0),
+                 ('pgf-voting-block', 0)]
+
+        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
+
+    def test_show__vote_against(self):
+        bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_2')
+        self.create_bills(1, self.account1, 'caption-a2-%d', 'rationale-a2-%d', bill_data)
+        bill = Bill.objects.all()[0]
+
+        VotePrototype._model_class.objects.all().update(type=VOTE_TYPE.AGAINST)
+
+        texts = [('pgf-voted-for-message', 0),
+                 ('pgf-voted-against-message', 1),
+                 ('pgf-voted-refrained-message', 0),
+                 ('pgf-voting-block', 0)]
+
+        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
+
+    def test_show__vote_refrained(self):
+        bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_2')
+        self.create_bills(1, self.account1, 'caption-a2-%d', 'rationale-a2-%d', bill_data)
+        bill = Bill.objects.all()[0]
+
+        VotePrototype._model_class.objects.all().update(type=VOTE_TYPE.REFRAINED)
+
+        texts = [('pgf-voted-for-message', 0),
+                 ('pgf-voted-against-message', 0),
+                 ('pgf-voted-refrained-message', 1),
+                 ('pgf-voting-block', 0)]
+
+        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
+
 
     def test_show_when_not_voting_state(self):
         bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_2')
@@ -374,7 +418,7 @@ class TestShowRequests(BaseTestRequests):
         self.create_bills(1, self.account1, 'caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = Bill.objects.all()[0]
 
-        texts = [('test-voting-block', 1),
+        texts = [('pgf-voting-block', 1),
                  ('test-already-voted-block', 0),
                  (self.place2.name, 2)]
 
@@ -419,7 +463,7 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(bill.votes_against, 0)
 
         vote = VotePrototype(Vote.objects.all()[0])
-        self.check_vote(vote, self.account1, True, bill.id)
+        self.check_vote(vote, self.account1, VOTE_TYPE.FOR, bill.id)
 
         self.check_ajax_ok(response, data={'next_url': reverse('game:bills:show', args=[bill.id])})
 
@@ -450,54 +494,53 @@ class TestVoteRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'common.login_required')
+        self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'common.login_required')
 
     def test_is_fast(self):
         self.account2.is_fast = True
         self.account2.save()
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'bills.is_fast')
+        self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'bills.is_fast')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
     def test__can_not_participate_in_politics(self):
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'bills.can_not_participate_in_politics')
+        self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'bills.can_not_participate_in_politics')
         self.check_bill_votes(self.bill.id, 1, 0)
 
-
     def test_bill_not_exists(self):
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[666]) + '?value=for', {}), 'bills.bill.not_found')
+        self.check_ajax_error(self.client.post(url('game:bills:vote', 666, type=VOTE_TYPE.FOR.value), {}), 'bills.bill.not_found')
 
     def test_wrong_value(self):
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=xxx', {}), 'bills.vote.value.wrong_format')
+        self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type='bla-bla'), {}), 'bills.vote.type.wrong_format')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_bill_accepted(self):
         self.bill.state = BILL_STATE.ACCEPTED
         self.bill.save()
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'bills.voting_state_required')
+        self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'bills.voting_state_required')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_bill_rejected(self):
         self.bill.state = BILL_STATE.REJECTED
         self.bill.save()
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'bills.voting_state_required')
+        self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'bills.voting_state_required')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_success_for(self):
-        self.check_ajax_ok(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}))
+        self.check_ajax_ok(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}))
         vote = VotePrototype(Vote.objects.all()[1])
-        self.check_vote(vote, self.account2, True, self.bill.id)
+        self.check_vote(vote, self.account2, VOTE_TYPE.FOR, self.bill.id)
         self.check_bill_votes(self.bill.id, 2, 0)
 
     def test_success_agains(self):
-        self.check_ajax_ok(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=against', {}))
+        self.check_ajax_ok(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.AGAINST.value), {}))
         vote = VotePrototype(Vote.objects.all()[1])
-        self.check_vote(vote, self.account2, False, self.bill.id)
+        self.check_vote(vote, self.account2, VOTE_TYPE.AGAINST, self.bill.id)
         self.check_bill_votes(self.bill.id, 1, 1)
 
     def test_already_exists(self):
-        self.check_ajax_ok(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}))
-        self.check_ajax_error(self.client.post(reverse('game:bills:vote', args=[self.bill.id]) + '?value=for', {}), 'bills.vote.vote_exists')
+        self.check_ajax_ok(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}))
+        self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'bills.vote.vote_exists')
         self.check_bill_votes(self.bill.id, 2, 0)
 
 

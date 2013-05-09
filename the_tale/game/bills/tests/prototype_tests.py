@@ -16,7 +16,7 @@ from forum.models import Post
 from game.logic import create_test_map
 
 from game.bills.models import Actor
-from game.bills.relations import BILL_STATE
+from game.bills.relations import BILL_STATE, VOTE_TYPE
 from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.bills import PlaceRenaming
 from game.bills.conf import bills_settings
@@ -53,6 +53,9 @@ class BaseTestPrototypes(TestCase):
 
         result, account_id, bundle_id = register_user('test_user3', 'test_user3@test.com', '111111')
         self.account3 = AccountPrototype.get_by_id(account_id)
+
+        result, account_id, bundle_id = register_user('test_user4', 'test_user4@test.com', '111111')
+        self.account4 = AccountPrototype.get_by_id(account_id)
 
         from forum.models import Category, SubCategory
 
@@ -138,7 +141,8 @@ class TestPrototypeApply(BaseTestPrototypes):
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.51)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_not_enough_voices_percents(self):
-        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account2, self.bill, VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, VOTE_TYPE.REFRAINED)
 
         self.assertEqual(Post.objects.all().count(), 1)
 
@@ -158,8 +162,9 @@ class TestPrototypeApply(BaseTestPrototypes):
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_approved(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, VOTE_TYPE.FOR)
+        VotePrototype.create(self.account4, self.bill, VOTE_TYPE.REFRAINED)
 
         ##################################
         # set name forms

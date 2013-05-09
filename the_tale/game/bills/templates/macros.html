@@ -3,14 +3,15 @@
 
 {% if bill.state._is_VOTING %}
 <span class="pgf-bills-results-summary">
-  всего проголосовало: {{bill.votes_for + bill.votes_against}}
-  (результаты будут известны после завершения голосования)
+  проголосовало: {{bill.votes_for + bill.votes_against}},
+  воздержалось: {{bill.votes_refrained}}
 </span>
 {% else %}
 <span class="pgf-bills-results-detailed">
   «за» {{ bill.votes_for }},
   «против» {{ bill.votes_against }}
-  (итого {{ bill.votes_for_percents|percents }} «за»)
+  (итого {{ bill.votes_for_percents|percents }} «за»);
+  «воздержалось» {{ bill.votes_refrained }}
 </span>
 {% endif %}
 {% endmacro %}
@@ -94,10 +95,12 @@
 <h4 style="margin-bottom: 0.5em; display: inline-block;"><a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a></h4>
 
 {% if vote %}
-{% if vote.value %}
+{% if vote.type._is_FOR %}
 <span class="label label-success" style="cursor: default;" rel="tooltip" title="Вы поддержали закон">«за»</span>
-{% else %}
+{% elif vote.type._is_AGAINST %}
 <span class="label label-important" style="cursor: default;" rel="tooltip" title="Вы выступили против закона">«против»</span>
+{% else %}
+<span class="label label-info" style="cursor: default;" rel="tooltip" title="Вы воздержались от голосования">«воздержался»</span>
 {% endif %}
 {% endif %}
 

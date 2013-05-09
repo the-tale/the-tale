@@ -9,6 +9,7 @@ from forum.models import Post, Thread, MARKUP_METHOD
 from game.bills.models import Vote
 from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.bills import PlaceRenaming
+from game.bills.relations import VOTE_TYPE
 from game.bills.tests.prototype_tests import BaseTestPrototypes
 
 
@@ -37,8 +38,9 @@ class PlaceRenamingTests(BaseTestPrototypes):
 
 
     def test_update(self):
-        VotePrototype.create(self.account2, self.bill, True)
-        VotePrototype.create(self.account3, self.bill, False)
+        VotePrototype.create(self.account2, self.bill, VOTE_TYPE.FOR)
+        VotePrototype.create(self.account3, self.bill, VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account4, self.bill, VOTE_TYPE.REFRAINED)
         self.bill.recalculate_votes()
         self.bill.approved_by_moderator = True
         self.bill.save()
@@ -47,7 +49,8 @@ class PlaceRenamingTests(BaseTestPrototypes):
 
         self.assertEqual(self.bill.votes_for, 2)
         self.assertEqual(self.bill.votes_against, 1)
-        self.assertEqual(Vote.objects.all().count(), 3)
+        self.assertEqual(self.bill.votes_refrained, 1)
+        self.assertEqual(Vote.objects.all().count(), 4)
         self.assertEqual(self.bill.caption, 'bill-1-caption')
         self.assertEqual(self.bill.rationale, 'bill-1-rationale')
         self.assertEqual(self.bill.approved_by_moderator, True)
@@ -70,6 +73,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.assertTrue(self.bill.state._is_VOTING)
         self.assertEqual(self.bill.votes_for, 1)
         self.assertEqual(self.bill.votes_against, 0)
+        self.assertEqual(self.bill.votes_refrained, 0)
         self.assertEqual(Vote.objects.all().count(), 1)
         self.assertEqual(self.bill.caption, 'new-caption')
         self.assertEqual(self.bill.rationale, 'new-rationale')

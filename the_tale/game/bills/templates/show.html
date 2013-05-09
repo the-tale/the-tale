@@ -32,10 +32,12 @@
 
 <div class="test-already-voted-block">
 
-  {% if vote.value %}
-  <h3 class="alert alert-success">Вы поддержали закон</h3>
+  {% if vote.type._is_FOR %}
+  <h3 class="alert alert-success pgf-voted-for-message">Вы поддержали закон</h3>
+  {% elif vote.type._is_AGAINST %}
+  <h3 class="alert alert-error pgf-voted-against-message">Вы выступили против закона</h3>
   {% else %}
-  <h3 class="alert alert-error">Вы выступили против закона</h3>
+  <h3 class="alert alert-info pgf-voted-refrained-message">Вы воздержались от голосования</h3>
   {% endif %}
 </div>
 
@@ -48,7 +50,7 @@
 {% else %}
 
 {% if bill.state._is_VOTING %}
-<div class="well test-voting-block">
+<div class="well pgf-voting-block">
   <h3>Идёт голосование</h3>
 
   <ul>
@@ -58,8 +60,9 @@
   </ul>
 
   голосовать
-  <a class="btn btn-success pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?value=for">«за»</a>
-  <a class="btn btn-danger pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?value=against">«против»</a>
+  <a class="btn btn-success pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.FOR.value}}">«за»</a>
+  <a class="btn btn-danger pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.AGAINST.value}}">«против»</a>
+  <a class="btn btn-info pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.REFRAINED.value}}">«воздержаться»</a>
 
 </div>
 {% endif %}

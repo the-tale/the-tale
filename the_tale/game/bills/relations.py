@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import rels
 from rels.django_staff import DjangoEnum
 
 class BILL_STATE(DjangoEnum):
@@ -18,8 +19,16 @@ class BILL_TYPE(DjangoEnum):
                  ('BUILDING_DESTROY', 5, u'разрушить постройку'))
 
 
+class VOTE_TYPE(DjangoEnum):
+    _records = (('REFRAINED', 0, u'воздержался'),
+                ('FOR', 1, u'«за»'),
+                ('AGAINST', 2, u'«против»'))
+
 class VOTED_TYPE(DjangoEnum):
-    _records = (('NO', 'no', u'воздержался'),
-                ('YES', 'yes', u'проголосовал'),
-                ('FOR', 'for', u'«за»'),
-                ('AGAINST', 'against', u'«против»'))
+    vote_type = rels.Column(unique=False, single_type=False)
+
+    _records = (('NO', 'no', u'не голосовал', None),
+                ('YES', 'yes', u'проголосовал', None),
+                ('FOR', 'for', u'«за»', VOTE_TYPE.FOR),
+                ('AGAINST', 'against', u'«против»', VOTE_TYPE.AGAINST),
+                ('REFRAINED', 'refrained', u'воздержался', VOTE_TYPE.REFRAINED) )

@@ -5,7 +5,7 @@ from rels.django_staff import TableIntegerField
 
 from forum.models import Thread
 
-from game.bills.relations import BILL_STATE, BILL_TYPE
+from game.bills.relations import BILL_STATE, BILL_TYPE, VOTE_TYPE
 
 
 class Bill(models.Model):
@@ -23,7 +23,7 @@ class Bill(models.Model):
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
 
     type = TableIntegerField(relation=BILL_TYPE, relation_column='value', db_index=True)
-    state = TableIntegerField(relation=BILL_STATE, default=BILL_STATE.VOTING, relation_column='value', db_index=True)
+    state = TableIntegerField(relation=BILL_STATE, relation_column='value', db_index=True)
 
     approved_by_moderator = models.BooleanField(default=False, db_index=True)
 
@@ -38,6 +38,7 @@ class Bill(models.Model):
 
     votes_for = models.IntegerField(default=0)
     votes_against = models.IntegerField(default=0)
+    votes_refrained = models.IntegerField(default=0)
 
     # fields to store config values after processing state (since they can be changed in future)
     min_votes_required = models.IntegerField(default=0)
@@ -64,7 +65,7 @@ class Vote(models.Model):
 
     bill = models.ForeignKey(Bill, null=False)
 
-    value = models.BooleanField(null=False, db_index=True)
+    type = TableIntegerField(relation=VOTE_TYPE, relation_column='value', db_index=True)
 
     class Meta:
         unique_together = (('owner', 'bill'),)

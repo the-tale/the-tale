@@ -23,14 +23,14 @@ from forum.models import MARKUP_METHOD
 from game.bills.models import Bill, Vote, Actor
 from game.bills.conf import bills_settings
 from game.bills.exceptions import BillException
-from game.bills.relations import BILL_STATE
+from game.bills.relations import BILL_STATE, VOTE_TYPE
 from game.bills import signals
 
 
 class BillPrototype(BasePrototype):
     _model_class = Bill
     _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'rationale', 'votes_for',
-                 'votes_against', 'forum_thread_id', 'min_votes_required', 'min_votes_percents_required')
+                 'votes_against', 'votes_refrained', 'forum_thread_id', 'min_votes_required', 'min_votes_percents_required')
     _bidirectional = ('approved_by_moderator', 'state')
     _get_by = ('id', )
 
@@ -81,8 +81,9 @@ class BillPrototype(BasePrototype):
                    (self._model.updated_at + datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME) - datetime.datetime.now()))
 
     def recalculate_votes(self):
-        self._model.votes_for = Vote.objects.filter(bill=self._model, value=True).count()
-        self._model.votes_against = Vote.objects.filter(bill=self._model, value=False).count()
+        self._model.votes_for = Vote.objects.filter(bill=self._model, type=VOTE_TYPE.FOR).count()
+        self._model.votes_against = Vote.objects.filter(bill=self._model, type=VOTE_TYPE.AGAINST).count()
+        self._model.votes_refrained = Vote.objects.filter(bill=self._model, type=VOTE_TYPE.REFRAINED).count()
 
     @property
     def is_votes_barier_not_passed(self): return self.votes_for < bills_settings.MIN_VOTES_NUMBER
@@ -161,20 +162,20 @@ class BillPrototype(BasePrototype):
 
         Vote.objects.filter(bill_id=self.id).delete()
 
+        VotePrototype.create(self.owner, self, VOTE_TYPE.FOR)
+
         self.data.initialize_with_user_data(form)
 
         self._model.updated_at = datetime.datetime.now()
         self._model.caption = form.c.caption
         self._model.rationale = form.c.rationale
-        self._model.votes_for = 1
-        self._model.votes_against = 0
         self._model.approved_by_moderator = False
+
+        self.recalculate_votes()
 
         self.save()
 
         ActorPrototype.update_actors(self, self.data.actors)
-
-        VotePrototype.create(self.owner, self, True)
 
         thread = ThreadPrototype(self._model.forum_thread)
         thread.caption = form.c.caption
@@ -206,6 +207,7 @@ class BillPrototype(BasePrototype):
                                     rationale=rationale,
                                     created_at_turn=TimePrototype.get_current_turn_number(),
                                     technical_data=s11n.to_json(bill.serialize()),
+                                    state=BILL_STATE.VOTING,
                                     votes_for=1) # author always wote for bill
 
         text=u'обсуждение [url="%s%s"]закона[/url]' % (project_settings.SITE_URL,
@@ -226,7 +228,7 @@ class BillPrototype(BasePrototype):
 
         ActorPrototype.update_actors(bill_prototype, bill_prototype.data.actors)
 
-        VotePrototype.create(owner, bill_prototype, True)
+        VotePrototype.create(owner, bill_prototype, VOTE_TYPE.FOR)
 
         signals.bill_created.send(sender=cls, bill=bill_prototype)
 
@@ -292,7 +294,7 @@ class ActorPrototype(BasePrototype):
 
 class VotePrototype(BasePrototype):
     _model_class = Vote
-    _readonly = ('id', 'value')
+    _readonly = ('id', 'type')
     _bidirectional = ()
 
     @classmethod
@@ -306,11 +308,11 @@ class VotePrototype(BasePrototype):
     def owner(self): return AccountPrototype(self._model.owner)
 
     @classmethod
-    def create(cls, owner, bill, value):
+    def create(cls, owner, bill, type):
 
         model = Vote.objects.create(owner=owner._model,
                                     bill=bill._model,
-                                    value=value)
+                                    type=type)
 
         return cls(model)
 
