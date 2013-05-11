@@ -179,7 +179,7 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
         response = self.client.post(reverse('game:heroes:change-hero', args=[self.hero.id]), self.get_post_data())
         self.assertEqual(PostponedTask.objects.all().count(), 1)
 
-        task = PostponedTaskPrototype._get_object(0)
+        task = PostponedTaskPrototype._db_get_object(0)
 
         self.check_ajax_processing(response, task.status_url)
 
@@ -215,7 +215,7 @@ class ResetNameRequestsTests(HeroRequestsTestBase):
         response = self.client.post(reverse('game:heroes:reset-name', args=[self.hero.id]))
         self.assertEqual(PostponedTask.objects.all().count(), 1)
 
-        task = PostponedTaskPrototype._get_object(0)
+        task = PostponedTaskPrototype._db_get_object(0)
 
         self.check_ajax_processing(response, task.status_url)
 

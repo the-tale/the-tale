@@ -31,9 +31,14 @@
 {% endmacro %}
 
 
-{% macro thread_record(thread, subscription=false) %}
+{% macro thread_record(thread, read_state=none, subscription=false) %}
 
-<td class="caption">
+<td class="caption
+           {% if read_state is not none and read_state.thread_has_new_messages(thread) %}new-messages{% endif %}">
+  {% if read_state is not none and read_state.thread_is_new(thread) %}
+  <span class="new-thread pgf-new-thread-marker">Новое!</span>
+  {% endif %}
+
   <a href="{{ url('forum:threads:show', thread.id) }}">{{ thread.caption }}</a>
   {{ pages_links(thread) }}
 </td>

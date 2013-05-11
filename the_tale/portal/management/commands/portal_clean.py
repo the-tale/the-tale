@@ -11,5 +11,10 @@ class Command(BaseCommand):
         from common.postponed_tasks.prototypes import PostponedTaskPrototype
         from game.bundles import BundlePrototype
 
+        from forum.prototypes import SubCategoryReadInfoPrototype, ThreadReadInfoPrototype
+
         BundlePrototype.remove_unused_bundles()
         PostponedTaskPrototype.remove_old_tasks()
+
+        ThreadReadInfoPrototype.remove_old_infos()
+        SubCategoryReadInfoPrototype.remove_old_infos()

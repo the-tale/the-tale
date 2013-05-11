@@ -51,7 +51,7 @@ class ProfileRequestsTests(TestCase):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.com', 'password': '222222', 'nick': 'test_user'})
         self.assertEqual(response.status_code, 200)
-        self.check_ajax_processing(response, PostponedTaskPrototype._get_object(0).status_url)
+        self.check_ajax_processing(response, PostponedTaskPrototype._db_get_object(0).status_url)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
 
@@ -59,7 +59,7 @@ class ProfileRequestsTests(TestCase):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.com', 'nick': 'test_nick'})
         self.assertEqual(response.status_code, 200)
-        self.check_ajax_processing(response, PostponedTaskPrototype._get_object(0).status_url)
+        self.check_ajax_processing(response, PostponedTaskPrototype._db_get_object(0).status_url)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
 
@@ -127,7 +127,7 @@ class ProfileRequestsTests(TestCase):
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
         response = self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid)
-        self.check_response_redirect(response, PostponedTaskPrototype._get_object(0).wait_url)
+        self.check_response_redirect(response, PostponedTaskPrototype._db_get_object(0).wait_url)
 
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
@@ -143,7 +143,7 @@ class ProfileRequestsTests(TestCase):
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
         response = self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid)
-        self.check_response_redirect(response, PostponedTaskPrototype._get_object(1).wait_url)
+        self.check_response_redirect(response, PostponedTaskPrototype._db_get_object(1).wait_url)
 
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
@@ -159,7 +159,7 @@ class ProfileRequestsTests(TestCase):
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 
         response = self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid)
-        self.check_response_redirect(response, PostponedTaskPrototype._get_object(0).wait_url)
+        self.check_response_redirect(response, PostponedTaskPrototype._db_get_object(0).wait_url)
 
     def test_confirm_email__wrong_task(self):
         self.request_login('test_user@test.com')
@@ -171,7 +171,7 @@ class ProfileRequestsTests(TestCase):
         self.request_login('test_user@test.com')
         self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
 
-        task = ChangeCredentialsTaskPrototype._get_object(0)
+        task = ChangeCredentialsTaskPrototype._db_get_object(0)
         task._model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
         task._model.save()
 
@@ -181,7 +181,7 @@ class ProfileRequestsTests(TestCase):
         self.request_login('test_user@test.com')
         self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
 
-        task = ChangeCredentialsTaskPrototype._get_object(0)
+        task = ChangeCredentialsTaskPrototype._db_get_object(0)
         task._model.state = CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT
         task._model.save()
 
@@ -191,7 +191,7 @@ class ProfileRequestsTests(TestCase):
         self.request_login('test_user@test.com')
         self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
 
-        task = ChangeCredentialsTaskPrototype._get_object(0)
+        task = ChangeCredentialsTaskPrototype._db_get_object(0)
         task._model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
         task._model.save()
 

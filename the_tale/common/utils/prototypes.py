@@ -96,11 +96,14 @@ class BasePrototype(object):
         return self._model.__repr__()
 
     # most for tests
-
     @classmethod
-    def _get_object(cls, number=0):
+    def _db_get_object(cls, number=0):
         return cls(model=cls._model_class.objects.all().order_by('id')[number])
 
     @classmethod
-    def _all(cls):
+    def _db_all(cls):
         return [cls(model=model) for model in cls._model_class.objects.all()]
+
+    @classmethod
+    def _db_count(cls):
+        return cls._model_class.objects.all().count()

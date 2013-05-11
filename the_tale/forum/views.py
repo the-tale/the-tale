@@ -17,7 +17,14 @@ from accounts.views import validate_fast_account
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm, EditThreadForm
 from forum.conf import forum_settings
-from forum.prototypes import CategoryPrototype, SubCategoryPrototype, ThreadPrototype, PostPrototype, SubscriptionPrototype
+from forum.read_state import ReadState
+from forum.prototypes import ( CategoryPrototype,
+                               SubCategoryPrototype,
+                               ThreadPrototype,
+                               PostPrototype,
+                               SubscriptionPrototype,
+                               ThreadReadInfoPrototype,
+                               SubCategoryReadInfoPrototype)
 
 
 def can_delete_thread(account, thread):
@@ -173,7 +180,8 @@ class ThreadsResource(BaseForumResource):
                               'author_account': author,
                               'participant_account': participant,
                               'paginator': paginator,
-                              'threads': threads} )
+                              'threads': threads,
+                              'read_state': ReadState(account=self.account, subcategory=self.subcategory, threads=threads)} )
 
 
     @login_required
@@ -280,12 +288,16 @@ class ThreadsResource(BaseForumResource):
         if not thread_data.initialize(account=self.account, thread=self.thread, page=page):
             return self.redirect(thread_data.paginator.last_page_url, permanent=False)
 
+        if self.account.is_authenticated():
+            ThreadReadInfoPrototype.read_thread(self.thread, self.account)
+
         return self.template('forum/thread.html',
                              {'category': self.category,
                               'thread': self.thread,
                               'thread_data': thread_data} )
 
-class ThreadPageData():
+
+class ThreadPageData(object):
 
     def __init__(self):
         pass
@@ -393,6 +405,11 @@ class ForumResource(BaseForumResource):
         return self.template('forum/index.html',
                              {'forum_structure': forum_structure} )
 
+    @login_required
+    @handler('categories', '#subcategory', 'read-all', name='read-all', method='post')
+    def read_all(self):
+        SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=self.subcategory, account=self.account)
+        return self.json_ok()
 
     @validate_argument('page', int, 'forum.subcategory.show', u'неверный номер страницы')
     @handler('categories', '#subcategory', name='subcategory', method='get')
@@ -413,6 +430,10 @@ class ForumResource(BaseForumResource):
 
         threads = list(ThreadPrototype(thread_model) for thread_model in threads_query.select_related().order_by('-updated_at')[thread_from:thread_to])
 
+        read_state = ReadState(account=self.account, subcategory=self.subcategory, threads=threads)
+        if self.account.is_authenticated():
+            SubCategoryReadInfoPrototype.read_subcategory(subcategory=self.subcategory, account=self.account)
+
         return self.template('forum/subcategory.html',
                              {'category': self.category,
                               'subcategory': self.subcategory,
@@ -420,8 +441,8 @@ class ForumResource(BaseForumResource):
                               'paginator': paginator,
                               'can_subscribe': self.account.is_authenticated() and not self.account.is_fast,
                               'has_subscription': SubscriptionPrototype.has_subscription(self.account, subcategory=self.subcategory),
-                              'threads': threads} )
-
+                              'threads': threads,
+                              'read_state': read_state } )
 
     @handler('feed', method='get')
     def feed(self):

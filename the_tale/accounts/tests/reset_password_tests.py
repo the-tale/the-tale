@@ -48,7 +48,7 @@ class ResetPasswordTaskTests(testcase.TestCase):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 1)
 
-        PostponedTaskPrototype._get_object(0).process(logger=mock.Mock())
+        PostponedTaskPrototype._db_get_object(0).process(logger=mock.Mock())
 
         self.assertEqual(django_authenticate(nick='test_user', password='111111'), None)
         self.assertEqual(django_authenticate(nick='test_user', password=new_password).id, self.account.id)

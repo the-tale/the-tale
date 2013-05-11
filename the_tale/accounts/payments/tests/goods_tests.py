@@ -73,7 +73,7 @@ class PremiumDaysTests(testcase.TestCase):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 1)
         self.assertEqual(InvoicePrototype._model_class.objects.all().count(), 1)
 
-        postponed_logic = PostponedTaskPrototype._get_object(0).internal_logic
+        postponed_logic = PostponedTaskPrototype._db_get_object(0).internal_logic
 
         self.assertTrue(isinstance(postponed_logic, BuyPremium))
         self.assertEqual(postponed_logic.account_id, self.account.id)

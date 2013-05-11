@@ -66,15 +66,7 @@ class Worker(BaseWorker):
         return self.send_cmd('run_cleaning')
 
     def process_run_cleaning(self):
-        vacuum_result = subprocess.call(['vacuumdb', '-q',
-                                         '-U', project_settings.DATABASES['default']['USER'],
-                                         '-d', project_settings.DATABASES['default']['NAME']])
-        if vacuum_result:
-            self.logger.error('VACUUM COMMAND ENDED WITH CODE %d' % vacuum_result)
-        else:
-            self.logger.info('vacuum command was processed correctly')
-
-        clean_result = subprocess.call(['./manage.py', 'game_clean'])
+        clean_result = subprocess.call(['./manage.py', 'portal_clean'])
         if clean_result:
             self.logger.error('CLEAN COMMAND ENDED WITH CODE %d' % clean_result)
         else:
@@ -85,3 +77,11 @@ class Worker(BaseWorker):
             self.logger.error('CLEARSESSIONS COMMAND ENDED WITH CODE %d' % clearsessions_result)
         else:
             self.logger.info('clearsessions command was processed correctly')
+
+        vacuum_result = subprocess.call(['vacuumdb', '-q',
+                                         '-U', project_settings.DATABASES['default']['USER'],
+                                         '-d', project_settings.DATABASES['default']['NAME']])
+        if vacuum_result:
+            self.logger.error('VACUUM COMMAND ENDED WITH CODE %d' % vacuum_result)
+        else:
+            self.logger.info('vacuum command was processed correctly')

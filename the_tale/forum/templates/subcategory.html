@@ -15,6 +15,12 @@
         {% endif %}
       </li>
       {% endif %}
+
+      {% if resource.account.is_authenticated() %}
+      <li>
+        <a href="{{ url('forum:read-all', subcategory.slug) }}" class="pgf-forms-post-simple">«прочитать» всё</a>
+      </li>
+      {% endif %}
     </ul>
   </div>
 
@@ -47,7 +53,7 @@
   <tbody>
     {% for thread in threads %}
     <tr>
-      {{ forum_macros.thread_record(thread) }}
+      {{ forum_macros.thread_record(thread, read_state) }}
     </tr>
     {% endfor %}
   </tbody>

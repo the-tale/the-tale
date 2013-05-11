@@ -11,7 +11,7 @@ from accounts.logic import register_user, login_url
 from game.logic import create_test_map
 
 from forum.models import Category, SubCategory, Thread, Post, Subscription
-from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype, CategoryPrototype
+from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype, CategoryPrototype, ThreadReadInfoPrototype, SubCategoryReadInfoPrototype
 from forum.conf import forum_settings
 
 
@@ -20,9 +20,11 @@ class BaseTestRequests(testcase.TestCase):
     def setUp(self):
         super(BaseTestRequests, self).setUp()
         create_test_map()
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        register_user('test_user', 'test_user@test.com', '111111')
+        register_user('test_user_2', 'test_user_2@test.com', '111111')
 
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = AccountPrototype.get_by_nick('test_user')
+        self.account_2 = AccountPrototype.get_by_nick('test_user_2')
 
         self.client = client.Client()
         self.request_login('test_user@test.com')
@@ -53,6 +55,22 @@ class BaseTestRequests(testcase.TestCase):
         self.post1 = PostPrototype.create(self.thread1, self.account, 'post1-text')
 
 
+class ForumResourceReadAllTests(BaseTestRequests):
+
+    def test_unlogined(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(reverse('forum:read-all', args=['subcat1-slug'])), 'common.login_required')
+        self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 0)
+
+    def test_success(self):
+        self.check_ajax_ok(self.client.post(reverse('forum:read-all', args=['subcat1-slug'])))
+        self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 1)
+        read_info = SubCategoryReadInfoPrototype._db_get_object(0)
+        self.assertEqual(read_info.account_id, self.account.id)
+        self.assertEqual(read_info.subcategory_id, self.subcat1.id)
+        self.assertTrue(read_info.all_read_at > datetime.datetime.now() - datetime.timedelta(seconds=1))
+
+
 class TestRequests(BaseTestRequests):
 
     def test_initialization(self):
@@ -71,11 +89,26 @@ class TestRequests(BaseTestRequests):
         self.request_logout()
         self.check_html_ok(self.client.get(reverse('forum:')), texts=texts)
 
-    def test_subcategory(self):
+    def test_subcategory__unlogined(self):
         texts=['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption']
-        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
         self.request_logout()
         self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
+
+        self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 0)
+
+
+    def test_subcategory(self):
+        self.request_logout()
+        self.request_login('test_user_2@test.com')
+        texts=['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption', 'pgf-new-thread-marker']
+        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
+
+        self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 1)
+        read_info = SubCategoryReadInfoPrototype._db_get_object(0)
+        self.assertEqual(read_info.account_id, self.account_2.id)
+        self.assertEqual(read_info.subcategory_id, self.subcat1.id)
+
+        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=[('pgf-new-thread-marker', 0)])
 
     def test_subcategory_not_found(self):
         self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcatXXX-slug'])), texts=[('forum.subcategory.not_found', 1)], status_code=404)
@@ -137,6 +170,7 @@ class TestRequests(BaseTestRequests):
     def test_get_thread_unlogined(self):
         self.request_logout()
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
+        self.assertEqual(ThreadReadInfoPrototype._db_count(), 0)
 
     def test_get_thread_not_found(self):
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[666])), texts=(('forum.thread.not_found', 1),), status_code=404)
@@ -145,6 +179,11 @@ class TestRequests(BaseTestRequests):
         self.account.is_fast = True
         self.account.save()
         self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
+
+    def test_get_thread(self):
+        self.assertEqual(ThreadReadInfoPrototype._db_count(), 0)
+        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=('pgf-new-post-form',))
+        self.assertEqual(ThreadReadInfoPrototype._db_count(), 1)
 
     def test_get_thread_wrong_page(self):
         response = self.client.get(reverse('forum:threads:show', args=[self.thread1.id])+'?page=2')

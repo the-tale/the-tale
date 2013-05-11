@@ -74,7 +74,7 @@ class HistoryRequestesTests(RequestesTestsBase, BankTestsMixin):
     def test_history(self):
         self.create_bank_account(self.account.id)
         history = self.create_entity_history(self.account.id)
-        invoices = InvoicePrototype._all()
+        invoices = InvoicePrototype._db_all()
 
         histroy_ids = [invoice.id for invoice in history]
 
@@ -112,4 +112,4 @@ class BuyRequestesTests(RequestesTestsBase, BankTestsMixin):
 
     def test_success(self):
         response = self.client.post(url('accounts:payments:buy', purchase=self.purchase.uid))
-        self.check_ajax_processing(response, PostponedTaskPrototype._get_object(0).status_url)
+        self.check_ajax_processing(response, PostponedTaskPrototype._db_get_object(0).status_url)

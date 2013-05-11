@@ -375,5 +375,5 @@ class HabilitiesViewsTest(TestCase):
     def test_choose_ability_request_ok(self):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
-        task = PostponedTaskPrototype._get_object(0)
+        task = PostponedTaskPrototype._db_get_object(0)
         self.check_ajax_processing(response, task.status_url)

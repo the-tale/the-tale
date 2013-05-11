@@ -179,11 +179,11 @@ class ResetNickdRequestsTests(AccountRequestsTests):
 
         response = self.client.post(reverse('accounts:reset-nick', args=[self.account1.id]))
 
-        postponed_task = PostponedTaskPrototype._get_object(0)
+        postponed_task = PostponedTaskPrototype._db_get_object(0)
 
         self.check_ajax_processing(response, reverse('postponed-tasks:status', args=[postponed_task.id]))
 
-        task = ChangeCredentialsTaskPrototype._get_object(0)
+        task = ChangeCredentialsTaskPrototype._db_get_object(0)
 
         self.assertFalse(task.relogin_required)
         self.assertEqual(self.account1.id, task.account.id)

@@ -40,7 +40,7 @@
   <tbody>
     {% for thread in threads %}
     <tr>
-      {{ forum_macros.thread_record(thread) }}
+      {{ forum_macros.thread_record(thread, read_state) }}
     </tr>
     {% endfor %}
   </tbody>

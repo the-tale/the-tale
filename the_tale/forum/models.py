@@ -4,6 +4,11 @@ import datetime
 from django.db import models
 from django.core.urlresolvers import reverse
 
+from rels.django_staff import TableIntegerField
+
+from forum.relations import MARKUP_METHOD, POST_REMOVED_BY, POST_STATE
+
+
 class Category(models.Model):
 
     caption = models.CharField(max_length=256, blank=False, null=False)
@@ -17,7 +22,7 @@ class Category(models.Model):
 
 class SubCategory(models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
+    created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime.fromtimestamp(0))
 
     category = models.ForeignKey(Category, null=False)
 
@@ -27,7 +32,8 @@ class SubCategory(models.Model):
 
     order = models.IntegerField(default=0, null=False, blank=True)
 
-    updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
+    updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime.fromtimestamp(0))
+    last_thread_created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime.fromtimestamp(0))
 
     threads_count = models.IntegerField(default=0, null=False)
 
@@ -42,7 +48,7 @@ class SubCategory(models.Model):
 
 class Thread(models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
+    created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime.fromtimestamp(0))
 
     subcategory = models.ForeignKey(SubCategory, null=False)
 
@@ -54,7 +60,7 @@ class Thread(models.Model):
 
     posts_count = models.BigIntegerField(default=0, null=False)
 
-    updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
+    updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime.fromtimestamp(0))
 
     technical = models.BooleanField(default=False)
 
@@ -77,47 +83,22 @@ class Subscription(models.Model):
         unique_together = (('account', 'thread'),
                            ('account', 'subcategory'),)
 
-
-class MARKUP_METHOD:
-    POSTMARKUP = 0
-    MARKDOWN = 1
-
-MARKUP_METHOD_CHOICES = ( (MARKUP_METHOD.POSTMARKUP, 'bb-code'),
-                          (MARKUP_METHOD.MARKDOWN, 'markdown') )
-
-class POST_REMOVED_BY:
-    AUTHOR = 0
-    THREAD_OWNER = 1
-    MODERATOR = 2
-
-POST_REMOVED_BY_CHOICES = ( (POST_REMOVED_BY.AUTHOR, u'удалён автором'),
-                            (POST_REMOVED_BY.THREAD_OWNER, u'удалён владельцем темы'),
-                            (POST_REMOVED_BY.MODERATOR, u'удалён модератором') )
-
-class POST_STATE:
-    DEFAULT = 0
-    REMOVED = 1
-
-POST_STATE_CHOICES = ( (POST_STATE.DEFAULT, u'видим'),
-                       (POST_STATE.REMOVED, u'удалён') )
-
-
 class Post(models.Model):
 
     thread = models.ForeignKey(Thread, null=False)
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    updated_at = models.DateTimeField(auto_now=True, null=False, default=datetime.datetime(2000, 1, 1))
+    updated_at = models.DateTimeField(auto_now=True, null=False, default=datetime.datetime.fromtimestamp(0))
 
     author = models.ForeignKey('accounts.Account', null=True, related_name='+')
 
     text = models.TextField(null=False, blank=True, default='')
 
-    markup_method = models.IntegerField(default=MARKUP_METHOD.POSTMARKUP, choices=MARKUP_METHOD_CHOICES, null=False)
+    markup_method = TableIntegerField(relation=MARKUP_METHOD, relation_column='value')
 
-    state = models.IntegerField(default=POST_STATE.DEFAULT, choices=POST_STATE_CHOICES)
-    removed_by = models.IntegerField(default=None, null=True, choices=POST_REMOVED_BY_CHOICES)
+    state = TableIntegerField(relation=POST_STATE, relation_column='value')
+    removed_by = TableIntegerField(relation=POST_REMOVED_BY, relation_column='value', null=True, default=None)
     remove_initiator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+')
 
     technical = models.BooleanField(default=False)
@@ -126,3 +107,29 @@ class Post(models.Model):
         permissions = (("moderate_post", u"Может редактировать сообщения пользователей"), )
 
     def __unicode__(self): return u'thread %d, post %d' % (self.thread_id, self.id)
+
+
+
+class ThreadReadInfo(models.Model):
+
+    thread = models.ForeignKey(Thread, db_index=True)
+
+    account = models.ForeignKey('accounts.Account', related_name='+', db_index=True)
+
+    read_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (('thread', 'account'),)
+
+
+class SubCategoryReadInfo(models.Model):
+
+    subcategory = models.ForeignKey(SubCategory, db_index=True)
+
+    account = models.ForeignKey('accounts.Account', related_name='+', db_index=True)
+
+    all_read_at = models.DateTimeField()
+    read_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (('subcategory', 'account'),)

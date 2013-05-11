@@ -1,4 +1,6 @@
 # coding: utf-8
+import datetime
+
 import markdown
 
 from django.core.urlresolvers import reverse
@@ -15,8 +17,9 @@ from common.utils.prototypes import BasePrototype
 from common.utils.decorators import lazy_property
 
 from forum.conf import forum_settings
-from forum.models import Category, SubCategory, Thread, Post, Subscription, MARKUP_METHOD, POST_STATE, POST_REMOVED_BY
+from forum.models import Category, SubCategory, Thread, Post, Subscription, ThreadReadInfo, SubCategoryReadInfo
 from forum.exceptions import ForumException
+from forum.relations import MARKUP_METHOD, POST_REMOVED_BY, POST_STATE
 
 
 class CategoryPrototype(BasePrototype):
@@ -33,7 +36,7 @@ class CategoryPrototype(BasePrototype):
 
 class SubCategoryPrototype(BasePrototype):
     _model_class = SubCategory
-    _readonly = ('id', 'caption', 'slug', 'order', 'created_at', 'category_id', 'updated_at', 'threads_count', 'posts_count', 'closed')
+    _readonly = ('id', 'caption', 'slug', 'order', 'created_at', 'category_id', 'updated_at', 'threads_count', 'posts_count', 'closed', 'last_thread_created_at')
     _bidirectional = ()
     _get_by = ('slug', 'id')
 
@@ -47,7 +50,7 @@ class SubCategoryPrototype(BasePrototype):
     @lazy_property
     def last_poster(self): return AccountPrototype(self._model.last_poster) if self._model.last_poster else None
 
-    def update(self, author=None, date=None):
+    def update(self, author=None, date=None, last_thread_created_at=None):
         self.update_threads_count()
         self.update_posts_count()
 
@@ -56,6 +59,9 @@ class SubCategoryPrototype(BasePrototype):
 
         if date:
             self._model.updated_at = date
+
+        if last_thread_created_at:
+            self._model.last_thread_created_at = last_thread_created_at
 
         self.save()
 
@@ -73,7 +79,7 @@ class SubCategoryPrototype(BasePrototype):
 
 class ThreadPrototype(BasePrototype):
     _model_class = Thread
-    _readonly = ('id', 'created_at', 'posts_count', 'updated_at', 'technical')
+    _readonly = ('id', 'created_at', 'posts_count', 'updated_at', 'technical', 'subcategory_id')
     _bidirectional = ('caption', )
     _get_by = ('id', )
 
@@ -127,11 +133,12 @@ class ThreadPrototype(BasePrototype):
                                          author=author._model,
                                          markup_method=markup_method,
                                          technical=technical,
-                                         text=text)
-
-        subcategory.update(author, post_model.created_at)
+                                         text=text,
+                                         state=POST_STATE.DEFAULT)
 
         prototype = cls(model=thread_model)
+
+        subcategory.update(author, post_model.created_at, last_thread_created_at=prototype.created_at)
 
         MessagePrototype.create(ForumThreadHandler(thread_id=prototype.id))
 
@@ -198,22 +205,22 @@ class PostPrototype(BasePrototype):
 
     @property
     def html(self):
-        if self.markup_method == MARKUP_METHOD.POSTMARKUP:
+        if self.markup_method._is_POSTMARKUP:
             return bbcode.render(self.text)
-        elif self.markup_method == MARKUP_METHOD.MARKDOWN:
+        elif self.markup_method._is_MARKDOWN:
             return markdown.markdown(self.text)
 
     @property
-    def is_removed(self): return self.state == POST_STATE.REMOVED
+    def is_removed(self): return self.state._is_REMOVED
 
     @property
-    def is_removed_by_author(self): return self.removed_by == POST_REMOVED_BY.AUTHOR
+    def is_removed_by_author(self): return self.removed_by._is_AUTHOR
 
     @property
-    def is_removed_by_thread_owner(self): return self.removed_by == POST_REMOVED_BY.THREAD_OWNER
+    def is_removed_by_thread_owner(self): return self.removed_by._is_THREAD_OWNER
 
     @property
-    def is_removed_by_moderator(self): return self.removed_by == POST_REMOVED_BY.MODERATOR
+    def is_removed_by_moderator(self): return self.removed_by._is_MODERATOR
 
     @classmethod
     @nested_commit_on_success
@@ -222,7 +229,12 @@ class PostPrototype(BasePrototype):
         from post_service.prototypes import MessagePrototype
         from post_service.message_handlers import ForumPostHandler
 
-        post = Post.objects.create(thread=thread._model, author=author._model, text=text, technical=technical)
+        post = Post.objects.create(thread=thread._model,
+                                   author=author._model,
+                                   text=text,
+                                   technical=technical,
+                                   markup_method=MARKUP_METHOD.POSTMARKUP,
+                                   state=POST_STATE.DEFAULT)
 
         thread.update(author=author, date=post.created_at)
 
@@ -318,3 +330,100 @@ class SubscriptionPrototype(BasePrototype):
 
     def remove(self):
         self._model.delete()
+
+
+
+class ThreadReadInfoPrototype(BasePrototype):
+    _model_class = ThreadReadInfo
+    _readonly = ('id', 'read_at', 'thread_id', 'account_id')
+    _bidirectional = ()
+    _get_by = ()
+
+    @classmethod
+    def get_for(cls, thread_id, account_id):
+        try:
+            return cls(model=cls._model_class.objects.get(thread_id=thread_id, account_id=account_id))
+        except cls._model_class.DoesNotExist:
+            return None
+
+    @classmethod
+    def get_threads_info(cls, threads_ids, account_id):
+        return dict(cls._model_class.objects.filter(account_id=account_id, thread_id__in=threads_ids).values_list('thread_id', 'read_at'))
+
+    @classmethod
+    def remove_old_infos(cls):
+        cls._model_class.objects.filter(read_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=forum_settings.UNREAD_STATE_EXPIRE_TIME)).delete()
+
+    @classmethod
+    def create(cls, thread, account):
+        model = cls._model_class.objects.create(thread_id=thread.id,
+                                                account_id=account.id)
+        return cls(model=model)
+
+    @classmethod
+    def read_thread(cls, thread, account):
+
+        info = cls.get_for(thread.id, account.id)
+
+        if info:
+            info.save()
+            return info
+
+        return cls.create(thread, account)
+
+    def save(self):
+        self._model.save()
+
+
+class SubCategoryReadInfoPrototype(BasePrototype):
+    _model_class = SubCategoryReadInfo
+    _readonly = ('id', 'read_at', 'all_read_at', 'subcategory_id', 'account_id')
+    _bidirectional = ()
+    _get_by = ()
+
+    @classmethod
+    def get_for(cls, subcategory_id, account_id):
+        try:
+            return cls(model=cls._model_class.objects.get(subcategory_id=subcategory_id, account_id=account_id))
+        except cls._model_class.DoesNotExist:
+            return None
+
+    @classmethod
+    def remove_old_infos(cls):
+        cls._model_class.objects.filter(read_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=forum_settings.UNREAD_STATE_EXPIRE_TIME)).delete()
+
+    @classmethod
+    def create(cls, subcategory, account, all_read_at=None):
+        if all_read_at is None:
+            all_read_at = datetime.datetime.fromtimestamp(0)
+
+        model = cls._model_class.objects.create(subcategory_id=subcategory.id,
+                                                account_id=account.id,
+                                                all_read_at=all_read_at)
+        return cls(model=model)
+
+    @classmethod
+    def read_subcategory(cls, subcategory, account):
+
+        info = cls.get_for(subcategory.id, account.id)
+
+        if info:
+            info.save()
+            return info
+
+        return cls.create(subcategory, account)
+
+    @classmethod
+    def read_all_in_subcategory(cls, subcategory, account):
+
+        info = cls.get_for(subcategory.id, account.id)
+
+        if info:
+            info._model.all_read_at = datetime.datetime.now()
+            info.save()
+            return info
+
+        return cls.create(subcategory, account, all_read_at=datetime.datetime.now())
+
+    def save(self):
+        self._model.save()

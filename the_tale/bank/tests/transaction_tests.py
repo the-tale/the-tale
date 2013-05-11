@@ -33,9 +33,9 @@ class TransactionTests(testcase.TestCase, BankTestsMixin):
 
         self.assertEqual(InvoicePrototype._model_class.objects.all().count(), 1)
 
-        invoice = InvoicePrototype._get_object(0)
+        invoice = InvoicePrototype._db_get_object(0)
 
-        self.assertEqual(transaction.invoice_id, InvoicePrototype._get_object(0).id)
+        self.assertEqual(transaction.invoice_id, InvoicePrototype._db_get_object(0).id)
 
         self.assertTrue(invoice.state._is_REQUESTED)
         self.assertEqual(invoice.recipient_type, ENTITY_TYPE.GAME_ACCOUNT)
