@@ -62,13 +62,15 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-request-friendship', 0),
                  ('pgf-friends-in-list', 0),
                  ('pgf-friends-request-from', 0),
-                 ('pgf-friends-request-to', 0)]
+                 ('pgf-friends-request-to', 0),
+                 ('pgf-no-common-places-message', 1)]
         self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_show__places_history(self):
         texts = [(self.place1.name, 1),
                  (self.place2.name, 1),
-                 (self.place3.name, 0)]
+                 (self.place3.name, 0),
+                 ('pgf-no-common-places-message', 0)]
 
         hero = HeroPrototype.get_by_account_id(self.account1.id)
         hero.places_history.add_place(self.place1.id)

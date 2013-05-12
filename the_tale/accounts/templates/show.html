@@ -130,6 +130,7 @@ jQuery(document).ready(function(){
 
 <p>Города, которым игрок помогает чаще всего.</p>
 
+{% if most_common_places %}
 <div style="overflow-y: auto; max-height: {{1+27*(1+bills_settings.PLACES__TO_ACCESS_VOTING)}}px; width: 360px;">
 
   <table class="table table-condensed table-striped table-bordered table-no-highlighting">
@@ -139,7 +140,7 @@ jQuery(document).ready(function(){
         <th width="200px">город</th>
         <th width="100px">помогал (раз)</th>
       </tr>
-      {% for place, number in master_hero.places_history.get_most_common_places() %}
+      {% for place, number in most_common_places %}
       <tr>
         <td>{{loop.index}}</td>
         <td>{{place.name}}</td>
@@ -150,6 +151,14 @@ jQuery(document).ready(function(){
   </table>
 
 </div>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-common-places-message">
+  Герой ещё не помог ни одному городу.
+</p>
+
+{% endif %}
 
 {% if resource.can_moderate_accounts %}
 

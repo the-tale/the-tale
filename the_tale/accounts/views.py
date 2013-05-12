@@ -353,8 +353,11 @@ class AccountResource(Resource):
 
         friendship = FriendshipPrototype.get_for_bidirectional(self.account, self.master_account)
 
+        master_hero = HeroPrototype.get_by_account_id(self.master_account_id)
+
         return self.template('accounts/show.html',
-                             {'master_hero': HeroPrototype.get_by_account_id(self.master_account_id),
+                             {'master_hero': master_hero,
+                              'most_common_places': master_hero.places_history.get_most_common_places(),
                               'master_account': self.master_account,
                               'rating_places': rating_places,
                               'rating_values': rating_values,
