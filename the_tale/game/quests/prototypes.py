@@ -176,12 +176,16 @@ class QuestPrototype(BasePrototype):
     def end_quest(self, cur_action):
         from game.persons.storage import persons_storage
 
-        if not cur_action.hero.can_change_persons_power:
-            return
-
         for person_id, power in self.env.persons_power_points.items():
             person_data = self.env.persons[person_id]
             person = persons_storage.get(person_data['external_data']['id'])
+
+            if power > 0:
+                cur_action.hero.places_history.add_place(person.place_id)
+
+            if not cur_action.hero.can_change_persons_power:
+                continue
+
             power = cur_action.hero.modify_person_power(person, power)
             person.cmd_change_power(power)
 

@@ -8,11 +8,14 @@ from dext.utils.urls import UrlBuilder
 from common.utils.resources import Resource
 
 from game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
+from game.heroes.conf import heroes_settings
 
 from game.map.places.conf import places_settings
 from game.persons.conf import persons_settings
 from game.pvp.conf import pvp_settings
 from game.pvp import abilities as pvp_abilities
+
+
 
 class GuideResource(Resource):
 
@@ -57,6 +60,7 @@ class GuideResource(Resource):
         from game.bills.bills import BILLS_BY_ID
         return self.template('guide/politics.html', {'section': 'politics',
                                                      'bills_settings': bills_settings,
+                                                     'heroes_settings': heroes_settings,
                                                      'BILLS_BY_ID': BILLS_BY_ID})
 
     @handler('map', method='get')

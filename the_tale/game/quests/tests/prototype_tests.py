@@ -50,30 +50,45 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(TimePrototype.get_current_turn_number(), self.hero.quests_history[self.quest.env.root_quest.type()])
 
 
+    @mock.patch('game.balance.formulas.person_power_from_quest', lambda *args, **kwargs: 1)
     def test_power_on_end_quest_for_fast_account_hero(self):
         fake_cmd = FakeWorkerCommand()
+
+        self.assertEqual(self.hero.places_history.history, [])
 
         with mock.patch('game.workers.environment.workers_environment.highlevel.cmd_change_person_power', fake_cmd):
             self.complete_quest()
 
+        self.assertTrue(len(self.hero.places_history.history) > 1)
+
         self.assertFalse(fake_cmd.commands)
 
+    @mock.patch('game.balance.formulas.person_power_from_quest', lambda *args, **kwargs: 1)
     def test_power_on_end_quest_for_premium_account_hero(self):
 
         self.hero.is_fast = False
         self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
+        self.assertEqual(self.hero.places_history.history, [])
+
         with mock.patch('game.workers.environment.workers_environment.highlevel.cmd_change_person_power') as fake_cmd:
             self.complete_quest()
 
+        self.assertTrue(len(self.hero.places_history.history) > 1)
+
         self.assertTrue(fake_cmd.call_count > 0)
 
+    @mock.patch('game.balance.formulas.person_power_from_quest', lambda *args, **kwargs: 1)
     def test_power_on_end_quest_for_normal_account_hero(self):
 
         self.hero.is_fast = False
 
+        self.assertEqual(self.hero.places_history.history, [])
+
         with mock.patch('game.workers.environment.workers_environment.highlevel.cmd_change_person_power') as fake_cmd:
             self.complete_quest()
+
+        self.assertTrue(len(self.hero.places_history.history) > 1)
 
         self.assertEqual(fake_cmd.call_count, 0)
 

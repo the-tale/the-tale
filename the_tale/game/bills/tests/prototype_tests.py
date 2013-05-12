@@ -15,6 +15,8 @@ from forum.models import Post
 
 from game.logic import create_test_map
 
+from game.heroes.prototypes import HeroPrototype
+
 from game.bills.models import Actor
 from game.bills.relations import BILL_STATE, VOTE_TYPE
 from game.bills.prototypes import BillPrototype, VotePrototype
@@ -64,15 +66,44 @@ class BaseTestPrototypes(TestCase):
                                    slug=bills_settings.FORUM_CATEGORY_SLUG,
                                    category=forum_category)
 
+
 class BillPrototypeTests(BaseTestPrototypes):
+
+    def setUp(self):
+        super(BillPrototypeTests, self).setUp()
+
+        self.hero = HeroPrototype.get_by_account_id(self.account2.id)
+
+
+    def create_bill(self):
+        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        return BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
     def test_is_active_bills_limit_reached(self):
         self.assertFalse(BillPrototype.is_active_bills_limit_reached(self.account1))
 
-        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.create_bill()
 
         self.assertTrue(BillPrototype.is_active_bills_limit_reached(self.account1))
+
+    def test_can_vote__places_restrictions__no_places(self):
+        bill = self.create_bill()
+        with mock.patch('game.bills.bills.place_renaming.PlaceRenaming.actors', []):
+            self.assertTrue(bill.can_vote(self.hero))
+
+    def test_can_vote__places_restrictions__no_allowed_places(self):
+        bill = self.create_bill()
+        with mock.patch('game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place2, self.place3]):
+            self.assertFalse(bill.can_vote(self.hero))
+
+    def test_can_vote__places_restrictions__allowed_place(self):
+        bill = self.create_bill()
+
+        self.hero.places_history.add_place(self.place2.id)
+
+        with mock.patch('game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place2, self.place3]):
+            self.assertTrue(bill.can_vote(self.hero))
+
 
 
 class TestPrototypeApply(BaseTestPrototypes):

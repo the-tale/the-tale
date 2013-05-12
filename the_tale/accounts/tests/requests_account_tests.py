@@ -16,6 +16,7 @@ from accounts.relations import AWARD_TYPE
 from accounts.logic import register_user
 from accounts.conf import accounts_settings
 
+from game.heroes.prototypes import HeroPrototype
 
 class AccountRequestsTests(TestCase):
 
@@ -62,6 +63,19 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-in-list', 0),
                  ('pgf-friends-request-from', 0),
                  ('pgf-friends-request-to', 0)]
+        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+
+    def test_show__places_history(self):
+        texts = [(self.place1.name, 1),
+                 (self.place2.name, 1),
+                 (self.place3.name, 0)]
+
+        hero = HeroPrototype.get_by_account_id(self.account1.id)
+        hero.places_history.add_place(self.place1.id)
+        hero.places_history.add_place(self.place2.id)
+        hero.places_history.add_place(self.place1.id)
+        hero.save()
+
         self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_show_friends_no_friendship(self):

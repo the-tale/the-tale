@@ -126,6 +126,31 @@ jQuery(document).ready(function(){
   </tbody>
 </table>
 
+<h4>политика</h4>
+
+<p>Города, которым игрок помогает чаще всего.</p>
+
+<div style="overflow-y: auto; max-height: {{1+27*(1+bills_settings.PLACES__TO_ACCESS_VOTING)}}px; width: 360px;">
+
+  <table class="table table-condensed table-striped table-bordered table-no-highlighting">
+    <tbody>
+      <tr>
+        <th width="30px">№</th>
+        <th width="200px">город</th>
+        <th width="100px">помогал (раз)</th>
+      </tr>
+      {% for place, number in master_hero.places_history.get_most_common_places() %}
+      <tr>
+        <td>{{loop.index}}</td>
+        <td>{{place.name}}</td>
+        <td>{{number}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
 {% if resource.can_moderate_accounts %}
 
 <script type="text/javascript">
@@ -135,6 +160,9 @@ jQuery(document).ready( function(e) {
                                                {OnSuccess: function(form, data){location.reload();}});
 });
 </script>
+
+<br/>
+<hr/>
 
 <h3>Выдать награду</h3>
 

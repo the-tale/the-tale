@@ -20,6 +20,8 @@ from game.logic import create_test_map
 
 from forum.models import Post
 
+from game.heroes.prototypes import HeroPrototype
+
 from game.bills.models import Bill, Vote
 from game.bills.relations import VOTE_TYPE, BILL_STATE
 from game.bills.prototypes import BillPrototype, VotePrototype
@@ -269,8 +271,8 @@ class TestNewRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.request_logout()
-        url = reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)
-        self.check_redirect(url, login_url(url))
+        url_ = reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)
+        self.check_redirect(url_, login_url(url_))
 
     def test_is_fast(self):
         self.account1.is_fast = True
@@ -294,6 +296,16 @@ class TestNewRequests(BaseTestRequests):
 
 
 class TestShowRequests(BaseTestRequests):
+
+    def setUp(self):
+        super(TestShowRequests, self).setUp()
+
+        self.hero = HeroPrototype.get_by_account_id(self.account2.id)
+        self.hero.places_history.add_place(self.place1.id)
+        self.hero.places_history.add_place(self.place2.id)
+        self.hero.places_history.add_place(self.place3.id)
+        self.hero.save()
+
 
     def test_unlogined(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
@@ -333,6 +345,25 @@ class TestShowRequests(BaseTestRequests):
         self.account1.save()
         self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-participate-in-politics', 0),))
 
+    def test_can_not_vote(self):
+        self.hero.places_history._reset()
+        self.hero.save()
+
+        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        self.create_bills(1, self.account2, 'caption-a1-%d', 'rationale-a1-%d', bill_data)
+        bill = Bill.objects.all()[0]
+
+        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-vote-message', 1),))
+
+    def test_can_not_voted(self):
+        self.assertEqual(HeroPrototype.get_by_account_id(self.account1.id).places_history.history, [])
+
+        # one vote automaticaly created for bill author
+        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        self.create_bills(1, self.account1, 'caption-a1-%d', 'rationale-a1-%d', bill_data)
+        bill = Bill.objects.all()[0]
+
+        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-vote-message', 0),))
 
     def test_unexsists(self):
         self.check_html_ok(self.client.get(reverse('game:bills:show', args=[0])), status_code=404)
@@ -355,6 +386,7 @@ class TestShowRequests(BaseTestRequests):
                  ('pgf-forum-block', 1),
                  ('pgf-bills-results-summary', 1),
                  ('pgf-bills-results-detailed', 0),
+                 ('pgf-can-not-vote-message', 0),
                  (self.place2.name, 2)]
 
         self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
@@ -483,6 +515,12 @@ class TestVoteRequests(BaseTestRequests):
         self.account2.prolong_premium(30)
         self.account2.save()
 
+        self.hero = HeroPrototype.get_by_account_id(self.account2.id)
+        self.hero.places_history.add_place(self.place1.id)
+        self.hero.places_history.add_place(self.place2.id)
+        self.hero.places_history.add_place(self.place3.id)
+        self.hero.save()
+
         self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), {'caption': 'bill-caption',
                                                                                                        'rationale': 'bill-rationale',
                                                                                                        'place': self.place1.id,
@@ -531,6 +569,13 @@ class TestVoteRequests(BaseTestRequests):
         vote = VotePrototype(Vote.objects.all()[1])
         self.check_vote(vote, self.account2, VOTE_TYPE.FOR, self.bill.id)
         self.check_bill_votes(self.bill.id, 2, 0)
+
+    def test_can_not_vote(self):
+        self.hero.places_history._reset()
+        self.hero.save()
+
+        self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'bills.vote.can_not_vote')
+        self.check_bill_votes(self.bill.id, 1, 0)
 
     def test_success_agains(self):
         self.check_ajax_ok(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.AGAINST.value), {}))

@@ -40,6 +40,7 @@ from game.heroes.exceptions import HeroException
 from game.heroes.logic import ValuesDict
 from game.heroes.pvp import PvPData
 from game.heroes.messages import MessagesContainer
+from game.heroes.places_help_statistics import PlacesHelpStatistics
 
 
 class HeroPrototype(BasePrototype):
@@ -193,12 +194,11 @@ class HeroPrototype(BasePrototype):
         return abilities
 
 
+    @lazy_property
+    def places_history(self): return PlacesHelpStatistics.deserialize(s11n.from_json(self._model.places_history))
 
-    @property
-    def quests_history(self):
-        if not hasattr(self, '_quests_history'):
-            self._quests_history = ValuesDict.deserialize(s11n.from_json(self._model.quests_history))
-        return self._quests_history
+    @lazy_property
+    def quests_history(self): return ValuesDict.deserialize(s11n.from_json(self._model.quests_history))
 
     def get_special_quests(self):
         from game.quests.quests_builders import Hunt
@@ -620,6 +620,10 @@ class HeroPrototype(BasePrototype):
         if self.abilities.updated:
             self._model.abilities = s11n.to_json(self.abilities.serialize())
             self.abilities.updated = False
+
+        if self.places_history.updated:
+            self._model.places_history = s11n.to_json(self.places_history.serialize())
+            self.places_history.updated = False
 
         if self.quests_history.updated:
             self._model.quests_history = s11n.to_json(self.quests_history.serialize())

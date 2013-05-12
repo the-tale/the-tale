@@ -10,9 +10,11 @@ from dext.utils.urls import UrlBuilder
 from common.utils import list_filter
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
-from common.utils.decorators import login_required
+from common.utils.decorators import login_required, lazy_property
 
 from accounts.prototypes import AccountPrototype
+
+from game.heroes.prototypes import HeroPrototype
 
 from game.map.places.prototypes import PlacePrototype
 from game.map.places.storage import places_storage
@@ -55,6 +57,8 @@ class BillResource(Resource):
         if self.account.is_fast:
             return self.auto_error('bills.is_fast', u'Вам необходимо завершить регистрацию, чтобы просматривать данный раздел')
 
+    @lazy_property
+    def hero(self): return HeroPrototype.get_by_account_id(self.account.id)
 
     @property
     def can_participate_in_politics(self): return self.account.is_premium
@@ -180,7 +184,8 @@ class BillResource(Resource):
         return self.template('bills/show.html', {'bill': self.bill,
                                                  'thread_data': thread_data,
                                                  'VOTE_TYPE': VOTE_TYPE,
-                                                 'vote': VotePrototype.get_for(self.account, self.bill)})
+                                                 'vote': VotePrototype.get_for(self.account, self.bill),
+                                                 'can_vote': self.bill.can_vote(self.hero)})
 
     @validate_participate_in_politics()
     @validate_ownership()
@@ -236,6 +241,9 @@ class BillResource(Resource):
     @validate_argument('type', lambda t: VOTE_TYPE._index_value[int(t)], 'bills.vote', u'Неверно указан тип голоса')
     @handler('#bill', 'vote', name='vote', method='post')
     def vote(self, type):
+
+        if not self.bill.can_vote(self.hero):
+            return self.json_error('bills.vote.can_not_vote', u'Вы не можете голосовать за этот закон')
 
         if VotePrototype.get_for(self.account, self.bill):
             return self.json_error('bills.vote.vote_exists', u'Вы уже проголосовали')

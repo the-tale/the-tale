@@ -114,6 +114,25 @@ class BillPrototype(BasePrototype):
     def get_recently_modified_bills(cls, bills_number):
         return [cls(model=model) for model in cls._model_class.objects.exclude(state=BILL_STATE.REMOVED).order_by('-updated_at')[:bills_number]]
 
+    def can_vote(self, hero):
+        from game.map.places.prototypes import PlacePrototype
+
+        allowed_places_ids = hero.places_history.get_allowed_places_ids(bills_settings.PLACES__TO_ACCESS_VOTING)
+
+        place_found = False
+        place_allowed = False
+
+        for actor in self.data.actors:
+            if isinstance(actor, PlacePrototype):
+                place_found = True
+                if actor.id in allowed_places_ids:
+                    place_allowed = True
+
+        if place_found and not place_allowed:
+            return False
+
+        return True
+
     @nested_commit_on_success
     def apply(self):
         if not self.state._is_VOTING:
