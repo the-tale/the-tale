@@ -16,24 +16,16 @@ from forum.prototypes import ThreadPrototype as ForumThreadPrototype
 from forum.prototypes import SubCategoryPrototype as ForumSubCategoryPrototype
 from forum.models import MARKUP_METHOD
 
-from blogs.models import Post, Vote, POST_STATE
+from blogs.models import Post, Vote
 from blogs.conf import blogs_settings
+from blogs.relations import POST_STATE
 
 
 class PostPrototype(BasePrototype):
     _model_class = Post
     _readonly = ('id', 'forum_thread_id', 'created_at', 'updated_at')
-    _bidirectional = ('votes', 'moderator_id', 'caption', 'text')
+    _bidirectional = ('votes', 'moderator_id', 'caption', 'text', 'state')
     _get_by = ('id', )
-
-    def get_state(self):
-        if not hasattr(self, '_state'):
-            self._state = POST_STATE(self._model.state)
-        return self._state
-    def set_state(self, value):
-        self.state.update(value)
-        self._model.state = self.state.value
-    state = property(get_state, set_state)
 
     @lazy_property
     def forum_thread(self): return ForumThreadPrototype.get_by_id(self.forum_thread_id)
@@ -45,7 +37,7 @@ class PostPrototype(BasePrototype):
     def author(self): return AccountPrototype(self._model.author)
 
     def recalculate_votes(self):
-        self.votes = Vote.objects.filter(post=self._model, value=True).count() - Vote.objects.filter(post=self._model, value=False).count()
+        self.votes = Vote.objects.filter(post=self._model).count()
 
     @classmethod
     @nested_commit_on_success
@@ -54,6 +46,7 @@ class PostPrototype(BasePrototype):
         model = Post.objects.create(author=author._model,
                                     caption=caption,
                                     text=text,
+                                    state=POST_STATE.NOT_MODERATED,
                                     votes=1)
 
         thread = ForumThreadPrototype.create(ForumSubCategoryPrototype.get_by_slug(blogs_settings.FORUM_CATEGORY_SLUG),
@@ -68,7 +61,7 @@ class PostPrototype(BasePrototype):
 
         post = cls(model)
 
-        VotePrototype.create(post, author, True)
+        VotePrototype.create(post, author)
 
         return post
 
@@ -79,7 +72,7 @@ class PostPrototype(BasePrototype):
 class VotePrototype(BasePrototype):
     _model_class = Vote
     _readonly = ('id', )
-    _bidirectional = ('value',)
+    _bidirectional = ()
     _get_by = ('id', )
 
     @classmethod
@@ -93,22 +86,31 @@ class VotePrototype(BasePrototype):
     def voter(self): return AccountPrototype(self._model.voter)
 
     @classmethod
-    def create(cls, post, voter, value):
+    def create(cls, post, voter):
         model = Vote.objects.create(post=post._model,
-                                    voter=voter._model,
-                                    value=value)
+                                    voter=voter._model)
         return cls(model)
 
     @classmethod
-    def create_or_update(cls, post, voter, value):
+    def remove_if_exists(cls, post, voter):
         vote = cls.get_for(voter, post)
 
         if vote:
-            vote.value = value
-            vote.save()
+            vote.remove()
+
+        return None
+
+    @classmethod
+    def create_if_not_exists(cls, post, voter):
+        vote = cls.get_for(voter, post)
+
+        if vote:
             return vote
 
-        return cls.create(post, voter, value)
+        return cls.create(post, voter)
 
     def save(self):
         self._model.save()
+
+    def remove(self):
+        self._model.delete()

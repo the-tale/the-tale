@@ -111,16 +111,18 @@
     <table class="table">
       <tr>
         <td width="75px"><span class="pgf-format-date" data-timestamp="{{ post.created_at|timestamp }}"></span></td>
-        <td width="100px"><a href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</td>
         <td width="20px" rel="tooltip" title="рейтинг" style="cursor: default;">
           <span class="label {% if post.votes > 0 %}label-success{% endif %} {% if post.votes < 0 %}label-important{% endif %}">
             {{ post.votes }}
           </span>
         </td>
-        <td><a href="{{url('blogs:posts:show', post.id)}}">{{post.caption}}</a></td>
-        {% if post.state.is_not_moderated %}
-        <td width="10em;"><span class="label label-important">не проверено</span></td>
-        {% endif %}
+        <td>
+          {% if post.state._is_NOT_MODERATED %}
+          <span class="label label-info">не проверено</span>
+          {% endif %}
+          <a href="{{url('blogs:posts:show', post.id)}}">{{post.caption}}</a>
+        </td>
+        <td width="100px"><a href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</td>
       </tr>
     </table>
   </li>

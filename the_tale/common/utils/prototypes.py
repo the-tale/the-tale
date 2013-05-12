@@ -107,3 +107,7 @@ class BasePrototype(object):
     @classmethod
     def _db_count(cls):
         return cls._model_class.objects.all().count()
+
+    @classmethod
+    def _db_delete_all(cls):
+        return cls._model_class.objects.all().delete()

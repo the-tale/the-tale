@@ -2,11 +2,10 @@
 
 from django.db import models
 
-from common.utils.enum import create_enum
+from blogs.relations import POST_STATE
 
-POST_STATE = create_enum('POST_STATE', (('NOT_MODERATED', 0, u'не проверен'),
-                                        ('ACCEPTED', 1, u'принят'),
-                                        ('DECLINED', 2, u'отклонён'),))
+from rels.django_staff import TableIntegerField
+
 
 class Post(models.Model):
 
@@ -21,7 +20,7 @@ class Post(models.Model):
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
     text = models.TextField(null=False, blank=True, default='')
 
-    state = models.IntegerField(default=POST_STATE.NOT_MODERATED, choices=POST_STATE._CHOICES)
+    state = TableIntegerField(relation=POST_STATE, relation_column='value', db_index=True)
 
     moderator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+')
 
@@ -42,8 +41,6 @@ class Vote(models.Model):
     post = models.ForeignKey(Post, null=False, related_name='+')
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
-
-    value = models.BooleanField()
 
     class Meta:
         unique_together = (('voter', 'post'),)

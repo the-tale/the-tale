@@ -45,9 +45,8 @@ class BaseTestRequests(TestCase):
         post = Post.objects.get(id=post_id)
         self.assertEqual(post.votes, votes)
 
-    def check_vote(self, vote, voter, value, post_id):
+    def check_vote(self, vote, voter, post_id):
         self.assertEqual(vote.voter, voter)
-        self.assertEqual(vote.value, value)
         self.assertEqual(vote._model.post.id, post_id)
 
 
@@ -206,10 +205,25 @@ class TestShowRequests(BaseTestRequests):
         texts = [('caption-a2-0', 3 + 1), # 1 from social sharing
                  ('text-a2-0', 1 + 1),  # 1 from social sharing
                  ('pgf-forum-block', 1),
+                 ('pgf-add-vote-button', 0),
+                 ('pgf-remove-vote-button', 0),
                  (reverse('blogs:posts:accept', args=[self.post.id]), 0),
                  (reverse('blogs:posts:decline', args=[self.post.id]), 0) ]
 
         self.check_html_ok(self.client.get(reverse('blogs:posts:show', args=[self.post.id])), texts=texts)
+
+    def test_show_without_vote(self):
+        self.request_login('test_user_2@test.com')
+        self.check_html_ok(self.client.get(reverse('blogs:posts:show', args=[self.post.id])),
+                           texts=[ ('pgf-add-vote-button', 1),
+                                   ('pgf-remove-vote-button', 0)])
+
+    def test_show_with_vote(self):
+        self.request_login('test_user_1@test.com')
+        self.check_html_ok(self.client.get(reverse('blogs:posts:show', args=[self.post.id])),
+                           texts=[ ('pgf-add-vote-button', 0),
+                                   ('pgf-remove-vote-button', 1)])
+
 
     def test_show_moderator(self):
 
@@ -262,7 +276,7 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(post.votes, 1)
 
         vote = VotePrototype(Vote.objects.all()[0])
-        self.check_vote(vote, self.account_1, True, post.id)
+        self.check_vote(vote, self.account_1, post.id)
 
         self.check_ajax_ok(response, data={'next_url': reverse('blogs:posts:show', args=[post.id])})
 
@@ -287,37 +301,68 @@ class TestVoteRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]) + '?value=for', {}), 'common.login_required')
+        self.check_ajax_error(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}), 'common.login_required')
 
     def test_is_fast(self):
         self.account_2.is_fast = True
         self.account_2.save()
-        self.check_ajax_error(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]) + '?value=for', {}), 'blogs.posts.fast_account')
+        self.check_ajax_error(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}), 'blogs.posts.fast_account')
         self.check_post_votes(self.post.id, 1)
 
     def test_post_not_exists(self):
-        self.check_ajax_error(self.client.post(reverse('blogs:posts:vote', args=[666]) + '?value=for', {}), 'blogs.posts.post.not_found')
-
-    def test_wrong_value(self):
-        self.check_ajax_error(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]) + '?value=xxx', {}), 'blogs.posts.vote.wrong_value')
-        self.check_post_votes(self.post.id, 1)
+        self.check_ajax_error(self.client.post(reverse('blogs:posts:vote', args=[666]), {}), 'blogs.posts.post.not_found')
 
     def test_success_for(self):
-        self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]) + '?value=for', {}))
+        self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}))
         vote = VotePrototype(Vote.objects.all()[1])
-        self.check_vote(vote, self.account_2, True, self.post.id)
+        self.check_vote(vote, self.account_2, self.post.id)
         self.check_post_votes(self.post.id, 2)
 
-    def test_success_agains(self):
-        self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]) + '?value=against', {}))
-        vote = VotePrototype(Vote.objects.all()[1])
-        self.check_vote(vote, self.account_2, False, self.post.id)
-        self.check_post_votes(self.post.id, 0)
-
     def test_already_exists(self):
-        self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]) + '?value=for', {}))
-        self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]) + '?value=against', {}))
-        self.check_post_votes(self.post.id, 0)
+        VotePrototype._db_delete_all()
+        self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}))
+        self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}))
+        self.check_post_votes(self.post.id, 1)
+
+class TestUnvoteRequests(BaseTestRequests):
+
+    def setUp(self):
+        super(TestUnvoteRequests, self).setUp()
+
+        self.request_login('test_user_1@test.com')
+        self.client.post(reverse('blogs:posts:create'), {'caption': 'post-caption',
+                                                         'text': 'post-text'})
+        self.post = PostPrototype(Post.objects.all()[0])
+
+        self.request_logout()
+        self.request_login('test_user_2@test.com')
+
+    def test_unlogined(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(reverse('blogs:posts:unvote', args=[self.post.id]), {}), 'common.login_required')
+
+    def test_is_fast(self):
+        self.account_2.is_fast = True
+        self.account_2.save()
+        self.check_ajax_error(self.client.post(reverse('blogs:posts:unvote', args=[self.post.id]), {}), 'blogs.posts.fast_account')
+        self.check_post_votes(self.post.id, 1)
+
+    def test_post_not_exists(self):
+        self.check_ajax_error(self.client.post(reverse('blogs:posts:unvote', args=[666]), {}), 'blogs.posts.post.not_found')
+
+    def test_remove_unexisted(self):
+        VotePrototype._db_delete_all()
+        self.assertEqual(VotePrototype._db_count(), 0)
+        self.check_ajax_ok(self.client.post(reverse('blogs:posts:unvote', args=[self.post.id]), {}))
+        self.assertEqual(VotePrototype._db_count(), 0)
+
+    def test_remove_existed(self):
+        VotePrototype._db_delete_all()
+        self.assertEqual(VotePrototype._db_count(), 0)
+        self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}))
+        self.assertEqual(VotePrototype._db_count(), 1)
+        self.check_ajax_ok(self.client.post(reverse('blogs:posts:unvote', args=[self.post.id]), {}))
+        self.assertEqual(VotePrototype._db_count(), 0)
 
 
 class TestEditRequests(BaseTestRequests):
@@ -467,7 +512,7 @@ class TestModerateRequests(BaseTestRequests):
 
     def test_delete_success(self):
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:accept', args=[self.post.id]), {}))
-        self.assertTrue(PostPrototype.get_by_id(self.post.id).state.is_accepted)
+        self.assertTrue(PostPrototype.get_by_id(self.post.id).state._is_ACCEPTED)
 
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:decline', args=[self.post.id]), {}))
-        self.assertTrue(PostPrototype.get_by_id(self.post.id).state.is_declined)
+        self.assertTrue(PostPrototype.get_by_id(self.post.id).state._is_DECLINED)

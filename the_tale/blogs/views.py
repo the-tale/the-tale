@@ -14,9 +14,10 @@ from common.utils.enum import create_enum
 from accounts.prototypes import AccountPrototype
 
 from blogs.prototypes import PostPrototype, VotePrototype
-from blogs.models import Post, Vote, POST_STATE
+from blogs.models import Post, Vote
 from blogs.conf import blogs_settings
 from blogs.forms import PostForm
+from blogs.relations import POST_STATE
 
 
 ORDER_BY = create_enum('ORDER_BY', (('ALPHABET', 'alphabet', u'по алфавиту'),
@@ -42,7 +43,7 @@ class PostResource(Resource):
     def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_post
 
     @validator(code='blogs.posts.post_declined', message=u'Произведение не прошло проверку модератора и отклонено')
-    def validate_declined_state(self, *args, **kwargs): return not self.post.state.is_declined
+    def validate_declined_state(self, *args, **kwargs): return not self.post.state._is_DECLINED
 
 
     @handler('', method='get')
@@ -200,14 +201,22 @@ class PostResource(Resource):
     @validate_fast_account_restrictions()
     @nested_commit_on_success
     @handler('#post', 'vote', method='post')
-    def vote(self, value):
+    def vote(self):
 
-        value = {'for': True, 'against': False}.get(value)
+        VotePrototype.create_if_not_exists(self.post, self.account)
 
-        if value is None:
-            return self.json_error('blogs.posts.vote.wrong_value', u'Неверно указан тип голоса')
+        self.post.recalculate_votes()
+        self.post.save()
 
-        VotePrototype.create_or_update(self.post, self.account, value)
+        return self.json_ok()
+
+    @login_required
+    @validate_fast_account_restrictions()
+    @nested_commit_on_success
+    @handler('#post', 'unvote', method='post')
+    def unvote(self):
+
+        VotePrototype.remove_if_exists(self.post, self.account)
 
         self.post.recalculate_votes()
         self.post.save()

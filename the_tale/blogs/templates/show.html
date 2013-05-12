@@ -22,13 +22,13 @@
   {% endif %}
 
   {% if resource.can_moderate_post %}
-  {% if not post.state.is_accepted %}
+  {% if not post.state._is_ACCEPTED %}
   <li class="pull-right" style="margin-left: 0.5em;">
     <a class="pgf-forms-post-simple" href="{{url('blogs:posts:accept', post.id)}}">принять</a>
   </li>
   {% endif %}
 
-  {% if not post.state.is_declined %}
+  {% if not post.state._is_DECLINED %}
   <li class="pull-right" style="margin-left: 0.5em;">
     <a class="pgf-forms-post-simple" href="{{url('blogs:posts:decline', post.id)}}">заблокировать</a>
   </li>
@@ -41,14 +41,19 @@
   <span class="text"><span class="pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp }}"></span>,</span>
   <span class="text">автор:</span> <a href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</a>
 
-  <a class="pgf-forms-post-simple blog-post-vote-link"
-     href="{{ url('blogs:posts:vote', post.id) }}?value=for" rel="tooltip" title="понравилось">
-    <span class="blog-post-vote label {%if vote is not none and vote.value%}label-success{%endif%}">+</span>
+  {% if resource.account.is_authenticated() %}
+  {%if vote is not none%}
+  <a class="pgf-forms-post-simple blog-post-vote-link pgf-remove-vote-button"
+     href="{{ url('blogs:posts:unvote', post.id) }}" rel="tooltip" title="отозвать голос">
+    <span class="blog-post-vote label label-success">+</span>
   </a>
-  <a class="pgf-forms-post-simple blog-post-vote-link"
-     href="{{ url('blogs:posts:vote', post.id) }}?value=against" rel="tooltip" title="не понравилось">
-    <span class="blog-post-vote label {%if vote is not none and not vote.value%}label-important{%endif%}">-<span>
+  {% else %}
+  <a class="pgf-forms-post-simple blog-post-vote-link pgf-add-vote-button"
+     href="{{ url('blogs:posts:vote', post.id) }}" rel="tooltip" title="понравилось">
+    <span class="blog-post-vote label">+</span>
   </a>
+  {% endif %}
+  {% endif %}
 
   <span class="text">рейтинг:</span>
   <span class="blog-post-rating label {% if post.votes > 0 %}label-success{% endif %} {% if post.votes < 0 %}label-important{% endif %}">

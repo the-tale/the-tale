@@ -84,7 +84,7 @@ class Worker(BaseWorker):
 
         might += PhraseCandidate.objects.filter(author_id=hero.account_id, state=PHRASE_CANDIDATE_STATE.ADDED).count() * MIGHT_FOR_ADDED_PHRASE_CANDIDATE
 
-        might += BlogPost.objects.filter(author_id=hero.account_id, state=BLOG_POST_STATE.ACCEPTED, votes__gt=0).count() * MIGHT_FOR_GOOD_FOLCLOR_POST
+        might += BlogPost.objects.filter(author_id=hero.account_id, state=BLOG_POST_STATE.ACCEPTED, votes__gt=1).count() * MIGHT_FOR_GOOD_FOLCLOR_POST
 
         for award_type, might_cooficient in MIGHT_FOR_AWARD.items():
             might += Award.objects.filter(account_id=hero.account_id, type=award_type).count() * might_cooficient
