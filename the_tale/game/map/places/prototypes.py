@@ -265,6 +265,9 @@ class BuildingPrototype(BasePrototype):
     def repair(self):
         self._model.integrity = min(1.0, self.integrity + self.repair_delta)
 
+    @property
+    def need_repair(self): return self.integrity < 0.9999
+
     @classmethod
     def get_available_positions(cls, center_x, center_y, building_position_radius=places_settings.BUILDING_POSITION_RADIUS):
         from game.map.places.storage import places_storage, buildings_storage

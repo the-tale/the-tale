@@ -38,6 +38,9 @@ class BuildingRepair(AbilityPrototype):
             if building_id not in buildings_storage:
                 return False, ABILITY_TASK_STEP.ERROR, ()
 
+            if not buildings_storage[building_id].need_repair:
+                return False, ABILITY_TASK_STEP.ERROR, ()
+
             hero = storage.heroes[data['hero_id']]
 
             if not hero.can_repair_building:

@@ -128,6 +128,8 @@ class Worker(BaseWorker):
                                             'account_id': account_id})
 
     def process_logic_task(self, account_id, task_id):
+        settings.refresh()
+
         task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
         task.process(self.logger, storage=self.storage)
         task.do_postsave_actions()

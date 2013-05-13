@@ -83,17 +83,27 @@ class BuildingRepairTest(testcase.TestCase):
         self.assertEqual(self.ability_2.use(**self.use_attributes(hero_id=self.hero_2.id, storage=self.storage)), (False, ABILITY_TASK_STEP.ERROR, ()))
         self.assertEqual(self.building.integrity, 0.5)
 
+    @mock.patch('game.heroes.prototypes.HeroPrototype.can_repair_building', False)
     def test_use_for_not_allowed_account(self):
         self.assertEqual(self.building.integrity, 0.5)
-        self.assertEqual(self.ability_2.use(**self.use_attributes(hero_id=self.hero_2.id, storage=self.storage)), (False, ABILITY_TASK_STEP.ERROR, ()))
+        self.assertEqual(self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id, storage=self.storage)), (False, ABILITY_TASK_STEP.ERROR, ()))
         self.assertEqual(self.building.integrity, 0.5)
 
+    @mock.patch('game.heroes.prototypes.HeroPrototype.can_repair_building', True)
+    def test_use_for_repaired_building(self):
+        self.building = BuildingPrototype.create(self.place_1.persons[0])
+        self.building._model.integrity = 1.0
+        self.building.save()
 
+        self.assertEqual(self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id, storage=self.storage)), (False, ABILITY_TASK_STEP.ERROR, ()))
+
+    @mock.patch('game.heroes.prototypes.HeroPrototype.can_repair_building', True)
     def test_use_for_wrong_building_id(self):
         self.assertEqual(self.building.integrity, 0.5)
         self.assertEqual(self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id, building_id=666, storage=self.storage)), (False, ABILITY_TASK_STEP.ERROR, ()))
         self.assertEqual(self.building.integrity, 0.5)
 
+    @mock.patch('game.heroes.prototypes.HeroPrototype.can_repair_building', True)
     def test_use_without_building(self):
         self.assertEqual(self.building.integrity, 0.5)
         arguments = self.use_attributes(hero_id=self.hero_1.id, storage=self.storage)
