@@ -1,6 +1,7 @@
 # coding: utf-8
 import time
 import datetime
+import Queue
 
 from django.utils.log import getLogger
 
@@ -39,12 +40,15 @@ class Worker(BaseWorker):
 
     def run(self):
         while not self.exception_raised and not self.stop_required:
-            game_cmd = self.command_queue.get(block=True)
-            game_cmd.ack()
+            try:
+                cmd = self.command_queue.get_nowait()
+                cmd.ack()
 
-            settings.refresh()
+                settings.refresh()
 
-            self.process_cmd(game_cmd.payload)
+                self.process_cmd(cmd.payload)
+            except Queue.Empty:
+                time.sleep(0.1)
 
 
     def cmd_freeze_invoice(self):

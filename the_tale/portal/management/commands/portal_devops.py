@@ -28,7 +28,7 @@ class Command(BaseCommand):
                                             )
 
     def setup(self, host, user, newrelic):
-        full_host = '%s@%s' % (host, user)
+        full_host = '%s@%s' % (user, host)
         subprocess.call(['fab', '-f', FABFILE, 'setup:static_data_version=%s,version=%s,domain=%s,host=%s,newrelic=%s' % (meta_config.static_data_version,
                                                                                                                           meta_config.version, # 'rc.0.2.6',
                                                                                                                           host,
