@@ -10,11 +10,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from common.postponed_tasks.prototypes import PostponedTaskPrototype
         from game.bundles import BundlePrototype
-
         from forum.prototypes import SubCategoryReadInfoPrototype, ThreadReadInfoPrototype
+        from post_service.prototypes import MessagePrototype
 
         BundlePrototype.remove_unused_bundles()
         PostponedTaskPrototype.remove_old_tasks()
 
         ThreadReadInfoPrototype.remove_old_infos()
         SubCategoryReadInfoPrototype.remove_old_infos()
+
+        MessagePrototype.remove_old_messages()

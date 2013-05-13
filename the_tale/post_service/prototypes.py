@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from dext.utils import s11n
 
@@ -8,6 +9,7 @@ from common.utils.decorators import lazy_property
 from post_service.models import Message
 from post_service.relations import MESSAGE_STATE
 from post_service.message_handlers import deserialize_handler
+from post_service.conf import post_service_settings
 
 
 class MessagePrototype(BasePrototype):
@@ -40,6 +42,11 @@ class MessagePrototype(BasePrototype):
 
     @property
     def uid(self): return self.handler.uid
+
+    @classmethod
+    def remove_old_messages(cls):
+        cls._model_class.objects.filter(state=MESSAGE_STATE.PROCESSED,
+                                        created_at__lt=datetime.datetime.now()-datetime.timedelta(seconds=post_service_settings.MESSAGE_LIVE_TIME)).delete()
 
 
     @classmethod
