@@ -48,8 +48,8 @@ class Worker(BaseWorker):
 
                 self.process_cmd(cmd.payload)
             except Queue.Empty:
-                self.process_freeze_invoice(self)
-                time.sleep(0.1)
+                self.process_freeze_invoice()
+                time.sleep(0.25)
 
 
     def cmd_freeze_invoice(self):

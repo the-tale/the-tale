@@ -253,8 +253,8 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
     if (confirmation) {
         pgf.ui.dialog.Question({message: confirmation,
                                 title: 'Подтвердите операцию',
-                                buttons: [{text: 'Подтверждаю', classes: 'btn-danger', callback: Operation},
-                                          {text: 'Отмена', classes: 'btn-success'}]
+                                buttons: [{text: 'Подтверждаю', classes: 'btn-success', callback: Operation},
+                                          {text: 'Отмена', classes: 'btn-danger'}]
                                });
     }
     else {
