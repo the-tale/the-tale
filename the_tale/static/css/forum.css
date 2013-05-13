@@ -1,3 +1,11 @@
+.forum-table .new-messages a {
+  font-weight: bold;
+  /* color: #FF6600 !important; */
+
+}
+.forum-table .new-thread {
+  color: #FF6600 !important;
+}
 .forum-table .updated-at {
   width: 10em;
 }
@@ -45,12 +53,12 @@
   float: right;
   text-align: right;
 }
-.post .head .post-removed-message {
-  color: #b94a48;
-}
 .post .body {
   padding: 0.5em;
   margin-bottom: 1em;
+}
+.post .body .post-removed-message {
+  color: #b94a48;
 }
 .new-post-form,
 .change-post-form {

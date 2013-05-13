@@ -11,15 +11,6 @@ from dext.utils.meta_config import MetaConfig
 
 FABFILE = '/home/tie/repos/mine/devops/the_tale/deploy.py'
 
-USER = 'root'
-HOST = 'the-tale.org'
-
-# USER = 'root'
-# HOST = 'the-tale.com'
-
-FULL_HOST = "%s@%s" % (USER, HOST)
-
-
 meta_config = MetaConfig(config_path=project_settings.META_CONFIG_FILE)
 
 
@@ -36,15 +27,21 @@ class Command(BaseCommand):
                                                           help='command'),
                                             )
 
+    def setup(self, host, user, newrelic):
+        full_host = '%s@%s' % (host, user)
+        subprocess.call(['fab', '-f', FABFILE, 'setup:static_data_version=%s,version=%s,domain=%s,host=%s,newrelic=%s' % (meta_config.static_data_version,
+                                                                                                                          meta_config.version, # 'rc.0.2.6',
+                                                                                                                          host,
+                                                                                                                          full_host,
+                                                                                                                          'true' if newrelic else 'false')])
 
     def handle(self, *args, **options):
 
         command = options['command']
 
         if command == 'setup':
-            subprocess.call(['fab', '-f', FABFILE, 'setup:static_data_version=%s,version=%s,domain=%s,host=%s' % (meta_config.static_data_version,
-                                                                                                                  meta_config.version, # 'rc.0.2.6',
-                                                                                                                  HOST,
-                                                                                                                  FULL_HOST)])
+            self.setup(host='the-tale.org', user='root', newrelic=True)
+        if command == 'test-setup':
+            self.setup(host='the-tale.com', user='root', newrelic=False)
         else:
             print 'unknown command'
