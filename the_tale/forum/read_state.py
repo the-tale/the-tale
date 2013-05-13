@@ -15,10 +15,11 @@ class ReadState(object):
         self._threads = threads
         self._subcategory = subcategory
 
-        if any(map(lambda thread: thread.subcategory_id != self._subcategory.id, self._threads)):
-            raise ForumException(u'ReadState can be constructed only with threads from one subcategory')
+        if self._subcategory is not None:
+            if any(map(lambda thread: thread.subcategory_id != self._subcategory.id, self._threads)):
+                raise ForumException(u'ReadState can be constructed only with threads from one subcategory')
 
-        if not self._account.is_authenticated():
+        if not self._account.is_authenticated() or self._subcategory is None:
             self.subcategory_read_info = None
         else:
            self.subcategory_read_info =  SubCategoryReadInfoPrototype.get_for(account_id=self._account.id, subcategory_id=self._subcategory.id)
