@@ -256,21 +256,20 @@ pgf.game.map.Map = function(selector, params) {
     var map = jQuery(selector);
     var canvas = jQuery('.pgf-map-canvas', selector);
 
-    // var canvasWidth = canvas.width();
-    // var canvasHeight = canvas.height();
+    var canvasWidth = undefined;
+    var canvasHeight = undefined;params.canvasWidth;
 
-    // TODO: do something with this
-    var canvasWidth = jQuery('#pgf-map-container').width()-20;
-    var canvasHeight = params.canvasWidth;
+    function SyncCanvasSize() {
+        canvasWidth = jQuery('#pgf-map-container').width()-20;
+        canvasHeight = params.canvasWidth;
 
-    canvas.get(0).width = canvasWidth;
-    canvas.get(0).height = canvasHeight;
+        canvas.get(0).width = canvasWidth;
+        canvas.get(0).height = canvasHeight;
 
-    // var canvasWidth = canvas.context.width;
-    // var canvasHeight = canvas.context.height;
-
-    map.css({width: canvasWidth,
-             height: canvasHeight });
+        map.css({width: canvasWidth,
+                 height: canvasHeight });
+    }
+    SyncCanvasSize();
 
     var spritesManager = params.spritesManager;
     var mapManager = widgets.mapManager;
@@ -296,6 +295,12 @@ pgf.game.map.Map = function(selector, params) {
     var INITIALIZATION_MAP_LOADED = false;
 
     var activated = false;
+
+    jQuery(window).resize(function(e){
+        SyncCanvasSize();
+        var data = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
+        Draw(data);
+    });
 
     function IsInitialized() {
         return INITIALIZATION_INFO_LOADED && INITIALIZATION_SPRITES_LOADED && INITIALIZATION_MAP_LOADED;
@@ -408,7 +413,7 @@ pgf.game.map.Map = function(selector, params) {
     function CenterOnHero() {
         var fullData = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
         var data = fullData.mapData;
-        
+
         var hero = fullData.dynamicData.hero;
 
         var heroPosition = GetHeroPosition(data, hero);
@@ -426,7 +431,7 @@ pgf.game.map.Map = function(selector, params) {
     function CenterOnPlace(placeId) {
         var fullData = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
         var data = fullData.mapData;
-        
+
         var place = data.places[placeId];
 
         var x = place.pos.x * TILE_SIZE - canvasWidth / 2;
@@ -826,7 +831,7 @@ pgf.game.map.NavigationLayer = function(selector, params) {
         var offset = container.offset();
         var x = pageX - offset.left;
         var y = pageY - offset.top;
-        OnMove(pos.x + x, pos.y + y);        
+        OnMove(pos.x + x, pos.y + y);
     }
 
     function _OnClick(pageX, pageY) {
@@ -858,7 +863,7 @@ pgf.game.map.NavigationLayer = function(selector, params) {
 
                        if (!isDragging) {
                            // emulate mouse click, since we prevent default events handlers
-                           _OnClick(touch.pageX, touch.pageY);                           
+                           _OnClick(touch.pageX, touch.pageY);
                        }
 
                        OnStopDragging();
