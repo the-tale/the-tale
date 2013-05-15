@@ -25,8 +25,23 @@ if (!pgf.game.map.events) {
 pgf.game.resources.events.SPRITES_LOADED = 'pgf-game-resources-sprites-loaded';
 pgf.game.map.events.DATA_UPDATED = 'pgf-game-map-data-updated';
 
-pgf.game.resources.Image = function(canvas) {
-    var image = canvas;
+pgf.game.resources.Image = function(sourceImage, src, x, y, w, h) {
+
+    this.src = src;
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+
+    var image = document.createElement('canvas');
+    image.width = w;
+    image.height = h;
+
+    var _tmpContext = image.getContext('2d');
+    _tmpContext.drawImage(sourceImage,
+                          x, y, w, h,
+                          0, 0, w, h);
+
 
     this.Draw = function(context, x, y) {
         context.drawImage(image, x, y);
@@ -51,19 +66,8 @@ pgf.game.resources.ImageManager =  function(spritesSettins, params) {
             if (typeof(spritesSettins[spriteName])=='string') continue;
 
             if (spritesSettins[spriteName].src == properties.src) {
-
                 var data = spritesSettins[spriteName];
-
-                var tmpCanvas = document.createElement('canvas');
-                tmpCanvas.width = data.w;
-                tmpCanvas.height = data.h;
-                var tmpContext = tmpCanvas.getContext('2d');
-
-                tmpContext.drawImage(properties.image,
-                                     data.x, data.y, data.w, data.h,
-                                     0, 0, data.w, data.h);
-
-                sprites[spriteName] = new pgf.game.resources.Image(tmpCanvas);
+                sprites[spriteName] = new pgf.game.resources.Image(properties.image, params.staticUrl+properties.src, data.x, data.y, data.w, data.h);
                 initializedSprites += 1;
             }
         }
@@ -257,7 +261,7 @@ pgf.game.map.Map = function(selector, params) {
 
     // TODO: do something with this
     var canvasWidth = jQuery('#pgf-map-container').width()-20;
-    var canvasHeight = params.canvasWidth; 
+    var canvasHeight = params.canvasWidth;
 
     canvas.get(0).width = canvasWidth;
     canvas.get(0).height = canvasHeight;
@@ -305,19 +309,19 @@ pgf.game.map.Map = function(selector, params) {
 
         pgf.ui.dialog.Create({ fromUrl: pgf.urls['game:map:cell_info'](x, y),
                                OnOpened: function(dialog) {
-                                   pgf.base.InitializeTabs('game-map-cell-info', 'map', 
-                                                           [[jQuery('.pgf-cell-description-button', dialog), 'description'], 
-                                                            [jQuery('.pgf-cell-persons-button', dialog), 'persons'], 
-                                                            [jQuery('.pgf-cell-place-modifiers-button', dialog), 'place-modifiers'], 
-                                                            [jQuery('.pgf-cell-place-chronicle-button', dialog), 'place-chronicle'], 
-                                                            [jQuery('.pgf-cell-building-button', dialog), 'building'], 
-                                                            [jQuery('.pgf-cell-map-button', dialog), 'map'], 
+                                   pgf.base.InitializeTabs('game-map-cell-info', 'map',
+                                                           [[jQuery('.pgf-cell-description-button', dialog), 'description'],
+                                                            [jQuery('.pgf-cell-persons-button', dialog), 'persons'],
+                                                            [jQuery('.pgf-cell-place-modifiers-button', dialog), 'place-modifiers'],
+                                                            [jQuery('.pgf-cell-place-chronicle-button', dialog), 'place-chronicle'],
+                                                            [jQuery('.pgf-cell-building-button', dialog), 'building'],
+                                                            [jQuery('.pgf-cell-map-button', dialog), 'map'],
                                                             [jQuery('.pgf-cell-debug-button', dialog), 'debug']]);
                                    jQuery('[rel="tooltip"]', dialog).tooltip(pgf.base.tooltipsArgs);
 
                                    if (widgets.abilities) {
                                        widgets.abilities.UpdateButtons();
-                                       widgets.abilities.RenderAbility(pgf.game.data.abilities.buildingrepair);                                       
+                                       widgets.abilities.RenderAbility(pgf.game.data.abilities.buildingrepair);
                                        jQuery('.angel-ability', dialog).toggleClass('pgf-hidden', false);
                                    }
 
@@ -325,7 +329,7 @@ pgf.game.map.Map = function(selector, params) {
                                OnClosed: function(dialog) {
                                    pgf.base.HideTooltips(dialog);
                                }
-                             });        
+                             });
     }
 
     function OnMouseEnter() {
@@ -364,6 +368,43 @@ pgf.game.map.Map = function(selector, params) {
         Draw(data);
     }
 
+    ///////////////////////////////////////////////////
+    // cell highlighting
+    ///////////////////////////////////////////////////
+    var _highlightingBorder = undefined;
+    var _highlightingPositions = {}
+    function GetHighlightingBorder() {
+        if (!_highlightingBorder) {
+            image = spritesManager.GetImage('cell_highlighting');
+            _highlightingBorder = jQuery('<div></div>').css({'width': TILE_SIZE+'px',
+                                                             'height': TILE_SIZE+'px',
+                                                             'background': 'url("'+image.src+'") no-repeat scroll -'+image.x+'px -'+image.y+'px',
+                                                             'position': 'relative',
+                                                             'z-index': parseInt(canvas.css('z-index')) + 1});
+            map.append(_highlightingBorder);
+        }
+        return _highlightingBorder;
+    }
+
+    function UpdateHighlightingPosition(x_, y_) {
+        if (x_ != undefined) _highlightingPositions.x = Math.round(x_);
+        if (y_ != undefined) _highlightingPositions.y = Math.round(y_);
+
+        var posX = Math.floor(pos.x);
+        var posY = Math.floor(pos.y);
+
+        var x = parseInt(posX + _highlightingPositions.x * TILE_SIZE);
+        var y = parseInt(posY + _highlightingPositions.y * TILE_SIZE);
+
+        GetHighlightingBorder().css({'left': x+'px', 'top': y+'px'})
+    }
+
+    function HighlightCell(x_, y_) {
+        UpdateHighlightingPosition(x_, y_);
+        GetHighlightingBorder().effect("pulsate", { times:3, mode: "hide"}, 500);
+    }
+    ///////////////////////////////////////////////////
+
     function CenterOnHero() {
         var fullData = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
         var data = fullData.mapData;
@@ -377,6 +418,8 @@ pgf.game.map.Map = function(selector, params) {
         var y = heroPosition.y * TILE_SIZE - canvasHeight / 2;
 
         OnMove(x + pos.x, y + pos.y);
+
+        HighlightCell(heroPosition.x, heroPosition.y);
 
         return;
     }
@@ -540,7 +583,7 @@ pgf.game.map.Map = function(selector, params) {
                 }
                 else {
                     image = spritesManager.GetImage(imageName);
-                    image.Draw(context, x, y);    
+                    image.Draw(context, x, y);
                 }
 
                 if (calculatedData.mapInfo[i][j].road) {
@@ -580,7 +623,7 @@ pgf.game.map.Map = function(selector, params) {
                    else { if (place.size < 9) { spriteName += '_large'; }
                           else spriteName += '_capital';
                         }}
-                                  
+
             var image = spritesManager.GetImage(spriteName);
             image.Draw(context,
                        posX + place.pos.x * TILE_SIZE,
@@ -589,11 +632,11 @@ pgf.game.map.Map = function(selector, params) {
             var text = '('+place.size+') '+place.name;
             var textWidth = context.measureText(text).width;
 
-            DrawText(context, 
-                     text, 
+            DrawText(context,
+                     text,
                      textWidth,
                      12,
-                     Math.round(posX + place.pos.x * TILE_SIZE + TILE_SIZE / 2 - textWidth / 2), 
+                     Math.round(posX + place.pos.x * TILE_SIZE + TILE_SIZE / 2 - textWidth / 2),
                      Math.round(posY + (place.pos.y + 1) * TILE_SIZE) + 2);
         }
 
@@ -601,7 +644,7 @@ pgf.game.map.Map = function(selector, params) {
 
         var heroPosition = GetHeroPosition(data, hero);
         // hero.base.race/gender
-        var heroImage = 'hero_'+ 
+        var heroImage = 'hero_'+
             pgf.game.constants.RACE_TO_STR[hero.base.race].toLowerCase() +
             '_' + pgf.game.constants.GENDER_TO_STR[hero.base.gender].toLowerCase();
 
@@ -638,12 +681,12 @@ pgf.game.map.Map = function(selector, params) {
         }
 
         var image = spritesManager.GetImage(heroImage);
-        
+
         var heroX = parseInt(posX + heroPosition.x * TILE_SIZE, 10);
         var heroY = parseInt(posY + heroPosition.y * TILE_SIZE, 10) - 12;
 
         if (reflectNeeded) {
-            context.save(); 
+            context.save();
             context.scale(-1, 1);
             heroX *= -1;
             heroX -= TILE_SIZE;
@@ -668,6 +711,8 @@ pgf.game.map.Map = function(selector, params) {
         }
 
         context.restore();
+
+        UpdateHighlightingPosition();
     }
 
     function Activate() {

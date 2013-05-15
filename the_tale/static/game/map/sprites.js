@@ -120,8 +120,8 @@ pgf.tilesets = {
             r_angle: { x: 4 * 32, y: 3 * 32 },
             r1:      { x: 0 * 32, y: 3 * 32 },
 
-            select_land: { x: 0*32, y: 9 * 32},
-            select_hero: { x: 1*32, y: 9 * 32},
+            select_land:       { x: 0*32, y: 9 * 32},
+            cell_highlighting: { x: 1*32, y: 9 * 32},
 
             BUILDING_SAWMILL :       {y: 4 * 32, x: 0 * 32},
             BUILDING_WATCHTOWER :    {y: 4 * 32, x: 1 * 32},
