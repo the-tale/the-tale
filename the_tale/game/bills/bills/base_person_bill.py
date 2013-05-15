@@ -43,6 +43,10 @@ class BasePersonBill(object):
         return persons_storage.get(self.person_id)
 
     @property
+    def place_name_changed(self):
+        return self.old_place_name != self.place.name
+
+    @property
     def place(self):
         return places_storage.get(self.place_id)
 

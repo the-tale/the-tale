@@ -70,6 +70,10 @@ class PlaceDescripton(object):
                 'new_description': self.description}
 
     @property
+    def place_name_changed(self):
+        return self.old_name != self.place.name
+
+    @property
     def moderator_form_initials(self):
         return {}
 

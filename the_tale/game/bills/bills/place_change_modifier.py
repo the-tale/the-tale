@@ -83,6 +83,10 @@ class PlaceModifier(object):
         return {}
 
     @property
+    def place_name_changed(self):
+        return self.old_name != self.place.name
+
+    @property
     def old_name(self): return self.old_name_forms.normalized
 
     def initialize_with_user_data(self, user_form):

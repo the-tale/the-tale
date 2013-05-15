@@ -76,6 +76,10 @@ class PlaceRenaming(object):
     def old_name(self): return self.old_name_forms.normalized
 
     @property
+    def place_name_changed(self):
+        return self.old_name != self.place.name
+
+    @property
     def user_form_initials(self):
         return {'place': self.place_id,
                 'new_name': self.base_name}
