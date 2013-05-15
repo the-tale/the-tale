@@ -372,7 +372,7 @@ pgf.game.map.Map = function(selector, params) {
     // cell highlighting
     ///////////////////////////////////////////////////
     var _highlightingBorder = undefined;
-    var _highlightingPositions = {}
+    var _highlightingPositions = {};
     function GetHighlightingBorder() {
         if (!_highlightingBorder) {
             image = spritesManager.GetImage('cell_highlighting');
@@ -774,7 +774,7 @@ pgf.game.map.NavigationLayer = function(selector, params) {
 
     var container = jQuery(selector);
     container.css({width: params.w,
-                   height: params.h });
+                   height: params.h});
 
     var pos = {x: 0, y: 0};
 
@@ -786,14 +786,18 @@ pgf.game.map.NavigationLayer = function(selector, params) {
 
     var layer = this;
 
-    function OnStartDragging(e, ui) {
-        pos = {x: ui.position.left,
-               y: ui.position.top};
+    var isDragging = false;
+
+    function OnStartDragging(left, top) {
+        pos = {x: left, y: top};
+        isDragging = false;
     };
 
-    function OnLayerDrag(e, ui) {
-        var newPos = {x: ui.position.left,
-                      y: ui.position.top};
+    function OnLayerDrag(left, top) {
+        isDragging = true;
+
+        var newPos = {x: left,
+                      y: top};
 
         var delta = {x: pos.x - newPos.x,
                      y: pos.y - newPos.y};
@@ -803,13 +807,14 @@ pgf.game.map.NavigationLayer = function(selector, params) {
         OnDrag(delta.x, delta.y);
     };
 
-    function OnStopDragging(e, ui) {
+    function OnStopDragging() {
         pos = { x: 0, y: 0};
+        isDragging = false;
     };
 
-    container.draggable({start: function(e, ui){OnStartDragging(e, ui);},
-                         drag: function(e, ui){OnLayerDrag(e, ui);},
-                         stop: function(e, ui){OnStopDragging(e, ui);},
+    container.draggable({start: function(e, ui){OnStartDragging(ui.position.left, ui.position.top);},
+                         drag: function(e, ui){OnLayerDrag(ui.position.left, ui.position.top);},
+                         stop: function(e, ui){OnStopDragging();},
                          cursor: 'crosshair',
                          helper: 'original',
                          revert: true,
@@ -817,18 +822,45 @@ pgf.game.map.NavigationLayer = function(selector, params) {
                          scroll: false
                         });
 
-    container.mousemove(function(e) {
-                            var offset = container.offset();
-                            var x = e.pageX - offset.left;
-                            var y = e.pageY - offset.top;
-                            OnMove(pos.x + x, pos.y + y);
-                        });
+    function _OnMouseMove(pageX, pageY) {
+        var offset = container.offset();
+        var x = pageX - offset.left;
+        var y = pageY - offset.top;
+        OnMove(pos.x + x, pos.y + y);        
+    }
+
+    function _OnClick(pageX, pageY) {
+        var offset = container.offset();
+        var x = pageX - offset.left;
+        var y = pageY - offset.top;
+        OnClick(x, y);
+    }
+
+    container.mousemove(function(e) {_OnMouseMove(e.pageX, e.pageY);});
     container.mouseenter(function(e){OnMouseEnter();});
     container.mouseleave(function(e){OnMouseLeave();});
-    container.click(function(e){
-                        var offset = container.offset();
-                        var x = e.pageX - offset.left;
-                        var y = e.pageY - offset.top;
-                        OnClick(pos.x + x, pos.y + y);
-                    });
+    container.click(function(e){_OnClick(e.pageX, e.pageY);});
+
+    container.bind('touchstart', function(e){
+                       e.preventDefault(); //prevent block selection on logn touch
+                       var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+                       OnStartDragging(touch.pageX, touch.pageY);
+                   });
+    container.bind('touchmove', function(e) {
+                       e.preventDefault();
+                       var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+                       OnLayerDrag(touch.pageX, touch.pageY);
+                   });
+    container.bind('touchend', function(e){
+                       e.preventDefault(); //prevent block selection on logn touch
+
+                       var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+
+                       if (!isDragging) {
+                           // emulate mouse click, since we prevent default events handlers
+                           _OnClick(touch.pageX, touch.pageY);                           
+                       }
+
+                       OnStopDragging();
+                   });
 };
