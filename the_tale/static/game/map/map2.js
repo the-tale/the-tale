@@ -396,21 +396,20 @@ pgf.game.map.Map = function(selector, params) {
         var x = parseInt(posX + _highlightingPositions.x * TILE_SIZE);
         var y = parseInt(posY + _highlightingPositions.y * TILE_SIZE);
 
-        GetHighlightingBorder().css({'left': x+'px', 'top': y+'px'})
+        GetHighlightingBorder().css({'left': x+'px', 'top': y+'px'});
     }
 
     function HighlightCell(x_, y_) {
         UpdateHighlightingPosition(x_, y_);
-        GetHighlightingBorder().effect("pulsate", { times:3, mode: "hide"}, 500);
+        GetHighlightingBorder().effect("pulsate", { times:9, mode: "hide"}, 250);
     }
     ///////////////////////////////////////////////////
 
     function CenterOnHero() {
         var fullData = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
         var data = fullData.mapData;
-        var dynamicData = fullData.dynamicData;
-
-        var hero = dynamicData.hero;
+        
+        var hero = fullData.dynamicData.hero;
 
         var heroPosition = GetHeroPosition(data, hero);
 
@@ -423,6 +422,22 @@ pgf.game.map.Map = function(selector, params) {
 
         return;
     }
+
+    function CenterOnPlace(placeId) {
+        var fullData = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
+        var data = fullData.mapData;
+        
+        var place = data.places[placeId];
+
+        var x = place.pos.x * TILE_SIZE - canvasWidth / 2;
+        var y = place.pos.y * TILE_SIZE - canvasHeight / 2;
+
+        OnMove(x + pos.x, y + pos.y);
+
+        HighlightCell(place.pos.x, place.pos.y);
+
+        return;
+    };
 
     function GetRoadTile(map, y, x) {
         var result = {name: '',
@@ -751,6 +766,7 @@ pgf.game.map.Map = function(selector, params) {
 
     this.Draw = Draw;
     this.CenterOnHero = CenterOnHero;
+    this.CenterOnPlace = CenterOnPlace;
     this.Refresh = Refresh;
 };
 

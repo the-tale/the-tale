@@ -23,6 +23,11 @@ jQuery(document).ready(function(e) {
         widgets.map.CenterOnHero();
     });
 
+    jQuery('.pgf-center-on-place').click(function(e){
+        e.preventDefault();
+        widgets.map.CenterOnPlace(jQuery(e.currentTarget).data('place-id'));
+    });
+
     jQuery('.pgf-journal-tab-button').click(function(e) {
         widgets.map.CenterOnHero();
     });
@@ -31,9 +36,18 @@ jQuery(document).ready(function(e) {
 
 <div class="block" id="pgf-map-block">
   <div class="map-commands">
-    <a href="{{url('game:map:')}}" target="_blank" class="">в отдельном окне</a>
+    <div class="dropdown" style="display: inline-block;">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">найти город<b class="caret"></b></a>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="max-height: 310px; overflow-y: auto;">
+        {% for place in all_places() %}
+        <li><a href="#" class="pgf-center-on-place" data-place-id="{{place.id}}">{{place.name}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
     |
     <a href="#" class="pgf-center-on-hero">найти героя</a>
+    |
+    <a href="{{url('game:map:')}}" target="_blank" class="">в отдельном окне</a>
   </div>
 
   <div id="pgf-game-map">
