@@ -300,11 +300,17 @@ class AccountResource(Resource):
         return self._master_account
 
     @handler('', method='get')
-    def index(self, page=1):
+    def index(self, page=1, prefix=''):
 
-        accounts_count = Account.objects.filter(is_fast=False).count()
+        accounts_query = AccountPrototype._model_class.objects.filter(is_fast=False)
 
-        url_builder = UrlBuilder(reverse('accounts:'), arguments={'page': page})
+        if prefix:
+            accounts_query = accounts_query.filter(nick__istartswith=prefix)
+
+        accounts_count = accounts_query.count()
+
+        url_builder = UrlBuilder(reverse('accounts:'), arguments={'page': page,
+                                                                  'prefix': prefix})
 
         page = int(page) - 1
 
@@ -315,7 +321,7 @@ class AccountResource(Resource):
 
         account_from, account_to = paginator.page_borders(page)
 
-        accounts_models = Account.objects.filter(is_fast=False).select_related().order_by('nick')[account_from:account_to]
+        accounts_models = accounts_query.select_related().order_by('nick')[account_from:account_to]
 
         accounts = [AccountPrototype(model) for model in accounts_models]
 
@@ -325,6 +331,7 @@ class AccountResource(Resource):
 
         return self.template('accounts/index.html',
                              {'heroes': heroes,
+                              'prefix': prefix,
                               'accounts': accounts,
                               'current_page_number': page,
                               'paginator': paginator  } )

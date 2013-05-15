@@ -10,7 +10,15 @@
 
 <p>
   На этой странице представлен список всех игроков завершивших регистрацию.
-<p>
+</p>
+
+<div class="{% if accounts %}pull-left{% endif %} form-inline">
+  <form method="GET" action="{{url('accounts:')}}">
+    <input name="prefix" type="text" value="{{prefix}}" placeholder="первые символы ника">
+    <input type="submit" class="btn" value="Искать"/>
+    <a href="{{url('accounts:')}}" class="btn" value="Искать">сбросить</a>
+  </form>
+</div>
 
 {% if accounts %}
 
@@ -38,7 +46,7 @@
 
 {% else %}
 
-<span class="pgf-no-bills-message">Игроки не найдены</span>
+<p class="alert alert-warning pgf-no-accounts-message">Игроки не найдены</p>
 
 {% endif %}
 

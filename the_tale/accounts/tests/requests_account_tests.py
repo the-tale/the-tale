@@ -2,6 +2,8 @@
 
 from django.core.urlresolvers import reverse
 
+from dext.utils.urls import url
+
 from common.utils.testcase import TestCase
 from common.utils.permissions import sync_group
 from common.postponed_tasks import PostponedTaskPrototype
@@ -52,7 +54,42 @@ class IndexRequestsTests(AccountRequestsTests):
         self.check_html_ok(self.client.get(reverse('accounts:')+'?page=2'), texts=(('pgf-account-record', 3),))
 
     def test_index_redirect_from_large_page(self):
-        self.check_redirect(reverse('accounts:')+'?page=2', reverse('accounts:')+'?page=1')
+        self.check_redirect(url('accounts:', page=2), url('accounts:', page=1, prefix=''))
+
+    def test_accounts_not_found_message(self):
+        self.check_html_ok(self.client.get(url('accounts:', prefix='ac')), texts=(('pgf-account-record', 0),
+                                                                                  ('pgf-no-accounts-message', 1),
+                                                                                  ('test_user1', 0),
+                                                                                  ('test_user2', 0),
+                                                                                  ('test_user3', 0),))
+
+    def test_accounts_search_by_prefix(self):
+        texts = [('pgf-account-record', 6),
+                 ('pgf-no-accounts-message', 0),]
+        for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):
+            register_user('test_user_a_%d' % i, 'test_user_a_%d@test.com' % i, '111111')
+            texts.append(('test_user_a_%d' % i, 0))
+        for i in xrange(6):
+            register_user('test_user_b_%d' % i, 'test_user_b_%d@test.com' % i, '111111')
+            texts.append(('test_user_b_%d' % i, 1))
+
+        self.check_html_ok(self.client.get(url('accounts:', prefix='test_user_b')), texts=texts)
+
+    def test_accounts_search_by_prefix_second_page(self):
+        texts = [('pgf-account-record', 6),
+                 ('pgf-no-accounts-message', 0),]
+        for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):
+            register_user('test_user_a_%d' % i, 'test_user_a_%d@test.com' % i, '111111')
+            texts.append(('test_user_a_%d' % i, 0))
+        for i in xrange(6):
+            register_user('test_user_b_%d' % i, 'test_user_b_%d@test.com' % i, '111111')
+            texts.append(('test_user_b_%d' % i, 1))
+
+        for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):
+            register_user('test_user_b2_%d' % i, 'test_user_b2_%d@test.com' % i, '111111')
+            texts.append(('test_user_b2_%d' % i, 0))
+
+        self.check_html_ok(self.client.get(url('accounts:', prefix='test_user_b', page=2)), texts=texts)
 
 
 class ShowRequestsTests(AccountRequestsTests):
