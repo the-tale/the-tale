@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from common.utils import testcase
 
@@ -52,3 +53,8 @@ class MessagesContainerTest(testcase.TestCase):
 
         self.assertEqual([msg[2] for msg in self.messages.messages], ['1', '3', '2'])
         self.assertEqual([msg[2] for msg in self.messages.ui_info()], ['1', '3', '2'])
+
+    def test_push_message__sort_by_time(self):
+        self.messages.push_message((0, datetime.datetime.now(), u'1'))
+        self.messages.push_message((0, datetime.datetime.now()-datetime.timedelta(seconds=1), u'2'))
+        self.assertEqual([msg[2] for msg in self.messages.messages], ['2', '1'])

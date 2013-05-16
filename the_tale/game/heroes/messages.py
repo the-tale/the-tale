@@ -23,8 +23,8 @@ class MessagesContainer(object):
 
         self.messages.append(msg)
 
-        if len(self.messages) > 1 and  self.messages[-1][0] < self.messages[-2][0]:
-            self.messages.sort(lambda a, b: cmp(a[0], b[0]))
+        if len(self.messages) > 1 and (self.messages[-1][0] < self.messages[-2][0] or self.messages[-1][1] < self.messages[-2][1]):
+            self.messages.sort(lambda a, b: cmp(a, b)) # compare tuples
 
         if len(self.messages) > heroes_settings.MESSAGES_LOG_LENGTH:
             self.messages.pop(0)
