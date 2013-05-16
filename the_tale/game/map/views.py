@@ -35,6 +35,9 @@ class MapResource(Resource):
         x = int(x)
         y = int(y)
 
+        if x < 0 or y < 0 or x >= map_settings.WIDTH or y >= map_settings.HEIGHT:
+            return self.auto_error('game.map.cell_info.outside_map', u'Запрашиваемая зона не принадлежит карте')
+
         map_info = map_info_storage.item
 
         terrain = TERRAIN._ID_TO_TEXT[map_info.terrain[y][x]]

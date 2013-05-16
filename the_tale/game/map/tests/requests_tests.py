@@ -5,6 +5,8 @@ import datetime
 from django.test import client
 from django.core.urlresolvers import reverse
 
+from dext.utils.urls import url
+
 from common.utils.testcase import TestCase
 
 from accounts.prototypes import AccountPrototype
@@ -16,6 +18,9 @@ from game.chronicle import RecordPrototype as ChronicleRecordPrototype
 
 from game.map.places.modifiers import MODIFIERS, TradeCenter
 from game.map.places.prototypes import BuildingPrototype
+
+from game.map.conf import map_settings
+
 
 class RequestsTestsBase(TestCase):
     def setUp(self):
@@ -90,3 +95,12 @@ class CellInfoTests(RequestsTestsBase):
         building = BuildingPrototype.create(self.place_1.persons[0])
         texts = [building.type.text, jinja2.escape(building.person.name), jinja2.escape(self.place_1.name)]
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (building.x, building.y))), texts=texts)
+
+    def test_outside_map(self):
+        self.check_html_ok(self.client.get(url('game:map:cell-info', x=0, y=0)), texts=[('game.map.cell_info.outside_map', 0)])
+        self.check_html_ok(self.client.get(url('game:map:cell-info', x=map_settings.WIDTH-1, y=map_settings.HEIGHT-1)), texts=[('game.map.cell_info.outside_map', 0)])
+
+        self.check_html_ok(self.client.get(url('game:map:cell-info', x=-1, y=0)), texts=[('game.map.cell_info.outside_map', 1)])
+        self.check_html_ok(self.client.get(url('game:map:cell-info', x=0, y=-1)), texts=[('game.map.cell_info.outside_map', 1)])
+        self.check_html_ok(self.client.get(url('game:map:cell-info', x=map_settings.WIDTH, y=map_settings.HEIGHT-1)), texts=[('game.map.cell_info.outside_map', 1)])
+        self.check_html_ok(self.client.get(url('game:map:cell-info', x=map_settings.WIDTH-1, y=map_settings.HEIGHT)), texts=[('game.map.cell_info.outside_map', 1)])
