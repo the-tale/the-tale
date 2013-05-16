@@ -8,6 +8,14 @@ jQuery(document).ready(function(e) {
 
     widgets.abilities = new pgf.game.widgets.Abilities('#abilities-block', widgets);
 
+    jQuery('.pgf-action-info-link').click(function(e){
+        e.preventDefault();
+        var target = jQuery(e.currentTarget);
+        var url = target.attr('href');
+        pgf.ui.dialog.Create({ fromUrl: url});
+    });
+
+
 });
 </script>
 
@@ -20,6 +28,9 @@ jQuery(document).ready(function(e) {
 <div id="current-action-block" class="block" style="cursor: default;">
 
   <strong class="action-info pgf-action-info"></strong>
+  <a href="#" class="pgf-action-info-link pgf-hidden">
+    <i class="icon-info-sign" style="vertical-align: middle;" rel="tooltip" title="дополнительная информация"></i>
+  </a>
 
   <div class="progress progress-success" style="margin: 10px 0;">
     <div class="bar pgf-action-percents"></div>

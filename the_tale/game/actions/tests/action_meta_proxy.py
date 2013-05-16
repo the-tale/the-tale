@@ -58,8 +58,8 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
         self.assertFalse(self.action_idl_2.leader)
         self.assertTrue(self.action_proxy_1.leader)
         self.assertTrue(self.action_proxy_2.leader)
-        self.assertEqual(len(self.hero_1.actions_descriptions), 2)
-        self.assertEqual(len(self.hero_2.actions_descriptions), 2)
+        self.assertEqual(len(self.hero_1.actions._actions), 2)
+        self.assertEqual(len(self.hero_2.actions._actions), 2)
 
         # here we not test creating of new bundle (it processed and tested in supervisor tasks)
         self.assertEqual(self.action_proxy_1.bundle_id, self.action_idl_1.bundle_id)

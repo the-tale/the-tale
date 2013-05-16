@@ -34,7 +34,12 @@ class MobResourceBase(Resource):
         self.can_moderate_mob = self.account.has_perm('mobs.moderate_mobrecord')
 
 
+
 class GuideMobResource(MobResourceBase):
+
+    @validator(code='mobs.mob_disabled', message=u'монстр находится вне игры', status_code=404)
+    def validate_mob_disabled(self, *args, **kwargs):
+        return not self.mob.state.is_disabled or self.can_create_mob or self.can_moderate_mob
 
     @validate_argument('state', MOB_RECORD_STATE, 'mobs', u'неверное состояние записи о монстре')
     @validate_argument('terrain', TERRAIN, 'mobs', u'неверный тип территории')
@@ -79,14 +84,16 @@ class GuideMobResource(MobResourceBase):
                               'url_builder': url_builder,
                               'section': 'mobs'} )
 
+    @validate_mob_disabled()
     @handler('#mob', name='show', method='get')
     def show(self):
-
-        if self.mob.state.is_disabled and not (self.can_create_mob or self.can_moderate_mob):
-            return self.auto_error('mobs.show.mob_disabled', u'монстр находится вне игры', status_code=404)
-
         return self.template('mobs/show.html', {'mob': self.mob,
                                                 'section': 'mobs'})
+
+    @validate_mob_disabled()
+    @handler('#mob', 'info', method='get')
+    def show_dialog(self):
+        return self.template('mobs/info.html', {'mob': self.mob})
 
 
 class GameMobResource(MobResourceBase):

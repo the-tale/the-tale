@@ -1,14 +1,16 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import copy
 import random
 
 from dext.utils import s11n
 from dext.utils import database
+from dext.utils.urls import url
 
 from common.utils.logic import random_value_by_priority
 
 from game.heroes.logic import create_mob_for_hero
 from game.heroes.statistics import MONEY_SOURCE
+from game.heroes.actions import Action as HeroAction
 
 from game.map.places.storage import places_storage
 from game.map.roads.storage import waymarks_storage
@@ -210,6 +212,9 @@ class ActionPrototype(object):
     def description_text_name(self):
         return '%s_description' % self.TEXTGEN_TYPE
 
+    def get_info_link(self):
+        return None
+
     def get_description(self):
         args = prepair_substitution(self.get_description_arguments())
         template = get_vocabulary().get_random_phrase(self.description_text_name)
@@ -241,19 +246,15 @@ class ActionPrototype(object):
         if parent:
             parent.storage.add_action(self)
 
-        self.hero.push_action_description(self.get_description())
-        self.hero.last_action_percents = self.percents
+        self.hero.actions.push_action(HeroAction(percents=self.percents,
+                                                 description=self.get_description(),
+                                                 info_link=self.get_info_link()))
 
     def on_remove(self, force=False):
         if force:
             return
 
-        if self.parent:
-            self.hero.last_action_percents = self.parent.percents
-        else:
-            self.hero.last_action_percents = 0
-
-        self.hero.pop_action_description()
+        self.hero.actions.pop_action()
 
     @classmethod
     def create(cls, parent, *argv, **kwargs):
@@ -338,7 +339,7 @@ class ActionPrototype(object):
 
         # if action is leader action
         if self.leader:
-            self.hero.last_action_percents = self.percents
+            self.hero.actions.current_action.percents = self.percents
 
         if not self.removed:
 
@@ -417,7 +418,7 @@ class ActionIdlenessPrototype(ActionPrototype):
         self.state = self.STATE.WAITING
 
         self.percents = 1.0
-        self.hero.last_action_percents = self.percents
+        self.hero.actions.current_action.percents = self.percents
 
         self.updated = True
 
@@ -551,7 +552,7 @@ class ActionMoveToPrototype(ActionPrototype):
         if self.percents >= 1:
             self.percents = 1
 
-        self.hero.last_action_percents = self.percents
+        self.hero.actions.current_action.percents = self.percents
 
         self.updated = True
 
@@ -710,6 +711,9 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
     # Object operations
     ###########################################
 
+    def get_info_link(self):
+        return url('guide:mobs:info', self.mob.record.id)
+
     @classmethod
     def _create(cls, parent, bundle_id, mob):
 
@@ -737,7 +741,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
         self.mob.strike_by(percents)
 
         self.percents = 1.0 - self.mob.health_percents
-        self.hero.last_action_percents = self.percents
+        self.hero.actions.current_action.percents = self.percents
 
         self.updated = True
 
@@ -821,7 +825,7 @@ class ActionResurrectPrototype(ActionPrototype):
             return False
 
         self.percents = 1.0
-        self.hero.last_action_percents = self.percents
+        self.hero.actions.current_action.percents = self.percents
 
         self.updated = True
         return True
@@ -1015,7 +1019,7 @@ class ActionRestPrototype(ActionPrototype):
 
     def on_heal(self):
         self.percents = float(self.hero.health)/self.hero.max_health
-        self.hero.last_action_percents = self.percents
+        self.hero.actions.current_action.percents = self.percents
 
     def process(self):
 

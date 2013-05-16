@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from textgen.words import Noun
 
 from dext.utils import s11n
+from dext.utils.urls import url
 
 from common.utils.testcase import TestCase
 from common.utils.permissions import sync_group
@@ -183,7 +184,7 @@ class TestShowRequests(BaseTestRequests):
 
     def test_disabled_mob_declined(self):
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[('mobs.show.mob_disabled', 1)], status_code=404)
+        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[('mobs.mob_disabled', 1)], status_code=404)
 
     def test_disabled_mob_accepted_for_create_rights(self):
         self.request_logout()
@@ -223,6 +224,46 @@ class TestShowRequests(BaseTestRequests):
         mob = MobRecordPrototype(MobRecord.objects.all()[0])
         self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-moderate-button', 1),
                                                                                               ('pgf-edit-button', 0)])
+
+class TestInfoRequests(BaseTestRequests):
+
+    def setUp(self):
+        super(TestInfoRequests, self).setUp()
+
+    def test_wrong_mob_id(self):
+        self.check_html_ok(self.client.get(url('guide:mobs:info', 'adsd')), texts=[('mobs.mob.wrong_format', 1)])
+
+    def test_no_mob(self):
+        self.check_html_ok(self.client.get(url('guide:mobs:info', 666)), texts=[('mobs.mob.not_found', 1)], status_code=404)
+
+    def test_disabled_mob_declined(self):
+        mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
+        self.check_html_ok(self.client.get(url('guide:mobs:info', mob.id)), texts=[('mobs.mob_disabled', 1)], status_code=404)
+
+    def test_disabled_mob_accepted_for_create_rights(self):
+        self.request_logout()
+        self.request_login('test_user_2@test.com')
+        mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
+        self.check_html_ok(self.client.get(url('guide:mobs:info', mob.id)), texts=[mob.name.capitalize()])
+
+    def test_disabled_mob_accepted_for_add_rights(self):
+        self.request_logout()
+        self.request_login('test_user_3@test.com')
+        mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
+        self.check_html_ok(self.client.get(url('guide:mobs:info', mob.id)), texts=[mob.name.capitalize()])
+
+    def test_simple(self):
+        mob = MobRecordPrototype(MobRecord.objects.all()[0])
+        self.check_html_ok(self.client.get(url('guide:mobs:info', mob.id)), texts=[(mob.name.capitalize(), 1),
+                                                                                   ('pgf-no-description', 0),
+                                                                                   ('pgf-moderate-button', 0),
+                                                                                   ('pgf-edit-button', 0)])
+
+    def test_no_description(self):
+        mob = MobRecordPrototype(MobRecord.objects.all()[0])
+        mob.description = ''
+        mob.save()
+        self.check_html_ok(self.client.get(url('guide:mobs:info', mob.id)), texts=[('pgf-no-description', 1)])
 
 
 class TestEditRequests(BaseTestRequests):

@@ -41,6 +41,7 @@ from game.heroes.logic import ValuesDict
 from game.heroes.pvp import PvPData
 from game.heroes.messages import MessagesContainer
 from game.heroes.places_help_statistics import PlacesHelpStatistics
+from game.heroes.actions import ActionsContainer
 
 
 class HeroPrototype(BasePrototype):
@@ -54,7 +55,6 @@ class HeroPrototype(BasePrototype):
                       'last_energy_regeneration_at_turn',
                       'might',
                       'might_updated_time',
-                      'last_action_percents',
                       'ui_caching_started_at',
                       'active_state_end_at',
                       'premium_state_end_at')
@@ -63,7 +63,6 @@ class HeroPrototype(BasePrototype):
     def __init__(self, **kwargs):
         super(HeroPrototype, self).__init__(**kwargs)
         self.name_updated = False
-        self.actions_descriptions_updated = False
 
     @property
     def is_premium(self):
@@ -539,37 +538,17 @@ class HeroPrototype(BasePrototype):
     def need_regenerate_energy(self):
         return TimePrototype.get_current_turn_number() > self.last_energy_regeneration_at_turn + f.angel_energy_regeneration_delay(self.preferences.energy_regeneration_type)
 
-    @property
-    def position(self):
-        if not hasattr(self, '_position'):
-            self._position = HeroPositionPrototype(hero_model=self._model)
-        return self._position
+    @lazy_property
+    def position(self): return HeroPositionPrototype(hero_model=self._model)
 
-    @property
-    def statistics(self):
-        if not hasattr(self, '_statistics'):
-            self._statistics = HeroStatistics(hero_model=self._model)
-        return self._statistics
+    @lazy_property
+    def statistics(self): return HeroStatistics(hero_model=self._model)
 
-    @property
-    def preferences(self):
-        if not hasattr(self, '_preferences'):
-            self._preferences = HeroPreferences(hero_model=self._model)
-        return self._preferences
+    @lazy_property
+    def preferences(self): return HeroPreferences(hero_model=self._model)
 
-    @property
-    def actions_descriptions(self):
-        if not hasattr(self, '_actions_descriptions'):
-            self._actions_descriptions = s11n.from_json(self._model.actions_descriptions)
-        return self._actions_descriptions
-
-    def push_action_description(self, description):
-        self.actions_descriptions_updated = True
-        self.actions_descriptions.append(description)
-
-    def pop_action_description(self):
-        self.actions_descriptions_updated = True
-        self.actions_descriptions.pop()
+    @lazy_property
+    def actions(self): return ActionsContainer.deserialize(s11n.from_json(self._model.actions))
 
     @lazy_property
     def pvp(self): return PvPData.deserialize(s11n.from_json(self._model.pvp))
@@ -637,9 +616,9 @@ class HeroPrototype(BasePrototype):
             self._model.diary = s11n.to_json(self.diary.serialize())
             self.diary.updated = False
 
-        if self.actions_descriptions_updated:
-            self._model.actions_descriptions = s11n.to_json(self.actions_descriptions)
-            self.actions_descriptions_updated = False
+        if self.actions.updated:
+            self._model.actions = s11n.to_json(self.actions.serialize())
+            self.actions.updated = False
 
         if self.name_updated:
             self._model.name_forms = s11n.to_json(self.normalized_name.serialize())
@@ -672,7 +651,7 @@ class HeroPrototype(BasePrototype):
                 self.gender == other.gender and
                 self.race == other.race and
                 self.level == other.level and
-                self.last_action_percents == other.last_action_percents and
+                self.actions == other.actions and
                 self.experience == other.experience and
                 self.health == other.health and
                 self.money == other.money and
@@ -683,8 +662,7 @@ class HeroPrototype(BasePrototype):
                 self.position == other.position and
                 self.statistics == other.statistics and
                 self.messages == other.messages and
-                self.diary == other.diary and
-                self.actions_descriptions == other.actions_descriptions)
+                self.diary == other.diary)
 
     def ui_info(self, for_last_turn=False, quests_info=False):
         from game.quests.prototypes import QuestPrototype
@@ -716,8 +694,7 @@ class HeroPrototype(BasePrototype):
                                    e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 'sharpening',
                                    e.ITEMS_OF_EXPENDITURE.USELESS: 'useless',
                                    e.ITEMS_OF_EXPENDITURE.IMPACT: 'impact'}[self.next_spending],
-                'action': { 'percents': self.last_action_percents,
-                            'description': self.actions_descriptions[-1]},
+                'action': self.actions.current_action.ui_info(),
                 'pvp': self.pvp.ui_info() if not for_last_turn else self.pvp.turn_ui_info(),
                 'base': { 'name': self.name,
                           'level': self.level,

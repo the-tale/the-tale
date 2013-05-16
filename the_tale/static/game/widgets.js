@@ -479,6 +479,10 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
         jQuery('.pgf-action-info', widget).text(action.description);
         jQuery('.pgf-action-percents', widget).width( (action.percents * 100) + '%');
+
+        jQuery('.pgf-action-info-link', widget)
+            .toggleClass('pgf-hidden', !action.info_link)
+            .attr('href', action.info_link);
     }
 
     this.Refresh = function(game_data) {

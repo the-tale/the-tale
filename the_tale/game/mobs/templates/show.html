@@ -1,5 +1,6 @@
 {% extends "guide/base.html" %}
 {% import 'guide/macros.html' as guide_macros with context %}
+{% import 'mobs/macros.html' as mobs_macros with context %}
 
 {% block title %}{{mob.name|capitalize}} | Бестиарий | {{ super() }}{% endblock %}
 
@@ -21,38 +22,6 @@
 
 {{ guide_macros.page_caption(mob.name|capitalize, "Описание монстра") }}
 
-<table class="table table-condensed table-striped table-bordered table-no-highlighting">
-  <tbody>
-    <tr><th>уровень</th><td>{{mob.level}}</td></tr>
-    <tr><th>способности</th><td>{{ ', '.join(mob.get_abilities_names()) }}</td></tr>
-    <tr><th>места обитания</th><td>{{ ', '.join(mob.get_terrain_names()) }}</td></tr>
-    <tr>
-      <th>полезная добыча</th>
-      <td>
-        <ul class="unstyled">
-          {% for artifact in mob.artifacts %}
-          <li><a href="{{url('guide:artifacts:show',artifact.id)}}">{{artifact.name}}</a></li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <th>бесполезная добыча</th>
-      <td>
-        <ul class="unstyled">
-          {% for loot in mob.loot %}
-          <li><a href="{{url('guide:artifacts:show', loot.id)}}">{{loot.name}}</a></li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-{% if mob.description %}
-{{mob.description_html|safe}}
-{% else %}
-<p class="pgf-no-description">нет описания<p>
-{% endif %}
+{{ mobs_macros.mob_info(mob) }}
 
 {% endblock %}

@@ -72,7 +72,7 @@ class SupervisorTaskTests(TestCase):
         new_hero = HeroPrototype.get_by_account_id(self.account_1.id)
 
         self.assertNotEqual(old_hero, new_hero)
-        self.assertTrue(len(old_hero.actions_descriptions) < len(new_hero.actions_descriptions))
+        self.assertTrue(len(old_hero.actions._actions) < len(new_hero.actions._actions))
         self.assertEqual(new_hero.health, new_hero.max_health)
 
         self.assertEqual(Action.objects.all().count(), 4)

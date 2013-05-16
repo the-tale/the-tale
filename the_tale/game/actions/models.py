@@ -11,7 +11,7 @@ class Action(models.Model):
 
     type = models.CharField(max_length=150, null=False)
 
-    hero = models.ForeignKey('heroes.Hero', related_name='actions')
+    hero = models.ForeignKey('heroes.Hero', related_name='+')
 
     order = models.IntegerField()
 

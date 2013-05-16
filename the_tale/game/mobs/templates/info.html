@@ -1,0 +1,15 @@
+{% import 'mobs/macros.html' as mobs_macros with context %}
+
+<div class="modal hide place-description-dialog">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">
+      {{mob.name|capitalize}}
+    </h3>
+  </div>
+
+  <div class="modal-body">
+    {{ mobs_macros.mob_info(mob, limit_content=true) }}
+  </div>
+</div>

@@ -99,7 +99,7 @@ class HelpAbilityTest(testcase.TestCase):
 
         self.assertTrue(old_road_percents < self.hero.position.percents)
         self.assertTrue(old_percents < action_move.percents)
-        self.assertEqual(self.hero.last_action_percents, action_move.percents)
+        self.assertEqual(self.hero.actions.current_action.percents, action_move.percents)
 
 
     def test_lighting(self):
@@ -119,7 +119,7 @@ class HelpAbilityTest(testcase.TestCase):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
 
         self.assertTrue(old_mob_health > action_battle.mob.health)
-        self.assertEqual(self.hero.last_action_percents, action_battle.percents)
+        self.assertEqual(self.hero.actions.current_action.percents, action_battle.percents)
         self.assertTrue(old_percents < action_battle.percents)
 
     def test_lighting_when_mob_killed(self):
@@ -151,4 +151,4 @@ class HelpAbilityTest(testcase.TestCase):
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.assertEqual(self.hero.is_alive, True)
         self.assertTrue(old_percents < action_resurrect.percents)
-        self.assertEqual(self.hero.last_action_percents, action_resurrect.percents)
+        self.assertEqual(self.hero.actions.current_action.percents, action_resurrect.percents)
