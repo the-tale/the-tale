@@ -54,7 +54,8 @@ class Worker(BaseWorker):
 
         from accounts.models import Award, AWARD_TYPE
         from forum.models import Post, Thread, POST_STATE
-        from game.bills.models import Bill, Vote, BILL_STATE
+        from game.bills.models import Bill, Vote
+        from game.bills.relations import BILL_STATE, VOTE_TYPE
 
         MIGHT_FOR_FORUM_POST = 0.3
         MIGHT_FOR_FORUM_THREAD = 3
@@ -79,7 +80,7 @@ class Worker(BaseWorker):
         might += Post.objects.filter(author_id=hero.account_id, state=POST_STATE.DEFAULT).count() * MIGHT_FOR_FORUM_POST
         might += Thread.objects.filter(author_id=hero.account_id).count() * MIGHT_FOR_FORUM_THREAD
 
-        might += Vote.objects.filter(owner_id=hero.account_id).count() * MIGHT_FOR_BILL_VOTE
+        might += Vote.objects.filter(owner_id=hero.account_id).exclude(type=VOTE_TYPE.REFRAINED).count() * MIGHT_FOR_BILL_VOTE
         might += Bill.objects.filter(owner_id=hero.account_id, state=BILL_STATE.ACCEPTED).count() * MIGHT_FOR_BILL_ACCEPTED
 
         might += PhraseCandidate.objects.filter(author_id=hero.account_id, state=PHRASE_CANDIDATE_STATE.ADDED).count() * MIGHT_FOR_ADDED_PHRASE_CANDIDATE

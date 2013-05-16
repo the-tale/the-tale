@@ -19,8 +19,9 @@ from game.heroes.prototypes import HeroPrototype
 from game.workers.environment import workers_environment
 from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.bills import PlaceRenaming
-from game.bills.models import BILL_STATE, Vote
+from game.bills.models import Vote
 from game.bills.conf import bills_settings
+from game.bills.relations import BILL_STATE, VOTE_TYPE
 
 from game.phrase_candidates.prototypes import PhraseCandidatePrototype
 from game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
@@ -119,8 +120,16 @@ class MightCalculatorTests(testcase.TestCase):
         self.assertEqual(workers_environment.might_calculator.calculate_might(self.hero_2), old_might)
         self.assertEqual(workers_environment.might_calculator.calculate_might(self.hero), 0)
 
-        VotePrototype.create(self.account, bill, False)
+        VotePrototype.create(self.account, bill, VOTE_TYPE.FOR)
         self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > 0)
+
+        Vote.objects.all().delete()
+        VotePrototype.create(self.account, bill, VOTE_TYPE.AGAINST)
+        self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > 0)
+
+        Vote.objects.all().delete()
+        VotePrototype.create(self.account, bill, VOTE_TYPE.REFRAINED)
+        self.assertEqual(workers_environment.might_calculator.calculate_might(self.hero), 0)
 
     def test_phrase_candidate_might(self):
         old_might = workers_environment.might_calculator.calculate_might(self.hero)
