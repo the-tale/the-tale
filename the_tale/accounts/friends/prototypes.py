@@ -114,7 +114,9 @@ class FriendshipPrototype(BasePrototype):
        'text': text,
        'friends_link': u'[url="%s"]предложения дружбы[/url]' % full_url('http', 'accounts:friends:candidates')}
 
-        MessagePrototype.create(get_system_user(), friend_2, message)
+        # send message from name of user, who request friendship
+        # since many users try to respod to system user
+        MessagePrototype.create(friend_1, friend_2, message)
 
         return prototype
 
