@@ -10,6 +10,7 @@ from game.prototypes import TimePrototype
 class Resource(BaseResource):
 
     ERROR_TEMPLATE = 'error.html'
+    DIALOG_ERROR_TEMPLATE = 'dialog_error.html'
 
     def __init__(self, request, *args, **kwargs):
         super(Resource, self).__init__(request, *args, **kwargs)

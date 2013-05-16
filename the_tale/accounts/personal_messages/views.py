@@ -10,6 +10,7 @@ from common.utils.pagination import Paginator
 from common.utils.decorators import login_required
 
 from accounts.prototypes import AccountPrototype
+from accounts.logic import get_system_user
 
 from accounts.personal_messages.models import Message
 from accounts.personal_messages.prototypes import MessagePrototype
@@ -91,6 +92,12 @@ class MessageResource(Resource):
             if answer_to:
                 text = u'[quote]\n%s\n[/quote]\n' % answer_to.text
 
+        system_user = get_system_user()
+        for recipient in recipients:
+            if recipient.id == system_user.id:
+                return self.auto_error('personal_messages.create.can_not_sent_message_to_system_user',
+                                       u'Нельзя отправить сообщение системному пользователю')
+
         form = NewMessageForm(initial={'text': text})
 
         return self.template('personal_messages/new.html',
@@ -106,6 +113,12 @@ class MessageResource(Resource):
 
         if not form.is_valid():
             return self.json_error('personal_messages.create.form_errors', form.errors)
+
+        system_user = get_system_user()
+        for recipient in recipients:
+            if recipient.id == system_user.id:
+                return self.json_error('personal_messages.create.can_not_sent_message_to_system_user',
+                                       u'Нельзя отправить сообщение системному пользователю')
 
         for recipient in recipients:
             MessagePrototype.create(self.account, recipient, form.c.text)

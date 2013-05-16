@@ -7,7 +7,7 @@ from common.utils.testcase import TestCase
 from game.logic import create_test_map
 
 from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
+from accounts.logic import register_user, login_url, get_system_user
 
 from accounts.personal_messages.prototypes import MessagePrototype
 from accounts.personal_messages.models import Message
@@ -154,6 +154,11 @@ class NewRequestsTests(BaseRequestsTests):
                            texts=[('pgf-new-message-form', 1),
                                   ('message_2_1 1', 1)])
 
+    def test_sent_to_system_user(self):
+        recipients = '%d,%d' % (self.account2.id, get_system_user().id)
+        self.check_html_ok(self.client.get(url('accounts:messages:new', recipients=recipients)),
+                           texts=[('personal_messages.create.can_not_sent_message_to_system_user', 1)])
+
 
 class CreateRequestsTests(BaseRequestsTests):
 
@@ -202,6 +207,11 @@ class CreateRequestsTests(BaseRequestsTests):
         self.assertEqual(message.text, 'test-message')
         self.assertEqual(message.sender_id, self.account1.id)
         self.assertEqual(message.recipient_id, self.account3.id)
+
+    def test_sent_to_system_user(self):
+        self.check_ajax_error(self.client.post(url('accounts:messages:create', recipients='%d,%d' % (self.account2.id, get_system_user().id)), {'text': 'test-message'}),
+                              'personal_messages.create.can_not_sent_message_to_system_user')
+        self.assertEqual(Message.objects.all().count(), 0)
 
 
 class DeleteRequestsTests(BaseRequestsTests):
