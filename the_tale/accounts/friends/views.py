@@ -7,6 +7,7 @@ from common.utils.decorators import login_required
 
 from accounts.prototypes import AccountPrototype
 from accounts.views import validate_fast_account
+from accounts.logic import get_system_user
 
 from game.heroes.models import Hero
 from game.heroes.prototypes import HeroPrototype
@@ -45,6 +46,10 @@ class FriendsResource(Resource):
     @validate_argument('friend', AccountPrototype.get_by_id, 'friends', u'Игрок не найден')
     @handler('request', method='get')
     def request_dialog(self, friend):
+
+        if friend.id == get_system_user().id:
+            return self.auto_error('friends.request_dialog.system_user', u'Вы не можете пригласить в друзья системного пользователя')
+
         return self.template('friends/request_dialog.html',
                              {'friend': friend,
                               'form': RequestForm()})
@@ -55,6 +60,9 @@ class FriendsResource(Resource):
 
         if friend.is_fast:
             return self.json_error('friends.request_friendship.fast_friend', u'Вы не можете пригласить в друзья игрока не завершившего регистрацию')
+
+        if friend.id == get_system_user().id:
+            return self.json_error('friends.request_friendship.system_user', u'Вы не можете пригласить в друзья системного пользователя')
 
         form = RequestForm(self.request.POST)
 

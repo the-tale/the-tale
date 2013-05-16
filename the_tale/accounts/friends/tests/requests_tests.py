@@ -7,7 +7,7 @@ from common.utils import testcase
 from game.logic import create_test_map
 
 from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from accounts.logic import register_user, get_system_user
 
 from accounts.friends.models import Friendship
 from accounts.friends.prototypes import FriendshipPrototype
@@ -67,6 +67,10 @@ class FriendshipRequestsTests(testcase.TestCase):
     def test_request_dialog(self):
         self.check_html_ok(self.client.get(url('accounts:friends:request', friend=self.account_2.id)))
 
+    def test_request_dialog__system_user(self):
+        self.check_html_ok(self.client.get(url('accounts:friends:request', friend=get_system_user().id)),
+                           texts=['friends.request_dialog.system_user'])
+
     def test_request_friendship_form_error(self):
         self.check_ajax_error(self.client.post(url('accounts:friends:request', friend=self.account_2.id), {}),
                               'friends.request_friendship.form_errors')
@@ -76,6 +80,11 @@ class FriendshipRequestsTests(testcase.TestCase):
         self.check_ajax_ok(self.client.post(url('accounts:friends:request', friend=self.account_2.id), {'text': 'text 1'}))
         self.assertEqual(Friendship.objects.all().count(), 1)
         self.assertFalse(Friendship.objects.all()[0].is_confirmed)
+
+    def test_request_friendship_system_user(self):
+        self.check_ajax_error(self.client.post(url('accounts:friends:request', friend=get_system_user().id), {'text': 'text 1'}),
+                              'friends.request_friendship.system_user')
+        self.assertEqual(Friendship.objects.all().count(), 0)
 
     def test_request_friendship__fast_friend(self):
         self.account_2.is_fast = True
