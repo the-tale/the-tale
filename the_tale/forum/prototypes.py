@@ -4,6 +4,7 @@ import datetime
 import markdown
 
 from django.core.urlresolvers import reverse
+from django.db import IntegrityError
 
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
@@ -397,10 +398,19 @@ class SubCategoryReadInfoPrototype(BasePrototype):
         if all_read_at is None:
             all_read_at = datetime.datetime.fromtimestamp(0)
 
-        model = cls._model_class.objects.create(subcategory_id=subcategory.id,
-                                                account_id=account.id,
-                                                all_read_at=all_read_at)
-        return cls(model=model)
+        try:
+            model = cls._model_class.objects.create(subcategory_id=subcategory.id,
+                                                    account_id=account.id,
+                                                    all_read_at=all_read_at)
+            return cls(model=model)
+        except IntegrityError:
+            prototype = cls.get_for(subcategory_id=subcategory.id, account_id=account.id)
+            prototype._model.all_read_at = all_read_at
+            prototype.save()
+            return prototype
+
+
+
 
     @classmethod
     def read_subcategory(cls, subcategory, account):

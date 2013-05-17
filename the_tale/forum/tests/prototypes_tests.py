@@ -77,6 +77,12 @@ class SubCategoryReadInfoPrototypeTests(testcase.TestCase):
         category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
         self.subcategory = SubCategoryPrototype.create(category=category, caption='subcat-caption', slug='subcat-slug', order=0)
 
+    def test_create_when_created(self):
+        read_info_1 = SubCategoryReadInfoPrototype.read_subcategory(self.subcategory, self.account)
+        read_info_2 = SubCategoryReadInfoPrototype.read_subcategory(self.subcategory, self.account)
+
+        self.assertEqual(read_info_1.id, read_info_2.id)
+
     def test_remove_old_infos(self):
         read_info_1 = SubCategoryReadInfoPrototype.read_subcategory(self.subcategory, self.account)
         read_info_2 = SubCategoryReadInfoPrototype.read_subcategory(self.subcategory, self.account_2)
