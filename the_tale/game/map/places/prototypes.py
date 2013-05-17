@@ -318,6 +318,9 @@ class BuildingPrototype(BasePrototype):
         if building:
             return building
 
+        # remove any destroyed buildings for person
+        cls._model_class.objects.filter(person_id=person.id).delete()
+
         x, y = random.choice(list(cls.get_available_positions(person.place.x, person.place.y)))
 
         model = Building.objects.create(x=x,

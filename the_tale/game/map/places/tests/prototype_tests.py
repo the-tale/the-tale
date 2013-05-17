@@ -133,6 +133,22 @@ class BuildingPrototypeTests(testcase.TestCase):
         self.assertEqual(Building.objects.all().count(), 1)
         self.assertEqual(hash(building), hash(building_2))
 
+    def test_create_after_destroy(self):
+        self.assertEqual(Building.objects.all().count(), 0)
+
+        old_version = buildings_storage.version
+
+        person = self.place_1.persons[0]
+
+        building = BuildingPrototype.create(person)
+        building.destroy()
+
+        BuildingPrototype.create(person)
+
+        self.assertNotEqual(old_version, buildings_storage.version)
+
+        self.assertEqual(Building.objects.all().count(), 1)
+
     def test_amortize(self):
         building = BuildingPrototype.create(self.place_1.persons[0])
 
