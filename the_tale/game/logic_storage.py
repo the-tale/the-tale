@@ -123,8 +123,6 @@ class LogicStorage(object):
             if hero.id in self.skipped_heroes:
                 continue
 
-            hero.process_turn()
-
             leader_action = self.heroes_to_actions[hero.id][-1]
 
             leader_action.process_turn()

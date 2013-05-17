@@ -829,13 +829,6 @@ class HeroPrototype(BasePrototype):
         self.health = self.max_health
         self.is_alive = True
 
-    ###########################################
-    # Next turn operations
-    ###########################################
-
-    def process_turn(self):
-        pass
-
 
 
 class HeroPositionPrototype(object):

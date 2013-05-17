@@ -38,7 +38,7 @@ jQuery(document).ready(function(e){
 
     setTimeout(RefreshData, 0);
 
-    {% if not settings.DEBUG %}
+    {% if game_settings.ENABLE_DATA_REFRECH %}
     setInterval(RefreshData, {{ game_settings.TURN_DELAY*1000 }} );
     {% endif %}
 

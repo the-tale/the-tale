@@ -21,6 +21,8 @@ game_settings = app_settings('GAME',
                              ENABLE_WORKER_LONG_COMMANDS=True,
                              ENABLE_PVP=True,
 
+                             ENABLE_DATA_REFRECH=True,
+
                              SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY = 'prev real day started',
                              REAL_DAY_STARTED_TIME=8, # UTC hourse
 
