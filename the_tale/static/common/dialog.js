@@ -74,7 +74,9 @@ pgf.ui.dialog.Create = function(params) {
 
         var dialog = undefined;
 
-        var OnShow = function() {
+        var OnShow = function(e) {
+            if (!$(e.target).is(dialog)) return;
+
             jQuery('.pgf-close-dialog', dialog).click(function(e){
                 e.preventDefault();
                 dialog.modal('hide');
@@ -85,7 +87,9 @@ pgf.ui.dialog.Create = function(params) {
             }
         };
 
-        var OnShown = function() {
+        var OnShown = function(e) {
+            if (!$(e.target).is(dialog)) return;
+            
             if (params.OnOpened) {
                 params.OnOpened(dialog);
             }            
@@ -93,14 +97,18 @@ pgf.ui.dialog.Create = function(params) {
             jQuery(document).trigger(pgf.ui.dialog.DIALOG_OPENED, dialog);
         };
 
-        var OnHide = function() {
+        var OnHide = function(e) {
+            if (!$(e.target).is(dialog)) return;
+
             if (params.OnClose) {
                 params.OnClose(dialog);
             }
 
         };
 
-        var OnHidden = function() {
+        var OnHidden = function(e) {
+            if (!$(e.target).is(dialog)) return;
+
             if (params.OnClosed) {
                 params.OnClosed(dialog);
             }
