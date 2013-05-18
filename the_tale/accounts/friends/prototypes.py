@@ -45,7 +45,7 @@ class FriendshipPrototype(BasePrototype):
     @classmethod
     def _get_for(cls, friend_1, friend_2):
         try:
-            return cls(model=cls._model_class.objects.get(friend_1=friend_1._model, friend_2=friend_2._model))
+            return cls(model=cls._model_class.objects.get(friend_1_id=friend_1.id, friend_2_id=friend_2.id))
         except cls._model_class.DoesNotExist:
             return None
 
@@ -89,8 +89,9 @@ class FriendshipPrototype(BasePrototype):
     def request_friendship(cls, friend_1, friend_2, text=None):
         own_request = cls._get_for(friend_1, friend_2)
         if own_request:
-            own_request._model.text = text
-            own_request.save()
+            if text is not None: #
+                own_request._model.text = text
+                own_request.save()
             return own_request
 
         his_request = cls._get_for(friend_2, friend_1)
