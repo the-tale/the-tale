@@ -31,8 +31,7 @@ def check_record_created(self, record_type, records_number=1):
 @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
 def process_bill(bill, success):
     with mock.patch('game.bills.prototypes.BillPrototype.is_percents_barier_not_passed', not success):
-        with mock.patch('game.bills.prototypes.BillPrototype.is_votes_barier_not_passed', not success):
-            bill.apply()
+        bill.apply()
 
 class BillPlaceRenamingTests(BaseTestPrototypes):
 

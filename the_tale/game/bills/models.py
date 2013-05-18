@@ -15,6 +15,7 @@ class Bill(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now_add=True, null=False) # MUST setupped by hand
+    voting_end_at = models.DateTimeField(null=True)
 
     created_at_turn = models.IntegerField(null=False)
 
@@ -41,7 +42,6 @@ class Bill(models.Model):
     votes_refrained = models.IntegerField(default=0)
 
     # fields to store config values after processing state (since they can be changed in future)
-    min_votes_required = models.IntegerField(default=0)
     min_votes_percents_required = models.FloatField(default=0.0)
 
     class Meta:

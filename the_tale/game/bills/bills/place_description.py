@@ -37,7 +37,7 @@ class PlaceDescripton(object):
     MODERATOR_FORM_TEMPLATE = 'bills/bills/place_description_moderator_form.html'
     SHOW_TEMPLATE = 'bills/bills/place_description_show.html'
 
-    CAPTION = u'Закон об изменении описания города'
+    CAPTION = u'Изменение описания города'
     DESCRIPTION = u'Изменяет описание города. При создании нового описания постарайтесь учесть, какой расе принадлежит город, кто является его жителями и в какую сторону он развивается. Также не забывайте, что описание должно соответствовать названию города. Описание должно быть небольшим по размеру.'
 
     def __init__(self, place_id=None, description=None, old_name_forms=None, old_description=None):

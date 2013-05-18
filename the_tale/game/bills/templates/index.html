@@ -20,7 +20,8 @@
 
 {% else %}
 <p>
-  <div class="btn-group pgf-create-new-bill-buttons" style="display: inline-block; vertical-align: middle;">
+  <div class="btn-group pgf-create-new-bill-buttons pull-left"
+       style="display: inline-block; vertical-align: middle; margin-right: 0.5em; margin-bottom: 0.5em;">
     <a class="btn btn-danger btn-primary dropdown-toggle" data-toggle="dropdown">
       Предложить закон <span class="caret"></span>
     </a>
@@ -31,7 +32,9 @@
     </ul>
   </div>
 
-  Жизнью Пандоры управляют игроки. В этом разделе Вы можете напрямую принять участие в управлении миром, жизни его городов и персонажей.
+  <p>
+    Жизнью Пандоры управляют игроки. В этом разделе Вы можете напрямую принять участие в управлении миром, жизни его городов и персонажей. Подробнее о системе политики можно почитать в <a href="{{url('guide:politics')}}">Путеводителе</a>.
+  </p>
 </p>
 {% endif %}
 

@@ -30,7 +30,8 @@ from game.bills import signals
 class BillPrototype(BasePrototype):
     _model_class = Bill
     _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'rationale', 'votes_for',
-                 'votes_against', 'votes_refrained', 'forum_thread_id', 'min_votes_required', 'min_votes_percents_required')
+                 'votes_against', 'votes_refrained', 'forum_thread_id', 'min_votes_percents_required',
+                 'voting_end_at')
     _bidirectional = ('approved_by_moderator', 'state')
     _get_by = ('id', )
 
@@ -84,9 +85,6 @@ class BillPrototype(BasePrototype):
         self._model.votes_for = Vote.objects.filter(bill=self._model, type=VOTE_TYPE.FOR).count()
         self._model.votes_against = Vote.objects.filter(bill=self._model, type=VOTE_TYPE.AGAINST).count()
         self._model.votes_refrained = Vote.objects.filter(bill=self._model, type=VOTE_TYPE.REFRAINED).count()
-
-    @property
-    def is_votes_barier_not_passed(self): return self.votes_for < bills_settings.MIN_VOTES_NUMBER
 
     @property
     def is_percents_barier_not_passed(self): return self.votes_for_percents < bills_settings.MIN_VOTES_PERCENT
@@ -146,7 +144,6 @@ class BillPrototype(BasePrototype):
 
         self.recalculate_votes()
 
-        self._model.min_votes_required = bills_settings.MIN_VOTES_NUMBER
         self._model.min_votes_percents_required = bills_settings.MIN_VOTES_PERCENT
 
         results_text = u'Итоги голосования: %d «за», %d «против» (итого %d%% «за»), %d «воздержалось».' % (self.votes_for,
@@ -154,8 +151,9 @@ class BillPrototype(BasePrototype):
                                                                                                            self.votes_for_percents*100,
                                                                                                            self.votes_refrained)
 
+        self._model.voting_end_at = datetime.datetime.now()
 
-        if (self.is_percents_barier_not_passed or self.is_votes_barier_not_passed ):
+        if self.is_percents_barier_not_passed:
             self.state = BILL_STATE.REJECTED
             self.save()
 

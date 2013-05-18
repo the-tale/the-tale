@@ -38,7 +38,7 @@ class BuildingDestroy(BasePersonBill):
     MODERATOR_FORM_TEMPLATE = 'bills/bills/building_destroy_moderator_form.html'
     SHOW_TEMPLATE = 'bills/bills/building_destroy_show.html'
 
-    CAPTION = u'Закон о разрушении постройки'
+    CAPTION = u'Разрушение постройки'
     DESCRIPTION = u'Разрушает здание, принадлежащее выбранному персонажу.'
 
     def apply(self):

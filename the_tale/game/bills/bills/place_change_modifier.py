@@ -54,7 +54,7 @@ class PlaceModifier(object):
     MODERATOR_FORM_TEMPLATE = 'bills/bills/place_change_modifier_moderator_form.html'
     SHOW_TEMPLATE = 'bills/bills/place_change_modifier_show.html'
 
-    CAPTION = u'Закон об изменении специализации города'
+    CAPTION = u'Изменение специализации города'
     DESCRIPTION = u'Изменяет специализацию города. Изменить специализацию можно только на одну из доступных для этого города. Посмотреть доступные варианты можно в диалоге информации о городе на странице игры.'
 
     def __init__(self, place_id=None, modifier_id=None, modifier_name=None, old_modifier_name=None, old_name_forms=None):

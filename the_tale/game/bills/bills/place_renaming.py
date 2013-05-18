@@ -49,7 +49,7 @@ class PlaceRenaming(object):
     MODERATOR_FORM_TEMPLATE = 'bills/bills/place_renaming_moderator_form.html'
     SHOW_TEMPLATE = 'bills/bills/place_renaming_show.html'
 
-    CAPTION = u'Закон о переименовании города'
+    CAPTION = u'Переименование города'
     DESCRIPTION = u'Изменяет название города. При выборе нового названия постарайтесь учесть, какой расе принадлежит город, кто является его жителями и в какую сторону он развивается.'
 
     def __init__(self, place_id=None, base_name=None, name_forms=None, old_name_forms=None):

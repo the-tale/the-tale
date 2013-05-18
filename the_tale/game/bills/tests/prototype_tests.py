@@ -148,26 +148,6 @@ class TestPrototypeApply(BaseTestPrototypes):
         places_storage.sync(force=True)
         self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 2)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
-    def test_not_enough_voices(self):
-
-        self.assertEqual(Post.objects.all().count(), 1)
-
-        self.assertFalse(self.bill.apply())
-        self.assertTrue(self.bill.state._is_REJECTED)
-
-        self.assertEqual(Post.objects.all().count(), 2)
-
-
-        bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state._is_REJECTED)
-
-        places_storage.sync(force=True)
-
-        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
-
-
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 1)
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.51)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))

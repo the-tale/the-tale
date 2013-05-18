@@ -43,11 +43,11 @@ class RequestsTests(TestCase):
         self.check_ajax_error(self.request_status(POSTPONED_TASK_STATE.EXCEPTION), 'postponed_task.exception')
 
     def test_status__wrong_task_id(self):
-        self.check_ajax_error(self.client.get(url('postponed-tasks:status', 'wrong_task'), HTTP_X_REQUESTED_WITH='XMLHttpRequest'),
+        self.check_ajax_error(self.get_ajax_json(url('postponed-tasks:status', 'wrong_task')),
                               'postponed_task.task.wrong_format')
 
     def test_status__no_task(self):
-        self.check_ajax_error(self.client.get(url('postponed-tasks:status', 666), HTTP_X_REQUESTED_WITH='XMLHttpRequest'),
+        self.check_ajax_error(self.get_ajax_json(url('postponed-tasks:status', 666)),
                               'postponed_task.task.not_found')
 
     def test_wait_success(self):

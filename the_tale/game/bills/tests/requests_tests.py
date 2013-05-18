@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 import mock
 
@@ -198,9 +199,11 @@ class TestIndexRequests(BaseTestRequests):
         bill_voting, bill_accepted, bill_rejected = self.create_bills(3, self.account1, 'caption-%d', 'rationale-%d', bill_data)
 
         bill_accepted.state = BILL_STATE.ACCEPTED
+        bill_accepted._model.voting_end_at = datetime.datetime.now()
         bill_accepted.save()
 
         bill_rejected.state = BILL_STATE.REJECTED
+        bill_rejected._model.voting_end_at = datetime.datetime.now()
         bill_rejected.save()
 
         def check_state_filter(self, state, voting_number, accepted_number, rejected_number):
@@ -382,7 +385,6 @@ class TestShowRequests(BaseTestRequests):
         texts = [('caption-a2-0', 2 + 1), # 1 from social sharing
                  ('rationale-a2-0', 1 + 1), # 1 from social sharing
                  ('pgf-voting-block', 0),
-                 ('test-already-voted-block', 1),
                  ('pgf-forum-block', 1),
                  ('pgf-bills-results-summary', 1),
                  ('pgf-bills-results-detailed', 0),
@@ -397,9 +399,9 @@ class TestShowRequests(BaseTestRequests):
         self.create_bills(1, self.account1, 'caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = Bill.objects.all()[0]
 
-        texts = [('pgf-voted-for-message', 1),
-                 ('pgf-voted-against-message', 0),
-                 ('pgf-voted-refrained-message', 0),
+        texts = [('pgf-voted-for-marker', 1),
+                 ('pgf-voted-against-marker', 0),
+                 ('pgf-voted-refrained-marker', 0),
                  ('pgf-voting-block', 0)]
 
         self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
@@ -411,9 +413,9 @@ class TestShowRequests(BaseTestRequests):
 
         VotePrototype._model_class.objects.all().update(type=VOTE_TYPE.AGAINST)
 
-        texts = [('pgf-voted-for-message', 0),
-                 ('pgf-voted-against-message', 1),
-                 ('pgf-voted-refrained-message', 0),
+        texts = [('pgf-voted-for-marker', 0),
+                 ('pgf-voted-against-marker', 1),
+                 ('pgf-voted-refrained-marker', 0),
                  ('pgf-voting-block', 0)]
 
         self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
@@ -425,9 +427,9 @@ class TestShowRequests(BaseTestRequests):
 
         VotePrototype._model_class.objects.all().update(type=VOTE_TYPE.REFRAINED)
 
-        texts = [('pgf-voted-for-message', 0),
-                 ('pgf-voted-against-message', 0),
-                 ('pgf-voted-refrained-message', 1),
+        texts = [('pgf-voted-for-marker', 0),
+                 ('pgf-voted-against-marker', 0),
+                 ('pgf-voted-refrained-marker', 1),
                  ('pgf-voting-block', 0)]
 
         self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
@@ -438,6 +440,7 @@ class TestShowRequests(BaseTestRequests):
         self.create_bills(1, self.account1, 'caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = Bill.objects.all()[0]
         bill.state = BILL_STATE.ACCEPTED
+        bill.voting_end_at = datetime.datetime.now()
         bill.save()
 
         texts = [('pgf-bills-results-summary', 0),

@@ -80,11 +80,11 @@ class RequestsTests(RequestsTestsBase):
         self.account_1.is_fast = True
         self.account_1.save()
         self.check_html_ok(self.client.get(reverse('game:phrase-candidates:')), texts=[('phrase_candidates.is_fast', 1)])
-        self.check_ajax_error(self.client.get(reverse('game:phrase-candidates:edit', args=[666]), HTTP_X_REQUESTED_WITH='XMLHttpRequest'), 'phrase_candidates.is_fast')
+        self.check_ajax_error(self.get_ajax_json(reverse('game:phrase-candidates:edit', args=[666])), 'phrase_candidates.is_fast')
 
     def test_phrase_not_found(self):
         self.request_login('test_user_1@test.com')
-        self.check_ajax_error(self.client.get(reverse('game:phrase-candidates:edit', args=[666]), HTTP_X_REQUESTED_WITH='XMLHttpRequest'), 'phrase_candidates.phrase_not_found')
+        self.check_ajax_error(self.get_ajax_json(reverse('game:phrase-candidates:edit', args=[666])), 'phrase_candidates.phrase_not_found')
 
 
 class IndexRequestsTests(RequestsTestsBase):
@@ -220,11 +220,11 @@ class NewRequestsTests(RequestsTestsBase):
         self.check_html_ok(self.client.get(self.create_new_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest'), texts=texts)
 
     def test_wrong_module(self):
-        self.check_ajax_error(self.client.get(self.create_new_url(phrase_type=u'bla-bla-bla'), HTTP_X_REQUESTED_WITH='XMLHttpRequest'),
+        self.check_ajax_error(self.get_ajax_json(self.create_new_url(phrase_type=u'bla-bla-bla')),
                               u'phrase_candidates.new.type_not_exist')
 
     def test_wrong_subtype(self):
-        self.check_ajax_error(self.client.get(self.create_new_url(phrase_subtype=u'bla-bla-bla'), HTTP_X_REQUESTED_WITH='XMLHttpRequest'),
+        self.check_ajax_error(self.get_ajax_json(self.create_new_url(phrase_subtype=u'bla-bla-bla')),
                               u'phrase_candidates.new.type_not_exist')
 
 
@@ -299,7 +299,7 @@ class EditRequestsTests(RequestsTestsBase):
     def test_no_permissions(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_ajax_error(self.client.get(reverse('game:phrase-candidates:edit', args=[self.phrase_1.id]), HTTP_X_REQUESTED_WITH='XMLHttpRequest'),
+        self.check_ajax_error(self.get_ajax_json(reverse('game:phrase-candidates:edit', args=[self.phrase_1.id])),
                               'phrase_candidates.moderate_rights_required')
 
 

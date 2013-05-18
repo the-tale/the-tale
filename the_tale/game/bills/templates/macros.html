@@ -2,15 +2,21 @@
 {% macro _voting_results(bill) %}
 
 {% if bill.state._is_VOTING %}
+{% set min_votes_percents = bills_settings.MIN_VOTES_PERCENT %}
+{% else %}
+{% set min_votes_percents = bill.min_votes_percents_required %}
+{% endif %}
+
+{% if bill.state._is_VOTING %}
 <span class="pgf-bills-results-summary">
-  проголосовало: {{bill.votes_for + bill.votes_against}},
+  проголосовало: {{bill.votes_for + bill.votes_against}} (необходимо {{ min_votes_percents|percents }} «за»),
   воздержалось: {{bill.votes_refrained}}
 </span>
 {% else %}
 <span class="pgf-bills-results-detailed">
   «за» {{ bill.votes_for }},
   «против» {{ bill.votes_against }}
-  (итого {{ bill.votes_for_percents|percents }} «за»);
+  (итого «за»: {{ bill.votes_for_percents|percents }} из {{min_votes_percents|percents}});
   «воздержалось» {{ bill.votes_refrained }}
 </span>
 {% endif %}
@@ -29,59 +35,50 @@
     </tr>
 
     <tr>
-      <th>обновлён</th>
-      <td><span class="pgf-format-datetime" data-timestamp="{{ bill.updated_at|timestamp }}"></span></td>
+      <th>обсуждение</th>
+      <td><a href="{{ url('forum:threads:show', bill.forum_thread_id) }}">форум</a></td>
+
       <th>состояние</th>
       <td>
         {% if bill.state._is_VOTING %}
         голосование
-        {% if bill.approved_by_moderator %}
-        (проверено модератором)
-        {% else %}
-        (в очереди на проверку модератором)
+
+        {% if not bill.approved_by_moderator %}
+        (проверяется модератором),
         {% endif %}
-        {% elif bill.state._is_ACCEPTED %} принят
+
+        осталось {{ bill.time_before_end_step|verbose_timedelta }}
+        {% elif bill.state._is_ACCEPTED %}
+        принят <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
         {% elif bill.state._is_REJECTED %}
-
-        {% if bill.is_votes_barier_not_passed %}
-        не набрано достаточно голосов
-
-        {% elif bill.is_percents_barier_not_passed %}
-        не набран необходимый процент поддержки
-
-        {% endif %}
-
-        {% elif bill.state._is_REMOVED %} удалён
-
+        отклонён <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
+        {% elif bill.state._is_REMOVED %}
+        удалён
         {% endif %}
       </td>
-    </tr>
-
-    <tr>
-      <th>до конца голосования</th>
-      <td>
-        {% if bill.state._is_VOTING %}
-        {{ bill.time_before_end_step|verbose_timedelta }}
-        {% else %}
-        —
-        {% endif %}
-      </td>
-      <th>требования</th>
-
-      {% if bill.state._is_VOTING %}
-      {% set min_votes_percents = bills_settings.MIN_VOTES_PERCENT %}
-      {% set min_votes_number = bills_settings.MIN_VOTES_NUMBER %}
-      {% else %}
-      {% set min_votes_percents = bill.min_votes_percents_required %}
-      {% set min_votes_number = bill.min_votes_required %}
-      {% endif %}
-
-      <td>минимум голосов «за»: {{min_votes_number}}; больше {{min_votes_percents|percents}} голосов «за»</td>
     </tr>
 
     <tr style="">
-      <th>обсуждение</th>
-      <td><a href="{{ url('forum:threads:show', bill.forum_thread_id) }}">форум</a></td>
+      <th>ваш голос</th>
+      <td>
+        {% if vote %}
+        {% if vote.type._is_FOR %}
+        <span class="label label-success pgf-voted-for-marker" style="cursor: default;" rel="tooltip" title="Вы поддержали закон">«за»</span>
+        {% elif vote.type._is_AGAINST %}
+        <span class="label label-important pgf-voted-against-marker" style="cursor: default;" rel="tooltip" title="Вы выступили против закона">«против»</span>
+        {% else %}
+        <span class="label label-info pgf-voted-refrained-marker" style="cursor: default;" rel="tooltip" title="Вы воздержались от голосования">«воздержался»</span>
+        {% endif %}
+        {% else %}
+        {% if bill.can_vote(resource.hero) %}
+        —
+        {% else %}
+        <i class="icon-ban-circle"
+           rel="tooltip"
+           title="Вы не можете голосовать за этот закон, подробности смотрите на странице закона или в Путеводителе"></i>
+        {% endif %}
+        {% endif %}
+      </td>
       <th>результаты</th>
       <td>{{ _voting_results(bill) }}</td>
     </tr>
@@ -93,16 +90,6 @@
 {% macro bill_record(bill, vote=none) %}
 
 <h4 style="margin-bottom: 0.5em; display: inline-block;"><a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a></h4>
-
-{% if vote %}
-{% if vote.type._is_FOR %}
-<span class="label label-success" style="cursor: default;" rel="tooltip" title="Вы поддержали закон">«за»</span>
-{% elif vote.type._is_AGAINST %}
-<span class="label label-important" style="cursor: default;" rel="tooltip" title="Вы выступили против закона">«против»</span>
-{% else %}
-<span class="label label-info" style="cursor: default;" rel="tooltip" title="Вы воздержались от голосования">«воздержался»</span>
-{% endif %}
-{% endif %}
 
 {{ bill_info(bill, vote) }}
 

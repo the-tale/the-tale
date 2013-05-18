@@ -34,7 +34,7 @@ class PersonRemove(BasePersonBill):
     MODERATOR_FORM_TEMPLATE = 'bills/bills/person_remove_moderator_form.html'
     SHOW_TEMPLATE = 'bills/bills/person_remove_show.html'
 
-    CAPTION = u'Закон об изгнании персонажа'
+    CAPTION = u'Изгнание персонажа'
     DESCRIPTION = u'В случае, если персонаж утратил доверие духов-хранителей, его можно изгнать из города. Изгонять можно только наименее влиятельных персонажей, но персонаж будет изгнан даже если за время голосования существенно увеличит своё влияние и станет самым влиятельным жителем города.'
 
     def apply(self):

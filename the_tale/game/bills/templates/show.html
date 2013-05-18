@@ -14,7 +14,7 @@
   <h2 style="display: inline-block;">{{ bill.caption }}</h2>
 </div>
 
-{{ bills_macros.bill_info(bill) }}
+{{ bills_macros.bill_info(bill, vote) }}
 
 {% if bill.state._is_VOTING %}
 
@@ -28,20 +28,9 @@
 
 {% endif %}
 
-{% if vote is not none %}
+{% if vote is none %}
 
-<div class="test-already-voted-block">
-
-  {% if vote.type._is_FOR %}
-  <h3 class="alert alert-success pgf-voted-for-message">Вы поддержали закон</h3>
-  {% elif vote.type._is_AGAINST %}
-  <h3 class="alert alert-error pgf-voted-against-message">Вы выступили против закона</h3>
-  {% else %}
-  <h3 class="alert alert-info pgf-voted-refrained-message">Вы воздержались от голосования</h3>
-  {% endif %}
-</div>
-
-{% elif not resource.can_participate_in_politics %}
+{% if not resource.can_participate_in_politics %}
 
 <p class="alert alert-info pgf-can-not-participate-in-politics">
   Предлагать законы и голосовать могут только подписчики, оформить подписку можно на странице <a href="{{url('accounts:payments:shop')}}">магазина</a>.
@@ -77,6 +66,8 @@
   <a class="btn btn-info pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.REFRAINED.value}}">«воздержаться»</a>
 
 </div>
+{% endif %}
+
 {% endif %}
 
 {% endif %}

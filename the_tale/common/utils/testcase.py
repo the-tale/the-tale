@@ -48,3 +48,12 @@ class TestCase(DextTestCase):
     def request_logout(self):
         response = self.client.post(reverse('accounts:auth:logout'))
         self.check_ajax_ok(response)
+
+    def get_html(self, url):
+        return self.client.get(url)
+
+    def get_ajax_json(self, url):
+        return self.client.get(url, CONTENT_TYPE='text/json; charset=UTF-8', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+    def get_ajax_html(self, url):
+        return self.client.get(url, CONTENT_TYPE='text/html; charset=UTF-8', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
