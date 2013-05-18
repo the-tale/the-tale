@@ -60,48 +60,6 @@ class PrototypeTests(testcase.TestCase):
     def test_is_stable_with_percent(self):
         self.assertTrue(self.person.is_stable)
 
-    def test_update_friends_number(self):
-        self.hero_1.preferences.friend_id = self.person.id
-        self.hero_1.save()
-
-        self.hero_2.preferences.friend_id = self.person.id
-        self.hero_2.save()
-
-        self.hero_2.preferences.friend_id = self.person.id
-        self.hero_2.save()
-
-        result, account_id, bundle_id = register_user('test_user_4') # fast_account
-        hero_4 = HeroPrototype.get_by_account_id(account_id)
-        hero_4.preferences.friend_id = self.person.id
-        hero_4.save()
-
-        self.person.update_friends_number()
-        self.person.update_enemies_number()
-
-        self.assertEqual(self.person.friends_number, 2)
-        self.assertEqual(self.person.enemies_number, 0)
-
-    def test_update_enemies_number(self):
-        self.hero_1.preferences.enemy_id = self.person.id
-        self.hero_1.save()
-
-        self.hero_2.preferences.enemy_id = self.person.id
-        self.hero_2.save()
-
-        self.hero_2.preferences.enemy_id = self.person.id
-        self.hero_2.save()
-
-        result, account_id, bundle_id = register_user('test_user_4') # fast_account
-        hero_4 = HeroPrototype.get_by_account_id(account_id)
-        hero_4.preferences.friend_id = self.person.id
-        hero_4.save()
-
-        self.person.update_friends_number()
-        self.person.update_enemies_number()
-
-        self.assertEqual(self.person.friends_number, 0)
-        self.assertEqual(self.person.enemies_number, 2)
-
     def test_move_out_game(self):
         current_time = datetime.datetime.now()
         self.assertTrue(self.person.out_game_at < current_time)

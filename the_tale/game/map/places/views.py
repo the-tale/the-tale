@@ -8,6 +8,7 @@ from accounts.models import Account
 from accounts.prototypes import AccountPrototype
 
 from game.heroes.prototypes import HeroPrototype
+from game.heroes.preferences import HeroPreferences
 
 from game.map.places.prototypes import PlacePrototype
 
@@ -33,13 +34,13 @@ class PlaceResource(Resource):
         persons_heroes = {}
         persons_numbers = {}
 
-        city_heroes = filter(lambda h: not h.is_fast, HeroPrototype.get_place_heroes(self.place))
+        city_heroes = HeroPreferences.get_citizens_of(self.place)
 
         accounts_ids = [hero.account_id for hero in city_heroes]
 
         for person in persons:
-            friends = filter(lambda h: not h.is_fast, HeroPrototype.get_friendly_heroes(person))
-            enemies = filter(lambda h: not h.is_fast, HeroPrototype.get_enemy_heroes(person))
+            friends = HeroPreferences.get_friends_of(person)
+            enemies = HeroPreferences.get_enemies_of(person)
 
             persons_heroes[person.id] = map(None, friends, enemies)
             persons_numbers[person.id] = (len(friends), len(enemies))

@@ -40,25 +40,6 @@ class PlacePrototypeTests(testcase.TestCase):
     def test_initialize(self):
         self.assertEqual(self.p1.heroes_number, 0)
 
-    def test_update_heroes_number(self):
-        self.hero_1.preferences.place_id = self.p1.id
-        self.hero_1.save()
-
-        self.hero_2.preferences.place_id = self.p1.id
-        self.hero_2.save()
-
-        self.hero_2.preferences.place_id = self.p1.id
-        self.hero_2.save()
-
-        result, account_id, bundle_id = register_user('test_user_4') # fast_account
-        hero_4 = HeroPrototype.get_by_account_id(account_id)
-        hero_4.preferences.place_id = self.p1.id
-        hero_4.save()
-
-        self.p1.update_heroes_number()
-
-        self.assertEqual(self.p1.heroes_number, 2)
-
     def test_sync_race_no_signal_when_race_not_changed(self):
         with mock.patch('game.map.places.signals.place_race_changed.send') as signal_counter:
             self.p1.sync_race()

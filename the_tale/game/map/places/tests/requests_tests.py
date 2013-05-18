@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 import jinja2
 
 from django.test import client
@@ -38,14 +39,16 @@ class TestShowRequests(TestCase):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         hero_2 = HeroPrototype.get_by_account_id(account_id)
 
-        result, account_id, bundle_id = register_user('test_user_3')
+        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
         hero_3 = HeroPrototype.get_by_account_id(account_id)
 
+        hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_1.preferences.set_place_id(self.place_1.id)
         hero_1.preferences.set_friend_id(self.place_1.persons[0].id)
         hero_1.preferences.set_enemy_id(self.place_1.persons[-1].id)
         hero_1.save()
 
+        hero_2.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_2.preferences.set_place_id(self.place_1.id)
         hero_2.preferences.set_friend_id(self.place_1.persons[-1].id)
         hero_2.preferences.set_enemy_id(self.place_1.persons[0].id)

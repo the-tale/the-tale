@@ -122,3 +122,42 @@ class HeroPreferences(object):
     @property
     def equipment_slot_name(self):
         return SLOTS._ID_TO_TEXT[self.equipment_slot]
+
+
+    # helpers
+
+    @classmethod
+    def _heroes_query(cls):
+        from game.heroes.prototypes import HeroPrototype
+        return HeroPrototype._model_class.objects.filter(premium_state_end_at__gte=datetime.datetime.now())
+
+    @classmethod
+    def count_friends_of(cls, person):
+        return cls._heroes_query().filter(pref_friend_id=person.id).count()
+
+    @classmethod
+    def count_enemies_of(cls, person):
+        return cls._heroes_query().filter(pref_enemy_id=person.id).count()
+
+    @classmethod
+    def count_citizens_of(cls, place):
+        return cls._heroes_query().filter(pref_place_id=place.id).count()
+
+    @classmethod
+    def get_friends_of(cls, person):
+        from game.heroes.prototypes import HeroPrototype
+        return [HeroPrototype(model=record) for record in cls._heroes_query().filter(pref_friend_id=person.id)]
+
+    @classmethod
+    def get_enemies_of(cls, person):
+        from game.heroes.prototypes import HeroPrototype
+        return [HeroPrototype(model=record) for record in cls._heroes_query().filter(pref_enemy_id=person.id)]
+
+    @classmethod
+    def get_citizens_of(cls, place):
+        from game.heroes.prototypes import HeroPrototype
+        return [HeroPrototype(model=record) for record in cls._heroes_query().filter(pref_place_id=place.id)]
+
+    # get_friendly_heroes
+    # get_enemy_heroes
+    # get_place_heroes

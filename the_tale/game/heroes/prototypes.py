@@ -630,18 +630,6 @@ class HeroPrototype(BasePrototype):
 
         database.raw_save(self._model)
 
-    @classmethod
-    def get_friendly_heroes(self, person):
-        return [HeroPrototype(model=record) for record in Hero.objects.filter(pref_friend_id=person.id, active_state_end_at__gte=datetime.datetime.now())]
-
-    @classmethod
-    def get_enemy_heroes(self, person):
-        return [HeroPrototype(model=record) for record in Hero.objects.filter(pref_enemy_id=person.id, active_state_end_at__gte=datetime.datetime.now())]
-
-    @classmethod
-    def get_place_heroes(self, place):
-        return [HeroPrototype(model=record) for record in Hero.objects.filter(pref_place_id=place.id, active_state_end_at__gte=datetime.datetime.now())]
-
     def __eq__(self, other):
 
         return (self.id == other.id and

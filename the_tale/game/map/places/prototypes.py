@@ -1,7 +1,6 @@
 # coding: utf-8
 import random
 import math
-import datetime
 
 from dext.utils import s11n
 
@@ -19,8 +18,6 @@ from game.balance import formulas as f
 from game.balance.enums import RACE
 
 from game.helpers import add_power_management
-
-from game.heroes.models import Hero
 
 from game.map.conf import map_settings
 
@@ -78,7 +75,8 @@ class PlacePrototype(BasePrototype):
         return int(round(power))
 
     def update_heroes_number(self):
-        self._model.heroes_number = Hero.objects.filter(is_fast=False, pref_place_id=self.id, active_state_end_at__gte=datetime.datetime.now()).count()
+        from game.heroes.preferences import HeroPreferences
+        self._model.heroes_number = HeroPreferences.count_citizens_of(self)
 
     @property
     def persons(self):

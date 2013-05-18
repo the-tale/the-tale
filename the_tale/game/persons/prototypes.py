@@ -12,8 +12,6 @@ from game.game_info import GENDER_ID_2_STR, GENDER
 from game.helpers import add_power_management
 from game.prototypes import TimePrototype
 
-from game.heroes.models import Hero
-
 from game.map.places.storage import places_storage, buildings_storage
 
 from game.balance.enums import RACE
@@ -129,12 +127,14 @@ class PersonPrototype(BasePrototype):
     @property
     def friends_number(self): return self._model.friends_number
     def update_friends_number(self):
-        self._model.friends_number = Hero.objects.filter(is_fast=False, pref_friend_id=self.id, active_state_end_at__gte=datetime.datetime.now()).count()
+        from game.heroes.preferences import HeroPreferences
+        self._model.friends_number = HeroPreferences.count_friends_of(self)
 
     @property
     def enemies_number(self): return self._model.enemies_number
     def update_enemies_number(self):
-        self._model.enemies_number = Hero.objects.filter(is_fast=False, pref_enemy_id=self.id, active_state_end_at__gte=datetime.datetime.now()).count()
+        from game.heroes.preferences import HeroPreferences
+        self._model.enemies_number = HeroPreferences.count_enemies_of(self)
 
     def save(self):
         from game.persons.storage import persons_storage
