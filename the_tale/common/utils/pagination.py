@@ -3,6 +3,8 @@
 
 class Paginator(object):
 
+    DELTA = 2
+
     def __init__(self, current_page_number, records_number, records_on_page, url_builder, inverse=False):
         self.current_page_number = current_page_number
         self.records_number = records_number
@@ -16,6 +18,33 @@ class Paginator(object):
     def get_page_numbers(cls, records_number, records_on_page):
         return (records_number - 1) / records_on_page + 1
 
+    @classmethod
+    def _make_paginator_structure(cls, current_page, number):
+        structure = []
+
+        start_border = cls.DELTA
+        end_border = number - 1 - cls.DELTA
+
+        middle_left_border = current_page - cls.DELTA
+        middle_right_border = current_page + cls.DELTA
+
+        page_number = -1
+
+        while page_number < number - 1:
+            page_number += 1
+
+            if start_border < page_number < middle_left_border:
+                structure.append(None)
+                page_number = middle_left_border
+
+            if middle_right_border < page_number < end_border:
+                structure.append(None)
+                page_number = end_border
+
+            structure.append(page_number)
+
+        return structure
+
     def _calculate_pages_count(self):
         if self.records_number == 0:
             self.pages_count = 0
@@ -23,7 +52,8 @@ class Paginator(object):
             return
 
         self.pages_count = self.get_page_numbers(self.records_number, self.records_on_page)
-        self.pages_numbers = range(self.pages_count)
+
+        self.pages_numbers = self._make_paginator_structure(self.current_page_number, self.pages_count)
 
         if self.inverse:
             self.pages_numbers = reversed(self.pages_numbers)
