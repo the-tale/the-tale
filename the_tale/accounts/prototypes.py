@@ -7,7 +7,10 @@ import traceback
 from django.contrib.auth.hashers import make_password
 from django.db import models
 
+from dext.utils.urls import full_url
+
 from common.postponed_tasks import PostponedTaskPrototype
+from common.utils.logic import verbose_timedelta
 
 from common.utils.password import generate_password
 from common.utils.prototypes import BasePrototype
@@ -28,9 +31,6 @@ class AccountPrototype(BasePrototype):
     @property
     def nick_verbose(self): return self._model.nick if not self._model.is_fast else u'Игрок'
 
-    @property
-    def is_premium(self): return self.premium_end_at > datetime.datetime.now()
-
     def update_last_news_remind_time(self):
         current_time = datetime.datetime.now()
         self._model_class.objects.filter(id=self.id).update(last_news_remind_time=current_time)
@@ -42,6 +42,36 @@ class AccountPrototype(BasePrototype):
 
     def prolong_premium(self, days):
         self._model.premium_end_at = max(self.premium_end_at, datetime.datetime.now()) + datetime.timedelta(days=days)
+
+    @property
+    def is_premium(self): return self.premium_end_at > datetime.datetime.now()
+
+    @classmethod
+    def send_premium_expired_notifications(cls):
+        current_time = datetime.datetime.now()
+        accounts_query = cls._model_class.objects.filter(premium_end_at__gt=current_time,
+                                                         premium_end_at__lt=current_time + accounts_settings.PREMIUM_EXPIRED_NOTIFICATION_IN,
+                                                         premium_expired_notification_send_at__lt=current_time-accounts_settings.PREMIUM_EXPIRED_NOTIFICATION_IN)
+        for account_model in accounts_query:
+            account = cls(model=account_model)
+            account.notify_about_premium_expiration()
+
+        accounts_query.update(premium_expired_notification_send_at=current_time)
+
+    def notify_about_premium_expiration(self):
+        from accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
+        from accounts.logic import get_system_user
+
+        current_time = datetime.datetime.now()
+
+        message = u'''
+До окончания подписки осталось: %(verbose_timedelta)s.
+
+Вы можете продлить подписку на странице нашего %(shop_link)s.
+''' % {'verbose_timedelta': verbose_timedelta(self.premium_end_at - current_time),
+       'shop_link': u'[url="%s"]магазина[/url]' % full_url('http', 'accounts:payments:shop')}
+
+        PersonalMessagePrototype.create(get_system_user(), self, message)
 
     @lazy_property
     def bank_account(self):

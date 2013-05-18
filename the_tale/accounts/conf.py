@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import datetime
 
 from dext.utils.app_settings import app_settings
 
@@ -20,6 +21,8 @@ accounts_settings = app_settings('ACCOUNTS',
                                  SYSTEM_USER_NICK=u'Смотритель',
 
                                  ACCOUNTS_ON_PAGE=25,
+
+                                 PREMIUM_EXPIRED_NOTIFICATION_IN=datetime.timedelta(days=3),
 
                                  NICK_REGEX=u'[a-zA-Z0-9\-\ _а-яА-Я]+',
                                  NICK_MIN_LENGTH=3,

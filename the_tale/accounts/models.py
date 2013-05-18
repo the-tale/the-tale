@@ -59,6 +59,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     premium_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
     active_end_at = models.DateTimeField(db_index=True)
 
+    premium_expired_notification_send_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
+
     is_fast = models.BooleanField(default=True, db_index=True)
 
     # duplicate django user email - add unique constraints

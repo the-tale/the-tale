@@ -33,4 +33,16 @@ portal_settings = app_settings('PORTAL',
                                BLOG_POSTS_ON_INDEX=3,
                                SETTINGS_ACCOUNT_OF_THE_DAY_KEY='account of the day',
                                FIRST_EDITION_DATE=datetime.datetime(2012, 10, 29),
-                               NEWS_ON_INDEX=3)
+                               NEWS_ON_INDEX=3,
+
+                               SETTINGS_PREV_CLEANING_RUN_TIME_KEY = 'prev cleaning run time',
+                               CLEANING_RUN_TIME=2, # UTC time
+
+                               SETTINGS_PREV_PREIMIUM_EXPIRED_NOTIFICATION_RUN_TIME_KEY = 'pref premium expired notification',
+                               PREMIUM_EXPIRED_NOTIFICATION_RUN_TIME=3, # UTC time
+
+                               SETTINGS_PREV_RATINGS_SYNC_TIME_KEY = 'prev ratings sync run time',
+                               RATINGS_SYNC_DELAY=4*60*60, # UTC time
+
+                               ENABLE_WORKER_LONG_COMMANDS=True
+    )

@@ -13,5 +13,4 @@ Command = construct_workers_manager(help='run game workers',
                                              workers_environment.highlevel if game_settings.ENABLE_WORKER_HIGHLEVEL else None,
                                              workers_environment.turns_loop if game_settings.ENABLE_WORKER_TURNS_LOOP else None,
                                              workers_environment.might_calculator if game_settings.ENABLE_WORKER_MIGHT_CALCULATOR else None,
-                                             workers_environment.long_commands if game_settings.ENABLE_WORKER_LONG_COMMANDS else None,
                                              workers_environment.pvp_balancer if game_settings.ENABLE_PVP else None) )

@@ -82,12 +82,6 @@ class Worker(BaseWorker):
             game_signals.day_started.send(self.__class__)
             settings[game_settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY] = str(time.time())
 
-        # check if cleaning run needed
-        if (time.time() - float(settings.get(game_settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY, 0)) > 23.5*60*60 and
-            datetime.datetime.now().hour >= game_settings.CLEANING_RUN_TIME):
-            settings[game_settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY] = str(time.time())
-            self.supervisor_worker.cmd_run_cleaning()
-
         map_update_needed = False
         with nested_commit_on_success():
             self.turn_number += 1
@@ -98,9 +92,6 @@ class Worker(BaseWorker):
             if self.turn_number % c.MAP_SYNC_TIME == 0:
                 self.sync_data()
                 map_update_needed = True
-
-            if self.turn_number % (game_settings.RATINGS_SYNC_TIME / c.TURN_DELTA) == 0:
-                self.supervisor_worker.cmd_recalculate_ratings()
 
             if self.turn_number % (bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA) == 0:
                 if self.apply_bills():

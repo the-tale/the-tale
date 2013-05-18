@@ -42,9 +42,6 @@ class Worker(BaseWorker):
     def set_highlevel_worker(self, highlevel_worker):
         self.highlevel_worker = highlevel_worker
 
-    def set_long_commands_worker(self, long_commands):
-        self.long_commands_worker = long_commands
-
     def set_pvp_balancer(self, pvp_balancer):
         self.pvp_balancer = pvp_balancer
 
@@ -96,13 +93,6 @@ class Worker(BaseWorker):
             self.wait_answers_from('initialize', workers=['might_calculator'])
         else:
             self.logger.info('skip initialization of might calculator')
-
-        if game_settings.ENABLE_WORKER_LONG_COMMANDS:
-            self.logger.info('initialize long commands')
-            self.long_commands_worker.cmd_initialize(worker_id='long_commands')
-            self.wait_answers_from('initialize', workers=['long_commands'])
-        else:
-            self.logger.info('skip initialization of long commands')
 
         if game_settings.ENABLE_PVP:
             self.logger.info('initialize pvp balancer')
@@ -242,10 +232,6 @@ class Worker(BaseWorker):
             self.might_calculator_worker.cmd_stop()
             self.wait_answers_from('stop', workers=['might_calculator'])
 
-        if game_settings.ENABLE_WORKER_LONG_COMMANDS:
-            self.long_commands_worker.cmd_stop()
-            self.wait_answers_from('stop', workers=['long_commands'])
-
         if game_settings.ENABLE_PVP:
             self.pvp_balancer.cmd_stop()
             self.wait_answers_from('stop', workers=['pvp_balancer'])
@@ -310,18 +296,6 @@ class Worker(BaseWorker):
         self.dispatch_logic_cmd(account_id, 'set_might', {'account_id': account_id,
                                                           'hero_id': hero_id,
                                                           'might': might} )
-
-    def cmd_recalculate_ratings(self):
-        return self.send_cmd('recalculate_ratings')
-
-    def process_recalculate_ratings(self):
-        self.long_commands_worker.cmd_recalculate_ratings()
-
-    def cmd_run_cleaning(self):
-        return self.send_cmd('run_cleaning')
-
-    def process_run_cleaning(self):
-        self.long_commands_worker.cmd_run_cleaning()
 
     def cmd_account_release_required(self, account_id):
         return self.send_cmd('account_release_required', {'account_id': account_id})
