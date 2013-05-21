@@ -44,8 +44,11 @@ jQuery(document).ready(function(e) {
         {% endfor %}
       </ul>
     </div>
+
+    {% if resource.account.is_authenticated() %}
     |
     <a href="#" class="pgf-center-on-hero">найти героя</a>
+    {% endif %}
     |
     <a href="{{url('game:map:')}}" target="_blank" class="">в отдельном окне</a>
   </div>

@@ -1,6 +1,7 @@
 # coding: utf-8
 import functools
 
+
 def login_required(func):
 
     @functools.wraps(func)
@@ -10,8 +11,11 @@ def login_required(func):
         if resource.account.is_authenticated():
             return func(resource, *argv, **kwargs)
         else:
-            if resource.request.is_ajax() or resource.request.method.lower() == 'post':
-                return resource.json_error('common.login_required', u'У Вас нет прав для проведения данной операции')
+            from dext.utils.response import content_type_to_response_type
+            response_type = content_type_to_response_type(resource.request.META.get('CONTENT_TYPE'))
+
+            if resource.request.is_ajax() or response_type == 'json':
+                return resource.auto_error('common.login_required', u'У Вас нет прав для проведения данной операции')
             return resource.redirect(login_url(resource.request.get_full_path()))
 
     return wrapper

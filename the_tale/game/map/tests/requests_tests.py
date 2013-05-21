@@ -37,20 +37,11 @@ class RequestsTestsBase(TestCase):
 
 class IndexTests(RequestsTestsBase):
 
-    def test_place_info_anonimouse(self):
-        self.request_logout()
-        self.check_redirect(reverse('game:map:'), login_url(reverse('game:map:')))
-
-    def test_place_info_logined(self):
+    def test_success(self):
         self.check_html_ok(self.client.get(reverse('game:map:')))
 
 
 class CellInfoTests(RequestsTestsBase):
-
-    def test_place_info_anonimouse(self):
-        self.request_logout()
-        self.check_ajax_error(self.client.get(reverse('game:map:cell-info') + '?x=2&y=3', HTTP_X_REQUESTED_WITH='XMLHttpRequest'),
-                              'common.login_required')
 
     def test_place_info_logined(self):
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + '?x=2&y=3'), texts=[('pgf-cell-debug', 0)])

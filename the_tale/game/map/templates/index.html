@@ -21,7 +21,11 @@ var widgets = {};
 
 jQuery(document).ready(function(e){
 
+{% if resource.account.is_authenticated() %}
     updater = new pgf.game.Updater({url: "{{ url('game:info', account=resource.account.id) }}"});
+{% else %}
+    updater = new pgf.game.Updater({url: "{{ url('game:info') }}"});
+{% endif %}
 
     {% if settings.DEBUG %}
     {{ game_macros.game_debug_javascript() }}

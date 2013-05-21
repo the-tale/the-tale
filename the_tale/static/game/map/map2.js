@@ -416,6 +416,8 @@ pgf.game.map.Map = function(selector, params) {
 
         var hero = fullData.dynamicData.hero;
 
+        if (!hero) return;
+
         var heroPosition = GetHeroPosition(data, hero);
 
         var x = heroPosition.x * TILE_SIZE - canvasWidth / 2;
@@ -662,60 +664,63 @@ pgf.game.map.Map = function(selector, params) {
 
         var hero = dynamicData.hero;
 
-        var heroPosition = GetHeroPosition(data, hero);
-        // hero.base.race/gender
-        var heroImage = 'hero_'+
-            pgf.game.constants.RACE_TO_STR[hero.base.race].toLowerCase() +
-            '_' + pgf.game.constants.GENDER_TO_STR[hero.base.gender].toLowerCase();
+        if (hero) {
 
-        var reflectNeeded = false;
+            var heroPosition = GetHeroPosition(data, hero);
+            // hero.base.race/gender
+            var heroImage = 'hero_'+
+                pgf.game.constants.RACE_TO_STR[hero.base.race].toLowerCase() +
+                '_' + pgf.game.constants.GENDER_TO_STR[hero.base.gender].toLowerCase();
 
-        if (hero.position.road_id != null) {
-            var road = data.roads[hero.position.road_id];
-            var point_1 = data.places[road.point_1_id];
-            var point_2 = data.places[road.point_2_id];
+            var reflectNeeded = false;
+
+            if (hero.position.road_id != null) {
+                var road = data.roads[hero.position.road_id];
+                var point_1 = data.places[road.point_1_id];
+                var point_2 = data.places[road.point_2_id];
 
 
-            if (hero.position.invert_direction) {
-                var tmp = point_1;
-                point_1 = point_2;
-                point_2 = tmp;
+                if (hero.position.invert_direction) {
+                    var tmp = point_1;
+                    point_1 = point_2;
+                    point_2 = tmp;
+                }
+
+                if (point_1.pos.x < point_2.pos.x) {
+                    reflectNeeded = true;
+                }
             }
 
-            if (point_1.pos.x < point_2.pos.x) {
-                reflectNeeded = true;
+            if (hero.position.coordinates.to.x ||
+                hero.position.coordinates.to.y ||
+                hero.position.coordinates.from.x ||
+                hero.position.coordinates.from.y) {
+
+                var to_x = hero.position.coordinates.to.x;
+                var from_x = hero.position.coordinates.from.x;
+
+                if (from_x < to_x) {
+                    reflectNeeded = true;
+                }
             }
-        }
 
-        if (hero.position.coordinates.to.x ||
-            hero.position.coordinates.to.y ||
-            hero.position.coordinates.from.x ||
-            hero.position.coordinates.from.y) {
+            var image = spritesManager.GetImage(heroImage);
 
-            var to_x = hero.position.coordinates.to.x;
-            var from_x = hero.position.coordinates.from.x;
+            var heroX = parseInt(posX + heroPosition.x * TILE_SIZE, 10);
+            var heroY = parseInt(posY + heroPosition.y * TILE_SIZE, 10) - 12;
 
-            if (from_x < to_x) {
-                reflectNeeded = true;
+            if (reflectNeeded) {
+                context.save();
+                context.scale(-1, 1);
+                heroX *= -1;
+                heroX -= TILE_SIZE;
             }
-        }
 
-        var image = spritesManager.GetImage(heroImage);
+            image.Draw(context, heroX, heroY);
 
-        var heroX = parseInt(posX + heroPosition.x * TILE_SIZE, 10);
-        var heroY = parseInt(posY + heroPosition.y * TILE_SIZE, 10) - 12;
-
-        if (reflectNeeded) {
-            context.save();
-            context.scale(-1, 1);
-            heroX *= -1;
-            heroX -= TILE_SIZE;
-        }
-
-        image.Draw(context, heroX, heroY);
-
-        if (reflectNeeded) {
-            context.restore();
+            if (reflectNeeded) {
+                context.restore();
+            }
         }
 
         if (selectedTile) {

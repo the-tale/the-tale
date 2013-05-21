@@ -77,13 +77,14 @@ class TestIndexRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.request_logout()
-        request_url = reverse('game:bills:')
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-unlogined-message', 1),))
 
     def test_is_fast(self):
         self.account1.is_fast = True
+        self.account1.prolong_premium(-100)
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('bills.is_fast', 1),))
+        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-can-not-participate-in-politics', 1),
+                                                                           ('pgf-unlogined-message', 0),))
 
     def test_no_bills(self):
         self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-no-bills-message', 1),))
@@ -280,7 +281,7 @@ class TestNewRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account1.is_fast = True
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)), texts=(('bills.is_fast', 1),))
+        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)), texts=(('common.fast_account', 1),))
 
     @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
     def test__can_not_participate_in_politics(self):
@@ -316,18 +317,17 @@ class TestShowRequests(BaseTestRequests):
         bill = Bill.objects.all()[0]
 
         self.request_logout()
-        requested_url = reverse('game:bills:show', args=[bill.id])
-        self.check_redirect(requested_url, login_url(requested_url))
-
+        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-unlogined-message', 1),))
 
     def test_is_fast(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
-        self.create_bills(1, self.account1, 'caption-a1-%d', 'rationale-a1-%d', bill_data)
+        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_2')
+        self.create_bills(1, self.account2, 'caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = Bill.objects.all()[0]
 
         self.account1.is_fast = True
+        self.account1.prolong_premium(-100)
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('bills.is_fast', 1),))
+        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-participate-in-politics', 1),))
 
     def test_can_not_participate_in_politics(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
@@ -477,7 +477,7 @@ class TestCreateRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account1.is_fast = True
         self.account1.save()
-        self.check_ajax_error(self.client.post(reverse('game:bills:create'), self.get_post_data()), 'bills.is_fast')
+        self.check_ajax_error(self.client.post(reverse('game:bills:create'), self.get_post_data()), 'common.fast_account')
 
     @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
     def test___can_not_participate_in_politics(self):
@@ -540,7 +540,7 @@ class TestVoteRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account2.is_fast = True
         self.account2.save()
-        self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'bills.is_fast')
+        self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'common.fast_account')
         self.check_bill_votes(self.bill.id, 1, 0)
 
     @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
@@ -612,7 +612,7 @@ class TestEditRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account1.is_fast = True
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.is_fast', 1),))
+        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('common.fast_account', 1),))
 
     @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
     def test__can_not_participate_in_politics(self):
@@ -668,7 +668,7 @@ class TestUpdateRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account1.is_fast = True
         self.account1.save()
-        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'bills.is_fast')
+        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'common.fast_account')
 
     @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
     def test__can_not_participate_in_politics(self):
@@ -733,7 +733,7 @@ class TestModerationPageRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account2.is_fast = True
         self.account2.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.is_fast', 1),))
+        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('common.fast_account', 1),))
 
     def test_unexsists(self):
         self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[666])), status_code=404)
@@ -804,7 +804,7 @@ class TestModerateRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account2.is_fast = True
         self.account2.save()
-        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.is_fast')
+        self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'common.fast_account')
 
     def test_type_not_exist(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[666]), self.get_post_data()), 'bills.bill.not_found')
@@ -854,7 +854,7 @@ class TestDeleteRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account2.is_fast = True
         self.account2.save()
-        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'bills.is_fast')
+        self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'common.fast_account')
 
     def test_type_not_exist(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[666]), {}), 'bills.bill.not_found')

@@ -152,16 +152,15 @@ jQuery(document).ready(function() {
                                                                            (url("game:ratings:"), "Рейтинги"),
                                                                            (url("game:pvp:calls"), "Арена")]) }}
 
-            {% if resource.account.is_authenticated() %}
             {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Политика"),
                                                                 (url("game:phrase-candidates:"), "Лингвистика"),
                                                                 (url("blogs:posts:"), "Фольклор"),
                                                                 (url("game:chronicle:"), "Летопись") ] ) }}
-            {% endif %}
 
             {% if resource.account.is_authenticated() %}
             {{ base_macros.main_menu_item("game", url("game:"), "<span class='game-link'>Игра</span>") }}
             {% else %}
+            {{ base_macros.main_menu_item("map", url("game:map:"), "<span class='game-link'>Карта</span>") }}
             <li><a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link"><strong>создать героя</strong></a></li>
             {% endif %}
 

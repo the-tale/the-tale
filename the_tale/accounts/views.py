@@ -22,7 +22,7 @@ from accounts.friends.prototypes import FriendshipPrototype
 
 from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype, ResetPasswordTaskPrototype
 from accounts.postponed_tasks import RegistrationTask
-from accounts.models import CHANGE_CREDENTIALS_TASK_STATE, Account
+from accounts.models import CHANGE_CREDENTIALS_TASK_STATE
 from accounts import forms
 from accounts.conf import accounts_settings
 from accounts.logic import logout_user, login_user

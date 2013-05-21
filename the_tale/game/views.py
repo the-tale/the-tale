@@ -39,30 +39,31 @@ class GameResource(Resource):
 
     @validate_argument_with_resource('account', Resource.validate_account_argument, 'game.info', u'неверный идентификатор аккаунта')
     @handler('info', method='get')
-    def info(self, account):
+    def info(self, account=None):
 
         data = {'mode': 'pve',
                 'turn': self.time.ui_info(),
                 'map_version': map_info_storage.version}
 
-        is_own_hero = self.account and self.account.id == account.id
+        if account is not None:
+            is_own_hero = self.account and self.account.id == account.id
 
-        if is_own_hero:
-            data['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
-            abilities_data = AbilitiesData.objects.get(hero_id=data['hero']['id'])
-            data['abilities'] = [ability(abilities_data).ui_info() for ability_type, ability in ABILITIES.items()]
+            if is_own_hero:
+                data['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
+                abilities_data = AbilitiesData.objects.get(hero_id=data['hero']['id'])
+                data['abilities'] = [ability(abilities_data).ui_info() for ability_type, ability in ABILITIES.items()]
 
-            data['pvp'] = {'waiting': False}
+                data['pvp'] = {'waiting': False}
 
-            battle = Battle1x1Prototype.get_by_account_id(account.id)
+                battle = Battle1x1Prototype.get_by_account_id(account.id)
 
-            if battle:
-                if battle.state._is_WAITING:
-                    data['pvp']['waiting'] = True
-                if battle.state._is_PROCESSING or battle.state._is_PREPAIRING:
-                    data['mode'] = 'pvp'
-        else:
-            data['hero'] = HeroPrototype.get_by_account_id(account.id).ui_info(for_last_turn=True, quests_info=False)
+                if battle:
+                    if battle.state._is_WAITING:
+                        data['pvp']['waiting'] = True
+                    if battle.state._is_PROCESSING or battle.state._is_PREPAIRING:
+                        data['mode'] = 'pvp'
+            else:
+                data['hero'] = HeroPrototype.get_by_account_id(account.id).ui_info(for_last_turn=True, quests_info=False)
 
         return self.json_ok(data=data)
 

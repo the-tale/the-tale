@@ -6,6 +6,7 @@ from dext.views import handler, validator
 from dext.utils.urls import UrlBuilder
 
 from accounts.prototypes import AccountPrototype
+from accounts.views import validate_fast_account
 
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
@@ -21,12 +22,14 @@ from game.phrase_candidates.prototypes import PhraseCandidatePrototype
 
 class PhraseCandidateResource(Resource):
 
-    @login_required
+    @validator(code='phrase_candidates.moderate_rights_required')
+    def validate_moderation_rights(self, *args, **kwargs): return self.can_moderate_phrase
+
+    @validator(code='phrase_candidates.add_to_game_rights_required')
+    def validate_add_to_game_rights(self, *args, **kwargs): return self.can_add_phrase_to_game
+
     def initialize(self, phrase_id=None, *args, **kwargs):
         super(PhraseCandidateResource, self).initialize(*args, **kwargs)
-
-        if self.account.is_fast:
-            return self.auto_error('phrase_candidates.is_fast', u'Вам необходимо завершить регистрацию, чтобы просматривать данный раздел')
 
         if phrase_id is not None:
             self.phrase_id = int(phrase_id)
@@ -36,12 +39,6 @@ class PhraseCandidateResource(Resource):
 
         self.can_moderate_phrase = self.account.has_perm('phrase_candidates.moderate_phrasecandidate')
         self.can_add_phrase_to_game = self.account.has_perm('phrase_candidates.add_to_game_phrasecandidate')
-
-    @validator(code='phrase_candidates.moderate_rights_required')
-    def validate_moderation_rights(self, *args, **kwargs): return self.can_moderate_phrase
-
-    @validator(code='phrase_candidates.add_to_game_rights_required')
-    def validate_add_to_game_rights(self, *args, **kwargs): return self.can_add_phrase_to_game
 
     @handler('', method='get')
     def index(self, page=1, author_id=None, state=None):
@@ -96,8 +93,11 @@ class PhraseCandidateResource(Resource):
     @handler('types', method='get')
     def types(self):
         return self.template('phrase_candidates/types.html', {'phrases_types': get_phrases_types(),
+                                                              'can_add_phrase': self.account.is_authenticated() and not self.account.is_fast,
                                                               'page_type': 'types'})
 
+    @login_required
+    @validate_fast_account()
     @handler('new', method='get')
     def new(self, phrase_type, phrase_subtype):
         phrases_types = get_phrases_types()
@@ -117,6 +117,8 @@ class PhraseCandidateResource(Resource):
                                                             'phrase_subtype': phrases_types['modules'][phrase_type]['types'][phrase_subtype]})
 
 
+    @login_required
+    @validate_fast_account()
     @handler('create', method='post')
     def create(self):
         phrases_types = get_phrases_types()
@@ -141,6 +143,8 @@ class PhraseCandidateResource(Resource):
 
         return self.json_ok()
 
+    @login_required
+    @validate_fast_account()
     @validate_moderation_rights()
     @handler('#phrase_id', 'edit', method='get')
     def edit(self):
@@ -159,6 +163,8 @@ class PhraseCandidateResource(Resource):
                                                              'phrase_subtype': phrases_types['modules'].get(self.phrase.type, {'types': {}})['types'].get(self.phrase.subtype)})
 
 
+    @login_required
+    @validate_fast_account()
     @validate_moderation_rights()
     @handler('#phrase_id', 'update', method='post')
     def update(self):
@@ -185,6 +191,8 @@ class PhraseCandidateResource(Resource):
         return self.json_ok()
 
 
+    @login_required
+    @validate_fast_account()
     @validate_moderation_rights()
     @handler('#phrase_id', 'remove', method='post')
     def remove(self):
@@ -194,6 +202,8 @@ class PhraseCandidateResource(Resource):
 
         return self.json_ok()
 
+    @login_required
+    @validate_fast_account()
     @validate_moderation_rights()
     @handler('#phrase_id', 'approve', method='post')
     def approve(self):
@@ -203,6 +213,8 @@ class PhraseCandidateResource(Resource):
 
         return self.json_ok()
 
+    @login_required
+    @validate_fast_account()
     @validate_add_to_game_rights()
     @handler('#phrase_id', 'add', method='post')
     def add(self):

@@ -2,13 +2,14 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views import handler, validate_argument
+from dext.views import handler, validate_argument, validator
 
-from common.utils.decorators import login_required
+from common.utils.decorators import login_required, lazy_property
 from common.utils.resources import Resource
 from common.postponed_tasks import PostponedTaskPrototype
 
 from accounts.prototypes import AccountPrototype
+from accounts.views import validate_fast_account
 
 from game.conf import game_settings
 
@@ -31,18 +32,22 @@ def accept_call_valid_levels(hero_level):
 
 class PvPResource(Resource):
 
-    @login_required
+    @lazy_property
+    def own_hero(self): return HeroPrototype.get_by_account_id(self.account.id) if self.account.is_authenticated() else None
+
+    @validator(code='pvp.no_rights', message=u'Вы не можете участвовать в PvP')
+    def validate_participation_right(self, *args, **kwargs): return self.can_participate
+
+    @lazy_property
+    def can_participate(self):
+        return self.own_hero is not None and self.own_hero.can_participate_in_pvp
+
     def initialize(self, *args, **kwargs):
         super(PvPResource, self).initialize(*args, **kwargs)
 
-        self.own_hero = HeroPrototype.get_by_account_id(self.account.id)
-
-        if self.own_hero.is_fast:
-            return self.auto_error('pvp.is_fast', u'Для участия в PvP необходимо завершить регистрацию.')
-
-        if not self.own_hero.can_participate_in_pvp:
-            return self.auto_error('pvp.no_rights', u'Вы не можете участвовать в PvP.')
-
+    @login_required
+    @validate_fast_account()
+    @validate_participation_right()
     @handler('', method='get')
     def pvp_page(self):
 
@@ -68,6 +73,9 @@ class PvPResource(Resource):
                               'battle': battle,
                               'ABILITIES': (Ice, Blood, Flame)} )
 
+    @login_required
+    @validate_fast_account()
+    @validate_participation_right()
     @handler('info', method='get')
     def info(self):
 
@@ -90,6 +98,9 @@ class PvPResource(Resource):
 
         return self.json_ok(data=data)
 
+    @login_required
+    @validate_fast_account()
+    @validate_participation_right()
     @handler('say', method='post')
     def say(self):
 
@@ -112,6 +123,9 @@ class PvPResource(Resource):
 
         return self.json_processing(task.status_url)
 
+    # @login_required
+    # @validate_fast_account()
+    # @validate_participation_right()
     @handler('calls', method='get')
     def calls(self):
 
@@ -122,7 +136,9 @@ class PvPResource(Resource):
         heroes = [HeroPrototype(model=hero_model) for hero_model in Hero.objects.filter(account_id__in=accounts_ids)]
         heroes = dict( (hero.account_id, hero) for hero in heroes)
 
-        ACCEPTED_LEVEL_MIN, ACCEPTED_LEVEL_MAX = accept_call_valid_levels(self.own_hero.level)
+        ACCEPTED_LEVEL_MIN, ACCEPTED_LEVEL_MAX = None, None
+        if self.own_hero is not None:
+            ACCEPTED_LEVEL_MIN, ACCEPTED_LEVEL_MAX = accept_call_valid_levels(self.own_hero.level)
 
         return self.template('pvp/calls.html',
                              {'battles': battles,
@@ -131,6 +147,9 @@ class PvPResource(Resource):
                               'ACCEPTED_LEVEL_MAX': ACCEPTED_LEVEL_MAX,
                               'ACCEPTED_LEVEL_MIN': ACCEPTED_LEVEL_MIN  })
 
+    @login_required
+    @validate_fast_account()
+    @validate_participation_right()
     @validate_argument('battle', Battle1x1Prototype.get_by_id, 'pvp', u'Вызов не найден')
     @handler('accept-call', method='post')
     def accept_call(self, battle):
@@ -156,6 +175,9 @@ class PvPResource(Resource):
 
         return self.json_processing(task.status_url)
 
+    @login_required
+    @validate_fast_account()
+    @validate_participation_right()
     @validate_argument('ability', lambda ability: ABILITIES[ability], 'pvp', u'неверный тип способности')
     @handler('use-ability', name='use-ability', method='post')
     def use_ability(self, ability):

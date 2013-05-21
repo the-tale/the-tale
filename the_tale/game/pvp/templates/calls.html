@@ -13,9 +13,21 @@
   На этой странице можно найти информацию о героях, ищущих спарринг-партнёра для поединка на арене.
 </p>
 
-<p>
+{% if not resource.account.is_authenticated() %}
+<p class="pgf-unlogined-message">
+  <strong>Вам необходимо <a href="{{login_url(resource.request.get_full_path())}}">войти</a> или <a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link">создать героя</a>, чтобы принимать участие в PvP.</strong>
+</p>
+{% else %}
+{% if resource.can_participate %}
+<p class="pgf-level-restrictions-message">
   <strong>Вы можете принять вызов любого героя при условии, что его уровень не меньше {{ACCEPTED_LEVEL_MIN}} и не больше {{ACCEPTED_LEVEL_MAX}}.</strong>
 </p>
+{% else %}
+<p class="pgf-fast-account-message">
+  <strong>Сейчас Вы не можете принимать участие в PvP, возможно, вы не завершили регистрацию.</strong>
+</p>
+{% endif %}
+{% endif %}
 
 <h3>Вызовы</h3>
 
@@ -28,7 +40,7 @@
 
       <a href="{{ url('game:heroes:show', hero.id) }}">{{hero.name}}</a> уровень {{hero.level}}
 
-      {% if own_hero.id != hero.id %}
+      {% if own_hero is not none and  own_hero.id != hero.id %}
         {% if ACCEPTED_LEVEL_MIN <= hero.level <= ACCEPTED_LEVEL_MAX %}
         <a class="pgf-accept-battle pgf-forms-post-simple"
            href="{{url('game:pvp:accept-call', battle=battle.id)}}"

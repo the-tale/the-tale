@@ -185,14 +185,33 @@ class TestCallsPage(TestRequestsBase):
     def setUp(self):
         super(TestCallsPage, self).setUp()
 
+    def test_anonimouse(self):
+        self.request_logout()
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-level-restrictions-message', 0),
+                                                                              ('pgf-unlogined-message', 1),
+                                                                              ('pgf-fast-account-message', 0)])
+
     def test_fast_user(self):
+        self.account_1.is_fast = True
+        self.account_1.save()
         self.hero_1.is_fast = True
         self.hero_1.save()
-        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pvp.is_fast', 1)])
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('common.fast_account', 0),
+                                                                              ('pgf-level-restrictions-message', 0),
+                                                                              ('pgf-unlogined-message', 0),
+                                                                              ('pgf-fast-account-message', 1)])
 
     @mock.patch('game.heroes.prototypes.HeroPrototype.can_participate_in_pvp', False)
     def test_no_rights(self):
-        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pvp.no_rights', 1)])
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pvp.no_rights', 0),
+                                                                              ('pgf-level-restrictions-message', 0),
+                                                                              ('pgf-unlogined-message', 0),
+                                                                              ('pgf-fast-account-message', 1)])
+
+    def test_normal_account(self):
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-level-restrictions-message', 1),
+                                                                              ('pgf-unlogined-message', 0),
+                                                                              ('pgf-fast-account-message', 0)])
 
     def test_no_battles(self):
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 1)])
@@ -240,9 +259,9 @@ class AcceptCallRequestsTests(TestRequestsBase):
         self.accept_url = reverse('game:pvp:accept-call')+('?battle=%d' % self.battle.id)
 
     def test_fast_user(self):
-        self.hero_1.is_fast = True
-        self.hero_1.save()
-        self.check_ajax_error(self.client.post(self.accept_url), 'pvp.is_fast')
+        self.account_1.is_fast = True
+        self.account_1.save()
+        self.check_ajax_error(self.client.post(self.accept_url), 'common.fast_account')
 
     @mock.patch('game.heroes.prototypes.HeroPrototype.can_participate_in_pvp', False)
     def test_no_rights(self):

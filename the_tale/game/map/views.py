@@ -5,7 +5,6 @@ from dext.views import handler
 from textgen.logic import Args
 
 from common.utils.resources import Resource
-from common.utils.decorators import login_required
 
 from game.balance.enums import RACE_MULTIPLE_VERBOSE
 
@@ -23,12 +22,10 @@ class MapResource(Resource):
     def initialize(self, *args, **kwargs):
         super(MapResource, self).initialize(*args, **kwargs)
 
-    @login_required
     @handler('', method='get')
     def index(self):
         return self.template('map/index.html')
 
-    @login_required
     @handler('cell-info', method='get')
     def cell_info(self, x, y):
 
@@ -78,4 +75,4 @@ class MapResource(Resource):
                               'y': y,
                               'terrain_points': terrain_points,
                               'chronicle_records': chronicle_records,
-                              'hero': HeroPrototype.get_by_account_id(self.account.id) if self.account else None} )
+                              'hero': HeroPrototype.get_by_account_id(self.account.id) if self.account.is_authenticated() else None} )

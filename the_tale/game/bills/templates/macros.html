@@ -70,7 +70,7 @@
         <span class="label label-info pgf-voted-refrained-marker" style="cursor: default;" rel="tooltip" title="Вы воздержались от голосования">«воздержался»</span>
         {% endif %}
         {% else %}
-        {% if bill.can_vote(resource.hero) %}
+        {% if resource.hero is not none and bill.can_vote(resource.hero) %}
         —
         {% else %}
         <i class="icon-ban-circle"

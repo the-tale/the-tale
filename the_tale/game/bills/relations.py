@@ -11,9 +11,9 @@ class BILL_STATE(DjangoEnum):
 
 
 class BILL_TYPE(DjangoEnum):
-    _records = ( ('PLACE_RENAMING', 0, u'переименование места'),
-                 ('PERSON_REMOVE', 1, u'удаление персонажа'),
-                 ('PLACE_DESCRIPTION', 2, u'изменить описание места'),
+    _records = ( ('PLACE_RENAMING', 0, u'переименование города'),
+                 ('PERSON_REMOVE', 1, u'изгнать персонажа'),
+                 ('PLACE_DESCRIPTION', 2, u'изменить описание города'),
                  ('PLACE_MODIFIER', 3, u'изменить тип места'),
                  ('BUILDING_CREATE', 4, u'возвести постройку'),
                  ('BUILDING_DESTROY', 5, u'разрушить постройку'))
@@ -31,4 +31,4 @@ class VOTED_TYPE(DjangoEnum):
                 ('YES', 'yes', u'проголосовал', None),
                 ('FOR', 'for', u'«за»', VOTE_TYPE.FOR),
                 ('AGAINST', 'against', u'«против»', VOTE_TYPE.AGAINST),
-                ('REFRAINED', 'refrained', u'воздержался', VOTE_TYPE.REFRAINED) )
+                ('REFRAINED', 'refrained', u'«воздержался»', VOTE_TYPE.REFRAINED) )

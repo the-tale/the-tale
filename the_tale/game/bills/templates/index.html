@@ -6,7 +6,13 @@
 
 {% block bills_content %}
 
-{% if active_bills_limit_reached %}
+{% if not resource.account.is_authenticated() %}
+
+<p class="alert alert-info pgf-unlogined-message">
+  Вам необходимо <a href="{{login_url(resource.request.get_full_path())}}">войти</a> или <a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link">создать героя</a>, чтобы иметь возможность предлагать законы и голосовать.
+</p>
+
+{% elif active_bills_limit_reached %}
 
 <p class="alert alert-info pgf-active-bills-limit-reached">
   Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению.
@@ -19,24 +25,24 @@
 </p>
 
 {% else %}
-<p>
-  <div class="btn-group pgf-create-new-bill-buttons pull-left"
-       style="display: inline-block; vertical-align: middle; margin-right: 0.5em; margin-bottom: 0.5em;">
-    <a class="btn btn-danger btn-primary dropdown-toggle" data-toggle="dropdown">
-      Предложить закон <span class="caret"></span>
-    </a>
-    <ul class="dropdown-menu">
-      {% for bill_id, bill_type in BILLS_BY_ID.items() %}
-      <li><a href="{{ url('game:bills:new', bill_type=bill_id) }}">{{bill_type.CAPTION}}</a></li>
-      {% endfor %}
-    </ul>
-  </div>
 
-  <p>
-    Жизнью Пандоры управляют игроки. В этом разделе Вы можете напрямую принять участие в управлении миром, жизни его городов и персонажей. Подробнее о системе политики можно почитать в <a href="{{url('guide:politics')}}">Путеводителе</a>.
-  </p>
-</p>
+<div class="btn-group pgf-create-new-bill-buttons pull-left"
+     style="display: inline-block; vertical-align: middle; margin-right: 0.5em; margin-bottom: 0.5em;">
+  <a class="btn btn-danger btn-primary dropdown-toggle" data-toggle="dropdown">
+    Предложить закон <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu">
+    {% for bill_id, bill_type in BILLS_BY_ID.items() %}
+    <li><a href="{{ url('game:bills:new', bill_type=bill_id) }}">{{bill_type.CAPTION}}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+
 {% endif %}
+
+<p>
+  Жизнью Пандоры управляют игроки. В этом разделе Вы можете напрямую принять участие в управлении миром, жизни его городов и персонажей. Подробнее о системе политики можно почитать в <a href="{{url('guide:politics')}}">Путеводителе</a>.
+</p>
 
 <h2 style="margin-bottom: 0.5em;">Список законов</h2>
 

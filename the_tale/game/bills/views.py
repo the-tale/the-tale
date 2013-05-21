@@ -13,6 +13,7 @@ from common.utils.pagination import Paginator
 from common.utils.decorators import login_required, lazy_property
 
 from accounts.prototypes import AccountPrototype
+from accounts.views import validate_fast_account
 
 from game.heroes.prototypes import HeroPrototype
 
@@ -26,16 +27,22 @@ from game.bills.bills import BILLS_BY_ID
 from game.bills.relations import VOTED_TYPE, VOTE_TYPE, BILL_STATE, BILL_TYPE
 
 
-class IndexFilter(list_filter.ListFilter):
-    ELEMENTS = [list_filter.reset_element(),
-                list_filter.static_element(u'автор:', attribute='owner'),
-                list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все'),
-                                                                                     (BILL_STATE.VOTING.value, u'голосование'),
-                                                                                     (BILL_STATE.ACCEPTED.value, u'принятые'),
-                                                                                     (BILL_STATE.REJECTED.value, u'отклонённые') ]),
-                list_filter.choice_element(u'голосование:', attribute='voted', choices=[(None, u'все')] + list(VOTED_TYPE._select('value', 'text'))),
-                list_filter.choice_element(u'тип:', attribute='bill_type', choices=[(None, u'все')] + list(BILL_TYPE._select('value', 'text'))),
-                list_filter.choice_element(u'город:', attribute='place', choices=lambda x: [(None, u'все')] + places_storage.get_choices()) ]
+BASE_INDEX_FILTERS = [list_filter.reset_element(),
+                      list_filter.static_element(u'автор:', attribute='owner'),
+                      list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все'),
+                                                                                            (BILL_STATE.VOTING.value, u'голосование'),
+                                                                                            (BILL_STATE.ACCEPTED.value, u'принятые'),
+                                                                                            (BILL_STATE.REJECTED.value, u'отклонённые') ]),
+                      list_filter.choice_element(u'тип:', attribute='bill_type', choices=[(None, u'все')] + list(BILL_TYPE._select('value', 'text'))),
+                      list_filter.choice_element(u'город:', attribute='place', choices=lambda x: [(None, u'все')] + places_storage.get_choices()) ]
+
+LOGINED_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element(u'голосование:', attribute='voted', choices=[(None, u'все')] + list(VOTED_TYPE._select('value', 'text'))),]
+
+class UnloginedIndexFilter(list_filter.ListFilter):
+    ELEMENTS = BASE_INDEX_FILTERS
+
+class LoginedIndexFilter(list_filter.ListFilter):
+    ELEMENTS = LOGINED_INDEX_FILTERS
 
 
 def argument_to_bill_type(value): return BILL_TYPE(int(value))
@@ -44,27 +51,15 @@ def argument_to_bill_state(value): return BILL_STATE(int(value))
 
 class BillResource(Resource):
 
-    @login_required
-    @validate_argument('bill', BillPrototype.get_by_id, 'bills', u'Закон не найден')
-    def initialize(self, bill=None, *args, **kwargs):
-        super(BillResource, self).initialize(*args, **kwargs)
-
-        self.bill = bill
-
-        if self.bill and self.bill.state._is_REMOVED:
-            return self.auto_error('bills.removed', u'Законопроект удалён')
-
-        if self.account.is_fast:
-            return self.auto_error('bills.is_fast', u'Вам необходимо завершить регистрацию, чтобы просматривать данный раздел')
-
     @lazy_property
     def hero(self): return HeroPrototype.get_by_account_id(self.account.id)
 
     @property
-    def can_participate_in_politics(self): return self.account.is_premium
+    def can_participate_in_politics(self):
+        return self.account.is_authenticated() and self.account.is_premium
 
     def can_moderate_bill(self, bill):
-        return self.account.has_perm('bills.moderate_bill')
+        return self.account.is_authenticated() and self.account.has_perm('bills.moderate_bill')
 
     @validator(code='bills.voting_state_required')
     def validate_voting_state(self, *args, **kwargs): return self.bill.state._is_VOTING
@@ -77,6 +72,15 @@ class BillResource(Resource):
 
     @validator(code='bills.can_not_participate_in_politics', message=u'Выдвигать законы и голосовать могут только подписчики')
     def validate_participate_in_politics(self, *args, **kwargs): return self.can_participate_in_politics
+
+    @validate_argument('bill', BillPrototype.get_by_id, 'bills', u'Закон не найден')
+    def initialize(self, bill=None, *args, **kwargs):
+        super(BillResource, self).initialize(*args, **kwargs)
+
+        self.bill = bill
+
+        if self.bill and self.bill.state._is_REMOVED:
+            return self.auto_error('bills.removed', u'Законопроект удалён')
 
     @validate_argument('page', int, 'bills', u'неверная страница')
     @validate_argument('owner', AccountPrototype.get_by_id, 'bills', u'неверный владелец закона')
@@ -116,6 +120,8 @@ class BillResource(Resource):
                                                                     'voted': voted.value if voted else None,
                                                                     'place': place.id if place else None})
 
+        IndexFilter = LoginedIndexFilter if self.account.is_authenticated() else UnloginedIndexFilter
+
         index_filter = IndexFilter(url_builder=url_builder, values={'owner': owner.nick if owner else None,
                                                                     'state': state.value if state else None,
                                                                     'bill_type': bill_type.value if bill_type else None,
@@ -135,7 +141,10 @@ class BillResource(Resource):
 
         bills = [ BillPrototype(bill) for bill in bills_query.select_related().order_by('-updated_at')[bill_from:bill_to]]
 
-        votes = dict( (vote.bill_id, VotePrototype(vote)) for vote in Vote.objects.filter(bill_id__in=[bill.id for bill in bills], owner=self.account._model) )
+        votes = {}
+        if self.account.is_authenticated():
+            votes = dict( (vote.bill_id, VotePrototype(vote))
+                          for vote in Vote.objects.filter(bill_id__in=[bill.id for bill in bills], owner=self.account._model) )
 
         return self.template('bills/index.html',
                              {'bills': bills,
@@ -145,7 +154,8 @@ class BillResource(Resource):
                               'index_filter': index_filter,
                               'active_bills_limit_reached': BillPrototype.is_active_bills_limit_reached(self.account)} )
 
-
+    @login_required
+    @validate_fast_account()
     @validate_participate_in_politics()
     @validate_argument('bill_type', argument_to_bill_type, 'bills.new', u'неверный тип закона')
     @handler('new', method='get')
@@ -154,6 +164,8 @@ class BillResource(Resource):
         return self.template('bills/new.html', {'bill_class': bill_class,
                                                 'form': bill_class.get_user_form_create()})
 
+    @login_required
+    @validate_fast_account()
     @validate_participate_in_politics()
     @validate_argument('bill_type', argument_to_bill_type, 'bills.create', u'неверный тип закона')
     @handler('create', method='post')
@@ -184,9 +196,11 @@ class BillResource(Resource):
         return self.template('bills/show.html', {'bill': self.bill,
                                                  'thread_data': thread_data,
                                                  'VOTE_TYPE': VOTE_TYPE,
-                                                 'vote': VotePrototype.get_for(self.account, self.bill),
-                                                 'can_vote': self.bill.can_vote(self.hero)})
+                                                 'vote': VotePrototype.get_for(self.account, self.bill) if self.account.is_authenticated() else None,
+                                                 'can_vote': self.bill.can_vote(self.hero) if self.hero is not None else None})
 
+    @login_required
+    @validate_fast_account()
     @validate_participate_in_politics()
     @validate_ownership()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
@@ -196,6 +210,8 @@ class BillResource(Resource):
         return self.template('bills/edit.html', {'bill': self.bill,
                                                  'form': user_form} )
 
+    @login_required
+    @validate_fast_account()
     @validate_participate_in_politics()
     @validate_ownership()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
@@ -209,12 +225,16 @@ class BillResource(Resource):
 
         return self.json_error('bills.update.form_errors', user_form.errors)
 
+    @login_required
+    @validate_fast_account()
     @validate_moderator_rights()
     @handler('#bill', 'delete', name='delete', method='post')
     def delete(self):
         self.bill.remove(self.account)
         return self.json_ok()
 
+    @login_required
+    @validate_fast_account()
     @validate_moderator_rights()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill', 'moderate', name='moderate', method='get')
@@ -223,6 +243,8 @@ class BillResource(Resource):
         return self.template('bills/moderate.html', {'bill': self.bill,
                                                      'form': moderation_form} )
 
+    @login_required
+    @validate_fast_account()
     @validate_moderator_rights()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill', 'moderate', name='moderate', method='post')
@@ -235,6 +257,8 @@ class BillResource(Resource):
 
         return self.json_error('bills.moderate.form_errors', moderator_form.errors)
 
+    @login_required
+    @validate_fast_account()
     @nested_commit_on_success
     @validate_participate_in_politics()
     @validate_voting_state(message=u'На данной стадии за закон нельзя голосовать')

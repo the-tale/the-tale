@@ -4,6 +4,8 @@ import random
 from django.test import client
 from django.core.urlresolvers import reverse
 
+from dext.utils.urls import url
+
 from common.utils.testcase import TestCase
 from common.utils.permissions import sync_group
 
@@ -71,17 +73,6 @@ class RequestsTests(RequestsTestsBase):
     def setUp(self):
         super(RequestsTests, self).setUp()
 
-    def test_login_required(self):
-        self.check_redirect(reverse('game:phrase-candidates:'), login_url(reverse('game:phrase-candidates:')))
-        self.check_ajax_error(self.client.get(reverse('game:phrase-candidates:edit', args=[666]), HTTP_X_REQUESTED_WITH='XMLHttpRequest'), 'common.login_required')
-
-    def test_account_is_fast(self):
-        self.request_login('test_user_1@test.com')
-        self.account_1.is_fast = True
-        self.account_1.save()
-        self.check_html_ok(self.client.get(reverse('game:phrase-candidates:')), texts=[('phrase_candidates.is_fast', 1)])
-        self.check_ajax_error(self.get_ajax_json(reverse('game:phrase-candidates:edit', args=[666])), 'phrase_candidates.is_fast')
-
     def test_phrase_not_found(self):
         self.request_login('test_user_1@test.com')
         self.check_ajax_error(self.get_ajax_json(reverse('game:phrase-candidates:edit', args=[666])), 'phrase_candidates.phrase_not_found')
@@ -99,7 +90,8 @@ class IndexRequestsTests(RequestsTestsBase):
         self.request_login('test_user_1@test.com')
 
     def test_first_page(self):
-        self.check_html_ok(self.client.get(reverse('game:phrase-candidates:')), texts=[(self.account_1.nick, 3),
+        self.request_logout()
+        self.check_html_ok(self.client.get(reverse('game:phrase-candidates:')), texts=[(self.account_1.nick, 2),
                                                                                        (self.account_2.nick, 1),
                                                                                        (self.phrase_1.text, 1),
                                                                                        (self.phrase_2.text, 1),
@@ -183,9 +175,19 @@ class TypesRequestsTests(RequestsTestsBase):
         super(TypesRequestsTests, self).setUp()
         self.request_login('test_user_1@test.com')
 
+    def test_unlogined(self):
+        self.request_logout()
+        self.check_html_ok(self.client.get(reverse('game:phrase-candidates:types')), texts=[('pgf-add-phrase-button', 0)])
+
+    def test_account_is_fast(self):
+        self.request_login('test_user_1@test.com')
+        self.account_1.is_fast = True
+        self.account_1.save()
+        self.check_html_ok(self.client.get(reverse('game:phrase-candidates:types')), texts=[('pgf-add-phrase-button', 0)])
+
     def test_success(self):
 
-        texts = []
+        texts = ['pgf-add-phrase-button']
         phrases_modules = get_phrases_types()
         for phrase_type in phrases_modules['modules']:
             texts.extend(phrases_modules['modules'][phrase_type]['types'].keys())
@@ -210,6 +212,16 @@ class NewRequestsTests(RequestsTestsBase):
         if phrase_subtype is None: phrase_subtype = self.phrase_subtype
         return reverse('game:phrase-candidates:new')+('?phrase_type=%s&phrase_subtype=%s' % (phrase_type, phrase_subtype))
 
+    def test_login_required(self):
+        self.request_logout()
+        self.check_html_ok(self.get_ajax_html(self.create_new_url()), texts=['common.login_required'])
+
+    def test_account_is_fast(self):
+        self.request_login('test_user_1@test.com')
+        self.account_1.is_fast = True
+        self.account_1.save()
+        self.check_html_ok(self.get_ajax_html(self.create_new_url()), texts=['common.fast_account'])
+
     def test_success(self):
         texts = [(self.phrase_type, 2),
                  (self.phrase_subtype, 1),
@@ -217,7 +229,7 @@ class NewRequestsTests(RequestsTestsBase):
                  (self.phrase_data['example'], 1),
                  (self.phrase_data['description'], 1)]
 
-        self.check_html_ok(self.client.get(self.create_new_url(), HTTP_X_REQUESTED_WITH='XMLHttpRequest'), texts=texts)
+        self.check_html_ok(self.get_ajax_html(self.create_new_url()), texts=texts)
 
     def test_wrong_module(self):
         self.check_ajax_error(self.get_ajax_json(self.create_new_url(phrase_type=u'bla-bla-bla')),
@@ -239,6 +251,20 @@ class CreateRequestsTests(RequestsTestsBase):
         self.phrase_data = self.phrases_modules['modules'][self.phrase_type]['types'][self.phrase_subtype]
 
         self.request_login('test_user_1@test.com')
+
+
+    def test_login_required(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(reverse('game:phrase-candidates:create'), {'phrase_type': self.phrase_type,
+                                                                                          'phrase_subtype': self.phrase_subtype,
+                                                                                          'text': 'created-text'}), 'common.login_required')
+    def test_account_is_fast(self):
+        self.request_login('test_user_1@test.com')
+        self.account_1.is_fast = True
+        self.account_1.save()
+        self.check_ajax_error(self.client.post(reverse('game:phrase-candidates:create'), {'phrase_type': self.phrase_type,
+                                                                                          'phrase_subtype': self.phrase_subtype,
+                                                                                          'text': 'created-text'}), 'common.fast_account')
 
 
     def test_success(self):
@@ -286,6 +312,15 @@ class EditRequestsTests(RequestsTestsBase):
 
         self.moderators_group.account_set.add(self.account_1._model)
 
+    def test_login_required(self):
+        self.request_logout()
+        self.check_html_ok(self.get_ajax_html(url('game:phrase-candidates:edit', self.phrase_1.id)), texts=['common.login_required'])
+
+    def test_account_is_fast(self):
+        self.request_login('test_user_1@test.com')
+        self.account_1.is_fast = True
+        self.account_1.save()
+        self.check_html_ok(self.get_ajax_html(url('game:phrase-candidates:edit', self.phrase_1.id)), texts=['common.fast_account'])
 
     def test_success(self):
         texts = [(self.phrase_1.text, 1),
@@ -314,6 +349,21 @@ class UpdateRequestsTests(RequestsTestsBase):
 
         self.moderators_group.account_set.add(self.account_3._model)
 
+    def test_login_required(self):
+        self.request_logout()
+        new_type, new_subtype = self.get_another_phrase_subtype(self.phrase_1)
+        self.check_ajax_error(self.client.post(url('game:phrase-candidates:update', self.phrase_1.id), {'state': PHRASE_CANDIDATE_STATE.APPROVED,
+                                                                                                        'text': u'new text',
+                                                                                                        'subtype': new_subtype}), 'common.login_required')
+
+    def test_account_is_fast(self):
+        self.request_login('test_user_1@test.com')
+        self.account_1.is_fast = True
+        self.account_1.save()
+        new_type, new_subtype = self.get_another_phrase_subtype(self.phrase_1)
+        self.check_ajax_error(self.client.post(url('game:phrase-candidates:update', self.phrase_1.id), {'state': PHRASE_CANDIDATE_STATE.APPROVED,
+                                                                                                        'text': u'new text',
+                                                                                                        'subtype': new_subtype}), 'common.fast_account')
 
     def test_success(self):
         new_type, new_subtype = self.get_another_phrase_subtype(self.phrase_1)
@@ -365,6 +415,15 @@ class RemoveRequestsTests(RequestsTestsBase):
 
         self.moderators_group.account_set.add(self.account_1._model)
 
+    def test_login_required(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(reverse('game:phrase-candidates:remove', args=[self.phrase_1.id])), 'common.login_required')
+
+    def test_account_is_fast(self):
+        self.request_login('test_user_1@test.com')
+        self.account_1.is_fast = True
+        self.account_1.save()
+        self.check_ajax_error(self.client.post(reverse('game:phrase-candidates:remove', args=[self.phrase_1.id])), 'common.fast_account')
 
     def test_no_permissions(self):
         self.request_logout()
@@ -393,6 +452,15 @@ class ApproveRequestsTests(RequestsTestsBase):
 
         self.moderators_group.account_set.add(self.account_1._model)
 
+    def test_login_required(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(reverse('game:phrase-candidates:approve', args=[self.phrase_1.id])), 'common.login_required')
+
+    def test_account_is_fast(self):
+        self.request_login('test_user_1@test.com')
+        self.account_1.is_fast = True
+        self.account_1.save()
+        self.check_ajax_error(self.client.post(reverse('game:phrase-candidates:approve', args=[self.phrase_1.id])), 'common.fast_account')
 
     def test_no_permissions(self):
         self.request_logout()
@@ -420,6 +488,15 @@ class AddRequestsTests(RequestsTestsBase):
 
         self.developers_group.account_set.add(self.account_1._model)
 
+    def test_login_required(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(reverse('game:phrase-candidates:add', args=[self.phrase_1.id])), 'common.login_required')
+
+    def test_account_is_fast(self):
+        self.request_login('test_user_1@test.com')
+        self.account_1.is_fast = True
+        self.account_1.save()
+        self.check_ajax_error(self.client.post(reverse('game:phrase-candidates:add', args=[self.phrase_1.id])), 'common.fast_account')
 
     def test_no_permissions(self):
         self.request_logout()
