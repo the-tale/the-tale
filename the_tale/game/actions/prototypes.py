@@ -837,7 +837,7 @@ class ActionResurrectPrototype(ActionPrototype):
 
             self.percents += 1.0 / c.TURNS_TO_RESURRECT
 
-            if random.uniform(0, 1) < 0.2:
+            if random.uniform(0, 1) < 0.1:
                 self.hero.add_message('action_resurrect_resurrecting', hero=self.hero)
 
             if self.percents >= 1:
