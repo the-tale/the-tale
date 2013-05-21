@@ -30,6 +30,7 @@ class Command(BaseCommand):
 
         try:
             for i in xrange(options['repeate_number']):
+                print i
                 update_map(index=map_info_storage.item.id+1)
         except Exception:
             traceback.print_exc()

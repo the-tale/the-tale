@@ -385,6 +385,7 @@ pgf.game.map.Map = function(selector, params) {
                                                              'height': TILE_SIZE+'px',
                                                              'background': 'url("'+image.src+'") no-repeat scroll -'+image.x+'px -'+image.y+'px',
                                                              'position': 'relative',
+                                                             'display': 'none',
                                                              'z-index': parseInt(canvas.css('z-index')) + 1});
             map.append(_highlightingBorder);
         }

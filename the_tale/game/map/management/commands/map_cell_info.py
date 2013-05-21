@@ -11,6 +11,7 @@ from game.map.relations import TERRAIN
 from game.map.storage import map_info_storage
 from game.map.prototypes import WorldInfoPrototype
 from game.map.generator.biomes import Biom
+from game.map.generator.power_points import get_power_points
 
 
 class Command(BaseCommand):
@@ -63,8 +64,21 @@ class Command(BaseCommand):
 
         print
         print '----TERRAIN----'
-        for biom_name, total_power, aspects in terrain_points:
+        for biom_name, total_power, aspects in terrain_points[:5]:
             print '%.2f\t%s' % (total_power, biom_name)
 
             for aspect_name, aspect_value in aspects:
                 print '\t%.2f\t%s' % (aspect_value, aspect_name)
+
+        print
+        print '----POINTS----'
+
+        points = []
+        for point in get_power_points():
+            value = point.log_powers_for(generator, x=x, y=y)
+            if value:
+                points.append((point.name, value))
+        points.sort()
+
+        for name, value in points:
+            print '%s %r' % (name.ljust(35), value)

@@ -69,7 +69,7 @@ class PlacePrototype(BasePrototype):
 
     @property
     def terrain_change_power(self):
-        power = self.size
+        power = self.size * 0.85
         if self.modifier:
             power = self.modifier.modify_terrain_change_power(power)
         return int(round(power))
