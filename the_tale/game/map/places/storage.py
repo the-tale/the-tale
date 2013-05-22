@@ -27,6 +27,11 @@ class PlacesStorage(create_storage_class('places change time', Place, PlaceProto
 
         return None
 
+    def shift_all(self, dx, dy):
+        for place in self.all():
+            place.shift(dx, dy)
+        self.save_all()
+
 
 places_storage = PlacesStorage()
 
@@ -58,6 +63,11 @@ class BuildingsStorage(create_storage_class('buildings change time', Building, B
                 return building
 
         return None
+
+    def shift_all(self, dx, dy):
+        for building in self.all():
+            building.shift(dx, dy)
+        self.save_all()
 
 
 

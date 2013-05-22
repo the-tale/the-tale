@@ -9,8 +9,8 @@ from dext.utils.app_settings import app_settings
 from game.balance import constants as c
 
 map_settings = app_settings('MAP',
-                            WIDTH=36 if not project_settings.TESTS_RUNNING else 4,
-                            HEIGHT=26 if not project_settings.TESTS_RUNNING else 4,
+                            WIDTH=56 if not project_settings.TESTS_RUNNING else 4,
+                            HEIGHT=46 if not project_settings.TESTS_RUNNING else 4,
                             CELL_SIZE=20,
                             CELL_LENGTH=c.MAP_CELL_LENGTH,
                             CHRONICLE_RECORDS_NUMBER=10,

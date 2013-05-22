@@ -1,5 +1,5 @@
 
-{% macro mob_info(mob, limit_content=false) %}
+{% macro mob_info(mob, limit_content=false, link_in_blank=false) %}
 
 {% if limit_content %}
 <div style="overflow-y: auto; max-height: 400px;">
@@ -16,7 +16,7 @@
         <td>
           <ul class="unstyled">
             {% for artifact in mob.artifacts %}
-            <li><a href="{{url('guide:artifacts:show',artifact.id)}}">{{artifact.name}}</a></li>
+            <li><a {% if link_in_blank %}target="_blank"{% endif %} href="{{url('guide:artifacts:show',artifact.id)}}">{{artifact.name}}</a></li>
             {% endfor %}
           </ul>
         </td>
@@ -26,7 +26,7 @@
         <td>
           <ul class="unstyled">
             {% for loot in mob.loot %}
-            <li><a href="{{url('guide:artifacts:show', loot.id)}}">{{loot.name}}</a></li>
+            <li><a {% if link_in_blank %}target="_blank"{% endif %} href="{{url('guide:artifacts:show', loot.id)}}">{{loot.name}}</a></li>
             {% endfor %}
           </ul>
         </td>

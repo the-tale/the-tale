@@ -39,6 +39,10 @@ class PlacePrototype(BasePrototype):
     @property
     def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self._model.updated_at_turn))
 
+    def shift(self, dx, dy):
+        self._model.x += dx
+        self._model.y += dy
+
     def get_modifier(self): return MODIFIERS[self._model.modifier](self) if self._model.modifier is not None else None
     def set_modifier(self, value):
         if isinstance(value, PlaceModifierBase):
@@ -211,6 +215,10 @@ class BuildingPrototype(BasePrototype):
     _readonly = ('id', 'x', 'y', 'type', 'integrity')
     _bidirectional = ('state',)
     _get_by = ('id',)
+
+    def shift(self, dx, dy):
+        self._model.x += dx
+        self._model.y += dy
 
     @classmethod
     def get_by_coordinates(cls, x, y):

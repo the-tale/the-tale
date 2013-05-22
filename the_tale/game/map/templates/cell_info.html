@@ -84,20 +84,22 @@
 
                   <th>
                     {{ person.name }}
-                    <small>{{ person.gender_verbose }}-{{ person.race_verbose }}</small>
+                    <span style="white-space: nowrap;">
+                      <small>{{ person.gender_verbose }}-{{ person.race_verbose }}</small>
 
-                    {% if person.time_before_unfreeze.total_seconds() > 0 %}
-                    <i class="icon-time pgf-time-before-unfreeze"
-                       style="vertical-align: middle;"
-                       rel="tooltip"
-                       title="Персонаж недавно поселился в городе и может его покинуть только через {{person.time_before_unfreeze|verbose_timedelta}}"></i>
-                    {% endif %}
+                      {% if person.time_before_unfreeze.total_seconds() > 0 %}
+                      <i class="icon-time pgf-time-before-unfreeze"
+                         style="vertical-align: middle;"
+                         rel="tooltip"
+                         title="Персонаж недавно поселился в городе и может его покинуть только через {{person.time_before_unfreeze|verbose_timedelta}}"></i>
+                      {% endif %}
 
-                    {% if person.has_building %}
-                    <i class="icon-home"
-                       rel="tooltip"
-                       title="Персонаж является владельцем строения в окрестностях города"></i>
-                    {% endif %}
+                      {% if person.has_building %}
+                      <i class="icon-home"
+                         rel="tooltip"
+                         title="Персонаж является владельцем строения в окрестностях города"></i>
+                      {% endif %}
+                    </span>
 
                     {% if hero and hero.preferences.friend_id == person.id %}
                     <span class="badge badge-success">соратник</span>

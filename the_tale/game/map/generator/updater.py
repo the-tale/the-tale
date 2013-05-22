@@ -27,7 +27,9 @@ def update_map(index):
     generator.clear_biomes()
 
     if generator.w != map_settings.WIDTH or generator.h != map_settings.HEIGHT:
-        generator.resize(map_settings.WIDTH, map_settings.HEIGHT)
+        dx, dy = generator.resize(map_settings.WIDTH, map_settings.HEIGHT)
+        places_storage.shift_all(dx, dy)
+        buildings_storage.shift_all(dx, dy)
 
     for point in get_power_points():
         generator.add_power_point(point)
