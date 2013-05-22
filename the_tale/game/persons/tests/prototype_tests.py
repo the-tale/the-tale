@@ -2,6 +2,8 @@
 import mock
 import datetime
 
+from textgen.words import Noun
+
 from common.utils import testcase
 
 from accounts.logic import register_user
@@ -69,7 +71,7 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(self.person.state, PERSON_STATE.OUT_GAME)
 
     def test_move_out_game_with_building(self):
-        building = BuildingPrototype.create(self.person)
+        building = BuildingPrototype.create(self.person, name_forms=Noun.fast_construct('building-name'))
         self.assertTrue(building.state._is_WORKING)
         self.person.move_out_game()
         self.assertTrue(building.state._is_DESTROYED)
@@ -83,7 +85,7 @@ class PrototypeTests(testcase.TestCase):
             if old_mastery < 0.8:
                 break
 
-        building = BuildingPrototype.create(person)
+        building = BuildingPrototype.create(person, name_forms=Noun.fast_construct('building-name'))
 
         max_mastery = person.mastery
 
@@ -98,7 +100,7 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertEqual(change_person_power_call.call_args, mock.call(self.person.id, 100))
 
-        BuildingPrototype.create(self.person)
+        BuildingPrototype.create(self.person, name_forms=Noun.fast_construct('building-name'))
 
         with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power') as change_person_power_call:
             self.person.cmd_change_power(100)

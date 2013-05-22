@@ -3,37 +3,41 @@
 import mock
 import datetime
 
+from dext.utils import s11n
+
 from textgen.words import Noun
 
 from game.map.places.models import Building
 from game.map.places.prototypes import BuildingPrototype
-from game.map.places.storage import buildings_storage
 from game.map.places.relations import BUILDING_STATE
 
-from game.bills.relations import BILL_STATE
 from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import BuildingDestroy
+from game.bills.bills import BuildingRenaming
 from game.bills.tests.prototype_tests import BaseTestPrototypes
 
 
-class BuildingDestroyTests(BaseTestPrototypes):
+class BuildingRenamingTests(BaseTestPrototypes):
 
     def setUp(self):
-        super(BuildingDestroyTests, self).setUp()
+        super(BuildingRenamingTests, self).setUp()
 
         self.person_1 = self.place1.persons[0]
         self.person_2 = self.place2.persons[0]
         self.person_3 = self.place3.persons[0]
 
-        self.building_1 = BuildingPrototype.create(self.person_1, name_forms=Noun.fast_construct('building-name-1'))
+        self.building = BuildingPrototype.create(self.person_1, name_forms=Noun.fast_construct('building-name'))
         self.building_2 = BuildingPrototype.create(self.person_2, name_forms=Noun.fast_construct('building-name-2'))
 
-        self.bill_data = BuildingDestroy(person_id=self.person_1.id, old_place_name_forms=self.place1.normalized_name)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+        self.bill_data = BuildingRenaming(person_id=self.person_1.id,
+                                          old_place_name_forms=self.place1.normalized_name,
+                                          new_building_name_forms=Noun.fast_construct('new-building-name'))
+        self.bill = BillPrototype.create(self.account1, 'bill-caption', 'bill-rationale', self.bill_data)
 
 
     def test_create(self):
         self.assertEqual(self.bill.data.person_id, self.person_1.id)
+        self.assertEqual(self.bill.data.old_name, 'building-name')
+        self.assertEqual(self.bill.data.new_name, 'new-building-name')
 
     def test_actors(self):
         self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person_1.place)])
@@ -41,7 +45,8 @@ class BuildingDestroyTests(BaseTestPrototypes):
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
-                                                         'person': self.person_2.id })
+                                                         'person': self.person_2.id,
+                                                         'new_name': 'new-building-name-2'})
         self.assertTrue(form.is_valid())
 
         self.bill.update(form)
@@ -49,7 +54,8 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.bill = BillPrototype.get_by_id(self.bill.id)
 
         self.assertEqual(self.bill.data.person_id, self.person_2.id)
-
+        self.assertEqual(self.bill.data.old_name, 'building-name-2')
+        self.assertEqual(self.bill.data.new_name, 'new-building-name-2')
 
     def test_user_form_choices(self):
         form = self.bill.data.get_user_form_update(initial={'person': self.bill.data.person_id })
@@ -65,12 +71,13 @@ class BuildingDestroyTests(BaseTestPrototypes):
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_apply(self):
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
-
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
-        form = BuildingDestroy.ModeratorForm({'approved': True})
+        noun = Noun.fast_construct('r-building-name')
+
+        form = BuildingRenaming.ModeratorForm({'approved': True,
+                                               'new_building_name_forms': s11n.to_json(noun.serialize())})
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
@@ -79,50 +86,32 @@ class BuildingDestroyTests(BaseTestPrototypes):
         bill = BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state._is_ACCEPTED)
 
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
-        self.assertEqual(len(buildings_storage.all()), 1)
-
-        building = buildings_storage.all()[0]
-
-        self.assertNotEqual(building.id, self.building_1.id)
-
-
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
-    def test_duplicate_apply(self):
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        self.building.reload()
 
-        form = BuildingDestroy.ModeratorForm({'approved': True})
-        self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
-        self.assertTrue(self.bill.apply())
-
-        bill = BillPrototype.get_by_id(self.bill.id)
-        bill.state = BILL_STATE.VOTING
-        bill.save()
-
-        self.assertTrue(bill.apply())
-
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
+        self.assertEqual(self.building.name, 'r-building-name')
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_no_building(self):
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
-        form = BuildingDestroy.ModeratorForm({'approved': True})
+        noun = Noun.fast_construct('r-building-name')
+
+        form = BuildingRenaming.ModeratorForm({'approved': True,
+                                               'new_building_name_forms': s11n.to_json(noun.serialize())})
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
-        self.building_1.destroy()
-        self.building_1.save()
+        self.building.destroy()
+        self.building.save()
 
         self.assertTrue(self.bill.apply())
 
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
+
+        self.building.reload()
+        self.assertEqual(self.building.name, 'building-name')

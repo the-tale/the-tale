@@ -49,6 +49,9 @@ class Bill(models.Model):
 
 
 class Actor(models.Model):
+    # ATTENTION: if you want to make building an actor, remember, that after it recreated
+    # (for same person after destroying previouse building)
+    # it first fully removed from base (previouse building) and only then created
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 

@@ -2,6 +2,8 @@
 
 from dext.forms import fields
 
+from textgen.words import Noun, WordBase
+
 from game.persons.prototypes import PersonPrototype
 
 from game.map.places.storage import buildings_storage
@@ -41,6 +43,19 @@ class BuildingDestroy(BasePersonBill):
     CAPTION = u'Разрушение постройки'
     DESCRIPTION = u'Разрушает здание, принадлежащее выбранному персонажу.'
 
+    def __init__(self, building_name_forms=None, **kwargs):
+        super(BuildingDestroy, self).__init__(**kwargs)
+
+        self.building_name_forms = building_name_forms
+
+        if self.building_name_forms is None:
+            building = buildings_storage.get_by_person_id(self.person_id)
+            if building is not None:
+                self.building_name_forms = building.normalized_name
+
+    @property
+    def base_name(self): return self.building_name_forms.normalized
+
     def apply(self):
         building = buildings_storage.get_by_person_id(self.person.id)
 
@@ -48,3 +63,26 @@ class BuildingDestroy(BasePersonBill):
             return
 
         building.destroy()
+
+    def initialize_with_user_data(self, user_form):
+        super(BuildingDestroy, self).initialize_with_user_data(user_form)
+
+        building = buildings_storage.get_by_person_id(self.person_id)
+        if building is not None:
+            self.building_name_forms = building.normalized_name
+
+    def serialize(self):
+        data = super(BuildingDestroy, self).serialize()
+        data['building_name_forms'] = self.building_name_forms.serialize()
+        return data
+
+    @classmethod
+    def deserialize(cls, data):
+        obj = super(BuildingDestroy, cls).deserialize(data)
+
+        if 'building_name_forms' in data:
+            obj.building_name_forms = WordBase.deserialize(data['building_name_forms'])
+        else:
+            obj.building_name_forms = Noun.fast_construct(u'название неизвестно')
+
+        return obj

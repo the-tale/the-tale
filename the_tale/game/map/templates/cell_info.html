@@ -18,7 +18,7 @@
 
       {% elif building %}
       <span>
-        {{ building.type.text }} (владелец: {{building.person.name}})
+        {{ building.name }}
       </span>
       {% else %}
       Квадрат {{x}}x{{y}}
@@ -213,6 +213,7 @@
           </p>
           <tbody>
             <tr><th width="200px">строение</th><td>{{building.type.text}}</td></tr>
+            <tr><th width="200px">название</th><td>{{building.name}}</td></tr>
             <tr><th width="200px">город</th><td>{{building.place.name}}</td></tr>
             <tr><th width="200px">владелец</th><td>{{building.person.name}} {{ building.person.race_verbose }}-{{ building.person.type.text }}</td></tr>
             <tr>

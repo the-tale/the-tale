@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from django.forms import ValidationError
-
 from dext.forms import fields
 
 from textgen.words import Noun
+
+from common.utils.forms import SimpleWordField
 
 from game.map.places.models import Place
 
@@ -25,17 +25,7 @@ class UserForm(BaseUserForm):
 
 class ModeratorForm(BaseModeratorForm):
 
-    name_forms = fields.JsonField(label=u'Формы названия')
-
-    def clean_name_forms(self):
-        data = self.cleaned_data['name_forms']
-
-        noun = Noun.deserialize(data)
-
-        if not noun.is_valid:
-            raise ValidationError(u'неверное описание форм существительного')
-
-        return noun
+    name_forms = SimpleWordField(label=u'Формы названия')
 
 
 class PlaceRenaming(object):

@@ -43,12 +43,14 @@ class Place(models.Model):
 
 class Building(models.Model):
 
+    name_forms = models.TextField(null=False, default=u'')
+
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 
     x = models.BigIntegerField(null=False)
     y = models.BigIntegerField(null=False)
 
-    state = TableIntegerField(relation=BUILDING_STATE, relation_column='value', default=BUILDING_STATE.WORKING, db_index=True)
+    state = TableIntegerField(relation=BUILDING_STATE, relation_column='value', db_index=True)
     type = TableIntegerField(relation=BUILDING_TYPE, relation_column='value')
 
     integrity = models.FloatField(default=1.0, null=False)

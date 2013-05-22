@@ -16,7 +16,8 @@ class BILL_TYPE(DjangoEnum):
                  ('PLACE_DESCRIPTION', 2, u'изменить описание города'),
                  ('PLACE_MODIFIER', 3, u'изменить тип места'),
                  ('BUILDING_CREATE', 4, u'возвести постройку'),
-                 ('BUILDING_DESTROY', 5, u'разрушить постройку'))
+                 ('BUILDING_DESTROY', 5, u'разрушить постройку'),
+                 ('BUILDING_RENAMING', 6, u'переименовать постройку'))
 
 
 class VOTE_TYPE(DjangoEnum):

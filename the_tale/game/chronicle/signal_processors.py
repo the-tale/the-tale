@@ -50,6 +50,18 @@ def _get_bill_building_arguments(bill):
                                'person': bill.data.person,
                                'bill': FakeWord(bill.caption)} }
 
+def _get_bill_building_rename_arguments(bill):
+    return { 'actors': {ACTOR_ROLE.BILL: bill,
+                        ACTOR_ROLE.PLACE: bill.data.person.place,
+                        ACTOR_ROLE.PERSON: bill.data.person},
+             'substitutions': {'place': bill.data.person.place,
+                               'person': bill.data.person,
+                               'old_name': bill.data.old_building_name_forms,
+                               'new_name': bill.data.new_building_name_forms,
+                               'bill': FakeWord(bill.caption)} }
+
+
+
 
 @receiver(bills_signals.bill_moderated, dispatch_uid='chronicle_bill_moderated')
 def chronicle_bill_moderated(sender, bill, **kwargs):
@@ -67,6 +79,8 @@ def chronicle_bill_moderated(sender, bill, **kwargs):
         records.BuildingCreateBillStarted(**_get_bill_building_arguments(bill)).create_record()
     elif bill.data.type == BILL_TYPE.BUILDING_DESTROY:
         records.BuildingDestroyBillStarted(**_get_bill_building_arguments(bill)).create_record()
+    elif bill.data.type == BILL_TYPE.BUILDING_RENAMING:
+        records.BuildingRenamingBillStarted(**_get_bill_building_rename_arguments(bill)).create_record()
 
 @receiver(bills_signals.bill_processed, dispatch_uid='chronicle_bill_processed')
 def chronicle_bill_processed(sender, bill, **kwargs):
@@ -106,6 +120,12 @@ def chronicle_bill_processed(sender, bill, **kwargs):
         if bill.state._is_ACCEPTED:
             record_type = records.BuildingDestroyBillSuccessed
         record_type(**_get_bill_building_arguments(bill)).create_record()
+
+    elif bill.data.type == BILL_TYPE.BUILDING_RENAMING:
+        record_type = records.BuildingRenamingBillFailed
+        if bill.state._is_ACCEPTED:
+            record_type = records.BuildingRenamingBillSuccessed
+        record_type(**_get_bill_building_rename_arguments(bill)).create_record()
 
 
 @receiver(places_signals.place_modifier_reseted, dispatch_uid='chronicle_place_modifier_reseted')

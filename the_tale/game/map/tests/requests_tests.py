@@ -7,6 +7,8 @@ from django.core.urlresolvers import reverse
 
 from dext.utils.urls import url
 
+from textgen.words import Noun
+
 from common.utils.testcase import TestCase
 
 from accounts.prototypes import AccountPrototype
@@ -83,7 +85,7 @@ class CellInfoTests(RequestsTestsBase):
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_building(self):
-        building = BuildingPrototype.create(self.place_1.persons[0])
+        building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
         texts = [building.type.text, jinja2.escape(building.person.name), jinja2.escape(self.place_1.name)]
         self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (building.x, building.y))), texts=texts)
 

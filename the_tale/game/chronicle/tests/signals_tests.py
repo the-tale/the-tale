@@ -147,10 +147,15 @@ class BillBuildingCreateTests(BaseTestPrototypes):
     def setUp(self):
         super(BillBuildingCreateTests, self).setUp()
 
-        bill_data = bills.BuildingCreate(person_id=self.place1.persons[0].id, old_place_name_forms=self.place1.normalized_name)
+        noun = Noun.fast_construct('building-name')
+
+        bill_data = bills.BuildingCreate(person_id=self.place1.persons[0].id,
+                                         old_place_name_forms=self.place1.normalized_name,
+                                         building_name_forms=noun)
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
-        self.form = bills.BuildingCreate.ModeratorForm({'approved': True})
+        self.form = bills.BuildingCreate.ModeratorForm({'approved': True,
+                                                        'building_name_forms': s11n.to_json(noun.serialize())})
         self.assertTrue(self.form.is_valid())
 
     def test_bill_started(self):
@@ -172,7 +177,10 @@ class BillBuildingDestroyTests(BaseTestPrototypes):
     def setUp(self):
         super(BillBuildingDestroyTests, self).setUp()
 
-        bill_data = bills.BuildingDestroy(person_id=self.place1.persons[0].id, old_place_name_forms=self.place1.normalized_name)
+        self.person = self.place1.persons[0]
+        self.building = BuildingPrototype.create(self.person, name_forms=Noun.fast_construct('building-name'))
+
+        bill_data = bills.BuildingDestroy(person_id=self.person.id, old_place_name_forms=self.place1.normalized_name)
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
         self.form = bills.BuildingDestroy.ModeratorForm({'approved': True})
@@ -190,6 +198,39 @@ class BillBuildingDestroyTests(BaseTestPrototypes):
     def test_bill_failed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.BUILDING_DESTROY_BILL_FAILED):
+            process_bill(self.bill, False)
+
+class BillBuildingRenamingTests(BaseTestPrototypes):
+
+    def setUp(self):
+        super(BillBuildingRenamingTests, self).setUp()
+
+        self.person = self.place1.persons[0]
+        self.building = BuildingPrototype.create(self.person, name_forms=Noun.fast_construct('building-name'))
+
+        noun = Noun.fast_construct('new-building-name')
+
+        bill_data = bills.BuildingRenaming(person_id=self.person.id,
+                                           old_place_name_forms=self.place1.normalized_name,
+                                           new_building_name_forms=noun)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+
+        self.form = bills.BuildingRenaming.ModeratorForm({'approved': True,
+                                                          'new_building_name_forms': s11n.to_json(noun.serialize())})
+        self.assertTrue(self.form.is_valid())
+
+    def test_bill_started(self):
+        with check_record_created(self, RECORD_TYPE.BUILDING_RENAMING_BILL_STARTED):
+            self.bill.update_by_moderator(self.form)
+
+    def test_bill_successed(self):
+        self.bill.update_by_moderator(self.form)
+        with check_record_created(self, RECORD_TYPE.BUILDING_RENAMING_BILL_SUCCESSED):
+            process_bill(self.bill, True)
+
+    def test_bill_failed(self):
+        self.bill.update_by_moderator(self.form)
+        with check_record_created(self, RECORD_TYPE.BUILDING_RENAMING_BILL_FAILED):
             process_bill(self.bill, False)
 
 
@@ -229,7 +270,7 @@ class BuildingTests(BaseTestPrototypes):
 
     def setUp(self):
         super(BuildingTests, self).setUp()
-        self.building = BuildingPrototype.create(self.place1.persons[0])
+        self.building = BuildingPrototype.create(self.place1.persons[0], name_forms=Noun.fast_construct('building-name'))
 
     # @mock.patch('game.persons.prototypes.PersonPrototype.is_stable', True)
     # @mock.patch('game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)

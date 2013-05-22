@@ -33,7 +33,11 @@ class RECORD_TYPE(DjangoEnum):
                 ('BUILDING_DESTROY_BILL_SUCCESSED', 20, u'строение: принят закон об удалении'),
                 ('BUILDING_DESTROY_BILL_FAILED', 21, u'строение: отклонён закон об удалении'),
 
-                ('BUILDING_DESTROYED_BY_AMORTIZATION', 22, u'строение: разрушено из-за амортизации') )
+                ('BUILDING_DESTROYED_BY_AMORTIZATION', 22, u'строение: разрушено из-за амортизации'),
+
+                ('BUILDING_RENAMING_BILL_STARTED', 23, u'строение: предложен закон о переименовании '),
+                ('BUILDING_RENAMING_BILL_SUCCESSED', 24, u'строение: принят закон о переименовании'),
+                ('BUILDING_RENAMING_BILL_FAILED', 25, u'строение: отклонён закон о переименовании'),)
 
 
 class ACTOR_ROLE(DjangoEnum):

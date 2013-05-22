@@ -43,11 +43,14 @@ def lazy_property(func):
 
     lazy_name = '_%s__lazy' % func.__name__
 
-    @property
     @functools.wraps(func)
     def wrapper(self):
         if not hasattr(self, lazy_name):
             setattr(self, lazy_name, func(self))
         return getattr(self, lazy_name)
 
-    return wrapper
+    def deleter(self):
+        if hasattr(self, lazy_name):
+            delattr(self, lazy_name)
+
+    return property(fget=wrapper, fdel=deleter)

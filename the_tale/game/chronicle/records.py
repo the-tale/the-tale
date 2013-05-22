@@ -153,6 +153,18 @@ class BuildingDestroyedByAmortization(RecordBase):
     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PERSON]
     SUBSTITUTIONS  = ['place', 'person']
 
+# building renaming
+class _BuildingRenamingBillBase(_BuildingBase):
+    SUBSTITUTIONS = _BuildingBase.SUBSTITUTIONS + ['old_name', 'new_name']
+
+class BuildingRenamingBillStarted(_BuildingRenamingBillBase):
+    TYPE = RECORD_TYPE.BUILDING_RENAMING_BILL_STARTED
+
+class BuildingRenamingBillSuccessed(_BuildingRenamingBillBase):
+    TYPE = RECORD_TYPE.BUILDING_RENAMING_BILL_SUCCESSED
+
+class BuildingRenamingBillFailed(_BuildingRenamingBillBase):
+    TYPE = RECORD_TYPE.BUILDING_RENAMING_BILL_FAILED
 
 # race
 class PlaceChangeRace(RecordBase):

@@ -42,16 +42,20 @@ class GuideResource(Resource):
     def might(self):
         return self.template('guide/might.html', {'section': 'might'})
 
+    @handler('persons', method='get')
+    def persons(self):
+        from game.persons.prototypes import MASTERY_VERBOSE
+        from game.persons.relations import PERSON_TYPE
+        return self.template('guide/persons.html', {'section': 'persons',
+                                                    'persons_settings': persons_settings,
+                                                    'MASTERY_LEVELS': [mastery[1] for mastery in MASTERY_VERBOSE],
+                                                    'PERSON_TYPES': sorted(PERSON_TYPE._records, key=lambda r: r.text) })
+
     @handler('cities', method='get')
     def cities(self):
         from game.map.places.modifiers import MODIFIERS
-        from game.persons.prototypes import MASTERY_VERBOSE
-        from game.persons.relations import PERSON_TYPE
         return self.template('guide/cities.html', {'section': 'cities',
                                                    'places_settings': places_settings,
-                                                   'persons_settings': persons_settings,
-                                                   'MASTERY_LEVELS': [mastery[1] for mastery in MASTERY_VERBOSE],
-                                                   'PROFESSIONS': sorted(zip(*PERSON_TYPE._select('text'))[0]),
                                                    'MODIFIERS': sorted(MODIFIERS.values(), key=lambda modifier: modifier.NAME) })
 
     @handler('politics', method='get')

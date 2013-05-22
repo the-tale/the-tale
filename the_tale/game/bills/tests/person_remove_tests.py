@@ -74,7 +74,6 @@ class PersonRemoveTests(BaseTestPrototypes):
         self.check_persons_from_place_in_choices(self.place3, persons_ids, self.bill.data.person_id)
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_NUMBER', 2)
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
     def test_apply(self):

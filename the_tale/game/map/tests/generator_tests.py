@@ -1,10 +1,11 @@
 # coding: utf-8
 import random
 
+from textgen.words import Noun
+
 from common.utils.testcase import TestCase
 
 from game.logic import create_test_map
-
 
 from game.map.places.prototypes import BuildingPrototype
 from game.map.places.relations import BUILDING_TYPE
@@ -40,7 +41,7 @@ class GeneratorTests(TestCase):
 def create_test_building_power_point(building_type):
 
     def test_building_power_point(self):
-        building = BuildingPrototype.create(self.place_1.persons[0])
+        building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
         building._model.type = building_type
         building.save()
 

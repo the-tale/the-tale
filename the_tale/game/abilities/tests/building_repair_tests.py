@@ -1,6 +1,8 @@
 # coding: utf-8
 import mock
 
+from textgen.words import Noun
+
 from common.utils import testcase
 
 from accounts.prototypes import AccountPrototype
@@ -43,7 +45,7 @@ class BuildingRepairTest(testcase.TestCase):
         self.highlevel = workers_environment.highlevel
         self.highlevel.process_initialize(0, 'highlevel')
 
-        self.building = BuildingPrototype.create(self.place_1.persons[0])
+        self.building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
         self.building._model.integrity = 0.5
         self.building.save()
 
@@ -91,7 +93,7 @@ class BuildingRepairTest(testcase.TestCase):
 
     @mock.patch('game.heroes.prototypes.HeroPrototype.can_repair_building', True)
     def test_use_for_repaired_building(self):
-        self.building = BuildingPrototype.create(self.place_1.persons[0])
+        self.building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
         self.building._model.integrity = 1.0
         self.building.save()
 

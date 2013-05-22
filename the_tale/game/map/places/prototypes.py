@@ -9,6 +9,7 @@ from textgen import words
 
 from common.utils import bbcode
 from common.utils.prototypes import BasePrototype
+from common.utils.decorators import lazy_property
 
 from game import names
 from game.balance import constants as c
@@ -57,15 +58,12 @@ class PlacePrototype(BasePrototype):
             self.modifier = None
             signals.place_modifier_reseted.send(self.__class__, place=self, old_modifier=old_modifier)
 
-    @property
-    def normalized_name(self):
-        if not hasattr(self, '_normalized_name'):
-            self._normalized_name = words.WordBase.deserialize(s11n.from_json(self._model.name_forms))
-        return self._normalized_name
+    @lazy_property
+    def normalized_name(self): return words.WordBase.deserialize(s11n.from_json(self._model.name_forms))
 
     def set_name_forms(self, name_forms):
         self._model.name_forms = s11n.to_json(name_forms.serialize())
-        self._normalized_name = name_forms
+        del self.normalized_name
         self._model.name = name_forms.normalized
 
     @property
@@ -228,6 +226,16 @@ class BuildingPrototype(BasePrototype):
             return None
 
     @property
+    def name(self): return self.normalized_name.normalized
+
+    @lazy_property
+    def normalized_name(self): return words.WordBase.deserialize(s11n.from_json(self._model.name_forms))
+
+    def set_name_forms(self, name_forms):
+        self._model.name_forms = s11n.to_json(name_forms.serialize())
+        del self.normalized_name
+
+    @property
     def person(self):
         from game.persons.storage import persons_storage
         return persons_storage[self._model.person_id]
@@ -316,7 +324,7 @@ class BuildingPrototype(BasePrototype):
 
 
     @classmethod
-    def create(cls, person):
+    def create(cls, person, name_forms):
         from game.map.places.storage import buildings_storage
 
         building = buildings_storage.get_by_person_id(person.id)
@@ -331,8 +339,10 @@ class BuildingPrototype(BasePrototype):
 
         model = Building.objects.create(x=x,
                                         y=y,
+                                        name_forms=s11n.to_json(name_forms.serialize()),
                                         place=person.place._model,
                                         person=person._model,
+                                        state=BUILDING_STATE.WORKING,
                                         type=person.type.building_type)
 
         prototype = cls(model=model)

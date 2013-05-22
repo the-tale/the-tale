@@ -4,6 +4,8 @@ from django import forms as django_forms
 
 from dext.forms import fields
 
+from textgen.words import WordBase
+
 
 class NounFormsWithoutNumberWidget(django_forms.MultiWidget):
 
@@ -48,3 +50,16 @@ class NounFormsWithoutNumberField(django_forms.MultiValueField):
 
     def compress(self, data_list):
         return data_list
+
+
+@fields.pgf
+class SimpleWordField(fields.JsonField):
+
+    def clean(self, value):
+        value = super(SimpleWordField, self).clean(value)
+        noun = WordBase.deserialize(value)
+
+        if not noun.is_valid:
+            raise django_forms.ValidationError(u'неверное описание форм существительного')
+
+        return noun
