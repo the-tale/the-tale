@@ -19,6 +19,7 @@ SITE_SECTIONS = ( (re.compile(r'^/$'), 'index'),
                   (re.compile(r'^/game/chronicle.*$'), 'world'),
                   (re.compile(r'^/game/ratings.*$'), 'community'),
                   (re.compile(r'^/game/pvp/calls.*$'), 'community'),
+                  (re.compile(r'^/game/map/'), 'map'),
                   (re.compile(r'^/game/map.*$'), None),
                   (re.compile(r'^/game.*$'), 'game'),
                   (re.compile(r'^/guide.*$'), 'guide') )

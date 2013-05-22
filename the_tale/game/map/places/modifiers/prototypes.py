@@ -140,7 +140,7 @@ class Polic(PlaceModifierBase):
     DESCRIPTION = u'Самостоятельная политика города вместе с большими свободами граждан способствует увеличению размера и широкому распространению влияния.'
 
     def modify_place_size(self, size): return min(places_settings.MAX_SIZE, size + 1)
-    def modify_terrain_change_power(self, power): return power * 1.15
+    def modify_terrain_change_power(self, power): return power * 1.2
 
 
 class Resort(PlaceModifierBase):

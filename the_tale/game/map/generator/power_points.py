@@ -159,6 +159,15 @@ def _default_wetness_points(delta=0.0):
                                         radius=int(math.hypot(map_settings.WIDTH, map_settings.HEIGHT)/2)+1,
                                         normalizer=normalizers.equal)
 
+def _default_soil_points(delta=0.0):
+    return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.SOIL,
+                                        name='default_soil',
+                                        x=map_settings.WIDTH/2,
+                                        y=map_settings.HEIGHT/2,
+                                        power=0.3,
+                                        radius=int(math.hypot(map_settings.WIDTH, map_settings.HEIGHT)/2)+1,
+                                        normalizer=normalizers.equal)
+
 def _default_vegetation_points():
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.VEGETATION,
                                         name='default_vegetation',
@@ -250,9 +259,11 @@ def get_building_power_points(building):
 def get_person_power_points(person):
 
     place_power = person.place.total_persons_power
-    power_percent = 0.0
-    if place_power > 0.1:
-        power_percent = person.power / place_power
+
+    if place_power < 0.1:
+        return []
+
+    power_percent = person.power / place_power * 0.5
 
     return get_object_race_points(MapObject(person), person.race, power_percent)
 
@@ -305,7 +316,8 @@ def get_power_points():
 
     points = [_default_temperature_points(delta={MONTHS.COLD: -0.1, MONTHS.HOT: 0.1}.get(month, 0)),
               _default_wetness_points(delta={MONTHS.DRY: -0.1, MONTHS.CRUDE: 0.1}.get(month, 0)),
-              _default_vegetation_points()]
+              _default_vegetation_points(),
+              _default_soil_points()]
 
     for place in places_storage.all():
         points.extend(get_place_power_points(place))
