@@ -85,6 +85,7 @@
       <th width="20px">уровень</th>
       <th>название</th>
       <th width="120px">способности</th>
+      <th width="80px">добыча</th>
       <th width="120px">места обитания</th>
     </tr>
   </thead>
@@ -109,6 +110,27 @@
                   {% endfor %}
                   </ul>">
           способности
+        </a>
+      </td>
+      <td>
+        <a class="info-link"
+           href="#"
+           onclick="return false;"
+           rel="tooltip"
+           title="<strong>артефакты:</strong>
+                  <ul class='unstyled' style='text-align: left;'>
+                  {% for artifact in mob.artifacts %}
+                  <li>{{artifact.name}}</li>
+                  {% endfor %}
+                  </ul>
+
+                  <strong>хлам:</strong>
+                  <ul class='unstyled' style='text-align: left;'>
+                  {% for loot in mob.loot %}
+                  <li>{{loot.name}}</li>
+                  {% endfor %}
+                  </ul>">
+          добыча
         </a>
       </td>
       <td>
