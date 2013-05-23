@@ -24,6 +24,9 @@ accounts_settings = app_settings('ACCOUNTS',
 
                                  PREMIUM_EXPIRED_NOTIFICATION_IN=datetime.timedelta(days=3),
 
+                                 SETTINGS_PREV_PREIMIUM_EXPIRED_NOTIFICATION_RUN_TIME_KEY = 'pref premium expired notification',
+                                 PREMIUM_EXPIRED_NOTIFICATION_RUN_TIME=3, # UTC time
+
                                  NICK_REGEX=u'[a-zA-Z0-9\-\ _а-яА-Я]+',
                                  NICK_MIN_LENGTH=3,
                                  NICK_MAX_LENGTH=30)

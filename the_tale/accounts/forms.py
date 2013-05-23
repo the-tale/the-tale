@@ -3,7 +3,7 @@
 from dext.forms import forms, fields
 
 from accounts.conf import accounts_settings
-from accounts.models import AWARD_TYPE
+from accounts.relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
 
 
 class EditProfileForm(forms.Form):
@@ -37,3 +37,10 @@ class ResetPasswordForm(forms.Form):
 class GiveAwardForm(forms.Form):
     type = fields.TypedChoiceField(label=u'тип', choices=AWARD_TYPE._choices(), coerce=AWARD_TYPE._get_from_name)
     description = fields.TextField(label=u'обоснование', required=False)
+
+
+class BanForm(forms.Form):
+    ban_type = fields.TypedChoiceField(label=u'тип', choices=BAN_TYPE._choices(), coerce=BAN_TYPE._get_from_name)
+    ban_time = fields.TypedChoiceField(label=u'длительность', choices=BAN_TIME._choices(), coerce=BAN_TIME._get_from_name)
+
+    description = fields.TextField(label=u'обоснование', required=True)

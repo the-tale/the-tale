@@ -32,6 +32,7 @@ class Hero(models.Model):
 
     active_state_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
     premium_state_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
+    ban_state_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
     ui_caching_started_at = models.DateTimeField(auto_now_add=True, default=datetime.datetime(2000, 1, 1))
 

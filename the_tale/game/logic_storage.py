@@ -21,7 +21,10 @@ class LogicStorage(object):
 
     def load_account_data(self, account):
         hero = HeroPrototype.get_by_account_id(account.id)
-        hero.update_with_account_data(is_fast=account.is_fast, premium_end_at=account.premium_end_at, active_end_at=account.active_end_at)
+        hero.update_with_account_data(is_fast=account.is_fast,
+                                      premium_end_at=account.premium_end_at,
+                                      active_end_at=account.active_end_at,
+                                      ban_end_at=account.ban_game_end_at)
         self.add_hero(hero)
 
     def release_account_data(self, account, save_required=True):

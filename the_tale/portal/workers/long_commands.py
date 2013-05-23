@@ -67,13 +67,6 @@ class Worker(BaseWorker):
             self.run_recalculate_ratings()
             return
 
-        # is send premium expired notifications needed
-        if (time.time() - float(settings.get(portal_settings.SETTINGS_PREV_PREIMIUM_EXPIRED_NOTIFICATION_RUN_TIME_KEY, 0)) > 23.5*60*60 and
-            portal_settings.PREMIUM_EXPIRED_NOTIFICATION_RUN_TIME <= datetime.datetime.now().hour <= portal_settings.PREMIUM_EXPIRED_NOTIFICATION_RUN_TIME+1):
-            settings[portal_settings.SETTINGS_PREV_PREIMIUM_EXPIRED_NOTIFICATION_RUN_TIME_KEY] = str(time.time())
-            self.run_send_premium_expired_notifications()
-            return
-
     def cmd_stop(self):
         return self.send_cmd('stop')
 
@@ -89,9 +82,6 @@ class Worker(BaseWorker):
             self.logger.error('%s ENDED WITH CODE %d' % (name, result))
         else:
             self.logger.info('%s command was processed correctly' % name)
-
-    def run_send_premium_expired_notifications(self):
-        self._run_subprocess('send_premium_expired_notifications', ['./manage.py', 'accounts_send_premium_expired_notifications'])
 
     def run_recalculate_ratings(self):
         self._run_subprocess('recalculate_rating', ['./manage.py', 'ratings_recalculate_ratings'])

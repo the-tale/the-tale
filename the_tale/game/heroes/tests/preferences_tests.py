@@ -328,6 +328,12 @@ class HeroPreferencesPlaceTest(TestCase):
         hero_4.preferences.place_id = self.place.id
         hero_4.save()
 
+        result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
+        hero_5 = HeroPrototype.get_by_account_id(account_id)
+        hero_5.preferences.place_id = self.place.id
+        hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        hero_5.save()
+
         self.assertEqual(HeroPreferences.count_citizens_of(self.place), 2)
         self.assertEqual(HeroPreferences.count_citizens_of(self.place_2), 0)
 
@@ -459,6 +465,12 @@ class HeroPreferencesFriendTest(TestCase):
         hero_4 = HeroPrototype.get_by_account_id(account_id)
         hero_4.preferences.friend_id = person_1.id
         hero_4.save()
+
+        result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
+        hero_5 = HeroPrototype.get_by_account_id(account_id)
+        hero_5.preferences.friend_id = person_1.id
+        hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        hero_5.save()
 
         self.assertEqual(HeroPreferences.count_friends_of(person_1), 2)
         self.assertEqual(HeroPreferences.count_friends_of(person_2), 0)
@@ -604,6 +616,12 @@ class HeroPreferencesEnemyTest(TestCase):
         hero_4 = HeroPrototype.get_by_account_id(account_id)
         hero_4.preferences.enemy_id = person_1.id
         hero_4.save()
+
+        result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
+        hero_5 = HeroPrototype.get_by_account_id(account_id)
+        hero_5.preferences.enemy_id = person_1.id
+        hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        hero_5.save()
 
         self.assertEqual(HeroPreferences.count_enemies_of(person_1), 2)
         self.assertEqual(HeroPreferences.count_enemies_of(person_2), 0)

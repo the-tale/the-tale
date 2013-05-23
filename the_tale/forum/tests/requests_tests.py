@@ -1,6 +1,8 @@
 # coding: utf-8
 import datetime
 
+import mock
+
 from django.test import client
 from django.core.urlresolvers import reverse
 
@@ -127,6 +129,10 @@ class TestRequests(BaseTestRequests):
         self.account.save()
         self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-common.fast_account'])
 
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_new_thread_banned(self):
+        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-common.ban_forum'])
+
     def test_create_thread_unlogined(self):
         self.request_logout()
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug)),
@@ -137,6 +143,11 @@ class TestRequests(BaseTestRequests):
         self.account.save()
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug)),
                               code='common.fast_account')
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_create_thread_banned(self):
+        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug)),
+                              code='common.ban_forum')
 
     def test_create_thread_closed_subcategory(self):
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat2.slug)),
@@ -233,6 +244,11 @@ class TestRequests(BaseTestRequests):
         self.account.save()
         self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
                               code='common.fast_account')
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_create_post_banned(self):
+            self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
+                              code='common.ban_forum')
 
     def test_create_post_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),

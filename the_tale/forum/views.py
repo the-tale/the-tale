@@ -12,7 +12,7 @@ from common.utils.pagination import Paginator
 from common.utils.decorators import login_required
 
 from accounts.prototypes import AccountPrototype
-from accounts.views import validate_fast_account
+from accounts.views import validate_fast_account, validate_ban_forum
 
 from forum.models import Category, SubCategory, Thread, Post
 from forum.forms import NewPostForm, NewThreadForm, EditThreadForm
@@ -73,6 +73,7 @@ class PostsResource(BaseForumResource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_forum()
     @validate_argument('thread', ThreadPrototype.get_by_id, 'forum.posts.create', u'обсуждение не найдено')
     @handler('create', method='post')
     def create_post(self, thread):
@@ -87,6 +88,7 @@ class PostsResource(BaseForumResource):
         return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]) + ('?page=%d' % thread.paginator.pages_count)})
 
     @login_required
+    @validate_ban_forum()
     @validate_fast_account()
     @handler('#post', 'delete', method='post')
     def delete_post(self):
@@ -106,6 +108,7 @@ class PostsResource(BaseForumResource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_forum()
     @handler('#post', 'edit', method='get')
     def edit_post(self):
 
@@ -122,6 +125,7 @@ class PostsResource(BaseForumResource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_forum()
     @handler('#post', 'update', method='post')
     def update_post(self):
 
@@ -186,6 +190,7 @@ class ThreadsResource(BaseForumResource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_forum()
     @validate_argument('subcategory', SubCategoryPrototype.get_by_slug, 'forum', u'подкатегория не найдена')
     @handler('new', method='get')
     def new_thread(self, subcategory):
@@ -201,6 +206,7 @@ class ThreadsResource(BaseForumResource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_forum()
     @validate_argument('subcategory', SubCategoryPrototype.get_by_slug, 'forum', u'подкатегория не найдена')
     @handler('create', method='post')
     def create_thread(self, subcategory):
@@ -223,6 +229,7 @@ class ThreadsResource(BaseForumResource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_forum()
     @handler('#thread', 'delete', method='post')
     def delete_thread(self):
 
@@ -235,6 +242,7 @@ class ThreadsResource(BaseForumResource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_forum()
     @handler('#thread', 'update', method='post')
     def update_thread(self):
 
@@ -262,6 +270,7 @@ class ThreadsResource(BaseForumResource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_forum()
     @handler('#thread', 'edit', method='get')
     def edit_thread(self):
 

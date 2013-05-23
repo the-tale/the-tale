@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from rels import Column
 from rels.django_staff import DjangoEnum
 
 
@@ -23,3 +24,18 @@ class CHANGE_CREDENTIALS_TASK_STATE(DjangoEnum):
                  ('ERROR', 4, u'ошибка'),
                  ('TIMEOUT', 5, u'таймаут'),
                  ('CHANGING', 6, u'применяются изменения'))
+
+
+class BAN_TYPE(DjangoEnum):
+    _records = ( ('FORUM', 0, u'запрет общения'),
+                 ('GAME',  1, u'запрет игры'),
+                 ('TOTAL', 2, u'запрет всего'),)
+
+class BAN_TIME(DjangoEnum):
+    days = Column()
+
+    _records = ( ('DAYS', 0, u'3 дня', 3),
+                 ('WEEK', 1, u'неделя', 7),
+                 ('MONTH', 2, u'месяц', 30),
+                 ('HALF_YEAR', 4, u'полгода', 180),
+                 ('TOTAL', 5, u'пожизненно', 365*666))

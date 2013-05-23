@@ -154,3 +154,20 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertTrue(current_time-datetime.timedelta(seconds=60) < account_3._model.premium_expired_notification_send_at < current_time)
 
         self.assertEqual(PersonalMessagePrototype._db_count(), 2)
+
+    def test_ban_game(self):
+        self.assertFalse(self.account.is_ban_game)
+        with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as cmd_update_hero_with_account_data:
+            self.account.ban_game(days=1)
+        self.assertEqual(cmd_update_hero_with_account_data.call_count, 1)
+        self.assertEqual(cmd_update_hero_with_account_data.call_args[1]['ban_end_at'], self.account.ban_game_end_at)
+        self.assertTrue(self.account.is_ban_game)
+        self.account._model.ban_game_end_at = datetime.datetime.now()
+        self.assertFalse(self.account.is_ban_game)
+
+    def test_ban_forum(self):
+        self.assertFalse(self.account.is_ban_forum)
+        self.account.ban_forum(days=1)
+        self.assertTrue(self.account.is_ban_forum)
+        self.account._model.ban_forum_end_at = datetime.datetime.now()
+        self.assertFalse(self.account.is_ban_forum)

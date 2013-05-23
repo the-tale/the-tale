@@ -1,4 +1,6 @@
 # coding: utf-8
+import mock
+import random
 
 from django.core.urlresolvers import reverse
 
@@ -11,10 +13,11 @@ from common.postponed_tasks import PostponedTaskPrototype
 from game.logic import create_test_map
 
 from accounts.friends.prototypes import FriendshipPrototype
+from accounts.personal_messages.prototypes import MessagePrototype
 
 from accounts.models import Award
 from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
-from accounts.relations import AWARD_TYPE
+from accounts.relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
 from accounts.logic import register_user
 from accounts.conf import accounts_settings
 
@@ -100,7 +103,21 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-in-list', 0),
                  ('pgf-friends-request-from', 0),
                  ('pgf-friends-request-to', 0),
-                 ('pgf-no-common-places-message', 1)]
+                 ('pgf-no-common-places-message', 1),
+                 ('pgf-ban-forum-message', 0),
+                 ('pgf-ban-game-message', 0)]
+        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_game', True)
+    def test_show__ban_game(self):
+        texts = [('pgf-ban-forum-message', 0),
+                 ('pgf-ban-game-message', 1)]
+        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_show__ban_forum(self):
+        texts = [('pgf-ban-forum-message', 1),
+                 ('pgf-ban-game-message', 0)]
         self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_show__places_history(self):
@@ -205,10 +222,10 @@ class GiveAwardRequestsTests(AccountRequestsTests):
         self.assertEqual(award.account_id, self.account1.id)
 
 
-class ResetNickdRequestsTests(AccountRequestsTests):
+class ResetNickRequestsTests(AccountRequestsTests):
 
     def setUp(self):
-        super(ResetNickdRequestsTests, self).setUp()
+        super(ResetNickRequestsTests, self).setUp()
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.account_set.add(self.account3._model)
@@ -243,3 +260,96 @@ class ResetNickdRequestsTests(AccountRequestsTests):
         self.assertNotEqual(self.account1.nick, task.new_nick)
 
         self.assertEqual(old_nick, AccountPrototype.get_by_id(self.account1.id).nick)
+
+
+class BanRequestsTests(AccountRequestsTests):
+
+    def setUp(self):
+        super(BanRequestsTests, self).setUp()
+
+        group = sync_group('accounts moderators group', ['accounts.moderate_account'])
+        group.account_set.add(self.account3._model)
+
+        self.request_login('test_user3@test.com')
+
+    def form_data(self, ban_type, description=u'ban-description'):
+        return {'ban_type': ban_type,
+                'ban_time': random.choice(BAN_TIME._records),
+                'description': description}
+
+    def test_no_rights(self):
+        self.request_logout()
+        self.request_login('test_user2@test.com')
+
+        self.check_ajax_error(self.client.post(reverse('accounts:ban', args=[self.account1.id]), self.form_data(BAN_TYPE.FORUM)),
+                              'accounts.account.moderator_rights_required')
+
+        self.account1.reload()
+        self.assertFalse(self.account1.is_ban_forum)
+        self.assertFalse(self.account1.is_ban_game)
+        self.assertEqual(MessagePrototype._db_count(), 0)
+
+    def test_form_errors(self):
+        self.check_ajax_error(self.client.post(reverse('accounts:ban', args=[self.account1.id]), self.form_data(BAN_TYPE.FORUM, description=u'')),
+                              'accounts.account.ban.form_errors')
+
+        self.account1.reload()
+        self.assertFalse(self.account1.is_ban_forum)
+        self.assertFalse(self.account1.is_ban_game)
+        self.assertEqual(MessagePrototype._db_count(), 0)
+
+    def test_success__ban_forum(self):
+        self.check_ajax_ok(self.client.post(reverse('accounts:ban', args=[self.account1.id]), self.form_data(BAN_TYPE.FORUM)))
+
+        self.account1.reload()
+        self.assertTrue(self.account1.is_ban_forum)
+        self.assertFalse(self.account1.is_ban_game)
+        self.assertEqual(MessagePrototype._db_count(), 1)
+
+    def test_success__ban_game(self):
+        self.check_ajax_ok(self.client.post(reverse('accounts:ban', args=[self.account1.id]), self.form_data(BAN_TYPE.GAME)))
+
+        self.account1.reload()
+        self.assertFalse(self.account1.is_ban_forum)
+        self.assertTrue(self.account1.is_ban_game)
+        self.assertEqual(MessagePrototype._db_count(), 1)
+
+    def test_success__ban_total(self):
+        self.check_ajax_ok(self.client.post(reverse('accounts:ban', args=[self.account1.id]), self.form_data(BAN_TYPE.TOTAL)))
+
+        self.account1.reload()
+        self.assertTrue(self.account1.is_ban_forum)
+        self.assertTrue(self.account1.is_ban_game)
+        self.assertEqual(MessagePrototype._db_count(), 1)
+
+
+class ResetBansRequestsTests(AccountRequestsTests):
+
+    def setUp(self):
+        super(ResetBansRequestsTests, self).setUp()
+
+        group = sync_group('accounts moderators group', ['accounts.moderate_account'])
+        group.account_set.add(self.account3._model)
+
+        self.request_login('test_user3@test.com')
+
+        self.account1.ban_game(1)
+        self.account1.ban_forum(1)
+
+    def test_no_rights(self):
+        self.request_logout()
+        self.request_login('test_user2@test.com')
+
+        self.check_ajax_error(self.client.post(reverse('accounts:reset-bans', args=[self.account1.id])),
+                              'accounts.account.moderator_rights_required')
+
+        self.account1.reload()
+        self.assertTrue(self.account1.is_ban_forum)
+        self.assertTrue(self.account1.is_ban_game)
+
+    def test_success(self):
+        self.check_ajax_ok(self.client.post(reverse('accounts:reset-bans', args=[self.account1.id])))
+
+        self.account1.reload()
+        self.assertFalse(self.account1.is_ban_forum)
+        self.assertFalse(self.account1.is_ban_game)

@@ -194,7 +194,8 @@ class SupervisorWorkerTests(testcase.TestCase):
                                                                   hero_3.id,
                                                                   is_fast=account_3.is_fast,
                                                                   premium_end_at=account_3.premium_end_at,
-                                                                  active_end_at=account_3.active_end_at )
+                                                                  active_end_at=account_3.active_end_at,
+                                                                  ban_end_at=account_3.ban_game_end_at)
 
         self.assertEqual(logic_task_counter.call_count, 0)
         self.assertEqual(logger_warn_counter.call_count, 1)

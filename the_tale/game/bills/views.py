@@ -13,7 +13,7 @@ from common.utils.pagination import Paginator
 from common.utils.decorators import login_required, lazy_property
 
 from accounts.prototypes import AccountPrototype
-from accounts.views import validate_fast_account
+from accounts.views import validate_fast_account, validate_ban_game
 
 from game.heroes.prototypes import HeroPrototype
 
@@ -156,6 +156,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_game()
     @validate_participate_in_politics()
     @validate_argument('bill_type', argument_to_bill_type, 'bills.new', u'неверный тип закона')
     @handler('new', method='get')
@@ -166,6 +167,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_game()
     @validate_participate_in_politics()
     @validate_argument('bill_type', argument_to_bill_type, 'bills.create', u'неверный тип закона')
     @handler('create', method='post')
@@ -201,6 +203,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_game()
     @validate_participate_in_politics()
     @validate_ownership()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
@@ -212,6 +215,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_game()
     @validate_participate_in_politics()
     @validate_ownership()
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
@@ -260,6 +264,7 @@ class BillResource(Resource):
     @login_required
     @validate_fast_account()
     @nested_commit_on_success
+    @validate_ban_game()
     @validate_participate_in_politics()
     @validate_voting_state(message=u'На данной стадии за закон нельзя голосовать')
     @validate_argument('type', lambda t: VOTE_TYPE._index_value[int(t)], 'bills.vote', u'Неверно указан тип голоса')

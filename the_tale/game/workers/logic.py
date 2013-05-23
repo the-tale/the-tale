@@ -142,17 +142,19 @@ class Worker(BaseWorker):
         self.storage.heroes[hero_id].ui_caching_started_at = datetime.datetime.now()
         self.storage.save_account_data(account_id, update_cache=True)
 
-    def cmd_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at):
+    def cmd_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at, ban_end_at):
         self.send_cmd('update_hero_with_account_data', {'hero_id': hero_id,
                                                         'account_id': account_id,
                                                         'is_fast': is_fast,
                                                         'premium_end_at': premium_end_at,
-                                                        'active_end_at': active_end_at})
+                                                        'active_end_at': active_end_at,
+                                                        'ban_end_at': ban_end_at})
 
-    def process_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at):
+    def process_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at, ban_end_at):
         self.storage.heroes[hero_id].update_with_account_data(is_fast=is_fast,
                                                               premium_end_at=datetime.datetime.fromtimestamp(premium_end_at),
-                                                              active_end_at=datetime.datetime.fromtimestamp(active_end_at))
+                                                              active_end_at=datetime.datetime.fromtimestamp(active_end_at),
+                                                              ban_end_at=datetime.datetime.fromtimestamp(ban_end_at))
         self.storage.save_account_data(account_id, update_cache=True)
 
     def cmd_highlevel_data_updated(self):

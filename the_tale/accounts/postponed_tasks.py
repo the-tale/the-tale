@@ -42,7 +42,7 @@ class RegistrationTask(PostponedLogic):
     def account(self): return AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
 
     def get_unique_nick(self):
-        return uuid.uuid4().hex[:30] # 30 - is django user len limitation
+        return uuid.uuid4().hex[:AccountPrototype._model_class.MAX_NICK_LENGTH]
 
     def unbind_from_account(self):
         self.model.comment = u'unbind from account "%s"' % self.account.nick

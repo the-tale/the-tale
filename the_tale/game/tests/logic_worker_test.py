@@ -94,8 +94,10 @@ class LogicWorkerTests(testcase.TestCase):
                                                               hero_id=self.hero.id,
                                                               is_fast=False,
                                                               premium_end_at=666,
-                                                              active_end_at=666666)
+                                                              active_end_at=666666,
+                                                              ban_end_at=777777)
         args = update_method.call_args[1]
         self.assertFalse(args['is_fast'])
         self.assertEqual(args['premium_end_at'], datetime.datetime.fromtimestamp(666))
         self.assertEqual(args['active_end_at'], datetime.datetime.fromtimestamp(666666))
+        self.assertEqual(args['ban_end_at'], datetime.datetime.fromtimestamp(777777))

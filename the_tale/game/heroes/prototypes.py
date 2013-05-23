@@ -57,7 +57,8 @@ class HeroPrototype(BasePrototype):
                       'might_updated_time',
                       'ui_caching_started_at',
                       'active_state_end_at',
-                      'premium_state_end_at')
+                      'premium_state_end_at',
+                      'ban_state_end_at')
     _get_by = ('id', 'account_id')
 
     def __init__(self, **kwargs):
@@ -67,6 +68,10 @@ class HeroPrototype(BasePrototype):
     @property
     def is_premium(self):
         return self.premium_state_end_at > datetime.datetime.now()
+
+    @property
+    def is_banned(self):
+        return self.ban_state_end_at > datetime.datetime.now()
 
     @property
     def is_active(self):
@@ -506,13 +511,13 @@ class HeroPrototype(BasePrototype):
     ###########################################
 
     @property
-    def can_change_persons_power(self): return self.is_premium
+    def can_change_persons_power(self): return self.is_premium and not self.is_banned
 
     @property
-    def can_participate_in_pvp(self): return not self.is_fast
+    def can_participate_in_pvp(self): return not self.is_fast and not self.is_banned
 
     @property
-    def can_repair_building(self):  return self.is_premium
+    def can_repair_building(self):  return self.is_premium and not self.is_banned
 
     ###########################################
     # Needs attributes
@@ -790,10 +795,11 @@ class HeroPrototype(BasePrototype):
 
         return hero
 
-    def update_with_account_data(self, is_fast, premium_end_at, active_end_at):
+    def update_with_account_data(self, is_fast, premium_end_at, active_end_at, ban_end_at):
         self.is_fast = is_fast
         self.active_state_end_at = active_end_at
         self.premium_state_end_at = premium_end_at
+        self.ban_state_end_at = ban_end_at
 
     def cmd_update_with_account_data(self, account):
         from game.workers.environment import workers_environment as game_workers_environment
@@ -802,7 +808,8 @@ class HeroPrototype(BasePrototype):
                                                                               self.id,
                                                                               is_fast=account.is_fast,
                                                                               premium_end_at=account.premium_end_at,
-                                                                              active_end_at=account.active_end_at)
+                                                                              active_end_at=account.active_end_at,
+                                                                              ban_end_at=account.ban_game_end_at)
 
 
     ###########################################

@@ -67,6 +67,18 @@ jQuery(document).ready(function(){
 
 {% endif %}
 
+{% if master_account.is_ban_forum %}
+<p class="alert alert-error pgf-ban-forum-message">
+  Игроку запрещено общаться на форуме до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_forum_end_at|timestamp }}"></span>
+</p>
+{% endif %}
+
+{% if master_account.is_ban_game %}
+<p class="alert alert-error pgf-ban-game-message">
+  Герой игрока не оказывает влияние на мир до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_game_end_at|timestamp }}"></span>
+</p>
+{% endif %}
+
 <table class="account-info-table table table-condensed table-striped table-bordered table-no-highlighting">
   <tbody>
     <tr>
@@ -167,6 +179,9 @@ jQuery(document).ready( function(e) {
 
     var awardForm = new pgf.forms.Form(jQuery('#pgf-give-award-form'),
                                                {OnSuccess: function(form, data){location.reload();}});
+
+    var bunForm = new pgf.forms.Form(jQuery('#pgf-ban-form'),
+                                            {OnSuccess: function(form, data){location.reload();}});
 });
 </script>
 
@@ -184,17 +199,36 @@ jQuery(document).ready( function(e) {
     {{ give_award_form.type.widget}}
     {{ give_award_form.description.widget }}
 
-    <input type="submit" value="Выдать награду"/>
+    <input class="btn" type="submit" value="Выдать награду"/>
+
+  </form>
+
+
+  <h3>Сброс ника</h3>
+
+  <a class="btn btn-success pgf-forms-post-simple"
+     href="{{ url('accounts:reset-nick', master_account.id) }}"
+     data-confirmation="Вы действительно хотите сбросить ник игрока?">сбросить ник</a>
+
+  <h3>Баны</h3>
+
+  <a class="btn btn-success pgf-forms-post-simple"
+     href="{{ url('accounts:reset-bans', master_account.id) }}"
+     data-confirmation="Вы действительно хотите снять ограничения?">сбросить баны</a>
+
+  <form id="pgf-ban-form" method="post" action="{{ url('accounts:ban', master_account.id) }}" class="block">
+
+    {{ ban_form.errors_container }}
+
+    {{ ban_form.ban_type.widget}}
+    {{ ban_form.ban_time.widget}}
+    {{ ban_form.description.widget }}
+
+    <input class="btn btn-danger" type="submit" value="ЗАБАНИТЬ"/>
 
   </form>
 
 </div>
-
-<h3>Сброс ника</h3>
-
-<a class="btn btn-success pgf-forms-post-simple"
-   href="{{ url('accounts:reset-nick', master_account.id) }}"
-   data-confirmation="Вы действительно хотите сбросить ник игрока?">сбросить</a>
 
 {% endif %}
 

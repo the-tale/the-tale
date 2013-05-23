@@ -45,6 +45,21 @@ class HeroTest(TestCase):
         self.assertEqual(self.hero.created_at_turn, TimePrototype.get_current_time().turn_number)
         self.assertEqual(self.hero.abilities.get('hit').level, 1)
 
+    def test_is_premium(self):
+        self.assertFalse(self.hero.is_premium)
+        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=10)
+        self.assertTrue(self.hero.is_premium)
+
+    def test_is_banned(self):
+        self.assertFalse(self.hero.is_banned)
+        self.hero.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=10)
+        self.assertTrue(self.hero.is_banned)
+
+    def test_is_active(self):
+        self.assertTrue(self.hero.is_active)
+        self.hero.active_state_end_at = datetime.datetime.now()
+        self.assertFalse(self.hero.is_active)
+
     def test_create_time(self):
         time = TimePrototype.get_current_time()
         time.increment_turn()
@@ -70,7 +85,8 @@ class HeroTest(TestCase):
 
         self.hero.update_with_account_data(is_fast=False,
                                            premium_end_at=datetime.datetime.now(),
-                                           active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60))
+                                           active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
+                                           ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60))
 
         self.assertEqual(self.hero.experience_modifier, 1)
 
@@ -84,19 +100,35 @@ class HeroTest(TestCase):
 
         self.hero.update_with_account_data(is_fast=False,
                                            premium_end_at=datetime.datetime.now(),
-                                           active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60))
+                                           active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
+                                           ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60))
 
         self.assertEqual(self.hero.experience_modifier, 1)
+
+    def test_can_participate_in_pvp(self):
+        self.assertFalse(self.hero.can_participate_in_pvp)
+
+        self.hero.is_fast = False
+
+        self.assertTrue(self.hero.can_participate_in_pvp)
+        with mock.patch('game.heroes.prototypes.HeroPrototype.is_banned', True):
+            self.assertFalse(self.hero.can_participate_in_pvp)
 
     def test_can_change_persons_power(self):
         self.assertFalse(self.hero.can_change_persons_power)
         self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         self.assertTrue(self.hero.can_change_persons_power)
 
+        with mock.patch('game.heroes.prototypes.HeroPrototype.is_banned', True):
+            self.assertFalse(self.hero.can_change_persons_power)
+
     def test_can_repair_building(self):
         self.assertFalse(self.hero.can_repair_building)
         self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         self.assertTrue(self.hero.can_repair_building)
+
+        with mock.patch('game.heroes.prototypes.HeroPrototype.is_banned', True):
+            self.assertFalse(self.hero.can_repair_building)
 
     def test_update_with_account_data(self):
         self.hero.is_fast = True
@@ -106,11 +138,13 @@ class HeroTest(TestCase):
 
         self.hero.update_with_account_data(is_fast=False,
                                            premium_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
-                                           active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60))
+                                           active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
+                                           ban_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60))
 
         self.assertFalse(self.hero.is_fast)
         self.assertTrue(self.hero.active_state_end_at > datetime.datetime.now())
         self.assertTrue(self.hero.premium_state_end_at > datetime.datetime.now())
+        self.assertTrue(self.hero.ban_state_end_at > datetime.datetime.now())
 
 
     def test_modify_person_power(self):

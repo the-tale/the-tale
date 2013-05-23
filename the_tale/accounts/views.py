@@ -19,19 +19,27 @@ from game.heroes.models import Hero
 from game.heroes.prototypes import HeroPrototype
 
 from accounts.friends.prototypes import FriendshipPrototype
+from accounts.personal_messages.prototypes import MessagePrototype
 
 from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype, ResetPasswordTaskPrototype
 from accounts.postponed_tasks import RegistrationTask
 from accounts.models import CHANGE_CREDENTIALS_TASK_STATE
 from accounts import forms
 from accounts.conf import accounts_settings
-from accounts.logic import logout_user, login_user
+from accounts.logic import logout_user, login_user, get_system_user
 from accounts.workers.environment import workers_environment as infrastructure_workers_environment
 
 logger = getLogger('django.request')
 
 @validator(code='common.fast_account', message=u'Вы не закончили регистрацию и данная функция вам не доступна')
 def validate_fast_account(self, *args, **kwargs): return not self.account.is_fast
+
+@validator(code='common.ban_forum', message=u'Вам запрещено проводить эту операцию')
+def validate_ban_forum(self, *args, **kwargs): return not self.account.is_ban_forum
+
+@validator(code='common.ban_game', message=u'Вам запрещено проводить эту операцию')
+def validate_ban_game(self, *args, **kwargs): return not self.account.is_ban_game
+
 
 class RegistrationResource(Resource):
 
@@ -373,6 +381,7 @@ class AccountResource(Resource):
                               'threads_count': threads_count,
                               'folclor_posts_count': folclor_posts_count,
                               'give_award_form': forms.GiveAwardForm(),
+                              'ban_form': forms.BanForm(),
                               'phrases_count': phrases_count,
                               'friendship': friendship} )
 
@@ -402,3 +411,44 @@ class AccountResource(Resource):
         postponed_task = task.process(logger)
 
         return self.json_processing(postponed_task.status_url)
+
+    @validate_moderator_rights()
+    @handler('#account_id', 'ban', name='ban', method='post')
+    def ban(self):
+
+        form = forms.BanForm(self.request.POST)
+
+        if not form.is_valid():
+            return self.json_error('accounts.account.ban.form_errors', form.errors)
+
+        if form.c.ban_type._is_FORUM:
+            self.master_account.ban_forum(form.c.ban_time.days)
+            message = u'Вы лишены права общаться на форуме. Причина: \n\n%(message)s'
+        elif form.c.ban_type._is_GAME:
+            self.master_account.ban_game(form.c.ban_time.days)
+            message = u'Ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
+        elif form.c.ban_type._is_TOTAL:
+            self.master_account.ban_forum(form.c.ban_time.days)
+            self.master_account.ban_game(form.c.ban_time.days)
+            message = u'Вы лишены права общаться на форуме, ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
+        else:
+            return self.json_error('accounts.account.ban.unknown_ban_type', u'Неизвестный тип бана')
+
+        MessagePrototype.create(get_system_user(),
+                                self.master_account,
+                                message % {'message': form.c.description})
+
+        return self.json_ok()
+
+    @validate_moderator_rights()
+    @handler('#account_id', 'reset-bans', method='post')
+    def reset_bans(self):
+
+        self.master_account.ban_forum(0)
+        self.master_account.ban_game(0)
+
+        MessagePrototype.create(get_system_user(),
+                                self.master_account,
+                                u'С вас сняли все ограничения, наложенные ранее.')
+
+        return self.json_ok()

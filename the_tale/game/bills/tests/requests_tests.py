@@ -288,6 +288,12 @@ class TestNewRequests(BaseTestRequests):
         self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)),
                            texts=(('bills.can_not_participate_in_politics', 1),))
 
+    def test__banned(self):
+        self.account1.ban_game(30)
+        self.account1.save()
+        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)),
+                           texts=(('common.ban_game', 1),))
+
     def test_wrong_type(self):
         self.check_html_ok(self.client.get(reverse('game:bills:new') + '?bill_type=xxx'), texts=(('bills.new.bill_type.wrong_format', 1),))
 
@@ -483,6 +489,11 @@ class TestCreateRequests(BaseTestRequests):
     def test___can_not_participate_in_politics(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:create'), self.get_post_data()), 'bills.can_not_participate_in_politics')
 
+    def test___banned(self):
+        self.account1.ban_game(30)
+        self.account1.save()
+        self.check_ajax_error(self.client.post(reverse('game:bills:create'), self.get_post_data()), 'common.ban_game')
+
     def test_type_not_exist(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:create') + '?bill_type=xxx', self.get_post_data()), 'bills.create.bill_type.wrong_format')
 
@@ -547,6 +558,13 @@ class TestVoteRequests(BaseTestRequests):
     def test__can_not_participate_in_politics(self):
         self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'bills.can_not_participate_in_politics')
         self.check_bill_votes(self.bill.id, 1, 0)
+
+    def test___banned(self):
+        self.account2.ban_game(30)
+        self.account2.save()
+        self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'common.ban_game')
+        self.check_bill_votes(self.bill.id, 1, 0)
+
 
     def test_bill_not_exists(self):
         self.check_ajax_error(self.client.post(url('game:bills:vote', 666, type=VOTE_TYPE.FOR.value), {}), 'bills.bill.not_found')
@@ -618,6 +636,11 @@ class TestEditRequests(BaseTestRequests):
     def test__can_not_participate_in_politics(self):
         self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.can_not_participate_in_politics', 1),))
 
+    def test___banned(self):
+        self.account1.ban_game(30)
+        self.account1.save()
+        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('common.ban_game', 1),))
+
     def test_unexsists(self):
         self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[666])), status_code=404)
 
@@ -673,6 +696,11 @@ class TestUpdateRequests(BaseTestRequests):
     @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
     def test__can_not_participate_in_politics(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'bills.can_not_participate_in_politics')
+
+    def test___banned(self):
+        self.account1.ban_game(30)
+        self.account1.save()
+        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'common.ban_game')
 
     def test_type_not_exist(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[666]), self.get_post_data()), 'bills.bill.not_found')

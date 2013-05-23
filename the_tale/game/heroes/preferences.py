@@ -129,7 +129,8 @@ class HeroPreferences(object):
     @classmethod
     def _heroes_query(cls):
         from game.heroes.prototypes import HeroPrototype
-        return HeroPrototype._model_class.objects.filter(premium_state_end_at__gte=datetime.datetime.now())
+        current_time = datetime.datetime.now()
+        return HeroPrototype._model_class.objects.filter(ban_state_end_at__lt=current_time, premium_state_end_at__gte=current_time)
 
     @classmethod
     def count_friends_of(cls, person):
@@ -157,7 +158,3 @@ class HeroPreferences(object):
     def get_citizens_of(cls, place):
         from game.heroes.prototypes import HeroPrototype
         return [HeroPrototype(model=record) for record in cls._heroes_query().filter(pref_place_id=place.id)]
-
-    # get_friendly_heroes
-    # get_enemy_heroes
-    # get_place_heroes

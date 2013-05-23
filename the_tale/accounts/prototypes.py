@@ -24,7 +24,7 @@ from accounts.relations import CHANGE_CREDENTIALS_TASK_STATE
 
 class AccountPrototype(BasePrototype):
     _model_class = Account
-    _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_superuser', 'has_perm', 'premium_end_at', 'active_end_at')
+    _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_superuser', 'has_perm', 'premium_end_at', 'active_end_at', 'ban_game_end_at', 'ban_forum_end_at')
     _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription')
     _get_by = ('id', 'email', 'nick')
 
@@ -45,6 +45,26 @@ class AccountPrototype(BasePrototype):
 
     @property
     def is_premium(self): return self.premium_end_at > datetime.datetime.now()
+
+    @property
+    def is_ban_game(self): return self.ban_game_end_at > datetime.datetime.now()
+
+    @property
+    def is_ban_forum(self): return self.ban_forum_end_at > datetime.datetime.now()
+
+    def ban_game(self, days):
+        from game.heroes.prototypes import HeroPrototype
+
+        end_time = datetime.datetime.now() + datetime.timedelta(days=days)
+        self._model_class.objects.filter(id=self.id).update(ban_game_end_at=end_time)
+        self._model.ban_game_end_at = end_time
+
+        HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
+
+    def ban_forum(self, days):
+        end_time = datetime.datetime.now() + datetime.timedelta(days=days)
+        self._model_class.objects.filter(id=self.id).update(ban_forum_end_at=end_time)
+        self._model.ban_forum_end_at = end_time
 
     @classmethod
     def send_premium_expired_notifications(cls):

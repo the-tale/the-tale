@@ -75,6 +75,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     personal_messages_subscription = models.BooleanField(blank=True, default=True)
 
+    ban_game_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
+    ban_forum_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
+
     USERNAME_FIELD = 'nick'
     REQUIRED_FIELDS = ['email']
 

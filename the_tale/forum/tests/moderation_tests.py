@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from django.test import client
 from django.core.urlresolvers import reverse
@@ -81,6 +82,13 @@ class TestModeration(TestCase):
         self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory.slug)),
                            texts=[('pgf-new-thread-form', 2)])
 
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_loggined_new_thread_page__banned(self):
+        self.request_login('main_user@test.com')
+        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory.slug)),
+                           texts=[('pgf-new-thread-form', 0),
+                                  ('common.ban_forum', 1)])
+
     def test_unlogined_new_thread_page(self):
         request_url = reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory.slug)
         self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
@@ -105,6 +113,16 @@ class TestModeration(TestCase):
 
         self.check_ajax_ok(response, {'thread_id': thread.id,
                                       'thread_url': reverse('forum:threads:show', args=[thread.id])})
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_loggined_create_thread_page__banned(self):
+        old_threads_number = ThreadPrototype._db_count()
+        self.request_login('main_user@test.com')
+        response = self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcategory.slug),
+                                    {'caption': 'thread5-caption', 'text': 'thread5-text'})
+        self.check_ajax_error(response, 'common.ban_forum')
+
+        self.assertEqual(old_threads_number, ThreadPrototype._db_count())
 
     def test_unlogined_create_thread_page(self):
         self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcategory.slug),
@@ -153,6 +171,11 @@ class TestModeration(TestCase):
         request_url = reverse('forum:threads:edit', args=[self.thread.id])
         self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_edit_theme_page__banned(self):
+        self.request_login('main_user@test.com')
+        self.check_html_ok(self.client.get(reverse('forum:threads:edit', args=[self.thread.id])), texts=['common.ban_forum'])
+
     def test_main_user_edit_theme_page(self):
         self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:threads:edit', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2),
@@ -175,6 +198,13 @@ class TestModeration(TestCase):
     def test_unlogined_user_update_theme(self):
         self.check_ajax_error(self.client.post(reverse('forum:threads:update', args=[self.thread.id]), {'caption': 'edited caption'}),
                               'common.login_required')
+        self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_update_theme__banned(self):
+        self.request_login('main_user@test.com')
+        self.check_ajax_error(self.client.post(reverse('forum:threads:update', args=[self.thread.id]), {'caption': 'edited caption'}),
+                              'common.ban_forum')
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
 
     def test_main_user_update_theme(self):
@@ -297,6 +327,13 @@ class TestModeration(TestCase):
         self.assertEqual(Thread.objects.all().count(), 3)
         self.assertEqual(Post.objects.all().count(), 8)
 
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_second_user_remove_banned(self):
+        self.request_login('main_user@test.com')
+        self.check_ajax_error(self.client.post(reverse('forum:threads:delete', args=[self.thread.id])), 'common.ban_forum')
+        self.assertEqual(Thread.objects.all().count(), 3)
+        self.assertEqual(Post.objects.all().count(), 8)
+
     ###############################
     # post deletion
     ###############################
@@ -335,6 +372,14 @@ class TestModeration(TestCase):
         self.request_login('main_user@test.com')
         self.check_ajax_ok(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])))
         self.assertEqual(Post.objects.all().count(), 8)
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_banned_main_user_remove_post_of_second_user(self):
+        old_posts_count = PostPrototype._db_count()
+        self.assertEqual(self.second_account, self.post4.author)
+        self.request_login('main_user@test.com')
+        self.check_ajax_error(self.client.post(reverse('forum:posts:delete', args=[self.post4.id])), 'common.ban_forum')
+        self.assertEqual(old_posts_count, PostPrototype._db_count())
 
     def test_main_user_remove_first_post(self):
         self.request_login('main_user@test.com')
@@ -422,6 +467,11 @@ class TestModeration(TestCase):
 
         self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=['common.fast_account'])
 
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_edit_page_banned(self):
+        self.request_login('main_user@test.com')
+        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=['common.ban_forum'])
+
     def test_edit_page_no_permissions(self):
         self.request_login('main_user@test.com')
         self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post4.id])), texts=['forum.edit_thread.no_permissions'])
@@ -447,6 +497,12 @@ class TestModeration(TestCase):
         self.main_account.save()
 
         self.check_ajax_error(self.client.post(reverse('forum:posts:update', args=[self.post.id])), 'common.fast_account')
+        self.assertEqual(self.post.text, Post.objects.get(id=self.post.id).text)
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_update_post_banned(self):
+        self.request_login('main_user@test.com')
+        self.check_ajax_error(self.client.post(reverse('forum:posts:update', args=[self.post.id])), 'common.ban_forum')
         self.assertEqual(self.post.text, Post.objects.get(id=self.post.id).text)
 
     def test_update_post_no_permissions(self):
