@@ -1,5 +1,6 @@
 # coding: utf-8
 import mock
+import datetime
 
 from common.utils.testcase import TestCase
 from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
@@ -12,6 +13,7 @@ from game.logic import create_test_map
 
 from game.abilities.postponed_tasks import UseAbilityTask, ABILITY_TASK_STATE
 from game.abilities.deck.help import Help
+
 
 class UseAbilityTasksTests(TestCase):
 
@@ -40,6 +42,12 @@ class UseAbilityTasksTests(TestCase):
 
     def test_response_data(self):
         self.assertEqual(self.task.processed_data, {'available_at': 666})
+
+    def test_banned(self):
+        self.hero.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(days=1)
+        self.hero.save()
+        self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(self.task.state, ABILITY_TASK_STATE.BANNED)
 
     def test_process_no_energy(self):
         self.hero._model.energy = 0

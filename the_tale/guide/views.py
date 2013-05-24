@@ -34,6 +34,10 @@ class GuideResource(Resource):
     def account_types(self):
         return self.template('guide/account_types.html', {'section': 'account-types'})
 
+    @handler('behavior-rules', method='get')
+    def behavior_rules(self):
+        return self.template('guide/behavior_rules.html', {'section': 'behavior-rules'})
+
     @handler('game', method='get')
     def game(self):
         return self.template('guide/game.html', {'section': 'game'})

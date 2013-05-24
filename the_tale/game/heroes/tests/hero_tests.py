@@ -75,6 +75,10 @@ class HeroTest(TestCase):
 
         self.assertTrue(hero.created_at_turn != self.hero.created_at_turn)
 
+    def test_experience_modifier__banned(self):
+        self.assertEqual(self.hero.experience_modifier, 1)
+        self.hero.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.assertEqual(self.hero.experience_modifier, 0)
 
     def test_experience_modifier__active_inactive_state(self):
         self.assertEqual(self.hero.experience_modifier, 1)

@@ -14,7 +14,8 @@ ABILITY_TASK_STATE = create_enum('ABILITY_TASK_STATE', (('UNPROCESSED', 0, u'в 
                                                         ('PROCESSED', 1, u'обработана'),
                                                         ('NO_ENERGY', 2, u'не хватает энергии'),
                                                         ('COOLDOWN', 3, u'способность не готова'),
-                                                        ('CAN_NOT_PROCESS', 4, u'способность нельзя применить'), ))
+                                                        ('CAN_NOT_PROCESS', 4, u'способность нельзя применить'),
+                                                        ('BANNED', 5, u'нет прав на проведение операции')))
 
 class UseAbilityTask(PostponedLogic):
 
@@ -51,6 +52,11 @@ class UseAbilityTask(PostponedLogic):
         if self.step is None:
 
             hero = storage.heroes[self.hero_id]
+
+            if hero.is_banned:
+                main_task.comment = 'hero is banned'
+                self.state = ABILITY_TASK_STATE.BANNED
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             turn_number = TimePrototype.get_current_turn_number()
 

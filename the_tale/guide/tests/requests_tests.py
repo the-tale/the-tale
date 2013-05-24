@@ -21,6 +21,9 @@ class TestRequests(TestCase):
     def test_account_types(self):
         self.check_html_ok(self.client.get(reverse('guide:account-types')))
 
+    def test_behavior_rules(self):
+        self.check_html_ok(self.client.get(reverse('guide:behavior-rules')))
+
     def test_game(self):
         self.check_html_ok(self.client.get(reverse('guide:game')))
 

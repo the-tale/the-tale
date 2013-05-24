@@ -502,6 +502,8 @@ class HeroPrototype(BasePrototype):
 
     @property
     def experience_modifier(self):
+        if self.is_banned:
+            return 0.0
         if self.is_premium or self.is_active:
             return 1.0
         return 1.0 * c.EXP_PENALTY_MULTIPLIER
