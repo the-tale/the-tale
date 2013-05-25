@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from common.utils.storage import create_storage_class
+from common.utils.decorators import lazy_property
 
 from game.map.roads.models import Road, Waymark
 from game.map.roads.prototypes import RoadPrototype, WaymarkPrototype
@@ -18,15 +19,17 @@ roads_storage = RoadsStorage()
 class WaymarksStorage(create_storage_class('waymarks change time', Waymark, WaymarkPrototype, RoadsException)):
 
     def __init__(self, *argv, **kwargs):
-        self._waymarks_map = {}
         super(WaymarksStorage, self).__init__(*argv, **kwargs)
+        self._waymarks_map = {}
 
     def clear(self):
         self._waymarks_map = {}
+        del self.average_path_length
         super(WaymarksStorage, self).clear()
 
     def add_item(self, id_, item):
         super(WaymarksStorage, self).add_item(id_, item)
+        del self.average_path_length
         self._waymarks_map[(item.point_from_id, item.point_to_id)] = item
 
     def look_for_road(self, point_from, point_to):
@@ -38,6 +41,12 @@ class WaymarksStorage(create_storage_class('waymarks change time', Waymark, Waym
             point_to = point_to.id
 
         return  self._waymarks_map.get((point_from, point_to))
+
+    @lazy_property
+    def average_path_length(self):
+        self.sync()
+        total_length = sum(waymark.length for waymark in self.all())
+        return float(total_length) / len(self.all())
 
 
 waymarks_storage = WaymarksStorage()

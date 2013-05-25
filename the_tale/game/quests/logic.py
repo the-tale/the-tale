@@ -9,6 +9,7 @@ from game.balance import constants as c
 
 from game.map.places.storage import places_storage
 from game.persons.storage import persons_storage
+from game.map.roads.storage import waymarks_storage
 
 from game.persons.models import PERSON_STATE
 
@@ -30,18 +31,61 @@ class QuestsSource(BaseQuestsSource):
     quests_list = QUESTS
 
 
+def _fill_places_for_first_quest(base, hero):
+    best_distance = waymarks_storage.average_path_length * 2
+    best_destination = None
+
+    for place in places_storage.all():
+        if place.id == hero.position.place.id:
+            continue
+        path_length = waymarks_storage.look_for_road(hero.position.place, place).length
+        if path_length < best_distance:
+            best_distance = path_length
+            best_destination = place
+
+    base.add_place('place_%d' % best_destination.id, terrains=best_destination.terrains, external_data={'id': best_destination.id})
+    base.add_place('place_%d' % hero.position.place.id, terrains=hero.position.place.terrains, external_data={'id': hero.position.place.id})
+
+
+def _fill_places_for_short_paths(base, hero):
+    for place in places_storage.all():
+        if place.id != hero.position.place.id:
+            path_length = waymarks_storage.look_for_road(hero.position.place, place).length
+            #TODO: check, that every city has road less then average path length
+            if path_length > waymarks_storage.average_path_length:
+                continue
+
+        place_uuid = 'place_%d' % place.id
+        base.add_place(place_uuid, terrains=place.terrains, external_data={'id': place.id})
+
+
 def get_knowlege_base(hero):
 
     base = KnowlegeBase()
 
-    # fill base
-    for place in places_storage.all():
-        place_uuid = 'place_%d' % place.id
-        base.add_place(place_uuid, terrains=place.terrains, external_data={'id': place.id})
+    # fill places
+    if hero.statistics.quests_done == 0:
+        _fill_places_for_first_quest(base, hero)
+    elif hero.is_short_quest_path_required:
+        _fill_places_for_short_paths(base, hero)
+    else:
+        pass
 
+    if len(base.places) < 2:
+        for place in places_storage.all():
+            place_uuid = 'place_%d' % place.id
+            if place_uuid not in base.places:
+                base.add_place(place_uuid, terrains=place.terrains, external_data={'id': place.id})
+
+
+    # fill persons
     for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
         person_uuid = 'person_%d' % person.id
         place_uuid = 'place_%d' % person.place_id
+
+        if place_uuid not in base.places:
+            continue
+
         base.add_person(person_uuid,
                         place=place_uuid,
                         profession=person.type.value,

@@ -23,7 +23,6 @@ class BaseEnvironment(object):
         self.lines = {}
         self.choices = {}
         self.quests_results = {}
-        self.persons_power_points = {}
 
         self._root_quest = None
 
@@ -123,7 +122,7 @@ class BaseEnvironment(object):
     def get_command(self, pointer):
         return self.root_quest.get_command(self, pointer)
 
-    def get_writers_text_chain(self, hero, pointer):
+    def get_writers_text_chain(self, hero, pointer, rewards):
         chain = self.root_quest.get_quest_action_chain(self, pointer)
 
         writers_chain = []
@@ -144,6 +143,8 @@ class BaseEnvironment(object):
                                   'action_type': command.type(),
                                   'action_text':  action_text if action_text else u'занимается чем-то полезным',
                                   'choices': quest_choices,
+                                  'experience': int(rewards[quest.id]['experience'] * hero.experience_modifier),
+                                  'power': int(rewards[quest.id]['power'] * hero.person_power_modifier),
                                   'actors': quest.get_actors(self)})
 
 
@@ -190,7 +191,6 @@ class BaseEnvironment(object):
                  'lines': dict( (line_id, line.serialize() )
                                  for line_id, line in self.lines.items() ),
                  'root_quest': self._root_quest,
-                 'persons_power_points': self.persons_power_points,
                  'quests_results': self.quests_results}
 
     def deserialize(self, data):
@@ -217,7 +217,6 @@ class BaseEnvironment(object):
 
         self._root_quest = data['root_quest']
 
-        self.persons_power_points = data.get('persons_power_points', {})
 
     def __eq__(self, other):
         return (self.quests_source == other.quests_source and
@@ -235,7 +234,6 @@ class BaseEnvironment(object):
                 self.quests == other.quests and
                 self.lines == other.lines and
                 self.choices == other.choices and
-                self.persons_power_points == other.persons_power_points and
                 self.quests_results == other.quests_results and
 
                 self._root_quest == other._root_quest)

@@ -10,6 +10,8 @@ from game.prototypes import TimePrototype
 
 from game.balance import constants as c, formulas as f
 
+from game.map.roads.storage import waymarks_storage
+
 from game.mobs.storage import mobs_storage
 
 from game.heroes.statistics import MONEY_SOURCE
@@ -65,6 +67,9 @@ class QuestPrototype(BasePrototype):
     def get_last_pointer(self): return self.data.get('last_pointer', self.pointer)
     def set_last_pointer(self, value):  self.data['last_pointer'] = value
     last_pointer = property(get_last_pointer, set_last_pointer)
+
+    @property
+    def rewards(self): return self.data.get('rewards', {})
 
     def get_quests_start_turn(self):
         if 'quests_start_turn'not in self.data:
@@ -123,10 +128,26 @@ class QuestPrototype(BasePrototype):
         self._model.save(force_update=True)
 
     @classmethod
+    def get_expirience_for_quest(self, hero):
+        experience = f.experience_for_quest(waymarks_storage.average_path_length)
+        if hero.statistics.quests_done == 0:
+            # since we get shortest path for first quest
+            # and want to give exp as fast as can
+            # and do not want to give more exp than level up required
+            experience = int(experience/2)
+        return experience
+
+    @classmethod
+    def get_person_power_for_quest(self, hero):
+        return f.person_power_for_quest(waymarks_storage.average_path_length)
+
+    @classmethod
     def create(cls, hero, env):
 
         data = { 'pointer': env.get_start_pointer(),
-                 'last_pointer': env.get_start_pointer()}
+                 'last_pointer': env.get_start_pointer(),
+                 'rewards': {quest_id:{'experience': cls.get_expirience_for_quest(hero),
+                                       'power': cls.get_person_power_for_quest(hero)} for quest_id in env.quests}}
 
         if QuestsHeroes.objects.filter(hero=hero._model).exists():
             raise Exception('Hero %s has already had quest' % hero.id)
@@ -174,20 +195,7 @@ class QuestPrototype(BasePrototype):
         return False
 
     def end_quest(self, cur_action):
-        from game.persons.storage import persons_storage
-
-        for person_id, power in self.env.persons_power_points.items():
-            person_data = self.env.persons[person_id]
-            person = persons_storage.get(person_data['external_data']['id'])
-
-            if power > 0:
-                cur_action.hero.places_history.add_place(person.place_id)
-
-            if not cur_action.hero.can_change_persons_power:
-                continue
-
-            power = cur_action.hero.modify_person_power(person, power)
-            person.cmd_change_power(power)
+        pass
 
     def push_message(self, writer, messanger, event, **kwargs):
         from game.heroes.messages import MessagesContainer
@@ -316,21 +324,46 @@ class QuestPrototype(BasePrototype):
 
         self.env.quests_results[current_quest.id][cmd.result] = True
 
+        if current_quest.id in self.rewards:
+            experience = self.rewards[current_quest.id]['experience']
+            cur_action.hero.add_experience(experience)
+
+
     def cmd_choose(self, cmd, cur_action, writer):
         self.push_message(writer, cur_action.hero, cmd.event)
 
     def cmd_switch(self, cmd, cur_action, writer):
         self.push_message(writer, cur_action.hero, cmd.event)
 
-    def cmd_give_power(self, cmd, cur_action, writer):
-        self.push_message(writer, cur_action.hero, cmd.event)
-        current_quest_id = self.env.get_quest(self.pointer).id
-        quest_start_turn = self.quests_start_turn.get(current_quest_id)
-        if quest_start_turn is None:
-            return # temporary code for old quests (without all quests start turns)
-        real_power = f.person_power_from_quest(cmd.power, cur_action.hero.level, TimePrototype.get_current_turn_number() - quest_start_turn)
+    def modify_person_power(self, quest_power, hero_modifier, base_power):
+        return quest_power * hero_modifier * base_power
 
-        self.env.persons_power_points[cmd.person] = self.env.persons_power_points.get(cmd.person, 0) + real_power
+    def cmd_give_power(self, cmd, cur_action, writer):
+        from game.persons.storage import persons_storage
+
+        self.push_message(writer, cur_action.hero, cmd.event)
+
+        current_quest = self.env.get_quest(self.pointer)
+        if current_quest.id not in self.rewards:
+            return # temporary code for old quests (without rewards dict)
+
+        base_power = self.rewards[current_quest.id]['power']
+
+        power = self.modify_person_power(cmd.power, cur_action.hero.person_power_modifier, base_power)
+
+        person_data = self.env.persons[cmd.person]
+        person = persons_storage.get(person_data['external_data']['id'])
+
+        if power > 0:
+            cur_action.hero.places_history.add_place(person.place_id)
+
+        if not cur_action.hero.can_change_persons_power:
+            return
+
+        power = cur_action.hero.modify_person_power(person, power)
+
+        person.cmd_change_power(power)
+
 
     def cmd_battle(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionBattlePvE1x1Prototype
@@ -373,7 +406,7 @@ class QuestPrototype(BasePrototype):
             else:
                 future_choice = writer.get_choice_result_msg(cmd.choice, choices[cmd.id])
 
-        return {'line': self.env.get_writers_text_chain(hero, self.last_pointer),
+        return {'line': self.env.get_writers_text_chain(hero, self.last_pointer, self.rewards),
                 'choice_id': cmd_id,
                 'choice_variants': choice_variants,
                 'future_choice': future_choice,

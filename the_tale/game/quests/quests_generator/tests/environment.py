@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from common.utils import testcase
 
@@ -37,7 +38,6 @@ class EnvironmentTest(testcase.TestCase):
         self.assertEqual(self.env.quests, {})
         self.assertEqual(self.env.lines, {})
         self.assertEqual(self.env.choices, {})
-        self.assertEqual(self.env.persons_power_points, {})
 
         self.assertEqual(self.env._root_quest, None)
 
@@ -140,79 +140,104 @@ class EnvironmentTest(testcase.TestCase):
         FIRST_CHOICE_LINE = 'line_1'
         SECOND_CHOICE_LINE = 'line_2'
 
+        hero = mock.Mock()
+        hero.experience_modifier = 1
+        hero.person_power_modifier = 1
+        hero.__str__ = lambda h: 'hero'
 
-        self.assertEqual(self.env.get_writers_text_chain('hero', [0]),
+        rewards = {'quest_1':{'experience': 1, 'power': 2},
+                   'quest_2':{'experience': 3, 'power': 4}}
+
+        self.assertEqual(self.env.get_writers_text_chain(hero, [0], rewards),
                          [{'quest_type': 'justquest',
                            'quest_text': None, #'hero_justquest', hero name must be setupped in synchronization method of chiled class
                            'action_type': 'move',
                            'action_text': 'hero_justquest_event_3_1',
                            'actors': [],
+                           'experience': 1,
+                           'power': 2,
                            'choices': []}])
 
-        self.assertEqual(self.env.get_writers_text_chain('hero', [1]),
+        self.assertEqual(self.env.get_writers_text_chain(hero, [1], rewards),
                          [{'quest_type': 'justquest',
                            'quest_text': None, #'hero_justquest', hero name must be setupped in synchronization method of chiled class
                            'action_type': 'choose',
                            'action_text': 'hero_justquest_event_3_2',
                            'actors': [],
+                           'experience': 1,
+                           'power': 2,
                            'choices': []}])
 
-        self.assertEqual(self.env.get_writers_text_chain('hero', [1, FIRST_CHOICE_LINE, 7]),
+        self.assertEqual(self.env.get_writers_text_chain(hero, [1, FIRST_CHOICE_LINE, 7], rewards),
                          [{'quest_type': 'justquest',
                            'quest_text': None, #'hero_justquest', hero name must be setupped in synchronization method of chiled class
                            'action_type': 'givepower',
                            'action_text': 'hero_justquest_event_1_8',
                            'actors': [],
+                           'experience': 1,
+                           'power': 2,
                            'choices': ['hero_justquest_choice_id_1_choice_1']}])
 
-        self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, FIRST_CHOICE_LINE, 7, 8])
-        self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, FIRST_CHOICE_LINE, 8])
+        self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, hero, [1, FIRST_CHOICE_LINE, 7, 8], rewards)
+        self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, hero, [1, FIRST_CHOICE_LINE, 8], rewards)
 
-        self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 1]),
+        self.assertEqual(self.env.get_writers_text_chain(hero, [1, SECOND_CHOICE_LINE, 1], rewards),
                          [{'quest_type': 'justquest',
                            'quest_text': None, #'hero_justquest', hero name must be setupped in synchronization method of chiled class
                            'action_type': 'quest',
                            'action_text': 'hero_justquest_event_2_2',
                            'actors': [],
+                           'experience': 1,
+                           'power': 2,
                            'choices': ['hero_justquest_choice_id_1_choice_2']}])
 
-        self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 1, 0]),
+        self.assertEqual(self.env.get_writers_text_chain(hero, [1, SECOND_CHOICE_LINE, 1, 0], rewards),
                          [{'quest_type': 'justquest',
                            'quest_text': None, #'hero_justquest', hero name must be setupped in synchronization method of chiled class
                            'action_type': 'quest',
                            'action_text': 'hero_justquest_event_2_2',
                            'actors': [],
+                           'experience': 1,
+                           'power': 2,
                            'choices': ['hero_justquest_choice_id_1_choice_2']},
                           {'quest_type': 'fakequest',
                            'quest_text': None, #'hero_justquest', hero name must be setupped in synchronization method of chiled class
                            'action_type': 'fakecmd',
                            'action_text': 'hero_fakequest_fake_event',
+                           'experience': 3,
+                           'power': 4,
                            'actors': [],
                            'choices': []}])
 
-        self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 1, 2]),
+        self.assertEqual(self.env.get_writers_text_chain(hero, [1, SECOND_CHOICE_LINE, 1, 2], rewards),
                          [{'quest_type': 'justquest',
                            'quest_text':  None, #'hero_justquest', hero name must be setupped in synchronization method of chiled class
                            'action_type': 'quest',
                            'action_text': 'hero_justquest_event_2_2',
                            'actors': [],
+                           'experience': 1,
+                           'power': 2,
                            'choices': ['hero_justquest_choice_id_1_choice_2']},
                           {'quest_type': 'fakequest',
                            'quest_text':  None, #'hero_justquest', hero name must be setupped in synchronization method of chiled class
                            'action_type': 'fakecmd',
                            'action_text': 'hero_fakequest_fake_event',
                            'actors': [],
+                           'experience': 3,
+                           'power': 4,
                            'choices': []}])
 
-        self.assertEqual(self.env.get_writers_text_chain('hero', [1, SECOND_CHOICE_LINE, 2]),
+        self.assertEqual(self.env.get_writers_text_chain(hero, [1, SECOND_CHOICE_LINE, 2], rewards),
                          [{'quest_type': 'justquest',
                            'quest_text':  None, #'hero_justquest', hero name must be setupped in synchronization method of chiled class
                            'action_type': 'getreward',
                            'action_text': 'hero_justquest_event_2_3',
                            'actors': [],
+                           'experience': 1,
+                           'power': 2,
                            'choices': ['hero_justquest_choice_id_1_choice_2']}])
 
-        self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, 'hero', [1, SECOND_CHOICE_LINE, 3])
+        self.assertRaises(QuestGeneratorException, self.env.get_writers_text_chain, hero, [1, SECOND_CHOICE_LINE, 3], rewards)
 
 
     def test_get_nearest_quest_choice(self):

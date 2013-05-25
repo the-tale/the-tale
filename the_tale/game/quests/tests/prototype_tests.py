@@ -50,7 +50,7 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(TimePrototype.get_current_turn_number(), self.hero.quests_history[self.quest.env.root_quest.type()])
 
 
-    @mock.patch('game.balance.formulas.person_power_from_quest', lambda *args, **kwargs: 1)
+    @mock.patch('game.quests.prototypes.QuestPrototype.modify_person_power', lambda *args, **kwargs: 1)
     def test_power_on_end_quest_for_fast_account_hero(self):
         fake_cmd = FakeWorkerCommand()
 
@@ -63,7 +63,7 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertFalse(fake_cmd.commands)
 
-    @mock.patch('game.balance.formulas.person_power_from_quest', lambda *args, **kwargs: 1)
+    @mock.patch('game.quests.prototypes.QuestPrototype.modify_person_power', lambda *args, **kwargs: 1)
     def test_power_on_end_quest_for_premium_account_hero(self):
 
         self.hero.is_fast = False
@@ -78,7 +78,7 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertTrue(fake_cmd.call_count > 0)
 
-    @mock.patch('game.balance.formulas.person_power_from_quest', lambda *args, **kwargs: 1)
+    @mock.patch('game.quests.prototypes.QuestPrototype.modify_person_power', lambda *args, **kwargs: 1)
     def test_power_on_end_quest_for_normal_account_hero(self):
 
         self.hero.is_fast = False
@@ -97,5 +97,10 @@ class PrototypeTests(testcase.TestCase):
 
         self.quest.remove()
 
-        # not there are no anothe quests an get_minimum_created_time_of_active_quests return now()
+        # not there are no another quests an get_minimum_created_time_of_active_quests return now()
         self.assertTrue(self.quest._model.created_at < QuestPrototype.get_minimum_created_time_of_active_quests())
+
+    def test_get_experience_for_quest(self):
+        self.assertEqual(self.hero.experience, 0)
+        self.complete_quest()
+        self.assertTrue(self.hero.experience > 0)

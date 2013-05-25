@@ -771,10 +771,6 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
             if self.mob.health <= 0:
                 self.mob.kill()
                 self.hero.statistics.change_pve_kills(1)
-                if self.created_at_turn != 0: # TODO: temporary check for situation, when "created_at_turn" field added, MUST be removed
-                    # check for extremal rare situation, when lost health is less then zero
-                    health_percent_lost = float(self.hero_health_lost) / self.hero.max_health if self.hero_health_lost > 0 else 1.0 / c.BATTLE_LENGTH
-                    self.hero.add_experience(f.experience_for_mob(TimePrototype.get_current_turn_number() - self.created_at_turn, health_percent_lost))
                 self.hero.add_message('action_battlepve1x1_mob_killed', hero=self.hero, mob=self.mob)
 
                 loot = self.mob.get_loot()

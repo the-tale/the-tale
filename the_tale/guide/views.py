@@ -46,6 +46,10 @@ class GuideResource(Resource):
     def might(self):
         return self.template('guide/might.html', {'section': 'might'})
 
+    @handler('quests', method='get')
+    def quests(self):
+        return self.template('guide/quests.html', {'section': 'quests'})
+
     @handler('persons', method='get')
     def persons(self):
         from game.persons.prototypes import MASTERY_VERBOSE

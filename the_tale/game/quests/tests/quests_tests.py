@@ -63,7 +63,12 @@ def create_test_method(quest, quests):
 
     @patch_quests_list('game.quests.logic.QuestsSource', quests)
     @mock.patch('game.balance.constants.QUESTS_SPECIAL_FRACTION', 1.1)
+    @mock.patch('game.map.roads.storage.WaymarksStorage.average_path_length', 9999)
     def quest_test_method(self):
+
+        # defends from first quest rule
+        self.hero.statistics.change_quests_done(1)
+        self.hero.save()
 
         current_time = TimePrototype.get_current_time()
 

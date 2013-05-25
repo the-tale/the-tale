@@ -2,7 +2,7 @@
 import math
 import random
 
-from . import constants as c
+from game.balance import constants as c
 
 # время изменяется в часах, если размерность не указана отдельно
 # при всех вычислениях предполагается, что получаемые значения - это либо поталок (которого героя может достигнуть при активной игре пользователя) либо среднее
@@ -155,17 +155,6 @@ def sell_artifact_price(lvl):
 #   -  учитывается влияние на проятжении месяца
 #   -  общее влияние равно сумме влияний за месяц с коофициентом давности, т.е. влияние, полученное месяц назад, применяется с коофициентом 0 (не влияет)
 
-#########################################
-# расчёт изменения влияния песроанажа
-#########################################
-
-def person_power_from_quest(power_points, hero_lvl, quest_length): # длительность задания указывается в ходах
-    # do not give any power for heroes on first level
-    return int(power_points * math.log(hero_lvl, 2) * c.HERO_POWER_PER_DAY * (quest_length / (24 * c.TURNS_IN_HOUR)))
-
-def person_power_from_random_spend(power_points, hero_lvl):
-    return power_points * math.log(hero_lvl, 2) * c.PERSON_POWER_FOR_RANDOM_SPEND
-
 
 def turns_to_game_time(turns):
     game_time = turns * c.GAME_SECONDS_IN_TURN
@@ -210,9 +199,30 @@ def might_pvp_effectiveness_bonus(might):
     return math.log(might, 10) / 40.0
 
 
-# опыт за битву с монстром:
-def experience_for_mob(battle_length, health_percent_left):
-    return c.EXP_PER_MOB * (float(battle_length) / c.BATTLE_LENGTH) * (health_percent_left / (1.0 / c.BATTLES_BEFORE_HEAL))
+def turns_to_path(path_length):
+    distance_in_action_cycle = c.HERO_MOVE_SPEED * (c.INTERVAL_BETWEEN_BATTLES * c.BATTLES_BEFORE_HEAL)
+    return path_length / distance_in_action_cycle * c.ACTIONS_CYCLE_LENGTH
+
+def experience_for_quest__real(path_length):
+    # multiply by 2 since in most quests hero must return to start point
+    return 2 * turns_to_path(path_length) / c.TURNS_IN_HOUR * c.EXP_PER_HOUR
+
+def experience_for_quest(path_length):
+    return  int(math.ceil(experience_for_quest__real(path_length) * random.uniform(1.0-c.EXP_PER_QUEST_FRACTION, 1+c.EXP_PER_QUEST_FRACTION)))
+
+#########################################
+# расчёт изменения влияния песроанажа
+#########################################
+
+def person_power_from_random_spend(power_points, hero_lvl):
+    return power_points * math.log(hero_lvl, 2) * c.PERSON_POWER_FOR_RANDOM_SPEND
+
+def person_power_for_quest__real(path_length):
+    # multiply by 2 since in most quests hero must return to start point
+    return 2 * turns_to_path(path_length) / c.TURNS_IN_HOUR * (c.HERO_POWER_PER_DAY / 24.0)
+
+def person_power_for_quest(path_length):
+    return  int(math.ceil(person_power_for_quest__real(path_length) * random.uniform(1.0-c.PERSON_POWER_PER_QUEST_FRACTION, 1+c.PERSON_POWER_PER_QUEST_FRACTION)))
 
 # способности
 def max_ability_points_number(level):

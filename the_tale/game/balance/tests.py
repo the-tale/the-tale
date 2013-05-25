@@ -20,9 +20,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.POWER_PER_LVL, 1)
         self.assertEqual(c.EQUIP_SLOTS_NUMBER, 11)
         self.assertEqual(c.ARTIFACTS_PER_LVL, 4)
-        self.assertEqual(c.EXP_PER_MOB, 1.0)
-        self.assertEqual(c.EXP_MULTIPLICATOR, 10.0)
         self.assertEqual(c.EXP_PENALTY_MULTIPLIER, 0.25)
+        self.assertEqual(c.EXP_PER_HOUR, 15)
+        self.assertEqual(c.EXP_PER_QUEST_FRACTION, 0.33)
+        self.assertEqual(c.HERO_MOVE_SPEED, 0.3)
         self.assertEqual(c.BATTLE_LENGTH, 16)
         self.assertEqual(c.INTERVAL_BETWEEN_BATTLES, 5)
         self.assertEqual(c.BATTLES_BEFORE_HEAL, 8)
@@ -62,8 +63,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.DAMAGE_TO_MOB_PER_HIT_FRACTION, 1.0 / (16/2))
         self.assertEqual(c.DAMAGE_DELTA, 0.2)
         self.assertEqual(c.DAMAGE_CRIT_MULTIPLIER, 2.0)
-
-        self.assertEqual(c.EXP_PER_HOUR, (360.0 / (int(8*(16+5)-5 + (8*(16+5)-5) * 0.2)) * 8) * 1)
 
         self.assertEqual(c.MAX_BAG_SIZE, 12)
         self.assertEqual(c.BAG_SIZE_TO_SELL_LOOT_FRACTION, 0.33)
@@ -131,6 +130,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.MAP_SYNC_TIME, 720)
 
         self.assertEqual(c.QUESTS_SPECIAL_FRACTION, 0.2)
+        self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
 
         self.assertEqual(c.QUESTS_LOCK_TIME, { 'hunt': int(1.5*12*360),
                                                'hometown': int(12*360),
@@ -139,6 +139,7 @@ class ConstantsTest(testcase.TestCase):
                                                'searchsmith': int(0.5*12*360) })
 
         self.assertEqual(c.HERO_POWER_PER_DAY, 1000)
+        self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
 
         self.assertEqual(c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED, 1)
@@ -211,11 +212,10 @@ class FormulasTest(testcase.TestCase):
         self.assertEqual(f.turns_to_game_time(700103), (8, 3, 21, 8, 46, 0))
         self.assertEqual(f.turns_to_game_time(7001038), (86, 4, 8, 15, 56, 0))
 
-    def test_experience_for_mob(self):
-        health = 1.0 / c.BATTLES_BEFORE_HEAL
-        turns = c.BATTLE_LENGTH
+    def test_experience_for_quest(self):
+        self.assertTrue(f.experience_for_quest(100) < f.experience_for_quest(1000)< f.experience_for_quest(10000))
+        self.assertEqual(int(f.experience_for_quest__real(100)), 135)
 
-        self.assertTrue(1.0 - E < f.experience_for_mob(turns, health) < 1.0 + E)
-        self.assertTrue(1.1 - E < f.experience_for_mob(turns*1.1, health) < 1.1 + E)
-        self.assertTrue(0.9 - E < f.experience_for_mob(turns, health*0.9) < 0.9 + E)
-        self.assertTrue(0.99 - E < f.experience_for_mob(turns*1.1, health*0.9) < 0.99 + E)
+    def test_person_power_for_quest(self):
+        self.assertTrue(f.person_power_for_quest(100) < f.person_power_for_quest(1000)< f.person_power_for_quest(10000))
+        self.assertEqual(int(f.person_power_for_quest__real(100)), 376)

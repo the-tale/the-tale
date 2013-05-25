@@ -47,7 +47,6 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td>опыт за моба</td><td class="center">{{c.EXP_PER_MOB}}</td></tr>
       <tr><td>битв в цепочке</td><td class="center">{{c.BATTLES_BEFORE_HEAL}}</td></tr>
       <tr><td>битв в ход</td><td class="center">{{ c.BATTLES_PER_TURN|round(2) }}</td></tr>
       <tr><td>битв в час</td><td class="center">{{ c.BATTLES_PER_HOUR|round }}</td></tr>
@@ -55,6 +54,8 @@
       <tr><td>количество действий участника битвы</td><td class="center">{{ (c.BATTLE_LENGTH/2)|int }}</td></tr>
       <tr><td>доля урона мобу</td><td class="center">{{c.DAMAGE_TO_MOB_PER_HIT_FRACTION}}</td></tr>
       <tr><td>доля урона герою</td><td class="center">{{c.DAMAGE_TO_HERO_PER_HIT_FRACTION}}</td></tr>
+      <tr><td>точный опыт за квест</td><td class="center">{{exp_for_quest}}</td><tr>
+      <tr><td>длина среднего пути</td><td class="center">{{average_path_length}}</td><tr>
     </tbody>
   </table>
 
@@ -86,7 +87,10 @@
       {{ time_row("уровень", tmp_lvls)}}
       {{ time_row("ходов до следующего уровня", tmp_turns)}}
       {{ time_row("ходов с начала игры", tmp_turns_to_time)}}
-      {{ time_row("опыт до следующего уровня", tmp_exp) }}
+      {{ time_row("опыт до следующего уровня", tmp_exp_to_level) }}
+      {{ time_row("всего опыта до следующего уровня", tmp_exp_total) }}
+      {{ time_row("заданий до следующего уровня", tmp_quests_to_level) }}
+      {{ time_row("всего заданий до следующего уровня", tmp_quests_total) }}
       {{ time_row("здоровье", tmp_hp) }}
       {{ time_row("сила (максимальная)", tmp_power) }}
       {{ time_row("сила артефакта",  tmp_power_per_slot) }}

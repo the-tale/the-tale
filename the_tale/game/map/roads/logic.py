@@ -1,4 +1,5 @@
 # coding: utf-8
+
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage, waymarks_storage
 from game.map.roads.prototypes import WaymarkPrototype

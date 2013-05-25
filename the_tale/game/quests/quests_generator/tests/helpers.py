@@ -15,13 +15,13 @@ class FakeWriter(object):
         self.env_local = env_local
 
     def get_description_msg(self):
-        return '%s_%s' % (self.hero, self.quest_type)
+        return '%s_%s' % (str(self.hero), self.quest_type)
 
     def get_action_msg(self, event):
-        return '%s_%s_%s' % (self.hero, self.quest_type, event)
+        return '%s_%s_%s' % (str(self.hero), self.quest_type, event)
 
     def get_choice_result_msg(self, choice, answer):
-        return '%s_%s_%s_%s' % (self.hero, self.quest_type, choice, answer)
+        return '%s_%s_%s_%s' % (str(self.hero), self.quest_type, choice, answer)
 
 
 class FakeCmd(cmd.Command): pass

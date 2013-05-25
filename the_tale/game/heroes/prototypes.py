@@ -88,6 +88,10 @@ class HeroPrototype(BasePrototype):
     def is_ui_caching_required(self):
         return (datetime.datetime.now() - self._model.ui_caching_started_at).seconds < heroes_settings.UI_CACHING_TIME
 
+    @property
+    def is_short_quest_path_required(self):
+        return self.level < c.QUESTS_SHORT_PATH_LEVEL_CAP
+
     ###########################################
     # Base attributes
     ###########################################
@@ -105,7 +109,7 @@ class HeroPrototype(BasePrototype):
     def race_verbose(self): return RACE._ID_TO_TEXT[self.race]
 
     def add_experience(self, value):
-        self._model.experience += self.abilities.modify_attribute(ATTRIBUTES.EXPERIENCE, value * self.experience_modifier)
+        self._model.experience += value * self.experience_modifier
         while f.exp_on_lvl(self.level) <= self._model.experience:
             self._model.experience -= f.exp_on_lvl(self.level)
             self._model.level += 1
@@ -489,7 +493,7 @@ class HeroPrototype(BasePrototype):
     def damage_modifier(self): return self.abilities.modify_attribute(ATTRIBUTES.DAMAGE, 1)
 
     @property
-    def move_speed(self): return self.abilities.modify_attribute(ATTRIBUTES.SPEED, 0.3)
+    def move_speed(self): return self.abilities.modify_attribute(ATTRIBUTES.SPEED, c.HERO_MOVE_SPEED)
 
     @property
     def initiative(self): return self.abilities.modify_attribute(ATTRIBUTES.INITIATIVE, 1)
@@ -503,10 +507,17 @@ class HeroPrototype(BasePrototype):
     @property
     def experience_modifier(self):
         if self.is_banned:
-            return 0.0
-        if self.is_premium or self.is_active:
-            return 1.0
-        return 1.0 * c.EXP_PENALTY_MULTIPLIER
+            modifier = 0.0
+        elif self.is_premium or self.is_active:
+            modifier = 1.0
+        else:
+            modifier = 1.0 * c.EXP_PENALTY_MULTIPLIER
+
+        return self.abilities.modify_attribute(ATTRIBUTES.EXPERIENCE, modifier)
+
+    @property
+    def person_power_modifier(self):
+        return max(math.log(self.level, 2), 0.5)
 
     ###########################################
     # Permissions
@@ -696,8 +707,8 @@ class HeroPrototype(BasePrototype):
                           'destiny_points': self.max_ability_points_number - self.current_ability_points_number,
                           'health': self.health,
                           'max_health': self.max_health,
-                          'experience': self.experience * c.EXP_MULTIPLICATOR,
-                          'experience_to_level': f.exp_on_lvl(self.level) * c.EXP_MULTIPLICATOR,
+                          'experience': int(self.experience),
+                          'experience_to_level': int(f.exp_on_lvl(self.level)),
                           'gender': self.gender,
                           'race': self.race },
                 'secondary': { 'power': math.floor(self.power),

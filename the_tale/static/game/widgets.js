@@ -226,6 +226,11 @@ pgf.game.widgets._RenderQuest = function(index, quest, element) {
         .addClass(quest.quest_type);
 
     jQuery('.pgf-quest-description', element).text(quest.quest_text);
+
+    jQuery('.pgf-quest-rewards', element).toggleClass('pgf-hidden', !(quest.experience || quest.power));
+    jQuery('.pgf-experience', element).text(quest.experience);
+    jQuery('.pgf-power', element).text(quest.power);
+
     jQuery('.pgf-quest-action-description', element).text(quest.action_text);
 
     var actorsElement = jQuery('.pgf-actors', element);

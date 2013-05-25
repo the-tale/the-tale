@@ -138,7 +138,9 @@ class WANDERER(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Бродяги истоптали тысячи тропинок и всегда найдут кратчайшую дорогу, поэтому путешествуют быстрее остальных.'
 
-    SPEED_MULTIPLIER = [1.2, 1.4, 1.6, 1.8, 2.0]
+    # since experience not depends on time, this agruments MUST be equal or less then GIFTER.EXPERIENCE_MULTIPLIER
+    # in other case, GIFTED will give less experience, then WANDERER
+    SPEED_MULTIPLIER = [1.04, 1.08, 1.12, 1.16, 1.20]
 
     @property
     def speed_multiplier(self): return self.SPEED_MULTIPLIER[self.level-1]

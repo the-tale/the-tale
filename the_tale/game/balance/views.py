@@ -2,19 +2,19 @@
 import math
 
 from dext.views import handler
-from dext.utils.decorators import debug_required
 
 from common.utils.decorators import staff_required
 from common.utils.resources import Resource
 
-from . import constants as c, formulas as f
+from game.map.roads.storage import waymarks_storage
+
+from game.balance import constants as c, formulas as f
 
 class BalanceResource(Resource):
 
     def __init__(self, request, *args, **kwargs):
        super(BalanceResource, self).__init__(request, *args, **kwargs)
 
-    @debug_required
     @staff_required()
     @handler('', method='get')
     def show_balance(self):
@@ -24,7 +24,14 @@ class BalanceResource(Resource):
 
         # Всё, что ниже, должно зависеть от уровня, не от времени, т.к. время в данном случае не точный параметр, а анализ всё равно ориентируется на уровень.
 
-        tmp_exp = map(math.floor, map(f.total_exp_to_lvl, tmp_lvls))
+        exp_for_quest = f.experience_for_quest__real(waymarks_storage.average_path_length)
+
+        tmp_exp_to_level = map(math.floor, map(f.exp_on_lvl, tmp_lvls))
+        tmp_exp_total = map(math.floor, map(f.total_exp_to_lvl, tmp_lvls))
+
+        tmp_quests_to_level = map(math.ceil, map(lambda exp: exp/float(exp_for_quest), tmp_exp_to_level))
+        tmp_quests_total = map(math.ceil, map(lambda exp: exp/float(exp_for_quest), tmp_exp_total))
+
         tmp_hp = map(f.hp_on_lvl, tmp_lvls)
         tmp_turns = map(f.turns_on_lvl, tmp_lvls)
         tmp_turns_to_time = map(int, map(f.hours_to_turns, tmp_times))
@@ -51,9 +58,15 @@ class BalanceResource(Resource):
                              {'c': c,
                               'f': f ,
 
+                              'exp_for_quest': exp_for_quest,
+                              'average_path_length':waymarks_storage.average_path_length,
+
                               'tmp_time': tmp_time,
                               'tmp_lvls': tmp_lvls,
-                              'tmp_exp': tmp_exp,
+                              'tmp_exp_to_level': tmp_exp_to_level,
+                              'tmp_exp_total': tmp_exp_total,
+                              'tmp_quests_to_level': tmp_quests_to_level,
+                              'tmp_quests_total': tmp_quests_total,
                               'tmp_hp': tmp_hp,
                               'tmp_turns': tmp_turns,
                               'tmp_turns_to_time': tmp_turns_to_time,
