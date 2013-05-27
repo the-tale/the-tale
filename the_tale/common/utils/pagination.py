@@ -56,7 +56,7 @@ class Paginator(object):
         self.pages_numbers = self._make_paginator_structure(self.current_page_number, self.pages_count)
 
         if self.inverse:
-            self.pages_numbers = reversed(self.pages_numbers)
+            self.pages_numbers = list(reversed(self.pages_numbers))
 
     @property
     def wrong_page_number(self): return self.current_page_number and self.current_page_number >= self.pages_count # zero page always exists
