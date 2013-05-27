@@ -34,6 +34,7 @@
 }
 .hero-base-block .attribute-record {
   display: inline-block;
+  white-space: nowrap;
   width: 32%;
 }
 .hero-base-block .attribute-record:hover {
@@ -130,7 +131,7 @@
   background: url('../game/images/quests.png') no-repeat scroll 0 -704px transparent;
 }
 .quest-record {
-  min-height: 64px;
+  min-height: 84px;
   cursor: default;
 }
 .quest-record:hover {
@@ -166,17 +167,16 @@
 }
 .log-record {
   cursor: default;
-  padding-left: 3.5em;
 }
 .log-record:hover {
   background-color: #dddddd;
 }
 .log-record .time {
-  margin-left: -3.3em;
   display: inline;
+  float: left;
 }
 .log-record .message {
-  display: inline;
+  margin-left: 3.5em;
   padding-left: 0.5em;
 }
 .log-record .message .submessage {
