@@ -23,14 +23,14 @@ class TestShowRequests(TestCase):
         self.client = client.Client()
 
     def test_wrong_place_id(self):
-        self.check_html_ok(self.client.get(reverse('game:map:places:show', args=['wrong_id'])), texts=['places.place.wrong_format'])
+        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=['wrong_id'])), texts=['places.place.wrong_format'])
 
     def test_place_does_not_exist(self):
-        self.check_html_ok(self.client.get(reverse('game:map:places:show', args=[666])), texts=['places.place.not_found'], status_code=404)
+        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[666])), texts=['places.place.not_found'], status_code=404)
 
     def test_no_heroes(self):
         texts = [('pgf-no-heroes-message', 1 + len(self.place_1.persons))]
-        self.check_html_ok(self.client.get(reverse('game:map:places:show', args=[self.place_1.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=texts)
 
     def test_heroes(self):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -63,4 +63,4 @@ class TestShowRequests(TestCase):
                  (jinja2.escape(hero_2.name), 3),
                  (jinja2.escape(hero_3.name), 0)]
 
-        self.check_html_ok(self.client.get(reverse('game:map:places:show', args=[self.place_1.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=texts)

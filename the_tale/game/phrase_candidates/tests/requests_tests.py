@@ -13,7 +13,7 @@ from game.text_generation import get_phrases_types
 from game.logic import create_test_map
 
 from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
+from accounts.logic import register_user
 
 from game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
 from game.phrase_candidates.prototypes import PhraseCandidatePrototype
@@ -75,7 +75,7 @@ class RequestsTests(RequestsTestsBase):
 
     def test_phrase_not_found(self):
         self.request_login('test_user_1@test.com')
-        self.check_ajax_error(self.get_ajax_json(reverse('game:phrase-candidates:edit', args=[666])), 'phrase_candidates.phrase_not_found')
+        self.check_ajax_error(self.request_ajax_json(reverse('game:phrase-candidates:edit', args=[666])), 'phrase_candidates.phrase_not_found')
 
 
 class IndexRequestsTests(RequestsTestsBase):
@@ -214,13 +214,13 @@ class NewRequestsTests(RequestsTestsBase):
 
     def test_login_required(self):
         self.request_logout()
-        self.check_html_ok(self.get_ajax_html(self.create_new_url()), texts=['common.login_required'])
+        self.check_html_ok(self.request_ajax_html(self.create_new_url()), texts=['common.login_required'])
 
     def test_account_is_fast(self):
         self.request_login('test_user_1@test.com')
         self.account_1.is_fast = True
         self.account_1.save()
-        self.check_html_ok(self.get_ajax_html(self.create_new_url()), texts=['common.fast_account'])
+        self.check_html_ok(self.request_ajax_html(self.create_new_url()), texts=['common.fast_account'])
 
     def test_success(self):
         texts = [(self.phrase_type, 2),
@@ -229,14 +229,14 @@ class NewRequestsTests(RequestsTestsBase):
                  (self.phrase_data['example'], 1),
                  (self.phrase_data['description'], 1)]
 
-        self.check_html_ok(self.get_ajax_html(self.create_new_url()), texts=texts)
+        self.check_html_ok(self.request_ajax_html(self.create_new_url()), texts=texts)
 
     def test_wrong_module(self):
-        self.check_ajax_error(self.get_ajax_json(self.create_new_url(phrase_type=u'bla-bla-bla')),
+        self.check_ajax_error(self.request_ajax_json(self.create_new_url(phrase_type=u'bla-bla-bla')),
                               u'phrase_candidates.new.type_not_exist')
 
     def test_wrong_subtype(self):
-        self.check_ajax_error(self.get_ajax_json(self.create_new_url(phrase_subtype=u'bla-bla-bla')),
+        self.check_ajax_error(self.request_ajax_json(self.create_new_url(phrase_subtype=u'bla-bla-bla')),
                               u'phrase_candidates.new.type_not_exist')
 
 
@@ -314,13 +314,13 @@ class EditRequestsTests(RequestsTestsBase):
 
     def test_login_required(self):
         self.request_logout()
-        self.check_html_ok(self.get_ajax_html(url('game:phrase-candidates:edit', self.phrase_1.id)), texts=['common.login_required'])
+        self.check_html_ok(self.request_ajax_html(url('game:phrase-candidates:edit', self.phrase_1.id)), texts=['common.login_required'])
 
     def test_account_is_fast(self):
         self.request_login('test_user_1@test.com')
         self.account_1.is_fast = True
         self.account_1.save()
-        self.check_html_ok(self.get_ajax_html(url('game:phrase-candidates:edit', self.phrase_1.id)), texts=['common.fast_account'])
+        self.check_html_ok(self.request_ajax_html(url('game:phrase-candidates:edit', self.phrase_1.id)), texts=['common.fast_account'])
 
     def test_success(self):
         texts = [(self.phrase_1.text, 1),
@@ -334,7 +334,7 @@ class EditRequestsTests(RequestsTestsBase):
     def test_no_permissions(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_ajax_error(self.get_ajax_json(reverse('game:phrase-candidates:edit', args=[self.phrase_1.id])),
+        self.check_ajax_error(self.request_ajax_json(reverse('game:phrase-candidates:edit', args=[self.phrase_1.id])),
                               'phrase_candidates.moderate_rights_required')
 
 

@@ -69,7 +69,7 @@ class ResetPasswordRequestsTests(testcase.TestCase):
         self.check_redirect(reverse('accounts:profile:reset-password'), '/')
 
     def test_reset_password_page(self):
-        self.check_html_ok(self.client.get(reverse('accounts:profile:reset-password')))
+        self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password')))
 
     def test_reset_password_page_for_wrong_email(self):
         self.check_ajax_error(self.client.post(reverse('accounts:profile:reset-password'), {'email': 'wrong@test.com'}), 'accounts.profile.reset_password.wrong_email')
@@ -82,7 +82,7 @@ class ResetPasswordRequestsTests(testcase.TestCase):
         self.assertEqual(ResetPasswordTask.objects.all().count(), 1)
 
     def test_reset_password_done(self):
-        self.check_html_ok(self.client.get(reverse('accounts:profile:reset-password-done')))
+        self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password-done')))
 
     def test_reset_password_processed(self):
         task = ResetPasswordTaskPrototype.create(self.account)
@@ -90,7 +90,7 @@ class ResetPasswordRequestsTests(testcase.TestCase):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
         self.assertEqual(ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 0)
 
-        self.check_html_ok(self.client.get(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)))
+        self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)))
 
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 1)
@@ -100,12 +100,12 @@ class ResetPasswordRequestsTests(testcase.TestCase):
     def test_reset_password_expired(self):
         task = ResetPasswordTaskPrototype.create(self.account)
         with mock.patch('accounts.conf.accounts_settings.RESET_PASSWORD_TASK_LIVE_TIME', -1):
-            self.check_html_ok(self.client.get(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)),
+            self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)),
                                texts=['accounts.profile.reset_password_processed.time_expired'])
         self.assertEqual(django_authenticate(nick='test_user', password='111111').id, self.account.id)
 
     def test_reset_password_already_processed(self):
         task = ResetPasswordTaskPrototype.create(self.account)
-        self.check_html_ok(self.client.get(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)))
-        self.check_html_ok(self.client.get(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)),
+        self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)))
+        self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)),
                            texts=['accounts.profile.reset_password_processed.already_processed'])

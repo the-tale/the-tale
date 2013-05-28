@@ -81,11 +81,11 @@ class InfoRequestTests(RequestTestsBase):
         self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'mode', 'map_version')))
 
     def test_account_not_exists(self):
-        response = self.get_ajax_json(reverse('game:info') + '?account=666')
+        response = self.request_ajax_json(reverse('game:info') + '?account=666')
         self.check_ajax_error(response, 'game.info.account.not_found')
 
     def test_wrong_account_id(self):
-        response = self.get_ajax_json(reverse('game:info') + '?account=sdsd')
+        response = self.request_ajax_json(reverse('game:info') + '?account=sdsd')
         self.check_ajax_error(response, 'game.info.account.wrong_format')
 
     def test_pvp_in_queue(self):

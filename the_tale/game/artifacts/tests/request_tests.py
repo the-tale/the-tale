@@ -59,41 +59,41 @@ class TestIndexRequests(BaseTestRequests):
     def test_no_artifacts(self):
         ArtifactRecord.objects.all().delete()
         artifacts_storage.clear()
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:')), texts=(('pgf-no-artifacts-message', 1),))
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=(('pgf-no-artifacts-message', 1),))
 
     def test_simple(self):
         texts = ['loot_1', 'loot_2', 'boots_1', ('pgf-create-artifact-button', 0), ('pgf-artifact-state-filter', 0)]
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:')), texts=texts)
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=texts)
 
     def test_create_artifact_button(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:')), texts=[('pgf-create-artifact-button', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=[('pgf-create-artifact-button', 1)])
 
     def test_artifact_state_filter(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:')), texts=[('pgf-artifact-state-filter', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=[('pgf-artifact-state-filter', 1)])
 
         self.request_logout()
         self.request_login('test_user_3@test.com')
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:')), texts=[('pgf-artifact-state-filter', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=[('pgf-artifact-state-filter', 1)])
 
     def test_disabled_artifacts(self):
         ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=ARTIFACT_RECORD_STATE.DISABLED)
         texts = ['loot_1', 'loot_2', 'plate_1', ('bandit_loot', 0)]
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:')), texts=texts)
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=texts)
 
     def test_filter_by_state_no_artifacts_message(self):
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:')+('?state=%d' % ARTIFACT_RECORD_STATE.DISABLED)), texts=(('pgf-no-artifacts-message', 1),))
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')+('?state=%d' % ARTIFACT_RECORD_STATE.DISABLED)), texts=(('pgf-no-artifacts-message', 1),))
 
     def test_filter_by_state(self):
         texts = ['loot_1', 'loot_2', 'loot_3']
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:')+('?state=%d' % ARTIFACT_RECORD_STATE.ENABLED)), texts=texts)
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')+('?state=%d' % ARTIFACT_RECORD_STATE.ENABLED)), texts=texts)
 
     def test_filter_by_rarity_no_artifacts_message(self):
         texts = [('loot_1', 0), ('loot_2', 0), ('loot_3', 0), ('pgf-no-artifacts-message', 1)]
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:')+('?rarity=%d' % RARITY_TYPE.EPIC)), texts=texts)
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')+('?rarity=%d' % RARITY_TYPE.EPIC)), texts=texts)
 
     def test_filter_by_rarity(self):
         ArtifactRecordPrototype.create_random('helmet_2', type_=ARTIFACT_TYPE.HELMET, rarity=RARITY_TYPE.RARE)
@@ -101,17 +101,17 @@ class TestIndexRequests(BaseTestRequests):
         ArtifactRecordPrototype.create_random('boots_2', type_=ARTIFACT_TYPE.BOOTS, rarity=RARITY_TYPE.RARE)
 
         texts = [('loot_1', 0), ('loot_2', 0), ('loot_3', 0), ('pgf-no-artifacts-message', 0), ('helmet_2', 1), ('plate_2', 1), ('boots_2', 1)]
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:')+('?rarity=%d' % RARITY_TYPE.RARE)), texts=texts)
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')+('?rarity=%d' % RARITY_TYPE.RARE)), texts=texts)
 
     def test_filter_by_type_no_artifacts_message(self):
         texts = [('loot_1', 0), ('plate_1', 0), ('loot_3', 0), ('pgf-no-artifacts-message', 1)]
         texts += [(uuid, 0) for uuid in DEFAULT_HERO_EQUIPMENT._ALL]
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:')+('?type=%d' % ARTIFACT_TYPE.RING)), texts=texts)
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')+('?type=%d' % ARTIFACT_TYPE.RING)), texts=texts)
 
     def test_filter_by_type(self):
         texts = [('loot_1', 1), ('loot_2', 1), ('loot_3', 1), ('pgf-no-artifacts-message', 0), ('helmet_2', 0), ('plate_2', 0), ('boots_2', 0)]
         texts += [(uuid, 0) for uuid in DEFAULT_HERO_EQUIPMENT._ALL]
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:')+('?type=%d' % ARTIFACT_TYPE.USELESS)), texts=texts)
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')+('?type=%d' % ARTIFACT_TYPE.USELESS)), texts=texts)
 
 
 class TestNewRequests(BaseTestRequests):
@@ -122,16 +122,16 @@ class TestNewRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         request_url = reverse('game:artifacts:new')
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.assertRedirects(self.request_html(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_create_rights(self):
-        self.check_html_ok(self.client.get(reverse('game:artifacts:new')), texts=[('artifacts.create_artifact_rights_required', 1),
+        self.check_html_ok(self.request_html(reverse('game:artifacts:new')), texts=[('artifacts.create_artifact_rights_required', 1),
                                                                                   ('pgf-new-artifact-form', 0)])
 
     def test_simple(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('game:artifacts:new')), texts=[('pgf-new-artifact-form', 2)])
+        self.check_html_ok(self.request_html(reverse('game:artifacts:new')), texts=[('pgf-new-artifact-form', 2)])
 
 
 class TestCreateRequests(BaseTestRequests):
@@ -190,30 +190,30 @@ class TestShowRequests(BaseTestRequests):
         super(TestShowRequests, self).setUp()
 
     def test_wrong_artifact_id(self):
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:show', args=['adsd'])), texts=[('artifacts.artifact.wrong_format', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=['adsd'])), texts=[('artifacts.artifact.wrong_format', 1)])
 
     def test_no_artifact(self):
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:show', args=[666])), texts=[('artifacts.artifact.not_found', 1)], status_code=404)
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[666])), texts=[('artifacts.artifact.not_found', 1)], status_code=404)
 
     def test_disabled_artifact_declined(self):
         artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=ARTIFACT_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('artifacts.show.artifact_disabled', 1)], status_code=404)
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('artifacts.show.artifact_disabled', 1)], status_code=404)
 
     def test_disabled_artifact_accepted_for_create_rights(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=ARTIFACT_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:show', args=[artifact.id])), texts=[artifact.name.capitalize()])
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[artifact.name.capitalize()])
 
     def test_disabled_artifact_accepted_for_add_rights(self):
         self.request_logout()
         self.request_login('test_user_3@test.com')
         artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=ARTIFACT_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:show', args=[artifact.id])), texts=[artifact.name.capitalize()])
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[artifact.name.capitalize()])
 
     def test_simple(self):
         artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:show', args=[artifact.id])), texts=[(artifact.name.capitalize(), 4),
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[(artifact.name.capitalize(), 4),
                                                                                                         ('pgf-no-description', 0),
                                                                                                         ('pgf-moderate-button', 0),
                                                                                                         ('pgf-edit-button', 0)])
@@ -222,20 +222,20 @@ class TestShowRequests(BaseTestRequests):
         artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
         artifact.description = ''
         artifact.save()
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('pgf-no-description', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('pgf-no-description', 1)])
 
     def test_edit_button(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('pgf-moderate-button', 0),
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('pgf-moderate-button', 0),
                                                                                                         ('pgf-edit-button', 1)])
 
     def test_moderate_button(self):
         self.request_logout()
         self.request_login('test_user_3@test.com')
         artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
-        self.check_html_ok(self.client.get(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('pgf-moderate-button', 1),
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('pgf-moderate-button', 1),
                                                                                                         ('pgf-edit-button', 0)])
 
 
@@ -251,22 +251,22 @@ class TestEditRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         request_url = reverse('game:artifacts:edit', args=[self.artifact.id])
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.assertRedirects(self.request_html(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_enabled_state(self):
         self.artifact.state = ARTIFACT_RECORD_STATE.ENABLED
         self.artifact.save()
-        self.check_html_ok(self.client.get(reverse('game:artifacts:edit', args=[self.artifact.id])), texts=[('artifacts.disabled_state_required', 1),
+        self.check_html_ok(self.request_html(reverse('game:artifacts:edit', args=[self.artifact.id])), texts=[('artifacts.disabled_state_required', 1),
                                                                                                             ('pgf-edit-artifact-form', 0)])
 
     def test_create_rights(self):
-        self.check_html_ok(self.client.get(reverse('game:artifacts:edit', args=[self.artifact.id])), texts=[('artifacts.create_artifact_rights_required', 1),
+        self.check_html_ok(self.request_html(reverse('game:artifacts:edit', args=[self.artifact.id])), texts=[('artifacts.create_artifact_rights_required', 1),
                                                                                                             ('pgf-edit-artifact-form', 0)])
 
     def test_simple(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('game:artifacts:edit', args=[self.artifact.id])), texts=[('pgf-edit-artifact-form', 2),
+        self.check_html_ok(self.request_html(reverse('game:artifacts:edit', args=[self.artifact.id])), texts=[('pgf-edit-artifact-form', 2),
                                                                                                             (self.artifact.name, 2), # +description
                                                                                                             (self.artifact.description, 1) ])
 
@@ -351,16 +351,16 @@ class TestModerationPageRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         request_url = reverse('game:artifacts:moderate', args=[self.artifact.id])
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.assertRedirects(self.request_html(request_url), login_url(request_url), status_code=302, target_status_code=200)
 
     def test_moderate_rights(self):
-        self.check_html_ok(self.client.get(reverse('game:artifacts:moderate', args=[self.artifact.id])), texts=[('artifacts.moderate_artifact_rights_required', 1),
+        self.check_html_ok(self.request_html(reverse('game:artifacts:moderate', args=[self.artifact.id])), texts=[('artifacts.moderate_artifact_rights_required', 1),
                                                                                                                 ('pgf-moderate-artifact-form', 0)])
 
     def test_simple(self):
         self.request_logout()
         self.request_login('test_user_3@test.com')
-        self.check_html_ok(self.client.get(reverse('game:artifacts:moderate', args=[self.artifact.id])), texts=[('pgf-moderate-artifact-form', 2),
+        self.check_html_ok(self.request_html(reverse('game:artifacts:moderate', args=[self.artifact.id])), texts=[('pgf-moderate-artifact-form', 2),
                                                                                                                 (self.artifact.name, 1 + 13), # description+name_forms
                                                                                                                 (self.artifact.description, 1) ])
 

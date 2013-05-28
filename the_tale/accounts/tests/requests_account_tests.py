@@ -45,7 +45,7 @@ class AccountRequestsTests(TestCase):
 class IndexRequestsTests(AccountRequestsTests):
 
     def test_index(self):
-        self.check_html_ok(self.client.get(reverse('accounts:')), texts=(('pgf-account-record', 3),
+        self.check_html_ok(self.request_html(reverse('accounts:')), texts=(('pgf-account-record', 3),
                                                                          ('test_user1', 1),
                                                                          ('test_user2', 1),
                                                                          ('test_user3', 1),))
@@ -53,14 +53,14 @@ class IndexRequestsTests(AccountRequestsTests):
     def test_index_pagination(self):
         for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):
             register_user('test_user_%d' % i, 'test_user_%d@test.com' % i, '111111')
-        self.check_html_ok(self.client.get(reverse('accounts:')), texts=(('pgf-account-record', accounts_settings.ACCOUNTS_ON_PAGE),))
-        self.check_html_ok(self.client.get(reverse('accounts:')+'?page=2'), texts=(('pgf-account-record', 3),))
+        self.check_html_ok(self.request_html(reverse('accounts:')), texts=(('pgf-account-record', accounts_settings.ACCOUNTS_ON_PAGE),))
+        self.check_html_ok(self.request_html(reverse('accounts:')+'?page=2'), texts=(('pgf-account-record', 3),))
 
     def test_index_redirect_from_large_page(self):
         self.check_redirect(url('accounts:', page=2), url('accounts:', page=1, prefix=''))
 
     def test_accounts_not_found_message(self):
-        self.check_html_ok(self.client.get(url('accounts:', prefix='ac')), texts=(('pgf-account-record', 0),
+        self.check_html_ok(self.request_html(url('accounts:', prefix='ac')), texts=(('pgf-account-record', 0),
                                                                                   ('pgf-no-accounts-message', 1),
                                                                                   ('test_user1', 0),
                                                                                   ('test_user2', 0),
@@ -76,7 +76,7 @@ class IndexRequestsTests(AccountRequestsTests):
             register_user('test_user_b_%d' % i, 'test_user_b_%d@test.com' % i, '111111')
             texts.append(('test_user_b_%d' % i, 1))
 
-        self.check_html_ok(self.client.get(url('accounts:', prefix='test_user_b')), texts=texts)
+        self.check_html_ok(self.request_html(url('accounts:', prefix='test_user_b')), texts=texts)
 
     def test_accounts_search_by_prefix_second_page(self):
         texts = [('pgf-account-record', 6),
@@ -92,7 +92,7 @@ class IndexRequestsTests(AccountRequestsTests):
             register_user('test_user_b2_%d' % i, 'test_user_b2_%d@test.com' % i, '111111')
             texts.append(('test_user_b2_%d' % i, 0))
 
-        self.check_html_ok(self.client.get(url('accounts:', prefix='test_user_b', page=2)), texts=texts)
+        self.check_html_ok(self.request_html(url('accounts:', prefix='test_user_b', page=2)), texts=texts)
 
 
 class ShowRequestsTests(AccountRequestsTests):
@@ -106,19 +106,19 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-no-common-places-message', 1),
                  ('pgf-ban-forum-message', 0),
                  ('pgf-ban-game-message', 0)]
-        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     @mock.patch('accounts.prototypes.AccountPrototype.is_ban_game', True)
     def test_show__ban_game(self):
         texts = [('pgf-ban-forum-message', 0),
                  ('pgf-ban-game-message', 1)]
-        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_show__ban_forum(self):
         texts = [('pgf-ban-forum-message', 1),
                  ('pgf-ban-game-message', 0)]
-        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_show__places_history(self):
         texts = [(self.place1.name, 1),
@@ -132,7 +132,7 @@ class ShowRequestsTests(AccountRequestsTests):
         hero.places_history.add_place(self.place1.id)
         hero.save()
 
-        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_show_friends_no_friendship(self):
         self.request_login('test_user2@test.com')
@@ -140,7 +140,7 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-in-list', 0),
                  ('pgf-friends-request-from', 0),
                  ('pgf-friends-request-to', 0)]
-        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_show_friends_in_list_button(self):
         self.request_login('test_user2@test.com')
@@ -149,7 +149,7 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-request-from', 0),
                  ('pgf-friends-request-to', 0)]
         FriendshipPrototype.request_friendship(self.account2, self.account1, text=u'text')._confirm()
-        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_show_friends_request_from_button(self):
         self.request_login('test_user2@test.com')
@@ -158,7 +158,7 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-request-from', 1),
                  ('pgf-friends-request-to', 0)]
         FriendshipPrototype.request_friendship(self.account1, self.account2, text=u'text')
-        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_show_friends_request_to_button(self):
         self.request_login('test_user2@test.com')
@@ -167,10 +167,10 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-request-from', 0),
                  ('pgf-friends-request-to', 1)]
         FriendshipPrototype.request_friendship(self.account2, self.account1, text=u'text')
-        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_fast_account(self):
-        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account4.id])))
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account4.id])))
 
     def test_show_for_moderator(self):
         self.request_login('test_user3@test.com')
@@ -179,11 +179,11 @@ class ShowRequestsTests(AccountRequestsTests):
         group.account_set.add(self.account3._model)
 
         texts = [('pgf-account-moderator-block', 1)]
-        self.check_html_ok(self.client.get(reverse('accounts:show', args=[self.account1.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_404(self):
-        self.check_html_ok(self.client.get(reverse('accounts:show', args=['adasd'])), status_code=404)
-        self.check_html_ok(self.client.get(reverse('accounts:show', args=[666])), status_code=404)
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=['adasd'])), status_code=404)
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[666])), status_code=404)
 
 
 class GiveAwardRequestsTests(AccountRequestsTests):

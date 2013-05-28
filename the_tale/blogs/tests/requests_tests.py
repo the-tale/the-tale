@@ -54,7 +54,7 @@ class BaseTestRequests(TestCase):
 class TestIndexRequests(BaseTestRequests):
 
     def test_no_posts(self):
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')), texts=(('pgf-no-posts-message', 1),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')), texts=(('pgf-no-posts-message', 1),))
 
     def test_one_page(self):
         self.create_posts(2, self.account_1, 'caption-a1-%d', 'text-a1-%d')
@@ -73,7 +73,7 @@ class TestIndexRequests(BaseTestRequests):
                  ('test_user_1', 1),
                  ('test_user_2', 3)]
 
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')), texts=texts)
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')), texts=texts)
 
     def create_two_pages(self):
         self.create_posts(blogs_settings.POSTS_ON_PAGE, self.account_1, 'caption-a1-%d', 'text-a1-%d')
@@ -91,10 +91,10 @@ class TestIndexRequests(BaseTestRequests):
                  ('caption-a2-2', 0), ('text-a2-2', 0),
                  ('test_user_1', 3), ('test_user_2', 0)]
 
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?page=2'), texts=texts)
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')+'?page=2'), texts=texts)
 
     def test_index_redirect_from_large_page(self):
-        self.assertRedirects(self.client.get(reverse('blogs:posts:')+'?page=2'),
+        self.assertRedirects(self.request_html(reverse('blogs:posts:')+'?page=2'),
                              reverse('blogs:posts:')+'?order_by=created_at&page=1', status_code=302, target_status_code=200)
 
     def test_filter_by_user_no_posts_message(self):
@@ -102,7 +102,7 @@ class TestIndexRequests(BaseTestRequests):
 
         result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
         account_4 = AccountPrototype.get_by_id(account_id)
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')+('?author_id=%d' % account_4.id)),
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')+('?author_id=%d' % account_4.id)),
                            texts=[('pgf-no-posts-message', 1)])
 
 
@@ -119,7 +119,7 @@ class TestIndexRequests(BaseTestRequests):
                            ('test_user_1', blogs_settings.POSTS_ON_PAGE + 1), #1 for filter text
                            ('test_user_2', 0)]
 
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')+('?author_id=%d' % self.account_1.id)),
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')+('?author_id=%d' % self.account_1.id)),
                            texts=account_1_texts)
 
         account_2_texts = [('pgf-no-posts-message', 0),
@@ -133,7 +133,7 @@ class TestIndexRequests(BaseTestRequests):
                            ('test_user_2', 3+1)] # 1 for filter text
 
 
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')+('?author_id=%d' % self.account_2.id)),
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')+('?author_id=%d' % self.account_2.id)),
                            texts=account_2_texts)
 
     def test_order_by(self):
@@ -144,29 +144,29 @@ class TestIndexRequests(BaseTestRequests):
         post = PostPrototype(Post.objects.all().order_by('-created_at')[0])
 
         # default
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')), texts=(('caption-a2-2', 1),))
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('caption-a2-2', 1),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')), texts=(('caption-a2-2', 1),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('caption-a2-2', 1),))
 
         # created_at
         post._model.created_at -= datetime.timedelta(seconds=60)
         post.save()
 
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')), texts=(('caption-a2-2', 0),))
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('caption-a2-2', 0),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')), texts=(('caption-a2-2', 0),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('caption-a2-2', 0),))
 
         # rating
         post._model.votes = 10
         post.save()
 
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('caption-a2-2', 0),))
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=rating'), texts=(('caption-a2-2', 1),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('caption-a2-2', 0),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')+'?order_by=rating'), texts=(('caption-a2-2', 1),))
 
         # alphabet
         post._model.caption = 'aaaaaaaa-caption'
         post.save()
 
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('aaaaaaaa-caption', 0),))
-        self.check_html_ok(self.client.get(reverse('blogs:posts:')+'?order_by=alphabet'), texts=(('aaaaaaaa-caption', 1),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')+'?order_by=created_at'), texts=(('aaaaaaaa-caption', 0),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:')+'?order_by=alphabet'), texts=(('aaaaaaaa-caption', 1),))
 
 
 
@@ -184,10 +184,10 @@ class TestNewRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account_1.is_fast = True
         self.account_1.save()
-        self.check_html_ok(self.client.get(reverse('blogs:posts:new')), texts=(('blogs.posts.fast_account', 1),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:new')), texts=(('blogs.posts.fast_account', 1),))
 
     def test_success(self):
-        self.check_html_ok(self.client.get(reverse('blogs:posts:new')))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:new')))
 
 
 class TestShowRequests(BaseTestRequests):
@@ -198,7 +198,7 @@ class TestShowRequests(BaseTestRequests):
         self.post = Post.objects.all()[0]
 
     def test_unexsists(self):
-        self.check_html_ok(self.client.get(reverse('blogs:posts:show', args=[666])), status_code=404)
+        self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[666])), status_code=404)
 
     def test_show(self):
 
@@ -210,17 +210,17 @@ class TestShowRequests(BaseTestRequests):
                  (reverse('blogs:posts:accept', args=[self.post.id]), 0),
                  (reverse('blogs:posts:decline', args=[self.post.id]), 0) ]
 
-        self.check_html_ok(self.client.get(reverse('blogs:posts:show', args=[self.post.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[self.post.id])), texts=texts)
 
     def test_show_without_vote(self):
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('blogs:posts:show', args=[self.post.id])),
+        self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[self.post.id])),
                            texts=[ ('pgf-add-vote-button', 1),
                                    ('pgf-remove-vote-button', 0)])
 
     def test_show_with_vote(self):
         self.request_login('test_user_1@test.com')
-        self.check_html_ok(self.client.get(reverse('blogs:posts:show', args=[self.post.id])),
+        self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[self.post.id])),
                            texts=[ ('pgf-add-vote-button', 0),
                                    ('pgf-remove-vote-button', 1)])
 
@@ -235,12 +235,12 @@ class TestShowRequests(BaseTestRequests):
         texts = [(reverse('blogs:posts:accept', args=[self.post.id]), 1),
                  (reverse('blogs:posts:decline', args=[self.post.id]), 1) ]
 
-        self.check_html_ok(self.client.get(reverse('blogs:posts:show', args=[self.post.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[self.post.id])), texts=texts)
 
     def test_wrong_state(self):
         self.post.state = POST_STATE.DECLINED
         self.post.save()
-        self.check_html_ok(self.client.get(reverse('blogs:posts:show', args=[self.post.id])), texts=(('blogs.posts.post_declined', 1),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[self.post.id])), texts=(('blogs.posts.post_declined', 1),))
 
 
 
@@ -384,31 +384,31 @@ class TestEditRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account_1.is_fast = True
         self.account_1.save()
-        self.check_html_ok(self.client.get(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('blogs.posts.fast_account', 1),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('blogs.posts.fast_account', 1),))
 
     def test_unexsists(self):
-        self.check_html_ok(self.client.get(reverse('blogs:posts:edit', args=[666])), status_code=404)
+        self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[666])), status_code=404)
 
     def test_no_permissions(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('blogs.posts.no_edit_rights', 1),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('blogs.posts.no_edit_rights', 1),))
 
     def test_moderator(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         group = sync_group('folclor moderation group', ['blogs.moderate_post'])
         group.account_set.add(self.account_2._model)
-        self.check_html_ok(self.client.get(reverse('blogs:posts:edit', args=[self.post.id])), texts=((self.post.caption, 1),
+        self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=((self.post.caption, 1),
                                                                                                      (self.post.text, 1)))
 
     def test_wrong_state(self):
         self.post.state = POST_STATE.DECLINED
         self.post.save()
-        self.check_html_ok(self.client.get(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('blogs.posts.post_declined', 1),))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('blogs.posts.post_declined', 1),))
 
     def test_success(self):
-        self.check_html_ok(self.client.get(reverse('blogs:posts:edit', args=[self.post.id])), texts=((self.post.caption, 1),
+        self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=((self.post.caption, 1),
                                                                                                      (self.post.text, 1)))
 
 

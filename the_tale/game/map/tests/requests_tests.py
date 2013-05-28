@@ -12,7 +12,7 @@ from textgen.words import Noun
 from common.utils.testcase import TestCase
 
 from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
+from accounts.logic import register_user
 
 from game.logic import create_test_map
 
@@ -40,23 +40,23 @@ class RequestsTestsBase(TestCase):
 class IndexTests(RequestsTestsBase):
 
     def test_success(self):
-        self.check_html_ok(self.client.get(reverse('game:map:')))
+        self.check_html_ok(self.request_html(reverse('game:map:')))
 
 
 class CellInfoTests(RequestsTestsBase):
 
     def test_place_info_logined(self):
-        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + '?x=2&y=3'), texts=[('pgf-cell-debug', 0)])
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + '?x=2&y=3'), texts=[('pgf-cell-debug', 0)])
 
     def test_place_info_logined_staff(self):
         self.account._model.is_staff = True
         self.account.save()
-        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + '?x=3&y=2'), texts=[('pgf-cell-debug', 3)])
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + '?x=3&y=2'), texts=[('pgf-cell-debug', 3)])
 
     def test_place_info_no_modifier(self):
         texts = [('pgf-current-modifier-marker', 0)] + [(modifier.NAME, 1) for modifier in MODIFIERS.values()]
 
-        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_place_info_modifier(self):
         self.place_1.modifier = TradeCenter(self.place_1)
@@ -64,36 +64,36 @@ class CellInfoTests(RequestsTestsBase):
 
         texts = [('pgf-current-modifier-marker', 1)] + [(modifier.NAME, 1 if modifier != TradeCenter else 2) for modifier in MODIFIERS.values()]
 
-        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_place_info_no_freeze_time_icon(self):
         for person in self.place_1.persons:
             person._model.created_at = datetime.datetime(2000, 1, 1)
             person.save()
         texts = [('pgf-time-before-unfreeze', 0)]
-        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_place_info_freeze_time_icon(self):
         texts = [('pgf-time-before-unfreeze', 1)]
         person = self.place_1.persons[0]
         person._model.created_at = datetime.datetime(2000, 1, 1)
         person.save()
-        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_place_chronicle(self):
         texts = [jinja2.escape(record.text) for record in ChronicleRecordPrototype.get_last_actor_records(self.place_1, 1000)]
-        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_building(self):
         building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
         texts = [building.type.text, jinja2.escape(building.person.name), jinja2.escape(self.place_1.name)]
-        self.check_html_ok(self.client.get(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (building.x, building.y))), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (building.x, building.y))), texts=texts)
 
     def test_outside_map(self):
-        self.check_html_ok(self.client.get(url('game:map:cell-info', x=0, y=0)), texts=[('game.map.cell_info.outside_map', 0)])
-        self.check_html_ok(self.client.get(url('game:map:cell-info', x=map_settings.WIDTH-1, y=map_settings.HEIGHT-1)), texts=[('game.map.cell_info.outside_map', 0)])
+        self.check_html_ok(self.request_html(url('game:map:cell-info', x=0, y=0)), texts=[('game.map.cell_info.outside_map', 0)])
+        self.check_html_ok(self.request_html(url('game:map:cell-info', x=map_settings.WIDTH-1, y=map_settings.HEIGHT-1)), texts=[('game.map.cell_info.outside_map', 0)])
 
-        self.check_html_ok(self.client.get(url('game:map:cell-info', x=-1, y=0)), texts=[('game.map.cell_info.outside_map', 1)])
-        self.check_html_ok(self.client.get(url('game:map:cell-info', x=0, y=-1)), texts=[('game.map.cell_info.outside_map', 1)])
-        self.check_html_ok(self.client.get(url('game:map:cell-info', x=map_settings.WIDTH, y=map_settings.HEIGHT-1)), texts=[('game.map.cell_info.outside_map', 1)])
-        self.check_html_ok(self.client.get(url('game:map:cell-info', x=map_settings.WIDTH-1, y=map_settings.HEIGHT)), texts=[('game.map.cell_info.outside_map', 1)])
+        self.check_html_ok(self.request_html(url('game:map:cell-info', x=-1, y=0)), texts=[('game.map.cell_info.outside_map', 1)])
+        self.check_html_ok(self.request_html(url('game:map:cell-info', x=0, y=-1)), texts=[('game.map.cell_info.outside_map', 1)])
+        self.check_html_ok(self.request_html(url('game:map:cell-info', x=map_settings.WIDTH, y=map_settings.HEIGHT-1)), texts=[('game.map.cell_info.outside_map', 1)])
+        self.check_html_ok(self.request_html(url('game:map:cell-info', x=map_settings.WIDTH-1, y=map_settings.HEIGHT)), texts=[('game.map.cell_info.outside_map', 1)])

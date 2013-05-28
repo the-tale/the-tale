@@ -87,14 +87,14 @@ class TestRequests(BaseTestRequests):
     def test_index(self):
         texts = ['cat1-caption', 'cat1-slug', 'cat2-caption', 'cat2-slug', 'cat3-caption', 'cat3-slug',
                  'subcat1-caption', 'subcat1-slug', 'subcat2-caption', 'subcat2-slug', 'subcat3-caption', 'subcat3-slug',]
-        self.check_html_ok(self.client.get(reverse('forum:')), texts=texts)
+        self.check_html_ok(self.request_html(reverse('forum:')), texts=texts)
         self.request_logout()
-        self.check_html_ok(self.client.get(reverse('forum:')), texts=texts)
+        self.check_html_ok(self.request_html(reverse('forum:')), texts=texts)
 
     def test_subcategory__unlogined(self):
         texts=['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption']
         self.request_logout()
-        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
 
         self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 0)
 
@@ -103,35 +103,35 @@ class TestRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         texts=['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption', 'pgf-new-thread-marker']
-        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
 
         self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 1)
         read_info = SubCategoryReadInfoPrototype._db_get_object(0)
         self.assertEqual(read_info.account_id, self.account_2.id)
         self.assertEqual(read_info.subcategory_id, self.subcat1.id)
 
-        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcat1-slug'])), texts=[('pgf-new-thread-marker', 0)])
+        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcat1-slug'])), texts=[('pgf-new-thread-marker', 0)])
 
     def test_subcategory_not_found(self):
-        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=['subcatXXX-slug'])), texts=[('forum.subcategory.not_found', 1)], status_code=404)
+        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcatXXX-slug'])), texts=[('forum.subcategory.not_found', 1)], status_code=404)
 
     def test_new_thread(self):
         texts=['cat1-caption', 'subcat1-caption']
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=texts)
+        self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=texts)
 
     def test_new_thread_unlogined(self):
         self.request_logout()
         request_url = reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_new_thread_fast(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-common.fast_account'])
+        self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-common.fast_account'])
 
     @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_new_thread_banned(self):
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-common.ban_forum'])
+        self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-common.ban_forum'])
 
     def test_create_thread_unlogined(self):
         self.request_logout()
@@ -180,24 +180,24 @@ class TestRequests(BaseTestRequests):
 
     def test_get_thread_unlogined(self):
         self.request_logout()
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
         self.assertEqual(ThreadReadInfoPrototype._db_count(), 0)
 
     def test_get_thread_not_found(self):
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[666])), texts=(('forum.thread.not_found', 1),), status_code=404)
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[666])), texts=(('forum.thread.not_found', 1),), status_code=404)
 
     def test_get_thread_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
 
     def test_get_thread(self):
         self.assertEqual(ThreadReadInfoPrototype._db_count(), 0)
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread1.id])), texts=('pgf-new-post-form',))
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread1.id])), texts=('pgf-new-post-form',))
         self.assertEqual(ThreadReadInfoPrototype._db_count(), 1)
 
     def test_get_thread_wrong_page(self):
-        response = self.client.get(reverse('forum:threads:show', args=[self.thread1.id])+'?page=2')
+        response = self.request_html(reverse('forum:threads:show', args=[self.thread1.id])+'?page=2')
         self.assertRedirects(response, reverse('forum:threads:show', args=[self.thread1.id])+'?page=1', status_code=302, target_status_code=200)
 
     def test_get_thread_with_pagination(self):
@@ -209,18 +209,18 @@ class TestRequests(BaseTestRequests):
             PostPrototype.create(self.thread3, self.account, text)
             texts.append(text)
 
-        response = self.client.get(reverse('forum:threads:show', args=[self.thread3.id])+'?page=2')
+        response = self.request_html(reverse('forum:threads:show', args=[self.thread3.id])+'?page=2')
         self.assertRedirects(response, reverse('forum:threads:show', args=[self.thread3.id])+'?page=1', status_code=302, target_status_code=200)
 
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread3.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread3.id])), texts=texts)
 
         ++i
         text = 'subcat3-post%d-text' % i
         PostPrototype.create(self.thread3, self.account, text)
         texts.append(text)
 
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread3.id])+'?page=1', texts=texts))
-        response = self.client.get(reverse('forum:threads:show', args=[self.thread3.id])+'?page=2', texts=[text])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread3.id])+'?page=1'), texts=texts)
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread3.id])+'?page=2'), texts=[text])
 
     def test_posts_count(self):
         for i in xrange(4):
@@ -288,7 +288,7 @@ class TestRequests(BaseTestRequests):
 
         texts.extend([('post%d-text' % i, 0) for i in xrange(0, 6)])
 
-        self.check_html_ok(self.client.get(reverse('forum:feed')), texts=texts, content_type='application/atom+xml')
+        self.check_html_ok(self.request_html(reverse('forum:feed')), texts=texts, content_type='application/atom+xml')
 
 
 class ThreadSubscribeTests(BaseTestRequests):
@@ -363,8 +363,8 @@ class SubscriptionsTests(BaseTestRequests):
 
     def test_login_required(self):
         self.request_logout()
-        url = reverse('forum:subscriptions:')
-        self.check_redirect(url, login_url(url))
+        request_url = reverse('forum:subscriptions:')
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_fast_account(self):
         self.account.is_fast = True
@@ -380,7 +380,7 @@ class SubscriptionsTests(BaseTestRequests):
                  ('subcat2-caption', 0),
                  ('pgf-no-thread-subscriptions-message', 1),
                  ('pgf-no-subcategory-subscriptions-message', 1)]
-        self.check_html_ok(self.client.get(reverse('forum:subscriptions:'), texts=texts))
+        self.check_html_ok(self.request_html(reverse('forum:subscriptions:')), texts=texts)
 
     def test_subscriptions(self):
         self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
@@ -394,4 +394,4 @@ class SubscriptionsTests(BaseTestRequests):
                  ('subcat2-caption', 1),
                  ('pgf-no-thread-subscriptions-message', 0),
                  ('pgf-no-subcategory-subscriptions-message', 0)]
-        self.check_html_ok(self.client.get(reverse('forum:subscriptions:'), texts=texts))
+        self.check_html_ok(self.request_html(reverse('forum:subscriptions:')), texts=texts)

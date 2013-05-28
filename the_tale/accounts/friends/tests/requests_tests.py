@@ -31,44 +31,44 @@ class FriendshipRequestsTests(testcase.TestCase):
         self.request_login('test_user_1@test.com')
 
     def test_index__no_friends(self):
-        self.check_html_ok(self.client.get(url('accounts:friends:')), texts=['pgf-no-friends-message'])
+        self.check_html_ok(self.request_html(url('accounts:friends:')), texts=['pgf-no-friends-message'])
 
     def test_index(self):
         FriendshipPrototype.request_friendship(self.account_1, self.account_2, 'text 1')._confirm()
         FriendshipPrototype.request_friendship(self.account_1, self.account_3, 'text 2')._confirm()
-        self.check_html_ok(self.client.get(url('accounts:friends:')), texts=[('pgf-no-friends-message', 0),
+        self.check_html_ok(self.request_html(url('accounts:friends:')), texts=[('pgf-no-friends-message', 0),
                                                                              (self.account_2.nick, 1),
                                                                              (self.account_3.nick, 1)])
 
     def test_candidates__friends_only(self):
         FriendshipPrototype.request_friendship(self.account_1, self.account_2, 'text 1')._confirm()
         FriendshipPrototype.request_friendship(self.account_1, self.account_3, 'text 2')._confirm()
-        self.check_html_ok(self.client.get(url('accounts:friends:candidates')), texts=[('pgf-no-candidates-message', 1),
+        self.check_html_ok(self.request_html(url('accounts:friends:candidates')), texts=[('pgf-no-candidates-message', 1),
                                                                                        (self.account_2.nick, 0),
                                                                                        (self.account_3.nick, 0)])
 
     def test_candidates__no_candidates(self):
-        self.check_html_ok(self.client.get(url('accounts:friends:candidates')), texts=['pgf-no-candidates-message'])
+        self.check_html_ok(self.request_html(url('accounts:friends:candidates')), texts=['pgf-no-candidates-message'])
 
     def test_candidates(self):
         FriendshipPrototype.request_friendship(self.account_1, self.account_2, 'text 1')
         FriendshipPrototype.request_friendship(self.account_3, self.account_1, 'text 2')
-        self.check_html_ok(self.client.get(url('accounts:friends:candidates')), texts=[('pgf-no-candidates-message', 0),
+        self.check_html_ok(self.request_html(url('accounts:friends:candidates')), texts=[('pgf-no-candidates-message', 0),
                                                                                        (self.account_2.nick, 0),
                                                                                        (self.account_3.nick, 1)])
 
     def test_friends__candidates_only(self):
         FriendshipPrototype.request_friendship(self.account_1, self.account_2, 'text 1')
         FriendshipPrototype.request_friendship(self.account_1, self.account_3, 'text 2')
-        self.check_html_ok(self.client.get(url('accounts:friends:')), texts=[('pgf-no-friends-message', 1),
+        self.check_html_ok(self.request_html(url('accounts:friends:')), texts=[('pgf-no-friends-message', 1),
                                                                              (self.account_2.nick, 0),
                                                                              (self.account_3.nick, 0)])
 
     def test_request_dialog(self):
-        self.check_html_ok(self.client.get(url('accounts:friends:request', friend=self.account_2.id)))
+        self.check_html_ok(self.request_html(url('accounts:friends:request', friend=self.account_2.id)))
 
     def test_request_dialog__system_user(self):
-        self.check_html_ok(self.client.get(url('accounts:friends:request', friend=get_system_user().id)),
+        self.check_html_ok(self.request_html(url('accounts:friends:request', friend=get_system_user().id)),
                            texts=['friends.request_dialog.system_user'])
 
     def test_request_friendship_form_error(self):

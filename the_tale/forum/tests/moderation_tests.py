@@ -62,45 +62,45 @@ class TestModeration(TestCase):
     #button
     def test_loggined_has_add_thread_button(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=[self.subcategory.slug])), texts=[('pgf-new-thread-button', 1)])
+        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=[self.subcategory.slug])), texts=[('pgf-new-thread-button', 1)])
 
     def test_unlogined_has_add_thread_button(self):
-        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=[self.subcategory.slug])), texts=[('pgf-new-thread-button', 0)])
+        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=[self.subcategory.slug])), texts=[('pgf-new-thread-button', 0)])
 
     def test_loggined_has_no_add_thread_button_in_closed_theme(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=[self.subcategory2.slug])), texts=[('pgf-new-thread-button', 0)])
+        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=[self.subcategory2.slug])), texts=[('pgf-new-thread-button', 0)])
 
     def test_moderator_has_add_thread_button_in_closed_theme(self):
         self.request_login('moderator@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:subcategory', args=[self.subcategory2.slug])), texts=[('pgf-new-thread-button', 1)])
+        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=[self.subcategory2.slug])), texts=[('pgf-new-thread-button', 1)])
 
     #new page
 
     def test_loggined_new_thread_page(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory.slug)),
+        self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory.slug)),
                            texts=[('pgf-new-thread-form', 2)])
 
     @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_loggined_new_thread_page__banned(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory.slug)),
+        self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory.slug)),
                            texts=[('pgf-new-thread-form', 0),
                                   ('common.ban_forum', 1)])
 
     def test_unlogined_new_thread_page(self):
         request_url = reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory.slug)
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_loggined_new_thread_page_in_closed_theme(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory2.slug)),
+        self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory2.slug)),
                            texts=[('pgf-new-thread-form', 0), ('forum.new_thread.no_permissions', 1)])
 
     def test_moderator_new_thread_page_in_closed_theme(self):
         self.request_login('moderator@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory2.slug)),
+        self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory2.slug)),
                                            texts=[('pgf-new-thread-form', 2)])
 
     # create request
@@ -152,46 +152,46 @@ class TestModeration(TestCase):
 
     # button
     def test_unlogined_user_has_edit_theme_button(self):
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 0)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 0)])
 
     def test_main_user_has_edit_theme_button(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 1)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 1)])
 
     def test_second_user_has_edit_theme_button(self):
         self.request_login('second_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 0)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 0)])
 
     def test_moderator_user_has_edit_theme_button(self):
         self.request_login('moderator@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 1)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 1)])
 
     # page
     def test_unlogined_user_edit_theme_page(self):
         request_url = reverse('forum:threads:edit', args=[self.thread.id])
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.check_redirect(request_url, login_url(request_url))
 
     @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_edit_theme_page__banned(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:edit', args=[self.thread.id])), texts=['common.ban_forum'])
+        self.check_html_ok(self.request_html(reverse('forum:threads:edit', args=[self.thread.id])), texts=['common.ban_forum'])
 
     def test_main_user_edit_theme_page(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:edit', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2),
+        self.check_html_ok(self.request_html(reverse('forum:threads:edit', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2),
                                                                                                         ('pgf-thread-subcategory', 0),
                                                                                                         ('thread-caption', 2)])
 
     def test_second_user_edit_theme_button(self):
         self.request_login('second_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:edit', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 0),
+        self.check_html_ok(self.request_html(reverse('forum:threads:edit', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 0),
                                                                                                         ('forum.edit_thread.no_permissions', 1),
                                                                                                         ('pgf-thread-subcategory', 0),
                                                                                                         ('thread-caption', 0)])
 
     def test_moderator_user_edit_theme_button(self):
         self.request_login('moderator@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:edit', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2),
+        self.check_html_ok(self.request_html(reverse('forum:threads:edit', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2),
                                                                                                         ('pgf-thread-subcategory', 1),
                                                                                                         ('thread-caption', 2)])
     # update request
@@ -275,15 +275,15 @@ class TestModeration(TestCase):
 
     def test_main_user_has_remove_thread_button(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 2)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 2)])
 
     def test_moderator_has_remove_thread_button(self):
         self.request_login('moderator@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 2)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 2)])
 
     def test_second_user_has_remove_thread_button(self):
         self.request_login('second_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 0)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 0)])
 
     def test_main_user_remove_thread(self):
         self.request_login('main_user@test.com')
@@ -340,18 +340,18 @@ class TestModeration(TestCase):
 
     def test_main_user_has_remove_post_button(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 3)])
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 3)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 3)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 3)])
 
     def test_moderator_has_remove_post_button(self):
         self.request_login('moderator@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 3)])
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 3)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 3)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 3)])
 
     def test_second_user_has_remove_post_button(self):
         self.request_login('second_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 0)])
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 2)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 0)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 2)])
 
     # main user
     def test_main_user_remove_post(self):
@@ -363,7 +363,7 @@ class TestModeration(TestCase):
         self.assertTrue(PostPrototype.get_by_id(self.post.id).is_removed)
 
         # check if edit & remove buttons has dissapeared
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 2),
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 2),
                                                                                                          ('pgf-change-post-button', 2)])
 
 
@@ -400,7 +400,7 @@ class TestModeration(TestCase):
         self.assertEqual(Post.objects.all().count(), 8)
 
         # check if edit & remove buttons has dissapeared
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 2),
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 2),
                                                                                                          ('pgf-change-post-button', 2)])
 
     def test_moderator_remove_post_of_second_user(self):
@@ -440,24 +440,24 @@ class TestModeration(TestCase):
     # button
     def test_main_user_has_edit_post_button(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 3)])
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 2)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 3)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 2)])
 
     def test_moderator_has_edit_post_button(self):
         self.request_login('moderator@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 3)])
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 3)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 3)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 3)])
 
     def test_second_user_has_edit_post_button(self):
         self.request_login('second_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 0)])
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 1)])
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[self.thread3.id])), texts=[('pgf-change-post-button', 1)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 0)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 1)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread3.id])), texts=[('pgf-change-post-button', 1)])
 
     # edit post page
     def test_edit_page_unlogined(self):
         request_url = reverse('forum:posts:edit', args=[self.post.id])
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_edit_page_fast_account(self):
         self.request_login('main_user@test.com')
@@ -465,24 +465,24 @@ class TestModeration(TestCase):
         self.main_account.is_fast = True
         self.main_account.save()
 
-        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=['common.fast_account'])
+        self.check_html_ok(self.request_html(reverse('forum:posts:edit', args=[self.post.id])), texts=['common.fast_account'])
 
     @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_edit_page_banned(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=['common.ban_forum'])
+        self.check_html_ok(self.request_html(reverse('forum:posts:edit', args=[self.post.id])), texts=['common.ban_forum'])
 
     def test_edit_page_no_permissions(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post4.id])), texts=['forum.edit_thread.no_permissions'])
+        self.check_html_ok(self.request_html(reverse('forum:posts:edit', args=[self.post4.id])), texts=['forum.edit_thread.no_permissions'])
 
     def test_edit_page_moderator_access(self):
         self.request_login('moderator@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=[('pgf-change-post-form', 2), ('post-text', 1)])
+        self.check_html_ok(self.request_html(reverse('forum:posts:edit', args=[self.post.id])), texts=[('pgf-change-post-form', 2), ('post-text', 1)])
 
     def test_edit_page_author_access(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.client.get(reverse('forum:posts:edit', args=[self.post.id])), texts=[('pgf-change-post-form', 2), ('post-text', 1)])
+        self.check_html_ok(self.request_html(reverse('forum:posts:edit', args=[self.post.id])), texts=[('pgf-change-post-form', 2), ('post-text', 1)])
 
     # update post
 

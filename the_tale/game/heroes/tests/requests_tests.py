@@ -40,7 +40,7 @@ class HeroRequestsTestBase(TestCase):
 class HeroIndexRequestsTests(HeroRequestsTestBase):
 
     def test_index(self):
-        response = self.client.get(reverse('game:heroes:'))
+        response = self.request_html(reverse('game:heroes:'))
         self.assertRedirects(response, '/', status_code=302, target_status_code=200)
 
 
@@ -61,10 +61,10 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
         super(HeroPageRequestsTests, self).setUp()
 
     def test_wrong_hero_id(self):
-        self.check_html_ok(self.client.get(reverse('game:heroes:show', args=['dsdsd'])), texts=[('heroes.wrong_hero_id', 1)], status_code=404)
+        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=['dsdsd'])), texts=[('heroes.wrong_hero_id', 1)], status_code=404)
 
     def test_own_hero_page(self):
-        self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])),
+        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])),
                            texts=(('pgf-health-percents', 1),
                                   ('pgf-experience-percents', 1),
                                   ('pgf-energy-percents', 1),
@@ -95,12 +95,12 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                  ('pgf-moderation-container', 0))
 
         self.request_logout()
-        self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=texts)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
 
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=texts)
 
     def test_moderation_tab(self):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
@@ -110,7 +110,7 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.account_set.add(account_2._model)
 
-        self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=['pgf-moderation-container'])
+        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=['pgf-moderation-container'])
 
 
 
@@ -128,19 +128,19 @@ class ChangePreferencesRequestsTests(HeroRequestsTestBase):
 
         for preference_type in PREFERENCE_TYPE._ALL:
             texts = []
-            self.check_html_ok(self.client.get(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % preference_type)), texts=texts)
+            self.check_html_ok(self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % preference_type)), texts=texts)
 
 
 class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
     def test_hero_page(self):
-        self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=[(jinja2.escape(self.hero.name), 7),
+        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=[(jinja2.escape(self.hero.name), 7),
                                                                                                      ('pgf-change-name-warning', 1)])
 
     def test_hero_page_change_name_warning_hidden(self):
         self.hero.normalized_name = Noun(u'слово', forms=[u'слово']*12)
         self.hero.save()
-        self.check_html_ok(self.client.get(reverse('game:heroes:show', args=[self.hero.id])), texts=[('pgf-change-name-warning', 0)])
+        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=[('pgf-change-name-warning', 0)])
 
     def get_post_data(self, name='new_name', gender=GENDER.MASCULINE, race=RACE.DWARF):
         return {'name_forms_0': u'%s_0' % name,

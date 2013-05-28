@@ -60,49 +60,49 @@ class TestIndexRequests(BaseTestRequests):
     def test_no_mobs(self):
         MobRecord.objects.all().delete()
         mobs_storage.clear()
-        self.check_html_ok(self.client.get(reverse('guide:mobs:')), texts=(('pgf-no-mobs-message', 1),))
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=(('pgf-no-mobs-message', 1),))
 
     def test_simple(self):
         texts = ['mob_1', 'mob_2', 'mob_3', ('pgf-create-mob-button', 0), ('pgf-mob-state-filter', 0)]
-        self.check_html_ok(self.client.get(reverse('guide:mobs:')), texts=texts)
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=texts)
 
     def test_create_mob_button(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('guide:mobs:')), texts=[('pgf-create-mob-button', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=[('pgf-create-mob-button', 1)])
 
     def test_mob_state_filter(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('guide:mobs:')), texts=[('pgf-mob-state-filter', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=[('pgf-mob-state-filter', 1)])
 
         self.request_logout()
         self.request_login('test_user_3@test.com')
-        self.check_html_ok(self.client.get(reverse('guide:mobs:')), texts=[('pgf-mob-state-filter', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=[('pgf-mob-state-filter', 1)])
 
     def test_disabled_mobs(self):
         MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
         texts = ['mob_1', 'mob_2', 'mob_3', ('bandit', 0)]
-        self.check_html_ok(self.client.get(reverse('guide:mobs:')), texts=texts)
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=texts)
 
     def test_filter_by_state_no_mobs_message(self):
-        self.check_html_ok(self.client.get(reverse('guide:mobs:')+('?state=%d' % MOB_RECORD_STATE.DISABLED)), texts=(('pgf-no-mobs-message', 1),))
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')+('?state=%d' % MOB_RECORD_STATE.DISABLED)), texts=(('pgf-no-mobs-message', 1),))
 
     def test_filter_by_state(self):
         texts = ['mob_1', 'mob_2', 'mob_3']
-        self.check_html_ok(self.client.get(reverse('guide:mobs:')+('?state=%d' % MOB_RECORD_STATE.ENABLED)), texts=texts)
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')+('?state=%d' % MOB_RECORD_STATE.ENABLED)), texts=texts)
 
     def test_filter_by_terrain_no_mobs_message(self):
         MobRecord.objects.all().delete()
         mobs_storage.clear()
         MobRecordPrototype.create_random(uuid='bandit', terrains=[TERRAIN.PLANE_GRASS])
-        self.check_html_ok(self.client.get(reverse('guide:mobs:')+('?terrain=%d' % TERRAIN.HILLS_GRASS)), texts=(('pgf-no-mobs-message', 1),))
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')+('?terrain=%d' % TERRAIN.HILLS_GRASS)), texts=(('pgf-no-mobs-message', 1),))
 
     def test_filter_by_terrain(self):
         MobRecord.objects.all().delete()
         mobs_storage.clear()
         MobRecordPrototype.create_random(uuid='bandit', terrains=[TERRAIN.PLANE_GRASS])
-        self.check_html_ok(self.client.get(reverse('guide:mobs:')+('?terrain=%d' % TERRAIN.PLANE_GRASS)), texts=['bandit'])
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')+('?terrain=%d' % TERRAIN.PLANE_GRASS)), texts=['bandit'])
 
 
 class TestNewRequests(BaseTestRequests):
@@ -113,16 +113,16 @@ class TestNewRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         request_url = reverse('game:mobs:new')
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_create_rights(self):
-        self.check_html_ok(self.client.get(reverse('game:mobs:new')), texts=[('mobs.create_mob_rights_required', 1),
+        self.check_html_ok(self.request_html(reverse('game:mobs:new')), texts=[('mobs.create_mob_rights_required', 1),
                                                                              ('pgf-new-mob-form', 0)])
 
     def test_simple(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('game:mobs:new')), texts=[('pgf-new-mob-form', 2)])
+        self.check_html_ok(self.request_html(reverse('game:mobs:new')), texts=[('pgf-new-mob-form', 2)])
 
 
 class TestCreateRequests(BaseTestRequests):
@@ -177,30 +177,30 @@ class TestShowRequests(BaseTestRequests):
         super(TestShowRequests, self).setUp()
 
     def test_wrong_mob_id(self):
-        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=['adsd'])), texts=[('mobs.mob.wrong_format', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=['adsd'])), texts=[('mobs.mob.wrong_format', 1)])
 
     def test_no_mob(self):
-        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[666])), texts=[('mobs.mob.not_found', 1)], status_code=404)
+        self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[666])), texts=[('mobs.mob.not_found', 1)], status_code=404)
 
     def test_disabled_mob_declined(self):
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[('mobs.mob_disabled', 1)], status_code=404)
+        self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[('mobs.mob_disabled', 1)], status_code=404)
 
     def test_disabled_mob_accepted_for_create_rights(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[mob.name.capitalize()])
+        self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[mob.name.capitalize()])
 
     def test_disabled_mob_accepted_for_add_rights(self):
         self.request_logout()
         self.request_login('test_user_3@test.com')
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[mob.name.capitalize()])
+        self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[mob.name.capitalize()])
 
     def test_simple(self):
         mob = MobRecordPrototype(MobRecord.objects.all()[0])
-        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[(mob.name.capitalize(), 4),
+        self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[(mob.name.capitalize(), 4),
                                                                                               ('pgf-no-description', 0),
                                                                                               ('pgf-moderate-button', 0),
                                                                                               ('pgf-edit-button', 0)])
@@ -209,20 +209,20 @@ class TestShowRequests(BaseTestRequests):
         mob = MobRecordPrototype(MobRecord.objects.all()[0])
         mob.description = ''
         mob.save()
-        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-no-description', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-no-description', 1)])
 
     def test_edit_button(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         mob = MobRecordPrototype(MobRecord.objects.all()[0])
-        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-moderate-button', 0),
+        self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-moderate-button', 0),
                                                                                               ('pgf-edit-button', 1)])
 
     def test_moderate_button(self):
         self.request_logout()
         self.request_login('test_user_3@test.com')
         mob = MobRecordPrototype(MobRecord.objects.all()[0])
-        self.check_html_ok(self.client.get(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-moderate-button', 1),
+        self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-moderate-button', 1),
                                                                                               ('pgf-edit-button', 0)])
 
 class TestInfoRequests(BaseTestRequests):
@@ -231,30 +231,30 @@ class TestInfoRequests(BaseTestRequests):
         super(TestInfoRequests, self).setUp()
 
     def test_wrong_mob_id(self):
-        self.check_html_ok(self.client.get(url('guide:mobs:info', 'adsd')), texts=[('mobs.mob.wrong_format', 1)])
+        self.check_html_ok(self.request_html(url('guide:mobs:info', 'adsd')), texts=[('mobs.mob.wrong_format', 1)])
 
     def test_no_mob(self):
-        self.check_html_ok(self.client.get(url('guide:mobs:info', 666)), texts=[('mobs.mob.not_found', 1)], status_code=404)
+        self.check_html_ok(self.request_html(url('guide:mobs:info', 666)), texts=[('mobs.mob.not_found', 1)], status_code=404)
 
     def test_disabled_mob_declined(self):
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(url('guide:mobs:info', mob.id)), texts=[('mobs.mob_disabled', 1)], status_code=404)
+        self.check_html_ok(self.request_html(url('guide:mobs:info', mob.id)), texts=[('mobs.mob_disabled', 1)], status_code=404)
 
     def test_disabled_mob_accepted_for_create_rights(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(url('guide:mobs:info', mob.id)), texts=[mob.name.capitalize()])
+        self.check_html_ok(self.request_html(url('guide:mobs:info', mob.id)), texts=[mob.name.capitalize()])
 
     def test_disabled_mob_accepted_for_add_rights(self):
         self.request_logout()
         self.request_login('test_user_3@test.com')
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.client.get(url('guide:mobs:info', mob.id)), texts=[mob.name.capitalize()])
+        self.check_html_ok(self.request_html(url('guide:mobs:info', mob.id)), texts=[mob.name.capitalize()])
 
     def test_simple(self):
         mob = MobRecordPrototype(MobRecord.objects.all()[0])
-        self.check_html_ok(self.client.get(url('guide:mobs:info', mob.id)), texts=[(mob.name.capitalize(), 1),
+        self.check_html_ok(self.request_html(url('guide:mobs:info', mob.id)), texts=[(mob.name.capitalize(), 1),
                                                                                    ('pgf-no-description', 0),
                                                                                    ('pgf-moderate-button', 0),
                                                                                    ('pgf-edit-button', 0)])
@@ -263,7 +263,7 @@ class TestInfoRequests(BaseTestRequests):
         mob = MobRecordPrototype(MobRecord.objects.all()[0])
         mob.description = ''
         mob.save()
-        self.check_html_ok(self.client.get(url('guide:mobs:info', mob.id)), texts=[('pgf-no-description', 1)])
+        self.check_html_ok(self.request_html(url('guide:mobs:info', mob.id)), texts=[('pgf-no-description', 1)])
 
 
 class TestEditRequests(BaseTestRequests):
@@ -278,22 +278,22 @@ class TestEditRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         request_url = reverse('game:mobs:edit', args=[self.mob.id])
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_enabled_state(self):
         self.mob.state = MOB_RECORD_STATE.ENABLED
         self.mob.save()
-        self.check_html_ok(self.client.get(reverse('game:mobs:edit', args=[self.mob.id])), texts=[('mobs.disabled_state_required', 1),
+        self.check_html_ok(self.request_html(reverse('game:mobs:edit', args=[self.mob.id])), texts=[('mobs.disabled_state_required', 1),
                                                                                                   ('pgf-edit-mob-form', 0)])
 
     def test_create_rights(self):
-        self.check_html_ok(self.client.get(reverse('game:mobs:edit', args=[self.mob.id])), texts=[('mobs.create_mob_rights_required', 1),
+        self.check_html_ok(self.request_html(reverse('game:mobs:edit', args=[self.mob.id])), texts=[('mobs.create_mob_rights_required', 1),
                                                                                                   ('pgf-edit-mob-form', 0)])
 
     def test_simple(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('game:mobs:edit', args=[self.mob.id])), texts=[('pgf-edit-mob-form', 2),
+        self.check_html_ok(self.request_html(reverse('game:mobs:edit', args=[self.mob.id])), texts=[('pgf-edit-mob-form', 2),
                                                                                                   (self.mob.name, 2), # +description
                                                                                                   (self.mob.description, 1) ])
 
@@ -369,16 +369,16 @@ class TestModerationPageRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         request_url = reverse('game:mobs:moderate', args=[self.mob.id])
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_moderate_rights(self):
-        self.check_html_ok(self.client.get(reverse('game:mobs:moderate', args=[self.mob.id])), texts=[('mobs.moderate_mob_rights_required', 1),
+        self.check_html_ok(self.request_html(reverse('game:mobs:moderate', args=[self.mob.id])), texts=[('mobs.moderate_mob_rights_required', 1),
                                                                                                       ('pgf-moderate-mob-form', 0)])
 
     def test_simple(self):
         self.request_logout()
         self.request_login('test_user_3@test.com')
-        self.check_html_ok(self.client.get(reverse('game:mobs:moderate', args=[self.mob.id])), texts=[('pgf-moderate-mob-form', 2),
+        self.check_html_ok(self.request_html(reverse('game:mobs:moderate', args=[self.mob.id])), texts=[('pgf-moderate-mob-form', 2),
                                                                                                       (self.mob.name, 1 + 13), # description+name_forms
                                                                                                       (self.mob.description, 1) ])
 

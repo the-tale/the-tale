@@ -57,7 +57,7 @@
   <div class="dl-record">
     <dt>{{bill.CAPTION}}</dt>
     <dd>
-      <p>{{bill.DESCRIPTION}}</p>
+      <p>{{bill.DESCRIPTION|safe}}</p>
     </dd>
   </div>
   {% endfor %}

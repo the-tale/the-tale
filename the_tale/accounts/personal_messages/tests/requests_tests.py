@@ -52,12 +52,11 @@ class IndexRequestsTests(BaseRequestsTests):
 
     def test_unlogined_index(self):
         request_url = url('accounts:messages:')
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_unlogined_sent(self):
         request_url = url('accounts:messages:sent')
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
-
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_index(self):
         self.request_login('test_user1@test.com')
@@ -65,11 +64,11 @@ class IndexRequestsTests(BaseRequestsTests):
                  ('message_2_1 2', 1),
                  ('message_3_1 1', 1),]
 
-        self.check_html_ok(self.client.get(url('accounts:messages:')), texts=texts)
+        self.check_html_ok(self.request_html(url('accounts:messages:')), texts=texts)
 
     def test_index_no_messages(self):
         self.request_login('test_user4@test.com')
-        self.check_html_ok(self.client.get(url('accounts:messages:')), texts=[('pgf-no-messages', 1)])
+        self.check_html_ok(self.request_html(url('accounts:messages:')), texts=[('pgf-no-messages', 1)])
 
     def test_sent(self):
         self.request_login('test_user1@test.com')
@@ -77,11 +76,11 @@ class IndexRequestsTests(BaseRequestsTests):
                  ('message_1_2 2', 1),
                  ('message_1_2 3', 1),]
 
-        self.check_html_ok(self.client.get(url('accounts:messages:sent')), texts=texts)
+        self.check_html_ok(self.request_html(url('accounts:messages:sent')), texts=texts)
 
     def test_sent_no_messages(self):
         self.request_login('test_user4@test.com')
-        self.check_html_ok(self.client.get(url('accounts:messages:sent')), texts=[('pgf-no-messages', 1)])
+        self.check_html_ok(self.request_html(url('accounts:messages:sent')), texts=[('pgf-no-messages', 1)])
 
     def test_index_second_page(self):
         for i in xrange(personal_messages_settings.MESSAGES_ON_PAGE):
@@ -92,12 +91,11 @@ class IndexRequestsTests(BaseRequestsTests):
             texts.append(('test message_2_1 %d' % i, 1))
 
         self.request_login('test_user1@test.com')
-        self.check_html_ok(self.client.get(url('accounts:messages:')), texts=texts)
+        self.check_html_ok(self.request_html(url('accounts:messages:')), texts=texts)
 
     def test_index_big_page_number(self):
         self.request_login('test_user1@test.com')
-        self.assertRedirects(self.client.get(url('accounts:messages:')+'?page=2'),
-                             url('accounts:messages:')+'?page=1', status_code=302, target_status_code=200)
+        self.check_redirect(url('accounts:messages:')+'?page=2', url('accounts:messages:')+'?page=1')
 
 
 
@@ -110,39 +108,39 @@ class NewRequestsTests(BaseRequestsTests):
     def test_unlogined(self):
         self.request_logout()
         request_url = url('accounts:messages:new')
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_wrong_recipient_id(self):
-        self.check_html_ok(self.client.get(url('accounts:messages:new', recipients='aaa')),
+        self.check_html_ok(self.request_html(url('accounts:messages:new', recipients='aaa')),
                            texts=[('personal_messages.recipients.wrong_format', 1)])
 
     def test_recipient_not_found(self):
-        self.check_html_ok(self.client.get(url('accounts:messages:new', recipients=666)),
+        self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=666)),
                            texts=[('personal_messages.recipients.not_found', 1)],
                            status_code=404)
 
     def test_answer_wrong_message_id(self):
         MessagePrototype.create(self.account2, self.account1, 'message_2_1 1')
-        self.check_html_ok(self.client.get(url('accounts:messages:new', recipients=self.account2.id, answer_to='aaa')),
+        self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=self.account2.id, answer_to='aaa')),
                            texts=[('personal_messages.answer_to.wrong_format', 1)])
 
     def test_answer_to_not_found(self):
         MessagePrototype.create(self.account2, self.account1, 'message_2_1 1')
-        self.check_html_ok(self.client.get(url('accounts:messages:new', recipients=self.account2.id, answer_to=666)),
+        self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=self.account2.id, answer_to=666)),
                            texts=[('personal_messages.answer_to.not_found', 1)],
                            status_code=404)
 
     def test_answer_to_no_permissionsd(self):
         message = MessagePrototype.create(self.account2, self.account3, 'message_2_3 1')
-        self.check_html_ok(self.client.get(url('accounts:messages:new', recipients=self.account2.id, answer_to=message.id)),
+        self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=self.account2.id, answer_to=message.id)),
                            texts=[('personal_messages.new.not_permissions_to_answer_to', 1)])
 
     def test_success(self):
-        self.check_html_ok(self.client.get(url('accounts:messages:new', recipients=self.account2.id)),
+        self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=self.account2.id)),
                            texts=[('pgf-new-message-form', 1)])
 
     def test_success_multiply_accoutns(self):
-        self.check_html_ok(self.client.get(url('accounts:messages:new', recipients='%d,%d' % (self.account2.id, self.account3.id))),
+        self.check_html_ok(self.request_html(url('accounts:messages:new', recipients='%d,%d' % (self.account2.id, self.account3.id))),
                            texts=[('pgf-new-message-form', 1),
                                   (self.account2.nick, 1),
                                   (self.account3.nick, 1) ])
@@ -150,13 +148,13 @@ class NewRequestsTests(BaseRequestsTests):
 
     def test_answer_to(self):
         message = MessagePrototype.create(self.account2, self.account1, 'message_2_1 1')
-        self.check_html_ok(self.client.get(url('accounts:messages:new', recipients=self.account2.id, answer_to=message.id)),
+        self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=self.account2.id, answer_to=message.id)),
                            texts=[('pgf-new-message-form', 1),
                                   ('message_2_1 1', 1)])
 
     def test_sent_to_system_user(self):
         recipients = '%d,%d' % (self.account2.id, get_system_user().id)
-        self.check_html_ok(self.client.get(url('accounts:messages:new', recipients=recipients)),
+        self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=recipients)),
                            texts=[('personal_messages.create.can_not_sent_message_to_system_user', 1)])
 
 

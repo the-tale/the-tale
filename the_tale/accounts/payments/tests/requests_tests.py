@@ -38,7 +38,7 @@ class ShopRequestesTests(RequestesTestsBase):
     def test_for_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_html_ok(self.client.get(url('accounts:payments:shop')), texts=['common.fast_account'])
+        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=['common.fast_account'])
 
     def test_unlogined(self):
         self.request_logout()
@@ -47,10 +47,10 @@ class ShopRequestesTests(RequestesTestsBase):
 
     @mock.patch('accounts.payments.price_list.PRICE_LIST', [])
     def test_no_goods(self):
-        self.check_html_ok(self.client.get(url('accounts:payments:shop')), texts=['pgf-no-goods-message'])
+        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=['pgf-no-goods-message'])
 
     def test_goods(self):
-        self.check_html_ok(self.client.get(url('accounts:payments:shop')), texts=[('pgf-no-goods-message', 0)] + PURCHASES_BY_UID.keys())
+        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-no-goods-message', 0)] + PURCHASES_BY_UID.keys())
 
 
 class HistoryRequestesTests(RequestesTestsBase, BankTestsMixin):
@@ -61,7 +61,7 @@ class HistoryRequestesTests(RequestesTestsBase, BankTestsMixin):
     def test_for_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_html_ok(self.client.get(url('accounts:payments:history')), texts=['common.fast_account'])
+        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=['common.fast_account'])
 
     def test_unlogined(self):
         self.request_logout()
@@ -69,7 +69,7 @@ class HistoryRequestesTests(RequestesTestsBase, BankTestsMixin):
         self.check_redirect(requested_url, login_url(requested_url))
 
     def test_no_history(self):
-        self.check_html_ok(self.client.get(url('accounts:payments:history')), texts=['pgf-no-history-message'])
+        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=['pgf-no-history-message'])
 
     def test_history(self):
         self.create_bank_account(self.account.id)
@@ -88,7 +88,7 @@ class HistoryRequestesTests(RequestesTestsBase, BankTestsMixin):
         for invoice in history:
             texts.append((invoice.description, 1))
 
-        self.check_html_ok(self.client.get(url('accounts:payments:history')), texts=texts)
+        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=texts)
 
 
 class BuyRequestesTests(RequestesTestsBase, BankTestsMixin):

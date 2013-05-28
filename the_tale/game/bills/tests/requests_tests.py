@@ -77,34 +77,34 @@ class TestIndexRequests(BaseTestRequests):
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-unlogined-message', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-unlogined-message', 1),))
 
     def test_is_fast(self):
         self.account1.is_fast = True
         self.account1.prolong_premium(-100)
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-can-not-participate-in-politics', 1),
+        self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-can-not-participate-in-politics', 1),
                                                                            ('pgf-unlogined-message', 0),))
 
     def test_no_bills(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-no-bills-message', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-no-bills-message', 1),))
 
     def test_bill_creation_locked_message(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
         self.create_bills(1, self.account1, 'caption-a1-%d', 'rationale-a1-%d', bill_data)
-        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 1),
+        self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 1),
                                                                            ('pgf-create-new-bill-buttons', 0),
                                                                            ('pgf-can-not-participate-in-politics', 0)))
 
     def test_bill_creation_unlocked_message(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 0),
+        self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 0),
                                                                            ('pgf-create-new-bill-buttons', 1),
                                                                            ('pgf-can-not-participate-in-politics', 0)))
 
     def test_can_not_participate_in_politics(self):
         self.account1.prolong_premium(-100)
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 0),
+        self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 0),
                                                                            ('pgf-create-new-bill-buttons', 0),
                                                                            ('pgf-can-not-participate-in-politics', 1)))
 
@@ -123,13 +123,13 @@ class TestIndexRequests(BaseTestRequests):
                  ('test_user1', 3),
                  ('test_user2', 3)]
 
-        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:bills:')), texts=texts)
 
     def test_removed_bills(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
         self.create_bills(1, self.account1, 'caption-a1-%d', 'rationale-a1-%d', bill_data)[0].remove(self.account1)
 
-        self.check_html_ok(self.client.get(reverse('game:bills:')), texts=(('pgf-no-bills-message', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-no-bills-message', 1),))
 
     def create_two_pages(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
@@ -150,10 +150,10 @@ class TestIndexRequests(BaseTestRequests):
                  ('caption-a2-2', 0), ('rationale-a2-2', 0),
                  ('test_user1', 4), ('test_user2', 0)]
 
-        self.check_html_ok(self.client.get(reverse('game:bills:')+'?page=2'), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:bills:')+'?page=2'), texts=texts)
 
     def test_index_redirect_from_large_page(self):
-        self.assertRedirects(self.client.get(reverse('game:bills:')+'?page=2'),
+        self.assertRedirects(self.request_html(reverse('game:bills:')+'?page=2'),
                              reverse('game:bills:')+'?page=1', status_code=302, target_status_code=200)
 
     def test_filter_by_user_no_bills_message(self):
@@ -161,7 +161,7 @@ class TestIndexRequests(BaseTestRequests):
 
         result, account_id, bundle_id = register_user('test_user4', 'test_user4@test.com', '111111')
         account4 = AccountPrototype.get_by_id(account_id)
-        self.check_html_ok(self.client.get(reverse('game:bills:')+('?owner=%d' % account4.id)),
+        self.check_html_ok(self.request_html(reverse('game:bills:')+('?owner=%d' % account4.id)),
                            texts=[('pgf-no-bills-message', 1)])
 
 
@@ -178,7 +178,7 @@ class TestIndexRequests(BaseTestRequests):
                            ('test_user1', bills_settings.BILLS_ON_PAGE + 2), #1 for main menu, 1 for filter text
                            ('test_user2', 0)]
 
-        self.check_html_ok(self.client.get(reverse('game:bills:')+('?owner=%d' % self.account1.id)),
+        self.check_html_ok(self.request_html(reverse('game:bills:')+('?owner=%d' % self.account1.id)),
                            texts=account_1_texts)
 
         account_2_texts = [('pgf-no-bills-message', 0),
@@ -192,7 +192,7 @@ class TestIndexRequests(BaseTestRequests):
                            ('test_user2', 3+1)] # 1 for filter text
 
 
-        self.check_html_ok(self.client.get(reverse('game:bills:')+('?owner=%d' % self.account2.id)),
+        self.check_html_ok(self.request_html(reverse('game:bills:')+('?owner=%d' % self.account2.id)),
                            texts=account_2_texts)
 
     def test_filter_by_state(self):
@@ -211,7 +211,7 @@ class TestIndexRequests(BaseTestRequests):
             url = reverse('game:bills:')
             if state is not None:
                 url += ('?state=%d' % state.value)
-            self.check_html_ok(self.client.get(url),
+            self.check_html_ok(self.request_html(url),
                                texts=[('caption-0', voting_number),
                                       ('caption-1', accepted_number),
                                       ('caption-2', rejected_number)])
@@ -225,14 +225,14 @@ class TestIndexRequests(BaseTestRequests):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
         self.create_bills(3, self.account1, 'caption-%d', 'rationale-%d', bill_data)
 
-        self.check_html_ok(self.client.get(reverse('game:bills:')+('?bill_type=%d' % PersonRemove.type.value)),
+        self.check_html_ok(self.request_html(reverse('game:bills:')+('?bill_type=%d' % PersonRemove.type.value)),
                            texts=[('pgf-no-bills-message', 1)])
 
     def test_filter_by_type(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
         self.create_bills(3, self.account1, 'caption-%d', 'rationale-%d', bill_data)
 
-        self.check_html_ok(self.client.get(reverse('game:bills:')+('?bill_type=%d' % PlaceRenaming.type.value)),
+        self.check_html_ok(self.request_html(reverse('game:bills:')+('?bill_type=%d' % PlaceRenaming.type.value)),
                            texts=[('pgf-no-bills-message', 0),
                                   ('caption-0', 1),
                                   ('caption-1', 1),
@@ -242,7 +242,7 @@ class TestIndexRequests(BaseTestRequests):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
         self.create_bills(3, self.account1, 'caption-%d', 'rationale-%d', bill_data)
 
-        self.check_html_ok(self.client.get(reverse('game:bills:')+('?place=%d' % self.place2.id)),
+        self.check_html_ok(self.request_html(reverse('game:bills:')+('?place=%d' % self.place2.id)),
                            texts=[('pgf-no-bills-message', 1)])
 
     def test_filter_by_place(self):
@@ -252,7 +252,7 @@ class TestIndexRequests(BaseTestRequests):
         bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_1')
         self.create_bills(3, self.account1, 'caption-2-%d', 'rationale-2-%d', bill_data)
 
-        self.check_html_ok(self.client.get(reverse('game:bills:')+('?place=%d' % self.place1.id)),
+        self.check_html_ok(self.request_html(reverse('game:bills:')+('?place=%d' % self.place1.id)),
                            texts=[('pgf-no-bills-message', 0),
                                   ('caption-0', 1),
                                   ('caption-1', 1),
@@ -261,7 +261,7 @@ class TestIndexRequests(BaseTestRequests):
                                   ('caption-2-1', 0),
                                   ('caption-2-2', 0)])
 
-        self.check_html_ok(self.client.get(reverse('game:bills:')+('?place=%d' % self.place2.id)),
+        self.check_html_ok(self.request_html(reverse('game:bills:')+('?place=%d' % self.place2.id)),
                            texts=[('pgf-no-bills-message', 0),
                                   ('caption-0', 0),
                                   ('caption-1', 0),
@@ -281,28 +281,28 @@ class TestNewRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account1.is_fast = True
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)), texts=(('common.fast_account', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)), texts=(('common.fast_account', 1),))
 
     @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
     def test__can_not_participate_in_politics(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)),
+        self.check_html_ok(self.request_html(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)),
                            texts=(('bills.can_not_participate_in_politics', 1),))
 
     def test__banned(self):
         self.account1.ban_game(30)
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)),
+        self.check_html_ok(self.request_html(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)),
                            texts=(('common.ban_game', 1),))
 
     def test_wrong_type(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + '?bill_type=xxx'), texts=(('bills.new.bill_type.wrong_format', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:new') + '?bill_type=xxx'), texts=(('bills.new.bill_type.wrong_format', 1),))
 
     def test_success(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)))
+        self.check_html_ok(self.request_html(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)))
 
     def test_new_place_renaming(self):
         texts = [('>'+place.name+'<', 1) for place in places_storage.all()]
-        self.check_html_ok(self.client.get(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)), texts=texts)
 
 
 class TestShowRequests(BaseTestRequests):
@@ -323,7 +323,7 @@ class TestShowRequests(BaseTestRequests):
         bill = Bill.objects.all()[0]
 
         self.request_logout()
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-unlogined-message', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-unlogined-message', 1),))
 
     def test_is_fast(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_2')
@@ -333,7 +333,7 @@ class TestShowRequests(BaseTestRequests):
         self.account1.is_fast = True
         self.account1.prolong_premium(-100)
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-participate-in-politics', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-participate-in-politics', 1),))
 
     def test_can_not_participate_in_politics(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
@@ -342,7 +342,7 @@ class TestShowRequests(BaseTestRequests):
 
         self.account1.prolong_premium(-100)
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-participate-in-politics', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-participate-in-politics', 1),))
 
     def test_can_not_participate_in_politics__voted(self):
         # one vote automaticaly created for bill author
@@ -352,7 +352,7 @@ class TestShowRequests(BaseTestRequests):
 
         self.account1.prolong_premium(-100)
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-participate-in-politics', 0),))
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-participate-in-politics', 0),))
 
     def test_can_not_vote(self):
         self.hero.places_history._reset()
@@ -362,7 +362,7 @@ class TestShowRequests(BaseTestRequests):
         self.create_bills(1, self.account2, 'caption-a1-%d', 'rationale-a1-%d', bill_data)
         bill = Bill.objects.all()[0]
 
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-vote-message', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-vote-message', 1),))
 
     def test_can_not_voted(self):
         self.assertEqual(HeroPrototype.get_by_account_id(self.account1.id).places_history.history, [])
@@ -372,16 +372,16 @@ class TestShowRequests(BaseTestRequests):
         self.create_bills(1, self.account1, 'caption-a1-%d', 'rationale-a1-%d', bill_data)
         bill = Bill.objects.all()[0]
 
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-vote-message', 0),))
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-vote-message', 0),))
 
     def test_unexsists(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[0])), status_code=404)
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[0])), status_code=404)
 
     def test_removed(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
         bill = self.create_bills(1, self.account1, 'caption-a1-%d', 'rationale-a1-%d', bill_data)[0]
         bill.remove(self.account1)
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=[('bills.removed', 1)])
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=[('bills.removed', 1)])
 
     def test_show(self):
         bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_2')
@@ -397,7 +397,7 @@ class TestShowRequests(BaseTestRequests):
                  ('pgf-can-not-vote-message', 0),
                  (self.place2.name, 2)]
 
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
 
     def test_show__vote_for(self):
@@ -410,7 +410,7 @@ class TestShowRequests(BaseTestRequests):
                  ('pgf-voted-refrained-marker', 0),
                  ('pgf-voting-block', 0)]
 
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
     def test_show__vote_against(self):
         bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_2')
@@ -424,7 +424,7 @@ class TestShowRequests(BaseTestRequests):
                  ('pgf-voted-refrained-marker', 0),
                  ('pgf-voting-block', 0)]
 
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
     def test_show__vote_refrained(self):
         bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_2')
@@ -438,7 +438,7 @@ class TestShowRequests(BaseTestRequests):
                  ('pgf-voted-refrained-marker', 1),
                  ('pgf-voting-block', 0)]
 
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
 
     def test_show_when_not_voting_state(self):
@@ -452,7 +452,7 @@ class TestShowRequests(BaseTestRequests):
         texts = [('pgf-bills-results-summary', 0),
                  ('pgf-bills-results-detailed', 1)]
 
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
     def test_show_after_voting(self):
         bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_2')
@@ -465,7 +465,7 @@ class TestShowRequests(BaseTestRequests):
 
         self.request_logout()
         self.request_login('test_user2@test.com')
-        self.check_html_ok(self.client.get(reverse('game:bills:show', args=[bill.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
 
 class TestCreateRequests(BaseTestRequests):
@@ -630,40 +630,40 @@ class TestEditRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account1.is_fast = True
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('common.fast_account', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=(('common.fast_account', 1),))
 
     @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
     def test__can_not_participate_in_politics(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.can_not_participate_in_politics', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.can_not_participate_in_politics', 1),))
 
     def test___banned(self):
         self.account1.ban_game(30)
         self.account1.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('common.ban_game', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=(('common.ban_game', 1),))
 
     def test_unexsists(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[666])), status_code=404)
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[666])), status_code=404)
 
     def test_removed(self):
         self.bill.remove(self.account1)
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=[('bills.removed', 1)])
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=[('bills.removed', 1)])
 
     def test_no_permissions(self):
         self.request_logout()
         self.request_login('test_user2@test.com')
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.not_owner', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.not_owner', 1),))
 
     def test_wrong_state(self):
         self.bill.state = BILL_STATE.ACCEPTED
         self.bill.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.voting_state_required', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.voting_state_required', 1),))
 
     def test_success(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])))
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])))
 
     def test_edit_place_renaming(self):
         texts = [('>'+place.name+'<', 1) for place in places_storage.all()]
-        self.check_html_ok(self.client.get(reverse('game:bills:edit', args=[self.bill.id])), texts=texts)
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=texts)
 
 
 class TestUpdateRequests(BaseTestRequests):
@@ -761,27 +761,27 @@ class TestModerationPageRequests(BaseTestRequests):
     def test_is_fast(self):
         self.account2.is_fast = True
         self.account2.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('common.fast_account', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('common.fast_account', 1),))
 
     def test_unexsists(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[666])), status_code=404)
+        self.check_html_ok(self.request_html(reverse('game:bills:moderate', args=[666])), status_code=404)
 
     def test_removed(self):
         self.bill.remove(self.account1)
-        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=[('bills.removed', 1)])
+        self.check_html_ok(self.request_html(reverse('game:bills:moderate', args=[self.bill.id])), texts=[('bills.removed', 1)])
 
     def test_no_permissions(self):
         self.request_logout()
         self.request_login('test_user1@test.com')
-        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.moderator_rights_required', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.moderator_rights_required', 1),))
 
     def test_wrong_state(self):
         self.bill.state = BILL_STATE.ACCEPTED
         self.bill.save()
-        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.voting_state_required', 1),))
+        self.check_html_ok(self.request_html(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.voting_state_required', 1),))
 
     def test_success(self):
-        self.check_html_ok(self.client.get(reverse('game:bills:moderate', args=[self.bill.id])))
+        self.check_html_ok(self.request_html(reverse('game:bills:moderate', args=[self.bill.id])))
 
 
 class TestModerateRequests(BaseTestRequests):

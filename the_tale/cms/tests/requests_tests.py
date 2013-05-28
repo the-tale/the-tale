@@ -42,27 +42,27 @@ class TestCMSRequests(testcase.TestCase):
 
 
     def test_page_request(self):
-        response = self.client.get(reverse('cms:test:page', args=['slug3']))
+        response = self.request_html(reverse('cms:test:page', args=['slug3']))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('caption3' in response.content)
         self.assertTrue('content3' in response.content)
 
     def test_unknown_page_request(self):
-        response = self.client.get(reverse('cms:test:page', args=['wrong_slug3']))
+        response = self.request_html(reverse('cms:test:page', args=['wrong_slug3']))
         self.assertEqual(response.status_code, 404)
 
     def test_redirect_to_first_page(self):
-        response = self.client.get(reverse('cms:test:'))
+        response = self.request_html(reverse('cms:test:'))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], 'http://testserver%s' % reverse('cms:test:page', args=['slug2']))
 
     def test_index_page(self):
         Page.objects.create(section='test', slug='', caption='caption4', content='content4', order=4, active=True, author=self.staff_account._model)
-        response = self.client.get(reverse('cms:test:'))
+        response = self.request_html(reverse('cms:test:'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('caption4' in response.content)
         self.assertTrue('content4' in response.content)
 
     def test_disabled_page(self):
-        response = self.client.get(reverse('cms:test:page', args=['slug1']))
+        response = self.request_html(reverse('cms:test:page', args=['slug1']))
         self.assertEqual(response.status_code, 404)

@@ -29,29 +29,29 @@ class TestIndexRequests(TestRequestsBase):
 
     def test_login_required(self):
         request_url = reverse('portal:developers-info:')
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_staff_required(self):
         self.request_login('test_user@test.com')
-        self.check_html_ok(self.client.get(reverse('portal:developers-info:')), texts=['common.staff_required'])
+        self.check_html_ok(self.request_html(reverse('portal:developers-info:')), texts=['common.staff_required'])
 
     def test_success(self):
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('portal:developers-info:')))
+        self.check_html_ok(self.request_html(reverse('portal:developers-info:')))
 
 class TestMobsAndArtifactsRequests(TestRequestsBase):
 
     def test_login_required(self):
         request_url = reverse('portal:developers-info:mobs-and-artifacts')
-        self.assertRedirects(self.client.get(request_url), login_url(request_url), status_code=302, target_status_code=200)
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_staff_required(self):
         self.request_login('test_user@test.com')
-        self.check_html_ok(self.client.get(reverse('portal:developers-info:mobs-and-artifacts')), texts=['common.staff_required'])
+        self.check_html_ok(self.request_html(reverse('portal:developers-info:mobs-and-artifacts')), texts=['common.staff_required'])
 
     def test_success(self):
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('portal:developers-info:mobs-and-artifacts')))
+        self.check_html_ok(self.request_html(reverse('portal:developers-info:mobs-and-artifacts')))
 
     def test_mobs_without_artifacts(self):
         self.request_login('test_user_2@test.com')
@@ -67,7 +67,7 @@ class TestMobsAndArtifactsRequests(TestRequestsBase):
         ArtifactRecordPrototype.create_random('not_first_loot', mob=mob_without_loot_on_first_level, level=mob_without_loot_on_first_level.level+1)
         ArtifactRecordPrototype.create_random('not_first_artifact', mob=mob_without_artifact_on_firs_level, level=mob_without_artifact_on_firs_level.level+1)
 
-        self.check_html_ok(self.client.get(reverse('portal:developers-info:mobs-and-artifacts')), texts=[mob_without_loot.name,
+        self.check_html_ok(self.request_html(reverse('portal:developers-info:mobs-and-artifacts')), texts=[mob_without_loot.name,
                                                                                                          mob_without_artifact.name,
                                                                                                          mob_without_loot_on_first_level.name,
                                                                                                          mob_without_artifact_on_firs_level.name])
@@ -81,4 +81,4 @@ class TestMobsAndArtifactsRequests(TestRequestsBase):
         no_mob_loot = ArtifactRecordPrototype.create_random('no_mob_loot', level=1)
         no_mob_artifact = ArtifactRecordPrototype.create_random('no_mob_artifact', level=1)
 
-        self.check_html_ok(self.client.get(reverse('portal:developers-info:mobs-and-artifacts')), texts=[no_mob_loot.name, no_mob_artifact.name])
+        self.check_html_ok(self.request_html(reverse('portal:developers-info:mobs-and-artifacts')), texts=[no_mob_loot.name, no_mob_artifact.name])

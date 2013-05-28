@@ -339,17 +339,16 @@ class HabilitiesViewsTest(TestCase):
 
     def test_choose_ability_dialog(self):
         self.request_login('test_user@test.com')
-        response = self.client.get(reverse('game:heroes:choose-ability-dialog', args=[self.hero.id]))
+        response = self.request_html(reverse('game:heroes:choose-ability-dialog', args=[self.hero.id]))
         self.assertEqual(response.status_code, 200) #here is real page
 
     def test_choose_ability_dialog_anonymous(self):
         request_url = reverse('game:heroes:choose-ability-dialog', args=[self.hero.id])
-        response = self.client.get(request_url)
-        self.assertRedirects(response, login_url(request_url), status_code=302, target_status_code=200)
+        self.check_redirect(request_url, login_url(request_url))
 
     def test_choose_ability_dialog_wrong_user(self):
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.client.get(reverse('game:heroes:choose-ability-dialog', args=[self.hero.id])), texts=(('heroes.not_owner', 1),))
+        self.check_html_ok(self.request_html(reverse('game:heroes:choose-ability-dialog', args=[self.hero.id])), texts=(('heroes.not_owner', 1),))
 
     def test_choose_ability_request_anonymous(self):
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
