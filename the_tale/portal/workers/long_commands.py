@@ -77,7 +77,7 @@ class Worker(BaseWorker):
         self.logger.info('LONG COMMANDS STOPPED')
 
     def _run_subprocess(self, name, cmd):
-        result = subprocess.call(['./manage.py', 'portal_clean'])
+        result = subprocess.call(cmd)
         if result:
             self.logger.error('%s ENDED WITH CODE %d' % (name, result))
         else:
