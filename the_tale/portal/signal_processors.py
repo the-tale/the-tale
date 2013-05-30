@@ -1,5 +1,6 @@
 # coding: utf-8
 import random
+import datetime
 
 from django.dispatch import receiver
 
@@ -15,7 +16,7 @@ def portal_day_started(sender, **kwargs):
     from game.heroes.prototypes import HeroPrototype
     from game.heroes.models import Hero
 
-    heroes_number = Hero.objects.filter(is_fast=False).count()
+    heroes_number = Hero.objects.filter(is_fast=False, ban_state_end_at__lt=datetime.datetime.now()).count()
 
     if heroes_number < 1:
         return
