@@ -7,8 +7,9 @@ from dext.utils.urls import url
 from common.utils import testcase
 from common.postponed_tasks import PostponedTaskPrototype
 
-from bank.prototypes import InvoicePrototype
+from bank.prototypes import InvoicePrototype as BankInvoicePrototype
 from bank.tests.helpers import BankTestsMixin
+from bank.dengionline.prototypes import InvoicePrototype as DOInvoicePrototype
 
 from game.logic import create_test_map
 
@@ -16,6 +17,7 @@ from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user, login_url
 
 from accounts.payments.price_list import PURCHASES_BY_UID
+from accounts.payments.conf import payments_settings
 
 
 class RequestesTestsBase(testcase.TestCase):
@@ -74,7 +76,7 @@ class HistoryRequestesTests(RequestesTestsBase, BankTestsMixin):
     def test_history(self):
         self.create_bank_account(self.account.id)
         history = self.create_entity_history(self.account.id)
-        invoices = InvoicePrototype._db_all()
+        invoices = BankInvoicePrototype._db_all()
 
         histroy_ids = [invoice.id for invoice in history]
 
@@ -108,8 +110,53 @@ class BuyRequestesTests(RequestesTestsBase, BankTestsMixin):
         self.check_ajax_error(self.client.post(url('accounts:payments:buy', purchase=self.purchase.uid)), 'common.login_required')
 
     def test_wrong_purchase_uid(self):
-        self.check_ajax_error(self.client.post(url('accounts:payments:buy', purchase='wrong-uid')), 'payments.purchase.not_found')
+        self.check_ajax_error(self.client.post(url('accounts:payments:buy', purchase='wrong-uid')), 'payments.buy.purchase.not_found')
 
     def test_success(self):
         response = self.client.post(url('accounts:payments:buy', purchase=self.purchase.uid))
         self.check_ajax_processing(response, PostponedTaskPrototype._db_get_object(0).status_url)
+
+
+
+class PayWithDengionlineRequestesTests(RequestesTestsBase):
+
+    def setUp(self):
+        super(PayWithDengionlineRequestesTests, self).setUp()
+
+    def test_for_fast_account(self):
+        self.account.is_fast = True
+        self.account.save()
+        self.check_ajax_error(self.client.post(url('accounts:payments:pay-with-dengionline', amount=5)), 'common.fast_account')
+        self.assertEqual(DOInvoicePrototype._db_count(), 0)
+
+    def test_unlogined(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(url('accounts:payments:pay-with-dengionline', amount=5)), 'common.login_required')
+        self.assertEqual(DOInvoicePrototype._db_count(), 0)
+
+    def test_amount__wrong(self):
+        self.check_ajax_error(self.client.post(url('accounts:payments:pay-with-dengionline', amount='wrong-amount')), 'payments.pay_with_dengionline.amount.wrong_format')
+        self.assertEqual(DOInvoicePrototype._db_count(), 0)
+
+    def test_amount__zero_or_less(self):
+        self.check_ajax_error(self.client.post(url('accounts:payments:pay-with-dengionline', amount=0)), 'payments.pay_with_dengionline.wrong_amount_value')
+        self.check_ajax_error(self.client.post(url('accounts:payments:pay-with-dengionline', amount=-5)), 'payments.pay_with_dengionline.wrong_amount_value')
+        self.assertEqual(DOInvoicePrototype._db_count(), 0)
+
+    def test_success(self):
+        self.assertEqual(DOInvoicePrototype._db_count(), 0)
+        response = self.client.post(url('accounts:payments:pay-with-dengionline', amount=5))
+        self.assertEqual(DOInvoicePrototype._db_count(), 1)
+
+        invoice = DOInvoicePrototype._db_get_object(0)
+
+        self.assertTrue(invoice.bank_type._is_GAME_ACCOUNT)
+        self.assertEqual(invoice.bank_id, self.account.id)
+        self.assertTrue(invoice.bank_currency._is_PREMIUM)
+        self.assertEqual(invoice.bank_amount, 5 * payments_settings.PREMIUM_CURRENCY_FOR_DOLLAR)
+        self.assertEqual(invoice.nickname, self.account.email)
+        self.assertTrue(invoice.comment)
+        self.assertEqual(invoice.payment_amount, 5)
+        self.assertTrue(invoice.payment_currency._is_USD)
+
+        self.check_ajax_ok(response, data={'next_url': invoice.simple_payment_url})

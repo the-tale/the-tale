@@ -28,7 +28,7 @@ class FakeAccountPrototype(object):
 
 class AccountPrototype(BasePrototype):
     _model_class = Account
-    _readonly = ('entity_type', 'entity_id', 'currency')
+    _readonly = ('id', 'entity_type', 'entity_id', 'currency')
     _bidirectional = ()
     _get_by = ('id', )
 

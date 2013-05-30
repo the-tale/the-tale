@@ -28,6 +28,7 @@ urlpatterns = patterns('',
                        (r'^folclor/', include('blogs.urls', namespace='blogs') ),
                        (r'^news/', include('cms.news.urls', namespace='news') ),
                        (r'^postponed-tasks/', include('common.postponed_tasks.urls', namespace='postponed-tasks') ),
+                       (r'^bank/', include('bank.urls', namespace='bank') ),
                        (r'^', include('portal.urls', namespace='portal') ),
 )
 

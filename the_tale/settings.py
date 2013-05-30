@@ -186,6 +186,7 @@ INSTALLED_APPS = (
     'blogs',
 
     'bank',
+    'bank.dengionline',
 
     'south'
 )

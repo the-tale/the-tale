@@ -49,6 +49,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     objects = AccountManager()
 
     MAX_NICK_LENGTH = 128
+    MAX_EMAIL_LENGTH = 254
 
     nick = models.CharField(null=False, default=u'', max_length=MAX_NICK_LENGTH, unique=True, db_index=True)
 
@@ -64,7 +65,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_fast = models.BooleanField(default=True, db_index=True)
 
     # duplicate django user email - add unique constraints
-    email = models.EmailField(max_length=254, null=True, unique=True, blank=True)
+    email = models.EmailField(max_length=MAX_EMAIL_LENGTH, null=True, unique=True, blank=True)
 
     new_messages_number = models.IntegerField(null=False, default=0)
 
