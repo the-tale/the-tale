@@ -10,6 +10,7 @@ from common.postponed_tasks import PostponedTaskPrototype
 from bank.prototypes import InvoicePrototype as BankInvoicePrototype
 from bank.tests.helpers import BankTestsMixin
 from bank.dengionline.prototypes import InvoicePrototype as DOInvoicePrototype
+from bank.dengionline.conf import dengionline_settings
 
 from game.logic import create_test_map
 
@@ -18,6 +19,7 @@ from accounts.logic import register_user, login_url
 
 from accounts.payments.price_list import PURCHASES_BY_UID
 from accounts.payments.conf import payments_settings
+from accounts.payments.logic import real_amount_to_game
 
 
 class RequestesTestsBase(testcase.TestCase):
@@ -123,6 +125,9 @@ class PayWithDengionlineRequestesTests(RequestesTestsBase):
     def setUp(self):
         super(PayWithDengionlineRequestesTests, self).setUp()
 
+    def post_data(self, amount):
+        return {'real_amount': amount, 'game_amount': real_amount_to_game(amount)}
+
     def test_for_fast_account(self):
         self.account.is_fast = True
         self.account.save()
@@ -135,17 +140,23 @@ class PayWithDengionlineRequestesTests(RequestesTestsBase):
         self.assertEqual(DOInvoicePrototype._db_count(), 0)
 
     def test_amount__wrong(self):
-        self.check_ajax_error(self.client.post(url('accounts:payments:pay-with-dengionline', amount='wrong-amount')), 'payments.pay_with_dengionline.amount.wrong_format')
+        self.check_ajax_error(self.client.post(url('accounts:payments:pay-with-dengionline'),
+                                               {'real_amount': 'bla', 'game_amount': 10000}), 'payments.pay_with_dengionline.form_errors')
         self.assertEqual(DOInvoicePrototype._db_count(), 0)
 
     def test_amount__zero_or_less(self):
-        self.check_ajax_error(self.client.post(url('accounts:payments:pay-with-dengionline', amount=0)), 'payments.pay_with_dengionline.wrong_amount_value')
-        self.check_ajax_error(self.client.post(url('accounts:payments:pay-with-dengionline', amount=-5)), 'payments.pay_with_dengionline.wrong_amount_value')
+        self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(-5)), 'payments.pay_with_dengionline.form_errors')
+        self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(0)), 'payments.pay_with_dengionline.form_errors')
+        self.assertEqual(DOInvoicePrototype._db_count(), 0)
+
+    def test_amount__wrong_calculations(self):
+        self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'),
+                                                  {'real_amount': 5, 'game_amount': real_amount_to_game(5)*2}), 'payments.pay_with_dengionline.form_errors')
         self.assertEqual(DOInvoicePrototype._db_count(), 0)
 
     def test_success(self):
         self.assertEqual(DOInvoicePrototype._db_count(), 0)
-        response = self.client.post(url('accounts:payments:pay-with-dengionline', amount=5))
+        response = self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5))
         self.assertEqual(DOInvoicePrototype._db_count(), 1)
 
         invoice = DOInvoicePrototype._db_get_object(0)
@@ -154,9 +165,15 @@ class PayWithDengionlineRequestesTests(RequestesTestsBase):
         self.assertEqual(invoice.bank_id, self.account.id)
         self.assertTrue(invoice.bank_currency._is_PREMIUM)
         self.assertEqual(invoice.bank_amount, 5 * payments_settings.PREMIUM_CURRENCY_FOR_DOLLAR)
-        self.assertEqual(invoice.nickname, self.account.email)
+        self.assertEqual(invoice.user_id, self.account.email)
         self.assertTrue(invoice.comment)
         self.assertEqual(invoice.payment_amount, 5)
         self.assertTrue(invoice.payment_currency._is_USD)
 
         self.check_ajax_ok(response, data={'next_url': invoice.simple_payment_url})
+
+    def test_creation_limits(self):
+        for i in xrange(dengionline_settings.CREATION_NUMBER_LIMIT):
+            self.check_ajax_ok(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)))
+        self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)),
+                              'payments.pay_with_dengionline.creation_limit_riched')

@@ -111,3 +111,7 @@ class BasePrototype(object):
     @classmethod
     def _db_delete_all(cls):
         return cls._model_class.objects.all().delete()
+
+    @classmethod
+    def _db_filter(cls, **kwargs):
+        return cls._model_class.objects.filter(**kwargs)

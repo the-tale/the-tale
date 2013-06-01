@@ -1,5 +1,4 @@
 # coding: utf-8
-import time
 import datetime
 import Queue
 
@@ -41,21 +40,22 @@ class Worker(BaseWorker):
     def run(self):
         while not self.exception_raised and not self.stop_required:
             try:
-                settings.refresh()
-
-                cmd = self.command_queue.get_nowait()
+                cmd = self.command_queue.get(block=True, timeout=0.25)
                 cmd.ack()
 
+                settings.refresh()
                 self.process_cmd(cmd.payload)
             except Queue.Empty:
-                self.process_freeze_invoice()
-                time.sleep(0.25)
+                settings.refresh()
+                self.run_commands()
 
+    def run_commands(self):
+        self.process_init_invoice()
 
-    def cmd_freeze_invoice(self):
-        return self.send_cmd('freeze_invoice', {})
+    def cmd_init_invoice(self):
+        return self.send_cmd('init_invoice', {})
 
-    def process_freeze_invoice(self):
+    def process_init_invoice(self):
 
         invoice = InvoicePrototype.get_unprocessed_invoice()
 
@@ -69,7 +69,12 @@ class Worker(BaseWorker):
 
         self.logger.info('process invoice %s' % invoice.id)
 
-        invoice.freeze()
+        if invoice.state._is_REQUESTED:
+            invoice.freeze()
+        elif invoice.state._is_FORCED:
+            invoice.force()
+        else:
+            raise BankException('unknown invoice %d state %s' % (invoice.id, invoice.state))
 
         self.logger.info('invoice %s status %s' % (invoice.id, invoice.state))
 

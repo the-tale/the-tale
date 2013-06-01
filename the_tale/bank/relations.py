@@ -11,7 +11,8 @@ class INVOICE_STATE(DjangoEnum):
                  ('REJECTED',  2, u'отказано в заморозке'),
                  ('CONFIRMED', 3, u'подтверждён'),
                  ('CANCELED',  4, u'отменён'),
-                 ('RESETED',   5, u'сброшен'))
+                 ('RESETED',   5, u'сброшен'),
+                 ('FORCED',    6, u'запрошен принудительно'))
 
 
 class ENTITY_TYPE(DjangoEnum):

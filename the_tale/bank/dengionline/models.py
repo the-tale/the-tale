@@ -19,7 +19,7 @@ class Invoice(models.Model):
     AMOUNT_DIGITS_BEFORE_DOT = 10
     AMOUNT_DIGITS = AMOUNT_DIGITS_BEFORE_DOT + AMOUNT_DIGITS_AFTER_DOT
 
-    MAX_PAYMENT_ID_LENGTH = 30 # 30
+    MAX_PAYMENT_ID_LENGTH = 30
     MAX_SERVER_ID_LENGTH = 32
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
@@ -31,6 +31,7 @@ class Invoice(models.Model):
     bank_id = models.BigIntegerField()
     bank_currency = TableIntegerField(relation=BANK_CURRENCY_TYPE, relation_column='value', db_index=True)
     bank_amount = models.BigIntegerField()
+    bank_invoice = models.ForeignKey('bank.Invoice', null=True, unique=True)
 
     user_id = models.EmailField(max_length=Account.MAX_EMAIL_LENGTH, null=False, db_index=True) # windows-1251
     comment = models.CharField(max_length=MAX_COMMENT_LENGTH, null=False)

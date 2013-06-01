@@ -27,9 +27,9 @@ class TransactionTests(testcase.TestCase, BankTestsMixin):
 
 
     def test_create(self):
-        with mock.patch('bank.workers.bank_processor.Worker.cmd_freeze_invoice') as cmd_freeze_invoice:
+        with mock.patch('bank.workers.bank_processor.Worker.cmd_init_invoice') as cmd_init_invoice:
             transaction = self.create_transaction()
-        self.assertEqual(cmd_freeze_invoice.call_count, 1)
+        self.assertEqual(cmd_init_invoice.call_count, 1)
 
         self.assertEqual(InvoicePrototype._model_class.objects.all().count(), 1)
 

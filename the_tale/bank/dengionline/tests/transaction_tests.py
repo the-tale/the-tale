@@ -7,6 +7,8 @@ from bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE, CURRENCY_TYPE as BAN
 from bank.dengionline.prototypes import InvoicePrototype
 from bank.dengionline.transaction import Transaction
 from bank.dengionline.relations import CURRENCY_TYPE
+from bank.dengionline.conf import dengionline_settings
+from bank.dengionline import exceptions
 
 
 class TransactionTests(testcase.TestCase):
@@ -57,8 +59,13 @@ class TransactionTests(testcase.TestCase):
         self.assertEqual(invoice.paymode, None)
         self.assertEqual(invoice.payment_id, None)
 
-    def get_simple_payment_url(self):
+    def test_get_simple_payment_url(self):
         transaction = self.create_transaction()
         invoice = InvoicePrototype.get_by_id(transaction.invoice_id)
 
         self.assertEqual(invoice.simple_payment_url, 'https://paymentgateway.ru/?orderid=1&comment=%EE%EF%EB%E0%F2%E0+%EA%E0%EA%EE%E9-%F2%EE+%EF%EE%EA%F3%EF%EA%E8&project=TEST-PROJECT-ID&source=TEST-PROJECT-ID&amount=10&paymentCurrency=USD&nickname=test%40test.com')
+
+    def test_creation_limit(self):
+        for i in xrange(dengionline_settings.CREATION_NUMBER_LIMIT):
+            self.create_transaction()
+        self.assertRaises(exceptions.CreationLimitError, self.create_transaction)

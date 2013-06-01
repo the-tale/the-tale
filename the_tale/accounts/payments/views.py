@@ -1,5 +1,4 @@
 # coding: utf-8
-import math
 
 from dext.views import handler, validate_argument
 
@@ -12,9 +11,10 @@ from bank.dengionline.transaction import Transaction as DOTransaction
 from bank.dengionline.relations import CURRENCY_TYPE as DO_CURRENCY_TYPE
 
 from bank.relations import ENTITY_TYPE, CURRENCY_TYPE
+from bank.dengionline import exceptions
 
 from accounts.payments import price_list
-from accounts.payments.conf import payments_settings
+from accounts.payments.forms import DengiOnlineForm
 
 
 class PaymentsResource(Resource):
@@ -46,22 +46,31 @@ class PaymentsResource(Resource):
         return self.json_processing(postponed_task.status_url)
 
 
+    @handler('pay-dialog', method='get')
+    def pay_dialog(self):
+        return self.template('payments/pay_dialog.html',
+                             {'dengionline_form': DengiOnlineForm()})
+
     @validate_argument('amount', int, 'payments.pay_with_dengionline', u'Неверная сумма платежа')
     @handler('pay-with-dengionline', method='post')
-    def pay_with_dengionline(self, amount): # количество валюты
+    def pay_with_dengionline(self):
 
-        if amount <= 0:
-            return self.json_error('payments.pay_with_dengionline.wrong_amount_value', u'Размер суммы должен быть больше 0')
+        form = DengiOnlineForm(self.request.POST)
 
-        premium_amount = int(math.ceil(amount * payments_settings.PREMIUM_CURRENCY_FOR_DOLLAR))
+        if not form.is_valid():
+            return self.json_error('payments.pay_with_dengionline.form_errors', form.errors)
 
-        transaction = DOTransaction.create(bank_type=ENTITY_TYPE.GAME_ACCOUNT,
-                                           bank_id=self.account.id,
-                                           bank_currency=CURRENCY_TYPE.PREMIUM,
-                                           bank_amount=premium_amount,
-                                           email=self.account.email,
-                                           comment=u'Покупка печенек: %d шт.' % premium_amount,
-                                           payment_amount=amount,
-                                           payment_currency=DO_CURRENCY_TYPE.USD)
+        try:
+            transaction = DOTransaction.create(bank_type=ENTITY_TYPE.GAME_ACCOUNT,
+                                               bank_id=self.account.id,
+                                               bank_currency=CURRENCY_TYPE.PREMIUM,
+                                               bank_amount=form.c.game_amount,
+                                               email=self.account.email,
+                                               comment=u'Покупка печенек: %d шт.' % form.c.real_amount,
+                                               payment_amount=form.c.real_amount,
+                                               payment_currency=DO_CURRENCY_TYPE.USD)
+        except exceptions.CreationLimitError:
+            return self.json_error('payments.pay_with_dengionline.creation_limit_riched',
+                                   u'Вы создали слишком много запросов на покупку печенек. Вы сможете повторить попытку через несколько минут.')
 
         return self.json_ok(data={'next_url': transaction.get_simple_payment_url()})

@@ -162,6 +162,17 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
         self.assertTrue(invoice.state._is_REQUESTED)
         self.assertTrue(invoice.currency._is_PREMIUM)
 
+    def test_create__forced(self):
+        invoice = self.create_invoice(force=True)
+
+        self.assertTrue(invoice.recipient_type._is_GAME_ACCOUNT)
+        self.assertEqual(invoice.recipient_id, self.recipient_id)
+        self.assertTrue(invoice.sender_type._is_GAME_LOGIC)
+        self.assertEqual(invoice.sender_id, self.sender_id)
+        self.assertEqual(invoice.amount, self.amount)
+        self.assertTrue(invoice.state._is_FORCED)
+        self.assertTrue(invoice.currency._is_PREMIUM)
+
     def check_freeze(self, recipient_type, sender_type, amount, initial_accounts_number=0, recipient_amount=0, sender_amount=0):
         self.assertEqual(AccountPrototype._model_class.objects.all().count(), initial_accounts_number)
 
@@ -403,6 +414,114 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
         invoice = self.create_invoice()
         self.assertRaises(BankError, invoice.confirm)
 
+    def check_force(self, recipient_type, sender_type, initial_recipient_amount, initial_sender_amount, amount, result_recipient_amount, result_sender_amount):
+
+        invoice = self.create_invoice(recipient_type=recipient_type, sender_type=sender_type, amount=amount)
+        invoice.freeze()
+        self.assertTrue(invoice.state._is_FROZEN)
+
+        self.assertEqual(AccountPrototype._model_class.objects.all().count(), 2)
+
+        recipient = AccountPrototype(model=AccountPrototype._model_class.objects.all().order_by('created_at')[0])
+        self.assertEqual(recipient.amount, initial_recipient_amount)
+        self.assertEqual(recipient.entity_type, recipient_type)
+        self.assertEqual(recipient.entity_id, self.recipient_id)
+        self.assertTrue(recipient.currency._is_PREMIUM)
+
+        sender = AccountPrototype(model=AccountPrototype._model_class.objects.all().order_by('created_at')[1])
+        self.assertEqual(sender.amount, initial_sender_amount)
+        self.assertEqual(sender.entity_type, sender_type)
+        self.assertEqual(sender.entity_id, self.sender_id)
+        self.assertTrue(sender.currency._is_PREMIUM)
+
+        invoice = self.create_invoice(recipient_type=recipient_type,
+                                      recipient_id=self.recipient_id,
+                                      sender_type=sender_type,
+                                      sender_id=self.sender_id,
+                                      amount=amount,
+                                      force=True)
+        invoice.force()
+        self.assertTrue(invoice.state._is_CONFIRMED)
+
+        recipient.reload()
+        sender.reload()
+
+        self.assertEqual(recipient.amount, result_recipient_amount)
+        self.assertEqual(sender.amount, result_sender_amount)
+
+    def test_force__noninfinit(self):
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           initial_recipient_amount=1000,
+                           initial_sender_amount=1000,
+                           amount=299,
+                           result_recipient_amount=1299,
+                           result_sender_amount=701)
+
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           initial_recipient_amount=1000,
+                           initial_sender_amount=1000,
+                           amount=-299,
+                           result_recipient_amount=701,
+                           result_sender_amount=1299)
+
+    def test_force__infinit_sender(self):
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           sender_type=ENTITY_TYPE.GAME_LOGIC,
+                           initial_recipient_amount=1000,
+                           initial_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           amount=299,
+                           result_recipient_amount=1299,
+                           result_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT)
+
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           sender_type=ENTITY_TYPE.GAME_LOGIC,
+                           initial_recipient_amount=1000,
+                           initial_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           amount=-299,
+                           result_recipient_amount=701,
+                           result_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT)
+
+    def test_force__infinit_recipient(self):
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_LOGIC,
+                           sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           initial_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           initial_sender_amount=1000,
+                           amount=299,
+                           result_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           result_sender_amount=701)
+
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_LOGIC,
+                           sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                           initial_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           initial_sender_amount=1000,
+                           amount=-299,
+                           result_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           result_sender_amount=1299)
+
+    def test_force__infinit_both(self):
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_LOGIC,
+                           sender_type=ENTITY_TYPE.GAME_LOGIC,
+                           initial_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           initial_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           amount=299,
+                           result_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           result_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT)
+
+        self.check_confirm(recipient_type=ENTITY_TYPE.GAME_LOGIC,
+                           sender_type=ENTITY_TYPE.GAME_LOGIC,
+                           initial_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           initial_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           amount=-299,
+                           result_recipient_amount=bank_settings.INFINIT_MONEY_AMOUNT,
+                           result_sender_amount=bank_settings.INFINIT_MONEY_AMOUNT)
+
+    def test_force__not_frozen_state(self):
+        invoice = self.create_invoice()
+        self.assertRaises(BankError, invoice.confirm)
+
+
     def test_cancel(self):
         invoice = self.create_invoice()
         invoice.freeze()
@@ -421,21 +540,24 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
 
         InvoicePrototype.reset_all()
 
-        self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.RESETED).count(), len(INVOICE_STATE._records) - 3)
+        self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.RESETED).count(), len(INVOICE_STATE._records) - 4)
         self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.CONFIRMED).count(), 1)
         self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.CANCELED).count(), 1)
         self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.REJECTED).count(), 1)
+        self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.FORCED).count(), 1)
 
     def test_get_unprocessed_invoice_success(self):
-        self.create_invoice(state=INVOICE_STATE.CONFIRMED)
-        unprocessed_invoice = self.create_invoice()
-        self.create_invoice()
-
-        self.assertEqual(InvoicePrototype.get_unprocessed_invoice().id, unprocessed_invoice.id)
-
-    def test_get_priority_message_no_messages(self):
         for state in INVOICE_STATE._records:
-            if state._is_REQUESTED:
+            if not (state._is_REQUESTED or state._is_FORCED):
+                continue
+
+            invoice = self.create_invoice(state=state)
+            self.assertEqual(InvoicePrototype.get_unprocessed_invoice().id, invoice.id)
+            InvoicePrototype._db_delete_all()
+
+    def test_get_unprocessed_invoice__no_invoice(self):
+        for state in INVOICE_STATE._records:
+            if state._is_REQUESTED or state._is_FORCED:
                 continue
             self.create_invoice(state=state)
 

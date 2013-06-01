@@ -121,19 +121,19 @@ class InvoicePrototype(BasePrototype):
     @classmethod
     def get_unprocessed_invoice(cls):
         try:
-            return cls(model=cls._model_class.objects.filter(state=INVOICE_STATE.REQUESTED).order_by('created_at')[0])
+            return cls(model=cls._model_class.objects.filter(state__in=(INVOICE_STATE.REQUESTED, INVOICE_STATE.FORCED)).order_by('created_at')[0])
         except IndexError:
             return None
 
     @classmethod
-    def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount, description, operation_uid):
+    def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount, description, operation_uid, force=False):
         model = cls._model_class.objects.create(recipient_type=recipient_type,
                                                 recipient_id=recipient_id,
                                                 sender_type=sender_type,
                                                 sender_id=sender_id,
                                                 currency=currency,
                                                 amount=amount,
-                                                state=INVOICE_STATE.REQUESTED,
+                                                state=INVOICE_STATE.FORCED if force else INVOICE_STATE.REQUESTED,
                                                 description=description,
                                                 operation_uid=operation_uid)
 
@@ -164,19 +164,23 @@ class InvoicePrototype(BasePrototype):
 
     @nested_commit_on_success
     def confirm(self):
-        if not self.state._is_FROZEN:
-            raise BankError(u'try to confirm not frozen invoice "%d"' % self.id)
+        if not (self.state._is_FROZEN or self.state._is_FORCED):
+            raise BankError(u'try to confirm not frozen or forced invoice "%d"' % self.id)
 
-        recipient = AccountPrototype.get_for(entity_type=self.recipient_type, entity_id=self.recipient_id, currency=self.currency)
+        recipient = AccountPrototype.get_for_or_create(entity_type=self.recipient_type, entity_id=self.recipient_id, currency=self.currency)
         recipient.amount += self.amount
         recipient.save()
 
-        sender = AccountPrototype.get_for(entity_type=self.sender_type, entity_id=self.sender_id, currency=self.currency)
+        sender = AccountPrototype.get_for_or_create(entity_type=self.sender_type, entity_id=self.sender_id, currency=self.currency)
         sender.amount -= self.amount
         sender.save()
 
         self.state = INVOICE_STATE.CONFIRMED
         self.save()
+
+    @nested_commit_on_success
+    def force(self):
+        self.confirm()
 
     def cancel(self):
         if not self.state._is_FROZEN:

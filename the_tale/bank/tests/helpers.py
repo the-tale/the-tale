@@ -18,7 +18,8 @@ class BankTestsMixin(object):
                        amount=317,
                        state=None,
                        description='invoice-description',
-                       operation_uid='test-uid'):
+                       operation_uid='test-uid',
+                       force=False):
         invoice = InvoicePrototype.create(recipient_type=recipient_type,
                                           recipient_id=recipient_id,
                                           sender_type=sender_type,
@@ -26,7 +27,8 @@ class BankTestsMixin(object):
                                           currency=currency,
                                           amount=amount,
                                           description=description,
-                                          operation_uid=operation_uid)
+                                          operation_uid=operation_uid,
+                                          force=force)
         if state is not None:
             invoice.state = state
             invoice.save()

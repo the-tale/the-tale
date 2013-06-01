@@ -2,11 +2,14 @@
 import md5
 import urllib
 
+from datetime import datetime
+from decimal import Decimal
+
 from common.utils.prototypes import BasePrototype
 
 from bank.dengionline.models import Invoice
 from bank.dengionline.conf import dengionline_settings
-from bank.dengionline.relations import INVOICE_STATE, CHECK_USER_RESULT
+from bank.dengionline.relations import INVOICE_STATE, CHECK_USER_RESULT, CONFIRM_PAYMENT_RESULT, CURRENCY_TYPE
 from bank.dengionline import exceptions
 
 
@@ -81,21 +84,71 @@ class InvoicePrototype(BasePrototype):
 
         return CHECK_USER_RESULT.USER_NOT_EXISTS
 
-    # TODO: what if dengionline send 2 simultaneous requests ?
+    @classmethod
+    def confirm_payment(cls, order_id, received_amount, user_id, paymode, payment_id, key):
+        from bank.workers.environment import workers_environment
+
+        user_id = user_id.decode('utf-8').encode('cp1251')
+
+        invoice = cls.get_by_id(int(order_id))
+
+        if invoice is None:
+            return CONFIRM_PAYMENT_RESULT.INVOICE_NOT_FOUND
+
+        try:
+            confirm_result = invoice.confirm(order_id=int(order_id),
+                                             received_amount=Decimal(received_amount),
+                                             received_currency=CURRENCY_TYPE._index_name[dengionline_settings.RECEIVED_CURRENCY_TYPE],
+                                             user_id=user_id,
+                                             payment_id=int(payment_id),
+                                             key=key,
+                                             paymode=int(paymode))
+
+            if confirm_result._is_CONFIRMED:
+                workers_environment.dengionline_banker.cmd_handle_confirmations()
+            return confirm_result
+        except:
+            invoice.reload()
+            invoice.fail_on_confirm()
+            raise
+
+    def fail_on_confirm(self):
+        self._model.state = INVOICE_STATE.FAILED_ON_CONFIRM
+        self.save()
+
     def confirm(self, order_id, received_amount, received_currency, user_id, payment_id, key, paymode):
 
         if order_id != self.id:
-            raise exceptions.WrongOrderIdInConfirmationError(invoice_id=self.id, order_id=order_id)
+            return CONFIRM_PAYMENT_RESULT.WRONG_ORDER_ID
 
         if user_id != self.user_id:
-            raise exceptions.WrongUserIdInConfirmationError(invoice_id=self.id,  user_id=user_id)
+            return CONFIRM_PAYMENT_RESULT.WRONG_USER_ID
 
         real_key = self.confirm_request_key(amount=received_amount, user_id=user_id, payment_id=payment_id)
         if real_key != key:
-            raise exceptions.WrongRequestKeyInConfirmationError(invoice_id=self.id, key=key)
+            return CONFIRM_PAYMENT_RESULT.WRONG_HASH_KEY
 
-        if self.payment_id is not None:
-            raise exceptions.InvoiceAlreadyConfirmedError(invoice_id=self.id)
+        if self.state._is_CONFIRMED:
+            # does not check received_amount and received_currency since they can be changed by dengionline configuration
+            if self.payment_id != payment_id or self.paymode != paymode:
+                return CONFIRM_PAYMENT_RESULT.ALREADY_CONFIRMED_WRONG_ARGUMENTS
+            return CONFIRM_PAYMENT_RESULT.ALREADY_CONFIRMED
+
+        if self.state._is_PROCESSED:
+            # does not check received_amount and received_currency since they can be changed by dengionline configuration
+            if self.payment_id != payment_id or self.paymode != paymode:
+                return CONFIRM_PAYMENT_RESULT.ALREADY_PROCESSED_WRONG_ARGUMENTS
+            return CONFIRM_PAYMENT_RESULT.ALREADY_PROCESSED
+
+        if self.state._is_FAILED_ON_CONFIRM:
+            return CONFIRM_PAYMENT_RESULT.ALREADY_FAILED_ON_CONFIRM
+
+        if self.state._is_DISCARDED:
+            return CONFIRM_PAYMENT_RESULT.DISCARDED
+
+        if not self.state._is_REQUESTED:
+            # all states MUST be processed before this line
+            raise exceptions.WrongInvoiceStateInConfirmationError(state=self.state)
 
         self._model.received_amount = received_amount
         self._model.received_currency = received_currency
@@ -104,6 +157,40 @@ class InvoicePrototype(BasePrototype):
         self._model.state = INVOICE_STATE.CONFIRMED
 
         self.save()
+
+        return CONFIRM_PAYMENT_RESULT.CONFIRMED
+
+    def process(self):
+        from bank.transaction import Transaction
+        from bank.relations import ENTITY_TYPE
+
+        if not self.state._is_CONFIRMED:
+            raise exceptions.WrongInvoiceStateInProcessingError(invoice_id=self.id, state=self.state)
+
+        transaction = Transaction.create(recipient_type=self.bank_type,
+                                         recipient_id=self.bank_id,
+                                         sender_type=ENTITY_TYPE.DENGI_ONLINE,
+                                         sender_id=0,
+                                         currency=self.bank_currency,
+                                         amount=self.bank_amount,
+                                         description=u'Покупка печенек',
+                                         operation_uid='bank-dengionline',
+                                         force=True)
+
+        self._model.bank_invoice_id = transaction.invoice_id
+        self.save()
+
+    @classmethod
+    def discard_old_invoices(cls):
+        cls._model_class.objects.filter(state=INVOICE_STATE.REQUESTED,
+                                        created_at__lt=datetime.now() - dengionline_settings.DISCARD_TIMEOUT).update(state=INVOICE_STATE.DISCARDED)
+
+
+    @classmethod
+    def process_confirmed_invoices(cls):
+        for model in cls._model_class.objects.filter(state=INVOICE_STATE.CONFIRMED):
+            invoice = cls(model=model)
+            invoice.process()
 
     def save(self):
         self._model.save()

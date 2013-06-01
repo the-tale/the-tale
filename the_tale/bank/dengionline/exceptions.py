@@ -4,14 +4,11 @@ from common.utils.exceptions import TheTaleError
 
 class DengionlineError(TheTaleError): pass
 
-class WrongOrderIdInConfirmationError(DengionlineError):
-    MSG = u'invoice %(invoice_id)d: wrong order_id: "%(order_id)s"'
+class WrongInvoiceStateInConfirmationError(DengionlineError):
+    MSG = u'invoice %(invoice_id)d: wrong invoice_state: "%(state)s"'
 
-class WrongUserIdInConfirmationError(DengionlineError):
-    MSG = u'invoice %(invoice_id)d: wrong user_id: "%(user_id)s"'
+class WrongInvoiceStateInProcessingError(DengionlineError):
+    MSG = u'invoice %(invoice_id)d: wrong invoice_state: "%(state)s"'
 
-class WrongRequestKeyInConfirmationError(DengionlineError):
-    MSG = u'invoice %(invoice_id)d: wrong key: "%(key)s"'
-
-class InvoiceAlreadyConfirmedError(DengionlineError):
-    MSG = u'invoice %(invoice_id)d: already confirmed"'
+class CreationLimitError(DengionlineError):
+    MSG = u'account %(account_id)s made too many invoice requests'

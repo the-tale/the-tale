@@ -55,3 +55,21 @@ class TestInvoiceFabric(object):
                                        comment=comment,
                                        payment_amount=payment_amount,
                                        payment_currency=payment_currency)
+
+    def confirm_args(self, order_id, received_amount=None, received_currency=None, user_id=None, payment_id=None, key=None, paymode=None):
+        if received_amount is None:
+            received_amount = self.received_amount
+        if user_id is None:
+            user_id = self.user_id
+        if payment_id is None:
+            payment_id = self.payment_id
+        if key is None:
+            key = InvoicePrototype.confirm_request_key(amount=received_amount, user_id=user_id, payment_id=payment_id)
+
+        return {'order_id': order_id,
+                'received_amount': received_amount,
+                'received_currency': self.received_currency if received_currency is None else received_currency,
+                'user_id': user_id,
+                'payment_id': payment_id,
+                'paymode': self.paymode if paymode is None else paymode,
+                'key': key}

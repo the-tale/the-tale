@@ -18,7 +18,7 @@ class Transaction(object):
         return cls(**data)
 
     @classmethod
-    def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount, description, operation_uid):
+    def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount, description, operation_uid, force=False):
         invoice = InvoicePrototype.create(recipient_type=recipient_type,
                                           recipient_id=recipient_id,
                                           sender_type=sender_type,
@@ -26,9 +26,10 @@ class Transaction(object):
                                           currency=currency,
                                           amount=amount,
                                           description=description,
-                                          operation_uid=operation_uid)
+                                          operation_uid=operation_uid,
+                                          force=force)
 
-        bank_workers_environment.bank_processor.cmd_freeze_invoice()
+        bank_workers_environment.bank_processor.cmd_init_invoice()
 
         return cls(invoice_id=invoice.id)
 
