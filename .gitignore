@@ -1,3 +1,4 @@
 *~
 *.pyc
 dcont
+checkers/pylint.html
