@@ -18,15 +18,15 @@ class BaseMessageHandler(object):
     @property
     def settings_type_uid(self): return '<%s>' % self.TYPE
 
-    def serialize(self): raise NotImplemented
+    def serialize(self): raise NotImplementedError
 
     @classmethod
-    def deserialize(cls, data): raise NotImplemented
+    def deserialize(cls, data): raise NotImplementedError
 
-    def process(self): raise NotImplemented
+    def process(self): raise NotImplementedError
 
     @property
-    def uid(self): raise NotImplemented
+    def uid(self): raise NotImplementedError
 
 
 class TestHandler(BaseMessageHandler):

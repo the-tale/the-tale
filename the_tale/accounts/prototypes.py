@@ -22,7 +22,7 @@ from accounts.exceptions import AccountsException
 from accounts.relations import CHANGE_CREDENTIALS_TASK_STATE
 
 
-class AccountPrototype(BasePrototype):
+class AccountPrototype(BasePrototype): #pylint: disable=R0904
     _model_class = Account
     _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_superuser', 'has_perm', 'premium_end_at', 'active_end_at', 'ban_game_end_at', 'ban_forum_end_at')
     _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription')
@@ -155,9 +155,6 @@ class AccountPrototype(BasePrototype):
         return self._model.delete()
 
     def save(self): self._model.save(force_update=True)
-
-    def ui_info(self, ignore_actions=False, ignore_quests=False):
-        return {}
 
     @classmethod
     def _next_active_end_at(cls):

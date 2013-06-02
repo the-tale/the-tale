@@ -87,7 +87,7 @@ class BasePrototype(object):
         self._model = self._model_class.objects.get(id=self._model.id)
 
     def create(self, *argv, **kwargs):
-        raise NotImplemented
+        raise NotImplementedError
 
     def __unicode__(self):
         return self._model.__unicode__()

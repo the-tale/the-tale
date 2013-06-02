@@ -25,12 +25,12 @@ from game.pvp.prototypes import Battle1x1Prototype
 class PvPBalancerException(Exception): pass
 
 
-class QueueRecord(namedtuple('QueueRecord', ('account_id', 'created_at', 'battle_id', 'hero_level'))):
+class QueueRecord(namedtuple('QueueRecord', ('account_id', 'created_at', 'battle_id', 'hero_level'))): #pylint: disable=E1001
     __slots__ = ()
 
-class BalancingRecord(namedtuple('BalancingRecord', ('min_level', 'max_level', 'record'))):
-    __slots__ = ()
 
+class BalancingRecord(namedtuple('BalancingRecord', ('min_level', 'max_level', 'record'))): #pylint: disable=E1001
+    __slots__ = ()
 
     def in_interval(self, level):
         return self.min_level <= level <= self.max_level
@@ -49,6 +49,9 @@ class Worker(BaseWorker):
 
     def __init__(self, game_queue):
         super(Worker, self).__init__(command_queue=game_queue)
+        self.worker_id = None
+        self.arena_queue = {}
+        self.supervisor_worker = None
 
     def set_supervisor_worker(self, supervisor_worker):
         self.supervisor_worker = supervisor_worker
@@ -62,7 +65,7 @@ class Worker(BaseWorker):
                 self.process_cmd(cmd.payload)
             except Queue.Empty:
                 if self.initialized:
-                    self.do_balancing()
+                    self._do_balancing()
                 time.sleep(pvp_settings.BALANCER_SLEEP_TIME)
 
     def initialize(self):
@@ -103,7 +106,7 @@ class Worker(BaseWorker):
         return self.send_cmd('logic_task', {'task_id': task_id,
                                             'account_id': account_id})
 
-    def process_logic_task(self, account_id, task_id):
+    def process_logic_task(self, account_id, task_id):#pylint: disable=W0613
         task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
         task.process(self.logger, pvp_balancer=self)
         task.do_postsave_actions()
@@ -230,7 +233,7 @@ class Worker(BaseWorker):
 
         self.supervisor_worker.cmd_add_task(task.id)
 
-    def do_balancing(self):
+    def _do_balancing(self):
 
         records, records_to_remove = self._get_prepaired_queue()
 

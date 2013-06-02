@@ -87,10 +87,10 @@ class AbilityPrototype(object):
     def can_be_used(self, actor): return True
 
     def use(self, *argv):
-        raise NotImplemented('you should declare use method in child classes')
+        raise NotImplementedError('you should declare use method in child classes')
 
     def on_miss(self, *argv):
-        raise NotImplemented('you should declare on_miss method in child classes')
+        raise NotImplementedError('you should declare on_miss method in child classes')
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and

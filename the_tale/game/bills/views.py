@@ -58,7 +58,7 @@ class BillResource(Resource):
     def can_participate_in_politics(self):
         return self.account.is_authenticated() and self.account.is_premium
 
-    def can_moderate_bill(self, bill):
+    def can_moderate_bill(self):
         return self.account.is_authenticated() and self.account.has_perm('bills.moderate_bill')
 
     @validator(code='bills.voting_state_required')
@@ -68,7 +68,7 @@ class BillResource(Resource):
     def validate_ownership(self, *args, **kwargs): return self.account.id == self.bill.owner.id
 
     @validator(code='bills.moderator_rights_required', message=u'Вы не являетесь модератором')
-    def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_bill(self.bill)
+    def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_bill()
 
     @validator(code='bills.can_not_participate_in_politics', message=u'Выдвигать законы и голосовать могут только подписчики')
     def validate_participate_in_politics(self, *args, **kwargs): return self.can_participate_in_politics
@@ -89,7 +89,7 @@ class BillResource(Resource):
     @validate_argument('voted', VOTED_TYPE, 'bills', u'неверный тип фильтра голосования')
     @validate_argument('place', PlacePrototype.get_by_id, 'bills', u'не существует такого города')
     @handler('', method='get')
-    def index(self, page=1, owner=None, state=None, bill_type=None, voted=None, place=None):
+    def index(self, page=1, owner=None, state=None, bill_type=None, voted=None, place=None):#pylint: disable=R0914
 
         bills_query = Bill.objects.exclude(state=BILL_STATE.REMOVED)
 
@@ -120,7 +120,7 @@ class BillResource(Resource):
                                                                     'voted': voted.value if voted else None,
                                                                     'place': place.id if place else None})
 
-        IndexFilter = LoginedIndexFilter if self.account.is_authenticated() else UnloginedIndexFilter
+        IndexFilter = LoginedIndexFilter if self.account.is_authenticated() else UnloginedIndexFilter #pylint: disable=C0103
 
         index_filter = IndexFilter(url_builder=url_builder, values={'owner': owner.nick if owner else None,
                                                                     'state': state.value if state else None,

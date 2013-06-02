@@ -18,12 +18,12 @@ class BasePvPAbility(object):
     def has_resources(self): return self.hero.pvp.energy > 0
 
     @staticmethod
-    def get_probability(energy, energy_speed): raise NotImplemented
+    def get_probability(energy, energy_speed): raise NotImplementedError
 
     @property
     def probability(self): return self.get_probability(self.hero.pvp.energy, self.hero.pvp.energy_speed)
 
-    def apply(self): raise NotImplemented
+    def apply(self): raise NotImplementedError
 
     def miss(self):
         self.hero.pvp.energy = 0

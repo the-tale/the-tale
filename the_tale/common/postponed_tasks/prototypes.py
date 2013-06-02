@@ -26,7 +26,7 @@ class PostponedLogic(object):
     def __init__(self): pass
 
     def process(self, main_task):
-        raise NotImplemented
+        raise NotImplementedError
 
     def serialize(self): return {}
 
@@ -41,7 +41,7 @@ class PostponedLogic(object):
 
     @property
     def error_message(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     @property
     def uuid(self): return None

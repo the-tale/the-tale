@@ -22,7 +22,7 @@
 <a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('game:bills:edit', bill.id) }}">редактировать</a>
 {% endif %}
 
-{% if resource.can_moderate_bill(bill) %}
+{% if resource.can_moderate_bill() %}
 <a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('game:bills:moderate', bill.id) }}">администрировать</a>
 {% endif %}
 

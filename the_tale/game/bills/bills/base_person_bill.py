@@ -89,15 +89,15 @@ class BasePersonBill(object):
 
     @classmethod
     def get_user_form_create(cls, post=None):
-        return cls.UserForm(None, post)
+        return cls.UserForm(None, post) #pylint: disable=E1102
 
     def get_user_form_update(self, post=None, initial=None):
         if initial:
-            return self.UserForm(self.person_id, initial=initial)
-        return  self.UserForm(self.person_id, post)
+            return self.UserForm(self.person_id, initial=initial) #pylint: disable=E1102
+        return  self.UserForm(self.person_id, post) #pylint: disable=E1102
 
     def apply(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def serialize(self):
         return {'type': self.type.name.lower(),

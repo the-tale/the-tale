@@ -92,7 +92,7 @@ class TestRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('forum:')), texts=texts)
 
     def test_subcategory__unlogined(self):
-        texts=['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption']
+        texts = ['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption']
         self.request_logout()
         self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
 
@@ -102,7 +102,7 @@ class TestRequests(BaseTestRequests):
     def test_subcategory(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        texts=['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption', 'pgf-new-thread-marker']
+        texts = ['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption', 'pgf-new-thread-marker']
         self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
 
         self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 1)
@@ -116,7 +116,7 @@ class TestRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcatXXX-slug'])), texts=[('forum.subcategory.not_found', 1)], status_code=404)
 
     def test_new_thread(self):
-        texts=['cat1-caption', 'subcat1-caption']
+        texts = ['cat1-caption', 'subcat1-caption']
         self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=texts)
 
     def test_new_thread_unlogined(self):
@@ -214,10 +214,9 @@ class TestRequests(BaseTestRequests):
 
         self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread3.id])), texts=texts)
 
-        ++i
-        text = 'subcat3-post%d-text' % i
+        text = 'subcat3-post%d-text' % (forum_settings.POSTS_ON_PAGE)
         PostPrototype.create(self.thread3, self.account, text)
-        texts.append(text)
+        texts.append((text, 0))
 
         self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread3.id])+'?page=1'), texts=texts)
         self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread3.id])+'?page=2'), texts=[text])
@@ -247,7 +246,7 @@ class TestRequests(BaseTestRequests):
 
     @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_create_post_banned(self):
-            self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
+        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
                               code='common.ban_forum')
 
     def test_create_post_form_errors(self):

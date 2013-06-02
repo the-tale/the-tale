@@ -27,7 +27,7 @@ def staff_required(permissions=[]):
         @functools.wraps(func)
         def wrapper(resource, *argv, **kwargs):
             if permissions:
-                raise NotImplemented('staff required decorator has not emplimented for working with permissions list')
+                raise NotImplementedError('staff required decorator has not emplimented for working with permissions list')
             else:
                 if resource.account.is_authenticated() and resource.account.is_staff:
                     return func(resource, *argv, **kwargs)

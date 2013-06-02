@@ -1,4 +1,5 @@
 # coding: utf-8
+# pylint: disable=C0302
 import copy
 import random
 
@@ -29,7 +30,7 @@ from game.prototypes import TimePrototype
 
 def get_actions_types():
     actions = {}
-    for key, cls in globals().items():
+    for cls in globals().values():
         if isinstance(cls, type) and issubclass(cls, ActionPrototype) and cls != ActionPrototype:
             actions[cls.TYPE] = cls
     return actions
@@ -41,7 +42,7 @@ def get_action_by_model(model):
     return ACTION_TYPES[model.type](model=model)
 
 
-class ActionPrototype(object):
+class ActionPrototype(object): # pylint: disable=R0902
 
     TYPE = 'BASE'
     TEXTGEN_TYPE = None
@@ -219,16 +220,9 @@ class ActionPrototype(object):
         args = prepair_substitution(self.get_description_arguments())
         template = get_vocabulary().get_random_phrase(self.description_text_name)
 
-        # from django.utils.log import getLogger
-        # logger=getLogger('the-tale.workers.game_logic')
-        # logger.error(template_name)
-
         if template is None:
             raise Exception(self.description_text_name)
-            # TODO: raise exception in production (not when tests running)
-            # from textgen.exceptions import TextgenException
-            # raise TextgenException(u'ERROR: unknown template type: %s' % type_)
-            return
+
         msg = template.substitute(get_dictionary(), args)
         return msg
 
