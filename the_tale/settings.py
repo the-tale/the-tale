@@ -221,8 +221,8 @@ CACHE_MIDDLEWARE_SECONDS = 24*60*60
 CACHE_MIDDLEWARE_KEY_PREFIX = ''
 
 try:
-    from settings_local import *
-except:
+    from settings_local import * # pylint: disable=W0403,W0401,W0614
+except Exception: # pylint: disable=W0702
     pass
 
 if 'TEMPLATE_DEBUG' not in globals():
@@ -332,8 +332,3 @@ LOGGING = {
         'the-tale.workers.postponed_tasks_refrigerator': get_worker_logger('postponed_tasks_refrigerator')
     } if not TESTS_RUNNING else {}
 }
-
-try:
-    from settings_check import *
-except:
-    pass

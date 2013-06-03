@@ -109,7 +109,7 @@ class QuestPrototype(BasePrototype):
         return True
 
     @classmethod
-    def get_minimum_created_time_of_active_quests(self):
+    def get_minimum_created_time_of_active_quests(cls):
         from django.db.models import Min
         created_at = Quest.objects.all().aggregate(Min('created_at'))['created_at__min']
 
@@ -128,7 +128,7 @@ class QuestPrototype(BasePrototype):
         self._model.save(force_update=True)
 
     @classmethod
-    def get_expirience_for_quest(self, hero):
+    def get_expirience_for_quest(cls, hero):
         experience = f.experience_for_quest(waymarks_storage.average_path_length)
         if hero.statistics.quests_done == 0:
             # since we get shortest path for first quest
@@ -138,7 +138,7 @@ class QuestPrototype(BasePrototype):
         return experience
 
     @classmethod
-    def get_person_power_for_quest(self, hero):
+    def get_person_power_for_quest(cls, hero):# pylint: disable=W0613
         return f.person_power_for_quest(waymarks_storage.average_path_length)
 
     @classmethod
@@ -255,7 +255,7 @@ class QuestPrototype(BasePrototype):
             artifact, unequipped, sell_price = cur_action.hero.buy_artifact(better=True)
 
             if artifact is None:
-                self.push_message(writer, cur_action.hero, '%_fail' % cmd.event,
+                self.push_message(writer, cur_action.hero, '%s_fail' % cmd.event,
                                   coins=money_spend)
             elif unequipped:
                 self.push_message(writer, cur_action.hero, '%s_buy_and_change' % cmd.event,
@@ -299,7 +299,7 @@ class QuestPrototype(BasePrototype):
     def cmd_get_reward(self, cmd, cur_action, writer):
 
         if cur_action.hero.can_get_artifact_for_quest():
-            artifact, unequipped, sell_price = cur_action.hero.buy_artifact(equip=False)
+            artifact, unequipped, sell_price = cur_action.hero.buy_artifact(equip=False)# pylint: disable=W0612
 
             if artifact is not None:
                 self.push_message(writer, cur_action.hero, '%s_artifact' % cmd.event, hero=cur_action.hero, artifact=artifact)

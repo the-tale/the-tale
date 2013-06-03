@@ -83,7 +83,7 @@ class MAGIC_MUSHROOM(AbilityPrototype):
     @property
     def damage_factors(self): return self.DAMAGE_FACTORS[self.level-1]
 
-    def use(self, messanger, actor, enemy):
+    def use(self, messanger, actor, enemy): # pylint: disable=W0613
         actor.context.use_ability_magic_mushroom(self.damage_factors)
         messanger.add_message('hero_ability_magicmushroom', actor=actor)
 
@@ -173,7 +173,7 @@ class REGENERATION(AbilityPrototype):
 
     def can_be_used(self, actor): return actor.health < actor.max_health
 
-    def use(self, messanger, actor, enemy):
+    def use(self, messanger, actor, enemy): # pylint: disable=W0613
         health_to_regen = f.mob_hp_to_lvl(actor.level) * self.restored_percent * (1 + random.uniform(-c.DAMAGE_DELTA, c.DAMAGE_DELTA))# !!!MOB HP, NOT HERO!!!
         # health_to_regen = actor.max_health * self.restored_percent
         # health_to_regen = actor.basic_damage * self.restored_percent * (1 + random.uniform(-c.DAMAGE_DELTA, c.DAMAGE_DELTA))
@@ -264,7 +264,7 @@ class FIREBALL(AbilityPrototype):
         damage = actor.context.modify_outcoming_damage(Damage(magic=actor.basic_damage*self.damage_modifier))
         damage = enemy.context.modify_incoming_damage(damage)
         enemy.change_health(-damage.total)
-        enemy.context.use_damage_queue_fire(map(lambda x: x*actor.basic_damage, self.periodic_damage_modifiers))
+        enemy.context.use_damage_queue_fire([modifier * actor.basic_damage for modifier in self.periodic_damage_modifiers])
         messanger.add_message('hero_ability_fireball', attacker=actor, defender=enemy, damage=damage.total)
 
     def on_miss(self, messanger, actor, enemy):
@@ -293,8 +293,9 @@ class POISON_CLOUD(AbilityPrototype):
     def periodic_damage_modifiers(self): return self.PERIODIC_DAMAGE_MODIFIERS[self.level-1]
 
     def use(self, messanger, actor, enemy):
-        enemy.context.use_damage_queue_poison(map(lambda x: x*actor.basic_damage, self.periodic_damage_modifiers))
+        enemy.context.use_damage_queue_poison([modifier * actor.basic_damage for modifier in self.periodic_damage_modifiers])
         messanger.add_message('hero_ability_poison_cloud', attacker=actor, defender=enemy)
+
 
 class VAMPIRE_STRIKE(AbilityPrototype):
 

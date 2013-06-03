@@ -555,6 +555,117 @@ class ActionMoveToPrototype(ActionPrototype):
     @property
     def current_destination(self): return self.hero.position.road.point_2 if not self.hero.position.invert_direction else self.hero.position.road.point_1
 
+    def process_choose_road__in_place(self):
+        if self.hero.position.place_id != self.destination_id:
+            waymark = waymarks_storage.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
+            length =  waymark.length
+            self.hero.position.set_road(waymark.road, invert=(self.hero.position.place_id != waymark.road.point_1_id))
+            self.state = self.STATE.MOVING
+        else:
+            length = None
+            self.percents = 1
+            self.state = self.STATE.PROCESSED
+
+        return length
+
+    def process_choose_road__in_road(self):
+        waymark = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
+        road_left = waymark.road
+        length_left = waymark.length
+
+        waymark = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
+        road_right = waymark.road
+        length_right = waymark.length
+
+        if not self.hero.position.invert_direction:
+            delta_left = self.hero.position.percents * self.hero.position.road.length
+        else:
+            delta_left = (1 - self.hero.position.percents) * self.hero.position.road.length
+        delta_rigth = self.hero.position.road.length - delta_left
+
+        if road_left is None:
+            invert = True
+        elif road_right is None:
+            invert = False
+        else:
+            invert = (length_left + delta_left) < (delta_rigth + length_right)
+
+        if invert:
+            length = length_left + delta_left
+        else:
+            length = delta_rigth + length_right
+
+        percents = self.hero.position.percents
+        if self.hero.position.invert_direction and not invert:
+            percents = 1 - percents
+        elif not self.hero.position.invert_direction and invert:
+            percents = 1 - percents
+
+        if length < 0.01:
+            current_destination = self.current_destination
+            self.hero.position.set_place(current_destination)
+            ActionInPlacePrototype.create(parent=self)
+            self.state = self.STATE.IN_CITY
+        else:
+            self.hero.position.set_road(self.hero.position.road, invert=invert, percents=percents)
+            self.state = self.STATE.MOVING
+
+        return length
+
+
+    def process_choose_road(self):
+
+        if self.hero.position.place_id:
+            length = self.process_choose_road__in_place()
+        else:
+            length = self.process_choose_road__in_road()
+
+        if self.length is None:
+            self.length = length
+
+    def process_moving(self):
+        current_destination = self.current_destination
+
+        if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+            ActionRegenerateEnergyPrototype.create(self)
+            self.state = self.STATE.REGENERATE_ENERGY
+
+        elif self.hero.position.is_battle_start_needed():
+            mob = create_mob_for_hero(self.hero)
+            ActionBattlePvE1x1Prototype.create(parent=self, mob=mob)
+            self.state = self.STATE.BATTLE
+
+        else:
+
+            if random.uniform(0, 1) < 0.33:
+                self.hero.add_message('action_moveto_move',
+                                      hero=self.hero,
+                                      destination=self.destination,
+                                      current_destination=self.current_destination)
+
+            move_speed = self.hero.move_speed
+
+            dominant_place = self.hero.position.get_dominant_place()
+            if dominant_place and dominant_place.modifier:
+                move_speed = dominant_place.modifier.modify_move_speed(move_speed)
+
+            delta = move_speed / self.hero.position.road.length
+
+            self.hero.position.percents += delta
+
+            real_length = self.length if self.break_at is None else self.length * self.break_at
+            self.percents += move_speed / real_length
+
+            if self.hero.position.percents >= 1:
+                self.hero.position.percents = 1
+                self.hero.position.set_place(current_destination)
+                self.state = self.STATE.IN_CITY
+                ActionInPlacePrototype.create(parent=self)
+
+            elif self.break_at and self.percents >= 1:
+                self.percents = 1
+                self.state = self.STATE.PROCESSED
+
     def process(self):
 
         if self.state == self.STATE.RESTING:
@@ -584,106 +695,10 @@ class ActionMoveToPrototype(ActionPrototype):
                     self.state = self.STATE.MOVING
 
         if self.state == self.STATE.CHOOSE_ROAD:
-
-            if self.hero.position.place_id:
-                if self.hero.position.place_id != self.destination_id:
-                    waymark = waymarks_storage.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
-                    length =  waymark.length
-                    self.hero.position.set_road(waymark.road, invert=(self.hero.position.place_id != waymark.road.point_1_id))
-                    self.state = self.STATE.MOVING
-                else:
-                    length = None
-                    self.percents = 1
-                    self.state = self.STATE.PROCESSED
-            else:
-                waymark = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
-                road_left = waymark.road
-                length_left = waymark.length
-
-                waymark = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
-                road_right = waymark.road
-                length_right = waymark.length
-
-                if not self.hero.position.invert_direction:
-                    delta_left = self.hero.position.percents * self.hero.position.road.length
-                else:
-                    delta_left = (1 - self.hero.position.percents) * self.hero.position.road.length
-                delta_rigth = self.hero.position.road.length - delta_left
-
-                if road_left is None:
-                    invert = True
-                elif road_right is None:
-                    invert = False
-                else:
-                    invert = (length_left + delta_left) < (delta_rigth + length_right)
-
-                if invert:
-                    length = length_left + delta_left
-                else:
-                    length = delta_rigth + length_right
-
-                percents = self.hero.position.percents
-                if self.hero.position.invert_direction and not invert:
-                    percents = 1 - percents
-                elif not self.hero.position.invert_direction and invert:
-                    percents = 1 - percents
-
-                if length < 0.01:
-                    current_destination = self.current_destination
-                    self.hero.position.set_place(current_destination)
-                    ActionInPlacePrototype.create(parent=self)
-                    self.state = self.STATE.IN_CITY
-                else:
-                    self.hero.position.set_road(self.hero.position.road, invert=invert, percents=percents)
-                    self.state = self.STATE.MOVING
-
-            if self.length is None:
-                self.length = length
-
+            self.process_choose_road()
 
         if self.state == self.STATE.MOVING:
-
-            current_destination = self.current_destination
-
-            if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
-                ActionRegenerateEnergyPrototype.create(self)
-                self.state = self.STATE.REGENERATE_ENERGY
-
-            elif self.hero.position.is_battle_start_needed():
-                mob = create_mob_for_hero(self.hero)
-                ActionBattlePvE1x1Prototype.create(parent=self, mob=mob)
-                self.state = self.STATE.BATTLE
-
-            else:
-
-                if random.uniform(0, 1) < 0.33:
-                    self.hero.add_message('action_moveto_move',
-                                          hero=self.hero,
-                                          destination=self.destination,
-                                          current_destination=self.current_destination)
-
-                move_speed = self.hero.move_speed
-
-                dominant_place = self.hero.position.get_dominant_place()
-                if dominant_place and dominant_place.modifier:
-                    move_speed = dominant_place.modifier.modify_move_speed(move_speed)
-
-                delta = move_speed / self.hero.position.road.length
-
-                self.hero.position.percents += delta
-
-                real_length = self.length if self.break_at is None else self.length * self.break_at
-                self.percents += move_speed / real_length
-
-                if self.hero.position.percents >= 1:
-                    self.hero.position.percents = 1
-                    self.hero.position.set_place(current_destination)
-                    self.state = self.STATE.IN_CITY
-                    ActionInPlacePrototype.create(parent=self)
-
-                elif self.break_at and self.percents >= 1:
-                    self.percents = 1
-                    self.state = self.STATE.PROCESSED
+            self.process_moving()
 
 
 class ActionBattlePvE1x1Prototype(ActionPrototype):
@@ -693,7 +708,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
     CONTEXT_MANAGER = contexts.BattleContext
 
     @property
-    def EXTRA_HELP_CHOICES(self):
+    def EXTRA_HELP_CHOICES(self): # pylint: disable=C0103
         if self.mob.health <= 0:
             return set()
         return set((c.HELP_CHOICES.LIGHTING,))
@@ -889,63 +904,78 @@ class ActionInPlacePrototype(ActionPrototype):
 
         return None
 
+    def spend_money__instant_heal(self):
+        coins = self.try_to_spend_money(f.instant_heal_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_HEAL)
+        if coins is not None:
+            self.hero.health = self.hero.max_health
+            self.hero.add_message('action_inplace_diary_instant_heal_for_money', important=True, hero=self.hero, coins=coins)
+
+    def spend_money__buying_artifact(self):
+        coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
+        if coins is not None:
+
+            better = self.hero.can_buy_better_artifact()
+
+            artifact, unequipped, sell_price = self.hero.buy_artifact(better=better, with_preferences=False)
+
+            if unequipped is not None:
+                self.hero.add_message('action_inplace_diary_buying_artifact_and_change', important=True,
+                                      hero=self.hero, artifact=artifact, coins=coins, old_artifact=unequipped, sell_price=sell_price)
+            else:
+                self.hero.add_message('action_inplace_diary_buying_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
+
+    def spend_money__sharpening_artifact(self):
+        coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_SHARPENING)
+        if coins is not None:
+            artifact = self.hero.sharp_artifact()
+
+            self.hero.add_message('action_inplace_diary_sharpening_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
+
+    def spend_money__useless(self):
+        coins = self.try_to_spend_money(f.useless_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_USELESS)
+        if coins is not None:
+            self.hero.add_message('action_inplace_diary_spend_useless', important=True, hero=self.hero, coins=coins)
+
+    def spend_money_impact(self):
+        coins = self.try_to_spend_money(f.impact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_IMPACT)
+        if coins is not None:
+
+            choices = []
+
+            if self.hero.preferences.friend_id is not None and self.hero.preferences.friend == self.hero.position.place.id:
+                choices.append((True, self.hero.preferences.friend))
+
+            if self.hero.preferences.enemy_id is not None and self.hero.preferences.enemy.place.id == self.hero.position.place.id:
+                choices.append((False, self.hero.preferences.enemy))
+
+            if not choices:
+                choices.append((random.choice([True, False]), random.choice(self.hero.position.place.persons)))
+
+            impact_type, person = random.choice(choices)
+
+            if impact_type:
+                person.cmd_change_power(f.person_power_from_random_spend(1, self.hero.level))
+                self.hero.add_message('action_inplace_diary_impact_good', important=True, hero=self.hero, coins=coins, person=person)
+            else:
+                person.cmd_change_power(f.person_power_from_random_spend(-1, self.hero.level))
+                self.hero.add_message('action_inplace_diary_impact_bad', important=True, hero=self.hero, coins=coins, person=person)
+
     def spend_money(self):
 
         if self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
-            coins = self.try_to_spend_money(f.instant_heal_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_HEAL)
-            if coins is not None:
-                self.hero.health = self.hero.max_health
-                self.hero.add_message('action_inplace_diary_instant_heal_for_money', important=True, hero=self.hero, coins=coins)
+            self.spend_money__instant_heal()
 
         elif self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
-            coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
-            if coins is not None:
-
-                better = self.hero.can_buy_better_artifact()
-
-                artifact, unequipped, sell_price = self.hero.buy_artifact(better=better, with_preferences=False)
-
-                if unequipped is not None:
-                    self.hero.add_message('action_inplace_diary_buying_artifact_and_change',important=True,
-                                          hero=self.hero, artifact=artifact, coins=coins, old_artifact=unequipped, sell_price=sell_price)
-                else:
-                    self.hero.add_message('action_inplace_diary_buying_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
+            self.spend_money__buying_artifact()
 
         elif self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
-            coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_SHARPENING)
-            if coins is not None:
-                artifact = self.hero.sharp_artifact()
-
-                self.hero.add_message('action_inplace_diary_sharpening_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
+            self.spend_money__sharpening_artifact()
 
         elif self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.USELESS:
-            coins = self.try_to_spend_money(f.useless_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_USELESS)
-            if coins is not None:
-                self.hero.add_message('action_inplace_diary_spend_useless', important=True, hero=self.hero, coins=coins)
+            self.spend_money__useless()
 
         elif self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.IMPACT:
-            coins = self.try_to_spend_money(f.impact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_IMPACT)
-            if coins is not None:
-
-                choices = []
-
-                if self.hero.preferences.friend_id is not None and self.hero.preferences.friend == self.hero.position.place.id:
-                    choices.append((True, self.hero.preferences.friend))
-
-                if self.hero.preferences.enemy_id is not None and self.hero.preferences.enemy.place.id == self.hero.position.place.id:
-                    choices.append((False, self.hero.preferences.enemy))
-
-                if not choices:
-                    choices.append((random.choice([True, False]), random.choice(self.hero.position.place.persons)))
-
-                impact_type, person = random.choice(choices)
-
-                if impact_type:
-                    person.cmd_change_power(f.person_power_from_random_spend(1, self.hero.level))
-                    self.hero.add_message('action_inplace_diary_impact_good', important=True, hero=self.hero, coins=coins, person=person)
-                else:
-                    person.cmd_change_power(f.person_power_from_random_spend(-1, self.hero.level))
-                    self.hero.add_message('action_inplace_diary_impact_bad', important=True, hero=self.hero, coins=coins, person=person)
+            self.spend_money_impact()
 
         else:
             raise ActionException('wrong hero money spend type: %d' % self.hero.next_spending)
@@ -963,7 +993,7 @@ class ActionInPlacePrototype(ActionPrototype):
         if self.state == self.STATE.CHOOSING:
 
             if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
-                self.STATE.REGENERATE_ENERGY
+                self.state = self.STATE.REGENERATE_ENERGY
                 ActionRegenerateEnergyPrototype.create(self)
 
             elif self.hero.need_rest_in_settlement:
@@ -1116,14 +1146,13 @@ class ActionTradingPrototype(ActionPrototype):
     def process(self):
 
         if self.state == self.STATE.TRADING:
-            quest_items_count, loot_items_count = self.hero.bag.occupation
+            quest_items_count, loot_items_count = self.hero.bag.occupation # pylint: disable=W0612
 
             if loot_items_count:
 
                 self.percents = 1 - float(loot_items_count - 1) / self.percents_barier
 
-                for item in self.hero.bag.items():
-                    artifact_uuid, artifact = item
+                for artifact in self.hero.bag.values():
                     if not artifact.quest:
                         break
 
@@ -1190,6 +1219,70 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
         args.update({'place': self.place})
         return args
 
+    def process_battle(self):
+        if not self.hero.is_alive:
+            ActionResurrectPrototype.create(self)
+            self.state = self.STATE.RESURRECT
+        else:
+            if self.hero.need_rest_in_move:
+                ActionRestPrototype.create(self)
+                self.state = self.STATE.RESTING
+            elif self.hero.need_regenerate_energy:
+                ActionRegenerateEnergyPrototype.create(self)
+                self.state = self.STATE.REGENERATE_ENERGY
+            else:
+                self.state = self.STATE.MOVING
+
+    def process_moving(self):
+
+        if self.hero.need_rest_in_move:
+            ActionRestPrototype.create(self)
+            self.state = self.STATE.RESTING
+
+        elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+            ActionRegenerateEnergyPrototype.create(self)
+            self.state = self.STATE.REGENERATE_ENERGY
+
+        elif self.hero.position.is_battle_start_needed():
+            mob = create_mob_for_hero(self.hero)
+            ActionBattlePvE1x1Prototype.create(parent=self, mob=mob)
+            self.state = self.STATE.BATTLE
+
+        else:
+
+            if random.uniform(0, 1) < 0.2:
+                self.hero.add_message('action_movenearplace_walk', hero=self.hero, place=self.place)
+
+            if self.hero.position.subroad_len() == 0:
+                self.hero.position.percents += 0.1
+            else:
+                delta = self.hero.move_speed / self.hero.position.subroad_len()
+                self.hero.position.percents += delta
+
+            self.percents = self.hero.position.percents
+
+            if self.hero.position.percents >= 1:
+
+                to_x, to_y = self.hero.position.coordinates_to
+
+                if self.back and not (self.place.x == to_x and self.place.y == to_y):
+                    # if place was moved
+                    from_x, from_y = self.hero.position.coordinates_to
+                    self.hero.position.set_coordinates(from_x, from_y, self.place.x, self.place.y, percents=0)
+                    return
+
+                self.hero.position.percents = 1
+                self.percents = 1
+
+                if self.place.x == to_x and self.place.y == to_y:
+                    self.hero.position.set_place(self.place)
+                    ActionInPlacePrototype.create(parent=self)
+                    self.state = self.STATE.IN_CITY
+
+                else:
+                    self.state = self.STATE.PROCESSED
+
+
     def process(self):
 
         if self.state == self.STATE.RESTING:
@@ -1208,67 +1301,10 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
                 self.state = self.STATE.MOVING
 
         if self.state == self.STATE.BATTLE:
-            if not self.hero.is_alive:
-                ActionResurrectPrototype.create(self)
-                self.state = self.STATE.RESURRECT
-            else:
-                if self.hero.need_rest_in_move:
-                    ActionRestPrototype.create(self)
-                    self.state = self.STATE.RESTING
-                elif self.hero.need_regenerate_energy:
-                    ActionRegenerateEnergyPrototype.create(self)
-                    self.state = self.STATE.REGENERATE_ENERGY
-                else:
-                    self.state = self.STATE.MOVING
+            self.process_battle()
 
         if self.state == self.STATE.MOVING:
-
-            if self.hero.need_rest_in_move:
-                ActionRestPrototype.create(self)
-                self.state = self.STATE.RESTING
-
-            elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
-                ActionRegenerateEnergyPrototype.create(self)
-                self.state = self.STATE.REGENERATE_ENERGY
-
-            elif self.hero.position.is_battle_start_needed():
-                mob = create_mob_for_hero(self.hero)
-                ActionBattlePvE1x1Prototype.create(parent=self, mob=mob)
-                self.state = self.STATE.BATTLE
-
-            else:
-
-                if random.uniform(0, 1) < 0.2:
-                    self.hero.add_message('action_movenearplace_walk', hero=self.hero, place=self.place)
-
-                if self.hero.position.subroad_len() == 0:
-                    self.hero.position.percents += 0.1
-                else:
-                    delta = self.hero.move_speed / self.hero.position.subroad_len()
-                    self.hero.position.percents += delta
-
-                self.percents = self.hero.position.percents
-
-                if self.hero.position.percents >= 1:
-
-                    to_x, to_y = self.hero.position.coordinates_to
-
-                    if self.back and not (self.place.x == to_x and self.place.y == to_y):
-                        # if place was moved
-                        from_x, from_y = self.hero.position.coordinates_to
-                        self.hero.position.set_coordinates(from_x, from_y, self.place.x, self.place.y, percents=0)
-                        return
-
-                    self.hero.position.percents = 1
-                    self.percents = 1
-
-                    if self.place.x == to_x and self.place.y == to_y:
-                        self.hero.position.set_place(self.place)
-                        ActionInPlacePrototype.create(parent=self)
-                        self.state = self.STATE.IN_CITY
-
-                    else:
-                        self.state = self.STATE.PROCESSED
+            self.process_moving()
 
 
 class ActionRegenerateEnergyPrototype(ActionPrototype):
@@ -1405,7 +1441,7 @@ class ActionMetaProxyPrototype(ActionPrototype):
 
     def ui_info(self):
         # TODO: move to parent class
-        info = super(ActionDoNothingPrototype, self).ui_info()
+        info = super(ActionMetaProxyPrototype, self).ui_info()
         info['data'] = {'hero_id': self.hero_id}
         return info
 

@@ -91,7 +91,6 @@ class PlacePrototype(BasePrototype):
 
     @property
     def modifiers(self):
-        from game.map.places.modifiers import MODIFIERS
         return sorted([modifier(self) for modifier in MODIFIERS.values()], key=lambda m: -m.power)
 
     def mark_as_updated(self): self._model.updated_at_turn = TimePrototype.get_current_turn_number()
@@ -103,7 +102,9 @@ class PlacePrototype(BasePrototype):
         from game.persons.relations import PERSON_TYPE
         from game.persons.prototypes import PersonPrototype
 
-        for person in filter(lambda person: not person.is_stable, self.persons):
+        for person in self.persons:
+            if person.is_stable:
+                continue
             person.move_out_game()
             person.save()
             signals.place_person_left.send(self.__class__, place=self, person=person)
@@ -254,7 +255,8 @@ class BuildingPrototype(BasePrototype):
     def amortization_delta(self, turns_number):
         from game.map.places.storage import buildings_storage
 
-        buildings_number = len(filter(lambda p: buildings_storage.get_by_person_id(p.id), self.place.persons))
+        buildings_number = sum(buildings_storage.get_by_person_id(person.id) is not None
+                               for person in self.place.persons)
 
         per_one_building = float(turns_number) / c.TURNS_IN_HOUR * c.BUILDING_AMORTIZATION_SPEED
         return per_one_building * c.BUILDING_AMORTIZATION_MODIFIER**(buildings_number-1)
@@ -283,7 +285,7 @@ class BuildingPrototype(BasePrototype):
     def need_repair(self): return self.integrity < 0.9999
 
     @classmethod
-    def get_available_positions(cls, center_x, center_y, building_position_radius=places_settings.BUILDING_POSITION_RADIUS):
+    def get_available_positions(cls, center_x, center_y, building_position_radius=places_settings.BUILDING_POSITION_RADIUS): # pylint: disable=R0914
         from game.map.places.storage import places_storage, buildings_storage
         from game.map.roads.storage import roads_storage
         from game.map.roads.relations import PATH_DIRECTION
@@ -297,8 +299,8 @@ class BuildingPrototype(BasePrototype):
                 positions.add((center_x+i, center_y-j))
                 positions.add((center_x-i, center_y-j))
 
-        positions = set(filter(lambda pos: 0 <= pos[0] < map_settings.WIDTH and 0 <= pos[1] < map_settings.HEIGHT,
-                               positions))
+        positions =  set(pos for pos in positions
+                         if 0 <= pos[0] < map_settings.WIDTH and 0 <= pos[1] < map_settings.HEIGHT)
 
         removed_positions = set()
 

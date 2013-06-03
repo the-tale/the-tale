@@ -34,7 +34,7 @@ class TestHandler(BaseMessageHandler):
     TYPE = 'test'
 
     def __init__(self):
-        super(BaseMessageHandler, self).__init__()
+        super(TestHandler, self).__init__()
 
     def serialize(self):
         return {'type': self.TYPE}
@@ -54,6 +54,8 @@ class TestHandler(BaseMessageHandler):
 class PersonalMessageHandler(BaseMessageHandler):
 
     TYPE = 'personal_message'
+    EMAIL_HTML_TEMPLATE = 'post_service/emails/personal_message.html'
+    EMAIL_TEXT_TEMPLATE = 'post_service/emails/personal_message.txt'
 
     def __init__(self, message_id=None):
         super(PersonalMessageHandler, self).__init__()
@@ -88,15 +90,12 @@ class PersonalMessageHandler(BaseMessageHandler):
         if account.id == get_system_user().id:
             return True
 
-        EMAIL_HTML_TEMPLATE = 'post_service/emails/personal_message.html'
-        EMAIL_TEXT_TEMPLATE = 'post_service/emails/personal_message.txt'
-
         subject = u'«Сказка»: личное сообщение'
 
         context = {'message': message}
 
-        html_content = render.template(EMAIL_HTML_TEMPLATE, context)
-        text_content = render.template(EMAIL_TEXT_TEMPLATE, context)
+        html_content = render.template(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = render.template(self.EMAIL_TEXT_TEMPLATE, context)
 
         connection = mail.get_connection()
         connection.open()
@@ -116,6 +115,8 @@ class PersonalMessageHandler(BaseMessageHandler):
 class ForumPostHandler(BaseMessageHandler):
 
     TYPE = 'forum_post'
+    EMAIL_HTML_TEMPLATE = 'post_service/emails/new_forum_post.html'
+    EMAIL_TEXT_TEMPLATE = 'post_service/emails/new_forum_post.txt'
 
     def __init__(self, post_id=None):
         super(ForumPostHandler, self).__init__()
@@ -144,15 +145,12 @@ class ForumPostHandler(BaseMessageHandler):
 
         accounts = SubscriptionPrototype.get_accounts_for_thread(post.thread)
 
-        EMAIL_HTML_TEMPLATE = 'post_service/emails/new_forum_post.html'
-        EMAIL_TEXT_TEMPLATE = 'post_service/emails/new_forum_post.txt'
-
         subject = u'«Сказка»: %s' % post.thread.caption
 
         context = {'post': post}
 
-        html_content = render.template(EMAIL_HTML_TEMPLATE, context)
-        text_content = render.template(EMAIL_TEXT_TEMPLATE, context)
+        html_content = render.template(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = render.template(self.EMAIL_TEXT_TEMPLATE, context)
 
         connection = mail.get_connection()
         connection.open()
@@ -178,6 +176,8 @@ class ForumPostHandler(BaseMessageHandler):
 class ForumThreadHandler(BaseMessageHandler):
 
     TYPE = 'forum_thread'
+    EMAIL_HTML_TEMPLATE = 'post_service/emails/new_forum_thread.html'
+    EMAIL_TEXT_TEMPLATE = 'post_service/emails/new_forum_thread.txt'
 
     def __init__(self, thread_id=None):
         super(ForumThreadHandler, self).__init__()
@@ -208,16 +208,13 @@ class ForumThreadHandler(BaseMessageHandler):
 
         accounts = SubscriptionPrototype.get_accounts_for_subcategory(thread.subcategory)
 
-        EMAIL_HTML_TEMPLATE = 'post_service/emails/new_forum_thread.html'
-        EMAIL_TEXT_TEMPLATE = 'post_service/emails/new_forum_thread.txt'
-
         subject = u'«Сказка»: новая тема на форуме'
 
         context = {'thread': thread,
                    'post': post}
 
-        html_content = render.template(EMAIL_HTML_TEMPLATE, context)
-        text_content = render.template(EMAIL_TEXT_TEMPLATE, context)
+        html_content = render.template(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = render.template(self.EMAIL_TEXT_TEMPLATE, context)
 
         connection = mail.get_connection()
         connection.open()
@@ -243,6 +240,8 @@ class ForumThreadHandler(BaseMessageHandler):
 class ResetPasswordHandler(BaseMessageHandler):
 
     TYPE = 'reset_password'
+    EMAIL_HTML_TEMPLATE = 'post_service/emails/reset_password.html'
+    EMAIL_TEXT_TEMPLATE = 'post_service/emails/reset_password.txt'
 
     def __init__(self, account_id=None, task_uuid=None):
         super(ResetPasswordHandler, self).__init__()
@@ -270,16 +269,13 @@ class ResetPasswordHandler(BaseMessageHandler):
         if account.id == get_system_user().id:
             return True
 
-        EMAIL_HTML_TEMPLATE = 'post_service/emails/reset_password.html'
-        EMAIL_TEXT_TEMPLATE = 'post_service/emails/reset_password.txt'
-
         subject = u'«Сказка»: сброс пароля'
 
         context = {'account': account,
                    'task_uuid': self.task_uuid}
 
-        html_content = render.template(EMAIL_HTML_TEMPLATE, context)
-        text_content = render.template(EMAIL_TEXT_TEMPLATE, context)
+        html_content = render.template(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = render.template(self.EMAIL_TEXT_TEMPLATE, context)
 
         connection = mail.get_connection()
         connection.open()
@@ -292,9 +288,12 @@ class ResetPasswordHandler(BaseMessageHandler):
 
         return True
 
+
 class ChangeEmailNotificationHandler(BaseMessageHandler):
 
     TYPE = 'change-email-notification'
+    EMAIL_HTML_TEMPLATE = 'post_service/emails/change_email_notification.html'
+    EMAIL_TEXT_TEMPLATE = 'post_service/emails/change_email_notification.txt'
 
     def __init__(self, task_id=None):
         super(ChangeEmailNotificationHandler, self).__init__()
@@ -315,9 +314,6 @@ class ChangeEmailNotificationHandler(BaseMessageHandler):
 
     def process(self):
 
-        EMAIL_HTML_TEMPLATE = 'post_service/emails/change_email_notification.html'
-        EMAIL_TEXT_TEMPLATE = 'post_service/emails/change_email_notification.txt'
-
         subject = u'«Сказка»: подтвердите email'
 
         task = ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
@@ -327,8 +323,8 @@ class ChangeEmailNotificationHandler(BaseMessageHandler):
 
         context = {'task': task}
 
-        html_content = render.template(EMAIL_HTML_TEMPLATE, context)
-        text_content = render.template(EMAIL_TEXT_TEMPLATE, context)
+        html_content = render.template(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = render.template(self.EMAIL_TEXT_TEMPLATE, context)
 
         connection = mail.get_connection()
         connection.open()

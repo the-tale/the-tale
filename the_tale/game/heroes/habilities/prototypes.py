@@ -68,23 +68,23 @@ class AbilityPrototype(object):
     @classmethod
     def get_id(cls): return cls.__name__.lower()
 
-    def modify_attribute(self, name, value): return value
+    def modify_attribute(self, name, value): return value # pylint: disable=W0613
 
     def update_context(self, actor, enemy): pass
 
-    def update_quest_reward(self, hero, money): return money
+    def update_quest_reward(self, hero, money): return money # pylint: disable=W0613
 
-    def update_buy_price(self, hero, money): return money
+    def update_buy_price(self, hero, money): return money # pylint: disable=W0613
 
     def update_sell_price(self, hero, money): return money
 
-    def update_items_of_expenditure_priorities(self, hero, priorities): return priorities
+    def update_items_of_expenditure_priorities(self, hero, priorities): return priorities # pylint: disable=W0613
 
-    def can_get_artifact_for_quest(self, hero): return False
+    def can_get_artifact_for_quest(self, hero): return False # pylint: disable=W0613
 
-    def can_buy_better_artifact(self, hero): return False
+    def can_buy_better_artifact(self, hero): return False # pylint: disable=W0613
 
-    def can_be_used(self, actor): return True
+    def can_be_used(self, actor): return True # pylint: disable=W0613
 
     def use(self, *argv):
         raise NotImplementedError('you should declare use method in child classes')

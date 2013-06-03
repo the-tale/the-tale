@@ -152,7 +152,7 @@ class PostponedTaskPrototype(BasePrototype):
 
         try:
 
-            old_internal_result = self.internal_result
+            old_internal_result = self.internal_result # pylint: disable=E0203
 
             self.internal_result = self.internal_logic.process(self, **kwargs)
 
@@ -164,14 +164,14 @@ class PostponedTaskPrototype(BasePrototype):
                 pass
             elif self.internal_result == POSTPONED_TASK_LOGIC_RESULT.WAIT:
                 if old_internal_result != POSTPONED_TASK_LOGIC_RESULT.WAIT:
-                    self.extend_postsave_actions([lambda: self.cmd_wait()])
+                    self.extend_postsave_actions([self.cmd_wait])
             else:
                 raise PostponedTaskException(u'unknown process result %r' % (self.process_result, ))
 
             self.internal_state = self.internal_logic.state
             self.save()
 
-        except Exception, e:
+        except Exception, e:# pylint: disable=W0703
 
             logger.error('EXCEPTION: %s' % e)
 

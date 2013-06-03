@@ -228,7 +228,7 @@ class HeroPrototype(BasePrototype):
         if self.preferences.equipment_slot is not None:
             equipped_artifact = self.equipment.get(self.preferences.equipment_slot)
             equipped_power = equipped_artifact.power if equipped_artifact else -1
-            min_power, max_power = f.power_to_artifact_interval(self.level)
+            min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
             if equipped_power <= max_power:
                 allowed_quests.append(SearchSmith.type())
 
@@ -244,7 +244,7 @@ class HeroPrototype(BasePrototype):
 
     @property
     def bag_is_full(self):
-        quest_items_count, loot_items_count = self.bag.occupation
+        quest_items_count, loot_items_count = self.bag.occupation # pylint: disable=W0612
         return loot_items_count >= self.max_bag_size
 
     def put_loot(self, artifact):
@@ -291,7 +291,7 @@ class HeroPrototype(BasePrototype):
         if better and unequipped is not None and artifact.power < unequipped.power:
             artifact.power = unequipped.power + 1
 
-        min_power, max_power = f.power_to_artifact_interval(self.level)
+        min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
         artifact.power = min(artifact.power, max_power)
 
         self.change_equipment(slot, unequipped, artifact)
@@ -344,7 +344,7 @@ class HeroPrototype(BasePrototype):
         if self.preferences.equipment_slot is not None:
             choices.insert(0, self.preferences.equipment_slot)
 
-        min_power, max_power = f.power_to_artifact_interval(self.level)
+        min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
 
         for slot in choices:
             artifact = self.equipment.get(slot)
@@ -369,7 +369,7 @@ class HeroPrototype(BasePrototype):
         equipped = None
         unequipped = None
 
-        for uuid, artifact in self.bag.items():
+        for artifact in self.bag.values():
             if not artifact.can_be_equipped:
                 continue
 
@@ -544,12 +544,12 @@ class HeroPrototype(BasePrototype):
 
     @property
     def need_trade_in_town(self):
-        quest_items_count, loot_items_count = self.bag.occupation
+        quest_items_count, loot_items_count = self.bag.occupation # pylint: disable=W0612
         return float(loot_items_count) / self.max_bag_size > c.BAG_SIZE_TO_SELL_LOOT_FRACTION
 
     @property
     def need_equipping_in_town(self):
-        slot, unequipped, equipped = self.get_equip_canditates()
+        slot, unequipped, equipped = self.get_equip_canditates() # pylint: disable=W0612
         return equipped is not None
 
     @property
@@ -749,7 +749,7 @@ class HeroPrototype(BasePrototype):
         return data
 
     @classmethod
-    def create(cls, account, bundle):
+    def create(cls, account, bundle): # pylint: disable=R0914
 
         from game.abilities.prototypes import AbilityPrototype
         from game.actions.prototypes import ActionIdlenessPrototype
@@ -841,7 +841,7 @@ class HeroPrototype(BasePrototype):
 
 class HeroPositionPrototype(object):
 
-    def __init__(self, hero_model, *argv, **kwargs):
+    def __init__(self, hero_model):
         self.hero_model = hero_model
 
     @property
@@ -929,7 +929,7 @@ class HeroPositionPrototype(object):
         point_1 = self.road.point_1
         point_2 = self.road.point_2
 
-        percents = self.percents;
+        percents = self.percents
 
         if self.invert_direction:
             percents = 1 - percents

@@ -52,6 +52,9 @@ class Bag(object):
     def items(self):
         return self.bag.items()
 
+    def values(self):
+        return self.bag.values()
+
     @property
     def occupation(self):
         quest_items_count = 0

@@ -51,7 +51,7 @@ class ShopRequestesTests(RequestesTestsBase):
 
     @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', True)
     def test_buy_link(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-pay-dialog-link', 1)])
+        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-pay-dialog-link', 2)])
 
     @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
     @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
@@ -61,7 +61,7 @@ class ShopRequestesTests(RequestesTestsBase):
     @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
     def test_dengionline_disabled__global_with_exception(self):
         with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
-            self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-pay-dialog-link', 1)])
+            self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-pay-dialog-link', 2)])
 
     @mock.patch('accounts.payments.price_list.PRICE_LIST', [])
     def test_no_goods(self):

@@ -134,7 +134,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         if new_nick:
             self.nick = new_nick
 
-        old_fast = self.is_fast
+        old_fast = self.is_fast # pylint: disable=E0203
 
         self.is_fast = False
 
@@ -286,7 +286,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                 self._model.save()
                 return postponed_task
 
-        except Exception, e:
+        except Exception, e: # pylint: disable=W0703
             logger.error('EXCEPTION: %s' % e)
 
             exception_info = sys.exc_info()
@@ -310,7 +310,7 @@ class AwardPrototype(BasePrototype):
 
 
     @classmethod
-    def create(cls, description, type, account):
+    def create(cls, description, type, account): # pylint: disable=W0622
         return cls(model=Award.objects.create(description=description,
                                               type=type,
                                               account=account._model) )

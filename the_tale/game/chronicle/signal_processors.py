@@ -64,7 +64,7 @@ def _get_bill_building_rename_arguments(bill):
 
 
 @receiver(bills_signals.bill_moderated, dispatch_uid='chronicle_bill_moderated')
-def chronicle_bill_moderated(sender, bill, **kwargs):
+def chronicle_bill_moderated(sender, bill, **kwargs): # pylint: disable=W0613
     if not bill.approved_by_moderator: return
 
     if bill.data.type == BILL_TYPE.PLACE_RENAMING:
@@ -83,7 +83,7 @@ def chronicle_bill_moderated(sender, bill, **kwargs):
         records.BuildingRenamingBillStarted(**_get_bill_building_rename_arguments(bill)).create_record()
 
 @receiver(bills_signals.bill_processed, dispatch_uid='chronicle_bill_processed')
-def chronicle_bill_processed(sender, bill, **kwargs):
+def chronicle_bill_processed(sender, bill, **kwargs): # pylint: disable=R0912,W0613
 
     if bill.data.type == BILL_TYPE.PLACE_RENAMING:
         record_type = records.PlaceChangeNameBillFailed
@@ -129,27 +129,27 @@ def chronicle_bill_processed(sender, bill, **kwargs):
 
 
 @receiver(places_signals.place_modifier_reseted, dispatch_uid='chronicle_place_modifier_reseted')
-def chronicle_place_modifier_reseted(sender, place, old_modifier, **kwargs):
+def chronicle_place_modifier_reseted(sender, place, old_modifier, **kwargs): # pylint: disable=W0613
     records.PlaceLosedModifier(actors={ACTOR_ROLE.PLACE: place},
                                substitutions={'place': place,
                                               'old_modifier': old_modifier.NAME.lower()}).create_record()
 
 @receiver(places_signals.place_person_left, dispatch_uid='chronicle_place_person_left')
-def chronicle_place_person_left(sender, place, person, **kwargs):
+def chronicle_place_person_left(sender, place, person, **kwargs): # pylint: disable=W0613
     records.PersonLeftPlace(actors={ACTOR_ROLE.PLACE: place,
                                     ACTOR_ROLE.PERSON: person},
                             substitutions={'place': place,
                                            'person': person}).create_record()
 
 @receiver(places_signals.place_person_arrived, dispatch_uid='chronicle_place_person_arrived')
-def chronicle_place_person_arrived(sender, place, person, **kwargs):
+def chronicle_place_person_arrived(sender, place, person, **kwargs): # pylint: disable=W0613
     records.PersonArrivedToPlace(actors={ACTOR_ROLE.PLACE: place,
                                          ACTOR_ROLE.PERSON: person},
                                  substitutions={'place':place,
                                                 'person': person}).create_record()
 
 @receiver(places_signals.place_race_changed, dispatch_uid='chronicle_place_race_changed')
-def chronicle_place_race_changed(sender, place, old_race, new_race, **kwargs):
+def chronicle_place_race_changed(sender, place, old_race, new_race, **kwargs): # pylint: disable=W0613
     records.PlaceChangeRace(actors={ACTOR_ROLE.PLACE: place},
                             substitutions={'place': place,
                                            'old_race': old_race.verbose,
@@ -157,7 +157,7 @@ def chronicle_place_race_changed(sender, place, old_race, new_race, **kwargs):
 
 
 @receiver(places_signals.building_destroyed_by_amortization, dispatch_uid='chronicle_building_destroyed_by_amortization')
-def chronicle_building_destroyed_by_amortization(sender, place, person, **kwargs):
+def chronicle_building_destroyed_by_amortization(sender, place, person, **kwargs): # pylint: disable=W0613
     records.BuildingDestroyedByAmortization(actors={ACTOR_ROLE.PLACE: place,
                                                     ACTOR_ROLE.PERSON: person},
                                             substitutions={'place': place,

@@ -23,14 +23,14 @@ def random_value_by_priority(values):
 
 
 def pluralize_word(real_number, word_1, word_2_4, word_other):
-        number = real_number % 100
+    number = real_number % 100
 
-        if number % 10 == 1 and number != 11:
-            return '%d %s' % (real_number, word_1)
-        elif 2 <= number % 10 <= 4 and not (12 <= number <= 14):
-            return '%d %s' % (real_number, word_2_4)
-        else:
-            return '%d %s' % (real_number, word_other)
+    if number % 10 == 1 and number != 11:
+        return '%d %s' % (real_number, word_1)
+    elif 2 <= number % 10 <= 4 and not (12 <= number <= 14):
+        return '%d %s' % (real_number, word_2_4)
+    else:
+        return '%d %s' % (real_number, word_other)
 
 def verbose_timedelta(value):
 

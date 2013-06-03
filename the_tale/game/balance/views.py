@@ -13,11 +13,11 @@ from game.balance import constants as c, formulas as f
 class BalanceResource(Resource):
 
     def __init__(self, request, *args, **kwargs):
-       super(BalanceResource, self).__init__(request, *args, **kwargs)
+        super(BalanceResource, self).__init__(request, *args, **kwargs)
 
     @staff_required()
     @handler('', method='get')
-    def show_balance(self):
+    def show_balance(self): # pylint: disable=R0914
         tmp_time = [u'начало', u'8 часов', u'день', u'неделя', u'месяц', u'3 месяца', u'6 месяцев', u'1 год', u'2 года', u'3 года']
         tmp_times = [0, 8, 24, 24*7, 24*30, 24*30*3, 24*30*6, 24*30*12, 24*30*12*2, 24*30*12*3]
         tmp_lvls = map(f.lvl_after_time, tmp_times)

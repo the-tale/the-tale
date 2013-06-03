@@ -53,7 +53,7 @@ def get_battles_statistics(hero_1, hero_2):
             hero_1.model.level = hero_level
             hero_2.model.level = hero_level
 
-            for i in xrange(TEST_BATTLES_NUMBER):
+            for i in xrange(TEST_BATTLES_NUMBER): # pylint: disable=W0612
                 hero_1.health = hero_1.max_health
                 hero_2.health = hero_2.max_health
 
@@ -114,11 +114,11 @@ def save_ability_power_statistics(statistics):
     plt.savefig('/tmp/wins.png')
 
 
-def save_ability_mathces_statistics(statistics, matches):
+def save_ability_mathces_statistics(statistics, matches): # pylint: disable=R0914
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    keys, wins = zip(*statistics)
+    keys, wins = zip(*statistics) # pylint: disable=W0612
 
     index = dict((key, i) for i, key in enumerate(keys))
 
@@ -157,7 +157,7 @@ def save_ability_wins_distribution(statistics, ability_wins):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    keys, wins = zip(*statistics)
+    keys, wins = zip(*statistics) # pylint: disable=W0612
 
     data = [ability_wins[key] for key in keys]
     ax.boxplot(data)#, positions=[i for i in xrange(len(keys))])
@@ -184,10 +184,10 @@ class Command(BaseCommand):
 
     help = 'compare power of different abilities'
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options): # pylint: disable=R0914
 
-        result, account_1_id, bundle_id = register_user('test_user')
-        result, account_2_id, bundle_id = register_user('test_user_2')
+        result, account_1_id, bundle_id = register_user('test_user') # pylint: disable=W0612
+        result, account_2_id, bundle_id = register_user('test_user_2') # pylint: disable=W0612
 
         account_1 = AccountPrototype.get_by_id(account_1_id)
         account_2 = AccountPrototype.get_by_id(account_2_id)
