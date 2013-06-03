@@ -49,6 +49,20 @@ class ShopRequestesTests(RequestesTestsBase):
         requested_url = url('accounts:payments:shop')
         self.check_redirect(requested_url, login_url(requested_url))
 
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', True)
+    def test_buy_link(self):
+        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-pay-dialog-link', 1)])
+
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
+    @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
+    def test_dengionline_disabled__global(self):
+        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-pay-dialog-link', 0)])
+
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
+    def test_dengionline_disabled__global_with_exception(self):
+        with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
+            self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-pay-dialog-link', 1)])
+
     @mock.patch('accounts.payments.price_list.PRICE_LIST', [])
     def test_no_goods(self):
         self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=['pgf-no-goods-message'])
@@ -118,8 +132,6 @@ class BuyRequestesTests(RequestesTestsBase, BankTestsMixin):
         response = self.client.post(url('accounts:payments:buy', purchase=self.purchase.uid))
         self.check_ajax_processing(response, PostponedTaskPrototype._db_get_object(0).status_url)
 
-
-
 class PayWithDengionlineRequestesTests(RequestesTestsBase):
 
     def setUp(self):
@@ -177,3 +189,39 @@ class PayWithDengionlineRequestesTests(RequestesTestsBase):
             self.check_ajax_ok(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)))
         self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)),
                               'payments.pay_with_dengionline.creation_limit_riched')
+
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
+    @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
+    def test_dengionline_disabled__global(self):
+        self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)),
+                              'payments.dengionline_disabled')
+
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
+    def test_dengionline_disabled__global_with_exception(self):
+        with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
+            self.check_ajax_ok(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)))
+
+
+class PayDialogRequestesTests(RequestesTestsBase):
+
+    def setUp(self):
+        super(PayDialogRequestesTests, self).setUp()
+
+    def test_for_fast_account(self):
+        self.account.is_fast = True
+        self.account.save()
+        self.check_html_ok(self.request_ajax_html(url('accounts:payments:pay-dialog')), texts=['common.fast_account'])
+
+    def test_unlogined(self):
+        self.request_logout()
+        self.check_html_ok(self.request_ajax_html(url('accounts:payments:pay-dialog')), texts=['common.login_required'])
+
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
+    @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
+    def test_dengionline_disabled__global(self):
+        self.check_html_ok(self.request_ajax_html(url('accounts:payments:pay-dialog')), texts=['payments.dengionline_disabled'])
+
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
+    def test_dengionline_disabled__global_with_exception(self):
+        with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
+            self.check_html_ok(self.request_ajax_html(url('accounts:payments:pay-dialog')), texts=[('payments.dengionline_disabled', 0)])

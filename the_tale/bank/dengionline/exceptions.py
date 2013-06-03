@@ -12,3 +12,6 @@ class WrongInvoiceStateInProcessingError(DengionlineError):
 
 class CreationLimitError(DengionlineError):
     MSG = u'account %(account_id)s made too many invoice requests'
+
+class WrongValueTypeError(DengionlineError):
+    MSG = u'unexpected type of value %(value_name)s: %(type)s'

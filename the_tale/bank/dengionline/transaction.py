@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from decimal import Decimal
+
 from datetime import datetime
 
 from bank.dengionline.prototypes import InvoicePrototype
@@ -37,7 +39,7 @@ class Transaction(object):
                                           bank_amount=bank_amount,
                                           user_id=email,
                                           comment=comment,
-                                          payment_amount=payment_amount,
+                                          payment_amount=Decimal(payment_amount),
                                           payment_currency=payment_currency)
 
         return cls(invoice_id=invoice.id)

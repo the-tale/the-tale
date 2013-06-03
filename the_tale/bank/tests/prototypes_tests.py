@@ -89,7 +89,7 @@ class AccountPrototypeTests(testcase.TestCase, BankTestsMixin):
 
 
     def test_has_money__incoming_money_freezed(self):
-        self.account.amount = 50
+        self.account.amount = 100
 
         self._create_incoming_invoice(amount=100)
 
@@ -98,31 +98,29 @@ class AccountPrototypeTests(testcase.TestCase, BankTestsMixin):
 
         self.assertTrue(self.account.has_money(50))
         self.assertTrue(self.account.has_money(100))
-        self.assertTrue(self.account.has_money(150))
+        self.assertFalse(self.account.has_money(150))
         self.assertFalse(self.account.has_money(151))
 
         self._create_incoming_invoice(amount=-60)
 
-        self.assertTrue(self.account.has_money(50))
-        self.assertTrue(self.account.has_money(90))
-        self.assertFalse(self.account.has_money(91))
+        self.assertTrue(self.account.has_money(40))
+        self.assertFalse(self.account.has_money(41))
 
     def test_has_money__outcoming_money_freezed(self):
-        self.account.amount = 50
+        self.account.amount = 150
 
         self._create_outcoming_invoice(amount=100)
 
         self._create_incoming_invoice(amount=-1000, state=INVOICE_STATE.CONFIRMED)
         self._create_incoming_invoice(amount=-1000, state=INVOICE_STATE.REQUESTED)
 
-        self.assertFalse(self.account.has_money(0))
-        self.assertFalse(self.account.has_money(1))
+        self.assertTrue(self.account.has_money(50))
+        self.assertFalse(self.account.has_money(51))
 
         self._create_outcoming_invoice(amount=-60)
 
-        self.assertTrue(self.account.has_money(0))
-        self.assertTrue(self.account.has_money(10))
-        self.assertFalse(self.account.has_money(11))
+        self.assertTrue(self.account.has_money(50))
+        self.assertFalse(self.account.has_money(51))
 
     def test_has_money__all_money_freezed(self):
         self.account.amount = 10000
@@ -131,8 +129,8 @@ class AccountPrototypeTests(testcase.TestCase, BankTestsMixin):
         self._create_outcoming_invoice(amount=100)
         self._create_outcoming_invoice(amount=-1000)
 
-        self.assertTrue(self.account.has_money(10000+1-10-100+1000))
-        self.assertFalse(self.account.has_money(10000+1-10-100+1000 + 1))
+        self.assertTrue(self.account.has_money(10000-10-100))
+        self.assertFalse(self.account.has_money(10000-10-100 + 1))
 
     def test_get_history_list(self):
 

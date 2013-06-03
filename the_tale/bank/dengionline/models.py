@@ -31,7 +31,7 @@ class Invoice(models.Model):
     bank_id = models.BigIntegerField()
     bank_currency = TableIntegerField(relation=BANK_CURRENCY_TYPE, relation_column='value', db_index=True)
     bank_amount = models.BigIntegerField()
-    bank_invoice = models.ForeignKey('bank.Invoice', null=True, unique=True)
+    bank_invoice = models.ForeignKey('bank.Invoice', null=True, unique=True, related_name='+')
 
     user_id = models.EmailField(max_length=Account.MAX_EMAIL_LENGTH, null=False, db_index=True) # windows-1251
     comment = models.CharField(max_length=MAX_COMMENT_LENGTH, null=False)

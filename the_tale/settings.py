@@ -301,6 +301,7 @@ LOGGING = {
         'file_post_service_message_sender': get_worker_log_file_handler('post_service_message_sender'),
         'file_bank_bank_processor': get_worker_log_file_handler('bank_bank_processor'),
         'file_bank_dengionline_banker': get_worker_log_file_handler('bank_dengionline_banker'),
+        'file_bank_dengionline_requests': get_worker_log_file_handler('bank_dengionline_requests'),
         'file_postponed_tasks_refrigerator': get_worker_log_file_handler('postponed_tasks_refrigerator')
     },
     'loggers': {
@@ -327,6 +328,7 @@ LOGGING = {
         'the-tale.workers.post_service_message_sender': get_worker_logger('post_service_message_sender'),
         'the-tale.workers.bank_bank_processor': get_worker_logger('bank_bank_processor'),
         'the-tale.workers.bank_dengionline_banker': get_worker_logger('bank_dengionline_banker'),
+        'the-tale.bank_dengionline_requests': get_worker_logger('bank_dengionline_requests'),
         'the-tale.workers.postponed_tasks_refrigerator': get_worker_logger('postponed_tasks_refrigerator')
     } if not TESTS_RUNNING else {}
 }

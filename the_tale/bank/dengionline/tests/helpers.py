@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from decimal import Decimal
+
 from bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE, CURRENCY_TYPE as BANK_CURRENCY_TYPE
 from bank.dengionline.relations import CURRENCY_TYPE
 from bank.dengionline.prototypes import InvoicePrototype
@@ -15,9 +17,9 @@ class TestInvoiceFabric(object):
 
         self.user_id = 'test@test.com'
         self.comment = u'оплата какой-то покупки'
-        self.payment_amount = 10
+        self.payment_amount = Decimal(10)
         self.payment_currency = CURRENCY_TYPE.USD
-        self.received_amount = 66
+        self.received_amount = Decimal(66)
         self.received_currency = CURRENCY_TYPE.RUB
         self.payment_id = 12345
         self.paymode = 22

@@ -1,5 +1,9 @@
 # coding: utf-8
 
+from decimal import Decimal
+
+from django.utils.log import getLogger
+
 from dext.views import handler
 
 from common.utils.resources import Resource
@@ -7,10 +11,17 @@ from common.utils.resources import Resource
 from bank.dengionline.prototypes import InvoicePrototype
 
 
+logger = getLogger('the-tale.bank_dengionline_requests')
+
+
 class DengiOnlineResource(Resource):
 
     def initialize(self, *args, **kwargs):
         super(DengiOnlineResource, self).initialize(*args, **kwargs)
+
+    def log(self, name):
+        message = u'%(name)s\tfrom "%(referer)s" with %(args)r'
+        logger.info(message % {'name': name, 'referer': self.request.META.get('HTTP_REFERER'), 'args': self.request.GET})
 
     def check_user_answer(self, check_result):
         return self.xml(u'''<?xml version="1.0" encoding="UTF-8"?>
@@ -22,6 +33,7 @@ class DengiOnlineResource(Resource):
 
     @handler('check-user', method='post')
     def check_user(self, userid, key):
+        self.log('check-user')
         return self.check_user_answer(InvoicePrototype.check_user(user_id=userid, key=key))
 
 
@@ -36,9 +48,10 @@ class DengiOnlineResource(Resource):
 
     @handler('confirm-payment', method='post')
     def confirm_payment(self, amount, userid, paymentid, key, paymode, orderid):
-        return self.confirm_payment_answer(orderid, InvoicePrototype.confirm_payment(received_amount=amount,
+        self.log('confirm-payment')
+        return self.confirm_payment_answer(orderid, InvoicePrototype.confirm_payment(received_amount=Decimal(amount),
                                                                                      user_id=userid,
-                                                                                     payment_id=paymentid,
+                                                                                     payment_id=int(paymentid),
                                                                                      key=key,
-                                                                                     paymode=paymode,
-                                                                                     order_id=orderid))
+                                                                                     paymode=int(paymode),
+                                                                                     order_id=int(orderid)))

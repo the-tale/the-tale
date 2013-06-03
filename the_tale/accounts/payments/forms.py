@@ -7,10 +7,16 @@ from dext.forms import forms, fields
 from accounts.payments.logic import real_amount_to_game
 
 
+INITIAL_AMOUNT = 10
+
+
 class DengiOnlineForm(forms.Form):
 
-    real_amount = fields.IntegerField(label=u'USD', initial=10, required=True)
-    game_amount = fields.IntegerField(label=u'печеньки', initial=real_amount_to_game(10), required=True)
+    real_amount = fields.IntegerField(label=u'USD', initial=INITIAL_AMOUNT)
+    game_amount = fields.IntegerField(label=u'Печеньки',
+                                      initial=real_amount_to_game(INITIAL_AMOUNT),
+                                      widget=django_forms.TextInput(attrs={'disabled': 'disabled',
+                                                                           'readonly':'readonly'}))
 
     def clean(self):
         cleaned_data = super(DengiOnlineForm, self).clean()

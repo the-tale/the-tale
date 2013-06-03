@@ -2,6 +2,8 @@
 import md5
 import urllib
 
+import rels
+
 from datetime import datetime
 from decimal import Decimal
 
@@ -35,7 +37,23 @@ class InvoicePrototype(BasePrototype):
     def payment_id(self): return int(self._model.payment_id) if self._model.payment_id is not None else None
 
     @classmethod
+    def check_types(cls, **kwargs):
+        for key, values in kwargs.items():
+            value, expected_type = values
+            if not isinstance(value, expected_type):
+                raise exceptions.WrongValueTypeError(value_name=key, type=value.__class__)
+
+    @classmethod
     def create(cls, bank_type, bank_id, bank_currency, bank_amount, user_id, comment, payment_amount, payment_currency):
+
+        cls.check_types(bank_type=(bank_type, rels.Record),
+                        bank_id=(bank_id, int),
+                        bank_currency=(bank_currency, rels.Record),
+                        bank_amount=(bank_amount, int),
+                        user_id=(user_id, basestring),
+                        comment=(comment, basestring),
+                        payment_amount=(payment_amount, Decimal),
+                        payment_currency=(payment_currency, rels.Record))
 
         model = cls._model_class.objects.create(bank_type=bank_type,
                                                 bank_id=bank_id,
@@ -87,6 +105,13 @@ class InvoicePrototype(BasePrototype):
     @classmethod
     def confirm_payment(cls, order_id, received_amount, user_id, paymode, payment_id, key):
         from bank.workers.environment import workers_environment
+
+        cls.check_types(order_id=(order_id, int),
+                        received_amount=(received_amount, Decimal),
+                        user_id=(user_id, basestring),
+                        paymode=(paymode, int),
+                        payment_id=(payment_id, int),
+                        key=(key, basestring))
 
         user_id = user_id.decode('utf-8').encode('cp1251')
 

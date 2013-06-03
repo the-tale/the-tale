@@ -76,15 +76,19 @@ class AccountPrototype(BasePrototype):
         if test_amount < 0:
             return True
 
+        # check only "bad variant (when account only spent money)
+
         frozen_incoming_query = Invoice.objects.filter(recipient_type=self.entity_type,
                                                        recipient_id=self.entity_id,
                                                        currency=self.currency,
+                                                       amount__lt=0,
                                                        state=INVOICE_STATE.FROZEN)
         frozen_incoming = frozen_incoming_query.aggregate(frozen_amount=models.Sum('amount'))['frozen_amount']
 
         frozen_outcoming_query = Invoice.objects.filter(sender_type=self.entity_type,
                                                         sender_id=self.entity_id,
                                                         currency=self.currency,
+                                                        amount__gt=0,
                                                         state=INVOICE_STATE.FROZEN)
 
         frozen_outcoming = frozen_outcoming_query.aggregate(frozen_amount=models.Sum('amount'))['frozen_amount']
@@ -97,7 +101,13 @@ class AccountPrototype(BasePrototype):
         return [InvoicePrototype(model=model) for model in invoice_models]
 
     @classmethod
-    def _money_received(cls, currency=CURRENCY_TYPE.PREMIUM): return 0
+    def _money_received(cls, currency=CURRENCY_TYPE.PREMIUM):
+        incoming_query = Invoice.objects.filter(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                                                currency=currency,
+                                                state=INVOICE_STATE.CONFIRMED,
+                                                amount__gt=0)
+        amount = incoming_query.aggregate(total_amount=models.Sum('amount')).get('total_amount')
+        return amount if amount else 0
 
     @classmethod
     def _money_spent(cls, currency=CURRENCY_TYPE.PREMIUM):

@@ -6,7 +6,7 @@ from bank.dengionline.models import Invoice
 
 class InvoiceAdmin(admin.ModelAdmin):
     list_display = ('id',
-                    'nickname',
+                    'user_id',
                     'state',
                     'bank_type',
                     'bank_id',

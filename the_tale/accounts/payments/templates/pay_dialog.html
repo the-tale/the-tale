@@ -9,9 +9,16 @@
   </div>
 
   <div class="modal-body">
-    здесь можно купить печеньки
 
-    <form id="pgf-dengionline-pay-form" method="post" action="{{ url('accounts:payments:pay-with-dengionline') }}">
+    <p>
+      Печеньки (игровую валюту) можно приобрести с помощью сервиса <a href="http://dengionline.com/">Деньги Online</a>.
+    </p>
+
+    <p>
+      <strong>курс:</strong> 1 USD к 100 печенек.
+    </p>
+
+    <form id="pgf-dengionline-pay-form" class="well" method="post" action="{{ url('accounts:payments:pay-with-dengionline') }}">
 
       {{ dengionline_form.errors_container }}
 
@@ -20,7 +27,8 @@
       {{ dengionline_form.game_amount.widget }}
 
       <div class="widget">
-        <input type="submit" class="btn" value="Приобрести"/>
+        <input type="submit" class="btn btn-success" value="Приобрести"/>
+        <img class="" style="" src="{{ STATIC_URL }}images/dengionline.png"/>
       </div>
 
     </form>

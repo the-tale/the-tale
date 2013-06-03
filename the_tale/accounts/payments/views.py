@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.views import handler, validate_argument
+from dext.views import handler, validate_argument, validator
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
@@ -15,6 +15,8 @@ from bank.dengionline import exceptions
 
 from accounts.payments import price_list
 from accounts.payments.forms import DengiOnlineForm
+from accounts.payments.conf import payments_settings
+from accounts.payments.logic import real_amount_to_game
 
 
 class PaymentsResource(Resource):
@@ -23,6 +25,14 @@ class PaymentsResource(Resource):
     @validate_fast_account()
     def initialize(self, *args, **kwargs):
         super(PaymentsResource, self).initialize(*args, **kwargs)
+
+        self.dengionline_enabled = (payments_settings.ENABLE_DENGIONLINE or
+                                    self.account.id in payments_settings.ALWAYS_ALLOWED_ACCOUNTS)
+
+        self.usd_to_premium = real_amount_to_game(1)
+
+    @validator('payments.dengionline_disabled', u'Платежи c помощью «Деньги Онлайн» отключены')
+    def validate_dengionline_enabled(self, *args, **kwargs): return self.dengionline_enabled
 
     @handler('shop', method='get')
     def shop(self):
@@ -46,12 +56,14 @@ class PaymentsResource(Resource):
         return self.json_processing(postponed_task.status_url)
 
 
+    @validate_dengionline_enabled()
     @handler('pay-dialog', method='get')
     def pay_dialog(self):
         return self.template('payments/pay_dialog.html',
-                             {'dengionline_form': DengiOnlineForm()})
+                             {'dengionline_form': DengiOnlineForm(),
+                              'cource': real_amount_to_game(1)})
 
-    @validate_argument('amount', int, 'payments.pay_with_dengionline', u'Неверная сумма платежа')
+    @validate_dengionline_enabled()
     @handler('pay-with-dengionline', method='post')
     def pay_with_dengionline(self):
 
