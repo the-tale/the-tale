@@ -30,6 +30,10 @@ class GuideResource(Resource):
     def registration(self):
         return self.template('guide/registration.html', {'section': 'registration'})
 
+    @handler('user-agreement', method='get')
+    def user_agreement(self):
+        return self.template('guide/user-agreement.html', {'section': 'user-agreement'})
+
     @handler('account-types', method='get')
     def account_types(self):
         return self.template('guide/account_types.html', {'section': 'account-types'})

@@ -43,6 +43,7 @@ jQuery(document).ready( function(e) {
 <table class="table table-condensed table-striped table-bordered table-no-highlighting">
   <tbody>
     <tr>
+      <th style="text-align: center;">кошелёк</th>
       <th width="200px">тип аккаунта</th>
       <td>
         {{ accounts_macros.account_type_label(resource.account) }} &nbsp; <a href="{{url('guide:account-types')}}">[типы аккаунтов]</a>
@@ -50,6 +51,16 @@ jQuery(document).ready( function(e) {
     </tr>
 
     <tr>
+      <td rowspan="2" width="150px" style="text-align: center; padding: 1em; vertical-align: middle;">
+        <span style="font-size: 20pt;">{{ account.bank_account.amount }}</span><br/>
+        <span>ПЕЧЕНЕК</span><br/>
+        {% if resource.dengionline_enabled %}
+        <a style="vertical-align: middle;"
+           href="{{url('accounts:payments:pay-dialog')}}"
+           class="pgf-pay-dialog-link btn btn-large btn-success">купить ещё…</a>
+        {% endif %}
+      </td>
+
       <th>окончание подписки</th>
       <td>
         {% if account.is_premium %}
@@ -61,13 +72,7 @@ jQuery(document).ready( function(e) {
     </tr>
 
     <tr>
-      <th>количество печенек</th>
-      <td>
-        <span style="vertical-align: middle;">{{ account.bank_account.amount }}</span>
-        {% if resource.dengionline_enabled %}
-        <a style="vertical-align: middle;" href="{{url('accounts:payments:pay-dialog')}}" class="pgf-pay-dialog-link btn btn-mini btn-success">купить</a>
-        {% endif %}
-      </td>
+      <th colspan="2"></th>
     </tr>
   </tbody>
 </table>

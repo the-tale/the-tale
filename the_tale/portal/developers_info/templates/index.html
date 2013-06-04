@@ -18,13 +18,50 @@
     <th>премиум</th><td>{{accounts_premium}}</td>
     <td>
       {{(accounts_premium|float/accounts_registered)|percents}} от зарегистрированых
-      {{(accounts_premium|float/accounts_active)|percents}} от активных
     </td>
   </tr>
-  <tr><th>золота начислено</th><td>{{gold_bought}}</td><td>{{gold_bought/100}}$</td></tr>
-  <tr><th>золота потрачено</th><td>{{gold_spent}}</td><td>{{gold_spent/100}}$</td></tr>
-  <tr><th>золота в игре</th><td>{{gold_in_game}}</td><td>{{gold_in_game/100}}$</td></tr>
+  <tr>
+    <th>и премиум и активные</th><td>{{accounts_active_and_premium}}</td>
+    <td>
+      {% if accounts_premium %}
+      {{(accounts_active_and_premium|float/accounts_premium)|percents}} от премиумных
+      {% endif %}
+
+      {% if accounts_active %}
+      {{(accounts_active_and_premium|float/accounts_active)|percents}} от активных
+      {% endif %}
+    </td>
+  </tr>
 </table>
+
+<h3>Золото</h3>
+
+<table class="table">
+  <tr>
+    <th>источник</th>
+    <th>получено</th>
+    <th>потрачено</th>
+  </tr>
+
+  {% for source_name, gold_data in gold.items() %}
+  <tr>
+    <td>{{source_name}}</td>
+    <td>{{gold_data['received']}}</td>
+    <td>{{gold_data['spent']}}</td>
+  </tr>
+  {% endfor %}
+
+  <tr>
+    <td>всего</td>
+    <td>{{gold_total_received}}</td>
+    <td>{{gold_total_spent}}</td>
+  </tr>
+</table>
+
+<p>
+  Итого печенек в игре: <strong>{{gold_in_game}}</strong>
+</p>
+
 
 
 {% endblock %}

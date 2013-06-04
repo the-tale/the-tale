@@ -36,3 +36,8 @@ class DengiOnlineForm(forms.Form):
             raise django_forms.ValidationError(u'Размер суммы должен быть больше 0')
 
         return amount
+
+
+class GMForm(forms.Form):
+    amount = fields.IntegerField(label=u'Печеньки')
+    description = fields.TextField(label=u'Описание', required=True)

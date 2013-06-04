@@ -380,10 +380,20 @@ class AccountResource(Resource):
                               'threads_with_posts': threads_with_posts,
                               'threads_count': threads_count,
                               'folclor_posts_count': folclor_posts_count,
-                              'give_award_form': forms.GiveAwardForm(),
-                              'ban_form': forms.BanForm(),
                               'phrases_count': phrases_count,
                               'friendship': friendship} )
+
+    @login_required
+    @validate_moderator_rights()
+    @handler('#account_id', 'admin', name='admin', method='get')
+    def admin(self):
+        from accounts.payments.forms import GMForm
+        return self.template('accounts/admin.html',
+                             {'master_account': self.master_account,
+                              'give_award_form': forms.GiveAwardForm(),
+                              'give_money_form': GMForm(),
+                              'ban_form': forms.BanForm()} )
+
 
     @validate_moderator_rights()
     @handler('#account_id', 'give-award', name='give-award', method='post')

@@ -173,63 +173,7 @@ jQuery(document).ready(function(){
 {% endif %}
 
 {% if resource.can_moderate_accounts %}
-
-<script type="text/javascript">
-jQuery(document).ready( function(e) {
-
-    var awardForm = new pgf.forms.Form(jQuery('#pgf-give-award-form'),
-                                               {OnSuccess: function(form, data){location.reload();}});
-
-    var bunForm = new pgf.forms.Form(jQuery('#pgf-ban-form'),
-                                            {OnSuccess: function(form, data){location.reload();}});
-});
-</script>
-
-<br/>
-<hr/>
-
-<h3>Выдать награду</h3>
-
-<div class="pgf-account-moderator-block">
-
-  <form id="pgf-give-award-form" method="post" action="{{ url('accounts:give-award', master_account.id) }}" class="block">
-
-    {{ give_award_form.errors_container }}
-
-    {{ give_award_form.type.widget}}
-    {{ give_award_form.description.widget }}
-
-    <input class="btn" type="submit" value="Выдать награду"/>
-
-  </form>
-
-
-  <h3>Сброс ника</h3>
-
-  <a class="btn btn-success pgf-forms-post-simple"
-     href="{{ url('accounts:reset-nick', master_account.id) }}"
-     data-confirmation="Вы действительно хотите сбросить ник игрока?">сбросить ник</a>
-
-  <h3>Баны</h3>
-
-  <a class="btn btn-success pgf-forms-post-simple"
-     href="{{ url('accounts:reset-bans', master_account.id) }}"
-     data-confirmation="Вы действительно хотите снять ограничения?">сбросить баны</a>
-
-  <form id="pgf-ban-form" method="post" action="{{ url('accounts:ban', master_account.id) }}" class="block">
-
-    {{ ban_form.errors_container }}
-
-    {{ ban_form.ban_type.widget}}
-    {{ ban_form.ban_time.widget}}
-    {{ ban_form.description.widget }}
-
-    <input class="btn btn-danger" type="submit" value="ЗАБАНИТЬ"/>
-
-  </form>
-
-</div>
-
+<a class="btn btn-danger pgf-account-admin-link" href="{{url('accounts:admin', master_account.id)}}">Администрировать</a>
 {% endif %}
 
 {% endblock %}

@@ -32,6 +32,22 @@ class ProfileRequestsTests(TestCase):
     def test_profile_page_unlogined(self):
         self.check_redirect(reverse('accounts:profile:show'), login_url(reverse('accounts:profile:show')))
 
+    def test_profile_page__fast_account(self):
+        self.request_login('test_user@test.com')
+
+        self.account.is_fast = True
+        self.account.save()
+
+        texts = [('pgf-fast-account-help-block', 1),
+                 ('pgf-fast-account-user-agreement-block', 1)]
+        self.check_html_ok(self.request_html(reverse('accounts:profile:show')), texts=texts)
+
+    def test_profile_page__normal_account(self):
+        self.request_login('test_user@test.com')
+        texts = [('pgf-fast-account-help-block', 0),
+                 ('pgf-fast-account-user-agreement-block', 0)]
+        self.check_html_ok(self.request_html(reverse('accounts:profile:show')), texts=texts)
+
     def test_profile_page_logined(self):
         self.request_login('test_user@test.com')
         response = self.client.get(reverse('accounts:profile:show'))

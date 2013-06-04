@@ -7,6 +7,7 @@ from bank.relations import ENTITY_TYPE, CURRENCY_TYPE
 
 from accounts.payments.postponed_tasks import BuyPremium
 from accounts.payments.exceptions import PayementsError
+from accounts.payments.logic import transaction_logic
 
 
 class PurchaseItem(object):
@@ -30,14 +31,10 @@ class PremiumDays(PurchaseItem):
         if account.is_fast:
             raise PayementsError('try to buy purchase <%s> to fast account %d' % (self.uid, account.id))
 
-        transaction = Transaction.create(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
-                                         recipient_id=account.id,
-                                         sender_type=ENTITY_TYPE.GAME_LOGIC,
-                                         sender_id=0,
-                                         currency=CURRENCY_TYPE.PREMIUM,
-                                         amount=-self.cost,
-                                         description=self.transaction_description,
-                                         operation_uid='ingame-purchase-<%s>' % self.uid)
+        transaction = transaction_logic(account=account,
+                                        amount=-self.cost,
+                                        description=self.transaction_description,
+                                        uid='ingame-purchase-<%s>' % self.uid)
 
         postponed_logic = BuyPremium(account_id=account.id, days=self.days, transaction=transaction)
 

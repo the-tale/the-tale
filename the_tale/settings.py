@@ -43,6 +43,11 @@ ALLOWED_HOSTS = ['.the-tale.org',
 
 AUTH_USER_MODEL = 'accounts.Account'
 
+OWNER = u'Елецкий Алексей'
+OWNER_SHORT = u'Елецкий Алексей (Tiendil)'
+OWNER_COUNTRY = u'Республика Беларусь'
+
+
 ##############################
 # I18N
 ##############################

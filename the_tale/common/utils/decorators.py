@@ -39,6 +39,25 @@ def staff_required(permissions=[]):
     return decorator
 
 
+def superuser_required(permissions=[]):
+
+    @functools.wraps(staff_required)
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(resource, *argv, **kwargs):
+            if permissions:
+                raise NotImplementedError('superuser required decorator has not emplimented for working with permissions list')
+            else:
+                if resource.account.is_authenticated() and resource.account.is_superuser:
+                    return func(resource, *argv, **kwargs)
+                else:
+                    return resource.auto_error('common.superuser_required', u'У Вас нет прав для проведения данной операции')
+
+        return login_required(wrapper)
+
+    return decorator
+
+
 def lazy_property(func):
 
     lazy_name = '_%s__lazy' % func.__name__

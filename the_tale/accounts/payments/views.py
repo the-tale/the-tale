@@ -3,7 +3,7 @@
 from dext.views import handler, validate_argument, validator
 
 from common.utils.resources import Resource
-from common.utils.decorators import login_required
+from common.utils.decorators import login_required, superuser_required
 
 from accounts.views import validate_fast_account
 
@@ -13,10 +13,12 @@ from bank.dengionline.relations import CURRENCY_TYPE as DO_CURRENCY_TYPE
 from bank.relations import ENTITY_TYPE, CURRENCY_TYPE
 from bank.dengionline import exceptions
 
+from accounts.prototypes import AccountPrototype
+
 from accounts.payments import price_list
-from accounts.payments.forms import DengiOnlineForm
+from accounts.payments.forms import DengiOnlineForm, GMForm
 from accounts.payments.conf import payments_settings
-from accounts.payments.logic import real_amount_to_game
+from accounts.payments.logic import real_amount_to_game, transaction_gm
 
 
 class PaymentsResource(Resource):
@@ -86,3 +88,23 @@ class PaymentsResource(Resource):
                                    u'Вы создали слишком много запросов на покупку печенек. Вы сможете повторить попытку через несколько минут.')
 
         return self.json_ok(data={'next_url': transaction.get_simple_payment_url()})
+
+    @superuser_required()
+    @validate_argument('account', AccountPrototype.get_by_id, 'payments.give_money', u'Аккаунт не обнаружен')
+    @handler('give-money', method='post')
+    def give_money(self, account):
+
+        if account.is_fast:
+            return self.json_error('payments.give_money.fast_account', u'Нельзя начислить деньги «быстрому» аккаунту')
+
+        form = GMForm(self.request.POST)
+
+        if not form.is_valid():
+            return self.json_error('payments.give_money.form_errors', form.errors)
+
+        transaction_gm(account=account,
+                       amount=form.c.amount,
+                       description=form.c.description,
+                       game_master=self.account)
+
+        return self.json_ok()

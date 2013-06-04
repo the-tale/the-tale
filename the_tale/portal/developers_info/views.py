@@ -8,6 +8,7 @@ from common.utils.decorators import staff_required
 from common.utils.resources import Resource
 
 from bank.prototypes import AccountPrototype as BankAccountPrototype
+from bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE
 
 from accounts.models import Account
 
@@ -25,18 +26,33 @@ class DevelopersInfoResource(Resource):
         accounts_registered = Account.objects.filter(is_fast=False).count()
         accounts_active = Account.objects.filter(is_fast=False, active_end_at__gt=datetime.datetime.now()).count()
         accounts_premium = Account.objects.filter(is_fast=False, premium_end_at__gt=datetime.datetime.now()).count()
+        accounts_active_and_premium = Account.objects.filter(is_fast=False,
+                                                             active_end_at__gt=datetime.datetime.now(),
+                                                             premium_end_at__gt=datetime.datetime.now()).count()
 
-        gold_bought = BankAccountPrototype._money_received()
-        gold_spent = BankAccountPrototype._money_spent()
-        gold_in_game = gold_bought - gold_spent
+        gold = {}
+        gold_total_spent = 0
+        gold_total_received = 0
+
+        for record in BANK_ENTITY_TYPE._records:
+            spent = BankAccountPrototype._money_spent(from_type=record)
+            received = BankAccountPrototype._money_received(from_type=record)
+            gold[record.text] = {'spent': spent, 'received': received}
+
+            gold_total_spent += spent
+            gold_total_received += received
+
+        gold_in_game = gold_total_received - gold_total_spent
 
         return self.template('developers_info/index.html',
                              {'accounts_total': accounts_total,
                               'accounts_registered': accounts_registered,
                               'accounts_active': accounts_active,
                               'accounts_premium': accounts_premium,
-                              'gold_bought': gold_bought,
-                              'gold_spent': gold_spent,
+                              'accounts_active_and_premium': accounts_active_and_premium,
+                              'gold': gold,
+                              'gold_total_spent': gold_total_spent,
+                              'gold_total_received': gold_total_received,
                               'gold_in_game': gold_in_game,
                               'page_type': 'index'})
 

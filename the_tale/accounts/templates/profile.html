@@ -27,7 +27,7 @@ jQuery(document).ready( function(e) {
     <div class="block">
 
       {% if resource.account.is_authenticated() and resource.account.is_fast %}
-      <div class="alert alert-error">
+      <div class="alert alert-error pgf-fast-account-help-block">
         <h3>Вы не закончили регистрацию!</h3>
         Для завершения регистрации укажите имя, email и пароль в форме ниже (до завершения регистрации Ваш аккаунт имеет ограниченную функциональность). <br/>
         После завершения регистрации:
@@ -62,7 +62,13 @@ jQuery(document).ready( function(e) {
         {{ edit_profile_form.email.widget }}
         {{ edit_profile_form.password.widget }}
 
-        <input type="submit" value="Изменить"/>
+        {% if resource.account.is_authenticated() and resource.account.is_fast %}
+        <p class="pgf-fast-account-user-agreement-block">
+          <strong>Завершая регистрацию, Вы соглашаетесь с <a href="#">пользовательским соглашением</a>.</strong>
+        </p>
+        {% endif %}
+
+        <input type="submit" class="btn btn-success" value="Изменить"/>
 
       </form>
 
@@ -74,7 +80,7 @@ jQuery(document).ready( function(e) {
 
         {{ settings_form.personal_messages_subscription.widget }}
 
-        <input type="submit" value="Изменить"/>
+        <input type="submit" class="btn btn-success" value="Изменить"/>
 
       </form>
 

@@ -132,6 +132,7 @@ class BuyRequestesTests(RequestesTestsBase, BankTestsMixin):
         response = self.client.post(url('accounts:payments:buy', purchase=self.purchase.uid))
         self.check_ajax_processing(response, PostponedTaskPrototype._db_get_object(0).status_url)
 
+
 class PayWithDengionlineRequestesTests(RequestesTestsBase):
 
     def setUp(self):
@@ -225,3 +226,57 @@ class PayDialogRequestesTests(RequestesTestsBase):
     def test_dengionline_disabled__global_with_exception(self):
         with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
             self.check_html_ok(self.request_ajax_html(url('accounts:payments:pay-dialog')), texts=[('payments.dengionline_disabled', 0)])
+
+
+class GiveMoneyRequestesTests(RequestesTestsBase):
+
+    def setUp(self):
+        super(GiveMoneyRequestesTests, self).setUp()
+
+        result, account_id, bundle_id = register_user('superuser', 'superuser@test.com', '111111')
+        self.superuser = AccountPrototype.get_by_id(account_id)
+        self.superuser._model.is_superuser = True
+        self.superuser.save()
+
+        self.request_login('superuser@test.com')
+
+    def post_data(self, amount=105):
+        return {'amount': amount, 'description': u'bla-bla'}
+
+    def test_for_fast_account(self):
+        self.account.is_fast = True
+        self.account.save()
+        self.check_ajax_error(self.client.post(url('accounts:payments:give-money', account=self.account.id), self.post_data()), 'payments.give_money.fast_account')
+        self.assertEqual(BankInvoicePrototype._db_count(), 0)
+
+    def test_for_wront_account(self):
+        self.check_ajax_error(self.client.post(url('accounts:payments:give-money', account='xxx'), self.post_data()), 'payments.give_money.account.wrong_format')
+        self.assertEqual(BankInvoicePrototype._db_count(), 0)
+
+    def test_unlogined(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(url('accounts:payments:give-money', account=self.account.id), self.post_data()), 'common.login_required')
+        self.assertEqual(BankInvoicePrototype._db_count(), 0)
+
+    def test_from_errors(self):
+        self.check_ajax_error(self.client.post(url('accounts:payments:give-money', account=self.account.id), {'amount': 'x', 'description': u'bla-bla'}),
+                              'payments.give_money.form_errors')
+        self.assertEqual(BankInvoicePrototype._db_count(), 0)
+
+    def test_success(self):
+        self.assertEqual(BankInvoicePrototype._db_count(), 0)
+        response = self.post_ajax_json(url('accounts:payments:give-money', account=self.account.id), self.post_data(amount=5))
+        self.assertEqual(BankInvoicePrototype._db_count(), 1)
+
+        invoice = BankInvoicePrototype._db_get_object(0)
+
+        self.assertTrue(invoice.recipient_type._is_GAME_ACCOUNT)
+        self.assertEqual(invoice.recipient_id, self.account.id)
+        self.assertTrue(invoice.sender_type._is_GAME_MASTER)
+        self.assertEqual(invoice.sender_id, self.superuser.id)
+        self.assertTrue(invoice.currency._is_PREMIUM)
+        self.assertEqual(invoice.amount, 5)
+        self.assertEqual(invoice.description, u'bla-bla')
+        self.assertTrue(invoice.state._is_FORCED)
+
+        self.check_ajax_ok(response)

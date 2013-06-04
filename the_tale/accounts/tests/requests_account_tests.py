@@ -18,7 +18,7 @@ from accounts.personal_messages.prototypes import MessagePrototype
 from accounts.models import Award
 from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 from accounts.relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
-from accounts.logic import register_user
+from accounts.logic import register_user, login_url
 from accounts.conf import accounts_settings
 
 from game.heroes.prototypes import HeroPrototype
@@ -98,7 +98,7 @@ class IndexRequestsTests(AccountRequestsTests):
 class ShowRequestsTests(AccountRequestsTests):
 
     def test_show(self):
-        texts = [('pgf-account-moderator-block', 0),
+        texts = [('pgf-account-admin-link', 0),
                  ('pgf-friends-request-friendship', 0),
                  ('pgf-friends-in-list', 0),
                  ('pgf-friends-request-from', 0),
@@ -178,12 +178,51 @@ class ShowRequestsTests(AccountRequestsTests):
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.account_set.add(self.account3._model)
 
-        texts = [('pgf-account-moderator-block', 1)]
+        texts = [('pgf-account-admin-link', 1)]
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_404(self):
         self.check_html_ok(self.request_html(reverse('accounts:show', args=['adasd'])), status_code=404)
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[666])), status_code=404)
+
+
+class AdminRequestsTests(AccountRequestsTests):
+
+    def setUp(self):
+        super(AdminRequestsTests, self).setUp()
+
+        self.request_login('test_user3@test.com')
+        group = sync_group('accounts moderators group', ['accounts.moderate_account'])
+        group.account_set.add(self.account3._model)
+
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_game', True)
+    def test_ban_game(self):
+        texts = [('pgf-ban-forum-message', 0),
+                 ('pgf-ban-game-message', 1)]
+        self.check_html_ok(self.request_html(reverse('accounts:admin', args=[self.account1.id])), texts=texts)
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_ban_forum(self):
+        texts = [('pgf-ban-forum-message', 1),
+                 ('pgf-ban-game-message', 0)]
+        self.check_html_ok(self.request_html(reverse('accounts:admin', args=[self.account1.id])), texts=texts)
+
+    def test_unlogined(self):
+        self.request_logout()
+        requested_url = url('accounts:admin', self.account1.id)
+        self.check_redirect(requested_url, login_url(requested_url))
+
+    def test_no_rights(self):
+        self.request_login('test_user2@test.com')
+        self.check_html_ok(self.request_html(reverse('accounts:admin', args=[self.account1.id])), texts=[('accounts.account.moderator_rights_required', 1)])
+
+    def test_moderator(self):
+        self.check_html_ok(self.request_html(reverse('accounts:admin', args=[self.account1.id])), texts=[('accounts.account.moderator_rights_required', 0)])
+
+    def test_404(self):
+        self.check_html_ok(self.request_html(reverse('accounts:admin', args=['adasd'])), status_code=404)
+        self.check_html_ok(self.request_html(reverse('accounts:admin', args=[666])), status_code=404)
 
 
 class GiveAwardRequestsTests(AccountRequestsTests):
