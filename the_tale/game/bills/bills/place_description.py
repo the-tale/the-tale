@@ -96,7 +96,7 @@ class PlaceDescripton(object):
         return  self.UserForm(post)
 
     def apply(self):
-        self.place.description= self.description
+        self.place.description = self.description
         self.place.save()
 
     def serialize(self):

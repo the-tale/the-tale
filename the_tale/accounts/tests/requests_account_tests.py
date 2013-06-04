@@ -182,8 +182,8 @@ class ShowRequestsTests(AccountRequestsTests):
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
     def test_404(self):
-        self.check_html_ok(self.request_html(reverse('accounts:show', args=['adasd'])), status_code=404)
-        self.check_html_ok(self.request_html(reverse('accounts:show', args=[666])), status_code=404)
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=['adasd'])), texts=['accounts.account.account.wrong_format'])
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[666])), status_code=404, texts=['accounts.account.account.not_found'])
 
 
 class AdminRequestsTests(AccountRequestsTests):
@@ -221,8 +221,8 @@ class AdminRequestsTests(AccountRequestsTests):
         self.check_html_ok(self.request_html(reverse('accounts:admin', args=[self.account1.id])), texts=[('accounts.account.moderator_rights_required', 0)])
 
     def test_404(self):
-        self.check_html_ok(self.request_html(reverse('accounts:admin', args=['adasd'])), status_code=404)
-        self.check_html_ok(self.request_html(reverse('accounts:admin', args=[666])), status_code=404)
+        self.check_html_ok(self.request_html(reverse('accounts:admin', args=['adasd'])), texts=['accounts.account.account.wrong_format'])
+        self.check_html_ok(self.request_html(reverse('accounts:admin', args=[666])), status_code=404, texts=['accounts.account.account.not_found'])
 
 
 class GiveAwardRequestsTests(AccountRequestsTests):

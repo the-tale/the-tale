@@ -42,9 +42,9 @@ def construct_command(environment, worker):
     return Command
 
 
-def construct_workers_manager(help, process_pid, environments, workers):
+def construct_workers_manager(help, process_pid, environments, workers): # pylint: disable=W0622,R0912,W0613
 
-    workers = filter(lambda worker: worker is not None, workers)
+    workers = filter(None, workers) # pylint: disable=W0110
 
     class Command(BaseCommand):
 

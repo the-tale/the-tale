@@ -62,12 +62,12 @@ class AccountAdmin(DjangoUserAdmin):
 
 class ChangeCredentialsTaskAdmin(admin.ModelAdmin):
     list_display = ('id', 'state', 'account', )
-    list_filter= ('state',)
+    list_filter = ('state',)
 
 
 class AwardAdmin(admin.ModelAdmin):
     list_display = ('id', 'account', 'type', 'created_at')
-    list_filter= ('type',)
+    list_filter = ('type',)
 
 class ResetPasswordTaskAdmin(admin.ModelAdmin):
     list_display = ('id', 'account', 'is_processed', 'uuid', 'created_at')

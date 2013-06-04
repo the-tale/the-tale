@@ -2,9 +2,6 @@
 
 from common.postponed_tasks import PostponedTaskPrototype
 
-from bank.transaction import Transaction
-from bank.relations import ENTITY_TYPE, CURRENCY_TYPE
-
 from accounts.payments.postponed_tasks import BuyPremium
 from accounts.payments.exceptions import PayementsError
 from accounts.payments.logic import transaction_logic

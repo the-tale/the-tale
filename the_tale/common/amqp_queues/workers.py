@@ -54,8 +54,8 @@ class BaseWorker(object):
                     raise AmqpQueueException('method "%s" specified without appropriate process_* method')
 
 
-    def send_cmd(self, tp, data={}):
-        self.command_queue.put({'type': tp, 'data': data}, serializer='json', compression=None)
+    def send_cmd(self, tp, data=None):
+        self.command_queue.put({'type': tp, 'data': data if data else {}}, serializer='json', compression=None)
 
 
     def process_cmd(self, cmd):
@@ -70,13 +70,13 @@ class BaseWorker(object):
 
         try:
             self.commands[cmd_type](**cmd_data)
-        except Exception:
+        except Exception: # pylint: disable=W0703
             self.exception_raised = True
             self.logger.error('Exception in worker "%r"' % self,
                               exc_info=sys.exc_info(),
                               extra={} )
 
-    def wait_answers_from(self, code, workers=[]):
+    def wait_answers_from(self, code, workers=()):
 
         while workers:
 

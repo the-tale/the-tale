@@ -79,7 +79,7 @@ def _point_arrow_height(obj, borders, length_normalizer, width_normalizer, power
     arrows = []
 
     if len(distances) > 0:
-        distance, other_place = distances[0]
+        distance, other_place = distances[0] # pylint: disable=W0612
         arrow = power_points.ArrowAreaPoint.Arrow(angle=math.atan2(other_place.y - obj.y, other_place.x - obj.x),
                                                   length=obj.r,
                                                   width=(obj.r / 3) + 1)
@@ -164,7 +164,7 @@ def _default_soil_points(delta=0.0):
                                         name='default_soil',
                                         x=map_settings.WIDTH/2,
                                         y=map_settings.HEIGHT/2,
-                                        power=0.3,
+                                        power=0.3 + delta,
                                         radius=int(math.hypot(map_settings.WIDTH, map_settings.HEIGHT)/2)+1,
                                         normalizer=normalizers.equal)
 
@@ -179,7 +179,7 @@ def _default_vegetation_points():
                                         normalizer=normalizers.equal)
 
 
-def get_building_power_points(building):
+def get_building_power_points(building): # pylint: disable=R0912,R0915
 
     points = []
 

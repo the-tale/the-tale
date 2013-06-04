@@ -24,6 +24,7 @@ class SayInBattleLogTask(PostponedLogic):
     TYPE = 'say-in-hero-log'
 
     def __init__(self, battle_id, text, state=SAY_IN_HERO_LOG_TASK_STATE.UNPROCESSED):
+        super(SayInBattleLogTask, self).__init__()
         self.battle_id = battle_id
         self.text = text
         self.state = state
@@ -76,6 +77,7 @@ class AcceptBattleTask(PostponedLogic):
     TYPE = 'accept-battle-task'
 
     def __init__(self, battle_id, accept_initiator_id, state=ACCEPT_BATTLE_TASK_STATE.UNPROCESSED):
+        super(AcceptBattleTask, self).__init__()
         self.battle_id = battle_id
         self.accept_initiator_id = accept_initiator_id
         self.state = state
@@ -136,6 +138,7 @@ class UsePvPAbilityTask(PostponedLogic):
     TYPE = 'use-pvp-ability'
 
     def __init__(self, battle_id, account_id, ability_id, state=USE_PVP_ABILITY_TASK_STATE.UNPROCESSED):
+        super(UsePvPAbilityTask, self).__init__()
         self.battle_id = battle_id
         self.account_id = account_id
         self.ability_id = ability_id

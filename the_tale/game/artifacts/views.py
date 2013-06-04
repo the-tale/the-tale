@@ -43,29 +43,29 @@ class GuideArtifactResource(ArtifactResourceBase):
     @handler('', method='get')
     def index(self,
               state=ARTIFACT_RECORD_STATE(ARTIFACT_RECORD_STATE.ENABLED),
-              type=None,
+              type=None, # pylint: disable=W0622
               rarity=None,
               order_by=INDEX_ORDER_TYPE(INDEX_ORDER_TYPE.BY_NAME)):
 
         artifacts = artifacts_storage.all()
 
         if not self.can_create_artifact and not self.can_moderate_artifact:
-            artifacts = filter(lambda artifact: artifact.state.is_enabled, artifacts)
+            artifacts = filter(lambda artifact: artifact.state.is_enabled, artifacts) # pylint: disable=W0110
 
         is_filtering = False
 
         if state is not None:
             if not state.is_enabled: # if not default
                 is_filtering = True
-            artifacts = filter(lambda artifact: artifact.state == state, artifacts)
+            artifacts = filter(lambda artifact: artifact.state == state, artifacts) # pylint: disable=W0110
 
         if rarity is not None:
             is_filtering = True
-            artifacts = filter(lambda artifact: artifact.rarity == rarity, artifacts)
+            artifacts = filter(lambda artifact: artifact.rarity == rarity, artifacts) # pylint: disable=W0110
 
         if type is not None:
             is_filtering = True
-            artifacts = filter(lambda artifact: artifact.type == type, artifacts)
+            artifacts = filter(lambda artifact: artifact.type == type, artifacts) # pylint: disable=W0110
 
         if order_by.is_by_name:
             artifacts = sorted(artifacts, key=lambda artifact: artifact.name)

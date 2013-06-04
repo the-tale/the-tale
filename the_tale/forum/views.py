@@ -397,7 +397,7 @@ class ForumResource(BaseForumResource):
     def index(self):
         categories = list(CategoryPrototype(category_model) for category_model in Category.objects.all().order_by('order', 'id'))
 
-        subcategories=[SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all().order_by('order', 'id')]
+        subcategories = [SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all().order_by('order', 'id')]
 
         forum_structure = []
 

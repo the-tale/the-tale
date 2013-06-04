@@ -30,8 +30,9 @@ class BuyPremium(PostponedLogic):
     TYPE = 'buy-premium'
 
     def __init__(self, account_id, days, transaction, state=BUY_PREMIUM_STATE.TRANSACTION_REQUESTED):
+        super(BuyPremium, self).__init__()
         self.account_id = account_id
-        self.days=days
+        self.days = days
         self.state = state if isinstance(state, rels.Record) else BUY_PREMIUM_STATE._index_value[state]
         self.transaction = Transaction.deserialize(transaction) if isinstance(transaction, dict) else transaction
 
@@ -56,47 +57,57 @@ class BuyPremium(PostponedLogic):
     @lazy_property
     def account(self): return AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
 
+    def process_transaction_requested(self, main_task):
+        transaction_state = self.transaction.get_invoice_state()
+
+        if transaction_state._is_REQUESTED:
+            return POSTPONED_TASK_LOGIC_RESULT.WAIT
+        if transaction_state._is_REJECTED:
+            self.state = BUY_PREMIUM_STATE.TRANSACTION_REJECTED
+            main_task.comment = 'invoice %d rejected' % self.transaction.invoice_id
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+        elif transaction_state._is_FROZEN:
+            self.state = BUY_PREMIUM_STATE.TRANSACTION_FROZEN
+            main_task.extend_postsave_actions((lambda: accounts_workers_environment.accounts_manager.cmd_task(main_task.id),))
+            return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
+        else:
+            self.state = BUY_PREMIUM_STATE.ERROR_IN_FREEZING_TRANSACTION
+            main_task.comment = 'wrong invoice %d state %r on freezing step' % (self.transaction.invoice_id, transaction_state)
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+    def process_transaction_frozen(self, main_task):
+        self.account.prolong_premium(days=self.days)
+        self.account.save()
+        HeroPrototype.get_by_account_id(self.account.id).cmd_update_with_account_data(self.account)
+        self.transaction.confirm()
+
+        self.state = BUY_PREMIUM_STATE.WAIT_TRANSACTION_CONFIRMATION
+        return POSTPONED_TASK_LOGIC_RESULT.WAIT
+
+    def process_transaction_confirmation(self, main_task):
+        transaction_state = self.transaction.get_invoice_state()
+
+        if transaction_state._is_FROZEN:
+            return POSTPONED_TASK_LOGIC_RESULT.WAIT
+        elif transaction_state._is_CONFIRMED:
+            self.state = BUY_PREMIUM_STATE.SUCCESSED
+            return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+        else:
+            self.state = BUY_PREMIUM_STATE.ERROR_IN_CONFIRM_TRANSACTION
+            main_task.comment = 'wrong invoice %d state %r on confirmation step' % (self.transaction.invoice_id, transaction_state)
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
     def process(self, main_task, storage=None):
 
         if self.state._is_TRANSACTION_REQUESTED:
-            transaction_state = self.transaction.get_invoice_state()
-
-            if transaction_state._is_REQUESTED:
-                return POSTPONED_TASK_LOGIC_RESULT.WAIT
-            if transaction_state._is_REJECTED:
-                self.state = BUY_PREMIUM_STATE.TRANSACTION_REJECTED
-                main_task.comment = 'invoice %d rejected' % self.transaction.invoice_id
-                return POSTPONED_TASK_LOGIC_RESULT.ERROR
-            elif transaction_state._is_FROZEN:
-                self.state = BUY_PREMIUM_STATE.TRANSACTION_FROZEN
-                main_task.extend_postsave_actions((lambda: accounts_workers_environment.accounts_manager.cmd_task(main_task.id),))
-                return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
-            else:
-                self.state = BUY_PREMIUM_STATE.ERROR_IN_FREEZING_TRANSACTION
-                main_task.comment = 'wrong invoice %d state %r on freezing step' % (self.transaction.invoice_id, transaction_state)
-                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+            return self.process_transaction_requested(main_task)
 
         elif self.state._is_TRANSACTION_FROZEN:
-            self.account.prolong_premium(days=self.days)
-            self.account.save()
-            HeroPrototype.get_by_account_id(self.account.id).cmd_update_with_account_data(self.account)
-            self.transaction.confirm()
-
-            self.state = BUY_PREMIUM_STATE.WAIT_TRANSACTION_CONFIRMATION
-            return POSTPONED_TASK_LOGIC_RESULT.WAIT
+            return self.process_transaction_frozen(main_task)
 
         elif self.state._is_WAIT_TRANSACTION_CONFIRMATION:
-            transaction_state = self.transaction.get_invoice_state()
+            return self.process_transaction_confirmation(main_task)
 
-            if transaction_state._is_FROZEN:
-                return POSTPONED_TASK_LOGIC_RESULT.WAIT
-            elif transaction_state._is_CONFIRMED:
-                self.state = BUY_PREMIUM_STATE.SUCCESSED
-                return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
-            else:
-                self.state = BUY_PREMIUM_STATE.ERROR_IN_CONFIRM_TRANSACTION
-                main_task.comment = 'wrong invoice %d state %r on confirmation step' % (self.transaction.invoice_id, transaction_state)
-                return POSTPONED_TASK_LOGIC_RESULT.ERROR
         else:
             main_task.comment = 'wrong task state %r' % self.state
             self.state = BUY_PREMIUM_STATE.WRONG_TASK_STATE

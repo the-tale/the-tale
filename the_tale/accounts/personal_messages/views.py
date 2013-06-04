@@ -19,7 +19,7 @@ from accounts.personal_messages.conf import personal_messages_settings
 
 
 def get_accounts_list_by_ids(ids_string):
-    ids = [int(id.strip()) for id in ids_string.split(',')]
+    ids = [int(id_.strip()) for id_ in ids_string.split(',')]
     accounts = AccountPrototype.get_list_by_id(ids)
 
     if len(ids) != len(accounts): return None
@@ -81,7 +81,7 @@ class MessageResource(Resource):
     @validate_argument('recipients', get_accounts_list_by_ids, 'personal_messages', u'Неверные идентификаторы получателей')
     @validate_argument('answer_to', MessagePrototype.get_by_id, 'personal_messages', u'Неверный идентификатор сообщения')
     @handler('new', method='get')
-    def new(self, recipients=[], answer_to=None):
+    def new(self, recipients=(), answer_to=None):
 
         text = u''
 
@@ -107,7 +107,7 @@ class MessageResource(Resource):
 
     @validate_argument('recipients', get_accounts_list_by_ids, 'personal_messages', u'Неверный идентификатор получателя')
     @handler('create', method='post')
-    def create(self, recipients=[]):
+    def create(self, recipients=()):
 
         form = NewMessageForm(self.request.POST)
 

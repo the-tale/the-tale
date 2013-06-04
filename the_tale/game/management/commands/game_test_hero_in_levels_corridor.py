@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
     def test_corridor(self):
 
-        result, account_id, bundle_id = register_user(uuid.uuid4().hex)
+        result, account_id, bundle_id = register_user(uuid.uuid4().hex) # pylint: disable=W0612
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
@@ -53,7 +53,7 @@ class Command(BaseCommand):
                 self.hero.abilities.randomized_level_up(self.hero.level - old_level)
                 old_level = self.hero.level
 
-            for turn_number in xrange(f.turns_on_lvl(level)):
+            for i in xrange(f.turns_on_lvl(level)): # pylint: disable=W0612
                 self.storage.process_turn()
                 current_time.increment_turn()
 

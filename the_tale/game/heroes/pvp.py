@@ -21,7 +21,7 @@ class PvPData(object):
 
     def get_advantage(self): return self._advantage
     def set_advantage(self, value):
-        self.updated = True;
+        self.updated = True
         self._advantage = value
         if self._advantage < -1: self._advantage = -1
         if self._advantage > 1: self._advantage = 1

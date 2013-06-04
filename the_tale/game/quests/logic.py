@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import random
 
 from django.utils.log import getLogger
@@ -25,7 +25,7 @@ from game.quests.environment import Environment
 from game.quests.prototypes import QuestPrototype
 from game.quests.conf import quests_settings
 
-_quests_logger=getLogger('the-tale.quests')
+_quests_logger = getLogger('the-tale.quests')
 
 class QuestsSource(BaseQuestsSource):
     quests_list = QUESTS

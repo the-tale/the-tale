@@ -16,7 +16,7 @@ _VOCABULARY = None
 _DICTIONARY = None
 _PHRASES_TYPES = None
 
-logger=getLogger('the-tale.workers.game_logic')
+logger = getLogger('the-tale.workers.game_logic')
 
 class NamedObject(object):
 
@@ -41,7 +41,7 @@ def get_text(error_prefix, type_, args):
 
     if type_ not in vocabulary:
         if not project_settings.TESTS_RUNNING:
-            logger.error('%s: unknown template type: %s' % (error_prefix, type_))
+            logger.error('%s: unknown template type: %s', error_prefix, type_)
         return None
 
     args = prepair_substitution(args)
@@ -85,7 +85,7 @@ def get_phrases_types():
 
         _PHRASES_TYPES['_sorted_modules'] = sorted(_PHRASES_TYPES['modules'].keys(), key=lambda key: _PHRASES_TYPES['modules'][key]['name'])
 
-        for module_type, module_data in _PHRASES_TYPES['modules'].items():
+        for module_data in _PHRASES_TYPES['modules'].values():
             module_data['_sorted_types'] = sorted(module_data['types'].keys(), key=lambda key: module_data['types'][key]['name'])
 
     return _PHRASES_TYPES

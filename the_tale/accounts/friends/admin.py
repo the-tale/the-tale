@@ -7,6 +7,6 @@ from accounts.friends.models import Friendship
 
 class FriendshipAdmin(admin.ModelAdmin):
     list_display = ('id', 'friend_1', 'friend_2', 'is_confirmed')
-    list_filter= ('is_confirmed',)
+    list_filter = ('is_confirmed',)
 
 admin.site.register(Friendship, FriendshipAdmin)

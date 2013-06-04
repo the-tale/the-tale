@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
 
     @nested_commit_on_success
-    def create_map(self):
+    def create_map(self): # pylint: disable=R0914, R0915
 
         Place.objects.all().delete()
         Road.objects.all().delete()
@@ -96,10 +96,10 @@ class Command(BaseCommand):
         persons_storage.update_version()
 
         terrain = []
-        for y in xrange(0, map_settings.HEIGHT):
+        for y in xrange(0, map_settings.HEIGHT): # pylint: disable=W0612
             row = []
             terrain.append(row)
-            for x in xrange(0, map_settings.WIDTH):
+            for x in xrange(0, map_settings.WIDTH): # pylint: disable=W0612
                 row.append(TERRAIN.PLANE_GREENWOOD)
 
         map_info_storage.set_item(MapInfoPrototype.create(turn_number=0,

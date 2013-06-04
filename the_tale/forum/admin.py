@@ -32,7 +32,7 @@ class PostAdmin(admin.ModelAdmin):
 
     readonly_fields = ('created_at', 'updated_at')
 
-    list_filter= ('state',)
+    list_filter = ('state',)
 
 
 class ThreadReadInfoAdmin(admin.ModelAdmin):

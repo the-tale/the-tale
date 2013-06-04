@@ -4,7 +4,7 @@ from dext.utils.app_settings import app_settings
 
 from game.balance import constants as c
 
-POWER_HISTORY_WEEKS=4
+POWER_HISTORY_WEEKS = 4
 
 places_settings = app_settings('PLACES',
                                POWER_HISTORY_WEEKS=POWER_HISTORY_WEEKS,

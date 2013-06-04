@@ -8,7 +8,7 @@ from game.chronicle.models import Record, Actor, RecordToActor
 class RecordAdmin(admin.ModelAdmin):
     list_display = ('id', 'type', 'created_at', 'created_at_turn', 'text')
 
-    list_filter= ('type', )
+    list_filter = ('type', )
 
 class ActorAdmin(admin.ModelAdmin):
     list_display = ('id', 'uid', 'place', 'person', 'bill')

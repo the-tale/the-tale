@@ -358,7 +358,7 @@ class HabilitiesViewsTest(TestCase):
     def test_choose_ability_request_hero_not_exist(self):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('game:heroes:choose-ability', args=[666]) + '?ability_id=' + self.get_new_ability_id())
-        self.check_ajax_error(response, 'heroes.hero_not_exists')
+        self.check_ajax_error(response, 'heroes.hero.not_found')
 
     def test_choose_ability_request_wrong_user(self):
         self.request_login('test_user_2@test.com')

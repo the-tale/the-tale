@@ -232,8 +232,8 @@ class BillPrototype(BasePrototype):
                                     state=BILL_STATE.VOTING,
                                     votes_for=1) # author always wote for bill
 
-        text=u'обсуждение [url="%s%s"]закона[/url]' % (project_settings.SITE_URL,
-                                                       reverse('game:bills:show', args=[model.id]) )
+        text = u'обсуждение [url="%s%s"]закона[/url]' % (project_settings.SITE_URL,
+                                                         reverse('game:bills:show', args=[model.id]) )
 
         thread = ThreadPrototype.create(SubCategoryPrototype.get_by_slug(bills_settings.FORUM_CATEGORY_SLUG),
                                         caption=caption,
@@ -261,7 +261,7 @@ class BillPrototype(BasePrototype):
         return cls._model_class.objects.filter(owner_id=account.id, state=BILL_STATE.VOTING).exists()
 
     def save(self):
-        self._model.technical_data=s11n.to_json(self.data.serialize())
+        self._model.technical_data = s11n.to_json(self.data.serialize())
         self._model.save()
 
     @nested_commit_on_success

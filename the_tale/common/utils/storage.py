@@ -5,7 +5,7 @@ import functools
 
 from dext.settings import settings
 
-def create_storage_class(version_key, Model, Prototype, Exception_):
+def create_storage_class(version_key, Model, Prototype, Exception_): # pylint: disable=R0912
 
     class Storage(object):
 
@@ -125,7 +125,7 @@ def create_storage_class(version_key, Model, Prototype, Exception_):
     return Storage
 
 
-def create_single_storage_class(version_key, Model, Prototype, Exception_):
+def create_single_storage_class(version_key, Model, Prototype, Exception_): # pylint: disable=R0912,W0613
 
     class SingleStorage(object):
 

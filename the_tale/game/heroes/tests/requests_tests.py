@@ -61,7 +61,7 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
         super(HeroPageRequestsTests, self).setUp()
 
     def test_wrong_hero_id(self):
-        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=['dsdsd'])), texts=[('heroes.wrong_hero_id', 1)], status_code=404)
+        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=['dsdsd'])), texts=[('heroes.hero.wrong_format', 1)])
 
     def test_own_hero_page(self):
         self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])),

@@ -63,14 +63,14 @@ class BattleContext(object):
     def use_ninja(self, probability): self.ninja = probability
 
     def use_damage_queue_fire(self, damage_queue):
-        self.damage_queue_fire = map(lambda queue, delta: (delta if delta else 0) + (queue if queue else 0), self.damage_queue_fire, [None]+damage_queue)
+        self.damage_queue_fire = map(lambda queue, delta: (delta if delta else 0) + (queue if queue else 0), self.damage_queue_fire, [None]+damage_queue) # pylint: disable=W0110
 
     def use_damage_queue_poison(self, damage_queue):
-        self.damage_queue_poison = map(lambda queue, delta: (delta if delta else 0) + (queue if queue else 0), self.damage_queue_poison, [None] + damage_queue)
+        self.damage_queue_poison = map(lambda queue, delta: (delta if delta else 0) + (queue if queue else 0), self.damage_queue_poison, [None] + damage_queue) # pylint: disable=W0110
 
     def use_initiative(self, initiative_queue):
         # do not prefix [None] here, since initiative getted before on_every_turn
-        self.initiative_queue = map(lambda initiative, new_initiative: (initiative or 1) * (new_initiative or 1), self.initiative_queue, initiative_queue)
+        self.initiative_queue = map(lambda initiative, new_initiative: (initiative or 1) * (new_initiative or 1), self.initiative_queue, initiative_queue) # pylint: disable=W0110
 
     def use_incoming_damage_modifier(self, physic=1.0, magic=1.0):
         self.incoming_magic_damage_modifier *= magic

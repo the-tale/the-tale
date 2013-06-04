@@ -178,7 +178,7 @@ class ProfileResource(Resource):
         return self.json_error('accounts.profile.update.form_errors', edit_profile_form.errors)
 
     @handler('confirm-email', method='get')
-    def confirm_email(self, uuid):
+    def confirm_email(self, uuid): # pylint: disable=W0621
 
         task = ChangeCredentialsTaskPrototype.get_by_uuid(uuid)
 
@@ -283,29 +283,14 @@ class ProfileResource(Resource):
 
 class AccountResource(Resource):
 
-    def initialize(self, account_id=None, *args, **kwargs):
+    @validate_argument('account', AccountPrototype.get_by_id, 'accounts.account', u'Аккаунт не найден')
+    def initialize(self, account=None, *args, **kwargs):
         super(AccountResource, self).initialize(*args, **kwargs)
-
-        if account_id:
-            try:
-                self.master_account_id = int(account_id)
-            except:
-                return self.auto_error('accounts.wrong_id', u'Неверный идентификатор игрока', status_code=404)
-
-            if self.master_account is None:
-                return self.auto_error('accounts.account_not_found', u'Игрок не найден', status_code=404)
-
-
+        self.master_account = account
         self.can_moderate_accounts = self.account.has_perm('accounts.moderate_account')
 
     @validator(code='accounts.account.moderator_rights_required', message=u'Вы не являетесь модератором')
     def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_accounts
-
-    @property
-    def master_account(self):
-        if not hasattr(self, '_master_account'):
-            self._master_account = AccountPrototype.get_by_id(self.master_account_id)
-        return self._master_account
 
     @handler('', method='get')
     def index(self, page=1, prefix=''):
@@ -344,8 +329,8 @@ class AccountResource(Resource):
                               'current_page_number': page,
                               'paginator': paginator  } )
 
-    @handler('#account_id', name='show', method='get')
-    def show(self):
+    @handler('#account', name='show', method='get')
+    def show(self): # pylint: disable=R0914
         from forum.models import Thread
         from game.bills.models import Bill
         from game.bills.relations import BILL_STATE
@@ -368,7 +353,7 @@ class AccountResource(Resource):
 
         friendship = FriendshipPrototype.get_for_bidirectional(self.account, self.master_account)
 
-        master_hero = HeroPrototype.get_by_account_id(self.master_account_id)
+        master_hero = HeroPrototype.get_by_account_id(self.master_account.id)
 
         return self.template('accounts/show.html',
                              {'master_hero': master_hero,
@@ -385,7 +370,7 @@ class AccountResource(Resource):
 
     @login_required
     @validate_moderator_rights()
-    @handler('#account_id', 'admin', name='admin', method='get')
+    @handler('#account', 'admin', name='admin', method='get')
     def admin(self):
         from accounts.payments.forms import GMForm
         return self.template('accounts/admin.html',
@@ -396,7 +381,7 @@ class AccountResource(Resource):
 
 
     @validate_moderator_rights()
-    @handler('#account_id', 'give-award', name='give-award', method='post')
+    @handler('#account', 'give-award', name='give-award', method='post')
     def give_award(self):
 
         form = forms.GiveAwardForm(self.request.POST)
@@ -413,7 +398,7 @@ class AccountResource(Resource):
 
 
     @validate_moderator_rights()
-    @handler('#account_id', 'reset-nick', name='reset-nick', method='post')
+    @handler('#account', 'reset-nick', name='reset-nick', method='post')
     def reset_nick(self):
         task = ChangeCredentialsTaskPrototype.create(account=self.master_account,
                                                      new_nick=u'имя игрока сброшено (%s)' % uuid.uuid4().hex)
@@ -423,7 +408,7 @@ class AccountResource(Resource):
         return self.json_processing(postponed_task.status_url)
 
     @validate_moderator_rights()
-    @handler('#account_id', 'ban', name='ban', method='post')
+    @handler('#account', 'ban', name='ban', method='post')
     def ban(self):
 
         form = forms.BanForm(self.request.POST)
@@ -451,7 +436,7 @@ class AccountResource(Resource):
         return self.json_ok()
 
     @validate_moderator_rights()
-    @handler('#account_id', 'reset-bans', method='post')
+    @handler('#account', 'reset-bans', method='post')
     def reset_bans(self):
 
         self.master_account.ban_forum(0)

@@ -226,7 +226,8 @@ class MobRecordPrototype(object):
 
     @classmethod
     def get_available_abilities(cls):
-        return filter(lambda a: a.TYPE == ABILITY_TYPE.BATTLE and a.AVAILABILITY & ABILITY_AVAILABILITY.FOR_MONSTERS, ABILITIES.values())
+        return filter(lambda a: a.TYPE == ABILITY_TYPE.BATTLE and a.AVAILABILITY & ABILITY_AVAILABILITY.FOR_MONSTERS,
+                      ABILITIES.values()) # pylint: disable=W0110
 
     def create_mob(self, hero):
         return MobPrototype(record=self, level=hero.level)
@@ -241,7 +242,7 @@ class MobRecordPrototype(object):
 
         abilities = set(['hit'])
 
-        for i in xrange(abilities_number-1):
+        for i in xrange(abilities_number-1): # pylint: disable=W0612
             abilities.add(random.choice(list(battle_abilities-abilities)))
 
         return cls.create(uuid, level=level, name=name, description='description of %s' % name, abilities=abilities, terrains=terrains, state=state)

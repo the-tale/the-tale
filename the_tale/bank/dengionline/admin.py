@@ -18,7 +18,7 @@ class InvoiceAdmin(admin.ModelAdmin):
                     'received_currency',
                     'created_at',
                     'updated_at')
-    list_filter= ('state', 'bank_type', 'payment_currency', 'received_currency')
+    list_filter = ('state', 'bank_type', 'payment_currency', 'received_currency')
     readonly_fields = Invoice._meta.get_all_field_names()
 
     def has_delete_permission(self, request, obj=None):

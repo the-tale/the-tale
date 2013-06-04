@@ -183,7 +183,6 @@ class Worker(BaseWorker):
         buildings_storage.save_all()
 
     def apply_bills(self):
-        import datetime
         from game.bills.models import Bill, BILL_STATE
         from game.bills.prototypes import BillPrototype
 
@@ -211,7 +210,7 @@ class Worker(BaseWorker):
         return self.send_cmd('logic_task', {'task_id': task_id,
                                             'account_id': account_id})
 
-    def process_logic_task(self, account_id, task_id):
+    def process_logic_task(self, account_id, task_id): # pylint: disable=W0613
         settings.refresh()
 
         task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)

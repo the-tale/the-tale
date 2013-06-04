@@ -2,4 +2,4 @@
 
 from game.actions.contexts.battle import BattleContext, Damage
 
-__all__ = [BattleContext, Damage]
+__all__ = ['BattleContext', 'Damage']

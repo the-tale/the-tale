@@ -5,7 +5,7 @@ from django.utils.log import getLogger
 
 from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 
-logger=getLogger('the-tale.workers.game_logic')
+logger = getLogger('the-tale.workers.game_logic')
 
 class Writer(object):
 

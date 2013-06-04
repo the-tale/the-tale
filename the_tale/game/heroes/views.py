@@ -4,7 +4,7 @@ import datetime
 
 from django.core.urlresolvers import reverse
 
-from dext.views import handler, validator
+from dext.views import handler, validator, validate_argument
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
@@ -42,18 +42,10 @@ def split_list(items):
 
 class HeroResource(Resource):
 
-    def initialize(self, hero_id=None, *args, **kwargs):
+    @validate_argument('hero', HeroPrototype.get_by_id, 'heroes', u'Неверный идентификатор героя')
+    def initialize(self, hero=None, *args, **kwargs):
         super(HeroResource, self).initialize(*args, **kwargs)
-
-        if hero_id:
-            try:
-                self.hero_id = int(hero_id)
-            except:
-                return self.auto_error('heroes.wrong_hero_id', u'Неверный идентификатор героя', status_code=404)
-
-            if self.hero is None:
-                return self.auto_error('heroes.hero_not_exists', u'Вы не можете просматривать данные этого игрока')
-
+        self.hero = hero
         self.can_moderate_heroes = self.account.has_perm('accounts.moderate_account')
 
     @property
@@ -64,12 +56,6 @@ class HeroResource(Resource):
 
     @validator(code='heroes.moderator_rights_required', message=u'Вы не являетесь модератором')
     def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_heroes
-
-    @property
-    def hero(self):
-        if not hasattr(self, '_hero'):
-            self._hero = HeroPrototype.get_by_id(self.hero_id)
-        return self._hero
 
     @handler('', method='get')
     def index(self):
@@ -82,12 +68,12 @@ class HeroResource(Resource):
         return self.redirect(reverse('game:heroes:show', args=[hero.id]))
 
 
-    @handler('#hero_id', name='show', method='get')
+    @handler('#hero', name='show', method='get')
     def hero_page(self):
         abilities = sorted(self.hero.abilities.all, key=lambda x: x.NAME)
-        battle_active_abilities = filter(lambda a: a.type.is_battle and a.activation_type.is_active, abilities)
-        battle_passive_abilities = filter(lambda a: a.type.is_battle and a.activation_type.is_passive, abilities)
-        nonbattle_abilities = filter(lambda a: a.type.is_nonbattle, abilities)
+        battle_active_abilities = filter(lambda a: a.type.is_battle and a.activation_type.is_active, abilities) # pylint: disable=W0110
+        battle_passive_abilities = filter(lambda a: a.type.is_battle and a.activation_type.is_passive, abilities)# pylint: disable=W0110
+        nonbattle_abilities = filter(lambda a: a.type.is_nonbattle, abilities)# pylint: disable=W0110
         edit_name_form = EditNameForm(initial={'name_forms': self.hero.normalized_name.forms[:6] if self.hero.is_name_changed else [self.hero.name]*6,
                                                'gender': self.hero.gender,
                                                'race': self.hero.race} )
@@ -102,14 +88,14 @@ class HeroResource(Resource):
 
     @login_required
     @validate_ownership()
-    @handler('#hero_id', 'choose-ability-dialog', method='get')
+    @handler('#hero', 'choose-ability-dialog', method='get')
     def choose_ability_dialog(self):
         return self.template('heroes/choose_ability.html',
                              {} )
 
     @login_required
     @validate_ownership()
-    @handler('#hero_id', 'change-hero', method='post')
+    @handler('#hero', 'change-hero', method='post')
     def change_hero(self):
         from textgen.words import Noun
         from game.game_info import GENDER_ID_2_STR
@@ -135,7 +121,7 @@ class HeroResource(Resource):
 
     @login_required
     @validate_moderator_rights()
-    @handler('#hero_id', 'reset-name', method='post')
+    @handler('#hero', 'reset-name', method='post')
     def reset_name(self):
         from textgen.words import Noun
 
@@ -156,7 +142,7 @@ class HeroResource(Resource):
 
     @login_required
     @validate_ownership()
-    @handler('#hero_id', 'choose-ability', method='post')
+    @handler('#hero', 'choose-ability', method='post')
     def choose_ability(self, ability_id):
 
         choose_task = ChooseHeroAbilityTask(hero_id=self.hero.id, ability_id=ability_id)
@@ -169,8 +155,8 @@ class HeroResource(Resource):
 
     @login_required
     @validate_ownership()
-    @handler('#hero_id', 'choose-preferences-dialog', method='get')
-    def choose_preferences_dialog(self, type):
+    @handler('#hero', 'choose-preferences-dialog', method='get')
+    def choose_preferences_dialog(self, type): # pylint: disable=W0622
 
         type = int(type)
 
@@ -222,7 +208,7 @@ class HeroResource(Resource):
 
     @login_required
     @validate_ownership()
-    @handler('#hero_id', 'choose-preferences', method='post')
+    @handler('#hero', 'choose-preferences', method='post')
     def choose_preferences(self):
 
         choose_preferences_form = ChoosePreferencesForm(self.request.POST)

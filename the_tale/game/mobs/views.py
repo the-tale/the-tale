@@ -50,18 +50,18 @@ class GuideMobResource(MobResourceBase):
         mobs = mobs_storage.all()
 
         if not self.can_create_mob and not self.can_moderate_mob:
-            mobs = filter(lambda mob: mob.state.is_enabled, mobs)
+            mobs = filter(lambda mob: mob.state.is_enabled, mobs) # pylint: disable=W0110
 
         is_filtering = False
 
         if state is not None:
             if not state.is_enabled: # if not default
                 is_filtering = True
-            mobs = filter(lambda mob: mob.state == state, mobs)
+            mobs = filter(lambda mob: mob.state == state, mobs) # pylint: disable=W0110
 
         if terrain is not None:
             is_filtering = True
-            mobs = filter(lambda mob: terrain.value in mob.terrains, mobs)
+            mobs = filter(lambda mob: terrain.value in mob.terrains, mobs) # pylint: disable=W0110
 
         if order_by.is_by_name:
             mobs = sorted(mobs, key=lambda mob: mob.name)

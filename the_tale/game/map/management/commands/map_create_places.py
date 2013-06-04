@@ -33,7 +33,7 @@ class Command(BaseCommand):
 
     help = 'create places'
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **kwargs):
         try:
             self.run()
         except Exception:
@@ -44,7 +44,7 @@ class Command(BaseCommand):
 
             raise
 
-    def run(self, *args, **options):
+    def run(self, *args, **kwargs):
 
         # to sync map size and do other unpredictable operations
         subprocess.call(['./manage.py', 'map_update_map'])
@@ -102,7 +102,7 @@ class Command(BaseCommand):
 
 
     @nested_commit_on_success
-    def create_place(self, name, x, y, size, roads_to, persons=[], name_forms=None):
+    def create_place(self, name, x, y, size, roads_to, persons=(), name_forms=None): # pylint: disable=R0914
 
         place_power = int(max(place.power for place in places_storage.all()) * float(size) / places_settings.MAX_SIZE)
 
