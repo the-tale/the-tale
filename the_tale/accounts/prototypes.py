@@ -103,7 +103,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                                                     currency=CURRENCY_TYPE.PREMIUM,
                                                     null_object=True)
 
-        if bank_account.is_fake:
+        if accounts_settings.CREATE_DEBUG_BANK_ACCOUNTS and bank_account.is_fake:
             bank_account = BankAccountPrototype.get_for_or_create(entity_type=ENTITY_TYPE.GAME_ACCOUNT,
                                                                   entity_id=self.id,
                                                                   currency=CURRENCY_TYPE.PREMIUM)

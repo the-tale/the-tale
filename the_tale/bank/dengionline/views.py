@@ -3,10 +3,14 @@
 from decimal import Decimal
 
 from django.utils.log import getLogger
+from django.conf import settings as project_settings
 
-from dext.views import handler
+from dext.views import handler, validate_argument
+from dext.utils.decorators import debug_required
+from dext.utils.urls import url
 
 from common.utils.resources import Resource
+from common.utils.decorators import superuser_required
 
 from bank.dengionline.prototypes import InvoicePrototype
 
@@ -31,7 +35,7 @@ class DengiOnlineResource(Resource):
 </result>''' % {'answer': check_result.answer, 'comment': check_result.text})
 
 
-    @handler('check-user', method='post')
+    @handler('check-user', method='post' if not project_settings.DEBUG else ['post', 'get'])
     def check_user(self, userid, key):
         self.log('check-user')
         return self.check_user_answer(InvoicePrototype.check_user(user_id=userid, key=key))
@@ -46,7 +50,7 @@ class DengiOnlineResource(Resource):
 </result>''' % {'order_id': order_id, 'answer': confirm_result.answer, 'comment': confirm_result.text})
 
 
-    @handler('confirm-payment', method='post')
+    @handler('confirm-payment', method='post' if not project_settings.DEBUG else ['post', 'get'])
     def confirm_payment(self, amount, userid, paymentid, key, paymode, orderid):
         self.log('confirm-payment')
         return self.confirm_payment_answer(orderid, InvoicePrototype.confirm_payment(received_amount=Decimal(amount),
@@ -55,3 +59,23 @@ class DengiOnlineResource(Resource):
                                                                                      key=key,
                                                                                      paymode=int(paymode),
                                                                                      order_id=int(orderid)))
+
+    @superuser_required()
+    @debug_required
+    @validate_argument('order', InvoicePrototype.get_by_id, 'dengionline.debug', u'Неверный идентификатор счёта')
+    @validate_argument('payment_id', int, 'dengionline.debug', u'Неверный идентификатор платежа в системе')
+    @validate_argument('paymode', int, 'dengionline.debug', u'Неверный идентификатор режима оплаты')
+    @handler('debug', method='get')
+    def debug(self, order, payment_id, paymode):
+        check_url = url('bank:dengionline:check-user', userid=order.user_id, key=InvoicePrototype.check_user_request_key(order.user_id))
+        confirm_url = url('bank:dengionline:confirm-payment',
+                          amount=order.payment_amount,
+                          userid=order.user_id,
+                          paymentid=payment_id,
+                          key=InvoicePrototype.confirm_request_key(amount=order.payment_amount,
+                                                                   user_id=order.user_id,
+                                                                   payment_id=payment_id),
+                          paymode=paymode,
+                          orderid=order.id)
+        return self.json_ok(data={'check_url': check_url,
+                                  'confirm_url': confirm_url})

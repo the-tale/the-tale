@@ -129,11 +129,6 @@ class ConfirmPaymentRequestsTests(RequestsTestsBase):
         self.check_xml_ok(self.post_xml(self.confirm_url(paymode=self.fabric.paymode+1)),
                           body=self.construct_user_answer(self.invoice.id, CONFIRM_PAYMENT_RESULT.ALREADY_PROCESSED_WRONG_ARGUMENTS))
 
-    def test_confim__already_failed_on_confirm(self):
-        self.invoice.fail_on_confirm()
-        self.check_xml_ok(self.post_xml(self.confirm_url()),
-                          body=self.construct_user_answer(self.invoice.id, CONFIRM_PAYMENT_RESULT.ALREADY_FAILED_ON_CONFIRM))
-
     def test_confim__discarded(self):
         self.invoice._model.state = INVOICE_STATE.DISCARDED
         self.invoice.save()
@@ -150,4 +145,4 @@ class ConfirmPaymentRequestsTests(RequestsTestsBase):
     def test_confirm_payment__exception_when_confirm(self):
         self.assertRaises(Exception, self.post_xml, self.confirm_url())
         self.invoice.reload()
-        self.assertTrue(self.invoice.state._is_FAILED_ON_CONFIRM)
+        self.assertTrue(self.invoice.state._is_REQUESTED)

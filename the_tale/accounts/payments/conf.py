@@ -6,5 +6,5 @@ from dext.utils.app_settings import app_settings
 
 payments_settings = app_settings('PAYMENTS',
                                  PREMIUM_CURRENCY_FOR_DOLLAR=100,
-                                 ENABLE_DENGIONLINE=False if not project_settings.TESTS_RUNNING else True,
+                                 ENABLE_REAL_PAYMENTS=False if not project_settings.TESTS_RUNNING else True,
                                  ALWAYS_ALLOWED_ACCOUNTS=[])

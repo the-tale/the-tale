@@ -171,3 +171,16 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertTrue(self.account.is_ban_forum)
         self.account._model.ban_forum_end_at = datetime.datetime.now()
         self.assertFalse(self.account.is_ban_forum)
+
+    def test_bank_account__not_created(self):
+        bank_account = self.account.bank_account
+
+        self.assertTrue(bank_account.is_fake)
+        self.assertEqual(bank_account.amount, 0)
+
+    @mock.patch('accounts.conf.accounts_settings.CREATE_DEBUG_BANK_ACCOUNTS', True)
+    def test_bank_account__created(self):
+        bank_account = self.account.bank_account
+
+        self.assertFalse(bank_account.is_fake)
+        self.assertEqual(bank_account.amount, 10000)

@@ -134,26 +134,27 @@ class InvoicePrototypeTests(testcase.TestCase):
         self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id, paymode=self.fabric.paymode+1))._is_ALREADY_PROCESSED_WRONG_ARGUMENTS)
         self.check_confirmed_invoice(state=INVOICE_STATE.PROCESSED)
 
-    def test_confim__already_failed_on_confirm(self):
-        self.invoice.fail_on_confirm()
-        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))._is_ALREADY_FAILED_ON_CONFIRM)
-        self.check_raw_invoice(state=INVOICE_STATE.FAILED_ON_CONFIRM)
-
     def test_confim__discarded(self):
         self.invoice._model.state = INVOICE_STATE.DISCARDED
         self.invoice.save()
         self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))._is_DISCARDED)
         self.check_raw_invoice(state=INVOICE_STATE.DISCARDED)
 
+
+    def test_confirm_payment__duplicate_payment_id(self):
+        self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))
+
+        invoice = self.fabric.create_invoice()
+        self.assertTrue(invoice.confirm(**self.fabric.confirm_args(order_id=invoice.id))._is_DUPLICATED_PAYMENT_ID)
+
+        invoice.reload()
+        self.assertTrue(invoice.state._is_REQUESTED)
+
     def test_confirm__all_states_processed_correctly(self):
         for state in INVOICE_STATE._records:
             self.invoice._model.state = state
             self.invoice.save()
             self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))
-
-    def test_fail_on_confirm(self):
-        self.invoice.fail_on_confirm()
-        self.assertTrue(self.invoice.state._is_FAILED_ON_CONFIRM)
 
     def confirm_payment_args(self, order_id=None, received_amount=None, user_id=None, payment_id=None, key=None, paymode=None):
         if received_amount is None:
@@ -179,7 +180,7 @@ class InvoicePrototypeTests(testcase.TestCase):
     def test_confirm_payment__exception_when_confirm(self):
         self.assertRaises(Exception, InvoicePrototype.confirm_payment, **self.confirm_payment_args())
         self.invoice.reload()
-        self.assertTrue(self.invoice.state._is_FAILED_ON_CONFIRM)
+        self.assertTrue(self.invoice.state._is_REQUESTED)
 
     def test_confirm_payment__success(self):
         with mock.patch('bank.dengionline.workers.banker.Worker.cmd_handle_confirmations') as cmd_handle_confirmations:
@@ -212,5 +213,6 @@ class InvoicePrototypeTests(testcase.TestCase):
 
         self.invoice.process()
 
+        self.assertTrue(self.invoice.state._is_PROCESSED)
         self.assertEqual(BankInvoicePrototype._db_count(), 1)
         self.assertTrue(BankInvoicePrototype._db_get_object(0).state._is_FORCED)

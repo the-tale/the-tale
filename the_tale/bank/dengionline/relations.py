@@ -19,8 +19,7 @@ class INVOICE_STATE(DjangoEnum):
     _records = ( ('REQUESTED', 0, u'запрошен'),
                  ('CONFIRMED', 1, u'подтверждён'),
                  ('PROCESSED', 2, u'средства зачислены'),
-                 ('FAILED_ON_CONFIRM', 3, u'ошибка при подтверждении'),
-                 ('DISCARDED', 4, u'отклонён по таймауту'))
+                 ('DISCARDED', 3, u'отклонён по таймауту'))
 
 
 class CHECK_USER_RESULT(DjangoEnum):
@@ -40,6 +39,5 @@ class CONFIRM_PAYMENT_RESULT(DjangoEnum):
                  ('ALREADY_PROCESSED', 6, u'уже обработано', u'YES'),
                  ('ALREADY_PROCESSED_WRONG_ARGUMENTS', 7, u'уже обработано, но новые аргументы отличаются от переданных ранее', u'NO'),
                  ('CONFIRMED', 8, u'подтверждено успешно', u'YES'),
-                 ('FAILED_ON_CONFIRM', 9, u'ошибка при обработке запроса', u'NO'),
-                 ('ALREADY_FAILED_ON_CONFIRM', 10, u'ранее возникла ошибка при обработке запроса', u'NO'),
-                 ('DISCARDED', 11, u'счёт отменён, превышено время ожидания ответа системы', u'NO'))
+                 ('DISCARDED', 9, u'счёт отменён, превышено время ожидания ответа системы', u'NO'),
+                 ('DUPLICATED_PAYMENT_ID', 10, u'попытка использовать уже зарегистрированый идентификатор оплаты (на стороне системы) для подтверждения другого счёта', u'NO') )

@@ -28,7 +28,7 @@ class PaymentsResource(Resource):
     def initialize(self, *args, **kwargs):
         super(PaymentsResource, self).initialize(*args, **kwargs)
 
-        self.dengionline_enabled = (payments_settings.ENABLE_DENGIONLINE or
+        self.dengionline_enabled = (payments_settings.ENABLE_REAL_PAYMENTS or
                                     self.account.id in payments_settings.ALWAYS_ALLOWED_ACCOUNTS)
 
         self.usd_to_premium = real_amount_to_game(1)
@@ -57,6 +57,17 @@ class PaymentsResource(Resource):
         postponed_task = purchase.buy(account=self.account)
         return self.json_processing(postponed_task.status_url)
 
+    @handler('successed', method='get')
+    def successed(self):
+        return self.template('payments/successed.html',
+                             {'account': self.account,
+                              'page_type': 'successed'})
+
+    @handler('failed', method='get')
+    def failed(self):
+        return self.template('payments/failed.html',
+                             {'account': self.account,
+                              'page_type': 'failed'})
 
     @validate_dengionline_enabled()
     @handler('pay-dialog', method='get')
@@ -80,7 +91,7 @@ class PaymentsResource(Resource):
                                                bank_currency=CURRENCY_TYPE.PREMIUM,
                                                bank_amount=form.c.game_amount,
                                                email=self.account.email,
-                                               comment=u'Покупка печенек: %d шт.' % form.c.real_amount,
+                                               comment=u'Покупка печенек: %d шт.' % form.c.game_amount,
                                                payment_amount=form.c.real_amount,
                                                payment_currency=DO_CURRENCY_TYPE.USD)
         except exceptions.CreationLimitError:

@@ -7,6 +7,8 @@ import rels
 from datetime import datetime
 from decimal import Decimal
 
+from dext.utils.decorators import nested_commit_on_success
+
 from common.utils.prototypes import BasePrototype
 
 from bank.dengionline.models import Invoice
@@ -44,6 +46,7 @@ class InvoicePrototype(BasePrototype):
                 raise exceptions.WrongValueTypeError(value_name=key, type=value.__class__)
 
     @classmethod
+    @nested_commit_on_success
     def create(cls, bank_type, bank_id, bank_currency, bank_amount, user_id, comment, payment_amount, payment_currency):
 
         cls.check_types(bank_type=(bank_type, rels.Record),
@@ -120,7 +123,7 @@ class InvoicePrototype(BasePrototype):
         if invoice is None:
             return CONFIRM_PAYMENT_RESULT.INVOICE_NOT_FOUND
 
-        try:
+        with nested_commit_on_success():
             confirm_result = invoice.confirm(order_id=int(order_id),
                                              received_amount=Decimal(received_amount),
                                              received_currency=CURRENCY_TYPE._index_name[dengionline_settings.RECEIVED_CURRENCY_TYPE],
@@ -129,17 +132,10 @@ class InvoicePrototype(BasePrototype):
                                              key=key,
                                              paymode=int(paymode))
 
-            if confirm_result._is_CONFIRMED:
-                workers_environment.dengionline_banker.cmd_handle_confirmations()
-            return confirm_result
-        except:
-            invoice.reload()
-            invoice.fail_on_confirm()
-            raise
+        if confirm_result._is_CONFIRMED:
+            workers_environment.dengionline_banker.cmd_handle_confirmations()
 
-    def fail_on_confirm(self):
-        self._model.state = INVOICE_STATE.FAILED_ON_CONFIRM
-        self.save()
+        return confirm_result
 
     def confirm(self, order_id, received_amount, received_currency, user_id, payment_id, key, paymode):
 
@@ -165,15 +161,15 @@ class InvoicePrototype(BasePrototype):
                 return CONFIRM_PAYMENT_RESULT.ALREADY_PROCESSED_WRONG_ARGUMENTS
             return CONFIRM_PAYMENT_RESULT.ALREADY_PROCESSED
 
-        if self.state._is_FAILED_ON_CONFIRM:
-            return CONFIRM_PAYMENT_RESULT.ALREADY_FAILED_ON_CONFIRM
-
         if self.state._is_DISCARDED:
             return CONFIRM_PAYMENT_RESULT.DISCARDED
 
         if not self.state._is_REQUESTED:
             # all states MUST be processed before this line
             raise exceptions.WrongInvoiceStateInConfirmationError(state=self.state)
+
+        if self._db_filter(payment_id=str(payment_id)).exists():
+            return CONFIRM_PAYMENT_RESULT.DUPLICATED_PAYMENT_ID
 
         self._model.received_amount = received_amount
         self._model.received_currency = received_currency
@@ -203,6 +199,7 @@ class InvoicePrototype(BasePrototype):
                                          force=True)
 
         self._model.bank_invoice_id = transaction.invoice_id
+        self._model.state = INVOICE_STATE.PROCESSED
         self.save()
 
     @classmethod

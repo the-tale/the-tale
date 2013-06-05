@@ -49,16 +49,16 @@ class ShopRequestesTests(RequestesTestsBase):
         requested_url = url('accounts:payments:shop')
         self.check_redirect(requested_url, login_url(requested_url))
 
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', True)
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', True)
     def test_buy_link(self):
         self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-pay-dialog-link', 2)])
 
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
     @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
     def test_dengionline_disabled__global(self):
         self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-pay-dialog-link', 0)])
 
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
     def test_dengionline_disabled__global_with_exception(self):
         with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
             self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-pay-dialog-link', 2)])
@@ -191,13 +191,13 @@ class PayWithDengionlineRequestesTests(RequestesTestsBase):
         self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)),
                               'payments.pay_with_dengionline.creation_limit_riched')
 
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
     @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
     def test_dengionline_disabled__global(self):
         self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)),
                               'payments.dengionline_disabled')
 
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
     def test_dengionline_disabled__global_with_exception(self):
         with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
             self.check_ajax_ok(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)))
@@ -217,12 +217,12 @@ class PayDialogRequestesTests(RequestesTestsBase):
         self.request_logout()
         self.check_html_ok(self.request_ajax_html(url('accounts:payments:pay-dialog')), texts=['common.login_required'])
 
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
     @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
     def test_dengionline_disabled__global(self):
         self.check_html_ok(self.request_ajax_html(url('accounts:payments:pay-dialog')), texts=['payments.dengionline_disabled'])
 
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_DENGIONLINE', False)
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
     def test_dengionline_disabled__global_with_exception(self):
         with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
             self.check_html_ok(self.request_ajax_html(url('accounts:payments:pay-dialog')), texts=[('payments.dengionline_disabled', 0)])
@@ -280,3 +280,21 @@ class GiveMoneyRequestesTests(RequestesTestsBase):
         self.assertTrue(invoice.state._is_FORCED)
 
         self.check_ajax_ok(response)
+
+
+class SuccessedRequestesTests(RequestesTestsBase):
+
+    def setUp(self):
+        super(SuccessedRequestesTests, self).setUp()
+
+    def test_success(self):
+        self.check_html_ok(self.request_html(url('accounts:payments:successed')))
+
+
+class FailedRequestesTests(RequestesTestsBase):
+
+    def setUp(self):
+        super(FailedRequestesTests, self).setUp()
+
+    def test_success(self):
+        self.check_html_ok(self.request_html(url('accounts:payments:failed')))

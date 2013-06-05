@@ -1,0 +1,12 @@
+{% extends "accounts/base.html" %}
+
+{% block accounts_content %}
+
+<div class="alert alert-error">
+  <h3>Платёж не выполнен</h3>
+  <p>
+    При проведении платежа произошла ошибка. Вы можете <a href="{{ url('accounts:payments:shop') }}">попробовать ещё раз</a> или обратиться в службу поддержки: <a href="mailto:{{ settings.EMAIL_SUPPORT }}">{{ settings.EMAIL_SUPPORT_SHORT }}</a>.
+  </p>
+</div>
+
+{% endblock %}
