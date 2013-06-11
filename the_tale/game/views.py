@@ -51,7 +51,7 @@ class GameResource(Resource):
             if is_own_hero:
                 data['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
                 abilities_data = AbilitiesData.objects.get(hero_id=data['hero']['id'])
-                data['abilities'] = [ability(abilities_data).ui_info() for ability_type, ability in ABILITIES.items()]
+                data['abilities'] = [ability(abilities_data).ui_info() for ability in ABILITIES.values()]
 
                 data['pvp'] = {'waiting': False}
 

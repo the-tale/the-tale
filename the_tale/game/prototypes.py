@@ -121,7 +121,7 @@ class SupervisorTaskPrototype(BasePrototype):
             return self.process_arena_pvp_1x1()
 
 
-    def process_arena_pvp_1x1(self):
+    def process_arena_pvp_1x1(self): # pylint: disable=R0914
         from accounts.prototypes import AccountPrototype
         from game.actions.prototypes import ActionMetaProxyPrototype
         from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype

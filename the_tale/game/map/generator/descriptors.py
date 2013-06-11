@@ -145,7 +145,7 @@ class UICell(object):
 
 class UICells(object):
 
-    def __init__(self, generator=None):
+    def __init__(self, generator=None): # pylint: disable=W0613
         self.cells = ()
 
     def get_cell(self, x, y):

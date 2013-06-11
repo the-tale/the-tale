@@ -42,7 +42,7 @@ class AbilityPrototype(object):
     def need_form(cls):
         return cls.FORM is not None
 
-    def on_cooldown(self, time, hero_id):
+    def on_cooldown(self, time, hero_id): # pylint: disable=W0613
         if self.COOLDOWN is None:
             return False
         if self.available_at < time.turn_number:

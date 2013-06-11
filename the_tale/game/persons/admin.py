@@ -6,7 +6,7 @@ from game.persons.models import Person
 from game.persons.prototypes import PersonPrototype
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('id','place', 'state', 'type', 'name', 'power', 'created_at', 'out_game_at')
+    list_display = ('id', 'place', 'state', 'type', 'name', 'power', 'created_at', 'out_game_at')
 
     list_filter = ('state', 'type', 'place')
 

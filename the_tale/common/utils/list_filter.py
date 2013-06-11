@@ -44,7 +44,7 @@ def reset_element(caption=u'сбросить фильтрацию'):
             arguments = {argument:None for argument in url_builder.arguments_names}
 
             for element in self.list_filter.elements:
-                arguments.update(self.default_arguments)
+                arguments.update(element.default_arguments)
 
             return url_builder(**arguments)
 

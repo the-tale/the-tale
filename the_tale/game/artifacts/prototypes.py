@@ -6,6 +6,7 @@ from textgen.words import Noun
 from dext.utils import s11n
 
 from common.utils import bbcode
+from common.utils.prototypes import BasePrototype
 
 from game.balance import constants as c, formulas as f
 
@@ -116,79 +117,51 @@ class ArtifactPrototype(object):
                 self.bag_uuid == other.bag_uuid)
 
 
-class ArtifactRecordPrototype(object):
-
-    def __init__(self, model):
-        self.model = model
-
-    @property
-    def id(self): return self.model.id
-
-    @classmethod
-    def get_by_id(cls, id_):
-        try:
-            return cls(ArtifactRecord.objects.get(id=id_))
-        except ArtifactRecord.DoesNotExist:
-            return None
-
-    @property
-    def editor_id(self): return self.model.editor.id if self.model.editor is not None else None
-
-    def get_level(self): return self.model.level
-    def set_level(self, value): self.model.level = value
-    level = property(get_level, set_level)
-
-    def get_uuid(self): return self.model.uuid
-    def set_uuid(self, value): self.model.uuid = value
-    uuid = property(get_uuid, set_uuid)
+class ArtifactRecordPrototype(BasePrototype):
+    _model_class = ArtifactRecord
+    _readonly = ('id', 'editor_id', 'mob_id')
+    _bidirectional = ('level', 'uuid', 'name', 'description')
+    _get_by = ('id', )
 
     def get_state(self):
         if not hasattr(self, '_state'):
-            self._state = ARTIFACT_RECORD_STATE(self.model.state)
+            self._state = ARTIFACT_RECORD_STATE(self._model.state)
         return self._state
     def set_state(self, value):
         self.state.update(value)
-        self.model.state = self.state.value
+        self._model.state = self.state.value
     state = property(get_state, set_state)
 
     def get_rarity(self):
         if not hasattr(self, '_rarity'):
-            self._rarity = RARITY_TYPE(self.model.rarity)
+            self._rarity = RARITY_TYPE(self._model.rarity)
         return self._rarity
     def set_rarity(self, value):
         self.rarity.update(value)
-        self.model.rarity = self.rarity.value
+        self._model.rarity = self.rarity.value
     rarity = property(get_rarity, set_rarity)
 
     def get_type(self):
         if not hasattr(self, '_type'):
-            self._type = ARTIFACT_TYPE(self.model.type)
+            self._type = ARTIFACT_TYPE(self._model.type)
         return self._type
     def set_type(self, value):
         self.type.update(value)
-        self.model.type = self.type.value
+        self._model.type = self.type.value
     type = property(get_type, set_type)
-
-    def get_name(self): return self.model.name
-    def set_name(self, value): self.model.name = value
-    name = property(get_name, set_name)
 
     def get_name_forms(self):
         if not hasattr(self, '_normalized_name'):
-            self._name_forms = Noun.deserialize(s11n.from_json(self.model.name_forms))
+            self._name_forms = Noun.deserialize(s11n.from_json(self._model.name_forms))
         return self._name_forms
     def set_name_forms(self, word):
         self._normalized_name = word
-        self.model.name = word.normalized
-        self.model.name_forms = s11n.to_json(word.serialize())
+        self._model.name = word.normalized
+        self._model.name_forms = s11n.to_json(word.serialize())
     name_forms = property(get_name_forms, set_name_forms)
 
-    def get_description(self): return self.model.description
-    def set_description(self, value): self.model.description = value
-    description = property(get_description, set_description)
-
     @property
-    def description_html(self): return bbcode.render(self.model.description)
+    def description_html(self): return bbcode.render(self._model.description)
 
     def accepted_for_level(self, level): return self.level <= level
 
@@ -198,15 +171,12 @@ class ArtifactRecordPrototype(object):
     @property
     def priority(self): return RARITY_TYPE_2_PRIORITY[self.rarity.value]
 
-    @property
-    def mob_id(self): return self.model.mob_id
-
     def get_mob(self):
         from game.mobs.storage import mobs_storage
-        if self.model.mob_id is None: return None
-        return mobs_storage[self.model.mob_id]
+        if self._model.mob_id is None: return None
+        return mobs_storage[self._model.mob_id]
     def set_mob(self, value):
-        self.model.mob = value.model if value is not None else value
+        self._model.mob = value._model if value is not None else value
     mob = property(get_mob, set_mob)
 
     @classmethod
@@ -224,7 +194,7 @@ class ArtifactRecordPrototype(object):
                                               name=name,
                                               name_forms=s11n.to_json(name_forms.serialize()),
                                               description=description,
-                                              mob=mob.model if mob else None,
+                                              mob=mob._model if mob else None,
                                               type=type_,
                                               rarity=rarity,
                                               state=state,
@@ -257,11 +227,11 @@ class ArtifactRecordPrototype(object):
     def update_by_moderator(self, form, editor=None):
         from game.logic import DEFAULT_HERO_EQUIPMENT
 
-        if self.uuid in DEFAULT_HERO_EQUIPMENT._ALL:
-            if self.uuid != form.c.uuid:
-                raise ArtifactsException('we can not change uuid of default hero equipment (%s - > %s)' % (self.uuid, form.c.uuid))
+        if self.uuid in DEFAULT_HERO_EQUIPMENT._ALL: # pylint: disable=E0203
+            if self.uuid != form.c.uuid:  # pylint: disable=E0203
+                raise ArtifactsException('we can not change uuid of default hero equipment (%s - > %s)' % (self.uuid, form.c.uuid)) # pylint: disable=E0203
             if not form.c.approved:
-                raise ArtifactsException('we can not disable default hero equipment (%s)' % self.uuid)
+                raise ArtifactsException('we can not disable default hero equipment (%s)' % self.uuid) # pylint: disable=E0203
 
         self.name_forms = form.c.name_forms
         self.level = form.c.level
@@ -280,7 +250,7 @@ class ArtifactRecordPrototype(object):
     def save(self):
         from game.artifacts.storage import artifacts_storage
 
-        self.model.save()
+        self._model.save()
 
         artifacts_storage.update_cached_data(self)
         artifacts_storage.update_version()

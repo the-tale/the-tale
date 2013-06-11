@@ -1,5 +1,5 @@
 # coding: utf-8
-import string
+import string # pylint: disable=W0402
 import random
 
 TECHNICAL_SYMBOLS = '!@#$%^&*()-_=+'

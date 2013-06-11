@@ -34,7 +34,7 @@ def get_system_user():
     account = AccountPrototype.get_by_nick(accounts_settings.SYSTEM_USER_NICK)
     if account: return account
 
-    register_result, account_id, bundle_id = register_user(accounts_settings.SYSTEM_USER_NICK,
+    register_result, account_id, bundle_id = register_user(accounts_settings.SYSTEM_USER_NICK, # pylint: disable=W0612
                                                            email=project_settings.EMAIL_NOREPLY,
                                                            password=generate_password(len_=accounts_settings.RESET_PASSWORD_LENGTH))
 

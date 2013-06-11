@@ -59,7 +59,7 @@ def _fill_places_for_short_paths(base, hero):
         base.add_place(place_uuid, terrains=place.terrains, external_data={'id': place.id})
 
 
-def get_knowlege_base(hero):
+def get_knowlege_base(hero): # pylint: disable=R0912
 
     base = KnowlegeBase()
 
@@ -175,6 +175,6 @@ def _create_random_quest_for_hero(hero, knowlege_base, special):
 
     quest_prototype = QuestPrototype.create(hero, env)
 
-    _quests_logger.info('hero: %d\n\n\n%s' % (hero.id, quest_prototype._model.env))
+    _quests_logger.info('hero: %d\n\n\n%s', hero.id, quest_prototype._model.env)
 
     return quest_prototype

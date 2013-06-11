@@ -22,6 +22,7 @@ class UseAbilityTask(PostponedLogic):
     TYPE = 'use-ability'
 
     def __init__(self, ability_type, hero_id, activated_at, available_at, data, step=None, state=ABILITY_TASK_STATE.UNPROCESSED):
+        super(UseAbilityTask, self).__init__()
         self.ability_type = ability_type
         self.hero_id = hero_id
         self.activated_at = activated_at
@@ -45,7 +46,7 @@ class UseAbilityTask(PostponedLogic):
     @property
     def error_message(self): return ABILITY_TASK_STATE._CHOICES[self.state][1]
 
-    def process(self, main_task, storage=None, pvp_balancer=None, highlevel=None):
+    def process(self, main_task, storage=None, pvp_balancer=None, highlevel=None): # pylint: disable=R0911
         from game.abilities.deck import ABILITIES
         ability = ABILITIES[self.ability_type](AbilitiesData.objects.get(hero_id=self.hero_id))
 

@@ -40,7 +40,7 @@ class RatingResource(Resource):
 
 
     @handler('#rating_type', name='show', method='get')
-    def show(self, page=1):
+    def show(self, page=1): # pylint: disable=R0914
 
         ratings_updated_at_timestamp = settings.get(ratings_settings.SETTINGS_UPDATE_TIMESTEMP_KEY, None)
 

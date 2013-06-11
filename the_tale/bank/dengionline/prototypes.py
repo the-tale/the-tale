@@ -137,7 +137,7 @@ class InvoicePrototype(BasePrototype):
 
         return confirm_result
 
-    def confirm(self, order_id, received_amount, received_currency, user_id, payment_id, key, paymode):
+    def confirm(self, order_id, received_amount, received_currency, user_id, payment_id, key, paymode): # pylint: disable=R0911
 
         if order_id != self.id:
             return CONFIRM_PAYMENT_RESULT.WRONG_ORDER_ID

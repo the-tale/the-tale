@@ -9,7 +9,7 @@ E = 0.00001
 
 class ConstantsTest(testcase.TestCase):
 
-    def test_constants_values(self):
+    def test_constants_values(self): # pylint: disable=R0915
 
         self.assertEqual(c.TIME_TO_LVL_DELTA, 5.0)
         self.assertEqual(c.INITIAL_HP, 500)
@@ -159,7 +159,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM, 2)
         self.assertEqual(c.ABILITIES_FOR_CHOOSE_MAXIMUM, 4)
 
-        self.assertEqual(c.DAMAGE_PVP_ADVANTAGE_MODIFIER,0.5)
+        self.assertEqual(c.DAMAGE_PVP_ADVANTAGE_MODIFIER, 0.5)
         self.assertEqual(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, 5)
         self.assertEqual(c.PVP_MAX_ADVANTAGE_STEP, 0.25)
         self.assertEqual(c.PVP_ADVANTAGE_BARIER, 0.95)

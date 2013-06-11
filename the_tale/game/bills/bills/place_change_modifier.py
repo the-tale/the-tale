@@ -8,6 +8,7 @@ from dext.forms import fields
 
 from game.bills.models import BILL_TYPE
 from game.bills.forms import BaseUserForm, BaseModeratorForm
+from game.bills.bills.base_bill import BaseBill
 
 from game.map.places.storage import places_storage
 from game.map.places.modifiers import MODIFIERS
@@ -43,7 +44,7 @@ class ModeratorForm(BaseModeratorForm):
     pass
 
 
-class PlaceModifier(object):
+class PlaceModifier(BaseBill):
 
     type = BILL_TYPE.PLACE_MODIFIER
 
@@ -58,6 +59,7 @@ class PlaceModifier(object):
     DESCRIPTION = u'Изменяет специализацию города. Изменить специализацию можно только на одну из доступных для этого города. Посмотреть доступные варианты можно в диалоге информации о городе на странице игры.'
 
     def __init__(self, place_id=None, modifier_id=None, modifier_name=None, old_modifier_name=None, old_name_forms=None):
+        super(PlaceModifier, self).__init__()
         self.place_id = place_id
         self.modifier_id = modifier_id
         self.modifier_name = modifier_name
@@ -79,10 +81,6 @@ class PlaceModifier(object):
                 'new_modifier': self.modifier_id}
 
     @property
-    def moderator_form_initials(self):
-        return {}
-
-    @property
     def place_name_changed(self):
         return self.old_name != self.place.name
 
@@ -95,18 +93,6 @@ class PlaceModifier(object):
         self.modifier_name = MODIFIERS[self.modifier_id].NAME
         self.old_name_forms = self.place.normalized_name
         self.old_modifier_name = self.place.modifier.NAME if self.place.modifier else None
-
-    def initialize_with_moderator_data(self, moderator_form):
-        pass
-
-    @classmethod
-    def get_user_form_create(cls, post=None):
-        return cls.UserForm(post)
-
-    def get_user_form_update(self, post=None, initial=None):
-        if initial:
-            return self.UserForm(initial=initial)
-        return  self.UserForm(post)
 
     def apply(self):
         self.place.modifier = self.modifier_id

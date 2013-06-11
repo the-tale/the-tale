@@ -24,7 +24,7 @@ class MessagesContainer(object):
         self.messages.append(msg)
 
         if len(self.messages) > 1 and (self.messages[-1][0] < self.messages[-2][0] or self.messages[-1][1] < self.messages[-2][1]):
-            self.messages.sort(lambda a, b: cmp(a, b)) # compare tuples
+            self.messages.sort() # compare tuples
 
         if len(self.messages) > heroes_settings.MESSAGES_LOG_LENGTH:
             self.messages.pop(0)
@@ -60,7 +60,7 @@ class MessagesContainer(object):
         if len(self.messages) != len(other.messages):
             return False
 
-        for a,b in zip(self.messages, other.messages):
+        for a, b in zip(self.messages, other.messages):
             if a[0] != b[0] or a[2] != b[2] or abs(a[1] - b[1]) > 0.0001:
                 return False
 

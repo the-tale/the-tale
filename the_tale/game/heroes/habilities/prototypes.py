@@ -76,7 +76,7 @@ class AbilityPrototype(object):
 
     def update_buy_price(self, hero, money): return money # pylint: disable=W0613
 
-    def update_sell_price(self, hero, money): return money
+    def update_sell_price(self, hero, money): return money # pylint: disable=W0613
 
     def update_items_of_expenditure_priorities(self, hero, priorities): return priorities # pylint: disable=W0613
 

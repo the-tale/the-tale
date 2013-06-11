@@ -35,7 +35,7 @@ class Command(BaseCommand):
                                                           help='y coordinate'), )
 
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options): # pylint: disable=R0914
 
         x = options['x']
         y = options['y']

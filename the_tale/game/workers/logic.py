@@ -32,12 +32,7 @@ class Worker(BaseWorker):
         self.supervisor_worker = supervisor_worker
 
     # @profile_decorator('game_logic.profiled')
-    def run(self):
-
-        while not self.exception_raised and not self.stop_required:
-            cmd = self.command_queue.get(block=True)
-            cmd.ack()
-            self.process_cmd(cmd.payload)
+    run = BaseWorker.run_simple
 
     def initialize(self):
         # worker initialized by supervisor
@@ -127,7 +122,7 @@ class Worker(BaseWorker):
         return self.send_cmd('logic_task', {'task_id': task_id,
                                             'account_id': account_id})
 
-    def process_logic_task(self, account_id, task_id):
+    def process_logic_task(self, account_id, task_id): # pylint: disable=W0613
         settings.refresh()
 
         task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
@@ -168,7 +163,7 @@ class Worker(BaseWorker):
     def cmd_set_might(self, account_id, hero_id, might):
         self.send_cmd('set_might', {'hero_id': hero_id, 'might': might, 'account_id': account_id})
 
-    def process_set_might(self, account_id, hero_id, might):
+    def process_set_might(self, account_id, hero_id, might): # pylint: disable=W0613
 
         hero = self.storage.heroes[hero_id]
         hero.might = might

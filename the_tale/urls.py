@@ -10,9 +10,9 @@ from django.conf import settings as project_settings
 from dext import jinja2 as jinja2_next
 from dext.views import create_handler_view
 
-from portal.views import PortalResource
+from portal.views import PortalResource # pylint: disable=W0403
 
-from common import postponed_tasks
+from common import postponed_tasks # pylint: disable=W0403
 
 admin.autodiscover()
 jinja2_next.autodiscover()

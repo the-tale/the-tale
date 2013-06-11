@@ -61,7 +61,7 @@ class PersonPrototype(BasePrototype):
         mastery = PROFESSION_TO_RACE_MASTERY[self.type.value][self.race]
         building = buildings_storage.get_by_person_id(self.id)
         if building:
-           mastery += c.BUILDING_MASTERY_BONUS * building.integrity
+            mastery += c.BUILDING_MASTERY_BONUS * building.integrity
         return min(mastery, 1)
 
     @property
@@ -173,7 +173,7 @@ class PersonPrototype(BasePrototype):
         choices = []
 
         for place in places_storage.all():
-            persons_choices = filter(lambda person: predicate(place, person), place.persons)
+            persons_choices = filter(lambda person: predicate(place, person), place.persons) # pylint: disable=W0110
             accepted_persons = persons_choices[place.max_persons_number/2:] if only_weak else persons_choices
 
             if choosen_person is not None and choosen_person.place.id == place.id:

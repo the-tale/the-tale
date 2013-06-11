@@ -20,7 +20,7 @@ def login_required(func):
 
     return wrapper
 
-def staff_required(permissions=[]):
+def staff_required(permissions=()):
 
     @functools.wraps(staff_required)
     def decorator(func):
@@ -39,7 +39,7 @@ def staff_required(permissions=[]):
     return decorator
 
 
-def superuser_required(permissions=[]):
+def superuser_required(permissions=()):
 
     @functools.wraps(staff_required)
     def decorator(func):

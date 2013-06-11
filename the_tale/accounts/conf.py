@@ -29,6 +29,6 @@ accounts_settings = app_settings('ACCOUNTS',
 
                                  CREATE_DEBUG_BANK_ACCOUNTS=False,
 
-                                 NICK_REGEX=u'[a-zA-Z0-9\-\ _а-яА-Я]+',
+                                 NICK_REGEX=ur'[a-zA-Z0-9\-\ _а-яА-Я]+',
                                  NICK_MIN_LENGTH=3,
                                  NICK_MAX_LENGTH=30)

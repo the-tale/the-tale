@@ -25,7 +25,7 @@ class DengiOnlineResource(Resource):
 
     def log(self, name):
         message = u'%(name)s\tfrom "%(referer)s" with %(args)r'
-        logger.info(message % {'name': name, 'referer': self.request.META.get('HTTP_REFERER'), 'args': self.request.GET})
+        logger.info(message, name=name, referer=self.request.META.get('HTTP_REFERER'), args=self.request.GET)
 
     def check_user_answer(self, check_result):
         return self.xml(u'''<?xml version="1.0" encoding="UTF-8"?>

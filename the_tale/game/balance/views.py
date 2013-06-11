@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import math
 
 from dext.views import handler
@@ -29,8 +29,8 @@ class BalanceResource(Resource):
         tmp_exp_to_level = map(math.floor, map(f.exp_on_lvl, tmp_lvls))
         tmp_exp_total = map(math.floor, map(f.total_exp_to_lvl, tmp_lvls))
 
-        tmp_quests_to_level = map(math.ceil, map(lambda exp: exp/float(exp_for_quest), tmp_exp_to_level))
-        tmp_quests_total = map(math.ceil, map(lambda exp: exp/float(exp_for_quest), tmp_exp_total))
+        tmp_quests_to_level = map(math.ceil, (exp/float(exp_for_quest) for exp in tmp_exp_to_level))
+        tmp_quests_total = map(math.ceil, (exp/float(exp_for_quest) for exp in tmp_exp_total))
 
         tmp_hp = map(f.hp_on_lvl, tmp_lvls)
         tmp_turns = map(f.turns_on_lvl, tmp_lvls)

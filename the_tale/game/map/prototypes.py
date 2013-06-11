@@ -72,7 +72,7 @@ class MapInfoPrototype(BasePrototype):
         WorldInfo.objects.exclude(id__in=world_info_ids).delete()
 
     @classmethod
-    def create(cls, turn_number, width, height, terrain, world):
+    def create(cls, turn_number, width, height, terrain, world): # pylint: disable=R0914
         from game.map.generator.descriptors import UICells
 
         terrain_percents = {}

@@ -20,6 +20,7 @@ class ChooseQuestLineTask(PostponedLogic):
     TYPE = 'choose-quest-line-task'
 
     def __init__(self, account_id, quest_id, choice_point, choice, state=CHOOSE_QUEST_LINE_STATE.UNPROCESSED):
+        super(ChooseQuestLineTask, self).__init__()
         self.account_id = account_id
         self.quest_id = quest_id
         self.choice_point = choice_point

@@ -50,7 +50,7 @@ class Worker(BaseWorker):
         self.supervisor_worker.cmd_set_might(hero.account_id, hero.id, self.calculate_might(hero))
 
 
-    def calculate_might(self, hero):
+    def calculate_might(self, hero): # pylint: disable=R0914
 
         from accounts.models import Award, AWARD_TYPE
         from forum.models import Post, Thread, POST_STATE

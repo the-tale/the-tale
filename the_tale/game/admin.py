@@ -1,17 +1,17 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from django.contrib import admin
 
 from game.models import Bundle, SupervisorTask, SupervisorTaskMember
 
 class BundleAdmin(admin.ModelAdmin):
-    list_display = ('id','owner', 'type')
+    list_display = ('id', 'owner', 'type')
 
 class SupervisorTaskAdmin(admin.ModelAdmin):
-    list_display = ('id','type', 'state', 'created_at')
+    list_display = ('id', 'type', 'state', 'created_at')
 
 class SupervisorTaskMemberAdmin(admin.ModelAdmin):
-    list_display = ('id','task', 'account')
+    list_display = ('id', 'task', 'account')
 
 admin.site.register(Bundle, BundleAdmin)
 admin.site.register(SupervisorTask, SupervisorTaskAdmin)

@@ -62,7 +62,7 @@ class HeroPreferences(object):
 
         return mob
     def set_mob(self, value):
-        self.hero_model.pref_mob = value.model if value is not None else None
+        self.hero_model.pref_mob = value._model if value is not None else None
     mob = property(get_mob, set_mob)
 
     def get_mob_changed_at(self): return self.hero_model.pref_mob_changed_at

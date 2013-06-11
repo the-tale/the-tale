@@ -33,13 +33,13 @@ class Environment(BaseEnvironment):
             item_data['external_data']['artifact'] = artifact.serialize()
 
     def sync_quests(self):
-        for quest_id, quest in self.quests.items():
+        for quest in self.quests.values():
             writer = self.writers_constructor(None, quest.type(), self, quest.env_local)
             quest.name = writer.get_description_msg()
 
     def get_game_place(self, place_id): return places_storage[self.places[place_id]['external_data']['id']]
 
-    def get_game_person(self, person_id):
+    def get_game_person(self, person_id):  # pylint: disable=W0613
         return self.persons['external_data']['name']
 
     def get_game_item(self, item_id):

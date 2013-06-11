@@ -10,6 +10,7 @@ from game.map.places.models import Place
 
 from game.bills.models import BILL_TYPE
 from game.bills.forms import BaseUserForm, BaseModeratorForm
+from game.bills.bills.base_bill import BaseBill
 
 from game.map.places.storage import places_storage
 
@@ -28,7 +29,7 @@ class ModeratorForm(BaseModeratorForm):
     name_forms = SimpleWordField(label=u'Формы названия')
 
 
-class PlaceRenaming(object):
+class PlaceRenaming(BaseBill):
 
     type = BILL_TYPE.PLACE_RENAMING
 
@@ -43,6 +44,7 @@ class PlaceRenaming(object):
     DESCRIPTION = u'Изменяет название города. При выборе нового названия постарайтесь учесть, какой расе принадлежит город, кто является его жителями и в какую сторону он развивается.'
 
     def __init__(self, place_id=None, base_name=None, name_forms=None, old_name_forms=None):
+        super(PlaceRenaming, self).__init__()
         self.place_id = place_id
         self.name_forms = name_forms
         self.old_name_forms = old_name_forms
@@ -86,20 +88,9 @@ class PlaceRenaming(object):
     def initialize_with_moderator_data(self, moderator_form):
         self.name_forms = moderator_form.c.name_forms
 
-    @classmethod
-    def get_user_form_create(cls, post=None):
-        return cls.UserForm(post)
-
-    def get_user_form_update(self, post=None, initial=None):
-        if initial:
-            return self.UserForm(initial=initial)
-        return  self.UserForm(post)
-
-
     def apply(self):
         self.place.set_name_forms(self.name_forms)
         self.place.save()
-
 
     def serialize(self):
         return {'type': self.type.name.lower(),

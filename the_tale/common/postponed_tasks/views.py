@@ -17,7 +17,7 @@ class PostponedTaskResource(Resource):
         self.task = task
 
     @handler('#task', 'status', method='get')
-    def status(self):
+    def status(self): # pylint: disable=R0911
         if self.task.state.is_waiting:
             return self.json_processing(reverse('postponed-tasks:status', args=[self.task.id]))
 

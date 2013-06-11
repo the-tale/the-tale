@@ -57,7 +57,7 @@ class DevelopersInfoResource(Resource):
                               'page_type': 'index'})
 
     @handler('mobs-and-artifacts', method='get')
-    def mobs_and_artifacts(self):
+    def mobs_and_artifacts(self): # pylint: disable=R0914
         from game.mobs.storage import mobs_storage
         from game.artifacts.storage import artifacts_storage
         from game.map.relations import TERRAIN

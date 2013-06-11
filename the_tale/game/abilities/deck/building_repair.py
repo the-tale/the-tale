@@ -26,7 +26,7 @@ class BuildingRepair(AbilityPrototype):
     NAME = u'Вызвать рабочего'
     DESCRIPTION = u'Вызвать рабочего для ремонта здания'
 
-    def use(self, data, step, main_task_id, storage, highlevel, **kwargs):
+    def use(self, data, step, main_task_id, storage, highlevel, **kwargs): # pylint: disable=R0911,W0613
 
         building_id = data.get('building_id')
 

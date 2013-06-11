@@ -29,10 +29,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         try:
-            for i in xrange(options['repeate_number']):
+            for i in xrange(options['repeate_number']): # pylint: disable=W0612
                 # print i
                 update_map(index=map_info_storage.item.id+1)
-        except Exception:
+        except Exception: # pylint: disable=W0703
             traceback.print_exc()
             logger.error('Map generation exception',
                          exc_info=sys.exc_info(),

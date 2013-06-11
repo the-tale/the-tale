@@ -7,7 +7,7 @@ import rels
 class XLSException(Exception): pass
 
 
-def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=None, data_type=lambda x: x):
+def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=None, data_type=lambda x: x): # pylint: disable=R0912,R0914,R0915
 
     if rows and len(set(rows)) != len(rows):
         raise XLSException('duplicate row id')

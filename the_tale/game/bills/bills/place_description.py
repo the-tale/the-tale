@@ -8,6 +8,7 @@ from common.utils import bbcode
 
 from game.bills.models import BILL_TYPE
 from game.bills.forms import BaseUserForm, BaseModeratorForm
+from game.bills.bills.base_bill import BaseBill
 
 from game.map.places.storage import places_storage
 from game.map.places.conf import places_settings
@@ -26,7 +27,7 @@ class ModeratorForm(BaseModeratorForm):
     pass
 
 
-class PlaceDescripton(object):
+class PlaceDescripton(BaseBill):
 
     type = BILL_TYPE.PLACE_DESCRIPTION
 
@@ -41,6 +42,7 @@ class PlaceDescripton(object):
     DESCRIPTION = u'Изменяет описание города. При создании нового описания постарайтесь учесть, какой расе принадлежит город, кто является его жителями и в какую сторону он развивается. Также не забывайте, что описание должно соответствовать названию города. Описание должно быть небольшим по размеру.'
 
     def __init__(self, place_id=None, description=None, old_name_forms=None, old_description=None):
+        super(PlaceDescripton, self).__init__()
         self.place_id = place_id
         self.description = description
         self.old_name_forms = old_name_forms
@@ -73,27 +75,11 @@ class PlaceDescripton(object):
     def place_name_changed(self):
         return self.old_name != self.place.name
 
-    @property
-    def moderator_form_initials(self):
-        return {}
-
     def initialize_with_user_data(self, user_form):
         self.place_id = int(user_form.c.place)
         self.description = user_form.c.new_description
         self.old_name_forms = self.place.normalized_name
         self.old_description = self.place.description
-
-    def initialize_with_moderator_data(self, moderator_form):
-        pass
-
-    @classmethod
-    def get_user_form_create(cls, post=None):
-        return cls.UserForm(post)
-
-    def get_user_form_update(self, post=None, initial=None):
-        if initial:
-            return self.UserForm(initial=initial)
-        return  self.UserForm(post)
 
     def apply(self):
         self.place.description = self.description

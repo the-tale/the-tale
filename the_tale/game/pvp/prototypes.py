@@ -15,7 +15,7 @@ class Battle1x1Prototype(BasePrototype):
     _get_by = ('id', 'enemy_id', 'account_id')
 
     @classmethod
-    def reset_waiting_battles(self):
+    def reset_waiting_battles(cls):
         Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).delete()
 
     def set_enemy(self, enemy):

@@ -269,7 +269,7 @@ class BillResource(Resource):
     @validate_voting_state(message=u'На данной стадии за закон нельзя голосовать')
     @validate_argument('type', lambda t: VOTE_TYPE._index_value[int(t)], 'bills.vote', u'Неверно указан тип голоса')
     @handler('#bill', 'vote', name='vote', method='post')
-    def vote(self, type):
+    def vote(self, type): # pylint: disable=W0622
 
         if not self.bill.can_vote(self.hero):
             return self.json_error('bills.vote.can_not_vote', u'Вы не можете голосовать за этот закон')

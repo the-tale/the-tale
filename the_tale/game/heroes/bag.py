@@ -41,7 +41,7 @@ class Bag(object):
         del self.bag[artifact.bag_uuid]
 
     def pop_quest_artifact(self, artifact):
-        for uuid, bag_artifact in self.bag.items():
+        for bag_artifact in self.bag.values():
             if bag_artifact.quest_uuid == artifact.quest_uuid:
                 self.pop_artifact(bag_artifact)
                 break
@@ -103,7 +103,7 @@ SLOT_TO_ARTIFACT_TYPE = {
     SLOTS.RING: ARTIFACT_TYPE.RING
     }
 
-ARTIFACT_TYPE_TO_SLOT = { v:k for k,v in SLOT_TO_ARTIFACT_TYPE.items()}
+ARTIFACT_TYPE_TO_SLOT = { v:k for k, v in SLOT_TO_ARTIFACT_TYPE.items()}
 
 
 class Equipment(object):

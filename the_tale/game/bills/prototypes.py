@@ -103,7 +103,7 @@ class BillPrototype(BasePrototype):
         raise BillException('unknown last event text for bill %d' % self.id)
 
     @classmethod
-    def get_minimum_created_time_of_active_bills(self):
+    def get_minimum_created_time_of_active_bills(cls):
         from django.db.models import Min
         created_at =  Bill.objects.filter(state=BILL_STATE.VOTING).aggregate(Min('created_at'))['created_at__min']
         return created_at if created_at is not None else datetime.datetime.now()
@@ -330,7 +330,7 @@ class VotePrototype(BasePrototype):
     def owner(self): return AccountPrototype(self._model.owner)
 
     @classmethod
-    def create(cls, owner, bill, type):
+    def create(cls, owner, bill, type): # pylint: disable=W0622
 
         model = Vote.objects.create(owner=owner._model,
                                     bill=bill._model,

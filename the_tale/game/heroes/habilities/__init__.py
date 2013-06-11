@@ -71,34 +71,34 @@ class AbilitiesPrototype(object):
     def get_candidates(self, ability_type, max_active_abilities, max_passive_abilities):
 
         # filter by type (battle, nonbattle, etc...)
-        ability_classes = filter(lambda a: a.TYPE==ability_type, ABILITIES.values())
-        choosen_abilities = filter(lambda a: a.TYPE==ability_type, self.abilities.values())
+        ability_classes = filter(lambda a: a.TYPE==ability_type, ABILITIES.values()) # pylint: disable=W0110
+        choosen_abilities = filter(lambda a: a.TYPE==ability_type, self.abilities.values()) # pylint: disable=W0110
 
         # filter by availability for players
-        ability_classes = filter(lambda a: a.AVAILABILITY & ABILITY_AVAILABILITY.FOR_PLAYERS, ability_classes)
+        ability_classes = filter(lambda a: a.AVAILABILITY & ABILITY_AVAILABILITY.FOR_PLAYERS, ability_classes) # pylint: disable=W0110
 
         # filter abilities with max level
-        ability_classes = filter(lambda a: not (self.has(a.get_id()) and self.get(a.get_id()).has_max_level), ability_classes)
+        ability_classes = filter(lambda a: not (self.has(a.get_id()) and self.get(a.get_id()).has_max_level), ability_classes) # pylint: disable=W0110
 
         # filter unchoosen abilities if there are no free slots
-        free_active_slots = max_active_abilities - len(filter(lambda a: a.ACTIVATION_TYPE==ABILITY_ACTIVATION_TYPE.ACTIVE, choosen_abilities))
-        free_passive_slots = max_passive_abilities - len(filter(lambda a: a.ACTIVATION_TYPE==ABILITY_ACTIVATION_TYPE.PASSIVE, choosen_abilities))
+        free_active_slots = max_active_abilities - len(filter(lambda a: a.ACTIVATION_TYPE==ABILITY_ACTIVATION_TYPE.ACTIVE, choosen_abilities)) # pylint: disable=W0110
+        free_passive_slots = max_passive_abilities - len(filter(lambda a: a.ACTIVATION_TYPE==ABILITY_ACTIVATION_TYPE.PASSIVE, choosen_abilities)) # pylint: disable=W0110
 
         candidates = [a(level=1 if not self.has(a.get_id()) else self.get(a.get_id()).level+1)
                       for a in ability_classes]
 
         if free_active_slots <= 0:
-            candidates = filter(lambda a: not a.activation_type.is_active or self.has(a.get_id()), candidates)
+            candidates = filter(lambda a: not a.activation_type.is_active or self.has(a.get_id()), candidates) # pylint: disable=W0110
 
         if free_passive_slots <= 0:
-            candidates = filter(lambda a: not a.activation_type.is_passive or self.has(a.get_id()), candidates)
+            candidates = filter(lambda a: not a.activation_type.is_passive or self.has(a.get_id()), candidates) # pylint: disable=W0110
 
         return candidates
 
 
     def get_for_choose(self, candidates, max_old_abilities_for_choose, max_abilities_for_choose):
-        old_candidates = filter(lambda a: self.has(a.get_id()), candidates)
-        new_candidates = filter(lambda a: not self.has(a.get_id()), candidates)
+        old_candidates = filter(lambda a: self.has(a.get_id()), candidates) # pylint: disable=W0110
+        new_candidates = filter(lambda a: not self.has(a.get_id()), candidates) # pylint: disable=W0110
 
         first_old_candidates = random.sample(old_candidates, min(max_old_abilities_for_choose, len(old_candidates)))
         # second_old_candidates = filter(lambda a: a not in first_old_candidates, old_candidates)

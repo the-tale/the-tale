@@ -223,8 +223,8 @@ class InvoicePrototype(BasePrototype):
         self.save()
 
     @classmethod
-    def reset_all(self):
-        self._model_class.objects.filter(state__in=(INVOICE_STATE.FROZEN, INVOICE_STATE.REQUESTED)).update(state=INVOICE_STATE.RESETED)
+    def reset_all(cls):
+        cls._model_class.objects.filter(state__in=(INVOICE_STATE.FROZEN, INVOICE_STATE.REQUESTED)).update(state=INVOICE_STATE.RESETED)
 
     def save(self):
         self._model.save()

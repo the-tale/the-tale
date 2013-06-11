@@ -66,7 +66,7 @@ class RecordToActorPrototype(BasePrototype):
 
 class ExternalActorBase(object):
 
-    def __init__(self, object):
+    def __init__(self, object): # pylint: disable=W0622
         self.object = object
         self.bill = None
         self.place = None

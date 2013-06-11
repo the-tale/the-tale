@@ -75,7 +75,7 @@ class BuyPremium(PostponedLogic):
             main_task.comment = 'wrong invoice %d state %r on freezing step' % (self.transaction.invoice_id, transaction_state)
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-    def process_transaction_frozen(self, main_task):
+    def process_transaction_frozen(self, main_task): # pylint: disable=W0613
         self.account.prolong_premium(days=self.days)
         self.account.save()
         HeroPrototype.get_by_account_id(self.account.id).cmd_update_with_account_data(self.account)
@@ -97,7 +97,7 @@ class BuyPremium(PostponedLogic):
             main_task.comment = 'wrong invoice %d state %r on confirmation step' % (self.transaction.invoice_id, transaction_state)
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-    def process(self, main_task, storage=None):
+    def process(self, main_task, storage=None): # pylint: disable=W0613
 
         if self.state._is_TRANSACTION_REQUESTED:
             return self.process_transaction_requested(main_task)

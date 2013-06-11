@@ -17,7 +17,7 @@ class Path(object):
             self.length = new_length
 
 @waymarks_storage.postpone_version_update
-def update_waymarks():
+def update_waymarks(): # pylint: disable=R0912
 
     places = places_storage.all()
 
@@ -25,7 +25,7 @@ def update_waymarks():
 
     places_len = len(places)
 
-    paths = [ [ Path() for place in xrange(places_len) ] for i in xrange(places_len)]
+    paths = [ [ Path() for place in xrange(places_len) ] for i in xrange(places_len)] # pylint: disable=W0612
 
     p2i = dict( (place.id, i) for i, place in enumerate(places))
 

@@ -3,7 +3,7 @@
 from south.signals import post_migrate
 
 # add in project __init__.py (http://devwithpassion.com/felipe/south-django-permissions/)
-def update_permissions_after_migration(app,**kwargs):
+def update_permissions_after_migration(app, **kwargs):
     """
     Update app permission just after every migration.
     This is based on app django_extensions update_permissions management command.

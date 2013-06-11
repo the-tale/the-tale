@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from dext.forms import fields
-from dext.utils.urls import url
 
 from textgen.words import Noun, WordBase
 
@@ -21,7 +20,7 @@ class UserForm(BaseUserForm):
     person = fields.ChoiceField(label=u'Персонаж')
     name = fields.CharField(label=u'Название')
 
-    def __init__(self, choosen_person_id, *args, **kwargs):
+    def __init__(self, choosen_person_id, *args, **kwargs):  # pylint: disable=W0613
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['person'].choices = PersonPrototype.form_choices(predicate=lambda place, person: not person.has_building)
 

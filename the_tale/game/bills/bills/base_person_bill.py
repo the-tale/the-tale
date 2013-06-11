@@ -11,8 +11,10 @@ from game.persons.storage import persons_storage
 
 from game.map.places.storage import places_storage
 
+from game.bills.bills.base_bill import BaseBill
 
-class BasePersonBill(object):
+
+class BasePersonBill(BaseBill):
 
     type = None
 
@@ -27,6 +29,7 @@ class BasePersonBill(object):
     DESCRIPTION = None
 
     def __init__(self, person_id=None, old_place_name_forms=None, place_id=None):
+        super(BasePersonBill, self).__init__()
         self.old_place_name_forms = old_place_name_forms
         self.person_id = person_id
         self.place_id = place_id
@@ -69,10 +72,6 @@ class BasePersonBill(object):
     def user_form_initials(self):
         return {'person': self.person_id}
 
-    @property
-    def moderator_form_initials(self):
-        return {}
-
     def initialize_with_user_data(self, user_form):
         self.person_id = int(user_form.c.person)
         self.old_place_name_forms = self.person.place.normalized_name
@@ -82,10 +81,6 @@ class BasePersonBill(object):
         self.person_type = self.person.type
         self.person_gender = self.person.gender
         self.place_id = self.person.place.id
-
-
-    def initialize_with_moderator_data(self, moderator_form):
-        pass
 
     @classmethod
     def get_user_form_create(cls, post=None):

@@ -26,6 +26,12 @@ class BaseWorker(object):
     @property
     def pid(self): return self.command_name
 
+    def run_simple(self):
+        while not self.exception_raised and not self.stop_required:
+            cmd = self.command_queue.get(block=True)
+            cmd.ack()
+            self.process_cmd(cmd.payload)
+
     def close_queries(self):
         # TODO: implement
         pass

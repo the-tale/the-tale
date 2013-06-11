@@ -21,7 +21,7 @@ from game.pvp.relations import BATTLE_1X1_RESULT
 
 def get_meta_actions_types():
     actions = {}
-    for key, cls in globals().items():
+    for cls in globals().values():
         if isinstance(cls, type) and issubclass(cls, MetaActionPrototype) and cls != MetaActionPrototype:
             actions[cls.TYPE] = cls
     return actions
@@ -202,92 +202,99 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         hero.pvp.energy += hero.pvp.energy_speed
         hero.pvp.effectiveness -= hero.pvp.effectiveness * c.PVP_EFFECTIVENESS_EXTINCTION_FRACTION
 
+    def process_battle_ending(self):
+        battle_1 = Battle1x1Prototype.get_by_account_id(self.hero_1.account_id)
+        battle_2 = Battle1x1Prototype.get_by_account_id(self.hero_2.account_id)
+
+        if battle_1.calculate_rating and battle_2.calculate_rating:
+            self.hero_1.statistics.change_pvp_battles_1x1_number(1)
+            self.hero_2.statistics.change_pvp_battles_1x1_number(1)
+
+        participant_1 = AccountPrototype.get_by_id(self.hero_1.account_id)
+        participant_2 = AccountPrototype.get_by_id(self.hero_2.account_id)
+
+        if self.hero_1.health <= 0:
+            if self.hero_2.health <= 0:
+                Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.DRAW)
+
+                if battle_1.calculate_rating and battle_2.calculate_rating:
+                    self.hero_1.statistics.change_pvp_battles_1x1_draws(1)
+                    self.hero_2.statistics.change_pvp_battles_1x1_draws(1)
+            else:
+                Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.DEFEAT)
+
+                if battle_1.calculate_rating and battle_2.calculate_rating:
+                    self.hero_2.statistics.change_pvp_battles_1x1_victories(1)
+        else:
+            Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.VICTORY)
+
+            if battle_1.calculate_rating and battle_2.calculate_rating:
+                self.hero_1.statistics.change_pvp_battles_1x1_victories(1)
+
+        battle_1.remove()
+        battle_2.remove()
+
+        self.hero_1.health = self.hero_1_old_health
+        self.hero_2.health = self.hero_2_old_health
+
+        self.reset_hero_info(self.hero_1)
+        self.reset_hero_info(self.hero_2)
+
+        self.state = self.STATE.PROCESSED
+
+
+    def process_battle_running(self):
+        # apply all changes made by player
+        hero_1_effectivenes = self.hero_1.pvp.effectiveness
+        hero_2_effectivenes = self.hero_2.pvp.effectiveness
+
+        # modify advantage
+        max_effectivenes = float(max(hero_1_effectivenes, hero_2_effectivenes))
+        if max_effectivenes < 0.01:
+            effectiveness_fraction = 0
+        else:
+            effectiveness_fraction = (hero_1_effectivenes - hero_2_effectivenes) / max_effectivenes
+        advantage_delta = c.PVP_MAX_ADVANTAGE_STEP * effectiveness_fraction
+
+        self.hero_1.pvp.advantage = self.hero_1.pvp.advantage + advantage_delta
+        self.hero_1_context.use_pvp_advantage(self.hero_1.pvp.advantage)
+
+        self.hero_2.pvp.advantage = self.hero_2.pvp.advantage - advantage_delta
+        self.hero_2_context.use_pvp_advantage(self.hero_2.pvp.advantage)
+
+        # battle step
+        if self.hero_1.health > 0 and self.hero_2.health > 0:
+            battle.make_turn(battle.Actor(self.hero_1, self.hero_1_context),
+                             battle.Actor(self.hero_2, self.hero_2_context ),
+                             self)
+
+            if self.hero_1_context.pvp_advantage_used or self.hero_2_context.pvp_advantage_used:
+                self.hero_1.pvp.advantage = 0
+                self.hero_2.pvp.advantage = 0
+
+            self.percents = 1.0 - min(self.hero_1.health_percents, self.hero_2.health_percents)
+
+        # update resources, etc
+        self.update_hero_pvp_info(self.hero_1)
+        self.update_hero_pvp_info(self.hero_2)
+
+        self.hero_1.pvp.store_turn_data()
+        self.hero_2.pvp.store_turn_data()
+
+        # check if anyone has killed
+        self._check_hero_health(self.hero_1, self.hero_2)
+        self._check_hero_health(self.hero_2, self.hero_1)
+
+
     def _process(self):
 
         # check processed state before battle turn, to give delay to players to see battle result
 
         if self.state == self.STATE.BATTLE_ENDING:
-            battle_1 = Battle1x1Prototype.get_by_account_id(self.hero_1.account_id)
-            battle_2 = Battle1x1Prototype.get_by_account_id(self.hero_2.account_id)
-
-            if battle_1.calculate_rating and battle_2.calculate_rating:
-                self.hero_1.statistics.change_pvp_battles_1x1_number(1)
-                self.hero_2.statistics.change_pvp_battles_1x1_number(1)
-
-            participant_1 = AccountPrototype.get_by_id(self.hero_1.account_id)
-            participant_2 = AccountPrototype.get_by_id(self.hero_2.account_id)
-
-            if self.hero_1.health <= 0:
-                if self.hero_2.health <= 0:
-                    Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.DRAW)
-
-                    if battle_1.calculate_rating and battle_2.calculate_rating:
-                        self.hero_1.statistics.change_pvp_battles_1x1_draws(1)
-                        self.hero_2.statistics.change_pvp_battles_1x1_draws(1)
-                else:
-                    Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.DEFEAT)
-
-                    if battle_1.calculate_rating and battle_2.calculate_rating:
-                        self.hero_2.statistics.change_pvp_battles_1x1_victories(1)
-            else:
-                Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.VICTORY)
-
-                if battle_1.calculate_rating and battle_2.calculate_rating:
-                    self.hero_1.statistics.change_pvp_battles_1x1_victories(1)
-
-            battle_1.remove()
-            battle_2.remove()
-
-            self.hero_1.health = self.hero_1_old_health
-            self.hero_2.health = self.hero_2_old_health
-
-            self.reset_hero_info(self.hero_1)
-            self.reset_hero_info(self.hero_2)
-
-            self.state = self.STATE.PROCESSED
+            self.process_battle_ending()
 
         if self.state == self.STATE.BATTLE_RUNNING:
-
-            # apply all changes made by player
-            hero_1_effectivenes = self.hero_1.pvp.effectiveness
-            hero_2_effectivenes = self.hero_2.pvp.effectiveness
-
-            # modify advantage
-            max_effectivenes = float(max(hero_1_effectivenes, hero_2_effectivenes))
-            if max_effectivenes < 0.01:
-                effectiveness_fraction = 0
-            else:
-                effectiveness_fraction = (hero_1_effectivenes - hero_2_effectivenes) / max_effectivenes
-            advantage_delta = c.PVP_MAX_ADVANTAGE_STEP * effectiveness_fraction
-
-            self.hero_1.pvp.advantage = self.hero_1.pvp.advantage + advantage_delta
-            self.hero_1_context.use_pvp_advantage(self.hero_1.pvp.advantage)
-
-            self.hero_2.pvp.advantage = self.hero_2.pvp.advantage - advantage_delta
-            self.hero_2_context.use_pvp_advantage(self.hero_2.pvp.advantage)
-
-            # battle step
-            if self.hero_1.health > 0 and self.hero_2.health > 0:
-                battle.make_turn(battle.Actor(self.hero_1, self.hero_1_context),
-                                 battle.Actor(self.hero_2, self.hero_2_context ),
-                                 self)
-
-                if self.hero_1_context.pvp_advantage_used or self.hero_2_context.pvp_advantage_used:
-                    self.hero_1.pvp.advantage = 0
-                    self.hero_2.pvp.advantage = 0
-
-                self.percents = 1.0 - min(self.hero_1.health_percents, self.hero_2.health_percents)
-
-            # update resources, etc
-            self.update_hero_pvp_info(self.hero_1)
-            self.update_hero_pvp_info(self.hero_2)
-
-            self.hero_1.pvp.store_turn_data()
-            self.hero_2.pvp.store_turn_data()
-
-            # check if anyone has killed
-            self._check_hero_health(self.hero_1, self.hero_2)
-            self._check_hero_health(self.hero_2, self.hero_1)
+            self.process_battle_running()
 
 
 

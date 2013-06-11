@@ -12,7 +12,7 @@ from portal.conf import portal_settings
 
 
 @receiver(game_signals.day_started, dispatch_uid='portal_day_started')
-def portal_day_started(sender, **kwargs):
+def portal_day_started(sender, **kwargs): # pylint: disable=W0613
     from game.heroes.prototypes import HeroPrototype
     from game.heroes.models import Hero
 

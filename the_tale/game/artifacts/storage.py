@@ -86,14 +86,14 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
         self.sync()
 
         if mob_id not in self._mob_artifacts:
-            self._mob_artifacts[mob_id] = filter(lambda artifact: artifact.mob_id == mob_id, self.artifacts)
+            self._mob_artifacts[mob_id] = filter(lambda artifact: artifact.mob_id == mob_id, self.artifacts) # pylint: disable=W0110
         return self._mob_artifacts[mob_id]
 
     def get_mob_loot(self, mob_id):
         self.sync()
 
         if mob_id not in self._mob_loot:
-            self._mob_loot[mob_id] = filter(lambda artifact: artifact.mob_id == mob_id, self.loot)
+            self._mob_loot[mob_id] = filter(lambda artifact: artifact.mob_id == mob_id, self.loot) # pylint: disable=W0110
         return self._mob_loot[mob_id]
 
 

@@ -16,12 +16,12 @@ class UserForm(BaseUserForm):
 
     person = fields.ChoiceField(label=u'Персонаж')
 
-    def __init__(self, choosen_person_id, *args, **kwargs):
+    def __init__(self, choosen_person_id, *args, **kwargs): # pylint: disable=W0613
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['person'].choices = PersonPrototype.form_choices(predicate=self._person_has_building)
 
     @classmethod
-    def _person_has_building(cls, place, person):
+    def _person_has_building(cls, place, person): # pylint: disable=W0613
         return buildings_storage.get_by_person_id(person.id) is not None
 
 

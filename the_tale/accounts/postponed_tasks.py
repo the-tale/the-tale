@@ -28,6 +28,7 @@ class RegistrationTask(PostponedLogic):
     TYPE = 'registration'
 
     def __init__(self, account_id, state=REGISTRATION_TASK_STATE.UNPROCESSED):
+        super(RegistrationTask, self).__init__()
         self.account_id = account_id
         self.state = state
 
@@ -88,6 +89,7 @@ class ChangeCredentials(PostponedLogic):
     TYPE = 'change-credentials'
 
     def __init__(self, task_id, state=CHANGE_CREDENTIALS_STATE.UNPROCESSED):
+        super(ChangeCredentials, self).__init__()
         self.task_id = task_id
         self.state = state if isinstance(state, rels.Record) else CHANGE_CREDENTIALS_STATE._index_value[state]
 
