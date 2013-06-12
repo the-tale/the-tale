@@ -256,7 +256,7 @@ def get_worker_log_file_handler(name):
             'filename': os.path.join(HOME_DIR, 'logs', '%s.log' % name),
             'when': 'D',
             'interval': 7,
-            'backupCount': 2*4,
+            'backupCount': 2,
             'encoding': 'utf-8',
             'formatter': 'verbose',
             'utc': True }
