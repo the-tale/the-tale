@@ -131,7 +131,8 @@ USE_PVP_ABILITY_TASK_STATE = create_enum('USE_PVP_ABILITY_TASK_STATE', ( ('UNPRO
                                                                          ('HERO_NOT_FOUND', 1, u'герой не найден'),
                                                                          ('WRONG_ABILITY_ID', 2, u'неизвестная способность'),
                                                                          ('NO_ENERGY', 3, u'недостаточно энергии'),
-                                                                         ('PROCESSED', 4, u'обработана') ) )
+                                                                         ('PROCESSED', 4, u'обработана'),
+                                                                         ('BATTLE_FINISHED', 5, u'битва уже закончена')) )
 
 class UsePvPAbilityTask(PostponedLogic):
 
@@ -156,6 +157,11 @@ class UsePvPAbilityTask(PostponedLogic):
     def process(self, main_task, storage):
 
         battle = Battle1x1Prototype.get_by_id(self.battle_id)
+
+        if battle is None: # battle ended
+            self.state = USE_PVP_ABILITY_TASK_STATE.BATTLE_FINISHED
+            main_task.comment = 'battle finished'
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         hero = storage.accounts_to_heroes.get(self.account_id)
         enemy_hero = storage.accounts_to_heroes.get(battle.enemy_id)
