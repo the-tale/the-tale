@@ -24,6 +24,16 @@ class RequestsRegistrationTests(TestCase):
         task = PostponedTaskPrototype(model=PostponedTask.objects.all()[0])
         self.check_ajax_processing(response, task.status_url)
         self.assertEqual(PostponedTask.objects.all().count(), 1)
+        self.assertEqual(task.internal_logic.referer, None)
+
+    def test_fast_registration_processing__with_referer(self):
+        referer = 'http://example.com/forum/post/1/'
+        response = self.client.post(reverse('accounts:registration:fast'), HTTP_REFERER=referer)
+        self.assertEqual(response.status_code, 200)
+        task = PostponedTaskPrototype(model=PostponedTask.objects.all()[0])
+        self.check_ajax_processing(response, task.status_url)
+        self.assertEqual(PostponedTask.objects.all().count(), 1)
+        self.assertEqual(task.internal_logic.referer, referer)
 
     def test_fast_registration_for_logged_in_user(self):
         self.request_login('test_user@test.com')

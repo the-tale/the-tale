@@ -17,7 +17,7 @@ class AccountManager(BaseUserManager):
         email = super(AccountManager, cls).normalize_email(email)
         return email if email else None
 
-    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None):
+    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None, referer=None, referer_domain=None):
 
         if not nick:
             raise ValueError('Users must have nick')
@@ -25,7 +25,9 @@ class AccountManager(BaseUserManager):
         account = self.model(email=self.normalize_email(email),
                              nick=nick,
                              is_fast=is_fast,
-                             active_end_at=active_end_at)
+                             active_end_at=active_end_at,
+                             referer=referer,
+                             referer_domain=referer_domain)
         account.set_password(password)
         account.save(using=self._db)
         return account
@@ -78,6 +80,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     ban_game_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
     ban_forum_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
+
+    referer_domain = models.CharField(max_length=256, null=True, default=None, db_index=True)
+    referer = models.CharField(max_length=4*1024, null=True, default=None)
 
     USERNAME_FIELD = 'nick'
     REQUIRED_FIELDS = ['email']

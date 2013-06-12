@@ -27,14 +27,16 @@ class RegistrationTask(PostponedLogic):
 
     TYPE = 'registration'
 
-    def __init__(self, account_id, state=REGISTRATION_TASK_STATE.UNPROCESSED):
+    def __init__(self, account_id, referer, state=REGISTRATION_TASK_STATE.UNPROCESSED):
         super(RegistrationTask, self).__init__()
         self.account_id = account_id
+        self.referer = referer
         self.state = state
 
     def serialize(self):
         return { 'state': self.state,
-                 'account_id': self.account_id }
+                 'account_id': self.account_id,
+                 'referer': self.referer}
 
     @property
     def error_message(self): return REGISTRATION_TASK_STATE._CHOICES[self.state][1]
@@ -45,20 +47,13 @@ class RegistrationTask(PostponedLogic):
     def get_unique_nick(self):
         return uuid.uuid4().hex[:AccountPrototype._model_class.MAX_NICK_LENGTH]
 
-    def unbind_from_account(self):
-        self.model.comment = u'unbind from account "%s"' % self.account.nick
-        if hasattr(self, '_account'):
-            delattr(self, '_account')
-        self.model.account = None
-        self.model.save()
-
     def process(self, main_task):
         from accounts.logic import register_user, REGISTER_USER_RESULT
         from game.models import Bundle
 
         with nested_commit_on_success():
 
-            result, account_id, bundle_id = register_user(nick=self.get_unique_nick())
+            result, account_id, bundle_id = register_user(nick=self.get_unique_nick(), referer=self.referer)
 
             if result != REGISTER_USER_RESULT.OK:
                 main_task.comment = 'unknown error'

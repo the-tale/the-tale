@@ -61,7 +61,11 @@ class RegistrationResource(Resource):
                     return self.json_processing(task.status_url)
                 # in other case create new task
 
-        registration_task = RegistrationTask(account_id=None)
+        referer = None
+        if accounts_settings.SESSION_REGISTRATION_REFERER_KEY in self.request.session:
+            referer = self.request.session[accounts_settings.SESSION_REGISTRATION_REFERER_KEY]
+
+        registration_task = RegistrationTask(account_id=None, referer=referer)
 
         task = PostponedTaskPrototype.create(registration_task,
                                              live_time=accounts_settings.REGISTRATION_TIMEOUT)

@@ -41,7 +41,7 @@ def get_system_user():
     return AccountPrototype.get_by_id(account_id)
 
 
-def register_user(nick, email=None, password=None):
+def register_user(nick, email=None, password=None, referer=None):
 
     if Account.objects.filter(nick=nick).exists():
         return REGISTER_USER_RESULT.DUPLICATE_USERNAME, None, None
@@ -55,7 +55,11 @@ def register_user(nick, email=None, password=None):
     if password is None:
         password = accounts_settings.FAST_REGISTRATION_USER_PASSWORD
 
-    account = AccountPrototype.create(nick=nick, email=email, is_fast=not (email and password), password=password)
+    account = AccountPrototype.create(nick=nick,
+                                      email=email,
+                                      is_fast=not (email and password),
+                                      password=password,
+                                      referer=referer)
 
     bundle = BundlePrototype.create()
 

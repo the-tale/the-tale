@@ -43,12 +43,14 @@ class AccountChangeForm(forms.ModelForm):
 class AccountAdmin(DjangoUserAdmin):
     form = AccountChangeForm
 
-    list_display = ('id', 'email', 'nick', 'is_staff', 'last_login', 'created_at')
+    list_display = ('id', 'email', 'nick', 'is_staff', 'referer_domain', 'last_login', 'created_at')
     ordering = ('-created_at',)
 
     search_fields = ('nick', 'email')
     fieldsets = ( (None, {'fields': ('nick', 'password')}),
-                  (_('Personal info'), {'fields': ('email',)}),
+                  (_('Personal info'), {'fields': ('email',
+                                                   'referer_domain',
+                                                   'referer')}),
                   (_('Permissions'), {'fields': ('is_fast',
                                                  'is_active',
                                                  'is_staff',
@@ -58,6 +60,8 @@ class AccountAdmin(DjangoUserAdmin):
                  (_('Important dates'), {'fields': ('last_login',
                                                     'active_end_at', 'premium_end_at',
                                                     'ban_game_end_at', 'ban_forum_end_at')}),  )
+
+    readonly_fields = list(DjangoUserAdmin.readonly_fields) + ['referer', 'referer_domain']
 
 
 class ChangeCredentialsTaskAdmin(admin.ModelAdmin):

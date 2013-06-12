@@ -3,6 +3,7 @@ import sys
 import uuid
 import datetime
 import traceback
+from urlparse import urlparse
 
 from django.contrib.auth.hashers import make_password
 from django.db import models
@@ -24,7 +25,18 @@ from accounts.relations import CHANGE_CREDENTIALS_TASK_STATE
 
 class AccountPrototype(BasePrototype): #pylint: disable=R0904
     _model_class = Account
-    _readonly = ('id', 'is_authenticated', 'created_at', 'is_staff', 'is_superuser', 'has_perm', 'premium_end_at', 'active_end_at', 'ban_game_end_at', 'ban_forum_end_at')
+    _readonly = ('id',
+                 'is_authenticated',
+                 'created_at',
+                 'is_staff',
+                 'is_superuser',
+                 'has_perm',
+                 'premium_end_at',
+                 'active_end_at',
+                 'ban_game_end_at',
+                 'ban_forum_end_at',
+                 'referer',
+                 'referer_domain')
     _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription')
     _get_by = ('id', 'email', 'nick')
 
@@ -174,12 +186,19 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
 
     @classmethod
-    def create(cls, nick, email, is_fast, password=None):
+    def create(cls, nick, email, is_fast, password=None, referer=None):
+        referer_domain = None
+        if referer:
+            referer_info = urlparse(referer)
+            referer_domain = referer_info.netloc
+
         return AccountPrototype(model=Account.objects.create_user(nick=nick,
                                                                   email=email,
                                                                   is_fast=is_fast,
                                                                   password=password,
-                                                                  active_end_at=cls._next_active_end_at()))
+                                                                  active_end_at=cls._next_active_end_at(),
+                                                                  referer=referer,
+                                                                  referer_domain=referer_domain))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self._model == other._model

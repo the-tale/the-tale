@@ -54,6 +54,19 @@ class TestRegistration(testcase.TestCase):
         self.assertTrue(hero.equipment.get(SLOTS.AMULET) is None)
         self.assertTrue(hero.equipment.get(SLOTS.RING) is None)
 
+
+    def test_successfull_result__with_referer(self):
+        referer = 'http://example.com/forum/post/1/'
+
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111', referer=referer)
+
+        account = AccountPrototype.get_by_id(account_id)
+
+        self.assertEqual(account.nick, 'test_user')
+        self.assertEqual(account.email, 'test_user@test.com')
+        self.assertEqual(account.referer, referer)
+        self.assertEqual(account.referer_domain, 'example.com')
+
     def test_duplicate_nick(self):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.assertEqual(result, REGISTER_USER_RESULT.OK)
@@ -76,7 +89,7 @@ class TestRegistrationTask(testcase.TestCase):
     def setUp(self):
         super(TestRegistrationTask, self).setUp()
         create_test_map()
-        self.task = RegistrationTask(account_id=None)
+        self.task = RegistrationTask(account_id=None, referer=None)
 
     def test_create(self):
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.UNPROCESSED)
@@ -91,19 +104,28 @@ class TestRegistrationTask(testcase.TestCase):
         self.assertTrue(self.task.account.is_fast)
         self.assertEqual(Account.objects.all().count(), 1)
 
-    @mock.patch('accounts.logic.register_user', lambda nick: (REGISTER_USER_RESULT.OK+1, None, None))
+    def test_process_success__with_referer(self):
+        referer = 'http://example.com/forum/post/1/'
+        task = RegistrationTask(account_id=None, referer=referer)
+        self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(task.state, REGISTRATION_TASK_STATE.PROCESSED)
+        self.assertTrue(task.account)
+        self.assertEqual(task.account.referer, referer)
+        self.assertEqual(task.account.referer_domain, 'example.com')
+
+    @mock.patch('accounts.logic.register_user', lambda *argv, **kwargs: (REGISTER_USER_RESULT.OK+1, None, None))
     def test_process_unknown_error(self):
         self.assertEqual(self.task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.UNKNOWN_ERROR)
         self.assertEqual(Account.objects.all().count(), 0)
 
-    @mock.patch('accounts.logic.register_user', lambda nick: (REGISTER_USER_RESULT.OK, 1, 1))
+    @mock.patch('accounts.logic.register_user', lambda *argv, **kwargs: (REGISTER_USER_RESULT.OK, 1, 1))
     def test_process_bundle_not_foud(self):
         self.assertEqual(self.task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.BUNDLE_NOT_FOUND)
         self.assertEqual(Account.objects.all().count(), 0)
 
-    @mock.patch('accounts.logic.register_user', lambda nick: raise_exception())
+    @mock.patch('accounts.logic.register_user', lambda *argv, **kwargs: raise_exception())
     def test_process_exceptin(self):
         self.assertRaises(Exception, self.task.process, FakePostpondTaskPrototype())
         self.assertEqual(Account.objects.all().count(), 0)
