@@ -149,8 +149,8 @@ class MobRecordPrototype(BasePrototype):
         self._model.abilities = s11n.to_json(list(value))
     abilities = property(get_abilities, set_abilities)
 
-    def get_abilities_names(self):
-        return sorted([ABILITIES[ability_id].NAME for ability_id in self.abilities])
+    def get_abilities_objects(self):
+        return sorted([ABILITIES[ability_id] for ability_id in self.abilities])
 
     def get_terrains(self):
         if not hasattr(self, '_terrains'):

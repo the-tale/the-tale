@@ -9,7 +9,15 @@
   <table class="table table-condensed table-striped table-bordered table-no-highlighting">
     <tbody>
       <tr><th>уровень</th><td>{{mob.level}}</td></tr>
-      <tr><th>способности</th><td>{{ ', '.join(mob.get_abilities_names()) }}</td></tr>
+      <tr>
+        <th>способности</th>
+        <td>
+          {%- for ability in mob.get_abilities_objects() -%}
+          {%- if loop.index != 1 -%},{%- endif %}
+          <a href="#" class="info-link" rel="tooltip" title="{{ability.DESCRIPTION}}">{{ability.NAME}}</a>
+          {%- endfor -%}
+        </td>
+      </tr>
       <tr><th>места обитания</th><td>{{ ', '.join(mob.get_terrain_names()) }}</td></tr>
       <tr>
         <th>полезная добыча</th>
