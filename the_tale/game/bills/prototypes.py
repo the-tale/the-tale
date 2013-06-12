@@ -178,6 +178,14 @@ class BillPrototype(BasePrototype):
         signals.bill_processed.send(self.__class__, bill=self)
         return True
 
+    def bill_info_text(self, text):
+        return u'''%s
+
+[b]название:[/b] %s
+
+[b]обоснование:[/b]
+%s
+''' % (text, self.caption, self.rationale)
 
     @nested_commit_on_success
     def update(self, form):
@@ -203,9 +211,12 @@ class BillPrototype(BasePrototype):
         thread.caption = form.c.caption
         thread.save()
 
+        text = u'[url="%s%s"]Законопроект[/url] был отредактирован, все голоса сброшены.' % (project_settings.SITE_URL,
+                                                                                             reverse('game:bills:show', args=[self.id]) )
+
         PostPrototype.create(thread,
                              get_system_user(),
-                             u'Законопроект был отредактирован, все голоса сброшены.',
+                             self.bill_info_text(text),
                              technical=True)
 
         signals.bill_edited.send(self.__class__, bill=self)
@@ -232,21 +243,21 @@ class BillPrototype(BasePrototype):
                                     state=BILL_STATE.VOTING,
                                     votes_for=1) # author always wote for bill
 
+        bill_prototype = cls(model)
+
         text = u'обсуждение [url="%s%s"]закона[/url]' % (project_settings.SITE_URL,
                                                          reverse('game:bills:show', args=[model.id]) )
 
         thread = ThreadPrototype.create(SubCategoryPrototype.get_by_slug(bills_settings.FORUM_CATEGORY_SLUG),
                                         caption=caption,
                                         author=get_system_user(),
-                                        text=text + u'\n\n' + rationale,
+                                        text=bill_prototype.bill_info_text(text),
                                         technical=True,
                                         markup_method=MARKUP_METHOD.POSTMARKUP)
 
         model.forum_thread = thread._model
         model.save()
 
-
-        bill_prototype = cls(model)
 
         ActorPrototype.update_actors(bill_prototype, bill_prototype.data.actors)
 
