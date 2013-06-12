@@ -42,13 +42,13 @@ pgf.ui.dialog.Create = function(params) {
             type: 'get',
             url: url,
             success: function(data, request, status) {
-                pgf.ui.dialog.wait('stop', 
+                pgf.ui.dialog.wait('stop',
                                    stopCallback=function(){
                                        CreateFromString(data);
                                    });
             },
             error: function(request, status, error) {
-                pgf.ui.dialog.wait('stop', 
+                pgf.ui.dialog.wait('stop',
                                    stopCallback=function(){
                                        pgf.ui.dialog.Error({ message: 'dialog.Create: error while getting: ' + url });
                                    });
@@ -89,10 +89,18 @@ pgf.ui.dialog.Create = function(params) {
 
         var OnShown = function(e) {
             if (!$(e.target).is(dialog)) return;
-            
+
             if (params.OnOpened) {
                 params.OnOpened(dialog);
-            }            
+            }
+
+            dialog.bind('mousewheel', function(e){
+                var target = jQuery(e.target);
+                if (target.closest('.pgf-scrollable').length == 0) {
+                    // if event will not processed by main scroll event processor
+                    e.preventDefault();
+                }
+            });
 
             jQuery(document).trigger(pgf.ui.dialog.DIALOG_OPENED, dialog);
         };
@@ -186,7 +194,7 @@ pgf.ui.dialog.Alert = function(params) {
 };
 
 pgf.ui.dialog.Error = function(params) {
-    
+
     params.message = '<div class="alert alert-error">' + params.message + '</div>';
 
     pgf.ui.dialog.Alert(params);

@@ -105,8 +105,8 @@
            onclick="return false;"
            rel="tooltip"
            title="<ul class='unstyled' style='text-align: left;'>
-                  {% for ability_name in mob.get_abilities_names() %}
-                  <li>{{ability_name}}</li>
+                  {% for ability in mob.get_abilities_objects() %}
+                  <li>{{ability.NAME}}</li>
                   {% endfor %}
                   </ul>">
           способности

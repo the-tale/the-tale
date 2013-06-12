@@ -15,7 +15,7 @@
 
 {% set hero_mob_id = resource.hero.preferences.mob.id if resource.hero.preferences.mob else none %}
 
-<div style="max-height: 300px; overflow-y: scroll;">
+<div class="pgf-scrollable" style="max-height: 300px; overflow-y: scroll;">
   <table class="table table-bordered table-striped table-condensed">
     {% for mob_left, mob_right in mobs %}
     <tr>
