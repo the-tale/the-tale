@@ -215,6 +215,8 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
 
     var el = jQuery(this);
 
+    if (el.hasClass('pgf-disabled')) return;
+
     var actionType = el.data('action-type');
 
     if (!actionType) actionType = 'reload';

@@ -15,7 +15,7 @@
       <td width="100px" style="text-align: center; margin-bottom: 1em; vertical-align: middle;">
         <span style="font-size: 20pt;">{{ purchase.cost }}</span><br/>
         <span>ПЕЧЕНЕК</span><br/>
-        <a class="btn btn-info pgf-forms-post-simple"
+        <a class="btn pgf-forms-post-simple {% if purchase.cost > account.bank_account.amount %}disabled pgf-disabled{% else %}btn-info{% endif %}"
            data-confirmation="Вы уверены, что хотите купить <strong>«{{purchase.name}}»</strong>, потратив {{purchase.cost}} печенек?"
            data-success-message="Поздравляем с покупкой! <strong>(«{{purchase.name}}»)</strong>"
            href="{{url('accounts:payments:buy', purchase=purchase.uid)}}">Купить</a>
