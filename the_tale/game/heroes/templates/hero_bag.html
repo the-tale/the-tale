@@ -6,13 +6,19 @@ jQuery(document).ready(function(e) {
                                            updater, widgets,
                                            {});
 
+    jQuery('.pgf-bag-record').live('click', function(e){
+        e.preventDefault();
+        var target = jQuery(e.currentTarget);
+        pgf.ui.dialog.Create({ fromUrl: pgf.urls['guide:artifacts:info'](target.data('artifact-id'))});
+    });
+
 });
 </script>
 
 <div id="hero-bag-block">
 
   <ul class="unstyled pgf-bag-container">
-    <li class="bag-record pgf-template">
+    <li class="bag-record pgf-template pgf-bag-record">
       <i class="icon-star pgf-hidden pgf-quest-item-marker" rel="tooltip" title="предмет для задания"></i>
       <span class="name pgf-name"></span>
       <span class="power-container pgf-power-container">+<span class="pgf-power power"></span></span>

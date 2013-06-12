@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from textgen.words import Noun
 
 from dext.utils import s11n
+from dext.utils.urls import url
 
 from common.utils.testcase import TestCase
 from common.utils.permissions import sync_group
@@ -197,7 +198,7 @@ class TestShowRequests(BaseTestRequests):
 
     def test_disabled_artifact_declined(self):
         artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=ARTIFACT_RECORD_STATE.DISABLED)
-        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('artifacts.show.artifact_disabled', 1)], status_code=404)
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('artifacts.artifact_disabled', 1)], status_code=404)
 
     def test_disabled_artifact_accepted_for_create_rights(self):
         self.request_logout()
@@ -237,6 +238,47 @@ class TestShowRequests(BaseTestRequests):
         artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
         self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('pgf-moderate-button', 1),
                                                                                                         ('pgf-edit-button', 0)])
+
+class TestInfoRequests(BaseTestRequests):
+
+    def setUp(self):
+        super(TestInfoRequests, self).setUp()
+
+    def test_wrong_artifact_id(self):
+        self.check_html_ok(self.request_html(url('guide:artifacts:info', 'adsd')), texts=[('artifacts.artifact.wrong_format', 1)])
+
+    def test_no_artifact(self):
+        self.check_html_ok(self.request_html(url('guide:artifacts:info', 666)), texts=[('artifacts.artifact.not_found', 1)], status_code=404)
+
+    def test_disabled_artifact_disabled(self):
+        artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=ARTIFACT_RECORD_STATE.DISABLED)
+        self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[('artifacts.artifact_disabled', 1)], status_code=404)
+
+    def test_disabled_artifact_accepted_for_create_rights(self):
+        self.request_logout()
+        self.request_login('test_user_2@test.com')
+        artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=ARTIFACT_RECORD_STATE.DISABLED)
+        self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[artifact.name.capitalize()])
+
+    def test_disabled_artifact_accepted_for_add_rights(self):
+        self.request_logout()
+        self.request_login('test_user_3@test.com')
+        artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=ARTIFACT_RECORD_STATE.DISABLED)
+        self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[artifact.name.capitalize()])
+
+    def test_simple(self):
+        artifact = ArtifactRecordPrototype._db_get_object(0)
+        self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[(artifact.name.capitalize(), 1),
+                                                                                               ('pgf-no-description', 0),
+                                                                                               ('pgf-moderate-button', 0),
+                                                                                               ('pgf-edit-button', 0)])
+
+    def test_no_description(self):
+        artifact = ArtifactRecordPrototype._db_get_object(0)
+        artifact.description = ''
+        artifact.save()
+        self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[('pgf-no-description', 1)])
+
 
 
 class TestEditRequests(BaseTestRequests):

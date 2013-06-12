@@ -9,8 +9,8 @@ pgf.urls = {
     'game:heroes:choose_ability': function(heroId, abilityId){return '/game/heroes/'+heroId+'/choose-ability?ability_id='+abilityId;},
     'game:abilities:form': function(cardType){return '/game/abilities/'+cardType+'/form';},
     'game:abilities:activate': function(cardType){return '/game/abilities/'+cardType+'/activate';},
-    // 'game:map:places:map_info': function(placeId){return '/game/map/places/'+placeId+'/map-info';},
     'game:map:cell_info': function(x, y){return '/game/map/cell-info?x='+x+'&y='+y;},
+    'guide:artifacts:info': function(id){return '/guide/artifacts/'+id+'/info';},
     'game:quests:choose': function(questId, choicePoint, choice) {
         return '/game/quests/'+questId+'/choose?choice_point='+choicePoint+'&choice='+choice;}
 };

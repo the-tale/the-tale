@@ -103,6 +103,7 @@ class ArtifactPrototype(object):
 
     def ui_info(self):
         return {'type': self.type.value,
+                'id': self.record.id,
                 'equipped': self.can_be_equipped,
                 'name': self.name,
                 'power': self.power,

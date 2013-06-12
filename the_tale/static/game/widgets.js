@@ -653,6 +653,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
         jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', !item.equipped);
         jQuery('.pgf-power', element).text(item.power);
         jQuery('.pgf-quest-item-marker', element).toggleClass('pgf-hidden', !item.quest);
+        element.data('artifact-id', item.id);
     }
 
     function RenderItems() {
@@ -707,6 +708,7 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
         jQuery('.pgf-name', element).text(data.name);
         jQuery('.pgf-power', element).text(data.power);
         jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', false);
+        element.data('artifact-id', data.id);
     }
 
     function RenderEquipment() {

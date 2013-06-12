@@ -36,6 +36,12 @@ class ArtifactResourceBase(Resource):
 
 class GuideArtifactResource(ArtifactResourceBase):
 
+
+    @validator(code='artifacts.artifact_disabled', message=u'артефакт находится вне игры', status_code=404)
+    def validate_artifact_disabled(self, *args, **kwargs):
+        return not self.artifact.state.is_disabled or self.can_create_artifact or self.can_moderate_artifact
+
+
     @validate_argument('state', ARTIFACT_RECORD_STATE, 'artifacts', u'неверное состояние записи об артефакте')
     @validate_argument('rarity', RARITY_TYPE, 'artifacts', u'неверный тип редкости артефакта')
     @validate_argument('type', ARTIFACT_TYPE, 'artifacts', u'неверный тип артефакта')
@@ -91,14 +97,16 @@ class GuideArtifactResource(ArtifactResourceBase):
                               'url_builder': url_builder,
                               'section': 'artifacts'} )
 
+    @validate_artifact_disabled()
     @handler('#artifact', name='show', method='get')
     def show(self):
-
-        if self.artifact.state.is_disabled and not (self.can_create_artifact or self.can_moderate_artifact):
-            return self.auto_error('artifacts.show.artifact_disabled', u'артефакт находится вне игры', status_code=404)
-
         return self.template('artifacts/show.html', {'artifact': self.artifact,
                                                      'section': 'artifacts'})
+
+    @validate_artifact_disabled()
+    @handler('#artifact', 'info', method='get')
+    def show_dialog(self):
+        return self.template('artifacts/info.html', {'artifact': self.artifact})
 
 
 class GameArtifactResource(ArtifactResourceBase):
