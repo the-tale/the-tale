@@ -751,7 +751,6 @@ class HeroPrototype(BasePrototype):
     @classmethod
     def create(cls, account, bundle): # pylint: disable=R0914
 
-        from game.abilities.prototypes import AbilityPrototype
         from game.actions.prototypes import ActionIdlenessPrototype
         from game.logic_storage import LogicStorage
 
@@ -797,8 +796,6 @@ class HeroPrototype(BasePrototype):
                                    pos_place = start_place._model)
 
         hero = cls(model=hero)
-
-        AbilityPrototype.create(hero)
 
         storage = LogicStorage() # tmp storage for creating Idleness action
 

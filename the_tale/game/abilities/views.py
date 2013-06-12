@@ -19,13 +19,10 @@ class AbilitiesResource(Resource):
         if self.ability is None:
             return self.auto_error('abilities.wrong_ability', u'У вас нет такой способности')
 
-        if self.ability.on_cooldown(self.time, HeroPrototype.get_by_account_id(self.account.id).id):
-            return self.auto_error('abilities.on_cooldown', u'Вы пока не можете использовать эту способность')
-
     @property
     def ability(self):
         if self.ability_type in ABILITIES:
-            return ABILITIES[self.ability_type].get_by_hero_id(HeroPrototype.get_by_account_id(self.account.id).id)
+            return ABILITIES[self.ability_type]()
         return None
 
     @handler('#ability_type', 'form', method='get')

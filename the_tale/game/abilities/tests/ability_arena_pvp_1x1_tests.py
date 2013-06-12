@@ -33,8 +33,8 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
         self.hero_1 = self.storage.accounts_to_heroes[self.account_1.id]
         self.hero_2 = self.storage.accounts_to_heroes[self.account_2.id]
 
-        self.ability_1 = ArenaPvP1x1.get_by_hero_id(self.hero_1.id)
-        self.ability_2 = ArenaPvP1x1.get_by_hero_id(self.hero_2.id)
+        self.ability_1 = ArenaPvP1x1()
+        self.ability_2 = ArenaPvP1x1()
 
         workers_environment.deinitialize()
         workers_environment.initialize()

@@ -5,10 +5,6 @@ from dext.utils.decorators import nested_commit_on_success
 from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from common.utils.enum import create_enum
 
-from game.prototypes import TimePrototype
-
-from game.abilities.models import AbilitiesData
-
 
 ABILITY_TASK_STATE = create_enum('ABILITY_TASK_STATE', (('UNPROCESSED', 0, u'в очереди'),
                                                         ('PROCESSED', 1, u'обработана'),
@@ -21,12 +17,10 @@ class UseAbilityTask(PostponedLogic):
 
     TYPE = 'use-ability'
 
-    def __init__(self, ability_type, hero_id, activated_at, available_at, data, step=None, state=ABILITY_TASK_STATE.UNPROCESSED):
+    def __init__(self, ability_type, hero_id, data, step=None, state=ABILITY_TASK_STATE.UNPROCESSED):
         super(UseAbilityTask, self).__init__()
         self.ability_type = ability_type
         self.hero_id = hero_id
-        self.activated_at = activated_at
-        self.available_at = available_at
         self.data = data
         self.state = state
         self.step = step
@@ -34,21 +28,16 @@ class UseAbilityTask(PostponedLogic):
     def serialize(self):
         return { 'ability_type': self.ability_type,
                  'hero_id': self.hero_id,
-                 'activated_at': self.activated_at,
-                 'available_at': self.available_at,
                  'data': self.data,
                  'state': self.state,
                  'step': self.step}
-
-    @property
-    def processed_data(self): return {'available_at': self.available_at}
 
     @property
     def error_message(self): return ABILITY_TASK_STATE._CHOICES[self.state][1]
 
     def process(self, main_task, storage=None, pvp_balancer=None, highlevel=None): # pylint: disable=R0911
         from game.abilities.deck import ABILITIES
-        ability = ABILITIES[self.ability_type](AbilitiesData.objects.get(hero_id=self.hero_id))
+        ability = ABILITIES[self.ability_type]()
 
         if self.step is None:
 
@@ -59,18 +48,11 @@ class UseAbilityTask(PostponedLogic):
                 self.state = ABILITY_TASK_STATE.BANNED
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            turn_number = TimePrototype.get_current_turn_number()
-
             energy = hero.energy
 
             if energy < ability.COST:
                 main_task.comment = 'energy < ability.COST'
                 self.state = ABILITY_TASK_STATE.NO_ENERGY
-                return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
-            if ability.available_at > turn_number:
-                main_task.comment = 'available_at (%d) > turn_number (%d)' % (ability.available_at, turn_number)
-                self.state = ABILITY_TASK_STATE.COOLDOWN
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             result, self.step, postsave_actions = ability.use(data=self.data,
@@ -90,9 +72,6 @@ class UseAbilityTask(PostponedLogic):
             hero.change_energy(-ability.COST)
 
             with nested_commit_on_success():
-                ability.available_at = self.available_at
-                ability.save()
-
                 storage.save_hero_data(hero.id, update_cache=True)
 
             if result is True:

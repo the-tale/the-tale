@@ -8,7 +8,6 @@ from dext.utils.decorators import debug_required
 from common.utils.decorators import staff_required, login_required
 from common.utils.resources import Resource
 
-from game.abilities.models import AbilitiesData
 from game.abilities.deck import ABILITIES
 
 from game.heroes.prototypes import HeroPrototype
@@ -50,8 +49,7 @@ class GameResource(Resource):
 
             if is_own_hero:
                 data['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
-                abilities_data = AbilitiesData.objects.get(hero_id=data['hero']['id'])
-                data['abilities'] = [ability(abilities_data).ui_info() for ability in ABILITIES.values()]
+                data['abilities'] = [ability().ui_info() for ability in ABILITIES.values()]
 
                 data['pvp'] = {'waiting': False}
 

@@ -31,7 +31,7 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
 
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.ability = ArenaPvP1x1LeaveQueue.get_by_hero_id(self.hero.id)
+        self.ability = ArenaPvP1x1LeaveQueue()
 
         workers_environment.deinitialize()
         workers_environment.initialize()

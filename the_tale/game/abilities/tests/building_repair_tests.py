@@ -36,8 +36,8 @@ class BuildingRepairTest(testcase.TestCase):
         self.hero_1 = self.storage.accounts_to_heroes[self.account_1.id]
         self.hero_2 = self.storage.accounts_to_heroes[self.account_2.id]
 
-        self.ability_1 = BuildingRepair.get_by_hero_id(self.hero_1.id)
-        self.ability_2 = BuildingRepair.get_by_hero_id(self.hero_2.id)
+        self.ability_1 = BuildingRepair()
+        self.ability_2 = BuildingRepair()
 
         workers_environment.deinitialize()
         workers_environment.initialize()

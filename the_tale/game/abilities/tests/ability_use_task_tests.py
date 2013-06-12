@@ -30,8 +30,6 @@ class UseAbilityTasksTests(TestCase):
 
         self.task = UseAbilityTask(ability_type=Help.get_type(),
                                    hero_id=self.hero.id,
-                                   activated_at=0,
-                                   available_at=666,
                                    data={'hero_id': self.hero.id})
 
     def test_create(self):
@@ -41,7 +39,7 @@ class UseAbilityTasksTests(TestCase):
         self.assertEqual(self.task.serialize(), UseAbilityTask.deserialize(self.task.serialize()).serialize())
 
     def test_response_data(self):
-        self.assertEqual(self.task.processed_data, {'available_at': 666})
+        self.assertEqual(self.task.processed_data, {})
 
     def test_banned(self):
         self.hero.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(days=1)
@@ -54,11 +52,6 @@ class UseAbilityTasksTests(TestCase):
         self.hero.save()
         self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(self.task.state, ABILITY_TASK_STATE.NO_ENERGY)
-
-    def test_process_cooldown(self):
-        with mock.patch('game.abilities.deck.help.Help.available_at', 1):
-            self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-            self.assertEqual(self.task.state, ABILITY_TASK_STATE.COOLDOWN)
 
     def test_process_can_not_process(self):
 

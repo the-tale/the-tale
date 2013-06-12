@@ -56,7 +56,7 @@ class RestActionTest(testcase.TestCase):
 
     def test_ability_heal(self):
 
-        ability = Help.get_by_hero_id(self.hero.id)
+        ability = Help()
 
         self.hero.health = 1
 

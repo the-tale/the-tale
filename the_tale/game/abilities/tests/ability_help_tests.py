@@ -33,7 +33,7 @@ class HelpAbilityTest(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
 
-        self.ability = Help.get_by_hero_id(self.hero.id)
+        self.ability = Help()
 
     @property
     def use_attributes(self):
