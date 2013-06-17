@@ -91,7 +91,7 @@ class PaymentsResource(Resource):
                                                bank_currency=CURRENCY_TYPE.PREMIUM,
                                                bank_amount=form.c.game_amount,
                                                email=self.account.email,
-                                               comment=u'Покупка печенек: %d шт.' % form.c.game_amount,
+                                               comment=u'Покупка печенек: %d шт. за %d$' % (form.c.game_amount, form.c.real_amount),
                                                payment_amount=form.c.real_amount,
                                                payment_currency=DO_CURRENCY_TYPE.USD)
         except exceptions.CreationLimitError:

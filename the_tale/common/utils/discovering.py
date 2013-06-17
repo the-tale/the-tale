@@ -25,7 +25,7 @@ def automatic_discover(container, module_name):
                 mod = import_module(app)
 
                 try:
-                    function(container, import_module('%s.postponed_tasks' % app))
+                    function(container, import_module('%s.%s' % (app, module_name)))
                 except StandardError:
                     if module_has_submodule(mod, module_name):
                         raise

@@ -253,9 +253,10 @@ jQuery(document).ready(function() {
       <div class="row">
         <div class="span12">
           <ul class="unstyled">
-            <li>© 2011-{{now().year}} {{settings.OWNER_SHORT}}</li>
+            <li><a href="{{url('guide:user-agreement')}}">пользовательское соглашение</a></li>
             <li>поддержка: <a href="mailto:{{ settings.EMAIL_SUPPORT }}">{{ settings.EMAIL_SUPPORT_SHORT }}</a></li>
             <li>использована часть иконок из набора <a href="http://glyphicons.com" target="_blank">Glyphicons</a></li>
+            <li>© 2011-{{now().year}} {{settings.OWNER}}</li>
           </ul>
         </div>
       </div>

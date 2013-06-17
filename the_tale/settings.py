@@ -43,7 +43,7 @@ ALLOWED_HOSTS = ['.the-tale.org',
 
 AUTH_USER_MODEL = 'accounts.Account'
 
-OWNER = u'Елецкий Алексей'
+OWNER = u'ИП Елецкий А.Н. УНП 291200954, юридический адрес: Беларусь Брестская обл. г. Барановичи ул. Кутузова д.4'
 OWNER_SHORT = u'Елецкий Алексей (Tiendil)'
 OWNER_COUNTRY = u'Республика Беларусь'
 
