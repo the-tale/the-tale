@@ -48,7 +48,7 @@
 }
 .hero-equipment-block .equip-record {
   padding-top: 0.1em;
-  cursor: default;
+  cursor: pointer;
 }
 .hero-equipment-block .equip-record:hover {
   background-color: #dddddd;
@@ -72,6 +72,7 @@
   margin-top: 5px;
   cursor: default;
   overflow: hidden;
+  cursor: pointer;
 }
 #hero-bag-block .bag-record:hover {
   background-color: #dddddd;
