@@ -14,7 +14,7 @@ from django.conf import settings as project_settings
 from dext.utils import pid
 
 
-def initialize_newrelic(method):
+def initialize_newrelic():
     import newrelic.agent
     newrelic.agent.initialize(project_settings.NEWRELIC_CONF_PATH)
 
