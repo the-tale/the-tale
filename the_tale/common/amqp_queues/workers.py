@@ -4,6 +4,17 @@ import sys
 
 from common.amqp_queues.exceptions import AmqpQueueException
 from common.amqp_queues.connection import connection
+from django.conf import settings as project_settings
+
+def run_with_newrelic(method, method_data):
+    import newrelic.agent
+
+    application = newrelic.agent.application()
+    name = newrelic.agent.callable_name(method)
+
+    with newrelic.agent.BackgroundTask(application, name):
+        return method(**method_data)
+
 
 class BaseWorker(object):
 
@@ -64,6 +75,7 @@ class BaseWorker(object):
         self.command_queue.put({'type': tp, 'data': data if data else {}}, serializer='json', compression=None)
 
 
+
     def process_cmd(self, cmd):
         cmd_type = cmd['type']
         cmd_data = cmd['data']
@@ -75,7 +87,12 @@ class BaseWorker(object):
             return
 
         try:
-            self.commands[cmd_type](**cmd_data)
+            cmd = self.commands[cmd_type]
+
+            if project_settings.NEWRELIC_ENABLED:
+                run_with_newrelic(cmd, cmd_data)
+            else:
+                cmd(**cmd_data)
         except Exception: # pylint: disable=W0703
             self.exception_raised = True
             self.logger.error('Exception in worker "%r"' % self,

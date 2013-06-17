@@ -14,14 +14,9 @@ from django.conf import settings as project_settings
 from dext.utils import pid
 
 
-def run_with_newrelic(method):
+def initialize_newrelic(method):
     import newrelic.agent
-
-    application = newrelic.agent.application()
-    name = newrelic.agent.callable_name(method)
-
-    with newrelic.agent.BackgroundTask(application, name):
-        return method()
+    newrelic.agent.initialize(project_settings.NEWRELIC_CONF_PATH)
 
 
 def construct_command(environment, worker):
@@ -36,13 +31,12 @@ def construct_command(environment, worker):
         def handle(self, *args, **options):
 
             try:
-                # environment.clean_queues()
                 worker.initialize()
 
-                if project_settings.USE_NEWRELIC:
-                    run_with_newrelic(worker.run)
-                else:
-                    worker.run()
+                if project_settings.NEWRELIC_ENABLED:
+                    initialize_newrelic()
+
+                worker.run()
 
             except KeyboardInterrupt:
                 pass

@@ -47,7 +47,8 @@ OWNER = u'ИП Елецкий А.Н. УНП 291200954, юридический а
 OWNER_SHORT = u'Елецкий Алексей (Tiendil)'
 OWNER_COUNTRY = u'Республика Беларусь'
 
-USE_NEWRELIC = True
+NEWRELIC_ENABLED = True
+NEWRELIC_CONF_PATH = '/home/the-tale/conf/newrelic.ini'
 
 ##############################
 # I18N
