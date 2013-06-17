@@ -11,6 +11,7 @@ from common.utils.decorators import login_required
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import get_system_user
+from accounts.views import validate_fast_account
 
 from accounts.personal_messages.models import Message
 from accounts.personal_messages.prototypes import MessagePrototype
@@ -28,6 +29,7 @@ def get_accounts_list_by_ids(ids_string):
 class MessageResource(Resource):
 
     @login_required
+    @validate_fast_account()
     def initialize(self, message_id=None, *args, **kwargs):
         super(MessageResource, self).initialize(*args, **kwargs)
 
@@ -97,6 +99,9 @@ class MessageResource(Resource):
             if recipient.id == system_user.id:
                 return self.auto_error('personal_messages.create.can_not_sent_message_to_system_user',
                                        u'Нельзя отправить сообщение системному пользователю')
+            if recipient.is_fast:
+                return self.auto_error('personal_messages.create.can_not_sent_message_to_fast_user',
+                                       u'Нельзя отправить сообщение пользователю, не завершившему регистрацию')
 
         form = NewMessageForm(initial={'text': text})
 
@@ -119,6 +124,9 @@ class MessageResource(Resource):
             if recipient.id == system_user.id:
                 return self.json_error('personal_messages.create.can_not_sent_message_to_system_user',
                                        u'Нельзя отправить сообщение системному пользователю')
+            if recipient.is_fast:
+                return self.auto_error('personal_messages.create.can_not_sent_message_to_fast_user',
+                                       u'Нельзя отправить сообщение пользователю, не завершившему регистрацию')
 
         for recipient in recipients:
             MessagePrototype.create(self.account, recipient, form.c.text)

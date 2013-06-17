@@ -54,6 +54,12 @@ class IndexRequestsTests(BaseRequestsTests):
         request_url = url('accounts:messages:')
         self.check_redirect(request_url, login_url(request_url))
 
+    def test_fast_account(self):
+        self.request_login('test_user1@test.com')
+        self.account1.is_fast = True
+        self.account1.save()
+        self.check_html_ok(self.request_html(url('accounts:messages:')), texts=['common.fast_account'])
+
     def test_unlogined_sent(self):
         request_url = url('accounts:messages:sent')
         self.check_redirect(request_url, login_url(request_url))
@@ -110,6 +116,12 @@ class NewRequestsTests(BaseRequestsTests):
         request_url = url('accounts:messages:new')
         self.check_redirect(request_url, login_url(request_url))
 
+    def test_fast_account(self):
+        self.request_login('test_user1@test.com')
+        self.account1.is_fast = True
+        self.account1.save()
+        self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=self.account2.id)), texts=['common.fast_account'])
+
     def test_wrong_recipient_id(self):
         self.check_html_ok(self.request_html(url('accounts:messages:new', recipients='aaa')),
                            texts=[('personal_messages.recipients.wrong_format', 1)])
@@ -157,6 +169,13 @@ class NewRequestsTests(BaseRequestsTests):
         self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=recipients)),
                            texts=[('personal_messages.create.can_not_sent_message_to_system_user', 1)])
 
+    def test_sent_to_fast_user(self):
+        self.account3.is_fast = True
+        self.account3.save()
+        recipients = '%d,%d' % (self.account2.id, self.account3.id)
+        self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=recipients)),
+                           texts=[('personal_messages.create.can_not_sent_message_to_fast_user', 1)])
+
 
 class CreateRequestsTests(BaseRequestsTests):
 
@@ -168,6 +187,12 @@ class CreateRequestsTests(BaseRequestsTests):
         self.request_logout()
         self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message'}), 'common.login_required')
         self.assertEqual(Message.objects.all().count(), 0)
+
+    def test_fast_account(self):
+        self.request_login('test_user1@test.com')
+        self.account1.is_fast = True
+        self.account1.save()
+        self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message'}), 'common.fast_account')
 
     def test_wrong_recipient_id(self):
         self.check_ajax_error(self.client.post(url('accounts:messages:create', recipients='aaa'), {'text': 'test-message'}),
@@ -211,6 +236,13 @@ class CreateRequestsTests(BaseRequestsTests):
                               'personal_messages.create.can_not_sent_message_to_system_user')
         self.assertEqual(Message.objects.all().count(), 0)
 
+    def test_sent_to_fast_user(self):
+        self.account3.is_fast = True
+        self.account3.save()
+        self.check_ajax_error(self.client.post(url('accounts:messages:create', recipients='%d,%d' % (self.account2.id, self.account3.id)), {'text': 'test-message'}),
+                              'personal_messages.create.can_not_sent_message_to_fast_user')
+        self.assertEqual(Message.objects.all().count(), 0)
+
 
 class DeleteRequestsTests(BaseRequestsTests):
 
@@ -221,6 +253,12 @@ class DeleteRequestsTests(BaseRequestsTests):
     def test_unlogined(self):
         self.request_logout()
         self.check_ajax_error(self.client.post(url('accounts:messages:delete', self.message.id)), 'common.login_required')
+
+    def test_fast_account(self):
+        self.request_login('test_user1@test.com')
+        self.account1.is_fast = True
+        self.account1.save()
+        self.check_ajax_error(self.client.post(url('accounts:messages:delete', self.message.id)), 'common.fast_account')
 
     def test_delete_no_permissions(self):
         self.request_login('test_user3@test.com')
