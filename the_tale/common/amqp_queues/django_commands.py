@@ -15,7 +15,7 @@ from dext.utils import pid
 
 
 def run_with_newrelic(method):
-    import newrelic
+    import newrelic.agent
 
     application = newrelic.agent.application()
     name = newrelic.agent.callable_name(method)
