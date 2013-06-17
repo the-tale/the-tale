@@ -8,9 +8,20 @@ import subprocess
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
+from django.conf import settings as project_settings
 
 
 from dext.utils import pid
+
+
+def run_with_newrelic(method):
+    import newrelic
+
+    application = newrelic.agent.application()
+    name = newrelic.agent.callable_name(method)
+
+    with newrelic.agent.BackgroundTask(application, name):
+        return method()
 
 
 def construct_command(environment, worker):
@@ -27,7 +38,12 @@ def construct_command(environment, worker):
             try:
                 # environment.clean_queues()
                 worker.initialize()
-                worker.run()
+
+                if project_settings.USE_NEWRELIC:
+                    run_with_newrelic(worker.run)
+                else:
+                    worker.run()
+
             except KeyboardInterrupt:
                 pass
             except Exception:
