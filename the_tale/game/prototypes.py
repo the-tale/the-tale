@@ -147,8 +147,8 @@ class SupervisorTaskPrototype(BasePrototype):
 
         bundle = BundlePrototype.create()
 
-        ActionMetaProxyPrototype.create(parent=storage.heroes_to_actions[hero_1.id][-1], _bundle_id=bundle.id, meta_action=meta_action_battle)
-        ActionMetaProxyPrototype.create(parent=storage.heroes_to_actions[hero_2.id][-1], _bundle_id=bundle.id, meta_action=meta_action_battle)
+        ActionMetaProxyPrototype.create(hero=hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        ActionMetaProxyPrototype.create(hero=hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
 
         storage.save_account_data(account_1_id, update_cache=True)
         storage.save_account_data(account_2_id, update_cache=True)

@@ -16,7 +16,6 @@ class BundlePrototype(BasePrototype):
 
     @classmethod
     def get_by_account_id(cls, account_id):
-        from game.actions.models import Action
         from game.heroes.prototypes import HeroPrototype
 
         try:

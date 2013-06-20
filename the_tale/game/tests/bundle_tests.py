@@ -10,7 +10,6 @@ from accounts.logic import register_user
 
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.models import Hero
-from game.actions.models import Action
 from game.models import Bundle
 from game.prototypes import TimePrototype
 from game.logic_storage import LogicStorage

@@ -211,7 +211,6 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(ui_info_for_cache.call_args, mock.call())
 
     def test__destroy_account_data(self):
-        from game.actions.models import Action
         from game.heroes.models import Hero
 
         current_time = TimePrototype.get_current_time()
@@ -221,11 +220,11 @@ class LogicStorageTests(testcase.TestCase):
             self.storage.process_turn()
             current_time.increment_turn()
 
-        self.assertTrue(Action.objects.all().count() > 2)
         self.assertEqual(Hero.objects.all().count(), 2)
+
+        raise 'test actions count'
 
         self.storage._destroy_account_data(self.account_1)
         self.storage._destroy_account_data(self.account_2)
 
-        self.assertEqual(Action.objects.all().count(), 0)
         self.assertEqual(Hero.objects.all().count(), 0)

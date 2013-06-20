@@ -127,7 +127,7 @@ class ChooseQuestLineTaskTest(testcase.TestCase, QuestTestsMixin):
         current_time = TimePrototype.get_current_time()
 
         while True:
-            self.assertNotEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionIdlenessPrototype.TYPE)
+            self.assertNotEqual(self.hero.actions.current_action, ActionIdlenessPrototype.TYPE)
 
             task = self.create_task(choice_point='choose_2', choice='choice_2_1')
 

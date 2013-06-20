@@ -78,7 +78,7 @@ class Help(AbilityPrototype):
         if battle and not battle.state._is_WAITING:
             return False, None, ()
 
-        action = storage.current_hero_action(hero.id)
+        action = hero.actions.current_action
 
         choice = action.get_help_choice()
 

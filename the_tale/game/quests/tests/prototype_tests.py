@@ -31,10 +31,10 @@ class PrototypeTests(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
         self.quest = create_random_quest_for_hero(self.hero)
-        self.action_quest = ActionQuestPrototype.create(self.action_idl, quest=self.quest)
+        self.action_quest = ActionQuestPrototype.create(hero=self.hero, quest=self.quest)
 
     def tearDown(self):
         pass

@@ -7,7 +7,6 @@ from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOG
 
 from game.heroes.models import Hero
 from game.quests.models import Quest
-from game.actions.models import Action
 from game.models import Bundle
 from game.logic import create_test_map
 

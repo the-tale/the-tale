@@ -27,11 +27,11 @@ class MoveNearActionTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
         self.hero.position.set_place(self.p1)
 
-        self.action_move = ActionMoveNearPlacePrototype.create(self.action_idl, self.p1, False)
+        self.action_move = ActionMoveNearPlacePrototype.create(hero=self.hero, place=self.p1, back=False)
     def tearDown(self):
         pass
 
@@ -57,7 +57,7 @@ class MoveNearActionTest(testcase.TestCase):
         self.storage.process_turn()
 
         # can end in field or in start place
-        self.assertTrue(self.storage.heroes_to_actions[self.hero.id][-1].TYPE in [ActionIdlenessPrototype.TYPE, ActionInPlacePrototype.TYPE])
+        self.assertTrue(self.hero.actions.current_action.TYPE in [ActionIdlenessPrototype.TYPE, ActionInPlacePrototype.TYPE])
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place)
 
         self.storage._test_save()
@@ -66,8 +66,8 @@ class MoveNearActionTest(testcase.TestCase):
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
     def test_not_ready(self):
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 2)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_move)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action, self.action_move)
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place) # can end in start place
         self.storage._test_save()
 
@@ -75,19 +75,19 @@ class MoveNearActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        while len(self.storage.actions) != 1:
+        while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn()
             current_time.increment_turn()
 
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionIdlenessPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionIdlenessPrototype.TYPE)
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place)  # can end in start place
 
-        ActionMoveNearPlacePrototype.create(self.action_idl, self.p1, True)
+        ActionMoveNearPlacePrototype.create(hero=self.hero, place=self.p1, back=True)
         while self.hero.position.place is None or self.hero.position.place.id != self.p1.id:
             self.storage.process_turn()
             current_time.increment_turn()
 
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionInPlacePrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionInPlacePrototype.TYPE)
         self.assertTrue(not self.hero.position.is_walking)
         self.storage._test_save()
 
@@ -95,14 +95,14 @@ class MoveNearActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        while len(self.storage.actions) != 1:
+        while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn()
             current_time.increment_turn()
 
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionIdlenessPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionIdlenessPrototype.TYPE)
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place)  # can end in start place
 
-        ActionMoveNearPlacePrototype.create(self.action_idl, self.p1, True)
+        ActionMoveNearPlacePrototype.create(hero=self.hero, place=self.p1, back=True)
         self.p1._model.x = self.p1.x + 1
         self.p1._model.y = self.p1.y + 1
         self.p1.save()
@@ -111,7 +111,7 @@ class MoveNearActionTest(testcase.TestCase):
             self.storage.process_turn()
             current_time.increment_turn()
 
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionInPlacePrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionInPlacePrototype.TYPE)
         self.assertTrue(not self.hero.position.is_walking)
         self.storage._test_save()
 
@@ -119,7 +119,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        while len(self.storage.actions) != 1:
+        while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn()
             current_time.increment_turn()
 
@@ -130,7 +130,7 @@ class MoveNearActionTest(testcase.TestCase):
     @mock.patch('game.balance.constants.BATTLES_PER_TURN', 1.0)
     def test_battle(self):
         self.storage.process_turn()
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionBattlePvE1x1Prototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionBattlePvE1x1Prototype.TYPE)
         self.storage._test_save()
 
     def test_regenerate_energy_on_move(self):
@@ -141,7 +141,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.storage.process_turn()
 
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRegenerateEnergyPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionRegenerateEnergyPrototype.TYPE)
 
         self.storage._test_save()
 
@@ -153,7 +153,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.storage.process_turn()
 
-        self.assertNotEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRegenerateEnergyPrototype.TYPE)
+        self.assertNotEqual(self.hero.actions.current_action.TYPE, ActionRegenerateEnergyPrototype.TYPE)
 
         self.storage._test_save()
 
@@ -166,7 +166,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.storage.process_turn()
 
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRegenerateEnergyPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionRegenerateEnergyPrototype.TYPE)
 
         self.storage._test_save()
 
@@ -176,7 +176,7 @@ class MoveNearActionTest(testcase.TestCase):
         self.action_move.state = self.action_move.STATE.BATTLE
         self.storage.process_turn()
 
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRestPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionRestPrototype.TYPE)
         self.storage._test_save()
 
 
@@ -185,5 +185,5 @@ class MoveNearActionTest(testcase.TestCase):
         self.action_move.state = self.action_move.STATE.BATTLE
         self.storage.process_turn()
 
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionResurrectPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionResurrectPrototype.TYPE)
         self.storage._test_save()

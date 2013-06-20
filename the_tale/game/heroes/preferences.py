@@ -12,7 +12,7 @@ from game.persons.storage import persons_storage
 
 from game.heroes.models import PREFERENCE_TYPE
 from game.heroes.bag import SLOTS
-from game.heroes.exceptions import HeroException
+from game.heroes.exceptions import WrongPreferenceTypeError
 
 
 class HeroPreferences(object):
@@ -34,7 +34,7 @@ class HeroPreferences(object):
         if preferences_type == PREFERENCE_TYPE.ENEMY: return self._time_before_update(self.enemy_changed_at, current_time)
         if preferences_type == PREFERENCE_TYPE.EQUIPMENT_SLOT: return self._time_before_update(self.equipment_slot_changed_at, current_time)
 
-        raise HeroException('unknown preference type')
+        raise WrongPreferenceTypeError(preference_type=preferences_type)
 
     # energy_regeneration_type
     def get_energy_regeneration_type(self): return self.hero_model.pref_energy_regeneration_type

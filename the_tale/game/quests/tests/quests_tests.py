@@ -37,7 +37,7 @@ class QuestsTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
         self.hero._model.money += 1
         self.hero.preferences.mob = mobs_storage.all()[0]
@@ -72,13 +72,13 @@ def create_test_method(quest, quests):
 
         current_time = TimePrototype.get_current_time()
 
-        while self.storage.heroes_to_actions[self.hero.id][-1].TYPE != ActionQuestPrototype.TYPE:
+        while self.hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE:
             self.storage.process_turn()
             current_time.increment_turn()
 
         self.complete_quest()
 
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionIdlenessPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionIdlenessPrototype.TYPE)
 
         if quest == SearchSmith:
             self.assertTrue(self.hero.statistics.money_spend_for_artifacts > 0 or

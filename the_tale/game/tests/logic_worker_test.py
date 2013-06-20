@@ -41,8 +41,6 @@ class LogicWorkerTests(testcase.TestCase):
         self.assertEqual(self.worker.worker_id, 'logic')
         self.assertEqual(self.worker.turn_number, 0)
         self.assertEqual(self.worker.storage.heroes, {})
-        self.assertEqual(self.worker.storage.actions, {})
-        self.assertEqual(self.worker.storage.heroes_to_actions, {})
         self.assertEqual(self.worker.queue, [])
 
     def test_process_start_hero_caching(self):

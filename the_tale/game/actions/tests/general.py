@@ -26,7 +26,7 @@ class GeneralTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
     def tearDown(self):
         pass
@@ -60,7 +60,7 @@ class GeneralTest(testcase.TestCase):
         self.check_heal_in_choices(False)
 
     def test_help_choice_has_heal_for_full_health_with_alternative(self):
-        ActionBattlePvE1x1Prototype.create(self.action_idl, mob=create_mob_for_hero(self.hero))
+        ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
         self.check_heal_in_choices(False)
 
     @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.EXTRA_HELP_CHOICES', set())
@@ -69,7 +69,7 @@ class GeneralTest(testcase.TestCase):
         self.check_heal_in_choices(True)
 
     def test_help_choice_has_heal_for_large_health_with_alternative(self):
-        ActionBattlePvE1x1Prototype.create(self.action_idl, mob=create_mob_for_hero(self.hero))
+        ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
         self.hero.health = self.hero.max_health - 1
         self.check_heal_in_choices(False)
 
@@ -79,7 +79,7 @@ class GeneralTest(testcase.TestCase):
         self.check_heal_in_choices(True)
 
     def test_help_choice_has_heal_for_low_health_with_alternative(self):
-        ActionBattlePvE1x1Prototype.create(self.action_idl, mob=create_mob_for_hero(self.hero))
+        ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
         self.hero.health = 1
         self.check_heal_in_choices(True)
 

@@ -42,7 +42,7 @@ class ChooseQuestLineTask(PostponedLogic):
 
         hero = storage.accounts_to_heroes[self.account_id]
 
-        actions = storage.heroes_to_actions[hero.id]
+        actions = hero.actions.actions_list
 
         quest = None
         for action in reversed(actions):

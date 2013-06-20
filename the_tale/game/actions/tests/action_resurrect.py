@@ -23,11 +23,11 @@ class ResurrectActionTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
         self.hero.kill()
 
-        self.action_resurrect = ActionResurrectPrototype.create(self.action_idl)
+        self.action_resurrect = ActionResurrectPrototype.create(hero=self.hero)
 
     def tearDown(self):
         pass
@@ -46,12 +46,12 @@ class ResurrectActionTest(testcase.TestCase):
 
             self.storage.process_turn()
             current_time.increment_turn()
-            self.assertEqual(len(self.storage.actions), 2)
-            self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_resurrect)
+            self.assertEqual(len(self.hero.actions.actions_list), 2)
+            self.assertEqual(self.hero.actions.current_action, self.action_resurrect)
 
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.assertEqual(self.hero.is_alive, True)
@@ -62,7 +62,7 @@ class ResurrectActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        while len(self.storage.actions) != 1:
+        while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn()
             current_time.increment_turn()
 
@@ -77,8 +77,8 @@ class ResurrectActionTest(testcase.TestCase):
         self.action_resurrect.fast_resurrect()
 
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.assertEqual(self.hero.is_alive, True)

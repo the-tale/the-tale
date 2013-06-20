@@ -271,20 +271,20 @@ class QuestPrototype(BasePrototype):
 
 
     def cmd_move(self, cmd, cur_action, writer):
-        from ..actions.prototypes import ActionMoveToPrototype
+        from game.actions.prototypes import ActionMoveToPrototype
 
         self.push_message(writer, cur_action.hero, cmd.event)
 
         destination = self.env.get_game_place(cmd.place)
-        ActionMoveToPrototype.create(parent=cur_action, destination=destination, break_at=cmd.break_at)
+        ActionMoveToPrototype.create(hero=cur_action.hero, destination=destination, break_at=cmd.break_at)
 
     def cmd_move_near(self, cmd, cur_action, writer):
-        from ..actions.prototypes import ActionMoveNearPlacePrototype
+        from game.actions.prototypes import ActionMoveNearPlacePrototype
 
         self.push_message(writer, cur_action.hero, cmd.event)
 
         destination = self.env.get_game_place(cmd.place)
-        ActionMoveNearPlacePrototype.create(parent=cur_action, place=destination, back=cmd.back)
+        ActionMoveNearPlacePrototype.create(hero=cur_action.hero, place=destination, back=cmd.back)
 
     def cmd_get_item(self, cmd, cur_action, writer):
         self.push_message(writer, cur_action.hero, cmd.event)
@@ -366,7 +366,7 @@ class QuestPrototype(BasePrototype):
 
 
     def cmd_battle(self, cmd, cur_action, writer):
-        from ..actions.prototypes import ActionBattlePvE1x1Prototype
+        from game.actions.prototypes import ActionBattlePvE1x1Prototype
 
         self.push_message(writer, cur_action.hero, cmd.event)
 
@@ -376,12 +376,12 @@ class QuestPrototype(BasePrototype):
         if mob is None:
             mob = mobs_storage.get_random_mob(cur_action.hero)
 
-        ActionBattlePvE1x1Prototype.create(parent=cur_action, mob=mob)
+        ActionBattlePvE1x1Prototype.create(hero=cur_action.hero, mob=mob)
 
     def cmd_donothing(self, cmd, cur_action, writer):
         from ..actions.prototypes import ActionDoNothingPrototype
         self.push_message(writer, cur_action.hero, cmd.event)
-        ActionDoNothingPrototype.create(parent=cur_action,
+        ActionDoNothingPrototype.create(hero=cur_action.hero,
                                         duration=cmd.duration,
                                         messages_prefix=writer.get_msg_journal_id(cmd.event),
                                         messages_probability=cmd.messages_probability)

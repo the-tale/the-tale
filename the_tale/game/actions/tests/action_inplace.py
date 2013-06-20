@@ -26,9 +26,9 @@ class InPlaceActionTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
-        self.action_inplace = ActionInPlacePrototype.create(self.action_idl)
+        self.action_inplace = ActionInPlacePrototype.create(hero=self.hero)
 
 
     def test_create(self):
@@ -43,7 +43,7 @@ class InPlaceActionTest(testcase.TestCase):
         self.hero.health = 1
         self.hero.position.place.modifier = Resort(self.hero.position.place)
         old_messages_len = len (self.hero.messages.messages)
-        ActionInPlacePrototype.create(self.action_inplace)
+        ActionInPlacePrototype.create(hero=self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.assertEqual(len(self.hero.messages.messages), old_messages_len + 1)
         self.storage._test_save()
@@ -54,15 +54,15 @@ class InPlaceActionTest(testcase.TestCase):
         self.hero.health = self.hero.max_health
         self.hero.position.place.modifier = Resort(self.hero.position.place)
         old_messages_len = len (self.hero.messages.messages)
-        ActionInPlacePrototype.create(self.action_inplace)
+        ActionInPlacePrototype.create(hero=self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.assertEqual(len(self.hero.messages.messages), old_messages_len)
         self.storage._test_save()
 
     def test_processed(self):
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.storage._test_save()
 
     def test_regenerate_energy_action_create(self):
@@ -70,8 +70,8 @@ class InPlaceActionTest(testcase.TestCase):
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 3)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRegenerateEnergyPrototype.TYPE)
+        self.assertEqual(len(self.hero.actions.actions_list), 3)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionRegenerateEnergyPrototype.TYPE)
         self.storage._test_save()
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
@@ -79,15 +79,15 @@ class InPlaceActionTest(testcase.TestCase):
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.storage._test_save()
 
     def test_heal_action_create(self):
         self.hero.health = 1
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 3)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRestPrototype.TYPE)
+        self.assertEqual(len(self.hero.actions.actions_list), 3)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionRestPrototype.TYPE)
         self.storage._test_save()
 
     def test_trade_action_create(self):
@@ -97,8 +97,8 @@ class InPlaceActionTest(testcase.TestCase):
             self.hero.bag.put_artifact(artifact)
 
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 3)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionTradingPrototype.TYPE)
+        self.assertEqual(len(self.hero.actions.actions_list), 3)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionTradingPrototype.TYPE)
 
         self.storage._test_save()
 
@@ -108,8 +108,8 @@ class InPlaceActionTest(testcase.TestCase):
         self.hero.bag.put_artifact(artifact)
 
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 3)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionEquippingPrototype.TYPE)
+        self.assertEqual(len(self.hero.actions.actions_list), 3)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionEquippingPrototype.TYPE)
 
         self.storage._test_save()
 
@@ -117,7 +117,7 @@ class InPlaceActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        while len(self.storage.actions) != 1:
+        while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn()
             current_time.increment_turn()
 
@@ -137,9 +137,9 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
-        self.action_inplace = ActionInPlacePrototype.create(self.action_idl)
+        self.action_inplace = ActionInPlacePrototype.create(hero=self.hero)
 
 
     def tearDown(self):

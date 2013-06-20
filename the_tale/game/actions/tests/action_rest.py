@@ -26,9 +26,9 @@ class RestActionTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
-        self.action_rest = ActionRestPrototype.create(self.action_idl)
+        self.action_rest = ActionRestPrototype.create(hero=self.hero)
 
     def tearDown(self):
         pass
@@ -42,15 +42,15 @@ class RestActionTest(testcase.TestCase):
 
     def test_processed(self):
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.storage._test_save()
 
     def test_not_ready(self):
         self.hero.health = 1
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 2)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_rest)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action, self.action_rest)
         self.assertTrue(self.hero.health > 1)
         self.storage._test_save()
 
@@ -62,7 +62,7 @@ class RestActionTest(testcase.TestCase):
 
         old_percents = self.action_rest.percents
 
-        with mock.patch('game.actions.prototypes.ActionPrototype.get_help_choice', lambda x: c.HELP_CHOICES.HEAL):
+        with mock.patch('game.heroes.actions.ActionBase.get_help_choice', lambda x: c.HELP_CHOICES.HEAL):
             self.assertTrue(ability.use(storage=self.storage, data={'hero_id': self.hero.id}, step=None, main_task_id=0, pvp_balancer=None))
             self.assertTrue(self.hero.health > 1)
             self.assertTrue(old_percents < self.action_rest.percents)
@@ -73,7 +73,7 @@ class RestActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        while len(self.storage.actions) != 1:
+        while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn()
             current_time.increment_turn()
 

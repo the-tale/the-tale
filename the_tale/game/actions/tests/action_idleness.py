@@ -23,7 +23,7 @@ class IdlenessActionTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
     def tearDown(self):
         pass
@@ -36,8 +36,8 @@ class IdlenessActionTest(testcase.TestCase):
 
     def test_first_quest(self):
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 2)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionQuestPrototype.TYPE)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionQuestPrototype.TYPE)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
         self.assertTrue(self.action_idl.updated)
         self.assertTrue(self.action_idl.bundle_id is not None)
@@ -47,16 +47,16 @@ class IdlenessActionTest(testcase.TestCase):
     def test_inplace(self):
         self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 2)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionInPlacePrototype.TYPE)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionInPlacePrototype.TYPE)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.IN_PLACE)
         self.storage._test_save()
 
     def test_waiting(self):
         self.action_idl.state = ActionIdlenessPrototype.STATE.IN_PLACE
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.WAITING)
         self.storage._test_save()
 
@@ -66,8 +66,8 @@ class IdlenessActionTest(testcase.TestCase):
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_idl.percents = 0.0
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 2)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionRegenerateEnergyPrototype.TYPE)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionRegenerateEnergyPrototype.TYPE)
         self.storage._test_save()
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
@@ -76,8 +76,8 @@ class IdlenessActionTest(testcase.TestCase):
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.storage._test_save()
 
 
@@ -90,13 +90,13 @@ class IdlenessActionTest(testcase.TestCase):
         for i in xrange(c.TURNS_TO_IDLE-1):
             self.storage.process_turn()
             current_time.increment_turn()
-            self.assertEqual(len(self.storage.actions), 1)
-            self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+            self.assertEqual(len(self.hero.actions.actions_list), 1)
+            self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
         self.storage.process_turn()
 
-        self.assertEqual(len(self.storage.actions), 2)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionQuestPrototype.TYPE)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionQuestPrototype.TYPE)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
 
         self.storage._test_save()
@@ -109,8 +109,8 @@ class IdlenessActionTest(testcase.TestCase):
 
         self.storage.process_turn()
 
-        self.assertEqual(len(self.storage.actions), 2)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionQuestPrototype.TYPE)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionQuestPrototype.TYPE)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
 
         self.storage._test_save()
@@ -123,8 +123,8 @@ class IdlenessActionTest(testcase.TestCase):
 
         self.storage.process_turn()
 
-        self.assertEqual(len(self.storage.actions), 2)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1].TYPE, ActionQuestPrototype.TYPE)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionQuestPrototype.TYPE)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
 
         self.storage._test_save()

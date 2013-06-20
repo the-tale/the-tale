@@ -17,7 +17,7 @@ from game.pvp.tests.helpers import PvPTestsMixin
 
 class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
 
-    @mock.patch('game.actions.prototypes.ActionPrototype.get_description', lambda self: 'abrakadabra')
+    @mock.patch('game.heroes.actions.ActionBase.get_description', lambda self: 'abrakadabra')
     def setUp(self):
         super(MetaProxyActionForArenaPvP1x1Tests, self).setUp()
 
@@ -36,16 +36,16 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
         self.hero_1 = self.storage.accounts_to_heroes[account_1_id]
         self.hero_2 = self.storage.accounts_to_heroes[account_2_id]
 
-        self.action_idl_1 = self.storage.heroes_to_actions[self.hero_1.id][-1]
-        self.action_idl_2 = self.storage.heroes_to_actions[self.hero_2.id][-1]
+        self.action_idl_1 = self.hero_1.actions.current_action
+        self.action_idl_2 = self.hero_2.actions.current_action
 
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
         meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2)
 
-        self.action_proxy_1 = ActionMetaProxyPrototype.create(self.action_idl_1, meta_action_battle)
-        self.action_proxy_2 = ActionMetaProxyPrototype.create(self.action_idl_2, meta_action_battle)
+        self.action_proxy_1 = ActionMetaProxyPrototype.create(hero=self.hero_1, meta_action=meta_action_battle)
+        self.action_proxy_2 = ActionMetaProxyPrototype.create(hero=self.hero_2, meta_action=meta_action_battle)
 
         self.meta_action_battle = self.storage.meta_actions.values()[0]
 
@@ -58,8 +58,8 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
         self.assertFalse(self.action_idl_2.leader)
         self.assertTrue(self.action_proxy_1.leader)
         self.assertTrue(self.action_proxy_2.leader)
-        self.assertEqual(len(self.hero_1.actions._actions), 2)
-        self.assertEqual(len(self.hero_2.actions._actions), 2)
+        self.assertEqual(self.hero_1.actions.number, 2)
+        self.assertEqual(self.hero_2.actions.number, 2)
 
         # here we not test creating of new bundle (it processed and tested in supervisor tasks)
         self.assertEqual(self.action_proxy_1.bundle_id, self.action_idl_1.bundle_id)

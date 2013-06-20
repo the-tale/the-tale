@@ -566,7 +566,7 @@ class HeroPrototype(BasePrototype):
     def preferences(self): return HeroPreferences(hero_model=self._model)
 
     @lazy_property
-    def actions(self): return ActionsContainer.deserialize(s11n.from_json(self._model.actions))
+    def actions(self): return ActionsContainer.deserialize(self, s11n.from_json(self._model.actions))
 
     @lazy_property
     def pvp(self): return PvPData.deserialize(s11n.from_json(self._model.pvp))
@@ -635,6 +635,7 @@ class HeroPrototype(BasePrototype):
             self.diary.updated = False
 
         if self.actions.updated:
+            self.actions.on_save()
             self._model.actions = s11n.to_json(self.actions.serialize())
             self.actions.updated = False
 
@@ -801,7 +802,7 @@ class HeroPrototype(BasePrototype):
 
         storage.add_hero(hero)
 
-        ActionIdlenessPrototype.create(parent=None, _bundle_id=bundle.id, hero=hero, _storage=storage)
+        ActionIdlenessPrototype.create(hero=hero, _bundle_id=bundle.id, _storage=storage)
 
         return hero
 

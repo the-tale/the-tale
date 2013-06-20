@@ -27,9 +27,9 @@ class ActionEquippingTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
-        self.action_equipping = ActionEquippingPrototype.create(self.action_idl)
+        self.action_equipping = ActionEquippingPrototype.create(hero=self.hero)
 
 
     def tearDown(self):
@@ -45,8 +45,8 @@ class ActionEquippingTest(testcase.TestCase):
 
     def test_processed(self):
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.storage._test_save()
 
 
@@ -60,8 +60,8 @@ class ActionEquippingTest(testcase.TestCase):
         self.hero.bag.put_artifact(artifact)
 
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 2)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_equipping)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action, self.action_equipping)
         self.assertEqual(len(self.hero.bag.items()), 0)
 
         equip_slot = ARTIFACT_TYPE_TO_SLOT[artifact.type.value]
@@ -84,8 +84,8 @@ class ActionEquippingTest(testcase.TestCase):
 
         self.storage.process_turn()
 
-        self.assertEqual(len(self.storage.actions), 2)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_equipping)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action, self.action_equipping)
 
         self.assertEqual(len(self.hero.bag.items()), 1)
         self.assertEqual(self.hero.bag.items()[0][1].power, 13)
@@ -98,8 +98,8 @@ class ActionEquippingTest(testcase.TestCase):
         current_time.increment_turn()
 
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
 
         self.storage._test_save()

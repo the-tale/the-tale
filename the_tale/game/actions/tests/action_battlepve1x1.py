@@ -24,9 +24,9 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
-        self.action_battle = ActionBattlePvE1x1Prototype.create(self.action_idl, mob=create_mob_for_hero(self.hero))
+        self.action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
 
     def tearDown(self):
         pass
@@ -43,8 +43,8 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.pve_kills, 0)
         self.action_battle.mob.health = 0
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.assertEqual(self.hero.statistics.pve_kills, 1)
         self.storage._test_save()
 
@@ -77,8 +77,8 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.pve_deaths, 0)
         self.hero.health = 0
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.assertTrue(not self.hero.is_alive)
         self.assertEqual(self.hero.statistics.pve_deaths, 1)
         self.storage._test_save()
@@ -87,7 +87,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        while len(self.storage.actions) != 1:
+        while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn()
             current_time.increment_turn()
 

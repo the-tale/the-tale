@@ -12,10 +12,10 @@ class QuestTestsMixin(object):
 
         hero = storage.heroes[hero_id]
 
-        while storage.heroes_to_actions[hero.id][-1].TYPE != ActionQuestPrototype.TYPE:
+        while hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE:
             storage.process_turn()
             current_time.increment_turn()
 
         storage.save_changed_data()
 
-        return storage.heroes_to_actions[hero.id][-1].quest
+        return hero.actions.current_action.quest

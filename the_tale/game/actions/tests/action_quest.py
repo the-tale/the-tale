@@ -9,7 +9,6 @@ from game.logic_storage import LogicStorage
 
 from game.logic import create_test_map
 from game.actions.prototypes import ActionQuestPrototype
-from game.actions.models import Action
 from game.quests.logic import create_random_quest_for_hero
 from game.quests.models import Quest, QuestsHeroes
 from game.prototypes import TimePrototype
@@ -26,10 +25,10 @@ class QuestActionTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
         self.quest = create_random_quest_for_hero(self.hero)
-        self.action_quest = ActionQuestPrototype.create(self.action_idl, quest=self.quest)
+        self.action_quest = ActionQuestPrototype.create(hero=self.hero, quest=self.quest)
 
     def tearDown(self):
         pass
@@ -43,7 +42,7 @@ class QuestActionTest(testcase.TestCase):
     def test_one_step(self):
         self.storage.process_turn()
         # quest can create new action on first step
-        self.assertTrue(2 <= len(self.storage.actions) <= 3)
+        self.assertTrue(2 <= len(self.hero.actions.actions_list) <= 3)
         self.storage._test_save()
 
 
@@ -60,11 +59,9 @@ class QuestActionTest(testcase.TestCase):
 
     def test_remove(self):
         self.assertEqual(Quest.objects.all().count(), 1)
-        self.assertEqual(Action.objects.all().count(), 2)
         self.assertEqual(QuestsHeroes.objects.all().count(), 1)
 
         self.action_quest.remove()
 
         self.assertEqual(Quest.objects.all().count(), 0)
-        self.assertEqual(Action.objects.all().count(), 1)
         self.assertEqual(QuestsHeroes.objects.all().count(), 0)

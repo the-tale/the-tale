@@ -23,9 +23,9 @@ class TradingActionTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
-        self.action_trade = ActionTradingPrototype.create(self.action_idl)
+        self.action_trade = ActionTradingPrototype.create(hero=self.hero)
 
     def tearDown(self):
         pass
@@ -39,8 +39,8 @@ class TradingActionTest(testcase.TestCase):
 
     def test_processed(self):
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.storage._test_save()
 
     def test_sell_and_finish(self):
@@ -54,8 +54,8 @@ class TradingActionTest(testcase.TestCase):
         self.action_trade.percents_barier = 1
 
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
         self.assertTrue(self.hero.money > old_money)
         self.assertTrue(self.hero.statistics.money_earned > old_money_statistics)
@@ -75,8 +75,8 @@ class TradingActionTest(testcase.TestCase):
         current_time = TimePrototype.get_current_time()
 
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 2)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_trade)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action, self.action_trade)
 
         self.assertTrue(self.hero.money > old_money)
 
@@ -85,8 +85,8 @@ class TradingActionTest(testcase.TestCase):
         current_time.increment_turn()
 
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 1)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_idl)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
         self.assertTrue(self.hero.money > old_money)
         self.storage._test_save()

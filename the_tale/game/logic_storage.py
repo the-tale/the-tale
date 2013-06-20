@@ -12,8 +12,6 @@ class LogicStorage(object):
     def __init__(self=None):
         self.heroes = {}
         self.accounts_to_heroes = {}
-        self.actions = {}
-        self.heroes_to_actions = {}
         self.meta_actions = {}
         self.meta_actions_to_actions = {}
         self.skipped_heroes = set()
@@ -33,14 +31,10 @@ class LogicStorage(object):
         if save_required:
             self.save_hero_data(hero.id, update_cache=True)
 
-        for action_id in  [a.id for a in self.heroes_to_actions[hero.id]]:
-            del self.actions[action_id]
-
         if hero.id in self.skipped_heroes:
             self.skipped_heroes.remove(hero.id)
 
         del self.heroes[hero.id]
-        del self.heroes_to_actions[hero.id]
         del self.accounts_to_heroes[account.id]
 
     def save_account_data(self, account_id, update_cache):
@@ -50,40 +44,29 @@ class LogicStorage(object):
         hero = self.heroes[hero_id]
         hero.save()
 
-        for action in self.heroes_to_actions[hero_id]:
-            if action.updated:
-                action.save()
-
         if update_cache:
             cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(), heroes_settings.UI_CACHING_TIMEOUT)
 
 
     def add_hero(self, hero):
 
-        from game.actions.models import Action
-        from game.actions.prototypes import ACTION_TYPES
-
-
         if hero.id in self.heroes:
             raise GameException('Hero with id "%d" has already registerd in storage, probably on initialization step' % hero.id)
 
         self.heroes[hero.id] = hero
-        self.heroes_to_actions[hero.id] = []
         self.accounts_to_heroes[hero.account_id] = hero
 
-        for action_model in list(Action.objects.filter(hero_id=hero.id).order_by('order')):
-            self.add_action(ACTION_TYPES[action_model.type](model=action_model))
+        for action in hero.actions.actions_list:
+            self.add_action(action)
 
     def add_action(self, action):
         action.set_storage(self)
-        self.actions[action.id] = action
-        self.heroes_to_actions[action.hero_id].append(action)
 
         if action.meta_action_id is not None:
 
             if action.meta_action_id not in self.meta_actions_to_actions:
                 self.meta_actions_to_actions[action.meta_action_id] = set()
-            self.meta_actions_to_actions[action.meta_action_id].add(action.id)
+            self.meta_actions_to_actions[action.meta_action_id].add(self.get_action_uid(action))
 
             if action.meta_action_id not in self.meta_actions:
                 from game.actions.models import MetaAction
@@ -98,21 +81,24 @@ class LogicStorage(object):
         self.meta_actions[meta_action.id] = meta_action
 
     def remove_action(self, action):
-        del self.actions[action.id]
         action.set_storage(None)
-        last_action = self.heroes_to_actions[action.hero_id][-1]
-        if last_action.id != action.id:
-            raise GameException('try to remove action (%d - %r) from the middle of actions list, last action id: (%d - %r). Actions list: %r' %
-                                (action.id, action, last_action.id, last_action, self.heroes_to_actions[action.hero_id]))
-        self.heroes_to_actions[action.hero_id].pop()
+        last_action = action.hero.actions.current_action
+        if last_action is not action:
+            raise GameException('try to remove action (%r) from the middle of actions list, last action: (%r). Actions list: %r' %
+                                (action, last_action, action.hero.actions.actions_list))
 
         if action.meta_action_id is not None:
-            self.meta_actions_to_actions[action.meta_action_id].remove(action.id)
+            self.meta_actions_to_actions[action.meta_action_id].remove(self.get_action_uid(action))
             if not self.meta_actions_to_actions[action.meta_action_id]:
                 del self.meta_actions_to_actions[action.meta_action_id]
                 self.meta_actions[action.meta_action_id].remove()
+                self.meta_actions[action.meta_action_id]
 
-    def current_hero_action(self, hero_id): return self.heroes_to_actions[hero_id][-1]
+    def get_action_uid(self, action):
+        number = action.hero.actions.number
+        return (action.hero.id, number - 1 if action is action.hero.actions.current_action else number)
+
+    # def current_hero_action(self, hero_id): return self.heroes[hero_id].actions.current_action
 
     def on_highlevel_data_updated(self):
         for hero in self.heroes.values():
@@ -126,11 +112,11 @@ class LogicStorage(object):
             if hero.id in self.skipped_heroes:
                 continue
 
-            leader_action = self.heroes_to_actions[hero.id][-1]
+            leader_action = hero.actions.current_action
 
             leader_action.process_turn()
 
-            if leader_action.removed and leader_action.bundle_id != self.heroes_to_actions[hero.id][-1].bundle_id:
+            if leader_action.removed and leader_action.bundle_id != hero.actions.current_action.bundle_id:
                 self.skipped_heroes.add(hero.id)
 
             self.save_required.add(hero.id)
@@ -153,9 +139,7 @@ class LogicStorage(object):
 
         hero = self.accounts_to_heroes[account.id]
 
-        actions = self.heroes_to_actions[hero.id]
-
-        for action in reversed(actions):
+        for action in reversed(hero.actions.actions_list):
             self.remove_action(action)
 
         self.release_account_data(account, save_required=False)
@@ -174,6 +158,4 @@ class LogicStorage(object):
 
     def __eq__(self, other):
         return (self.heroes == other.heroes and
-                self.accounts_to_heroes == other.accounts_to_heroes and
-                self.actions == other.actions and
-                self.heroes_to_actions == other.heroes_to_actions)
+                self.accounts_to_heroes == other.accounts_to_heroes)

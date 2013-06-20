@@ -22,9 +22,9 @@ class RegenerateEnergyActionTest(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
-        self.action_idl = self.storage.heroes_to_actions[self.hero.id][-1]
+        self.action_idl = self.hero.actions.current_action
 
-        self.action_regenerate = ActionRegenerateEnergyPrototype.create(self.action_idl)
+        self.action_regenerate = ActionRegenerateEnergyPrototype.create(hero=self.hero)
 
     def tearDown(self):
         pass
@@ -37,8 +37,8 @@ class RegenerateEnergyActionTest(testcase.TestCase):
 
     def test_not_ready(self):
         self.storage.process_turn()
-        self.assertEqual(len(self.storage.actions), 2)
-        self.assertEqual(self.storage.heroes_to_actions[self.hero.id][-1], self.action_regenerate)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action, self.action_regenerate)
         self.storage._test_save()
 
     def test_full(self):
@@ -46,7 +46,7 @@ class RegenerateEnergyActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        while len(self.storage.actions) != 1:
+        while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn()
             current_time.increment_turn()
 

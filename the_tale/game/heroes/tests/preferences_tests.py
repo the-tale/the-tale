@@ -26,7 +26,7 @@ from game.persons.storage import persons_storage
 
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.models import PREFERENCE_TYPE
-from game.heroes.exceptions import HeroException
+from game.heroes.exceptions import HeroException, WrongPreferenceTypeError
 from game.heroes.bag import SLOTS
 from game.heroes.postponed_tasks import ChoosePreferencesTask, CHOOSE_PREFERENCES_TASK_STATE
 from game.heroes.preferences import HeroPreferences
@@ -151,7 +151,7 @@ class HeroPreferencesMobTest(TestCase):
 
     def test_wrong_preference(self):
         task = ChoosePreferencesTask(self.hero.id, 666, self.mob_uuid)
-        self.assertRaises(HeroException, task.process, FakePostpondTaskPrototype(), self.storage)
+        self.assertRaises(WrongPreferenceTypeError, task.process, FakePostpondTaskPrototype(), self.storage)
 
     def test_wrong_mob_level(self):
         mobs_storage.all()[1].level = self.hero.level + 1

@@ -1,22 +1,16 @@
 # coding: utf-8
 # pylint: disable=C0302
-import copy
 import random
 
-from dext.utils import s11n
-from dext.utils import database
 from dext.utils.urls import url
 
-from common.utils.logic import random_value_by_priority
+from common.utils.discovering import discover_classes
 
 from game.heroes.logic import create_mob_for_hero
 from game.heroes.statistics import MONEY_SOURCE
-from game.heroes.actions import Action as HeroAction
 
-from game.map.places.storage import places_storage
 from game.map.roads.storage import waymarks_storage
 
-from game.actions.models import Action, UNINITIALIZED_STATE
 from game.actions import battle, contexts
 
 from game.balance import constants as c, formulas as f, enums as e
@@ -25,356 +19,18 @@ from game.actions.exceptions import ActionException
 
 from game.quests.logic import create_random_quest_for_hero
 
-from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 from game.prototypes import TimePrototype
 
-def get_actions_types():
-    actions = {}
-    for cls in globals().values():
-        if isinstance(cls, type) and issubclass(cls, ActionPrototype) and cls != ActionPrototype:
-            actions[cls.TYPE] = cls
-    return actions
+from game.heroes.actions import ActionBase
 
-def get_action_by_model(model):
-    if model is None:
-        return None
 
-    return ACTION_TYPES[model.type](model=model)
-
-
-class ActionPrototype(object): # pylint: disable=R0902
-
-    TYPE = 'BASE'
-    TEXTGEN_TYPE = None
-    CONTEXT_MANAGER = None
-    EXTRA_HELP_CHOICES = set()
-
-    class STATE:
-        UNINITIALIZED = UNINITIALIZED_STATE
-        PROCESSED = 'processed'
-
-    def __init__(self, model, *argv, **kwargs):
-        super(ActionPrototype, self).__init__(*argv, **kwargs)
-        self.model = model
-        self.removed = False
-        self.storage = None
-        self.updated = False
-
-    @property
-    def id(self): return self.model.id
-
-    @property
-    def type(self): return self.model.type
-
-    @property
-    def order(self): return self.model.order
-
-    @property
-    def created_at_turn(self): return self.model.created_at_turn
-
-    @property
-    def leader(self):
-        return (not self.removed) and (self.storage.current_hero_action(self.hero_id).id == self.id)
-
-    def set_storage(self, storage):
-        self.storage = storage
-
-    def get_percents(self): return self.model.percents
-    def set_percents(self, value): self.model.percents = value
-    percents = property(get_percents, set_percents)
-
-    def get_state(self): return self.model.state
-    def set_state(self, value): self.model.state = value
-    state = property(get_state, set_state)
-
-    @property
-    def bundle_id(self): return self.model.bundle_id
-
-    @property
-    def hero_id(self): return self.model.hero_id
-
-    @property
-    def hero(self):
-        return self.storage.heroes[self.hero_id]
-
-    @property
-    def parent(self):
-        if self.model.parent_id is not None:
-            return self.storage.actions[self.model.parent_id]
-        return None
-
-    @property
-    def context(self):
-        if not hasattr(self, '_context'):
-            self._context = None
-            if self.CONTEXT_MANAGER is not  None:
-                self._context = self.CONTEXT_MANAGER.deserialize(s11n.from_json(self.model.context))
-        return self._context
-
-    @property
-    def mob_context(self):
-        if not hasattr(self, '_mob_context'):
-            self._mob_context = None
-            if self.CONTEXT_MANAGER is not  None:
-                self._mob_context = self.CONTEXT_MANAGER.deserialize(s11n.from_json(self.model.mob_context))
-        return self._mob_context
-
-    @property
-    def place_id(self): return self.model.place_id
-
-    @property
-    def place(self): return places_storage[self.model.place_id]
-
-    @property
-    def mob(self):
-        from ..mobs.prototypes import MobPrototype
-        if not hasattr(self, '_mob'):
-            mob_data = s11n.from_json(self.model.mob)
-            self._mob = None
-            if mob_data:
-                self._mob = MobPrototype.deserialize(mob_data)
-        return self._mob
-
-    def remove_mob(self):
-        delattr(self, '_mob')
-        self.model.mob = '{}'
-
-    @property
-    def quest(self):
-        from game.quests.prototypes import QuestPrototype
-        if not hasattr(self, '_quest'):
-            self._quest = None
-            if self.model.quest:
-                self._quest = QuestPrototype(model=self.model.quest)
-        return self._quest
-
-    @property
-    def data(self):
-        if not hasattr(self, '_data'):
-            self._data = s11n.from_json(self.model.data)
-        return self._data
-
-    @property
-    def break_at(self): return self.model.break_at
-
-    def get_length(self): return self.model.length
-    def set_length(self, value): self.model.length = value
-    length = property(get_length, set_length)
-
-    def get_destination(self): return self.model.destination_x, self.model.destination_y
-    def set_destination(self, x, y):
-        self.model.destination_x = x
-        self.model.destination_y = y
-
-    def get_percents_barier(self): return self.model.percents_barier
-    def set_percents_barier(self, value): self.model.percents_barier = value
-    percents_barier = property(get_percents_barier, set_percents_barier)
-
-    def get_extra_probability(self): return self.model.extra_probability
-    def set_extra_probability(self, value): self.model.extra_probability = value
-    extra_probability = property(get_extra_probability, set_extra_probability)
-
-    def get_textgen_id(self): return self.model.textgen_id
-    def set_textgen_id(self, value): self.model.textgen_id = value
-    textgen_id = property(get_textgen_id, set_textgen_id)
-
-    @property
-    def back(self): return self.model.back
-
-    def get_hero_health_lost(self): return self.model.hero_health_lost
-    def set_hero_health_lost(self, value): self.model.hero_health_lost = value
-    hero_health_lost = property(get_hero_health_lost, set_hero_health_lost)
-
-    @property
-    def meta_action_id(self): return self.model.meta_action_id
-
-    @property
-    def meta_action(self): return self.storage.meta_actions[self.model.meta_action_id] if self.model.meta_action_id else None
-
-    @property
-    def help_choices(self):
-        choices = copy.copy(self.EXTRA_HELP_CHOICES)
-        choices.add(c.HELP_CHOICES.MONEY)
-
-        if self.hero.is_alive:
-            if ((c.ANGEL_HELP_HEAL_IF_LOWER_THEN * self.hero.max_health > self.hero.health) or
-                (self.hero.health < self.hero.max_health and len(choices) == 1 and c.HELP_CHOICES.MONEY in choices)):
-                choices.add(c.HELP_CHOICES.HEAL)
-
-        return choices
-
-    def get_help_choice(self):
-
-        choices = [(choice, c.HELP_CHOICES_PRIORITY[choice]) for choice in self.help_choices]
-
-        return random_value_by_priority(choices)
-
-    @property
-    def description_text_name(self):
-        return '%s_description' % self.TEXTGEN_TYPE
-
-    def get_info_link(self):
-        return None
-
-    def get_description(self):
-        args = prepair_substitution(self.get_description_arguments())
-        template = get_vocabulary().get_random_phrase(self.description_text_name)
-
-        if template is None:
-            raise Exception(self.description_text_name)
-
-        msg = template.substitute(get_dictionary(), args)
-        return msg
-
-    def get_description_arguments(self):
-        return {'hero': self.hero}
-
-    def on_heal(self):
-        pass
-
-    ###########################################
-    # Object operations
-    ###########################################
-
-    def on_create(self, parent):
-        if parent:
-            parent.storage.add_action(self)
-
-        self.hero.actions.push_action(HeroAction(percents=self.percents,
-                                                 description=self.get_description(),
-                                                 info_link=self.get_info_link()))
-
-    def on_remove(self, force=False):
-        if force:
-            return
-
-        self.hero.actions.pop_action()
-
-    @classmethod
-    def create(cls, parent, *argv, **kwargs):
-        '''
-        _storage argument used only in creating hero step
-        '''
-
-        bundle_id = None
-
-        if parent:
-            bundle_id = parent.bundle_id
-
-        _storage = None
-        if '_storage' in kwargs:
-            _storage = kwargs['_storage']
-            del kwargs['_storage']
-
-        if '_bundle_id' in kwargs:
-            bundle_id = kwargs['_bundle_id']
-            del kwargs['_bundle_id']
-
-        action = cls._create(parent, bundle_id, *argv, **kwargs)
-
-        if _storage:
-            _storage.add_action(action)
-
-        action.on_create(parent)
-        return action
-
-    def remove(self, force=False):
-        '''
-        force - if True, storages will be ignored (need for full remove of angel & hero)
-        '''
-
-        self.on_remove(force=force)
-
-        if self.storage:
-            self.storage.remove_action(self)
-
-        if self.quest:
-            self.quest.remove()
-
-        self.model.delete()
-        self.removed = True
-
-    def save(self):
-        if hasattr(self, '_data'):
-            self.model.data = s11n.to_json(self._data)
-        if hasattr(self, '_mob'):
-            self.model.mob = s11n.to_json(self.mob.serialize()) if self.mob else '{}'
-        if self.context:
-            self.model.context = s11n.to_json(self.context.serialize())
-        if self.mob_context:
-            self.model.mob_context = s11n.to_json(self.mob_context.serialize())
-        if self.quest is not None:
-            self._quest.save()
-
-        database.raw_save(self.model)
-        # self.model.save(force_update=True)
-
-        if self.meta_action_id is not None and self.meta_action.updated:
-            self.meta_action.save()
-
-        self.updated = False
-
-    def ui_info(self):
-
-        return {'id': self.id,
-                'type': self.type,
-                'description': 'bla-bla-bla',
-                'percents': self.percents,
-                'specific': {'place_id': self.place_id,
-                             'mob': self.mob.ui_info() if self.mob else None},
-                'data': self.data #TODO: get json directly from self.model.data, without reloading it
-                }
-
-    def process_action(self):
-
-        self.updated = True
-
-        self.process()
-
-        # if action is leader action
-        if self.leader:
-            self.hero.actions.current_action.percents = self.percents
-
-        if not self.removed:
-
-            if self.state == self.STATE.PROCESSED:
-                self.remove()
-
-
-    def process_turn(self):
-        self.process_action()
-
-
-    def __eq__(self, other):
-
-        return (self.id == other.id and
-                self.removed == other.removed and
-                self.type == other.type and
-                self.order == other.order and
-                self.percents == other.percents and
-                self.state == other.state and
-                self.hero_id == other.hero_id and
-                self.context == other.context and
-                self.mob_context == other.mob_context and
-                self.place_id == other.place_id and
-                self.mob == other.mob and
-                self.model.quest_id == other.model.quest_id and # TODO: is that needed
-                self.data == other.data and
-                self.break_at == other.break_at and
-                self.length == other.length and
-                self.get_destination() == other.get_destination() and
-                self.percents_barier == other.percents_barier and
-                self.extra_probability == other.extra_probability and
-                self.textgen_id == other.textgen_id)
-
-
-class ActionIdlenessPrototype(ActionPrototype):
+class ActionIdlenessPrototype(ActionBase):
 
     TYPE = 'IDLENESS'
     TEXTGEN_TYPE = 'action_idleness'
     EXTRA_HELP_CHOICES = set((c.HELP_CHOICES.START_QUEST,))
 
-    class STATE(ActionPrototype.STATE):
+    class STATE(ActionBase.STATE):
         QUEST = 'QUEST'
         IN_PLACE = 'IN_PLACE'
         WAITING = 'WAITING'
@@ -385,24 +41,16 @@ class ActionIdlenessPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent=None, bundle_id=None, hero=None):
-        if parent:
-            model = Action.objects.create( type=cls.TYPE,
-                                           bundle_id=bundle_id,
-                                           parent=parent.model,
-                                           hero=parent.hero._model,
-                                           order=parent.order+1,
-                                           state=cls.STATE.WAITING,
-                                           created_at_turn=TimePrototype.get_current_turn_number())
+    def _create(cls, hero=None, bundle_id=None):
+        if hero.actions.has_actions:
+            return cls( hero=hero,
+                        bundle_id=bundle_id,
+                        state=cls.STATE.WAITING)
         else:
-            model = Action.objects.create( type=cls.TYPE,
-                                           bundle_id=bundle_id,
-                                           hero=hero._model,
-                                           order=0,
-                                           percents=1.0,
-                                           state=cls.STATE.WAITING,
-                                           created_at_turn=TimePrototype.get_current_turn_number())
-        return cls(model=model)
+            return cls(hero=hero,
+                       bundle_id=bundle_id,
+                       percents=1.0,
+                       state=cls.STATE.WAITING)
 
     def init_quest(self):
 
@@ -427,7 +75,7 @@ class ActionIdlenessPrototype(ActionPrototype):
         if self.state == self.STATE.QUEST:
             self.percents = 0
             self.state = self.STATE.IN_PLACE
-            ActionInPlacePrototype.create(self)
+            ActionInPlacePrototype.create(hero=self.hero)
 
         if self.state == self.STATE.REGENERATE_ENERGY:
             self.state = self.STATE.WAITING
@@ -439,11 +87,11 @@ class ActionIdlenessPrototype(ActionPrototype):
             if self.percents >= 1.0:
                 self.state = self.STATE.QUEST
                 quest = create_random_quest_for_hero(self.hero)
-                ActionQuestPrototype.create(parent=self, quest=quest)
+                ActionQuestPrototype.create(hero=self.hero, quest=quest)
                 self.percents = 0
 
             elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
-                ActionRegenerateEnergyPrototype.create(self)
+                ActionRegenerateEnergyPrototype.create(hero=self.hero)
                 self.state = self.STATE.REGENERATE_ENERGY
 
             else:
@@ -451,13 +99,13 @@ class ActionIdlenessPrototype(ActionPrototype):
                     self.hero.add_message('action_idleness_waiting', hero=self.hero)
 
 
-class ActionQuestPrototype(ActionPrototype):
+class ActionQuestPrototype(ActionBase):
 
     TYPE = 'QUEST'
     TEXTGEN_TYPE = 'action_quest'
     EXTRA_HELP_CHOICES = set()
 
-    class STATE(ActionPrototype.STATE):
+    class STATE(ActionBase.STATE):
         PROCESSING = 'processing'
 
     ###########################################
@@ -465,16 +113,11 @@ class ActionQuestPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent, bundle_id, quest):
-        model = Action.objects.create( type=cls.TYPE,
-                                       bundle_id=bundle_id,
-                                       parent=parent.model,
-                                       hero=parent.hero._model,
-                                       order=parent.order+1,
-                                       quest=quest._model,
-                                       state=cls.STATE.PROCESSING,
-                                       created_at_turn=TimePrototype.get_current_turn_number())
-        return cls(model=model)
+    def _create(cls, hero, bundle_id, quest):
+        return cls(hero=hero,
+                   bundle_id=bundle_id,
+                   quest_id=quest.id,
+                   state=cls.STATE.PROCESSING)
 
     def process(self):
 
@@ -488,14 +131,14 @@ class ActionQuestPrototype(ActionPrototype):
                 self.state = self.STATE.PROCESSED
 
 
-class ActionMoveToPrototype(ActionPrototype):
+class ActionMoveToPrototype(ActionBase):
 
     TYPE = 'MOVE_TO'
     TEXTGEN_TYPE = 'action_moveto'
     SHORT_DESCRIPTION = u'путешествует'
     EXTRA_HELP_CHOICES = set((c.HELP_CHOICES.TELEPORT,))
 
-    class STATE(ActionPrototype.STATE):
+    class STATE(ActionBase.STATE):
         CHOOSE_ROAD = 'choose_road'
         MOVING = 'moving'
         IN_CITY = 'in_city'
@@ -504,8 +147,11 @@ class ActionMoveToPrototype(ActionPrototype):
         RESTING = 'resting'
         RESURRECT = 'resurrect'
 
-    destination_id = ActionPrototype.place_id
-    destination = ActionPrototype.place
+    @property
+    def destination_id(self): return self.place_id
+
+    @property
+    def destination(self): return self.place
 
     ###########################################
     # Object operations
@@ -513,18 +159,14 @@ class ActionMoveToPrototype(ActionPrototype):
 
 
     @classmethod
-    def _create(cls, parent, bundle_id, destination, break_at=None):
-        model = Action.objects.create( type=cls.TYPE,
-                                       bundle_id=bundle_id,
-                                       parent=parent.model,
-                                       hero=parent.hero._model,
-                                       order=parent.order+1,
-                                       place=destination._model,
-                                       break_at=break_at,
-                                       state=cls.STATE.CHOOSE_ROAD,
-                                       created_at_turn=TimePrototype.get_current_turn_number())
-        parent.hero.add_message('action_moveto_start', hero=parent.hero, destination=destination)
-        return cls(model=model)
+    def _create(cls, hero, bundle_id, destination, break_at=None):
+        prototype = cls(hero=hero,
+                        bundle_id=bundle_id,
+                        place_id=destination.id,
+                        break_at=break_at,
+                        state=cls.STATE.CHOOSE_ROAD)
+        hero.add_message('action_moveto_start', hero=hero, destination=destination)
+        return prototype
 
     def get_description_arguments(self):
         args = super(ActionMoveToPrototype, self).get_description_arguments()
@@ -604,7 +246,7 @@ class ActionMoveToPrototype(ActionPrototype):
         if length < 0.01:
             current_destination = self.current_destination
             self.hero.position.set_place(current_destination)
-            ActionInPlacePrototype.create(parent=self)
+            ActionInPlacePrototype.create(hero=self.hero)
             self.state = self.STATE.IN_CITY
         else:
             self.hero.position.set_road(self.hero.position.road, invert=invert, percents=percents)
@@ -627,12 +269,12 @@ class ActionMoveToPrototype(ActionPrototype):
         current_destination = self.current_destination
 
         if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
-            ActionRegenerateEnergyPrototype.create(self)
+            ActionRegenerateEnergyPrototype.create(hero=self.hero)
             self.state = self.STATE.REGENERATE_ENERGY
 
         elif self.hero.position.is_battle_start_needed():
             mob = create_mob_for_hero(self.hero)
-            ActionBattlePvE1x1Prototype.create(parent=self, mob=mob)
+            ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
             self.state = self.STATE.BATTLE
 
         else:
@@ -660,7 +302,7 @@ class ActionMoveToPrototype(ActionPrototype):
                 self.hero.position.percents = 1
                 self.hero.position.set_place(current_destination)
                 self.state = self.STATE.IN_CITY
-                ActionInPlacePrototype.create(parent=self)
+                ActionInPlacePrototype.create(hero=self.hero)
 
             elif self.break_at and self.percents >= 1:
                 self.percents = 1
@@ -682,14 +324,14 @@ class ActionMoveToPrototype(ActionPrototype):
 
         if self.state == self.STATE.BATTLE:
             if not self.hero.is_alive:
-                ActionResurrectPrototype.create(self)
+                ActionResurrectPrototype.create(hero=self.hero)
                 self.state = self.STATE.RESURRECT
             else:
                 if self.hero.need_rest_in_move:
-                    ActionRestPrototype.create(self)
+                    ActionRestPrototype.create(hero=self.hero)
                     self.state = self.STATE.RESTING
                 elif self.hero.need_regenerate_energy:
-                    ActionRegenerateEnergyPrototype.create(self)
+                    ActionRegenerateEnergyPrototype.create(hero=self.hero)
                     self.state = self.STATE.REGENERATE_ENERGY
                 else:
                     self.state = self.STATE.MOVING
@@ -701,7 +343,7 @@ class ActionMoveToPrototype(ActionPrototype):
             self.process_moving()
 
 
-class ActionBattlePvE1x1Prototype(ActionPrototype):
+class ActionBattlePvE1x1Prototype(ActionBase):
 
     TYPE = 'BATTLE_PVE1x1'
     TEXTGEN_TYPE = 'action_battlepve1x1'
@@ -713,7 +355,7 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
             return set()
         return set((c.HELP_CHOICES.LIGHTING,))
 
-    class STATE(ActionPrototype.STATE):
+    class STATE(ActionBase.STATE):
         BATTLE_RUNNING = 'battle_running'
 
     ###########################################
@@ -724,18 +366,15 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
         return url('guide:mobs:info', self.mob.record.id)
 
     @classmethod
-    def _create(cls, parent, bundle_id, mob):
-
-        model = Action.objects.create( type=cls.TYPE,
-                                       bundle_id=bundle_id,
-                                       parent=parent.model,
-                                       hero=parent.hero._model,
-                                       order=parent.order+1,
-                                       mob=s11n.to_json(mob.serialize()),
-                                       state=cls.STATE.BATTLE_RUNNING,
-                                       created_at_turn=TimePrototype.get_current_turn_number())
-        parent.hero.add_message('action_battlepve1x1_start', hero=parent.hero, mob=mob)
-        return cls(model=model)
+    def _create(cls, hero, bundle_id, mob):
+        prototype = cls( hero=hero,
+                         bundle_id=bundle_id,
+                         context=cls.CONTEXT_MANAGER(),
+                         mob=mob,
+                         mob_context=cls.CONTEXT_MANAGER(),
+                         state=cls.STATE.BATTLE_RUNNING)
+        hero.add_message('action_battlepve1x1_start', hero=hero, mob=mob)
+        return prototype
 
     def get_description_arguments(self):
         args = super(ActionBattlePvE1x1Prototype, self).get_description_arguments()
@@ -805,25 +444,20 @@ class ActionBattlePvE1x1Prototype(ActionPrototype):
                 self.remove_mob()
 
 
-class ActionResurrectPrototype(ActionPrototype):
+class ActionResurrectPrototype(ActionBase):
 
     TYPE = 'RESURRECT'
     TEXTGEN_TYPE = 'action_resurrect'
     EXTRA_HELP_CHOICES = set((c.HELP_CHOICES.RESURRECT,))
 
-    class STATE(ActionPrototype.STATE):
+    class STATE(ActionBase.STATE):
         RESURRECT = 'resurrect'
 
     @classmethod
-    def _create(cls, parent, bundle_id):
-        model = Action.objects.create( type=cls.TYPE,
-                                       bundle_id=bundle_id,
-                                       parent=parent.model,
-                                       hero=parent.hero._model,
-                                       order=parent.order+1,
-                                       state=cls.STATE.RESURRECT,
-                                       created_at_turn=TimePrototype.get_current_turn_number())
-        return cls(model=model)
+    def _create(cls, hero, bundle_id):
+        return cls( hero=hero,
+                    bundle_id=bundle_id,
+                    state=cls.STATE.RESURRECT)
 
     def fast_resurrect(self):
         if self.state != self.STATE.RESURRECT:
@@ -852,13 +486,13 @@ class ActionResurrectPrototype(ActionPrototype):
                 self.hero.add_message('action_resurrect_finish', hero=self.hero)
 
 
-class ActionInPlacePrototype(ActionPrototype):
+class ActionInPlacePrototype(ActionBase):
 
     TYPE = 'IN_PLACE'
     TEXTGEN_TYPE = 'action_inplace'
     EXTRA_HELP_CHOICES = set()
 
-    class STATE(ActionPrototype.STATE):
+    class STATE(ActionBase.STATE):
         SPEND_MONEY = 'spend_money'
         REGENERATE_ENERGY = 'regenerate_energy'
         CHOOSING = 'choosing'
@@ -871,20 +505,16 @@ class ActionInPlacePrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent, bundle_id):
-        model = Action.objects.create( type=cls.TYPE,
-                                       bundle_id=bundle_id,
-                                       parent=parent.model,
-                                       hero=parent.hero._model,
-                                       order=parent.order+1,
-                                       state=cls.STATE.SPEND_MONEY,
-                                       created_at_turn=TimePrototype.get_current_turn_number())
+    def _create(cls, hero, bundle_id):
+        prototype = cls( hero=hero,
+                         bundle_id=bundle_id,
+                         state=cls.STATE.SPEND_MONEY)
 
-        if parent.hero.health < parent.hero.max_health and parent.hero.position.place.modifier and parent.hero.position.place.modifier.full_regen_allowed():
-            parent.hero.health = parent.hero.max_health
-            parent.hero.add_message('action_inplace_instant_heal', hero=parent.hero, place=parent.hero.position.place)
+        if hero.health < hero.max_health and hero.position.place.modifier and hero.position.place.modifier.full_regen_allowed():
+            hero.health = hero.max_health
+            hero.add_message('action_inplace_instant_heal', hero=hero, place=hero.position.place)
 
-        return cls(model=model)
+        return prototype
 
     def get_description_arguments(self):
         args = super(ActionInPlacePrototype, self).get_description_arguments()
@@ -994,31 +624,31 @@ class ActionInPlacePrototype(ActionPrototype):
 
             if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
                 self.state = self.STATE.REGENERATE_ENERGY
-                ActionRegenerateEnergyPrototype.create(self)
+                ActionRegenerateEnergyPrototype.create(hero=self.hero)
 
             elif self.hero.need_rest_in_settlement:
                 self.state = self.STATE.RESTING
-                ActionRestPrototype.create(self)
+                ActionRestPrototype.create(hero=self.hero)
 
             elif self.hero.need_equipping_in_town:
                 self.state = self.STATE.EQUIPPING
-                ActionEquippingPrototype.create(self)
+                ActionEquippingPrototype.create(hero=self.hero)
 
             elif self.hero.need_trade_in_town:
                 self.state = self.STATE.TRADING
-                ActionTradingPrototype.create(self)
+                ActionTradingPrototype.create(hero=self.hero)
 
             else:
                 self.state = self.STATE.PROCESSED
 
 
-class ActionRestPrototype(ActionPrototype):
+class ActionRestPrototype(ActionBase):
 
     TYPE = 'REST'
     TEXTGEN_TYPE = 'action_rest'
     EXTRA_HELP_CHOICES = set()
 
-    class STATE(ActionPrototype.STATE):
+    class STATE(ActionBase.STATE):
         RESTING = 'resting'
 
     ###########################################
@@ -1026,16 +656,12 @@ class ActionRestPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent, bundle_id):
-        model = Action.objects.create( type=cls.TYPE,
-                                       bundle_id=bundle_id,
-                                       parent=parent.model,
-                                       hero=parent.hero._model,
-                                       order=parent.order+1,
-                                       state=cls.STATE.RESTING,
-                                       created_at_turn=TimePrototype.get_current_turn_number())
-        parent.hero.add_message('action_rest_start', hero=parent.hero)
-        return cls(model=model)
+    def _create(cls, hero, bundle_id):
+        prototype = cls( hero=hero,
+                         bundle_id=bundle_id,
+                         state=cls.STATE.RESTING)
+        hero.add_message('action_rest_start', hero=hero)
+        return prototype
 
     def on_heal(self):
         self.percents = float(self.hero.health)/self.hero.max_health
@@ -1066,13 +692,13 @@ class ActionRestPrototype(ActionPrototype):
 
 
 
-class ActionEquippingPrototype(ActionPrototype):
+class ActionEquippingPrototype(ActionBase):
 
     TYPE = 'EQUIPPING'
     TEXTGEN_TYPE = 'action_equipping'
     EXTRA_HELP_CHOICES = set()
 
-    class STATE(ActionPrototype.STATE):
+    class STATE(ActionBase.STATE):
         EQUIPPING = 'equipping'
 
     ###########################################
@@ -1080,15 +706,10 @@ class ActionEquippingPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent, bundle_id):
-        model = Action.objects.create( type=cls.TYPE,
-                                       bundle_id=bundle_id,
-                                       parent=parent.model,
-                                       hero=parent.hero._model,
-                                       order=parent.order+1,
-                                       state=cls.STATE.EQUIPPING,
-                                       created_at_turn=TimePrototype.get_current_turn_number())
-        return cls(model=model)
+    def _create(cls, hero, bundle_id):
+        return cls( hero=hero,
+                    bundle_id=bundle_id,
+                    state=cls.STATE.EQUIPPING)
 
     def process(self):
 
@@ -1110,38 +731,28 @@ class ActionEquippingPrototype(ActionPrototype):
                 self.state = self.STATE.PROCESSED
 
 
-class ActionTradingPrototype(ActionPrototype):
+class ActionTradingPrototype(ActionBase):
 
     TYPE = 'TRADING'
     TEXTGEN_TYPE = 'action_trading'
     SHORT_DESCRIPTION = u'торгует'
     EXTRA_HELP_CHOICES = set()
 
-    class STATE(ActionPrototype.STATE):
+    class STATE(ActionBase.STATE):
         TRADING = 'trading'
 
     ###########################################
     # Object operations
     ###########################################
 
-    def ui_info(self):
-        # TODO: move to parent class
-        info = super(ActionTradingPrototype, self).ui_info()
-        info['data'] = {'hero_id': self.hero_id}
-        return info
-
     @classmethod
-    def _create(cls, parent, bundle_id):
-        model = Action.objects.create( type=cls.TYPE,
-                                       bundle_id=bundle_id,
-                                       parent=parent.model,
-                                       hero=parent.hero._model,
-                                       order=parent.order+1,
-                                       percents_barier=parent.hero.bag.occupation[1],
-                                       state=cls.STATE.TRADING,
-                                       created_at_turn=TimePrototype.get_current_turn_number())
-        parent.hero.add_message('action_trading_start', hero=parent.hero)
-        return cls(model=model)
+    def _create(cls, hero, bundle_id):
+        prototype = cls( hero=hero,
+                         bundle_id=bundle_id,
+                         percents_barier=hero.bag.occupation[1],
+                         state=cls.STATE.TRADING)
+        hero.add_message('action_trading_start', hero=hero)
+        return prototype
 
     def process(self):
 
@@ -1162,13 +773,13 @@ class ActionTradingPrototype(ActionPrototype):
                 self.percents = 1
 
 
-class ActionMoveNearPlacePrototype(ActionPrototype):
+class ActionMoveNearPlacePrototype(ActionBase):
 
     TYPE = 'MOVE_NEAR_PLACE'
     TEXTGEN_TYPE = 'action_movenearplace'
     EXTRA_HELP_CHOICES = set()
 
-    class STATE(ActionPrototype.STATE):
+    class STATE(ActionBase.STATE):
         MOVING = 'MOVING'
         BATTLE = 'BATTLE'
         REGENERATE_ENERGY = 'REGENERATE_ENERGY'
@@ -1180,37 +791,29 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
     # Object operations
     ###########################################
 
-    def ui_info(self):
-        info = super(ActionMoveNearPlacePrototype, self).ui_info()
-        return info
-
     @classmethod
-    def _create(cls, parent, bundle_id, place, back):
+    def _create(cls, hero, bundle_id, place, back):
 
         if back:
             x, y = place.x, place.y
         else:
             x, y = random.choice(place.nearest_cells)
 
-        model = Action.objects.create( type=cls.TYPE,
-                                       bundle_id=bundle_id,
-                                       parent=parent.model,
-                                       hero=parent.hero._model,
-                                       order=parent.order+1,
-                                       place=place._model,
-                                       destination_x=x,
-                                       destination_y=y,
-                                       state=cls.STATE.MOVING,
-                                       back=back,
-                                       created_at_turn=TimePrototype.get_current_turn_number())
+        prototype = cls( hero=hero,
+                         bundle_id=bundle_id,
+                         place_id=place.id,
+                         destination_x=x,
+                         destination_y=y,
+                         state=cls.STATE.MOVING,
+                         back=back)
 
-        if parent.hero.position.is_walking:
-            from_x, from_y = parent.hero.position.coordinates_to
-            parent.hero.position.set_coordinates(from_x, from_y, x, y, percents=0)
+        if hero.position.is_walking:
+            from_x, from_y = hero.position.coordinates_to
+            hero.position.set_coordinates(from_x, from_y, x, y, percents=0)
         else:
-            parent.hero.position.set_coordinates(place.x, place.y, x, y, percents=0)
+            hero.position.set_coordinates(place.x, place.y, x, y, percents=0)
 
-        return cls(model=model)
+        return prototype
 
     def get_description_arguments(self):
         args = super(ActionMoveNearPlacePrototype, self).get_description_arguments()
@@ -1219,14 +822,14 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
     def process_battle(self):
         if not self.hero.is_alive:
-            ActionResurrectPrototype.create(self)
+            ActionResurrectPrototype.create(hero=self.hero)
             self.state = self.STATE.RESURRECT
         else:
             if self.hero.need_rest_in_move:
-                ActionRestPrototype.create(self)
+                ActionRestPrototype.create(hero=self.hero)
                 self.state = self.STATE.RESTING
             elif self.hero.need_regenerate_energy:
-                ActionRegenerateEnergyPrototype.create(self)
+                ActionRegenerateEnergyPrototype.create(hero=self.hero)
                 self.state = self.STATE.REGENERATE_ENERGY
             else:
                 self.state = self.STATE.MOVING
@@ -1234,16 +837,16 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
     def process_moving(self):
 
         if self.hero.need_rest_in_move:
-            ActionRestPrototype.create(self)
+            ActionRestPrototype.create(hero=self.hero)
             self.state = self.STATE.RESTING
 
         elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
-            ActionRegenerateEnergyPrototype.create(self)
+            ActionRegenerateEnergyPrototype.create(hero=self.hero)
             self.state = self.STATE.REGENERATE_ENERGY
 
         elif self.hero.position.is_battle_start_needed():
             mob = create_mob_for_hero(self.hero)
-            ActionBattlePvE1x1Prototype.create(parent=self, mob=mob)
+            ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
             self.state = self.STATE.BATTLE
 
         else:
@@ -1274,7 +877,7 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
 
                 if self.place.x == to_x and self.place.y == to_y:
                     self.hero.position.set_place(self.place)
-                    ActionInPlacePrototype.create(parent=self)
+                    ActionInPlacePrototype.create(hero=self.hero)
                     self.state = self.STATE.IN_CITY
 
                 else:
@@ -1305,13 +908,13 @@ class ActionMoveNearPlacePrototype(ActionPrototype):
             self.process_moving()
 
 
-class ActionRegenerateEnergyPrototype(ActionPrototype):
+class ActionRegenerateEnergyPrototype(ActionBase):
 
     TYPE = 'REGENERATE_ENERGY'
     TEXTGEN_TYPE = 'action_regenerate_energy'
     EXTRA_HELP_CHOICES = set()
 
-    class STATE(ActionPrototype.STATE):
+    class STATE(ActionBase.STATE):
         REGENERATE = 'REGENERATE'
 
     ###########################################
@@ -1319,18 +922,14 @@ class ActionRegenerateEnergyPrototype(ActionPrototype):
     ###########################################
 
     @classmethod
-    def _create(cls, parent, bundle_id):
-        model = Action.objects.create( type=cls.TYPE,
-                                       bundle_id=bundle_id,
-                                       parent=parent.model,
-                                       hero=parent.hero._model,
-                                       order=parent.order+1,
-                                       state=cls.STATE.REGENERATE,
-                                       created_at_turn=TimePrototype.get_current_turn_number())
+    def _create(cls, hero, bundle_id):
+        prototype = cls( hero=hero,
+                         bundle_id=bundle_id,
+                         state=cls.STATE.REGENERATE)
 
-        parent.hero.add_message('action_regenerate_energy_start_%s' % cls.regeneration_slug(parent.hero.preferences.energy_regeneration_type), hero=parent.hero)
+        hero.add_message('action_regenerate_energy_start_%s' % cls.regeneration_slug(hero.preferences.energy_regeneration_type), hero=hero)
 
-        return cls(model=model)
+        return prototype
 
     @property
     def description_text_name(self):
@@ -1370,14 +969,14 @@ class ActionRegenerateEnergyPrototype(ActionPrototype):
                 self.state = self.STATE.PROCESSED
 
 
-class ActionDoNothingPrototype(ActionPrototype):
+class ActionDoNothingPrototype(ActionBase):
 
     TYPE = 'DO_NOTHING'
     TEXTGEN_TYPE = 'no texgen type'
     SHORT_DESCRIPTION = u'торгует'
     EXTRA_HELP_CHOICES = set()
 
-    class STATE(ActionPrototype.STATE):
+    class STATE(ActionBase.STATE):
         DO_NOTHING = 'DO_NOTHING'
 
     @property
@@ -1388,26 +987,16 @@ class ActionDoNothingPrototype(ActionPrototype):
     # Object operations
     ###########################################
 
-    def ui_info(self):
-        # TODO: move to parent class
-        info = super(ActionDoNothingPrototype, self).ui_info()
-        info['data'] = {'hero_id': self.hero_id}
-        return info
-
     @classmethod
-    def _create(cls, parent, bundle_id, duration, messages_prefix, messages_probability):
-        model = Action.objects.create( type=cls.TYPE,
-                                       bundle_id=bundle_id,
-                                       parent=parent.model,
-                                       hero=parent.hero._model,
-                                       order=parent.order+1,
-                                       percents_barier=duration,
-                                       extra_probability=messages_probability,
-                                       textgen_id=messages_prefix,
-                                       state=cls.STATE.DO_NOTHING,
-                                       created_at_turn=TimePrototype.get_current_turn_number())
-        parent.hero.add_message('%s_start' % messages_prefix, hero=parent.hero)
-        return cls(model=model)
+    def _create(cls, hero, bundle_id, duration, messages_prefix, messages_probability):
+        prototype = cls( hero=hero,
+                         bundle_id=bundle_id,
+                         percents_barier=duration,
+                         extra_probability=messages_probability,
+                         textgen_id=messages_prefix,
+                         state=cls.STATE.DO_NOTHING)
+        hero.add_message('%s_start' % messages_prefix, hero=hero)
+        return prototype
 
     def process(self):
 
@@ -1422,7 +1011,7 @@ class ActionDoNothingPrototype(ActionPrototype):
                 self.state = self.STATE.PROCESSED
 
 
-class ActionMetaProxyPrototype(ActionPrototype):
+class ActionMetaProxyPrototype(ActionBase):
 
     TYPE = 'META_PROXY'
     TEXTGEN_TYPE = 'no texgen type'
@@ -1437,23 +1026,12 @@ class ActionMetaProxyPrototype(ActionPrototype):
     # Object operations
     ###########################################
 
-    def ui_info(self):
-        # TODO: move to parent class
-        info = super(ActionMetaProxyPrototype, self).ui_info()
-        info['data'] = {'hero_id': self.hero_id}
-        return info
-
     @classmethod
-    def _create(cls, parent, bundle_id, meta_action):
-        model = Action.objects.create( type=cls.TYPE,
-                                       bundle_id=bundle_id,
-                                       parent=parent.model,
-                                       hero=parent.hero._model,
-                                       order=parent.order+1,
-                                       meta_action=meta_action._model,
-                                       state=meta_action.state,
-                                       created_at_turn=TimePrototype.get_current_turn_number())
-        return cls(model=model)
+    def _create(cls, hero, bundle_id, meta_action):
+        return cls( hero=hero,
+                    bundle_id=bundle_id,
+                    meta_action_id=meta_action.id,
+                    state=meta_action.state)
 
     def process(self):
 
@@ -1464,4 +1042,5 @@ class ActionMetaProxyPrototype(ActionPrototype):
 
 
 
-ACTION_TYPES = get_actions_types()
+ACTION_TYPES = { action_class.TYPE:action_class
+                 for action_class in discover_classes(globals().values(), ActionBase) }
