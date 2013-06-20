@@ -708,7 +708,7 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
         jQuery('.pgf-name', element).text(data.name);
         jQuery('.pgf-power', element).text(data.power);
         jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', false);
-        element.data('artifact-id', data.id);
+        element.addClass('has-artifact').data('artifact-id', data.id);
     }
 
     function RenderEquipment() {

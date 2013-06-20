@@ -76,7 +76,10 @@
 
    .equip-record {
       padding-top: 0.1em;
-      cursor: pointer;
+
+      &.has-artifact {
+         cursor: pointer;
+      }
 
       &:hover {
          background-color: @hover-color;

@@ -11,7 +11,9 @@ jQuery(document).ready(function(e) {
     jQuery('.pgf-equip-record').click(function(e){
         e.preventDefault();
         var target = jQuery(e.currentTarget);
-        pgf.ui.dialog.Create({ fromUrl: pgf.urls['guide:artifacts:info'](target.data('artifact-id'))});
+        if (target.data('artifact-id') != undefined) {
+            pgf.ui.dialog.Create({ fromUrl: pgf.urls['guide:artifacts:info'](target.data('artifact-id'))});
+        }
     });
 
 });
