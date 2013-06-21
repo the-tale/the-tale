@@ -143,9 +143,9 @@ class SupervisorTaskPrototype(BasePrototype):
         hero_1 = storage.accounts_to_heroes[account_1_id]
         hero_2 = storage.accounts_to_heroes[account_2_id]
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2)
-
         bundle = BundlePrototype.create()
+
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=bundle)
 
         ActionMetaProxyPrototype.create(hero=hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
         ActionMetaProxyPrototype.create(hero=hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)

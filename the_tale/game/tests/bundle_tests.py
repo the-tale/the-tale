@@ -45,17 +45,5 @@ class BundleTest(testcase.TestCase):
         bundle.remove()
 
         self.assertEqual(Hero.objects.all().count(), 1)
-        self.assertEqual(Action.objects.all().count(), 0)
 
         self.assertEqual(Bundle.objects.all().count(), 0)
-
-    def test_clean_database(self):
-
-        BundlePrototype.create()
-        BundlePrototype.create()
-
-        self.assertEqual(Bundle.objects.all().count(), 3)
-
-        BundlePrototype.remove_unused_bundles()
-
-        self.assertEqual(list(Bundle.objects.all().values_list('id', flat=True)), [self.bundle.id])

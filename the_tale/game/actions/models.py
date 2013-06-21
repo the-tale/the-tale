@@ -60,6 +60,8 @@ class MetaAction(models.Model):
 
     data = models.TextField(null=False, default='{}')
 
+    bundle = models.ForeignKey('game.Bundle', null=True)
+
 
 class MetaActionMember(models.Model):
 

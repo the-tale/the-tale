@@ -81,6 +81,8 @@ class MetaActionPrototype(BasePrototype):
 
 
     def remove(self):
+        from game.bundles import BundlePrototype
+        BundlePrototype.delete_by_id(self._model.bundle_id)
         self._model.delete()
 
     def save(self):
@@ -163,7 +165,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, storage, hero_1, hero_2):
+    def create(cls, storage, hero_1, hero_2, bundle):
 
         hero_1_old_health = hero_1.health
         hero_2_old_health = hero_2.health
@@ -178,6 +180,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
                                           percents=0,
                                           data=s11n.to_json({'hero_1_old_health': hero_1_old_health,
                                                              'hero_2_old_health': hero_2_old_health}),
+                                          bundle=bundle._model,
                                           state=cls.STATE.BATTLE_RUNNING )
 
         member_1 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_1._model, role=cls.ROLES.HERO_1)

@@ -9,6 +9,7 @@ from accounts.logic import register_user
 from game.logic import create_test_map
 from game.logic_storage import LogicStorage
 from game.prototypes import TimePrototype
+from game.bundles import BundlePrototype
 from game.actions.prototypes import ActionMetaProxyPrototype
 from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
 
@@ -42,10 +43,12 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2)
+        bundle = BundlePrototype.create()
 
-        self.action_proxy_1 = ActionMetaProxyPrototype.create(hero=self.hero_1, meta_action=meta_action_battle)
-        self.action_proxy_2 = ActionMetaProxyPrototype.create(hero=self.hero_2, meta_action=meta_action_battle)
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle=bundle)
+
+        self.action_proxy_1 = ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        self.action_proxy_2 = ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
 
         self.meta_action_battle = self.storage.meta_actions.values()[0]
 
@@ -61,9 +64,9 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(self.hero_1.actions.number, 2)
         self.assertEqual(self.hero_2.actions.number, 2)
 
-        # here we not test creating of new bundle (it processed and tested in supervisor tasks)
-        self.assertEqual(self.action_proxy_1.bundle_id, self.action_idl_1.bundle_id)
-        self.assertEqual(self.action_proxy_2.bundle_id, self.action_idl_2.bundle_id)
+        self.assertNotEqual(self.action_proxy_1.bundle_id, self.action_idl_1.bundle_id)
+        self.assertNotEqual(self.action_proxy_2.bundle_id, self.action_idl_2.bundle_id)
+        self.assertEqual(self.action_proxy_1.bundle_id, self.action_proxy_2.bundle_id)
 
         self.assertEqual(self.action_proxy_1.meta_action, self.action_proxy_2.meta_action)
         self.assertEqual(self.action_proxy_1.meta_action, self.meta_action_battle)

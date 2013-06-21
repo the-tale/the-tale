@@ -92,9 +92,10 @@ class LogicStorage(object):
             if not self.meta_actions_to_actions[action.meta_action_id]:
                 del self.meta_actions_to_actions[action.meta_action_id]
                 self.meta_actions[action.meta_action_id].remove()
-                self.meta_actions[action.meta_action_id]
+                del self.meta_actions[action.meta_action_id]
 
-    def get_action_uid(self, action):
+    @classmethod
+    def get_action_uid(cls, action):
         number = action.hero.actions.number
         return (action.hero.id, number - 1 if action is action.hero.actions.current_action else number)
 
@@ -140,7 +141,7 @@ class LogicStorage(object):
         hero = self.accounts_to_heroes[account.id]
 
         for action in reversed(hero.actions.actions_list):
-            self.remove_action(action)
+            action.remove()
 
         self.release_account_data(account, save_required=False)
 

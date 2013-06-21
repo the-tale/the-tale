@@ -120,11 +120,7 @@ class Worker(BaseWorker):
 
         # distribute bundles
         self.logger.info('distribute bundles')
-
-        for bundle_model in Bundle.objects.all():
-            bundle = BundlePrototype(bundle_model)
-            bundle.owner = 'worker'
-            bundle.save()
+        BundlePrototype.distribute('logic')
 
         # distribute accounts
 
@@ -244,9 +240,7 @@ class Worker(BaseWorker):
         self.send_cmd('register_new_account', {'account_id': account_id})
 
     def process_register_new_account(self, account_id):
-        bundle = BundlePrototype.get_by_account_id(account_id)
-        bundle.owner = 'worker'
-        bundle.save()
+        BundlePrototype.get_by_account_id(account_id).change_owner('logic')
         self.register_account(account_id)
 
     def cmd_logic_task(self, account_id, task_id):

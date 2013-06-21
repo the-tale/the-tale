@@ -22,7 +22,6 @@ class ActionBase(object):
                   'state',
                   'removed',
                   'storage',
-                  'updated',
                   'created_at_turn',
                   'context',
                   'quest_id',
@@ -88,7 +87,6 @@ class ActionBase(object):
 
         self.removed = False
         self.storage = None
-        self.updated = False
 
         self.created_at_turn = created_at_turn if created_at_turn is not None else TimePrototype.get_current_turn_number()
 
@@ -296,7 +294,7 @@ class ActionBase(object):
             self.meta_action.save()
 
     def process_action(self):
-        self.updated = True
+        self.hero.actions.updated = True
 
         self.process()
 

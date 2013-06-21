@@ -12,6 +12,7 @@ from game.logic import create_test_map
 from game.prototypes import TimePrototype
 
 from game.balance import constants as c
+from game.bundles import BundlePrototype
 
 from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
 from game.actions.models import MetaAction, MetaActionMember
@@ -61,7 +62,7 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         self.battle_2.calculate_rating = True
         self.battle_2.save()
 
-        self.meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2)
+        self.meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle=BundlePrototype.create())
         self.meta_action_battle.set_storage(self.storage)
 
 

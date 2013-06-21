@@ -15,13 +15,18 @@ class BundlePrototype(BasePrototype):
     _get_by = ('id',)
 
     @classmethod
+    def distribute(cls, owner):
+        cls._model_class.objects.all().update(owner=owner)
+
+    @classmethod
     def get_by_account_id(cls, account_id):
         from game.heroes.prototypes import HeroPrototype
+        bundle_id = HeroPrototype.get_by_account_id(account_id).actions.current_action.bundle_id
+        return cls.get_by_id(bundle_id)
 
-        try:
-            return cls(Action.objects.filter(hero_id=HeroPrototype.get_by_account_id(account_id).id).select_related().order_by('-order')[0].bundle)
-        except IndexError:
-            return None
+    def change_owner(self, owner):
+        self.owner = owner
+        self.save()
 
     @classmethod
     def create(cls):
@@ -29,9 +34,8 @@ class BundlePrototype(BasePrototype):
         return BundlePrototype(model=bundle)
 
     @classmethod
-    def remove_unused_bundles(cls):
-        from django.db import models
-        Bundle.objects.annotate(actions_number=models.Count('action')).filter(actions_number=0).delete()
+    def delete_by_id(cls, id_):
+        cls._model_class.objects.filter(id=id_).delete()
 
     def remove(self):
         self._model.delete() # must delete all members automaticaly

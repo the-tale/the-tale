@@ -32,7 +32,6 @@ class TestLogic(testcase.TestCase):
 
         self.assertEqual(Hero.objects.all().count(), 0)
         self.assertEqual(Quest.objects.all().count(), 0)
-        self.assertEqual(Action.objects.all().count(), 0)
 
         self.assertEqual(Bundle.objects.all().count(), 0)
 
