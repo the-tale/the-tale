@@ -20,3 +20,5 @@ from game.actions.tests.battle import *
 from game.actions.tests.general import *
 
 from game.actions.tests.meta_action_arena_pvp_1x1 import *
+
+from game.actions.tests.container_tests import *

@@ -18,7 +18,7 @@ from game.pvp.tests.helpers import PvPTestsMixin
 
 class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
 
-    @mock.patch('game.heroes.actions.ActionBase.get_description', lambda self: 'abrakadabra')
+    @mock.patch('game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
     def setUp(self):
         super(MetaProxyActionForArenaPvP1x1Tests, self).setUp()
 

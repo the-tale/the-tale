@@ -15,7 +15,7 @@ from game.prototypes import TimePrototype
 
 class DoNothingActionTest(testcase.TestCase):
 
-    @mock.patch('game.heroes.actions.ActionBase.get_description', lambda self: 'abrakadabra')
+    @mock.patch('game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
     def setUp(self):
         super(DoNothingActionTest, self).setUp()
 

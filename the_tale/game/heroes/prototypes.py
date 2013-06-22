@@ -30,6 +30,8 @@ from game.text_generation import get_dictionary, get_text
 
 from game.prototypes import TimePrototype
 
+from game.actions.container import ActionsContainer
+
 from game.heroes.bag import ARTIFACT_TYPE_TO_SLOT, SLOTS, SLOT_TO_ARTIFACT_TYPE
 from game.heroes.statistics import HeroStatistics, MONEY_SOURCE
 from game.heroes.preferences import HeroPreferences
@@ -41,7 +43,6 @@ from game.heroes.logic import ValuesDict
 from game.heroes.pvp import PvPData
 from game.heroes.messages import MessagesContainer
 from game.heroes.places_help_statistics import PlacesHelpStatistics
-from game.heroes.actions import ActionsContainer
 
 
 class HeroPrototype(BasePrototype):

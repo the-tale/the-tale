@@ -13,7 +13,10 @@ from game.prototypes import TimePrototype
 
 from game.heroes.logic import create_mob_for_hero
 
-from game.actions.prototypes import ACTION_TYPES, ActionBattlePvE1x1Prototype
+from game.actions.prototypes import ACTION_TYPES, ActionBattlePvE1x1Prototype, ActionBase
+
+from game.actions.tests.helpers import TestAction
+
 
 class GeneralTest(testcase.TestCase):
 
@@ -23,6 +26,7 @@ class GeneralTest(testcase.TestCase):
 
         result, account_id, bundle_id = register_user('test_user')
 
+        self.bundle_id = bundle_id
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
@@ -103,3 +107,73 @@ class GeneralTest(testcase.TestCase):
         self.hero.save()
 
         self.assertFalse(c.HELP_CHOICES.HEAL in self.action_idl.help_choices)
+
+    def test_action_default_serialization(self):
+        class TestAction(ActionBase):
+            TYPE = 'test-action'
+
+        default_action = TestAction( hero=self.hero,
+                                     bundle_id=self.bundle_id,
+                                     state=TestAction.STATE.UNINITIALIZED)
+
+        self.assertEqual(default_action.serialize(), {'bundle_id': self.bundle_id,
+                                                      'state': TestAction.STATE.UNINITIALIZED,
+                                                      'percents': 0.0,
+                                                      'description': None,
+                                                      'type': TestAction.TYPE,
+                                                      'created_at_turn': TimePrototype.get_current_turn_number()})
+
+        self.assertEqual(default_action, TestAction.deserialize(self.hero, default_action.serialize()))
+
+
+    def test_action_full_serialization(self):
+        from game.heroes.logic import create_mob_for_hero
+
+        mob = create_mob_for_hero(self.hero)
+
+        default_action = TestAction( hero=self.hero,
+                                     bundle_id=self.bundle_id,
+                                     state=TestAction.STATE.UNINITIALIZED,
+                                     created_at_turn=666,
+                                     context=TestAction.CONTEXT_MANAGER(),
+                                     description=u'description',
+                                     quest_id=1,
+                                     place_id=2,
+                                     mob=mob,
+                                     data={'xxx': 'yyy'},
+                                     break_at=0.75,
+                                     length=777,
+                                     destination_x=20,
+                                     destination_y=30,
+                                     percents_barier=77,
+                                     extra_probability=0.6,
+                                     mob_context=TestAction.CONTEXT_MANAGER(),
+                                     textgen_id='textgen_id',
+                                     hero_health_lost=20,
+                                     back=True,
+                                     meta_action_id=7)
+
+        self.assertEqual(default_action.serialize(), {'bundle_id': self.bundle_id,
+                                                      'state': TestAction.STATE.UNINITIALIZED,
+                                                      'context': TestAction.CONTEXT_MANAGER().serialize(),
+                                                      'mob_context': TestAction.CONTEXT_MANAGER().serialize(),
+                                                      'mob': mob.serialize(),
+                                                      'meta_action_id': 7,
+                                                      'length': 777,
+                                                      'back': True,
+                                                      'hero_health_lost': 20,
+                                                      'textgen_id': 'textgen_id',
+                                                      'extra_probability': 0.6,
+                                                      'percents_barier': 77,
+                                                      'destination_x': 20,
+                                                      'destination_y': 30,
+                                                      'percents': 0.0,
+                                                      'description': u'description',
+                                                      'type': TestAction.TYPE,
+                                                      'created_at_turn': 666,
+                                                      'quest_id': 1,
+                                                      'place_id': 2,
+                                                      'data': {'xxx': 'yyy'},
+                                                      'break_at': 0.75})
+
+        self.assertEqual(default_action, TestAction.deserialize(self.hero, default_action.serialize()))
