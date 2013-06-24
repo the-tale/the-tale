@@ -13,7 +13,7 @@ from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
 
 from game.logic import create_test_map
 from game.logic_storage import LogicStorage
-from game.exceptions import GameException
+from game import exceptions
 from game.prototypes import TimePrototype
 from game.bundles import BundlePrototype
 
@@ -105,7 +105,7 @@ class LogicStorageTests(testcase.TestCase):
 
 
     def test_add_duplicate_hero(self):
-        self.assertRaises(GameException, self.storage.add_hero, self.hero_1)
+        self.assertRaises(exceptions.HeroAlreadyRegisteredError, self.storage.add_hero, self.hero_1)
 
 
     def test_action_release_account_data(self):
@@ -211,3 +211,31 @@ class LogicStorageTests(testcase.TestCase):
         self.storage._destroy_account_data(self.account_2)
 
         self.assertEqual(Hero.objects.all().count(), 0)
+
+    def test_remove_action__from_middle(self):
+        ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
+        self.assertRaises(exceptions.RemoveActionFromMiddleError, self.storage.remove_action, self.action_idl_1)
+
+    def test_remove_action__metaaction(self):
+        bundle = BundlePrototype.create()
+
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle=bundle)
+
+        proxy_action_1 = ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        proxy_action_2 = ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
+
+        self.assertEqual(len(self.storage.meta_actions), 1)
+        self.assertEqual(len(self.storage.meta_actions_to_actions), 1)
+        self.assertEqual(self.storage.meta_actions_to_actions[meta_action_battle.id], set([LogicStorage.get_action_uid(proxy_action_1),
+                                                                                           LogicStorage.get_action_uid(proxy_action_2)]))
+
+        self.storage.remove_action(proxy_action_2)
+
+        self.assertEqual(len(self.storage.meta_actions), 1)
+        self.assertEqual(len(self.storage.meta_actions_to_actions), 1)
+        self.assertEqual(self.storage.meta_actions_to_actions[meta_action_battle.id], set([LogicStorage.get_action_uid(proxy_action_1)]))
+
+        self.storage.remove_action(proxy_action_1)
+
+        self.assertEqual(len(self.storage.meta_actions), 0)
+        self.assertEqual(len(self.storage.meta_actions_to_actions), 0)

@@ -14,7 +14,7 @@ from common.utils.decorators import lazy_property
 from game.balance import formulas as f
 
 from game.models import SupervisorTask, SupervisorTaskMember, SUPERVISOR_TASK_TYPE
-from game.exceptions import GameException
+from game import exceptions
 
 
 class MONTHS(DjangoEnum):
@@ -115,7 +115,7 @@ class SupervisorTaskPrototype(BasePrototype):
     def process(self):
 
         if not self.all_members_captured:
-            raise GameException('try process supervisor task %d when not all members captured members: %r, captured members: %r' % (self.id, self.members, self.captured_members))
+            raise exceptions.SupervisorTaskMemberMissedError(task_id=self.id, members=self.members, captured_members=self.captured_members)
 
         if self.type == SUPERVISOR_TASK_TYPE.ARENA_PVP_1X1:
             return self.process_arena_pvp_1x1()

@@ -57,6 +57,7 @@ class ActionBase(object):
                   'textgen_id',
                   'hero_health_lost',
                   'back',
+                  'info_link',
                   'meta_action_id')
 
 
@@ -92,6 +93,7 @@ class ActionBase(object):
                  textgen_id=None,
                  hero_health_lost=0,
                  back=False,
+                 info_link=None,
                  meta_action_id=None):
 
         self.hero = hero
@@ -107,15 +109,23 @@ class ActionBase(object):
         self.removed = False
         self.storage = None
 
+        self.info_link = None
+
         self.created_at_turn = created_at_turn if created_at_turn is not None else TimePrototype.get_current_turn_number()
 
-        self.context = context if context is None or isinstance(context, self.CONTEXT_MANAGER) else self.CONTEXT_MANAGER.deserialize(context)
-        self.mob_context = mob_context if mob_context is None or isinstance(mob_context, self.CONTEXT_MANAGER) else self.CONTEXT_MANAGER.deserialize(mob_context)
+        self.context = None
+        self.mob_context = None
+
+        if self.CONTEXT_MANAGER:
+            self.context = context if context is None or isinstance(context, self.CONTEXT_MANAGER) else self.CONTEXT_MANAGER.deserialize(context)
+            self.mob_context = mob_context if mob_context is None or isinstance(mob_context, self.CONTEXT_MANAGER) else self.CONTEXT_MANAGER.deserialize(mob_context)
 
         self.quest_id = quest_id
         self.place_id = place_id
 
-        self.mob = mob if mob is None or isinstance(mob, MobPrototype) else MobPrototype.deserialize(mob)
+        self.mob = None
+        if mob:
+            self.mob = mob if isinstance(mob, MobPrototype) else MobPrototype.deserialize(mob)
 
         self.data = data
         self.break_at = break_at

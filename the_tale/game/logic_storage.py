@@ -5,7 +5,7 @@ from dext.utils import cache
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.conf import heroes_settings
 
-from game.exceptions import GameException
+from game import exceptions
 
 class LogicStorage(object):
 
@@ -51,7 +51,7 @@ class LogicStorage(object):
     def add_hero(self, hero):
 
         if hero.id in self.heroes:
-            raise GameException('Hero with id "%d" has already registerd in storage, probably on initialization step' % hero.id)
+            raise exceptions.HeroAlreadyRegisteredError(hero_id=hero.id)
 
         self.heroes[hero.id] = hero
         self.accounts_to_heroes[hero.account_id] = hero
@@ -76,7 +76,7 @@ class LogicStorage(object):
 
     def add_meta_action(self, meta_action):
         if meta_action.id in self.meta_actions:
-            raise GameException('Meta action with id "%d" has already registerd in storage' % meta_action.id)
+            raise exceptions.GameException('Meta action with id "%d" has already registerd in storage' % meta_action.id)
         meta_action.set_storage(self)
         self.meta_actions[meta_action.id] = meta_action
 
@@ -84,8 +84,7 @@ class LogicStorage(object):
         action.set_storage(None)
         last_action = action.hero.actions.current_action
         if last_action is not action:
-            raise GameException('try to remove action (%r) from the middle of actions list, last action: (%r). Actions list: %r' %
-                                (action, last_action, action.hero.actions.actions_list))
+            raise exceptions.RemoveActionFromMiddleError(action=action, last_action=last_action, actions_list=action.hero.actions.actions_list)
 
         if action.meta_action_id is not None:
             self.meta_actions_to_actions[action.meta_action_id].remove(self.get_action_uid(action))
@@ -98,8 +97,6 @@ class LogicStorage(object):
     def get_action_uid(cls, action):
         number = action.hero.actions.number
         return (action.hero.id, number - 1 if action is action.hero.actions.current_action else number)
-
-    # def current_hero_action(self, hero_id): return self.heroes[hero_id].actions.current_action
 
     def on_highlevel_data_updated(self):
         for hero in self.heroes.values():
