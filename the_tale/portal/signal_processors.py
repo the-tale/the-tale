@@ -16,12 +16,16 @@ def portal_day_started(sender, **kwargs): # pylint: disable=W0613
     from game.heroes.prototypes import HeroPrototype
     from game.heroes.models import Hero
 
-    heroes_number = Hero.objects.filter(is_fast=False, ban_state_end_at__lt=datetime.datetime.now()).count()
+    heroes_query = Hero.objects.filter(is_fast=False, active_state_end_at__gt=datetime.datetime.now(), ban_state_end_at__lt=datetime.datetime.now())
+
+    heroes_number = heroes_query.count()
+
+    print heroes_number
 
     if heroes_number < 1:
         return
 
-    hero_model = Hero.objects.filter(is_fast=False)[random.randint(0, heroes_number-1)]
+    hero_model = heroes_query[random.randint(0, heroes_number-1)]
 
     hero = HeroPrototype(model=hero_model)
 
