@@ -11,7 +11,7 @@ from common.utils.decorators import login_required
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import get_system_user
-from accounts.views import validate_fast_account
+from accounts.views import validate_fast_account, validate_ban_forum
 
 from accounts.personal_messages.models import Message
 from accounts.personal_messages.prototypes import MessagePrototype
@@ -80,6 +80,7 @@ class MessageResource(Resource):
                                   page,
                                   False)
 
+    @validate_ban_forum()
     @validate_argument('recipients', get_accounts_list_by_ids, 'personal_messages', u'Неверные идентификаторы получателей')
     @validate_argument('answer_to', MessagePrototype.get_by_id, 'personal_messages', u'Неверный идентификатор сообщения')
     @handler('new', method='get')
@@ -110,6 +111,7 @@ class MessageResource(Resource):
                               'recipients_url_string': ','.join([str(recipient.id) for recipient in recipients]),
                               'form': form})
 
+    @validate_ban_forum()
     @validate_argument('recipients', get_accounts_list_by_ids, 'personal_messages', u'Неверный идентификатор получателя')
     @handler('create', method='post')
     def create(self, recipients=()):
@@ -132,7 +134,6 @@ class MessageResource(Resource):
             MessagePrototype.create(self.account, recipient, form.c.text)
 
         return self.json_ok()
-
 
 
     @handler('#message_id', 'delete', method='post')

@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from dext.utils.urls import url
 
@@ -122,6 +123,11 @@ class NewRequestsTests(BaseRequestsTests):
         self.account1.save()
         self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=self.account2.id)), texts=['common.fast_account'])
 
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_banned_account(self):
+        self.request_login('test_user1@test.com')
+        self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=self.account2.id)), texts=['common.ban_forum'])
+
     def test_wrong_recipient_id(self):
         self.check_html_ok(self.request_html(url('accounts:messages:new', recipients='aaa')),
                            texts=[('personal_messages.recipients.wrong_format', 1)])
@@ -193,6 +199,11 @@ class CreateRequestsTests(BaseRequestsTests):
         self.account1.is_fast = True
         self.account1.save()
         self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message'}), 'common.fast_account')
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_banned_account(self):
+        self.request_login('test_user1@test.com')
+        self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message'}), 'common.ban_forum')
 
     def test_wrong_recipient_id(self):
         self.check_ajax_error(self.client.post(url('accounts:messages:create', recipients='aaa'), {'text': 'test-message'}),

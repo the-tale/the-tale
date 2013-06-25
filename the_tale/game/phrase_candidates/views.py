@@ -6,7 +6,7 @@ from dext.views import handler, validator
 from dext.utils.urls import UrlBuilder
 
 from accounts.prototypes import AccountPrototype
-from accounts.views import validate_fast_account
+from accounts.views import validate_fast_account, validate_ban_forum
 
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
@@ -97,6 +97,7 @@ class PhraseCandidateResource(Resource):
                                                               'page_type': 'types'})
 
     @login_required
+    @validate_ban_forum()
     @validate_fast_account()
     @handler('new', method='get')
     def new(self, phrase_type, phrase_subtype):
@@ -118,6 +119,7 @@ class PhraseCandidateResource(Resource):
 
 
     @login_required
+    @validate_ban_forum()
     @validate_fast_account()
     @handler('create', method='post')
     def create(self):

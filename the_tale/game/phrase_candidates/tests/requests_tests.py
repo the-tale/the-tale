@@ -1,6 +1,8 @@
 # coding: utf-8
 import random
 
+import mock
+
 from django.test import client
 from django.core.urlresolvers import reverse
 
@@ -222,6 +224,11 @@ class NewRequestsTests(RequestsTestsBase):
         self.account_1.save()
         self.check_html_ok(self.request_ajax_html(self.create_new_url()), texts=['common.fast_account'])
 
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_banned(self):
+        self.request_login('test_user_1@test.com')
+        self.check_html_ok(self.request_ajax_html(self.create_new_url()), texts=['common.ban_forum'])
+
     def test_success(self):
         texts = [(self.phrase_type, 2),
                  (self.phrase_subtype, 1),
@@ -266,6 +273,12 @@ class CreateRequestsTests(RequestsTestsBase):
                                                                                           'phrase_subtype': self.phrase_subtype,
                                                                                           'text': 'created-text'}), 'common.fast_account')
 
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_banned(self):
+        self.request_login('test_user_1@test.com')
+        self.check_ajax_error(self.client.post(reverse('game:phrase-candidates:create'), {'phrase_type': self.phrase_type,
+                                                                                          'phrase_subtype': self.phrase_subtype,
+                                                                                          'text': 'created-text'}), 'common.ban_forum')
 
     def test_success(self):
         self.assertEqual(PhraseCandidate.objects.all().count(), 0)

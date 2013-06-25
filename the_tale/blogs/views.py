@@ -12,6 +12,7 @@ from common.utils.decorators import login_required
 from common.utils.enum import create_enum
 
 from accounts.prototypes import AccountPrototype
+from accounts.views import validate_ban_forum
 
 from blogs.prototypes import PostPrototype, VotePrototype
 from blogs.models import Post, Vote
@@ -108,12 +109,14 @@ class PostResource(Resource):
                               'url_builder': url_builder} )
 
     @login_required
+    @validate_ban_forum()
     @validate_fast_account_restrictions()
     @handler('new', method='get')
     def new(self):
         return self.template('blogs/new.html', {'form': PostForm()})
 
     @login_required
+    @validate_ban_forum()
     @validate_fast_account_restrictions()
     @handler('create', method='post')
     def create(self):
@@ -139,6 +142,7 @@ class PostResource(Resource):
                                                  'vote': None if not self.account.is_authenticated() else VotePrototype.get_for(self.account, self.post)})
 
     @login_required
+    @validate_ban_forum()
     @validate_fast_account_restrictions()
     @validate_edit_rights()
     @validate_declined_state()
@@ -150,6 +154,7 @@ class PostResource(Resource):
                                                  'form': form} )
 
     @login_required
+    @validate_ban_forum()
     @validate_fast_account_restrictions()
     @validate_edit_rights()
     @validate_declined_state()

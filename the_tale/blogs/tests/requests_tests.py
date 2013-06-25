@@ -1,6 +1,8 @@
 # coding: utf-8
 import datetime
 
+import mock
+
 from django.test import client
 from django.core.urlresolvers import reverse
 
@@ -186,6 +188,10 @@ class TestNewRequests(BaseTestRequests):
         self.account_1.save()
         self.check_html_ok(self.request_html(reverse('blogs:posts:new')), texts=(('blogs.posts.fast_account', 1),))
 
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_banned(self):
+        self.check_html_ok(self.request_html(reverse('blogs:posts:new')), texts=(('common.ban_forum', 1),))
+
     def test_success(self):
         self.check_html_ok(self.request_html(reverse('blogs:posts:new')))
 
@@ -262,6 +268,10 @@ class TestCreateRequests(BaseTestRequests):
         self.account_1.is_fast = True
         self.account_1.save()
         self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), self.get_post_data()), 'blogs.posts.fast_account')
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_banned(self):
+        self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), self.get_post_data()), 'common.ban_forum')
 
     def test_success(self):
         from forum.models import Thread
@@ -386,6 +396,10 @@ class TestEditRequests(BaseTestRequests):
         self.account_1.save()
         self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('blogs.posts.fast_account', 1),))
 
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_banned(self):
+        self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('common.ban_forum', 1),))
+
     def test_unexsists(self):
         self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[666])), status_code=404)
 
@@ -433,6 +447,10 @@ class TestUpdateRequests(BaseTestRequests):
         self.account_1.is_fast = True
         self.account_1.save()
         self.check_ajax_error(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data()), 'blogs.posts.fast_account')
+
+    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    def test_banned(self):
+        self.check_ajax_error(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data()), 'common.ban_forum')
 
     def test_no_permissions(self):
         self.request_logout()
