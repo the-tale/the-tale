@@ -151,6 +151,7 @@ INSTALLED_APPS = (
 
     'dext.less',
     'dext.settings',
+    'dext.forms',
 
     'common.utils',
     'common.postponed_tasks',
