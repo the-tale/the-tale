@@ -185,10 +185,7 @@ class PostResource(Resource):
     @validate_moderator_rights()
     @handler('#post', 'accept', method='post')
     def accept(self):
-        self.post.state = POST_STATE.ACCEPTED
-        self.post.moderator_id = self.account.id
-        self.post.save()
-
+        self.post.accept(self.account)
         return self.json_ok()
 
     @login_required
@@ -196,10 +193,7 @@ class PostResource(Resource):
     @validate_moderator_rights()
     @handler('#post', 'decline', method='post')
     def decline(self):
-        self.post.state = POST_STATE.DECLINED
-        self.post.moderator_id = self.account.id
-        self.post.save()
-
+        self.post.decline(self.account)
         return self.json_ok()
 
     @login_required

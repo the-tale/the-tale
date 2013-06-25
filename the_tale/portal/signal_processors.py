@@ -20,8 +20,6 @@ def portal_day_started(sender, **kwargs): # pylint: disable=W0613
 
     heroes_number = heroes_query.count()
 
-    print heroes_number
-
     if heroes_number < 1:
         return
 

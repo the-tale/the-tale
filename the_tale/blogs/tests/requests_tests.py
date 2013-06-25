@@ -529,8 +529,14 @@ class TestModerateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:decline', args=[self.post.id]), {}), 'blogs.posts.moderator_rights_required')
 
     def test_delete_success(self):
+        from forum.prototypes import PostPrototype as ForumPostPrototype
+
+        self.assertEqual(ForumPostPrototype._db_count(), 1)
+
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:accept', args=[self.post.id]), {}))
         self.assertTrue(PostPrototype.get_by_id(self.post.id).state._is_ACCEPTED)
 
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:decline', args=[self.post.id]), {}))
         self.assertTrue(PostPrototype.get_by_id(self.post.id).state._is_DECLINED)
+
+        self.assertEqual(ForumPostPrototype._db_count(), 2)

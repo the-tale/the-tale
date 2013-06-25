@@ -12,7 +12,7 @@ from common.utils.prototypes import BasePrototype
 from accounts.prototypes import AccountPrototype
 from accounts.logic import get_system_user
 
-from forum.prototypes import ThreadPrototype as ForumThreadPrototype
+from forum.prototypes import ThreadPrototype as ForumThreadPrototype, PostPrototype as ForumPostPrototype
 from forum.prototypes import SubCategoryPrototype as ForumSubCategoryPrototype
 from forum.models import MARKUP_METHOD
 
@@ -64,6 +64,28 @@ class PostPrototype(BasePrototype):
         VotePrototype.create(post, author)
 
         return post
+
+    @nested_commit_on_success
+    def accept(self, moderator):
+        self.state = POST_STATE.ACCEPTED
+        self.moderator_id = moderator.id
+        self.save()
+
+    @nested_commit_on_success
+    def decline(self, moderator):
+        self.state = POST_STATE.DECLINED
+        self.moderator_id = moderator.id
+        self.save()
+
+        thread = ForumThreadPrototype(self._model.forum_thread)
+        thread.caption = thread.caption + u' [удалён]'
+        thread.save()
+
+        ForumPostPrototype.create(thread,
+                                  get_system_user(),
+                                  u'Произведение было удалено',
+                                  technical=True)
+
 
     def save(self):
         self._model.save()
