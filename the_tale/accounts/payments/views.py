@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from dext.views import handler, validate_argument, validator
+from dext.settings import settings
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required, superuser_required
@@ -28,8 +29,9 @@ class PaymentsResource(Resource):
     def initialize(self, *args, **kwargs):
         super(PaymentsResource, self).initialize(*args, **kwargs)
 
-        self.dengionline_enabled = (payments_settings.ENABLE_REAL_PAYMENTS or
-                                    self.account.id in payments_settings.ALWAYS_ALLOWED_ACCOUNTS)
+        self.dengionline_enabled = ( settings.get(payments_settings.SETTINGS_ALLOWED_KEY) and
+                                     (payments_settings.ENABLE_REAL_PAYMENTS or
+                                      self.account.id in payments_settings.ALWAYS_ALLOWED_ACCOUNTS))
 
         self.usd_to_premium = real_amount_to_game(1)
 
