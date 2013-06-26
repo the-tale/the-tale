@@ -1,3 +1,9 @@
 # coding: utf-8
 
-class PersonsException(Exception): pass
+from common.utils.exceptions import TheTaleError
+
+class PersonsException(TheTaleError):
+    MSG = u'persons error'
+
+# class PlaceEffectsValueError(PersonsException):
+#     MSG = u'wrong sum of place effects: %(effects)r'

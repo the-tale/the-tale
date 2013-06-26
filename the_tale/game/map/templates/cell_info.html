@@ -1,4 +1,5 @@
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
+{% import 'map/macros.html' as map_macros with context %}
 
 <div class="modal hide place-description-dialog">
 
@@ -6,15 +7,21 @@
     <button type="button" class="close" data-dismiss="modal">×</button>
     <h3 class="pgf-dialog-title dialog-title">
       {% if place %}
-      <span class="badge">{{ place.size }}</span>
-      <span>
+      <span style="vertical-align: middle;" class="badge">{{ place.size }}</span>
+      <span style="vertical-align: middle;">
         {% if place.modifier %}{{ place.modifier.NAME }}{% endif %}
         {{ place.name }}
-      </span>
 
-      {% if hero and hero.preferences.place_id == place.id %}
-      <span class="badge badge-success">родной город</span>
-      {% endif %}
+        {% if hero and hero.preferences.place_id == place.id %}
+        <span class="badge badge-success">родной город</span>
+        {% endif %}
+
+        <small>
+          обновлено в
+          <span class="pgf-format-time" data-timestamp="{{ place.updated_at|timestamp }}"></span>
+        </small>
+
+      </span>
 
       {% elif building %}
       <span>
@@ -26,12 +33,13 @@
     </h3>
   </div>
 
-  <div class="modal-body">
+  <div class="modal-body tabbable tabs-left">
 
     <ul class="nav nav-tabs">
       {% if place %}
       <li><a href="#pgf-cell-description" class="pgf-cell-description-button" data-toggle="tab">Описание</a></li>
       <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Персонажи</a></li>
+      <li><a href="#pgf-cell-place-parameters" class="pgf-cell-place-parameters-button" data-toggle="tab">Параметры</a></li>
       <li><a href="#pgf-cell-place-modifiers" class="pgf-cell-place-modifiers-button" data-toggle="tab">Специализация</a></li>
       <li><a href="#pgf-cell-place-chronicle" class="pgf-cell-place-chronicle-button" data-toggle="tab">События</a></li>
       {% endif %}
@@ -56,14 +64,11 @@
 
       <div class="tab-pane" id="pgf-cell-persons">
         <ul class="unstyled">
-          <li class="data-updated-time">время обновления статистики:
-            {% set game_time = place.updated_at_game_time %}
-            <span class="pgf-game-date">{{ game_time.verbose_date}}</span>
-            <span class="pgf-game-time">{{ game_time.verbose_time }}</span>
-          </li>
           <li>основное население: {{dominant_race}}</li>
-          <li>прописано героев: {{place.heroes_number}}</li>
-          <li><a href="{{url('game:map:places:show', place.id)}}" target="_blank">подробнее</a></li>
+          <li>
+            прописано героев: {{place.heroes_number}},
+            <a href="{{url('game:map:places:show', place.id)}}" target="_blank">подробнее</a>
+          </li>
         </ul>
 
         <h3>персонажи</h3>
@@ -75,7 +80,7 @@
             <table class="person-table table table-striped table-condensed table-no-highlighting">
               <tbody>
                 <tr>
-                  <td rowspan="2"
+                  <td rowspan="3"
                       class="profession-icon-container"
                       rel="tooltil"
                       title="{{ person.type.text }}">
@@ -83,34 +88,18 @@
                   </td>
 
                   <th>
-                    {{ person.name }}
-                    <span style="white-space: nowrap;">
-                      <small>{{ person.gender_verbose }}-{{ person.race_verbose }}</small>
-
-                      {% if person.time_before_unfreeze.total_seconds() > 0 %}
-                      <i class="icon-time pgf-time-before-unfreeze"
-                         style="vertical-align: middle;"
-                         rel="tooltip"
-                         title="Персонаж недавно поселился в городе и может его покинуть только через {{person.time_before_unfreeze|verbose_timedelta}}"></i>
-                      {% endif %}
-
-                      {% if person.has_building %}
-                      <i class="icon-home"
-                         rel="tooltip"
-                         title="Персонаж является владельцем строения в окрестностях города"></i>
-                      {% endif %}
-                    </span>
-
                     {% if hero and hero.preferences.friend_id == person.id %}
-                    <span class="badge badge-success">соратник</span>
+                    <span class="badge badge-success" rel="tooltip" title="соратник">{{ person.name }}</span>
+                    {% elif hero and hero.preferences.enemy_id == person.id %}
+                    <span class="badge badge-important" rel="tooltip" title="противник">{{ person.name }}</span>
+                    {% else %}
+                    {{ person.name }}
                     {% endif %}
 
-                    {% if hero and hero.preferences.enemy_id == person.id %}
-                    <span class="badge badge-important">противник</span>
-                    {% endif %}
                   </th>
+
                   <th width="100px">влиятельность</th>
-                  <td width="100px">
+                  <td width="50px">
                     {% if place.total_persons_power %}
                     {% set power = (person.power/place.total_persons_power) %}
                     {% else %}
@@ -121,11 +110,28 @@
                 </tr>
 
                 <tr>
-                  <td>
-                    соратников/противников: {{person.friends_number}}/{{person.enemies_number}}
-                  </td>
-                  <th width="100px">мастерство</th>
-                  <td width="100px">{{person.mastery_verbose}}</td>
+                  <th colspan="3">
+                      <small>{{ person.gender_verbose }}-{{ person.race_verbose }} {{person.mastery_verbose}}</small>
+
+                      <span class="pull-right">
+                        {% if person.time_before_unfreeze.total_seconds() > 0 %}
+                        <i class="icon-time pgf-time-before-unfreeze"
+                           style="vertical-align: middle;"
+                           rel="tooltip"
+                           title="Персонаж недавно поселился в городе и может его покинуть только через {{person.time_before_unfreeze|verbose_timedelta}}"></i>
+                        {% endif %}
+
+                        {% if person.has_building %}
+                        <i class="icon-home"
+                           rel="tooltip"
+                           title="Персонаж является владельцем строения в окрестностях города"></i>
+                        {% endif %}
+
+                        <span rel="tooltip" title="количество соратников/противников">
+                          <i class="icon-user"></i> {{person.friends_number}}/{{person.enemies_number}}
+                        </span>
+                      </span>
+                  </th>
                 </tr>
               </tbody>
 
@@ -137,11 +143,93 @@
 
       </div>
 
+      <div class="tab-pane active description" id="pgf-cell-place-parameters">
+        <p>
+          Информация по актуальным параметрам города.
+        </p>
+
+        <table class="table table-striped table-condensed table-no-highlighting">
+          <tr>
+            <th>параметр</th>
+            <th>значение</th>
+            <th>информация</th>
+          </tr>
+          <tr>
+            <th>размер города</th><td>{{place.size}}</td>
+            <td>
+              <a href="javascript: return;" class="info-link" rel="tooltip"
+                 title="Текущий размер города">
+                подробнее
+              </a>
+            </td>
+          <tr>
+            <th>размер экономики</th><td>{{place.expected_size}}</td>
+            <td>
+              <a href="javascript: return;" class="info-link" rel="tooltip"
+                 title="Размер экономики города.<br/>Зависит от заданий, выполянемых героями.">
+                подробнее
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <th>производство</th> <td>{{place.production}}</td>
+            <td>
+              <a href="javascript: return;" class="info-link" rel="tooltip"
+                 title="{{map_macros.power_incoming_tooltip('Скорость производства товаров зависит от размера города, его экономики и от персонажей, проживающих в нём.',
+                                                            place.get_production_powers())}}">
+                подробнее
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <th>товары</th> <td>{{place.goods}} / {{c.PLACE_GOODS_TO_LEVEL}}</td>
+            <td>
+              <a href="javascript: return;" class="info-link" rel="tooltip"
+                 title="Чтобы расти, город должен производить товары. Если их накапливается достаточно, то размер города увелививается. Если товары кончаются, то уменьшается.">
+                подробнее
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <th>безопасность</th> <td>{{place.safety|percents(2)}}</td>
+            <td>
+              <a href="javascript: return;" class="info-link" rel="tooltip"
+                 title="{{map_macros.power_incoming_tooltip('Насколько безопасно в окрестностях города.',
+                                                            place.get_safety_powers(), percents=true)}}">
+                подробнее
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <th>транспорт</th> <td>{{place.transport|percents(2)}}</td>
+            <td>
+              <a href="javascript: return;" class="info-link" rel="tooltip"
+                 title="{{map_macros.power_incoming_tooltip('Скорость передвижения в окрестностях города.',
+                                                            place.get_transport_powers(), percents=true)}}">
+                подробнее
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <th>свобода</th> <td>{{place.freedom|percents(2)}}</td>
+            <td>
+              <a href="javascript: return;" class="info-link" rel="tooltip"
+                 title="{{map_macros.power_incoming_tooltip('Скорость изменения влияния персонажей.',
+                                                             place.get_freedom_powers(), percents=true)}}">
+                подробнее
+              </a>
+            </td>
+          </tr>
+        </table>
+
+      </div>
+
       <div class="tab-pane active description" id="pgf-cell-place-modifiers">
 
         <p>
-          В этом разделе отображается насколько город продвинулся на пути к каждой из специализаций.
           Чтобы можно было изменить специализацию города, необходимо довести её развитие до {{c.PLACE_TYPE_NECESSARY_BORDER}}.
+        </p>
+        <p>
           Если город уже имеет специализацию и её развитие опустится ниже {{c.PLACE_TYPE_ENOUGH_BORDER}}, то город перестанет быть специализированным.
         </p>
 
@@ -161,18 +249,13 @@
             </th>
             <td>{{modifier.power|round(2)}}</td>
             <td>
-              <a href="javascript: return;" class="info-link" rel="tooltip"
-                 title="<p style='text-align: left;'><i>{{modifier.DESCRIPTION}}</i></p>
-                        <ul class='unstyled' style='text-align: left; width: 300px;'>
-                        {% for effect_source, name, power in modifier.power_effects %}
-                        <li>{{name}} <span class='pull-right'
-                                           style='margin-right: 5em; color:{%if power>1%}Chartreuse{%elif power<-1%}red{%else%}yellow{%endif%};'>{{power|round(2)}}</span>
-                        </li>
-                        {% endfor %}
-                        <hr style='margin-right: 5em;'/>
-                        <li>размер города <span class='pull-right' style='margin-right: 5em;'>x {{modifier.size_modifier|round(2)}}</span></li>
-                        </ul>"
-                 >
+              <a href="javascript: return;"
+                 class="info-link"
+                 rel="tooltip"
+                 title="{{map_macros.power_incoming_tooltip(modifier.DESCRIPTION,
+                                                            modifier.power_effects_for_template,
+                                                            'размер города',
+                                                             modifier.size_modifier|round(2))}}">
                 подробнее
               </a>
             </td>

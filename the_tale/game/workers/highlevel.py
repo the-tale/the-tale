@@ -151,20 +151,17 @@ class Worker(BaseWorker):
         places_by_power = sorted(places_storage.all(), key=lambda x: x.power)
         places_number = len(places_by_power)
         for i, place in enumerate(places_by_power):
-            new_size = int(places_settings.MAX_SIZE * float(i) / places_number) + 1
+            expected_size = int(places_settings.MAX_SIZE * float(i) / places_number) + 1
             if place.modifier:
-                new_size = place.modifier.modify_place_size(new_size)
+                expected_size = place.modifier.modify_economic_size(expected_size)
+            place.expected_size = expected_size
 
-            if new_size > place.size:
-                place.size += 1
-            elif new_size < place.size:
-                place.size -= 1
-
-        # update places
-        for place in places_storage.all():
+            place.sync_size(c.MAP_SYNC_TIME_HOURS)
             place.sync_persons()
-            place.update_heroes_number()
             place.sync_modifier()
+            place.sync_parameters() # must be last operation to display and use real data
+
+            place.update_heroes_number()
             place.mark_as_updated()
 
         places_storage.save_all()

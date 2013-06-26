@@ -8,8 +8,6 @@ from game.balance import constants as c, enums as e
 
 from common.utils.enum import create_enum
 
-from game.map.places.conf import places_settings
-
 from game.persons.relations import PROFESSION_TO_CITY_MODIFIERS
 
 
@@ -25,6 +23,12 @@ class PlaceModifierBase(object):
     PERSON_EFFECTS = None
     PERSON_POWER_MODIFIER = 10
 
+    SAFETY_MODIFIER = 0.0
+    PRODUCTION_MODIFIER = 0.0
+    TRANSPORT_MODIFIER = 0.0
+    FREEDOM_MODIFIER = 0.0
+
+
     def __init__(self, place):
         self.place = place
 
@@ -33,6 +37,10 @@ class PlaceModifierBase(object):
         if not hasattr(self, '_power_effects'):
             self._power_effects = sorted(self.get_power_effects(), key=lambda x: -x[2])
         return self._power_effects
+
+    @property
+    def power_effects_for_template(self):
+        return [(name, power) for source, name, power in self.power_effects]
 
     @property
     def power(self):
@@ -84,12 +92,10 @@ class PlaceModifierBase(object):
     def modify_sell_price(self, price): return price
     def modify_buy_price(self, price): return price
     def can_buy_better_artifact(self): return False
-    def modify_battles_per_turn(self, battles_per_turn): return battles_per_turn
     def modify_power(self, power): return power
-    def modify_place_size(self, size): return size
+    def modify_economic_size(self, size): return size
     def modify_terrain_change_power(self, power): return power
     def full_regen_allowed(self): return False
-    def modify_move_speed(self, speed): return speed
 
 
 class TradeCenter(PlaceModifierBase):
@@ -98,6 +104,9 @@ class TradeCenter(PlaceModifierBase):
     PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.TRADE_CENTER)
     NAME = u'Торговый центр'
     DESCRIPTION = u'В городе идёт оживлённая торговля, поэтому герои всегда могут найти выгодную цену для продажи своих трофеев или покупки артефактов.'
+
+    PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS / 2
+    FREEDOM_MODIFIER = 0.1
 
     def modify_sell_price(self, price): return price * 1.1
     def modify_buy_price(self, price): return price * 0.9
@@ -110,17 +119,18 @@ class CraftCenter(PlaceModifierBase):
     NAME = u'Город мастеров'
     DESCRIPTION = u'Большое количество мастеров, трудящихся в городе, позволяет героям приобретать лучшие артефакты.'
 
+    PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS
+
     def can_buy_better_artifact(self): return random.uniform(0, 1) < 0.1
 
 
 class Fort(PlaceModifierBase):
-
     TYPE = e.CITY_MODIFIERS.FORT
     PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.FORT)
     NAME = u'Форт'
     DESCRIPTION = u'Постоянное присутствие военных делает окрестности города безопаснее для путешествий.'
 
-    def modify_battles_per_turn(self, battles_per_turn): return battles_per_turn * 0.75
+    SAFETY_MODIFIER = 0.05
 
 
 class PoliticalCenter(PlaceModifierBase):
@@ -129,6 +139,8 @@ class PoliticalCenter(PlaceModifierBase):
     PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.POLITICAL_CENTER)
     NAME = u'Политический центр'
     DESCRIPTION = u'Активная политическая жизнь приводит к тому, что усиливаются все изменения влияния (и положительные и отрицательные).'
+
+    FREEDOM_MODIFIER = 0.25
 
     def modify_power(self, power): return power * 1.25
 
@@ -139,7 +151,9 @@ class Polic(PlaceModifierBase):
     NAME = u'Полис'
     DESCRIPTION = u'Самостоятельная политика города вместе с большими свободами граждан способствует увеличению размера и широкому распространению влияния.'
 
-    def modify_place_size(self, size): return min(places_settings.MAX_SIZE, size + 1)
+    FREEDOM_MODIFIER = 0.1
+
+    def modify_econimic_size(self, size): return size + 1
     def modify_terrain_change_power(self, power): return power * 1.2
 
 
@@ -150,6 +164,9 @@ class Resort(PlaceModifierBase):
     NAME = u'Курорт'
     DESCRIPTION = u'Город прославлен своими здравницами и особой атмосферой, в которой раны затягиваются особенно быстро. При посещении города герои полностью восстанавливают своё здоровье.'
 
+    FREEDOM_MODIFIER = 0.1
+    SAFETY_MODIFIER = 0.01
+
     def full_regen_allowed(self): return True
 
 
@@ -159,7 +176,7 @@ class TransportNode(PlaceModifierBase):
     NAME = u'Транспортный узел'
     DESCRIPTION = u'Хорошие дороги и обилие гостиниц делает путешествие по дорогам в окрестностях города быстрым и комфортным.'
 
-    def modify_move_speed(self, speed): return speed * 1.25
+    TRANSPORT_MODIFIER = 0.2
 
 
 MODIFIERS = dict( (modifier.get_id(), modifier)

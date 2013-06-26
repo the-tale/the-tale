@@ -168,7 +168,7 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(self.p2.power, 10001099)
         self.assertEqual(self.p3.power, 110018)
 
-        self.assertTrue(self.p1.size < self.p3.size < self.p2.size)
+        self.assertTrue(self.p1.expected_size < self.p3.expected_size < self.p2.expected_size)
 
         # test resulting persons list
         self.assertEqual(len(persons_storage.filter(state=PERSON_STATE.OUT_GAME)), 0) # now, persons removed by players throught bills

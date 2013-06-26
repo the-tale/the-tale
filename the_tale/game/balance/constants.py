@@ -134,7 +134,7 @@ DAMAGE_CRIT_MULTIPLIER = float(2.0) # во сколько раз увеличи�
 
 # разные левые "неприкаянные" константы
 
-DESTINY_POINT_IN_LEVELS = 5 # раз в сколько уровней давать очко абилок
+DESTINY_POINT_IN_LEVELS = int(5) # раз в сколько уровней давать очко абилок
 
 # параметры ангелов
 
@@ -207,7 +207,8 @@ GAME_SECONDS_IN_TURN = int(GAME_SECONDS_IN_GAME_DAY / _TURNS_IN_GAME_DAY)
 # Карта
 MAP_CELL_LENGTH = float(3.0) # длина клетки в километрах
 
-MAP_SYNC_TIME = int(TURNS_IN_HOUR * 2) # синхронизируем карту раз в N часов
+MAP_SYNC_TIME_HOURS = int(1)
+MAP_SYNC_TIME = int(TURNS_IN_HOUR * MAP_SYNC_TIME_HOURS) # синхронизируем карту раз в N часов
 
 
 # Задания
@@ -248,14 +249,14 @@ CHARACTER_PREFERENCES_CHANGE_DELAY = int(60*60*24*7) # время блокиро
 # споособности
 #########################
 
-ABILITIES_ACTIVE_MAXIMUM = 5
-ABILITIES_PASSIVE_MAXIMUM = 2
+ABILITIES_ACTIVE_MAXIMUM = int(5)
+ABILITIES_PASSIVE_MAXIMUM = int(2)
 
 ABILITIES_BATTLE_MAXIMUM = ABILITIES_ACTIVE_MAXIMUM + ABILITIES_PASSIVE_MAXIMUM
-ABILITIES_NONBATTLE_MAXUMUM = 4
+ABILITIES_NONBATTLE_MAXUMUM = int(4)
 
-ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM = 2
-ABILITIES_FOR_CHOOSE_MAXIMUM = 4
+ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM = int(2)
+ABILITIES_FOR_CHOOSE_MAXIMUM = int(4)
 
 
 ###########################
@@ -265,20 +266,29 @@ ABILITIES_FOR_CHOOSE_MAXIMUM = 4
 DAMAGE_PVP_ADVANTAGE_MODIFIER = float(0.5) # на какую долю изменяется урон при максимальной разнице в преимуществе между бойцами
 DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER = float(5) # во сколько раз увеличится урон удара при максимальном преимушестве
 
-PVP_MAX_ADVANTAGE_STEP = 0.25
+PVP_MAX_ADVANTAGE_STEP = float(0.25)
 
-PVP_ADVANTAGE_BARIER = 0.95
-PVP_EFFECTIVENESS_EXTINCTION_FRACTION = 0.1
+PVP_ADVANTAGE_BARIER = float(0.95)
+PVP_EFFECTIVENESS_EXTINCTION_FRACTION = float(0.1)
 
-PVP_EFFECTIVENESS_STEP = 10
-PVP_EFFECTIVENESS_INITIAL = 300
+PVP_EFFECTIVENESS_STEP = float(10)
+PVP_EFFECTIVENESS_INITIAL = float(300)
 
 ###########################
 # типы городов
 ###########################
 
-PLACE_TYPE_NECESSARY_BORDER = 75
-PLACE_TYPE_ENOUGH_BORDER = 50
+PLACE_TYPE_NECESSARY_BORDER = int(75)
+PLACE_TYPE_ENOUGH_BORDER = int(50)
+
+PLACE_GOODS_BONUS = int(100) # в час, соответственно PLACE_GOODS_BONUS * LEVEL — прирост/убыль товаров в городе
+PLACE_GOODS_TO_LEVEL = PLACE_GOODS_BONUS * (1 + 3) * 24 # 1 город + 3 персонажа за 24 часа
+PLACE_GOODS_AFTER_LEVEL_UP = float(0.25) # процент товаров, остающихся при увеличении размера города
+PLACE_GOODS_AFTER_LEVEL_DOWN = float(0.75) # процент товаров, возвращающихся при уменьшении размера города
+
+PLACE_SAFETY_FROM_BEST_PERSON = 0.02
+PLACE_TRANSPORT_FROM_BEST_PERSON = 0.05
+PLACE_FREEDOM_FROM_BEST_PERSON = 0.05
 
 ###########################
 # здания

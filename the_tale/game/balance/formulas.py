@@ -228,3 +228,10 @@ def person_power_for_quest(path_length):
 def max_ability_points_number(level):
     # 1 for hit ability
     return 1 + (level + 1) / 2
+
+# города
+def place_goods_production(level):
+    return level * c.PLACE_GOODS_BONUS
+
+def place_goods_consumption(level):
+    return level * c.PLACE_GOODS_BONUS

@@ -13,6 +13,7 @@ from game.helpers import add_power_management
 from game.prototypes import TimePrototype
 
 from game.map.places.storage import places_storage, buildings_storage
+from game.map.places.relations import CITY_PARAMETERS
 
 from game.balance.enums import RACE
 from game.balance import constants as c
@@ -20,7 +21,7 @@ from game.balance import constants as c
 from game.persons.models import Person, PERSON_STATE
 from game.persons.conf import persons_settings
 from game.persons.exceptions import PersonsException
-from game.persons.relations import PROFESSION_TO_RACE_MASTERY
+from game.persons.relations import PROFESSION_TO_RACE_MASTERY, PROFESSION_TO_CITY_PARAMETERS
 
 
 MASTERY_VERBOSE = ( (0.0, u'полная непригодность'),
@@ -63,6 +64,22 @@ class PersonPrototype(BasePrototype):
         if building:
             mastery += c.BUILDING_MASTERY_BONUS * building.integrity
         return min(mastery, 1)
+
+    @property
+    def production(self):
+        return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.PRODUCTION.value] * c.PLACE_GOODS_BONUS
+
+    @property
+    def safety(self):
+        return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.SAFETY.value]
+
+    @property
+    def freedom(self):
+        return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.FREEDOM.value]
+
+    @property
+    def transport(self):
+        return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.TRANSPORT.value]
 
     @property
     def has_building(self): return buildings_storage.get_by_person_id(self.id) is not None

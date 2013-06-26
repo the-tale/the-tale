@@ -55,7 +55,6 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
         new_data = {}
 
         real_columns = data[0][1:]
-
         if set(real_columns) != set(columns):
             raise XLSException('wrong columns ids: %r' % (real_columns, ))
 
@@ -114,13 +113,20 @@ def load_table_for_enums(filename, rows_enum, columns_enum, sheet_index=0, encod
         rows_values = rows_enum._ID_TO_STR.values()
         rows_items = rows_enum._ID_TO_STR.items()
 
+    if issubclass(columns_enum, rels.Table):
+        columns_values = zip(*columns_enum._select('name'))[0]
+        columns_dict = dict(columns_enum._select('name', 'value'))
+    else:
+        columns_values = columns_enum._ID_TO_STR.values()
+        columns_dict = columns_enum._STR_TO_ID
+
     data = load_table(filename=filename, sheet_index=sheet_index, encoding=encoding,
                       rows=rows_values,
-                      columns=columns_enum._ID_TO_STR.values(),
+                      columns=columns_values,
                       data_type=data_type)
 
     result = dict( (row_id,
-                    dict( (columns_enum._STR_TO_ID[column_str], column_value)
+                    dict( (columns_dict[column_str], column_value)
                           for column_str, column_value in data[row_str].items()) )
                     for row_id, row_str in rows_items)
 

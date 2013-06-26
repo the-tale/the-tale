@@ -127,7 +127,9 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.GAME_SECONDS_IN_TURN, 120)
 
         self.assertEqual(c.MAP_CELL_LENGTH, 3.0)
-        self.assertEqual(c.MAP_SYNC_TIME, 720)
+        self.assertEqual(c.MAP_SYNC_TIME_HOURS, 1)
+        self.assertEqual(c.MAP_SYNC_TIME, 360)
+
 
         self.assertEqual(c.QUESTS_SPECIAL_FRACTION, 0.2)
         self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
@@ -166,6 +168,17 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PVP_EFFECTIVENESS_EXTINCTION_FRACTION, 0.1)
         self.assertEqual(c.PVP_EFFECTIVENESS_STEP, 10)
         self.assertEqual(c.PVP_EFFECTIVENESS_INITIAL, 300)
+
+        self.assertEqual(c.PLACE_TYPE_NECESSARY_BORDER, 75)
+        self.assertEqual(c.PLACE_TYPE_ENOUGH_BORDER, 50)
+
+        self.assertEqual(c.PLACE_GOODS_BONUS, 100)
+        self.assertEqual(c.PLACE_GOODS_TO_LEVEL, 9600)
+        self.assertEqual(c.PLACE_GOODS_AFTER_LEVEL_UP, 0.25)
+        self.assertEqual(c.PLACE_GOODS_AFTER_LEVEL_DOWN, 0.75)
+        self.assertEqual(c.PLACE_SAFETY_FROM_BEST_PERSON, 0.02)
+        self.assertEqual(c.PLACE_TRANSPORT_FROM_BEST_PERSON, 0.05)
+        self.assertEqual(c.PLACE_FREEDOM_FROM_BEST_PERSON, 0.05)
 
         self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
         self.assertEqual(c.BUILDING_FULL_DESTRUCTION_TIME, 2*7*24)

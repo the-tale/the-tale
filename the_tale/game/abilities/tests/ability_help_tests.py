@@ -77,7 +77,7 @@ class HelpAbilityTest(testcase.TestCase):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.assertTrue(self.hero.money > old_hero_money)
 
-    @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
+    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 1.0)
     def test_teleport(self):
         move_place = self.p3
         if move_place.id == self.hero.position.place.id:

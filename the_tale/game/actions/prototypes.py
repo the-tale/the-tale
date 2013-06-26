@@ -618,11 +618,7 @@ class ActionMoveToPrototype(ActionBase):
                                       destination=self.destination,
                                       current_destination=self.current_destination)
 
-            move_speed = self.hero.move_speed
-
-            dominant_place = self.hero.position.get_dominant_place()
-            if dominant_place and dominant_place.modifier:
-                move_speed = dominant_place.modifier.modify_move_speed(move_speed)
+            move_speed = self.hero.position.modify_move_speed(self.hero.move_speed)
 
             delta = move_speed / self.hero.position.road.length
 

@@ -317,6 +317,7 @@ pgf.game.map.Map = function(selector, params) {
                                    pgf.base.InitializeTabs('game-map-cell-info', 'map',
                                                            [[jQuery('.pgf-cell-description-button', dialog), 'description'],
                                                             [jQuery('.pgf-cell-persons-button', dialog), 'persons'],
+                                                            [jQuery('.pgf-cell-place-parameters-button', dialog),'place-parameters'],
                                                             [jQuery('.pgf-cell-place-modifiers-button', dialog), 'place-modifiers'],
                                                             [jQuery('.pgf-cell-place-chronicle-button', dialog), 'place-chronicle'],
                                                             [jQuery('.pgf-cell-building-button', dialog), 'building'],

@@ -43,7 +43,7 @@ class MoveNearActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
+    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 1.0)
     def test_processed(self):
 
         current_time = TimePrototype.get_current_time()
@@ -63,7 +63,7 @@ class MoveNearActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('game.balance.constants.BATTLES_PER_TURN', 0)
+    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 1.0)
     def test_not_ready(self):
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 2)
@@ -127,7 +127,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
-    @mock.patch('game.balance.constants.BATTLES_PER_TURN', 1.0)
+    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 0.0)
     def test_battle(self):
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionBattlePvE1x1Prototype.TYPE)

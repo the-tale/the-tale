@@ -960,14 +960,13 @@ class HeroPositionPrototype(object):
             return map_info_storage.item.get_dominant_place(*self.cell_coordinates)
 
     def is_battle_start_needed(self):
-        battles_per_turn = c.BATTLES_PER_TURN
-
         dominant_place = self.get_dominant_place()
-
-        if dominant_place and dominant_place.modifier:
-            battles_per_turn = dominant_place.modifier.modify_battles_per_turn(battles_per_turn)
-
+        battles_per_turn = 1.0 - dominant_place.safety
         return random.uniform(0, 1) <= battles_per_turn
+
+    def modify_move_speed(self, speed):
+        dominant_place = self.get_dominant_place()
+        return speed * dominant_place.transport
 
     ###########################################
     # Object operations

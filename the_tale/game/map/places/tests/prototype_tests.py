@@ -12,12 +12,14 @@ from game.balance.enums import RACE
 from game.prototypes import TimePrototype
 from game.logic import create_test_map
 from game.heroes.prototypes import HeroPrototype
+from game.balance import constants as c
 
 from game.map.conf import map_settings
 
 from game.map.places.models import Building
 from game.map.places.prototypes import BuildingPrototype
 from game.map.places.storage import places_storage, buildings_storage
+from game.map.places.conf import places_settings
 
 
 class PlacePrototypeTests(testcase.TestCase):
@@ -59,6 +61,48 @@ class PlacePrototypeTests(testcase.TestCase):
             self.p1.sync_race()
 
         self.assertEqual(signal_counter.call_count, 1)
+
+    def test_sync_size__good_changing(self):
+        self.p1.production = 10
+
+        self.assertEqual(self.p1.goods, 0)
+        self.p1.sync_size(2)
+        self.assertEqual(self.p1.goods, 20)
+
+        self.p1.production = -10
+        self.p1.goods = 11
+        self.p1.sync_size(1)
+        self.assertEqual(self.p1.goods, 1)
+
+    def test_sync_size__size_increased(self):
+        self.p1.production = 10
+
+        self.p1.goods = c.PLACE_GOODS_TO_LEVEL
+        self.p1.size = 1
+        self.p1.sync_size(1)
+        self.assertEqual(self.p1.goods, c.PLACE_GOODS_TO_LEVEL * c.PLACE_GOODS_AFTER_LEVEL_UP)
+        self.assertEqual(self.p1.size, 2)
+
+        self.p1.goods = c.PLACE_GOODS_TO_LEVEL
+        self.p1.size = 10
+        self.p1.sync_size(1)
+        self.assertEqual(self.p1.goods, c.PLACE_GOODS_TO_LEVEL)
+        self.assertEqual(self.p1.size, 10)
+
+    def test_sync_size__size_decreased(self):
+        self.p1.production = -10
+
+        self.p1.goods = 0
+        self.p1.size = 2
+        self.p1.sync_size(1)
+        self.assertEqual(self.p1.goods, c.PLACE_GOODS_TO_LEVEL * c.PLACE_GOODS_AFTER_LEVEL_DOWN)
+        self.assertEqual(self.p1.size, 1)
+
+        self.p1.goods = 0
+        self.p1.size = 1
+        self.p1.sync_size(1)
+        self.assertEqual(self.p1.goods, 0)
+        self.assertEqual(self.p1.size, 1)
 
 
 

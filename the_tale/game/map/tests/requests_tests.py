@@ -62,7 +62,7 @@ class CellInfoTests(RequestsTestsBase):
         self.place_1.modifier = TradeCenter(self.place_1)
         self.place_1.save()
 
-        texts = [('pgf-current-modifier-marker', 1)] + [(modifier.NAME, 1 if modifier != TradeCenter else 2) for modifier in MODIFIERS.values()]
+        texts = [('pgf-current-modifier-marker', 1)]
 
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 

@@ -90,6 +90,8 @@ pgf.ui.dialog.Create = function(params) {
         var OnShown = function(e) {
             if (!$(e.target).is(dialog)) return;
 
+            pgf.base.AutoFormatTime();
+
             if (params.OnOpened) {
                 params.OnOpened(dialog);
             }

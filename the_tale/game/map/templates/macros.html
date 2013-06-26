@@ -1,0 +1,32 @@
+
+
+{% macro power_incoming_tooltip(description, power_effects, result_text=none, result_multiplier=none, percents=false) %}
+
+<p style='text-align: left;'>
+  <i>{{description}}</i>
+</p>
+
+<ul class='unstyled' style='text-align: left; width: 300px;'>
+  {% for name, power in  power_effects %}
+  <li>
+    {{name}}
+    {% if not percents %}
+    <span class='pull-right'
+          style='margin-right: 5em; color:{%if power>1%}Chartreuse{%elif power<-1%}red{%else%}yellow{%endif%};'>{{power|round(2)}}</span>
+    {% else %}
+    <span class='pull-right'
+          style='margin-right: 5em; color:{%if power>0.01%}Chartreuse{%elif power<-0.01%}red{%else%}yellow{%endif%};'>{{power|percents(2)}}</span>
+    {% endif %}
+  </li>
+  {% endfor %}
+
+  {% if result_text %}
+  <hr style='margin-right: 5em;'/>
+  <li>
+    {{result_text}}
+    <span class='pull-right' style='margin-right: 5em;'>x {{result_multiplier}}</span>
+  </li>
+  {% endif %}
+</ul>
+
+{% endmacro %}

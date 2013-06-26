@@ -8,6 +8,8 @@ from game.balance.enums import CITY_MODIFIERS, RACE
 
 from game.map.places.relations import BUILDING_TYPE, BUILDING_STATE
 
+from game.balance import constants as c
+
 
 class Place(models.Model):
 
@@ -17,6 +19,7 @@ class Place(models.Model):
     y = models.BigIntegerField(null=False)
 
     updated_at_turn = models.BigIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True, null=False)
 
     name = models.CharField(max_length=MAX_NAME_LENGTH, null=False, db_index=True)
 
@@ -24,7 +27,15 @@ class Place(models.Model):
 
     description = models.TextField(null=False, default=u'', blank=True)
 
-    size = models.IntegerField(null=False) # specify size of the place
+    size = models.IntegerField(null=False)
+    expected_size = models.IntegerField(default=0)
+
+    goods = models.IntegerField(default=0)
+
+    production = models.IntegerField(default=c.PLACE_GOODS_BONUS)
+    safety = models.FloatField(default=1.0-c.BATTLES_PER_TURN)
+    freedom = models.FloatField(default=1.0)
+    transport = models.FloatField(default=1.0)
 
     data = models.TextField(null=False, default=u'{}')
 

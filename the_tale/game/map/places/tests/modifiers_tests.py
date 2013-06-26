@@ -31,8 +31,7 @@ class ModifiersTests(testcase.TestCase):
         self.assertTrue(any(CraftCenter(self.place_1).can_buy_better_artifact() for i in xrange(100)))
 
     def test_fort(self):
-        self.assertEqual(CraftCenter(self.place_1).modify_battles_per_turn(100), 100)
-        self.assertTrue(Fort(self.place_1).modify_battles_per_turn(0.2) < 0.2)
+        self.assertEqual(Fort.SAFETY_MODIFIER, 0.05)
 
     def test_political_center(self):
         self.assertEqual(Fort(self.place_1).modify_power(100), 100)
@@ -40,11 +39,11 @@ class ModifiersTests(testcase.TestCase):
         self.assertTrue(PoliticalCenter(self.place_1).modify_power(-100) < -100)
 
     def test_polic(self):
-        self.assertEqual(CraftCenter(self.place_1).modify_place_size(100), 100)
+        self.assertEqual(CraftCenter(self.place_1).modify_economic_size(100), 100)
         self.assertEqual(CraftCenter(self.place_1).modify_terrain_change_power(100), 100)
 
-        self.assertEqual(Polic(self.place_1).modify_place_size(places_settings.MAX_SIZE+2), places_settings.MAX_SIZE)
-        self.assertTrue(Polic(self.place_1).modify_place_size(1) > 1)
+        self.assertEqual(Polic(self.place_1).modify_economic_size(places_settings.MAX_SIZE+2), places_settings.MAX_SIZE+2)
+        self.assertTrue(Polic(self.place_1).modify_economic_size(1) > 1)
         self.assertTrue(Polic(self.place_1).modify_terrain_change_power(100) > 100)
 
     def test_resort(self):
@@ -52,5 +51,4 @@ class ModifiersTests(testcase.TestCase):
         self.assertTrue(Resort(self.place_1).full_regen_allowed())
 
     def test_transport_node(self):
-        self.assertEqual(CraftCenter(self.place_1).modify_move_speed(100), 100)
-        self.assertTrue(TransportNode(self.place_1).modify_move_speed(100) > 100)
+        self.assertTrue(TransportNode.TRANSPORT_MODIFIER, 0.2)
