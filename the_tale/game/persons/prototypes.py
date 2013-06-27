@@ -71,15 +71,15 @@ class PersonPrototype(BasePrototype):
 
     @property
     def safety(self):
-        return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.SAFETY.value]
+        return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.SAFETY.value] * c.PLACE_SAFETY_FROM_BEST_PERSON
 
     @property
     def freedom(self):
-        return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.FREEDOM.value]
+        return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.FREEDOM.value] * c.PLACE_FREEDOM_FROM_BEST_PERSON
 
     @property
     def transport(self):
-        return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.TRANSPORT.value]
+        return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.TRANSPORT.value] * c.PLACE_TRANSPORT_FROM_BEST_PERSON
 
     @property
     def has_building(self): return buildings_storage.get_by_person_id(self.id) is not None

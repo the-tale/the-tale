@@ -335,8 +335,9 @@ class QuestPrototype(BasePrototype):
     def cmd_switch(self, cmd, cur_action, writer):
         self.push_message(writer, cur_action.hero, cmd.event)
 
-    def modify_person_power(self, quest_power, hero_modifier, base_power):
-        return quest_power * hero_modifier * base_power
+    @classmethod
+    def modify_person_power(cls, person, quest_power, hero_modifier, base_power):
+        return quest_power * hero_modifier * base_power * person.place.freedom
 
     def cmd_give_power(self, cmd, cur_action, writer):
         from game.persons.storage import persons_storage
@@ -349,10 +350,10 @@ class QuestPrototype(BasePrototype):
 
         base_power = self.rewards[current_quest.id]['power']
 
-        power = self.modify_person_power(cmd.power, cur_action.hero.person_power_modifier, base_power)
-
         person_data = self.env.persons[cmd.person]
         person = persons_storage.get(person_data['external_data']['id'])
+
+        power = self.modify_person_power(person, cmd.power, cur_action.hero.person_power_modifier, base_power)
 
         if power > 0:
             cur_action.hero.places_history.add_place(person.place_id)

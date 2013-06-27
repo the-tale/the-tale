@@ -24,7 +24,7 @@ class PrototypeTests(testcase.TestCase):
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()
 
-        create_test_map()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
 
@@ -91,6 +91,31 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(len(self.hero.places_history.history) > 1)
 
         self.assertEqual(fake_cmd.call_count, 0)
+
+    def test_power_on_end_quest__modify_person_power_called(self):
+
+        modify_person_power = mock.Mock(return_value=1)
+        with mock.patch('game.quests.prototypes.QuestPrototype.modify_person_power', modify_person_power):
+            self.hero.is_fast = False
+            self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+
+            self.assertEqual(self.hero.places_history.history, [])
+
+            with mock.patch('game.workers.environment.workers_environment.highlevel.cmd_change_person_power') as fake_cmd:
+                self.complete_quest()
+
+            self.assertTrue(fake_cmd.call_count > 0)
+            self.assertTrue(modify_person_power.call_count > 0)
+
+    def test_modify_person_power(self):
+        person = self.place_1.persons[0]
+
+        with mock.patch('game.map.places.prototypes.PlacePrototype.freedom', 0.0):
+            self.assertEqual(QuestPrototype.modify_person_power(person, 2, 3, 5), 0)
+
+        with mock.patch('game.map.places.prototypes.PlacePrototype.freedom', 7):
+            self.assertEqual(QuestPrototype.modify_person_power(person, 2, 3, 5), 2*3*5*7)
+
 
     def test_get_minimum_created_time_of_active_quests(self):
         self.assertEqual(self.quest._model.created_at, QuestPrototype.get_minimum_created_time_of_active_quests())

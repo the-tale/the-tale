@@ -52,7 +52,7 @@ class MoveToActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 1.0)
+    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_not_ready(self):
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 2)
@@ -82,12 +82,8 @@ class MoveToActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
-    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 1.0)
-    def test_modify_speed_in_transport_node(self):
-
-        from game.map.places.modifiers.prototypes import TransportNode
-
-        self.hero.position.place.modifier = TransportNode(self.hero.position.place)
+    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    def test_modify_speed(self):
 
         with mock.patch('game.heroes.prototypes.HeroPositionPrototype.modify_move_speed',
                         mock.Mock(return_value=self.hero.move_speed)) as speed_modifier_call_counter:
@@ -95,7 +91,7 @@ class MoveToActionTest(testcase.TestCase):
 
         self.assertEqual(speed_modifier_call_counter.call_count, 1)
 
-    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 1.0)
+    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_short_teleport(self):
 
         current_time = TimePrototype.get_current_time()
@@ -118,7 +114,7 @@ class MoveToActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 0.0)
+    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: True)
     def test_battle(self):
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionBattlePvE1x1Prototype.TYPE)
@@ -186,7 +182,7 @@ class MoveToActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 1.0)
+    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_inplace(self):
 
         current_time = TimePrototype.get_current_time()

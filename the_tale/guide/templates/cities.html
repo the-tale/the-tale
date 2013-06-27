@@ -29,11 +29,28 @@
   </tbody>
 </table>
 
-<h4>Размер города</h4>
+<h4>Параметры города</h4>
 
 <p>
-  Размер города влияет на максимальное количество персонажей в нём, на размер области карты, которая к нему относится и развитие специализации. Зависит от <strong>изменения</strong> влияния персонажей в городе за определённый период (примерное количество недель: {{places_settings.POWER_HISTORY_WEEKS}}).
+  Каждый город обладает набором параметров, которые описывают его текущее состояние. Узнать их значения можно в диалоге информации о городе.
 </p>
+
+<table class="table table-striped table-bordered table-condensed">
+  <caption><h4>Параметры города</h4></caption>
+  <thead>
+    <tr><th width="150px;">название</th><th>описание</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>{{PlaceParametersDescription.PLACE_SIZE[0]}}</td><td>{{PlaceParametersDescription.PLACE_SIZE[1]|safe}}</td></tr>
+    <tr><td>{{PlaceParametersDescription.ECONOMIC_SIZE[0]}}</td><td>{{PlaceParametersDescription.ECONOMIC_SIZE[1]|safe}}</td></tr>
+    <tr><td>{{PlaceParametersDescription.TERRAIN_RADIUS[0]}}</td><td>{{PlaceParametersDescription.TERRAIN_RADIUS[1]|safe}}</td></tr>
+    <tr><td>{{PlaceParametersDescription.PRODUCTION[0]}}</td><td>{{PlaceParametersDescription.PRODUCTION[1]|safe}}</td></tr>
+    <tr><td>{{PlaceParametersDescription.GOODS[0]}}</td><td>{{PlaceParametersDescription.GOODS[1]|safe}}</td></tr>
+    <tr><td>{{PlaceParametersDescription.SAFETY[0]}}</td><td>{{PlaceParametersDescription.SAFETY[1]|safe}}</td></tr>
+    <tr><td>{{PlaceParametersDescription.TRANSPORT[0]}}</td><td>{{PlaceParametersDescription.TRANSPORT[1]|safe}}</td></tr>
+    <tr><td>{{PlaceParametersDescription.FREEDOM[0]}}</td><td>{{PlaceParametersDescription.FREEDOM[1]|safe}}</td></tr>
+  </tbody>
+</table>
 
 
 {% endblock %}

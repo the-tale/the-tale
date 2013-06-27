@@ -19,7 +19,7 @@ from game.map.conf import map_settings
 from game.map.places.models import Building
 from game.map.places.prototypes import BuildingPrototype
 from game.map.places.storage import places_storage, buildings_storage
-from game.map.places.conf import places_settings
+from game.map.places import modifiers
 
 
 class PlacePrototypeTests(testcase.TestCase):
@@ -104,6 +104,40 @@ class PlacePrototypeTests(testcase.TestCase):
         self.assertEqual(self.p1.goods, 0)
         self.assertEqual(self.p1.size, 1)
 
+    @mock.patch('game.balance.formulas.place_goods_production', lambda size: 100 if size < 5 else 1000)
+    @mock.patch('game.map.places.modifiers.prototypes.CraftCenter.PRODUCTION_MODIFIER', 10000)
+    @mock.patch('game.persons.prototypes.PersonPrototype.production', 1)
+    def test_sync_sync_parameters__production(self):
+        self.p1.modifier = modifiers.CraftCenter.get_id()
+        self.p1.size = 1
+        self.p1.expected_size = 6
+        self.p1.sync_parameters()
+
+        self.assertTrue(-0.001 < self.p1.production - (10900 + len(self.p1.persons)) < 0.001)
+
+    @mock.patch('game.map.places.modifiers.prototypes.Fort.SAFETY_MODIFIER', 0.01)
+    @mock.patch('game.persons.prototypes.PersonPrototype.safety', -0.001)
+    def test_sync_sync_parameters__safety(self):
+        self.p1.modifier = modifiers.Fort.get_id()
+        self.p1.sync_parameters()
+
+        self.assertTrue(-0.001 < self.p1.safety - (1.0 - c.BATTLES_PER_TURN + 0.01 - 0.001 * len(self.p1.persons)) < 0.001)
+
+    @mock.patch('game.map.places.modifiers.prototypes.TransportNode.TRANSPORT_MODIFIER', 0.01)
+    @mock.patch('game.persons.prototypes.PersonPrototype.transport', 0.001)
+    def test_sync_sync_parameters__transport(self):
+        self.p1.modifier = modifiers.TransportNode.get_id()
+        self.p1.sync_parameters()
+
+        self.assertTrue(-0.001 < self.p1.transport - (1.0 + 0.01 + 0.001 * len(self.p1.persons)) < 0.001)
+
+    @mock.patch('game.map.places.modifiers.prototypes.Polic.FREEDOM_MODIFIER', 0.01)
+    @mock.patch('game.persons.prototypes.PersonPrototype.freedom', 0.001)
+    def test_sync_sync_parameters__freedom(self):
+        self.p1.modifier = modifiers.Polic.get_id()
+        self.p1.sync_parameters()
+
+        self.assertTrue(-0.001 < self.p1.freedom - (1.0 + 0.01 + 0.001 * len(self.p1.persons)) < 0.001)
 
 
 class BuildingPrototypeTests(testcase.TestCase):

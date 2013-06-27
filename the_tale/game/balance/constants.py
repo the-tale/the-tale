@@ -22,14 +22,14 @@ EQUIP_SLOTS_NUMBER = int(11) # количество слотов экипиро�
 ARTIFACTS_PER_LVL = int(4) # количество новых артефактов, на уровень героя
 
 EXP_PENALTY_MULTIPLIER = float(0.25) # процент опыта при замедленной прокачке
-EXP_PER_HOUR = int(15)  # опыт в час
+EXP_PER_HOUR = int(10)  # опыт в час
 EXP_PER_QUEST_FRACTION = float(0.33) # разброс опыта за задание
 
 
 HERO_MOVE_SPEED = float(0.3) # базовая скорость героя расстояние в ход
 
 BATTLE_LENGTH = int(16) # ходов - средняя длительность одного боя (количество действий в бой)
-INTERVAL_BETWEEN_BATTLES = int(5) # ходов - время, между двумя битвами
+INTERVAL_BETWEEN_BATTLES = int(3) # ходов - время, между двумя битвами
 
 BATTLES_BEFORE_HEAL = int(8) # количество боёв в непрерывной цепочке битв
 
@@ -94,7 +94,7 @@ ARTIFACT_POWER_DELTA = float(0.2) # дельта, на которую может
 BATTLES_LINE_LENGTH = int(BATTLES_BEFORE_HEAL * (BATTLE_LENGTH + INTERVAL_BETWEEN_BATTLES ) - INTERVAL_BETWEEN_BATTLES)
 
 # количество битв в ход в промежутке непрерывных боёв
-BATTLES_PER_TURN = float(1.0 / INTERVAL_BETWEEN_BATTLES)
+BATTLES_PER_TURN = float(1.0 / (INTERVAL_BETWEEN_BATTLES + 1) )
 
 HEAL_LENGTH = int(math.floor(BATTLES_LINE_LENGTH * HEAL_TIME_FRACTION)) # ходов - длительность лечения героя
 
@@ -286,7 +286,7 @@ PLACE_GOODS_TO_LEVEL = PLACE_GOODS_BONUS * (1 + 3) * 24 # 1 город + 3 пе�
 PLACE_GOODS_AFTER_LEVEL_UP = float(0.25) # процент товаров, остающихся при увеличении размера города
 PLACE_GOODS_AFTER_LEVEL_DOWN = float(0.75) # процент товаров, возвращающихся при уменьшении размера города
 
-PLACE_SAFETY_FROM_BEST_PERSON = 0.02
+PLACE_SAFETY_FROM_BEST_PERSON = 0.05
 PLACE_TRANSPORT_FROM_BEST_PERSON = 0.05
 PLACE_FREEDOM_FROM_BEST_PERSON = 0.05
 

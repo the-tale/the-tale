@@ -154,7 +154,7 @@ class Worker(BaseWorker):
             expected_size = int(places_settings.MAX_SIZE * float(i) / places_number) + 1
             if place.modifier:
                 expected_size = place.modifier.modify_economic_size(expected_size)
-            place.expected_size = expected_size
+            place.set_expected_size(expected_size)
 
             place.sync_size(c.MAP_SYNC_TIME_HOURS)
             place.sync_persons()

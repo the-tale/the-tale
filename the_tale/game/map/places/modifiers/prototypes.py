@@ -103,7 +103,7 @@ class TradeCenter(PlaceModifierBase):
     TYPE = e.CITY_MODIFIERS.TRADE_CENTER
     PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.TRADE_CENTER)
     NAME = u'Торговый центр'
-    DESCRIPTION = u'В городе идёт оживлённая торговля, поэтому герои всегда могут найти выгодную цену для продажи своих трофеев или покупки артефактов.'
+    DESCRIPTION = u'В городе идёт оживлённая торговля, поэтому герои всегда могут найти выгодную цену для продажи своих трофеев или покупки артефактов. Увеличивается производство и уровень свободы в городе.'
 
     PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS / 2
     FREEDOM_MODIFIER = 0.1
@@ -117,7 +117,7 @@ class CraftCenter(PlaceModifierBase):
     TYPE = e.CITY_MODIFIERS.CRAFT_CENTER
     PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.CRAFT_CENTER)
     NAME = u'Город мастеров'
-    DESCRIPTION = u'Большое количество мастеров, трудящихся в городе, позволяет героям приобретать лучшие артефакты.'
+    DESCRIPTION = u'Большое количество мастеров, трудящихся в городе, позволяет героям приобретать лучшие артефакты. Увеличивается уровень производства в гроде.'
 
     PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS
 
@@ -138,7 +138,7 @@ class PoliticalCenter(PlaceModifierBase):
     TYPE = e.CITY_MODIFIERS.POLITICAL_CENTER
     PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.POLITICAL_CENTER)
     NAME = u'Политический центр'
-    DESCRIPTION = u'Активная политическая жизнь приводит к тому, что усиливаются все изменения влияния (и положительные и отрицательные).'
+    DESCRIPTION = u'Активная политическая жизнь приводит к тому, что усиливаются все изменения влияния (и положительные и отрицательные) — увеличивается уровень свободы в городе.'
 
     FREEDOM_MODIFIER = 0.25
 
@@ -149,11 +149,11 @@ class Polic(PlaceModifierBase):
     TYPE = e.CITY_MODIFIERS.POLIC
     PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.POLIC)
     NAME = u'Полис'
-    DESCRIPTION = u'Самостоятельная политика города вместе с большими свободами граждан способствует увеличению размера и широкому распространению влияния.'
+    DESCRIPTION = u'Самостоятельная политика города вместе с большими свободами граждан способствует увеличению размера экономики и уровня свободы в городе.'
 
     FREEDOM_MODIFIER = 0.1
 
-    def modify_econimic_size(self, size): return size + 1
+    def modify_economic_size(self, size): return size + 1
     def modify_terrain_change_power(self, power): return power * 1.2
 
 
@@ -162,7 +162,7 @@ class Resort(PlaceModifierBase):
     TYPE = e.CITY_MODIFIERS.RESORT
     PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.RESORT)
     NAME = u'Курорт'
-    DESCRIPTION = u'Город прославлен своими здравницами и особой атмосферой, в которой раны затягиваются особенно быстро. При посещении города герои полностью восстанавливают своё здоровье.'
+    DESCRIPTION = u'Город прославлен своими здравницами и особой атмосферой, в которой раны затягиваются особенно быстро. При посещении города герои полностью восстанавливают своё здоровье. Увеличивается уровень безопасности города и уровень свободы.'
 
     FREEDOM_MODIFIER = 0.1
     SAFETY_MODIFIER = 0.01
@@ -174,7 +174,7 @@ class TransportNode(PlaceModifierBase):
     TYPE = e.CITY_MODIFIERS.TRANSPORT_NODE
     PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.TRANSPORT_NODE)
     NAME = u'Транспортный узел'
-    DESCRIPTION = u'Хорошие дороги и обилие гостиниц делает путешествие по дорогам в окрестностях города быстрым и комфортным.'
+    DESCRIPTION = u'Хорошие дороги и обилие гостиниц делает путешествие по дорогам в окрестностях города быстрым и комфортным. Увеличивается уровень транспорта в городе.'
 
     TRANSPORT_MODIFIER = 0.2
 

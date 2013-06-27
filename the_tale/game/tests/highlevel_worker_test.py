@@ -1,5 +1,6 @@
 # coding: utf-8
 import mock
+import contextlib
 
 from dext.settings import settings
 
@@ -104,6 +105,35 @@ class HighlevelTest(testcase.TestCase):
         self.assertFalse(self.worker.initialized)
         self.assertTrue(self.worker.stop_required)
 
+    def test_sync_data__places_methods_called(self):
+        # all that methods tested in places package
+        set_expected_size = mock.Mock()
+        sync_size = mock.Mock()
+        sync_persons = mock.Mock()
+        sync_modifier = mock.Mock()
+        sync_parameters = mock.Mock()
+        update_heroes_number = mock.Mock()
+        mark_as_updated = mock.Mock()
+
+        with contextlib.nested(mock.patch('game.map.places.prototypes.PlacePrototype.set_expected_size', set_expected_size),
+                               mock.patch('game.map.places.prototypes.PlacePrototype.sync_size', sync_size),
+                               mock.patch('game.map.places.prototypes.PlacePrototype.sync_persons', sync_persons),
+                               mock.patch('game.map.places.prototypes.PlacePrototype.sync_modifier', sync_modifier),
+                               mock.patch('game.map.places.prototypes.PlacePrototype.sync_parameters', sync_parameters),
+                               mock.patch('game.map.places.prototypes.PlacePrototype.update_heroes_number', update_heroes_number),
+                               mock.patch('game.map.places.prototypes.PlacePrototype.mark_as_updated', mark_as_updated)):
+            self.worker.sync_data()
+
+        places_number = len(places_storage.all())
+
+        self.assertEqual(set_expected_size.call_count, places_number)
+        self.assertEqual(sync_size.call_count, places_number)
+        self.assertEqual(sync_persons.call_count, places_number)
+        self.assertEqual(sync_modifier.call_count, places_number)
+        self.assertEqual(sync_parameters.call_count, places_number)
+        self.assertEqual(update_heroes_number.call_count, places_number)
+        self.assertEqual(mark_as_updated.call_count, places_number)
+
     def test_sync_data(self):
         from game.map.places.modifiers.prototypes import TradeCenter
 
@@ -145,9 +175,6 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(self.p2.power, 1100)
         self.assertEqual(self.p3.power, 110000)
 
-        self.assertTrue(self.p1.size < self.p2.size)
-        self.assertTrue(self.p2.size == self.p3.size) # since size changed only to +-1
-
         self.worker.process_change_person_power(person_id=self.p1.persons[0].id, power_delta=-10)
         self.worker.process_change_person_power(person_id=self.p2.persons[0].id, power_delta=-1)
         self.worker.process_change_person_power(person_id=self.p2.persons[0].id, power_delta=+10000000)
@@ -167,19 +194,6 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(self.p1.power, 0)
         self.assertEqual(self.p2.power, 10001099)
         self.assertEqual(self.p3.power, 110018)
-
-        self.assertTrue(self.p1.expected_size < self.p3.expected_size < self.p2.expected_size)
-
-        # test resulting persons list
-        self.assertEqual(len(persons_storage.filter(state=PERSON_STATE.OUT_GAME)), 0) # now, persons removed by players throught bills
-        self.assertEqual(Person.objects.filter(state=PERSON_STATE.OUT_GAME).count(), 0)
-        self.assertEqual(len(persons_storage.filter(state=PERSON_STATE.IN_GAME)), 9)
-        self.assertEqual(Person.objects.filter(state=PERSON_STATE.IN_GAME).count(), 9)
-
-        # test persons by places
-        self.assertEqual(Person.objects.filter(place_id=self.p1.id).count(), 2)
-        self.assertEqual(Person.objects.filter(place_id=self.p2.id).count(), 4)
-        self.assertEqual(Person.objects.filter(place_id=self.p3.id).count(), 3)
 
         self.assertTrue(len(set((persons_version_0, persons_version_1, persons_version_2))), 3)
         self.assertTrue(len(set((places_version_0, places_version_1, places_version_2))), 3)

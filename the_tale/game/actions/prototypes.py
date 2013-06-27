@@ -1179,14 +1179,14 @@ class ActionMoveNearPlacePrototype(ActionBase):
             self.state = self.STATE.BATTLE
 
         else:
-
             if random.uniform(0, 1) < 0.2:
                 self.hero.add_message('action_movenearplace_walk', hero=self.hero, place=self.place)
 
             if self.hero.position.subroad_len() == 0:
                 self.hero.position.percents += 0.1
             else:
-                delta = self.hero.move_speed / self.hero.position.subroad_len()
+                move_speed = self.hero.position.modify_move_speed(self.hero.move_speed)
+                delta = move_speed / self.hero.position.subroad_len()
                 self.hero.position.percents += delta
 
             self.percents = self.hero.position.percents

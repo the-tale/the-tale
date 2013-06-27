@@ -14,6 +14,7 @@ from game.chronicle import RecordPrototype
 
 from game.map.storage import map_info_storage
 from game.map.places.storage import places_storage, buildings_storage
+from game.map.places.prototypes import PlaceParametersDescription
 from game.map.conf import map_settings
 from game.map.relations import TERRAIN
 
@@ -71,6 +72,7 @@ class MapResource(Resource):
                               'terrain': terrain,
                               'nearest_place_name': nearest_place_name,
                               'dominant_race': dominant_race,
+                              'PlaceParametersDescription': PlaceParametersDescription,
                               'x': x,
                               'y': y,
                               'terrain_points': terrain_points,

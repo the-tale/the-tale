@@ -42,9 +42,9 @@ class ModifiersTests(testcase.TestCase):
         self.assertEqual(CraftCenter(self.place_1).modify_economic_size(100), 100)
         self.assertEqual(CraftCenter(self.place_1).modify_terrain_change_power(100), 100)
 
-        self.assertEqual(Polic(self.place_1).modify_economic_size(places_settings.MAX_SIZE+2), places_settings.MAX_SIZE+2)
-        self.assertTrue(Polic(self.place_1).modify_economic_size(1) > 1)
-        self.assertTrue(Polic(self.place_1).modify_terrain_change_power(100) > 100)
+        self.assertEqual(Polic(self.place_1).modify_economic_size(places_settings.MAX_SIZE+2), places_settings.MAX_SIZE+3)
+        self.assertTrue(Polic(self.place_1).modify_economic_size(1), 2)
+        self.assertTrue(Polic(self.place_1).modify_terrain_change_power(100), 120)
 
     def test_resort(self):
         self.assertFalse(CraftCenter(self.place_1).full_regen_allowed())

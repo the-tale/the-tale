@@ -194,6 +194,35 @@ class HeroTest(TestCase):
         self.assertTrue(heroes_settings.UI_CACHING_TIMEOUT > c.TURN_DELTA)
 
 
+class HeroPositionTest(TestCase):
+
+    def setUp(self):
+        super(HeroPositionTest, self).setUp()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.storage = LogicStorage()
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
+
+    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 1.0)
+    def test_is_battle_start_needed__safety(self):
+        self.assertTrue(all(not self.hero.position.is_battle_start_needed() for i in xrange(100)))
+
+    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 0.0)
+    def test_is_battle_start_needed__no_safety(self):
+        self.assertTrue(all(self.hero.position.is_battle_start_needed() for i in xrange(100)))
+
+    @mock.patch('game.map.places.prototypes.PlacePrototype.transport', 0.5)
+    def test_modify_move_speed__less(self):
+        self.assertEqual(self.hero.position.modify_move_speed(10), 5)
+
+    @mock.patch('game.map.places.prototypes.PlacePrototype.transport', 2.0)
+    def test_modify_move_speed_greater(self):
+        self.assertEqual(self.hero.position.modify_move_speed(10), 20.0)
+
+
 class HeroLevelUpTests(TestCase):
 
     def setUp(self):

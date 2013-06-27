@@ -155,67 +155,76 @@
             <th>информация</th>
           </tr>
           <tr>
-            <th>размер города</th><td>{{place.size}}</td>
+            <th>{{PlaceParametersDescription.PLACE_SIZE[0]}}</th><td>{{place.size}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
-                 title="Текущий размер города">
+                 title="{{PlaceParametersDescription.PLACE_SIZE[1]}}">
                 подробнее
               </a>
             </td>
           <tr>
-            <th>размер экономики</th><td>{{place.expected_size}}</td>
+            <th>{{PlaceParametersDescription.ECONOMIC_SIZE[0]}}</th><td>{{place.expected_size}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
-                 title="Размер экономики города.<br/>Зависит от заданий, выполянемых героями.">
+                 title="{{PlaceParametersDescription.ECONOMIC_SIZE[1]}}">
                 подробнее
               </a>
             </td>
           </tr>
           <tr>
-            <th>производство</th> <td>{{place.production}}</td>
+            <th>{{PlaceParametersDescription.TERRAIN_RADIUS[0]}}</th><td>{{place.terrain_radius}} кл</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
-                 title="{{map_macros.power_incoming_tooltip('Скорость производства товаров зависит от размера города, его экономики и от персонажей, проживающих в нём.',
+                 title="{{PlaceParametersDescription.TERRAIN_RADIUS[1]}}">
+                подробнее
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <th>{{PlaceParametersDescription.PRODUCTION[0]}}</th> <td>{{place.production}}</td>
+            <td>
+              <a href="javascript: return;" class="info-link" rel="tooltip"
+                 title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.PRODUCTION[1],
                                                             place.get_production_powers())}}">
                 подробнее
               </a>
             </td>
           </tr>
           <tr>
-            <th>товары</th> <td>{{place.goods}} / {{c.PLACE_GOODS_TO_LEVEL}}</td>
+            <th>{{PlaceParametersDescription.GOODS[0]}}</th> <td>{{place.goods}} / {{c.PLACE_GOODS_TO_LEVEL}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
-                 title="Чтобы расти, город должен производить товары. Если их накапливается достаточно, то размер города увелививается. Если товары кончаются, то уменьшается.">
+                 title="{{PlaceParametersDescription.GOODS[1]}}">
                 подробнее
               </a>
             </td>
           </tr>
           <tr>
-            <th>безопасность</th> <td>{{place.safety|percents(2)}}</td>
+            <th>{{PlaceParametersDescription.SAFETY[0]}}</th> <td>{{place.safety|percents(2)}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
-                 title="{{map_macros.power_incoming_tooltip('Насколько безопасно в окрестностях города.',
+                 title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.SAFETY[1],
                                                             place.get_safety_powers(), percents=true)}}">
                 подробнее
               </a>
             </td>
           </tr>
           <tr>
-            <th>транспорт</th> <td>{{place.transport|percents(2)}}</td>
+            <th>{{PlaceParametersDescription.TRANSPORT[0]}}</th> <td>{{place.transport|percents(2)}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
-                 title="{{map_macros.power_incoming_tooltip('Скорость передвижения в окрестностях города.',
+                 title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.TRANSPORT[1],
                                                             place.get_transport_powers(), percents=true)}}">
                 подробнее
               </a>
             </td>
           </tr>
           <tr>
-            <th>свобода</th> <td>{{place.freedom|percents(2)}}</td>
+            <th>{{PlaceParametersDescription.FREEDOM[0]}}</th> <td>{{place.freedom|percents(2)}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
-                 title="{{map_macros.power_incoming_tooltip('Скорость изменения влияния персонажей.',
-                                                             place.get_freedom_powers(), percents=true)}}">
+                 title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.FREEDOM[1],
+                                                            place.get_freedom_powers(), percents=true)}}">
                 подробнее
               </a>
             </td>

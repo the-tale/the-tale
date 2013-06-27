@@ -29,6 +29,16 @@ from game.map.places.modifiers import MODIFIERS, PlaceModifierBase
 from game.map.places.relations import BUILDING_STATE
 from game.map.places import signals
 
+class PlaceParametersDescription(object):
+    PLACE_SIZE = (u'размер города', u'Влияет на количество жителей в городе, развитие специализаций и на потребление товаров жителями. Зависит от производства товаров.')
+    ECONOMIC_SIZE = (u'размер экономики', u'Определяет скорость производства товаров городом. Зависит от <strong>изменения</strong> влияния персонажей в городе за определённый период (примерное количество недель: %d).' % places_settings.POWER_HISTORY_WEEKS)
+    TERRAIN_RADIUS = (u'радиус влияния', u'Радиус в котором город может оказывать влияние на карту (в клетках).')
+    PRODUCTION = (u'производство', u'Скорость производства товаров, зависит от размера экономики города и от персонажей, проживающих в нём.')
+    GOODS = (u'товары', u'Чтобы расти, город должен производить товары. Если их накапливается достаточно, то размер города увеличивается. Если товары кончаются, то уменьшается.')
+    SAFETY = (u'безопасность', u'Насколько безопасно в окрестностях города (вероятность пройти по дороге не подвергнувшись нападению).')
+    TRANSPORT = (u'транспорт', u'Уровень развития транспортной инфраструктуры (с какой скоростью герои путешествуют в окрестностях города).')
+    FREEDOM = (u'свобода', u'На сколько активна политическая жизнь в городе (как сильно изменяется влияние персонажей от действий героев).')
+
 
 @add_power_management(places_settings.POWER_HISTORY_LENGTH, PlacesException)
 class PlacePrototype(BasePrototype):
@@ -75,6 +85,10 @@ class PlacePrototype(BasePrototype):
         if self.modifier:
             power = self.modifier.modify_terrain_change_power(power)
         return int(round(power))
+
+    @property
+    def terrain_radius(self):
+        return self.terrain_change_power
 
     def update_heroes_number(self):
         from game.heroes.preferences import HeroPreferences
@@ -181,6 +195,9 @@ class PlacePrototype(BasePrototype):
         self.freedom = sum(power[1] for power in self.get_freedom_powers())
         self.transport = sum(power[1] for power in self.get_transport_powers())
 
+    def set_expected_size(self, expected_size):
+        self.expected_size = expected_size
+
     def sync_size(self, hours):
         self.goods += hours * self.production
 
@@ -203,7 +220,7 @@ class PlacePrototype(BasePrototype):
         powers = [ (u'производство', f.place_goods_production(self.expected_size)),
                    (u'потребление', -f.place_goods_consumption(self.size))]
 
-        if self.modifier and (0.001 < self.modifier.PRODUCTION_MODIFIER or self.modifier.SAFETY_MODIFIER < -0.001):
+        if self.modifier and self.modifier.PRODUCTION_MODIFIER:
             powers.append((self.modifier.NAME, self.modifier.PRODUCTION_MODIFIER))
 
         persons_powers = [(person.name, person.production) for person in self.persons]
@@ -214,30 +231,30 @@ class PlacePrototype(BasePrototype):
         powers = [(u'город', 1.0),
                   (u'монстры', -c.BATTLES_PER_TURN)]
 
-        if self.modifier and (0.001 < self.modifier.SAFETY_MODIFIER or self.modifier.SAFETY_MODIFIER < -0.001):
+        if self.modifier and self.modifier.SAFETY_MODIFIER:
             powers.append((self.modifier.NAME, self.modifier.SAFETY_MODIFIER))
 
-        persons_powers = [(person.name, person.safety * c.PLACE_SAFETY_FROM_BEST_PERSON) for person in self.persons]
+        persons_powers = [(person.name, person.safety) for person in self.persons]
         powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
         return powers
 
     def get_transport_powers(self):
         powers = [(u'дороги', 1.0)]
 
-        if self.modifier and (0.001 < self.modifier.TRANSPORT_MODIFIER or self.modifier.SAFETY_MODIFIER < -0.001):
+        if self.modifier and self.modifier.TRANSPORT_MODIFIER:
             powers.append((self.modifier.NAME, self.modifier.TRANSPORT_MODIFIER))
 
-        persons_powers = [(person.name, person.transport * c.PLACE_TRANSPORT_FROM_BEST_PERSON) for person in self.persons]
+        persons_powers = [(person.name, person.transport) for person in self.persons]
         powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
         return powers
 
     def get_freedom_powers(self):
         powers = [(u'город', 1.0)]
 
-        if self.modifier and (0.001 < self.modifier.FREEDOM_MODIFIER or self.modifier.SAFETY_MODIFIER < -0.001):
+        if self.modifier and self.modifier.FREEDOM_MODIFIER:
             powers.append((self.modifier.NAME, self.modifier.FREEDOM_MODIFIER))
 
-        persons_powers = [(person.name, person.freedom * c.PLACE_FREEDOM_FROM_BEST_PERSON) for person in self.persons]
+        persons_powers = [(person.name, person.freedom) for person in self.persons]
         powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
         return powers
 

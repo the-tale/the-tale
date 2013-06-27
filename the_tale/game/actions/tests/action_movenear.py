@@ -43,7 +43,7 @@ class MoveNearActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 1.0)
+    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_processed(self):
 
         current_time = TimePrototype.get_current_time()
@@ -63,13 +63,23 @@ class MoveNearActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 1.0)
+    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_not_ready(self):
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 2)
         self.assertEqual(self.hero.actions.current_action, self.action_move)
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place) # can end in start place
         self.storage._test_save()
+
+    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.subroad_len', lambda self: 1)
+    def test_modify_speed(self):
+
+        with mock.patch('game.heroes.prototypes.HeroPositionPrototype.modify_move_speed',
+                        mock.Mock(return_value=self.hero.move_speed)) as speed_modifier_call_counter:
+            self.storage.process_turn()
+
+        self.assertEqual(speed_modifier_call_counter.call_count, 1)
 
     def test_full_move_and_back(self):
 
@@ -127,7 +137,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
-    @mock.patch('game.map.places.prototypes.PlacePrototype.safety', 0.0)
+    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: True)
     def test_battle(self):
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionBattlePvE1x1Prototype.TYPE)

@@ -66,8 +66,10 @@ class GuideResource(Resource):
     @handler('cities', method='get')
     def cities(self):
         from game.map.places.modifiers import MODIFIERS
+        from game.map.places.prototypes import PlaceParametersDescription
         return self.template('guide/cities.html', {'section': 'cities',
                                                    'places_settings': places_settings,
+                                                   'PlaceParametersDescription': PlaceParametersDescription,
                                                    'MODIFIERS': sorted(MODIFIERS.values(), key=lambda modifier: modifier.NAME) })
 
     @handler('politics', method='get')
