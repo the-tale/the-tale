@@ -21,7 +21,7 @@ class PlaceModifierBase(object):
     NAME = None
     DESCRIPTION = None
     PERSON_EFFECTS = None
-    PERSON_POWER_MODIFIER = 10
+    PERSON_POWER_MODIFIER = 20
 
     SAFETY_MODIFIER = 0.0
     PRODUCTION_MODIFIER = 0.0
@@ -177,6 +177,16 @@ class TransportNode(PlaceModifierBase):
     DESCRIPTION = u'Хорошие дороги и обилие гостиниц делает путешествие по дорогам в окрестностях города быстрым и комфортным. Увеличивается уровень транспорта в городе.'
 
     TRANSPORT_MODIFIER = 0.2
+
+
+class Outlaws(PlaceModifierBase):
+    TYPE = e.CITY_MODIFIERS.OUTLAWS
+    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.OUTLAWS)
+    NAME = u'Вольница'
+    DESCRIPTION = u'Город облюбован всевозможными авантюристами, бунтарями, беглыми преступниками, бастардами и просто свободолюбивыми людьми, которые готовы любыми средствами защищать свою свободу и свой уклад. Любое задание, связанное с этим городом, принесёт дополнительные опыт герою. Так же в городе увеличен уровень свободы и уменьшен уровень безопасности.'
+
+    FREEDOM_MODIFIER = 0.35
+    SAFETY_MODIFIER = -0.05
 
 
 MODIFIERS = dict( (modifier.get_id(), modifier)

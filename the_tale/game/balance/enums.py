@@ -35,4 +35,5 @@ CITY_MODIFIERS = create_enum('CITY_MODIFIERS', ( ('TRADE_CENTER', 0, u'Торг�
                                                  ('POLITICAL_CENTER', 3, u'Политический центр'),
                                                  ('POLIC', 4, u'Полис'),
                                                  ('RESORT', 5, u'Курорт'),
-                                                 ('TRANSPORT_NODE', 6, u'Транспортный узел') ))
+                                                 ('TRANSPORT_NODE', 6, u'Транспортный узел'),
+                                                 ('OUTLAWS', 7, u'Вольница')))
