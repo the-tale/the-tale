@@ -315,7 +315,22 @@ class QuestPrototype(BasePrototype):
         self.push_message(writer, cur_action.hero, cmd.event)
         self.quests_start_turn[cmd.quest] = TimePrototype.get_current_turn_number()
 
+    def modify_experience(self, experience):
+        from game.persons.storage import persons_storage
+
+        experience_modifiers = {}
+        # TODO:
+        # here we go by all persons in quest chain
+        # but MUST go only by persons in current_quest
+        for person_data in self.env.persons.values():
+            person = persons_storage.get(person_data['external_data']['id'])
+            experience_modifiers[person.place.id] = person.place.get_experience_modifier()
+
+        experience += experience * sum(experience_modifiers.values())
+        return experience
+
     def cmd_questresult(self, cmd, cur_action, writer):
+
         self.push_message(writer, cur_action.hero, cmd.event)
         current_quest = self.env.get_quest(self.pointer)
 
@@ -326,6 +341,7 @@ class QuestPrototype(BasePrototype):
 
         if current_quest.id in self.rewards:
             experience = self.rewards[current_quest.id]['experience']
+            experience = self.modify_experience(experience)
             cur_action.hero.add_experience(experience)
 
 

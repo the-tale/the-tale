@@ -139,6 +139,13 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.freedom - (1.0 + 0.01 + 0.001 * len(self.p1.persons)) < 0.001)
 
+    def test_get_experience_modifier(self):
+        self.assertEqual(self.p1.get_experience_modifier(), 0.0)
+        self.p1.modifier = modifiers.Polic.get_id()
+        self.assertEqual(self.p1.get_experience_modifier(), 0.0)
+        self.p1.modifier = modifiers.Outlaws.get_id()
+        self.assertEqual(self.p1.get_experience_modifier(), 0.25)
+
 
 class BuildingPrototypeTests(testcase.TestCase):
 

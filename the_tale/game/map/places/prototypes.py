@@ -216,6 +216,9 @@ class PlacePrototype(BasePrototype):
                 self.size = 1
                 self.goods = 0
 
+    def get_experience_modifier(self):
+        return self.modifier.EXPERIENCE_MODIFIER if self.modifier else 0
+
     def get_production_powers(self):
         powers = [ (u'производство', f.place_goods_production(self.expected_size)),
                    (u'потребление', -f.place_goods_consumption(self.size))]

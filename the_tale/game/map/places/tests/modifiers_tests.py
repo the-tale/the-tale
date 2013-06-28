@@ -6,7 +6,7 @@ from game.logic import create_test_map
 from game.persons.relations import PERSON_TYPE
 
 from game.map.places.modifiers import MODIFIERS
-from game.map.places.modifiers.prototypes import TradeCenter, CraftCenter, Fort, PoliticalCenter, Polic, Resort, TransportNode
+from game.map.places.modifiers.prototypes import TradeCenter, CraftCenter, Fort, PoliticalCenter, Polic, Resort, TransportNode, Outlaws
 from game.map.places.conf import places_settings
 
 class ModifiersTests(testcase.TestCase):
@@ -34,21 +34,24 @@ class ModifiersTests(testcase.TestCase):
         self.assertEqual(Fort.SAFETY_MODIFIER, 0.05)
 
     def test_political_center(self):
-        self.assertEqual(Fort(self.place_1).modify_power(100), 100)
-        self.assertTrue(PoliticalCenter(self.place_1).modify_power(100) > 100)
-        self.assertTrue(PoliticalCenter(self.place_1).modify_power(-100) < -100)
+        self.assertEqual(PoliticalCenter.FREEDOM_MODIFIER, 0.25)
 
     def test_polic(self):
         self.assertEqual(CraftCenter(self.place_1).modify_economic_size(100), 100)
         self.assertEqual(CraftCenter(self.place_1).modify_terrain_change_power(100), 100)
 
         self.assertEqual(Polic(self.place_1).modify_economic_size(places_settings.MAX_SIZE+2), places_settings.MAX_SIZE+3)
-        self.assertTrue(Polic(self.place_1).modify_economic_size(1), 2)
-        self.assertTrue(Polic(self.place_1).modify_terrain_change_power(100), 120)
+        self.assertEqual(Polic(self.place_1).modify_economic_size(1), 2)
+        self.assertEqual(Polic(self.place_1).modify_terrain_change_power(100), 120)
 
     def test_resort(self):
         self.assertFalse(CraftCenter(self.place_1).full_regen_allowed())
         self.assertTrue(Resort(self.place_1).full_regen_allowed())
 
     def test_transport_node(self):
-        self.assertTrue(TransportNode.TRANSPORT_MODIFIER, 0.2)
+        self.assertEqual(TransportNode.TRANSPORT_MODIFIER, 0.2)
+
+    def test_outlaws(self):
+        self.assertEqual(Outlaws.FREEDOM_MODIFIER, 0.35)
+        self.assertEqual(Outlaws.SAFETY_MODIFIER, -0.05)
+        self.assertEqual(Outlaws.EXPERIENCE_MODIFIER, 0.25)

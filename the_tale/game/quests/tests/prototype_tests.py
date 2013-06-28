@@ -7,12 +7,16 @@ from common.utils import testcase
 from common.utils.fake import FakeWorkerCommand
 
 from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
+
 from game.logic_storage import LogicStorage
+from game.logic import create_test_map
 
 from game.prototypes import TimePrototype
-from game.logic import create_test_map
+
 from game.actions.prototypes import ActionQuestPrototype
+
+from game.heroes.prototypes import HeroPrototype
+
 from game.quests.logic import create_random_quest_for_hero
 from game.quests.prototypes import QuestPrototype
 
@@ -129,3 +133,12 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(self.hero.experience, 0)
         self.complete_quest()
         self.assertTrue(self.hero.experience > 0)
+
+    def test_modify_experience(self):
+        self.assertEqual(self.quest.modify_experience(100), 100)
+
+        with mock.patch('game.map.places.prototypes.PlacePrototype.get_experience_modifier',
+                        mock.Mock(return_value=0.1)) as get_experience_modifier:
+            self.assertTrue(self.quest.modify_experience(100) > 100)
+
+        self.assertTrue(get_experience_modifier.call_count > 0)

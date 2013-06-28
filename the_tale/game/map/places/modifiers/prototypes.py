@@ -28,6 +28,7 @@ class PlaceModifierBase(object):
     TRANSPORT_MODIFIER = 0.0
     FREEDOM_MODIFIER = 0.0
 
+    EXPERIENCE_MODIFIER = 0.0
 
     def __init__(self, place):
         self.place = place
@@ -92,10 +93,10 @@ class PlaceModifierBase(object):
     def modify_sell_price(self, price): return price
     def modify_buy_price(self, price): return price
     def can_buy_better_artifact(self): return False
-    def modify_power(self, power): return power
     def modify_economic_size(self, size): return size
     def modify_terrain_change_power(self, power): return power
     def full_regen_allowed(self): return False
+    def modify_experience(self, exp): return exp
 
 
 class TradeCenter(PlaceModifierBase):
@@ -142,8 +143,6 @@ class PoliticalCenter(PlaceModifierBase):
 
     FREEDOM_MODIFIER = 0.25
 
-    def modify_power(self, power): return power * 1.25
-
 
 class Polic(PlaceModifierBase):
     TYPE = e.CITY_MODIFIERS.POLIC
@@ -187,6 +186,8 @@ class Outlaws(PlaceModifierBase):
 
     FREEDOM_MODIFIER = 0.35
     SAFETY_MODIFIER = -0.05
+    EXPERIENCE_MODIFIER = 0.25
+
 
 
 MODIFIERS = dict( (modifier.get_id(), modifier)
