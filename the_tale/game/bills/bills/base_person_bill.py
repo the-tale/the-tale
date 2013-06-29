@@ -91,7 +91,7 @@ class BasePersonBill(BaseBill):
             return self.UserForm(self.person_id, initial=initial) #pylint: disable=E1102
         return  self.UserForm(self.person_id, post) #pylint: disable=E1102
 
-    def apply(self):
+    def apply(self, bill=None):
         raise NotImplementedError
 
     def serialize(self):

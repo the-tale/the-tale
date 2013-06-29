@@ -13,6 +13,16 @@ class RoadsStorage(create_storage_class('roads change time', Road, RoadPrototype
     def all_exists_roads(self):
         return [road for road in self.all() if road.exists]
 
+    def get_by_places(self, place_1, place_2):
+        for road in self.all():
+            if not road.exists:
+                continue
+            if (road.point_1_id == place_1.id and road.point_2_id == place_2.id or
+                road.point_1_id == place_2.id and road.point_2_id == place_1.id):
+                return road
+        return None
+
+
 roads_storage = RoadsStorage()
 
 

@@ -9,7 +9,7 @@ from game.persons.storage import persons_storage
 from game.mobs.storage import mobs_storage
 from game.artifacts.storage import artifacts_storage
 from game.map.storage import map_info_storage
-from game.map.places.storage import places_storage, buildings_storage
+from game.map.places.storage import places_storage, buildings_storage, resource_exchange_storage
 from game.map.roads.storage import roads_storage, waymarks_storage
 
 
@@ -27,6 +27,7 @@ class TestCase(DextTestCase):
         mobs_storage.clear()
         artifacts_storage.clear()
         map_info_storage.clear()
+        resource_exchange_storage.clear()
 
         places_storage._setup_version()
         buildings_storage._setup_version()
@@ -36,6 +37,7 @@ class TestCase(DextTestCase):
         mobs_storage._setup_version()
         artifacts_storage._setup_version()
         map_info_storage._setup_version()
+        resource_exchange_storage._setup_version()
 
 
     def tearDown(self):

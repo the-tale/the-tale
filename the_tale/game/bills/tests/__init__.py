@@ -9,3 +9,4 @@ from game.bills.tests.building_renaming_tests import *
 from game.bills.tests.place_description_tests import *
 from game.bills.tests.place_modifier_tests import *
 from game.bills.tests.place_renaming_tests import *
+from game.bills.tests.place_resource_exchange_tests import *

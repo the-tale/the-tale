@@ -55,7 +55,7 @@ class BuildingCreate(BasePersonBill):
     @property
     def base_name(self): return self.building_name_forms.normalized
 
-    def apply(self):
+    def apply(self, bill=None):
         if self.person is None or self.person.out_game:
             return
 

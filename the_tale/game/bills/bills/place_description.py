@@ -81,7 +81,7 @@ class PlaceDescripton(BaseBill):
         self.old_name_forms = self.place.normalized_name
         self.old_description = self.place.description
 
-    def apply(self):
+    def apply(self, bill=None):
         self.place.description = self.description
         self.place.save()
 

@@ -88,7 +88,7 @@ class PlaceRenaming(BaseBill):
     def initialize_with_moderator_data(self, moderator_form):
         self.name_forms = moderator_form.c.name_forms
 
-    def apply(self):
+    def apply(self, bill=None):
         self.place.set_name_forms(self.name_forms)
         self.place.save()
 

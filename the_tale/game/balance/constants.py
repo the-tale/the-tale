@@ -286,27 +286,29 @@ PLACE_GOODS_TO_LEVEL = PLACE_GOODS_BONUS * (1 + 3) * 24 # 1 город + 3 пе�
 PLACE_GOODS_AFTER_LEVEL_UP = float(0.25) # процент товаров, остающихся при увеличении размера города
 PLACE_GOODS_AFTER_LEVEL_DOWN = float(0.75) # процент товаров, возвращающихся при уменьшении размера города
 
-PLACE_SAFETY_FROM_BEST_PERSON = 0.05
-PLACE_TRANSPORT_FROM_BEST_PERSON = 0.05
-PLACE_FREEDOM_FROM_BEST_PERSON = 0.05
+PLACE_SAFETY_FROM_BEST_PERSON = float(0.05)
+PLACE_TRANSPORT_FROM_BEST_PERSON = float(0.05)
+PLACE_FREEDOM_FROM_BEST_PERSON = float(0.05)
+
+PLACE_MAX_EXCHANGED_NUMBER = int(3)
 
 ###########################
 # здания
 ###########################
 
-BUILDING_MASTERY_BONUS = 0.15
+BUILDING_MASTERY_BONUS = float(0.15)
 
 # на починку зданий игроки тратят энергию
 # желательно, чтобы для единственного здания в городе эффект единичной траты энергии был заметен
 
-BUILDING_FULL_DESTRUCTION_TIME = 2*7*24 # in hours
-BUILDING_AMORTIZATION_SPEED = 1.0 / BUILDING_FULL_DESTRUCTION_TIME # percents/hour
+BUILDING_FULL_DESTRUCTION_TIME = int(2*7*24) # in hours
+BUILDING_AMORTIZATION_SPEED = float(1.0 / BUILDING_FULL_DESTRUCTION_TIME) # percents/hour
 
 # единственное здание города  может поддерживаться одним человеком при условии траты всей энергии
-BUILDING_FULL_REPAIR_ENERGY_COST = BUILDING_FULL_DESTRUCTION_TIME * ANGEL_ENERGY_REGENERATION_AMAUNT * ANGEL_ENERGY_REGENERATION_PERIOD / TURNS_IN_HOUR
+BUILDING_FULL_REPAIR_ENERGY_COST = int(BUILDING_FULL_DESTRUCTION_TIME * ANGEL_ENERGY_REGENERATION_AMAUNT * ANGEL_ENERGY_REGENERATION_PERIOD / TURNS_IN_HOUR)
 
-BUILDING_AMORTIZATION_MODIFIER = 1.5 # цена ремонта здания зависит от количества зданий в городе и равно <цена>*BULDING_AMORTIZATION_MODIFIER^<количество зданий - 1>
-BUILDING_WORKERS_ENERGY_COST = 3 # цена вызова одного рабочего
+BUILDING_AMORTIZATION_MODIFIER = float(1.5) # цена ремонта здания зависит от количества зданий в городе и равно <цена>*BULDING_AMORTIZATION_MODIFIER^<количество зданий - 1>
+BUILDING_WORKERS_ENERGY_COST = int(3) # цена вызова одного рабочего
 
-BUILDING_PERSON_POWER_MULTIPLIER = 1.1
-BUILDING_TERRAIN_POWER_MULTIPLIER = 0.5 # building terrain power is percent from city power
+BUILDING_PERSON_POWER_MULTIPLIER = float(1.1)
+BUILDING_TERRAIN_POWER_MULTIPLIER = float(0.5) # building terrain power is percent from city power

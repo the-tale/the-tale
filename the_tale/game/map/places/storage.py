@@ -3,13 +3,12 @@ import random
 
 from common.utils.storage import create_storage_class
 
-from game.map.places.models import Place, Building
-from game.map.places.prototypes import PlacePrototype, BuildingPrototype
+from game.map.places.prototypes import PlacePrototype, BuildingPrototype, ResourceExchangePrototype
 from game.map.places.exceptions import PlacesException
 from game.map.places.relations import BUILDING_STATE
 
 
-class PlacesStorage(create_storage_class('places change time', Place, PlacePrototype, PlacesException)):
+class PlacesStorage(create_storage_class('places change time', PlacePrototype._model_class, PlacePrototype, PlacesException)):
 
     def random_place(self):
         self.sync()
@@ -36,9 +35,9 @@ class PlacesStorage(create_storage_class('places change time', Place, PlaceProto
 places_storage = PlacesStorage()
 
 
-class BuildingsStorage(create_storage_class('buildings change time', Building, BuildingPrototype, PlacesException)):
+class BuildingsStorage(create_storage_class('buildings change time', BuildingPrototype._model_class, BuildingPrototype, PlacesException)):
 
-    def _get_all_query(self): return Building.objects.exclude(state=BUILDING_STATE.DESTROYED)
+    def _get_all_query(self): return BuildingPrototype._model_class.objects.exclude(state=BUILDING_STATE.DESTROYED)
 
     def __init__(self, *argv, **kwargs):
         self._persons_to_buildings = {}
@@ -70,5 +69,17 @@ class BuildingsStorage(create_storage_class('buildings change time', Building, B
         self.save_all()
 
 
-
 buildings_storage = BuildingsStorage()
+
+
+class ResourceExchangeStorage(create_storage_class('resource exchange change time', ResourceExchangePrototype._model_class, ResourceExchangePrototype, PlacesException)):
+
+    def get_exchanges_for_place(self, place):
+        exchanges = []
+        for exchange in self.all():
+            if place.id in (exchange.place_1.id, exchange.place_2.id):
+                exchanges.append(exchange)
+        return exchanges
+
+
+resource_exchange_storage = ResourceExchangeStorage()

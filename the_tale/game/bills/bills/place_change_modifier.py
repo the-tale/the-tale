@@ -94,7 +94,7 @@ class PlaceModifier(BaseBill):
         self.old_name_forms = self.place.normalized_name
         self.old_modifier_name = self.place.modifier.NAME if self.place.modifier else None
 
-    def apply(self):
+    def apply(self, bill=None):
         self.place.modifier = self.modifier_id
         self.place.save()
 

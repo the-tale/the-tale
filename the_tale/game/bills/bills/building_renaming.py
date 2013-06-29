@@ -63,7 +63,7 @@ class BuildingRenaming(BasePersonBill):
     @property
     def new_name(self): return self.new_building_name_forms.normalized
 
-    def apply(self):
+    def apply(self, bill=None):
         building = buildings_storage.get_by_person_id(self.person.id)
 
         if building is None or building.state._is_DESTROYED:

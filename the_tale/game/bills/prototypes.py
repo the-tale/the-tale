@@ -69,7 +69,6 @@ class BillPrototype(BasePrototype):
                                  'rationale': self.rationale})
         return special_initials
 
-
     @property
     def moderator_form_initials(self):
         special_initials = self.data.moderator_form_initials
@@ -165,7 +164,7 @@ class BillPrototype(BasePrototype):
             signals.bill_processed.send(self.__class__, bill=self)
             return False
 
-        self.data.apply()
+        self.data.apply(self)
 
         self.state = BILL_STATE.ACCEPTED
         self.save()

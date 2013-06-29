@@ -37,7 +37,7 @@ class PersonRemove(BasePersonBill):
     CAPTION = u'Изгнание персонажа'
     DESCRIPTION = u'В случае, если персонаж утратил доверие духов-хранителей, его можно изгнать из города. Изгонять можно только наименее влиятельных персонажей, но персонаж будет изгнан даже если за время голосования существенно увеличит своё влияние и станет самым влиятельным жителем города.'
 
-    def apply(self):
+    def apply(self, bill=None):
         self.person.move_out_game()
         self.person.place.sync_persons()
         self.person.place.save()

@@ -22,11 +22,11 @@ from game.helpers import add_power_management
 
 from game.map.conf import map_settings
 
-from game.map.places.models import Place, Building
+from game.map.places.models import Place, Building, ResourceExchange
 from game.map.places.conf import places_settings
 from game.map.places.exceptions import PlacesException
 from game.map.places.modifiers import MODIFIERS, PlaceModifierBase
-from game.map.places.relations import BUILDING_STATE
+from game.map.places.relations import BUILDING_STATE, RESOURCE_EXCHANGE_TYPE, CITY_PARAMETERS
 from game.map.places import signals
 
 class PlaceParametersDescription(object):
@@ -219,9 +219,23 @@ class PlacePrototype(BasePrototype):
     def get_experience_modifier(self):
         return self.modifier.EXPERIENCE_MODIFIER if self.modifier else 0
 
+    def _update_powers(self, powers, parameter):
+        from game.map.places.storage import resource_exchange_storage
+
+        for exchange in resource_exchange_storage.get_exchanges_for_place(self):
+            resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)
+            if resource_1.parameter == parameter:
+                powers.append((place_2.name, -resource_1.amount))
+            if resource_2.parameter == parameter:
+                powers.append((place_2.name, resource_2.amount))
+
+
     def get_production_powers(self):
+
         powers = [ (u'производство', f.place_goods_production(self.expected_size)),
                    (u'потребление', -f.place_goods_consumption(self.size))]
+
+        self._update_powers(powers, CITY_PARAMETERS.PRODUCTION)
 
         if self.modifier and self.modifier.PRODUCTION_MODIFIER:
             powers.append((self.modifier.NAME, self.modifier.PRODUCTION_MODIFIER))
@@ -234,6 +248,8 @@ class PlacePrototype(BasePrototype):
         powers = [(u'город', 1.0),
                   (u'монстры', -c.BATTLES_PER_TURN)]
 
+        self._update_powers(powers, CITY_PARAMETERS.SAFETY)
+
         if self.modifier and self.modifier.SAFETY_MODIFIER:
             powers.append((self.modifier.NAME, self.modifier.SAFETY_MODIFIER))
 
@@ -243,6 +259,8 @@ class PlacePrototype(BasePrototype):
 
     def get_transport_powers(self):
         powers = [(u'дороги', 1.0)]
+
+        self._update_powers(powers, CITY_PARAMETERS.TRANSPORT)
 
         if self.modifier and self.modifier.TRANSPORT_MODIFIER:
             powers.append((self.modifier.NAME, self.modifier.TRANSPORT_MODIFIER))
@@ -458,3 +476,48 @@ class BuildingPrototype(BasePrototype):
         from game.map.places.storage import buildings_storage
         self._model.save()
         buildings_storage.update_version()
+
+
+class ResourceExchangePrototype(BasePrototype):
+    _model_class = ResourceExchange
+    _readonly = ('id', 'bill_id', 'resource_1', 'resource_2')
+    _bidirectional = ()
+    _get_by = ('id',)
+
+    @property
+    def place_1(self):
+        from game.map.places.storage import places_storage
+        return places_storage[self._model.place_1_id]
+
+    @property
+    def place_2(self):
+        from game.map.places.storage import places_storage
+        return places_storage[self._model.place_2_id]
+
+    @lazy_property
+    def bill(self):
+        from game.bills.prototypes import BillPrototype
+        return BillPrototype.get_by_id(self.bill_id)
+
+    def get_resources_for_place(self, place):
+        if place.id == self.place_1.id:
+            return (self.resource_1, self.resource_2, self.place_2)
+        if place.id == self.place_2.id:
+            return (self.resource_2, self.resource_1, self.place_1)
+        return (RESOURCE_EXCHANGE_TYPE.NONE, RESOURCE_EXCHANGE_TYPE.NONE, None)
+
+    @classmethod
+    def create(cls, place_1, place_2, resource_1, resource_2, bill):
+        from game.map.places.storage import resource_exchange_storage
+
+        model = cls._model_class.objects.create(bill=bill._model if bill is not None else None,
+                                                place_1=place_1._model,
+                                                place_2=place_2._model,
+                                                resource_1=resource_1,
+                                                resource_2=resource_2)
+        prototype = cls(model=model)
+
+        resource_exchange_storage.add_item(prototype.id, prototype)
+        resource_exchange_storage.update_version()
+
+        return prototype

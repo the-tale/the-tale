@@ -6,7 +6,7 @@ from rels.django_staff import TableIntegerField
 
 from game.balance.enums import CITY_MODIFIERS, RACE
 
-from game.map.places.relations import BUILDING_TYPE, BUILDING_STATE
+from game.map.places.relations import BUILDING_TYPE, BUILDING_STATE, RESOURCE_EXCHANGE_TYPE
 
 from game.balance import constants as c
 
@@ -69,3 +69,16 @@ class Building(models.Model):
     place = models.ForeignKey(Place, null=False)
 
     person = models.ForeignKey('persons.Person', null=False, unique=True)
+
+
+class ResourceExchange(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    place_1 = models.ForeignKey(Place, related_name='+')
+    place_2 = models.ForeignKey(Place, related_name='+')
+
+    resource_1 = TableIntegerField(relation=RESOURCE_EXCHANGE_TYPE, relation_column='value')
+    resource_2 = TableIntegerField(relation=RESOURCE_EXCHANGE_TYPE, relation_column='value')
+
+    bill = models.ForeignKey('bills.Bill', blank=True, null=True, related_name='+')

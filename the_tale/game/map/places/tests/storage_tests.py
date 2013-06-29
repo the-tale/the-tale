@@ -1,5 +1,6 @@
 # coding: utf-8
 import uuid
+import random
 
 from common.utils import testcase
 
@@ -8,7 +9,9 @@ from dext.settings import settings
 from game.logic import create_test_map
 
 from game.map.places.models import Place
-from game.map.places.storage import PlacesStorage
+from game.map.places.storage import PlacesStorage, resource_exchange_storage
+from game.map.places.prototypes import ResourceExchangePrototype
+from game.map.places.relations import RESOURCE_EXCHANGE_TYPE
 from game.map.places.exceptions import PlacesException
 
 class PlacesStorageTest(testcase.TestCase):
@@ -79,3 +82,55 @@ class PlacesStorageTest(testcase.TestCase):
     def test_contains(self):
         self.assertTrue(self.p1.id in self.storage)
         self.assertFalse(666 in self.storage)
+
+
+
+class ResourceExchangeStorageTests(testcase.TestCase):
+
+    def setUp(self):
+        super(ResourceExchangeStorageTests, self).setUp()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        self.resource_1 = random.choice(RESOURCE_EXCHANGE_TYPE._records)
+        self.resource_2 = random.choice(RESOURCE_EXCHANGE_TYPE._records)
+
+    def test_create(self):
+        self.assertEqual(len(resource_exchange_storage.all()), 0)
+
+        old_version = resource_exchange_storage._version
+
+        exchange = ResourceExchangePrototype.create(place_1=self.place_1,
+                                                    place_2=self.place_2,
+                                                    resource_1=self.resource_1,
+                                                    resource_2=self.resource_2,
+                                                    bill=None)
+
+        self.assertEqual(len(resource_exchange_storage.all()), 1)
+
+        self.assertEqual(exchange.id, resource_exchange_storage.all()[0].id)
+        self.assertNotEqual(old_version, resource_exchange_storage._version)
+
+    def test_get_exchanges_for_place__no(self):
+        self.assertEqual(resource_exchange_storage.get_exchanges_for_place(self.place_2), [])
+
+    def test_get_exchanges_for_place__multiple(self):
+        exchange_1 = ResourceExchangePrototype.create(place_1=self.place_1,
+                                                      place_2=self.place_2,
+                                                      resource_1=self.resource_1,
+                                                      resource_2=self.resource_2,
+                                                      bill=None)
+
+        ResourceExchangePrototype.create(place_1=self.place_1,
+                                         place_2=self.place_3,
+                                         resource_1=self.resource_1,
+                                         resource_2=self.resource_2,
+                                         bill=None)
+
+        exchange_3 = ResourceExchangePrototype.create(place_1=self.place_2,
+                                                      place_2=self.place_3,
+                                                      resource_1=self.resource_1,
+                                                      resource_2=self.resource_2,
+                                                      bill=None)
+
+        self.assertEqual(set(exchange.id for exchange in resource_exchange_storage.get_exchanges_for_place(self.place_2)),
+                         set((exchange_1.id, exchange_3.id)))

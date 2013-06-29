@@ -40,6 +40,7 @@
       <li><a href="#pgf-cell-description" class="pgf-cell-description-button" data-toggle="tab">Описание</a></li>
       <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Персонажи</a></li>
       <li><a href="#pgf-cell-place-parameters" class="pgf-cell-place-parameters-button" data-toggle="tab">Параметры</a></li>
+      <li><a href="#pgf-cell-place-resources" class="pgf-cell-place-resources-button" data-toggle="tab">Ресурсы</a></li>
       <li><a href="#pgf-cell-place-modifiers" class="pgf-cell-place-modifiers-button" data-toggle="tab">Специализация</a></li>
       <li><a href="#pgf-cell-place-chronicle" class="pgf-cell-place-chronicle-button" data-toggle="tab">События</a></li>
       {% endif %}
@@ -232,6 +233,35 @@
         </table>
 
       </div>
+
+      <div class="tab-pane active description" id="pgf-cell-place-resources">
+        <p>
+          Информация об обмене ресурсами с другими городами.
+        </p>
+
+        {% if exchanges %}
+
+        {% for resource_1, resource_2, place_2, bill in exchanges %}
+        <table class="table table-striped table-condensed table-no-highlighting">
+          <tbody>
+            <tr>
+              <td"><a target="_blank" href="{{url('game:bills:show', bill.id)}}">{{bill.caption}}</a></td>
+            </tr>
+            {% if not resource_1._is_NONE %}
+            <tr><td>{{place_2.name}} получает {{resource_1.text}}</td></tr>
+            {% endif %}
+            {% if not resource_2._is_NONE %}
+            <tr><td>{{place_2.name}} отправляет {{resource_2.text}}</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+        {% endfor %}
+
+        {% else %}
+        <p class="alert alert-info">Город не обменивается ресурсами с другими городами.</p>
+        {% endif %}
+      </div>
+
 
       <div class="tab-pane active description" id="pgf-cell-place-modifiers">
 

@@ -8,7 +8,6 @@ from game.bills.bills import PlaceModifier
 
 from game.bills.tests.prototype_tests import BaseTestPrototypes
 
-from game.map.places.storage import places_storage
 from game.map.places.modifiers import TradeCenter, CraftCenter
 
 
@@ -17,8 +16,8 @@ class PlaceModifierTests(BaseTestPrototypes):
     def setUp(self):
         super(PlaceModifierTests, self).setUp()
 
-        self.place = places_storage.all()[0]
-        self.place_2 = places_storage.all()[1]
+        self.place = self.place1
+        self.place_2 = self.place2
 
         self.bill_data = PlaceModifier(place_id=self.place.id, modifier_id=TradeCenter.get_id(), modifier_name=TradeCenter.NAME, old_modifier_name=None)
 

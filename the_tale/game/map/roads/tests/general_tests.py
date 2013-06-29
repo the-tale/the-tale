@@ -5,7 +5,7 @@ from game.logic import create_test_map
 
 from game.map.roads.models import Road, Waymark
 from game.map.roads.prototypes import RoadPrototype
-from game.map.roads.storage import waymarks_storage
+from game.map.roads.storage import roads_storage, waymarks_storage
 from game.map.roads.logic import update_waymarks
 
 
@@ -15,8 +15,8 @@ class GeneralTest(testcase.TestCase):
         super(GeneralTest, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
 
-        self.r1 = RoadPrototype.get_by_places(self.p1, self.p2)
-        self.r2 = RoadPrototype.get_by_places(self.p2, self.p3)
+        self.r1 = roads_storage.get_by_places(self.p1, self.p2)
+        self.r2 = roads_storage.get_by_places(self.p2, self.p3)
 
     def test_add_del_road(self):
 

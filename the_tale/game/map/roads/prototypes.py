@@ -17,15 +17,6 @@ class RoadPrototype(BasePrototype):
     _bidirectional = ('length', 'exists')
     _get_by = ('id',)
 
-    @classmethod
-    def get_by_places(cls, p1, p2):
-        if p1.id > p2.id:
-            p1, p2 = p2, p1
-        try:
-            return cls(Road.objects.get(point_1_id=p1.id, point_2_id=p2.id))
-        except Road.DoesNotExist:
-            return None
-
     @property
     def point_1(self): return places_storage[self._model.point_1_id]
 

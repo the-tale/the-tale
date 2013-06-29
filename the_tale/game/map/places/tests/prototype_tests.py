@@ -1,5 +1,6 @@
 # coding: utf-8
 import mock
+import random
 
 from textgen.words import Noun
 
@@ -17,8 +18,9 @@ from game.balance import constants as c
 from game.map.conf import map_settings
 
 from game.map.places.models import Building
-from game.map.places.prototypes import BuildingPrototype
+from game.map.places.prototypes import BuildingPrototype, ResourceExchangePrototype
 from game.map.places.storage import places_storage, buildings_storage
+from game.map.places.relations import RESOURCE_EXCHANGE_TYPE
 from game.map.places import modifiers
 
 
@@ -104,6 +106,44 @@ class PlacePrototypeTests(testcase.TestCase):
         self.assertEqual(self.p1.goods, 0)
         self.assertEqual(self.p1.size, 1)
 
+    def _create_test_exchanges(self):
+        ResourceExchangePrototype.create(place_1=self.p1,
+                                         place_2=self.p2,
+                                         resource_1=RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
+                                         resource_2=RESOURCE_EXCHANGE_TYPE.NONE,
+                                         bill=None)
+
+        ResourceExchangePrototype.create(place_1=self.p1,
+                                         place_2=self.p3,
+                                         resource_1=RESOURCE_EXCHANGE_TYPE.NONE,
+                                         resource_2=RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE,
+                                         bill=None)
+
+        ResourceExchangePrototype.create(place_1=self.p1,
+                                         place_2=self.p2,
+                                         resource_1=RESOURCE_EXCHANGE_TYPE.SAFETY_SMALL,
+                                         resource_2=RESOURCE_EXCHANGE_TYPE.NONE,
+                                         bill=None)
+
+        ResourceExchangePrototype.create(place_1=self.p1,
+                                         place_2=self.p3,
+                                         resource_1=RESOURCE_EXCHANGE_TYPE.NONE,
+                                         resource_2=RESOURCE_EXCHANGE_TYPE.SAFETY_LARGE,
+                                         bill=None)
+
+        ResourceExchangePrototype.create(place_1=self.p1,
+                                         place_2=self.p2,
+                                         resource_1=RESOURCE_EXCHANGE_TYPE.TRANSPORT_SMALL,
+                                         resource_2=RESOURCE_EXCHANGE_TYPE.NONE,
+                                         bill=None)
+
+        ResourceExchangePrototype.create(place_1=self.p1,
+                                         place_2=self.p3,
+                                         resource_1=RESOURCE_EXCHANGE_TYPE.NONE,
+                                         resource_2=RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,
+                                         bill=None)
+
+
     @mock.patch('game.balance.formulas.place_goods_production', lambda size: 100 if size < 5 else 1000)
     @mock.patch('game.map.places.modifiers.prototypes.CraftCenter.PRODUCTION_MODIFIER', 10000)
     @mock.patch('game.persons.prototypes.PersonPrototype.production', 1)
@@ -111,30 +151,50 @@ class PlacePrototypeTests(testcase.TestCase):
         self.p1.modifier = modifiers.CraftCenter.get_id()
         self.p1.size = 1
         self.p1.expected_size = 6
+
+        self._create_test_exchanges()
+
         self.p1.sync_parameters()
 
-        self.assertTrue(-0.001 < self.p1.production - (10900 + len(self.p1.persons)) < 0.001)
+        expected_production = 10900 + len(self.p1.persons) - RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL.amount + RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE.amount
+
+        self.assertTrue(-0.001 < self.p1.production - expected_production < 0.001)
 
     @mock.patch('game.map.places.modifiers.prototypes.Fort.SAFETY_MODIFIER', 0.01)
     @mock.patch('game.persons.prototypes.PersonPrototype.safety', -0.001)
     def test_sync_sync_parameters__safety(self):
         self.p1.modifier = modifiers.Fort.get_id()
+
+        self._create_test_exchanges()
+
         self.p1.sync_parameters()
 
-        self.assertTrue(-0.001 < self.p1.safety - (1.0 - c.BATTLES_PER_TURN + 0.01 - 0.001 * len(self.p1.persons)) < 0.001)
+        expected_safety = (1.0 - c.BATTLES_PER_TURN + 0.01 - 0.001 * len(self.p1.persons) -
+                           RESOURCE_EXCHANGE_TYPE.SAFETY_SMALL.amount + RESOURCE_EXCHANGE_TYPE.SAFETY_LARGE.amount)
+
+        self.assertTrue(-0.001 < self.p1.safety - expected_safety < 0.001)
 
     @mock.patch('game.map.places.modifiers.prototypes.TransportNode.TRANSPORT_MODIFIER', 0.01)
     @mock.patch('game.persons.prototypes.PersonPrototype.transport', 0.001)
     def test_sync_sync_parameters__transport(self):
         self.p1.modifier = modifiers.TransportNode.get_id()
+
+        self._create_test_exchanges()
+
         self.p1.sync_parameters()
 
-        self.assertTrue(-0.001 < self.p1.transport - (1.0 + 0.01 + 0.001 * len(self.p1.persons)) < 0.001)
+        expected_transport = (1.0 + 0.01 + 0.001 * len(self.p1.persons) -
+                              RESOURCE_EXCHANGE_TYPE.TRANSPORT_SMALL.amount + RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE.amount)
+
+        self.assertTrue(-0.001 < self.p1.transport - expected_transport < 0.001)
 
     @mock.patch('game.map.places.modifiers.prototypes.Polic.FREEDOM_MODIFIER', 0.01)
     @mock.patch('game.persons.prototypes.PersonPrototype.freedom', 0.001)
     def test_sync_sync_parameters__freedom(self):
         self.p1.modifier = modifiers.Polic.get_id()
+
+        self._create_test_exchanges()
+
         self.p1.sync_parameters()
 
         self.assertTrue(-0.001 < self.p1.freedom - (1.0 + 0.01 + 0.001 * len(self.p1.persons)) < 0.001)
@@ -270,3 +330,41 @@ class BuildingPrototypeTests(testcase.TestCase):
         building.destroy()
         self.assertNotEqual(old_version, buildings_storage.version)
         self.assertFalse(building.id in buildings_storage)
+
+
+
+
+class ResourceExchangeTests(testcase.TestCase):
+
+    def setUp(self):
+        super(ResourceExchangeTests, self).setUp()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        self.resource_1 = random.choice(RESOURCE_EXCHANGE_TYPE._records)
+        self.resource_2 = random.choice(RESOURCE_EXCHANGE_TYPE._records)
+
+        self.exchange = ResourceExchangePrototype.create(place_1=self.place_1,
+                                                         place_2=self.place_2,
+                                                         resource_1=self.resource_1,
+                                                         resource_2=self.resource_2,
+                                                         bill=None)
+
+    def test_create(self):
+        self.assertEqual(self.exchange.place_1.id, self.place_1.id)
+        self.assertEqual(self.exchange.place_2.id, self.place_2.id)
+        self.assertEqual(self.exchange.resource_1, self.resource_1)
+        self.assertEqual(self.exchange.resource_2, self.resource_2)
+        self.assertEqual(self.exchange.bill_id, None)
+
+    def test_get_resources_for_place__place_1(self):
+        self.assertEqual(self.exchange.get_resources_for_place(self.place_1),
+                         (self.resource_1, self.resource_2, self.place_2))
+
+    def test_get_resources_for_place__place_2(self):
+        self.assertEqual(self.exchange.get_resources_for_place(self.place_2),
+                         (self.resource_2, self.resource_1, self.place_1))
+
+
+    def test_get_resources_for_place__wrong_place(self):
+        self.assertEqual(self.exchange.get_resources_for_place(self.place_3),
+                         (RESOURCE_EXCHANGE_TYPE.NONE, RESOURCE_EXCHANGE_TYPE.NONE, None))
