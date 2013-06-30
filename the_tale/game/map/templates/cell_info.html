@@ -40,7 +40,7 @@
       <li><a href="#pgf-cell-description" class="pgf-cell-description-button" data-toggle="tab">Описание</a></li>
       <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Персонажи</a></li>
       <li><a href="#pgf-cell-place-parameters" class="pgf-cell-place-parameters-button" data-toggle="tab">Параметры</a></li>
-      <li><a href="#pgf-cell-place-resources" class="pgf-cell-place-resources-button" data-toggle="tab">Ресурсы</a></li>
+      <li><a href="#pgf-cell-place-bills" class="pgf-cell-place-bills-button" data-toggle="tab">Законы</a></li>
       <li><a href="#pgf-cell-place-modifiers" class="pgf-cell-place-modifiers-button" data-toggle="tab">Специализация</a></li>
       <li><a href="#pgf-cell-place-chronicle" class="pgf-cell-place-chronicle-button" data-toggle="tab">События</a></li>
       {% endif %}
@@ -234,9 +234,9 @@
 
       </div>
 
-      <div class="tab-pane active description" id="pgf-cell-place-resources">
+      <div class="tab-pane active description" id="pgf-cell-place-bills">
         <p>
-          Информация об обмене ресурсами с другими городами.
+          Список <strong>активных</strong> законов (действующих в текущий момент), связанных с городом.
         </p>
 
         {% if exchanges %}
@@ -258,7 +258,7 @@
         {% endfor %}
 
         {% else %}
-        <p class="alert alert-info">Город не обменивается ресурсами с другими городами.</p>
+        <p class="alert alert-info">Нет активных законов.</p>
         {% endif %}
       </div>
 

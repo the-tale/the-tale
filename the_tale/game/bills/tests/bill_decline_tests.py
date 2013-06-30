@@ -1,0 +1,124 @@
+# coding: utf-8
+
+import mock
+import datetime
+import random
+
+from game.bills.prototypes import BillPrototype, VotePrototype
+from game.bills.bills import PlaceResourceExchange, BillDecline, PlaceDescripton
+
+from game.bills.tests.prototype_tests import BaseTestPrototypes
+
+from game.map.places.storage import resource_exchange_storage
+from game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+
+
+class BillDeclineResourceExchangeTests(BaseTestPrototypes):
+
+    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    def setUp(self):
+        super(BillDeclineResourceExchangeTests, self).setUp()
+
+        self.resource_1, self.resource_2 = self.choose_resources()
+
+        self.declined_bill_data = PlaceResourceExchange(place_1_id=self.place1.id,
+                                                        place_2_id=self.place2.id,
+                                                        resource_1=self.resource_1,
+                                                        resource_2=self.resource_2)
+
+        self.declined_bill = BillPrototype.create(self.account1, 'declined-bill-caption', 'declined-bill-rationale', self.declined_bill_data)
+
+        declined_form = PlaceResourceExchange.ModeratorForm({'approved': True})
+        self.assertTrue(declined_form.is_valid())
+        self.declined_bill.update_by_moderator(declined_form)
+        self.declined_bill.apply()
+
+        self.bill_data = BillDecline(declined_bill_id=self.declined_bill.id)
+        self.bill = BillPrototype.create(self.account1, 'bill-caption', 'bill-rationale', self.bill_data)
+
+
+    def choose_resources(self):
+        resource_1, resource_2 = RESOURCE_EXCHANGE_TYPE.NONE, RESOURCE_EXCHANGE_TYPE.NONE
+        while resource_1.parameter == resource_2.parameter:
+            resource_1 = random.choice(RESOURCE_EXCHANGE_TYPE._records)
+            resource_2 = random.choice(RESOURCE_EXCHANGE_TYPE._records)
+        return resource_1, resource_2
+
+    def test_create(self):
+        self.assertEqual(self.bill.data.declined_bill_id, self.declined_bill.id)
+        self.assertEqual(self.bill.data.declined_bill.id, self.declined_bill.id)
+
+    def test_user_form_initials(self):
+        self.assertEqual(self.bill.data.user_form_initials,
+                         {'bill': self.declined_bill.id})
+
+    def test_actors(self):
+        self.assertEqual(self.bill_data.actors, self.declined_bill.data.actors)
+
+    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    def test_update(self):
+        declined_bill_2 = BillPrototype.create(self.account1, 'declined-bill-caption', 'declined-bill-rationale', self.declined_bill_data)
+        declined_form = PlaceResourceExchange.ModeratorForm({'approved': True})
+        self.assertTrue(declined_form.is_valid())
+        declined_bill_2.update_by_moderator(declined_form)
+        declined_bill_2.apply()
+
+        form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
+                                                         'rationale': 'new-rationale',
+                                                         'declined_bill': declined_bill_2.id})
+        self.assertTrue(form.is_valid())
+
+        self.bill.update(form)
+
+        self.bill = BillPrototype.get_by_id(self.bill.id)
+
+        self.assertEqual(self.bill.data.declined_bill_id, declined_bill_2.id)
+        self.assertEqual(self.bill.data.declined_bill.id, declined_bill_2.id)
+
+    def test_form_validation__success(self):
+        form = self.bill.data.get_user_form_update(post={'caption': 'some caption',
+                                                         'rationale': 'some rationale',
+                                                         'declined_bill': self.declined_bill.id})
+        self.assertTrue(form.is_valid())
+
+
+    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    def test_user_form_validation__wrong_bill(self):
+        bill_data = PlaceDescripton(place_id=self.place1.id, description='new description')
+        bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+
+        form = PlaceDescripton.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+        bill.update_by_moderator(form)
+        self.assertTrue(bill.apply())
+
+        form = self.bill.data.get_user_form_update(post={'caption': 'caption',
+                                                         'rationale': 'rationale',
+                                                         'declined_bill': bill.id})
+        self.assertFalse(form.is_valid())
+
+
+    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    def test_apply(self):
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        old_storage_version = resource_exchange_storage._version
+
+        self.assertEqual(len(resource_exchange_storage.all()), 1)
+
+        form = BillDecline.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.assertTrue(self.bill.apply())
+
+        self.assertNotEqual(old_storage_version, resource_exchange_storage._version)
+        self.assertEqual(len(resource_exchange_storage.all()), 0)
+
+        bill = BillPrototype.get_by_id(self.bill.id)
+        self.assertTrue(bill.state._is_ACCEPTED)

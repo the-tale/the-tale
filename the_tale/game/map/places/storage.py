@@ -81,5 +81,11 @@ class ResourceExchangeStorage(create_storage_class('resource exchange change tim
                 exchanges.append(exchange)
         return exchanges
 
+    def get_exchange_for_bill_id(self, bill_id):
+        for exchange in self.all():
+            if exchange.bill_id == bill_id:
+                return exchange
+        return None
+
 
 resource_exchange_storage = ResourceExchangeStorage()

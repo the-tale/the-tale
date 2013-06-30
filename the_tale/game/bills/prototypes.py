@@ -177,6 +177,13 @@ class BillPrototype(BasePrototype):
         signals.bill_processed.send(self.__class__, bill=self)
         return True
 
+    @nested_commit_on_success
+    def decline(self):
+        if not self.state._is_ACCEPTED:
+            raise BillException('trying to decline bill in not accepted state')
+
+        self.data.decline(bill=self)
+
     def bill_info_text(self, text):
         return u'''%s
 

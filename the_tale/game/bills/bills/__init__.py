@@ -8,6 +8,7 @@ from game.bills.bills.building_create import BuildingCreate
 from game.bills.bills.building_destroy import BuildingDestroy
 from game.bills.bills.building_renaming import BuildingRenaming
 from game.bills.bills.place_resource_exchange import PlaceResourceExchange
+from game.bills.bills.bill_decline import BillDecline
 
 
 BILLS = [PlaceRenaming,
@@ -17,7 +18,8 @@ BILLS = [PlaceRenaming,
          BuildingCreate,
          BuildingDestroy,
          BuildingRenaming,
-         PlaceResourceExchange]
+         PlaceResourceExchange,
+         BillDecline]
 
 def deserialize_bill(data):
     return BILLS_BY_STR[data['type']].deserialize(data)

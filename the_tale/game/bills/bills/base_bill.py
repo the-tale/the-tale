@@ -18,3 +18,9 @@ class BaseBill(object):
         if initial:
             return self.UserForm(initial=initial)
         return  self.UserForm(post)
+
+    def apply(self, bill=None):
+        raise NotImplementedError
+
+    def decline(self, bill):
+        pass

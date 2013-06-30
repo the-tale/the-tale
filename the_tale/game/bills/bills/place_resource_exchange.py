@@ -32,10 +32,6 @@ class UserForm(BaseUserForm):
         self.fields['place_1'].choices = places_storage.get_choices()
         self.fields['place_2'].choices = places_storage.get_choices()
 
-    def clean_new_modifier(self):
-        data = self.cleaned_data['new_modifier']
-        return int(data)
-
     def clean(self):
         cleaned_data = super(UserForm, self).clean()
 
@@ -135,6 +131,11 @@ class PlaceResourceExchange(BaseBill):
                                          resource_1=self.resource_1,
                                          resource_2=self.resource_2,
                                          bill=bill)
+
+    def decline(self, bill):
+        exchange = resource_exchange_storage.get_exchange_for_bill_id(bill.id)
+        if exchange:
+            exchange.remove()
 
     def serialize(self):
         return {'type': self.type.name.lower(),

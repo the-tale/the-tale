@@ -521,3 +521,11 @@ class ResourceExchangePrototype(BasePrototype):
         resource_exchange_storage.update_version()
 
         return prototype
+
+    def remove(self):
+        from game.map.places.storage import resource_exchange_storage
+
+        self._model.delete()
+
+        resource_exchange_storage.update_version()
+        resource_exchange_storage.refresh()
