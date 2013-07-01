@@ -53,5 +53,5 @@ class ModifiersTests(testcase.TestCase):
 
     def test_outlaws(self):
         self.assertEqual(Outlaws.FREEDOM_MODIFIER, 0.35)
-        self.assertEqual(Outlaws.SAFETY_MODIFIER, -0.05)
+        self.assertEqual(Outlaws.SAFETY_MODIFIER, -0.1)
         self.assertEqual(Outlaws.EXPERIENCE_MODIFIER, 0.25)

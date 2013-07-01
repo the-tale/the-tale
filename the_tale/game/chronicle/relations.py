@@ -37,7 +37,15 @@ class RECORD_TYPE(DjangoEnum):
 
                 ('BUILDING_RENAMING_BILL_STARTED', 23, u'строение: предложен закон о переименовании '),
                 ('BUILDING_RENAMING_BILL_SUCCESSED', 24, u'строение: принят закон о переименовании'),
-                ('BUILDING_RENAMING_BILL_FAILED', 25, u'строение: отклонён закон о переименовании'),)
+                ('BUILDING_RENAMING_BILL_FAILED', 25, u'строение: отклонён закон о переименовании'),
+
+                ('PLACE_RESOURCE_EXCHANGE_BILL_STARTED', 26, u'обмен ресурсами: предложен закон'),
+                ('PLACE_RESOURCE_EXCHANGE_BILL_SUCCESSED', 27, u'обмен ресурсами: принят закон'),
+                ('PLACE_RESOURCE_EXCHANGE_BILL_FAILED', 28, u'обмен ресурсами: отклонён закон'),
+
+                ('BILL_DECLINE_BILL_STARTED', 29, u'отмена закона: предложен закон'),
+                ('BILL_DECLINE_BILL_SUCCESSED', 30, u'отмена закона: принят закон'),
+                ('BILL_DECLINE_BILL_FAILED', 31, u'отмена закона: отклонён закон'),)
 
 
 class ACTOR_ROLE(DjangoEnum):

@@ -25,8 +25,8 @@ class RecordPrototypeTests(TestCase):
     def test_create_actors_connections_created(self):
         old_connections_number = RecordToActor.objects.all().count()
         FakeRecord(type_=RECORD_TYPE.PLACE_CHANGE_RACE,
-                   actors={ACTOR_ROLE.PLACE: create_external_actor(self.place_1),
-                           ACTOR_ROLE.PERSON: create_external_actor(self.place_1.persons[0])}).create_record()
+                   actors=[(ACTOR_ROLE.PLACE, create_external_actor(self.place_1)),
+                           (ACTOR_ROLE.PERSON, create_external_actor(self.place_1.persons[0]))]).create_record()
         self.assertEqual(old_connections_number + 2, RecordToActor.objects.all().count())
 
     def test_get_actor_records_query(self):

@@ -812,40 +812,68 @@
     }
   ], 
   "quest_spying_action_choice_open_up": [], 
-  "angel_ability_resurrect": [
+  "chronicle_building_renaming_bill_successed": [
     {
       "internals": [
         [
-          "видел", 
+          "принадлежащий", 
           [
-            "hero"
+            "old_name"
           ], 
           "i_0", 
           [
-            "прш"
+            "нст", 
+            "3л"
           ], 
-          "видел"
-        ]
-      ], 
-      "externals": [], 
-      "template": "«Я %(i_0)s свет в конце туннеля. Свет сказал возвращаться назад»."
-    }, 
-    {
-      "internals": [
+          "принадлежащий"
+        ], 
         [
-          "заснул", 
+          "переименован", 
           [
-            "hero"
+            "old_name"
           ], 
-          "i_0", 
+          "i_1", 
           [
             "прш"
           ], 
-          "заснул"
+          "переименован"
         ]
       ], 
-      "externals": [], 
-      "template": "«Кажется я %(i_0)s ненадолго»."
+      "externals": [
+        [
+          "bill", 
+          [], 
+          "e_0", 
+          [], 
+          "bill"
+        ], 
+        [
+          "old_name", 
+          [], 
+          "e_1", 
+          [], 
+          "old_name"
+        ], 
+        [
+          "person", 
+          [], 
+          "e_2", 
+          [
+            "дт"
+          ], 
+          "person"
+        ], 
+        [
+          "new_name", 
+          [], 
+          "e_3", 
+          [
+            "вн"
+          ], 
+          "new_name"
+        ]
+      ], 
+      "template": "Принят закон «%(e_0)s» и %(e_1)s, %(i_0)s %(e_2)s, %(i_1)s в %(e_3)s."
     }
   ], 
   "quest_delivery_choice_steal_variant_delivery": [
@@ -928,6 +956,28 @@
     }
   ], 
   "quest_hometown_journal_chatting": [], 
+  "chronicle_bill_decline_bill_started": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "bill", 
+          [], 
+          "e_0", 
+          [], 
+          "bill"
+        ], 
+        [
+          "declined_bill", 
+          [], 
+          "e_1", 
+          [], 
+          "declined_bill"
+        ]
+      ], 
+      "template": "Выдвинут закон «%(e_0)s» об отмене закона «%(e_1)s»."
+    }
+  ], 
   "quest_hometown_journal_search_old_friends_description": [
     {
       "internals": [], 
@@ -5152,95 +5202,26 @@
       "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
     }
   ], 
-  "quest_caravan_diary_intro": [
-    {
-      "internals": [
-        [
-          "поручил", 
-          [
-            "person_start"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "поручил"
-        ], 
-        [
-          "должен", 
-          [
-            "person_end"
-          ], 
-          "i_1", 
-          [], 
-          "должен"
-        ]
-      ], 
-      "externals": [
-        [
-          "person_start", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "person_start"
-        ], 
-        [
-          "place_end", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "place_end"
-        ], 
-        [
-          "person_end", 
-          [], 
-          "e_2", 
-          [], 
-          "person_end"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s отвести караван в %(e_1)s. Там меня %(i_1)s встретить %(e_2)s."
-    }
-  ], 
-  "chronicle_place_change_race": [
+  "chronicle_bill_decline_bill_failed": [
     {
       "internals": [], 
       "externals": [
         [
-          "place", 
+          "bill", 
           [], 
           "e_0", 
-          [
-            "пр"
-          ], 
-          "place"
+          [], 
+          "bill"
         ], 
         [
-          "old_race", 
+          "declined_bill", 
           [], 
           "e_1", 
-          [
-            "мн", 
-            "рд"
-          ], 
-          "old_race"
-        ], 
-        [
-          "new_race", 
           [], 
-          "e_2", 
-          [
-            "мн", 
-            "им"
-          ], 
-          "new_race"
+          "declined_bill"
         ]
       ], 
-      "template": "В %(e_0)s изменилась доминирующая раса — теперь большинство населения вместо %(e_1)s составляют %(e_2)s."
+      "template": "Отклонён закон «%(e_0)s». Закон «%(e_1)s» продолжает действовать."
     }
   ], 
   "quest_interfereenemy_diary_get_reward_money": [
@@ -5647,6 +5628,71 @@
       "template": "Впереди нелёгкий путь, о чём же меня попросят?"
     }
   ], 
+  "chronicle_place_resource_exchange_bill_started": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place_1", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place_1"
+        ], 
+        [
+          "place_2", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "place_2"
+        ], 
+        [
+          "bill", 
+          [], 
+          "e_2", 
+          [], 
+          "bill"
+        ], 
+        [
+          "place_1", 
+          [], 
+          "e_3", 
+          [
+            "рд"
+          ], 
+          "place_1"
+        ], 
+        [
+          "resource_1", 
+          [], 
+          "e_4", 
+          [], 
+          "resource_1"
+        ], 
+        [
+          "place_2", 
+          [], 
+          "e_5", 
+          [
+            "рд"
+          ], 
+          "place_2"
+        ], 
+        [
+          "resource_2", 
+          [], 
+          "e_6", 
+          [], 
+          "resource_2"
+        ]
+      ], 
+      "template": "Жители %(e_0)s и %(e_1)s выдвинули закон «%(e_2)s» об обмене ресурсами. Со стороны %(e_0)s — «%(e_4)s», со стороны %(e_1)s — «%(e_6)s»."
+    }
+  ], 
   "quest_hometown_journal_drunk_song_donothing": [
     {
       "internals": [], 
@@ -5655,6 +5701,35 @@
     }
   ], 
   "quest_delivery_action_steal_item": [], 
+  "quest_spying_choice_openup_result_open_up": [
+    {
+      "internals": [
+        [
+          "решил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "решил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s прийти с повинной."
+    }
+  ], 
   "action_regenerate_energy_start_meditation": [
     {
       "internals": [
@@ -5682,123 +5757,67 @@
       "template": "От мира и забот насущных отстранившись, позу лотоса приняв, в медитацию %(i_0)s %(e_0)s, основы мироздания постигая и мир внутренний в порядок приводя."
     }
   ], 
-  "angel_ability_lightning_crit": [
+  "chronicle_place_resource_exchange_bill_successed": [
     {
       "internals": [], 
       "externals": [
         [
-          "mob", 
-          [], 
-          "e_0", 
-          [
-            "дт"
-          ], 
-          "mob"
-        ]
-      ], 
-      "template": "На горизонте показалась яркая точка, стремительно приближающаяся к %(e_0)s. Мгновение и шар огня выжег аккуратный круг там, где находился противник."
-    }, 
-    {
-      "internals": [
-        [
-          "он", 
-          [
-            "mob"
-          ], 
-          "i_0", 
-          [], 
-          "он"
-        ], 
-        [
-          "обугливался", 
-          [
-            "mob"
-          ], 
-          "i_1", 
-          [
-            "нст", 
-            "3л"
-          ], 
-          "обугливался"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
+          "bill", 
           [], 
           "e_0", 
           [], 
-          "hero"
+          "bill"
         ], 
         [
-          "mob", 
+          "place_1", 
           [], 
           "e_1", 
-          [
-            "вн"
-          ], 
-          "mob"
-        ]
-      ], 
-      "template": "Почувствовав приятный аромат жареного, %(e_0)s замечает, что %(e_1)s охватило яркое пламя. С душераздирающим визгом %(i_0)s медленно %(i_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "задался", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "задался"
-        ], 
-        [
-          "превратился", 
-          [
-            "mob"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "превратился"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ], 
-        [
-          "mob", 
-          [], 
-          "e_1", 
-          [], 
-          "mob"
-        ]
-      ], 
-      "template": "«Падающие наковальни — это, конечно, хорошо, но вот куда они потом пропадают»? — %(i_0)s %(e_0)s вопросом, созерцая то, во что %(i_1)s %(e_1)s."
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "mob", 
-          [], 
-          "e_0", 
           [
             "тв"
           ], 
-          "mob"
+          "place_1"
+        ], 
+        [
+          "place_2", 
+          [], 
+          "e_2", 
+          [
+            "тв"
+          ], 
+          "place_2"
+        ], 
+        [
+          "place_1", 
+          [], 
+          "e_3", 
+          [
+            "загл"
+          ], 
+          "place_1"
+        ], 
+        [
+          "resource_1", 
+          [], 
+          "e_4", 
+          [], 
+          "resource_1"
+        ], 
+        [
+          "place_2", 
+          [], 
+          "e_5", 
+          [], 
+          "place_2"
+        ], 
+        [
+          "resource_2", 
+          [], 
+          "e_6", 
+          [], 
+          "resource_2"
         ]
       ], 
-      "template": "Тень под %(e_0)s стремительно увеличилась. «Привет, валун с неба»!"
+      "template": "Принят закон «%(e_0)s» об обмене ресурсами между %(e_1)s и %(e_2)s. %(e_3)s начинает поставлять «%(e_4)s», %(e_5)s — «%(e_6)s»."
     }
   ], 
   "quest_notmywork_action_move_to_quest": [
@@ -6402,68 +6421,58 @@
       "template": "%(e_0)s идёт к месту назначения"
     }
   ], 
-  "chronicle_building_renaming_bill_successed": [
+  "quest_caravan_diary_intro": [
     {
       "internals": [
         [
-          "принадлежащий", 
+          "поручил", 
           [
-            "old_name"
+            "person_start"
           ], 
           "i_0", 
           [
-            "нст", 
-            "3л"
-          ], 
-          "принадлежащий"
-        ], 
-        [
-          "переименован", 
-          [
-            "old_name"
-          ], 
-          "i_1", 
-          [
             "прш"
           ], 
-          "переименован"
+          "поручил"
+        ], 
+        [
+          "должен", 
+          [
+            "person_end"
+          ], 
+          "i_1", 
+          [], 
+          "должен"
         ]
       ], 
       "externals": [
         [
-          "bill", 
+          "person_start", 
           [], 
           "e_0", 
-          [], 
-          "bill"
+          [
+            "загл"
+          ], 
+          "person_start"
         ], 
         [
-          "old_name", 
+          "place_end", 
           [], 
           "e_1", 
-          [], 
-          "old_name"
-        ], 
-        [
-          "person", 
-          [], 
-          "e_2", 
-          [
-            "дт"
-          ], 
-          "person"
-        ], 
-        [
-          "new_name", 
-          [], 
-          "e_3", 
           [
             "вн"
           ], 
-          "new_name"
+          "place_end"
+        ], 
+        [
+          "person_end", 
+          [], 
+          "e_2", 
+          [], 
+          "person_end"
         ]
       ], 
-      "template": "Принят закон «%(e_0)s» и %(e_1)s, %(i_0)s %(e_2)s, %(i_1)s в %(e_3)s."
+      "template": "%(e_0)s %(i_0)s отвести караван в %(e_1)s. Там меня %(i_1)s встретить %(e_2)s."
     }
   ], 
   "quest_delivery_description": [
@@ -10301,33 +10310,41 @@
       "template": "%(i_0)s гонорар за очередные «Записки охотника». %(i_1)s в рюкзак %(e_0)s."
     }
   ], 
-  "action_regenerate_energy_energy_received_pray": [
+  "chronicle_place_change_race": [
     {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
+      "internals": [], 
       "externals": [
         [
-          "hero", 
+          "place", 
           [], 
           "e_0", 
           [
-            "загл"
+            "пр"
           ], 
-          "hero"
+          "place"
+        ], 
+        [
+          "old_race", 
+          [], 
+          "e_1", 
+          [
+            "мн", 
+            "рд"
+          ], 
+          "old_race"
+        ], 
+        [
+          "new_race", 
+          [], 
+          "e_2", 
+          [
+            "мн", 
+            "им"
+          ], 
+          "new_race"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
+      "template": "В %(e_0)s изменилась доминирующая раса — теперь большинство населения вместо %(e_1)s составляют %(e_2)s."
     }
   ], 
   "action_moveto_move": [
@@ -11579,6 +11596,456 @@
         ]
       ], 
       "template": "Караванщик оказался состоятельным — %(i_0)s %(e_0)s среди добычи."
+    }
+  ], 
+  "hero_ability_fireball": [
+    {
+      "internals": [
+        [
+          "выпустил", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "выпустил"
+        ], 
+        [
+          "единица", 
+          [
+            "damage"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "единица"
+        ], 
+        [
+          "ошарашенный", 
+          [
+            "defender"
+          ], 
+          "i_2", 
+          [
+            "дт", 
+            "прш"
+          ], 
+          "ошарашенный"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "damage", 
+          [], 
+          "e_1", 
+          [], 
+          "damage"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_2", 
+          [
+            "дт"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s шар огня. Волшебное пламя нанесло %(e_1)s %(i_1)s урона %(i_2)s %(e_2)s."
+    }, 
+    {
+      "internals": [
+        [
+          "выпускал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "нст", 
+            "3л"
+          ], 
+          "выпускал"
+        ], 
+        [
+          "подозревающий", 
+          [
+            "defender"
+          ], 
+          "i_1", 
+          [
+            "нст", 
+            "3л", 
+            "вн"
+          ], 
+          "подозревающий"
+        ], 
+        [
+          "он", 
+          [
+            "defender"
+          ], 
+          "i_2", 
+          [
+            "рд"
+          ], 
+          "он"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ], 
+        [
+          "damage", 
+          [], 
+          "e_2", 
+          [], 
+          "damage"
+        ]
+      ], 
+      "template": "Взывая к пламени, %(e_0)s %(i_0)s огненный шар в ничего не %(i_1)s %(e_1)s, уменьшая %(i_2)s здоровье на %(e_2)s HP."
+    }, 
+    {
+      "internals": [
+        [
+          "сформировал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "сформировал"
+        ], 
+        [
+          "ударил", 
+          [
+            "attacker"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "ударил"
+        ], 
+        [
+          "единица", 
+          [
+            "damage"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "единица"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "дт"
+          ], 
+          "defender"
+        ], 
+        [
+          "damage", 
+          [], 
+          "e_2", 
+          [], 
+          "damage"
+        ]
+      ], 
+      "template": "Почувствовав тепло, %(e_0)s %(i_0)s его в огненный шар и %(i_1)s им по %(e_1)s, нанеся %(e_2)s %(i_2)s урона."
+    }, 
+    {
+      "internals": [
+        [
+          "кидал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "нст", 
+            "3л"
+          ], 
+          "кидал"
+        ], 
+        [
+          "единица", 
+          [
+            "damage"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "единица"
+        ], 
+        [
+          "он", 
+          [
+            "defender"
+          ], 
+          "i_2", 
+          [
+            "рд"
+          ], 
+          "он"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ], 
+        [
+          "damage", 
+          [], 
+          "e_2", 
+          [], 
+          "damage"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s огненный шар, опалив %(e_1)s и нанеся %(e_2)s %(i_1)s урона %(i_2)s здоровью."
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "тв"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ], 
+        [
+          "damage", 
+          [], 
+          "e_2", 
+          [], 
+          "damage"
+        ]
+      ], 
+      "template": "Выпущенный %(e_0)s шар огня ожёг %(e_1)s на %(e_2)s HP."
+    }, 
+    {
+      "internals": [
+        [
+          "он", 
+          [
+            "defender"
+          ], 
+          "i_0", 
+          [
+            "дт"
+          ], 
+          "он"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ], 
+        [
+          "damage", 
+          [], 
+          "e_2", 
+          [], 
+          "damage"
+        ]
+      ], 
+      "template": "%(e_0)s бросает огненный шар в %(e_1)s и сжигает %(i_0)s %(e_2)s HP."
+    }, 
+    {
+      "internals": [
+        [
+          "взмахивал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "нст", 
+            "3л"
+          ], 
+          "взмахивал"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ], 
+        [
+          "damage", 
+          [], 
+          "e_2", 
+          [], 
+          "damage"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s руками и магическое пламя стремительно покрывает %(e_1)s, забирая %(e_2)s HP."
+    }, 
+    {
+      "internals": [
+        [
+          "концентрировал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "нст", 
+            "3л"
+          ], 
+          "концентрировал"
+        ], 
+        [
+          "выпускал", 
+          [
+            "attacker"
+          ], 
+          "i_1", 
+          [
+            "нст", 
+            "3л"
+          ], 
+          "выпускал"
+        ], 
+        [
+          "получал", 
+          [
+            "defender"
+          ], 
+          "i_2", 
+          [
+            "нст", 
+            "3л"
+          ], 
+          "получал"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "загл"
+          ], 
+          "defender"
+        ], 
+        [
+          "damage", 
+          [], 
+          "e_2", 
+          [], 
+          "damage"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s магическую энергию и %(i_1)s пылающий огненный шар. %(e_1)s %(i_2)s урон в %(e_2)s HP и сильные ожоги."
     }
   ], 
   "quest_delivery_diary_choice_delivery": [
@@ -13765,7 +14232,29 @@
   ], 
   "quest_helpfriend_action_positive_get_reward": [], 
   "quest_searchsmith_journal_intro": [], 
-  "quest_notmywork_action_choice_do_work": [
+  "chronicle_bill_decline_bill_successed": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "bill", 
+          [], 
+          "e_0", 
+          [], 
+          "bill"
+        ], 
+        [
+          "declined_bill", 
+          [], 
+          "e_1", 
+          [], 
+          "declined_bill"
+        ]
+      ], 
+      "template": "Принят закон «%(e_0)s». Закон «%(e_1)s» отменён."
+    }
+  ], 
+  "quest_notmywork_action_intro": [
     {
       "internals": [], 
       "externals": [
@@ -13775,9 +14264,18 @@
           "e_0", 
           [], 
           "hero"
+        ], 
+        [
+          "place_end", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "place_end"
         ]
       ], 
-      "template": "%(e_0)s выслушивает объяснения"
+      "template": "%(e_0)s направляется в %(e_1)s"
     }
   ], 
   "action_equipping_diary_change_item": [
@@ -14929,6 +15427,44 @@
   ], 
   "quest_spying_action_get_reward_spying": [], 
   "quest_delivery_action_steal_get_reward": [], 
+  "quest_delivery_choice_steal_result_delivery": [
+    {
+      "internals": [
+        [
+          "решил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "решил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ], 
+        [
+          "item_to_deliver", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "item_to_deliver"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s доставить %(e_1)s"
+    }
+  ], 
   "hero_ability_vampire_strike": [
     {
       "internals": [
@@ -25202,19 +25738,44 @@
       "template": "Готовы ли вы, скальды, слагать эпосы? Ведь %(e_0)s снова %(i_0)s на дорогу! Ищите %(i_1)s на пути к %(e_1)s."
     }
   ], 
-  "quest_delivery_choice_steal_result_delivery": [
+  "angel_ability_lightning_crit": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "mob", 
+          [], 
+          "e_0", 
+          [
+            "дт"
+          ], 
+          "mob"
+        ]
+      ], 
+      "template": "На горизонте показалась яркая точка, стремительно приближающаяся к %(e_0)s. Мгновение и шар огня выжег аккуратный круг там, где находился противник."
+    }, 
     {
       "internals": [
         [
-          "решил", 
+          "он", 
           [
-            "hero"
+            "mob"
           ], 
           "i_0", 
+          [], 
+          "он"
+        ], 
+        [
+          "обугливался", 
           [
-            "прш"
+            "mob"
           ], 
-          "решил"
+          "i_1", 
+          [
+            "нст", 
+            "3л"
+          ], 
+          "обугливался"
         ]
       ], 
       "externals": [
@@ -25222,22 +25783,78 @@
           "hero", 
           [], 
           "e_0", 
-          [
-            "загл"
-          ], 
+          [], 
           "hero"
         ], 
         [
-          "item_to_deliver", 
+          "mob", 
           [], 
           "e_1", 
           [
             "вн"
           ], 
-          "item_to_deliver"
+          "mob"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s доставить %(e_1)s"
+      "template": "Почувствовав приятный аромат жареного, %(e_0)s замечает, что %(e_1)s охватило яркое пламя. С душераздирающим визгом %(i_0)s медленно %(i_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "задался", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "задался"
+        ], 
+        [
+          "превратился", 
+          [
+            "mob"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "превратился"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ], 
+        [
+          "mob", 
+          [], 
+          "e_1", 
+          [], 
+          "mob"
+        ]
+      ], 
+      "template": "«Падающие наковальни — это, конечно, хорошо, но вот куда они потом пропадают»? — %(i_0)s %(e_0)s вопросом, созерцая то, во что %(i_1)s %(e_1)s."
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "mob", 
+          [], 
+          "e_0", 
+          [
+            "тв"
+          ], 
+          "mob"
+        ]
+      ], 
+      "template": "Тень под %(e_0)s стремительно увеличилась. «Привет, валун с неба»!"
     }
   ], 
   "quest_notmywork_diary_get_reward_artifact": [
@@ -26799,33 +27416,19 @@
       "template": "Вижу следы!"
     }
   ], 
-  "quest_spying_choice_openup_result_open_up": [
+  "chronicle_place_resource_exchange_bill_failed": [
     {
-      "internals": [
-        [
-          "решил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "решил"
-        ]
-      ], 
+      "internals": [], 
       "externals": [
         [
-          "hero", 
+          "bill", 
           [], 
           "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
+          [], 
+          "bill"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s прийти с повинной."
+      "template": "Закон «%(e_0)s» не получил необходимую поддержку и обмена ресурсами не будет."
     }
   ], 
   "quest_interfereenemy_description": [
@@ -26893,454 +27496,40 @@
       "template": "%(e_0)s удалось обменять на %(e_1)s."
     }
   ], 
-  "hero_ability_fireball": [
+  "angel_ability_resurrect": [
     {
       "internals": [
         [
-          "выпустил", 
+          "видел", 
           [
-            "attacker"
+            "hero"
           ], 
           "i_0", 
           [
             "прш"
           ], 
-          "выпустил"
-        ], 
-        [
-          "единица", 
-          [
-            "damage"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "единица"
-        ], 
-        [
-          "ошарашенный", 
-          [
-            "defender"
-          ], 
-          "i_2", 
-          [
-            "дт", 
-            "прш"
-          ], 
-          "ошарашенный"
+          "видел"
         ]
       ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "damage", 
-          [], 
-          "e_1", 
-          [], 
-          "damage"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_2", 
-          [
-            "дт"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s шар огня. Волшебное пламя нанесло %(e_1)s %(i_1)s урона %(i_2)s %(e_2)s."
+      "externals": [], 
+      "template": "«Я %(i_0)s свет в конце туннеля. Свет сказал возвращаться назад»."
     }, 
     {
       "internals": [
         [
-          "выпускал", 
+          "заснул", 
           [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "нст", 
-            "3л"
-          ], 
-          "выпускал"
-        ], 
-        [
-          "подозревающий", 
-          [
-            "defender"
-          ], 
-          "i_1", 
-          [
-            "нст", 
-            "3л", 
-            "вн"
-          ], 
-          "подозревающий"
-        ], 
-        [
-          "он", 
-          [
-            "defender"
-          ], 
-          "i_2", 
-          [
-            "рд"
-          ], 
-          "он"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ], 
-        [
-          "damage", 
-          [], 
-          "e_2", 
-          [], 
-          "damage"
-        ]
-      ], 
-      "template": "Взывая к пламени, %(e_0)s %(i_0)s огненный шар в ничего не %(i_1)s %(e_1)s, уменьшая %(i_2)s здоровье на %(e_2)s HP."
-    }, 
-    {
-      "internals": [
-        [
-          "сформировал", 
-          [
-            "attacker"
+            "hero"
           ], 
           "i_0", 
           [
             "прш"
           ], 
-          "сформировал"
-        ], 
-        [
-          "ударил", 
-          [
-            "attacker"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "ударил"
-        ], 
-        [
-          "единица", 
-          [
-            "damage"
-          ], 
-          "i_2", 
-          [
-            "вн"
-          ], 
-          "единица"
+          "заснул"
         ]
       ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "дт"
-          ], 
-          "defender"
-        ], 
-        [
-          "damage", 
-          [], 
-          "e_2", 
-          [], 
-          "damage"
-        ]
-      ], 
-      "template": "Почувствовав тепло, %(e_0)s %(i_0)s его в огненный шар и %(i_1)s им по %(e_1)s, нанеся %(e_2)s %(i_2)s урона."
-    }, 
-    {
-      "internals": [
-        [
-          "кидал", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "нст", 
-            "3л"
-          ], 
-          "кидал"
-        ], 
-        [
-          "единица", 
-          [
-            "damage"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "единица"
-        ], 
-        [
-          "он", 
-          [
-            "defender"
-          ], 
-          "i_2", 
-          [
-            "рд"
-          ], 
-          "он"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ], 
-        [
-          "damage", 
-          [], 
-          "e_2", 
-          [], 
-          "damage"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s огненный шар, опалив %(e_1)s и нанеся %(e_2)s %(i_1)s урона %(i_2)s здоровью."
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "тв"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ], 
-        [
-          "damage", 
-          [], 
-          "e_2", 
-          [], 
-          "damage"
-        ]
-      ], 
-      "template": "Выпущенный %(e_0)s шар огня ожёг %(e_1)s на %(e_2)s HP."
-    }, 
-    {
-      "internals": [
-        [
-          "он", 
-          [
-            "defender"
-          ], 
-          "i_0", 
-          [
-            "дт"
-          ], 
-          "он"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ], 
-        [
-          "damage", 
-          [], 
-          "e_2", 
-          [], 
-          "damage"
-        ]
-      ], 
-      "template": "%(e_0)s бросает огненный шар в %(e_1)s и сжигает %(i_0)s %(e_2)s HP."
-    }, 
-    {
-      "internals": [
-        [
-          "взмахивал", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "нст", 
-            "3л"
-          ], 
-          "взмахивал"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ], 
-        [
-          "damage", 
-          [], 
-          "e_2", 
-          [], 
-          "damage"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s руками и магическое пламя стремительно покрывает %(e_1)s, забирая %(e_2)s HP."
-    }, 
-    {
-      "internals": [
-        [
-          "концентрировал", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "нст", 
-            "3л"
-          ], 
-          "концентрировал"
-        ], 
-        [
-          "выпускал", 
-          [
-            "attacker"
-          ], 
-          "i_1", 
-          [
-            "нст", 
-            "3л"
-          ], 
-          "выпускал"
-        ], 
-        [
-          "получал", 
-          [
-            "defender"
-          ], 
-          "i_2", 
-          [
-            "нст", 
-            "3л"
-          ], 
-          "получал"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "загл"
-          ], 
-          "defender"
-        ], 
-        [
-          "damage", 
-          [], 
-          "e_2", 
-          [], 
-          "damage"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s магическую энергию и %(i_1)s пылающий огненный шар. %(e_1)s %(i_2)s урон в %(e_2)s HP и сильные ожоги."
+      "externals": [], 
+      "template": "«Кажется я %(i_0)s ненадолго»."
     }
   ], 
   "quest_hometown_journal_remember_names_start": [], 
@@ -28359,6 +28548,35 @@
         ]
       ], 
       "template": "На совещании, где обсуждался закон «%(e_0)s», было принято решение снести постройку, владельцем которой является %(e_1)s, так как состояние здания угрожает жизни и здоровью горожан."
+    }
+  ], 
+  "action_regenerate_energy_energy_received_pray": [
+    {
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
     }
   ], 
   "angel_ability_building_repair": [
@@ -29406,7 +29624,7 @@
       "template": "%(e_0)s %(i_0)s, что поживиться тут нечем, но не унывает: «Легче сумка — шире шаг»."
     }
   ], 
-  "quest_notmywork_action_intro": [
+  "quest_notmywork_action_choice_do_work": [
     {
       "internals": [], 
       "externals": [
@@ -29416,18 +29634,9 @@
           "e_0", 
           [], 
           "hero"
-        ], 
-        [
-          "place_end", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "place_end"
         ]
       ], 
-      "template": "%(e_0)s направляется в %(e_1)s"
+      "template": "%(e_0)s выслушивает объяснения"
     }
   ], 
   "quest_caravan_diary_run_away": [], 

@@ -134,3 +134,47 @@ class ResourceExchangeStorageTests(testcase.TestCase):
 
         self.assertEqual(set(exchange.id for exchange in resource_exchange_storage.get_exchanges_for_place(self.place_2)),
                          set((exchange_1.id, exchange_3.id)))
+
+
+    def test_get_exchanges_for_bill_id_no(self):
+        self.assertEqual(resource_exchange_storage.get_exchange_for_bill_id(666), None)
+
+    def test_get_exchanges_for_bill_id__exists(self):
+        from accounts.prototypes import AccountPrototype
+        from accounts.logic import register_user
+
+        from forum.models import Category, SubCategory
+        from game.bills.conf import bills_settings
+        from game.bills import bills
+        from game.bills.prototypes import BillPrototype
+
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        account = AccountPrototype.get_by_id(account_id)
+
+        forum_category = Category.objects.create(caption='category-1', slug='category-1')
+        SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_SLUG + '-caption',
+                                   slug=bills_settings.FORUM_CATEGORY_SLUG,
+                                   category=forum_category)
+
+        bill_data = bills.PlaceRenaming(place_id=self.place_1.id, base_name='new_name')
+        bill = BillPrototype.create(account, 'bill-caption', 'bill-rationale', bill_data)
+
+        ResourceExchangePrototype.create(place_1=self.place_1,
+                                         place_2=self.place_2,
+                                         resource_1=self.resource_1,
+                                         resource_2=self.resource_2,
+                                         bill=None)
+
+        exchange_2 = ResourceExchangePrototype.create(place_1=self.place_1,
+                                                      place_2=self.place_3,
+                                                      resource_1=self.resource_1,
+                                                      resource_2=self.resource_2,
+                                                      bill=bill)
+
+        ResourceExchangePrototype.create(place_1=self.place_2,
+                                         place_2=self.place_3,
+                                         resource_1=self.resource_1,
+                                         resource_2=self.resource_2,
+                                         bill=None)
+
+        self.assertEqual(exchange_2.id, resource_exchange_storage.get_exchange_for_bill_id(bill.id).id)

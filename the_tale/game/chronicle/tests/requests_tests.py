@@ -51,14 +51,14 @@ class IndexRequestsTest(TestCase):
         self.check_html_ok(self.client.get(reverse('game:chronicle:')+'?page=2'), texts=texts)
 
     def test_filter_by_place_no_records(self):
-        self.create_record(0, actors={ACTOR_ROLE.PLACE: ExternalPlace(self.place_1)})
-        self.create_record(1, actors={ACTOR_ROLE.PLACE: ExternalPlace(self.place_1)})
+        self.create_record(0, actors=[(ACTOR_ROLE.PLACE, ExternalPlace(self.place_1))])
+        self.create_record(1, actors=[(ACTOR_ROLE.PLACE, ExternalPlace(self.place_1))])
         self.check_html_ok(self.client.get(reverse('game:chronicle:')+('?place=%d' % self.place_2.id)), texts=['pgf-no-records-message'])
 
     def test_filter_by_place(self):
-        self.create_record(0, actors={ACTOR_ROLE.PLACE: ExternalPlace(self.place_1)})
-        self.create_record(1, actors={ACTOR_ROLE.PLACE: ExternalPlace(self.place_1)})
-        self.create_record(2, actors={ACTOR_ROLE.PLACE: ExternalPlace(self.place_2)})
+        self.create_record(0, actors=[(ACTOR_ROLE.PLACE, ExternalPlace(self.place_1))])
+        self.create_record(1, actors=[(ACTOR_ROLE.PLACE, ExternalPlace(self.place_1))])
+        self.create_record(2, actors=[(ACTOR_ROLE.PLACE, ExternalPlace(self.place_2))])
         self.check_html_ok(self.client.get(reverse('game:chronicle:')+('?place=%d' % self.place_1.id)), texts=[('pgf-no-records-message', 0),
                                                                                                                ('record_text_0_0', 1),
                                                                                                                ('record_text_0_1', 1),

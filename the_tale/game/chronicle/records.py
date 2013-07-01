@@ -10,16 +10,18 @@ from game.chronicle.prototypes import RecordPrototype, create_external_actor
 
 class RecordBase(object):
     TYPE = None
+    IGNORE_ACTORS_CHECK = False
     ACTORS = frozenset()
     SUBSTITUTIONS = frozenset()
     TEXGEN_ID_BASE = 'chronicle_%s'
 
     def __init__(self, actors, substitutions):
-        self.actors = { role:create_external_actor(actor) for role, actor in actors.items() }
+
+        self.actors = [ (role, create_external_actor(actor)) for role, actor in actors ]
         self.substitutions = substitutions
 
-        if set(self.actors.keys()) != set(self.ACTORS):
-            raise ChronicleException('wrong actors for chronicle record %r' % set(self.actors.keys()).symmetric_difference(self.ACTORS))
+        if not self.IGNORE_ACTORS_CHECK and sorted(zip(*self.actors)[0]) != sorted(self.ACTORS):
+            raise ChronicleException('wrong actors for chronicle record %r versus %r' % (zip(*self.actors)[0], self.ACTORS))
         if set(self.substitutions.keys()) != set(self.SUBSTITUTIONS):
             raise ChronicleException('wrong substitutions for chronicle record %r' % set(self.substitutions.keys()).symmetric_difference(self.SUBSTITUTIONS))
 
@@ -35,7 +37,7 @@ class RecordBase(object):
     def create_record(self):
         return RecordPrototype.create(self)
 
-    def __repr__(self): return '<Chronicle record for %s>' % RECORD_TYPE._ID_TO_STR[self.TYPE]
+    def __repr__(self): return '<Chronicle record for %s>' % self.TYPE.text.encode('utf-8')
 
 
 # change place name
@@ -153,6 +155,7 @@ class BuildingDestroyedByAmortization(RecordBase):
     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PERSON]
     SUBSTITUTIONS  = ['place', 'person']
 
+
 # building renaming
 class _BuildingRenamingBillBase(_BuildingBase):
     SUBSTITUTIONS = _BuildingBase.SUBSTITUTIONS + ['old_name', 'new_name']
@@ -165,6 +168,38 @@ class BuildingRenamingBillSuccessed(_BuildingRenamingBillBase):
 
 class BuildingRenamingBillFailed(_BuildingRenamingBillBase):
     TYPE = RECORD_TYPE.BUILDING_RENAMING_BILL_FAILED
+
+
+# place resource exchange
+class _PlaceResourceExchangeBillBase(RecordBase):
+    ACTORS = [ACTOR_ROLE.BILL, ACTOR_ROLE.PLACE, ACTOR_ROLE.PLACE]
+    SUBSTITUTIONS = ['place_1', 'place_2', 'resource_1', 'resource_2', 'bill']
+
+class PlaceResourceExchangeStarted(_PlaceResourceExchangeBillBase):
+    TYPE = RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_STARTED
+
+class PlaceResourceExchangeSuccessed(_PlaceResourceExchangeBillBase):
+    TYPE = RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_SUCCESSED
+
+class PlaceResourceExchangeFailed(_PlaceResourceExchangeBillBase):
+    TYPE = RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_FAILED
+
+
+# bill decline
+class _BillDeclineBillBase(RecordBase):
+    IGNORE_ACTORS_CHECK = True
+    ACTORS = [ACTOR_ROLE.BILL, ACTOR_ROLE.BILL]
+    SUBSTITUTIONS = ['bill', 'declined_bill']
+
+class BillDeclineStarted(_BillDeclineBillBase):
+    TYPE = RECORD_TYPE.BILL_DECLINE_BILL_STARTED
+
+class BillDeclineSuccessed(_BillDeclineBillBase):
+    TYPE = RECORD_TYPE.BILL_DECLINE_BILL_SUCCESSED
+
+class BillDeclineFailed(_BillDeclineBillBase):
+    TYPE = RECORD_TYPE.BILL_DECLINE_BILL_FAILED
+
 
 # race
 class PlaceChangeRace(RecordBase):

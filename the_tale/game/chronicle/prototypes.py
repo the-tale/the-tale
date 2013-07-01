@@ -28,7 +28,7 @@ class RecordPrototype(BasePrototype):
 
         prototype = cls(model)
 
-        for role, actor in record.actors.items():
+        for role, actor in record.actors:
             RecordToActorPrototype.create(role, prototype, actor)
 
         return prototype

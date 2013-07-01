@@ -2,15 +2,13 @@
 
 import mock
 import datetime
-import random
+
+from game.map.places.storage import resource_exchange_storage
 
 from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.bills import PlaceResourceExchange, BillDecline, PlaceDescripton
-
 from game.bills.tests.prototype_tests import BaseTestPrototypes
-
-from game.map.places.storage import resource_exchange_storage
-from game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+from game.bills.tests.helpers import choose_resources
 
 
 class BillDeclineResourceExchangeTests(BaseTestPrototypes):
@@ -20,7 +18,7 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
     def setUp(self):
         super(BillDeclineResourceExchangeTests, self).setUp()
 
-        self.resource_1, self.resource_2 = self.choose_resources()
+        self.resource_1, self.resource_2 = choose_resources()
 
         self.declined_bill_data = PlaceResourceExchange(place_1_id=self.place1.id,
                                                         place_2_id=self.place2.id,
@@ -36,14 +34,6 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
         self.bill_data = BillDecline(declined_bill_id=self.declined_bill.id)
         self.bill = BillPrototype.create(self.account1, 'bill-caption', 'bill-rationale', self.bill_data)
-
-
-    def choose_resources(self):
-        resource_1, resource_2 = RESOURCE_EXCHANGE_TYPE.NONE, RESOURCE_EXCHANGE_TYPE.NONE
-        while resource_1.parameter == resource_2.parameter:
-            resource_1 = random.choice(RESOURCE_EXCHANGE_TYPE._records)
-            resource_2 = random.choice(RESOURCE_EXCHANGE_TYPE._records)
-        return resource_1, resource_2
 
     def test_create(self):
         self.assertEqual(self.bill.data.declined_bill_id, self.declined_bill.id)

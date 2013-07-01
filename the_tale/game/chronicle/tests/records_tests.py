@@ -1,5 +1,6 @@
 # coding: utf-8
-
+import mock
+import datetime
 from textgen.words import Fake as FakeWord
 
 from textgen.words import Noun
@@ -9,7 +10,6 @@ from common.utils.testcase import TestCase
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
-# from forum.models import Post, Thread, MARKUP_METHOD
 from forum.models import Category, SubCategory
 
 from game.logic import create_test_map
@@ -17,10 +17,12 @@ from game.logic import create_test_map
 from game.bills.conf import bills_settings
 from game.bills import bills
 from game.bills.prototypes import BillPrototype
+from game.bills.tests.helpers import choose_resources
 
 from game.chronicle import records
 from game.chronicle.models import RECORD_TYPE, Record, Actor
 from game.chronicle.prototypes import create_external_actor
+from game.chronicle.relations import ACTOR_ROLE
 
 
 class RecordTests(TestCase):
@@ -31,8 +33,6 @@ class RecordTests(TestCase):
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.account = AccountPrototype.get_by_id(account_id)
-
-
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
         SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_SLUG + '-caption',
@@ -56,12 +56,58 @@ class RecordTests(TestCase):
                     forms=['new name %d %d' % (index, i) for i in xrange( Noun.FORMS_NUMBER)],
                     properties=(u'мр',))
 
+    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    def create_bill_decline(self):
+        resource_1, resource_2 = choose_resources()
+
+        declined_bill_data = bills.PlaceResourceExchange(place_1_id=self.place_1.id,
+                                                         place_2_id=self.place_2.id,
+                                                         resource_1=resource_1,
+                                                         resource_2=resource_2)
+
+        declined_bill = BillPrototype.create(self.account, 'declined-bill-caption', 'declined-bill-rationale', declined_bill_data)
+
+        declined_form = bills.PlaceResourceExchange.ModeratorForm({'approved': True})
+        self.assertTrue(declined_form.is_valid())
+        declined_bill.update_by_moderator(declined_form)
+        declined_bill.apply()
+
+        bill_data = bills.BillDecline(declined_bill_id=declined_bill.id)
+        bill = BillPrototype.create(self.account, 'bill-caption', 'bill-rationale', bill_data)
+        return bill, declined_bill
+
+    def test_bill_decline__actors(self):
+        from game.chronicle.signal_processors import _get_bill_decline_bill_arguments
+
+        bill, declined_bill = self.create_bill_decline()
+
+        actors_ids = []
+        for role, actor in _get_bill_decline_bill_arguments(bill)['actors']:
+            actors_ids.append((role, actor.id))
+        self.assertEqual(sorted(actors_ids), sorted([(ACTOR_ROLE.BILL, bill.id),
+                                                     (ACTOR_ROLE.BILL, declined_bill.id),
+                                                     (ACTOR_ROLE.PLACE, self.place_1.id),
+                                                     (ACTOR_ROLE.PLACE, self.place_2.id)]))
+
+    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    def test_bill_decline__actors_on_creation_record(self):
+        bill, declined_bill = self.create_bill_decline()
+        form = bills.BillDecline.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+
+        bill.update_by_moderator(form)
+
+        self.assertTrue(bill.apply())
+
+
 
 def create_test_create_method(record_class):
 
     def test_create_method(self):
 
-        actors = {}
+        actors = []
         substitutions = {}
 
         for index, argument in enumerate(record_class.SUBSTITUTIONS):
@@ -76,11 +122,14 @@ def create_test_create_method(record_class):
 
         for role in record_class.ACTORS:
             if role._is_PLACE:
-                actors[role] = self.place_1
+                if (role, self.place_1) not in actors:
+                    actors.append((role, self.place_1))
+                else:
+                    actors.append((role, self.place_2))
             elif role._is_BILL:
-                actors[role] = self.bill
+                actors.append((role, self.bill))
             elif role._is_PERSON:
-                actors[role] = self.place_1.persons[0]
+                actors.append((role, self.place_1.persons[0]))
 
         record = record_class(actors=actors, substitutions=substitutions)
 
@@ -88,7 +137,7 @@ def create_test_create_method(record_class):
         record.create_record()
         self.assertEqual(old_records_number + 1, Record.objects.all().count())
 
-        for actor in actors.values():
+        for actor in zip(*actors)[1]:
             self.assertTrue(Actor.objects.filter(uid=create_external_actor(actor).uid).exists())
 
     return test_create_method
