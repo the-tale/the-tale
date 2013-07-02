@@ -101,8 +101,6 @@ class PersonPrototype(BasePrototype):
 
     def cmd_change_power(self, power):
         from game.workers.environment import workers_environment
-        if self.place.modifier:
-            power = self.place.modifier.modify_power(power)
 
         building = buildings_storage.get_by_person_id(self.id)
 
