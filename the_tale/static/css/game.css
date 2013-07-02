@@ -48,6 +48,8 @@
 }
 .hero-equipment-block .equip-record {
   padding-top: 0.1em;
+}
+.hero-equipment-block .equip-record.has-artifact {
   cursor: pointer;
 }
 .hero-equipment-block .equip-record:hover {
@@ -225,6 +227,7 @@
 .place-description-dialog .description {
   min-height: 70px;
   text-align: justify;
+  padding-right: 0.5em;
 }
 .place-description-dialog .description img {
   float: left;
