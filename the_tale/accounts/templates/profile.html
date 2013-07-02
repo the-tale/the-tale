@@ -67,7 +67,7 @@ jQuery(document).ready( function(e) {
 
         {% if resource.account.is_authenticated() and resource.account.is_fast %}
         <p class="pgf-fast-account-user-agreement-block">
-          <strong>Завершая регистрацию, Вы соглашаетесь с <a href="#">пользовательским соглашением</a>.</strong>
+          <strong>Завершая регистрацию, Вы соглашаетесь с <a target="_blank" href="{{url('guide:user-agreement')}}">соглашением</a>.</strong>
         </p>
         <input type="submit" class="btn btn-success" value="Завершить регистрацию"/>
         {% else %}

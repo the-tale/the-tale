@@ -118,7 +118,7 @@ class CraftCenter(PlaceModifierBase):
     TYPE = e.CITY_MODIFIERS.CRAFT_CENTER
     PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.CRAFT_CENTER)
     NAME = u'Город мастеров'
-    DESCRIPTION = u'Большое количество мастеров, трудящихся в городе, позволяет героям приобретать лучшие артефакты. Увеличивается уровень производства в гроде.'
+    DESCRIPTION = u'Большое количество мастеров, трудящихся в городе, позволяет героям приобретать лучшие артефакты. Увеличивается уровень производства в городе.'
 
     PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS
 
