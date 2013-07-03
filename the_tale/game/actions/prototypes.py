@@ -319,6 +319,7 @@ class ActionBase(object):
 
 
     def on_save(self):
+
         if self.meta_action_id is not None and self.meta_action.updated:
             self.meta_action.save()
 
@@ -456,6 +457,7 @@ class ActionQuestPrototype(ActionBase):
 
         if self.state == self.STATE.PROCESSING:
             percents = self.quest.process(self)
+            self.quest.save()
 
             self.percents = percents
 
