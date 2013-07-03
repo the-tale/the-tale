@@ -21,7 +21,6 @@ pgf.game.events.DATA_REFRESH_NEEDED = 'pgf-data-refresh-needed';
 pgf.game.Updater = function(params) {
 
     var instance = this;
-    var turnNumber = -1;
 
     this.data = {};
 
@@ -31,13 +30,23 @@ pgf.game.Updater = function(params) {
             dataType: 'json',
             type: 'get',
             url: params.url,
-            data: {turn_number: turnNumber},
             success: function(data, request, status) {
 
+                if (data.data.is_old) {
+                    jQuery('.pgf-wait-data').toggleClass('pgf-hidden', false);
+                    jQuery('.pgf-game-data').toggleClass('pgf-hidden', true);
+                    setTimeout(function(e){instance.Refresh();}, 1000);
+                    return;
+                }
+
                 instance.data = data.data;
-                turnNumber = data.turn_number;
 
                 jQuery(document).trigger(pgf.game.events.DATA_REFRESHED, instance.data);
+
+                setTimeout(function(e){
+                    jQuery('.pgf-wait-data').toggleClass('pgf-hidden', true);
+                    jQuery('.pgf-game-data').toggleClass('pgf-hidden', false);
+                }, 750);
             },
             error: function() {
             },

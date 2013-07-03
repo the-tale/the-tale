@@ -2,6 +2,7 @@
 
 {% import 'heroes/hero_short.html' as hero_short_macros with context %}
 {% import 'heroes/hero_equipment.html' as hero_equipment_macros with context %}
+{% import 'game/macros.html' as game_macros with context %}
 
 {% block title %}Страница героя | {{ super() }}{% endblock %}
 
@@ -26,6 +27,8 @@ jQuery(document).ready(function(e){
     pgf.base.InitializeTabs('hero-tab-main', 'attributes', [['.pgf-attributes-tab-button', 'attributes'],
                                                             ['.pgf-statistics-tab-button', 'statistics'],
                                                             ['.pgf-settings-tab-button', 'settings']]);
+
+    pgf.base.ToggleWait(jQuery(".pgf-hero-data-wait"), true);
 });
 
 </script>
@@ -34,7 +37,10 @@ jQuery(document).ready(function(e){
 
 {% block content %}
 
-<div id="hero-page-content" class="row">
+
+{{ game_macros.hero_wait_message() }}
+
+<div id="hero-page-content" class="row pgf-game-data pgf-hidden">
 
   <div class="span3">
 
@@ -103,6 +109,8 @@ jQuery(document).ready(function(e){
       {% endif %}
 
     </div>
+
+  </div>
 
 </div>
 

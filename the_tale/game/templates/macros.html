@@ -28,6 +28,23 @@
 
 {%- endmacro %}
 
+{% macro hero_wait_message() %}
+<script type="text/javascript">
+jQuery(document).ready(function(e){
+    pgf.base.ToggleWait(jQuery(".pgf-hero-data-wait"), true);
+});
+</script>
+
+<div class="row pgf-wait-data">
+  <div class="span6 offset3">
+    <p class="alert alert-info">
+      <span class="pgf-hero-data-wait"></span>
+      <span style="vertical-align: middle;">Идёт поиск героя</span>
+    </p>
+  </div>
+</div>
+{% endmacro %}
+
 
 {% macro game_debug_javascript() %}
 

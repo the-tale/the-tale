@@ -16,6 +16,7 @@ from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user, login_url
 
 from game.logic import create_test_map
+from game.prototypes import TimePrototype
 
 from game.heroes.prototypes import HeroPrototype
 
@@ -127,12 +128,27 @@ class TestRequests(TestRequestsBase):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero', mock.Mock(return_value={})) as cached_ui_info_for_hero:
-            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info', mock.Mock(return_value={})) as ui_info:
+        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
+                        mock.Mock(return_value={'saved_at_turn': self.hero_1.saved_at_turn})) as cached_ui_info_for_hero:
+            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info',
+                            mock.Mock(return_value={'saved_at_turn': self.hero_2.saved_at_turn})) as ui_info:
                 self.client.get(reverse('game:pvp:info'))
 
         self.assertEqual(cached_ui_info_for_hero.call_args_list, [mock.call(self.account_1.id)])
         self.assertEqual(ui_info.call_args_list, [mock.call(for_last_turn=True)])
+
+    def test_is_old(self):
+        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
+        self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
+
+        self.assertFalse(s11n.from_json(self.request_ajax_json(reverse('game:pvp:info')).content)['data']['is_old'])
+
+        TimePrototype(turn_number=666).save()
+        self.assertTrue(s11n.from_json(self.request_ajax_json(reverse('game:pvp:info')).content)['data']['is_old'])
+
+        self.hero_1.save()
+        self.assertFalse(s11n.from_json(self.request_ajax_json(reverse('game:pvp:info')).content)['data']['is_old'])
+
 
 class SayRequestsTests(TestRequestsBase):
 

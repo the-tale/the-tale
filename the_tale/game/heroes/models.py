@@ -23,6 +23,9 @@ class Hero(models.Model):
     MAX_NAME_LENGTH = 32
 
     created_at_turn = models.IntegerField(null=False, default=0)
+    saved_at_turn = models.IntegerField(null=False, default=0)
+
+    saved_at = models.DateTimeField(auto_now=True, default=datetime.datetime.fromtimestamp(0))
 
     account = models.ForeignKey('accounts.Account', related_name='heroes', default=None, null=True, blank=True)
 
@@ -34,6 +37,7 @@ class Hero(models.Model):
     premium_state_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
     ban_state_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
+    # time when ui caching and model saving has started
     ui_caching_started_at = models.DateTimeField(auto_now_add=True, default=datetime.datetime(2000, 1, 1))
 
     #base

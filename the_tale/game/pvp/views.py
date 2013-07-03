@@ -96,6 +96,8 @@ class PvPResource(Resource):
         data['account']['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
         data['enemy']['hero'] = HeroPrototype.get_by_account_id(enemy.id).ui_info(for_last_turn=True)
 
+        data['is_old'] = (data['account']['hero']['saved_at_turn'] < data['turn']['number'])
+
         return self.json_ok(data=data)
 
     @login_required

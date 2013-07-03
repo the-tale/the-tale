@@ -1,6 +1,7 @@
 # coding: utf-8
 import math
 import datetime
+import time
 import random
 import copy
 
@@ -47,7 +48,7 @@ from game.heroes.places_help_statistics import PlacesHelpStatistics
 
 class HeroPrototype(BasePrototype):
     _model_class = Hero
-    _readonly = ('id', 'account_id', 'created_at_turn', 'name', 'experience', 'money', 'next_spending', 'energy', 'level')
+    _readonly = ('id', 'account_id', 'created_at_turn', 'name', 'experience', 'money', 'next_spending', 'energy', 'level', 'saved_at_turn', 'saved_at')
     _bidirectional = ('is_alive',
                       'is_fast',
                       'gender',
@@ -605,6 +606,8 @@ class HeroPrototype(BasePrototype):
         self._model.delete()
 
     def save(self):
+        self._model.saved_at_turn = TimePrototype.get_current_turn_number()
+        self._model.saved_at = datetime.datetime.now()
 
         if self.bag.updated:
             self._model.bag = s11n.to_json(self.bag.serialize())
@@ -683,6 +686,8 @@ class HeroPrototype(BasePrototype):
             quests = quest.ui_info(self) if quest else {}
 
         return {'id': self.id,
+                'saved_at_turn': self.saved_at_turn,
+                'saved_at': time.mktime(self.saved_at.timetuple()),
                 'messages': self.messages.ui_info(),
                 'diary': self.diary.ui_info(with_date=True),
                 'position': self.position.ui_info(),
@@ -782,6 +787,7 @@ class HeroPrototype(BasePrototype):
         diary.push_message(diary._prepair_message(u'«Вот же ж угораздило. У всех ангелы-хранители нормальные, сидят себе и попаданию подопечных в загробный мир не мешают. А у моего, значит, шило в заднице! Где ты был, когда я лотерейные билеты покупал?! Молнию отвести он значит не может, а воскресить — запросто. Как же всё болит, кажется теперь у меня две печёнки (это, конечно, тебе спасибо, всегда пригодится). Ну ничего, рано или поздно я к твоему начальству попаду и там уж всё расскажу! А пока буду записывать в свой дневник».'))
 
         hero = Hero.objects.create(created_at_turn=current_turn_number,
+                                   saved_at_turn=current_turn_number,
                                    active_state_end_at=account.active_end_at,
                                    premium_state_end_at=account.premium_end_at,
                                    account=account._model,

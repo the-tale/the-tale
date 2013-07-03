@@ -3,6 +3,7 @@ import datetime
 import random
 
 import mock
+import time
 
 from common.utils.testcase import TestCase
 
@@ -61,11 +62,11 @@ class HeroTest(TestCase):
         self.assertFalse(self.hero.is_active)
 
     def test_create_time(self):
-        time = TimePrototype.get_current_time()
-        time.increment_turn()
-        time.increment_turn()
-        time.increment_turn()
-        time.save()
+        game_time = TimePrototype.get_current_time()
+        game_time.increment_turn()
+        game_time.increment_turn()
+        game_time.increment_turn()
+        game_time.save()
 
         result, account_id, bundle_id = register_user('test_user_2')
 
@@ -169,7 +170,7 @@ class HeroTest(TestCase):
         self.assertFalse(self.hero.is_ui_caching_required)
 
     def test_cached_ui_info_from_cache__from_cache_is_true__for_not_visited_heroes(self):
-        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME+1)
+        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME + 1)
         self.hero.save()
 
         with mock.patch('game.workers.supervisor.Worker.cmd_start_hero_caching') as call_counter:
@@ -189,6 +190,27 @@ class HeroTest(TestCase):
         with mock.patch('game.workers.supervisor.Worker.cmd_start_hero_caching') as call_counter:
             HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
         self.assertEqual(call_counter.call_count, 0)
+
+    def test_cached_ui_info_for_hero__saved_at_turn(self):
+        self.assertEqual(self.hero.saved_at_turn, 0)
+        self.assertEqual(HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)['saved_at_turn'], 0)
+
+        TimePrototype(turn_number=666).save()
+
+        self.hero.save()
+
+        self.assertTrue(self.hero.saved_at_turn, 666)
+
+        self.assertEqual(HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)['saved_at_turn'], 666)
+
+    def test_cached_ui_info_for_hero__saved_at(self):
+        old_saved_at = self.hero.saved_at
+        self.assertEqual(HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)['saved_at'], time.mktime(old_saved_at.timetuple()))
+
+        self.hero.save()
+
+        self.assertTrue(old_saved_at < self.hero.saved_at)
+        self.assertEqual(HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)['saved_at'], time.mktime(self.hero.saved_at.timetuple()))
 
     def test_ui_caching_timeout_greate_then_turn_delta(self):
         self.assertTrue(heroes_settings.UI_CACHING_TIMEOUT > c.TURN_DELTA)

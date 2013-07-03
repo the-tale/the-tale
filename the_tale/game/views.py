@@ -42,7 +42,8 @@ class GameResource(Resource):
 
         data = {'mode': 'pve',
                 'turn': self.time.ui_info(),
-                'map_version': map_info_storage.version}
+                'map_version': map_info_storage.version,
+                'is_old': False}
 
         if account is not None:
             is_own_hero = self.account and self.account.id == account.id
@@ -62,6 +63,8 @@ class GameResource(Resource):
                         data['mode'] = 'pvp'
             else:
                 data['hero'] = HeroPrototype.get_by_account_id(account.id).ui_info(for_last_turn=True, quests_info=False)
+
+            data['is_old'] = is_own_hero and (data['hero']['saved_at_turn'] < data['turn']['number'])
 
         return self.json_ok(data=data)
 
