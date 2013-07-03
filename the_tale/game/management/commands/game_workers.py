@@ -7,7 +7,6 @@ from common.amqp_queues.django_commands import construct_workers_manager
 
 Command = construct_workers_manager(help='run game workers',
                                     process_pid='game_workers',
-                                    environments=[workers_environment],
                                     workers=(workers_environment.supervisor,
                                              workers_environment.logic,
                                              workers_environment.highlevel if game_settings.ENABLE_WORKER_HIGHLEVEL else None,

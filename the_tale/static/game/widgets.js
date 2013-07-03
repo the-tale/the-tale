@@ -21,8 +21,26 @@ pgf.game.events.DATA_REFRESH_NEEDED = 'pgf-data-refresh-needed';
 pgf.game.Updater = function(params) {
 
     var instance = this;
+    var refreshInterval = undefined;
+    var refreshTimer = undefined;
 
     this.data = {};
+
+    this.SetRefreshInterval = function(intervalTime) {
+        refreshInterval = intervalTime;
+        refreshTimer = setInterval(function(e){
+            instance.Refresh();
+        }, refreshInterval );
+    };
+
+    this.ResetRefreshInterval = function() {
+        if (!refreshInterval) return;
+
+        clearInterval(refreshTimer);
+
+        instance.SetRefreshInterval(refreshInterval);
+    };
+
 
     this.Refresh = function() {
 
@@ -35,7 +53,10 @@ pgf.game.Updater = function(params) {
                 if (data.data.is_old) {
                     jQuery('.pgf-wait-data').toggleClass('pgf-hidden', false);
                     jQuery('.pgf-game-data').toggleClass('pgf-hidden', true);
-                    setTimeout(function(e){instance.Refresh();}, 1000);
+                    setTimeout(function(e){
+                        instance.ResetRefreshInterval();
+                        instance.Refresh();
+                    }, 1000);
                     return;
                 }
 

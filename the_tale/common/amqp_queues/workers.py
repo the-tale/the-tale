@@ -1,8 +1,9 @@
 # coding: utf-8
 
 import sys
+import Queue
 
-from common.amqp_queues.exceptions import AmqpQueueException
+from common.amqp_queues import exceptions
 from common.amqp_queues.connection import connection
 from django.conf import settings as project_settings
 
@@ -44,7 +45,6 @@ class BaseWorker(object):
             self.process_cmd(cmd.payload)
 
     def close_queries(self):
-        # TODO: implement
         pass
 
     def clean_queues(self):
@@ -63,12 +63,12 @@ class BaseWorker(object):
                 if ('cmd_%s' % cmd_name) in attributes:
                     self.commands[cmd_name] = getattr(self, attribute)
                 else:
-                    raise AmqpQueueException('method "%s" specified without appropriate cmd_* method')
+                    raise exceptions.NoCmdMethodError(method=cmd_name)
 
             if attribute.startswith('cmd_'):
                 cmd_name = attribute[4:]
                 if ('process_%s' % cmd_name) not in attributes:
-                    raise AmqpQueueException('method "%s" specified without appropriate process_* method')
+                    raise exceptions.NoProcessMethodError(method=cmd_name)
 
 
     def send_cmd(self, tp, data=None):
@@ -99,12 +99,15 @@ class BaseWorker(object):
                               exc_info=sys.exc_info(),
                               extra={} )
 
-    def wait_answers_from(self, code, workers=()):
+    def wait_answers_from(self, code, workers=(), timeout=60.0):
 
         while workers:
 
-            answer_cmd = self.answers_queue.get(block=True)
-            answer_cmd.ack()
+            try:
+                answer_cmd = self.answers_queue.get(block=True, timeout=timeout)
+                answer_cmd.ack()
+            except Queue.Empty:
+                raise exceptions.WaitAnswerTimeoutError(code=code, workers=workers, timeout=timeout)
 
             cmd = answer_cmd.payload
 
@@ -113,9 +116,9 @@ class BaseWorker(object):
                 if worker_id in workers:
                     workers.remove(worker_id)
                 else:
-                    raise AmqpQueueException('unexpected unswer from worker: %r' % cmd)
+                    raise exceptions.UnexpectedAnswerError(cmd=cmd)
             else:
-                raise AmqpQueueException('wrong answer: %r, expected answers from %r' % (cmd, workers))
+                raise exceptions.WrongAnswerError(cmd=cmd, workers=workers)
 
     def cmd_answer(self, code, worker):
         self.answers_queue.put({'code': code, 'worker': worker}, serializer='json', compression=None)

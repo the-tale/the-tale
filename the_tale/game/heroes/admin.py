@@ -6,7 +6,7 @@ from game.heroes.models import Hero
 
 class HeroAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'is_alive', 'health', 'account')
-    readonly_fields = ('account', 'pref_friend', 'pref_enemy')
+    readonly_fields = ('created_at_turn', 'saved_at_turn', 'saved_at', 'account', 'pref_friend', 'pref_enemy')
 
 
 admin.site.register(Hero, HeroAdmin)

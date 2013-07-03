@@ -1,25 +1,15 @@
 # coding: utf-8
 
+from common.amqp_queues.environment import BaseEnvironment
+
 from portal.workers.long_commands import Worker as LongCommands
 
-class QUEUE:
-    LONG_COMMANDS = 'long_commands'
-    LONG_COMMANDS_STOP = 'long_commands_stop'
 
-
-class Environment(object):
-
-    def __init__(self):
-        pass
+class Environment(BaseEnvironment):
 
     def initialize(self):
-        self.long_commands = LongCommands(command_queue=QUEUE.LONG_COMMANDS, stop_queue=QUEUE.LONG_COMMANDS_STOP)
+        self.long_commands = LongCommands(command_queue='long_commands', stop_queue='long_commands_stop')
 
-    def deinitialize(self):
-        self.long_commands.close_queries()
-
-    def clean_queues(self):
-        self.long_commands.clean_queues()
 
 workers_environment = Environment()
 workers_environment.initialize()

@@ -136,6 +136,15 @@ class InfoRequestTests(RequestTestsBase):
         HeroPrototype.get_by_account_id(self.account_1_id).save()
         self.assertFalse(s11n.from_json(self.request_ajax_json(self.game_info_url_1).content)['data']['is_old'])
 
+    def test_is_old__not_own_hero(self):
+        self.assertFalse(s11n.from_json(self.request_ajax_json(self.game_info_url_2).content)['data']['is_old'])
+
+        TimePrototype(turn_number=666).save()
+        self.assertFalse(s11n.from_json(self.request_ajax_json(self.game_info_url_2).content)['data']['is_old'])
+
+        HeroPrototype.get_by_account_id(self.account_2_id).save()
+        self.assertFalse(s11n.from_json(self.request_ajax_json(self.game_info_url_2).content)['data']['is_old'])
+
     def test_is_old__anonimouse(self):
         self.assertFalse(s11n.from_json(self.request_ajax_json(self.game_info_url_anonimouse).content)['data']['is_old'])
 

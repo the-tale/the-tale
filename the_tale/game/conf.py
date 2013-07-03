@@ -22,8 +22,12 @@ game_settings = app_settings('GAME',
 
                              ENABLE_DATA_REFRECH=True,
 
+                             PROCESS_TURN_WAIT_TIMEOUT = 2*60,
+
                              SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY = 'prev real day started',
                              REAL_DAY_STARTED_TIME=8, # UTC hourse
+
+                             SAVED_UNCACHED_HEROES_FRACTION=0.01,
 
                              JS_CONSTNATS_FILE_LOCATION='./static/game/data/constants.js',
 

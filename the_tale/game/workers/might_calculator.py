@@ -12,6 +12,7 @@ from game.heroes.prototypes import HeroPrototype
 from game.heroes.models import Hero
 
 from game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
+from game.workers.environment import workers_environment as game_environment
 
 from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
 
@@ -26,9 +27,6 @@ class Worker(BaseWorker):
 
     def __init__(self, game_queue):
         super(Worker, self).__init__(command_queue=game_queue)
-
-    def set_supervisor_worker(self, supervisor_worker):
-        self.supervisor_worker = supervisor_worker
 
     def run(self):
 
@@ -47,7 +45,7 @@ class Worker(BaseWorker):
         except IndexError:
             return
         self.logger.info('calculate might of hero %d' % hero.id)
-        self.supervisor_worker.cmd_set_might(hero.account_id, hero.id, self.calculate_might(hero))
+        game_environment.supervisor.cmd_set_might(hero.account_id, hero.id, self.calculate_might(hero))
 
 
     def calculate_might(self, hero): # pylint: disable=R0914
@@ -110,7 +108,7 @@ class Worker(BaseWorker):
 
         self.logger.info('MIGHT CALCULATOR INITIALIZED')
 
-        self.supervisor_worker.cmd_answer('initialize', self.worker_id)
+        game_environment.supervisor.cmd_answer('initialize', self.worker_id)
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -118,6 +116,6 @@ class Worker(BaseWorker):
     def process_stop(self):
         # no need to save bundles, since they automaticaly saved on every turn
         self.initialized = False
-        self.supervisor_worker.cmd_answer('stop', self.worker_id)
+        game_environment.supervisor.cmd_answer('stop', self.worker_id)
         self.stop_required = True
         self.logger.info('MIGHT CALCULATOR STOPPED')

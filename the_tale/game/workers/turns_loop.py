@@ -7,6 +7,8 @@ from django.utils.log import getLogger
 from common.amqp_queues import BaseWorker
 
 from game.conf import game_settings
+from game.workers.environment import workers_environment as game_environment
+
 
 class TurnsLoopException(Exception): pass
 
@@ -20,9 +22,6 @@ class Worker(BaseWorker):
     def __init__(self, game_queue):
         super(Worker, self).__init__(command_queue=game_queue)
 
-    def set_supervisor_worker(self, supervisor_worker):
-        self.supervisor_worker = supervisor_worker
-
     def run(self):
 
         while not self.exception_raised and not self.stop_required:
@@ -32,7 +31,7 @@ class Worker(BaseWorker):
                 self.process_cmd(cmd.payload)
             except Queue.Empty:
                 self.logger.info('send next turn command')
-                self.supervisor_worker.cmd_next_turn()
+                game_environment.supervisor.cmd_next_turn()
                 time.sleep(game_settings.TURN_DELAY)
 
     def initialize(self):
@@ -52,13 +51,13 @@ class Worker(BaseWorker):
 
         self.logger.info('TURN LOOP INITIALIZED')
 
-        self.supervisor_worker.cmd_answer('initialize', self.worker_id)
+        game_environment.supervisor.cmd_answer('initialize', self.worker_id)
 
     def cmd_stop(self):
         return self.send_cmd('stop')
 
     def process_stop(self):
         self.initialized = False
-        self.supervisor_worker.cmd_answer('stop', self.worker_id)
+        game_environment.supervisor.cmd_answer('stop', self.worker_id)
         self.stop_required = True
         self.logger.info('TURN LOOP STOPPED')

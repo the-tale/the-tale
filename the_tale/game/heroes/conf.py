@@ -11,5 +11,6 @@ heroes_settings = app_settings('HEROES',
                                UI_CACHING_KEY='hero_ui_%d',
                                # not cache livetime, but time period after setupped ui_caching_started_at in which ui_caching is turned on
                                UI_CACHING_TIME=10*60,
+                               UI_CACHING_CONTINUE_TIME=60,
                                UI_CACHING_TIMEOUT=c.TURN_DELTA + 1,
                                PLACE_HELP_HISTORY_SIZE=200)

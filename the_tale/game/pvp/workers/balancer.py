@@ -21,6 +21,8 @@ from game.prototypes import SupervisorTaskPrototype
 
 from game.pvp.conf import pvp_settings
 from game.pvp.prototypes import Battle1x1Prototype
+from game.workers.environment import workers_environment as game_environment
+
 
 class PvPBalancerException(Exception): pass
 
@@ -51,10 +53,6 @@ class Worker(BaseWorker):
         super(Worker, self).__init__(command_queue=game_queue)
         self.worker_id = None
         self.arena_queue = {}
-        self.supervisor_worker = None
-
-    def set_supervisor_worker(self, supervisor_worker):
-        self.supervisor_worker = supervisor_worker
 
     def run(self):
 
@@ -91,14 +89,14 @@ class Worker(BaseWorker):
 
         self.logger.info('PVP BALANCER INITIALIZED')
 
-        self.supervisor_worker.cmd_answer('initialize', self.worker_id)
+        game_environment.supervisor.cmd_answer('initialize', self.worker_id)
 
     def cmd_stop(self):
         return self.send_cmd('stop')
 
     def process_stop(self):
         self.initialized = False
-        self.supervisor_worker.cmd_answer('stop', self.worker_id)
+        game_environment.supervisor.cmd_answer('stop', self.worker_id)
         self.stop_required = True
         self.logger.info('PVP BALANCER STOPPED')
 
@@ -231,7 +229,7 @@ class Worker(BaseWorker):
 
             task = SupervisorTaskPrototype.create_arena_pvp_1x1(account_1, account_2)
 
-        self.supervisor_worker.cmd_add_task(task.id)
+        game_environment.supervisor.cmd_add_task(task.id)
 
     def _do_balancing(self):
 

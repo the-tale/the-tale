@@ -41,16 +41,14 @@ jQuery(document).ready(function(e){
     {{ game_macros.game_debug_javascript() }}
     {% endif %}
 
-    function RefreshData() {
+    setTimeout(function RefreshData() {
         if (updater) {
             updater.Refresh();
         }
-    }
-
-    setTimeout(RefreshData, 0);
+    }, 0);
 
     {% if game_settings.ENABLE_DATA_REFRECH %}
-    setInterval(RefreshData, {{ game_settings.TURN_DELAY*1000 }} );
+    updater.SetRefreshInterval( {{ game_settings.TURN_DELAY*1000 }} );
     {% endif %}
 
     widgets.placeAndTime = new pgf.game.widgets.Time('#time-block', updater, widgets, {} );

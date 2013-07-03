@@ -13,6 +13,8 @@ from common import postponed_tasks
 
 from game.prototypes import TimePrototype
 from game.logic_storage import LogicStorage
+from game.workers.environment import workers_environment as game_environment
+
 
 class LogicException(Exception): pass
 
@@ -27,9 +29,6 @@ class Worker(BaseWorker):
 
     def __init__(self, game_queue):
         super(Worker, self).__init__(command_queue=game_queue)
-
-    def set_supervisor_worker(self, supervisor_worker):
-        self.supervisor_worker = supervisor_worker
 
     # @profile_decorator('game_logic.profiled')
     run = BaseWorker.run_simple
@@ -57,7 +56,7 @@ class Worker(BaseWorker):
 
         self.logger.info('GAME INITIALIZED')
 
-        self.supervisor_worker.cmd_answer('initialize', self.worker_id)
+        game_environment.supervisor.cmd_answer('initialize', self.worker_id)
 
     def cmd_next_turn(self, turn_number):
         return self.send_cmd('next_turn', data={'turn_number': turn_number})
@@ -82,13 +81,13 @@ class Worker(BaseWorker):
             self.storage.save_changed_data()
 
             for hero_id in self.storage.skipped_heroes:
-                self.supervisor_worker.cmd_account_release_required(self.storage.heroes[hero_id].account_id)
+                game_environment.supervisor.cmd_account_release_required(self.storage.heroes[hero_id].account_id)
 
 
         if project_settings.DEBUG_DATABASE_USAGE:
             log_sql_queries(turn_number)
 
-        self.supervisor_worker.cmd_answer('next_turn', self.worker_id)
+        game_environment.supervisor.cmd_answer('next_turn', self.worker_id)
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -96,7 +95,8 @@ class Worker(BaseWorker):
     def process_stop(self):
         # no need to save data, since they automaticaly saved on every turn
         self.initialized = False
-        self.supervisor_worker.cmd_answer('stop', self.worker_id)
+        self.storage.save_all()
+        game_environment.supervisor.cmd_answer('stop', self.worker_id)
         self.stop_required = True
         self.logger.info('LOGIC STOPPED')
 
@@ -116,7 +116,7 @@ class Worker(BaseWorker):
     def process_release_account(self, account_id):
         from accounts.prototypes import AccountPrototype
         self.storage.release_account_data(AccountPrototype.get_by_id(account_id))
-        self.supervisor_worker.cmd_account_released(account_id)
+        game_environment.supervisor.cmd_account_released(account_id)
 
     def cmd_logic_task(self, account_id, task_id):
         return self.send_cmd('logic_task', {'task_id': task_id,

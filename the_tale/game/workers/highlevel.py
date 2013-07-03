@@ -22,6 +22,8 @@ from game.map.places.conf import places_settings
 from game.bills.conf import bills_settings
 from game.conf import game_settings
 from game import signals as game_signals
+from game.workers.environment import workers_environment as game_environment
+
 
 class HighlevelException(Exception): pass
 
@@ -34,9 +36,6 @@ class Worker(BaseWorker):
 
     def __init__(self, highlevel_queue):
         super(Worker, self).__init__(command_queue=highlevel_queue)
-
-    def set_supervisor_worker(self, supervisor_worker):
-        self.supervisor_worker = supervisor_worker
 
     run = BaseWorker.run_simple
 
@@ -61,7 +60,7 @@ class Worker(BaseWorker):
 
         self.logger.info('HIGHLEVEL INITIALIZED')
 
-        self.supervisor_worker.cmd_answer('initialize', self.worker_id)
+        game_environment.supervisor.cmd_answer('initialize', self.worker_id)
 
 
     def cmd_next_turn(self, turn_number):
@@ -96,10 +95,10 @@ class Worker(BaseWorker):
             subprocess.call(['./manage.py', 'map_update_map'])
 
             # send command to main supervisor queue
-            self.supervisor_worker.cmd_highlevel_data_updated()
+            game_environment.supervisor.cmd_highlevel_data_updated()
 
         # send command to supervisor answer queue
-        self.supervisor_worker.cmd_answer('next_turn', self.worker_id)
+        game_environment.supervisor.cmd_answer('next_turn', self.worker_id)
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -112,7 +111,7 @@ class Worker(BaseWorker):
 
         self.initialized = False
 
-        self.supervisor_worker.cmd_answer('stop', self.worker_id)
+        game_environment.supervisor.cmd_answer('stop', self.worker_id)
 
         self.stop_required = True
         self.logger.info('HIGHLEVEL STOPPED')

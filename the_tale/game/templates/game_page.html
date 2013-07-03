@@ -30,20 +30,19 @@ jQuery(document).ready(function(e){
     {{ game_macros.game_debug_javascript() }}
     {% endif %}
 
-    function RefreshData() {
+    setTimeout(function RefreshData() {
         if (updater) {
             updater.Refresh();
         }
-    }
+    }, 0);
 
-    setTimeout(RefreshData, 0);
     pgf.base.ToggleWait(jQuery(".pgf-hero-data-wait"), true);
 
     {% if game_settings.ENABLE_DATA_REFRECH %}
-    setInterval(RefreshData, {{ game_settings.TURN_DELAY*1000 }} );
+    updater.SetRefreshInterval( {{ game_settings.TURN_DELAY*1000 }} );
     {% endif %}
 
-    pgf.base.InitializeTabs('game-tab-main', 'journal', [['.pgf-journal-tab-button', 'journal'], ['.pgf-map-tab-button', 'map']]);
+    pgf.base.InitializeTabs('game-tab-main', 'map', [['.pgf-journal-tab-button', 'journal'], ['.pgf-map-tab-button', 'map']]);
     pgf.base.InitializeTabs('game-tab-second', 'diary', [['.pgf-diary-tab-button', 'diary'], ['.pgf-quests-tab-button', 'quests']]);
     pgf.base.InitializeTabs('game-tab-equipment', 'equipment', [['.pgf-equipment-tab-button', 'equipment'], ['.pgf-bag-tab-button', 'bag']]);
 

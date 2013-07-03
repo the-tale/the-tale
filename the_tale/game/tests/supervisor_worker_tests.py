@@ -16,6 +16,8 @@ from game.workers.supervisor import SupervisorException
 
 from game.pvp.prototypes import Battle1x1Prototype
 
+_wait_answers_state = 'logic' # for one specific test
+
 
 @mock.patch('game.workers.supervisor.Worker.wait_answers_from', lambda self, name, workers: None)
 class SupervisorWorkerTests(testcase.TestCase):
@@ -201,3 +203,34 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(logger_warn_counter.call_count, 1)
         self.assertFalse(account_3_id in self.worker.accounts_owners)
         self.assertTrue(account_3_id in self.worker.accounts_queues)
+
+    @mock.patch('game.conf.game_settings.ENABLE_WORKER_HIGHLEVEL', True)
+    def test_process_next_turn(self):
+        self.worker.process_initialize()
+        with mock.patch('game.workers.supervisor.Worker.wait_answers_from') as wait_answers_from:
+            self.worker.process_next_turn()
+
+        self.assertEqual(wait_answers_from.call_count, 2)
+
+    @mock.patch('game.conf.game_settings.ENABLE_WORKER_HIGHLEVEL', True)
+    @mock.patch('game.workers.supervisor.Worker.logger.error', mock.Mock())
+    def test_process_next_turn__timeout_in_highlevel(self):
+        from common.amqp_queues import exceptions as amqp_exceptions
+
+        self.worker.process_initialize()
+
+
+        def wait_answers_from(worker, code, workers=(), timeout=60.0):
+            global _wait_answers_state
+            if _wait_answers_state == 'logic':
+                _wait_answers_state = 'highlevel'
+                return
+            if _wait_answers_state == 'highlevel':
+                _wait_answers_state = 'stop'
+                raise amqp_exceptions.WaitAnswerTimeoutError(code='code', workers='workers', timeout=60.0)
+
+        with mock.patch('game.workers.supervisor.Worker.wait_answers_from', wait_answers_from):
+            with mock.patch('game.workers.logic.Worker.cmd_stop') as logic_cmd_stop:
+                self.assertRaises(amqp_exceptions.WaitAnswerTimeoutError, self.worker.process_next_turn)
+
+        self.assertEqual(logic_cmd_stop.call_count, 1)

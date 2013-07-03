@@ -5,15 +5,16 @@ from django.utils.log import getLogger
 
 from dext.settings import settings
 
-from common.amqp_queues import connection, BaseWorker
+from common.amqp_queues import connection, BaseWorker, exceptions as amqp_exceptions
 from common import postponed_tasks
 
 from accounts.models import Account
 
 from game.prototypes import TimePrototype, SupervisorTaskPrototype
 from game.bundles import BundlePrototype
-from game.models import Bundle, SupervisorTask, SUPERVISOR_TASK_STATE
+from game.models import SupervisorTask, SUPERVISOR_TASK_STATE
 from game.conf import game_settings
+from game.workers.environment import workers_environment as game_environment
 
 
 class SupervisorException(Exception): pass
@@ -29,21 +30,6 @@ class Worker(BaseWorker):
         super(Worker, self).__init__(command_queue=supervisor_queue)
         self.answers_queue = connection.SimpleQueue(answers_queue)
         self.stop_queue = connection.SimpleQueue(stop_queue)
-
-    def set_turns_loop_worker(self, turns_loop_worker):
-        self.turns_loop_worker = turns_loop_worker
-
-    def set_might_calculator_worker(self, might_calculator_worker):
-        self.might_calculator_worker = might_calculator_worker
-
-    def set_logic_worker(self, logic_worker):
-        self.logic_worker = logic_worker
-
-    def set_highlevel_worker(self, highlevel_worker):
-        self.highlevel_worker = highlevel_worker
-
-    def set_pvp_balancer(self, pvp_balancer):
-        self.pvp_balancer = pvp_balancer
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -66,33 +52,33 @@ class Worker(BaseWorker):
 
         #initialization
         self.logger.info('initialize logic')
-        self.logic_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='logic')
+        game_environment.logic.cmd_initialize(turn_number=self.time.turn_number, worker_id='logic')
         self.wait_answers_from('initialize', workers=['logic'])
 
         if game_settings.ENABLE_WORKER_HIGHLEVEL:
             self.logger.info('initialize highlevel')
-            self.highlevel_worker.cmd_initialize(turn_number=self.time.turn_number, worker_id='highlevel')
+            game_environment.highlevel.cmd_initialize(turn_number=self.time.turn_number, worker_id='highlevel')
             self.wait_answers_from('initialize', workers=['highlevel'])
         else:
             self.logger.info('skip initialization of highlevel')
 
         if game_settings.ENABLE_WORKER_TURNS_LOOP:
             self.logger.info('initialize turns loop')
-            self.turns_loop_worker.cmd_initialize(worker_id='turns_loop')
+            game_environment.turns_loop.cmd_initialize(worker_id='turns_loop')
             self.wait_answers_from('initialize', workers=['turns_loop'])
         else:
             self.logger.info('skip initialization of turns loop')
 
         if game_settings.ENABLE_WORKER_MIGHT_CALCULATOR:
             self.logger.info('initialize might calculator')
-            self.might_calculator_worker.cmd_initialize(worker_id='might_calculator')
+            game_environment.might_calculator.cmd_initialize(worker_id='might_calculator')
             self.wait_answers_from('initialize', workers=['might_calculator'])
         else:
             self.logger.info('skip initialization of might calculator')
 
         if game_settings.ENABLE_PVP:
             self.logger.info('initialize pvp balancer')
-            self.pvp_balancer.cmd_initialize(worker_id='pvp_balancer')
+            game_environment.pvp_balancer.cmd_initialize(worker_id='pvp_balancer')
             self.wait_answers_from('initialize', workers=['pvp_balancer'])
         else:
             self.logger.info('skip initialization of pvp balancer')
@@ -169,20 +155,20 @@ class Worker(BaseWorker):
     def send_register_account_cmd(self, account_id):
         self.accounts_owners[account_id] = 'logic'
 
-        self.logic_worker.cmd_register_account(account_id)
+        game_environment.logic.cmd_register_account(account_id)
 
         if account_id in self.accounts_queues:
             for cmd_name, kwargs in self.accounts_queues[account_id]:
-                getattr(self.logic_worker, 'cmd_' + cmd_name)(**kwargs)
+                getattr(game_environment.logic, 'cmd_' + cmd_name)(**kwargs)
             del self.accounts_queues[account_id]
 
     def send_release_account_cmd(self, account_id):
         self.accounts_owners[account_id] = None
-        self.logic_worker.cmd_release_account(account_id)
+        game_environment.logic.cmd_release_account(account_id)
 
     def dispatch_logic_cmd(self, account_id, cmd_name, kwargs):
         if account_id in self.accounts_owners and self.accounts_owners[account_id] == 'logic':
-            getattr(self.logic_worker, 'cmd_' + cmd_name)(**kwargs)
+            getattr(game_environment.logic, 'cmd_' + cmd_name)(**kwargs)
         else:
             if account_id not in self.accounts_owners:
                 self.logger.warn('try to dispatch command for unregistered account %d (command "%s" args %r)' % (account_id, cmd_name, kwargs))
@@ -198,36 +184,54 @@ class Worker(BaseWorker):
 
         settings.refresh()
 
-        self.logic_worker.cmd_next_turn(turn_number=self.time.turn_number)
-        self.wait_answers_from('next_turn', workers=['logic'])
+        game_environment.logic.cmd_next_turn(turn_number=self.time.turn_number)
+        try:
+            self.wait_answers_from('next_turn', workers=['logic'], timeout=game_settings.PROCESS_TURN_WAIT_TIMEOUT)
+        except amqp_exceptions.WaitAnswerTimeoutError:
+            self.logger.error('next turn timeout while getting answer from logic')
+            raise
 
-        if game_settings.ENABLE_WORKER_HIGHLEVEL:
-            self.highlevel_worker.cmd_next_turn(turn_number=self.time.turn_number)
-            self.wait_answers_from('next_turn', workers=['highlevel'])
+        try:
+            if game_settings.ENABLE_WORKER_HIGHLEVEL:
+                game_environment.highlevel.cmd_next_turn(turn_number=self.time.turn_number)
+                self.wait_answers_from('next_turn', workers=['highlevel'])
+        except amqp_exceptions.WaitAnswerTimeoutError:
+            self.logger.error('next turn timeout while getting answer from highlevel.')
+            self.logger.error('SEND STOP COMMAND TO LOGIC.')
+            self.stop_logic() # logic MUST being stopped to save all changed data
+            self.logger.error('LOGIC STOPPED.')
+            self.logger.error('raise exception')
+            raise
+
+    def stop_logic(self):
+        game_environment.logic.cmd_stop()
+        self.wait_answers_from('stop', workers=['logic'])
 
     def cmd_stop(self):
         return self.send_cmd('stop')
 
     def process_stop(self):
-        self.logic_worker.cmd_stop()
-        self.wait_answers_from('stop', workers=['logic'])
+        # stop logic first
+        # at normal stop it save all it's data
+        # if another worker broken, it save all it's data
+        # and only if logic broken, it crash supervisor
+        self.stop_logic()
 
         if game_settings.ENABLE_WORKER_HIGHLEVEL:
-            self.highlevel_worker.cmd_stop()
+            game_environment.highlevel.cmd_stop()
             self.wait_answers_from('stop', workers=['highlevel'])
 
         if game_settings.ENABLE_WORKER_TURNS_LOOP:
-            self.turns_loop_worker.cmd_stop()
+            game_environment.turns_loop.cmd_stop()
             self.wait_answers_from('stop', workers=['turns_loop'])
 
         if game_settings.ENABLE_WORKER_MIGHT_CALCULATOR:
-            self.might_calculator_worker.cmd_stop()
+            game_environment.might_calculator.cmd_stop()
             self.wait_answers_from('stop', workers=['might_calculator'])
 
         if game_settings.ENABLE_PVP:
-            self.pvp_balancer.cmd_stop()
+            game_environment.pvp_balancer.cmd_stop()
             self.wait_answers_from('stop', workers=['pvp_balancer'])
-
 
         self.stop_queue.put({'code': 'stopped', 'worker': 'supervisor'}, serializer='json', compression=None)
 
@@ -279,7 +283,7 @@ class Worker(BaseWorker):
         self.send_cmd('highlevel_data_updated')
 
     def process_highlevel_data_updated(self):
-        self.logic_worker.cmd_highlevel_data_updated()
+        game_environment.logic.cmd_highlevel_data_updated()
 
     def cmd_set_might(self, account_id, hero_id, might):
         self.send_cmd('set_might', {'hero_id': hero_id, 'might': might, 'account_id': account_id})

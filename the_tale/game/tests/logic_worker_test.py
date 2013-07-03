@@ -50,7 +50,6 @@ class LogicWorkerTests(testcase.TestCase):
         self.worker.process_start_hero_caching(self.account.id, self.hero.id)
         self.assertTrue(self.worker.storage.heroes[self.hero.id].ui_caching_started_at > current_time)
 
-
     def test_process_next_turn(self):
 
         current_time = TimePrototype.get_current_time()
@@ -77,11 +76,13 @@ class LogicWorkerTests(testcase.TestCase):
 
         self.worker.storage.skipped_heroes.add(self.hero.id)
 
-        with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
-            with mock.patch('game.heroes.prototypes.HeroPrototype.save') as save_counter:
-                self.worker.process_next_turn(TimePrototype.get_current_turn_number())
+        with mock.patch('game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
+            with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
+                with mock.patch('game.heroes.prototypes.HeroPrototype.save') as save_counter:
+                    self.worker.process_next_turn(TimePrototype.get_current_turn_number())
 
-        self.assertEqual(save_counter.call_count, 0)
+        self.assertEqual(action_process_turn.call_count, 0)
+        self.assertEqual(save_counter.call_count, 1)
         self.assertEqual(release_required_counter.call_count, 1)
 
     def test_process_update_hero_with_account_data(self):
@@ -99,3 +100,8 @@ class LogicWorkerTests(testcase.TestCase):
         self.assertEqual(args['premium_end_at'], datetime.datetime.fromtimestamp(666))
         self.assertEqual(args['active_end_at'], datetime.datetime.fromtimestamp(666666))
         self.assertEqual(args['ban_end_at'], datetime.datetime.fromtimestamp(777777))
+
+    def test_stop(self):
+        with mock.patch('game.logic_storage.LogicStorage.save_all') as save_all:
+            self.worker.process_stop()
+        self.assertEqual(save_all.call_count, 1)

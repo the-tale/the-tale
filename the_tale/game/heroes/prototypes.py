@@ -90,6 +90,10 @@ class HeroPrototype(BasePrototype):
     def is_ui_caching_required(self):
         return (datetime.datetime.now() - self._model.ui_caching_started_at).seconds < heroes_settings.UI_CACHING_TIME
 
+    @classmethod
+    def is_ui_continue_caching_required(self, ui_caching_started_at):
+        return ui_caching_started_at + heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME < time.time()
+
     @property
     def is_short_quest_path_required(self):
         return self.level < c.QUESTS_SHORT_PATH_LEVEL_CAP
@@ -688,6 +692,7 @@ class HeroPrototype(BasePrototype):
         return {'id': self.id,
                 'saved_at_turn': self.saved_at_turn,
                 'saved_at': time.mktime(self.saved_at.timetuple()),
+                'ui_caching_started_at': time.mktime(self.ui_caching_started_at.timetuple()),
                 'messages': self.messages.ui_info(),
                 'diary': self.diary.ui_info(with_date=True),
                 'position': self.position.ui_info(),
@@ -745,13 +750,10 @@ class HeroPrototype(BasePrototype):
 
         data = cache.get(cls.cached_ui_info_key_for_hero(account_id))
 
-        if data is None:
+        if data is None or cls.is_ui_continue_caching_required(data['ui_caching_started_at']):
             hero = cls.get_by_account_id(account_id)
             data = hero.ui_info_for_cache()
-
-            if not hero.is_ui_caching_required:
-                # in other case it is probably some delay in turn processing and we shouldn't spam unnecessary messages
-                game_workers_environment.supervisor.cmd_start_hero_caching(hero.account_id, hero.id)
+            game_workers_environment.supervisor.cmd_start_hero_caching(hero.account_id, hero.id)
 
         return data
 

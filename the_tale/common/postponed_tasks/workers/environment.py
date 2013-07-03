@@ -1,25 +1,13 @@
 # coding: utf-8
 
 from common.postponed_tasks.workers.refrigerator import Worker as Refrigerator
-
-class QUEUE:
-    REFRIGERATOR_MESSAGES = 'refrigerator_messages_queue'
-    REFRIGERATOR_STOP = 'refrigerator_stop_queue'
+from common.amqp_queues.environment import BaseEnvironment
 
 
-class Environment(object):
-
-    def __init__(self):
-        pass
+class Environment(BaseEnvironment):
 
     def initialize(self):
-        self.refrigerator = Refrigerator(messages_queue=QUEUE.REFRIGERATOR_MESSAGES, stop_queue=QUEUE.REFRIGERATOR_STOP)
-
-    def deinitialize(self):
-        self.refrigerator.close_queries()
-
-    def clean_queues(self):
-        self.refrigerator.clean_queues()
+        self.refrigerator = Refrigerator(messages_queue='refrigerator_messages_queue', stop_queue='refrigerator_stop_queue')
 
 
 workers_environment = Environment()

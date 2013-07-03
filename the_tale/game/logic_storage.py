@@ -6,6 +6,8 @@ from game.heroes.prototypes import HeroPrototype
 from game.heroes.conf import heroes_settings
 
 from game import exceptions
+from game.conf import game_settings
+
 
 class LogicStorage(object):
 
@@ -15,7 +17,6 @@ class LogicStorage(object):
         self.meta_actions = {}
         self.meta_actions_to_actions = {}
         self.skipped_heroes = set()
-        self.save_required = set()
 
     def load_account_data(self, account):
         hero = HeroPrototype.get_by_account_id(account.id)
@@ -111,27 +112,54 @@ class LogicStorage(object):
                 continue
 
             leader_action = hero.actions.current_action
+            bundle_id = leader_action.bundle_id
 
-            leader_action.process_turn()
+            try:
+                leader_action.process_turn()
+            except Exception:
+                self._save_on_exception(excluded_bundle_id=bundle_id)
+                raise
 
             if leader_action.removed and leader_action.bundle_id != hero.actions.current_action.bundle_id:
                 self.skipped_heroes.add(hero.id)
 
-            self.save_required.add(hero.id)
+    def _save_on_exception(self, excluded_bundle_id):
+        for hero_id, hero in self.heroes.iteritems():
+            if hero.actions.current_action.bundle_id == excluded_bundle_id:
+                continue
+            self.save_hero_data(hero_id, update_cache=False)
+
+    def save_all(self):
+        for hero_id, hero in self.heroes.iteritems():
+            self.save_hero_data(hero_id, update_cache=False)
+
+    def _get_bundles_to_save(self):
+        bundles = set(hero.actions.current_action.bundle_id for hero in self.heroes.itervalues() if hero.is_ui_caching_required)
+
+        unsaved_heroes = sorted(self.heroes.itervalues(), key=lambda h: h.saved_at)
+
+        saved_uncached_heroes_number = int(game_settings.SAVED_UNCACHED_HEROES_FRACTION * len(self.heroes) + 1)
+
+        bundles.update(hero.actions.current_action.bundle_id for hero in unsaved_heroes[:saved_uncached_heroes_number])
+
+        return bundles
 
     def save_changed_data(self):
         cached_ui_info = {}
 
-        for hero_id in self.save_required:
+        bundles = self._get_bundles_to_save()
+
+        for hero_id, hero in self.heroes.iteritems():
+
+            if hero.actions.current_action.bundle_id not in bundles:
+                continue
+
             self.save_hero_data(hero_id, update_cache=False)
 
-            hero = self.heroes[hero_id]
             if hero.is_ui_caching_required:
                 cached_ui_info[hero.cached_ui_info_key] = hero.ui_info_for_cache()
 
         cache.set_many(cached_ui_info, heroes_settings.UI_CACHING_TIMEOUT)
-
-        self.save_required.clear()
 
     def _destroy_account_data(self, account):
 

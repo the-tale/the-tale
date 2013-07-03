@@ -46,13 +46,12 @@ def construct_command(environment, worker):
                                     exc_info=sys.exc_info(),
                                     extra={} )
 
-
-            environment.deinitialize()
+            # TODO: close worker's queues
 
     return Command
 
 
-def construct_workers_manager(help, process_pid, environments, workers): # pylint: disable=W0622,R0912,W0613
+def construct_workers_manager(help, process_pid, workers): # pylint: disable=W0622,R0912,W0613
 
     workers = filter(None, workers) # pylint: disable=W0110
 
@@ -69,8 +68,8 @@ def construct_workers_manager(help, process_pid, environments, workers): # pylin
                                                               help='start|stop|restart|status'), )
 
         def start(self):
-            for environment in environments:
-                environment.clean_queues()
+            for worker in workers:
+                worker.clean_queues()
 
             for worker in workers:
                 print 'start %s' % worker.command_name

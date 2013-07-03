@@ -1,25 +1,14 @@
 # coding: utf-8
 
+from common.amqp_queues.environment import BaseEnvironment
+
 from post_service.workers.message_sender import Worker as MessageSender
 
-class QUEUE:
-    MESSAGE_SENDER_MESSAGES = 'message_sender_messages_queue'
-    MESSAGE_SENDER_STOP = 'message_sender_stop'
 
-
-class Environment(object):
-
-    def __init__(self):
-        pass
+class Environment(BaseEnvironment):
 
     def initialize(self):
-        self.message_sender = MessageSender(messages_queue=QUEUE.MESSAGE_SENDER_MESSAGES, stop_queue=QUEUE.MESSAGE_SENDER_STOP)
-
-    def deinitialize(self):
-        self.message_sender.close_queries()
-
-    def clean_queues(self):
-        self.message_sender.clean_queues()
+        self.message_sender = MessageSender(messages_queue='message_sender_messages_queue', stop_queue='message_sender_stop')
 
 
 workers_environment = Environment()
