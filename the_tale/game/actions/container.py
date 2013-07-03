@@ -43,3 +43,7 @@ class ActionsContainer(object):
 
     @property
     def number(self): return len(self.actions_list)
+
+    def reset_to_idl(self):
+        self.actions_list = self.actions_list[:1]
+        self.updated = True

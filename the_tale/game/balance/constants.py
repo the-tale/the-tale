@@ -294,10 +294,10 @@ PLACE_SAFETY_FROM_BEST_PERSON = float(0.05)
 # путь изначальный: speed * (1 / battle_probability - 1)
 # путь результирующий: speed * (1 / (battle_probability+0.01) - 1)
 # 1% safety ~ 0.01 / battle_probability
-PLACE_TRANSPORT_FROM_BEST_PERSON = float(PLACE_SAFETY_FROM_BEST_PERSON / BATTLES_PER_TURN)
+PLACE_TRANSPORT_FROM_BEST_PERSON = float(PLACE_SAFETY_FROM_BEST_PERSON / BATTLES_PER_TURN) if BATTLES_PER_TURN > 0 else 0.01
 
 # хотя на опыт свобода и не влияет, но на город оказывает такое-же влияние как и транспорт
-PLACE_FREEDOM_FROM_BEST_PERSON = float(PLACE_SAFETY_FROM_BEST_PERSON / BATTLES_PER_TURN)
+PLACE_FREEDOM_FROM_BEST_PERSON = float(PLACE_SAFETY_FROM_BEST_PERSON / BATTLES_PER_TURN) if BATTLES_PER_TURN > 0 else 0.01
 
 PLACE_MAX_EXCHANGED_NUMBER = int(3)
 

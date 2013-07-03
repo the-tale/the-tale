@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import mock
 from common.utils import testcase
 
 from accounts.logic import register_user
@@ -56,6 +56,17 @@ class QuestActionTest(testcase.TestCase):
             current_time.increment_turn()
 
         self.storage._test_save()
+
+    def test_save_quest(self):
+
+        current_time = TimePrototype.get_current_time()
+
+        with mock.patch('game.quests.prototypes.QuestPrototype.save') as quest_save:
+            while not self.action_idl.leader:
+                self.storage.process_turn()
+                current_time.increment_turn()
+
+        self.assertTrue(quest_save.call_count > 3)
 
     def test_remove(self):
         self.assertEqual(Quest.objects.all().count(), 1)
