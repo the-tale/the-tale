@@ -87,7 +87,7 @@ pgf.base.TooltipPlacement = function (tip, element) {
         var vertPlacement = vert > 0 ? 'bottom' : 'top';
         var horiz = 0.5 * width - offset.left;
         var horizPlacement = horiz > 0 ? 'right' : 'left';
-        placement = Math.abs(horiz) > Math.abs(vert) ?  horizPlacement : vertPlacement;        
+        placement = Math.abs(horiz) > Math.abs(vert) ?  horizPlacement : vertPlacement;
     }
     return placement;
 };
@@ -102,7 +102,7 @@ pgf.base.HorizTooltipPlacement = function (tip, element) {
         var width = jQuery(document).outerWidth();
         var horiz = 0.5 * width - offset.left;
         var horizPlacement = horiz > 0 ? 'right' : 'left';
-        placement = horizPlacement; 
+        placement = horizPlacement;
     }
     return placement;
 };
@@ -264,8 +264,8 @@ pgf.base.InitBBFields = function(containerSelector) {
 
 pgf.base.CompareObjects = function(a, b)
 {
-  if (a == undefined && b != undefined) return false; 
-  if (b == undefined && a != undefined) return false; 
+  if (a == undefined && b != undefined) return false;
+  if (b == undefined && a != undefined) return false;
 
   var p;
   for(p in a) {

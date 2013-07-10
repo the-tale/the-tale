@@ -103,10 +103,13 @@ jQuery(document).ready(function() {
 
     jQuery('.pgf-scrollable').live('mousewheel', function(e) {
         var innerScrollable = jQuery(e.currentTarget);
+        var scrollTop = innerScrollable.scrollTop();
         if (e.originalEvent.wheelDelta > 0 && innerScrollable.scrollTop() == 0) {
             e.preventDefault();
         }
-        if (e.originalEvent.wheelDelta < 0 && innerScrollable.scrollTop() == innerScrollable.get(0).scrollHeight - innerScrollable.innerHeight()) {
+        var inner = innerScrollable.get(0).scrollHeight - innerScrollable.innerHeight();
+        var outer = innerScrollable.get(0).scrollHeight - innerScrollable.outerHeight();
+        if (e.originalEvent.wheelDelta < 0 && outer <= scrollTop && scrollTop <= inner) {
             e.preventDefault();
         }
     });
