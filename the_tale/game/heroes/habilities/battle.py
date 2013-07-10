@@ -1,7 +1,8 @@
 #coding: utf-8
 import random
 
-from game.heroes.habilities.prototypes import AbilityPrototype, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE, DAMAGE_TYPE # pylint: disable=W0611
+from game.heroes.habilities.prototypes import AbilityPrototype
+from game.heroes.habilities.relations import  ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE, DAMAGE_TYPE # pylint: disable=W0611
 
 from game.actions.contexts.battle import Damage
 

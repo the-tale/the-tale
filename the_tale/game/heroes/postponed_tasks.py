@@ -64,7 +64,7 @@ class ChooseHeroAbilityTask(PostponedLogic):
 
         ability_class = ABILITIES[self.ability_id]
 
-        if not (ability_class.AVAILABILITY & ABILITY_AVAILABILITY.FOR_PLAYERS):
+        if not (ability_class.AVAILABILITY.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value):
             self.state = CHOOSE_HERO_ABILITY_STATE.NOT_FOR_PLAYERS
             main_task.comment = u'ability "%s" does not available to players' % self.ability_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR

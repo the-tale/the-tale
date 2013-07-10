@@ -2,7 +2,7 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views import handler
+from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
@@ -91,6 +91,9 @@ class GuideResource(Resource):
                                                 'pvp_settings': pvp_settings,
                                                 'pvp_abilities': pvp_abilities})
 
+    @validate_argument('ability_type', lambda x: ABILITY_TYPE(int(x)), 'guide.hero_abilities', u'Неверный формат типа способности')
+    @validate_argument('activation_type', lambda x: ABILITY_ACTIVATION_TYPE(int(x)), 'guide.hero_abilities', u'Неверный формат типа активации')
+    @validate_argument('availability', lambda x: ABILITY_AVAILABILITY(int(x)), 'guide.hero_abilities', u'Неверный формат типа доступности')
     @handler('hero-abilities', method='get')
     def hero_abilities(self, ability_type=None, activation_type=None, availability=ABILITY_AVAILABILITY.FOR_ALL):
 
@@ -100,25 +103,22 @@ class GuideResource(Resource):
 
         if ability_type is not None:
             is_filtering = True
-            ability_type = int(ability_type)
             abilities = [ability for ability in abilities if ability.TYPE == ability_type]
 
         if activation_type is not None:
             is_filtering = True
-            activation_type = int(activation_type)
             abilities = [ability for ability in abilities if ability.ACTIVATION_TYPE == activation_type]
 
         if availability is not ABILITY_AVAILABILITY.FOR_ALL:
-            availability = int(availability)
             if availability is not ABILITY_AVAILABILITY.FOR_ALL:
                 is_filtering = True
-            abilities = [ability for ability in abilities if ability.AVAILABILITY & availability]
+            abilities = [ability for ability in abilities if ability.AVAILABILITY == availability]
 
         abilities = [ability(level=ability.MAX_LEVEL) for ability in sorted(abilities, key=lambda x: x.NAME)]
 
-        url_builder = UrlBuilder(reverse('guide:hero-abilities'), arguments={'ability_type': ability_type,
-                                                                             'activation_type': activation_type,
-                                                                             'availability': availability})
+        url_builder = UrlBuilder(reverse('guide:hero-abilities'), arguments={'ability_type': ability_type.value if ability_type is not None else None,
+                                                                             'activation_type': activation_type.value if activation_type is not None else None,
+                                                                             'availability': availability.value})
 
         return self.template('guide/hero-abilities.html', {'section': 'hero-abilities',
                                                            'url_builder': url_builder,

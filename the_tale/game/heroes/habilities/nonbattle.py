@@ -3,7 +3,8 @@ import random
 
 from game.balance import enums as e
 from game.game_info import ATTRIBUTES
-from game.heroes.habilities.prototypes import AbilityPrototype, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
+from game.heroes.habilities.prototypes import AbilityPrototype
+from game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 
 
 class CHARISMA(AbilityPrototype):

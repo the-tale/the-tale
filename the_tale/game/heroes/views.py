@@ -71,9 +71,9 @@ class HeroResource(Resource):
     @handler('#hero', name='show', method='get')
     def hero_page(self):
         abilities = sorted(self.hero.abilities.all, key=lambda x: x.NAME)
-        battle_active_abilities = filter(lambda a: a.type.is_battle and a.activation_type.is_active, abilities) # pylint: disable=W0110
-        battle_passive_abilities = filter(lambda a: a.type.is_battle and a.activation_type.is_passive, abilities)# pylint: disable=W0110
-        nonbattle_abilities = filter(lambda a: a.type.is_nonbattle, abilities)# pylint: disable=W0110
+        battle_active_abilities = filter(lambda a: a.type._is_BATTLE and a.activation_type._is_ACTIVE, abilities) # pylint: disable=W0110
+        battle_passive_abilities = filter(lambda a: a.type._is_BATTLE and a.activation_type._is_PASSIVE, abilities)# pylint: disable=W0110
+        nonbattle_abilities = filter(lambda a: a.type._is_NONBATTLE, abilities)# pylint: disable=W0110
         edit_name_form = EditNameForm(initial={'name_forms': self.hero.normalized_name.forms[:6] if self.hero.is_name_changed else [self.hero.name]*6,
                                                'gender': self.hero.gender,
                                                'race': self.hero.race} )

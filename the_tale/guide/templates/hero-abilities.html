@@ -32,43 +32,44 @@
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         тип:
-        {% if ability_type == ABILITY_TYPE.BATTLE %} боевые
-        {% elif ability_type == ABILITY_TYPE.NONBATTLE %} небоевые
-        {% else %} все
+        {% if ability_type is none %}все
+        {% else %} {{ability_type.text}}
         {% endif %}
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
         <li><a href="{{ url_builder(ability_type=none) }}">все</a></li>
-        <li><a href="{{ url_builder(ability_type=ABILITY_TYPE.BATTLE) }}">боевые</a></li>
-        <li><a href="{{ url_builder(ability_type=ABILITY_TYPE.NONBATTLE) }}">небоевые</a></li>
+        {% for filter_type in ABILITY_TYPE._records %}
+        <li><a href="{{ url_builder(ability_type=filter_type.value) }}">{{filter_type.text}}</a></li>
+        {% endfor %}
       </ul>
     </div>
 
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         метод активации:
-        {% if activation_type is not none %} {{ABILITY_ACTIVATION_TYPE._ID_TO_TEXT[activation_type]}}
-        {% else %} все
+        {% if activation_type is none %}все
+        {% else %} {{activation_type.text}}
         {% endif %}
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
         <li><a href="{{ url_builder(activation_type=none) }}">все</a></li>
-        <li><a href="{{ url_builder(activation_type=ABILITY_ACTIVATION_TYPE.ACTIVE) }}">{{ABILITY_ACTIVATION_TYPE._ID_TO_TEXT[ABILITY_ACTIVATION_TYPE.ACTIVE]}}</a></li>
-        <li><a href="{{ url_builder(activation_type=ABILITY_ACTIVATION_TYPE.PASSIVE) }}">{{ABILITY_ACTIVATION_TYPE._ID_TO_TEXT[ABILITY_ACTIVATION_TYPE.PASSIVE]}}</a></li>
+        {% for filter_type in ABILITY_ACTIVATION_TYPE._records %}
+        <li><a href="{{ url_builder(activation_type=filter_type.value) }}">{{filter_type.text}}</a></li>
+        {% endfor %}
       </ul>
     </div>
 
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        доступность: {{ABILITY_AVAILABILITY._ID_TO_TEXT[availability]}}
+        доступность: {{availability.text}}
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="{{ url_builder(availability=ABILITY_AVAILABILITY.FOR_ALL) }}">{{ABILITY_AVAILABILITY._ID_TO_TEXT[ABILITY_AVAILABILITY.FOR_ALL]}}</a></li>
-        <li><a href="{{ url_builder(availability=ABILITY_AVAILABILITY.FOR_PLAYERS) }}">{{ABILITY_AVAILABILITY._ID_TO_TEXT[ABILITY_AVAILABILITY.FOR_PLAYERS]}}</a></li>
-        <li><a href="{{ url_builder(availability=ABILITY_AVAILABILITY.FOR_MONSTERS) }}">{{ABILITY_AVAILABILITY._ID_TO_TEXT[ABILITY_AVAILABILITY.FOR_MONSTERS]}}</a></li>
+        {% for filter_type in ABILITY_AVAILABILITY._records %}
+        <li><a href="{{ url_builder(availability=filter_type.value) }}">{{filter_type.text}}</a></li>
+        {% endfor %}
       </ul>
     </div>
 

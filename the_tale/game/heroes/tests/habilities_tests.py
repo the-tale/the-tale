@@ -25,7 +25,6 @@ from game.heroes.prototypes import HeroPrototype
 from game.heroes.habilities import battle as battle_abilities
 from game.heroes.habilities import modifiers as modifiers_abilities
 from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, AbilitiesPrototype
-from game.heroes.habilities.prototypes import ABILITY_LOGIC_TYPE
 from game.heroes.postponed_tasks import ChooseHeroAbilityTask, CHOOSE_HERO_ABILITY_STATE
 
 E = 0.0001
@@ -84,7 +83,7 @@ class HabilitiesTest(TestCase):
 
     def test_on_miss_method_exists(self):
         for ability_class in ABILITIES.values():
-            if ability_class.LOGIC_TYPE == ABILITY_LOGIC_TYPE.WITH_CONTACT:
+            if ability_class.LOGIC_TYPE is not None and ability_class.LOGIC_TYPE._is_WITH_CONTACT:
                 self.assertTrue('on_miss' in ability_class.__dict__)
 
     def test_hit(self):
@@ -257,7 +256,7 @@ class ChooseAbilityTaskTest(TestCase):
 
     def get_only_for_mobs_ability_id(self):
         for ability_key, ability in ABILITIES.items():
-            if (not ability().availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS):
+            if (not ability().availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value):
                 return ability_key
 
     def test_create(self):

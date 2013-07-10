@@ -1,24 +1,6 @@
 #coding: utf-8
 
-from common.utils.enum import create_enum
-
-ABILITY_TYPE = create_enum('ABILITY_TYPE', (('BATTLE', 0, u'боевая'),
-                                            ('NONBATTLE', 1, u'небоевая'),) )
-
-ABILITY_ACTIVATION_TYPE = create_enum('ABILITY_ACTIVATION_TYPE', (('ACTIVE', 0, u'активная'),
-                                                                  ('PASSIVE', 1, u'пассивная'),))
-
-
-ABILITY_LOGIC_TYPE = create_enum('ABILITY_LOGIC_TYPE', (('WITHOUT_CONTACT', 0, u'безконтактная'),
-                                                        ('WITH_CONTACT', 1, u'контактная'),))
-
-ABILITY_AVAILABILITY = create_enum('ABILITY_AVAILABILITY', (('FOR_PLAYERS', 0b0001, u'только для игроков'),
-                                                            ('FOR_MONSTERS', 0b0010, u'только для монстров'),
-                                                            ('FOR_ALL', 0b0011, u'для всех')))
-
-DAMAGE_TYPE = create_enum('DAMAGE_TYPE', (('PHYSICAL', 0b0001, u'физический'),
-                                          ('MAGICAL', 0b0010, u'магический'),
-                                          ('MIXED', 0b0011, u'смешанный')))
+from game.heroes.habilities.relations import ABILITY_AVAILABILITY
 
 
 class AbilityPrototype(object):
@@ -46,18 +28,16 @@ class AbilityPrototype(object):
         return cls(level=data['level'])
 
     @property
-    def type(self): return ABILITY_TYPE(self.TYPE)
+    def type(self): return self.TYPE
 
     @property
-    def availability(self): return ABILITY_AVAILABILITY(self.AVAILABILITY)
+    def availability(self): return self.AVAILABILITY
 
     @property
-    def activation_type(self): return ABILITY_ACTIVATION_TYPE(self.ACTIVATION_TYPE)
+    def activation_type(self): return self.ACTIVATION_TYPE
 
     @property
-    def damage_type(self):
-        if self.DAMAGE_TYPE is None: return None
-        return DAMAGE_TYPE(self.DAMAGE_TYPE)
+    def damage_type(self): return self.DAMAGE_TYPE
 
     @property
     def has_max_level(self): return self.level == self.MAX_LEVEL

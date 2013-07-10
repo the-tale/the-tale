@@ -7,13 +7,13 @@
        data-ability-id="{{ability.get_id()}}"
        rel="tooltip"
        title=" максимальный уровень {{ability.MAX_LEVEL}},
-               {{ ability.type.verbose }},
-               {{ ability.availability.verbose }},
-               {{ ability.activation_type.verbose -}}
+               {{ ability.type.text }},
+               {{ ability.availability.text }},
+               {{ ability.activation_type.text -}}
 
-               {%- if ability.type.is_battle -%},
+               {%- if ability.type._is_BATTLE -%},
                {% if ability.damage_type is not none %}
-               {{ability.damage_type.verbose}} урон
+               {{ability.damage_type.text}} урон
                {% else %}
                нет прямого урона
                {% endif %}

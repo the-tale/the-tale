@@ -3,6 +3,8 @@
 from django.core.urlresolvers import reverse
 from django.test import client
 
+from dext.utils.urls import url
+
 from common.utils.testcase import TestCase
 
 
@@ -46,7 +48,20 @@ class TestRequests(TestCase):
         self.check_html_ok(self.client.get(reverse('guide:politics')))
 
     def test_hero_abilities(self):
-        self.check_html_ok(self.client.get(reverse('guide:hero-abilities')))
+        from game.heroes.habilities import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
+
+        for ability_type in [None] + list(ABILITY_TYPE._records):
+            for activation_type in [None] + list(ABILITY_ACTIVATION_TYPE._records):
+                for availability in ABILITY_AVAILABILITY._records:
+                    args = {'availability': availability.value}
+                    if ability_type is not None:
+                        args['ability_type'] = ability_type.value
+                    if activation_type is not None:
+                        args['activation_type'] = activation_type.value
+                    self.check_html_ok(self.request_html(url('guide:hero-abilities', **args)),
+                                       texts=(('guide.hero_abilities.activation_type.wrong_format', 0),
+                                              ('guide.hero_abilities.ability_type.wrong_format', 0),
+                                              ('guide.hero_abilities.availability.wrong_format', 0),))
 
     def test_hero_preferences(self):
         self.check_html_ok(self.client.get(reverse('guide:hero-preferences')))

@@ -15,7 +15,7 @@ from game.game_info import ATTRIBUTES
 
 from game.map.relations import TERRAIN
 
-from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, ABILITY_TYPE
+from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 
 from game.artifacts.storage import artifacts_storage
 
@@ -199,7 +199,7 @@ class MobRecordPrototype(BasePrototype):
 
     @classmethod
     def get_available_abilities(cls):
-        return filter(lambda a: a.TYPE == ABILITY_TYPE.BATTLE and a.AVAILABILITY & ABILITY_AVAILABILITY.FOR_MONSTERS, # pylint: disable=W0110
+        return filter(lambda a: a.TYPE._is_BATTLE and a.AVAILABILITY.value & ABILITY_AVAILABILITY.FOR_MONSTERS.value, # pylint: disable=W0110
                       ABILITIES.values())
 
     def create_mob(self, hero):

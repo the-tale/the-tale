@@ -2,8 +2,7 @@
 import copy
 import random
 
-from game.heroes.habilities.prototypes import ABILITY_TYPE, ABILITY_AVAILABILITY, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE
-
+from game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_AVAILABILITY, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE
 from game.heroes.habilities.battle import ABILITIES as BATTLE_ABILITIES
 from game.heroes.habilities.attributes import ABILITIES as ATTRIBUTES_ABILITIES
 from game.heroes.habilities.modifiers import ABILITIES as MODIFIERS_ABILITIES
@@ -50,10 +49,10 @@ class AbilitiesPrototype(object):
     def all(self): return self.abilities.values()
 
     @property
-    def active_abilities(self): return [ability for ability in self.abilities.values() if ability.activation_type.is_active]
+    def active_abilities(self): return [ability for ability in self.abilities.values() if ability.activation_type._is_ACTIVE]
 
     @property
-    def passive_abilities(self): return [ability for ability in self.abilities.values() if ability.activation_type.is_passive]
+    def passive_abilities(self): return [ability for ability in self.abilities.values() if ability.activation_type._is_PASSIVE]
 
     def has(self, ability_id): return ability_id in self.abilities
 
@@ -75,7 +74,7 @@ class AbilitiesPrototype(object):
         choosen_abilities = filter(lambda a: a.TYPE==ability_type, self.abilities.values()) # pylint: disable=W0110
 
         # filter by availability for players
-        ability_classes = filter(lambda a: a.AVAILABILITY & ABILITY_AVAILABILITY.FOR_PLAYERS, ability_classes) # pylint: disable=W0110
+        ability_classes = filter(lambda a: a.AVAILABILITY.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value, ability_classes) # pylint: disable=W0110
 
         # filter abilities with max level
         ability_classes = filter(lambda a: not (self.has(a.get_id()) and self.get(a.get_id()).has_max_level), ability_classes) # pylint: disable=W0110
@@ -88,10 +87,10 @@ class AbilitiesPrototype(object):
                       for a in ability_classes]
 
         if free_active_slots <= 0:
-            candidates = filter(lambda a: not a.activation_type.is_active or self.has(a.get_id()), candidates) # pylint: disable=W0110
+            candidates = filter(lambda a: not a.activation_type._is_ACTIVE or self.has(a.get_id()), candidates) # pylint: disable=W0110
 
         if free_passive_slots <= 0:
-            candidates = filter(lambda a: not a.activation_type.is_passive or self.has(a.get_id()), candidates) # pylint: disable=W0110
+            candidates = filter(lambda a: not a.activation_type._is_PASSIVE or self.has(a.get_id()), candidates) # pylint: disable=W0110
 
         return candidates
 
