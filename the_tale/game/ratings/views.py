@@ -2,13 +2,12 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views import handler
+from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder
 from dext.settings import settings
 
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
-from common.utils.enum import create_enum
 
 from game.heroes.models import Hero
 from game.heroes.prototypes import HeroPrototype
@@ -16,27 +15,20 @@ from game.heroes.prototypes import HeroPrototype
 from game.ratings.conf import ratings_settings
 from game.ratings.models import RatingValues, RatingPlaces
 from game.ratings.prototypes import RatingValuesPrototype, RatingPlacesPrototype
-
-
-RATING_TYPE = create_enum('RATING_TYPE', (('MIGHT', 'might', u'Могущество'),
-                                          ('BILLS', 'bills', u'Принятые законы'),
-                                          ('POWER', 'power', u'Сила героя'),
-                                          ('LEVEL', 'level', u'Уровень героя'),
-                                          ('PHRASES', 'phrases', u'Добавленные фразы'),
-                                          ('PVP_BATTLES_1x1_NUMBER', 'pvp_battles_1x1_number', u'сражения в PvP'),
-                                          ('PVP_BATTLES_1x1_VICTORIES', 'pvp_battles_1x1_victories', u'победы в PvP'),))
+from game.ratings.relations import RATING_TYPE
 
 
 
 class RatingResource(Resource):
 
+    @validate_argument('rating_type', RATING_TYPE, 'ratings', u'Неверный тип рейтингов')
     def initialize(self, rating_type=None, *args, **kwargs):
         super(RatingResource, self).initialize(*args, **kwargs)
         self.rating_type = rating_type
 
     @handler('', method='get')
     def index(self):
-        return self.redirect(reverse('game:ratings:show', args=[RATING_TYPE.MIGHT]))
+        return self.redirect(reverse('game:ratings:show', args=[RATING_TYPE.MIGHT.value]))
 
 
     @handler('#rating_type', name='show', method='get')
@@ -49,37 +41,37 @@ class RatingResource(Resource):
         place_getter = None
         value_getter = None
 
-        if self.rating_type == RATING_TYPE.MIGHT:
+        if self.rating_type._is_MIGHT:
             ratings_query = ratings_query.filter(account__ratingvalues__might__gt=0).order_by('might_place')
             place_getter = lambda places: places.might_place
             value_getter = lambda values: values.might
 
-        elif self.rating_type == RATING_TYPE.BILLS:
+        elif self.rating_type._is_BILLS:
             ratings_query = ratings_query.filter(account__ratingvalues__bills_count__gt=0).order_by('bills_count_place')
             place_getter = lambda places: places.bills_count_place
             value_getter = lambda values: values.bills_count
 
-        elif self.rating_type == RATING_TYPE.POWER:
+        elif self.rating_type._is_POWER:
             ratings_query = ratings_query.order_by('power_place')
             place_getter = lambda places: places.power_place
             value_getter = lambda values: values.power
 
-        elif self.rating_type == RATING_TYPE.LEVEL:
+        elif self.rating_type._is_LEVEL:
             ratings_query = ratings_query.order_by('level_place')
             place_getter = lambda places: places.level_place
             value_getter = lambda values: values.level
 
-        elif self.rating_type == RATING_TYPE.PHRASES:
+        elif self.rating_type._is_PHRASES:
             ratings_query = ratings_query.filter(account__ratingvalues__phrases_count__gt=0).order_by('phrases_count_place')
             place_getter = lambda places: places.phrases_count_place
             value_getter = lambda values: values.phrases_count
 
-        elif self.rating_type == RATING_TYPE.PVP_BATTLES_1x1_NUMBER:
+        elif self.rating_type._is_PVP_BATTLES_1x1_NUMBER:
             ratings_query = ratings_query.order_by('pvp_battles_1x1_number_place')
             place_getter = lambda places: places.pvp_battles_1x1_number_place
             value_getter = lambda values: values.pvp_battles_1x1_number
 
-        elif self.rating_type == RATING_TYPE.PVP_BATTLES_1x1_VICTORIES:
+        elif self.rating_type._is_PVP_BATTLES_1x1_VICTORIES:
             ratings_query = ratings_query.order_by('pvp_battles_1x1_victories_place')
             place_getter = lambda places: places.pvp_battles_1x1_victories_place
             value_getter = lambda values: '%.2f%%' % (values.pvp_battles_1x1_victories * 100)
@@ -89,7 +81,7 @@ class RatingResource(Resource):
 
         page = int(page) - 1
 
-        url_builder = UrlBuilder(reverse('game:ratings:show', args=[self.rating_type]), arguments={'page': page})
+        url_builder = UrlBuilder(reverse('game:ratings:show', args=[self.rating_type.value]), arguments={'page': page})
 
         paginator = Paginator(page, ratings_count, ratings_settings.ACCOUNTS_ON_PAGE, url_builder)
 

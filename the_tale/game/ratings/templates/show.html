@@ -2,7 +2,7 @@
 
 {% import 'macros.html' as base_macros with context %}
 
-{% block title %} {{ RATING_TYPE._ID_TO_TEXT[rating_type] }} | {{ super() }}{% endblock %}
+{% block title %} {{ rating_type.text }} | {{ super() }}{% endblock %}
 
 
 {% block ratings_content %}
@@ -15,13 +15,9 @@
 </h2>
 
 <ul class="nav nav-pills">
-  <li {% if rating_type == RATING_TYPE.MIGHT %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.MIGHT) }}">Могущество</a></li>
-  <li {% if rating_type == RATING_TYPE.BILLS %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.BILLS) }}">Принятые законы</a></li>
-  <li {% if rating_type == RATING_TYPE.POWER %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.POWER) }}">Сила героя</a></li>
-  <li {% if rating_type == RATING_TYPE.LEVEL %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.LEVEL) }}">Уровень героя</a></li>
-  <li {% if rating_type == RATING_TYPE.PHRASES %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.PHRASES) }}">Добавленные фразы</a></li>
-  <li {% if rating_type == RATING_TYPE.PVP_BATTLES_1x1_NUMBER %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.PVP_BATTLES_1x1_NUMBER) }}">Сражений PvP</a></li>
-  <li {% if rating_type == RATING_TYPE.PVP_BATTLES_1x1_VICTORIES %}class="active"{% endif %}><a href="{{ url('game:ratings:show', RATING_TYPE.PVP_BATTLES_1x1_VICTORIES) }}">Побед PvP</a></li>
+  {% for menu_rating in RATING_TYPE._records %}
+  <li {% if rating_type == menu_rating %}class="active"{% endif %}><a href="{{ url('game:ratings:show', menu_rating.value) }}">{{menu_rating.text}}</a></li>
+  {% endfor %}
 </ul>
 
 {{ base_macros.render_paginator(paginator) }}
@@ -32,7 +28,7 @@
       <th>место</th>
       <th>ангел</th>
       <th>герой</th>
-      <th>{{RATING_TYPE._ID_TO_TEXT[rating_type]|lower}}</th>
+      <th>{{rating_type.text|lower}}</th>
     </tr>
   </thead>
   <tbody>

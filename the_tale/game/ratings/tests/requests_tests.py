@@ -41,7 +41,7 @@ class RequestsTests(TestCase):
 
 
     def test_index(self):
-        self.check_redirect(reverse('game:ratings:'), reverse('game:ratings:show', args=[RATING_TYPE.MIGHT]))
+        self.check_redirect(reverse('game:ratings:'), reverse('game:ratings:show', args=[RATING_TYPE.MIGHT.value]))
 
     def get_show_texts(self, test_user_1, test_user_2, test_user_3, test_user_4):
         return [ ('test_user1', test_user_1),
@@ -50,11 +50,11 @@ class RequestsTests(TestCase):
                  ('test_user4', test_user_4)]
 
     def test_show(self):
-        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.MIGHT])), texts=self.get_show_texts(1, 1, 0, 0))
-        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.BILLS])), texts=self.get_show_texts(1, 0, 1, 0))
-        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.POWER])), texts=self.get_show_texts(1, 1, 1, 0))
-        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.LEVEL])), texts=self.get_show_texts(1, 1, 1, 0))
-        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.LEVEL])), texts=self.get_show_texts(1, 1, 1, 0))
-        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.PHRASES])), texts=self.get_show_texts(0, 1, 0, 0))
-        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.PVP_BATTLES_1x1_NUMBER])), texts=self.get_show_texts(1, 1, 1, 0))
-        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.PVP_BATTLES_1x1_VICTORIES])), texts=self.get_show_texts(1, 1, 1, 0))
+        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.MIGHT.value])), texts=self.get_show_texts(1, 1, 0, 0))
+        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.BILLS.value])), texts=self.get_show_texts(1, 0, 1, 0))
+        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.POWER.value])), texts=self.get_show_texts(1, 1, 1, 0))
+        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.LEVEL.value])), texts=self.get_show_texts(1, 1, 1, 0))
+        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.LEVEL.value])), texts=self.get_show_texts(1, 1, 1, 0))
+        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.PHRASES.value])), texts=self.get_show_texts(0, 1, 0, 0))
+        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.PVP_BATTLES_1x1_NUMBER.value])), texts=self.get_show_texts(1, 1, 1, 0))
+        self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.PVP_BATTLES_1x1_VICTORIES.value])), texts=self.get_show_texts(1, 1, 1, 0))
