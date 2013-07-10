@@ -6,8 +6,10 @@ from collections import Counter
 
 from common.utils import testcase
 
-from common.utils.logic import random_value_by_priority, verbose_timedelta
+from common.utils.logic import random_value_by_priority, verbose_timedelta, get_or_create
 from common.utils.decorators import lazy_property
+
+_get_or_create_state = None # for get_or_create tests
 
 class LogicTest(testcase.TestCase):
 
@@ -74,3 +76,32 @@ class LogicTest(testcase.TestCase):
         self.assertEqual(x.count, 1)
         x.test
         self.assertEqual(x.count, 1)
+
+
+    def test_get_or_create__by_get(self):
+        def get(x, y): return x + y
+
+        self.assertEqual(get_or_create(get_method=get, create_method=None, exception=None, kwargs={'x': 222, 'y': 444}), 666)
+
+
+    def test_get_or_create__by_create(self):
+        def get(x, y): return None
+        def create(x, y): return x + y
+
+        self.assertEqual(get_or_create(get_method=get, create_method=create, exception=None, kwargs={'x': 222, 'y': 444}), 666)
+
+
+    def test_get_or_create__by_second_get(self):
+        global _get_or_create_state
+        _get_or_create_state = 'first'
+
+        def get(x, y):
+            global _get_or_create_state
+            if _get_or_create_state == 'first':
+                _get_or_create_state = 'second'
+                return None
+            return x + y
+
+        def create(x, y): raise Exception
+
+        self.assertEqual(get_or_create(get_method=get, create_method=create, exception=Exception, kwargs={'x': 222, 'y': 444}), 666)

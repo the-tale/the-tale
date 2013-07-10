@@ -1,10 +1,12 @@
 # coding: utf-8
 
 from django.db import models
+from django.db import IntegrityError
 
 from dext.utils.decorators import nested_commit_on_success
 
 from common.utils.prototypes import BasePrototype
+from common.utils.logic import get_or_create
 
 from bank.models import Invoice, Account
 from bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
@@ -57,12 +59,12 @@ class AccountPrototype(BasePrototype):
 
     @classmethod
     def get_for_or_create(cls, entity_type, entity_id, currency):
-        account = cls.get_for(entity_type, entity_id, currency)
-
-        if account is not None:
-            return account
-
-        return cls.create(entity_type, entity_id, currency)
+        return get_or_create(get_method=cls.get_for,
+                             create_method=cls.create,
+                             exception=IntegrityError,
+                             kwargs={'entity_type': entity_type,
+                                     'entity_id': entity_id,
+                                     'currency': currency})
 
     @classmethod
     def create(cls, entity_type, entity_id, currency):

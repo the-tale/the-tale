@@ -66,3 +66,16 @@ def choose_nearest(value, intervals):
             choosen_result = result
 
     return choosen_result
+
+
+def get_or_create(get_method, create_method, exception, kwargs):
+
+    obj = get_method(**kwargs)
+
+    if obj is not None:
+        return obj
+
+    try:
+        return create_method(**kwargs)
+    except exception:
+        return get_method(**kwargs)
