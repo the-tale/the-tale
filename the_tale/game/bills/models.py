@@ -44,6 +44,9 @@ class Bill(models.Model):
     # fields to store config values after processing state (since they can be changed in future)
     min_votes_percents_required = models.FloatField(default=0.0)
 
+    is_declined = models.BooleanField(blank=True, default=False)
+    declined_by = models.ForeignKey('bills.Bill', null=True, default=None, related_name='+')
+
     class Meta:
         permissions = (("moderate_bill", u"Может администрировать законопроекты"), )
 

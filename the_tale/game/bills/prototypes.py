@@ -32,8 +32,11 @@ class BillPrototype(BasePrototype):
     _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'rationale', 'votes_for',
                  'votes_against', 'votes_refrained', 'forum_thread_id', 'min_votes_percents_required',
                  'voting_end_at')
-    _bidirectional = ('approved_by_moderator', 'state')
+    _bidirectional = ('approved_by_moderator', 'state', 'is_declined')
     _get_by = ('id', )
+
+    @lazy_property
+    def declined_by(self): return BillPrototype.get_by_id(self._model.declined_by_id)
 
     @property
     def data(self):
@@ -178,11 +181,14 @@ class BillPrototype(BasePrototype):
         return True
 
     @nested_commit_on_success
-    def decline(self):
+    def decline(self, decliner=None):
         if not self.state._is_ACCEPTED:
             raise BillException('trying to decline bill in not accepted state')
 
+        self.is_declined = True
+        self._model.declined_by = decliner._model
         self.data.decline(bill=self)
+        self.save()
 
     def bill_info_text(self, text):
         return u'''%s

@@ -70,7 +70,8 @@ class BillDecline(BaseBill):
         self.declined_bill_id = int(user_form.c.declined_bill)
 
     def apply(self, bill=None):
-        self.declined_bill.decline()
+        if not self.declined_bill.is_declined:
+            self.declined_bill.decline(bill)
 
     def serialize(self):
         return {'type': self.type.name.lower(),

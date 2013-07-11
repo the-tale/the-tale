@@ -9,6 +9,7 @@ from game.bills.prototypes import BillPrototype, VotePrototype
 from game.bills.bills import PlaceResourceExchange, BillDecline, PlaceDescripton
 from game.bills.tests.prototype_tests import BaseTestPrototypes
 from game.bills.tests.helpers import choose_resources
+from game.bills.relations import BILL_STATE
 
 
 class BillDeclineResourceExchangeTests(BaseTestPrototypes):
@@ -112,3 +113,44 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
         bill = BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state._is_ACCEPTED)
+
+        declined_bill = BillPrototype.get_by_id(self.declined_bill.id)
+        self.assertTrue(declined_bill.state._is_ACCEPTED)
+        self.assertTrue(declined_bill.is_declined)
+        self.assertTrue(declined_bill.declined_by.id, bill.id)
+
+
+    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    def test_reapply(self):
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        old_storage_version = resource_exchange_storage._version
+
+        self.assertEqual(len(resource_exchange_storage.all()), 1)
+
+        form = BillDecline.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.assertTrue(self.bill.apply())
+
+        self.bill.state = BILL_STATE.VOTING
+        self.bill.save()
+
+        with mock.patch('game.bills.prototypes.BillPrototype.decline') as skipped_decline:
+            self.assertTrue(self.bill.apply())
+
+        self.assertEqual(skipped_decline.call_count, 0)
+
+        self.assertNotEqual(old_storage_version, resource_exchange_storage._version)
+        self.assertEqual(len(resource_exchange_storage.all()), 0)
+
+        bill = BillPrototype.get_by_id(self.bill.id)
+        self.assertTrue(bill.state._is_ACCEPTED)
+
+        declined_bill = BillPrototype.get_by_id(self.declined_bill.id)
+        self.assertTrue(declined_bill.state._is_ACCEPTED)
+        self.assertTrue(declined_bill.is_declined)
+        self.assertTrue(declined_bill.declined_by.id, bill.id)
