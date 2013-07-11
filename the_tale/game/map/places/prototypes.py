@@ -240,7 +240,7 @@ class PlacePrototype(BasePrototype):
         if self.modifier and self.modifier.PRODUCTION_MODIFIER:
             powers.append((self.modifier.NAME, self.modifier.PRODUCTION_MODIFIER))
 
-        persons_powers = [(person.name, person.production) for person in self.persons]
+        persons_powers = [(person.full_name, person.production) for person in self.persons]
         powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
         return powers
 
@@ -253,7 +253,7 @@ class PlacePrototype(BasePrototype):
         if self.modifier and self.modifier.SAFETY_MODIFIER:
             powers.append((self.modifier.NAME, self.modifier.SAFETY_MODIFIER))
 
-        persons_powers = [(person.name, person.safety) for person in self.persons]
+        persons_powers = [(person.full_name, person.safety) for person in self.persons]
         powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
         return powers
 
@@ -265,7 +265,7 @@ class PlacePrototype(BasePrototype):
         if self.modifier and self.modifier.TRANSPORT_MODIFIER:
             powers.append((self.modifier.NAME, self.modifier.TRANSPORT_MODIFIER))
 
-        persons_powers = [(person.name, person.transport) for person in self.persons]
+        persons_powers = [(person.full_name, person.transport) for person in self.persons]
         powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
         return powers
 
@@ -275,7 +275,7 @@ class PlacePrototype(BasePrototype):
         if self.modifier and self.modifier.FREEDOM_MODIFIER:
             powers.append((self.modifier.NAME, self.modifier.FREEDOM_MODIFIER))
 
-        persons_powers = [(person.name, person.freedom) for person in self.persons]
+        persons_powers = [(person.full_name, person.freedom) for person in self.persons]
         powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
         return powers
 

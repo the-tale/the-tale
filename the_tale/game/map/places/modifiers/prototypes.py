@@ -73,7 +73,7 @@ class PlaceModifierBase(object):
 
             if  person_effect == 0: continue
 
-            effects.append((EFFECT_SOURCES.PERSON, '%s %s-%s' % (person.name, person.race_verbose, person.type.text), person_power_percent * person_effect))
+            effects.append((EFFECT_SOURCES.PERSON, person.full_name, person_power_percent * person_effect))
 
         return effects
 

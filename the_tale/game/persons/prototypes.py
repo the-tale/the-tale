@@ -7,6 +7,7 @@ from textgen.words import Fake
 
 from common.utils.prototypes import BasePrototype
 from common.utils.logic import choose_from_interval
+from common.utils.decorators import lazy_property
 
 from game.game_info import GENDER_ID_2_STR, GENDER
 from game.helpers import add_power_management
@@ -48,6 +49,10 @@ class PersonPrototype(BasePrototype):
 
     @property
     def normalized_name(self): return (Fake(self._model.name), (GENDER_ID_2_STR[self.gender], u'загл'))
+
+    @lazy_property
+    def full_name(self):
+        return u'%s %s-%s' % (self.name, self.race_verbose, self.type.text)
 
     @property
     def race_verbose(self):
