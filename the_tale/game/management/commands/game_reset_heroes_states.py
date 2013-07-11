@@ -20,6 +20,7 @@ class Command(BaseCommand):
             hero = HeroPrototype.get_by_id(hero_id)
             hero.actions.reset_to_idl()
             hero.position.set_place(places_storage.random_place())
+            hero.bag = '{}' # remove all bag (threre can be quest items)
             hero.save()
 
         QuestPrototype._model_class.objects.all().delete()

@@ -46,6 +46,13 @@ class Bag(object):
                 self.pop_artifact(bag_artifact)
                 break
 
+    # TODO: can be removed in v0.2.19
+    def _remove_all_quest_artifacts(self):
+        for bag_artifact in self.bag.values():
+            if bag_artifact.quest:
+                self.pop_artifact(bag_artifact)
+
+
     def get(self, artifact_id):
         return self.bag.get(artifact_id, None)
 
