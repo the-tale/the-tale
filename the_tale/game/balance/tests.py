@@ -173,7 +173,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_TYPE_ENOUGH_BORDER, 50)
 
         self.assertEqual(c.PLACE_GOODS_BONUS, 100)
-        self.assertEqual(c.PLACE_GOODS_TO_LEVEL, 9600)
+        self.assertEqual(c.PLACE_GOODS_TO_LEVEL, 6000)
         self.assertEqual(c.PLACE_GOODS_AFTER_LEVEL_UP, 0.25)
         self.assertEqual(c.PLACE_GOODS_AFTER_LEVEL_DOWN, 0.75)
         self.assertEqual(c.PLACE_SAFETY_FROM_BEST_PERSON, 0.05)

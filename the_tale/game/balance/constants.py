@@ -282,7 +282,7 @@ PLACE_TYPE_NECESSARY_BORDER = int(75)
 PLACE_TYPE_ENOUGH_BORDER = int(50)
 
 PLACE_GOODS_BONUS = int(100) # в час, соответственно PLACE_GOODS_BONUS * LEVEL — прирост/убыль товаров в городе
-PLACE_GOODS_TO_LEVEL = PLACE_GOODS_BONUS * (1 + 3) * 24 # 1 город + 3 персонажа за 24 часа
+PLACE_GOODS_TO_LEVEL = int(PLACE_GOODS_BONUS * (1 + 3.0/2) * 24) # 1 город + 3 средних персонажа за 24 часа
 PLACE_GOODS_AFTER_LEVEL_UP = float(0.25) # процент товаров, остающихся при увеличении размера города
 PLACE_GOODS_AFTER_LEVEL_DOWN = float(0.75) # процент товаров, возвращающихся при уменьшении размера города
 
