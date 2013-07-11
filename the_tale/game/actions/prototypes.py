@@ -416,7 +416,7 @@ class ActionIdlenessPrototype(ActionBase):
 
         if self.state == self.STATE.WAITING:
 
-            self.percents += 1.0 / c.TURNS_TO_IDLE
+            self.percents += 1.0 / (c.TURNS_TO_IDLE * self.hero.level)
 
             if self.percents >= 1.0:
                 self.state = self.STATE.QUEST
@@ -809,7 +809,7 @@ class ActionResurrectPrototype(ActionBase):
 
         if self.state == self.STATE.RESURRECT:
 
-            self.percents += 1.0 / c.TURNS_TO_RESURRECT
+            self.percents += 1.0 / (c.TURNS_TO_RESURRECT * self.hero.level)
 
             if random.uniform(0, 1) < 0.1:
                 self.hero.add_message('action_resurrect_resurrecting', hero=self.hero)

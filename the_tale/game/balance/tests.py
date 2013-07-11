@@ -20,7 +20,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.POWER_PER_LVL, 1)
         self.assertEqual(c.EQUIP_SLOTS_NUMBER, 11)
         self.assertEqual(c.ARTIFACTS_PER_LVL, 4)
-        self.assertEqual(c.EXP_PENALTY_MULTIPLIER, 0.25)
+        self.assertEqual(c.EXP_PENALTY_MULTIPLIER, 0.1)
         self.assertEqual(c.EXP_PER_HOUR, 10)
         self.assertEqual(c.EXP_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.HERO_MOVE_SPEED, 0.3)
@@ -33,9 +33,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION, 0.33)
         self.assertEqual(c.HEALTH_IN_MOVE_TO_START_HEAL_FRACTION, 0.25)
 
-        self.assertEqual(c.TURNS_TO_RESURRECT, 20)
-        self.assertEqual(c.TURNS_TO_IDLE, 20)
-
+        self.assertEqual(c.TURNS_TO_IDLE, 6)
+        self.assertEqual(c.TURNS_TO_RESURRECT, 18)
 
         self.assertEqual(c.GET_LOOT_PROBABILITY, 0.33)
         self.assertEqual(c.NORMAL_LOOT_PROBABILITY, 0.99)

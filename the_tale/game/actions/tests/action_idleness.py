@@ -86,7 +86,7 @@ class IdlenessActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        for i in xrange(c.TURNS_TO_IDLE-1):
+        for i in xrange(c.TURNS_TO_IDLE*self.hero.level):
             self.storage.process_turn()
             current_time.increment_turn()
             self.assertEqual(len(self.hero.actions.actions_list), 1)
