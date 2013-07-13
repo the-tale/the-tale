@@ -25,8 +25,7 @@ from game.persons.models import Person, PERSON_STATE
 from game.persons.storage import persons_storage
 
 from game.heroes.prototypes import HeroPrototype
-from game.heroes.models import PREFERENCE_TYPE
-from game.heroes.exceptions import HeroException, WrongPreferenceTypeError
+from game.heroes.relations import PREFERENCE_TYPE
 from game.heroes.bag import SLOTS
 from game.heroes.postponed_tasks import ChoosePreferencesTask, CHOOSE_PREFERENCES_TASK_STATE
 from game.heroes.preferences import HeroPreferences
@@ -148,10 +147,6 @@ class HeroPreferencesMobTest(TestCase):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.MOB, 'wrong_mob_uuid')
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_MOB)
-
-    def test_wrong_preference(self):
-        task = ChoosePreferencesTask(self.hero.id, 666, self.mob_uuid)
-        self.assertRaises(WrongPreferenceTypeError, task.process, FakePostpondTaskPrototype(), self.storage)
 
     def test_wrong_mob_level(self):
         mobs_storage.all()[1].level = self.hero.level + 1
@@ -679,10 +674,6 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT)
 
-    def test_wrong_preference(self):
-        task = ChoosePreferencesTask(self.hero.id, '666', self.slot_1)
-        self.assertRaises(HeroException, task.process, FakePostpondTaskPrototype(), self.storage)
-
     def test_set_equipment_slot(self):
         changed_at = self.hero.preferences.equipment_slot_changed_at
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
@@ -749,7 +740,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
     def test_preferences_dialog_mob(self):
         self.request_login('test_user@test.com')
-        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.MOB))
+        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.MOB.value))
 
         texts = []
 
@@ -764,7 +755,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
     def test_preferences_dialog_place(self):
         self.request_login('test_user@test.com')
-        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.PLACE))
+        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.PLACE.value))
 
         texts = []
 
@@ -775,7 +766,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
     def test_preferences_dialog_friend(self):
         self.request_login('test_user@test.com')
-        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.FRIEND))
+        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.FRIEND.value))
 
         texts = []
 
@@ -786,7 +777,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
     def test_preferences_dialog_enemy(self):
         self.request_login('test_user@test.com')
-        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY))
+        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY.value))
 
         texts = []
 
@@ -796,12 +787,12 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_html_ok(response, texts=texts)
 
     def test_preferences_dialog_unlogined(self):
-        request_url = reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY)
+        request_url = reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY.value)
         self.check_redirect(request_url, login_url(request_url))
 
     def test_preferences_dialog_wrong_user(self):
         self.request_login('test_user_2@test.com')
-        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY))
+        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY.value))
         self.check_html_ok(response, texts=(('heroes.not_owner', 1),))
 
     def test_choose_preferences_unlogined(self):

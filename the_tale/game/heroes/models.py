@@ -3,20 +3,11 @@ import datetime
 
 from django.db import models
 
-from common.utils.enum import create_enum
-
 from game.game_info import GENDER
 from game.balance.enums import RACE
 
 from game.balance import enums as e
 
-
-PREFERENCE_TYPE = create_enum('PREFERENCE_TYPE', ( ('MOB', 0, u'любимая добыча'),
-                                                   ('PLACE', 1, u'родной город'),
-                                                   ('FRIEND', 2, u'соратник'),
-                                                   ('ENEMY', 3, u'враг'),
-                                                   ('ENERGY_REGENERATION_TYPE', 4, u'религиозность'),
-                                                   ('EQUIPMENT_SLOT', 5, u'экипировка'),) )
 
 class Hero(models.Model):
 

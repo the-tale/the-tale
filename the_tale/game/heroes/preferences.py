@@ -10,7 +10,6 @@ from game.map.places.storage import places_storage
 
 from game.persons.storage import persons_storage
 
-from game.heroes.models import PREFERENCE_TYPE
 from game.heroes.bag import SLOTS
 from game.heroes.exceptions import WrongPreferenceTypeError
 
@@ -27,12 +26,12 @@ class HeroPreferences(object):
         return max(datetime.timedelta(seconds=0), (changed_at + datetime.timedelta(seconds=c.CHARACTER_PREFERENCES_CHANGE_DELAY) - current_time))
 
     def time_before_update(self, preferences_type, current_time):
-        if preferences_type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE: return self._time_before_update(self.energy_regeneration_type_changed_at, current_time)
-        if preferences_type == PREFERENCE_TYPE.MOB: return self._time_before_update(self.mob_changed_at, current_time)
-        if preferences_type == PREFERENCE_TYPE.PLACE: return self._time_before_update(self.place_changed_at, current_time)
-        if preferences_type == PREFERENCE_TYPE.FRIEND: return self._time_before_update(self.friend_changed_at, current_time)
-        if preferences_type == PREFERENCE_TYPE.ENEMY: return self._time_before_update(self.enemy_changed_at, current_time)
-        if preferences_type == PREFERENCE_TYPE.EQUIPMENT_SLOT: return self._time_before_update(self.equipment_slot_changed_at, current_time)
+        if preferences_type._is_ENERGY_REGENERATION_TYPE: return self._time_before_update(self.energy_regeneration_type_changed_at, current_time)
+        if preferences_type._is_MOB: return self._time_before_update(self.mob_changed_at, current_time)
+        if preferences_type._is_PLACE: return self._time_before_update(self.place_changed_at, current_time)
+        if preferences_type._is_FRIEND: return self._time_before_update(self.friend_changed_at, current_time)
+        if preferences_type._is_ENEMY: return self._time_before_update(self.enemy_changed_at, current_time)
+        if preferences_type._is_EQUIPMENT_SLOT: return self._time_before_update(self.equipment_slot_changed_at, current_time)
 
         raise WrongPreferenceTypeError(preference_type=preferences_type)
 

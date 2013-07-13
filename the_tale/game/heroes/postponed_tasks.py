@@ -1,6 +1,8 @@
 # coding: utf-8
 import datetime
 
+import rels
+
 from dext.utils.decorators import nested_commit_on_success
 
 from textgen.words import Noun
@@ -14,9 +16,9 @@ from game.map.places.storage import places_storage
 from game.mobs.storage import mobs_storage
 from game.persons.storage import persons_storage
 
-from game.heroes.models import PREFERENCE_TYPE
 from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from game.heroes.bag import SLOTS
+from game.heroes.relations import PREFERENCE_TYPE
 
 
 CHOOSE_HERO_ABILITY_STATE = create_enum('CHOOSE_HERO_ABILITY_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
@@ -161,13 +163,13 @@ class ChoosePreferencesTask(PostponedLogic):
     def __init__(self, hero_id, preference_type, preference_id, state=CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED):
         super(ChoosePreferencesTask, self).__init__()
         self.hero_id = hero_id
-        self.preference_type = preference_type
+        self.preference_type = preference_type if isinstance(preference_type, rels.Record) else PREFERENCE_TYPE(preference_type)
         self.preference_id = preference_id
         self.state = state
 
     def serialize(self):
         return { 'hero_id': self.hero_id,
-                 'preference_type': self.preference_type,
+                 'preference_type': self.preference_type.value,
                  'preference_id': self.preference_id,
                  'state': self.state }
 
@@ -343,22 +345,22 @@ class ChoosePreferencesTask(PostponedLogic):
             self.state = CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        if self.preference_type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE:
+        if self.preference_type._is_ENERGY_REGENERATION_TYPE:
             result = self.process_energy_regeneration(main_task, hero)
 
-        elif self.preference_type == PREFERENCE_TYPE.MOB:
+        elif self.preference_type._is_MOB:
             result = self.process_mob(main_task, hero)
 
-        elif self.preference_type == PREFERENCE_TYPE.PLACE:
+        elif self.preference_type._is_PLACE:
             result = self.process_place(main_task, hero)
 
-        elif self.preference_type == PREFERENCE_TYPE.FRIEND:
+        elif self.preference_type._is_FRIEND:
             result = self.process_friend(main_task, hero)
 
-        elif self.preference_type == PREFERENCE_TYPE.ENEMY:
+        elif self.preference_type._is_ENEMY:
             result = self.process_enemy(main_task, hero)
 
-        elif self.preference_type == PREFERENCE_TYPE.EQUIPMENT_SLOT:
+        elif self.preference_type._is_EQUIPMENT_SLOT:
             result = self.process_slot(main_task, hero)
 
         else:

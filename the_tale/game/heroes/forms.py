@@ -6,7 +6,8 @@ from dext.forms import forms, fields
 
 from common.utils.forms import NounFormsWithoutNumberField
 
-from game.heroes.models import PREFERENCE_TYPE, Hero
+from game.heroes.models import Hero
+from game.heroes.relations import PREFERENCE_TYPE
 
 from game.game_info import GENDER
 from game.balance.enums import RACE
@@ -14,7 +15,7 @@ from game.balance.enums import RACE
 class ChoosePreferencesForm(forms.Form):
 
     preference_id = fields.CharField(max_length=32, required=False)
-    preference_type = fields.TypedChoiceField(choices=PREFERENCE_TYPE._CHOICES, coerce=int)
+    preference_type = fields.TypedChoiceField(choices=PREFERENCE_TYPE._choices(), coerce=PREFERENCE_TYPE._get_from_name)
 
 
 class EditNameForm(forms.Form):

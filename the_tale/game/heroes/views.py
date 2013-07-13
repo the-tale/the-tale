@@ -27,7 +27,7 @@ from game import names
 
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask
-from game.heroes.models import PREFERENCE_TYPE
+from game.heroes.relations import PREFERENCE_TYPE
 from game.heroes.forms import ChoosePreferencesForm, EditNameForm
 from game.heroes.bag import SLOTS
 
@@ -155,10 +155,9 @@ class HeroResource(Resource):
 
     @login_required
     @validate_ownership()
+    @validate_argument('type', lambda x: PREFERENCE_TYPE(int(x)), 'heroes.choose_preferences_dialog', u'Неверный тип способности')
     @handler('#hero', 'choose-preferences-dialog', method='get')
     def choose_preferences_dialog(self, type): # pylint: disable=W0622
-
-        type = int(type)
 
         mobs = None
         places = None
@@ -170,33 +169,32 @@ class HeroResource(Resource):
         all_places = places_storage.all()
         all_places.sort(key=lambda x: x.name)
 
-        if type == PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE:
+        if type._is_ENERGY_REGENERATION_TYPE:
             pass
 
-        if type == PREFERENCE_TYPE.MOB:
+        if type._is_MOB:
             all_mobs = mobs_storage.get_available_mobs_list(level=self.hero.level)
             all_mobs = sorted(all_mobs, key=lambda x: x.name)
             mobs = split_list(all_mobs)
 
-        elif type == PREFERENCE_TYPE.PLACE:
+        elif type._is_PLACE:
             places = split_list(all_places)
 
-        elif type == PREFERENCE_TYPE.FRIEND:
+        elif type._is_FRIEND:
             persons_ids = Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name').values_list('id', flat=True)
             all_friends = [persons_storage[person_id] for person_id in persons_ids]
             friends = all_friends
 
-        elif type == PREFERENCE_TYPE.ENEMY:
+        elif type._is_ENEMY:
             persons_ids = Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name').values_list('id', flat=True)
             all_enemys = [persons_storage[person_id] for person_id in persons_ids]
             enemies = all_enemys
 
-        elif type == PREFERENCE_TYPE.EQUIPMENT_SLOT:
+        elif type._is_EQUIPMENT_SLOT:
             equipment_slots = split_list(SLOTS._ALL)
 
         return self.template('heroes/choose_preferences.html',
                              {'type': type,
-                              'PREFERENCE_TYPE': PREFERENCE_TYPE,
                               'mobs': mobs,
                               'places': places,
                               'all_places': dict([ (place.id, place) for place in all_places]),

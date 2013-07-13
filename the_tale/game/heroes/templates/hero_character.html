@@ -71,7 +71,7 @@ jQuery(document).ready(function(e){
 
     {% if is_owner and time_before_update.total_seconds() == 0 %}
     <a class="pgf-choose-preference-button"
-       href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type}}"
+       href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type.value}}"
        data-preference-type="{{ type }}">
       выбрать
     </a>
@@ -86,14 +86,14 @@ jQuery(document).ready(function(e){
 
     {% if value %}
 
-    {% if type != PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE %}
+    {% if not type._is_ENERGY_REGENERATION_TYPE %}
     <a class="pgf-remove-preference-button pull-right" href="#" data-preference-type="{{ type }}" style="margin-left: 5px;" rel="tooltip" title="удалить">
       <i class="icon-trash"></i>
     </a>
     {% endif %}
 
     <a class="pgf-choose-preference-button pull-right"
-       href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type}}"
+       href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type.value}}"
        data-preference-type="{{ type }}"
        rel="tooltip" title="редактировать">
       <i class="icon-pencil"></i>
