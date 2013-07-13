@@ -19,7 +19,7 @@ from game.map.places.models import Place
 
 from game.logic_storage import LogicStorage
 
-from game.balance import constants as c, enums as e
+from game.balance import enums as e
 
 from game.persons.models import Person, PERSON_STATE
 from game.persons.storage import persons_storage
@@ -43,7 +43,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero._model.level = c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED
+        self.hero._model.level = PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE.level_required
         self.hero._model.pref_energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
         self.hero._model.save()
 
@@ -61,7 +61,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 
     # can not test wrong level, since energy regeneration choice available on 1 level
     def test_wrong_level(self):
-        self.assertEqual(c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED, 1)
+        self.assertEqual(PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE.level_required, 1)
 
     def test_wrong_energy_regeneration_type(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
@@ -110,7 +110,7 @@ class HeroPreferencesMobTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero._model.level = c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED
+        self.hero._model.level = PREFERENCE_TYPE.MOB.level_required
         self.hero._model.save()
 
         self.mob_uuid = mobs_storage.get_available_mobs_list(level=self.hero.level)[0].uuid
@@ -229,7 +229,7 @@ class HeroPreferencesPlaceTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero._model.level = c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED
+        self.hero._model.level = PREFERENCE_TYPE.PLACE.level_required
         self.hero.save()
 
         self.place = place_1
@@ -346,7 +346,7 @@ class HeroPreferencesFriendTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero._model.level = c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED
+        self.hero._model.level = PREFERENCE_TYPE.FRIEND.level_required
         self.hero._model.save()
 
         self.friend_id = Person.objects.all()[0].id
@@ -498,7 +498,7 @@ class HeroPreferencesEnemyTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero._model.level = c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED
+        self.hero._model.level = PREFERENCE_TYPE.ENEMY.level_required
         self.hero._model.save()
 
         self.enemy_id = Person.objects.all()[0].id
@@ -649,7 +649,7 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero._model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
+        self.hero._model.level = PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
         self.hero._model.save()
 
         self.slot_1 = SLOTS.HAND_PRIMARY
@@ -721,7 +721,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-        self.hero._model.level = c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED # maximum blocking level
+        self.hero._model.level = max(r.level_required for r in PREFERENCE_TYPE._records) # maximum blocking level
         self.hero._model.save()
 
         register_user('test_user_2', 'test_user_2@test.com', '111111')

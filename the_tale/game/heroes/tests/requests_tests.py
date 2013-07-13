@@ -19,7 +19,10 @@ from game.game_info import GENDER, GENDER_ID_2_STR
 from game.balance.enums import RACE
 from game.logic_storage import LogicStorage
 from game.logic import create_test_map
+
 from game.heroes.prototypes import HeroPrototype
+from game.heroes.relations import PREFERENCE_TYPE
+
 
 class HeroRequestsTestBase(TestCase):
 
@@ -121,9 +124,7 @@ class ChangePreferencesRequestsTests(HeroRequestsTestBase):
         super(ChangePreferencesRequestsTests, self).setUp()
 
     def test_chooce_preferences_dialog(self):
-        from game.heroes.relations import PREFERENCE_TYPE
-
-        self.hero._model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
+        self.hero._model.level = PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
         self.hero.save()
 
         for preference_type in PREFERENCE_TYPE._records:

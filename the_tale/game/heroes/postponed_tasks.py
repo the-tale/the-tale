@@ -177,11 +177,6 @@ class ChoosePreferencesTask(PostponedLogic):
     def error_message(self): return CHOOSE_PREFERENCES_TASK_STATE._CHOICES[self.state][1]
 
     def process_energy_regeneration(self, main_task, hero):
-        if hero.level < c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED:
-            main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED)
-            self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
-            return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
         energy_regeneration_type = int(self.preference_id) if self.preference_id is not None else None
 
         if energy_regeneration_type is None:
@@ -204,11 +199,6 @@ class ChoosePreferencesTask(PostponedLogic):
         mob_uuid = self.preference_id
 
         if mob_uuid is not None:
-
-            if hero.level < c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED:
-                main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED)
-                self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
-                return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             if  not mobs_storage.has_mob(mob_uuid):
                 main_task.comment = u'unknown mob id: %s' % (mob_uuid, )
@@ -238,11 +228,6 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if place_id is not None:
 
-            if hero.level < c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED:
-                main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED)
-                self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
-                return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
             if place_id not in places_storage:
                 main_task.comment = u'unknown place id: %s' % (place_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE
@@ -258,11 +243,6 @@ class ChoosePreferencesTask(PostponedLogic):
         friend_id = int(self.preference_id) if self.preference_id is not None else None
 
         if friend_id is not None:
-            if hero.level < c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED:
-                main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED)
-                self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
-                return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
             if hero.preferences.enemy_id == friend_id:
                 main_task.comment = u'try set enemy as a friend (%d)' % (friend_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND
@@ -288,11 +268,6 @@ class ChoosePreferencesTask(PostponedLogic):
         enemy_id = int(self.preference_id) if self.preference_id is not None else None
 
         if enemy_id is not None:
-            if hero.level < c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED:
-                main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED)
-                self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
-                return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
             if hero.preferences.friend_id == enemy_id:
                 main_task.comment = u'try set friend as an enemy (%d)' % (enemy_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND
@@ -321,11 +296,6 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if equipment_slot is not None:
 
-            if hero.level < c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED:
-                main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED)
-                self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
-                return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
             if self.preference_id not in SLOTS._ALL:
                 main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
@@ -344,6 +314,12 @@ class ChoosePreferencesTask(PostponedLogic):
             main_task.comment = u'blocked since time delay'
             self.state = CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+        if hero.level < self.preference_type.level_required:
+            main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, self.preference_type.level_required)
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
 
         if self.preference_type._is_ENERGY_REGENERATION_TYPE:
             result = self.process_energy_regeneration(main_task, hero)

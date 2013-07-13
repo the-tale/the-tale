@@ -143,13 +143,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
 
-        self.assertEqual(c.CHARACTER_PREFERENCES_ENERGY_REGENERATION_TYPE_LEVEL_REQUIRED, 1)
-        self.assertEqual(c.CHARACTER_PREFERENCES_PLACE_LEVEL_REQUIRED, 3)
-        self.assertEqual(c.CHARACTER_PREFERENCES_MOB_LEVEL_REQUIRED, 7)
-        self.assertEqual(c.CHARACTER_PREFERENCES_FRIEND_LEVEL_REQUIRED, 11)
-        self.assertEqual(c.CHARACTER_PREFERENCES_ENEMY_LEVEL_REQUIRED, 16)
-        self.assertEqual(c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED, 21)
-
         self.assertEqual(c.CHARACTER_PREFERENCES_CHANGE_DELAY, 60*60*24*7)
 
         self.assertEqual(c.ABILITIES_ACTIVE_MAXIMUM, 5)

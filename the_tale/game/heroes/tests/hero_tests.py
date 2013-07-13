@@ -21,9 +21,9 @@ from game.quests.quests_builders import SearchSmith
 
 from game.heroes.bag import ARTIFACT_TYPE_TO_SLOT, SLOTS
 from game.heroes.prototypes import HeroPrototype
-from game.heroes.habilities import ABILITY_TYPE, ABILITIES
-from game.heroes.habilities import battle
+from game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle
 from game.heroes.conf import heroes_settings
+from game.heroes.relations import PREFERENCE_TYPE
 
 
 class HeroTest(TestCase):
@@ -482,7 +482,7 @@ class HeroEquipmentTests(TestCase):
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
 
         self.hero = self.storage.accounts_to_heroes[account_id]
-        self.hero._model.level = c.CHARACTER_PREFERENCES_EQUIPMENT_SLOT_LEVEL_REQUIRED
+        self.hero._model.level = PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
         self.hero.save()
 
     def test_sharp_artifact(self):

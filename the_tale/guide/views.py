@@ -9,6 +9,7 @@ from common.utils.resources import Resource
 
 from game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 from game.heroes.conf import heroes_settings
+from game.heroes.relations import PREFERENCE_TYPE
 
 from game.map.places.conf import places_settings
 from game.persons.conf import persons_settings
@@ -133,4 +134,5 @@ class GuideResource(Resource):
 
     @handler('hero-preferences', method='get')
     def hero_preferences(self):
-        return self.template('guide/hero-preferences.html', {'section': 'hero-preferences'})
+        return self.template('guide/hero-preferences.html', {'section': 'hero-preferences',
+                                                             'PREFERENCE_TYPE': PREFERENCE_TYPE})
