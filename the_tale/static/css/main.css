@@ -23,7 +23,7 @@ html {
   height: 100%;
 }
 body {
-  padding-top: 50px;
+  padding-top: 44px;
   height: 100%;
 }
 body #main-container {
@@ -60,9 +60,25 @@ body .nav-pills > li > a {
   padding-right: 10px;
   padding-left: 10px;
 }
+body .navbar .navbar-inner {
+  min-height: 34px !important;
+}
+body .navbar .navbar-text {
+  padding-top: 9px;
+  line-height: 20px !important;
+}
+body .navbar .divider-vertical {
+  height: 34px !important;
+}
 body .navbar .nav > li > a {
   padding-right: 8px;
   padding-left: 8px;
+  padding-bottom: 0px;
+}
+body .navbar .brand {
+  padding: 3px 8px 0px 0px;
+  margin-left: 0px;
+  margin-bottom: -12px;
 }
 body footer {
   clear: both;
@@ -96,7 +112,7 @@ small {
 .anchor {
   display: block !important;
   position: relative;
-  top: -70px;
+  top: -54px;
 }
 .attention-link {
   color: #faa732 !important;
