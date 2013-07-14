@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from dext.utils.app_settings import app_settings
 
@@ -13,4 +14,5 @@ heroes_settings = app_settings('HEROES',
                                UI_CACHING_TIME=10*60,
                                UI_CACHING_CONTINUE_TIME=60,
                                UI_CACHING_TIMEOUT=c.TURN_DELTA + 1,
+                               ABILITIES_RESET_TIMEOUT=datetime.timedelta(days=30),
                                PLACE_HELP_HISTORY_SIZE=200)

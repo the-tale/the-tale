@@ -26,7 +26,7 @@ from game.workers.environment import workers_environment
 from game import names
 
 from game.heroes.prototypes import HeroPrototype
-from game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask
+from game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask, ResetHeroAbilitiesTask
 from game.heroes.relations import PREFERENCE_TYPE
 from game.heroes.forms import ChoosePreferencesForm, EditNameForm
 from game.heroes.bag import SLOTS
@@ -118,6 +118,23 @@ class HeroResource(Resource):
         workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
+
+    @login_required
+    @validate_ownership()
+    @handler('#hero', 'reset-abilities', method='post')
+    def reset_abilities(self):
+
+        if not self.hero.abilities.can_reset:
+            return self.json_error('heroes.reset_abilities.reset_timeout', u'Сброс способностей пока не доступен')
+
+        reset_task = ResetHeroAbilitiesTask(hero_id=self.hero.id)
+
+        task = PostponedTaskPrototype.create(reset_task)
+
+        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+
+        return self.json_processing(task.status_url)
+
 
     @login_required
     @validate_moderator_rights()

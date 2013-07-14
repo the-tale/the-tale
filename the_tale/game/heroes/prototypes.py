@@ -53,7 +53,6 @@ class HeroPrototype(BasePrototype):
                       'is_fast',
                       'gender',
                       'race',
-                      'destiny_points_spend',
                       'last_energy_regeneration_at_turn',
                       'might',
                       'might_updated_time',
@@ -165,16 +164,9 @@ class HeroPrototype(BasePrototype):
         self.statistics.change_money(source, abs(value))
         self._model.money += value
 
-    @property
+    @lazy_property
     def abilities(self):
-        if not hasattr(self, '_abilities'):
-            if not self._model.abilities:
-                # TODO: for migration to new ability representation
-                self._abilities = AbilitiesPrototype.create()
-            else:
-                self._abilities = AbilitiesPrototype.deserialize(s11n.from_json(self._model.abilities))
-        return self._abilities
-
+        return AbilitiesPrototype.deserialize(s11n.from_json(self._model.abilities))
 
     @property
     def next_ability_type(self):
@@ -190,7 +182,7 @@ class HeroPrototype(BasePrototype):
     def get_abilities_for_choose(self):
 
         random_state = random.getstate()
-        random.seed(self.id + self.destiny_points_spend)
+        random.seed(self.id + self.abilities.destiny_points_spend)
 
         max_abilities = self.ability_types_limitations
 

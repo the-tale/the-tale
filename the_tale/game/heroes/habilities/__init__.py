@@ -1,6 +1,10 @@
 # coding: utf-8
 import copy
 import random
+import time
+import datetime
+
+from game.heroes.conf import heroes_settings
 
 from game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_AVAILABILITY, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE
 from game.heroes.habilities.battle import ABILITIES as BATTLE_ABILITIES
@@ -20,10 +24,14 @@ class AbilitiesPrototype(object):
 
     def __init__(self):
         self.abilities = {}
+        self.reseted_at = datetime.datetime.now()
+        self.destiny_points_spend = 0
         self.updated = False
 
     def serialize(self):
-        data = {'abilities': {}}
+        data = {'abilities': {},
+                'reseted_at': time.mktime(self.reseted_at.timetuple()),
+                'destiny_points_spend': self.destiny_points_spend}
         for ability_id, ability in self.abilities.items():
             data['abilities'][ability_id] = ability.serialize()
         return data
@@ -36,13 +44,33 @@ class AbilitiesPrototype(object):
             ability = ABILITIES[ability_id].deserialize(ability_data)
             abilities.abilities[ability_id] = ability
 
+        abilities.reseted_at = datetime.datetime.fromtimestamp(data.get('reseted_at', 0))
+        abilities.destiny_points_spend = data.get('destiny_points_spend', 0)
+
         return abilities
+
+    @property
+    def can_reset(self):
+        return self.reseted_at + heroes_settings.ABILITIES_RESET_TIMEOUT < datetime.datetime.now()
+
+    def reset(self):
+        self.destiny_points_spend += 1
+        self.reseted_at = datetime.datetime.now()
+        self.initialize()
+        self.updated = True
+
+    @property
+    def time_before_reset(self):
+        return max(datetime.timedelta(seconds=0), (self.reseted_at + heroes_settings.ABILITIES_RESET_TIMEOUT - datetime.datetime.now()))
+
+    def initialize(self):
+        ability = ABILITIES['hit'](level=1)
+        self.abilities = {ability.get_id(): ability}
 
     @classmethod
     def create(cls):
         abilities = cls()
-        ability = ABILITIES['hit'](level=1)
-        abilities.abilities[ability.get_id()] = ability
+        abilities.initialize()
         return abilities
 
     @property
@@ -61,11 +89,12 @@ class AbilitiesPrototype(object):
     def add(self, ability_id, level=1):
         self.updated = True
         self.abilities[ability_id] = ABILITIES[ability_id](level=level)
+        self.destiny_points_spend += 1
 
     def increment_level(self, ability_id):
         self.updated = True
         self.abilities[ability_id].level += 1
-
+        self.destiny_points_spend += 1
 
     def get_candidates(self, ability_type, max_active_abilities, max_passive_abilities):
 

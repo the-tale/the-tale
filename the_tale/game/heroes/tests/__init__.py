@@ -9,3 +9,4 @@ from game.heroes.tests.requests_tests import *
 from game.heroes.tests.change_hero_tests import *
 from game.heroes.tests.messages_tests import *
 from game.heroes.tests.places_help_statistics_tests import *
+from game.heroes.tests.reset_hero_abilities_tests import *

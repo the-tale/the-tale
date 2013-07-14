@@ -2,6 +2,7 @@
 import datetime
 
 import rels
+from rels.django_staff import DjangoEnum
 
 from dext.utils.decorators import nested_commit_on_success
 
@@ -86,8 +87,6 @@ class ChooseHeroAbilityTask(PostponedLogic):
         else:
             hero.abilities.add(self.ability_id)
 
-        hero.destiny_points_spend += 1
-
         with nested_commit_on_success():
             storage.save_hero_data(hero.id, update_cache=True)
 
@@ -134,6 +133,47 @@ class ChangeHeroTask(PostponedLogic):
             storage.save_hero_data(hero.id, update_cache=True)
 
         self.state = CHANGE_HERO_TASK_STATE.PROCESSED
+
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+
+class RESET_HERO_ABILITIES_TASK_STATE(DjangoEnum):
+   _records = ( ('UNPROCESSED', 0, u'в очереди'),
+                ('PROCESSED', 1, u'обработана'),
+                ('RESET_TIMEOUT', 2, u'сброс способностей пока не доступен'))
+
+class ResetHeroAbilitiesTask(PostponedLogic):
+
+    TYPE = 'reset-hero-abilities'
+
+    def __init__(self, hero_id, state=RESET_HERO_ABILITIES_TASK_STATE.UNPROCESSED):
+        super(ResetHeroAbilitiesTask, self).__init__()
+        self.hero_id = hero_id
+        self.state = state if isinstance(state, rels.Record) else RESET_HERO_ABILITIES_TASK_STATE(state)
+
+    def serialize(self):
+        return { 'hero_id': self.hero_id,
+                 'state': self.state.value}
+
+    @property
+    def error_message(self): return self.state.text
+
+    @nested_commit_on_success
+    def process(self, main_task, storage):
+
+        hero = storage.heroes[self.hero_id]
+
+        if not hero.abilities.can_reset:
+            main_task.comment = u'reset timeout'
+            self.state = RESET_HERO_ABILITIES_TASK_STATE.RESET_TIMEOUT
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+        hero.abilities.reset()
+
+        with nested_commit_on_success():
+            storage.save_hero_data(hero.id, update_cache=True)
+
+        self.state = RESET_HERO_ABILITIES_TASK_STATE.PROCESSED
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 

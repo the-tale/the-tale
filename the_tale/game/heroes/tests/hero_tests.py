@@ -265,6 +265,7 @@ class HeroPositionTest(TestCase):
 class HeroLevelUpTests(TestCase):
 
     def setUp(self):
+        super(HeroLevelUpTests, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
@@ -442,10 +443,10 @@ class HeroLevelUpTests(TestCase):
             self.assertEqual(len(abilities), c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM)
 
 
-
 class HeroGetSpecialQuestsTest(TestCase):
 
     def setUp(self):
+        super(HeroGetSpecialQuestsTest, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
@@ -474,6 +475,7 @@ class HeroGetSpecialQuestsTest(TestCase):
 class HeroEquipmentTests(TestCase):
 
     def setUp(self):
+        super(HeroEquipmentTests, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
