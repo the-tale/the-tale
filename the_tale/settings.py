@@ -37,7 +37,8 @@ SITE_URL = None # MUST be defined in settings_local
 
 X_FRAME_OPTIONS = 'DENY'
 
-ALLOWED_HOSTS = ['.the-tale.org',
+ALLOWED_HOSTS = ['the-tale.org',
+                 '.the-tale.org',
                  '.the-tale.com',
                  '164.138.29.80'] # ip to access the-tale.com
 
