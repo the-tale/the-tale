@@ -13,3 +13,4 @@ global-include *.gif
 global-include *.otf
 global-include *.ttf
 global-include *.sh
+global-include *.ico
