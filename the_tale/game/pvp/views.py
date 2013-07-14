@@ -90,6 +90,9 @@ class PvPResource(Resource):
                 'account': {},
                 'enemy': {}}
 
+        if self.account.is_authenticated():
+            data['new_messages'] = self.account.new_messages_number
+
         account = self.account
         enemy = AccountPrototype.get_by_id(battle.enemy_id)
 

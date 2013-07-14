@@ -43,10 +43,14 @@ class GameResource(Resource):
         data = {'mode': 'pve',
                 'turn': self.time.ui_info(),
                 'map_version': map_info_storage.version,
+                'new_messages': 0,
                 'is_old': False}
 
         if account is not None:
             is_own_hero = self.account and self.account.id == account.id
+
+            if self.account.is_authenticated():
+                data['new_messages'] = self.account.new_messages_number
 
             if is_own_hero:
                 data['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
