@@ -10,7 +10,7 @@ from game.quests.models import Quest
 from game.models import Bundle
 from game.logic import create_test_map
 
-from accounts.logic import block_expired_accounts
+from accounts.logic import block_expired_accounts, get_account_id_by_email, register_user
 from accounts.models import Account
 from accounts.postponed_tasks import RegistrationTask
 
@@ -36,3 +36,11 @@ class TestLogic(testcase.TestCase):
         self.assertEqual(Bundle.objects.all().count(), 0)
 
         self.assertEqual(Account.objects.all().count(), 0)
+
+    def test_get_account_id_by_email(self):
+        self.assertEqual(get_account_id_by_email('bla@bla.bla'), None)
+        self.assertEqual(get_account_id_by_email('test_user@test.com'), None)
+
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+
+        self.assertEqual(get_account_id_by_email('test_user@test.com'), account_id)

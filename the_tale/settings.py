@@ -195,6 +195,7 @@ INSTALLED_APPS = (
     'blogs',
 
     'bank',
+    'bank.xsolla',
     'bank.dengionline',
 
     'south'
@@ -311,6 +312,8 @@ LOGGING = {
         'file_bank_bank_processor': get_worker_log_file_handler('bank_bank_processor'),
         'file_bank_dengionline_banker': get_worker_log_file_handler('bank_dengionline_banker'),
         'file_bank_dengionline_requests': get_worker_log_file_handler('bank_dengionline_requests'),
+        'file_bank_xsolla_banker': get_worker_log_file_handler('bank_xsolla_banker'),
+        'file_bank_xsolla_requests': get_worker_log_file_handler('bank_xsolla_requests'),
         'file_postponed_tasks_refrigerator': get_worker_log_file_handler('postponed_tasks_refrigerator')
     },
     'loggers': {
@@ -338,6 +341,8 @@ LOGGING = {
         'the-tale.workers.bank_bank_processor': get_worker_logger('bank_bank_processor'),
         'the-tale.workers.bank_dengionline_banker': get_worker_logger('bank_dengionline_banker'),
         'the-tale.bank_dengionline_requests': get_worker_logger('bank_dengionline_requests'),
+        'the-tale.workers.bank_xsolla_banker': get_worker_logger('bank_xsolla_banker'),
+        'the-tale.bank_xsolla_requests': get_worker_logger('bank_xsolla_requests'),
         'the-tale.workers.postponed_tasks_refrigerator': get_worker_logger('postponed_tasks_refrigerator')
     } if not TESTS_RUNNING else {}
 }

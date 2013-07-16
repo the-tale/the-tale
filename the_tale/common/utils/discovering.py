@@ -1,6 +1,10 @@
 # coding: utf-8
 import functools
 
+from django.conf import settings as project_settings
+from django.utils.importlib import import_module
+from django.utils.module_loading import module_has_submodule
+
 
 def discover_classes(classes_list, base_class):
     return ( class_
@@ -17,10 +21,6 @@ def automatic_discover(container, module_name):
         def wrapper():
             container.clear()
 
-            from django.conf import settings as project_settings
-            from django.utils.importlib import import_module
-            from django.utils.module_loading import module_has_submodule
-
             for app in project_settings.INSTALLED_APPS:
                 mod = import_module(app)
 
@@ -33,3 +33,9 @@ def automatic_discover(container, module_name):
         return wrapper
 
     return decorator
+
+
+def get_function(function_path):
+    module_path, function_name = function_path.rsplit('.', 1)
+    module = import_module(module_path)
+    return getattr(module, function_name)

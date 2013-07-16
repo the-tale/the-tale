@@ -7,6 +7,7 @@ from django.contrib.auth import login as django_login, authenticate as django_au
 from django.core.urlresolvers import reverse
 
 from dext.utils.decorators import nested_commit_on_success
+from dext.utils.logic import normalize_email
 
 from common.utils.password import generate_password
 
@@ -109,3 +110,8 @@ def block_expired_accounts():
 
     for account_model in Account.objects.filter(is_fast=True, created_at__lt=expired_before):
         remove_account(AccountPrototype(account_model))
+
+# for bank
+def get_account_id_by_email(email):
+    account = AccountPrototype.get_by_email(normalize_email(email))
+    return account.id if account else None

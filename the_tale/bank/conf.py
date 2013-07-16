@@ -7,4 +7,5 @@ bank_settings = app_settings('BANK',
                              BANK_PROCESSOR_SLEEP_TIME=60,
                              ENABLE_BANK=True,
                              INFINIT_MONEY_AMOUNT=999999999,
-                             SETTINGS_ALLOWED_KEY='bank allowed')
+                             SETTINGS_ALLOWED_KEY='bank allowed',
+                             GET_ACCOUNT_ID_BY_EMAIL='accounts.logic.get_account_id_by_email')

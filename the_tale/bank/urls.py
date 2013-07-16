@@ -3,5 +3,6 @@
 from django.conf.urls.defaults import patterns, include
 
 urlpatterns = patterns('',
-                       (r'^dengionline/', include('bank.dengionline.urls', namespace='dengionline') )
+                       (r'^dengionline/', include('bank.dengionline.urls', namespace='dengionline') ),
+                       (r'^xsolla/', include('bank.xsolla.urls', namespace='xsolla') )
 )

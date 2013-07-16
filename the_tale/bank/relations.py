@@ -21,7 +21,8 @@ class ENTITY_TYPE(DjangoEnum):
     _records = ( ('DENGI_ONLINE', 0, u'dengi online', True),
                  ('GAME_ACCOUNT', 1, u'игровой аккаунт', False),
                  ('GAME_MASTER',  2, u'гейммастер', True),
-                 ('GAME_LOGIC',   3, u'игровая логика', True), )
+                 ('GAME_LOGIC',   3, u'игровая логика', True),
+                 ('XSOLLA',       4, u'xsolla', True))
 
 
 class CURRENCY_TYPE(DjangoEnum):
