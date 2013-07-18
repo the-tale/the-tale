@@ -8,4 +8,15 @@ payments_settings = app_settings('PAYMENTS',
                                  PREMIUM_CURRENCY_FOR_DOLLAR=100,
                                  ENABLE_REAL_PAYMENTS=False if not project_settings.TESTS_RUNNING else True,
                                  SETTINGS_ALLOWED_KEY='payments allowed',
-                                 ALWAYS_ALLOWED_ACCOUNTS=[])
+                                 DENGIONLINE_ENABLED=False if not project_settings.TESTS_RUNNING else True,
+                                 XSOLLA_ENABLED=False if not project_settings.TESTS_RUNNING else True,
+                                 ALWAYS_ALLOWED_ACCOUNTS=[],
+
+                                 # default values was gotten from documentation
+                                 XSOLLA_BASE_LINK= u'https://secure.xsolla.com/paystation2/',
+                                 XSOLLA_PID=6,
+                                 XSOLLA_MARKETPLACE=u'paydesk',
+                                 XSOLLA_THEME=115,
+                                 XSOLLA_PROJECT=4521,
+                                 XSOLLA_LOCAL=u'ru',
+                                 XSOLLA_DESCRIPTION=u'покупка печенек' )

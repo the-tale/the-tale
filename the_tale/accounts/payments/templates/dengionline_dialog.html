@@ -1,5 +1,5 @@
 
-<div class="modal hide pay-dialog">
+<div class="modal hide dengionline-dialog">
 
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal">×</button>
@@ -14,8 +14,6 @@
     <div class="alert alert-success">
       <h4>100 печенек = 1 USD</h4>
       <p>конечная стоимость может колебаться в зависимости от курсов валют, платежной системы и комиссии агрегатора;</p>
-        <!-- <li>платежи производятся с помощью сервиса <a href="http://dengionline.com/">Деньги Online</a>;</li> -->
-        <!-- <li>по любым вопросам оплаты Вы можете обратиться в поддержку: <a href="mailto:{{ settings.EMAIL_SUPPORT }}">{{ settings.EMAIL_SUPPORT_SHORT }}</a>.</li> -->
     </div>
 
     <form id="pgf-dengionline-pay-form" class="well" method="post" action="{{ url('accounts:payments:pay-with-dengionline') }}">

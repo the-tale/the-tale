@@ -2,6 +2,7 @@
 
 from dext.views import handler, validate_argument, validator
 from dext.settings import settings
+from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required, superuser_required
@@ -29,14 +30,36 @@ class PaymentsResource(Resource):
     def initialize(self, *args, **kwargs):
         super(PaymentsResource, self).initialize(*args, **kwargs)
 
-        self.dengionline_enabled = ( settings.get(payments_settings.SETTINGS_ALLOWED_KEY) and
+        self.real_payments_enabled = ( settings.get(payments_settings.SETTINGS_ALLOWED_KEY) and
                                      (payments_settings.ENABLE_REAL_PAYMENTS or
                                       self.account.id in payments_settings.ALWAYS_ALLOWED_ACCOUNTS))
 
+        self.dengionline_enabled = self.real_payments_enabled and payments_settings.DENGIONLINE_ENABLED
+        self.xsolla_enabled = self.real_payments_enabled and payments_settings.XSOLLA_ENABLED
+
         self.usd_to_premium = real_amount_to_game(1)
+
+
+    @property
+    def xsolla_paystaion_widget_link(self):
+        # TODO: sign
+        url_builder = UrlBuilder(base=payments_settings.XSOLLA_BASE_LINK)
+        link = url_builder(pid=payments_settings.XSOLLA_PID,
+                           v1=self.account.email,
+                           email=self.account.email,
+                           marketplace=payments_settings.XSOLLA_MARKETPLACE,
+                           theme=payments_settings.XSOLLA_THEME,
+                           project=payments_settings.XSOLLA_PROJECT,
+                           local=payments_settings.XSOLLA_LOCAL,
+                           description=payments_settings.XSOLLA_DESCRIPTION)
+
+        return link
 
     @validator('payments.dengionline_disabled', u'Платежи c помощью «Деньги Онлайн» отключены')
     def validate_dengionline_enabled(self, *args, **kwargs): return self.dengionline_enabled
+
+    @validator('payments.xsolla_disabled', u'Платежи c помощью «Xsolla» отключены')
+    def validate_xsolla_enabled(self, *args, **kwargs): return self.xsolla_enabled
 
     @handler('shop', method='get')
     def shop(self):
@@ -72,9 +95,9 @@ class PaymentsResource(Resource):
                               'page_type': 'failed'})
 
     @validate_dengionline_enabled()
-    @handler('pay-dialog', method='get')
-    def pay_dialog(self):
-        return self.template('payments/pay_dialog.html',
+    @handler('dengionline-dialog', method='get')
+    def dengionline_dialog(self):
+        return self.template('payments/dengionline_dialog.html',
                              {'dengionline_form': DengiOnlineForm(),
                               'cource': real_amount_to_game(1)})
 

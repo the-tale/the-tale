@@ -6,11 +6,16 @@
 
 {% block head %}
 {{ super() }}
+
+{% if resource.xsolla_enabled %}
+<script id="xsolla-paystation-lightbox" type="text/javascript" src="https://secure.xsolla.com/partners/embed/lightbox.js"></script>
+{% endif %}
+
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
 
     {% if resource.dengionline_enabled %}
-    jQuery('.pgf-pay-dialog-link').click(function(e){
+    jQuery('.pgf-dengionline-dialog-link').click(function(e){
         e.preventDefault();
         var target = jQuery(e.currentTarget);
         var url = target.attr('href');
@@ -56,8 +61,16 @@ jQuery(document).ready( function(e) {
         <span>ПЕЧЕНЕК</span><br/>
         {% if resource.dengionline_enabled %}
         <a style="vertical-align: middle;"
-           href="{{url('accounts:payments:pay-dialog')}}"
-           class="pgf-pay-dialog-link btn btn-large btn-success">купить ещё…</a>
+           href="{{url('accounts:payments:dengionline-dialog')}}"
+           class="pgf-dengionline-dialog-link btn btn-large btn-success">купить ещё…</a>
+        {% endif %}
+
+        {% if resource.xsolla_enabled %}
+        <a style="vertical-align: middle;"
+           href="#"
+           id="paystation-link"
+           onclick="XPSLightBox.open('{{resource.xsolla_paystaion_widget_link}}', 900, 650); return false;"
+           class="pgf-xsolla-dialog-link btn btn-large btn-success">купить ещё…</a>
         {% endif %}
       </td>
 
