@@ -30,6 +30,8 @@ from game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, C
 from game.heroes.relations import PREFERENCE_TYPE
 from game.heroes.forms import ChoosePreferencesForm, EditNameForm
 from game.heroes.bag import SLOTS
+from game.heroes.conf import heroes_settings
+
 
 def split_list(items):
     half = (len(items)+1)/2
@@ -81,6 +83,7 @@ class HeroResource(Resource):
                              {'battle_active_abilities': battle_active_abilities,
                               'battle_passive_abilities': battle_passive_abilities,
                               'nonbattle_abilities': nonbattle_abilities,
+                              'heroes_settings': heroes_settings,
                               'is_owner': self.is_owner,
                               'edit_name_form': edit_name_form,
                               'master_account': AccountPrototype.get_by_id(self.hero.account_id),

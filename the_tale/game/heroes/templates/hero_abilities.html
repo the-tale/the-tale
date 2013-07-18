@@ -38,7 +38,10 @@ jQuery(document).ready(function(e){
     Способности
     {% if is_owner %}
     {% if resource.hero.abilities.can_reset %}
-    <a href="{{url('game:heroes:reset-abilities', resource.hero.id)}}" class="pgf-forms-post-simple pgf-reset-abilities-button pull-right" rel="tooltip" title="сбросить способности">
+    <a href="{{url('game:heroes:reset-abilities', resource.hero.id)}}"
+       class="pgf-forms-post-simple pgf-reset-abilities-button pull-right"
+       rel="tooltip"
+       title="сбросить способности <br/> (повтороно способности можно будет сбросить <br/> через {{ heroes_settings.ABILITIES_RESET_TIMEOUT|verbose_timedelta }})">
       <i class="icon-trash" style="vertical-align: middle;"></i>
     </a>
     {% else %}
