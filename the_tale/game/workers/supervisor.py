@@ -186,7 +186,7 @@ class Worker(BaseWorker):
 
         game_environment.logic.cmd_next_turn(turn_number=self.time.turn_number)
         try:
-            self.wait_answers_from('next_turn', workers=['logic'], timeout=game_settings.PROCESS_TURN_WAIT_TIMEOUT)
+            self.wait_answers_from('next_turn', workers=['logic'], timeout=game_settings.PROCESS_TURN_WAIT_LOGIC_TIMEOUT)
         except amqp_exceptions.WaitAnswerTimeoutError:
             self.logger.error('next turn timeout while getting answer from logic')
             raise
@@ -194,7 +194,7 @@ class Worker(BaseWorker):
         try:
             if game_settings.ENABLE_WORKER_HIGHLEVEL:
                 game_environment.highlevel.cmd_next_turn(turn_number=self.time.turn_number)
-                self.wait_answers_from('next_turn', workers=['highlevel'])
+                self.wait_answers_from('next_turn', workers=['highlevel'], timeout=game_settings.PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT)
         except amqp_exceptions.WaitAnswerTimeoutError:
             self.logger.error('next turn timeout while getting answer from highlevel.')
             self.logger.error('SEND STOP COMMAND TO LOGIC.')

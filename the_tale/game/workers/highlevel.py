@@ -16,6 +16,7 @@ from game.balance import constants as c
 
 from game.persons.models import PERSON_STATE
 from game.persons.storage import persons_storage
+
 from game.map.places.storage import places_storage, buildings_storage
 from game.map.places.conf import places_settings
 
@@ -92,7 +93,9 @@ class Worker(BaseWorker):
                     map_update_needed = True
 
         if map_update_needed:
+            self.logger.info('update map')
             subprocess.call(['./manage.py', 'map_update_map'])
+            self.logger.info('update map completed')
 
             # send command to main supervisor queue
             game_environment.supervisor.cmd_highlevel_data_updated()
@@ -121,6 +124,8 @@ class Worker(BaseWorker):
     @buildings_storage.postpone_version_update
     @persons_storage.postpone_version_update
     def sync_data(self):
+
+        self.logger.info('sync data')
 
         places_power_delta = {}
 
@@ -173,9 +178,13 @@ class Worker(BaseWorker):
 
         buildings_storage.save_all()
 
+        self.logger.info('sync data completed')
+
     def apply_bills(self):
         from game.bills.models import Bill, BILL_STATE
         from game.bills.prototypes import BillPrototype
+
+        self.logger.info('apply bills')
 
         bills_models = Bill.objects.filter(state=BILL_STATE.VOTING,
                                            approved_by_moderator=True,
@@ -186,6 +195,8 @@ class Worker(BaseWorker):
         for bill_model in bills_models:
             bill = BillPrototype(bill_model)
             applied = bill.apply() or applied
+
+        self.logger.info('apply bills completed')
 
         return applied
 
