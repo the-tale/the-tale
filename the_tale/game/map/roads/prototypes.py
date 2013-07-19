@@ -59,7 +59,10 @@ class RoadPrototype(BasePrototype):
 
 
     def update(self):
-        distance = math.sqrt( (self.point_1.x - self.point_2.x)**2 + (self.point_1.y - self.point_2.y)**2 )
+        # distance = math.sqrt( (self.point_1.x - self.point_2.x)**2 + (self.point_1.y - self.point_2.y)**2 )
+
+        # since road paved only vertically and horizontally
+        distance = abs(self.point_1.x - self.point_2.x) + abs(self.point_1.y - self.point_2.y)
         self.length = distance * map_settings.CELL_LENGTH
 
         if self.point_1.id > self.point_2.id:

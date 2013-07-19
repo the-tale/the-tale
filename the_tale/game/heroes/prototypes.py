@@ -961,12 +961,22 @@ class HeroPositionPrototype(object):
 
     def is_battle_start_needed(self):
         dominant_place = self.get_dominant_place()
-        battles_per_turn = 1.0 - dominant_place.safety
+
+        if dominant_place is not None:
+            battles_per_turn = 1.0 - dominant_place.safety
+        else:
+            battles_per_turn = c.BATTLES_PER_TURN
+
         return random.uniform(0, 1) <= battles_per_turn
+
 
     def modify_move_speed(self, speed):
         dominant_place = self.get_dominant_place()
-        return speed * dominant_place.transport
+
+        if dominant_place is not None:
+            return speed * dominant_place.transport
+        else:
+            return speed
 
     ###########################################
     # Object operations

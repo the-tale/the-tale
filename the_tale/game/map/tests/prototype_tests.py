@@ -24,4 +24,8 @@ class PrototypeTests(TestCase):
 
         for y in xrange(map_settings.HEIGHT):
             for x in xrange(map_settings.WIDTH):
-                self.assertEqual(coordinates.get((x, y)), map_info.get_dominant_place(x, y).id)
+                place_id = coordinates.get((x, y))
+                if place_id is None:
+                    self.assertEqual(map_info.get_dominant_place(x, y), None)
+                else:
+                    self.assertEqual(place_id, map_info.get_dominant_place(x, y).id)

@@ -87,6 +87,10 @@ class PlacePrototype(BasePrototype):
         return int(round(power))
 
     @property
+    def terrain_owning_radius(self):
+        return self.size * 1.25
+
+    @property
     def terrain_radius(self):
         return self.terrain_change_power
 

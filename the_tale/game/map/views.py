@@ -42,7 +42,10 @@ class MapResource(Resource):
 
         cell = map_info.cells.get_cell(x, y)
 
-        nearest_place_name = map_info.get_dominant_place(x, y).normalized_name.get_form(Args(u'рд'))
+        nearest_place_name = None
+        nearest_place = map_info.get_dominant_place(x, y)
+        if nearest_place:
+            nearest_place_name = nearest_place.normalized_name.get_form(Args(u'рд'))
 
         place = places_storage.get_by_coordinates(x, y)
 

@@ -375,7 +375,14 @@
 
       <div class="tab-pane" id="pgf-cell-map">
         <ul class="unstyled">
-          <li>{{terrain}}, окрестности {{nearest_place_name}}</li>
+          <li>
+            {{terrain}},
+            {% if nearest_place_name %}
+            окрестности {{nearest_place_name}}
+            {% else %}
+            дикие земли
+            {% endif %}
+          </li>
           <li>дует {{cell.wind_direction.text}} {{cell.wind_power.text}}</li>
           <li>вокруг {{cell.temperature.text}} и {{cell.wetness.text}}</li>
         </ul>
