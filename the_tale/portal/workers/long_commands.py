@@ -77,6 +77,7 @@ class Worker(BaseWorker):
         self.logger.info('LONG COMMANDS STOPPED')
 
     def _run_subprocess(self, name, cmd):
+        self.logger.info('run %s command' % name)
         result = subprocess.call(cmd)
         if result:
             self.logger.error('%s ENDED WITH CODE %d' % (name, result))
@@ -84,11 +85,16 @@ class Worker(BaseWorker):
             self.logger.info('%s command was processed correctly' % name)
 
     def run_recalculate_ratings(self):
+        self.logger.info('calculate ratings')
         self._run_subprocess('recalculate_rating', ['./manage.py', 'ratings_recalculate_ratings'])
+        self.logger.info('ratings calculated')
 
     def run_cleaning(self):
+        self.logger.info('start cleaning')
         self._run_subprocess('clean', ['./manage.py', 'portal_clean'])
         self._run_subprocess('clearsessions', ['./manage.py', 'clearsessions'])
         self._run_subprocess('vacuumdb', ['vacuumdb', '-q',
                                          '-U', project_settings.DATABASES['default']['USER'],
                                          '-d', project_settings.DATABASES['default']['NAME']])
+
+        self.logger.info('cleaned')
