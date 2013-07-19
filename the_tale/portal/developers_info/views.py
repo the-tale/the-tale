@@ -35,7 +35,7 @@ class DevelopersInfoResource(Resource):
         gold_total_received = 0
 
         for record in BANK_ENTITY_TYPE._records:
-            spent = BankAccountPrototype._money_spent(from_type=record)
+            spent = -BankAccountPrototype._money_spent(from_type=record)
             received = BankAccountPrototype._money_received(from_type=record)
             gold[record.text] = {'spent': spent, 'received': received}
 
