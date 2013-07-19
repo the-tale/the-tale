@@ -4,8 +4,7 @@
 
 {% block title %}{{ thread.caption }} | {{thread.subcategory.caption}} | {{ super() }}{% endblock %}
 
-{% block forum_content %}
-
+{% macro breadcrumb() %}
 <ul class="breadcrumb">
   <li>
     <a href="{{ url('forum:feed') }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss форума">
@@ -16,7 +15,14 @@
   <li><a href="{{ url('forum:subcategory', thread.subcategory.slug) }}">{{ thread.subcategory.caption }}</a><span class="divider">/</span></li>
   <li class="active">{{ thread.caption }}</li>
 </ul>
+{% endmacro %}
+
+{% block forum_content %}
+
+{{ breadcrumb() }}
 
 {{ thread_page.thread_page(thread_data) }}
+
+{{ breadcrumb() }}
 
 {% endblock %}
