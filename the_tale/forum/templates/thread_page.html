@@ -172,34 +172,21 @@ jQuery(document).ready( function(e) {
 
 {% if thread_data.can_post %}
 
-<div class="accordion" id="new-message-accordion">
-  <div class="accordion-group">
-    <div class="accordion-heading">
-      <a class="accordion-toggle" data-toggle="collapse" data-parent="#new-message-accordion" href="#new-message-collapse">
-        Написать сообщение
-      </a>
-    </div>
-    <div id="new-message-collapse" class="accordion-body collapse out">
-      <div class="accordion-inner">
-        <form action="{{ url('forum:posts:create', thread=thread_data.thread.id) }}"
-              method="post"
-              id="pgf-new-post-form"
-              class="new-post-form">
 
-          {{ thread_data.new_post_form.errors_container }}
+<form action="{{ url('forum:posts:create', thread=thread_data.thread.id) }}"
+      method="post"
+      id="pgf-new-post-form"
+      class="new-post-form">
 
-          {{ thread_data.new_post_form.text.widget }}
+  {{ thread_data.new_post_form.errors_container }}
 
-          <div class="widget">
-            <input type="submit" class="btn" value="Ответить"/>
-          </div>
+  {{ thread_data.new_post_form.text.widget }}
 
-        </form>
-
-      </div>
-    </div>
+  <div class="widget">
+    <input type="submit" class="btn" value="Ответить"/>
   </div>
-</div>
+
+</form>
 
 {% endif %}
 
