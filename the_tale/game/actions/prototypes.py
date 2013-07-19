@@ -421,9 +421,6 @@ class ActionIdlenessPrototype(ActionBase):
             if self.percents >= 1.0:
                 self.state = self.STATE.QUEST
 
-                # TODO: can be removed in v0.2.19
-                self.hero.bag._remove_all_quest_artifacts()
-
                 quest = create_random_quest_for_hero(self.hero)
                 ActionQuestPrototype.create(hero=self.hero, quest=quest)
                 self.percents = 0
