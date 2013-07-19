@@ -67,6 +67,7 @@ jQuery(document).ready(function() {
     pgf.base.AutoFormatTime();
 
     jQuery.ajaxSetup({
+        cache: false,
         beforeSend: function(xhr, settings) {
 
             function getCookie(name) {
