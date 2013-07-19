@@ -26,23 +26,23 @@ pgf.game.Updater = function(params) {
 
     this.data = {};
 
-    this.SetRefreshInterval = function(intervalTime) {
+    this.SetRefreshInterval = function(intervalTime, requireNewData) {
         refreshInterval = intervalTime;
         refreshTimer = setInterval(function(e){
-            instance.Refresh();
+            instance.Refresh(requireNewData);
         }, refreshInterval );
     };
 
-    this.ResetRefreshInterval = function() {
+    this.ResetRefreshInterval = function(requireNewData) {
         if (!refreshInterval) return;
 
         clearInterval(refreshTimer);
 
-        instance.SetRefreshInterval(refreshInterval);
+        instance.SetRefreshInterval(refreshInterval, requireNewData);
     };
 
 
-    this.Refresh = function() {
+    this.Refresh = function(requireNewData) {
 
         jQuery.ajax({
             dataType: 'json',
@@ -50,12 +50,12 @@ pgf.game.Updater = function(params) {
             url: params.url,
             success: function(data, request, status) {
 
-                if (data.data.is_old) {
+                if (data.data.is_old && requireNewData) {
                     jQuery('.pgf-wait-data').toggleClass('pgf-hidden', false);
                     jQuery('.pgf-game-data').toggleClass('pgf-hidden', true);
                     setTimeout(function(e){
-                        instance.ResetRefreshInterval();
-                        instance.Refresh();
+                        instance.ResetRefreshInterval(requireNewData);
+                        instance.Refresh(requireNewData);
                     }, 1000);
                     return;
                 }

@@ -39,7 +39,7 @@ jQuery(document).ready(function(e){
     pgf.base.ToggleWait(jQuery(".pgf-hero-data-wait"), true);
 
     {% if game_settings.ENABLE_DATA_REFRECH %}
-    updater.SetRefreshInterval( {{ game_settings.TURN_DELAY*1000 }} );
+    updater.SetRefreshInterval( {{ game_settings.TURN_DELAY*1000 }}, true );
     {% endif %}
 
     pgf.base.InitializeTabs('game-tab-main', 'map', [['.pgf-journal-tab-button', 'journal'], ['.pgf-map-tab-button', 'map']]);
