@@ -17,7 +17,6 @@ from bank.xsolla.conf import xsolla_settings
 
 logger = getLogger('the-tale.bank_xsolla_requests')
 
-
 class XsollaResource(Resource):
 
     def initialize(self, *args, **kwargs):
@@ -25,7 +24,7 @@ class XsollaResource(Resource):
 
     def log(self, name):
         message = u'%(name)s\tfrom "%(referer)s" with %(arguments)r' % {'name': name,
-                                                                        'referer': self.request.META.get('HTTP_REFERER'),
+                                                                        'referer': self.user_ip,
                                                                         'arguments': self.request.GET}
         logger.info(message)
 
@@ -36,7 +35,7 @@ class XsollaResource(Resource):
     <comment>%(comment)s</comment>
 </response>
 ''' % {'xsolla_result': check_result.xsolla_result.value, 'comment': check_result.text}
-
+        logger.info(answer)
         return self.xml(answer.encode('cp1251'), charset='cp1251')
 
     def create_check_answer(self, check_result):
@@ -56,6 +55,7 @@ class XsollaResource(Resource):
        'xsolla_id': xsolla_id,
        'internal_id': internal_id,
        'sum': sum}
+        logger.info(answer)
         return self.xml(answer.encode('cp1251'), charset='cp1251')
 
     def create_cancel_answer(self):
@@ -66,22 +66,18 @@ class XsollaResource(Resource):
                 command=None, md5=None,
                 v1=None, v2=None, v3=None,
                 id=None, sum=None, test=None):
-
-        self.log(command)
-
-        ip = self.request.get_host()
-        if ':' in ip:
-            ip = ip.split(':')[0]
-
-        if ip not in xsolla_settings.ALLOWED_IPS:
-            return self.create_answer(COMMON_RESULT.DISALLOWED_IP)
-
         try:
-            command = COMMAND_TYPE(command)
-        except:
-            return self.create_answer(COMMON_RESULT.WRONG_COMMAND)
+            self.log(command)
 
-        try:
+            if self.user_ip not in xsolla_settings.ALLOWED_IPS:
+                return self.create_answer(COMMON_RESULT.DISALLOWED_IP)
+
+            try:
+                command = COMMAND_TYPE(command)
+            except:
+                return self.create_answer(COMMON_RESULT.WRONG_COMMAND)
+
+
             if command._is_CHECK:
                 return self.create_check_answer(xsolla_logic.check_user(command=command,
                                                                         external_md5=md5,
