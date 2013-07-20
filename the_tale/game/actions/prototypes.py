@@ -30,6 +30,8 @@ from game.map.places.storage import places_storage
 
 from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 
+from game.abilities.relations import HELP_CHOICES
+
 
 
 class ActionBase(object):
@@ -68,7 +70,7 @@ class ActionBase(object):
     TYPE = 'BASE'
     TEXTGEN_TYPE = None
     CONTEXT_MANAGER = None
-    EXTRA_HELP_CHOICES = set()
+    HELP_CHOICES = set()
 
     def __init__(self,
                  hero,
@@ -221,19 +223,19 @@ class ActionBase(object):
 
     @property
     def help_choices(self):
-        choices = copy.copy(self.EXTRA_HELP_CHOICES)
-        choices.add(c.HELP_CHOICES.MONEY)
+        choices = copy.copy(self.HELP_CHOICES)
 
-        if self.hero.is_alive:
-            if ((c.ANGEL_HELP_HEAL_IF_LOWER_THEN * self.hero.max_health > self.hero.health) or
-                (self.hero.health < self.hero.max_health and len(choices) == 1 and c.HELP_CHOICES.MONEY in choices)):
-                choices.add(c.HELP_CHOICES.HEAL)
+        if HELP_CHOICES.HEAL in choices:
+            if len(choices) > 1 and not self.hero.can_be_healed(strict=False):
+                choices.remove(HELP_CHOICES.HEAL)
+            elif not self.hero.can_be_healed(strict=True):
+                choices.remove(HELP_CHOICES.HEAL)
 
         return choices
 
     def get_help_choice(self):
 
-        choices = [(choice, c.HELP_CHOICES_PRIORITY[choice]) for choice in self.help_choices]
+        choices = [(choice, choice.priority) for choice in self.help_choices]
 
         return random_value_by_priority(choices)
 
@@ -362,7 +364,7 @@ class ActionIdlenessPrototype(ActionBase):
 
     TYPE = 'IDLENESS'
     TEXTGEN_TYPE = 'action_idleness'
-    EXTRA_HELP_CHOICES = set((c.HELP_CHOICES.START_QUEST,))
+    HELP_CHOICES = set((HELP_CHOICES.START_QUEST, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
 
     class STATE(ActionBase.STATE):
         QUEST = 'QUEST'
@@ -438,7 +440,7 @@ class ActionQuestPrototype(ActionBase):
 
     TYPE = 'QUEST'
     TEXTGEN_TYPE = 'action_quest'
-    EXTRA_HELP_CHOICES = set()
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
 
     class STATE(ActionBase.STATE):
         PROCESSING = 'processing'
@@ -472,7 +474,7 @@ class ActionMoveToPrototype(ActionBase):
     TYPE = 'MOVE_TO'
     TEXTGEN_TYPE = 'action_moveto'
     SHORT_DESCRIPTION = u'путешествует'
-    EXTRA_HELP_CHOICES = set((c.HELP_CHOICES.TELEPORT,))
+    HELP_CHOICES = set((HELP_CHOICES.TELEPORT, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
 
     class STATE(ActionBase.STATE):
         CHOOSE_ROAD = 'choose_road'
@@ -682,10 +684,10 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     CONTEXT_MANAGER = contexts.BattleContext
 
     @property
-    def EXTRA_HELP_CHOICES(self): # pylint: disable=C0103
+    def HELP_CHOICES(self): # pylint: disable=C0103
         if self.mob.health <= 0:
-            return set()
-        return set((c.HELP_CHOICES.LIGHTING,))
+            return set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
+        return set((HELP_CHOICES.LIGHTING, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
 
     class STATE(ActionBase.STATE):
         BATTLE_RUNNING = 'battle_running'
@@ -780,7 +782,7 @@ class ActionResurrectPrototype(ActionBase):
 
     TYPE = 'RESURRECT'
     TEXTGEN_TYPE = 'action_resurrect'
-    EXTRA_HELP_CHOICES = set((c.HELP_CHOICES.RESURRECT,))
+    HELP_CHOICES = set((HELP_CHOICES.RESURRECT,))
 
     class STATE(ActionBase.STATE):
         RESURRECT = 'resurrect'
@@ -822,7 +824,7 @@ class ActionInPlacePrototype(ActionBase):
 
     TYPE = 'IN_PLACE'
     TEXTGEN_TYPE = 'action_inplace'
-    EXTRA_HELP_CHOICES = set()
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
 
     class STATE(ActionBase.STATE):
         SPEND_MONEY = 'spend_money'
@@ -978,7 +980,7 @@ class ActionRestPrototype(ActionBase):
 
     TYPE = 'REST'
     TEXTGEN_TYPE = 'action_rest'
-    EXTRA_HELP_CHOICES = set()
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
 
     class STATE(ActionBase.STATE):
         RESTING = 'resting'
@@ -1028,7 +1030,7 @@ class ActionEquippingPrototype(ActionBase):
 
     TYPE = 'EQUIPPING'
     TEXTGEN_TYPE = 'action_equipping'
-    EXTRA_HELP_CHOICES = set()
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
 
     class STATE(ActionBase.STATE):
         EQUIPPING = 'equipping'
@@ -1068,7 +1070,7 @@ class ActionTradingPrototype(ActionBase):
     TYPE = 'TRADING'
     TEXTGEN_TYPE = 'action_trading'
     SHORT_DESCRIPTION = u'торгует'
-    EXTRA_HELP_CHOICES = set()
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
 
     class STATE(ActionBase.STATE):
         TRADING = 'trading'
@@ -1109,7 +1111,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
 
     TYPE = 'MOVE_NEAR_PLACE'
     TEXTGEN_TYPE = 'action_movenearplace'
-    EXTRA_HELP_CHOICES = set()
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
 
     class STATE(ActionBase.STATE):
         MOVING = 'MOVING'
@@ -1244,7 +1246,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
     TYPE = 'REGENERATE_ENERGY'
     TEXTGEN_TYPE = 'action_regenerate_energy'
-    EXTRA_HELP_CHOICES = set()
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
 
     class STATE(ActionBase.STATE):
         REGENERATE = 'REGENERATE'
@@ -1306,7 +1308,7 @@ class ActionDoNothingPrototype(ActionBase):
     TYPE = 'DO_NOTHING'
     TEXTGEN_TYPE = 'no texgen type'
     SHORT_DESCRIPTION = u'торгует'
-    EXTRA_HELP_CHOICES = set()
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
 
     class STATE(ActionBase.STATE):
         DO_NOTHING = 'DO_NOTHING'
@@ -1348,7 +1350,7 @@ class ActionMetaProxyPrototype(ActionBase):
     TYPE = 'META_PROXY'
     TEXTGEN_TYPE = 'no texgen type'
     SHORT_DESCRIPTION = u'торгует'
-    EXTRA_HELP_CHOICES = set()
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY))
 
     @property
     def description_text_name(self):

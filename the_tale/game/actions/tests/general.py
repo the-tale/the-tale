@@ -7,14 +7,14 @@ from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
 from game.logic_storage import LogicStorage
 
-from game.balance import constants as c
 from game.logic import create_test_map
 from game.prototypes import TimePrototype
 
 from game.heroes.logic import create_mob_for_hero
 
-from game.actions.prototypes import ACTION_TYPES, ActionBattlePvE1x1Prototype, ActionBase
+from game.abilities.relations import HELP_CHOICES
 
+from game.actions.prototypes import ACTION_TYPES, ActionBattlePvE1x1Prototype, ActionBase
 from game.actions.tests.helpers import TestAction
 
 
@@ -35,9 +35,9 @@ class GeneralTest(testcase.TestCase):
     def tearDown(self):
         pass
 
-    def test_EXTRA_HELP_CHOICES(self):
+    def test_HELP_CHOICES(self):
         for action_class in ACTION_TYPES.values():
-            self.assertTrue('EXTRA_HELP_CHOICES' in action_class.__dict__)
+            self.assertTrue('HELP_CHOICES' in action_class.__dict__)
 
     def test_TEXTGEN_TYPE(self):
         for action_class in ACTION_TYPES.values():
@@ -48,42 +48,42 @@ class GeneralTest(testcase.TestCase):
 
         heal_found = False
         for i in xrange(100):
-            heal_found = heal_found or (self.action_idl.get_help_choice() == c.HELP_CHOICES.HEAL)
+            heal_found = heal_found or (self.action_idl.get_help_choice() == HELP_CHOICES.HEAL)
 
         self.assertTrue(heal_found)
 
     def check_heal_in_choices(self, result):
         heal_found = False
         for i in xrange(100):
-            heal_found = heal_found or (self.action_idl.get_help_choice() == c.HELP_CHOICES.HEAL)
+            heal_found = heal_found or (self.action_idl.get_help_choice() == HELP_CHOICES.HEAL)
 
         self.assertEqual(heal_found, result)
 
-    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.EXTRA_HELP_CHOICES', set())
-    def test_help_choice_has_heal_for_full_health_without_alternative(self):
+    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL,)))
+    def test_help_choice_has_heal__for_full_health_without_alternative(self):
         self.check_heal_in_choices(False)
 
-    def test_help_choice_has_heal_for_full_health_with_alternative(self):
-        ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
+    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY)))
+    def test_help_choice_has_heal__for_full_health_with_alternative(self):
         self.check_heal_in_choices(False)
 
-    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.EXTRA_HELP_CHOICES', set())
-    def test_help_choice_has_heal_for_large_health_without_alternative(self):
+    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL,)))
+    def test_help_choice_has_heal__for_large_health_without_alternative(self):
         self.hero.health = self.hero.max_health - 1
         self.check_heal_in_choices(True)
 
-    def test_help_choice_has_heal_for_large_health_with_alternative(self):
-        ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
+    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY)))
+    def test_help_choice_has_heal__for_large_health_with_alternative(self):
         self.hero.health = self.hero.max_health - 1
         self.check_heal_in_choices(False)
 
-    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.EXTRA_HELP_CHOICES', set())
-    def test_help_choice_has_heal_for_low_health_without_alternative(self):
+    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL,)))
+    def test_help_choice_has_heal__for_low_health_without_alternative(self):
         self.hero.health = 1
         self.check_heal_in_choices(True)
 
-    def test_help_choice_has_heal_for_low_health_with_alternative(self):
-        ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
+    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY)))
+    def test_help_choice_has_heal__for_low_health_with_alternative(self):
         self.hero.health = 1
         self.check_heal_in_choices(True)
 
@@ -101,12 +101,12 @@ class GeneralTest(testcase.TestCase):
         self.hero.health = 1
         self.hero.save()
 
-        self.assertTrue(c.HELP_CHOICES.HEAL in self.action_idl.help_choices)
+        self.assertTrue(HELP_CHOICES.HEAL in self.action_idl.help_choices)
 
         self.hero.kill()
         self.hero.save()
 
-        self.assertFalse(c.HELP_CHOICES.HEAL in self.action_idl.help_choices)
+        self.assertFalse(HELP_CHOICES.HEAL in self.action_idl.help_choices)
 
     def test_action_default_serialization(self):
         class TestAction(ActionBase):

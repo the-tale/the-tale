@@ -9,11 +9,12 @@ from accounts.logic import register_user
 from game.logic_storage import LogicStorage
 from game.logic import create_test_map
 
-from game.balance import constants as c
+from game.prototypes import TimePrototype
 from game.actions import prototypes as actions_prototypes
 from game.heroes.logic import create_mob_for_hero
+
 from game.abilities.deck.help import Help
-from game.prototypes import TimePrototype
+from game.abilities.relations import HELP_CHOICES
 
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.models import BATTLE_1X1_STATE
@@ -62,18 +63,18 @@ class HelpAbilityTest(testcase.TestCase):
 
     def test_heal(self):
         self.hero.health = 1
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: c.HELP_CHOICES.HEAL):
+        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.assertTrue(self.hero.health > 1)
 
     def test_start_quest(self):
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: c.HELP_CHOICES.START_QUEST):
+        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.START_QUEST):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.assertTrue(self.action_idl.percents >= 1)
 
     def test_money(self):
         old_hero_money = self.hero.money
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: c.HELP_CHOICES.MONEY):
+        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.MONEY):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.assertTrue(self.hero.money > old_hero_money)
 
@@ -93,7 +94,7 @@ class HelpAbilityTest(testcase.TestCase):
         old_road_percents = self.hero.position.percents
         old_percents = action_move.percents
 
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: c.HELP_CHOICES.TELEPORT):
+        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.TELEPORT):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
 
         self.assertTrue(old_road_percents < self.hero.position.percents)
@@ -111,9 +112,9 @@ class HelpAbilityTest(testcase.TestCase):
         old_mob_health = action_battle.mob.health
         old_percents = action_battle.percents
 
-        self.assertTrue(c.HELP_CHOICES.LIGHTING in action_battle.help_choices)
+        self.assertTrue(HELP_CHOICES.LIGHTING in action_battle.help_choices)
 
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: c.HELP_CHOICES.LIGHTING):
+        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.LIGHTING):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
 
         self.assertTrue(old_mob_health > action_battle.mob.health)
@@ -129,7 +130,7 @@ class HelpAbilityTest(testcase.TestCase):
 
         action_battle.mob.health = 0
 
-        self.assertFalse(c.HELP_CHOICES.LIGHTING in action_battle.help_choices)
+        self.assertFalse(HELP_CHOICES.LIGHTING in action_battle.help_choices)
 
     def test_resurrect(self):
         current_time = TimePrototype.get_current_time()
@@ -139,7 +140,7 @@ class HelpAbilityTest(testcase.TestCase):
 
         old_percents = action_resurrect.percents
 
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: c.HELP_CHOICES.RESURRECT):
+        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
             current_time.increment_turn()
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.storage.process_turn()

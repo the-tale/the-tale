@@ -594,6 +594,12 @@ class HeroPrototype(BasePrototype):
         self.health = int(min(self.health + delta, self.max_health))
         return self.health - old_health
 
+    def can_be_healed(self, strict=False):
+        if strict:
+            return self.is_alive and self.max_health > self.health
+
+        return self.is_alive and (c.ANGEL_HELP_HEAL_IF_LOWER_THEN * self.max_health > self.health)
+
     ###########################################
     # Object operations
     ###########################################

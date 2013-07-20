@@ -82,25 +82,25 @@ class Help(AbilityPrototype):
 
         choice = action.get_help_choice()
 
+        if choice is None:
+            return False, None, ()
+
         critical = random.uniform(0, 1) < hero.might_crit_chance
 
-        if choice == c.HELP_CHOICES.HEAL:
+        if choice._is_HEAL:
             return self.use_heal(action, hero, critical)
 
-        elif choice == c.HELP_CHOICES.START_QUEST:
+        elif choice._is_START_QUEST:
             return self.use_start_quest(action, hero, critical)
 
-        elif choice == c.HELP_CHOICES.MONEY:
+        elif choice._is_MONEY:
             return self.use_money(action, hero, critical)
 
-        elif choice == c.HELP_CHOICES.TELEPORT:
+        elif choice._is_TELEPORT:
             return self.use_teleport(action, hero, critical)
 
-        elif choice == c.HELP_CHOICES.LIGHTING:
+        elif choice._is_LIGHTING:
             return self.use_lightning(action, hero, critical)
 
-        elif choice == c.HELP_CHOICES.RESURRECT:
+        elif choice._is_RESURRECT:
             return self.use_resurrect(action, hero, critical)
-
-        else:
-            return False, None, ()
