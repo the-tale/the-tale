@@ -432,7 +432,7 @@ class ActionIdlenessPrototype(ActionBase):
                 self.state = self.STATE.REGENERATE_ENERGY
 
             else:
-                if random.uniform(0, 1) < 0.2:
+                if random.uniform(0, 1) < 1.0 / c.TURNS_TO_IDLE / 2: # 1 фраза на два уровня героя
                     self.hero.add_message('action_idleness_waiting', hero=self.hero)
 
 
@@ -810,7 +810,7 @@ class ActionResurrectPrototype(ActionBase):
 
             self.percents += 1.0 / (c.TURNS_TO_RESURRECT * self.hero.level)
 
-            if random.uniform(0, 1) < 0.1:
+            if random.uniform(0, 1) < 1.0 / c.TURNS_TO_RESURRECT / 2: # 1 фраза на два уровня героя
                 self.hero.add_message('action_resurrect_resurrecting', hero=self.hero)
 
             if self.percents >= 1:
