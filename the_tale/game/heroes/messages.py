@@ -29,6 +29,12 @@ class MessagesContainer(object):
         if len(self.messages) > heroes_settings.MESSAGES_LOG_LENGTH:
             self.messages.pop(0)
 
+    def _clear(self):
+        del self.messages[:]
+        self.updated = True
+
+    def __len__(self): return len(self.messages)
+
 
     def ui_info(self, with_date=False):
         current_turn = TimePrototype.get_current_turn_number()

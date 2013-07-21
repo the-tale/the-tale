@@ -232,6 +232,31 @@ class HeroTest(TestCase):
         self.assertTrue(HeroPrototype.is_ui_continue_caching_required(time.time() - (heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME + 1)))
         self.assertTrue(HeroPrototype.is_ui_continue_caching_required(time.time() - heroes_settings.UI_CACHING_TIME))
 
+    def test_push_message(self):
+        from game.heroes.messages import MessagesContainer
+        message = MessagesContainer._prepair_message('abrakadabra')
+
+        self.hero.messages._clear()
+        self.hero.diary._clear()
+
+        self.assertEqual(len(self.hero.messages), 0)
+        self.assertEqual(len(self.hero.diary), 0)
+
+        self.hero.push_message(message)
+
+        self.assertEqual(len(self.hero.messages), 1)
+        self.assertEqual(len(self.hero.diary), 0)
+
+        self.hero.push_message(message, diary=True)
+
+        self.assertEqual(len(self.hero.messages), 2)
+        self.assertEqual(len(self.hero.diary), 1)
+
+        self.hero.push_message(message, diary=True, journal=False)
+
+        self.assertEqual(len(self.hero.messages), 2)
+        self.assertEqual(len(self.hero.diary), 2)
+
 
 class HeroPositionTest(TestCase):
 

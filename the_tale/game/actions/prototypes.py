@@ -745,7 +745,8 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             if self.hero.health <= 0:
                 self.hero.kill()
                 self.hero.statistics.change_pve_deaths(1)
-                self.hero.add_message('action_battlepve1x1_diary_hero_killed', important=True, hero=self.hero, mob=self.mob)
+                self.hero.add_message('action_battlepve1x1_diary_hero_killed', diary=True, journal=False, hero=self.hero, mob=self.mob)
+                self.hero.add_message('action_battlepve1x1_journal_hero_killed', hero=self.hero, mob=self.mob)
                 self.state = self.STATE.PROCESSED
                 self.percents = 1.0
 
@@ -872,7 +873,7 @@ class ActionInPlacePrototype(ActionBase):
         coins = self.try_to_spend_money(f.instant_heal_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_HEAL)
         if coins is not None:
             self.hero.health = self.hero.max_health
-            self.hero.add_message('action_inplace_diary_instant_heal_for_money', important=True, hero=self.hero, coins=coins)
+            self.hero.add_message('action_inplace_diary_instant_heal_for_money', diary=True, hero=self.hero, coins=coins)
 
     def spend_money__buying_artifact(self):
         coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
@@ -883,22 +884,22 @@ class ActionInPlacePrototype(ActionBase):
             artifact, unequipped, sell_price = self.hero.buy_artifact(better=better, with_preferences=False)
 
             if unequipped is not None:
-                self.hero.add_message('action_inplace_diary_buying_artifact_and_change', important=True,
+                self.hero.add_message('action_inplace_diary_buying_artifact_and_change', diary=True,
                                       hero=self.hero, artifact=artifact, coins=coins, old_artifact=unequipped, sell_price=sell_price)
             else:
-                self.hero.add_message('action_inplace_diary_buying_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
+                self.hero.add_message('action_inplace_diary_buying_artifact', diary=True, hero=self.hero, coins=coins, artifact=artifact)
 
     def spend_money__sharpening_artifact(self):
         coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_SHARPENING)
         if coins is not None:
             artifact = self.hero.sharp_artifact()
 
-            self.hero.add_message('action_inplace_diary_sharpening_artifact', important=True, hero=self.hero, coins=coins, artifact=artifact)
+            self.hero.add_message('action_inplace_diary_sharpening_artifact', diary=True, hero=self.hero, coins=coins, artifact=artifact)
 
     def spend_money__useless(self):
         coins = self.try_to_spend_money(f.useless_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_USELESS)
         if coins is not None:
-            self.hero.add_message('action_inplace_diary_spend_useless', important=True, hero=self.hero, coins=coins)
+            self.hero.add_message('action_inplace_diary_spend_useless', diary=True, hero=self.hero, coins=coins)
 
     def spend_money_impact(self):
         coins = self.try_to_spend_money(f.impact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_IMPACT)
@@ -919,10 +920,10 @@ class ActionInPlacePrototype(ActionBase):
 
             if impact_type:
                 person.cmd_change_power(f.person_power_from_random_spend(1, self.hero.level))
-                self.hero.add_message('action_inplace_diary_impact_good', important=True, hero=self.hero, coins=coins, person=person)
+                self.hero.add_message('action_inplace_diary_impact_good', diary=True, hero=self.hero, coins=coins, person=person)
             else:
                 person.cmd_change_power(f.person_power_from_random_spend(-1, self.hero.level))
-                self.hero.add_message('action_inplace_diary_impact_bad', important=True, hero=self.hero, coins=coins, person=person)
+                self.hero.add_message('action_inplace_diary_impact_bad', diary=True, hero=self.hero, coins=coins, person=person)
 
     def spend_money(self):
 
@@ -1056,11 +1057,11 @@ class ActionEquippingPrototype(ActionBase):
             if equipped:
                 if unequipped:
                     if equipped.id == unequipped.id:
-                        self.hero.add_message('action_equipping_diary_change_equal_items', important=True, hero=self.hero, item=equipped)
+                        self.hero.add_message('action_equipping_diary_change_equal_items', diary=True, hero=self.hero, item=equipped)
                     else:
-                        self.hero.add_message('action_equipping_diary_change_item', important=True, hero=self.hero, unequipped=unequipped, equipped=equipped)
+                        self.hero.add_message('action_equipping_diary_change_item', diary=True, hero=self.hero, unequipped=unequipped, equipped=equipped)
                 else:
-                    self.hero.add_message('action_equipping_diary_equip_item', important=True, hero=self.hero, equipped=equipped)
+                    self.hero.add_message('action_equipping_diary_equip_item', diary=True, hero=self.hero, equipped=equipped)
             else:
                 self.state = self.STATE.PROCESSED
 

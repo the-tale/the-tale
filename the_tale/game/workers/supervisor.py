@@ -14,7 +14,6 @@ from game.prototypes import TimePrototype, SupervisorTaskPrototype
 from game.bundles import BundlePrototype
 from game.models import SupervisorTask, SUPERVISOR_TASK_STATE
 from game.conf import game_settings
-from game.workers.environment import workers_environment as game_environment
 
 
 class SupervisorException(Exception): pass
@@ -45,6 +44,7 @@ class Worker(BaseWorker):
         self.send_cmd('initialize', {})
 
     def process_initialize(self):
+        from game.workers.environment import workers_environment as game_environment
 
         self.time = TimePrototype.get_current_time()
 
@@ -153,6 +153,7 @@ class Worker(BaseWorker):
         self.send_register_account_cmd(account_id)
 
     def send_register_account_cmd(self, account_id):
+        from game.workers.environment import workers_environment as game_environment
         self.accounts_owners[account_id] = 'logic'
 
         game_environment.logic.cmd_register_account(account_id)
@@ -163,10 +164,12 @@ class Worker(BaseWorker):
             del self.accounts_queues[account_id]
 
     def send_release_account_cmd(self, account_id):
+        from game.workers.environment import workers_environment as game_environment
         self.accounts_owners[account_id] = None
         game_environment.logic.cmd_release_account(account_id)
 
     def dispatch_logic_cmd(self, account_id, cmd_name, kwargs):
+        from game.workers.environment import workers_environment as game_environment
         if account_id in self.accounts_owners and self.accounts_owners[account_id] == 'logic':
             getattr(game_environment.logic, 'cmd_' + cmd_name)(**kwargs)
         else:
@@ -180,6 +183,7 @@ class Worker(BaseWorker):
         return self.send_cmd('next_turn')
 
     def process_next_turn(self):
+        from game.workers.environment import workers_environment as game_environment
         self.time.increment_turn()
 
         settings.refresh()
@@ -204,6 +208,7 @@ class Worker(BaseWorker):
             raise
 
     def stop_logic(self):
+        from game.workers.environment import workers_environment as game_environment
         game_environment.logic.cmd_stop()
         self.wait_answers_from('stop', workers=['logic'])
 
@@ -211,6 +216,7 @@ class Worker(BaseWorker):
         return self.send_cmd('stop')
 
     def process_stop(self):
+        from game.workers.environment import workers_environment as game_environment
         # stop logic first
         # at normal stop it save all it's data
         # if another worker broken, it save all it's data
@@ -283,6 +289,7 @@ class Worker(BaseWorker):
         self.send_cmd('highlevel_data_updated')
 
     def process_highlevel_data_updated(self):
+        from game.workers.environment import workers_environment as game_environment
         game_environment.logic.cmd_highlevel_data_updated()
 
     def cmd_set_might(self, account_id, hero_id, might):

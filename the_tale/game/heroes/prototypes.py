@@ -575,16 +575,17 @@ class HeroPrototype(BasePrototype):
     @lazy_property
     def diary(self): return MessagesContainer.deserialize(s11n.from_json(self._model.diary))
 
-    def push_message(self, msg, important=False):
-        self.messages.push_message(msg)
+    def push_message(self, msg, diary=False, journal=True):
+        if journal:
+            self.messages.push_message(msg)
 
-        if important:
+        if diary:
             self.diary.push_message(msg)
 
-    def add_message(self, type_, important=False, turn_delta=0, **kwargs):
+    def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
         msg = get_text('hero:add_message', type_, kwargs)
         if msg is None: return
-        self.push_message(MessagesContainer._prepair_message(msg, turn_delta=turn_delta), important=important)
+        self.push_message(MessagesContainer._prepair_message(msg, turn_delta=turn_delta), diary=diary, journal=journal)
 
 
     def heal(self, delta):
