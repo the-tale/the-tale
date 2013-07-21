@@ -11576,37 +11576,6 @@
           "current_destination", 
           [], 
           "e_0", 
-          [
-            "вн"
-          ], 
-          "current_destination"
-        ], 
-        [
-          "hero", 
-          [], 
-          "e_1", 
-          [], 
-          "hero"
-        ], 
-        [
-          "destination", 
-          [], 
-          "e_2", 
-          [
-            "дт"
-          ], 
-          "destination"
-        ]
-      ], 
-      "template": "Уныло разглядывая %(e_0)s, %(e_1)s шагает к %(e_2)s."
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "current_destination", 
-          [], 
-          "e_0", 
           [], 
           "current_destination"
         ]
@@ -11756,30 +11725,6 @@
         ]
       ], 
       "template": "Мимо %(e_0)s пронёсся гонец, спешащий в %(e_1)s."
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "current_destination", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "current_destination"
-        ], 
-        [
-          "destination", 
-          [], 
-          "e_1", 
-          [
-            "пр"
-          ], 
-          "destination"
-        ]
-      ], 
-      "template": "«%(e_0)s — неплохое место, только грязное. Надеюсь, в %(e_1)s будет чище»…"
     }, 
     {
       "internals": [], 
@@ -17058,6 +17003,63 @@
       "internals": [], 
       "externals": [], 
       "template": "Нахватал полные карманы добра, теперь надо бежать."
+    }
+  ], 
+  "action_moveto_move_long_path": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "current_destination", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "current_destination"
+        ], 
+        [
+          "hero", 
+          [], 
+          "e_1", 
+          [], 
+          "hero"
+        ], 
+        [
+          "destination", 
+          [], 
+          "e_2", 
+          [
+            "дт"
+          ], 
+          "destination"
+        ]
+      ], 
+      "template": "Уныло разглядывая %(e_0)s, %(e_1)s шагает к %(e_2)s."
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "current_destination", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "current_destination"
+        ], 
+        [
+          "destination", 
+          [], 
+          "e_1", 
+          [
+            "пр"
+          ], 
+          "destination"
+        ]
+      ], 
+      "template": "«%(e_0)s — неплохое место, только грязное. Надеюсь, в %(e_1)s будет чище»…"
     }
   ], 
   "pvp_use_ability_flame": [

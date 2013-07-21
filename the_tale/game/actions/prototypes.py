@@ -618,10 +618,16 @@ class ActionMoveToPrototype(ActionBase):
         else:
 
             if random.uniform(0, 1) < 0.33:
-                self.hero.add_message('action_moveto_move',
-                                      hero=self.hero,
-                                      destination=self.destination,
-                                      current_destination=self.current_destination)
+                if random.uniform(0, 1) < 0.04: # TODO: change probability, when there are move phrases
+                    self.hero.add_message('action_moveto_move_long_path',
+                                          hero=self.hero,
+                                          destination=self.destination,
+                                          current_destination=self.current_destination)
+                else:
+                    self.hero.add_message('action_moveto_move',
+                                          hero=self.hero,
+                                          destination=self.destination,
+                                          current_destination=self.current_destination)
 
             move_speed = self.hero.position.modify_move_speed(self.hero.move_speed)
 
