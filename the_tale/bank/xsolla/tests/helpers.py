@@ -15,10 +15,12 @@ class TestInvoiceFabric(object):
         self._test = None
         self.v2 = 'bla-bla'
         self.v3 = 'alb-alb'
+        self.date = None
+        self.request_url = u'bla-bla.test.com'
 
 
     def create_invoice(self, **kwargs):
-        if set(kwargs.keys()) - set(['account_id', 'user_email', 'xsolla_id', 'payment_sum', 'test']):
+        if set(kwargs.keys()) - set(['account_id', 'user_email', 'xsolla_id', 'payment_sum', 'test', 'date', 'request_url']):
             raise Exception('wrong agruments in create_invoice')
 
         account_id = kwargs.get('account_id', self.account_id)
@@ -26,6 +28,8 @@ class TestInvoiceFabric(object):
         xsolla_id = kwargs.get('xsolla_id', self.xsolla_id)
         payment_sum = kwargs.get('payment_sum', self.payment_sum)
         test = kwargs.get('test', self._test)
+        date = kwargs.get('date', self.date)
+        request_url = kwargs.get('request_url', self.request_url)
 
         with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=account_id)):
             return InvoicePrototype.create(v1=user_email,
@@ -33,11 +37,13 @@ class TestInvoiceFabric(object):
                                            v3=self.v3,
                                            xsolla_id=xsolla_id,
                                            payment_sum=payment_sum,
-                                           test=test)
+                                           test=test,
+                                           date=date,
+                                           request_url=request_url)
 
 
     def pay(self, **kwargs):
-        if set(kwargs.keys()) - set(['account_id', 'user_email', 'xsolla_id', 'payment_sum', 'test']):
+        if set(kwargs.keys()) - set(['account_id', 'user_email', 'xsolla_id', 'payment_sum', 'test', 'date', 'request_url']):
             raise Exception('wrong agruments in pay')
 
         account_id = kwargs.get('account_id', self.account_id)
@@ -45,6 +51,8 @@ class TestInvoiceFabric(object):
         xsolla_id = kwargs.get('xsolla_id', self.xsolla_id)
         payment_sum = kwargs.get('payment_sum', self.payment_sum)
         test = kwargs.get('test', self._test)
+        date = kwargs.get('date', self.date)
+        request_url = kwargs.get('request_url', self.request_url)
 
         with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=account_id)):
             return InvoicePrototype.pay(v1=user_email,
@@ -52,4 +60,6 @@ class TestInvoiceFabric(object):
                                         v3=self.v3,
                                         xsolla_id=xsolla_id,
                                         payment_sum=payment_sum,
-                                        test=test)
+                                        test=test,
+                                        date=date,
+                                        request_url=request_url)

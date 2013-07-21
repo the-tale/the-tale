@@ -16,7 +16,8 @@ class InvoiceAdmin(admin.ModelAdmin):
                     'xsolla_v1',
                     'xsolla_v2',
                     'xsolla_v3',
-                    'updated_at')
+                    'updated_at',
+                    'date')
     list_filter = ('state', 'pay_result', 'test')
     readonly_fields = Invoice._meta.get_all_field_names()
 

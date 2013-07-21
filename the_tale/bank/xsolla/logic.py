@@ -1,5 +1,7 @@
 # coding: utf-8
 import md5
+import time
+import datetime
 
 from bank import logic as bank_logic
 
@@ -39,7 +41,7 @@ def pay_md5(command, v1, id):
     return md5_hash.hexdigest()
 
 
-def pay(command, external_md5, v1, v2, v3, id, sum, test):
+def pay(command, external_md5, v1, v2, v3, id, sum, test, date, request_url):
 
     if v1 is None:
         return PAY_RESULT.NOT_SPECIFIED_V1, None
@@ -53,7 +55,7 @@ def pay(command, external_md5, v1, v2, v3, id, sum, test):
     if not external_md5 or pay_md5(command, v1, id).lower() != external_md5.lower():
         return PAY_RESULT.WRONG_MD5, None
 
-    invoice = InvoicePrototype.pay(v1=v1, v2=v2, v3=v3, xsolla_id=id, payment_sum=sum, test=test)
+    invoice = InvoicePrototype.pay(v1=v1, v2=v2, v3=v3, xsolla_id=id, payment_sum=sum, test=test, date=date, request_url=request_url)
 
     return invoice.pay_result, invoice.id
 

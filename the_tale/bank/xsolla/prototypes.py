@@ -1,4 +1,6 @@
 # coding: utf-8
+import time
+import datetime
 
 from decimal import Decimal
 
@@ -25,34 +27,45 @@ class InvoicePrototype(BasePrototype):
                  'xsolla_v2',
                  'xsolla_v3',
                  'test',
+                 'date',
                  'comment',
-                 'pay_result')
+                 'pay_result',
+                 'request_url')
     _bidirectional = ('state',)
-    _get_by = ('id', 'xsolla_id')
+    _get_by = ('id',)
+
+    @classmethod
+    def parse_test(cls, test):
+        return test not in (None, '0')
+
+    @classmethod
+    def get_by_xsolla_id(cls, xsolla_id, test):
+        try:
+            return cls(model=cls._model_class.objects.get(xsolla_id=xsolla_id, test=test))
+        except cls._model_class.DoesNotExist:
+            return None
 
 
     @classmethod
-    def pay(cls, v1, v2, v3, xsolla_id, payment_sum, test):
+    def pay(cls, v1, v2, v3, xsolla_id, payment_sum, test, date, request_url):
 
-        invoice = cls.get_by_xsolla_id(xsolla_id)
+        invoice = cls.get_by_xsolla_id(xsolla_id=xsolla_id, test=cls.parse_test(test))
 
         if invoice is not None:
             return invoice
 
         try:
-            return cls.create(v1=v1, v2=v2, v3=v3, xsolla_id=xsolla_id, payment_sum=payment_sum, test=test)
+            return cls.create(v1=v1, v2=v2, v3=v3, xsolla_id=xsolla_id, payment_sum=payment_sum, test=test, date=date, request_url=request_url)
         except IntegrityError:
             return cls.get_by_xsolla_id(xsolla_id)
 
     @classmethod
-    def create(cls, v1, v2, v3, xsolla_id, payment_sum, test):
+    def create(cls, v1, v2, v3, xsolla_id, payment_sum, test, date, request_url):
         from bank.workers.environment import workers_environment
 
         user_email = v1
 
         results = []
-
-        test = test not in (None, '0')
 
         account_id = bank_logic.get_account_id(email=user_email)
 
@@ -73,6 +86,13 @@ class InvoicePrototype(BasePrototype):
         if real_sum <= 0:
             results.append(PAY_RESULT.NOT_POSITIVE_SUM)
 
+        if date is not None:
+            try:
+                date = datetime.datetime.fromtimestamp(time.mktime(time.strptime(date, '%Y-%m-%d %H:%M:%S')))
+            except ValueError:
+                date = None
+                results.append(PAY_RESULT.WRONG_DATE_FORMAT)
+
         results.append(PAY_RESULT.SUCCESS) #success result MUST be appended at the end of every checking
 
         pay_result = results[0] # get first result
@@ -89,7 +109,9 @@ class InvoicePrototype(BasePrototype):
 
                                                 pay_result=pay_result,
 
-                                                test=test)
+                                                test=cls.parse_test(test),
+                                                date=date,
+                                                request_url=request_url[:cls._model_class.REQUEST_URL_LENGTH])
 
         prototype = cls(model=model)
 

@@ -1,5 +1,9 @@
 # coding: utf-8
+import datetime
+
 import mock
+
+from django.db import IntegrityError
 
 from common.utils import testcase
 
@@ -44,6 +48,13 @@ class InvoicePrototypeTests(testcase.TestCase):
         self.assertTrue(self.pay(worker_call_count=0).pay_result._is_SUCCESS)
         self.assertEqual(InvoicePrototype._db_count(), 1)
 
+    def test_pay__invoice_not_exists_by_test(self):
+        self.assertEqual(InvoicePrototype._db_count(), 0)
+        self.create_invoice(worker_call_count=1)
+        self.assertEqual(InvoicePrototype._db_count(), 1)
+        self.assertTrue(self.pay(worker_call_count=1, test='1').pay_result._is_SUCCESS)
+        self.assertEqual(InvoicePrototype._db_count(), 2)
+
     def test_pay__created(self):
         self.assertEqual(InvoicePrototype._db_count(), 0)
         self.assertTrue(self.pay(worker_call_count=1).pay_result._is_SUCCESS)
@@ -77,11 +88,36 @@ class InvoicePrototypeTests(testcase.TestCase):
         self.assertEqual(invoice.xsolla_v1, self.fabric.user_email)
         self.assertEqual(invoice.xsolla_v2, self.fabric.v2)
         self.assertEqual(invoice.xsolla_v3, self.fabric.v3)
+        self.assertEqual(invoice.request_url, self.fabric.request_url)
         self.assertFalse(invoice.test)
 
         self.assertFalse(invoice.test)
         self.assertTrue(invoice.pay_result._is_SUCCESS)
 
+    def test_create__unique_by_xsolla_id_and_test(self):
+        self.create_invoice(worker_call_count=1, xsolla_id='1', test='0')
+        self.create_invoice(worker_call_count=1, xsolla_id='1', test='1')
+        self.assertRaises(IntegrityError, self.create_invoice, worker_call_count=1, xsolla_id='1', test='0')
+
+    def test_get_by_xsolla_id__different_by_test(self):
+        self.assertEqual(InvoicePrototype._db_count(), 0)
+
+        invoice_real = self.create_invoice(worker_call_count=1, xsolla_id='1', test='0')
+        invoice_test = self.create_invoice(worker_call_count=1, xsolla_id='1', test='1')
+
+        self.assertEqual(InvoicePrototype._db_count(), 2)
+
+        self.assertNotEqual(invoice_test.id, invoice_real.id)
+
+        self.assertEqual(InvoicePrototype.get_by_xsolla_id(1, False).id, invoice_real.id)
+        self.assertEqual(InvoicePrototype.get_by_xsolla_id(1, True).id, invoice_test.id)
+
+    def test_get_by_xsolla_id__not_exists_by_test(self):
+        self.create_invoice(worker_call_count=1, xsolla_id='2', test='1')
+        self.assertEqual(InvoicePrototype.get_by_xsolla_id(2, False), None)
+
+        self.create_invoice(worker_call_count=1, xsolla_id='3', test='0')
+        self.assertEqual(InvoicePrototype.get_by_xsolla_id(3, True), None)
 
     def test_create_success__test_not_none__not_test(self):
         self.assertEqual(InvoicePrototype._db_count(), 0)
@@ -99,6 +135,22 @@ class InvoicePrototypeTests(testcase.TestCase):
 
         self.assertTrue(invoice.test)
         self.assertTrue(invoice.pay_result._is_SUCCESS)
+
+    def test_create_success__date_specified(self):
+        self.assertEqual(InvoicePrototype._db_count(), 0)
+
+        invoice = self.create_invoice(worker_call_count=1, date='2013-03-25 18:48:22')
+
+        self.assertEqual(invoice.date, datetime.datetime(year=2013, month=3, day=25, hour=18, minute=48, second=22))
+        self.assertTrue(invoice.pay_result._is_SUCCESS)
+
+    def test_create_success__wrong_date_format(self):
+        self.assertEqual(InvoicePrototype._db_count(), 0)
+
+        invoice = self.create_invoice(worker_call_count=0, date='')
+
+        self.assertEqual(invoice.date, None)
+        self.assertTrue(invoice.pay_result._is_WRONG_DATE_FORMAT)
 
 
     def test_process__not_in_created_state(self):

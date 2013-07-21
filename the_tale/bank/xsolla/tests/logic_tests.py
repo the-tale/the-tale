@@ -72,33 +72,33 @@ class PayLogicTests(testcase.TestCase):
         self.assertTrue(pay(command=COMMAND_TYPE.PAY,
                             external_md5=None,
                             v1=self.user_email, v2=None, v3=None,
-                            id=self.xsolla_id, sum=self.payment_sum, test=False),
+                            id=self.xsolla_id, sum=self.payment_sum, test=False, date=None, request_url=u'bla-bla.test.com'),
                             (PAY_RESULT.WRONG_MD5, None))
         self.assertTrue(pay(command=COMMAND_TYPE.PAY,
                             external_md5='weadadsasdasd',
                             v1=self.user_email, v2=None, v3=None,
-                            id=self.xsolla_id, sum=self.payment_sum, test=False),
+                            id=self.xsolla_id, sum=self.payment_sum, test=False, date=None, request_url=u'bla-bla.test.com'),
                             (PAY_RESULT.WRONG_MD5, None))
 
     def test_pay__no_v1(self):
         self.assertTrue(pay(command=COMMAND_TYPE.PAY,
                             external_md5=self.pay_md5,
                             v1=None, v2=None, v3=None,
-                            id=self.xsolla_id, sum=self.payment_sum, test=False),
+                            id=self.xsolla_id, sum=self.payment_sum, test=False, date=None, request_url=u'bla-bla.test.com'),
                             (PAY_RESULT.NOT_SPECIFIED_V1, None))
 
     def test_pay__no_id(self):
         self.assertTrue(pay(command=COMMAND_TYPE.PAY,
                             external_md5=self.pay_md5,
                             v1=self.user_email, v2=None, v3=None,
-                            id=None, sum=self.payment_sum, test=False),
+                            id=None, sum=self.payment_sum, test=False, date=None, request_url=u'bla-bla.test.com'),
                             (PAY_RESULT.NOT_SPECIFIED_ID, None))
 
     def test_pay__no_sum(self):
         self.assertTrue(pay(command=COMMAND_TYPE.PAY,
                             external_md5=self.pay_md5,
                             v1=self.user_email, v2=None, v3=None,
-                            id=self.xsolla_id, sum=None, test=False),
+                            id=self.xsolla_id, sum=None, test=False, date=None, request_url=u'bla-bla.test.com'),
                             (PAY_RESULT.NOT_SPECIFIED_SUM, None))
 
     def test_pay__success(self):
@@ -107,7 +107,7 @@ class PayLogicTests(testcase.TestCase):
             result, invoice_id = pay(command=COMMAND_TYPE.PAY,
                                      external_md5=self.pay_md5,
                                      v1=self.user_email, v2=None, v3=None,
-                                     id=self.xsolla_id, sum=self.payment_sum, test=False)
+                                     id=self.xsolla_id, sum=self.payment_sum, test=False, date=None, request_url=u'bla-bla.test.com')
 
         self.assertTrue(result._is_SUCCESS)
         self.assertNotEqual(invoice_id, None)
@@ -120,7 +120,7 @@ class PayLogicTests(testcase.TestCase):
             result, invoice_id = pay(command=COMMAND_TYPE.PAY,
                                      external_md5=self.pay_md5,
                                      v1=self.user_email, v2=None, v3=None,
-                                     id=self.xsolla_id, sum=self.payment_sum, test=None)
+                                     id=self.xsolla_id, sum=self.payment_sum, test=None, date=None, request_url=u'bla-bla.test.com')
 
         self.assertTrue(result._is_SUCCESS)
         self.assertEqual(InvoicePrototype._db_count(), 1)
@@ -132,7 +132,7 @@ class PayLogicTests(testcase.TestCase):
             result, invoice_id = pay(command=COMMAND_TYPE.PAY,
                                      external_md5=self.pay_md5,
                                      v1=self.user_email, v2=None, v3=None,
-                                     id=self.xsolla_id, sum=self.payment_sum, test='0')
+                                     id=self.xsolla_id, sum=self.payment_sum, test='0', date=None, request_url=u'bla-bla.test.com')
 
         self.assertTrue(result._is_SUCCESS)
         self.assertEqual(InvoicePrototype._db_count(), 1)
@@ -144,7 +144,7 @@ class PayLogicTests(testcase.TestCase):
             result, invoice_id = pay(command=COMMAND_TYPE.PAY,
                                      external_md5=self.pay_md5,
                                      v1=self.user_email, v2=None, v3=None,
-                                     id=self.xsolla_id, sum=self.payment_sum, test='1')
+                                     id=self.xsolla_id, sum=self.payment_sum, test='1', date=None, request_url=u'bla-bla.test.com')
 
         self.assertTrue(result._is_SUCCESS)
         self.assertEqual(InvoicePrototype._db_count(), 1)

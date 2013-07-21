@@ -65,7 +65,7 @@ class XsollaResource(Resource):
     def command(self,
                 command=None, md5=None,
                 v1=None, v2=None, v3=None,
-                id=None, sum=None, test=None):
+                id=None, sum=None, test=None, date=None):
         try:
             self.log(command)
 
@@ -92,7 +92,9 @@ class XsollaResource(Resource):
                                                            v3=v3,
                                                            id=id,
                                                            sum=sum,
-                                                           test=test)
+                                                           test=test,
+                                                           date=date,
+                                                           request_url=self.request.build_absolute_uri())
                 return self.create_pay_answer(pay_result, xsolla_id=id, internal_id=internal_id, sum=sum)
 
             elif command._is_CANCEL:
