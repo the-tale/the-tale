@@ -44,14 +44,19 @@ class PaymentsResource(Resource):
     def xsolla_paystaion_widget_link(self):
         # TODO: sign
         url_builder = UrlBuilder(base=payments_settings.XSOLLA_BASE_LINK)
-        link = url_builder(pid=payments_settings.XSOLLA_PID,
-                           v1=self.account.email,
-                           email=self.account.email,
-                           marketplace=payments_settings.XSOLLA_MARKETPLACE,
-                           theme=payments_settings.XSOLLA_THEME,
-                           project=payments_settings.XSOLLA_PROJECT,
-                           local=payments_settings.XSOLLA_LOCAL,
-                           description=payments_settings.XSOLLA_DESCRIPTION)
+
+        attributes = {'pid': payments_settings.XSOLLA_PID,
+                      'v1': self.account.email,
+                      'email': self.account.email,
+                      'theme': payments_settings.XSOLLA_THEME,
+                      'project': payments_settings.XSOLLA_PROJECT,
+                      'local': payments_settings.XSOLLA_LOCAL,
+                      'description': payments_settings.XSOLLA_DESCRIPTION}
+
+        if payments_settings.XSOLLA_MARKETPLACE:
+            attributes['marketplace'] = payments_settings.XSOLLA_MARKETPLACE
+
+        link = url_builder(**attributes)
 
         return link
 
