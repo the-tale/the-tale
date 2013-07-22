@@ -1,7 +1,32 @@
 {% extends "pvp/base.html" %}
 
-
 {% block title %}Вызовы на арену | {{ super() }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+
+<script src="{{ STATIC_URL }}game/widgets.js" type="text/javascript"></script>
+<script src="{{ STATIC_URL }}game/data/abilities.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+var updater = undefined;
+var abilities = undefined;
+
+jQuery(document).ready(function(e){
+
+    updater = new pgf.game.Updater({url: "{{ url('game:info', account=resource.account.id) }}"});
+
+    setTimeout(function RefreshData() {
+        if (updater) {
+            updater.Refresh();
+        }
+    }, 0);
+
+    abilities = new pgf.game.widgets.Abilities();
+});
+</script>
+
+{% endblock %}
 
 {% block content %}
 
@@ -42,10 +67,14 @@
 
       {% if own_hero is not none and  own_hero.id != hero.id %}
         {% if ACCEPTED_LEVEL_MIN <= hero.level <= ACCEPTED_LEVEL_MAX %}
-        <a class="pgf-accept-battle pgf-forms-post-simple"
-           href="{{url('game:pvp:accept-call', battle=battle.id)}}"
-           data-action-type="redirect"
-           data-redirect-url="{{url('game:pvp:')}}">принять вызов</a>
+        <a href="#"
+           data-battle-id="{{battle.id}}"
+           data-redirect-on-success="{{url('game:pvp:')}}"
+           class="pgf-accept-battle angel-ability pgf-ability-arenapvp1x1accept">
+          <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
+          <i class="icon-ban-circle" rel="tooltip" title="необходимо завершить регистрацию"></i>
+          принять вызов
+        </a>
         {% else %}
         <i class="pgf-can-not-accept-call">вы не можете принять вызов</i>
         {% endif %}

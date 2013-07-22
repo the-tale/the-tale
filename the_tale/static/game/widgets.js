@@ -890,21 +890,11 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
     });
 };
 
-pgf.game.widgets.Abilities = function(selector, widgets, params) {
+pgf.game.widgets.Abilities = function() {
     var instance = this;
 
     var abilities = pgf.game.data.abilities;
 
-    var widget = jQuery(selector);
-    var deckContainer = jQuery('.pgf-abilities-list', widget);
-    var activateAbilityWidget = jQuery('#activate-ability-block');
-    var activateAbilityFormWidget = jQuery('.pgf-activate-form', activateAbilityWidget);
-
-    jQuery('.pgf-cancel', activateAbilityWidget).click(function(e){
-        e.preventDefault();
-        //TODO: replace with some kind of api not related to widgets
-        widgets.switcher.ShowMapWidget();
-    });
     var MINIMUM_LOCK_DELAY = 750;
     var abilitiesWaitingStartTimes = {};
 
@@ -922,7 +912,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
     }
 
     function ChangeAbilityWaitingState(abilityType, wait) {
-        var ability = jQuery('.pgf-ability-'+abilityType);//, widget);
+        var ability = jQuery('.pgf-ability-'+abilityType);
 
         if (wait) {
             var date = new Date();
@@ -952,7 +942,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
         return jQuery('.pgf-ability-'+abilityType).hasClass('pgf-disable');
     }
 
-    function ActivateAbility(ability) {
+    function ActivateAbility(element, ability) {
 
         var abilityInfo = abilities[ability.type];
 
@@ -970,22 +960,11 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
 
         ChangeAbilityWaitingState(ability.type, true);
 
-        //TODO: replace with some kind of api not related to widgets
-        var currentHero = widgets.heroes.CurrentHero();
+        var buildingId = element.data('building-id');
+        var battleId = element.data('battle-id');
+        var redirectOnSuccess = element.data('redirect-on-success');
 
-        var heroId = -1;
-        var buildingId = jQuery('.pgf-ability-'+ability.type).data('building-id');
-
-        if (currentHero) {
-            heroId = currentHero.id;
-        }
-
-        var ajax_data = {building_id: buildingId};
-        if (heroId !== undefined) {
-            ajax_data.hero_id = heroId;
-        }
-        pgf.forms.Post({action: pgf.urls['game:abilities:activate'](ability.type),
-                        data: ajax_data,
+        pgf.forms.Post({action: pgf.urls['game:abilities:activate'](ability.type, buildingId, battleId),
                         wait: false,
                         OnError: function() {
                             ChangeAbilityWaitingState(ability.type, false);
@@ -993,9 +972,8 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
                         OnSuccess: function(data) {
                             allowAbilityUnlock[ability.type] = true;
                             ability.available_at = data.data.available_at;
-                            jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
 
-                            if (buildingId) {
+                            if (buildingId != undefined) {
                                 var buildingRepairDelta = jQuery('.pgf-ability-'+ability.type).data('building-repair-delta');
                                 var buildingIntegrity = jQuery('.pgf-building-integrity').data('building-integrity');
                                 var newIntegrity = Math.min(buildingIntegrity + buildingRepairDelta, 1.0);
@@ -1008,6 +986,13 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
                                 jQuery('.pgf-building-workers')
                                     .data('building-workers', buildingWorkers)
                                     .text(buildingWorkers);
+                            }
+
+                            if (redirectOnSuccess != undefined) {
+                                setTimeout(function(){location.href = redirectOnSuccess;}, 0);
+                            }
+                            else {
+                                jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
                             }
                         }
                        });
@@ -1024,7 +1009,7 @@ pgf.game.widgets.Abilities = function(selector, widgets, params) {
 
         element.click(function(e){
             e.preventDefault();
-            ActivateAbility(ability);
+            ActivateAbility(jQuery(e.currentTarget), ability);
         });
     }
 

@@ -3,6 +3,7 @@ from django.test import client
 from django.core.urlresolvers import reverse
 
 from dext.utils import s11n
+from dext.utils.urls import url
 
 from common.utils.testcase import TestCase
 from common.postponed_tasks import PostponedTaskPrototype
@@ -32,6 +33,6 @@ class AbilityRequests(TestCase):
 
     def test_activate_ability(self):
         self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:abilities:activate', args=[Help.get_type()]), {'hero_id': HeroPrototype.get_by_account_id(self.account.id).id})
+        response = self.client.post(url('game:abilities:activate', Help.get_type(), hero=HeroPrototype.get_by_account_id(self.account.id).id))
         task = PostponedTaskPrototype._db_get_object(0)
         self.check_ajax_processing(response, task.status_url)

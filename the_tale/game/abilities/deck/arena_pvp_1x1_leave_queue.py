@@ -16,9 +16,6 @@ ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибк�
 class ArenaPvP1x1LeaveQueue(AbilityPrototype):
 
     COST = 0
-
-    COMMAND_PREFIX = 'arena_pvp_1x1_leave_queue'
-
     NAME = u'Выйти из очереди'
     DESCRIPTION = u'Выйти из очереди на арену'
 

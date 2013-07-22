@@ -20,9 +20,6 @@ ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибк�
 class BuildingRepair(AbilityPrototype):
 
     COST = c.BUILDING_WORKERS_ENERGY_COST
-
-    COMMAND_PREFIX = 'building_repair'
-
     NAME = u'Вызвать рабочего'
     DESCRIPTION = u'Вызвать рабочего для ремонта здания'
 

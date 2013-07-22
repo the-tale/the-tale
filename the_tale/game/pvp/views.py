@@ -20,7 +20,7 @@ from game.heroes.models import Hero
 
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.forms import SayForm
-from game.pvp.postponed_tasks import SayInBattleLogTask, AcceptBattleTask, UsePvPAbilityTask
+from game.pvp.postponed_tasks import SayInBattleLogTask, UsePvPAbilityTask
 from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 from game.pvp.conf import pvp_settings
 from game.pvp.abilities import ABILITIES, Ice, Blood, Flame
@@ -151,34 +151,6 @@ class PvPResource(Resource):
                               'own_hero': self.own_hero,
                               'ACCEPTED_LEVEL_MAX': ACCEPTED_LEVEL_MAX,
                               'ACCEPTED_LEVEL_MIN': ACCEPTED_LEVEL_MIN  })
-
-    @login_required
-    @validate_fast_account()
-    @validate_participation_right()
-    @validate_argument('battle', Battle1x1Prototype.get_by_id, 'pvp', u'Вызов не найден')
-    @handler('accept-call', method='post')
-    def accept_call(self, battle):
-
-        if not battle.state._is_WAITING:
-            return self.json_error('pvp.accept_call.wrong_battle_state', u'Вызов уже принят другим героем или отклонён.')
-
-        if battle.account_id == self.account.id:
-            return self.json_error('pvp.accept_call.own_battle', u'Вы не можете принять свой вызов.')
-
-        ACCEPTED_LEVEL_MIN, ACCEPTED_LEVEL_MAX = accept_call_valid_levels(self.own_hero.level)
-
-        enemy_hero = HeroPrototype.get_by_account_id(battle.account_id)
-
-        if not (ACCEPTED_LEVEL_MIN <= enemy_hero.level <= ACCEPTED_LEVEL_MAX):
-            return self.json_error('pvp.accept_call.wrong_enemy_level', u'Герой не подходит по уровню.')
-
-        accept_task = AcceptBattleTask(battle_id=battle.id, accept_initiator_id=self.account.id)
-
-        task = PostponedTaskPrototype.create(accept_task)
-
-        workers_environment.pvp_balancer.cmd_logic_task(self.account.id, task.id)
-
-        return self.json_processing(task.status_url)
 
     @login_required
     @validate_fast_account()

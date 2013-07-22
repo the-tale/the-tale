@@ -16,9 +16,6 @@ ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибк�
 class ArenaPvP1x1(AbilityPrototype):
 
     COST = 1
-
-    COMMAND_PREFIX = 'arena_pvp_1x1'
-
     NAME = u'Отправить на арену'
     DESCRIPTION = u'Отправить героя на гладиаторскую арену'
 

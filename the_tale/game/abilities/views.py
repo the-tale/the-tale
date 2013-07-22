@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.views import handler
+from dext.views import handler, validate_argument
 
 from common.utils.resources import Resource
 from common.utils.decorators import login_required
@@ -16,36 +16,18 @@ class AbilitiesResource(Resource):
         super(AbilitiesResource, self).initialize(*argv, **kwargs)
         self.ability_type = ability_type
 
-        if self.ability is None:
+        if self.ability_type not in ABILITIES:
             return self.auto_error('abilities.wrong_ability', u'У вас нет такой способности')
 
-    @property
-    def ability(self):
-        if self.ability_type in ABILITIES:
-            return ABILITIES[self.ability_type]()
-        return None
+        self.ability = ABILITIES[self.ability_type]()
 
-    @handler('#ability_type', 'form', method='get')
-    def form(self):
 
-        form = self.ability.create_form(self)
-
-        return self.template(self.ability.TEMPLATE,
-                             {'form': form,
-                              'ability': self.ability} )
-
+    @validate_argument('building', int, 'abilities', u'Неверный идентификатор здания')
+    @validate_argument('battle', int, 'abilities', u'Неверный идентификатор сражения')
     @handler('#ability_type', 'activate', method='post')
-    def activate(self):
+    def activate(self, building=None, battle=None):
 
-        form = self.ability.create_form(self)
+        task = self.ability.activate(HeroPrototype.get_by_account_id(self.account.id), data={'building_id': building,
+                                                                                             'battle': battle})
 
-        if form.is_valid():
-
-            if form.c.hero_id != HeroPrototype.get_by_account_id(self.account.id).id:
-                return self.json_error('abilities.activate.not_owner', u'Вы пытаетесь провести операцию для чужого героя, ай-яй-яй, как нехорошо!')
-
-            task = self.ability.activate(form, self.time)
-
-            return self.json_processing(task.status_url)
-
-        return self.json_error('abilities.form_errors', form.errors)
+        return self.json_processing(task.status_url)

@@ -6,7 +6,7 @@ jQuery(document).ready(function(e) {
 
     widgets.actions = new pgf.game.widgets.Action('#current-action-block', updater, widgets);
 
-    widgets.abilities = new pgf.game.widgets.Abilities('#abilities-block', widgets);
+    widgets.abilities = new pgf.game.widgets.Abilities();
 
     jQuery('.pgf-action-info-link').click(function(e){
         e.preventDefault();

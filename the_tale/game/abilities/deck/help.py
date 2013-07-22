@@ -12,9 +12,6 @@ from game.pvp.prototypes import Battle1x1Prototype
 class Help(AbilityPrototype):
 
     COST = 4
-
-    COMMAND_PREFIX = 'help'
-
     NAME = u'Помочь'
     DESCRIPTION = u'Попытаться помочь герою, чем бы тот не занимался'
 

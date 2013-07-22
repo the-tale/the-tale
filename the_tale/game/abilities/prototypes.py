@@ -2,10 +2,6 @@
 
 from common.postponed_tasks import PostponedTaskPrototype
 
-from game.heroes.prototypes import HeroPrototype
-
-from game.abilities.forms import AbilityForm
-
 
 class AbilityPrototype(object):
 
@@ -14,38 +10,21 @@ class AbilityPrototype(object):
     NAME = None
     DESCRIPTION = None
 
-    FORM = None
-    TEMPLATE = None
-
-    COMMAND_PREFIX = None
-
     @classmethod
     def get_type(cls): return cls.__name__.lower()
-
-    @classmethod
-    def need_form(cls):
-        return cls.FORM is not None
 
     def ui_info(self):
         return {'type': self.__class__.__name__.lower()}
 
-    def create_form(self, resource):
-        form = self.FORM or AbilityForm
-
-        if resource.request.POST:
-            return form(resource.request.POST)
-
-        return form()
-
-    def activate(self, form, time):
+    def activate(self, hero, data):
         from game.workers.environment import workers_environment
         from game.abilities.postponed_tasks import UseAbilityTask
 
-        hero = HeroPrototype.get_by_id(form.c.hero_id)
+        data['hero_id'] = hero.id
 
         ability_task = UseAbilityTask(ability_type=self.get_type(),
                                       hero_id=hero.id,
-                                      data=form.c.data)
+                                      data=data)
 
         task = PostponedTaskPrototype.create(ability_task)
 
@@ -53,8 +32,5 @@ class AbilityPrototype(object):
 
         return task
 
-    def use(self, form):
-        pass
-
-    def save(self):
-        self.model.save()
+    def use(self, *argv, **kwargs):
+        raise NotImplementedError
