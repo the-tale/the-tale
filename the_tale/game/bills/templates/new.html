@@ -41,6 +41,10 @@ jQuery(document).ready( function(e) {
 
   {{ form.caption.widget }}
 
+  {% if bill_class.WITH_DURATION %}
+  {{ form.duration.widget }}
+  {% endif %}
+
   {% include bill_class.USER_FORM_TEMPLATE with context %}
 
   {{ form.rationale.widget }}

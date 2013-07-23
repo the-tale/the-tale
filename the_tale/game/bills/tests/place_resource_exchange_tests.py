@@ -10,6 +10,7 @@ from game.bills.tests.prototype_tests import BaseTestPrototypes
 from game.bills.tests.helpers import choose_resources
 
 from game.map.places.storage import resource_exchange_storage
+from game.map.places.prototypes import ResourceExchangePrototype
 
 
 class PlaceResourceExchangeTests(BaseTestPrototypes):
@@ -122,8 +123,8 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
         self.assertFalse(form.is_valid())
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
-    def test_apply(self):
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def apply_bill(self):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
@@ -131,11 +132,16 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
-        old_storage_version = resource_exchange_storage._version
-
         self.assertEqual(len(resource_exchange_storage.all()), 0)
 
         self.assertTrue(self.bill.apply())
+
+
+    def test_apply(self):
+
+        old_storage_version = resource_exchange_storage._version
+
+        self.apply_bill()
 
         self.assertNotEqual(old_storage_version, resource_exchange_storage._version)
         self.assertEqual(len(resource_exchange_storage.all()), 1)
@@ -148,3 +154,62 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
         self.assertEqual(set([exchange.place_1.id, exchange.place_2.id]), set([self.place1.id, self.place2.id]))
         self.assertEqual(set([exchange.resource_1, exchange.resource_2]), set([self.resource_1, self.resource_2]))
         self.assertEqual(exchange.bill_id, bill.id)
+
+
+    def test_decline__success(self):
+        self.apply_bill()
+
+        old_storage_version = resource_exchange_storage._version
+
+        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+
+        self.bill.decline(decliner)
+
+        self.assertNotEqual(old_storage_version, resource_exchange_storage._version)
+
+        self.assertEqual(len(resource_exchange_storage.all()), 0)
+
+
+    def test_decline__no_excange(self):
+        self.apply_bill()
+
+        ResourceExchangePrototype._db_delete_all()
+
+        resource_exchange_storage.refresh()
+
+        self.assertEqual(len(resource_exchange_storage.all()), 0)
+
+        old_storage_version = resource_exchange_storage._version
+
+        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+
+        self.bill.decline(decliner)
+
+        self.assertEqual(old_storage_version, resource_exchange_storage._version)
+
+
+    def test_end__success(self):
+        self.apply_bill()
+
+        old_storage_version = resource_exchange_storage._version
+
+        self.bill.end()
+
+        self.assertNotEqual(old_storage_version, resource_exchange_storage._version)
+
+        self.assertEqual(len(resource_exchange_storage.all()), 0)
+
+    def test_end__no_excange(self):
+        self.apply_bill()
+
+        ResourceExchangePrototype._db_delete_all()
+
+        resource_exchange_storage.refresh()
+
+        self.assertEqual(len(resource_exchange_storage.all()), 0)
+
+        old_storage_version = resource_exchange_storage._version
+
+        self.bill.end()
+
+        self.assertEqual(old_storage_version, resource_exchange_storage._version)

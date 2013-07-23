@@ -182,6 +182,13 @@ def chronicle_bill_processed(sender, bill, **kwargs): # pylint: disable=R0912,W0
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
 
+@receiver(bills_signals.bill_ended, dispatch_uid='chronicle_bill_ended')
+def chronicle_bill_ended(sender, bill, **kwargs): # pylint: disable=R0912,W0613
+    if bill.data.type == BILL_TYPE.PLACE_RESOURCE_EXCHANGE:
+        records.PlaceResourceExchangeEnded(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
+
+
+
 @receiver(places_signals.place_modifier_reseted, dispatch_uid='chronicle_place_modifier_reseted')
 def chronicle_place_modifier_reseted(sender, place, old_modifier, **kwargs): # pylint: disable=W0613
     records.PlaceLosedModifier(actors=[(ACTOR_ROLE.PLACE, place)],

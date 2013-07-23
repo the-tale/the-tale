@@ -57,7 +57,7 @@ class RecordTests(TestCase):
                     properties=(u'мр',))
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def create_bill_decline(self):
         resource_1, resource_2 = choose_resources()
 
@@ -91,7 +91,7 @@ class RecordTests(TestCase):
                                                      (ACTOR_ROLE.PLACE, self.place_2.id)]))
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_bill_decline__actors_on_creation_record(self):
         bill, declined_bill = self.create_bill_decline()
         form = bills.BillDecline.ModeratorForm({'approved': True})

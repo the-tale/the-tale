@@ -41,19 +41,34 @@
       <th>состояние</th>
       <td>
         {% if bill.state._is_VOTING %}
-        голосование
+          голосование
 
-        {%- if not bill.approved_by_moderator -%}
-        (проверяется модератором)
-        {%- endif -%}
+          {%- if not bill.approved_by_moderator -%}
+            (проверяется модератором)
+          {%- endif -%}
 
-        , осталось: {{ bill.time_before_end_step|verbose_timedelta }}
+          , осталось: {{ bill.time_before_voting_end|verbose_timedelta }}
         {% elif bill.state._is_ACCEPTED %}
-        принят <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
+
+          {% if bill.is_declined %}
+            отменён законом <a target="_blank" href="{{url('game:bills:show', bill.declined_by.id)}}">«{{bill.declined_by.caption}}»</a>
+          {% else %}
+            {% if not bill.duration._is_UNLIMITED %}
+              {% if bill.ended_at is none %}
+                Прекратит действовать через {{bill.time_before_end|verbose_timedelta}}
+              {% else %}
+                Прекратил действовать
+              {% endif %}
+            {% else %}
+              принят <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
+            {% endif %}
+
+          {% endif %}
+
         {% elif bill.state._is_REJECTED %}
-        отклонён <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
+          отклонён <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
         {% elif bill.state._is_REMOVED %}
-        удалён
+          удалён
         {% endif %}
       </td>
     </tr>

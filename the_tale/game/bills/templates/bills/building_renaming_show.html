@@ -1,10 +1,8 @@
 
-<ul class="unstyled" style="font-size: 14px;">
-  <li><strong>Старое название</strong>: {{bill.data.old_name}}</li>
-  <li><strong>Новое название</strong>: {{bill.data.new_name}}</li>
-  <li><strong>Владелец строения</strong>: {{bill.data.person_name}} {{ bill.data.person_gender_verbose }} {{ bill.data.person_race_verbose }} {{ bill.data.person_type.text }}</li>
-  <li><strong>Из города</strong>: {{bill.data.place.name}}</li>
-  {% if bill.data.place_name_changed %}
-  <li><strong>Название города во время создания закона</strong>: {{bill.data.old_place_name}}</li>
-  {% endif %}
-</ul>
+<li><strong>Старое название</strong>: {{bill.data.old_name}}</li>
+<li><strong>Новое название</strong>: {{bill.data.new_name}}</li>
+<li><strong>Владелец строения</strong>: {{bill.data.person_name}} {{ bill.data.person_gender_verbose }} {{ bill.data.person_race_verbose }} {{ bill.data.person_type.text }}</li>
+<li><strong>Из города</strong>: {{bill.data.place.name}}</li>
+{% if bill.data.place_name_changed %}
+<li><strong>Название города во время создания закона</strong>: {{bill.data.old_place_name}}</li>
+{% endif %}

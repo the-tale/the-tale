@@ -184,6 +184,9 @@ class PlaceResourceExchangeSuccessed(_PlaceResourceExchangeBillBase):
 class PlaceResourceExchangeFailed(_PlaceResourceExchangeBillBase):
     TYPE = RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_FAILED
 
+class PlaceResourceExchangeEnded(_PlaceResourceExchangeBillBase):
+    TYPE = RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_ENDED
+
 
 # bill decline
 class _BillDeclineBillBase(RecordBase):

@@ -16,14 +16,15 @@ from accounts.logic import get_system_user
 from accounts.prototypes import AccountPrototype
 
 from game.prototypes import TimePrototype
+from game.balance import constants as c
 
 from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype
 from forum.models import MARKUP_METHOD
 
 from game.bills.models import Bill, Vote, Actor
 from game.bills.conf import bills_settings
-from game.bills.exceptions import BillException
-from game.bills.relations import BILL_STATE, VOTE_TYPE
+from game.bills import exceptions
+from game.bills.relations import BILL_STATE, VOTE_TYPE, BILL_DURATION
 from game.bills import signals
 
 
@@ -31,7 +32,7 @@ class BillPrototype(BasePrototype):
     _model_class = Bill
     _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'rationale', 'votes_for',
                  'votes_against', 'votes_refrained', 'forum_thread_id', 'min_votes_percents_required',
-                 'voting_end_at')
+                 'voting_end_at', 'ended_at', 'ends_at_turn', 'duration')
     _bidirectional = ('approved_by_moderator', 'state', 'is_declined')
     _get_by = ('id', )
 
@@ -44,6 +45,10 @@ class BillPrototype(BasePrototype):
         if not hasattr(self, '_data'):
             self._data = deserialize_bill(s11n.from_json(self._model.technical_data))
         return self._data
+
+    @property
+    def time_before_end(self):
+        return datetime.timedelta(seconds=(self.ends_at_turn - TimePrototype.get_current_turn_number()) * c.TURN_DELTA)
 
     @property
     def rationale_html(self): return bbcode.render(self._model.rationale)
@@ -69,7 +74,8 @@ class BillPrototype(BasePrototype):
     def user_form_initials(self):
         special_initials = self.data.user_form_initials
         special_initials.update({'caption': self.caption,
-                                 'rationale': self.rationale})
+                                 'rationale': self.rationale,
+                                 'duration': self.duration})
         return special_initials
 
     @property
@@ -79,7 +85,7 @@ class BillPrototype(BasePrototype):
         return special_initials
 
     @property
-    def time_before_end_step(self):
+    def time_before_voting_end(self):
         return max(datetime.timedelta(seconds=0),
                    (self._model.updated_at + datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME) - datetime.datetime.now()))
 
@@ -102,7 +108,7 @@ class BillPrototype(BasePrototype):
                 return u'исправлен закон'
             else:
                 return u'выдвинут закон'
-        raise BillException('unknown last event text for bill %d' % self.id)
+        raise exceptions.UnknownLastEventTextError(bill_id=self.id)
 
     @classmethod
     def get_minimum_created_time_of_active_bills(cls):
@@ -136,13 +142,13 @@ class BillPrototype(BasePrototype):
     @nested_commit_on_success
     def apply(self):
         if not self.state._is_VOTING:
-            raise BillException('trying to apply bill in not voting state')
+            raise exceptions.ApplyBillInWrongStateError(bill_id=self.id)
 
         if not self.approved_by_moderator:
-            raise BillException('trying to apply bill which did not approved by moderator')
+            raise exceptions.ApplyUnapprovedBillError(bill_id=self.id)
 
-        if self.time_before_end_step != datetime.timedelta(seconds=0):
-            raise BillException('trying to apply bill before voting period was end')
+        if self.time_before_voting_end != datetime.timedelta(seconds=0):
+            raise exceptions.ApplyUnapprovedBillError(bill_id=self.id)
 
         self.recalculate_votes()
 
@@ -154,6 +160,8 @@ class BillPrototype(BasePrototype):
                                                                                                            self.votes_refrained)
 
         self._model.voting_end_at = datetime.datetime.now()
+        if not self.duration._is_UNLIMITED:
+            self._model.ends_at_turn = TimePrototype.get_current_turn_number() + self.duration.game_months * c.TURNS_IN_GAME_MONTH
 
         if self.is_percents_barier_not_passed:
             self.state = BILL_STATE.REJECTED
@@ -181,12 +189,41 @@ class BillPrototype(BasePrototype):
         return True
 
     @nested_commit_on_success
-    def decline(self, decliner=None):
+    def end(self):
         if not self.state._is_ACCEPTED:
-            raise BillException('trying to decline bill in not accepted state')
+            raise exceptions.EndBillInWrongStateError(bill_id=self.id)
+
+        if self.ended_at is not None:
+            raise exceptions.EndBillAlreadyEndedError(bill_id=self.id)
+
+        if self.ends_at_turn > TimePrototype.get_current_turn_number():
+            raise exceptions.EndBillBeforeTimeError(bill_id=self.id)
+
+        results_text = u'Срок действия [url="%s%s"]закона[/url] истёк.' % (project_settings.SITE_URL,
+                                                                           reverse('game:bills:show', args=[self.id]) )
+
+        self._model.ended_at = datetime.datetime.now()
+
+        self.data.end(self)
+
+        self.save()
+
+        PostPrototype.create(ThreadPrototype(self._model.forum_thread),
+                             get_system_user(),
+                             results_text,
+                             technical=True)
+
+        signals.bill_ended.send(self.__class__, bill=self)
+        return True
+
+    @nested_commit_on_success
+    def decline(self, decliner):
+        if not self.state._is_ACCEPTED:
+            raise exceptions.DeclinedBillInWrongStateError(bill_id=self.id)
 
         self.is_declined = True
         self._model.declined_by = decliner._model
+        self._model.ended_at = datetime.datetime.now()
         self.data.decline(bill=self)
         self.save()
 
@@ -211,6 +248,7 @@ class BillPrototype(BasePrototype):
         self._model.updated_at = datetime.datetime.now()
         self._model.caption = form.c.caption
         self._model.rationale = form.c.rationale
+        self._model.duration = form.c.duration
         self._model.approved_by_moderator = False
 
         self.recalculate_votes()
@@ -244,7 +282,7 @@ class BillPrototype(BasePrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, owner, caption, rationale, bill):
+    def create(cls, owner, caption, rationale, bill, duration=BILL_DURATION.UNLIMITED):
 
         model = Bill.objects.create(owner=owner._model,
                                     type=bill.type,
@@ -253,6 +291,7 @@ class BillPrototype(BasePrototype):
                                     created_at_turn=TimePrototype.get_current_turn_number(),
                                     technical_data=s11n.to_json(bill.serialize()),
                                     state=BILL_STATE.VOTING,
+                                    duration=duration,
                                     votes_for=1) # author always wote for bill
 
         bill_prototype = cls(model)
@@ -303,6 +342,22 @@ class BillPrototype(BasePrototype):
                              technical=True)
 
         signals.bill_removed.send(self.__class__, bill=self)
+
+    @classmethod
+    def get_applicable_bills(cls):
+        bills_models = cls._model_class.objects.filter(state=BILL_STATE.VOTING,
+                                                       approved_by_moderator=True,
+                                                       updated_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME))
+        return [cls(model=model) for model in bills_models]
+
+    @classmethod
+    def get_bills_to_end(cls):
+        bills_models = cls._model_class.objects.filter(state=BILL_STATE.ACCEPTED,
+                                                       ended_at=None,
+                                                       ends_at_turn__lt=TimePrototype.get_current_turn_number())
+        return [cls(model=model) for model in bills_models]
+
+
 
 
 class ActorPrototype(BasePrototype):

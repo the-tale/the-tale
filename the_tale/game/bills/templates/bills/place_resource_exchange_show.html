@@ -1,15 +1,12 @@
 
-<ul class="unstyled" style="font-size: 14px;">
-  <li><strong>Текущее название первого города</strong>: {{bill.data.place_1.name}}</li>
-  {% if bill.data.place_1_name_changed %}
-  <li><strong>Название первого города во время создания закона</strong>: {{bill.data.old_place_1_name}}</li>
-  {% endif %}
-  <li><strong>Ресурсы от первого города</strong>: {{bill.data.resource_1.text}}</li>
+<li><strong>Текущее название первого города</strong>: {{bill.data.place_1.name}}</li>
+{% if bill.data.place_1_name_changed %}
+<li><strong>Название первого города во время создания закона</strong>: {{bill.data.old_place_1_name}}</li>
+{% endif %}
+<li><strong>Ресурсы от первого города</strong>: {{bill.data.resource_1.text}}</li>
 
-  <li><strong>Текущее название второго города</strong>: {{bill.data.place_2.name}}</li>
-  {% if bill.data.place_2_name_changed %}
-  <li><strong>Название второго города во время создания закона</strong>: {{bill.data.old_place_2_name}}</li>
-  {% endif %}
-  <li><strong>Ресурсы от второго города</strong>: {{bill.data.resource_2.text}}</li>
-
-</ul>
+<li><strong>Текущее название второго города</strong>: {{bill.data.place_2.name}}</li>
+{% if bill.data.place_2_name_changed %}
+<li><strong>Название второго города во время создания закона</strong>: {{bill.data.old_place_2_name}}</li>
+{% endif %}
+<li><strong>Ресурсы от второго города</strong>: {{bill.data.resource_2.text}}</li>

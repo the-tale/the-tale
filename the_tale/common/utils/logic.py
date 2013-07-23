@@ -37,11 +37,12 @@ def verbose_timedelta(value):
     if value.days > 0:
         return pluralize_word(value.days, u'день', u'дня', u'дней')
 
-    if value.seconds >= 60*60:
-        return pluralize_word(value.seconds / (60*60) , u'час', u'часа', u'часов')
+    elif value.days == 0:
+        if value.seconds >= 60*60:
+            return pluralize_word(value.seconds / (60*60) , u'час', u'часа', u'часов')
 
-    if value.seconds >= 60:
-        return pluralize_word(value.seconds / 60 , u'минута', u'минуты', u'минут')
+        if value.seconds >= 60:
+            return pluralize_word(value.seconds / 60 , u'минута', u'минуты', u'минут')
 
     return u'меньше минуты'
 

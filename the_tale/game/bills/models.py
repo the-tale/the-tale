@@ -5,7 +5,7 @@ from rels.django_staff import TableIntegerField
 
 from forum.models import Thread
 
-from game.bills.relations import BILL_STATE, BILL_TYPE, VOTE_TYPE
+from game.bills.relations import BILL_STATE, BILL_TYPE, VOTE_TYPE, BILL_DURATION
 
 
 class Bill(models.Model):
@@ -18,6 +18,10 @@ class Bill(models.Model):
     voting_end_at = models.DateTimeField(null=True)
 
     created_at_turn = models.IntegerField(null=False)
+
+    ends_at_turn = models.BigIntegerField(null=True, blank=True, db_index=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    duration = TableIntegerField(relation=BILL_DURATION, relation_column='value')
 
     owner = models.ForeignKey('accounts.Account', null=False, related_name='+')
 
@@ -45,7 +49,7 @@ class Bill(models.Model):
     min_votes_percents_required = models.FloatField(default=0.0)
 
     is_declined = models.BooleanField(blank=True, default=False)
-    declined_by = models.ForeignKey('bills.Bill', null=True, default=None, related_name='+')
+    declined_by = models.ForeignKey('bills.Bill', null=True, default=None, related_name='+', blank=True)
 
     class Meta:
         permissions = (("moderate_bill", u"Может администрировать законопроекты"), )

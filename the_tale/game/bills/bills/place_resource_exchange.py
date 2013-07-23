@@ -60,6 +60,8 @@ class ModeratorForm(BaseModeratorForm):
 
 class PlaceResourceExchange(BaseBill):
 
+    WITH_DURATION = True
+
     type = BILL_TYPE.PLACE_RESOURCE_EXCHANGE
 
     UserForm = UserForm
@@ -133,6 +135,11 @@ class PlaceResourceExchange(BaseBill):
                                          bill=bill)
 
     def decline(self, bill):
+        exchange = resource_exchange_storage.get_exchange_for_bill_id(bill.id)
+        if exchange:
+            exchange.remove()
+
+    def end(self, bill):
         exchange = resource_exchange_storage.get_exchange_for_bill_id(bill.id)
         if exchange:
             exchange.remove()

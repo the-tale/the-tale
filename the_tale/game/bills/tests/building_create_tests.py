@@ -76,7 +76,7 @@ class BuildingCreateTests(BaseTestPrototypes):
 
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
         self.assertEqual(Building.objects.all().count(), 0)
 
@@ -105,7 +105,7 @@ class BuildingCreateTests(BaseTestPrototypes):
 
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_duplicate_apply(self):
         self.assertEqual(Building.objects.all().count(), 0)
 
@@ -138,7 +138,7 @@ class BuildingCreateTests(BaseTestPrototypes):
 
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply_without_person(self):
         self.assertEqual(Building.objects.all().count(), 0)
 

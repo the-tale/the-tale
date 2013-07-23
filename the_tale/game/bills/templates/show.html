@@ -80,7 +80,13 @@
 
 <h3 style="margin-bottom: 0.5em;">{{ bill.data.CAPTION }}</h3>
 
-{% include bill.data.SHOW_TEMPLATE with context %}
+<ul style="font-size: 14px;" class="unstyled">
+  {% if not bill.duration._is_UNLIMITED %}
+  <li class="pgf-duration-info"><strong>Время действия:</strong> {{ bill.duration.text }}</li>
+  {% endif %}
+
+  {% include bill.data.SHOW_TEMPLATE with context %}
+</ul>
 
 <h3>Обоснование</h3>
 

@@ -45,7 +45,9 @@ class RECORD_TYPE(DjangoEnum):
 
                 ('BILL_DECLINE_BILL_STARTED', 29, u'отмена закона: предложен закон'),
                 ('BILL_DECLINE_BILL_SUCCESSED', 30, u'отмена закона: принят закон'),
-                ('BILL_DECLINE_BILL_FAILED', 31, u'отмена закона: отклонён закон'),)
+                ('BILL_DECLINE_BILL_FAILED', 31, u'отмена закона: отклонён закон'),
+
+                ('PLACE_RESOURCE_EXCHANGE_BILL_ENDED', 32, u'обмен ресурсами: действие закона окончено'))
 
 
 class ACTOR_ROLE(DjangoEnum):

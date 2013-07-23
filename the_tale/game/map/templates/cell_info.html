@@ -247,6 +247,9 @@
             <tr>
               <td"><a target="_blank" href="{{url('game:bills:show', bill.id)}}">{{bill.caption}}</a></td>
             </tr>
+            {% if not bill.duration._is_UNLIMITED %}
+            <tr><td>Прекратит действовать через: {{bill.time_before_end|verbose_timedelta}}</td></tr>
+            {% endif %}
             {% if not resource_1._is_NONE %}
             <tr><td>{{place_2.name}} получает {{resource_1.text}}</td></tr>
             {% endif %}

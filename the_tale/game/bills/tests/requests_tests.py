@@ -23,12 +23,14 @@ from forum.models import Post
 
 from game.heroes.prototypes import HeroPrototype
 
-from game.bills.models import Bill, Vote
-from game.bills.relations import VOTE_TYPE, BILL_STATE
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import PlaceRenaming, PersonRemove
-from game.bills.conf import bills_settings
 from game.map.places.storage import places_storage
+from game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+
+from game.bills.models import Bill, Vote
+from game.bills.relations import VOTE_TYPE, BILL_STATE, BILL_DURATION
+from game.bills.prototypes import BillPrototype, VotePrototype
+from game.bills.bills import PlaceRenaming, PersonRemove, PlaceResourceExchange
+from game.bills.conf import bills_settings
 
 
 class BaseTestRequests(TestCase):
@@ -298,7 +300,10 @@ class TestNewRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:bills:new') + '?bill_type=xxx'), texts=(('bills.new.bill_type.wrong_format', 1),))
 
     def test_success(self):
-        self.check_html_ok(self.request_html(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)))
+        self.check_html_ok(self.request_html(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)), texts=[('duration', 0)])
+
+    def test_success__duration(self):
+        self.check_html_ok(self.request_html(reverse('game:bills:new') + ('?bill_type=%s' % PlaceResourceExchange.type.value)), texts=['duration'])
 
     def test_new_place_renaming(self):
         texts = [('>'+place.name+'<', 1) for place in places_storage.all()]
@@ -391,6 +396,7 @@ class TestShowRequests(BaseTestRequests):
         texts = [('caption-a2-0', 2 + 1), # 1 from social sharing
                  ('rationale-a2-0', 1 + 1), # 1 from social sharing
                  ('pgf-voting-block', 0),
+                 ('pgf-duration-info', 0),
                  ('pgf-forum-block', 1),
                  ('pgf-bills-results-summary', 1),
                  ('pgf-bills-results-detailed', 0),
@@ -398,6 +404,16 @@ class TestShowRequests(BaseTestRequests):
                  (self.place2.name, 2)]
 
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
+
+
+    def test_show__duration(self):
+        bill_data = PlaceRenaming(place_id=self.place2.id, base_name='new_name_2')
+        self.create_bills(1, self.account1, 'caption-a2-%d', 'rationale-a2-%d', bill_data)
+        bill = Bill.objects.all()[0]
+        bill.duration = BILL_DURATION.YEAR
+        bill.save()
+
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=[('pgf-duration-info', 1)])
 
 
     def test_show__vote_for(self):
@@ -507,11 +523,26 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(bill.data.base_name, 'new-name')
         self.assertEqual(bill.votes_for, 1)
         self.assertEqual(bill.votes_against, 0)
+        self.assertTrue(bill.duration._is_UNLIMITED)
 
         vote = VotePrototype(Vote.objects.all()[0])
         self.check_vote(vote, self.account1, VOTE_TYPE.FOR, bill.id)
 
         self.check_ajax_ok(response, data={'next_url': reverse('game:bills:show', args=[bill.id])})
+
+
+    def test_success__duration(self):
+
+        self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceResourceExchange.type.value), {'caption': 'bill-caption',
+                                                                                                               'rationale': 'bill-rationale',
+                                                                                                               'duration': BILL_DURATION.YEAR,
+                                                                                                               'place_1': self.place1.id,
+                                                                                                               'place_2':  self.place2.id,
+                                                                                                               'resource_1': RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
+                                                                                                               'resource_2': RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,})
+
+        self.assertTrue(BillPrototype._db_get_object(0).duration._is_YEAR)
+
 
     def test_success_second_bill_error(self):
         self.check_ajax_ok(self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), self.get_post_data()))
@@ -659,7 +690,20 @@ class TestEditRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.voting_state_required', 1),))
 
     def test_success(self):
-        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])))
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=[('duration', 0)])
+
+    def test_success__duration(self):
+        from game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+        self.bill._model.delete()
+
+        self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceResourceExchange.type.value), {'caption': 'bill-caption',
+                                                                                                               'rationale': 'bill-rationale',
+                                                                                                               'place_1': self.place1.id,
+                                                                                                               'place_2':  self.place2.id,
+                                                                                                               'resource_1': RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
+                                                                                                               'resource_2': RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,})
+        bill = BillPrototype._db_get_object(0)
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[bill.id])), texts=['duration'])
 
     def test_edit_place_renaming(self):
         texts = [('>'+place.name+'<', 1) for place in places_storage.all()]
@@ -733,6 +777,32 @@ class TestUpdateRequests(BaseTestRequests):
         self.assertTrue(old_updated_at < self.bill.updated_at)
 
         self.assertEqual(Post.objects.all().count(), 2)
+
+        self.bill._model.delete()
+
+
+    def test_update_success__duration(self):
+        self.bill._model.delete()
+
+        self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceResourceExchange.type.value), {'caption': 'bill-caption',
+                                                                                                               'rationale': 'bill-rationale',
+                                                                                                               'duration': BILL_DURATION.YEAR,
+                                                                                                               'place_1': self.place1.id,
+                                                                                                               'place_2':  self.place2.id,
+                                                                                                               'resource_1': RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
+                                                                                                               'resource_2': RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,})
+
+        bill = BillPrototype._db_get_object(0)
+
+        self.check_ajax_ok(self.client.post(reverse('game:bills:update', args=[bill.id]),  {'caption': 'bill-caption',
+                                                                                            'rationale': 'bill-rationale',
+                                                                                            'duration': BILL_DURATION.YEAR_2,
+                                                                                            'place_1': self.place1.id,
+                                                                                            'place_2':  self.place2.id,
+                                                                                            'resource_1': RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
+                                                                                            'resource_2': RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,}))
+
+        self.assertTrue(BillPrototype._db_get_object(0).duration._is_YEAR_2)
 
 
 class TestModerationPageRequests(BaseTestRequests):

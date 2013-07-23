@@ -182,7 +182,11 @@ class BillResource(Resource):
 
         if user_form.is_valid():
             bill_data.initialize_with_user_data(user_form)
-            bill = BillPrototype.create(self.account, user_form.c.caption, user_form.c.rationale, bill_data)
+            bill = BillPrototype.create(owner=self.account,
+                                        caption=user_form.c.caption,
+                                        rationale=user_form.c.rationale,
+                                        duration=user_form.c.duration,
+                                        bill=bill_data)
             return self.json_ok(data={'next_url': reverse('game:bills:show', args=[bill.id])})
 
         return self.json_error('bills.create.form_errors', user_form.errors)

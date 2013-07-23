@@ -181,20 +181,17 @@ class Worker(BaseWorker):
         self.logger.info('sync data completed')
 
     def apply_bills(self):
-        from game.bills.models import Bill, BILL_STATE
         from game.bills.prototypes import BillPrototype
 
         self.logger.info('apply bills')
 
-        bills_models = Bill.objects.filter(state=BILL_STATE.VOTING,
-                                           approved_by_moderator=True,
-                                           updated_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME))
-
         applied = False
 
-        for bill_model in bills_models:
-            bill = BillPrototype(bill_model)
+        for bill in BillPrototype.get_applicable_bills():
             applied = bill.apply() or applied
+
+        for bill in BillPrototype.get_bills_to_end():
+            applied = bill.end() or applied
 
         self.logger.info('apply bills completed')
 

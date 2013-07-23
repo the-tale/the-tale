@@ -15,7 +15,7 @@ from game.bills.relations import BILL_STATE
 class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def setUp(self):
         super(BillDeclineResourceExchangeTests, self).setUp()
 
@@ -26,7 +26,10 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
                                                         resource_1=self.resource_1,
                                                         resource_2=self.resource_2)
 
-        self.declined_bill = BillPrototype.create(self.account1, 'declined-bill-caption', 'declined-bill-rationale', self.declined_bill_data)
+        self.declined_bill = BillPrototype.create(owner=self.account1,
+                                                  caption='declined-bill-caption',
+                                                  rationale='declined-bill-rationale',
+                                                  bill=self.declined_bill_data)
 
         declined_form = PlaceResourceExchange.ModeratorForm({'approved': True})
         self.assertTrue(declined_form.is_valid())
@@ -48,7 +51,7 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         self.assertEqual(self.bill_data.actors, self.declined_bill.data.actors)
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_update(self):
         declined_bill_2 = BillPrototype.create(self.account1, 'declined-bill-caption', 'declined-bill-rationale', self.declined_bill_data)
         declined_form = PlaceResourceExchange.ModeratorForm({'approved': True})
@@ -76,7 +79,7 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_user_form_validation__wrong_bill(self):
         bill_data = PlaceDescripton(place_id=self.place1.id, description='new description')
         bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
@@ -93,7 +96,7 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
@@ -121,7 +124,7 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
 
     @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_end_step', datetime.timedelta(seconds=0))
+    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_reapply(self):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
