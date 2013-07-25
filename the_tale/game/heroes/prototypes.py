@@ -656,6 +656,13 @@ class HeroPrototype(BasePrototype):
 
         database.raw_save(self._model)
 
+    def _randomized_level_up(self):
+        new_ability = random.choice(self.get_abilities_for_choose())
+        if self.abilities.has(new_ability.get_id()):
+            self.abilities.increment_level(new_ability.get_id())
+        else:
+            self.abilities.add(new_ability.get_id())
+
     def __eq__(self, other):
 
         return (self.id == other.id and

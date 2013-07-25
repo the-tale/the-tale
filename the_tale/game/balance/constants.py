@@ -37,7 +37,7 @@ HEAL_TIME_FRACTION = float(0.2) # доля времени от цепочки б
 HEAL_STEP_FRACTION = float(0.2) # разброс регенерации за один ход
 
 HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION = float(0.33) # если у героя здоровья меньше, чем указанная доля и он в городе, то он будет лечиться
-HEALTH_IN_MOVE_TO_START_HEAL_FRACTION = (2 *float(1)) / BATTLES_BEFORE_HEAL # если у героя здоровья меньше, чем указанная доля и он в походе, то он будет лечиться
+HEALTH_IN_MOVE_TO_START_HEAL_FRACTION = float(2 * (1.0 / BATTLES_BEFORE_HEAL)) # если у героя здоровья меньше, чем указанная доля и он в походе, то он будет лечиться
 
 TURNS_TO_IDLE = int(6) # количество ходов на уровень, которое герой бездельничает в соответствующей action
 TURNS_TO_RESURRECT = int(TURNS_TO_IDLE * 3) # количество ходов на уровень, необходимое для воскрешения

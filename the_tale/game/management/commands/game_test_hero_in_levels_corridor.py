@@ -35,6 +35,7 @@ class Command(BaseCommand):
             traceback.print_exc()
 
 
+    @mock.patch('dext.settings.conf.dext_settings_settings.UPDATE_DATABASE', False)
     def test_corridor(self):
 
         result, account_id, bundle_id = register_user(uuid.uuid4().hex) # pylint: disable=W0612
@@ -44,18 +45,16 @@ class Command(BaseCommand):
 
         current_time = TimePrototype.get_current_time()
 
-        old_level = 0
-
         for level in xrange(1, 100):
             print 'process level %d\texpected turns: %d' % (level, f.turns_on_lvl(level))
-
-            if old_level != self.hero.level:
-                self.hero.abilities.randomized_level_up(self.hero.level - old_level)
-                old_level = self.hero.level
 
             for i in xrange(f.turns_on_lvl(level)): # pylint: disable=W0612
                 self.storage.process_turn()
                 current_time.increment_turn()
+
+                if self.hero.can_choose_new_ability:
+                    self.hero._randomized_level_up()
+
 
             exp_to_next_level = float(self.hero.experience) / f.exp_on_lvl(self.hero.level) * 100
             exp_from_expected = float(f.total_exp_to_lvl(self.hero.level)+self.hero.experience)/f.total_exp_to_lvl(level+1)*100
@@ -67,3 +66,5 @@ class Command(BaseCommand):
                                                                                                                       exp_untaken,
                                                                                                                       quests_untaken,
                                                                                                                       self.hero.statistics.quests_done)
+            print u'abilities: %s' % ' '.join(u'%s-%d' % (ability_id, ability.level) for ability_id, ability in self.hero.abilities.abilities.items())
+            print u'deaths: %d' % self.hero.statistics.pve_deaths

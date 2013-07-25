@@ -204,8 +204,9 @@ def turns_to_path(path_length):
     return path_length / distance_in_action_cycle * c.ACTIONS_CYCLE_LENGTH
 
 def experience_for_quest__real(path_length):
+    MAGIC_QUEST_MULTIPLIER = 2.0/3
     # multiply by 2 since in most quests hero must return to start point
-    return 2 * turns_to_path(path_length) / c.TURNS_IN_HOUR * c.EXP_PER_HOUR
+    return 2 * turns_to_path(path_length) / c.TURNS_IN_HOUR * c.EXP_PER_HOUR * MAGIC_QUEST_MULTIPLIER
 
 def experience_for_quest(path_length):
     return  int(math.ceil(experience_for_quest__real(path_length) * random.uniform(1.0-c.EXP_PER_QUEST_FRACTION, 1+c.EXP_PER_QUEST_FRACTION)))
