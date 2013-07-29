@@ -33,6 +33,8 @@ class DevelopersInfoResource(Resource):
         gold = {}
         gold_total_spent = 0
         gold_total_received = 0
+        real_gold_total_spent = 0
+        real_gold_total_received = 0
 
         for record in BANK_ENTITY_TYPE._records:
             spent = -BankAccountPrototype._money_spent(from_type=record)
@@ -42,7 +44,12 @@ class DevelopersInfoResource(Resource):
             gold_total_spent += spent
             gold_total_received += received
 
+            if record.is_real:
+                real_gold_total_spent += spent
+                real_gold_total_received += received
+
         gold_in_game = gold_total_received - gold_total_spent
+        real_gold_in_game = real_gold_total_received - real_gold_total_spent
 
         return self.template('developers_info/index.html',
                              {'accounts_total': accounts_total,
@@ -54,6 +61,7 @@ class DevelopersInfoResource(Resource):
                               'gold_total_spent': gold_total_spent,
                               'gold_total_received': gold_total_received,
                               'gold_in_game': gold_in_game,
+                              'real_gold_in_game': real_gold_in_game,
                               'page_type': 'index'})
 
     @handler('mobs-and-artifacts', method='get')

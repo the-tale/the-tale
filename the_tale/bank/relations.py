@@ -17,12 +17,13 @@ class INVOICE_STATE(DjangoEnum):
 
 class ENTITY_TYPE(DjangoEnum):
     is_infinite = Column(unique=False)
+    is_real = Column(unique=False)
 
-    _records = ( ('DENGI_ONLINE', 0, u'dengi online', True),
-                 ('GAME_ACCOUNT', 1, u'игровой аккаунт', False),
-                 ('GAME_MASTER',  2, u'гейммастер', True),
-                 ('GAME_LOGIC',   3, u'игровая логика', True),
-                 ('XSOLLA',       4, u'xsolla', True))
+    _records = ( ('DENGI_ONLINE', 0, u'dengi online', True, True),
+                 ('GAME_ACCOUNT', 1, u'игровой аккаунт', False, False),
+                 ('GAME_MASTER',  2, u'гейммастер', True, False),
+                 ('GAME_LOGIC',   3, u'игровая логика', True, False),
+                 ('XSOLLA',       4, u'xsolla', True, True))
 
 
 class CURRENCY_TYPE(DjangoEnum):
