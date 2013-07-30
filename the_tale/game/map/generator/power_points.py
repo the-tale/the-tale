@@ -44,19 +44,19 @@ def _point_circle_height(obj, borders, normalizer, power_percent):
 
 class MapObject(object):
 
-    def __init__(self, game_object):
+    def __init__(self, game_object, suffix=''):
         if isinstance(game_object, PlacePrototype):
-            self.uid = 'place_%d' % game_object.id
+            self.uid = 'place_%d_%s' % (game_object.id, suffix)
             self.x = game_object.x
             self.y = game_object.y
             self.r = game_object.terrain_change_power
         elif isinstance(game_object, PersonPrototype):
-            self.uid = 'person_%d' % game_object.id
+            self.uid = 'person_%d_%s' % (game_object.id, suffix)
             self.x = game_object.place.x
             self.y = game_object.place.y
             self.r = game_object.place.terrain_change_power
         elif isinstance(game_object, BuildingPrototype):
-            self.uid = 'building_%d' % game_object.id
+            self.uid = 'building_%d_%s' % (game_object.id, suffix)
             self.x = game_object.x
             self.y = game_object.y
             self.r = game_object.terrain_change_power
@@ -87,6 +87,13 @@ def _point_arrow_height(obj, borders, length_normalizer, width_normalizer, power
 
     if len(distances) > 1:
         distance, other_place = distances[1]
+        arrow = power_points.ArrowAreaPoint.Arrow(angle=math.atan2(other_place.y - obj.y, other_place.x - obj.x),
+                                                  length=obj.r,
+                                                  width=(obj.r / 3) + 1)
+        arrows.extend([arrow, arrow.rounded_arrow])
+
+    if len(distances) > 2:
+        distance, other_place = distances[2]
         arrow = power_points.ArrowAreaPoint.Arrow(angle=math.atan2(other_place.y - obj.y, other_place.x - obj.x),
                                                   length=obj.r,
                                                   width=(obj.r / 3) + 1)
@@ -181,7 +188,8 @@ def _default_vegetation_points():
 
 def get_building_power_points(building): # pylint: disable=R0912,R0915
 
-    points = []
+    # power from race of building must not be equal to power from city. So, multiple it to 0.25
+    points = get_object_race_points(MapObject(building, 'race'), building.person.race, building.integrity * 0.25)
 
     if building.type._is_SMITHY:
         points.append(_point_arrow_height(MapObject(building), borders=(0.3, 1.0), length_normalizer=normalizers.linear_2, width_normalizer=normalizers.linear_2, power_percent=1.0))
@@ -196,7 +204,7 @@ def get_building_power_points(building): # pylint: disable=R0912,R0915
         points.append(_point_circle_height(MapObject(building), borders=(-0.5, 0.5), normalizer=normalizers.linear_2, power_percent=1.0))
     elif building.type._is_SAWMILL:
         points.append(_point_circle_height(MapObject(building), borders=(-0.5, 0.5), normalizer=normalizers.linear_2, power_percent=1.0))
-        points.append(_point_circle_vegetation(MapObject(building), power=(0.0, 0.3), normalizer=normalizers.linear_2, power_percent=1.0))
+        points.append(_point_circle_vegetation(MapObject(building), power=(0.0, 0.7), normalizer=normalizers.linear_2, power_percent=1.0))
     elif building.type._is_HUNTER_HOUSE:
         points.append(_point_circle_height(MapObject(building), borders=(-0.7, 0.7), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_vegetation(MapObject(building), power=(0.0, 0.5), normalizer=normalizers.linear_2, power_percent=1.0))
@@ -228,7 +236,7 @@ def get_building_power_points(building): # pylint: disable=R0912,R0915
     elif building.type._is_SCAFFOLD:
         points.append(_point_circle_height(MapObject(building), borders=(0.2, 0.4), normalizer=normalizers.linear_2, power_percent=1.0))
     elif building.type._is_MAGE_TOWER:
-        points.append(_point_arrow_height(MapObject(building), borders=(0.4, 1.0), length_normalizer=normalizers.linear_2, width_normalizer=normalizers.linear_2, power_percent=1.0))
+        points.append(_point_arrow_height(MapObject(building), borders=(0.8, 1.0), length_normalizer=normalizers.linear_2, width_normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_soil(MapObject(building), power=-0.2, normalizer=normalizers.linear, power_percent=1.0))
         points.append(_point_circle_temperature(MapObject(building), power=0.1, normalizer=normalizers.linear, power_percent=1.0))
     elif building.type._is_GUILDHALL:
