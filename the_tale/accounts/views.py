@@ -363,6 +363,8 @@ class AccountResource(Resource):
                              {'master_hero': master_hero,
                               'most_common_places': master_hero.places_history.get_most_common_places(),
                               'master_account': self.master_account,
+                              'accounts_settings': accounts_settings,
+                              'informer_link': accounts_settings.INFORMER_LINK % {'account_id': self.master_account.id},
                               'rating_places': rating_places,
                               'rating_values': rating_values,
                               'bills_count': bills_count,

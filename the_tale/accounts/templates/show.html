@@ -49,34 +49,37 @@ jQuery(document).ready(function(){
 
 {% block accounts_content %}
 
-<h2 style="display: inline-block;">{{ master_account.nick_verbose }} <small>могущество: {{ master_hero.might|int }}</small></h2>
+  <div class="row-fluid">
+    <div class="span12">
 
-{% if resource.account.is_authenticated() and master_account.id != resource.account.id %}
-&nbsp;<a class="pgf-new-message" href="#">отправить сообщение</a> /
+      <h2 style="display: inline-block;">{{ master_account.nick_verbose }} <small>могущество: {{ master_hero.might|int }}</small></h2>
 
-{% if friendship is none %}<a class="pgf-friends-request-friendship" href="#">добавить в друзья</a>
-{% elif friendship.is_confirmed %}<span class="pgf-friends-in-list">в списке друзей</span>
-{% elif friendship.friend_1_id == master_account.id %}
-<span class="pgf-friends-request-from">
-игрок предлагает дружить
-<a class="pgf-forms-post-simple" href="{{url('accounts:friends:accept', friend=master_account.id)}}">принять</a> /
-<a class="pgf-forms-post-simple" href="{{url('accounts:friends:remove', friend=master_account.id)}}">отказать</a>
-</span>
-{% else %}<span class="pgf-friends-request-to">вы предложили этому игроку дружить</span>
-{% endif %}
+      {% if resource.account.is_authenticated() and master_account.id != resource.account.id %}
+        &nbsp;<a class="pgf-new-message" href="#">отправить сообщение</a> /
+
+        {% if friendship is none %}<a class="pgf-friends-request-friendship" href="#">добавить в друзья</a>
+        {% elif friendship.is_confirmed %}<span class="pgf-friends-in-list">в списке друзей</span>
+        {% elif friendship.friend_1_id == master_account.id %}
+          <span class="pgf-friends-request-from">
+            игрок предлагает дружить
+            <a class="pgf-forms-post-simple" href="{{url('accounts:friends:accept', friend=master_account.id)}}">принять</a> /
+            <a class="pgf-forms-post-simple" href="{{url('accounts:friends:remove', friend=master_account.id)}}">отказать</a>
+          </span>
+        {% else %}<span class="pgf-friends-request-to">вы предложили этому игроку дружить</span>
+        {% endif %}
 
 {% endif %}
 
 {% if master_account.is_ban_forum %}
-<p class="alert alert-error pgf-ban-forum-message">
-  Игроку запрещено общаться на форуме до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_forum_end_at|timestamp }}"></span>
-</p>
+  <p class="alert alert-error pgf-ban-forum-message">
+    Игроку запрещено общаться на форуме до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_forum_end_at|timestamp }}"></span>
+  </p>
 {% endif %}
 
 {% if master_account.is_ban_game %}
-<p class="alert alert-error pgf-ban-game-message">
-  Герой игрока не оказывает влияние на мир до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_game_end_at|timestamp }}"></span>
-</p>
+  <p class="alert alert-error pgf-ban-game-message">
+    Герой игрока не оказывает влияние на мир до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_game_end_at|timestamp }}"></span>
+  </p>
 {% endif %}
 
 <table class="account-info-table table table-condensed table-striped table-bordered table-no-highlighting">
@@ -100,17 +103,17 @@ jQuery(document).ready(function(){
       <td rowspan="3" width="250px">
 
         {% if rating_values %}
-        <ul class="unstyled">
-          <li><strong>могущество:</strong> {% if rating_values.might > 0 %}{{ rating_places.might_place }} место{% else %}не участвует{% endif %}</li>
-          <li><strong>принятые законы:</strong> {% if rating_values.bills_count > 0 %}{{ rating_places.bills_count_place }} место{% else %}не участвует{% endif %}</li>
-          <li><strong>сила героя:</strong> {{ rating_places.power_place }} место</li>
-          <li><strong>уровень героя:</strong> {{ rating_places.level_place }} место</li>
-          <li><strong>добавленные фразы:</strong> {% if rating_values.phrases_count > 0 %}{{ rating_places.phrases_count_place }} место{% else %}не участвует{% endif %}</li>
-          <li><strong>Сражений PvP:</strong> {% if rating_values.pvp_battles_1x1_number > 0 %}{{ rating_places.pvp_battles_1x1_number_place }} место{% else %}не участвует{% endif %}</li>
-          <li><strong>Побед PvP:</strong> {% if rating_values.pvp_battles_1x1_victories > 0 %}{{ rating_places.pvp_battles_1x1_victories_place }} место{% else %}не участвует{% endif %}</li>
-        </ul>
+          <ul class="unstyled">
+            <li><strong>могущество:</strong> {% if rating_values.might > 0 %}{{ rating_places.might_place }} место{% else %}не участвует{% endif %}</li>
+            <li><strong>принятые законы:</strong> {% if rating_values.bills_count > 0 %}{{ rating_places.bills_count_place }} место{% else %}не участвует{% endif %}</li>
+            <li><strong>сила героя:</strong> {{ rating_places.power_place }} место</li>
+            <li><strong>уровень героя:</strong> {{ rating_places.level_place }} место</li>
+            <li><strong>добавленные фразы:</strong> {% if rating_values.phrases_count > 0 %}{{ rating_places.phrases_count_place }} место{% else %}не участвует{% endif %}</li>
+            <li><strong>Сражений PvP:</strong> {% if rating_values.pvp_battles_1x1_number > 0 %}{{ rating_places.pvp_battles_1x1_number_place }} место{% else %}не участвует{% endif %}</li>
+            <li><strong>Побед PvP:</strong> {% if rating_values.pvp_battles_1x1_victories > 0 %}{{ rating_places.pvp_battles_1x1_victories_place }} место{% else %}не участвует{% endif %}</li>
+          </ul>
         {% else %}
-        игрок пока не участвует в рейтингах
+          игрок пока не участвует в рейтингах
         {% endif %}
 
       </td>
@@ -138,42 +141,115 @@ jQuery(document).ready(function(){
   </tbody>
 </table>
 
-<h4>политика</h4>
+    </div>
+  </div>
 
-<p>Города, которым игрок помогает чаще всего.</p>
+  <div class="row-fluid">
+    <div class="span6">
 
-{% if most_common_places %}
-<div class="pgf-scrollable" style="overflow-y: auto; max-height: {{1+27*(1+bills_settings.PLACES__TO_ACCESS_VOTING)}}px; width: 360px;">
 
-  <table class="table table-condensed table-striped table-bordered table-no-highlighting">
-    <tbody>
-      <tr>
-        <th width="30px">№</th>
-        <th width="200px">город</th>
-        <th width="100px">помогал (раз)</th>
-      </tr>
-      {% for place, number in most_common_places %}
-      <tr>
-        <td>{{loop.index}}</td>
-        <td>{{place.name}}</td>
-        <td>{{number}}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      <h4>Политика</h4>
 
-</div>
+      <p>Города, которым игрок помогает чаще всего.</p>
+
+      {% if most_common_places %}
+        <div class="pgf-scrollable" style="overflow-y: auto; max-height: {{1+27*(1+bills_settings.PLACES__TO_ACCESS_VOTING)}}px; width: 360px;">
+
+          <table class="table table-condensed table-striped table-bordered table-no-highlighting">
+            <tbody>
+              <tr>
+                <th width="30px">№</th>
+                <th width="200px">город</th>
+                <th width="100px">помогал (раз)</th>
+              </tr>
+              {% for place, number in most_common_places %}
+                <tr>
+                  <td>{{loop.index}}</td>
+                  <td>{{place.name}}</td>
+                  <td>{{number}}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+        </div>
 
 {% else %}
 
-<p class="alert alert-info pgf-no-common-places-message">
-  Герой ещё не помог ни одному городу.
-</p>
-
+  <p class="alert alert-info pgf-no-common-places-message">
+    Герой ещё не помог ни одному городу.
+  </p>
 {% endif %}
 
+    </div>
+
+    {% if accounts_settings.INFORMER_SHOW and master_account.id == resource.account.id %}
+      <div style="width: 49%; display: inline-block; min-width: {{accounts_settings.INFORMER_WIDTH+20}}px;">
+        <h4>Информер</h4>
+        <p>
+          Нашим игроком <a target="_blank" href="{{url('accounts:show', accounts_settings.INFORMER_CREATOR_ID)}}">{{accounts_settings.INFORMER_CREATOR_NAME}}</a> был разработан информер, для вставки в подписи на форумах и аналогичных им местах. За что ему большое спасибо.
+        </p>
+
+        <div style="margin: 1em; text-align: center;">
+          <img width="{{accounts_settings.INFORMER_WIDTH}}px" height="{{accounts_settings.INFORMER_HEIGHT}}px" src="{{informer_link}}"></img>
+        </div>
+
+        <div class="accordion" id="pgf-informer-accordion">
+
+          <div class="accordion-group">
+            <div class="accordion-heading">
+              <div class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-informer-accordion" href="#pgf-informer-codes">
+                <a href="#">
+                  Наиболее распространённые коды для вставки информера.
+                </a>
+              </div>
+            </div>
+            <div id="pgf-informer-codes" class="accordion-body collapse" style="height: 0px;">
+              <div class="accordion-inner">
+                <ul class="unstyled">
+                  <li style="margin: 0.5em;">
+                    ссылка на картинку:<br/>
+                    <code>{{informer_link}}</code>
+                  </li>
+                  <li style="margin: 0.5em;">
+                    bb-код:<br/>
+                    <code style="display: block;">
+                      [url="{{full_url('http', 'accounts:show', master_account.id)}}"]<br/>
+                      [img]{{informer_link}}[/img]<br/>
+                      [/url]
+                    </code>
+                  </li>
+                  <li style="margin: 0.5em;">
+                    html-код:<br/>
+                    <code style="display: block;">
+                      &lt;a href="{{full_url('http', 'accounts:show', master_account.id)}}"&gt;<br/>
+                      &lt;img width="{{accounts_settings.INFORMER_WIDTH}}px" height="{{accounts_settings.INFORMER_HEIGHT}}px" src="{{informer_link}}"&gt;&lt;/src&gt;<br/>
+                      &lt;/a&gt;
+                    </code>
+                  </li>
+                </ul>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <p>
+          Обращаем ваше внимание, что информер является сторонним продуктом и администрация игры не несёт ответственности за его функционирование.
+        </p>
+
+        <p>
+          Обсудить работу информера можно на нашем <a href="{{url('forum:threads:show', accounts_settings.INFORMER_FORUM_THREAD)}}">форуме</a>.
+        </p>
+
+      </div>
+    {% endif %}
+  </div>
+
 {% if resource.can_moderate_accounts %}
-<a class="btn btn-danger pgf-account-admin-link" href="{{url('accounts:admin', master_account.id)}}">Администрировать</a>
+  <br/>
+  <a class="btn btn-danger pgf-account-admin-link" href="{{url('accounts:admin', master_account.id)}}">Администрировать</a>
 {% endif %}
 
 {% endblock %}
