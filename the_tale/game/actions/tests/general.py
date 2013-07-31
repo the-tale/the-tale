@@ -10,11 +10,9 @@ from game.logic_storage import LogicStorage
 from game.logic import create_test_map
 from game.prototypes import TimePrototype
 
-from game.heroes.logic import create_mob_for_hero
-
 from game.abilities.relations import HELP_CHOICES
 
-from game.actions.prototypes import ACTION_TYPES, ActionBattlePvE1x1Prototype, ActionBase
+from game.actions.prototypes import ACTION_TYPES, ActionBase
 from game.actions.tests.helpers import TestAction
 
 
@@ -151,6 +149,7 @@ class GeneralTest(testcase.TestCase):
                                      textgen_id='textgen_id',
                                      hero_health_lost=20,
                                      back=True,
+                                     info_link='/bla-bla',
                                      meta_action_id=7)
 
         self.assertEqual(default_action.serialize(), {'bundle_id': self.bundle_id,
@@ -174,6 +173,7 @@ class GeneralTest(testcase.TestCase):
                                                       'quest_id': 1,
                                                       'place_id': 2,
                                                       'data': {'xxx': 'yyy'},
+                                                      'info_link': '/bla-bla',
                                                       'break_at': 0.75})
 
         self.assertEqual(default_action, TestAction.deserialize(self.hero, default_action.serialize()))

@@ -111,8 +111,6 @@ class ActionBase(object):
         self.removed = False
         self.storage = None
 
-        self.info_link = None
-
         self.created_at_turn = created_at_turn if created_at_turn is not None else TimePrototype.get_current_turn_number()
 
         self.context = None
@@ -140,6 +138,8 @@ class ActionBase(object):
         self.hero_health_lost = hero_health_lost
         self.back = back
         self.meta_action_id = meta_action_id
+
+        self.info_link = info_link
 
 
     def serialize(self):
@@ -181,6 +181,8 @@ class ActionBase(object):
             data['back'] = self.back
         if self.meta_action_id is not None:
             data['meta_action_id'] = self.meta_action_id
+        if self.info_link is not None:
+            data['info_link'] = self.info_link
 
         return data
 
@@ -191,7 +193,7 @@ class ActionBase(object):
     def ui_info(self):
         return {'percents': self.percents,
                 'description': self.description,
-                'info_link': self.info_link if hasattr(self, 'info_link') else None}
+                'info_link': self.info_link}
 
     @property
     def leader(self):
