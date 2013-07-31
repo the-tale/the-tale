@@ -9,9 +9,12 @@ from game.balance import constants as c, formulas as f
 
 from game.pvp.prototypes import Battle1x1Prototype
 
+from game.map.roads.storage import waymarks_storage
+
+
 class Help(AbilityPrototype):
 
-    COST = 4
+    COST = c.ANGEL_HELP_COST
     NAME = u'Помочь'
     DESCRIPTION = u'Попытаться помочь герою, чем бы тот не занимался'
 
@@ -66,6 +69,19 @@ class Help(AbilityPrototype):
         hero.add_message('angel_ability_resurrect', hero=hero)
         return True, None, ()
 
+    def use_experience(self, action, hero, critical): # pylint: disable=W0613
+
+        if critical:
+            experience = int(f.experience_for_quest(waymarks_storage.average_path_length) * c.ANGEL_HELP_CRIT_EXPERIENCE_FRACTION + 1)
+            hero.add_message('angel_ability_experience_crit', hero=hero, experience=experience)
+        else:
+            experience = int(f.experience_for_quest(waymarks_storage.average_path_length) * c.ANGEL_HELP_EXPERIENCE_FRACTION + 1)
+            hero.add_message('angel_ability_experience', hero=hero, experience=experience)
+
+        hero.add_experience(experience)
+
+        return True, None, ()
+
     def use(self, data, storage, **kwargs): # pylint: disable=R0911
 
         hero = storage.heroes[data['hero_id']]
@@ -101,3 +117,6 @@ class Help(AbilityPrototype):
 
         elif choice._is_RESURRECT:
             return self.use_resurrect(action, hero, critical)
+
+        elif choice._is_EXPERIENCE:
+            return self.use_experience(action, hero, critical)

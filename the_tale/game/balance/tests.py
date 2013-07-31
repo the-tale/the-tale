@@ -91,16 +91,19 @@ class ConstantsTest(testcase.TestCase):
                                                               e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 4,
                                                               e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 4 })
 
+        self.assertEqual(c.ANGEL_HELP_COST, 4)
         self.assertEqual(c.ANGEL_HELP_HEAL_IF_LOWER_THEN, float(0.8))
 
         self.assertEqual(c.ANGEL_HELP_HEAL_FRACTION,  (float(0.25), float(0.5)))
         self.assertEqual(c.ANGEL_HELP_TELEPORT_DISTANCE, float(3.0))
         self.assertEqual(c.ANGEL_HELP_LIGHTING_FRACTION, (float(0.25), float(0.5)))
+        self.assertEqual(round(c.ANGEL_HELP_EXPERIENCE_FRACTION, 2), float(0.17))
 
         self.assertEqual(c.ANGEL_HELP_CRIT_HEAL_FRACTION,  (float(0.5), float(0.75)))
         self.assertEqual(c.ANGEL_HELP_CRIT_TELEPORT_DISTANCE, float(9.0))
         self.assertEqual(c.ANGEL_HELP_CRIT_LIGHTING_FRACTION, (float(0.5), float(0.75)))
         self.assertEqual(c.ANGEL_HELP_CRIT_MONEY_MULTIPLIER, int(10))
+        self.assertEqual(c.ANGEL_HELP_CRIT_EXPERIENCE_FRACTION, float(0.5))
 
 
         self.assertEqual(c.GAME_SECONDS_IN_GAME_MINUTE, 60)

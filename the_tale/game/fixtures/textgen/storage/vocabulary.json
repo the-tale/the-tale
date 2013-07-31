@@ -3191,68 +3191,58 @@
       "template": "Слишком сильно размахнувшись, %(e_0)s %(i_0)s с темпа и не %(i_1)s по %(e_1)s."
     }
   ], 
-  "chronicle_building_renaming_bill_successed": [
+  "quest_caravan_diary_intro": [
     {
       "internals": [
         [
-          "принадлежащий", 
+          "поручил", 
           [
-            "old_name"
+            "person_start"
           ], 
           "i_0", 
           [
-            "нст", 
-            "3л"
-          ], 
-          "принадлежащий"
-        ], 
-        [
-          "переименован", 
-          [
-            "old_name"
-          ], 
-          "i_1", 
-          [
             "прш"
           ], 
-          "переименован"
+          "поручил"
+        ], 
+        [
+          "должен", 
+          [
+            "person_end"
+          ], 
+          "i_1", 
+          [], 
+          "должен"
         ]
       ], 
       "externals": [
         [
-          "bill", 
+          "person_start", 
           [], 
           "e_0", 
-          [], 
-          "bill"
+          [
+            "загл"
+          ], 
+          "person_start"
         ], 
         [
-          "old_name", 
+          "place_end", 
           [], 
           "e_1", 
-          [], 
-          "old_name"
-        ], 
-        [
-          "person", 
-          [], 
-          "e_2", 
-          [
-            "дт"
-          ], 
-          "person"
-        ], 
-        [
-          "new_name", 
-          [], 
-          "e_3", 
           [
             "вн"
           ], 
-          "new_name"
+          "place_end"
+        ], 
+        [
+          "person_end", 
+          [], 
+          "e_2", 
+          [], 
+          "person_end"
         ]
       ], 
-      "template": "Принят закон «%(e_0)s» и %(e_1)s, %(i_0)s %(e_2)s, %(i_1)s в %(e_3)s."
+      "template": "%(e_0)s %(i_0)s отвести караван в %(e_1)s. Там меня %(i_1)s встретить %(e_2)s."
     }
   ], 
   "quest_notmywork_diary_get_reward_artifact": [
@@ -14569,6 +14559,21 @@
       "template": "%(e_0)s %(i_0)s продолжить шпионаж."
     }
   ], 
+  "quest_interfereenemy_action_move_to_quest": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s идёт на дело"
+    }
+  ], 
   "quest_hometown_action_stagger_streets": [
     {
       "internals": [], 
@@ -16669,6 +16674,40 @@
       "template": "выведывает тайное место охоты"
     }
   ], 
+  "angel_ability_experience_crit": [
+    {
+      "internals": [
+        [
+          "услышал", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "услышал"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ], 
+        [
+          "experience", 
+          [], 
+          "e_1", 
+          [], 
+          "experience"
+        ]
+      ], 
+      "template": "Внезапно %(e_0)s чётко и ясно %(i_0)s голос хранителя. Всего одно мудрое слово смогло приоткрыть тайны мироздания и оставить после себя ещё больше вопросов. Получено %(e_1)s опыта."
+    }
+  ], 
   "action_battlepve1x1_battle_stun": [
     {
       "internals": [
@@ -18532,58 +18571,68 @@
     }
   ], 
   "quest_spying_action_choice_open_up": [], 
-  "quest_caravan_diary_intro": [
+  "chronicle_building_renaming_bill_successed": [
     {
       "internals": [
         [
-          "поручил", 
+          "принадлежащий", 
           [
-            "person_start"
+            "old_name"
           ], 
           "i_0", 
           [
-            "прш"
+            "нст", 
+            "3л"
           ], 
-          "поручил"
+          "принадлежащий"
         ], 
         [
-          "должен", 
+          "переименован", 
           [
-            "person_end"
+            "old_name"
           ], 
           "i_1", 
-          [], 
-          "должен"
+          [
+            "прш"
+          ], 
+          "переименован"
         ]
       ], 
       "externals": [
         [
-          "person_start", 
+          "bill", 
           [], 
           "e_0", 
-          [
-            "загл"
-          ], 
-          "person_start"
+          [], 
+          "bill"
         ], 
         [
-          "place_end", 
+          "old_name", 
           [], 
           "e_1", 
+          [], 
+          "old_name"
+        ], 
+        [
+          "person", 
+          [], 
+          "e_2", 
+          [
+            "дт"
+          ], 
+          "person"
+        ], 
+        [
+          "new_name", 
+          [], 
+          "e_3", 
           [
             "вн"
           ], 
-          "place_end"
-        ], 
-        [
-          "person_end", 
-          [], 
-          "e_2", 
-          [], 
-          "person_end"
+          "new_name"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s отвести караван в %(e_1)s. Там меня %(i_1)s встретить %(e_2)s."
+      "template": "Принят закон «%(e_0)s» и %(e_1)s, %(i_0)s %(e_2)s, %(i_1)s в %(e_3)s."
     }
   ], 
   "action_moveto_move": [
@@ -27207,6 +27256,53 @@
       "template": "Инициатива об изменении специализации %(e_0)s с «%(e_1)s» на «%(e_2)s» не нашла поддержки у населения. Закон «%(e_3)s» отклонён."
     }
   ], 
+  "angel_ability_experience": [
+    {
+      "internals": [
+        [
+          "споткнулся", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "споткнулся"
+        ], 
+        [
+          "понял", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "понял"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ], 
+        [
+          "experience", 
+          [], 
+          "e_1", 
+          [], 
+          "experience"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s и, пытаясь придти в равновесие, %(i_1)s, как можно улучшить одно из боевых движений. Получено %(e_1)s опыта."
+    }
+  ], 
   "quest_delivery_choice_steal_variant_delivery": [
     {
       "internals": [], 
@@ -27215,7 +27311,6 @@
     }
   ], 
   "quest_hometown_journal_chatting": [], 
-  "quest_searchsmith_journal_move_to_quest": [], 
   "chronicle_building_create_bill_started": [
     {
       "internals": [], 
@@ -28008,13 +28103,7 @@
       "template": "отдыхает от подвигов"
     }
   ], 
-  "quest_spying_diary_choice_open_up": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "Больше не могу шпионить за таким достойным существом. Лучше расскажу всё как на духу."
-    }
-  ], 
+  "quest_helpfriend_diary_move_to_quest": [], 
   "chronicle_bill_decline_bill_failed": [
     {
       "internals": [], 
@@ -31151,36 +31240,7 @@
       "template": "%(e_0)s %(i_0)s доставить %(e_1)s"
     }
   ], 
-  "quest_help_diary_get_reward_artifact": [
-    {
-      "internals": [
-        [
-          "получил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш", 
-            "загл"
-          ], 
-          "получил"
-        ]
-      ], 
-      "externals": [
-        [
-          "artifact", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "artifact"
-        ]
-      ], 
-      "template": "%(i_0)s %(e_0)s в награду за выполнение задания."
-    }
-  ], 
+  "quest_searchsmith_journal_move_to_quest": [], 
   "action_movenearplace_walk": [
     {
       "internals": [], 
@@ -31393,7 +31453,13 @@
       "template": "Сколько добра у этого человека… Нужно быть бдительней."
     }
   ], 
-  "quest_helpfriend_diary_move_to_quest": [], 
+  "quest_spying_diary_choice_open_up": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Больше не могу шпионить за таким достойным существом. Лучше расскажу всё как на духу."
+    }
+  ], 
   "quest_help_diary_intro": [
     {
       "internals": [
@@ -32584,19 +32650,34 @@
       "template": "На арену выбежал болельщик, выкрикивая «%(e_0)s»."
     }
   ], 
-  "quest_interfereenemy_action_move_to_quest": [
+  "quest_help_diary_get_reward_artifact": [
     {
-      "internals": [], 
-      "externals": [
+      "internals": [
         [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
+          "получил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "получил"
         ]
       ], 
-      "template": "%(e_0)s идёт на дело"
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "%(i_0)s %(e_0)s в награду за выполнение задания."
     }
   ]
 }

@@ -72,6 +72,13 @@ class HelpAbilityTest(testcase.TestCase):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.assertTrue(self.action_idl.percents >= 1)
 
+    def test_experience(self):
+        old_experience = self.hero.experience
+        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.EXPERIENCE):
+            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+
+        self.assertTrue(old_experience < self.hero.experience)
+
     def test_money(self):
         old_hero_money = self.hero.money
         with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.MONEY):

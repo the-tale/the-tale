@@ -143,6 +143,7 @@ ANGEL_ENERGY_MAX = int(12) # всего энергии
 ANGEL_ENERGY_REGENERATION_TIME = float(0.5) # раз в сколько часов регенерируем
 ANGEL_ENERGY_REGENERATION_AMAUNT = int(1) # сколько восстанавливаем
 ANGEL_ENERGY_REGENERATION_PERIOD = int(ANGEL_ENERGY_REGENERATION_TIME * TURNS_IN_HOUR) # раз в сколько ходов
+_ANGEL_ENERGY_IN_DAY = int(24.0 / ANGEL_ENERGY_REGENERATION_TIME * ANGEL_ENERGY_REGENERATION_AMAUNT)
 
 
 ANGEL_ENERGY_REGENERATION_DELAY = { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 1,
@@ -159,16 +160,24 @@ ANGEL_ENERGY_REGENERATION_STEPS = { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 3,
 
 
 # абилки ангела
+ANGEL_HELP_COST = 4
+
 ANGEL_HELP_HEAL_IF_LOWER_THEN = float(0.8) # можем лечить если здоровья меньше чем
 
 ANGEL_HELP_HEAL_FRACTION = (float(0.25), float(0.5)) # (min, max) процент хелсов, которые будут вылечины
 ANGEL_HELP_TELEPORT_DISTANCE = float(3.0) # расстяние на которое происходит телепорт
 ANGEL_HELP_LIGHTING_FRACTION = (float(0.25), float(0.5)) # (min, max) процент урона, который будет нанесён
 
+# доля опыта от выдаваемого за стандартное задание
+# считаем, что при эпической удачливости все использования будут давать опыт
+# и предполагаем, что можем разрешить (при такой удачливости), в день получать опыт как за два задания
+ANGEL_HELP_EXPERIENCE_FRACTION = float(2 * 1.0 / (_ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST))
+
 ANGEL_HELP_CRIT_HEAL_FRACTION = (float(0.5), float(0.75)) # (min, max) процент хелсов, которые будут вылечины
 ANGEL_HELP_CRIT_TELEPORT_DISTANCE = float(9.0) # расстяние на которое происходит телепорт
 ANGEL_HELP_CRIT_LIGHTING_FRACTION = (float(0.5), float(0.75)) # (min, max) процент урона, который будет нанесён
 ANGEL_HELP_CRIT_MONEY_MULTIPLIER = int(10)
+ANGEL_HELP_CRIT_EXPERIENCE_FRACTION = float(ANGEL_HELP_EXPERIENCE_FRACTION * 3.0)
 
 # игровое время из расчёта 1/4 дня в полчаса (считаем среднюю сессию в 15 минут, берём х2 запас), т.е. 1 игровой день == 2 часа реального времени
 
