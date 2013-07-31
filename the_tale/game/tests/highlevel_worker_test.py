@@ -9,7 +9,7 @@ from common.utils import testcase
 from accounts.logic import register_user
 
 from game.persons.storage import persons_storage
-from game.persons.models import Person, PERSON_STATE
+from game.persons.models import Person
 
 from game.heroes.prototypes import HeroPrototype
 

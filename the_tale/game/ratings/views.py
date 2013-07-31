@@ -67,14 +67,19 @@ class RatingResource(Resource):
             value_getter = lambda values: values.phrases_count
 
         elif self.rating_type._is_PVP_BATTLES_1x1_NUMBER:
-            ratings_query = ratings_query.order_by('pvp_battles_1x1_number_place')
+            ratings_query = ratings_query.filter(account__ratingvalues__pvp_battles_1x1_number__gt=0).order_by('pvp_battles_1x1_number_place')
             place_getter = lambda places: places.pvp_battles_1x1_number_place
             value_getter = lambda values: values.pvp_battles_1x1_number
 
         elif self.rating_type._is_PVP_BATTLES_1x1_VICTORIES:
-            ratings_query = ratings_query.order_by('pvp_battles_1x1_victories_place')
+            ratings_query = ratings_query.filter(account__ratingvalues__pvp_battles_1x1_victories__gt=0).order_by('pvp_battles_1x1_victories_place')
             place_getter = lambda places: places.pvp_battles_1x1_victories_place
             value_getter = lambda values: '%.2f%%' % (values.pvp_battles_1x1_victories * 100)
+
+        elif self.rating_type._is_REFERRALS_NUMBER:
+            ratings_query = ratings_query.filter(account__ratingvalues__referrals_number__gt=0).order_by('referrals_number_place')
+            place_getter = lambda places: places.referrals_number_place
+            value_getter = lambda values: values.referrals_number
 
 
         ratings_count = ratings_query.count()

@@ -48,7 +48,28 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertTrue(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
 
         with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
-            self.fast_account.change_credentials(new_email='fast_user@test.ru', new_password=make_password('222222'), new_nick='test_nick')
+            with mock.patch('accounts.workers.accounts_manager.Worker.cmd_update_referrals_number') as cmd_update_referrals_number:
+                self.fast_account.change_credentials(new_email='fast_user@test.ru', new_password=make_password('222222'), new_nick='test_nick')
+
+        self.assertEqual(cmd_update_referrals_number.call_count, 0)
+
+        self.assertEqual(django_authenticate(nick='test_nick', password='222222').id, self.fast_account.id)
+        self.assertFalse(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
+        self.assertEqual(fake_cmd.call_count, 1)
+        self.assertFalse(fake_cmd.call_args[1]['is_fast'])
+
+    def test_change_credentials__with_referral(self):
+        self.fast_account._model.referral_of = self.account._model
+        self.fast_account.save()
+
+        self.assertTrue(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
+
+        with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
+            with mock.patch('accounts.workers.accounts_manager.Worker.cmd_update_referrals_number') as cmd_update_referrals_number:
+                self.fast_account.change_credentials(new_email='fast_user@test.ru', new_password=make_password('222222'), new_nick='test_nick')
+
+        self.assertEqual(cmd_update_referrals_number.call_count, 1)
+        self.assertEqual(cmd_update_referrals_number.call_args, mock.call(self.account.id))
 
         self.assertEqual(django_authenticate(nick='test_nick', password='222222').id, self.fast_account.id)
         self.assertFalse(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
@@ -186,7 +207,7 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertEqual(bank_account.amount, 10000)
 
     def test_update_referrals_for(self):
-        register_user('fast_user_2', referral_of_id=self.account.id)
+        register_user('user_2', 'user_2@test.com', '111111', referral_of_id=self.account.id)
         register_user('fast_user_3', referral_of_id=self.account.id)
 
         AccountPrototype.update_referrals_number_for(self.account.id)
@@ -195,7 +216,7 @@ class AccountPrototypeTests(testcase.TestCase):
         self.account.reload()
         self.fast_account.reload()
 
-        self.assertEqual(self.account.referrals_number, 2)
+        self.assertEqual(self.account.referrals_number, 1)
         self.assertEqual(self.fast_account.referrals_number, 0)
 
     def test_referral_removing(self):

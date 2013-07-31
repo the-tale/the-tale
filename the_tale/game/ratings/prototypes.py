@@ -21,7 +21,7 @@ from game.ratings.conf import ratings_settings
 
 class RatingValuesPrototype(BasePrototype):
     _model_class = RatingValues
-    _readonly = ('id', 'account_id', 'might', 'bills_count', 'power', 'level', 'phrases_count', 'pvp_battles_1x1_number', 'pvp_battles_1x1_victories')
+    _readonly = ('id', 'account_id', 'might', 'bills_count', 'power', 'level', 'phrases_count', 'pvp_battles_1x1_number', 'pvp_battles_1x1_victories', 'referrals_number')
     _bidirectional = ()
     _get_by = ('account_id', )
 
@@ -40,7 +40,7 @@ class RatingValuesPrototype(BasePrototype):
 
 
         sql_request = '''
-INSERT INTO %(ratings)s (account_id, might, bills_count, power, level, phrases_count, pvp_battles_1x1_number, pvp_battles_1x1_victories)
+INSERT INTO %(ratings)s (account_id, might, bills_count, power, level, phrases_count, pvp_battles_1x1_number, pvp_battles_1x1_victories, referrals_number)
 SELECT %(accounts)s.id AS account_id,
        %(heroes)s.might AS might,
        CASE WHEN raw_bills_count IS NULL THEN 0 ELSE raw_bills_count END AS bills_count,
@@ -48,7 +48,8 @@ SELECT %(accounts)s.id AS account_id,
        %(heroes)s.level AS level,
        CASE WHEN raw_phrases_count IS NULL THEN 0 ELSE raw_phrases_count END AS phrases_count,
        %(heroes)s.stat_pvp_battles_1x1_number AS pvp_battles_1x1_number,
-       CASE WHEN %(heroes)s.stat_pvp_battles_1x1_number=0 THEN 0 ELSE CAST(%(heroes)s.stat_pvp_battles_1x1_victories AS FLOAT) / %(heroes)s.stat_pvp_battles_1x1_number END AS pvp_battles_1x1_victories
+       CASE WHEN %(heroes)s.stat_pvp_battles_1x1_number=0 THEN 0 ELSE CAST(%(heroes)s.stat_pvp_battles_1x1_victories AS FLOAT) / %(heroes)s.stat_pvp_battles_1x1_number END AS pvp_battles_1x1_victories,
+       %(accounts)s.referrals_number as referrals_number
 FROM %(accounts)s
 JOIN %(heroes)s ON %(accounts)s.id=%(heroes)s.account_id
 LEFT OUTER JOIN ( SELECT %(bills)s.owner_id AS bills_owner_id, COUNT(%(bills)s.owner_id) AS raw_bills_count
@@ -81,7 +82,7 @@ WHERE NOT %(accounts)s.is_fast AND %(accounts)s.id <> %(system_user_id)s
 class RatingPlacesPrototype(BasePrototype):
     _model_class = RatingPlaces
     _readonly = ('id', 'account_id', 'might_place', 'bills_count_place', 'power_place',
-                 'level_place', 'phrases_count_place', 'pvp_battles_1x1_number_place', 'pvp_battles_1x1_victories_place')
+                 'level_place', 'phrases_count_place', 'pvp_battles_1x1_number_place', 'pvp_battles_1x1_victories_place', 'referrals_number_place')
     _bidirectional = ()
     _get_by = ('account_id', )
 
@@ -98,7 +99,7 @@ class RatingPlacesPrototype(BasePrototype):
         cursor = connection.cursor()
 
         sql_request = '''
-INSERT INTO %(places)s (account_id, might_place, bills_count_place, power_place, level_place, phrases_count_place, pvp_battles_1x1_number_place, pvp_battles_1x1_victories_place)
+INSERT INTO %(places)s (account_id, might_place, bills_count_place, power_place, level_place, phrases_count_place, pvp_battles_1x1_number_place, pvp_battles_1x1_victories_place, referrals_number_place)
 SELECT might_table.account_id AS account_id,
        might_table.might_place AS might_place,
        bills_count_table.bills_count_place AS bills_count_place,
@@ -106,7 +107,8 @@ SELECT might_table.account_id AS account_id,
        level_table.level_place AS level_place,
        phrases_count_table.phrases_count_place AS phrases_count_place,
        pvp_battles_1x1_number_table.pvp_battles_1x1_number_place AS pvp_battles_1x1_number_place,
-       pvp_battles_1x1_victories_table.pvp_battles_1x1_victories_place AS pvp_battles_1x1_victories_place
+       pvp_battles_1x1_victories_table.pvp_battles_1x1_victories_place AS pvp_battles_1x1_victories_place,
+       referrals_number_table.referrals_number_place AS referrals_number_place
 FROM (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.might DESC, %(ratings)s.account_id) AS might_place FROM %(ratings)s) as might_table
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.bills_count DESC, %(ratings)s.account_id) AS bills_count_place FROM %(ratings)s) as bills_count_table
     ON might_table.account_id=bills_count_table.account_id
@@ -120,6 +122,8 @@ JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %
     ON might_table.account_id=pvp_battles_1x1_number_table.account_id
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.pvp_battles_1x1_victories DESC, %(ratings)s.account_id) AS pvp_battles_1x1_victories_place FROM %(ratings)s) as pvp_battles_1x1_victories_table
     ON might_table.account_id=pvp_battles_1x1_victories_table.account_id
+JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.referrals_number DESC, %(ratings)s.account_id) AS referrals_number_place FROM %(ratings)s) as referrals_number_table
+    ON might_table.account_id=referrals_number_table.account_id
 '''
 
         sql_request = sql_request % {'places': RatingPlaces._meta.db_table,

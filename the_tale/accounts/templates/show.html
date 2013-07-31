@@ -9,9 +9,14 @@
 
 <script type="text/javascript">
 
-{% if resource.account.is_authenticated() and master_account.id != resource.account.id%}
-
 jQuery(document).ready(function(){
+
+    jQuery('.pgf-referral-dialog').click(function(e){
+        e.preventDefault();
+        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:referral-dialog') }}"});
+    });
+
+{% if resource.account.is_authenticated() and master_account.id != resource.account.id%}
 
     jQuery('.pgf-new-message').click(function(e){
         e.preventDefault();
@@ -39,9 +44,9 @@ jQuery(document).ready(function(){
 
 {% endif %}
 
-});
-
 {% endif %}
+
+});
 
 </script>
 {% endblock %}
@@ -87,10 +92,10 @@ jQuery(document).ready(function(){
     <tr>
       <th>герой</th>
       <th>рейтинги</th>
-      <th>форум</th>
+      <th>мир</th>
     </tr>
     <tr>
-      <td rowspan="3" width="150px">
+      <td rowspan="1" width="150px">
         <ul class="unstyled">
           <li><strong>имя:</strong> <a href="{{ url('game:heroes:show', master_hero.id) }}">{{ master_hero.name }}</a></li>
           <li><strong>пол:</strong> {{ master_hero.gender_verbose }}</li>
@@ -109,8 +114,9 @@ jQuery(document).ready(function(){
             <li><strong>сила героя:</strong> {{ rating_places.power_place }} место</li>
             <li><strong>уровень героя:</strong> {{ rating_places.level_place }} место</li>
             <li><strong>добавленные фразы:</strong> {% if rating_values.phrases_count > 0 %}{{ rating_places.phrases_count_place }} место{% else %}не участвует{% endif %}</li>
-            <li><strong>Сражений PvP:</strong> {% if rating_values.pvp_battles_1x1_number > 0 %}{{ rating_places.pvp_battles_1x1_number_place }} место{% else %}не участвует{% endif %}</li>
-            <li><strong>Побед PvP:</strong> {% if rating_values.pvp_battles_1x1_victories > 0 %}{{ rating_places.pvp_battles_1x1_victories_place }} место{% else %}не участвует{% endif %}</li>
+            <li><strong>сражений PvP:</strong> {% if rating_values.pvp_battles_1x1_number > 0 %}{{ rating_places.pvp_battles_1x1_number_place }} место{% else %}не участвует{% endif %}</li>
+            <li><strong>побед PvP:</strong> {% if rating_values.pvp_battles_1x1_victories > 0 %}{{ rating_places.pvp_battles_1x1_victories_place }} место{% else %}не участвует{% endif %}</li>
+            <li><strong>последователи:</strong> {% if rating_values.referrals_number > 0 %}{{ rating_places.referrals_number_place }} место{% else %}не участвует{% endif %}</li>
           </ul>
         {% else %}
           игрок пока не участвует в рейтингах
@@ -120,24 +126,35 @@ jQuery(document).ready(function(){
 
       <td>
         <ul class="unstyled">
-          <li><a href="{{url('forum:threads:')}}?author={{master_account.id}}">обсуждения, созданные игроком</a> (всего {{threads_count}})</li>
-          <li><a href="{{url('forum:threads:')}}?participant={{master_account.id}}">обсуждения с участием игрока</a> (всего {{threads_with_posts}})</li>
-        </ul>
-      </td>
-
-    </tr>
-    <tr>
-      <th>Мир</th>
-    </tr>
-    <tr>
-      <td>
-        <ul class="unstyled">
           <li><a href="{{ url('game:bills:') }}?owner={{master_account.id}}">законопроекты, инициированые игроком</a> (всего {{bills_count}})</li>
           <li><a href="{{ url('game:phrase-candidates:') }}?author_id={{master_account.id}}">фразы, предложенные игроком</a> (всего {{phrases_count}})</li>
           <li><a href="{{ url('blogs:posts:') }}?author_id={{master_account.id}}">произведения игрока</a> (всего {{folclor_posts_count}})</li>
         </ul>
       </td>
+
     </tr>
+    <tr>
+      <th>прочее</th>
+      <th>форум</th>
+    </tr>
+    <tr>
+      <td>
+        <ul class="unstyled">
+          <li>
+            <strong>последователи:</strong>
+            {{ master_account.referrals_number }}
+            <a href="#" class="pgf-referral-dialog" style="vertical-align: middle;"><i class="icon-info-sign"></i></a>
+          </li>
+        </ul>
+      </td>
+      <td>
+        <ul class="unstyled">
+          <li><a href="{{url('forum:threads:')}}?author={{master_account.id}}">обсуждения, созданные игроком</a> (всего {{threads_count}})</li>
+          <li><a href="{{url('forum:threads:')}}?participant={{master_account.id}}">обсуждения с участием игрока</a> (всего {{threads_with_posts}})</li>
+        </ul>
+      </td>
+    </tr>
+
   </tbody>
 </table>
 
@@ -145,8 +162,7 @@ jQuery(document).ready(function(){
   </div>
 
   <div class="row-fluid">
-    <div class="span6">
-
+    <div class="span6" style="padding-right: 1em;">
 
       <h4>Политика</h4>
 
@@ -214,7 +230,7 @@ jQuery(document).ready(function(){
                   <li style="margin: 0.5em;">
                     bb-код:<br/>
                     <code style="display: block;">
-                      [url="{{full_url('http', 'accounts:show', master_account.id)}}"]<br/>
+                      [url="{{full_url('http', 'accounts:show', master_account.id, **{accounts_settings.REFERRAL_URL_ARGUMENT: master_account.id} )}}"]<br/>
                       [img]{{informer_link}}[/img]<br/>
                       [/url]
                     </code>
@@ -222,7 +238,7 @@ jQuery(document).ready(function(){
                   <li style="margin: 0.5em;">
                     html-код:<br/>
                     <code style="display: block;">
-                      &lt;a href="{{full_url('http', 'accounts:show', master_account.id)}}"&gt;<br/>
+                      &lt;a href="{{full_url('http', 'accounts:show', master_account.id, **{accounts_settings.REFERRAL_URL_ARGUMENT: master_account.id})}}"&gt;<br/>
                       &lt;img width="{{accounts_settings.INFORMER_WIDTH}}px" height="{{accounts_settings.INFORMER_HEIGHT}}px" src="{{informer_link}}"&gt;&lt;/src&gt;<br/>
                       &lt;/a&gt;
                     </code>

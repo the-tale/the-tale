@@ -20,6 +20,8 @@ class RatingValues(models.Model):
     pvp_battles_1x1_number = models.IntegerField(default=0, db_index=True)
     pvp_battles_1x1_victories = models.FloatField(default=0.0, db_index=True)
 
+    referrals_number = models.IntegerField(default=0, db_index=True)
+
 
 class RatingPlaces(models.Model):
 
@@ -37,3 +39,5 @@ class RatingPlaces(models.Model):
 
     pvp_battles_1x1_number_place = models.BigIntegerField(db_index=True)
     pvp_battles_1x1_victories_place = models.BigIntegerField(db_index=True)
+
+    referrals_number_place = models.IntegerField(default=0, db_index=True)

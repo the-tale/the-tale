@@ -36,7 +36,7 @@ class MightCalculatorTests(testcase.TestCase):
         self.account = AccountPrototype.get_by_id(account_id)
         self.hero = HeroPrototype.get_by_account_id(account_id)
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id=self.account.id)
         self.account_2 = AccountPrototype.get_by_id(account_id)
         self.hero_2 = HeroPrototype.get_by_account_id(account_id)
 
@@ -188,7 +188,12 @@ class MightCalculatorTests(testcase.TestCase):
 
         self.assertEqual(new_might, workers_environment.might_calculator.calculate_might(self.hero))
 
-
     def test_custom_might(self):
         Award.objects.create(account=self.account._model, type=AWARD_TYPE.BUG_MINOR)
+        self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > 0)
+
+    def test_referral_custom_might(self):
+        self.hero_2.might = 666
+        self.hero_2.save()
+
         self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > 0)

@@ -52,7 +52,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
     @classmethod
     def update_referrals_number_for(cls, account_id):
-        cls._model_class.objects.filter(id=account_id).update(referrals_number=cls._model_class.objects.filter(referral_of_id=account_id).count())
+        cls._model_class.objects.filter(id=account_id).update(referrals_number=cls._model_class.objects.filter(referral_of_id=account_id, is_fast=False).count())
 
     def update_settings(self, form):
         self._model_class.objects.filter(id=self.id).update(personal_messages_subscription=form.c.personal_messages_subscription)
@@ -144,6 +144,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
     def change_credentials(self, new_email=None, new_password=None, new_nick=None):
         from game.heroes.prototypes import HeroPrototype
+        from accounts.workers.environment import workers_environment
 
         if new_password:
             self._model.password = new_password
@@ -160,6 +161,10 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
         if old_fast:
             HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
+
+            if self.referral_of_id is not None:
+                workers_environment.accounts_manager.cmd_update_referrals_number(self.referral_of_id)
+
 
 
     ###########################################

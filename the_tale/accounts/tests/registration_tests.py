@@ -24,10 +24,8 @@ class TestRegistration(testcase.TestCase):
         create_test_map()
 
     def test_successfull_result(self):
-        with mock.patch('accounts.workers.accounts_manager.Worker.cmd_update_referrals_number') as cmd_update_referrals_number:
-            result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 
-        self.assertEqual(cmd_update_referrals_number.call_count, 0)
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 
         # test result
         self.assertEqual(result, REGISTER_USER_RESULT.OK)
@@ -77,10 +75,7 @@ class TestRegistration(testcase.TestCase):
     def test_successfull_result__referral(self):
         result, owner_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 
-        with mock.patch('accounts.workers.accounts_manager.Worker.cmd_update_referrals_number') as cmd_update_referrals_number:
-            result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id=owner_id)
-
-        self.assertEqual(cmd_update_referrals_number.call_count, 1)
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id=owner_id)
 
         account = AccountPrototype.get_by_id(account_id)
 

@@ -3,6 +3,7 @@ import time
 import Queue
 
 from django.utils.log import getLogger
+from django.db import models
 
 from common.amqp_queues import BaseWorker
 
@@ -62,6 +63,8 @@ class Worker(BaseWorker):
         MIGHT_FOR_ADDED_PHRASE_CANDIDATE = 10
         MIGHT_FOR_GOOD_FOLCLOR_POST = 100
 
+        MIGHT_FROM_REFERRAL = 0.1
+
         MIGHT_FOR_AWARD = { AWARD_TYPE.BUG_MINOR: 111,
                             AWARD_TYPE.BUG_NORMAL: 222,
                             AWARD_TYPE.BUG_MAJOR: 333,
@@ -85,8 +88,12 @@ class Worker(BaseWorker):
 
         might += BlogPost.objects.filter(author_id=hero.account_id, state=BLOG_POST_STATE.ACCEPTED, votes__gt=1).count() * MIGHT_FOR_GOOD_FOLCLOR_POST
 
+        referrals_mights = HeroPrototype._model_class.objects.filter(account__referral_of=hero.account_id).aggregate(models.Sum('might'))['might__sum']
+
+        might += referrals_mights if referrals_mights else 0
+
         for award_type, might_cooficient in MIGHT_FOR_AWARD.items():
-            might += Award.objects.filter(account_id=hero.account_id, type=award_type).count() * might_cooficient
+            might += Award.objects.filter(account_id=hero.account_id, type=award_type).count() * might_cooficient * MIGHT_FROM_REFERRAL
 
         return might
 

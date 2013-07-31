@@ -6,7 +6,7 @@ from django.contrib.auth import logout as django_logout
 from django.utils.log import getLogger
 
 from dext.views import handler, validator, validate_argument
-from dext.utils.urls import UrlBuilder
+from dext.utils.urls import UrlBuilder, full_url
 
 from common.postponed_tasks import PostponedTaskPrototype
 from common.utils.resources import Resource
@@ -336,6 +336,14 @@ class AccountResource(Resource):
                               'accounts': accounts,
                               'current_page_number': page,
                               'paginator': paginator  } )
+
+    @handler('referral-dialog')
+    def referral_dialog(self):
+        return self.template('accounts/referral_dialog.html',
+                             {'account': self.account,
+                              'accounts_settings': accounts_settings,
+                              'referral_link': full_url('http', 'portal:', **{accounts_settings.REFERRAL_URL_ARGUMENT: self.account.id if self.account else None})} )
+
 
     @handler('#account', name='show', method='get')
     def show(self): # pylint: disable=R0914
