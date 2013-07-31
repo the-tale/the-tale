@@ -36,7 +36,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'ban_game_end_at',
                  'ban_forum_end_at',
                  'referer',
-                 'referer_domain')
+                 'referer_domain',
+                 'referral_of_id',
+                 'referrals_number')
     _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription')
     _get_by = ('id', 'email', 'nick')
 
@@ -47,6 +49,10 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         current_time = datetime.datetime.now()
         self._model_class.objects.filter(id=self.id).update(last_news_remind_time=current_time)
         self._model.last_news_remind_time = current_time
+
+    @classmethod
+    def update_referrals_number_for(cls, account_id):
+        cls._model_class.objects.filter(id=account_id).update(referrals_number=cls._model_class.objects.filter(referral_of_id=account_id).count())
 
     def update_settings(self, form):
         self._model_class.objects.filter(id=self.id).update(personal_messages_subscription=form.c.personal_messages_subscription)
@@ -186,7 +192,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
 
     @classmethod
-    def create(cls, nick, email, is_fast, password=None, referer=None):
+    def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None):
         referer_domain = None
         if referer:
             referer_info = urlparse(referer)
@@ -198,7 +204,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                                                                   password=password,
                                                                   active_end_at=cls._next_active_end_at(),
                                                                   referer=referer,
-                                                                  referer_domain=referer_domain))
+                                                                  referer_domain=referer_domain,
+                                                                  referral_of=referral_of._model if referral_of else None))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self._model == other._model

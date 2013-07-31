@@ -15,6 +15,7 @@ from accounts.models import Account
 from accounts.prototypes import AccountPrototype
 from accounts.exceptions  import AccountsException
 from accounts.conf import accounts_settings
+from accounts.workers.environment import workers_environment as infrastructure_workers_environment
 
 from game.heroes.prototypes import HeroPrototype
 from game.bundles import BundlePrototype
@@ -42,13 +43,15 @@ def get_system_user():
     return AccountPrototype.get_by_id(account_id)
 
 
-def register_user(nick, email=None, password=None, referer=None):
+def register_user(nick, email=None, password=None, referer=None, referral_of_id=None):
 
     if Account.objects.filter(nick=nick).exists():
         return REGISTER_USER_RESULT.DUPLICATE_USERNAME, None, None
 
     if email and Account.objects.filter(email=email).exists():
         return REGISTER_USER_RESULT.DUPLICATE_EMAIL, None, None
+
+    referral_of = AccountPrototype.get_by_id(referral_of_id)
 
     if (email and not password) or (not email and password):
         raise AccountsException('email & password must be specified or not specified together')
@@ -60,13 +63,17 @@ def register_user(nick, email=None, password=None, referer=None):
                                       email=email,
                                       is_fast=not (email and password),
                                       password=password,
-                                      referer=referer)
+                                      referer=referer,
+                                      referral_of=referral_of)
 
     bundle = BundlePrototype.create()
 
     hero = HeroPrototype.create(account=account, bundle=bundle)
     dress_new_hero(hero)
     hero.save()
+
+    if referral_of is not None:
+        infrastructure_workers_environment.accounts_manager.cmd_update_referrals_number(account.id)
 
     return REGISTER_USER_RESULT.OK, account.id, bundle.id
 

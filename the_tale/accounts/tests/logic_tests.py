@@ -22,7 +22,7 @@ class TestLogic(testcase.TestCase):
 
 
     def test_block_expired_accounts(self):
-        task = RegistrationTask(account_id=None, referer=None)
+        task = RegistrationTask(account_id=None, referer=None, referral_of_id=None)
         self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         task.account._model.created_at = datetime.datetime.fromtimestamp(0)

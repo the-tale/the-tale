@@ -62,7 +62,7 @@ class AccountAdmin(DjangoUserAdmin):
                                                     'active_end_at', 'premium_end_at',
                                                     'ban_game_end_at', 'ban_forum_end_at')}),  )
 
-    readonly_fields = list(DjangoUserAdmin.readonly_fields) + ['referer', 'referer_domain']
+    readonly_fields = list(DjangoUserAdmin.readonly_fields) + ['referer', 'referer_domain', 'referral', 'referrals_number']
 
 
 class ChangeCredentialsTaskAdmin(admin.ModelAdmin):

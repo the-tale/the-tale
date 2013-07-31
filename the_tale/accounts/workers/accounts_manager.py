@@ -77,6 +77,12 @@ class Worker(BaseWorker):
     def process_update_active_state(self, account_id):
         AccountPrototype.get_by_id(account_id).update_active_state()
 
+    def cmd_update_referrals_number(self, account_id):
+        return self.send_cmd('update_referrals_number', {'account_id': account_id})
+
+    def process_update_referrals_number(self, account_id):
+        AccountPrototype.update_referrals_number_for(account_id)
+
     def cmd_stop(self):
         return self.send_cmd('stop')
 

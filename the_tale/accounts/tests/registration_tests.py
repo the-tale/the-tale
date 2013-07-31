@@ -24,7 +24,10 @@ class TestRegistration(testcase.TestCase):
         create_test_map()
 
     def test_successfull_result(self):
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        with mock.patch('accounts.workers.accounts_manager.Worker.cmd_update_referrals_number') as cmd_update_referrals_number:
+            result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+
+        self.assertEqual(cmd_update_referrals_number.call_count, 0)
 
         # test result
         self.assertEqual(result, REGISTER_USER_RESULT.OK)
@@ -54,8 +57,12 @@ class TestRegistration(testcase.TestCase):
         self.assertTrue(hero.equipment.get(SLOTS.AMULET) is None)
         self.assertTrue(hero.equipment.get(SLOTS.RING) is None)
 
+        self.assertEqual(account.referer, None)
+        self.assertEqual(account.referer_domain, None)
+        self.assertEqual(account.referral_of_id, None)
 
-    def test_successfull_result__with_referer(self):
+
+    def test_successfull_result__referer(self):
         referer = 'http://example.com/forum/post/1/'
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111', referer=referer)
@@ -66,6 +73,25 @@ class TestRegistration(testcase.TestCase):
         self.assertEqual(account.email, 'test_user@test.com')
         self.assertEqual(account.referer, referer)
         self.assertEqual(account.referer_domain, 'example.com')
+
+    def test_successfull_result__referral(self):
+        result, owner_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+
+        with mock.patch('accounts.workers.accounts_manager.Worker.cmd_update_referrals_number') as cmd_update_referrals_number:
+            result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id=owner_id)
+
+        self.assertEqual(cmd_update_referrals_number.call_count, 1)
+
+        account = AccountPrototype.get_by_id(account_id)
+
+        self.assertEqual(account.referral_of_id, owner_id)
+
+    def test_successfull_result__wrong_referral(self):
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id=666)
+
+        account = AccountPrototype.get_by_id(account_id)
+
+        self.assertEqual(account.referral_of_id, None)
 
     def test_duplicate_nick(self):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -89,7 +115,7 @@ class TestRegistrationTask(testcase.TestCase):
     def setUp(self):
         super(TestRegistrationTask, self).setUp()
         create_test_map()
-        self.task = RegistrationTask(account_id=None, referer=None)
+        self.task = RegistrationTask(account_id=None, referer=None, referral_of_id=None)
 
     def test_create(self):
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.UNPROCESSED)
@@ -106,12 +132,20 @@ class TestRegistrationTask(testcase.TestCase):
 
     def test_process_success__with_referer(self):
         referer = 'http://example.com/forum/post/1/'
-        task = RegistrationTask(account_id=None, referer=referer)
+        task = RegistrationTask(account_id=None, referer=referer, referral_of_id=None)
         self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, REGISTRATION_TASK_STATE.PROCESSED)
         self.assertTrue(task.account)
         self.assertEqual(task.account.referer, referer)
         self.assertEqual(task.account.referer_domain, 'example.com')
+
+    def test_process_success__with_referral(self):
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        task = RegistrationTask(account_id=None, referer=None, referral_of_id=account_id)
+        self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(task.state, REGISTRATION_TASK_STATE.PROCESSED)
+        self.assertTrue(task.account)
+        self.assertEqual(task.account.referral_of_id, account_id)
 
     @mock.patch('accounts.logic.register_user', lambda *argv, **kwargs: (REGISTER_USER_RESULT.OK+1, None, None))
     def test_process_unknown_error(self):

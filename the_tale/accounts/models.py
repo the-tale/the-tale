@@ -17,7 +17,7 @@ class AccountManager(BaseUserManager):
         email = super(AccountManager, cls).normalize_email(email)
         return email if email else None
 
-    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None, referer=None, referer_domain=None):
+    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None, referer=None, referer_domain=None, referral_of=None):
 
         if not nick:
             raise ValueError('Users must have nick')
@@ -27,7 +27,8 @@ class AccountManager(BaseUserManager):
                              is_fast=is_fast,
                              active_end_at=active_end_at,
                              referer=referer,
-                             referer_domain=referer_domain)
+                             referer_domain=referer_domain,
+                             referral_of=referral_of)
         account.set_password(password)
         account.save(using=self._db)
         return account
@@ -83,6 +84,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     referer_domain = models.CharField(max_length=256, null=True, default=None, db_index=True)
     referer = models.CharField(max_length=4*1024, null=True, default=None)
+
+    referral_of = models.ForeignKey('accounts.Account', null=True, blank=True, db_index=True, default=None, on_delete=models.SET_NULL)
+    referrals_number = models.IntegerField(default=0)
 
     USERNAME_FIELD = 'nick'
     REQUIRED_FIELDS = ['email']

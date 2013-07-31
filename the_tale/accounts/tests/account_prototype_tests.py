@@ -184,3 +184,24 @@ class AccountPrototypeTests(testcase.TestCase):
 
         self.assertFalse(bank_account.is_fake)
         self.assertEqual(bank_account.amount, 10000)
+
+    def test_update_referrals_for(self):
+        register_user('fast_user_2', referral_of_id=self.account.id)
+        register_user('fast_user_3', referral_of_id=self.account.id)
+
+        AccountPrototype.update_referrals_number_for(self.account.id)
+        AccountPrototype.update_referrals_number_for(self.fast_account.id)
+
+        self.account.reload()
+        self.fast_account.reload()
+
+        self.assertEqual(self.account.referrals_number, 2)
+        self.assertEqual(self.fast_account.referrals_number, 0)
+
+    def test_referral_removing(self):
+        result, account_id, bundle_id = register_user('fast_user_2', referral_of_id=self.account.id)
+
+        self.account.remove()
+
+        # child account must not be removed
+        self.assertEqual(AccountPrototype.get_by_id(account_id).referral_of_id, None)

@@ -10,3 +10,4 @@ from accounts.tests.requests_profile_tests import *
 from accounts.tests.requests_registration_tests import *
 from accounts.tests.requests_account_tests import *
 from accounts.tests.change_credentials_task_tests import *
+from accounts.tests.middleware_tests import *
