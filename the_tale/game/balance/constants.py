@@ -59,27 +59,16 @@ EPIC_LOOT_COST = float(250)
 MAX_BAG_SIZE = int(12) # максимальный размер рюкзака героя
 BAG_SIZE_TO_SELL_LOOT_FRACTION = float(0.33) # процент заполненности рюкзака, после которого герой начнёт продавать вещи
 
-# типы трат
-
-ITEMS_OF_EXPENDITURE_PRIORITY = { e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 6,
-                                  e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 2,
-                                  e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 2,
-                                  e.ITEMS_OF_EXPENDITURE.USELESS: 1,
-                                  e.ITEMS_OF_EXPENDITURE.IMPACT: 2 }
-
 # относительные размеры различных трат
 
 # эвристический мультипликатор для нормальной цены дейсвия, учитывающий стронние доходы
 # не учтённые в формулах (доходы по заданиям и прочему)
 NORMAL_ACTION_PRICE_MULTIPLYER = float(1.2)
 
-INSTANT_HEAL_PRICE_FRACTION = float(0.3) # моментальное лечение
-BUY_ARTIFACT_PRICE_FRACTION = float(1.5) # покупка нового артефакта
-SHARPENING_ARTIFACT_PRICE_FRACTION = float(2.0) # "заточка" экипированного артефакта
-USELESS_PRICE_FRACTION = float(0.4) # безполезные траты
-IMPACT_PRICE_FRACTION = float(2.5) # изменение (+/-) влияния жителей
+BASE_EXPERIENCE_FOR_MONEY_SPEND = int(24 * EXP_PER_HOUR * 0.1)
+EXPERIENCE_DELTA_FOR_MONEY_SPEND = float(0.5)
 
-SELL_ARTIFACT_PRICE_FRACTION = float(0.1) # часть цены, за которую артефакты продаются
+SELL_ARTIFACT_PRICE_FRACTION = float(0.15) # часть дневного дохода, за которую артефакты продаются
 
 PRICE_DELTA = float(0.2) # дельта на цену PRICE * (1 + random.uniform(-0.2, 0.2))
 
@@ -168,16 +157,17 @@ ANGEL_HELP_HEAL_FRACTION = (float(0.25), float(0.5)) # (min, max) процент
 ANGEL_HELP_TELEPORT_DISTANCE = float(3.0) # расстяние на которое происходит телепорт
 ANGEL_HELP_LIGHTING_FRACTION = (float(0.25), float(0.5)) # (min, max) процент урона, который будет нанесён
 
-# доля опыта от выдаваемого за стандартное задание
 # считаем, что при эпической удачливости все использования будут давать опыт
-# и предполагаем, что можем разрешить (при такой удачливости), в день получать опыт как за два задания
-ANGEL_HELP_EXPERIENCE_FRACTION = float(2 * 1.0 / (_ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST))
+# и предполагаем, что можем разрешить (при такой удачливости), в день получать опыт как за такой же день
+ANGEL_HELP_EXPERIENCE = int(24.0 * EXP_PER_HOUR / (_ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST))
+
+ANGEL_HELP_EXPERIENCE_DELTA = float(0.5)
 
 ANGEL_HELP_CRIT_HEAL_FRACTION = (float(0.5), float(0.75)) # (min, max) процент хелсов, которые будут вылечины
 ANGEL_HELP_CRIT_TELEPORT_DISTANCE = float(9.0) # расстяние на которое происходит телепорт
 ANGEL_HELP_CRIT_LIGHTING_FRACTION = (float(0.5), float(0.75)) # (min, max) процент урона, который будет нанесён
 ANGEL_HELP_CRIT_MONEY_MULTIPLIER = int(10)
-ANGEL_HELP_CRIT_EXPERIENCE_FRACTION = float(ANGEL_HELP_EXPERIENCE_FRACTION * 3.0)
+ANGEL_HELP_CRIT_EXPERIENCE = int(ANGEL_HELP_EXPERIENCE * 3)
 
 # игровое время из расчёта 1/4 дня в полчаса (считаем среднюю сессию в 15 минут, берём х2 запас), т.е. 1 игровой день == 2 часа реального времени
 

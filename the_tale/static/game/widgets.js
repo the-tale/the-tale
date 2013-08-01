@@ -434,13 +434,15 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
                         'useless': 'на себя',
                         'artifact': 'новая экипировка',
                         'sharpening': 'улучшение экипировки',
-                        'impact': 'изменение влияния'}[data.nextSpending];
+                        'impact': 'изменение влияния',
+                        'experience': 'обучение'}[data.nextSpending];
 
         descriptionText = {'heal': 'Собирает деньги, чтобы поправить здоровье, когда понадобится.',
                            'useless': 'Копит золото для не очень полезных но безусловно необходимых трат.',
                            'artifact': 'Планирует приобретение новой экипировки.',
                            'sharpening': 'Собирает на улучшение экипировки.',
-                           'impact': 'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.'}[data.nextSpending];
+                           'impact': 'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.',
+                           'experience': 'Копит деньги на учёбу'}[data.nextSpending];
 
         var moneySpendData = {quest_type: 'next-spending',
                               quest_text:  'Накопить золото',

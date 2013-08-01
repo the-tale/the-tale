@@ -3,10 +3,12 @@ import datetime
 
 from django.db import models
 
-from game.game_info import GENDER
-from game.balance.enums import RACE
+from rels.django_staff import TableIntegerField
 
-from game.balance import enums as e
+from game.game_info import GENDER
+from game.balance.enums import RACE, ANGEL_ENERGY_REGENERATION_TYPES
+
+from game.heroes.relations import ITEMS_OF_EXPENDITURE
 
 
 class Hero(models.Model):
@@ -64,7 +66,7 @@ class Hero(models.Model):
 
     pvp = models.TextField(null=False, default='{}')
 
-    next_spending = models.IntegerField(null=False, default=e.ITEMS_OF_EXPENDITURE.USELESS, choices=e.ITEMS_OF_EXPENDITURE._CHOICES)
+    next_spending = TableIntegerField(relation=ITEMS_OF_EXPENDITURE, relation_column='value')
 
     energy = models.FloatField(null=False, default=0.0)
     last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
@@ -83,7 +85,7 @@ class Hero(models.Model):
     pos_to_y = models.IntegerField(null=True, blank=True, default=None)
 
     #character
-    pref_energy_regeneration_type = models.IntegerField(null=False, default=e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=e.ANGEL_ENERGY_REGENERATION_TYPES._CHOICES, blank=True)
+    pref_energy_regeneration_type = models.IntegerField(null=False, default=ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=ANGEL_ENERGY_REGENERATION_TYPES._CHOICES, blank=True)
     pref_energy_regeneration_type_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
     pref_mob = models.ForeignKey('mobs.MobRecord', null=True, default=None, blank=True)
@@ -115,6 +117,7 @@ class Hero(models.Model):
     stat_money_spend_for_sharpening = models.BigIntegerField(default=0, null=False)
     stat_money_spend_for_useless = models.BigIntegerField(default=0, null=False)
     stat_money_spend_for_impact = models.BigIntegerField(default=0, null=False)
+    stat_money_spend_for_experience = models.BigIntegerField(default=0, null=False)
 
     stat_artifacts_had = models.BigIntegerField(default=0, null=False)
     stat_loot_had = models.BigIntegerField(default=0, null=False)

@@ -1,13 +1,14 @@
 # coding: utf-8
-import copy
+
 from common.utils import testcase
 
 from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
 
 from game.logic import create_test_map
-from game.balance import constants as c, enums as e
+
 from game.heroes.habilities import nonbattle
+from game.heroes.relations import ITEMS_OF_EXPENDITURE
 
 
 class HabilitiesNonBattleTest(testcase.TestCase):
@@ -30,15 +31,15 @@ class HabilitiesNonBattleTest(testcase.TestCase):
         self.assertTrue(100 < nonbattle.HUCKSTER().update_sell_price(self.hero, 100))
 
     def test_dandy(self):
-        priorities = copy.deepcopy(c.ITEMS_OF_EXPENDITURE_PRIORITY)
+        priorities = {record:record.priority for record in ITEMS_OF_EXPENDITURE._records}
         priorities = nonbattle.DANDY().update_items_of_expenditure_priorities(self.hero, priorities)
 
-        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY[e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL], priorities[e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL])
-        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY[e.ITEMS_OF_EXPENDITURE.USELESS], priorities[e.ITEMS_OF_EXPENDITURE.USELESS])
-        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY[e.ITEMS_OF_EXPENDITURE.IMPACT], priorities[e.ITEMS_OF_EXPENDITURE.IMPACT])
+        self.assertEqual(ITEMS_OF_EXPENDITURE.INSTANT_HEAL.priority, priorities[ITEMS_OF_EXPENDITURE.INSTANT_HEAL])
+        self.assertEqual(ITEMS_OF_EXPENDITURE.USELESS.priority, priorities[ITEMS_OF_EXPENDITURE.USELESS])
+        self.assertEqual(ITEMS_OF_EXPENDITURE.IMPACT.priority, priorities[ITEMS_OF_EXPENDITURE.IMPACT])
 
-        self.assertTrue(c.ITEMS_OF_EXPENDITURE_PRIORITY[e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT] < priorities[e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT])
-        self.assertTrue(c.ITEMS_OF_EXPENDITURE_PRIORITY[e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT] < priorities[e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT])
+        self.assertTrue(ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT.priority < priorities[ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT])
+        self.assertTrue(ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT.priority < priorities[ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT])
 
     def test_businessman(self):
         self.assertFalse(any(self.hero.can_get_artifact_for_quest() for i in xrange(200)))

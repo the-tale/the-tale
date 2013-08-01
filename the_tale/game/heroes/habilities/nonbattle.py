@@ -1,10 +1,10 @@
 # coding: utf-8
 import random
 
-from game.balance import enums as e
 from game.game_info import ATTRIBUTES
 from game.heroes.habilities.prototypes import AbilityPrototype
 from game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
+from game.heroes.relations import ITEMS_OF_EXPENDITURE
 
 
 class CHARISMA(AbilityPrototype):
@@ -69,8 +69,8 @@ class DANDY(AbilityPrototype):
     def priority_multiplier(self): return self.PRIORITY_MULTIPLIER[self.level-1]
 
     def update_items_of_expenditure_priorities(self, hero, priorities):
-        priorities[e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT] *= self.priority_multiplier
-        priorities[e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT] *= self.priority_multiplier
+        priorities[ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT] *= self.priority_multiplier
+        priorities[ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT] *= self.priority_multiplier
         return priorities
 
 

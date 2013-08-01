@@ -14,6 +14,7 @@ class MONEY_SOURCE:
     SPEND_FOR_SHARPENING = 1002
     SPEND_FOR_USELESS = 1003
     SPEND_FOR_IMPACT = 1004
+    SPEND_FOR_EXPERIENCE = 1005
 
 
 class HeroStatistics(object):
@@ -60,6 +61,8 @@ class HeroStatistics(object):
             self.hero_model.stat_money_spend_for_useless += value
         elif source == MONEY_SOURCE.SPEND_FOR_IMPACT:
             self.hero_model.stat_money_spend_for_impact += value
+        elif source == MONEY_SOURCE.SPEND_FOR_EXPERIENCE:
+            self.hero_model.stat_money_spend_for_experience += value
 
         else:
             raise HeroException('unknown money source: %s' % source)
@@ -76,7 +79,8 @@ class HeroStatistics(object):
                                    self.money_spend_for_impact +
                                    self.money_spend_for_useless +
                                    self.money_spend_for_artifacts +
-                                   self.money_spend_for_sharpening)
+                                   self.money_spend_for_sharpening +
+                                   self.money_spend_for_experience)
 
     @property
     def money_earned_from_loot(self): return self.hero_model.stat_money_earned_from_loot
@@ -105,6 +109,9 @@ class HeroStatistics(object):
 
     @property
     def money_spend_for_impact(self): return self.hero_model.stat_money_spend_for_impact
+
+    @property
+    def money_spend_for_experience(self): return self.hero_model.stat_money_spend_for_experience
 
     #########################################
     # different values
@@ -153,6 +160,7 @@ class HeroStatistics(object):
                  self.money_spend_for_sharpening == other.money_spend_for_sharpening and
                  self.money_spend_for_useless == other.money_spend_for_useless and
                  self.money_spend_for_impact == other.money_spend_for_impact and
+                 self.money_spend_for_experience == other.money_spend_for_experience and
                  self.artifacts_had == other.artifacts_had and
                  self.loot_had == other.loot_had and
                  self.quests_done == other.quests_done )

@@ -44,12 +44,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.RARE_LOOT_COST, 25.0)
         self.assertEqual(c.EPIC_LOOT_COST, 250.0)
         self.assertEqual(c.NORMAL_ACTION_PRICE_MULTIPLYER, 1.2)
-        self.assertEqual(c.INSTANT_HEAL_PRICE_FRACTION, 0.3)
-        self.assertEqual(c.BUY_ARTIFACT_PRICE_FRACTION, 1.5)
-        self.assertEqual(c.SHARPENING_ARTIFACT_PRICE_FRACTION, 2.0)
-        self.assertEqual(c.USELESS_PRICE_FRACTION, 0.4)
-        self.assertEqual(c.IMPACT_PRICE_FRACTION, 2.5)
-        self.assertEqual(c.SELL_ARTIFACT_PRICE_FRACTION, 0.1)
+        self.assertEqual(c.BASE_EXPERIENCE_FOR_MONEY_SPEND, 24)
+        self.assertEqual(c.EXPERIENCE_DELTA_FOR_MONEY_SPEND, 0.5)
+
+        self.assertEqual(c.SELL_ARTIFACT_PRICE_FRACTION, 0.15)
         self.assertEqual(c.PRICE_DELTA, 0.2)
         self.assertEqual(c.POWER_TO_LVL, 11.0)
         self.assertEqual(c.ARTIFACT_POWER_DELTA, 0.2)
@@ -65,12 +63,6 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.MAX_BAG_SIZE, 12)
         self.assertEqual(c.BAG_SIZE_TO_SELL_LOOT_FRACTION, 0.33)
-
-        self.assertEqual(c.ITEMS_OF_EXPENDITURE_PRIORITY, { e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 6,
-                                                            e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 2,
-                                                            e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 2,
-                                                            e.ITEMS_OF_EXPENDITURE.USELESS: 1,
-                                                            e.ITEMS_OF_EXPENDITURE.IMPACT: 2 } )
 
         self.assertEqual(c.DESTINY_POINT_IN_LEVELS, 5)
 
@@ -97,13 +89,15 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ANGEL_HELP_HEAL_FRACTION,  (float(0.25), float(0.5)))
         self.assertEqual(c.ANGEL_HELP_TELEPORT_DISTANCE, float(3.0))
         self.assertEqual(c.ANGEL_HELP_LIGHTING_FRACTION, (float(0.25), float(0.5)))
-        self.assertEqual(round(c.ANGEL_HELP_EXPERIENCE_FRACTION, 2), float(0.17))
+        self.assertEqual(c.ANGEL_HELP_EXPERIENCE, 20)
+
+        self.assertEqual(c.ANGEL_HELP_EXPERIENCE_DELTA, 0.5)
 
         self.assertEqual(c.ANGEL_HELP_CRIT_HEAL_FRACTION,  (float(0.5), float(0.75)))
         self.assertEqual(c.ANGEL_HELP_CRIT_TELEPORT_DISTANCE, float(9.0))
         self.assertEqual(c.ANGEL_HELP_CRIT_LIGHTING_FRACTION, (float(0.5), float(0.75)))
         self.assertEqual(c.ANGEL_HELP_CRIT_MONEY_MULTIPLIER, int(10))
-        self.assertEqual(c.ANGEL_HELP_CRIT_EXPERIENCE_FRACTION, float(0.5))
+        self.assertEqual(c.ANGEL_HELP_CRIT_EXPERIENCE, 60)
 
 
         self.assertEqual(c.GAME_SECONDS_IN_GAME_MINUTE, 60)

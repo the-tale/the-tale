@@ -167,7 +167,6 @@ class AbilitiesPrototype(object):
         return money
 
     def update_items_of_expenditure_priorities(self, hero, priorities):
-        priorities = copy.deepcopy(priorities)
         for ability in self.abilities.values():
             priorities = ability.update_items_of_expenditure_priorities(hero, priorities)
         return priorities

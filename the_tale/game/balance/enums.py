@@ -14,12 +14,6 @@ RACE_MULTIPLE_VERBOSE = {RACE.HUMAN: u'люди',
                          RACE.GOBLIN: u'гоблины',
                          RACE.DWARF: u'дварфы'}
 
-ITEMS_OF_EXPENDITURE = create_enum('ITEMS_OF_EXPENDITURE',
-                                   ( ('INSTANT_HEAL', 0, u'лечение'),
-                                     ('BUYING_ARTIFACT', 1, u'покупка артефакта'),
-                                     ('SHARPENING_ARTIFACT', 2, u'заточка артефакта'),
-                                     ('USELESS', 3, u'бесполезные траты'),
-                                     ('IMPACT', 4, u'изменение влияния'), ) )
 
 ANGEL_ENERGY_REGENERATION_TYPES = create_enum('ANGEL_ENERGY_REGENERATION_TYPES',
                                               ( ('PRAY', 0, u'молитва'),

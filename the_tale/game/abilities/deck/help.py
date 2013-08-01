@@ -9,8 +9,6 @@ from game.balance import constants as c, formulas as f
 
 from game.pvp.prototypes import Battle1x1Prototype
 
-from game.map.roads.storage import waymarks_storage
-
 
 class Help(AbilityPrototype):
 
@@ -72,10 +70,10 @@ class Help(AbilityPrototype):
     def use_experience(self, action, hero, critical): # pylint: disable=W0613
 
         if critical:
-            experience = int(f.experience_for_quest(waymarks_storage.average_path_length) * c.ANGEL_HELP_CRIT_EXPERIENCE_FRACTION + 1)
+            experience = int(c.ANGEL_HELP_CRIT_EXPERIENCE * (1 + random.uniform(-c.ANGEL_HELP_EXPERIENCE_DELTA, c.ANGEL_HELP_EXPERIENCE_DELTA))+ 1)
             hero.add_message('angel_ability_experience_crit', hero=hero, experience=experience)
         else:
-            experience = int(f.experience_for_quest(waymarks_storage.average_path_length) * c.ANGEL_HELP_EXPERIENCE_FRACTION + 1)
+            experience = int(c.ANGEL_HELP_EXPERIENCE * (1 + random.uniform(-c.ANGEL_HELP_EXPERIENCE_DELTA, c.ANGEL_HELP_EXPERIENCE_DELTA))+ 1)
             hero.add_message('angel_ability_experience', hero=hero, experience=experience)
 
         hero.add_experience(experience)

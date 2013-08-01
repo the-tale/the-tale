@@ -867,24 +867,29 @@ class ActionInPlacePrototype(ActionBase):
     def process(self):
         return self.process_settlement()
 
-    def try_to_spend_money(self, gold_amount, money_source):
+    @staticmethod
+    def get_spend_amount(level, spending):
+        return f.normal_action_price(level) * spending.price_fraction
+
+    def try_to_spend_money(self):
+        gold_amount = self.get_spend_amount(self.hero.level, self.hero.next_spending)
         if gold_amount <= self.hero.money:
             gold_amount = min(self.hero.money, int(gold_amount * (1 + random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA))))
             gold_amount = self.hero.modify_buy_price(gold_amount)
-            self.hero.change_money(money_source, -gold_amount)
+            self.hero.change_money(self.hero.next_spending.money_source, -gold_amount)
             self.hero.switch_spending()
             return gold_amount
 
         return None
 
     def spend_money__instant_heal(self):
-        coins = self.try_to_spend_money(f.instant_heal_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_HEAL)
+        coins = self.try_to_spend_money()
         if coins is not None:
             self.hero.health = self.hero.max_health
             self.hero.add_message('action_inplace_diary_instant_heal_for_money', diary=True, hero=self.hero, coins=coins)
 
     def spend_money__buying_artifact(self):
-        coins = self.try_to_spend_money(f.buy_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_ARTIFACTS)
+        coins = self.try_to_spend_money()
         if coins is not None:
 
             better = self.hero.can_buy_better_artifact()
@@ -898,19 +903,19 @@ class ActionInPlacePrototype(ActionBase):
                 self.hero.add_message('action_inplace_diary_buying_artifact', diary=True, hero=self.hero, coins=coins, artifact=artifact)
 
     def spend_money__sharpening_artifact(self):
-        coins = self.try_to_spend_money(f.sharpening_artifact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_SHARPENING)
+        coins = self.try_to_spend_money()
         if coins is not None:
             artifact = self.hero.sharp_artifact()
 
             self.hero.add_message('action_inplace_diary_sharpening_artifact', diary=True, hero=self.hero, coins=coins, artifact=artifact)
 
     def spend_money__useless(self):
-        coins = self.try_to_spend_money(f.useless_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_USELESS)
+        coins = self.try_to_spend_money()
         if coins is not None:
             self.hero.add_message('action_inplace_diary_spend_useless', diary=True, hero=self.hero, coins=coins)
 
-    def spend_money_impact(self):
-        coins = self.try_to_spend_money(f.impact_price(self.hero.level), MONEY_SOURCE.SPEND_FOR_IMPACT)
+    def spend_money__impact(self):
+        coins = self.try_to_spend_money()
         if coins is not None:
 
             choices = []
@@ -933,22 +938,33 @@ class ActionInPlacePrototype(ActionBase):
                 person.cmd_change_power(f.person_power_from_random_spend(-1, self.hero.level))
                 self.hero.add_message('action_inplace_diary_impact_bad', diary=True, hero=self.hero, coins=coins, person=person)
 
+    def spend_money__experience(self):
+        coins = self.try_to_spend_money()
+
+        if coins is not None:
+            experience = int(c.BASE_EXPERIENCE_FOR_MONEY_SPEND * (1.0 + random.uniform(-c.EXPERIENCE_DELTA_FOR_MONEY_SPEND, c.EXPERIENCE_DELTA_FOR_MONEY_SPEND)) + 1)
+            self.hero.add_experience(experience)
+            self.hero.add_message('action_inplace_diary_experience', diary=True, hero=self.hero, coins=coins, experience=experience)
+
     def spend_money(self):
 
-        if self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
+        if self.hero.next_spending._is_INSTANT_HEAL:
             self.spend_money__instant_heal()
 
-        elif self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+        elif self.hero.next_spending._is_BUYING_ARTIFACT:
             self.spend_money__buying_artifact()
 
-        elif self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
+        elif self.hero.next_spending._is_SHARPENING_ARTIFACT:
             self.spend_money__sharpening_artifact()
 
-        elif self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.USELESS:
+        elif self.hero.next_spending._is_USELESS:
             self.spend_money__useless()
 
-        elif self.hero.next_spending == e.ITEMS_OF_EXPENDITURE.IMPACT:
-            self.spend_money_impact()
+        elif self.hero.next_spending._is_IMPACT:
+            self.spend_money__impact()
+
+        elif self.hero.next_spending._is_EXPERIENCE:
+            self.spend_money__experience()
 
         else:
             raise ActionException('wrong hero money spend type: %d' % self.hero.next_spending)

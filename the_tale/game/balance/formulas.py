@@ -118,17 +118,12 @@ def total_gold_at_lvl(lvl): return int(sum(expected_gold_at_lvl(x) for x in xran
 # выбираем второй вараинт, как более управляемый
 
 def normal_action_price(lvl): return int(expected_gold_in_day(lvl) * c.NORMAL_ACTION_PRICE_MULTIPLYER)
-def instant_heal_price(lvl): return int(normal_action_price(lvl) * c.INSTANT_HEAL_PRICE_FRACTION)
-def buy_artifact_price(lvl): return int(normal_action_price(lvl) * c.BUY_ARTIFACT_PRICE_FRACTION)
-def sharpening_artifact_price(lvl): return int(normal_action_price(lvl) * c.SHARPENING_ARTIFACT_PRICE_FRACTION)
-def useless_price(lvl): return int(normal_action_price(lvl) * c.USELESS_PRICE_FRACTION)
-def impact_price(lvl): return int(normal_action_price(lvl) * c.IMPACT_PRICE_FRACTION)
 
 # +1 top power - to prevent total zero power -> zero lvl
 # +1 to slots - to emulate heroe's clean power
 def sell_artifact_price(lvl):
     # lvl = int(math.ceil(expected_lvl_from_power((power+1)*c.EQUIP_SLOTS_NUMBER)))
-    return int(buy_artifact_price(lvl) * c.SELL_ARTIFACT_PRICE_FRACTION)
+    return int(expected_gold_in_day(lvl) * c.SELL_ARTIFACT_PRICE_FRACTION)
 
 # задания (квесты)
 #  - игрок всегда должен получать полезную/интересную награду за выполнение задания

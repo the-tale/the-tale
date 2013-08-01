@@ -19,7 +19,7 @@ from game.map.roads.storage import roads_storage
 from game.game_info import GENDER, ATTRIBUTES, RACE_TO_ENERGY_REGENERATION_TYPE
 
 from game.balance.enums import RACE
-from game.balance import constants as c, formulas as f, enums as e
+from game.balance import constants as c, formulas as f
 
 from game import names
 
@@ -44,6 +44,7 @@ from game.heroes.logic import ValuesDict
 from game.heroes.pvp import PvPData
 from game.heroes.messages import MessagesContainer
 from game.heroes.places_help_statistics import PlacesHelpStatistics
+from game.heroes.relations import ITEMS_OF_EXPENDITURE
 
 
 class HeroPrototype(BasePrototype):
@@ -441,7 +442,8 @@ class HeroPrototype(BasePrototype):
     normalized_name = property(get_normalized_name, set_normalized_name)
 
     def switch_spending(self):
-        priorities = self.abilities.update_items_of_expenditure_priorities(self, c.ITEMS_OF_EXPENDITURE_PRIORITY)
+        priorities = {record:record.priority for record in ITEMS_OF_EXPENDITURE._records}
+        priorities = self.abilities.update_items_of_expenditure_priorities(self, priorities)
         self._model.next_spending = random_value_by_priority(list(priorities.items()))
 
     @property
@@ -713,11 +715,7 @@ class HeroPrototype(BasePrototype):
                 'can_repair_building': self.can_repair_building,
                 'energy': { 'max': self.energy_maximum,
                             'value': self.energy },
-                'next_spending': { e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL: 'heal',
-                                   e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT: 'artifact',
-                                   e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT: 'sharpening',
-                                   e.ITEMS_OF_EXPENDITURE.USELESS: 'useless',
-                                   e.ITEMS_OF_EXPENDITURE.IMPACT: 'impact'}[self.next_spending],
+                'next_spending': self.next_spending.ui_id,
                 'action': self.actions.current_action.ui_info(),
                 'pvp': self.pvp.ui_info() if not for_last_turn else self.pvp.turn_ui_info(),
                 'base': { 'name': self.name,
@@ -807,6 +805,7 @@ class HeroPrototype(BasePrototype):
                                    messages=s11n.to_json(messages.serialize()),
                                    diary=s11n.to_json(diary.serialize()),
                                    name=name,
+                                   next_spending=ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
                                    health=f.hp_on_lvl(1),
                                    energy=c.ANGEL_ENERGY_MAX,
                                    pos_place = start_place._model)

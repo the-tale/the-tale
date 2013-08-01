@@ -142,9 +142,8 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.action_inplace = ActionInPlacePrototype.create(hero=self.hero)
 
 
-    def tearDown(self):
-        pass
-
+    def _current_spending_cost(self):
+        return ActionInPlacePrototype.get_spend_amount(self.hero.level, self.hero.next_spending)
 
     def test_no_money(self):
 
@@ -156,15 +155,15 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
 
     def test_instant_heal(self):
-        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.INSTANT_HEAL:
+        while not self.hero.next_spending._is_INSTANT_HEAL:
             self.hero.switch_spending()
 
-        money = f.instant_heal_price(self.hero.level)
+        money = self._current_spending_cost()
 
         self.hero._model.money = money
         self.hero.health = 1
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < f.instant_heal_price(self.hero.level) * c.PRICE_DELTA + 1)
+        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
         self.assertEqual(self.hero.health, self.hero.max_health)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
@@ -172,10 +171,10 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_bying_artifact_with_hero_preferences(self):
-        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+        while not self.hero.next_spending._is_BUYING_ARTIFACT:
             self.hero.switch_spending()
 
-        money = f.buy_artifact_price(self.hero.level)
+        money = self._current_spending_cost()
 
         self.assertEqual(self.hero.statistics.money_spend, 0)
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
@@ -189,7 +188,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         #buy artifact
         self.hero._model.money = money
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < f.buy_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
+        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
         self.assertEqual(len(self.hero.bag.items()), 0)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
@@ -202,10 +201,10 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
 
     def test_bying_artifact_without_change(self):
-        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+        while not self.hero.next_spending._is_BUYING_ARTIFACT:
             self.hero.switch_spending()
 
-        money = f.buy_artifact_price(self.hero.level)
+        money = self._current_spending_cost()
 
         self.assertEqual(self.hero.statistics.money_spend, 0)
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
@@ -219,7 +218,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.hero._model.money = money
 
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < f.buy_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
+        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
         self.assertEqual(len(self.hero.bag.items()), 0)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
@@ -228,13 +227,13 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_bying_artifact_with_change(self):
-        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT:
+        while not self.hero.next_spending._is_BUYING_ARTIFACT:
             self.hero.switch_spending()
 
         # fill all slots with artifacts
         self.hero.equipment.test_equip_in_all_slots(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level))
 
-        money = f.buy_artifact_price(self.hero.level)
+        money = self._current_spending_cost()
 
         #buy artifact
         self.hero._model.money = money
@@ -254,16 +253,16 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_sharpening_artifact(self):
-        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
+        while not self.hero.next_spending._is_SHARPENING_ARTIFACT:
             self.hero.switch_spending()
 
-        money = f.sharpening_artifact_price(self.hero.level)
+        money = self._current_spending_cost()
 
         old_power = self.hero.power
 
         self.hero._model.money = money
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < f.sharpening_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
+        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
         self.assertEqual(old_power + 1, self.hero.power)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
@@ -271,20 +270,20 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_sharpening_artifact_with_hero_preferences(self):
-        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT:
+        while not self.hero.next_spending._is_SHARPENING_ARTIFACT:
             self.hero.switch_spending()
 
         self.hero.preferences.equipment_slot = SLOTS.PLATE
         self.hero.save()
 
-        money = f.sharpening_artifact_price(self.hero.level)
+        money = self._current_spending_cost()
 
         old_power = self.hero.power
         old_plate_power = self.hero.equipment.get(SLOTS.PLATE).power
 
         self.hero._model.money = money
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < f.sharpening_artifact_price(self.hero.level) * c.PRICE_DELTA + 1)
+        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
         self.assertEqual(old_power + 1, self.hero.power)
         self.assertEqual(old_plate_power + 1, self.hero.equipment.get(SLOTS.PLATE).power)
 
@@ -292,15 +291,14 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)
         self.storage._test_save()
 
-
     def test_useless(self):
-        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.USELESS:
+        while not self.hero.next_spending._is_USELESS:
             self.hero.switch_spending()
 
-        money = f.useless_price(self.hero.level)
+        money = self._current_spending_cost()
         self.hero._model.money = money
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < f.useless_price(self.hero.level) * c.PRICE_DELTA + 1)
+        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_useless, money - self.hero.money)
@@ -308,14 +306,27 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
 
     def test_impact(self):
-        while self.hero.next_spending != e.ITEMS_OF_EXPENDITURE.IMPACT:
+        while not self.hero.next_spending._is_IMPACT:
             self.hero.switch_spending()
 
-        money = f.impact_price(self.hero.level)
+        money = self._current_spending_cost()
         self.hero._model.money = money
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < f.impact_price(self.hero.level) * c.PRICE_DELTA + 1)
+        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_impact, money - self.hero.money)
+        self.storage._test_save()
+
+    def test_experience(self):
+        while not self.hero.next_spending._is_EXPERIENCE:
+            self.hero.switch_spending()
+
+        money = self._current_spending_cost()
+        self.hero._model.money = money
+        self.storage.process_turn()
+        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+
+        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.money_spend_for_experience, money - self.hero.money)
         self.storage._test_save()
