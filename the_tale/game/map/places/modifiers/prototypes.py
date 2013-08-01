@@ -11,7 +11,7 @@ from common.utils.enum import create_enum
 from game.persons.relations import PROFESSION_TO_CITY_MODIFIERS
 
 
-EFFECT_SOURCES = create_enum('EFFECT_SOURCES', (('PERSON', 0, u'персонаж'),))
+EFFECT_SOURCES = create_enum('EFFECT_SOURCES', (('PERSON', 0, u'житель'),))
 
 def _get_profession_effects(type_):
     return dict( (profession_id, modifiers[type_]) for profession_id, modifiers in PROFESSION_TO_CITY_MODIFIERS.items())
@@ -53,8 +53,8 @@ class PlaceModifierBase(object):
     def size_modifier(self):
         u'''
         методика расчёта:
-        в городе 7-ого уровня 2 персонажа со способностями 0.7 и влиянием 0.35 каждый в сумме должны накапливать 75 очков
-        2*7*0.35*0.7 ~ 3.43 с модификатором силы персонажа - 34.3 -> на 7-ом уровне можификатор от размера должен быть примерно 2.2
+        в городе 7-ого уровня 2 жителя со способностями 0.7 и влиянием 0.35 каждый в сумме должны накапливать 75 очков
+        2*7*0.35*0.7 ~ 3.43 с модификатором силы жителя - 34.3 -> на 7-ом уровне можификатор от размера должен быть примерно 2.2
         '''
         return (math.log(self.place.size, 2) + 1) / 1.7
 

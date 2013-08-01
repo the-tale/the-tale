@@ -46,7 +46,7 @@
 </table>
 
 <p>
-  Списки героев, выбравших город родным или сотрудничающих/враждующих с одним из его влиятельных жителей. Отображаются только герои, оказывающие влияние на город или персонажей.
+  Списки героев, выбравших город родным или сотрудничающих/враждующих с одним из его влиятельных жителей. Отображаются только герои, оказывающие влияние на город или его жителей.
 </p>
 
 <div class="accordion" id="pgf-place-heroes-accordion">
@@ -68,7 +68,7 @@
     <div id="pgf-place-{{place.id}}" class="accordion-body collapse" style="height: 0px;">
       <div class="accordion-inner">
         {% if not city_heroes %}
-        <p class="pgf-no-heroes-message">Ни один из активных персонажей не выбрал этот город родным</p>
+        <p class="pgf-no-heroes-message">Ни один из активных героев не выбрал этот город родным</p>
         {% else %}
 
         <table class="table table-condensed">
@@ -120,7 +120,7 @@
     <div id="pgf-person-{{person.id}}" class="accordion-body collapse" style="height: 0px;">
       <div class="accordion-inner">
         {% if not persons_heroes[person.id] %}
-        <p class="pgf-no-heroes-message">У этого персонажа нет друзей или врагов среди активных героев</p>
+        <p class="pgf-no-heroes-message">У этого жителя нет друзей или врагов среди активных героев</p>
         {% else %}
 
         <table class="table table-condensed">

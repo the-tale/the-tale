@@ -16,7 +16,7 @@ from game.bills.bills.base_person_bill import BasePersonBill
 
 class UserForm(BaseUserForm):
 
-    person = fields.ChoiceField(label=u'Персонаж')
+    person = fields.ChoiceField(label=u'Житель')
     new_name = fields.CharField(label=u'Новое название')
 
     def __init__(self, choosen_person_id, *args, **kwargs): # pylint: disable=W0613
@@ -44,7 +44,7 @@ class BuildingRenaming(BasePersonBill):
     SHOW_TEMPLATE = 'bills/bills/building_renaming_show.html'
 
     CAPTION = u'Переименование постройки'
-    DESCRIPTION = u'Изменяет название постройки, принадлежащей выбранному персонажу.'
+    DESCRIPTION = u'Изменяет название постройки, принадлежащей выбранному горожанину.'
 
     def __init__(self, old_building_name_forms=None, new_building_name_forms=None, **kwargs):
         super(BuildingRenaming, self).__init__(**kwargs)

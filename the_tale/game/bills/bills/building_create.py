@@ -17,7 +17,7 @@ from game.bills.bills.base_person_bill import BasePersonBill
 
 class UserForm(BaseUserForm):
 
-    person = fields.ChoiceField(label=u'Персонаж')
+    person = fields.ChoiceField(label=u'Житель')
     name = fields.CharField(label=u'Название')
 
     def __init__(self, choosen_person_id, *args, **kwargs):  # pylint: disable=W0613
@@ -42,7 +42,7 @@ class BuildingCreate(BasePersonBill):
 
     CAPTION = u'Возведение постройки'
     # TODO: remove hardcoded url
-    DESCRIPTION = u'Возводит здание, принадлежащее выбранному персонажу (и соответствующее его профессии). Один персонаж может иметь только одну постройку. Помните, что для поддержания работы здания потребуется участие игроков, иначе оно обветшает и разрушится. О типах зданий можно узнать в <a href="/guide/persons">Путеводителе</a>.'
+    DESCRIPTION = u'Возводит здание, принадлежащее выбранному горожанину (и соответствующее его профессии). Один житель города может иметь только одну постройку. Помните, что для поддержания работы здания потребуется участие игроков, иначе оно обветшает и разрушится. О типах зданий можно узнать в <a href="/guide/persons">Путеводителе</a>.'
 
     def __init__(self, base_name=None, building_name_forms=None, **kwargs):
         super(BuildingCreate, self).__init__(**kwargs)

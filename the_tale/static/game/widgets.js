@@ -198,7 +198,7 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.PERSON) {
         nameElement.text(data.name);
 
-        popoverTitle = 'персонаж';
+        popoverTitle = 'Горожанин';
 
         var place = widgets.mapManager.GetPlaceData(data.place_id);
         var race = pgf.game.constants.RACE_TO_TEXT[data.race];
@@ -440,7 +440,7 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
                            'useless': 'Копит золото для не очень полезных но безусловно необходимых трат.',
                            'artifact': 'Планирует приобретение новой экипировки.',
                            'sharpening': 'Собирает на улучшение экипировки.',
-                           'impact': 'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» персонажа.'}[data.nextSpending];
+                           'impact': 'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.'}[data.nextSpending];
 
         var moneySpendData = {quest_type: 'next-spending',
                               quest_text:  'Накопить золото',

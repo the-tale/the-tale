@@ -14,7 +14,7 @@ from game.bills.bills.base_person_bill import BasePersonBill
 
 class UserForm(BaseUserForm):
 
-    person = fields.ChoiceField(label=u'Персонаж')
+    person = fields.ChoiceField(label=u'Житель')
 
     def __init__(self, choosen_person_id, *args, **kwargs): # pylint: disable=W0613
         super(UserForm, self).__init__(*args, **kwargs)
@@ -41,7 +41,7 @@ class BuildingDestroy(BasePersonBill):
     SHOW_TEMPLATE = 'bills/bills/building_destroy_show.html'
 
     CAPTION = u'Разрушение постройки'
-    DESCRIPTION = u'Разрушает здание, принадлежащее выбранному персонажу.'
+    DESCRIPTION = u'Разрушает здание, принадлежащее выбранному жителю.'
 
     def __init__(self, building_name_forms=None, **kwargs):
         super(BuildingDestroy, self).__init__(**kwargs)
