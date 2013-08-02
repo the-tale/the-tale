@@ -7,8 +7,8 @@ class Message(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    recipient = models.ForeignKey('accounts.Account', null=False, related_name='+')
-    sender = models.ForeignKey('accounts.Account', null=False, related_name='+')
+    recipient = models.ForeignKey('accounts.Account', null=False, related_name='+', on_delete=models.CASCADE)
+    sender = models.ForeignKey('accounts.Account', null=False, related_name='+', on_delete=models.CASCADE)
 
     text = models.TextField(null=False, blank=True, default='')
 

@@ -15,7 +15,7 @@ class MobRecord(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now=True, null=False)
 
-    editor = models.ForeignKey('accounts.Account', null=True, related_name='+')
+    editor = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
 
     state = models.IntegerField(null=False, default=MOB_RECORD_STATE.DISABLED, choices=MOB_RECORD_STATE._CHOICES)
 

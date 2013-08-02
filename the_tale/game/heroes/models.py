@@ -20,7 +20,7 @@ class Hero(models.Model):
 
     saved_at = models.DateTimeField(auto_now=True, default=datetime.datetime.fromtimestamp(0))
 
-    account = models.ForeignKey('accounts.Account', related_name='heroes', default=None, null=True, blank=True)
+    account = models.ForeignKey('accounts.Account', related_name='heroes', default=None, null=True, blank=True, on_delete=models.CASCADE)
 
     is_fast = models.BooleanField(default=True, db_index=True) # copy from account.is_fast
 
@@ -75,8 +75,8 @@ class Hero(models.Model):
     might_updated_time = models.DateTimeField(auto_now_add=True, db_index=True, default=datetime.datetime(2000, 1, 1))
 
     #position
-    pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True)
-    pos_road = models.ForeignKey('roads.Road', related_name='+', null=True, default=None, blank=True)
+    pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)
+    pos_road = models.ForeignKey('roads.Road', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)
     pos_percents = models.FloatField(null=True, default=None, blank=True)
     pos_invert_direction = models.NullBooleanField(default=False, null=True, blank=True)
     pos_from_x = models.IntegerField(null=True, blank=True, default=None)
@@ -88,16 +88,16 @@ class Hero(models.Model):
     pref_energy_regeneration_type = models.IntegerField(null=False, default=ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=ANGEL_ENERGY_REGENERATION_TYPES._CHOICES, blank=True)
     pref_energy_regeneration_type_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
-    pref_mob = models.ForeignKey('mobs.MobRecord', null=True, default=None, blank=True)
+    pref_mob = models.ForeignKey('mobs.MobRecord', null=True, default=None, blank=True, on_delete=models.PROTECT)
     pref_mob_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
-    pref_place = models.ForeignKey('places.Place', null=True, default=None, related_name='+', blank=True)
+    pref_place = models.ForeignKey('places.Place', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
     pref_place_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
-    pref_friend = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True)
+    pref_friend = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
     pref_friend_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
-    pref_enemy = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True)
+    pref_enemy = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
     pref_enemy_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
 
     pref_equipment_slot = models.CharField(max_length=16, null=True, default=None, blank=True)

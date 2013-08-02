@@ -16,13 +16,13 @@ class Quest(models.Model):
 
 
 class QuestsHeroes(models.Model):
-    hero = models.ForeignKey('heroes.Hero', related_name='+', null=False)
-    quest = models.ForeignKey(Quest, related_name='+', null=False)
+    hero = models.ForeignKey('heroes.Hero', related_name='+', null=False, on_delete=models.CASCADE)
+    quest = models.ForeignKey(Quest, related_name='+', null=False, on_delete=models.CASCADE)
 
 
 class QuestChoice(models.Model):
 
-    quest = models.ForeignKey(Quest, related_name='choices')
+    quest = models.ForeignKey(Quest, related_name='choices', on_delete=models.CASCADE)
 
     choice_point = models.CharField(max_length=32)
 

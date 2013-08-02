@@ -1,9 +1,11 @@
+# coding: utf-8
+
 from django.db import models
 
 class Road(models.Model):
 
-    point_1 = models.ForeignKey('places.Place', related_name='+')
-    point_2 = models.ForeignKey('places.Place', related_name='+')
+    point_1 = models.ForeignKey('places.Place', related_name='+', on_delete=models.CASCADE)
+    point_2 = models.ForeignKey('places.Place', related_name='+', on_delete=models.CASCADE)
 
     length = models.FloatField(blank=True, default=0.0)
 
@@ -20,10 +22,10 @@ class Road(models.Model):
 
 class Waymark(models.Model):
 
-    point_from = models.ForeignKey('places.Place', related_name='+')
-    point_to = models.ForeignKey('places.Place', related_name='+')
+    point_from = models.ForeignKey('places.Place', related_name='+', on_delete=models.CASCADE)
+    point_to = models.ForeignKey('places.Place', related_name='+', on_delete=models.CASCADE)
 
-    road = models.ForeignKey(Road, null=True, related_name='+')
+    road = models.ForeignKey(Road, null=True, related_name='+', on_delete=models.SET_NULL)
 
     length = models.FloatField(blank=True, default=0.0)
 

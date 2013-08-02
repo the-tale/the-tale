@@ -13,9 +13,9 @@ class Actor(models.Model):
 
     uid = models.CharField(max_length=MAX_UID_LENGTH, unique=True)
 
-    bill = models.ForeignKey('bills.Bill', null=True, related_name='+')
-    place = models.ForeignKey('places.Place', null=True, related_name='+')
-    person = models.ForeignKey('persons.Person', null=True, related_name='+')
+    bill = models.ForeignKey('bills.Bill', null=True, related_name='+', on_delete=models.SET_NULL)
+    place = models.ForeignKey('places.Place', null=True, related_name='+', on_delete=models.SET_NULL)
+    person = models.ForeignKey('persons.Person', null=True, related_name='+', on_delete=models.SET_NULL)
 
     def __unicode__(self):
         if self.bill_id is not None: return unicode(self.bill)
@@ -42,7 +42,7 @@ class RecordToActor(models.Model):
 
     role = TableIntegerField(relation=ACTOR_ROLE, relation_column='value')
 
-    record = models.ForeignKey(Record)
-    actor = models.ForeignKey(Actor)
+    record = models.ForeignKey(Record, on_delete=models.CASCADE)
+    actor = models.ForeignKey(Actor, on_delete=models.PROTECT)
 
     def __unicode__(self): return '<%d, %d>' % (self.record_id, self.actor_id)

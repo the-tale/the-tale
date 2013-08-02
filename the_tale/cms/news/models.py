@@ -16,7 +16,7 @@ class News(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False, db_index=True)
 
-    forum_thread = models.ForeignKey(Thread, null=True)
+    forum_thread = models.ForeignKey(Thread, null=True, on_delete=models.SET_NULL)
 
     @property
     def html_description(self):

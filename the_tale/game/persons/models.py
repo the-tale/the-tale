@@ -25,7 +25,7 @@ class Person(models.Model):
 
     out_game_at = models.DateTimeField(null=False, default=datetime.datetime(2000, 1, 1))
 
-    place = models.ForeignKey('places.Place', related_name='persons')
+    place = models.ForeignKey('places.Place', related_name='persons', on_delete=models.PROTECT)
 
     state = models.IntegerField(default=PERSON_STATE.IN_GAME, choices=PERSON_STATE._CHOICES)
 

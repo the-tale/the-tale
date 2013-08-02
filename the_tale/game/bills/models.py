@@ -23,7 +23,7 @@ class Bill(models.Model):
     ended_at = models.DateTimeField(null=True, blank=True)
     duration = TableIntegerField(relation=BILL_DURATION, relation_column='value')
 
-    owner = models.ForeignKey('accounts.Account', null=False, related_name='+')
+    owner = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
 
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
 
@@ -32,7 +32,7 @@ class Bill(models.Model):
 
     approved_by_moderator = models.BooleanField(default=False, db_index=True)
 
-    remove_initiator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+')
+    remove_initiator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
 
     rationale = models.TextField(null=False, blank=True)
     technical_data = models.TextField(null=False, blank=True, default={})
@@ -49,7 +49,7 @@ class Bill(models.Model):
     min_votes_percents_required = models.FloatField(default=0.0)
 
     is_declined = models.BooleanField(blank=True, default=False)
-    declined_by = models.ForeignKey('bills.Bill', null=True, default=None, related_name='+', blank=True)
+    declined_by = models.ForeignKey('bills.Bill', null=True, default=None, related_name='+', blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         permissions = (("moderate_bill", u"Может администрировать законопроекты"), )
@@ -62,18 +62,18 @@ class Actor(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    bill = models.ForeignKey(Bill, null=False)
+    bill = models.ForeignKey(Bill, null=False, on_delete=models.CASCADE)
 
-    place = models.ForeignKey('places.Place', null=True, related_name='+')
+    place = models.ForeignKey('places.Place', null=True, related_name='+', on_delete=models.CASCADE)
 
 
 class Vote(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    owner = models.ForeignKey('accounts.Account', null=False, related_name='+')
+    owner = models.ForeignKey('accounts.Account', null=False, related_name='+', on_delete=models.CASCADE)
 
-    bill = models.ForeignKey(Bill, null=False)
+    bill = models.ForeignKey(Bill, null=False, on_delete=models.CASCADE)
 
     type = TableIntegerField(relation=VOTE_TYPE, relation_column='value', db_index=True)
 

@@ -66,19 +66,19 @@ class Building(models.Model):
 
     integrity = models.FloatField(default=1.0, null=False)
 
-    place = models.ForeignKey(Place, null=False)
+    place = models.ForeignKey(Place, null=False, on_delete=models.CASCADE)
 
-    person = models.ForeignKey('persons.Person', null=False, unique=True)
+    person = models.ForeignKey('persons.Person', null=False, unique=True, on_delete=models.CASCADE)
 
 
 class ResourceExchange(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    place_1 = models.ForeignKey(Place, related_name='+')
-    place_2 = models.ForeignKey(Place, related_name='+')
+    place_1 = models.ForeignKey(Place, related_name='+', on_delete=models.CASCADE)
+    place_2 = models.ForeignKey(Place, related_name='+', on_delete=models.CASCADE)
 
     resource_1 = TableIntegerField(relation=RESOURCE_EXCHANGE_TYPE, relation_column='value')
     resource_2 = TableIntegerField(relation=RESOURCE_EXCHANGE_TYPE, relation_column='value')
 
-    bill = models.ForeignKey('bills.Bill', blank=True, null=True, related_name='+')
+    bill = models.ForeignKey('bills.Bill', blank=True, null=True, related_name='+', on_delete=models.SET_NULL)

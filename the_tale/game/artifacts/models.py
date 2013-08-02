@@ -38,7 +38,7 @@ class ArtifactRecord(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now=True, null=False)
 
-    editor = models.ForeignKey('accounts.Account', null=True, related_name='+', blank=True)
+    editor = models.ForeignKey('accounts.Account', null=True, related_name='+', blank=True, on_delete=models.SET_NULL)
 
     type = models.IntegerField(default=ARTIFACT_TYPE.USELESS, choices=ARTIFACT_TYPE._CHOICES)
 
@@ -56,7 +56,7 @@ class ArtifactRecord(models.Model):
 
     description = models.TextField(null=False, default=u'', blank=True)
 
-    mob = models.ForeignKey('mobs.MobRecord', null=True, related_name='+', blank=True)
+    mob = models.ForeignKey('mobs.MobRecord', null=True, related_name='+', blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         permissions = (("create_artifactrecord", u"Может предлагать артефакты"),

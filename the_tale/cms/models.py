@@ -23,8 +23,8 @@ class Page(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False, db_index=True)
     updated_at = models.DateTimeField(auto_now=True, null=False, db_index=True)
 
-    author = models.ForeignKey('accounts.Account', null=True, related_name='+')
-    editor = models.ForeignKey('accounts.Account', null=True, default=None, related_name='+')
+    author = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
+    editor = models.ForeignKey('accounts.Account', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
 
     description = models.TextField(null=False, blank=False, default='')
 

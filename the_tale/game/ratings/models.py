@@ -5,7 +5,7 @@ from django.db import models
 
 class RatingValues(models.Model):
 
-    account = models.ForeignKey('accounts.Account', null=False)
+    account = models.ForeignKey('accounts.Account', null=False, on_delete=models.CASCADE)
 
     might = models.FloatField(default=0, db_index=True)
 
@@ -25,7 +25,7 @@ class RatingValues(models.Model):
 
 class RatingPlaces(models.Model):
 
-    account = models.ForeignKey('accounts.Account', null=False)
+    account = models.ForeignKey('accounts.Account', null=False, on_delete=models.CASCADE)
 
     might_place = models.BigIntegerField(db_index=True)
 

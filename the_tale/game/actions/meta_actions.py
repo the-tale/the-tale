@@ -82,8 +82,9 @@ class MetaActionPrototype(BasePrototype):
 
     def remove(self):
         from game.bundles import BundlePrototype
-        BundlePrototype.delete_by_id(self._model.bundle_id)
+        MetaActionMemberPrototype._model_class.objects.filter(action_id=self.id).delete()
         self._model.delete()
+        BundlePrototype.delete_by_id(self._model.bundle_id)
 
     def save(self):
         if hasattr(self, '_data'):

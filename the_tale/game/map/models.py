@@ -23,6 +23,6 @@ class MapInfo(models.Model):
 
     cells = models.TextField(null=False, default='')
 
-    world = models.ForeignKey(WorldInfo, null=False, related_name='+')
+    world = models.ForeignKey(WorldInfo, null=False, related_name='+', on_delete=models.CASCADE)
 
     statistics = models.TextField(null=False, default='{}')

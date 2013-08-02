@@ -17,8 +17,8 @@ class PhraseCandidate(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    author = models.ForeignKey('accounts.Account', null=False, related_name='+')
-    moderator = models.ForeignKey('accounts.Account', null=True, related_name='+')
+    author = models.ForeignKey('accounts.Account', null=False, related_name='+', on_delete=models.CASCADE)
+    moderator = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
 
     text = models.TextField(null=False, blank=True, max_length=MAX_TEXT_LENGTH)
 

@@ -12,7 +12,7 @@ class Post(models.Model):
     CAPTION_MIN_LENGTH = 10
     CAPTION_MAX_LENGTH = 256
 
-    author = models.ForeignKey('accounts.Account', null=False, related_name='+')
+    author = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now=True, null=False)
@@ -22,7 +22,7 @@ class Post(models.Model):
 
     state = TableIntegerField(relation=POST_STATE, relation_column='value', db_index=True)
 
-    moderator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+')
+    moderator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
 
     votes = models.IntegerField(default=0)
 
@@ -37,8 +37,8 @@ class Post(models.Model):
 
 class Vote(models.Model):
 
-    voter = models.ForeignKey('accounts.Account', null=False, related_name='+')
-    post = models.ForeignKey(Post, null=False, related_name='+')
+    voter = models.ForeignKey('accounts.Account', null=False, related_name='+', on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, null=False, related_name='+', on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 

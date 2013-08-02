@@ -16,14 +16,14 @@ class MetaAction(models.Model):
 
     data = models.TextField(null=False, default='{}')
 
-    bundle = models.ForeignKey('game.Bundle', null=True)
+    bundle = models.ForeignKey('game.Bundle', null=True, on_delete=models.PROTECT)
 
 
 class MetaActionMember(models.Model):
 
-    hero = models.ForeignKey('heroes.Hero', related_name='+')
+    hero = models.ForeignKey('heroes.Hero', related_name='+', on_delete=models.PROTECT)
 
-    action = models.ForeignKey(MetaAction, related_name='+')
+    action = models.ForeignKey(MetaAction, related_name='+', on_delete=models.PROTECT)
 
     context = models.TextField(null=False, default='{}')
 

@@ -104,7 +104,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
 class Award(models.Model):
 
-    account = models.ForeignKey(Account,  related_name='+', null=False)
+    account = models.ForeignKey(Account,  related_name='+', null=False, on_delete=models.CASCADE)
 
     type = TableIntegerField(relation=AWARD_TYPE, relation_column='value', db_index=True)
 
@@ -115,7 +115,7 @@ class Award(models.Model):
 
 
 class ResetPasswordTask(models.Model):
-    account = models.ForeignKey(Account,  related_name='+', null=False)
+    account = models.ForeignKey(Account,  related_name='+', null=False, on_delete=models.CASCADE)
     uuid = models.CharField(max_length=32)
     created_at = models.DateTimeField(auto_now_add=True)
     is_processed = models.BooleanField(default=False, db_index=True)
@@ -130,7 +130,7 @@ class ChangeCredentialsTask(models.Model):
 
     comment = models.CharField(max_length=256, blank=True, null=True, default='')
 
-    account = models.ForeignKey(Account,  related_name='+')
+    account = models.ForeignKey(Account,  related_name='+', on_delete=models.CASCADE)
 
     old_email = models.EmailField(max_length=254, null=True)
 

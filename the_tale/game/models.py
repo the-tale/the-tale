@@ -41,6 +41,6 @@ class SupervisorTask(models.Model):
 
 class SupervisorTaskMember(models.Model):
 
-    task = models.ForeignKey(SupervisorTask, null=False, related_name='+')
+    task = models.ForeignKey(SupervisorTask, null=False, related_name='+', on_delete=models.CASCADE)
 
-    account = models.ForeignKey('accounts.Account', null=False, related_name='+')
+    account = models.ForeignKey('accounts.Account', null=False, related_name='+', on_delete=models.PROTECT)

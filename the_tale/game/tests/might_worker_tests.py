@@ -71,8 +71,8 @@ class MightCalculatorTests(testcase.TestCase):
         bill.state = BILL_STATE.ACCEPTED
         bill.save()
 
-        Thread.objects.all().delete()
         Post.objects.all().delete()
+        Thread.objects.all().delete()
         Vote.objects.all().delete()
 
         self.assertTrue(workers_environment.might_calculator.calculate_might(self.hero) > old_might)
@@ -85,8 +85,8 @@ class MightCalculatorTests(testcase.TestCase):
         bill.state = BILL_STATE.VOTING
         bill.save()
 
-        Thread.objects.all().delete()
         Post.objects.all().delete()
+        Thread.objects.all().delete()
         Vote.objects.all().delete()
 
         self.assertEqual(workers_environment.might_calculator.calculate_might(self.hero), old_might)
@@ -99,8 +99,8 @@ class MightCalculatorTests(testcase.TestCase):
         bill.state = BILL_STATE.REJECTED
         bill.save()
 
-        Thread.objects.all().delete()
         Post.objects.all().delete()
+        Thread.objects.all().delete()
         Vote.objects.all().delete()
 
         self.assertEqual(workers_environment.might_calculator.calculate_might(self.hero), old_might)
@@ -113,8 +113,8 @@ class MightCalculatorTests(testcase.TestCase):
         bill.state = BILL_STATE.REJECTED
         bill.save()
 
-        Thread.objects.all().delete()
         Post.objects.all().delete()
+        Thread.objects.all().delete()
         Vote.objects.all().delete()
 
         self.assertEqual(workers_environment.might_calculator.calculate_might(self.hero_2), old_might)
@@ -163,8 +163,8 @@ class MightCalculatorTests(testcase.TestCase):
         old_might = workers_environment.might_calculator.calculate_might(self.hero)
         post = BlogPostPrototype.create(author=self.account, caption='caption', text='text')
 
-        Thread.objects.all().delete()
         Post.objects.all().delete()
+        Thread.objects.all().delete()
         Vote.objects.all().delete()
 
         self.assertEqual(old_might, workers_environment.might_calculator.calculate_might(self.hero))
@@ -178,8 +178,8 @@ class MightCalculatorTests(testcase.TestCase):
 
         post = BlogPostPrototype.create(author=self.account_2, caption='caption', text='text')
 
-        Thread.objects.all().delete()
         Post.objects.all().delete()
+        Thread.objects.all().delete()
         Vote.objects.all().delete()
 
         post.state = BLOG_POST_STATE.ACCEPTED
