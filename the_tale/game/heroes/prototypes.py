@@ -65,7 +65,10 @@ class HeroPrototype(BasePrototype):
 
     def __init__(self, **kwargs):
         super(HeroPrototype, self).__init__(**kwargs)
-        self.name_updated = False
+
+        # set to True, when, for example, action objects make changes, than MUST be saved
+        # example: save on creating and deleting quest action
+        self.force_save_required = False
 
     @property
     def is_premium(self):
@@ -437,7 +440,6 @@ class HeroPrototype(BasePrototype):
         self._normalized_name = word
         self._model.name = word.normalized
         self._model.name_forms = s11n.to_json(word.serialize()) # need to correct work of is_name_changed
-        self.name_updated = True
 
     normalized_name = property(get_normalized_name, set_normalized_name)
 
@@ -648,15 +650,13 @@ class HeroPrototype(BasePrototype):
             self._model.actions = s11n.to_json(self.actions.serialize())
             self.actions.updated = False
 
-        if self.name_updated:
-            self._model.name_forms = s11n.to_json(self.normalized_name.serialize())
-            self.name_updated = False
-
         if self.pvp.updated:
             self._model.pvp = s11n.to_json(self.pvp.serialize())
             self.pvp.updated = False
 
         database.raw_save(self._model)
+
+        self.force_save_required = False
 
     def _randomized_level_up(self):
         new_ability = random.choice(self.get_abilities_for_choose())

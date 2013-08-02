@@ -134,7 +134,9 @@ class LogicStorage(object):
             self.save_hero_data(hero_id, update_cache=False)
 
     def _get_bundles_to_save(self):
-        bundles = set(hero.actions.current_action.bundle_id for hero in self.heroes.itervalues() if hero.is_ui_caching_required)
+        bundles = set(hero.actions.current_action.bundle_id
+                      for hero in self.heroes.itervalues()
+                      if hero.is_ui_caching_required or hero.force_save_required)
 
         unsaved_heroes = sorted(self.heroes.itervalues(), key=lambda h: h.saved_at)
 

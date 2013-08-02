@@ -10,7 +10,6 @@ from common.utils.decorators import lazy_property
 from common.utils.logic import random_value_by_priority
 
 from game.heroes.logic import create_mob_for_hero
-from game.heroes.statistics import MONEY_SOURCE
 
 from game.map.roads.storage import waymarks_storage
 
@@ -306,10 +305,15 @@ class ActionBase(object):
 
         return action
 
+    def on_remove(self):
+        pass
+
     def remove(self, force=False):
         '''
         force - if True, storages will be ignored (need for full remove of angel & hero)
         '''
+
+        self.on_remove()
 
         if self.storage:
             self.storage.remove_action(self)
@@ -320,7 +324,6 @@ class ActionBase(object):
             self.quest.remove()
 
         self.removed = True
-
 
     def on_save(self):
 
@@ -451,6 +454,14 @@ class ActionQuestPrototype(ActionBase):
     # Object operations
     ###########################################
 
+    def on_create(self):
+        super(ActionQuestPrototype, self).on_create()
+        self.hero.force_save_required = True
+
+    def on_remove(self):
+        super(ActionQuestPrototype, self).on_remove()
+        self.hero.force_save_required = True
+
     @classmethod
     def _create(cls, hero, bundle_id, quest):
         return cls(hero=hero,
@@ -459,7 +470,6 @@ class ActionQuestPrototype(ActionBase):
                    state=cls.STATE.PROCESSING)
 
     def process(self):
-
         if self.state == self.STATE.PROCESSING:
             percents = self.quest.process(self)
             self.quest.save()
