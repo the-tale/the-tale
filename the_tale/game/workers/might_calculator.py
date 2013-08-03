@@ -90,10 +90,10 @@ class Worker(BaseWorker):
 
         referrals_mights = HeroPrototype._model_class.objects.filter(account__referral_of=hero.account_id).aggregate(models.Sum('might'))['might__sum']
 
-        might += referrals_mights if referrals_mights else 0
+        might += referrals_mights * MIGHT_FROM_REFERRAL if referrals_mights else 0
 
         for award_type, might_cooficient in MIGHT_FOR_AWARD.items():
-            might += Award.objects.filter(account_id=hero.account_id, type=award_type).count() * might_cooficient * MIGHT_FROM_REFERRAL
+            might += Award.objects.filter(account_id=hero.account_id, type=award_type).count() * might_cooficient
 
         return might
 
