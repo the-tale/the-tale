@@ -9,6 +9,6 @@ class RATING_TYPE(DjangoEnum):
                  ('POWER', 'power', u'Сила героя'),
                  ('LEVEL', 'level', u'Уровень героя'),
                  ('PHRASES', 'phrases', u'Добавленные фразы'),
-                 ('PVP_BATTLES_1x1_NUMBER', 'pvp_battles_1x1_number', u'сражения в PvP'),
-                 ('PVP_BATTLES_1x1_VICTORIES', 'pvp_battles_1x1_victories', u'победы в PvP'),
-                 ('REFERRALS_NUMBER', 'referrals_number', u'последователи'))
+                 ('PVP_BATTLES_1x1_NUMBER', 'pvp_battles_1x1_number', u'Сражения в PvP'),
+                 ('PVP_BATTLES_1x1_VICTORIES', 'pvp_battles_1x1_victories', u'Победы в PvP'),
+                 ('REFERRALS_NUMBER', 'referrals_number', u'Последователи'))
