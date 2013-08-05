@@ -32,6 +32,8 @@ from game.text_generation import get_vocabulary, get_dictionary, prepair_substit
 from game.abilities.relations import HELP_CHOICES
 
 
+E = 0.0001
+
 
 class ActionBase(object):
 
@@ -369,7 +371,15 @@ class ActionIdlenessPrototype(ActionBase):
 
     TYPE = 'IDLENESS'
     TEXTGEN_TYPE = 'action_idleness'
-    HELP_CHOICES = set((HELP_CHOICES.START_QUEST, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+
+    @property
+    def HELP_CHOICES(self): # pylint: disable=C0103
+        choices = set((HELP_CHOICES.START_QUEST, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+
+        if self.percents > 1.0 - E:
+            choices.remove(HELP_CHOICES.START_QUEST)
+
+        return choices
 
     class STATE(ActionBase.STATE):
         QUEST = 'QUEST'

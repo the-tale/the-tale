@@ -3,13 +3,17 @@
 from common.utils import testcase
 
 from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
-from game.logic_storage import LogicStorage
 
-from game.logic import create_test_map
-from game.actions.prototypes import ActionIdlenessPrototype, ActionQuestPrototype, ActionInPlacePrototype, ActionRegenerateEnergyPrototype
 from game.balance import constants as c, formulas as f, enums as e
 from game.prototypes import TimePrototype
+
+from game.logic_storage import LogicStorage
+from game.logic import create_test_map
+
+from game.heroes.prototypes import HeroPrototype
+from game.abilities.relations import HELP_CHOICES
+
+from game.actions.prototypes import ActionIdlenessPrototype, ActionQuestPrototype, ActionInPlacePrototype, ActionRegenerateEnergyPrototype, E
 
 class IdlenessActionTest(testcase.TestCase):
 
@@ -127,3 +131,11 @@ class IdlenessActionTest(testcase.TestCase):
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
 
         self.storage._test_save()
+
+    def test_help_choices__contain_start_quest(self):
+        self.action_idl.percents = 0.0
+        self.assertTrue(HELP_CHOICES.START_QUEST in self.action_idl.HELP_CHOICES)
+
+    def test_help_choices__start_quest_removed(self):
+        self.action_idl.percents = 1.0
+        self.assertFalse(HELP_CHOICES.START_QUEST in self.action_idl.HELP_CHOICES)
