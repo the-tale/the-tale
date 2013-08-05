@@ -230,7 +230,7 @@ jQuery(document).ready(function(){
                   <li style="margin: 0.5em;">
                     bb-код:<br/>
                     <code style="display: block;">
-                      [url="{{full_url('http', 'accounts:show', master_account.id, **{accounts_settings.REFERRAL_URL_ARGUMENT: master_account.id} )}}"]<br/>
+                      [url={{full_url('http', 'accounts:show', master_account.id, **{accounts_settings.REFERRAL_URL_ARGUMENT: master_account.id} )}}]<br/>
                       [img]{{informer_link}}[/img]<br/>
                       [/url]
                     </code>
