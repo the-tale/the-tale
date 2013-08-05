@@ -48,7 +48,7 @@ jQuery(document).ready( function(e) {
 <table class="table table-condensed table-striped table-bordered table-no-highlighting">
   <tbody>
     <tr>
-      <th style="text-align: center;">кошелёк</th>
+      <th style="text-align: center;">У ВАС ЕСТЬ</th>
       <th width="200px">тип аккаунта</th>
       <td>
         {{ accounts_macros.account_type_label(resource.account) }} &nbsp; <a href="{{url('guide:account-types')}}">[типы аккаунтов]</a>
@@ -57,21 +57,28 @@ jQuery(document).ready( function(e) {
 
     <tr>
       <td rowspan="2" width="150px" style="text-align: center; padding: 1em; vertical-align: middle;">
-        <span style="font-size: 20pt;">{{ account.bank_account.amount }}</span><br/>
-        <span>ПЕЧЕНЕК</span><br/>
-        {% if resource.dengionline_enabled %}
-        <a style="vertical-align: middle;"
-           href="{{url('accounts:payments:dengionline-dialog')}}"
-           class="pgf-dengionline-dialog-link btn btn-large btn-success">купить ещё…</a>
-        {% endif %}
+        <div style="display: inline-block; vertical-align: middle;">
+          <span style="font-size: 20pt;">{{ account.bank_account.amount }}</span><br/>
+          <span>ПЕЧЕНЕК</span>
+        </div>
 
-        {% if resource.xsolla_enabled %}
-        <a style="vertical-align: middle;"
-           href="#"
-           id="paystation-link"
-           onclick="XPSLightBox.open('{{resource.xsolla_paystaion_widget_link|safe}}', 900, 650); return false;"
-           class="pgf-xsolla-dialog-link btn btn-large btn-success">купить ещё…</a>
-        {% endif %}
+        <div style="display: inline-block; vertical-align: middle;">
+          {% if resource.dengionline_enabled %}
+          <a style="vertical-align: middle;"
+             href="{{url('accounts:payments:dengionline-dialog')}}"
+             class="pgf-dengionline-dialog-link btn btn-large btn-success">+</a>
+          {% endif %}
+
+          {% if resource.xsolla_enabled %}
+          <a style="vertical-align: middle; font-size: 36pt; line-height: 18px; padding: 10px;"
+             href="#"
+             id="paystation-link"
+             rel="tooltip"
+             title="приобрести ещё…"
+             onclick="XPSLightBox.open('{{resource.xsolla_paystaion_widget_link|safe}}', 900, 650); return false;"
+             class="pgf-xsolla-dialog-link btn btn-large btn-success">+</a>
+          {% endif %}
+        </div>
       </td>
 
       <th>окончание подписки</th>
@@ -85,7 +92,11 @@ jQuery(document).ready( function(e) {
     </tr>
 
     <tr>
-      <th colspan="2"></th>
+      <th>стоимость одной печеньки</th>
+      <td>
+        {{ payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY }} руб. РБ <a href="{{url('guide:payments')}}">[подробнее]</a><br/>
+        Конечная стоимость может колебаться в зависимости от курсов валют, платежной системы и комиссии агрегатора.
+      </td>
     </tr>
   </tbody>
 </table>

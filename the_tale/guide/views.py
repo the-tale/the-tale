@@ -39,6 +39,10 @@ class GuideResource(Resource):
     def account_types(self):
         return self.template('guide/account_types.html', {'section': 'account-types'})
 
+    @handler('payments', method='get')
+    def payments(self):
+        return self.template('guide/payments.html', {'section': 'payments'})
+
     @handler('behavior-rules', method='get')
     def behavior_rules(self):
         return self.template('guide/behavior_rules.html', {'section': 'behavior-rules'})

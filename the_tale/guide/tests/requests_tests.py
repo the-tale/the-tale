@@ -29,6 +29,9 @@ class TestRequests(TestCase):
     def test_user_agreement(self):
         self.check_html_ok(self.client.get(reverse('guide:user-agreement')))
 
+    def test_payments(self):
+        self.check_html_ok(self.client.get(reverse('guide:payments')))
+
     def test_game(self):
         self.check_html_ok(self.client.get(reverse('guide:game')))
 

@@ -45,16 +45,18 @@ class PaymentsResource(Resource):
         # TODO: sign
         url_builder = UrlBuilder(base=payments_settings.XSOLLA_BASE_LINK)
 
-        attributes = {'pid': payments_settings.XSOLLA_PID,
-                      'v1': self.account.email,
+        attributes = {'v1': self.account.email,
                       'email': self.account.email,
                       'theme': payments_settings.XSOLLA_THEME,
                       'project': payments_settings.XSOLLA_PROJECT,
                       'local': payments_settings.XSOLLA_LOCAL,
                       'description': payments_settings.XSOLLA_DESCRIPTION}
 
-        if payments_settings.XSOLLA_MARKETPLACE:
+        if payments_settings.XSOLLA_MARKETPLACE is not None:
             attributes['marketplace'] = payments_settings.XSOLLA_MARKETPLACE
+
+        if payments_settings.XSOLLA_PID is not None:
+            attributes['pid'] = payments_settings.XSOLLA_PID
 
         link = url_builder(**attributes)
 
@@ -70,6 +72,7 @@ class PaymentsResource(Resource):
     def shop(self):
         return self.template('payments/shop.html',
                              {'PRICE_LIST': price_list.PRICE_LIST,
+                              'payments_settings': payments_settings,
                               'account': self.account,
                               'page_type': 'shop'})
 
@@ -78,6 +81,7 @@ class PaymentsResource(Resource):
         history = self.account.bank_account.get_history_list()
         return self.template('payments/history.html',
                              {'page_type': 'history',
+                              'payments_settings': payments_settings,
                               'account': self.account,
                               'history': history})
 

@@ -37,10 +37,10 @@ class Command(BaseCommand):
             print u'stop game before reseting payments'
             return
 
-        BankAccount.objects.all().delete()
-        BankInvoice.objects.all().delete()
+        BankAccount.objects.exclude(id=1).delete()
+        BankInvoice.objects.exclude(id=446).delete()
         DOInvoice.objects.all().delete()
-        XsollaInvoice.objects.all().delete()
+        XsollaInvoice.objects.exclude(id=19).delete()
 
         BASE_PREMIUM_DAYS_LENGTH = 3
         MAX_PREMIUM_DAYS_FOR_MIGHT = 30
