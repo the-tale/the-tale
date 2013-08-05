@@ -81,8 +81,16 @@ class TestRegistration(testcase.TestCase):
 
         self.assertEqual(account.referral_of_id, owner_id)
 
-    def test_successfull_result__wrong_referral(self):
+    def test_successfull_result__unexisted_referral(self):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id=666)
+
+        account = AccountPrototype.get_by_id(account_id)
+
+        self.assertEqual(account.referral_of_id, None)
+
+    def test_successfull_result__wrong_referral(self):
+        result, owner_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id='%dxxx' % owner_id)
 
         account = AccountPrototype.get_by_id(account_id)
 

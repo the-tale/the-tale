@@ -50,7 +50,10 @@ def register_user(nick, email=None, password=None, referer=None, referral_of_id=
     if email and Account.objects.filter(email=email).exists():
         return REGISTER_USER_RESULT.DUPLICATE_EMAIL, None, None
 
-    referral_of = AccountPrototype.get_by_id(referral_of_id)
+    try:
+        referral_of = AccountPrototype.get_by_id(referral_of_id)
+    except ValueError:
+        referral_of = None
 
     if (email and not password) or (not email and password):
         raise AccountsException('email & password must be specified or not specified together')
