@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Кланы | {{ super() }}{% endblock %}
+
+{% block fast_account_warning %}
+ВНИМАНИЕ! Для Вас этот раздел доступен только для чтения. Чтобы создать свой клан или вступить в существующий, необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile:show') }}">профиле</a> (подробнее о регистрации можно почитать в <a href="{{ url('guide:') }}">Путеводителе по Сказке</a>).
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="span12">
+    <div class="block white">
+
+      {% block clans_content %}
+      {% endblock %}
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

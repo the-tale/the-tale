@@ -104,8 +104,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 APPEND_SLASH = True
 #PREPEND_WWW = True
 
-AUTH_PROFILE_MODULE = 'accounts.Account'
-
 #TODO: jinja
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -160,6 +158,7 @@ INSTALLED_APPS = (
     'post_service',
 
     'accounts',
+    'accounts.clans',
     'accounts.personal_messages',
     'accounts.friends',
     'accounts.payments',

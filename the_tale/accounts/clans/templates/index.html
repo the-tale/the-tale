@@ -1,0 +1,53 @@
+{% extends "clans/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
+
+{% block clans_content %}
+
+<p>
+  {% if resource.can_create_clan %}
+  <a class="btn btn-danger pgf-create-clan-button" href="{{url('accounts:clans:new')}}">
+    Создать клан
+  </a>
+  {% endif %}
+
+  На этой странице представлен список всех кланов Пандоры.
+</p>
+
+<h2 style="margin-bottom: 0.5em;">Список кланов</h2>
+
+{{ list_filter_macros.html_filter(index_filter) }}
+
+{% if clans %}
+
+{{ base_macros.render_paginator(paginator) }}
+
+название, количество героев, дата создания, командир, девиз
+
+{% for clan in clans %}
+
+<table class="table">
+  <tr>
+    <td colspan="3"><a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}] {{clan.name}}</a></td>
+  </tr>
+  <tr>
+    <td colspan="3">Девиз: {{clan.motto}}</td>
+  </tr>
+  <tr>
+    <td>количество героев: {{ clan.members_number }}</td>
+    <td>создан: <span class="created-at pgf-format-datetime" data-timestamp="{{ clan.created_at|timestamp }}"></span></td>
+    <td>лидер: <a href="{{url('accounts:show', leaders[clan.id].id)}}">{{ leaders[clan.id].nick }}</a></td>
+  </tr>
+</table>
+
+{% endfor %}
+
+{{ base_macros.render_paginator(paginator) }}
+
+{% else %}
+<span class="pgf-no-clans-message">Не найдено кланов, отвечающих условиям поиска</span>
+{% endif %}
+
+
+{% endblock %}
