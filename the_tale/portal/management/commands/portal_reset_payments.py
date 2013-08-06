@@ -15,6 +15,7 @@ from accounts.payments.conf import payments_settings
 from accounts.payments.logic import transaction_gm
 
 from bank.models import Account as BankAccount, Invoice as BankInvoice
+from bank.models.relations import INVOICE_STATE
 from bank.dengionline.models import Invoice as DOInvoice
 from bank.xsolla.models import Invoice as XsollaInvoice
 
@@ -37,8 +38,10 @@ class Command(BaseCommand):
             print u'stop game before reseting payments'
             return
 
-        BankAccount.objects.exclude(id=1).delete()
+        BankAccount.objects.all().delete()
         BankInvoice.objects.exclude(id=446).delete()
+        BankInvoice.objects.filter(id=446).update(state=INVOICE_STATE.FORCED)
+
         DOInvoice.objects.all().delete()
         XsollaInvoice.objects.exclude(id=19).delete()
 
