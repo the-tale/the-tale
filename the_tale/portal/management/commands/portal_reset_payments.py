@@ -15,7 +15,7 @@ from accounts.payments.conf import payments_settings
 from accounts.payments.logic import transaction_gm
 
 from bank.models import Account as BankAccount, Invoice as BankInvoice
-from bank.models.relations import INVOICE_STATE
+from bank.relations import INVOICE_STATE
 from bank.dengionline.models import Invoice as DOInvoice
 from bank.xsolla.models import Invoice as XsollaInvoice
 
