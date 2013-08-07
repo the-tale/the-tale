@@ -1,0 +1,35 @@
+
+
+{% macro clan_navigation(page_id, own_clan_info, current_clan=none) %}
+
+<li class="nav-header">Кланы</li>
+
+<li class="nav-element {%if page_id=='index'%}active{%endif%}"><a href="{{ url('accounts:clans:') }}">Все кланы</a></li>
+
+{% if own_clan_info.clan is none %}
+  {% if own_clan_info.can_create_clan %}
+    <li class="nav-element {%if page_id=='new'%}active{%endif%}"><a href="{{ url('accounts:clans:new') }}" class="pgf-create-clan-button">Создать клан</a></li>
+  {% else %}
+    <li class="nav-element disabled" rel="tooltip" title="Вы не можете создать клан"><a href="#" class="pgf-create-clan-disabled-button">Создать клан</a></li>
+  {% endif %}
+{% else %}
+  <li class="nav-element {%if page_id=='show'%}active{%endif%}"><a href="{{ url('accounts:clans:show', own_clan_info.clan_id) }}">Мой клан</a></li>
+{% endif %}
+
+{% if current_clan and own_clan_info.clan and current_clan.id == own_clan_info.clan_id %}
+  {% if own_clan_info.membership.role._is_LEADER %}
+    <li class="nav-element {%if page_id=='edit'%}active{%endif%}"><a href="{{ url('accounts:clans:edit', own_clan_info.clan_id) }}">Редактировать</a></li>
+
+    {% if page_id=='edit' %}
+      <li class="nav-element">
+          <a class="pgf-forms-post-simple"
+             href="{{ url('accounts:clans:remove', own_clan_info.clan_id) }}"
+             data-action-type="redirect"
+             data-redirect-url="{{url('accounts:clans:')}}"
+             data-confirmation="Вы действительно хотите удалить клан?">Удалить</a>
+      </li>
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+{% endmacro %}

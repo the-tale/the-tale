@@ -1,0 +1,50 @@
+{% extends "clans/base.html" %}
+
+{% block title %}Создание клана | {{ super() }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newForm = new pgf.forms.Form(jQuery('#pgf-new-clan-form'),
+                                     {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
+
+});
+
+</script>
+
+{% endblock %}
+
+{% block clans_content %}
+
+<h2>Создание нового клана</h2>
+
+<p>Кланы — это объединения игроков, преследующих одну и ту же цель и желающих согласовывать свои действия в Пандоре.</p>
+
+<ul>
+  <li>Подробную информацию о кланах Вы можете найти в соответствующем раздел Путеводителя: <a href="{{url('guide:clans')}}">«Кланы»</a>.</li>
+  <li>Старательно выбирайте название клана, его аббревиатуру и девиз — по ним другие игроки будут составлять первое впечатление о вашем клане.</li>
+  <li>Помните, что у нас не допускаются оскорбления и ненормативная лексика.</li>
+  <li>Будьте оригинальны!</li>
+</ul>
+
+<br/>
+
+<form id="pgf-new-clan-form" method="post" action="{{ url('accounts:clans:create') }}">
+
+  {{ form.errors_container }}
+
+  {{ form.name.widget }}
+  {{ form.abbr.widget }}
+  {{ form.motto.widget }}
+  {{ form.description.widget }}
+
+  <div class="widget">
+    <input type="submit" class="btn" value="Создать"/>
+  </div>
+
+</form>
+
+
+{% endblock %}

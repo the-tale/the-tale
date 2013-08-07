@@ -47,7 +47,7 @@ class PaymentsResource(Resource):
 
         attributes = {'v1': self.account.email,
                       'email': self.account.email,
-                      'theme': payments_settings.XSOLLA_THEME,
+                      'id_theme': payments_settings.XSOLLA_THEME,
                       'project': payments_settings.XSOLLA_PROJECT,
                       'local': payments_settings.XSOLLA_LOCAL,
                       'description': payments_settings.XSOLLA_DESCRIPTION}

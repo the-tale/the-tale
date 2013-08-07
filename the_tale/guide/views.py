@@ -86,6 +86,10 @@ class GuideResource(Resource):
                                                      'heroes_settings': heroes_settings,
                                                      'BILLS_BY_ID': BILLS_BY_ID})
 
+    @handler('clans', method='get')
+    def clans(self):
+        return self.template('guide/clans.html', {'section': 'clans'})
+
     @handler('map', method='get')
     def map(self):
         return self.template('guide/map.html', {'section': 'map'})

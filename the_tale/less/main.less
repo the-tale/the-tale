@@ -107,6 +107,30 @@ body {
          font-weight: normal;
       }
    }
+
+   .game-navigation-caption {
+      cursor: default;
+      padding-left: 0.8em;
+      color: @disabled-text-color;
+   }
+
+   .game-navigation {
+      .nav-element {
+         padding-left: 1em;
+
+         &.disabled {
+            color: @disabled-text-color;
+
+            a {
+               color: @disabled-text-color;
+            }
+         }
+      }
+
+      .nav-header {
+         cursor: default;
+      }
+   }
 }
 
 a.info-link {

@@ -1,7 +1,12 @@
 # coding: utf-8
 
+from django.conf.urls.defaults import patterns, include
+
 from dext.views import resource_patterns
 
-from accounts.clans.views import ClansResource
+from accounts.clans.views import ClansResource, MembershipResource
 
-urlpatterns = resource_patterns(ClansResource)
+urlpatterns = patterns('',
+                       (r'^membership/', include(resource_patterns(MembershipResource), namespace='membership')),
+                       (r'^', include(resource_patterns(ClansResource)) )
+    )

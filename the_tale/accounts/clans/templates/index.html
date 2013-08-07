@@ -3,17 +3,9 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
 
+{% block title %}Список кланов | {{ super() }}{% endblock %}
+
 {% block clans_content %}
-
-<p>
-  {% if resource.can_create_clan %}
-  <a class="btn btn-danger pgf-create-clan-button" href="{{url('accounts:clans:new')}}">
-    Создать клан
-  </a>
-  {% endif %}
-
-  На этой странице представлен список всех кланов Пандоры.
-</p>
 
 <h2 style="margin-bottom: 0.5em;">Список кланов</h2>
 

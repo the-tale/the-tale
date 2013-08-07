@@ -1,0 +1,14 @@
+{% extends "clans/base.html" %}
+
+{% block title %}{{resource.clan.name}} | {{ super() }}{% endblock %}
+
+{% block clans_content %}
+
+<h2>
+  [{{resource.clan.abbr}}] {{resource.clan.name}}<br/>
+  <small>{{resource.clan.motto}}</small>
+</h2>
+
+{{resource.clan.description_html|safe}}
+
+{% endblock %}

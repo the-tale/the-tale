@@ -1,0 +1,18 @@
+{% extends "clans/base.html" %}
+
+{% import 'clans/membership/macros.html' as membership_macros with context %}
+
+{% block title %}Запросы на вступление в клан | {{ super() }}{% endblock %}
+
+{% block clans_content %}
+
+<h2 style="margin-bottom: 0.5em;">Запросы на вступление в клан</h2>
+
+{% if requests %}
+{{membership_macros.requests_list(requests, accounts)}}
+{% else %}
+<span class="pgf-no-requests-message">Нет запросов на вступление в клан</span>
+{% endif %}
+
+
+{% endblock %}

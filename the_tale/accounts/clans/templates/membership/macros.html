@@ -1,0 +1,23 @@
+
+{% macro requests_list(requests, macros) %}
+
+{% for request in requests %}
+
+{% set request_account = accounts[request.account_id] %}
+
+<table class="table">
+  <tr>
+    <td><a href="{{url('accounts:show', request_account.id)}}">{{request_account.nick}}</a></td>
+  </tr>
+  <tr>
+    <td>создан: <span class="created-at pgf-format-datetime" data-timestamp="{{ request.created_at|timestamp }}"></span></td>
+  </tr>
+  <tr>
+    <td>{{request.text_html|safe}}</td>
+  </tr>
+</table>
+
+{% endfor %}
+
+
+{% endmacro %}

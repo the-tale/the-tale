@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import 'clans/macros.html' as clan_macros with context %}
 
 {% block title %}Кланы | {{ super() }}{% endblock %}
 
@@ -9,7 +10,17 @@
 {% block content %}
 
 <div class="row">
-  <div class="span12">
+  <div class="span3">
+    <div class="block">
+      <ul class="game-navigation nav nav-list" style="padding-left: 2px;">
+        {% block navigation %}
+        {{ clan_macros.clan_navigation(page_id=page_id, own_clan_info=resource.clan_info, current_clan=resource.clan) }}
+        {% endblock %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="span9">
     <div class="block white">
 
       {% block clans_content %}
