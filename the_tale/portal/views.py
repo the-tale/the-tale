@@ -7,6 +7,7 @@ from common.utils import bbcode
 from common.utils.resources import Resource
 
 from accounts.prototypes import AccountPrototype
+from accounts.clans.prototypes import ClanPrototype
 
 from forum.models import Thread
 from forum.prototypes import ThreadPrototype
@@ -39,12 +40,17 @@ class PortalResource(Resource):
 
         account_of_the_day_id = settings.get(portal_settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY)
 
+        hero_of_the_day = None
+        account_of_the_day = None
+        clan_of_the_day = None
+
         if account_of_the_day_id is not None:
             hero_of_the_day = HeroPrototype.get_by_account_id(account_of_the_day_id)
             account_of_the_day = AccountPrototype.get_by_id(account_of_the_day_id)
-        else:
-            hero_of_the_day = None
-            account_of_the_day = None
+
+            if account_of_the_day.clan_id is not None:
+                clan_of_the_day = ClanPrototype.get_by_id(account_of_the_day.clan_id)
+
 
         forum_threads = [ ThreadPrototype(thread_model) for thread_model in Thread.objects.all().order_by('-updated_at')[:portal_settings.FORUM_THREADS_ON_INDEX]]
 
@@ -62,6 +68,7 @@ class PortalResource(Resource):
                               'bills': bills,
                               'hero_of_the_day': hero_of_the_day,
                               'account_of_the_day': account_of_the_day,
+                              'clan_of_the_day': clan_of_the_day,
                               'map_info': map_info,
                               'blog_posts': blog_posts,
                               'TERRAIN': TERRAIN,

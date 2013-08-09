@@ -8,6 +8,8 @@ from dext.utils.decorators import debug_required
 from common.utils.decorators import staff_required, login_required
 from common.utils.resources import Resource
 
+from accounts.clans.prototypes import ClanPrototype
+
 from game.abilities.deck import ABILITIES
 
 from game.heroes.prototypes import HeroPrototype
@@ -32,9 +34,14 @@ class GameResource(Resource):
         if battle and battle.state._is_PROCESSING:
             return self.redirect(reverse('game:pvp:'))
 
+        clan = None
+        if self.account.clan_id is not None:
+            clan = ClanPrototype.get_by_id(self.account.clan_id)
+
         return self.template('game/game_page.html',
                              {'map_settings': map_settings,
-                              'game_settings': game_settings } )
+                              'game_settings': game_settings,
+                              'clan': clan} )
 
     @validate_argument_with_resource('account', Resource.validate_account_argument, 'game.info', u'неверный идентификатор аккаунта')
     @handler('info', method='get')

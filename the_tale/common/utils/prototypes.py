@@ -30,7 +30,11 @@ class _PrototypeMetaclass(type):
     def create_get_list_by(mcs, method_name, attribute_name):
 
         def get_list_by(cls, identifiers):
-            return [cls(model=model) for model in cls._model_class.objects.filter(**{'%s__in' % attribute_name: identifiers})]
+            if isinstance(identifiers, (tuple, list)):
+                query = cls._model_class.objects.filter(**{'%s__in' % attribute_name: identifiers})
+            else:
+                query = cls._model_class.objects.filter(**{'%s' % attribute_name: identifiers})
+            return [cls(model=model) for model in query]
 
         get_list_by.__name__ = method_name
 

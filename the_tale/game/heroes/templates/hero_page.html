@@ -44,7 +44,7 @@ jQuery(document).ready(function(e){
 
   <div class="span3">
 
-    {{ hero_short_macros.hero_short("hero-short-data", is_owner, false, master_account=master_account, health_bar=false or is_owner) }}
+    {{ hero_short_macros.hero_short("hero-short-data", is_owner, false, master_account=master_account, health_bar=false or is_owner, clan=master_clan) }}
 
     <div class="block">
       {{ hero_equipment_macros.hero_equipment("hero-equipment", data_mode="pve") }}

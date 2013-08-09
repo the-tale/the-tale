@@ -14,22 +14,6 @@ class ClanForm(forms.Form):
     motto = fields.CharField(label=u'Девиз', max_length=Clan.MAX_MOTTO_LENGTH)
     description = bbcode.BBField(label=u'Описание', max_length=Clan.MAX_DESCRIPTION_LENGTH)
 
-    def clean_name(self):
-        name = self.cleaned_data['name']
-
-        if Clan.objects.filter(name=name).exists():
-            raise ValidationError(u'Клан с таким названием уже существует')
-
-        return name
-
-    def clean_abbr(self):
-        abbr = self.cleaned_data['abbr']
-
-        if Clan.objects.filter(abbr=abbr).exists():
-            raise ValidationError(u'Клан с такой аббревиатурой уже существует')
-
-        return abbr
-
 
 class MembershipRequestForm(forms.Form):
-    text = bbcode.BBField(label=u'Описание', max_length=MembershipRequest.MAX_TEXT_LENGTH)
+    text = bbcode.BBField(label=u'Текст', max_length=MembershipRequest.MAX_TEXT_LENGTH)

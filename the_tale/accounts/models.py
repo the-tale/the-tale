@@ -74,6 +74,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     last_news_remind_time = models.DateTimeField(auto_now_add=True, default=datetime.datetime.fromtimestamp(0))
 
+    clan = models.ForeignKey('clans.Clan', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
+
     is_staff = models.BooleanField(_('staff status'), default=False, help_text=_('Designates whether the user can log into this admin site.'))
     is_active = models.BooleanField(_('active'), default=True, help_text=_('Designates whether this user should be treated as active. Unselect this instead of deleting accounts.'))
 

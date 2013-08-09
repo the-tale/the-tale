@@ -1,24 +1,28 @@
 
 {% macro main_menu_item(type, url, name, submenus=[]) -%}
 
-<li class="{% if type == SECTION %}active{% endif %} {% if submenus %}dropdown{% endif %}">
-  <a href="{{ url }}" {% if submenus %}class="dropdown-toggle" data-toggle="dropdown"{% endif %}>
-    {{ name|safe }} {% if submenus %}<b class="caret"></b>{% endif %}
-  </a>
-
-  {% if submenus %}
-  <ul class="dropdown-menu">
-    {% for sub_link, sub_name in submenus %}
-
-    {% if sub_link == '-' %}
-    {{ sub_name|safe }}
+  <li class="{% if type == SECTION %}active{% endif %} {% if submenus %}dropdown{% endif %}">
+    {% if url is none %}
+      <a href="#" class="disabled">{{ name|safe }}</a>
     {% else %}
-    {{ main_menu_item("", sub_link, sub_name) }}
+    <a href="{{ url }}" {% if submenus %}class="dropdown-toggle" data-toggle="dropdown"{% endif %}>
+      {{ name|safe }} {% if submenus %}<b class="caret"></b>{% endif %}
+    </a>
     {% endif %}
-    {% endfor %}
-  </ul>
-  {% endif %}
-</li>
+
+    {% if submenus %}
+      <ul class="dropdown-menu">
+        {% for sub_link, sub_name in submenus %}
+
+          {% if sub_link == '-' %}
+            {{ sub_name|safe }}
+          {% else %}
+            {{ main_menu_item("", sub_link, sub_name) }}
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </li>
 
 {%- endmacro %}
 

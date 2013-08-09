@@ -3,11 +3,11 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
 
-{% block title %}Список кланов | {{ super() }}{% endblock %}
+{% block title %}Список гильдий | {{ super() }}{% endblock %}
 
 {% block clans_content %}
 
-<h2 style="margin-bottom: 0.5em;">Список кланов</h2>
+<h2 style="margin-bottom: 0.5em;">Список гильдий</h2>
 
 {{ list_filter_macros.html_filter(index_filter) }}
 
@@ -15,30 +15,30 @@
 
 {{ base_macros.render_paginator(paginator) }}
 
-название, количество героев, дата создания, командир, девиз
-
 {% for clan in clans %}
 
-<table class="table">
-  <tr>
-    <td colspan="3"><a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}] {{clan.name}}</a></td>
-  </tr>
-  <tr>
-    <td colspan="3">Девиз: {{clan.motto}}</td>
-  </tr>
-  <tr>
-    <td>количество героев: {{ clan.members_number }}</td>
-    <td>создан: <span class="created-at pgf-format-datetime" data-timestamp="{{ clan.created_at|timestamp }}"></span></td>
-    <td>лидер: <a href="{{url('accounts:show', leaders[clan.id].id)}}">{{ leaders[clan.id].nick }}</a></td>
-  </tr>
-</table>
+<div>
+
+  <div style="display: inline-block; width: 150px; color: gray;">
+    <div style="">Лидер: <a href="{{url('accounts:show', leaders[clan.id].id)}}">{{ leaders[clan.id].nick }}</a></div>
+    <div style="">Создан: <span class="created-at pgf-format-date" data-timestamp="{{ clan.created_at|timestamp }}"></span></div>
+    <div style="">Героев: {{ clan.members_number }}</div>
+  </div>
+
+  <div style="display: inline-block; vertical-align: top;">
+    <h3><a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}] {{clan.name}}</a></h3>
+    <strong><i>{{clan.motto}}</i></strong>
+  </div>
+
+</div>
+
 
 {% endfor %}
 
 {{ base_macros.render_paginator(paginator) }}
 
 {% else %}
-<span class="pgf-no-clans-message">Не найдено кланов, отвечающих условиям поиска</span>
+<p class="pgf-no-clans-message alert alert-info">Не найдено гильдий, отвечающих условиям поиска</p>
 {% endif %}
 
 

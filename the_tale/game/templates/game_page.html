@@ -116,7 +116,7 @@ jQuery(document).ready(function(e){
 
 <div class="row pgf-game-data pgf-hidden">
   <div class="span3">
-    {{ hero_short_macros.hero_short("hero-short-data", true, true) }}
+    {{ hero_short_macros.hero_short("hero-short-data", true, true, clan=clan) }}
   </div>
   <div class="span5">
     {% include "game/current_action.html" %}

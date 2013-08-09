@@ -6,9 +6,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.conf import settings as project_settings
 
-from dext.utils.meta_config import MetaConfig
-
-meta_config = MetaConfig(config_path=project_settings.META_CONFIG_FILE)
+META_CONFIG = project_settings.META_CONFIG
 
 class Command(BaseCommand):
 
@@ -60,6 +58,6 @@ class Command(BaseCommand):
         print 'GENERATE META CONFIG'
         print
 
-        meta_config.increment_static_data_version()
-        meta_config.version = version
-        meta_config.save_config()
+        META_CONFIG.increment_static_data_version()
+        META_CONFIG.version = version
+        META_CONFIG.save_config()

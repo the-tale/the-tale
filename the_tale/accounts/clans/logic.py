@@ -37,3 +37,7 @@ class ClanInfo(object):
     @property
     def can_invite(self):
         return self.membership and self.membership.role._is_LEADER
+
+    @property
+    def can_remove(self):
+        return self.membership and self.membership.role._is_LEADER

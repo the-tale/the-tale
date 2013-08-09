@@ -4,7 +4,7 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.utils.feedgenerator import Atom1Feed
 
-from dext.views import handler, validate_argument
+from dext.views import handler, validate_argument, validator
 from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
@@ -52,6 +52,9 @@ def is_moderator(account):
     return account._model.groups.filter(name=forum_settings.MODERATOR_GROUP_NAME).exists()
 
 
+@validator(code='forum.subcategory_access_restricted', message=u'Вы не можете работать с материаллами из этого раздела')
+def validate_ownership(self, *args, **kwargs): return self.account.id == self.bill.owner.id
+
 class BaseForumResource(Resource):
 
     @validate_argument('category', CategoryPrototype.get_by_slug, 'forum', u'категория не найдена')
@@ -65,6 +68,10 @@ class BaseForumResource(Resource):
         self.thread = self.post.thread if self.post and thread is None else thread
         self.subcategory = self.thread.subcategory if self.thread and subcategory is None else subcategory
         self.category = self.subcategory.category if self.subcategory and category is None else category
+
+        # if self.subcategory and self.subcategory.is_restricted_for(self.account):
+        #     if not is_moderator(self.account):
+        #         return self.auto_error('forum.subcategory_access_restricted', u'Вы не можете работать с материаллами из этого раздела')
 
         # TODO: check consistency
 

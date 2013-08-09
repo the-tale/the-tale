@@ -3,9 +3,13 @@
 from django.db import models, IntegrityError
 
 from dext.utils.decorators import nested_commit_on_success
+from dext.utils.urls import full_url
 
 from common.utils.prototypes import BasePrototype
 from common.utils import bbcode
+
+from accounts.personal_messages.prototypes import MessagePrototype
+from accounts.prototypes import AccountPrototype
 
 from accounts.clans.models import Clan, Membership, MembershipRequest
 from accounts.clans.relations import MEMBER_ROLE, MEMBERSHIP_REQUEST_TYPE
@@ -39,6 +43,8 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
 
         MembershipPrototype.create(owner, clan, role=MEMBER_ROLE.LEADER)
 
+        owner.set_clan_id(clan.id)
+
         return clan
 
     @nested_commit_on_success
@@ -49,6 +55,11 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
             raise exceptions.AddMemberFromClanError(member_id=account.id, clan_id=self.id)
 
         self._model_class.objects.filter(id=self.id).update(members_number=models.F('members_number')+1)
+
+        MembershipRequestPrototype._db_filter(account_id=account.id).delete()
+
+        account.set_clan_id(self.id)
+
         self.save()
 
     @nested_commit_on_success
@@ -61,6 +72,8 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
         if membership.role._is_LEADER:
             raise exceptions.RemoveLeaderFromClanError(member_id=account.id, clan_id=self.id)
 
+        account.set_clan_id(None)
+
         membership.remove()
 
         self._model.members_number = MembershipPrototype._db_filter(clan_id=self.id).count()
@@ -72,6 +85,9 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
     def remove(self):
         MembershipPrototype._db_filter(clan_id=self.id).delete()
         self._model.delete()
+
+    def get_leader(self):
+        return AccountPrototype.get_by_id(MembershipPrototype._model_class.objects.get(clan_id=self.id, role=MEMBER_ROLE.LEADER).account_id)
 
 
 
@@ -87,6 +103,7 @@ class MembershipPrototype(BasePrototype): #pylint: disable=R0904
     _get_by = ('clan_id', 'account_id')
 
     @classmethod
+    @nested_commit_on_success
     def create(cls, account, clan, role):
         model = cls._model_class.objects.create(clan=clan._model,
                                                 account=account._model,
@@ -109,13 +126,58 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
     _get_by = ('id', 'clan_id', 'account_id')
 
     @classmethod
-    def create(cls, account, clan, text, type):
+    def get_for(cls, clan_id, account_id):
+        try:
+            return cls(model=cls._model_class.objects.get(clan_id=clan_id, account_id=account_id))
+        except cls._model_class.DoesNotExist:
+            return None
+
+    def _create_invite_message(self, initiator, account, clan):
+        message = u'''
+Игрок %(clan_leader_link)s предлагает вам вступить в гильдию %(clan_link)s:
+
+%(text)s
+
+----------
+принять или отклонить предложение вы можете на этой странице: %(invites_link)s
+''' % {'clan_leader_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick),
+       'text': self.text,
+       'clan_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', clan.id), clan.name),
+       'invites_link': u'[url="%s"]Приглашения в гильдию [/url]' % full_url('http', 'accounts:clans:membership:for-account')}
+
+        MessagePrototype.create(initiator, account, message)
+
+    def _create_request_message(self, initiator, account, clan):
+        message = u'''
+Игрок %(account)s просит принять его в вашу гильдию:
+
+%(text)s
+
+----------
+принять или отклонить предложение вы можете на этой странице: %(invites_link)s
+''' % {'account': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', account.id), account.nick),
+       'text': self.text,
+       'invites_link': u'[url="%s"]Заявки в гильдию[/url]' % full_url('http', 'accounts:clans:membership:for-clan')}
+
+        MessagePrototype.create(initiator, clan.get_leader(), message)
+
+    @classmethod
+    @nested_commit_on_success
+    def create(cls, initiator, account, clan, text, type):
 
         model = cls._model_class.objects.create(clan=clan._model,
                                                 account=account._model,
+                                                initiator=initiator._model,
                                                 type=type,
                                                 text=text)
-        return cls(model)
+        prototype = cls(model)
+
+        if type._is_FROM_CLAN:
+            prototype._create_invite_message(initiator, account, clan)
+        else:
+            prototype._create_request_message(initiator, account, clan)
+
+        return prototype
 
     @classmethod
     def get_for_clan(cls, clan_id):

@@ -42,6 +42,7 @@ class SubCategory(models.Model):
     posts_count = models.BigIntegerField(default=0, null=False)
 
     closed = models.BooleanField(default=False) # if True, only staff can create themes in this subcategory
+    restricted = models.BooleanField(default=False, db_index=True) # if True, permissions required to work with this subcategory
 
     def __unicode__(self): return self.slug
 
@@ -133,3 +134,14 @@ class SubCategoryReadInfo(models.Model):
 
     class Meta:
         unique_together = (('subcategory', 'account'),)
+
+
+
+class Permission(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True, db_index=True)
+
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='+')
+
+    account = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)

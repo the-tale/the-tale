@@ -12,10 +12,9 @@ from common.utils import list_filter
 from accounts.views import validate_fast_account
 from accounts.prototypes import AccountPrototype
 
-
 from accounts.clans.prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
 from accounts.clans.conf import clans_settings
-from accounts.clans.relations import ORDER_BY, MEMBER_ROLE, PAGE_ID
+from accounts.clans.relations import ORDER_BY, MEMBER_ROLE, PAGE_ID, MEMBERSHIP_REQUEST_TYPE
 from accounts.clans.forms import ClanForm, MembershipRequestForm
 from accounts.clans.logic import ClanInfo
 
@@ -28,18 +27,27 @@ class IndexFilter(list_filter.ListFilter):
 
 class ClansResource(Resource):
 
-    @validate_argument('clan', ClanPrototype.get_by_id, 'clans', u'неверный идентификатор клана')
+    @validate_argument('clan', ClanPrototype.get_by_id, 'clans', u'неверный идентификатор гильдии')
     def initialize(self, clan=None, *args, **kwargs):
         super(ClansResource, self).initialize(*args, **kwargs)
         self.clan = clan
         self.clan_info = ClanInfo(account=self.account)
 
 
-    @validator(code='clans.not_owner', message=u'Вы не являетесь владельцем клана')
+    @validator(code='clans.not_owner', message=u'Вы не являетесь владельцем гильдии')
     def validate_ownership(self, *args, **kwargs): return self.clan_info.is_owner_of(self.clan)
 
-    @validator(code='clans.can_not_create_clan', message=u'Вы не можете создать клан')
+    @validator(code='clans.can_not_create_clan', message=u'Вы не можете создать гильдию')
     def validate_creation_rights(self, *args, **kwargs): return self.clan_info.can_create_clan
+
+    @validate_argument('account', AccountPrototype.get_by_id, 'clans.account_clan', u'неверный идентификатор аккаунта')
+    @handler('account-clan')
+    def account_clan(self, account):
+        clan_info = ClanInfo(account=account)
+        if clan_info.clan_id is not None:
+            return self.redirect(url('accounts:clans:show', clan_info.clan_id))
+        return self.auto_error('clans.account_clan.no_clan', u'Пользователь не состоит в гильдии')
+
 
     @validate_argument('page', int, 'clans', u'неверная страница')
     @validate_argument('order_by', ORDER_BY, 'clans', u'неверный параметр сортировки')
@@ -100,6 +108,12 @@ class ClansResource(Resource):
         if not form.is_valid():
             return self.json_error('clans.create.form_errors', form.errors)
 
+        if ClanPrototype._db_filter(name=form.c.name).exists():
+            return self.json_error('clans.create.name_exists', u'Гильдия с таким названием уже существует')
+
+        if ClanPrototype._db_filter(abbr=form.c.abbr).exists():
+            return self.json_error('clans.create.abbr_exists', u'Гильдия с такой аббревиатурой уже существует')
+
         clan = ClanPrototype.create(owner=self.account,
                                     abbr=form.c.abbr,
                                     name=form.c.name,
@@ -110,8 +124,17 @@ class ClansResource(Resource):
 
     @handler('#clan', name='show')
     def show(self):
+        from game.heroes.prototypes import HeroPrototype
+
+        roles = {member.account_id:member.role for member in MembershipPrototype.get_list_by_clan_id(self.clan.id)}
+        accounts = sorted(AccountPrototype.get_list_by_id(roles.keys()), key=lambda a: (roles[a.id].value, a.nick))
+        heroes = {hero.account_id:hero for hero in HeroPrototype.get_list_by_account_id(roles.keys())}
+
         return self.template('clans/show.html',
-                             {'page_id': PAGE_ID.SHOW})
+                             {'page_id': PAGE_ID.SHOW,
+                              'roles': roles,
+                              'accounts': accounts,
+                              'heroes': heroes})
 
     @login_required
     @validate_ownership()
@@ -133,6 +156,13 @@ class ClansResource(Resource):
 
         if not form.is_valid():
             return self.json_error('clans.update.form_errors', form.errors)
+
+        if ClanPrototype._db_filter(name=form.c.name).exclude(id=self.clan.id).exists():
+            return self.json_error('clans.update.name_exists', u'Гильдия с таким названием уже существует')
+
+        if ClanPrototype._db_filter(abbr=form.c.abbr).exclude(id=self.clan.id).exists():
+            return self.json_error('clans.update.abbr_exists', u'Гильдия с такой аббревиатурой уже существует')
+
 
         self.clan.abbr = form.c.abbr
         self.clan.name = form.c.name
@@ -166,24 +196,37 @@ class MembershipResource(Resource):
         self.clan = None # Only for macros.html, TODO: remove
 
 
-    @validator(code='clans.membership.no_invite_rights', message=u'Вы не можете приглашать игроков в клан')
+    @validator(code='clans.membership.no_invite_rights', message=u'Вы не можете приглашать игроков в гильдию')
     def validate_invite_rights(self, *args, **kwargs): return self.clan_info.can_invite
 
-    @validator(code='clans.membership.already_in_clan', message=u'Вы уже состоите в клане')
+    @validator(code='clans.membership.no_remove_rights', message=u'Вы не можете исключать игроков в гильдию')
+    def validate_remove_rights(self, *args, **kwargs): return self.clan_info.can_remove
+
+    @validator(code='clans.membership.already_in_clan', message=u'Вы уже состоите в гильдии')
     def validate_not_in_clan(self, *args, **kwargs): return self.clan_info.membership is None
 
-    @validator(code='clans.membership.other_already_in_clan', message=u'Игрок уже состоит в клане')
+    @validator(code='clans.membership.not_in_clan', message=u'Вы не состоите в гильдии')
+    def validate_in_clan(self, *args, **kwargs): return self.clan_info.membership is not None
+
+    @validator(code='clans.membership.other_already_in_clan', message=u'Игрок уже состоит в гильдии')
     def validate_other_not_in_clan(self, account, **kwargs): return ClanInfo(account).membership is None
 
-    @validator(code='clans.membership.request_not_from_clan', message=u'Запрос не от клана')
-    def validate_request_from_clan(self, request, **kwargs): return request.accepted_by_clan
+    @validator(code='clans.membership.request_not_from_clan', message=u'Запрос не от гильдии')
+    def validate_request_from_clan(self, request, **kwargs): return request.type._is_FROM_CLAN
 
     @validator(code='clans.membership.request_not_from_account', message=u'Запрос не от аккаунта')
-    def validate_request_from_account(self, request, **kwargs): return request.accepted_by_account
+    def validate_request_from_account(self, request, **kwargs): return request.type._is_FROM_ACCOUNT
+
+    @validator(code='clans.membership.account_has_invite', message=u'Игрок уже отправил заявку на вступление или получил приглашение в вашу гильдию')
+    def validate_account_has_invite(self, account, **kwargs): return MembershipRequestPrototype.get_for(account_id=account.id, clan_id=self.clan_info.clan_id) is None
+
+    @validator(code='clans.membership.clan_has_request', message=u'Вы уже отправили заявку на вступление или получили приглашение в эту гильдию')
+    def validate_clan_has_request(self, clan, **kwargs): return MembershipRequestPrototype.get_for(account_id=self.account.id, clan_id=clan.id) is None
 
     @validate_invite_rights()
     @handler('for-clan')
     def for_clan(self):
+        self.clan = self.clan_info.clan
         requests = MembershipRequestPrototype.get_for_clan(self.clan_info.clan_id)
         accounts = {model.id: AccountPrototype(model) for model in AccountPrototype._db_filter(id__in=[request.account_id for request in requests])}
         return self.template('clans/membership/for_clan.html',
@@ -195,106 +238,134 @@ class MembershipResource(Resource):
     def for_account(self):
         requests = MembershipRequestPrototype.get_for_account(self.account.id)
         accounts = {model.id: AccountPrototype(model) for model in AccountPrototype._db_filter(id__in=[request.account_id for request in requests])}
+        clans = {model.id: ClanPrototype(model) for model in ClanPrototype._db_filter(id__in=[request.clan_id for request in requests])}
         return self.template('clans/membership/for_account.html',
                              {'requests': requests,
                               'accounts': accounts,
+                              'clans': clans,
                               'page_id': PAGE_ID.FOR_ACCOUNT,})
 
 
+    @validate_argument('account', AccountPrototype.get_by_id, 'clans.membership.invite', u'неверный идентификатор аккаунта')
     @validate_invite_rights()
     @validate_other_not_in_clan()
-    @validate_argument('account', AccountPrototype.get_by_id, 'clans.membership.invite_dialog', u'неверный идентификатор аккаунта')
+    @validate_account_has_invite()
     @handler('invite', method='get')
     def invite_dialog(self, account):
         return self.template('clans/membership/invite_dialog.html',
-                             {})
+                             {'invited_account': account,
+                              'form': MembershipRequestForm()})
 
 
+    @validate_argument('clan', ClanPrototype.get_by_id, 'clans.membership.request', u'неверный идентификатор гильдии')
     @validate_not_in_clan()
-    @validate_argument('clan', ClanPrototype.get_by_id, 'clans.membership.request_dialog', u'неверный идентификатор клана')
+    @validate_clan_has_request()
     @handler('request', method='get')
     def request_dialog(self, clan):
         return self.template('clans/membership/request_dialog.html',
-                             {})
+                             {'invited_clan': clan,
+                              'form': MembershipRequestForm()})
 
 
+    @validate_argument('account', AccountPrototype.get_by_id, 'clans.membership.invite', u'неверный идентификатор аккаунта')
     @validate_invite_rights()
     @validate_other_not_in_clan()
-    @validate_argument('account', AccountPrototype.get_by_id, 'clans.membership.invite', u'неверный идентификатор аккаунта')
+    @validate_account_has_invite()
     @handler('invite', method='post')
     def invite(self, account):
         form = MembershipRequestForm(self.request.POST)
         if not form.is_valid():
             return self.json_error('clans.membership.invite.form_errors', form.errors)
 
-        MembershipRequestPrototype.create(account=account,
+        MembershipRequestPrototype.create(initiator=self.account,
+                                          account=account,
                                           clan=self.clan_info.clan,
                                           text=form.c.text,
-                                          accepted_by_clan=True)
+                                          type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
 
         return self.json_ok()
 
 
+    @validate_argument('clan', ClanPrototype.get_by_id, 'clans.membership.request', u'неверный идентификатор гильдии')
     @validate_not_in_clan()
-    @validate_argument('clan', ClanPrototype.get_by_id, 'clans.membership.request', u'неверный идентификатор клана')
-    @handler('request', method='get')
-    def request(self, clan):
+    @validate_clan_has_request()
+    @handler('request', method='post')
+    def request_post(self, clan):
         form = MembershipRequestForm(self.request.POST)
         if not form.is_valid():
-            return self.json_error('clans.membership.invite.form_errors', form.errors)
+            return self.json_error('clans.membership.request.form_errors', form.errors)
 
-        MembershipRequestPrototype.create(account=self.account,
+        MembershipRequestPrototype.create(initiator=self.account,
+                                          account=self.account,
                                           clan=clan,
                                           text=form.c.text,
-                                          accepted_by_account=True)
+                                          type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
         return self.json_ok()
 
     @nested_commit_on_success
+    @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.accept_request', u'Неверный идентификатор приглашения')
     @validate_invite_rights()
     @validate_request_from_account()
-    @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.accept_request', u'Неверный идентификатор приглашения')
     @handler('accept-request', method='post')
     def accept_request(self, request):
-        MembershipPrototype.create(account=AccountPrototype.get_by_id(request.account_id),
-                                   clan=self.clan_info.clan,
-                                   role=MEMBER_ROLE.MEMBER)
-
+        self.clan_info.clan.add_member(AccountPrototype.get_by_id(request.account_id))
         request.remove()
         return self.json_ok()
 
     @nested_commit_on_success
+    @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.accept_invite', u'Неверный идентификатор приглашения')
     @validate_not_in_clan()
     @validate_request_from_clan()
-    @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.accept_request', u'Неверный идентификатор приглашения')
-    @handler('accept-request', method='post')
+    @handler('accept-invite', method='post')
     def accept_invite(self, request):
-        MembershipPrototype.create(account=AccountPrototype.get_by_id(request.account_id),
-                                   clan=self.clan_info.clan,
-                                   role=MEMBER_ROLE.MEMBER)
-
+        ClanPrototype.get_by_id(request.clan_id).add_member(self.account)
         request.remove()
         return self.json_ok()
 
 
     @nested_commit_on_success
+    @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.reject_request', u'Неверный идентификатор приглашения')
     @validate_invite_rights()
     @validate_request_from_account()
-    @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.reject_request', u'Неверный идентификатор приглашения')
-    @handler('accept-request', method='post')
+    @handler('reject-request', method='post')
     def reject_request(self, request):
         request.remove()
         return self.json_ok()
 
     @nested_commit_on_success
+    @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.reject_invite', u'Неверный идентификатор приглашения')
     @validate_not_in_clan()
     @validate_request_from_clan()
-    @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.reject_request', u'Неверный идентификатор приглашения')
-    @handler('accept-request', method='post')
+    @handler('reject-invite', method='post')
     def reject_invite(self, request):
-        MembershipPrototype.create(account=AccountPrototype.get_by_id(request.account_id),
-                                   clan=self.clan_info.clan,
-                                   role=MEMBER_ROLE.MEMBER)
-
         request.remove()
+        return self.json_ok()
+
+    @nested_commit_on_success
+    @validate_argument('account', AccountPrototype.get_by_id, 'clan.membership.remove_from_clan', u'Неверный идентификатор пользователя')
+    @validate_remove_rights()
+    @handler('remove-from-clan', method='post')
+    def remove_from_clan(self, account):
+        other_clan_info = ClanInfo(account)
+        if other_clan_info.clan_id != self.clan_info.clan_id:
+            return self.auto_error('clans.membership.remove_from_clan.not_in_clan', u'Игрок не состоит в вашей гильдии')
+
+        if self.clan_info.membership.role.priority >= other_clan_info.membership.role.priority:
+            return self.auto_error('clans.membership.remove_from_clan.wrong_role_priority', u'Вы не можете исключить игрока в этом звании')
+
+        self.clan_info.clan.remove_member(account)
+
+        return self.json_ok()
+
+
+    @nested_commit_on_success
+    @validate_in_clan()
+    @handler('leave-clan', method='post')
+    def leave_clan(self):
+        if self.clan_info.membership.role._is_LEADER:
+            return self.auto_error('clans.membership.leave_clan.leader', u'Лидер гильдии не может покинуть её. Передайте лидерство или расформируйте гильдию.')
+
+        self.clan_info.clan.remove_member(self.account)
+
         return self.json_ok()

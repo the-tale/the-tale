@@ -41,7 +41,13 @@ def validate_ban_forum(self, *args, **kwargs): return not self.account.is_ban_fo
 def validate_ban_game(self, *args, **kwargs): return not self.account.is_ban_game
 
 
-class RegistrationResource(Resource):
+class BaseAccountsResource(Resource):
+
+    def initialize(self, *argv, **kwargs):
+        super(BaseAccountsResource, self).initialize(*argv, **kwargs)
+
+
+class RegistrationResource(BaseAccountsResource):
 
     @handler('fast', method='post')
     def fast(self):
@@ -81,7 +87,7 @@ class RegistrationResource(Resource):
         return self.json_processing(task.status_url)
 
 
-class AuthResource(Resource):
+class AuthResource(BaseAccountsResource):
 
     @handler('login', method='get')
     def login_page(self, next_url='/'):
@@ -124,7 +130,7 @@ class AuthResource(Resource):
         return self.redirect('/')
 
 
-class ProfileResource(Resource):
+class ProfileResource(BaseAccountsResource):
 
     @login_required
     @handler('', name='show', method='get')
@@ -289,7 +295,7 @@ class ProfileResource(Resource):
         return self.json_ok()
 
 
-class AccountResource(Resource):
+class AccountResource(BaseAccountsResource):
 
     @validate_argument('account', AccountPrototype.get_by_id, 'accounts.account', u'Аккаунт не найден')
     def initialize(self, account=None, *args, **kwargs):
@@ -352,6 +358,7 @@ class AccountResource(Resource):
         from game.bills.relations import BILL_STATE
         from game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
         from game.phrase_candidates.models import PhraseCandidate
+        from accounts.clans.logic import ClanInfo
 
         bills_count = Bill.objects.filter(owner=self.master_account._model).exclude(state=BILL_STATE.REMOVED).count()
 
@@ -384,6 +391,8 @@ class AccountResource(Resource):
                               'threads_count': threads_count,
                               'folclor_posts_count': folclor_posts_count,
                               'phrases_count': phrases_count,
+                              'master_clan_info': ClanInfo(self.master_account),
+                              'own_clan_info': ClanInfo(self.account),
                               'friendship': friendship} )
 
     @login_required

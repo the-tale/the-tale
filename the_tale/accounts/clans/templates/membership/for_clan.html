@@ -1,17 +1,34 @@
 {% extends "clans/base.html" %}
 
-{% import 'clans/membership/macros.html' as membership_macros with context %}
-
-{% block title %}Запросы на вступление в клан | {{ super() }}{% endblock %}
+{% block title %}Заявки на вступление в гильдию | {{ super() }}{% endblock %}
 
 {% block clans_content %}
 
-<h2 style="margin-bottom: 0.5em;">Запросы на вступление в клан</h2>
+<h2 style="margin-bottom: 0.5em;">Заявки на вступление в гильдию</h2>
 
 {% if requests %}
-{{membership_macros.requests_list(requests, accounts)}}
+
+{% for request in requests %}
+
+{% set request_account = accounts[request.account_id] %}
+
+<h4>
+  <a href="{{url('accounts:show', request_account.id)}}">{{request_account.nick}}</a>
+  <small>от <span class="created-at pgf-format-date" data-timestamp="{{ request.created_at|timestamp }}"></span></small>
+</h4>
+<blockquote>{{request.text_html|safe}}</blockquote>
+
+<a class="btn btn-success pgf-forms-post-simple"
+   href="{{ url('accounts:clans:membership:accept-request', request=request.id) }}">Принять</a>
+<a class="btn btn-danger pgf-forms-post-simple"
+   href="{{ url('accounts:clans:membership:reject-request', request=request.id) }}">Отклонить</a>
+
+<br/>
+
+{% endfor %}
+
 {% else %}
-<span class="pgf-no-requests-message">Нет запросов на вступление в клан</span>
+<p class="pgf-no-requests-message alert alert-info">Нет заявок на вступление в гильдию</p>
 {% endif %}
 
 

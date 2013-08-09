@@ -1,6 +1,6 @@
 {% extends "clans/base.html" %}
 
-{% block title %}Редактирование клана | {{ super() }}{% endblock %}
+{% block title %}Редактирование гильдии | {{ super() }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -18,7 +18,7 @@ jQuery(document).ready( function(e) {
 
 {% block clans_content %}
 
-<h2>Редактирование клана</h2>
+<h2>Редактирование гильдии</h2>
 
 <form id="pgf-edit-clan-form" method="post" action="{{ url('accounts:clans:update', resource.clan.id) }}">
 

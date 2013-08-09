@@ -1,0 +1,44 @@
+
+{% macro messages_broadcast_script(uid) %}
+<script type="text/javascript">
+jQuery(document).ready(function(){
+
+    var allCheckbox = jQuery('.pgf-{{uid}}-checkbox-all');
+    var friendCheckboxes = jQuery('.pgf-{{uid}}-checkbox');
+    var newMessageButton = jQuery('.pgf-new-message-button');
+
+    allCheckbox.change(function(){
+        friendCheckboxes.prop("checked", allCheckbox.prop("checked"));
+        newMessageButton.toggleClass('disabled', jQuery('.pgf-{{uid}}-checkbox:checked').length == 0);
+    });
+
+    friendCheckboxes.change(function(){
+        var checkedFriendCheckboxes = jQuery('.pgf-{{uid}}-checkbox:checked');
+        var checkedFriendsNumber = checkedFriendCheckboxes.length;
+        allCheckbox.prop("checked", friendCheckboxes.length == checkedFriendsNumber);
+        newMessageButton.toggleClass('disabled', checkedFriendsNumber == 0);
+    });
+
+    newMessageButton.click(function(e){
+        e.preventDefault();
+
+        if (newMessageButton.hasClass('disabled')) return;
+
+        var recipients = [];
+        jQuery('.pgf-{{uid}}-checkbox:checked').each(function(i, e){
+            recipients.push(jQuery(e).val());
+        });
+
+        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:messages:new') }}?recipients=" + recipients.join(','),
+                               OnOpen: function(dialog) {
+                                   var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form', dialog),
+                                                                           { OnSuccess: function(form, data){ dialog.modal('hide'); }
+                                                                           });
+                               }
+                             });
+    });
+
+});
+</script>
+
+{% endmacro %}

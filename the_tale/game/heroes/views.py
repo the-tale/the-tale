@@ -11,6 +11,7 @@ from common.utils.decorators import login_required
 from common.postponed_tasks import PostponedTaskPrototype
 
 from accounts.prototypes import AccountPrototype
+from accounts.clans.prototypes import ClanPrototype
 
 from game.balance import constants as c
 
@@ -79,6 +80,13 @@ class HeroResource(Resource):
         edit_name_form = EditNameForm(initial={'name_forms': self.hero.normalized_name.forms[:6] if self.hero.is_name_changed else [self.hero.name]*6,
                                                'gender': self.hero.gender,
                                                'race': self.hero.race} )
+
+        master_account = AccountPrototype.get_by_id(self.hero.account_id)
+
+        master_clan = None
+        if master_account.clan_id is not None:
+            master_clan = ClanPrototype.get_by_id(master_account.clan_id)
+
         return self.template('heroes/hero_page.html',
                              {'battle_active_abilities': battle_active_abilities,
                               'battle_passive_abilities': battle_passive_abilities,
@@ -86,7 +94,8 @@ class HeroResource(Resource):
                               'heroes_settings': heroes_settings,
                               'is_owner': self.is_owner,
                               'edit_name_form': edit_name_form,
-                              'master_account': AccountPrototype.get_by_id(self.hero.account_id),
+                              'master_account': master_account,
+                              'master_clan': master_clan,
                               'PREFERENCE_TYPE': PREFERENCE_TYPE} )
 
     @login_required

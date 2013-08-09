@@ -10,7 +10,7 @@ PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 HOME_DIR = os.getenv("HOME")
 
 META_CONFIG_FILE = os.path.join(PROJECT_DIR, 'meta_config.json')
-meta_config = MetaConfig(config_path=META_CONFIG_FILE)
+META_CONFIG = MetaConfig(config_path=META_CONFIG_FILE)
 
 DEBUG = False
 
@@ -65,7 +65,7 @@ USE_L10N = True
 # MEDIA_ROOT = ''
 # MEDIA_URL = ''
 
-STATIC_URL = '/static/%s/' % meta_config.static_data_version
+STATIC_URL = '/static/%s/' % META_CONFIG.static_data_version
 STATIC_DIR = os.path.join(PROJECT_DIR, 'static')
 
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'

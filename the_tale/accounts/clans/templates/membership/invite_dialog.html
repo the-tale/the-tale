@@ -1,0 +1,26 @@
+<div class="modal hide pgf-invite-dialog">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">Пригласить игрока в гильдию</h3>
+  </div>
+
+  <div class="modal-body">
+
+    <p class="alert alert-info">
+      Вы собираетесь пригласить игрока <a target="_blank" href="{{url('accounts:show', invited_account.id)}}">{{invited_account.nick}}</a> в свою гильдию.
+    </p>
+
+    <form id="pgf-invite-form" method="post" action="{{ url('accounts:clans:membership:invite', account=invited_account.id) }}">
+      {{ form.errors_container }}
+
+      {{ form.text.widget }}
+
+      <div class="widget">
+        <input type="submit" class="btn" value="Пригласить"/>
+      </div>
+
+    </form>
+  </div>
+
+</div>

@@ -156,7 +156,7 @@ jQuery(document).ready(function() {
                                                                          (url("guide:persons"), "Жители Пандоры"),
                                                                          (url("guide:cities"), "Города"),
                                                                          (url("guide:politics"), "Политика"),
-                                                                         (url("guide:clans"), "Кланы"),
+                                                                         (url("guide:clans"), "Гильдии"),
                                                                          (url("guide:map"), "Карта"),
                                                                          (url("guide:pvp"), "PvP"),
                                                                          (url("guide:mobs:"), "Бестиарий"),
@@ -167,7 +167,7 @@ jQuery(document).ready(function() {
                                                                          (url("cms:development:"), get_cms_section_info("development").caption),
                                                                          (faq_url(), "FAQ")]) }}
             {{ base_macros.main_menu_item("community", "#", "Сообщество", [(url("accounts:"), "Игроки"),
-                                                                           (url("accounts:clans:"), "Кланы"),
+                                                                           (url("accounts:clans:"), "Гильдии"),
                                                                            (url("game:ratings:"), "Рейтинги"),
                                                                            (url("game:pvp:calls"), "Арена")]) }}
 
@@ -215,6 +215,7 @@ jQuery(document).ready(function() {
                                            (url("forum:subscriptions:"), "Подписки"),
                                            (url("accounts:show", resource.account.id), "Моя страница"),
                                            (url("game:heroes:my-hero"), "Мой герой"),
+                                           (url("accounts:clans:show", resource.account.clan_id) if resource.account.clan_id is not none else none, "Моя гильдия") ,
                                            ('-', '<li class="divider"></li>'),
                                            (logout_url(), "Выход")] ) }}
 
@@ -263,6 +264,7 @@ jQuery(document).ready(function() {
             <li>поддержка: <a href="mailto:{{ settings.EMAIL_SUPPORT }}">{{ settings.EMAIL_SUPPORT_SHORT }}</a></li>
             <li>использована часть иконок из набора <a href="http://glyphicons.com" target="_blank">Glyphicons</a></li>
             <li>© 2011-{{now().year}} {{settings.OWNER}}</li>
+            <li>версия {{settings.META_CONFIG.version}}</li>
           </ul>
         </div>
       </div>

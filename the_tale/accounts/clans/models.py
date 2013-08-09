@@ -27,6 +27,8 @@ class Clan(models.Model):
 
     members_number = models.IntegerField()
 
+    def __unicode__(self): return u'[%s] %s' % (self.abbr, self.name)
+
 
 class Membership(models.Model):
 
@@ -47,8 +49,13 @@ class MembershipRequest(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     clan = models.ForeignKey(Clan, on_delete=models.CASCADE)
-    account = models.ForeignKey('accounts.Account', on_delete=models.CASCADE)
+    account = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)
+
+    initiator = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)
 
     type = TableIntegerField(relation=MEMBERSHIP_REQUEST_TYPE, relation_column='value')
 
     text = models.TextField(max_length=MAX_TEXT_LENGTH)
+
+    class Meta:
+        unique_together = (('clan', 'account'), )

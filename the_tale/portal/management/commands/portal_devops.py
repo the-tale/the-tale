@@ -7,12 +7,9 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.conf import settings as project_settings
 
-from dext.utils.meta_config import MetaConfig
-
 FABFILE = '/home/tie/repos/mine/devops/the_tale/deploy.py'
 
-meta_config = MetaConfig(config_path=project_settings.META_CONFIG_FILE)
-
+META_CONFIG = project_settings.META_CONFIG
 
 class Command(BaseCommand):
 
@@ -29,8 +26,8 @@ class Command(BaseCommand):
 
     def setup(self, host, user, newrelic):
         full_host = '%s@%s' % (user, host)
-        subprocess.call(['fab', '-f', FABFILE, 'setup:static_data_version=%s,version=%s,domain=%s,host=%s,newrelic=%s' % (meta_config.static_data_version,
-                                                                                                                          meta_config.version, # 'rc.0.2.6',
+        subprocess.call(['fab', '-f', FABFILE, 'setup:static_data_version=%s,version=%s,domain=%s,host=%s,newrelic=%s' % (META_CONFIG.static_data_version,
+                                                                                                                          META_CONFIG.version, # 'rc.0.2.6',
                                                                                                                           host,
                                                                                                                           full_host,
                                                                                                                           'true' if newrelic else 'false')])

@@ -38,6 +38,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'referer',
                  'referer_domain',
                  'referral_of_id',
+                 'clan_id',
                  'referrals_number')
     _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription')
     _get_by = ('id', 'email', 'nick')
@@ -138,6 +139,10 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def increment_new_messages_number(self):
         Account.objects.filter(id=self.id).update(new_messages_number=models.F('new_messages_number')+1)
         self._model.new_messages_number = self._model.new_messages_number + 1
+
+    def set_clan_id(self, clan_id):
+        Account.objects.filter(id=self.id).update(clan=clan_id)
+        self._model.clan_id = clan_id
 
     def check_password(self, password):
         return self._model.check_password(password)

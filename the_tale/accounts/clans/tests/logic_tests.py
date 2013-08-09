@@ -93,3 +93,15 @@ class ClanInfoTests(TestCase, ClansTestsMixin):
     def test_can_invite__has_rights(self):
         self.create_clan(self.account, 0)
         self.assertTrue(self.clan_info.can_invite)
+
+    def test_can_remove__not_member(self):
+        self.assertFalse(self.clan_info.can_remove)
+
+    @mock.patch('accounts.clans.prototypes.MembershipPrototype.role', MEMBER_ROLE.MEMBER)
+    def test_can_remove__no_rights(self):
+        self.create_clan(self.account, 0)
+        self.assertFalse(self.clan_info.can_remove)
+
+    def test_can_remove__has_rights(self):
+        self.create_clan(self.account, 0)
+        self.assertTrue(self.clan_info.can_remove)

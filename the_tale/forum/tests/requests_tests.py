@@ -13,7 +13,13 @@ from accounts.logic import register_user, login_url
 from game.logic import create_test_map
 
 from forum.models import Category, SubCategory, Thread, Post, Subscription
-from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype, CategoryPrototype, ThreadReadInfoPrototype, SubCategoryReadInfoPrototype
+from forum.prototypes import (ThreadPrototype,
+                              PostPrototype,
+                              SubCategoryPrototype,
+                              CategoryPrototype,
+                              ThreadReadInfoPrototype,
+                              SubCategoryReadInfoPrototype,
+                              PermissionPrototype)
 from forum.conf import forum_settings
 
 
@@ -91,13 +97,15 @@ class TestRequests(BaseTestRequests):
         self.request_logout()
         self.check_html_ok(self.request_html(reverse('forum:')), texts=texts)
 
+
+class TestSubcategoryRequests(BaseTestRequests):
+
     def test_subcategory__unlogined(self):
         texts = ['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption']
         self.request_logout()
         self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
 
         self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 0)
-
 
     def test_subcategory(self):
         self.request_logout()
@@ -112,8 +120,15 @@ class TestRequests(BaseTestRequests):
 
         self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcat1-slug'])), texts=[('pgf-new-thread-marker', 0)])
 
+    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    def test_no_permissions(self):
+        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcat1-slug'])), texts=['forum.subcategory_access_restricted'])
+
     def test_subcategory_not_found(self):
         self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcatXXX-slug'])), texts=[('forum.subcategory.not_found', 1)], status_code=404)
+
+
+class TestNewThreadRequests(BaseTestRequests):
 
     def test_new_thread(self):
         texts = ['cat1-caption', 'subcat1-caption']
@@ -132,6 +147,9 @@ class TestRequests(BaseTestRequests):
     @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_new_thread_banned(self):
         self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-common.ban_forum'])
+
+
+class TestCreateThreadRequests(BaseTestRequests):
 
     def test_create_thread_unlogined(self):
         self.request_logout()
@@ -177,6 +195,9 @@ class TestRequests(BaseTestRequests):
         self.assertEqual(Post.objects.all().count(), 5)
 
         self.assertEqual(SubCategory.objects.get(id=self.subcat1.id).posts_count, 1)
+
+
+class TestShowThreadRequests(BaseTestRequests):
 
     def test_get_thread_unlogined(self):
         self.request_logout()
@@ -233,6 +254,9 @@ class TestRequests(BaseTestRequests):
         self.assertEqual(Thread.objects.get(id=self.thread1.id).posts_count, 5)
         self.assertEqual(Thread.objects.get(id=self.thread2.id).posts_count, 7)
 
+
+class TestCreatePostRequests(BaseTestRequests):
+
     def test_create_post_unlogined(self):
         self.request_logout()
         self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
@@ -261,6 +285,9 @@ class TestRequests(BaseTestRequests):
     def test_create_post_thread_not_found(self):
         self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=666'), {'text': 'thread3-test-post'}),
                               'forum.posts.create.thread.not_found')
+
+
+class TestFeedRequests(BaseTestRequests):
 
     def test_feed_page(self):
 

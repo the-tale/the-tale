@@ -1,6 +1,13 @@
 {% extends "clans/base.html" %}
 
+{% import 'friends/macros.html' as friends_macros with context %}
+
 {% block title %}{{resource.clan.name}} | {{ super() }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+{{friends_macros.messages_broadcast_script(uid='members')}}
+{% endblock %}
 
 {% block clans_content %}
 
@@ -9,6 +16,64 @@
   <small>{{resource.clan.motto}}</small>
 </h2>
 
-{{resource.clan.description_html|safe}}
+<p>
+  {{resource.clan.description_html|safe}}
+</p>
+
+<strong>всего героев: {{resource.clan.members_number}}</strong>
+
+<table class="table table-condensed table-striped table-bordered table-no-highlighting">
+  <tr>
+    {% if resource.clan_info.clan and resource.clan.id == resource.clan_info.clan_id %}
+    <th width="16px;"><input type="checkbox" class="pgf-members-checkbox-all" value="all"></th>
+    {% endif %}
+    <th width="20px">№</th>
+    <th width="100px">Игрок</th>
+    <th width="100px">Звание</th>
+    <th>Герой</th>
+    {% if resource.clan_info.clan and resource.clan.id == resource.clan_info.clan_id and not resource.clan_info.membership.role._is_MEMBER %}
+    <th width="100px">Действия</th>
+    {% endif %}
+  </tr>
+  {% for account in accounts %}
+
+  {% set role = roles[account.id] %}
+  {% set hero = heroes[account.id] %}
+
+  <tr>
+    {% if resource.clan_info.clan and resource.clan.id == resource.clan_info.clan_id %}
+    <td><input type="checkbox" class="pgf-members-checkbox" value="{{account.id}}"></td>
+    {% endif %}
+    <td>{{loop.index}}</td>
+    <td><a href="{{url('accounts:show', account.id)}}">{{account.nick}}</a></td>
+    <td>{{role.text}}</td>
+    <td>
+      {{hero.gender_verbose}}-{{hero.race_verbose}}
+      <a href="{{url('game:heroes:show', hero.id)}}">{{hero.name}}</a>
+      {{ hero.level }} уровня
+    </td>
+    {% if resource.clan_info.clan and resource.clan.id == resource.clan_info.clan_id and not resource.clan_info.membership.role._is_MEMBER %}
+    <td>
+      {% if not role._is_LEADER %}
+      <div class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">изменить<b class="caret"></b></a>
+        <ul class="dropdown-menu" role="menu">
+          <li>
+            <a class="pgf-forms-post-simple"
+               href="{{ url('accounts:clans:membership:remove-from-clan', account=account.id) }}"
+               data-confirmation="Вы действительно хотите исключить <a target='_blank' href='{{url('accounts:show', account.id)}}'>{{account.nick}}</a> из гильдии?">
+              Исключить из гильдии
+            </a>
+          </li>
+        </ul>
+      </div>
+      {% endif %}
+    </td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+</table>
+
+<button type="button" class="btn pgf-new-message-button disabled">отправить сообщение</button>
 
 {% endblock %}

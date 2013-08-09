@@ -10,6 +10,7 @@ from common.postponed_tasks import PostponedTaskPrototype
 
 from accounts.prototypes import AccountPrototype
 from accounts.views import validate_fast_account
+from accounts.clans.prototypes import ClanPrototype
 
 from game.conf import game_settings
 
@@ -58,10 +59,20 @@ class PvPResource(Resource):
 
         own_abilities = sorted(self.own_hero.abilities.all, key=lambda x: x.NAME)
 
+        enemy_account = AccountPrototype.get_by_id(battle.enemy_id)
+
         enemy_hero = HeroPrototype.get_by_account_id(battle.enemy_id)
         enemy_abilities = sorted(enemy_hero.abilities.all, key=lambda x: x.NAME)
 
         say_form = SayForm()
+
+        clan = None
+        if self.account.clan_id is not None:
+            clan = ClanPrototype.get_by_id(self.account.clan_id)
+
+        enemy_clan = None
+        if enemy_account.clan_id is not None:
+            enemy_clan = ClanPrototype.get_by_id(enemy_account.clan_id)
 
         return self.template('pvp/pvp_page.html',
                              {'enemy_account': AccountPrototype.get_by_id(battle.enemy_id),
@@ -70,6 +81,8 @@ class PvPResource(Resource):
                               'enemy_abilities': enemy_abilities,
                               'game_settings': game_settings,
                               'say_form': say_form,
+                              'clan': clan,
+                              'enemy_clan': enemy_clan,
                               'battle': battle,
                               'ABILITIES': (Ice, Blood, Flame)} )
 

@@ -49,11 +49,17 @@ class TestModeration(TestCase):
 
         self.thread3 = ThreadPrototype.create(self.subcategory, 'thread3-caption', self.second_account, 'thread3-text')
 
+
+class TestModerationRequests(TestModeration):
+
     def test_initialization(self):
         self.assertEqual(Category.objects.all().count(), 1)
         self.assertEqual(SubCategory.objects.all().count(), 2)
         self.assertEqual(Thread.objects.all().count(), 3)
         self.assertEqual(Post.objects.all().count(), 8)
+
+
+class TestModerationSubcategoryRequests(TestModeration):
 
     ###############################
     # add thread
@@ -75,6 +81,8 @@ class TestModeration(TestCase):
         self.request_login('moderator@test.com')
         self.check_html_ok(self.request_html(reverse('forum:subcategory', args=[self.subcategory2.slug])), texts=[('pgf-new-thread-button', 1)])
 
+
+class TestModerationNewThreadRequests(TestModeration):
     #new page
 
     def test_loggined_new_thread_page(self):
@@ -103,6 +111,8 @@ class TestModeration(TestCase):
         self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcategory2.slug)),
                                            texts=[('pgf-new-thread-form', 2)])
 
+
+class TestModerationCreateThreadRequests(TestModeration):
     # create request
     def test_loggined_create_thread_page(self):
         self.request_login('main_user@test.com')
@@ -146,6 +156,8 @@ class TestModeration(TestCase):
                                       'thread_url': reverse('forum:threads:show', args=[thread.id])})
 
 
+
+class TestModerationShowThreadRequests(TestModeration):
     ###############################
     # thread editing
     ###############################
@@ -165,6 +177,66 @@ class TestModeration(TestCase):
     def test_moderator_user_has_edit_theme_button(self):
         self.request_login('moderator@test.com')
         self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-thread-button', 1)])
+
+    ###############################
+    # thread deletion
+    ###############################
+
+    def test_main_user_has_remove_thread_button(self):
+        self.request_login('main_user@test.com')
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 2)])
+
+    def test_moderator_has_remove_thread_button(self):
+        self.request_login('moderator@test.com')
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 2)])
+
+    def test_second_user_has_remove_thread_button(self):
+        self.request_login('second_user@test.com')
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 0)])
+
+    ###############################
+    # post deletion
+    ###############################
+
+    def test_main_user_has_remove_post_button(self):
+        self.request_login('main_user@test.com')
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 3)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 3)])
+
+    def test_moderator_has_remove_post_button(self):
+        self.request_login('moderator@test.com')
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 3)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 3)])
+
+    def test_second_user_has_remove_post_button(self):
+        self.request_login('second_user@test.com')
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 0)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 2)])
+
+    ###############################
+    # post editing
+    ###############################
+
+    # button
+    def test_main_user_has_edit_post_button(self):
+        self.request_login('main_user@test.com')
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 3)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 2)])
+
+    def test_moderator_has_edit_post_button(self):
+        self.request_login('moderator@test.com')
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 3)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 3)])
+
+    def test_second_user_has_edit_post_button(self):
+        self.request_login('second_user@test.com')
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 0)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 1)])
+        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread3.id])), texts=[('pgf-change-post-button', 1)])
+
+
+
+class TestModerationEditThreadRequests(TestModeration):
 
     # page
     def test_unlogined_user_edit_theme_page(self):
@@ -194,6 +266,9 @@ class TestModeration(TestCase):
         self.check_html_ok(self.request_html(reverse('forum:threads:edit', args=[self.thread.id])), texts=[('pgf-edit-thread-form', 2),
                                                                                                         ('pgf-thread-subcategory', 1),
                                                                                                         ('thread-caption', 2)])
+
+class TestModerationUpdateThreadRequests(TestModeration):
+
     # update request
     def test_unlogined_user_update_theme(self):
         self.check_ajax_error(self.client.post(reverse('forum:threads:update', args=[self.thread.id]), {'caption': 'edited caption'}),
@@ -269,21 +344,7 @@ class TestModeration(TestCase):
         self.assertEqual(subcategory2.threads_count, 1)
 
 
-    ###############################
-    # thread deletion
-    ###############################
-
-    def test_main_user_has_remove_thread_button(self):
-        self.request_login('main_user@test.com')
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 2)])
-
-    def test_moderator_has_remove_thread_button(self):
-        self.request_login('moderator@test.com')
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 2)])
-
-    def test_second_user_has_remove_thread_button(self):
-        self.request_login('second_user@test.com')
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-thread-button', 0)])
+class TestModerationDeleteThreadRequests(TestModeration):
 
     def test_main_user_remove_thread(self):
         self.request_login('main_user@test.com')
@@ -334,24 +395,8 @@ class TestModeration(TestCase):
         self.assertEqual(Thread.objects.all().count(), 3)
         self.assertEqual(Post.objects.all().count(), 8)
 
-    ###############################
-    # post deletion
-    ###############################
 
-    def test_main_user_has_remove_post_button(self):
-        self.request_login('main_user@test.com')
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 3)])
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 3)])
-
-    def test_moderator_has_remove_post_button(self):
-        self.request_login('moderator@test.com')
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 3)])
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 3)])
-
-    def test_second_user_has_remove_post_button(self):
-        self.request_login('second_user@test.com')
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-remove-post-button', 0)])
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-remove-post-button', 2)])
+class TestModerationDeletePostRequests(TestModeration):
 
     # main user
     def test_main_user_remove_post(self):
@@ -433,26 +478,8 @@ class TestModeration(TestCase):
         self.check_ajax_error(self.client.post(reverse('forum:posts:delete', args=[post.id])), 'forum.delete_post.remove_first_post')
         self.assertEqual(Post.objects.all().count(), 8)
 
-    ###############################
-    # post editing
-    ###############################
 
-    # button
-    def test_main_user_has_edit_post_button(self):
-        self.request_login('main_user@test.com')
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 3)])
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 2)])
-
-    def test_moderator_has_edit_post_button(self):
-        self.request_login('moderator@test.com')
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 3)])
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 3)])
-
-    def test_second_user_has_edit_post_button(self):
-        self.request_login('second_user@test.com')
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread.id])), texts=[('pgf-change-post-button', 0)])
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread2.id])), texts=[('pgf-change-post-button', 1)])
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread3.id])), texts=[('pgf-change-post-button', 1)])
+class TestModerationEditPostRequests(TestModeration):
 
     # edit post page
     def test_edit_page_unlogined(self):
@@ -484,6 +511,9 @@ class TestModeration(TestCase):
         self.request_login('main_user@test.com')
         self.check_html_ok(self.request_html(reverse('forum:posts:edit', args=[self.post.id])), texts=[('pgf-change-post-form', 2), ('post-text', 1)])
 
+
+
+class TestModerationUpdatePostRequests(TestModeration):
     # update post
 
     def test_update_post_unlogined(self):

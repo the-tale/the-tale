@@ -18,7 +18,7 @@ from common.utils.prototypes import BasePrototype
 from common.utils.decorators import lazy_property
 
 from forum.conf import forum_settings
-from forum.models import Category, SubCategory, Thread, Post, Subscription, ThreadReadInfo, SubCategoryReadInfo
+from forum.models import Category, SubCategory, Thread, Post, Subscription, ThreadReadInfo, SubCategoryReadInfo, Permission
 from forum.exceptions import ForumException
 from forum.relations import MARKUP_METHOD, POST_REMOVED_BY, POST_STATE
 
@@ -37,7 +37,7 @@ class CategoryPrototype(BasePrototype):
 
 class SubCategoryPrototype(BasePrototype):
     _model_class = SubCategory
-    _readonly = ('id', 'caption', 'slug', 'order', 'created_at', 'category_id', 'updated_at', 'threads_count', 'posts_count', 'closed', 'last_thread_created_at')
+    _readonly = ('id', 'caption', 'slug', 'order', 'created_at', 'category_id', 'updated_at', 'threads_count', 'posts_count', 'closed', 'last_thread_created_at', 'restricted')
     _bidirectional = ()
     _get_by = ('slug', 'id')
 
@@ -50,6 +50,13 @@ class SubCategoryPrototype(BasePrototype):
 
     @lazy_property
     def last_poster(self): return AccountPrototype(self._model.last_poster) if self._model.last_poster else None
+
+    def is_restricted_for(self, account):
+        if not self.restricted:
+            return False
+        if not account.is_authenticated():
+            return False
+        return PermissionPrototype.get_for(account_id=account.id, subcategory_id=self.id) is None
 
     def update(self, author=None, date=None, last_thread_created_at=None):
         self.update_threads_count()
@@ -440,3 +447,23 @@ class SubCategoryReadInfoPrototype(BasePrototype):
 
     def save(self):
         self._model.save()
+
+
+class PermissionPrototype(BasePrototype):
+    _model_class = Permission
+    _readonly = ('id', 'account_id', 'subcategory_id')
+    _bidirectional = ()
+    _get_by = ()
+
+    @classmethod
+    def get_for(cls, account_id, subcategory_id):
+        try:
+            return cls(model=cls._model_class.objects.get(account_id=account_id, subcategory_id=subcategory_id))
+        except cls._model_class.DoesNotExist:
+            return None
+
+    @classmethod
+    def create(cls, account, subcategory):
+        model = cls._model_class.objects.create(account=account._model,
+                                                subcategory=subcategory._model)
+        return cls(model=model)

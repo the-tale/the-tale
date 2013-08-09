@@ -1,5 +1,5 @@
 
-{% macro hero_short(block_id, is_owner, show_hero_link, master_account=none, health_bar=true, data_mode='pve') %}
+{% macro hero_short(block_id, is_owner, show_hero_link, master_account=none, health_bar=true, data_mode='pve', clan=none, no_clan_placement=false) %}
 
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
@@ -83,12 +83,19 @@ jQuery(document).ready(function(e) {
 
   </div>
 
+  <div>
+    {% if clan %}
+    <strong>гильдия:</strong> <a href="{{ url('accounts:clans:show', clan.id) }}">{{clan.name}}</a>
+    {% elif no_clan_placement %}
+    <strong>гильдия:</strong> <small>не состоит в гильдии</small>
+    {% endif %}
+  </div>
+
   {% if master_account and not is_owner %}
   <div>
     <strong>покровитель:</strong> <a href="{{ url('accounts:show', master_account.id) }}">{{master_account.nick}}</a>
   </div>
   {% endif %}
-
 
   <div class="pgf-hidden pgf-might-tooltip">
     <strong>могущество</strong>

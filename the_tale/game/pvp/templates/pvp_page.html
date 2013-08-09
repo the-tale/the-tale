@@ -95,13 +95,13 @@ jQuery(document).ready(function(e){
 
 <div class="row pgf-game-data pgf-hidden">
   <div class="span3">
-    {{ hero_short_macros.hero_short("hero-short-pvp-account", false, true, master_account=resource.account, data_mode="pvp_account") }}
+    {{ hero_short_macros.hero_short("hero-short-pvp-account", false, true, master_account=resource.account, data_mode="pvp_account", clan=clan, no_clan_placement=clan or enemy_clan) }}
   </div>
   <div class="span6">
     {{ pvp_info_macros.pvp_info(say_form=say_form) }}
   </div>
   <div class="span3">
-    {{ hero_short_macros.hero_short("hero-short-pvp-enemy", false, true, master_account=enemy_account, data_mode="pvp_enemy") }}
+    {{ hero_short_macros.hero_short("hero-short-pvp-enemy", false, true, master_account=enemy_account, data_mode="pvp_enemy", clan=enemy_clan, no_clan_placement=clan or enemy_clan) }}
   </div>
 </div>
 

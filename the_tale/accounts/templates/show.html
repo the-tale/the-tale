@@ -62,6 +62,25 @@ jQuery(document).ready(function(){
       {% if resource.account.is_authenticated() and master_account.id != resource.account.id %}
         &nbsp;<a class="pgf-new-message" href="#">отправить сообщение</a> /
 
+        {% if own_clan_info and master_clan_info.membership is none and own_clan_info.can_invite %}
+          <script type="text/javascript">
+    jQuery(document).ready(function(){
+        jQuery('.pgf-create-invite-to-clan').click(function(e){
+            e.preventDefault();
+            pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:clans:membership:invite', account=master_account.id) }}",
+                                   OnOpen: function(dialog) {
+                                       var newMessageForm = new pgf.forms.Form(jQuery('#pgf-invite-form', dialog),
+                                                                               { OnSuccess: function(form, data){ dialog.modal('hide'); }
+                                                                               });
+                                   }
+                                 });
+        });
+    });
+          </script>
+
+        <a class="pgf-create-invite-to-clan" href="#">пригласить в гильдию</a> /
+        {% endif %}
+
         {% if friendship is none %}<a class="pgf-friends-request-friendship" href="#">добавить в друзья</a>
         {% elif friendship.is_confirmed %}<span class="pgf-friends-in-list">в списке друзей</span>
         {% elif friendship.friend_1_id == master_account.id %}
@@ -73,7 +92,7 @@ jQuery(document).ready(function(){
         {% else %}<span class="pgf-friends-request-to">вы предложили этому игроку дружить</span>
         {% endif %}
 
-{% endif %}
+      {% endif %}
 
 {% if master_account.is_ban_forum %}
   <p class="alert alert-error pgf-ban-forum-message">
@@ -92,10 +111,10 @@ jQuery(document).ready(function(){
     <tr>
       <th>герой</th>
       <th>рейтинги</th>
-      <th>мир</th>
+      <th>гильдия</th>
     </tr>
     <tr>
-      <td rowspan="1" width="150px">
+      <td rowspan="3" width="150px">
         <ul class="unstyled">
           <li><strong>имя:</strong> <a href="{{ url('game:heroes:show', master_hero.id) }}">{{ master_hero.name }}</a></li>
           <li><strong>пол:</strong> {{ master_hero.gender_verbose }}</li>
@@ -105,7 +124,7 @@ jQuery(document).ready(function(){
         </ul>
       </td>
 
-      <td rowspan="3" width="250px">
+      <td rowspan="5" width="250px">
 
         {% if rating_values %}
           <ul class="unstyled">
@@ -125,14 +144,27 @@ jQuery(document).ready(function(){
       </td>
 
       <td>
+          {% if master_clan_info.membership is not none %}
+            <a href="{{url('accounts:clans:show', master_clan_info.clan.id)}}">{{master_clan_info.clan.name}}</a>
+          {% else %}
+            Не состоит в гильдии
+          {% endif %}
+      </td>
+
+    </tr>
+    <tr>
+      <th>мир</th>
+    </tr>
+    <tr>
+      <td>
         <ul class="unstyled">
           <li><a href="{{ url('game:bills:') }}?owner={{master_account.id}}">законопроекты, инициированые игроком</a> (всего {{bills_count}})</li>
           <li><a href="{{ url('game:phrase-candidates:') }}?author_id={{master_account.id}}">фразы, предложенные игроком</a> (всего {{phrases_count}})</li>
           <li><a href="{{ url('blogs:posts:') }}?author_id={{master_account.id}}">произведения игрока</a> (всего {{folclor_posts_count}})</li>
         </ul>
       </td>
-
     </tr>
+
     <tr>
       <th>прочее</th>
       <th>форум</th>
@@ -147,12 +179,14 @@ jQuery(document).ready(function(){
           </li>
         </ul>
       </td>
+
       <td>
         <ul class="unstyled">
           <li><a href="{{url('forum:threads:')}}?author={{master_account.id}}">обсуждения, созданные игроком</a> (всего {{threads_count}})</li>
           <li><a href="{{url('forum:threads:')}}?participant={{master_account.id}}">обсуждения с участием игрока</a> (всего {{threads_with_posts}})</li>
         </ul>
       </td>
+
     </tr>
 
   </tbody>
