@@ -4,7 +4,7 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.utils.feedgenerator import Atom1Feed
 
-from dext.views import handler, validate_argument, validator
+from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder
 
 from common.utils.resources import Resource
@@ -52,13 +52,10 @@ def is_moderator(account):
     return account._model.groups.filter(name=forum_settings.MODERATOR_GROUP_NAME).exists()
 
 
-@validator(code='forum.subcategory_access_restricted', message=u'Вы не можете работать с материаллами из этого раздела')
-def validate_ownership(self, *args, **kwargs): return self.account.id == self.bill.owner.id
-
 class BaseForumResource(Resource):
 
     @validate_argument('category', CategoryPrototype.get_by_slug, 'forum', u'категория не найдена')
-    @validate_argument('subcategory', SubCategoryPrototype.get_by_slug, 'forum', u'подкатегория не найдена')
+    @validate_argument('subcategory', SubCategoryPrototype.get_by_id, 'forum', u'подкатегория не найдена')
     @validate_argument('thread', ThreadPrototype.get_by_id, 'forum', u'обсуждение не найдено')
     @validate_argument('post', PostPrototype.get_by_id, 'forum', u'сообщение не найдено')
     def initialize(self, category=None, subcategory=None, thread=None, post=None, *args, **kwargs):
@@ -69,30 +66,14 @@ class BaseForumResource(Resource):
         self.subcategory = self.thread.subcategory if self.thread and subcategory is None else subcategory
         self.category = self.subcategory.category if self.subcategory and category is None else category
 
-        # if self.subcategory and self.subcategory.is_restricted_for(self.account):
-        #     if not is_moderator(self.account):
-        #         return self.auto_error('forum.subcategory_access_restricted', u'Вы не можете работать с материаллами из этого раздела')
-
         # TODO: check consistency
+
+        if self.subcategory and self.subcategory.is_restricted_for(self.account):
+            return self.auto_error('forum.subcategory_access_restricted', u'Вы не можете работать с материаллами из этого раздела')
+
 
 
 class PostsResource(BaseForumResource):
-
-    @login_required
-    @validate_fast_account()
-    @validate_ban_forum()
-    @validate_argument('thread', ThreadPrototype.get_by_id, 'forum.posts.create', u'обсуждение не найдено')
-    @handler('create', method='post')
-    def create_post(self, thread):
-
-        new_post_form = NewPostForm(self.request.POST)
-
-        if not new_post_form.is_valid():
-            return self.json_error('forum.create_post.form_errors', new_post_form.errors)
-
-        PostPrototype.create(thread, self.account, new_post_form.c.text)
-
-        return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]) + ('?page=%d' % thread.paginator.pages_count)})
 
     @login_required
     @validate_ban_forum()
@@ -151,6 +132,41 @@ class PostsResource(BaseForumResource):
 
 class ThreadsResource(BaseForumResource):
 
+    @login_required
+    @validate_fast_account()
+    @handler('#thread', 'subscribe', method='post')
+    def subscribe(self):
+        SubscriptionPrototype.create(self.account, thread=self.thread)
+        return self.json_ok()
+
+    @login_required
+    @validate_fast_account()
+    @handler('#thread', 'unsubscribe', method='post')
+    def unsubscribe(self):
+        subscription = SubscriptionPrototype.get_for(self.account, thread=self.thread)
+
+        if subscription:
+            subscription.remove()
+
+        return self.json_ok()
+
+
+    @login_required
+    @validate_fast_account()
+    @validate_ban_forum()
+    @handler('#thread', 'create-post', method='post')
+    def create_post(self):
+
+        new_post_form = NewPostForm(self.request.POST)
+
+        if not new_post_form.is_valid():
+            return self.json_error('forum.create_post.form_errors', new_post_form.errors)
+
+        PostPrototype.create(self.thread, self.account, new_post_form.c.text)
+
+        return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[self.thread.id]) + ('?page=%d' % self.thread.paginator.pages_count)})
+
+
     @validate_argument('author', AccountPrototype.get_by_id, 'forum.threads.index', u'автор не найден')
     @validate_argument('participant', AccountPrototype.get_by_id, 'forum.threads.index', u'участник не найден')
     @validate_argument('page', int, 'forum.threads.index', u'неверный номер страницы')
@@ -194,45 +210,6 @@ class ThreadsResource(BaseForumResource):
                               'threads': threads,
                               'read_state': ReadState(account=self.account, subcategory=self.subcategory, threads=threads)} )
 
-
-    @login_required
-    @validate_fast_account()
-    @validate_ban_forum()
-    @validate_argument('subcategory', SubCategoryPrototype.get_by_slug, 'forum', u'подкатегория не найдена')
-    @handler('new', method='get')
-    def new_thread(self, subcategory):
-
-        if not can_create_thread(self.account, subcategory):
-            return self.template('error.html', {'msg': u'Вы не можете создавать темы в данном разделе',
-                                                'error_code': 'forum.new_thread.no_permissions'})
-
-        return self.template('forum/new_thread.html',
-                             {'category': subcategory.category,
-                              'subcategory': subcategory,
-                              'new_thread_form': NewThreadForm()} )
-
-    @login_required
-    @validate_fast_account()
-    @validate_ban_forum()
-    @validate_argument('subcategory', SubCategoryPrototype.get_by_slug, 'forum', u'подкатегория не найдена')
-    @handler('create', method='post')
-    def create_thread(self, subcategory):
-
-        if not can_create_thread(self.account, subcategory):
-            return self.json_error('forum.create_thread.no_permissions', u'Вы не можете создавать темы в данном разделе')
-
-        new_thread_form = NewThreadForm(self.request.POST)
-
-        if not new_thread_form.is_valid():
-            return self.json_error('forum.create_thread.form_errors', new_thread_form.errors)
-
-        thread = ThreadPrototype.create(subcategory,
-                                        caption=new_thread_form.c.caption,
-                                        author=self.account,
-                                        text=new_thread_form.c.text)
-
-        return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]),
-                                  'thread_id': thread.id})
 
     @login_required
     @validate_fast_account()
@@ -370,25 +347,6 @@ class SubscriptionsResource(Resource):
     def initialize(self, *args, **kwargs):
         super(SubscriptionsResource, self).initialize(*args, **kwargs)
 
-    @validate_argument('thread', ThreadPrototype.get_by_id, 'forum', u'обсуждение не найдено')
-    @validate_argument('subcategory', SubCategoryPrototype.get_by_id, 'forum', u'раздел на найден')
-    @handler('subscribe', method='post')
-    def subscribe(self, thread=None, subcategory=None):
-        SubscriptionPrototype.create(self.account, thread=thread, subcategory=subcategory)
-        return self.json_ok()
-
-    @validate_argument('thread', ThreadPrototype.get_by_id, 'forum', u'обсуждение не найдено')
-    @validate_argument('subcategory', SubCategoryPrototype.get_by_id, 'forum', u'раздел на найден')
-    @handler('unsubscribe', method='post')
-    def unsubscribe(self, thread=None, subcategory=None):
-
-        subscription = SubscriptionPrototype.get_for(self.account, thread=thread, subcategory=subcategory)
-
-        if subscription:
-            subscription.remove()
-
-        return self.json_ok()
-
     @handler('', method='get')
     def subscriptions(self):
         return self.template('forum/subscriptions.html',
@@ -398,42 +356,70 @@ class SubscriptionsResource(Resource):
 
 
 
-class ForumResource(BaseForumResource):
-
-    @handler('', method='get')
-    def index(self):
-        categories = list(CategoryPrototype(category_model) for category_model in Category.objects.all().order_by('order', 'id'))
-
-        subcategories = [SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all().order_by('order', 'id')]
-
-        forum_structure = []
-
-        for category in categories:
-            children = []
-            for subcategory in subcategories:
-                if subcategory.category_id == category.id:
-                    children.append(subcategory)
-
-            forum_structure.append({'category': category,
-                                    'subcategories': children})
-
-
-        return self.template('forum/index.html',
-                             {'forum_structure': forum_structure} )
+class SubCategoryResource(BaseForumResource):
 
     @login_required
-    @handler('categories', '#subcategory', 'read-all', name='read-all', method='post')
-    def read_all(self):
-        SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=self.subcategory, account=self.account)
+    @validate_fast_account()
+    @handler('#subcategory', 'subscribe', method='post')
+    def subscribe(self):
+        SubscriptionPrototype.create(self.account, subcategory=self.subcategory)
         return self.json_ok()
 
-    @validate_argument('page', int, 'forum.subcategory.show', u'неверный номер страницы')
-    @handler('categories', '#subcategory', name='subcategory', method='get')
+    @login_required
+    @validate_fast_account()
+    @handler('#subcategory', 'unsubscribe', method='post')
+    def unsubscribe(self):
+        subscription = SubscriptionPrototype.get_for(self.account, subcategory=self.subcategory)
+
+        if subscription:
+            subscription.remove()
+
+        return self.json_ok()
+
+    @login_required
+    @validate_fast_account()
+    @validate_ban_forum()
+    @handler('#subcategory', 'new-thread', method='get')
+    def new_thread(self):
+
+        if not can_create_thread(self.account, self.subcategory):
+            return self.template('error.html', {'msg': u'Вы не можете создавать темы в данном разделе',
+                                                'error_code': 'forum.new_thread.no_permissions'})
+
+        return self.template('forum/new_thread.html',
+                             {'category': self.subcategory.category,
+                              'subcategory': self.subcategory,
+                              'new_thread_form': NewThreadForm()} )
+
+    @login_required
+    @validate_fast_account()
+    @validate_ban_forum()
+    @handler('#subcategory', 'create-thread', method='post')
+    def create_thread(self):
+
+        if not can_create_thread(self.account, self.subcategory):
+            return self.json_error('forum.create_thread.no_permissions', u'Вы не можете создавать темы в данном разделе')
+
+        new_thread_form = NewThreadForm(self.request.POST)
+
+        if not new_thread_form.is_valid():
+            return self.json_error('forum.create_thread.form_errors', new_thread_form.errors)
+
+        thread = ThreadPrototype.create(self.subcategory,
+                                        caption=new_thread_form.c.caption,
+                                        author=self.account,
+                                        text=new_thread_form.c.text)
+
+        return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]),
+                                  'thread_id': thread.id})
+
+    @validate_argument('page', int, 'forum.subcategories.show', u'неверный номер страницы')
+    @handler('#subcategory', name='show', method='get')
     def get_subcategory(self, page=1):
 
         threads_query = Thread.objects.filter(subcategory=self.subcategory._model)
 
-        url_builder = UrlBuilder(reverse('forum:subcategory', args=[self.subcategory.slug]), arguments={'page': page})
+        url_builder = UrlBuilder(reverse('forum:subcategories:show', args=[self.subcategory.id]), arguments={'page': page})
 
         page -= 1
 
@@ -460,6 +446,37 @@ class ForumResource(BaseForumResource):
                               'threads': threads,
                               'read_state': read_state } )
 
+
+class ForumResource(BaseForumResource):
+
+    @handler('', method='get')
+    def index(self):
+        categories = list(CategoryPrototype(category_model) for category_model in Category.objects.all().order_by('order', 'id'))
+
+        subcategories = [SubCategoryPrototype(subcategory_model)
+                         for subcategory_model in SubCategoryPrototype._db_filter(restricted=False).order_by('order', 'id')]
+
+        forum_structure = []
+
+        for category in categories:
+            children = []
+            for subcategory in subcategories:
+                if subcategory.category_id == category.id:
+                    children.append(subcategory)
+
+            forum_structure.append({'category': category,
+                                    'subcategories': children})
+
+
+        return self.template('forum/index.html',
+                             {'forum_structure': forum_structure} )
+
+    @login_required
+    @handler('categories', '#subcategory', 'read-all', name='read-all', method='post')
+    def read_all(self):
+        SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=self.subcategory, account=self.account)
+        return self.json_ok()
+
     @handler('feed', method='get')
     def feed(self):
         feed = Atom1Feed(u'Сказка: Форум',
@@ -468,7 +485,7 @@ class ForumResource(BaseForumResource):
                          language=u'ru',
                          feed_url=self.request.build_absolute_uri(reverse('forum:feed')))
 
-        threads = [ThreadPrototype(model=thread) for thread in Thread.objects.order_by('-created_at')[:forum_settings.FEED_ITEMS_NUMBER]]
+        threads = [ThreadPrototype(model=thread) for thread in Thread.objects.filter(subcategory__restricted=False).order_by('-created_at')[:forum_settings.FEED_ITEMS_NUMBER]]
 
         for thread in threads:
 

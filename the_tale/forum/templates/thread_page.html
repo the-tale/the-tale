@@ -6,9 +6,9 @@
       {% if thread_data.can_subscribe %}
       <li>
         {% if not thread_data.has_subscription %}
-        <a href="{{ url('forum:subscriptions:subscribe') }}?thread={{thread_data.thread.id}}" class="pgf-forms-post-simple">подписаться</a>
+        <a href="{{ url('forum:threads:subscribe', thread_data.thread.id) }}" class="pgf-forms-post-simple">подписаться</a>
         {% else %}
-        <a href="{{ url('forum:subscriptions:unsubscribe') }}?thread={{thread_data.thread.id}}" class="pgf-forms-post-simple">отписаться</a>
+        <a href="{{ url('forum:threads:unsubscribe', thread_data.thread.id) }}" class="pgf-forms-post-simple">отписаться</a>
         {% endif %}
       </li>
       {% endif %}
@@ -80,7 +80,7 @@ jQuery(document).ready( function(e) {
 
             pgf.forms.Post({ action: "{{ url('forum:threads:delete', thread_data.thread.id) }}",
                              OnSuccess: function(e){
-                                 location.href = "{{ url('forum:subcategory', thread_data.thread.subcategory.slug) }}";
+                                 location.href = "{{ url('forum:subcategories:show', thread_data.thread.subcategory.id) }}";
                              }
                            });
         };
@@ -173,7 +173,7 @@ jQuery(document).ready( function(e) {
 {% if thread_data.can_post %}
 
 
-<form action="{{ url('forum:posts:create', thread=thread_data.thread.id) }}"
+<form action="{{ url('forum:threads:create-post', thread_data.thread.id) }}"
       method="post"
       id="pgf-new-post-form"
       class="new-post-form">

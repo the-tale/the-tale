@@ -95,8 +95,8 @@ class TestRequests(TestCase):
         self.account.save()
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
-        SubCategory.objects.create(caption=news_settings.FORUM_CATEGORY_SLUG,
-                                   slug=news_settings.FORUM_CATEGORY_SLUG,
+        SubCategory.objects.create(caption=news_settings.FORUM_CATEGORY_UID,
+                                   uid=news_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
 
         self.assertEqual(Thread.objects.all().count(), 0)

@@ -26,7 +26,7 @@ class NewForumPostTests(testcase.TestCase):
         self.account_1 = AccountPrototype.get_by_nick('user_1')
 
         self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
-        self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', slug='subcat-slug', order=0)
+        self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=0)
         self.thread = ThreadPrototype.create(self.subcategory, 'thread_1-caption', self.account_1, 'thread-text')
 
         Message.objects.all().delete()

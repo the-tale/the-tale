@@ -74,6 +74,8 @@
   {% endfor %}
 </table>
 
+{% if resource.clan_info.clan and resource.clan.id == resource.clan_info.clan_id %}
 <button type="button" class="btn pgf-new-message-button disabled">отправить сообщение</button>
+{% endif %}
 
 {% endblock %}

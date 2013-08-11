@@ -17,7 +17,7 @@
     </li>
   {% endif %}
 
-  <li class="nav-element {%if page_id._is_FOR_ACCOUNT%}active{%endif%}"><a href="{{ url('accounts:clans:membership:for-account') }}">Приглашения</a></li>
+  <li class="nav-element {%if page_id._is_FOR_ACCOUNT%}active{%endif%}"><a href="{{ url('accounts:clans:membership:for-account') }}">Мои приглашения</a></li>
 
 {% else %}
   <li class="nav-element {%if page_id._is_SHOW%}active{%endif%}"><a href="{{ url('accounts:clans:show', own_clan_info.clan_id) }}">Моя гильдия</a></li>
@@ -26,6 +26,8 @@
 {% if current_clan %}
 
   {% if own_clan_info.clan and current_clan.id == own_clan_info.clan_id %}
+
+    <li class="nav-element"><a href="{{ url('forum:subcategories:show', own_clan_info.clan.forum_subcategory_id) }}">Форум гильдии</a></li>
 
     {% if own_clan_info.can_invite %}
     <li class="nav-element {%if page_id._is_FOR_CLAN%}active{%endif%}"><a href="{{ url('accounts:clans:membership:for-clan') }}">Заявки на вступление</a></li>

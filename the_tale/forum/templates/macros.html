@@ -53,7 +53,7 @@
 </td>
 <td class="updated-at pgf-format-datetime" data-timestamp="{{ thread.updated_at|timestamp }}"></td>
 {% if subscription %}
-<td><a href="{{ url('forum:subscriptions:unsubscribe') }}?thread={{thread.id}}" class="pgf-forms-post-simple">отписаться</a></td>
+<td><a href="{{ url('forum:threads:unsubscribe', thread.id) }}" class="pgf-forms-post-simple">отписаться</a></td>
 {% endif %}
 
 {% endmacro %}
@@ -70,7 +70,7 @@
 
 {% macro subcategory_record(subcategory, subscription=false) %}
 <td class="caption">
-  <a href="{{ url('forum:subcategory', subcategory.slug) }}">
+  <a href="{{ url('forum:subcategories:show', subcategory.id) }}">
     {{ subcategory.caption }}
   </a>
 </td>
@@ -86,7 +86,7 @@
 <td class="updated-at pgf-format-datetime" data-timestamp="{{ subcategory.updated_at|timestamp }}"></td>
 
 {% if subscription %}
-<td><a href="{{ url('forum:subscriptions:unsubscribe') }}?subcategory={{subcategory.id}}" class="pgf-forms-post-simple">отписаться</a></td>
+<td><a href="{{ url('forum:subcategories:unsubscribe', subcategory.id) }}" class="pgf-forms-post-simple">отписаться</a></td>
 {% endif %}
 
 {% endmacro %}

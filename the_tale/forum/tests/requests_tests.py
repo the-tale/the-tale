@@ -4,7 +4,8 @@ import datetime
 import mock
 
 from django.test import client
-from django.core.urlresolvers import reverse
+
+from dext.utils.urls import url
 
 from common.utils import testcase
 
@@ -18,8 +19,7 @@ from forum.prototypes import (ThreadPrototype,
                               SubCategoryPrototype,
                               CategoryPrototype,
                               ThreadReadInfoPrototype,
-                              SubCategoryReadInfoPrototype,
-                              PermissionPrototype)
+                              SubCategoryReadInfoPrototype)
 from forum.conf import forum_settings
 
 
@@ -50,10 +50,10 @@ class BaseTestRequests(testcase.TestCase):
 
         self.cat1 = CategoryPrototype.create(caption='cat1-caption', slug='cat1-slug', order=0)
         # to test, that subcat.id not correlate with order
-        self.subcat2 = SubCategoryPrototype.create(category=self.cat1, caption='subcat2-caption', slug='subcat2-slug', order=1, closed=True)
-        self.subcat1 = SubCategoryPrototype.create(category=self.cat1, caption='subcat1-caption', slug='subcat1-slug', order=0)
+        self.subcat2 = SubCategoryPrototype.create(category=self.cat1, caption='subcat2-caption', order=1, closed=True)
+        self.subcat1 = SubCategoryPrototype.create(category=self.cat1, caption='subcat1-caption', order=0)
         self.cat2 = CategoryPrototype.create(caption='cat2-caption', slug='cat2-slug', order=0)
-        self.subcat3 = SubCategoryPrototype.create(category=self.cat2, caption='subcat3-caption', slug='subcat3-slug', order=0)
+        self.subcat3 = SubCategoryPrototype.create(category=self.cat2, caption='subcat3-caption', order=0)
         self.cat3 = CategoryPrototype.create(caption='cat3-caption', slug='cat3-slug', order=0)
 
         self.thread1 = ThreadPrototype.create(self.subcat1, 'thread1-caption', self.account, 'thread1-text')
@@ -67,11 +67,11 @@ class ForumResourceReadAllTests(BaseTestRequests):
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(reverse('forum:read-all', args=['subcat1-slug'])), 'common.login_required')
+        self.check_ajax_error(self.client.post(url('forum:read-all', self.subcat1.id)), 'common.login_required')
         self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 0)
 
     def test_success(self):
-        self.check_ajax_ok(self.client.post(reverse('forum:read-all', args=['subcat1-slug'])))
+        self.check_ajax_ok(self.client.post(url('forum:read-all', self.subcat1.id)))
         self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 1)
         read_info = SubCategoryReadInfoPrototype._db_get_object(0)
         self.assertEqual(read_info.account_id, self.account.id)
@@ -91,11 +91,11 @@ class TestRequests(BaseTestRequests):
         self.assertEqual(Thread.objects.get(id=self.thread1.id).posts_count, 1)
 
     def test_index(self):
-        texts = ['cat1-caption', 'cat1-slug', 'cat2-caption', 'cat2-slug', 'cat3-caption', 'cat3-slug',
-                 'subcat1-caption', 'subcat1-slug', 'subcat2-caption', 'subcat2-slug', 'subcat3-caption', 'subcat3-slug',]
-        self.check_html_ok(self.request_html(reverse('forum:')), texts=texts)
+        texts = ['cat1-caption', 'cat2-caption', 'cat3-caption',
+                 'subcat1-caption', 'subcat2-caption', 'subcat3-caption']
+        self.check_html_ok(self.request_html(url('forum:')), texts=texts)
         self.request_logout()
-        self.check_html_ok(self.request_html(reverse('forum:')), texts=texts)
+        self.check_html_ok(self.request_html(url('forum:')), texts=texts)
 
 
 class TestSubcategoryRequests(BaseTestRequests):
@@ -103,7 +103,7 @@ class TestSubcategoryRequests(BaseTestRequests):
     def test_subcategory__unlogined(self):
         texts = ['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption']
         self.request_logout()
-        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
+        self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id)), texts=texts)
 
         self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 0)
 
@@ -111,77 +111,81 @@ class TestSubcategoryRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         texts = ['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption', 'pgf-new-thread-marker']
-        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcat1-slug'])), texts=texts)
+        self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id)), texts=texts)
 
         self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 1)
         read_info = SubCategoryReadInfoPrototype._db_get_object(0)
         self.assertEqual(read_info.account_id, self.account_2.id)
         self.assertEqual(read_info.subcategory_id, self.subcat1.id)
 
-        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcat1-slug'])), texts=[('pgf-new-thread-marker', 0)])
+        self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id)), texts=[('pgf-new-thread-marker', 0)])
 
     @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
-    def test_no_permissions(self):
-        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcat1-slug'])), texts=['forum.subcategory_access_restricted'])
+    def test_restricted(self):
+        self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id)), texts=['forum.subcategory_access_restricted'])
 
     def test_subcategory_not_found(self):
-        self.check_html_ok(self.request_html(reverse('forum:subcategory', args=['subcatXXX-slug'])), texts=[('forum.subcategory.not_found', 1)], status_code=404)
+        self.check_html_ok(self.request_html(url('forum:subcategories:show', 666)), texts=[('forum.subcategory.not_found', 1)], status_code=404)
 
 
 class TestNewThreadRequests(BaseTestRequests):
 
     def test_new_thread(self):
         texts = ['cat1-caption', 'subcat1-caption']
-        self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=texts)
+        self.check_html_ok(self.request_html(url('forum:subcategories:new-thread', self.subcat1.id)), texts=texts)
 
     def test_new_thread_unlogined(self):
         self.request_logout()
-        request_url = reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)
+        request_url = url('forum:subcategories:new-thread', self.subcat1.id)
         self.check_redirect(request_url, login_url(request_url))
 
     def test_new_thread_fast(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-common.fast_account'])
+        self.check_html_ok(self.request_html(url('forum:subcategories:new-thread', self.subcat1.id)), texts=['pgf-error-common.fast_account'])
 
     @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_new_thread_banned(self):
-        self.check_html_ok(self.request_html(reverse('forum:threads:new') + ('?subcategory=%s' % self.subcat1.slug)), texts=['pgf-error-common.ban_forum'])
+        self.check_html_ok(self.request_html(url('forum:subcategories:new-thread', self.subcat1.id)), texts=['pgf-error-common.ban_forum'])
+
+    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    def test_restricted(self):
+        self.check_html_ok(self.request_html(url('forum:subcategories:new-thread', self.subcat1.id)), texts=['forum.subcategory_access_restricted'])
 
 
 class TestCreateThreadRequests(BaseTestRequests):
 
     def test_create_thread_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug)),
+        self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id)),
                               code='common.login_required')
 
     def test_create_thread_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug)),
+        self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id)),
                               code='common.fast_account')
 
     @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_create_thread_banned(self):
-        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug)),
+        self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id)),
                               code='common.ban_forum')
 
     def test_create_thread_closed_subcategory(self):
-        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat2.slug)),
+        self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat2.id)),
                               code='forum.create_thread.no_permissions')
 
     def test_create_thread_form_errors(self):
-        self.check_ajax_error(self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug)),
+        self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id)),
                               code='forum.create_thread.form_errors')
 
     def test_create_thread_success(self):
-        response = self.client.post(reverse('forum:threads:create') + ('?subcategory=%s' % self.subcat1.slug), {'caption': 'thread4-caption', 'text': 'thread4-text'})
+        response = self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id), {'caption': 'thread4-caption', 'text': 'thread4-text'})
 
         thread = Thread.objects.all().order_by('-created_at')[0]
 
         self.check_ajax_ok(response, {'thread_id': thread.id,
-                                      'thread_url': reverse('forum:threads:show', args=[thread.id])})
+                                      'thread_url': url('forum:threads:show', thread.id)})
 
         self.assertEqual(thread.posts_count, 0)
         self.assertEqual(thread.caption, 'thread4-caption')
@@ -196,30 +200,34 @@ class TestCreateThreadRequests(BaseTestRequests):
 
         self.assertEqual(SubCategory.objects.get(id=self.subcat1.id).posts_count, 1)
 
+    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    def test_restricted(self):
+        self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id)), 'forum.subcategory_access_restricted')
+
 
 class TestShowThreadRequests(BaseTestRequests):
 
     def test_get_thread_unlogined(self):
         self.request_logout()
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=(('pgf-new-post-form', 0),))
         self.assertEqual(ThreadReadInfoPrototype._db_count(), 0)
 
     def test_get_thread_not_found(self):
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[666])), texts=(('forum.thread.not_found', 1),), status_code=404)
+        self.check_html_ok(self.request_html(url('forum:threads:show', 666)), texts=(('forum.thread.not_found', 1),), status_code=404)
 
     def test_get_thread_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread1.id])), texts=(('pgf-new-post-form', 0),))
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=(('pgf-new-post-form', 0),))
 
     def test_get_thread(self):
         self.assertEqual(ThreadReadInfoPrototype._db_count(), 0)
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread1.id])), texts=('pgf-new-post-form',))
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=('pgf-new-post-form',))
         self.assertEqual(ThreadReadInfoPrototype._db_count(), 1)
 
     def test_get_thread_wrong_page(self):
-        response = self.request_html(reverse('forum:threads:show', args=[self.thread1.id])+'?page=2')
-        self.assertRedirects(response, reverse('forum:threads:show', args=[self.thread1.id])+'?page=1', status_code=302, target_status_code=200)
+        response = self.request_html(url('forum:threads:show', self.thread1.id)+'?page=2')
+        self.assertRedirects(response, url('forum:threads:show', self.thread1.id)+'?page=1', status_code=302, target_status_code=200)
 
     def test_get_thread_with_pagination(self):
 
@@ -230,17 +238,17 @@ class TestShowThreadRequests(BaseTestRequests):
             PostPrototype.create(self.thread3, self.account, text)
             texts.append(text)
 
-        response = self.request_html(reverse('forum:threads:show', args=[self.thread3.id])+'?page=2')
-        self.assertRedirects(response, reverse('forum:threads:show', args=[self.thread3.id])+'?page=1', status_code=302, target_status_code=200)
+        response = self.request_html(url('forum:threads:show', self.thread3.id)+'?page=2')
+        self.assertRedirects(response, url('forum:threads:show', self.thread3.id)+'?page=1', status_code=302, target_status_code=200)
 
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread3.id])), texts=texts)
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread3.id)), texts=texts)
 
         text = 'subcat3-post%d-text' % (forum_settings.POSTS_ON_PAGE)
         PostPrototype.create(self.thread3, self.account, text)
         texts.append((text, 0))
 
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread3.id])+'?page=1'), texts=texts)
-        self.check_html_ok(self.request_html(reverse('forum:threads:show', args=[self.thread3.id])+'?page=2'), texts=[text])
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread3.id)+'?page=1'), texts=texts)
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread3.id)+'?page=2'), texts=[text])
 
     def test_posts_count(self):
         for i in xrange(4):
@@ -254,37 +262,47 @@ class TestShowThreadRequests(BaseTestRequests):
         self.assertEqual(Thread.objects.get(id=self.thread1.id).posts_count, 5)
         self.assertEqual(Thread.objects.get(id=self.thread2.id).posts_count, 7)
 
+    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    def test_restricted(self):
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=('forum.subcategory_access_restricted',))
+
 
 class TestCreatePostRequests(BaseTestRequests):
 
     def test_create_post_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
+        self.check_ajax_error(self.client.post(url('forum:threads:create-post', self.thread3.id)),
                               code='common.login_required')
 
     def test_create_post_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
+        self.check_ajax_error(self.client.post(url('forum:threads:create-post', self.thread3.id)),
                               code='common.fast_account')
 
     @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_create_post_banned(self):
-        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
+        self.check_ajax_error(self.client.post(url('forum:threads:create-post', self.thread3.id)),
                               code='common.ban_forum')
 
     def test_create_post_form_errors(self):
-        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id)),
+        self.check_ajax_error(self.client.post(url('forum:threads:create-post', self.thread3.id)),
                               code='forum.create_post.form_errors')
 
     def test_create_post_success(self):
-        self.check_ajax_ok(self.client.post(reverse('forum:posts:create') + ('?thread=%d' % self.thread3.id), {'text': 'thread3-test-post'}),
-                           data={'thread_url': reverse('forum:threads:show', args=[self.thread3.id]) + '?page=1'})
+        self.check_ajax_ok(self.client.post(url('forum:threads:create-post', self.thread3.id), {'text': 'thread3-test-post'}),
+                           data={'thread_url': url('forum:threads:show', self.thread3.id) + '?page=1'})
         self.assertEqual(Post.objects.all().count(), 5)
 
     def test_create_post_thread_not_found(self):
-        self.check_ajax_error(self.client.post(reverse('forum:posts:create') + ('?thread=666'), {'text': 'thread3-test-post'}),
-                              'forum.posts.create.thread.not_found')
+        self.check_ajax_error(self.client.post(url('forum:threads:create-post', 666), {'text': 'thread3-test-post'}),
+                              'forum.thread.not_found')
+
+    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    def test_restricted(self):
+        self.check_ajax_error(self.client.post(url('forum:threads:create-post', self.thread3.id), {'text': 'thread3-test-post'}),
+                              'forum.subcategory_access_restricted')
+
 
 
 class TestFeedRequests(BaseTestRequests):
@@ -303,6 +321,15 @@ class TestFeedRequests(BaseTestRequests):
         PostPrototype.create(self.thread2, self.account, 'post5-text')
         PostPrototype.create(self.thread3, self.account, 'post6-text')
 
+        # restricted
+        self.subcat2._model.restricted = True
+        self.subcat2.save()
+
+        thread2_2 = ThreadPrototype.create(self.subcat2, 'thread2_2-caption', self.account, 'thread2_2-text')
+
+        PostPrototype.create(thread2_2, self.account, 'post7-text')
+        PostPrototype.create(thread2_2, self.account, 'post8-text')
+
         texts = [('thread1-caption', 1),
                  ('thread1-text', 1),
 
@@ -310,76 +337,140 @@ class TestFeedRequests(BaseTestRequests):
                  ('thread2-text', 0),
 
                  ('thread3-caption', 1),
-                 ('thread3-text', 1), ]
+                 ('thread3-text', 1),
 
-        texts.extend([('post%d-text' % i, 0) for i in xrange(0, 6)])
+                 ('thread2_2-caption', 0),
+                 ('thread2_2-text', 0)]
 
-        self.check_html_ok(self.request_html(reverse('forum:feed')), texts=texts, content_type='application/atom+xml')
+        texts.extend([('post%d-text' % i, 0) for i in xrange(0, 9)])
+
+        self.check_html_ok(self.request_html(url('forum:feed')), texts=texts, content_type='application/atom+xml')
 
 
 class ThreadSubscribeTests(BaseTestRequests):
 
     def test_login_required(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)),
+        self.check_ajax_error(self.client.post(url('forum:threads:subscribe', self.thread1.id)),
                               'common.login_required')
 
     def test_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_ajax_error(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)),
+        self.check_ajax_error(self.client.post(url('forum:threads:subscribe', self.thread1.id)),
                               'common.fast_account')
 
     def test_create_for_thread(self):
         self.assertEqual(Subscription.objects.all().count(), 0)
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
-        self.assertEqual(Subscription.objects.all().count(), 1)
-
-    def test_create_for_subcategory(self):
-        self.assertEqual(Subscription.objects.all().count(), 0)
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?subcategory=%d' % self.subcat2.id)))
+        self.check_ajax_ok(self.client.post(url('forum:threads:subscribe', self.thread1.id)))
         self.assertEqual(Subscription.objects.all().count(), 1)
 
     def test_create_when_exists(self):
         self.assertEqual(Subscription.objects.all().count(), 0)
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
+        self.check_ajax_ok(self.client.post(url('forum:threads:subscribe', self.thread1.id)))
+        self.check_ajax_ok(self.client.post(url('forum:threads:subscribe', self.thread1.id)))
         self.assertEqual(Subscription.objects.all().count(), 1)
+
+    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    def test_restricted(self):
+        self.check_ajax_error(self.client.post(url('forum:threads:subscribe', self.thread1.id)),
+                              'forum.subcategory_access_restricted')
+
+class SubcategorySubscribeTests(BaseTestRequests):
+
+    def test_login_required(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(url('forum:subcategories:subscribe', self.subcat2.id)), 'common.login_required')
+
+    def test_fast_account(self):
+        self.account.is_fast = True
+        self.account.save()
+        self.check_ajax_error(self.client.post(url('forum:subcategories:subscribe', self.subcat2.id)), 'common.fast_account')
+
+    def test_create_for_subcategory(self):
+        self.assertEqual(Subscription.objects.all().count(), 0)
+        self.check_ajax_ok(self.client.post(url('forum:subcategories:subscribe', self.subcat2.id)))
+        self.assertEqual(Subscription.objects.all().count(), 1)
+
+    def test_create_when_exists(self):
+        self.assertEqual(Subscription.objects.all().count(), 0)
+        self.check_ajax_ok(self.client.post(url('forum:subcategories:subscribe', self.subcat2.id)))
+        self.check_ajax_ok(self.client.post(url('forum:subcategories:subscribe', self.subcat2.id)))
+        self.assertEqual(Subscription.objects.all().count(), 1)
+
+    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    def test_restricted(self):
+        self.check_ajax_error(self.client.post(url('forum:subcategories:subscribe', self.subcat2.id)),
+                              'forum.subcategory_access_restricted')
 
 
 class ThreadUnsubscribeTests(BaseTestRequests):
 
     def setUp(self):
         super(ThreadUnsubscribeTests, self).setUp()
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?subcategory=%d' % self.subcat2.id)))
+        self.check_ajax_ok(self.client.post(url('forum:threads:subscribe', self.thread1.id)))
 
     def test_login_required(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)),
+        self.check_ajax_error(self.client.post(url('forum:threads:unsubscribe', self.thread1.id)),
                               'common.login_required')
 
     def test_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_ajax_error(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)),
+        self.check_ajax_error(self.client.post(url('forum:threads:unsubscribe', self.thread1.id)),
                               'common.fast_account')
 
     def test_remove_for_thread(self):
-        self.assertEqual(Subscription.objects.all().count(), 2)
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)))
         self.assertEqual(Subscription.objects.all().count(), 1)
-
-    def test_remove_for_subcategory(self):
-        self.assertEqual(Subscription.objects.all().count(), 2)
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?subcategory=%d' % self.subcat2.id)))
-        self.assertEqual(Subscription.objects.all().count(), 1)
+        self.check_ajax_ok(self.client.post(url('forum:threads:unsubscribe', self.thread1.id)))
+        self.assertEqual(Subscription.objects.all().count(), 0)
 
     def test_remove_when_not_exists(self):
-        self.assertEqual(Subscription.objects.all().count(), 2)
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)))
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:unsubscribe')+('?thread=%d' % self.thread1.id)))
         self.assertEqual(Subscription.objects.all().count(), 1)
+        self.check_ajax_ok(self.client.post(url('forum:threads:unsubscribe', self.thread1.id)))
+        self.check_ajax_ok(self.client.post(url('forum:threads:unsubscribe', self.thread1.id)))
+        self.assertEqual(Subscription.objects.all().count(), 0)
+
+    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    def test_restricted(self):
+        self.check_ajax_error(self.client.post(url('forum:threads:unsubscribe', self.thread1.id)),
+                              'forum.subcategory_access_restricted')
+
+
+class SubcategoryUnsubscribeTests(BaseTestRequests):
+
+    def setUp(self):
+        super(SubcategoryUnsubscribeTests, self).setUp()
+        self.check_ajax_ok(self.client.post(url('forum:subcategories:subscribe', self.subcat2.id)))
+
+    def test_login_required(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(url('forum:subcategories:unsubscribe', self.subcat2.id)),
+                              'common.login_required')
+
+    def test_fast_account(self):
+        self.account.is_fast = True
+        self.account.save()
+        self.check_ajax_error(self.client.post(url('forum:subcategories:unsubscribe', self.subcat2.id)),
+                              'common.fast_account')
+
+    def test_remove_for_subcategory(self):
+        self.assertEqual(Subscription.objects.all().count(), 1)
+        self.check_ajax_ok(self.client.post(url('forum:subcategories:unsubscribe', self.subcat2.id)))
+        self.assertEqual(Subscription.objects.all().count(), 0)
+
+    def test_remove_when_not_exists(self):
+        self.assertEqual(Subscription.objects.all().count(), 1)
+        self.check_ajax_ok(self.client.post(url('forum:subcategories:unsubscribe', self.subcat2.id)))
+        self.check_ajax_ok(self.client.post(url('forum:subcategories:unsubscribe', self.subcat2.id)))
+        self.assertEqual(Subscription.objects.all().count(), 0)
+
+    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    def test_restricted(self):
+        self.check_ajax_error(self.client.post(url('forum:subcategories:unsubscribe', self.subcat2.id)),
+                              'forum.subcategory_access_restricted')
+
 
 
 class SubscriptionsTests(BaseTestRequests):
@@ -389,13 +480,13 @@ class SubscriptionsTests(BaseTestRequests):
 
     def test_login_required(self):
         self.request_logout()
-        request_url = reverse('forum:subscriptions:')
+        request_url = url('forum:subscriptions:')
         self.check_redirect(request_url, login_url(request_url))
 
     def test_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_ajax_error(self.client.post(reverse('forum:subscriptions:')),
+        self.check_ajax_error(self.client.post(url('forum:subscriptions:')),
                               'common.fast_account')
 
     def test_empty(self):
@@ -406,12 +497,12 @@ class SubscriptionsTests(BaseTestRequests):
                  ('subcat2-caption', 0),
                  ('pgf-no-thread-subscriptions-message', 1),
                  ('pgf-no-subcategory-subscriptions-message', 1)]
-        self.check_html_ok(self.request_html(reverse('forum:subscriptions:')), texts=texts)
+        self.check_html_ok(self.request_html(url('forum:subscriptions:')), texts=texts)
 
     def test_subscriptions(self):
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread1.id)))
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?thread=%d' % self.thread3.id)))
-        self.check_ajax_ok(self.client.post(reverse('forum:subscriptions:subscribe')+('?subcategory=%d' % self.subcat2.id)))
+        self.check_ajax_ok(self.client.post(url('forum:threads:subscribe', self.thread1.id)))
+        self.check_ajax_ok(self.client.post(url('forum:threads:subscribe', self.thread3.id)))
+        self.check_ajax_ok(self.client.post(url('forum:subcategories:subscribe', self.subcat2.id)))
 
         texts = [('thread1-caption', 1),
                  ('thread2-caption', 0),
@@ -420,4 +511,4 @@ class SubscriptionsTests(BaseTestRequests):
                  ('subcat2-caption', 1),
                  ('pgf-no-thread-subscriptions-message', 0),
                  ('pgf-no-subcategory-subscriptions-message', 0)]
-        self.check_html_ok(self.request_html(reverse('forum:subscriptions:')), texts=texts)
+        self.check_html_ok(self.request_html(url('forum:subscriptions:')), texts=texts)

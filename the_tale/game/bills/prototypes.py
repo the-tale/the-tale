@@ -299,7 +299,7 @@ class BillPrototype(BasePrototype):
         text = u'обсуждение [url="%s%s"]закона[/url]' % (project_settings.SITE_URL,
                                                          reverse('game:bills:show', args=[model.id]) )
 
-        thread = ThreadPrototype.create(SubCategoryPrototype.get_by_slug(bills_settings.FORUM_CATEGORY_SLUG),
+        thread = ThreadPrototype.create(SubCategoryPrototype.get_by_uid(bills_settings.FORUM_CATEGORY_UID),
                                         caption=caption,
                                         author=get_system_user(),
                                         text=bill_prototype.bill_info_text(text),

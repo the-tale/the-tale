@@ -49,7 +49,7 @@ class PostPrototype(BasePrototype):
                                     state=POST_STATE.NOT_MODERATED,
                                     votes=1)
 
-        thread = ForumThreadPrototype.create(ForumSubCategoryPrototype.get_by_slug(blogs_settings.FORUM_CATEGORY_SLUG),
+        thread = ForumThreadPrototype.create(ForumSubCategoryPrototype.get_by_uid(blogs_settings.FORUM_CATEGORY_UID),
                                              caption=caption,
                                              author=get_system_user(),
                                              text=u'обсуждение [url="%s%s"]произведения[/url]' % (project_settings.SITE_URL,

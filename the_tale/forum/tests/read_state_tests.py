@@ -29,8 +29,8 @@ class ReadStateTests(testcase.TestCase):
         self.account_2 = AccountPrototype.get_by_nick('user_2')
 
         category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
-        self.subcategory = SubCategoryPrototype.create(category=category, caption='subcat-caption', slug='subcat-slug', order=0)
-        self.subcategory_2 = SubCategoryPrototype.create(category=category, caption='subcat-2-caption', slug='subcat-2-slug', order=0)
+        self.subcategory = SubCategoryPrototype.create(category=category, caption='subcat-caption', order=0)
+        self.subcategory_2 = SubCategoryPrototype.create(category=category, caption='subcat-2-caption', order=0)
 
         self.thread = ThreadPrototype.create(self.subcategory, 'thread1-caption', self.account_2, 'thread-text')
         self.thread_2 = ThreadPrototype.create(self.subcategory, 'thread2-caption', self.account_2, 'thread-2-text')

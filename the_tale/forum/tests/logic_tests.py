@@ -26,7 +26,7 @@ class TestGetThreadsWithLastUsersPosts(TestCase):
 
 
         self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
-        self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', slug='subcat-slug', order=0)
+        self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=0)
 
         self.thread1 = ThreadPrototype.create(self.subcategory, 'thread1-caption', self.account_1, 'thread-text')
 

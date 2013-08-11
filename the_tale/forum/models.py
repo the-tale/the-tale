@@ -26,11 +26,11 @@ class SubCategory(models.Model):
 
     category = models.ForeignKey(Category, null=False, on_delete=models.PROTECT)
 
-    slug = models.CharField(max_length=32, blank=False, null=False, db_index=True)
-
     caption = models.CharField(max_length=256, blank=False, null=False)
 
     order = models.IntegerField(default=0, null=False, blank=True)
+
+    uid = models.CharField(max_length=16, blank=True, null=True, default=None, db_index=True)
 
     updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime.fromtimestamp(0))
     last_thread_created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime.fromtimestamp(0))
@@ -143,5 +143,7 @@ class Permission(models.Model):
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
     subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='+')
-
     account = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('subcategory', 'account'),)

@@ -36,8 +36,8 @@ class BaseTestRequests(TestCase):
         from forum.models import Category, SubCategory
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
-        SubCategory.objects.create(caption=blogs_settings.FORUM_CATEGORY_SLUG + '-caption',
-                                   slug=blogs_settings.FORUM_CATEGORY_SLUG,
+        SubCategory.objects.create(caption=blogs_settings.FORUM_CATEGORY_UID + '-caption',
+                                   uid=blogs_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
 
     def create_posts(self, number, author, caption_template, text_template):

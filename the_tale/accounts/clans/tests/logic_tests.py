@@ -12,6 +12,9 @@ from game.logic import create_test_map
 from accounts.clans.logic import ClanInfo
 from accounts.clans.relations import MEMBER_ROLE
 from accounts.clans.tests.helpers import ClansTestsMixin
+from accounts.clans.conf import clans_settings
+
+from forum.prototypes import CategoryPrototype
 
 
 class ClanInfoTests(TestCase, ClansTestsMixin):
@@ -19,6 +22,8 @@ class ClanInfoTests(TestCase, ClansTestsMixin):
     def setUp(self):
         super(ClanInfoTests, self).setUp()
         create_test_map()
+
+        CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
 
         result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
         self.account = AccountPrototype.get_by_id(account_id)

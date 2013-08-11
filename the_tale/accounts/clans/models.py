@@ -27,6 +27,8 @@ class Clan(models.Model):
 
     members_number = models.IntegerField()
 
+    forum_subcategory = models.ForeignKey('forum.SubCategory', on_delete=models.PROTECT)
+
     def __unicode__(self): return u'[%s] %s' % (self.abbr, self.name)
 
 

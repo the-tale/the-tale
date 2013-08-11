@@ -164,12 +164,10 @@ class ClansResource(Resource):
             return self.json_error('clans.update.abbr_exists', u'Гильдия с такой аббревиатурой уже существует')
 
 
-        self.clan.abbr = form.c.abbr
-        self.clan.name = form.c.name
-        self.clan.motto = form.c.motto
-        self.clan.description = form.c.description
-
-        self.clan.save()
+        self.clan.update(abbr=form.c.abbr,
+                         name=form.c.name,
+                         motto=form.c.motto,
+                         description=form.c.description)
 
         return self.json_ok()
 

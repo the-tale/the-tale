@@ -83,8 +83,8 @@ class RatingPrototypeTests(PrototypeTestsBase):
         from game.bills.models import BILL_STATE
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
-        SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_SLUG + '-caption',
-                                   slug=bills_settings.FORUM_CATEGORY_SLUG,
+        SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_UID + '-caption',
+                                   uid=bills_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
 
         self.create_bill(0, self.account_2, BILL_STATE.VOTING)

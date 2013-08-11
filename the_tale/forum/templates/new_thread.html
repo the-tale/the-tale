@@ -28,11 +28,11 @@ jQuery(document).ready( function(e) {
     </a>
     <a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span>
   </li>
-  <li><a href="{{ url('forum:subcategory', subcategory.slug) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
+  <li><a href="{{ url('forum:subcategories:show', subcategory.id) }}">{{ subcategory.caption }}</a><span class="divider">/</span></li>
   <li class="active">новая тема</li>
 </ul>
 
-<form id="pgf-new-thread-form" method="post" action="{{ url('forum:threads:create', subcategory=subcategory.slug) }}" class="new-post-form">
+<form id="pgf-new-thread-form" method="post" action="{{ url('forum:subcategories:create-thread', subcategory.id) }}" class="new-post-form">
 
   {{ new_thread_form.errors_container }}
 

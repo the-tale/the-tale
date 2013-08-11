@@ -152,8 +152,8 @@ class ResourceExchangeStorageTests(testcase.TestCase):
         account = AccountPrototype.get_by_id(account_id)
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
-        SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_SLUG + '-caption',
-                                   slug=bills_settings.FORUM_CATEGORY_SLUG,
+        SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_UID + '-caption',
+                                   uid=bills_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
 
         bill_data = bills.PlaceRenaming(place_id=self.place_1.id, base_name='new_name')

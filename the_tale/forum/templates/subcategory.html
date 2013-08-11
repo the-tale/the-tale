@@ -9,16 +9,16 @@
       {% if can_subscribe %}
       <li>
         {% if not has_subscription %}
-        <a href="{{ url('forum:subscriptions:subscribe') }}?subcategory={{subcategory.id}}" class="pgf-forms-post-simple">подписаться</a>
+        <a href="{{ url('forum:subcategories:subscribe', subcategory.id) }}" class="pgf-forms-post-simple">подписаться</a>
         {% else %}
-        <a href="{{ url('forum:subscriptions:unsubscribe') }}?subcategory={{subcategory.id}}" class="pgf-forms-post-simple">отписаться</a>
+        <a href="{{ url('forum:subcategories:unsubscribe', subcategory.id) }}" class="pgf-forms-post-simple">отписаться</a>
         {% endif %}
       </li>
       {% endif %}
 
       {% if resource.account.is_authenticated() %}
       <li>
-        <a href="{{ url('forum:read-all', subcategory.slug) }}" class="pgf-forms-post-simple">«прочитать» всё</a>
+        <a href="{{ url('forum:read-all', subcategory.id) }}" class="pgf-forms-post-simple">«прочитать» всё</a>
       </li>
       {% endif %}
     </ul>
@@ -42,6 +42,8 @@
   <li class="active">{{ subcategory.caption }}</li>
 </ul>
 
+{% if threads %}
+
 {{ forum_paginator_line() }}
 
 <table class="table table-striped forum-table table-no-highlighting">
@@ -61,9 +63,14 @@
 
 {{ forum_paginator_line() }}
 
+{% else %}
+
+<p class="alert alert-info">В этом разделе пока нет обсуждений. Вы можете создать первое.</p>
+
+{% endif %}
+
 {% if can_create_thread %}
-<form action="{{ url('forum:threads:new')}}" method="get">
-  <input type="hidden" name="subcategory" value="{{subcategory.slug}}" />
+<form action="{{ url('forum:subcategories:new-thread', subcategory.id)}}" method="get">
   <input type="submit" value="Добавить обсуждение" class="btn pgf-new-thread-button"/>
 </form>
 {% endif %}

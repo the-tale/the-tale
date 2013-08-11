@@ -81,16 +81,16 @@ class NewsResource(Resource):
     @nested_commit_on_success
     def publish_on_forum(self):
 
-        if news_settings.FORUM_CATEGORY_SLUG is None:
+        if news_settings.FORUM_CATEGORY_UID is None:
             return self.json_error('news.publish_on_forum.forum_category_not_specified', u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
 
-        if SubCategoryPrototype.get_by_slug(news_settings.FORUM_CATEGORY_SLUG) is None:
+        if SubCategoryPrototype.get_by_uid(news_settings.FORUM_CATEGORY_UID) is None:
             return self.json_error('news.publish_on_forum.forum_category_not_exists', u'try to publish news on forum when FORUM_CATEGORY_ID has not exists')
 
         if self.news.forum_thread is not None:
             return self.json_error('news.publish_on_forum.forum_thread_already_exists', u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
 
-        thread = ThreadPrototype.create(SubCategoryPrototype.get_by_slug(news_settings.FORUM_CATEGORY_SLUG ),
+        thread = ThreadPrototype.create(SubCategoryPrototype.get_by_uid(news_settings.FORUM_CATEGORY_UID ),
                                         caption=self.news.caption,
                                         author=get_system_user(),
                                         text=self.news.content,

@@ -57,8 +57,8 @@ class BaseTestRequests(TestCase):
         from forum.models import Category, SubCategory
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
-        SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_SLUG + '-caption',
-                                   slug=bills_settings.FORUM_CATEGORY_SLUG,
+        SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_UID + '-caption',
+                                   uid=bills_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
 
     def create_bills(self, number, owner, caption_template, rationale_template, bill_data):

@@ -27,7 +27,7 @@ class CategoryPrototype(BasePrototype):
     _model_class = Category
     _readonly = ('id', 'caption', 'slug', 'order')
     _bidirectional = ()
-    _get_by = ('slug', )
+    _get_by = ('slug', 'id')
 
     @classmethod
     def create(cls, caption, slug, order):
@@ -37,9 +37,9 @@ class CategoryPrototype(BasePrototype):
 
 class SubCategoryPrototype(BasePrototype):
     _model_class = SubCategory
-    _readonly = ('id', 'caption', 'slug', 'order', 'created_at', 'category_id', 'updated_at', 'threads_count', 'posts_count', 'closed', 'last_thread_created_at', 'restricted')
-    _bidirectional = ()
-    _get_by = ('slug', 'id')
+    _readonly = ('id', 'order', 'created_at', 'category_id', 'updated_at', 'threads_count', 'posts_count', 'closed', 'last_thread_created_at', 'restricted')
+    _bidirectional = ('caption',)
+    _get_by = ('id', 'uid')
 
     @lazy_property
     def category(self): return CategoryPrototype(self._model.category)
@@ -55,7 +55,7 @@ class SubCategoryPrototype(BasePrototype):
         if not self.restricted:
             return False
         if not account.is_authenticated():
-            return False
+            return True
         return PermissionPrototype.get_for(account_id=account.id, subcategory_id=self.id) is None
 
     def update(self, author=None, date=None, last_thread_created_at=None):
@@ -78,9 +78,9 @@ class SubCategoryPrototype(BasePrototype):
 
     @classmethod
     @nested_commit_on_success
-    def create(cls, category, caption, slug, order, closed=False):
+    def create(cls, category, caption, order, closed=False, restricted=False, uid=None):
 
-        model = SubCategory.objects.create(category=category._model, caption=caption, slug=slug, order=order, closed=closed)
+        model = SubCategory.objects.create(category=category._model, caption=caption, order=order, closed=closed, restricted=restricted, uid=uid)
 
         return cls(model=model)
 
@@ -281,7 +281,7 @@ class PostPrototype(BasePrototype):
 
 class SubscriptionPrototype(BasePrototype):
     _model_class = Subscription
-    _readonly = ()
+    _readonly = ('id', )
     _bidirectional = ()
     _get_by = ()
 
@@ -339,6 +339,11 @@ class SubscriptionPrototype(BasePrototype):
     def remove(self):
         self._model.delete()
 
+    @classmethod
+    @nested_commit_on_success
+    def remove_all_in_subcategory(cls, account_id, subcategory_id):
+        cls._model_class.objects.filter(account_id=account_id, subcategory_id=subcategory_id).delete()
+        cls._model_class.objects.filter(account_id=account_id, thread_id__in=ThreadPrototype._model_class.objects.filter(subcategory_id=subcategory_id)).delete()
 
 
 class ThreadReadInfoPrototype(BasePrototype):
@@ -467,3 +472,7 @@ class PermissionPrototype(BasePrototype):
         model = cls._model_class.objects.create(account=account._model,
                                                 subcategory=subcategory._model)
         return cls(model=model)
+
+    def remove(self):
+        SubscriptionPrototype.remove_all_in_subcategory(account_id=self.account_id, subcategory_id=self.subcategory_id)
+        self._model.delete()

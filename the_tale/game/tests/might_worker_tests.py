@@ -41,8 +41,8 @@ class MightCalculatorTests(testcase.TestCase):
         self.hero_2 = HeroPrototype.get_by_account_id(account_id)
 
         self.forum_category = CategoryPrototype.create('category', 'category-slug', 0)
-        self.bills_subcategory = SubCategoryPrototype.create(self.forum_category, 'subcategory', bills_settings.FORUM_CATEGORY_SLUG, 0)
-        self.blogs_subcategory = SubCategoryPrototype.create(self.forum_category, blogs_settings.FORUM_CATEGORY_SLUG + '-caption', blogs_settings.FORUM_CATEGORY_SLUG, 1)
+        self.bills_subcategory = SubCategoryPrototype.create(self.forum_category, 'subcategory', order=0, uid=bills_settings.FORUM_CATEGORY_UID)
+        self.blogs_subcategory = SubCategoryPrototype.create(self.forum_category, blogs_settings.FORUM_CATEGORY_UID + '-caption', order=1, uid=blogs_settings.FORUM_CATEGORY_UID)
 
 
     def test_initialize(self):
