@@ -18,17 +18,31 @@ PREMIUM_DAYS_DESCRIPTION = u'''
 '''
 
 
-PRICE_LIST = [  PremiumDays(uid=u'subscription-30',
+PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
+                            name=u'7 дней подписки',
+                            description=PREMIUM_DAYS_DESCRIPTION,
+                            cost=100,
+                            days=7,
+                            transaction_description=u'Продление подписки на 7 дней.'),
+
+                PremiumDays(uid=u'subscription-15',
+                            name=u'15 дней подписки',
+                            description=PREMIUM_DAYS_DESCRIPTION,
+                            cost=180,
+                            days=15,
+                            transaction_description=u'Продление подписки на 15 дней.'),
+
+                PremiumDays(uid=u'subscription-30',
                             name=u'30 дней подписки',
                             description=PREMIUM_DAYS_DESCRIPTION,
-                            cost=400,
+                            cost=300,
                             days=30,
                             transaction_description=u'Продление подписки на 30 дней.'),
 
                 PremiumDays(uid=u'subscription-90',
                             name=u'90 дней подписки',
                             description=PREMIUM_DAYS_DESCRIPTION,
-                            cost=1000,
+                            cost=750,
                             days=90,
                             transaction_description=u'Продление подписки на 90 дней.'),
 

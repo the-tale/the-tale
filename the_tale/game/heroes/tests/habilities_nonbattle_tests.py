@@ -6,6 +6,7 @@ from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
 
 from game.logic import create_test_map
+from game.balance import constants as c
 
 from game.heroes.habilities import nonbattle
 from game.heroes.relations import ITEMS_OF_EXPENDITURE
@@ -63,7 +64,9 @@ class HabilitiesNonBattleTest(testcase.TestCase):
 
     def test_gifted(self):
         self.hero.add_experience(10)
-        self.assertTrue(self.hero.experience, 10)
+        experience_delta = self.hero.experience
+
         self.hero.abilities.add(nonbattle.GIFTED.get_id())
         self.hero.add_experience(10)
-        self.assertTrue(self.hero.experience > 20)
+
+        self.assertTrue(self.hero.experience > experience_delta * 2)

@@ -449,7 +449,10 @@ class HeroPrototype(BasePrototype):
         self._model.next_spending = random_value_by_priority(list(priorities.items()))
 
     @property
-    def energy_maximum(self): return c.ANGEL_ENERGY_MAX
+    def energy_maximum(self):
+        if self.is_premium:
+            return c.ANGEL_ENERGY_MAX + c.ANGEL_ENERGY_PREMIUM_BONUS
+        return c.ANGEL_ENERGY_MAX
 
     def change_energy(self, value):
         old_energy = self._model.energy
@@ -510,10 +513,12 @@ class HeroPrototype(BasePrototype):
     def experience_modifier(self):
         if self.is_banned:
             modifier = 0.0
-        elif self.is_premium or self.is_active:
-            modifier = 1.0
+        elif self.is_premium:
+            modifier = c.EXP_FOR_PREMIUM_ACCOUNT
+        elif self.is_active:
+            modifier = c.EXP_FOR_NORMAL_ACCOUNT
         else:
-            modifier = 1.0 * c.EXP_PENALTY_MULTIPLIER
+            modifier = c.EXP_FOR_NORMAL_ACCOUNT * c.EXP_PENALTY_MULTIPLIER
 
         return self.abilities.modify_attribute(ATTRIBUTES.EXPERIENCE, modifier)
 

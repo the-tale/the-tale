@@ -77,16 +77,16 @@ class HeroTest(TestCase):
         self.assertTrue(hero.created_at_turn != self.hero.created_at_turn)
 
     def test_experience_modifier__banned(self):
-        self.assertEqual(self.hero.experience_modifier, 1)
+        self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
         self.hero.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         self.assertEqual(self.hero.experience_modifier, 0)
 
     def test_experience_modifier__active_inactive_state(self):
-        self.assertEqual(self.hero.experience_modifier, 1)
+        self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
         self.hero._model.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
 
-        self.assertTrue(self.hero.experience_modifier < 1)
+        self.assertTrue(self.hero.experience_modifier < c.EXP_FOR_NORMAL_ACCOUNT)
 
         self.hero.update_with_account_data(is_fast=False,
                                            premium_end_at=datetime.datetime.now(),
@@ -94,15 +94,15 @@ class HeroTest(TestCase):
                                            ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60),
                                            might=0)
 
-        self.assertEqual(self.hero.experience_modifier, 1)
+        self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
     def test_experience_modifier__with_premium(self):
-        self.assertEqual(self.hero.experience_modifier, 1)
+        self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
         self.hero._model.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
         self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
-        self.assertEqual(self.hero.experience_modifier, 1)
+        self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_PREMIUM_ACCOUNT)
 
         self.hero.update_with_account_data(is_fast=False,
                                            premium_end_at=datetime.datetime.now(),
@@ -110,7 +110,7 @@ class HeroTest(TestCase):
                                            ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60),
                                            might=666)
 
-        self.assertEqual(self.hero.experience_modifier, 1)
+        self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
     def test_can_participate_in_pvp(self):
         self.assertFalse(self.hero.can_participate_in_pvp)
@@ -261,6 +261,12 @@ class HeroTest(TestCase):
         self.assertEqual(len(self.hero.messages), 2)
         self.assertEqual(len(self.hero.diary), 2)
 
+    def test_energy_maximum(self):
+        maximum_without_premium = self.hero.energy_maximum
+        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(days=1)
+        maximum_with_premium = self.hero.energy_maximum
+        self.assertTrue(maximum_without_premium < maximum_with_premium)
+
 
 class HeroPositionTest(TestCase):
 
@@ -305,22 +311,22 @@ class HeroLevelUpTests(TestCase):
 
     def test_lvl_up(self):
         self.assertEqual(self.hero.level, 1)
-        self.assertEqual(self.hero.experience_modifier, 1)
+        self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
-        self.hero.add_experience(f.exp_on_lvl(1)/2)
+        self.hero.add_experience(f.exp_on_lvl(1)/2 / self.hero.experience_modifier)
         self.assertEqual(self.hero.level, 1)
 
-        self.hero.add_experience(f.exp_on_lvl(1))
+        self.hero.add_experience(f.exp_on_lvl(1) / self.hero.experience_modifier)
         self.assertEqual(self.hero.level, 2)
         self.assertEqual(self.hero.experience, f.exp_on_lvl(1)/2)
 
-        self.hero.add_experience(f.exp_on_lvl(2))
+        self.hero.add_experience(f.exp_on_lvl(2) / self.hero.experience_modifier)
         self.assertEqual(self.hero.level, 3)
 
-        self.hero.add_experience(f.exp_on_lvl(3))
+        self.hero.add_experience(f.exp_on_lvl(3) / self.hero.experience_modifier)
         self.assertEqual(self.hero.level, 4)
 
-        self.hero.add_experience(f.exp_on_lvl(4))
+        self.hero.add_experience(f.exp_on_lvl(4) / self.hero.experience_modifier)
         self.assertEqual(self.hero.level, 5)
 
     def test_max_ability_points_number(self):

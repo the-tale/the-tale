@@ -20,9 +20,13 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.POWER_PER_LVL, 1)
         self.assertEqual(c.EQUIP_SLOTS_NUMBER, 11)
         self.assertEqual(c.ARTIFACTS_PER_LVL, 4)
+
         self.assertEqual(c.EXP_PENALTY_MULTIPLIER, 0.1)
         self.assertEqual(c.EXP_PER_HOUR, 10)
         self.assertEqual(c.EXP_PER_QUEST_FRACTION, 0.33)
+        self.assertEqual(c.EXP_FOR_PREMIUM_ACCOUNT, 1.2)
+        self.assertEqual(c.EXP_FOR_NORMAL_ACCOUNT, 0.8)
+
         self.assertEqual(c.HERO_MOVE_SPEED, 0.3)
         self.assertEqual(c.BATTLE_LENGTH, 16)
         self.assertEqual(c.INTERVAL_BETWEEN_BATTLES, 3)
@@ -67,6 +71,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.DESTINY_POINT_IN_LEVELS, 5)
 
         self.assertEqual(c.ANGEL_ENERGY_MAX, 12)
+        self.assertEqual(c.ANGEL_ENERGY_PREMIUM_BONUS, 6)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_TIME,  0.5)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD,  180)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_AMAUNT, 1)
