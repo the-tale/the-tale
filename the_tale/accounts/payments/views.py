@@ -71,7 +71,7 @@ class PaymentsResource(Resource):
     @handler('shop', method='get')
     def shop(self):
         return self.template('payments/shop.html',
-                             {'PRICE_LIST': price_list.PRICE_LIST,
+                             {'PRICE_LIST': filter(lambda item: item.is_purchasable(self.account), price_list.PRICE_LIST),
                               'payments_settings': payments_settings,
                               'account': self.account,
                               'page_type': 'shop'})
@@ -84,6 +84,14 @@ class PaymentsResource(Resource):
                               'payments_settings': payments_settings,
                               'account': self.account,
                               'history': history})
+
+    @handler('purchases', method='get')
+    def purchases(self):
+        return self.template('payments/purchases.html',
+                             {'page_type': 'purchases',
+                              'payments_settings': payments_settings,
+                              'permanent_purchases': sorted(self.account.permanent_purchases, key=lambda r: r.text),
+                              'account': self.account})
 
     @validate_argument('purchase', price_list.PURCHASES_BY_UID.get, 'payments.buy', u'неверный идентификатор покупки')
     @handler('buy', method='post')

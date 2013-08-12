@@ -88,12 +88,12 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'supervisor', self.account_2.id: None})
 
         #test commands queue
-        self.worker.process_set_might(self.account_1.id, self.hero_1.id, 0)
-        self.worker.process_set_might(self.account_2.id, self.hero_2.id, 1)
-        self.worker.process_set_might(self.account_1.id, self.hero_1.id, 2)
-        self.assertEqual(self.worker.accounts_queues, { self.account_1.id: [('set_might', {'account_id': self.account_1.id, 'hero_id': self.hero_1.id, 'might': 0}),
-                                                                            ('set_might', {'account_id': self.account_1.id, 'hero_id': self.hero_1.id, 'might': 2}),],
-                                                        self.account_2.id: [('set_might', {'account_id': self.account_2.id, 'hero_id': self.hero_2.id, 'might': 1})]})
+        self.worker.process_start_hero_caching(self.account_1.id, self.hero_1.id)
+        self.worker.process_start_hero_caching(self.account_2.id, self.hero_2.id)
+        self.worker.process_logic_task(self.account_1.id, 666)
+        self.assertEqual(self.worker.accounts_queues, { self.account_1.id: [('start_hero_caching', {'account_id': self.account_1.id, 'hero_id': self.hero_1.id}),
+                                                                            ('logic_task', {'account_id': self.account_1.id, 'task_id': 666}),],
+                                                        self.account_2.id: [('start_hero_caching', {'account_id': self.account_2.id, 'hero_id': self.hero_2.id})]})
 
         self.worker.process_account_released(self.account_2.id)
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: 'logic'})
@@ -139,15 +139,15 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.worker.register_task(task)
 
         # for test pending account cmd queue
-        self.worker.accounts_queues[account_id] = [('set_might', {'account_id': self.account_1.id, 'hero_id': self.hero_1.id, 'might': 0}),
-                                                   ('set_might', {'account_id': self.account_1.id, 'hero_id': self.hero_1.id, 'might': 2}),
-                                                   ('set_might', {'account_id': self.account_1.id, 'hero_id': self.hero_1.id, 'might': 4}) ]
+        self.worker.accounts_queues[account_id] = [('logic_task', {'account_id': self.account_1.id, 'task_id': 1}),
+                                                   ('logic_task', {'account_id': self.account_1.id, 'task_id': 2}),
+                                                   ('logic_task', {'account_id': self.account_1.id, 'task_id': 4}) ]
 
         with mock.patch('game.workers.logic.Worker.cmd_register_account') as register_account_counter:
-            with mock.patch('game.workers.logic.Worker.cmd_set_might') as set_might_counter:
+            with mock.patch('game.workers.logic.Worker.cmd_logic_task') as cmd_logic_task:
                 self.worker.register_account(account_id)
 
-        self.assertEqual(set_might_counter.call_count, 3)
+        self.assertEqual(cmd_logic_task.call_count, 3)
         self.assertEqual(register_account_counter.call_count, 1)
         self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set([self.account_1.id, self.account_2.id]))
         self.assertEqual(self.worker.tasks.values()[0].captured_members, set())
@@ -197,7 +197,8 @@ class SupervisorWorkerTests(testcase.TestCase):
                                                                   is_fast=account_3.is_fast,
                                                                   premium_end_at=account_3.premium_end_at,
                                                                   active_end_at=account_3.active_end_at,
-                                                                  ban_end_at=account_3.ban_game_end_at)
+                                                                  ban_end_at=account_3.ban_game_end_at,
+                                                                  might=666)
 
         self.assertEqual(logic_task_counter.call_count, 0)
         self.assertEqual(logger_warn_counter.call_count, 1)

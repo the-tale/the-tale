@@ -9,6 +9,8 @@ from accounts.logic import register_user
 
 from game.logic import create_test_map
 
+from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+
 from accounts.clans.logic import ClanInfo
 from accounts.clans.relations import MEMBER_ROLE
 from accounts.clans.tests.helpers import ClansTestsMixin
@@ -43,6 +45,15 @@ class ClanInfoTests(TestCase, ClansTestsMixin):
         self.assertFalse(self.clan_info.can_create_clan)
 
     def test_can_create_clan__can(self):
+        self.account.set_might(clans_settings.OWNER_MIGHT_REQUIRED)
+        self.assertTrue(self.clan_info.can_create_clan)
+
+    def test_can_create_clan__no_might(self):
+        self.assertFalse(self.clan_info.can_create_clan)
+
+    def test_can_create_clan__right_purchased(self):
+        self.account.permanent_purchases.insert(PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT)
+        self.assertTrue(self.account.might < clans_settings.OWNER_MIGHT_REQUIRED)
         self.assertTrue(self.clan_info.can_create_clan)
 
 

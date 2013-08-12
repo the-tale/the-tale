@@ -104,6 +104,7 @@ jQuery(document).ready( function(e) {
 <ul class="nav nav-pills">
   <li {% if page_type == 'shop' %}class="active"{% endif %}><a href="{{ url('accounts:payments:shop') }}">Магазин</a></li>
   <li {% if page_type == 'history' %}class="active"{% endif %}><a href="{{ url('accounts:payments:history') }}">История</a></li>
+  <li {% if page_type == 'purchases' %}class="active"{% endif %}><a href="{{ url('accounts:payments:purchases') }}">Приобретения</a></li>
 </ul>
 
 

@@ -9,6 +9,7 @@ from django.contrib.auth.hashers import make_password
 from django.db import models
 
 from dext.utils.urls import full_url
+from dext.utils import s11n
 
 from common.postponed_tasks import PostponedTaskPrototype
 from common.utils.logic import verbose_timedelta
@@ -39,9 +40,15 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'referer_domain',
                  'referral_of_id',
                  'clan_id',
-                 'referrals_number')
+                 'referrals_number',
+                 'might')
     _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription')
     _get_by = ('id', 'email', 'nick')
+
+    @lazy_property
+    def permanent_purchases(self):
+        from accounts.payments.logic import PermanentRelationsStorage
+        return PermanentRelationsStorage.deserialize(s11n.from_json(self._model.permanent_purchases))
 
     @property
     def nick_verbose(self): return self._model.nick if not self._model.is_fast else u'Игрок'
@@ -144,6 +151,10 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         Account.objects.filter(id=self.id).update(clan=clan_id)
         self._model.clan_id = clan_id
 
+    def set_might(self, might):
+        Account.objects.filter(id=self.id).update(might=might)
+        self._model.might = might
+
     def check_password(self, password):
         return self._model.check_password(password)
 
@@ -182,7 +193,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def remove(self):
         return self._model.delete()
 
-    def save(self): self._model.save(force_update=True)
+    def save(self):
+        self._model.permanent_purchases = s11n.to_json(self.permanent_purchases.serialize())
+        self._model.save(force_update=True)
 
     @classmethod
     def _next_active_end_at(cls):

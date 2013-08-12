@@ -1,0 +1,38 @@
+{% extends "payments/base.html" %}
+
+{% block payments_content %}
+
+<h3>Приобретения</h3>
+
+<p>
+  На этой странице находится список ваших покупок, время действия которых никогда не истечёт.
+</p>
+
+{% if permanent_purchases %}
+
+<table class="table table-condensed table-striped table-bordered table-no-highlighting">
+  <thead>
+    <tr>
+      <th width="200px">название</th>
+      <th>описание</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for purchase in permanent_purchases %}
+    <tr>
+      <td>{{ purchase.text }}</td>
+      <td>{{ purchase.description }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-permanent-purchases-message">
+  Вы ещё не совершали «вечных» покупок.
+</p>
+
+{% endif %}
+
+{% endblock %}

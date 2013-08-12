@@ -57,7 +57,7 @@ jQuery(document).ready(function(){
   <div class="row-fluid">
     <div class="span12">
 
-      <h2 style="display: inline-block;">{{ master_account.nick_verbose }} <small>могущество: {{ master_hero.might|int }}</small></h2>
+      <h2 style="display: inline-block;">{{ master_account.nick_verbose }} <small>могущество: {{ master_account.might|int }}</small></h2>
 
       {% if resource.account.is_authenticated() and master_account.id != resource.account.id %}
         &nbsp;<a class="pgf-new-message" href="#">отправить сообщение</a> /

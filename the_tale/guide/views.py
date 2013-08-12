@@ -16,6 +16,8 @@ from game.persons.conf import persons_settings
 from game.pvp.conf import pvp_settings
 from game.pvp import abilities as pvp_abilities
 
+from accounts.clans.conf import clans_settings
+
 
 
 class GuideResource(Resource):
@@ -88,7 +90,9 @@ class GuideResource(Resource):
 
     @handler('clans', method='get')
     def clans(self):
-        return self.template('guide/clans.html', {'section': 'clans'})
+        return self.template('guide/clans.html',
+                             {'section': 'clans',
+                              'clans_settings': clans_settings })
 
     @handler('map', method='get')
     def map(self):

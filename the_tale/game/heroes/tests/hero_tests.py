@@ -91,7 +91,8 @@ class HeroTest(TestCase):
         self.hero.update_with_account_data(is_fast=False,
                                            premium_end_at=datetime.datetime.now(),
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
-                                           ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60))
+                                           ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60),
+                                           might=0)
 
         self.assertEqual(self.hero.experience_modifier, 1)
 
@@ -106,7 +107,8 @@ class HeroTest(TestCase):
         self.hero.update_with_account_data(is_fast=False,
                                            premium_end_at=datetime.datetime.now(),
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
-                                           ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60))
+                                           ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60),
+                                           might=666)
 
         self.assertEqual(self.hero.experience_modifier, 1)
 
@@ -144,12 +146,14 @@ class HeroTest(TestCase):
         self.hero.update_with_account_data(is_fast=False,
                                            premium_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
-                                           ban_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60))
+                                           ban_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
+                                           might=666)
 
         self.assertFalse(self.hero.is_fast)
         self.assertTrue(self.hero.active_state_end_at > datetime.datetime.now())
         self.assertTrue(self.hero.premium_state_end_at > datetime.datetime.now())
         self.assertTrue(self.hero.ban_state_end_at > datetime.datetime.now())
+        self.assertEqual(self.hero.might, 666)
 
 
     def test_modify_person_power(self):

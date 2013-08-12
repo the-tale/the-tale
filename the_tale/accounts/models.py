@@ -90,6 +90,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
     referral_of = models.ForeignKey('accounts.Account', null=True, blank=True, db_index=True, default=None, on_delete=models.SET_NULL)
     referrals_number = models.IntegerField(default=0)
 
+    permanent_purchases = models.TextField(default='[]')
+
+    might = models.FloatField(default=0.0)
+
     USERNAME_FIELD = 'nick'
     REQUIRED_FIELDS = ['email']
 

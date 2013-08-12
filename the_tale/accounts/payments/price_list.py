@@ -1,7 +1,8 @@
 # coding: utf-8
 
-from accounts.payments.goods import PremiumDays
-from accounts.payments.exceptions import PayementsError
+from accounts.payments.goods import PremiumDays, PermanentPurchase
+from accounts.payments import exceptions
+from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 
 
 PREMIUM_DAYS_DESCRIPTION = u'''
@@ -29,9 +30,16 @@ PRICE_LIST = [  PremiumDays(uid=u'subscription-30',
                             description=PREMIUM_DAYS_DESCRIPTION,
                             cost=1000,
                             days=90,
-                            transaction_description=u'Продление подписки на 90 дней.') ]
+                            transaction_description=u'Продление подписки на 90 дней.'),
+
+                PermanentPurchase(uid=u'clan-ownership-right',
+                                  name=PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT.text,
+                                  description=PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT.description,
+                                  cost=150,
+                                  purchase_type=PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT,
+                                  transaction_description=u'Приобретение разрешения на владение гильдией.')]
 
 PURCHASES_BY_UID = {purchase.uid:purchase for purchase in PRICE_LIST}
 
 if len(PURCHASES_BY_UID) != len(PRICE_LIST):
-    raise PayementsError('duplicate uids in price list')
+    raise exceptions.DuplicateUIDsInPriceListError('duplicate uids in price list')

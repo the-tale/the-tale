@@ -69,13 +69,6 @@ class Worker(BaseWorker):
         else:
             self.logger.info('skip initialization of turns loop')
 
-        if game_settings.ENABLE_WORKER_MIGHT_CALCULATOR:
-            self.logger.info('initialize might calculator')
-            game_environment.might_calculator.cmd_initialize(worker_id='might_calculator')
-            self.wait_answers_from('initialize', workers=['might_calculator'])
-        else:
-            self.logger.info('skip initialization of might calculator')
-
         if game_settings.ENABLE_PVP:
             self.logger.info('initialize pvp balancer')
             game_environment.pvp_balancer.cmd_initialize(worker_id='pvp_balancer')
@@ -231,10 +224,6 @@ class Worker(BaseWorker):
             game_environment.turns_loop.cmd_stop()
             self.wait_answers_from('stop', workers=['turns_loop'])
 
-        if game_settings.ENABLE_WORKER_MIGHT_CALCULATOR:
-            game_environment.might_calculator.cmd_stop()
-            self.wait_answers_from('stop', workers=['might_calculator'])
-
         if game_settings.ENABLE_PVP:
             game_environment.pvp_balancer.cmd_stop()
             self.wait_answers_from('stop', workers=['pvp_balancer'])
@@ -261,21 +250,23 @@ class Worker(BaseWorker):
         self.dispatch_logic_cmd(account_id, 'logic_task', {'account_id': account_id,
                                                            'task_id': task_id} )
 
-    def cmd_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at, ban_end_at):
+    def cmd_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at, ban_end_at, might):
         self.send_cmd('update_hero_with_account_data', {'hero_id': hero_id,
                                                         'account_id': account_id,
                                                         'is_fast': is_fast,
                                                         'premium_end_at': time.mktime(premium_end_at.timetuple()),
                                                         'active_end_at': time.mktime(active_end_at.timetuple()),
-                                                        'ban_end_at': time.mktime(ban_end_at.timetuple())})
+                                                        'ban_end_at': time.mktime(ban_end_at.timetuple()),
+                                                        'might': might})
 
-    def process_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at, ban_end_at):
+    def process_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at, ban_end_at, might):
         self.dispatch_logic_cmd(account_id, 'update_hero_with_account_data', {'account_id': account_id,
                                                                               'hero_id': hero_id,
                                                                               'is_fast': is_fast,
                                                                               'premium_end_at': premium_end_at,
                                                                               'active_end_at': active_end_at,
-                                                                              'ban_end_at': ban_end_at} )
+                                                                              'ban_end_at': ban_end_at,
+                                                                              'might': might} )
 
     def cmd_start_hero_caching(self, account_id, hero_id):
         self.send_cmd('start_hero_caching', {'hero_id': hero_id,
@@ -291,14 +282,6 @@ class Worker(BaseWorker):
     def process_highlevel_data_updated(self):
         from game.workers.environment import workers_environment as game_environment
         game_environment.logic.cmd_highlevel_data_updated()
-
-    def cmd_set_might(self, account_id, hero_id, might):
-        self.send_cmd('set_might', {'hero_id': hero_id, 'might': might, 'account_id': account_id})
-
-    def process_set_might(self, account_id, hero_id, might):
-        self.dispatch_logic_cmd(account_id, 'set_might', {'account_id': account_id,
-                                                          'hero_id': hero_id,
-                                                          'might': might} )
 
     def cmd_account_release_required(self, account_id):
         return self.send_cmd('account_release_required', {'account_id': account_id})

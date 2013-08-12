@@ -2,7 +2,11 @@
 
 
 from common.utils.decorators import lazy_property
+
+from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+
 from accounts.clans.prototypes import ClanPrototype, MembershipPrototype
+from accounts.clans.conf import clans_settings
 
 class ClanInfo(object):
 
@@ -11,7 +15,14 @@ class ClanInfo(object):
 
     @lazy_property
     def can_create_clan(self):
-        return self.account.is_authenticated() and not self.account.is_fast and self.membership is None
+        if not self.account.is_authenticated() or self.account.is_fast or self.membership is not None:
+            return False
+
+        if PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT in self.account.permanent_purchases:
+            return True
+
+        return self.account.might >= clans_settings.OWNER_MIGHT_REQUIRED
+
 
     @lazy_property
     def membership(self):

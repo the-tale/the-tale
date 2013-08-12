@@ -72,7 +72,6 @@ class Hero(models.Model):
     last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
 
     might = models.FloatField(null=False, default=0.0)
-    might_updated_time = models.DateTimeField(auto_now_add=True, db_index=True, default=datetime.datetime(2000, 1, 1))
 
     #position
     pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)

@@ -67,6 +67,12 @@ class Worker(BaseWorker):
             self.run_recalculate_ratings()
             return
 
+        # is might sync needed
+        if time.time() - float(settings.get(portal_settings.SETTINGS_PREV_MIGHT_SYNC_TIME_KEY, 0)) > portal_settings.MIGHT_SYNC_DELAY:
+            settings[portal_settings.SETTINGS_PREV_MIGHT_SYNC_TIME_KEY] = str(time.time())
+            self.run_recalculate_might()
+            return
+
     def cmd_stop(self):
         return self.send_cmd('stop')
 
@@ -88,6 +94,11 @@ class Worker(BaseWorker):
         self.logger.info('calculate ratings')
         self._run_subprocess('recalculate_rating', ['./manage.py', 'ratings_recalculate_ratings'])
         self.logger.info('ratings calculated')
+
+    def run_recalculate_might(self):
+        self.logger.info('calculate might')
+        self._run_subprocess('recalculate_might', ['./manage.py', 'accounts_calculate_might'])
+        self.logger.info('might calculated')
 
     def run_cleaning(self):
         self.logger.info('start cleaning')

@@ -53,7 +53,8 @@ def _register_postponed_tasks(container, objects):
         if obj.TYPE in container:
             raise PostponedTaskException(u'interanl logic "%s" for postponed task has being registered already' % obj.TYPE)
         if obj.TYPE is None:
-            raise PostponedTaskException(u'interanl logic "%r" for postponed task does not define TYPE' % obj)
+            continue # skip abstract classes
+            # raise PostponedTaskException(u'interanl logic "%r" for postponed task does not define TYPE' % obj)
         container[obj.TYPE] = obj
 
 

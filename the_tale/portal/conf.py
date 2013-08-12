@@ -42,5 +42,8 @@ portal_settings = app_settings('PORTAL',
                                SETTINGS_PREV_RATINGS_SYNC_TIME_KEY = 'prev ratings sync run time',
                                RATINGS_SYNC_DELAY=4*60*60, # UTC time
 
+                               SETTINGS_PREV_MIGHT_SYNC_TIME_KEY = 'prev might sync run time',
+                               MIGHT_SYNC_DELAY=24*60*60, # UTC time
+
                                ENABLE_WORKER_LONG_COMMANDS=True
     )

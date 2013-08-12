@@ -820,11 +820,12 @@ class HeroPrototype(BasePrototype):
 
         return hero
 
-    def update_with_account_data(self, is_fast, premium_end_at, active_end_at, ban_end_at):
+    def update_with_account_data(self, is_fast, premium_end_at, active_end_at, ban_end_at, might):
         self.is_fast = is_fast
         self.active_state_end_at = active_end_at
         self.premium_state_end_at = premium_end_at
         self.ban_state_end_at = ban_end_at
+        self.might = might
 
     def cmd_update_with_account_data(self, account):
         from game.workers.environment import workers_environment as game_workers_environment
@@ -834,7 +835,8 @@ class HeroPrototype(BasePrototype):
                                                                               is_fast=account.is_fast,
                                                                               premium_end_at=account.premium_end_at,
                                                                               active_end_at=account.active_end_at,
-                                                                              ban_end_at=account.ban_game_end_at)
+                                                                              ban_end_at=account.ban_game_end_at,
+                                                                              might=account.might)
 
 
     ###########################################

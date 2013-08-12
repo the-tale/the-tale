@@ -94,12 +94,14 @@ class LogicWorkerTests(testcase.TestCase):
                                                               is_fast=False,
                                                               premium_end_at=666,
                                                               active_end_at=666666,
-                                                              ban_end_at=777777)
+                                                              ban_end_at=777777,
+                                                              might=8888)
         args = update_method.call_args[1]
         self.assertFalse(args['is_fast'])
         self.assertEqual(args['premium_end_at'], datetime.datetime.fromtimestamp(666))
         self.assertEqual(args['active_end_at'], datetime.datetime.fromtimestamp(666666))
         self.assertEqual(args['ban_end_at'], datetime.datetime.fromtimestamp(777777))
+        self.assertEqual(args['might'], 8888)
 
     def test_stop(self):
         with mock.patch('game.logic_storage.LogicStorage.save_all') as save_all:

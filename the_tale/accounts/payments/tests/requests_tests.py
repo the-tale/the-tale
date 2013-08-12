@@ -21,6 +21,65 @@ from accounts.logic import register_user, login_url
 from accounts.payments.price_list import PURCHASES_BY_UID
 from accounts.payments.conf import payments_settings
 from accounts.payments.logic import real_amount_to_game
+from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+from accounts.payments.goods import PermanentPurchase
+
+
+class PageRequestsMixin(object):
+
+    def test_for_fast_account(self):
+        self.account.is_fast = True
+        self.account.save()
+        self.check_html_ok(self.request_html(self.page_url), texts=['common.fast_account'])
+
+    def test_unlogined(self):
+        self.request_logout()
+        self.check_redirect(self.page_url, login_url(self.page_url))
+
+    def test_buy_link(self):
+        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-dengionline-dialog-link', 2)])
+
+    @mock.patch('accounts.payments.conf.payments_settings.DENGIONLINE_ENABLED', False)
+    def test_dengionline_disabled__dengionline(self):
+        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-dengionline-dialog-link', 0)])
+
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
+    @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
+    def test_dengionline_disabled__global(self):
+        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-dengionline-dialog-link', 0)])
+
+    def test_dengionline_disabled__settings(self):
+        del settings[payments_settings.SETTINGS_ALLOWED_KEY]
+        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-dengionline-dialog-link', 0)])
+
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
+    def test_dengionline_disabled__global_with_exception(self):
+        with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
+            self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-dengionline-dialog-link', 2)])
+
+
+    def test_xsolla_buy_link(self):
+        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 1)])
+
+    @mock.patch('accounts.payments.conf.payments_settings.XSOLLA_ENABLED', False)
+    def test_xsolla_disabled__xsolla(self):
+        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 0)])
+
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
+    @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
+    def test_xsolla_disabled__global(self):
+        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 0)])
+
+    def test_xsolla_disabled__settings(self):
+        del settings[payments_settings.SETTINGS_ALLOWED_KEY]
+        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 0)])
+
+    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
+    def test_xsolla_disabled__global_with_exception(self):
+        with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
+            self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 1)])
+
+
 
 
 class RequestesTestsBase(testcase.TestCase):
@@ -37,89 +96,43 @@ class RequestesTestsBase(testcase.TestCase):
         self.request_login(self.account.email)
 
 
-class ShopRequestesTests(RequestesTestsBase):
+class ShopRequestesTests(RequestesTestsBase, PageRequestsMixin):
 
     def setUp(self):
         super(ShopRequestesTests, self).setUp()
-
-    def test_for_fast_account(self):
-        self.account.is_fast = True
-        self.account.save()
-        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=['common.fast_account'])
-
-    def test_unlogined(self):
-        self.request_logout()
-        requested_url = url('accounts:payments:shop')
-        self.check_redirect(requested_url, login_url(requested_url))
-
-    def test_buy_link(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-dengionline-dialog-link', 2)])
-
-    @mock.patch('accounts.payments.conf.payments_settings.DENGIONLINE_ENABLED', False)
-    def test_dengionline_disabled__dengionline(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-dengionline-dialog-link', 0)])
-
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
-    def test_dengionline_disabled__global(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-dengionline-dialog-link', 0)])
-
-    def test_dengionline_disabled__settings(self):
-        del settings[payments_settings.SETTINGS_ALLOWED_KEY]
-        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-dengionline-dialog-link', 0)])
-
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    def test_dengionline_disabled__global_with_exception(self):
-        with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
-            self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-dengionline-dialog-link', 2)])
-
-
-    def test_xsolla_buy_link(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-xsolla-dialog-link', 1)])
-
-    @mock.patch('accounts.payments.conf.payments_settings.XSOLLA_ENABLED', False)
-    def test_xsolla_disabled__xsolla(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-xsolla-dialog-link', 0)])
-
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
-    def test_xsolla_disabled__global(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-xsolla-dialog-link', 0)])
-
-    def test_xsolla_disabled__settings(self):
-        del settings[payments_settings.SETTINGS_ALLOWED_KEY]
-        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-xsolla-dialog-link', 0)])
-
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    def test_xsolla_disabled__global_with_exception(self):
-        with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
-            self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-xsolla-dialog-link', 1)])
+        self.page_url = url('accounts:payments:shop')
 
     @mock.patch('accounts.payments.price_list.PRICE_LIST', [])
     def test_no_goods(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=['pgf-no-goods-message'])
+        self.check_html_ok(self.request_html(self.page_url), texts=['pgf-no-goods-message'])
 
     def test_goods(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:shop')), texts=[('pgf-no-goods-message', 0)] + PURCHASES_BY_UID.keys())
+        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-no-goods-message', 0)] + PURCHASES_BY_UID.keys())
+
+    def test_purchasable_items(self):
+        for purchase in PURCHASES_BY_UID.values():
+            if not isinstance(purchase, PermanentPurchase):
+                continue
+            self.account.permanent_purchases.insert(purchase.purchase_type)
+            self.account.save()
+
+            existed_uids = PURCHASES_BY_UID.keys()
+            existed_uids.remove(purchase.uid)
+
+            self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-no-goods-message', 0), (purchase.uid, 0)] + existed_uids )
+
+            self.account.permanent_purchases._data = set()
+            self.account.save()
 
 
-class HistoryRequestesTests(RequestesTestsBase, BankTestsMixin):
+class HistoryRequestesTests(RequestesTestsBase, BankTestsMixin, PageRequestsMixin):
 
     def setUp(self):
         super(HistoryRequestesTests, self).setUp()
-
-    def test_for_fast_account(self):
-        self.account.is_fast = True
-        self.account.save()
-        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=['common.fast_account'])
-
-    def test_unlogined(self):
-        self.request_logout()
-        requested_url = url('accounts:payments:history')
-        self.check_redirect(requested_url, login_url(requested_url))
+        self.page_url = url('accounts:payments:history')
 
     def test_no_history(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=['pgf-no-history-message'])
+        self.check_html_ok(self.request_html(self.page_url), texts=['pgf-no-history-message'])
 
     def test_history(self):
         self.create_bank_account(self.account.id)
@@ -138,49 +151,29 @@ class HistoryRequestesTests(RequestesTestsBase, BankTestsMixin):
         for invoice in history:
             texts.append((invoice.description, 1))
 
-        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=texts)
+        self.check_html_ok(self.request_html(self.page_url), texts=texts)
 
-    def test_dengionline_buy_link(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=[('pgf-dengionline-dialog-link', 2)])
 
-    @mock.patch('accounts.payments.conf.payments_settings.DENGIONLINE_ENABLED', False)
-    def test_dengionline_disabled__dengionline(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=[('pgf-dengionline-dialog-link', 0)])
+class PurchasesRequestesTests(RequestesTestsBase, PageRequestsMixin):
 
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
-    def test_dengionline_disabled__global(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=[('pgf-dengionline-dialog-link', 0)])
+    def setUp(self):
+        super(PurchasesRequestesTests, self).setUp()
+        self.page_url = url('accounts:payments:purchases')
 
-    def test_dengionline_disabled__settings(self):
-        del settings[payments_settings.SETTINGS_ALLOWED_KEY]
-        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=[('pgf-dengionline-dialog-link', 0)])
+    def test_no_purchases(self):
+        self.check_html_ok(self.request_html(self.page_url), texts=['pgf-no-permanent-purchases-message'])
 
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    def test_dengionline_disabled__global_with_exception(self):
-        with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
-            self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=[('pgf-dengionline-dialog-link', 2)])
+    def test_purchases(self):
 
-    def test_xsolla_buy_link(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=[('pgf-xsolla-dialog-link', 1)])
+        texts = [('pgf-no-history-message', 0)]
 
-    @mock.patch('accounts.payments.conf.payments_settings.XSOLLA_ENABLED', False)
-    def test_xsolla_disabled__xsolla(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=[('pgf-xsolla-dialog-link', 0)])
+        for record in PERMANENT_PURCHASE_TYPE._records:
+            self.account.permanent_purchases.insert(record)
+            texts.append((record.description, 1))
+            texts.append((record.text, 1))
+        self.account.save()
 
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    @mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
-    def test_xsolla_disabled__global(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=[('pgf-xsolla-dialog-link', 0)])
-
-    def test_xsolla_disabled__settings(self):
-        del settings[payments_settings.SETTINGS_ALLOWED_KEY]
-        self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=[('pgf-xsolla-dialog-link', 0)])
-
-    @mock.patch('accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    def test_xsolla_disabled__global_with_exception(self):
-        with mock.patch('accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
-            self.check_html_ok(self.request_html(url('accounts:payments:history')), texts=[('pgf-xsolla-dialog-link', 1)])
+        self.check_html_ok(self.request_html(self.page_url), texts=texts)
 
 
 

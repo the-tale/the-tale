@@ -36,7 +36,9 @@ class PrototypeTests(testcase.TestCase):
         class Fake3PostponedInternalTask(PostponedLogic):
             pass
 
-        self.assertRaises(PostponedTaskException, _register_postponed_tasks, _INTERNAL_LOGICS, [Fake3PostponedInternalTask])
+        _register_postponed_tasks(_INTERNAL_LOGICS, [Fake3PostponedInternalTask])
+
+        self.assertTrue(None not in _INTERNAL_LOGICS)
 
 
     def test_create(self):

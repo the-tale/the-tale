@@ -13,8 +13,10 @@ from game.heroes.prototypes import HeroPrototype
 from accounts.workers.environment import workers_environment as accounts_workers_environment
 from accounts.prototypes import AccountPrototype
 
+from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 
-class BUY_PREMIUM_STATE(DjangoEnum):
+
+class BASE_BUY_TASK_STATE(DjangoEnum):
     _records = ( ('TRANSACTION_REQUESTED', 1, u'запрошены средства'),
                  ('TRANSACTION_REJECTED', 2, u'недостаточно средств'),
                  ('TRANSACTION_FROZEN', 3, u'средства выделены'),
@@ -25,26 +27,28 @@ class BUY_PREMIUM_STATE(DjangoEnum):
                  ('WRONG_TASK_STATE', 8, u'ошибка при обрабокте задачи — неверное состояние') )
 
 
-class BuyPremium(PostponedLogic):
 
-    TYPE = 'buy-premium'
+class BaseBuyTask(PostponedLogic):
+    TYPE = None
+    RELATION = BASE_BUY_TASK_STATE
 
-    def __init__(self, account_id, days, transaction, state=BUY_PREMIUM_STATE.TRANSACTION_REQUESTED):
-        super(BuyPremium, self).__init__()
+    def __init__(self, account_id, transaction, state=None):
+        super(BaseBuyTask, self).__init__()
+
+        if state is None:
+            state = self.RELATION.TRANSACTION_REQUESTED
+
         self.account_id = account_id
-        self.days = days
-        self.state = state if isinstance(state, rels.Record) else BUY_PREMIUM_STATE._index_value[state]
+        self.state = state if isinstance(state, rels.Record) else self.RELATION._index_value[state]
         self.transaction = Transaction.deserialize(transaction) if isinstance(transaction, dict) else transaction
 
     def __eq__(self, other):
         return (self.state == other.state and
-                self.days == other.days and
                 self.transaction == other.transaction and
                 self.account_id == other.account_id)
 
     def serialize(self):
         return { 'state': self.state.value,
-                 'days': self.days,
                  'transaction': self.transaction.serialize(),
                  'account_id': self.account_id }
 
@@ -63,25 +67,26 @@ class BuyPremium(PostponedLogic):
         if transaction_state._is_REQUESTED:
             return POSTPONED_TASK_LOGIC_RESULT.WAIT
         if transaction_state._is_REJECTED:
-            self.state = BUY_PREMIUM_STATE.TRANSACTION_REJECTED
+            self.state = self.RELATION.TRANSACTION_REJECTED
             main_task.comment = 'invoice %d rejected' % self.transaction.invoice_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
         elif transaction_state._is_FROZEN:
-            self.state = BUY_PREMIUM_STATE.TRANSACTION_FROZEN
+            self.state = self.RELATION.TRANSACTION_FROZEN
             main_task.extend_postsave_actions((lambda: accounts_workers_environment.accounts_manager.cmd_task(main_task.id),))
             return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
         else:
-            self.state = BUY_PREMIUM_STATE.ERROR_IN_FREEZING_TRANSACTION
+            self.state = self.RELATION.ERROR_IN_FREEZING_TRANSACTION
             main_task.comment = 'wrong invoice %d state %r on freezing step' % (self.transaction.invoice_id, transaction_state)
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
+    def on_transaction_frozen(self):
+        raise NotImplementedError
+
     def process_transaction_frozen(self, main_task): # pylint: disable=W0613
-        self.account.prolong_premium(days=self.days)
-        self.account.save()
-        HeroPrototype.get_by_account_id(self.account.id).cmd_update_with_account_data(self.account)
+        self.on_transaction_frozen()
         self.transaction.confirm()
 
-        self.state = BUY_PREMIUM_STATE.WAIT_TRANSACTION_CONFIRMATION
+        self.state = self.RELATION.WAIT_TRANSACTION_CONFIRMATION
         return POSTPONED_TASK_LOGIC_RESULT.WAIT
 
     def process_transaction_confirmation(self, main_task):
@@ -90,12 +95,13 @@ class BuyPremium(PostponedLogic):
         if transaction_state._is_FROZEN:
             return POSTPONED_TASK_LOGIC_RESULT.WAIT
         elif transaction_state._is_CONFIRMED:
-            self.state = BUY_PREMIUM_STATE.SUCCESSED
+            self.state = self.RELATION.SUCCESSED
             return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
         else:
-            self.state = BUY_PREMIUM_STATE.ERROR_IN_CONFIRM_TRANSACTION
+            self.state = self.RELATION.ERROR_IN_CONFIRM_TRANSACTION
             main_task.comment = 'wrong invoice %d state %r on confirmation step' % (self.transaction.invoice_id, transaction_state)
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
 
     def process(self, main_task, storage=None): # pylint: disable=W0613
 
@@ -110,5 +116,50 @@ class BuyPremium(PostponedLogic):
 
         else:
             main_task.comment = 'wrong task state %r' % self.state
-            self.state = BUY_PREMIUM_STATE.WRONG_TASK_STATE
+            self.state = self.RELATION.WRONG_TASK_STATE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+
+class BuyPremium(BaseBuyTask):
+    TYPE = 'buy-premium'
+
+    def __init__(self, days, **kwargs):
+        super(BuyPremium, self).__init__(**kwargs)
+        self.days = days
+
+    def __eq__(self, other):
+        return (super(BuyPremium, self).__eq__(other) and
+                self.days == other.days )
+
+    def serialize(self):
+        data = super(BuyPremium, self).serialize()
+        data['days'] = self.days
+        return data
+
+    def on_transaction_frozen(self):
+        self.account.prolong_premium(days=self.days)
+        self.account.save()
+        HeroPrototype.get_by_account_id(self.account.id).cmd_update_with_account_data(self.account)
+
+
+
+class BuyPermanentPurchase(BaseBuyTask):
+    TYPE = 'buy-permanent-purchase'
+
+    def __init__(self, purchase_type, **kwargs):
+        super(BuyPermanentPurchase, self).__init__(**kwargs)
+        self.purchase_type = purchase_type if isinstance(purchase_type, rels.Record) else PERMANENT_PURCHASE_TYPE._index_value[purchase_type]
+
+    def __eq__(self, other):
+        return (super(BuyPermanentPurchase, self).__eq__(other) and
+                self.purchase_type == other.purchase_type )
+
+    def serialize(self):
+        data = super(BuyPermanentPurchase, self).serialize()
+        data['purchase_type'] = self.purchase_type.value
+        return data
+
+    def on_transaction_frozen(self):
+        self.account.permanent_purchases.insert(self.purchase_type)
+        self.account.save()
+        HeroPrototype.get_by_account_id(self.account.id).cmd_update_with_account_data(self.account)

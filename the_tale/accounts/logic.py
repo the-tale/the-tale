@@ -1,7 +1,6 @@
 # coding: utf-8
 import urllib
 import datetime
-import copy
 
 from django.conf import settings as project_settings
 from django.contrib.auth import login as django_login, authenticate as django_authenticate, logout as django_logout
