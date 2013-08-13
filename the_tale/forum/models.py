@@ -44,7 +44,7 @@ class SubCategory(models.Model):
     closed = models.BooleanField(default=False) # if True, only staff can create themes in this subcategory
     restricted = models.BooleanField(default=False, db_index=True) # if True, permissions required to work with this subcategory
 
-    def __unicode__(self): return self.slug
+    def __unicode__(self): return self.caption
 
 
 class Thread(models.Model):
