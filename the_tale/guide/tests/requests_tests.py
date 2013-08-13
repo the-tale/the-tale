@@ -35,8 +35,8 @@ class TestRequests(TestCase):
     def test_game(self):
         self.check_html_ok(self.client.get(reverse('guide:game')))
 
-    def test_might(self):
-        self.check_html_ok(self.client.get(reverse('guide:might')))
+    def test_keepers(self):
+        self.check_html_ok(self.client.get(reverse('guide:keepers')))
 
     def test_persons(self):
         self.check_html_ok(self.client.get(reverse('guide:persons')))

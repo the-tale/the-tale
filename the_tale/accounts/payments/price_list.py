@@ -1,20 +1,28 @@
 # coding: utf-8
 
-from accounts.payments.goods import PremiumDays, PermanentPurchase
+from accounts.payments.goods import PremiumDays, PermanentPurchase, EnergyCharges
 from accounts.payments import exceptions
 from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 
 
 PREMIUM_DAYS_DESCRIPTION = u'''
 <p>
-Подписка на игру убирает штрафы, накладываемые на бесплатные аккаунты:
+Подписка даёт следующие преимущества:
 </p>
 
 <ul>
+  <li>герой получает на 50% больше опыта;</li>
+  <li>максимальное количество энергии увеличивается на 50%;</li>
   <li>задания, выполняемые героями, начинают оказывать влияние на мир игры;</li>
-  <li>герои перестают получать штраф к опыту при длительном отсутствии игрока в игре;</li>
-  <li>игроки получают возможность участвовать в политике (выдвигать законы и голосовать за них).</li>
+  <li>игроки получают возможность участвовать в политике (выдвигать законы и голосовать за них);</li>
+  <li>герой сохраняет скорость получения опыта при длительном отсутствии игрока в игре.</li>
 </ul>
+'''
+
+ENERGY_CHARGES_DESCRIPTION = u'''
+<p>
+С помощью заряда энергии Вы можете полностью восстановить свой запас энергии. Заряды накапливаются, поэтому можно купить сразу несколько, чтобы использовать по мере необходимости.
+</p>
 '''
 
 
@@ -45,6 +53,20 @@ PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
                             cost=750,
                             days=90,
                             transaction_description=u'Продление подписки на 90 дней.'),
+
+                EnergyCharges(uid=u'energy-charge-1',
+                              name=u'1 заряд энергии',
+                              description=ENERGY_CHARGES_DESCRIPTION,
+                              cost=10,
+                              charges_number=1,
+                              transaction_description=u'Покупка одного заряда энергии.'),
+
+                EnergyCharges(uid=u'energy-charge-10',
+                              name=u'10 зарядов энергии',
+                              description=ENERGY_CHARGES_DESCRIPTION,
+                              cost=80,
+                              charges_number=10,
+                              transaction_description=u'Покупка 10 зарядов энергии.'),
 
                 PermanentPurchase(uid=u'clan-ownership-right',
                                   name=PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT.text,

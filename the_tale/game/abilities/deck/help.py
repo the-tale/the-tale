@@ -80,6 +80,19 @@ class Help(AbilityPrototype):
 
         return True, None, ()
 
+    def use_stock_up_energy(self, action, hero, critical): # pylint: disable=W0613
+
+        if critical:
+            charges = 2
+            hero.add_message('angel_ability_stock_up_energy_crit', hero=hero)
+        else:
+            charges = 1
+            hero.add_message('angel_ability_stock_up_energy', hero=hero)
+
+        hero.energy_charges += charges
+
+        return True, None, ()
+
     def use(self, data, storage, **kwargs): # pylint: disable=R0911
 
         hero = storage.heroes[data['hero_id']]
@@ -118,3 +131,6 @@ class Help(AbilityPrototype):
 
         elif choice._is_EXPERIENCE:
             return self.use_experience(action, hero, critical)
+
+        elif choice._is_STOCK_UP_ENERGY:
+            return self.use_stock_up_energy(action, hero, critical)

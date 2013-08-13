@@ -234,6 +234,10 @@ class ActionBase(object):
             elif not self.hero.can_be_healed(strict=True):
                 choices.remove(HELP_CHOICES.HEAL)
 
+        if HELP_CHOICES.STOCK_UP_ENERGY in choices:
+            if self.hero.energy_charges >= c.ANGEL_FREE_ENERGY_CHARGES_MAXIMUM:
+                choices.remove(HELP_CHOICES.STOCK_UP_ENERGY)
+
         return choices
 
     def get_help_choice(self):
@@ -374,7 +378,7 @@ class ActionIdlenessPrototype(ActionBase):
 
     @property
     def HELP_CHOICES(self): # pylint: disable=C0103
-        choices = set((HELP_CHOICES.START_QUEST, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+        choices = set((HELP_CHOICES.START_QUEST, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
         if self.percents > 1.0 - E:
             choices.remove(HELP_CHOICES.START_QUEST)
@@ -455,7 +459,7 @@ class ActionQuestPrototype(ActionBase):
 
     TYPE = 'QUEST'
     TEXTGEN_TYPE = 'action_quest'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
     class STATE(ActionBase.STATE):
         PROCESSING = 'processing'
@@ -496,7 +500,7 @@ class ActionMoveToPrototype(ActionBase):
     TYPE = 'MOVE_TO'
     TEXTGEN_TYPE = 'action_moveto'
     SHORT_DESCRIPTION = u'путешествует'
-    HELP_CHOICES = set((HELP_CHOICES.TELEPORT, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((HELP_CHOICES.TELEPORT, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
     class STATE(ActionBase.STATE):
         CHOOSE_ROAD = 'choose_road'
@@ -714,8 +718,8 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     @property
     def HELP_CHOICES(self): # pylint: disable=C0103
         if self.mob.health <= 0:
-            return set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
-        return set((HELP_CHOICES.LIGHTING, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+            return set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
+        return set((HELP_CHOICES.LIGHTING, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
     class STATE(ActionBase.STATE):
         BATTLE_RUNNING = 'battle_running'
@@ -853,7 +857,7 @@ class ActionInPlacePrototype(ActionBase):
 
     TYPE = 'IN_PLACE'
     TEXTGEN_TYPE = 'action_inplace'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
     class STATE(ActionBase.STATE):
         SPEND_MONEY = 'spend_money'
@@ -1025,7 +1029,7 @@ class ActionRestPrototype(ActionBase):
 
     TYPE = 'REST'
     TEXTGEN_TYPE = 'action_rest'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
     class STATE(ActionBase.STATE):
         RESTING = 'resting'
@@ -1075,7 +1079,7 @@ class ActionEquippingPrototype(ActionBase):
 
     TYPE = 'EQUIPPING'
     TEXTGEN_TYPE = 'action_equipping'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
     class STATE(ActionBase.STATE):
         EQUIPPING = 'equipping'
@@ -1115,7 +1119,7 @@ class ActionTradingPrototype(ActionBase):
     TYPE = 'TRADING'
     TEXTGEN_TYPE = 'action_trading'
     SHORT_DESCRIPTION = u'торгует'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
     class STATE(ActionBase.STATE):
         TRADING = 'trading'
@@ -1156,7 +1160,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
 
     TYPE = 'MOVE_NEAR_PLACE'
     TEXTGEN_TYPE = 'action_movenearplace'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
     class STATE(ActionBase.STATE):
         MOVING = 'MOVING'
@@ -1291,7 +1295,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
     TYPE = 'REGENERATE_ENERGY'
     TEXTGEN_TYPE = 'action_regenerate_energy'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
     class STATE(ActionBase.STATE):
         REGENERATE = 'REGENERATE'
@@ -1353,7 +1357,7 @@ class ActionDoNothingPrototype(ActionBase):
     TYPE = 'DO_NOTHING'
     TEXTGEN_TYPE = 'no texgen type'
     SHORT_DESCRIPTION = u'торгует'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
     class STATE(ActionBase.STATE):
         DO_NOTHING = 'DO_NOTHING'
@@ -1395,7 +1399,7 @@ class ActionMetaProxyPrototype(ActionBase):
     TYPE = 'META_PROXY'
     TEXTGEN_TYPE = 'no texgen type'
     SHORT_DESCRIPTION = u'торгует'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
     @property
     def description_text_name(self):

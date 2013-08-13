@@ -9,6 +9,7 @@ from game.logic_storage import LogicStorage
 
 from game.logic import create_test_map
 from game.prototypes import TimePrototype
+from game.balance import constants as c
 
 from game.abilities.relations import HELP_CHOICES
 
@@ -84,6 +85,23 @@ class GeneralTest(testcase.TestCase):
     def test_help_choice_has_heal__for_low_health_with_alternative(self):
         self.hero.health = 1
         self.check_heal_in_choices(True)
+
+    def check_stock_up_energy_in_choices(self, result):
+        stock_found = False
+        for i in xrange(100):
+            stock_found = stock_found or (self.action_idl.get_help_choice() == HELP_CHOICES.STOCK_UP_ENERGY)
+
+        self.assertEqual(stock_found, result)
+
+    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.MONEY)))
+    def test_help_choice_has_stock_up_energy__can_stock(self):
+        self.hero.energy_charges = 0
+        self.check_stock_up_energy_in_choices(True)
+
+    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.MONEY)))
+    def test_help_choice_has_stock_up_energy__can_not_stock(self):
+        self.hero.energy_charges = c.ANGEL_FREE_ENERGY_CHARGES_MAXIMUM
+        self.check_stock_up_energy_in_choices(False)
 
     def test_percents_consistency(self):
         current_time = TimePrototype.get_current_time()

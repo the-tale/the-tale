@@ -60,7 +60,8 @@ class HeroPrototype(BasePrototype):
                       'ui_caching_started_at',
                       'active_state_end_at',
                       'premium_state_end_at',
-                      'ban_state_end_at')
+                      'ban_state_end_at',
+                      'energy_charges')
     _get_by = ('id', 'account_id')
 
     def __init__(self, **kwargs):
@@ -719,7 +720,8 @@ class HeroPrototype(BasePrototype):
                 'can_participate_in_pvp': self.can_participate_in_pvp,
                 'can_repair_building': self.can_repair_building,
                 'energy': { 'max': self.energy_maximum,
-                            'value': self.energy },
+                            'value': self.energy,
+                            'charges': self.energy_charges},
                 'next_spending': self.next_spending.ui_id,
                 'action': self.actions.current_action.ui_info(),
                 'pvp': self.pvp.ui_info() if not for_last_turn else self.pvp.turn_ui_info(),

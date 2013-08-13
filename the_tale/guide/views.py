@@ -53,9 +53,9 @@ class GuideResource(Resource):
     def game(self):
         return self.template('guide/game.html', {'section': 'game'})
 
-    @handler('might', method='get')
-    def might(self):
-        return self.template('guide/might.html', {'section': 'might'})
+    @handler('keepers', method='get')
+    def keepers(self):
+        return self.template('guide/keepers.html', {'section': 'keepers'})
 
     @handler('quests', method='get')
     def quests(self):

@@ -2,7 +2,7 @@
 
 from common.postponed_tasks import PostponedTaskPrototype
 
-from accounts.payments.postponed_tasks import BuyPremium, BuyPermanentPurchase
+from accounts.payments.postponed_tasks import BuyPremium, BuyPermanentPurchase, BuyEnergyCharges
 from accounts.payments import exceptions
 from accounts.payments.logic import transaction_logic
 from accounts.clans.conf import clans_settings
@@ -39,6 +39,30 @@ class PremiumDays(PurchaseItem):
                                         uid='ingame-purchase-<%s>' % self.uid)
 
         postponed_logic = BuyPremium(account_id=account.id, days=self.days, transaction=transaction)
+
+        postponed_task = PostponedTaskPrototype.create(postponed_logic)
+        postponed_task.cmd_wait()
+
+        return postponed_task
+
+
+class EnergyCharges(PurchaseItem):
+
+    def __init__(self, charges_number, **kwargs):
+        super(EnergyCharges, self).__init__(**kwargs)
+        self.charges_number = charges_number
+
+    def buy(self, account):
+
+        if account.is_fast:
+            raise exceptions.FastAccountError(purchase_uid=self.uid, account_id=account.id)
+
+        transaction = transaction_logic(account=account,
+                                        amount=-self.cost,
+                                        description=self.transaction_description,
+                                        uid='ingame-purchase-<%s>' % self.uid)
+
+        postponed_logic = BuyEnergyCharges(account_id=account.id, charges_number=self.charges_number, transaction=transaction)
 
         postponed_task = PostponedTaskPrototype.create(postponed_logic)
         postponed_task.cmd_wait()

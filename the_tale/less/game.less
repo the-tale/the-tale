@@ -56,7 +56,7 @@
    .attribute-record {
       display: inline-block;
       white-space: nowrap;
-      width: 32%;
+      width: 31%;
 
       &:hover {
          background-color: @hover-color;
@@ -367,27 +367,40 @@
 
 .angel-ability {
 
-   &.wait, &.no-energy, &.no-registration {
+   &.wait, &.no-energy, &.no-registration, &.no-charges, &.energy-exists {
       color: @disabled-text-color;
       text-decoration: none;
    }
 
    .icon-tint {
       display: none;
+      vertical-align: middle;
    }
 
    .icon-ban-circle {
       display: none;
+      vertical-align: middle;
+   }
+
+   .icon-bell {
+      display: none;
+      vertical-align: middle;
    }
 
    &.no-energy .icon-tint {
       display: inline-block;
-      vertical-align: middle;
+   }
+
+   &.no-charges .icon-tint {
+      display: inline-block;
    }
 
    &.no-registration .icon-ban-circle {
       display: inline-block;
-      vertical-align: middle;
+   }
+
+   &.energy-exists .icon-bell {
+      display: inline-block;
    }
 
 }

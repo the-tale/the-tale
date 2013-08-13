@@ -48,6 +48,10 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
         self.transaction = Transaction(self.invoice.id)
 
         self.task = None
+        self.storage = None
+        self.cmd_update_with_account_data__call_count = 1
+        self.accounts_manages_worker = True
+        self.supervisor_worker = False
 
     def test_create(self):
         self.assertTrue(self.task.state._is_TRANSACTION_REQUESTED)
@@ -99,11 +103,16 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
         self.assertTrue(self.task.state._is_TRANSACTION_FROZEN)
 
         with mock.patch('accounts.workers.accounts_manager.Worker.cmd_task') as cmd_task:
-            postsave_actions = main_task.extend_postsave_actions.call_args[0][0]
-            for action in postsave_actions:
-                action()
+            with mock.patch('game.workers.supervisor.Worker.cmd_logic_task') as cmd_logic_task:
+                postsave_actions = main_task.extend_postsave_actions.call_args[0][0]
+                for action in postsave_actions:
+                    action()
 
-        self.assertEqual(cmd_task.call_count, 1)
+        if self.accounts_manages_worker:
+            self.assertEqual(cmd_task.call_count, 1)
+
+        if self.supervisor_worker:
+            self.assertEqual(cmd_logic_task.call_count, 1)
 
         self._test_process__transaction_requested__invoice_frozen()
 
@@ -118,9 +127,9 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
 
         with mock.patch('game.heroes.prototypes.HeroPrototype.cmd_update_with_account_data') as cmd_update_with_account_data:
             with mock.patch('bank.transaction.Transaction.confirm') as transaction_confirm:
-                self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.WAIT)
+                self.assertEqual(self.task.process(main_task=mock.Mock(), storage=self.storage), POSTPONED_TASK_LOGIC_RESULT.WAIT)
 
-        self.assertEqual(cmd_update_with_account_data.call_count, 1)
+        self.assertEqual(cmd_update_with_account_data.call_count, self.cmd_update_with_account_data__call_count)
         self.assertEqual(transaction_confirm.call_count, 1)
 
         self._test_process__transaction_frozen()

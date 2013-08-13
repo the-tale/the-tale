@@ -79,6 +79,14 @@ class HelpAbilityTest(testcase.TestCase):
 
         self.assertTrue(old_experience < self.hero.experience)
 
+    def test_stock_up_energy(self):
+        old_charges = self.hero.energy_charges
+
+        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.STOCK_UP_ENERGY):
+            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+
+        self.assertTrue(self.hero.energy_charges > old_charges)
+
     def test_money(self):
         old_hero_money = self.hero.money
         with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.MONEY):

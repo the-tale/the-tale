@@ -123,6 +123,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
         jQuery('.pgf-energy', content).text(data.energy.value);
         jQuery('.pgf-max-energy', content).text(data.energy.max);
+        jQuery('.pgf-energy-charges', content).text(data.energy.charges);
         jQuery('.pgf-energy-percents', content).width( (100 * data.energy.value / data.energy.max) + '%');
     };
 
@@ -904,6 +905,10 @@ pgf.game.widgets.Abilities = function() {
     var pvpWaiting = false;
     var canParticipateInPvp = true;
     var canRepairBuilding = true;
+
+    var hasEnergyCharges = false;
+    var canRestoreEnergy = false;
+
     var deck = {};
     var turn = {};
 
@@ -1023,6 +1028,12 @@ pgf.game.widgets.Abilities = function() {
 
         jQuery('.pgf-ability-arenapvp1x1').toggleClass('no-registration', !canParticipateInPvp).toggleClass('pgf-disable', !canParticipateInPvp);
         jQuery('.pgf-ability-buildingrepair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable', !canRepairBuilding);
+
+        jQuery('.pgf-ability-energycharge')
+            .toggleClass('pgf-hidden', false)
+            .toggleClass('no-charges', !hasEnergyCharges)
+            .toggleClass('energy-exists', !canRestoreEnergy && hasEnergyCharges) // display this warning only if player has charges
+            .toggleClass('pgf-disable', !hasEnergyCharges || !canRestoreEnergy);
     }
 
     function RenderDeck() {
@@ -1040,6 +1051,10 @@ pgf.game.widgets.Abilities = function() {
         pvpWaiting = game_data.pvp.waiting;
         canParticipateInPvp = game_data.hero.can_participate_in_pvp;
         canRepairBuilding = game_data.hero.can_repair_building;
+        canRestoreEnergy =
+
+        hasEnergyCharges = game_data.hero.energy.charges > 0;
+        canRestoreEnergy = angelEnergy < pgf.game.data.abilities.help.cost;
     };
 
     function Render() {

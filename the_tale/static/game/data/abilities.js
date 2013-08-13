@@ -20,18 +20,6 @@ pgf.game.data.abilities = {
         "description": "Отправить героя на гладиаторскую арену",
         "cost": 1
     },
-    "buildingrepair": {
-        "type": "buildingrepair",
-        "name": "Вызвать рабочего",
-        "description": "Вызвать рабочего для ремонта здания",
-        "cost": 3
-    },
-    "arenapvp1x1leavequeue": {
-        "type": "arenapvp1x1leavequeue",
-        "name": "Выйти из очереди",
-        "description": "Выйти из очереди на арену",
-        "cost": 0
-    },
     "help": {
         "type": "help",
         "name": "Помочь",
@@ -43,5 +31,23 @@ pgf.game.data.abilities = {
         "name": "Принять вызов",
         "description": "Принять вызов другого героя",
         "cost": 1
+    },
+    "energycharge": {
+        "type": "energycharge",
+        "name": "Энергия",
+        "description": "Восстановить полный запас энергии",
+        "cost": 0
+    },
+    "buildingrepair": {
+        "type": "buildingrepair",
+        "name": "Вызвать рабочего",
+        "description": "Вызвать рабочего для ремонта здания",
+        "cost": 3
+    },
+    "arenapvp1x1leavequeue": {
+        "type": "arenapvp1x1leavequeue",
+        "name": "Выйти из очереди",
+        "description": "Выйти из очереди на арену",
+        "cost": 0
     }
 }

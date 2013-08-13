@@ -46,12 +46,14 @@ jQuery(document).ready(function(e) {
     <span class="text-values"><span class="pgf-experience"></span>/<span class="pgf-experience-to-level"></span></span>
   </div>
 
-  <div class="record-with-progress" rel="tooltip" title="запас энергии (примерно +{{ (c.ANGEL_ENERGY_REGENERATION_AMAUNT/c.ANGEL_ENERGY_REGENERATION_TIME)|int}} в час)">
+  <div class="record-with-progress"
+       rel="tooltip"
+       title="запас энергии (примерно +{{ (c.ANGEL_ENERGY_REGENERATION_AMAUNT/c.ANGEL_ENERGY_REGENERATION_TIME)|int}} в час)<br/> текущая энергия/максимум x количество зарядов">
     <i class="game-ui-icon energy"></i>
     <div class="progress progress-info" style="">
       <div class="bar pgf-energy-percents"></div>
     </div>
-    <span class="text-values"><span class="pgf-energy"></span>/<span class="pgf-max-energy"></span></span>
+    <span class="text-values"><span class="pgf-energy"></span>/<span class="pgf-max-energy"></span> x <span class="pgf-energy-charges"></span></span>
   </div>
   {% endif %}
 

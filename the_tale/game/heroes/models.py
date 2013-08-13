@@ -70,6 +70,7 @@ class Hero(models.Model):
 
     energy = models.FloatField(null=False, default=0.0)
     last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
+    energy_charges = models.IntegerField(default=1)
 
     might = models.FloatField(null=False, default=0.0)
 

@@ -72,18 +72,21 @@ class BaseBuyTask(PostponedLogic):
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
         elif transaction_state._is_FROZEN:
             self.state = self.RELATION.TRANSACTION_FROZEN
-            main_task.extend_postsave_actions((lambda: accounts_workers_environment.accounts_manager.cmd_task(main_task.id),))
+            self.on_process_transaction_requested__transaction_frozen(main_task)
             return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
         else:
             self.state = self.RELATION.ERROR_IN_FREEZING_TRANSACTION
             main_task.comment = 'wrong invoice %d state %r on freezing step' % (self.transaction.invoice_id, transaction_state)
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-    def on_transaction_frozen(self):
+    def on_process_transaction_requested__transaction_frozen(self, main_task):
+        main_task.extend_postsave_actions((lambda: accounts_workers_environment.accounts_manager.cmd_task(main_task.id),))
+
+    def on_process_transaction_frozen(self, storage):
         raise NotImplementedError
 
-    def process_transaction_frozen(self, main_task): # pylint: disable=W0613
-        self.on_transaction_frozen()
+    def process_transaction_frozen(self, main_task, storage): # pylint: disable=W0613
+        self.on_process_transaction_frozen(storage=storage)
         self.transaction.confirm()
 
         self.state = self.RELATION.WAIT_TRANSACTION_CONFIRMATION
@@ -109,7 +112,7 @@ class BaseBuyTask(PostponedLogic):
             return self.process_transaction_requested(main_task)
 
         elif self.state._is_TRANSACTION_FROZEN:
-            return self.process_transaction_frozen(main_task)
+            return self.process_transaction_frozen(main_task, storage=storage)
 
         elif self.state._is_WAIT_TRANSACTION_CONFIRMATION:
             return self.process_transaction_confirmation(main_task)
@@ -136,10 +139,35 @@ class BuyPremium(BaseBuyTask):
         data['days'] = self.days
         return data
 
-    def on_transaction_frozen(self):
+    def on_process_transaction_frozen(self, **kwargs):
         self.account.prolong_premium(days=self.days)
         self.account.save()
         HeroPrototype.get_by_account_id(self.account.id).cmd_update_with_account_data(self.account)
+
+
+class BuyEnergyCharges(BaseBuyTask):
+    TYPE = 'buy-energy-charges'
+
+    def __init__(self, charges_number, **kwargs):
+        super(BuyEnergyCharges, self).__init__(**kwargs)
+        self.charges_number = charges_number
+
+    def __eq__(self, other):
+        return (super(BuyEnergyCharges, self).__eq__(other) and
+                self.charges_number == other.charges_number )
+
+    def serialize(self):
+        data = super(BuyEnergyCharges, self).serialize()
+        data['charges_number'] = self.charges_number
+        return data
+
+    def on_process_transaction_frozen(self, storage, **kwargs):
+        hero = storage.accounts_to_heroes[self.account_id]
+        hero.energy_charges += self.charges_number
+
+    def on_process_transaction_requested__transaction_frozen(self, main_task):
+        from game.workers.environment import workers_environment as game_workers_environment
+        main_task.extend_postsave_actions((lambda: game_workers_environment.supervisor.cmd_logic_task(self.account_id, main_task.id),))
 
 
 
@@ -159,7 +187,7 @@ class BuyPermanentPurchase(BaseBuyTask):
         data['purchase_type'] = self.purchase_type.value
         return data
 
-    def on_transaction_frozen(self):
+    def on_process_transaction_frozen(self, **kwargs):
         self.account.permanent_purchases.insert(self.purchase_type)
         self.account.save()
         HeroPrototype.get_by_account_id(self.account.id).cmd_update_with_account_data(self.account)
