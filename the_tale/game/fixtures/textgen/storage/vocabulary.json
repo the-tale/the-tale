@@ -3191,58 +3191,68 @@
       "template": "Слишком сильно размахнувшись, %(e_0)s %(i_0)s с темпа и не %(i_1)s по %(e_1)s."
     }
   ], 
-  "quest_caravan_diary_intro": [
+  "chronicle_building_renaming_bill_successed": [
     {
       "internals": [
         [
-          "поручил", 
+          "принадлежащий", 
           [
-            "person_start"
+            "old_name"
           ], 
           "i_0", 
           [
-            "прш"
+            "нст", 
+            "3л"
           ], 
-          "поручил"
+          "принадлежащий"
         ], 
         [
-          "должен", 
+          "переименован", 
           [
-            "person_end"
+            "old_name"
           ], 
           "i_1", 
-          [], 
-          "должен"
+          [
+            "прш"
+          ], 
+          "переименован"
         ]
       ], 
       "externals": [
         [
-          "person_start", 
+          "bill", 
           [], 
           "e_0", 
-          [
-            "загл"
-          ], 
-          "person_start"
+          [], 
+          "bill"
         ], 
         [
-          "place_end", 
+          "old_name", 
           [], 
           "e_1", 
+          [], 
+          "old_name"
+        ], 
+        [
+          "person", 
+          [], 
+          "e_2", 
+          [
+            "дт"
+          ], 
+          "person"
+        ], 
+        [
+          "new_name", 
+          [], 
+          "e_3", 
           [
             "вн"
           ], 
-          "place_end"
-        ], 
-        [
-          "person_end", 
-          [], 
-          "e_2", 
-          [], 
-          "person_end"
+          "new_name"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s отвести караван в %(e_1)s. Там меня %(i_1)s встретить %(e_2)s."
+      "template": "Принят закон «%(e_0)s» и %(e_1)s, %(i_0)s %(e_2)s, %(i_1)s в %(e_3)s."
     }
   ], 
   "quest_notmywork_diary_get_reward_artifact": [
@@ -10125,6 +10135,13 @@
       "template": "Закон «%(e_0)s» не получил необходимую поддержку и здание, владельцем которого %(i_0)s %(i_1)s стать %(e_1)s, не возведено."
     }
   ], 
+  "angel_ability_stock_up_energy": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Редкое сочетание магических потоков позволило запасти один заряд энергии."
+    }
+  ], 
   "quest_searchsmith_diary_upgrade_equipment_buy_and_change": [
     {
       "internals": [
@@ -10207,6 +10224,13 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s поистине чудесный артефакт — «%(e_1)s»! И всего за %(e_2)s %(i_1)s. %(e_3)s пришлось продать за %(e_4)s %(i_2)s."
+    }
+  ], 
+  "angel_ability_stock_up_energy_crit": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Поразительное сочетание потоков магической энергии и положения звёзд позволили сохранить два заряда энергии."
     }
   ], 
   "quest_caravan_journal_bandits_attack": [
@@ -18582,68 +18606,58 @@
     }
   ], 
   "quest_spying_action_choice_open_up": [], 
-  "chronicle_building_renaming_bill_successed": [
+  "quest_caravan_diary_intro": [
     {
       "internals": [
         [
-          "принадлежащий", 
+          "поручил", 
           [
-            "old_name"
+            "person_start"
           ], 
           "i_0", 
           [
-            "нст", 
-            "3л"
-          ], 
-          "принадлежащий"
-        ], 
-        [
-          "переименован", 
-          [
-            "old_name"
-          ], 
-          "i_1", 
-          [
             "прш"
           ], 
-          "переименован"
+          "поручил"
+        ], 
+        [
+          "должен", 
+          [
+            "person_end"
+          ], 
+          "i_1", 
+          [], 
+          "должен"
         ]
       ], 
       "externals": [
         [
-          "bill", 
+          "person_start", 
           [], 
           "e_0", 
-          [], 
-          "bill"
+          [
+            "загл"
+          ], 
+          "person_start"
         ], 
         [
-          "old_name", 
+          "place_end", 
           [], 
           "e_1", 
-          [], 
-          "old_name"
-        ], 
-        [
-          "person", 
-          [], 
-          "e_2", 
-          [
-            "дт"
-          ], 
-          "person"
-        ], 
-        [
-          "new_name", 
-          [], 
-          "e_3", 
           [
             "вн"
           ], 
-          "new_name"
+          "place_end"
+        ], 
+        [
+          "person_end", 
+          [], 
+          "e_2", 
+          [], 
+          "person_end"
         ]
       ], 
-      "template": "Принят закон «%(e_0)s» и %(e_1)s, %(i_0)s %(e_2)s, %(i_1)s в %(e_3)s."
+      "template": "%(e_0)s %(i_0)s отвести караван в %(e_1)s. Там меня %(i_1)s встретить %(e_2)s."
     }
   ], 
   "action_moveto_move": [
@@ -28114,7 +28128,13 @@
       "template": "отдыхает от подвигов"
     }
   ], 
-  "quest_helpfriend_diary_move_to_quest": [], 
+  "quest_spying_diary_choice_open_up": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Больше не могу шпионить за таким достойным существом. Лучше расскажу всё как на духу."
+    }
+  ], 
   "chronicle_bill_decline_bill_failed": [
     {
       "internals": [], 
@@ -31555,13 +31575,7 @@
       "template": "Сколько добра у этого человека… Нужно быть бдительней."
     }
   ], 
-  "quest_spying_diary_choice_open_up": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "Больше не могу шпионить за таким достойным существом. Лучше расскажу всё как на духу."
-    }
-  ], 
+  "quest_helpfriend_diary_move_to_quest": [], 
   "quest_help_diary_intro": [
     {
       "internals": [

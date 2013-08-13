@@ -95,6 +95,23 @@ body .dl-record {
 body .dl-record small {
   font-weight: normal;
 }
+body .game-navigation-caption {
+  cursor: default;
+  padding-left: 0.8em;
+  color: #999999;
+}
+body .game-navigation .nav-element {
+  padding-left: 1em;
+}
+body .game-navigation .nav-element.disabled {
+  color: #999999;
+}
+body .game-navigation .nav-element.disabled a {
+  color: #999999;
+}
+body .game-navigation .nav-header {
+  cursor: default;
+}
 a.info-link {
   text-decoration: none;
   border-bottom: 1px dashed;
@@ -228,10 +245,10 @@ li.active .game-link {
   top: 0 !important;
 }
 a.disabled {
-  color: #999999;
-  text-decoration: none;
+  color: #999999 !important;
+  text-decoration: none !important;
 }
 a.disabled:hover {
-  color: #999999;
-  text-decoration: none;
+  color: #999999 !important;
+  text-decoration: none !important;
 }

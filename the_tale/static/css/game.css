@@ -35,7 +35,7 @@
 .hero-base-block .attribute-record {
   display: inline-block;
   white-space: nowrap;
-  width: 32%;
+  width: 31%;
 }
 .hero-base-block .attribute-record:hover {
   background-color: #dddddd;
@@ -259,23 +259,35 @@
 }
 .angel-ability.wait,
 .angel-ability.no-energy,
-.angel-ability.no-registration {
+.angel-ability.no-registration,
+.angel-ability.no-charges,
+.angel-ability.energy-exists {
   color: #999999;
   text-decoration: none;
 }
 .angel-ability .icon-tint {
   display: none;
+  vertical-align: middle;
 }
 .angel-ability .icon-ban-circle {
   display: none;
+  vertical-align: middle;
+}
+.angel-ability .icon-bell {
+  display: none;
+  vertical-align: middle;
 }
 .angel-ability.no-energy .icon-tint {
   display: inline-block;
-  vertical-align: middle;
+}
+.angel-ability.no-charges .icon-tint {
+  display: inline-block;
 }
 .angel-ability.no-registration .icon-ban-circle {
   display: inline-block;
-  vertical-align: middle;
+}
+.angel-ability.energy-exists .icon-bell {
+  display: inline-block;
 }
 .game-ui-icon {
   width: 16px;
