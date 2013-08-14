@@ -9,8 +9,6 @@ from game.logic import create_test_map
 from accounts.logic import register_user
 from accounts.prototypes import AccountPrototype
 
-from accounts.personal_messages.prototypes import MessagePrototype
-
 from accounts.clans.prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
 from accounts.clans.relations import MEMBERSHIP_REQUEST_TYPE, MEMBER_ROLE
 from accounts.clans import exceptions
@@ -149,7 +147,7 @@ class ClanPrototypeTransactionTests(testcase.TransactionTestCase, ClansTestsMixi
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         account_2 = AccountPrototype.get_by_id(account_id)
         self.clan.add_member(account_2)
-        self.assertEqual(self.clan.members_number, 1)
+        self.assertEqual(self.clan.members_number, 2)
         self.assertEqual(MembershipPrototype._db_count(), 2)
 
         account_2.reload()
@@ -311,19 +309,12 @@ class MembershipRequestPrototypeTests(testcase.TestCase, ClansTestsMixin):
 
         clan_1 = self.create_clan(self.account, 0)
 
-        self.assertEqual(MessagePrototype._db_count(), 0)
-
         MembershipRequestPrototype.create(initiator=self.account,
                                           account=account_2,
                                           clan=clan_1,
                                           text=u'invite-1',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
 
-        self.assertEqual(MessagePrototype._db_count(), 1)
-
-        message = MessagePrototype._db_get_object(0)
-        self.assertEqual(message.sender.id, self.account.id)
-        self.assertEqual(message.recipient.id, account_2.id)
 
     def test_request_message(self):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
@@ -331,19 +322,11 @@ class MembershipRequestPrototypeTests(testcase.TestCase, ClansTestsMixin):
 
         clan_1 = self.create_clan(self.account, 0)
 
-        self.assertEqual(MessagePrototype._db_count(), 0)
-
         MembershipRequestPrototype.create(initiator=account_2,
                                           account=account_2,
                                           clan=clan_1,
                                           text=u'request-1',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
-
-        self.assertEqual(MessagePrototype._db_count(), 1)
-
-        message = MessagePrototype._db_get_object(0)
-        self.assertEqual(message.recipient.id, self.account.id)
-        self.assertEqual(message.sender.id, account_2.id)
 
     def test_get_for_clan(self):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')

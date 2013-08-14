@@ -21,7 +21,7 @@ from accounts.clans.logic import ClanInfo
 
 class IndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
-                list_filter.choice_element(u'сортировать по:', attribute='order_by', choices=ORDER_BY._choices(), default_value=ORDER_BY.NAME) ]
+                list_filter.choice_element(u'сортировать по:', attribute='order_by', choices=ORDER_BY._select('value', 'text'), default_value=ORDER_BY.NAME.value) ]
 
 
 
@@ -50,7 +50,7 @@ class ClansResource(Resource):
 
 
     @validate_argument('page', int, 'clans', u'неверная страница')
-    @validate_argument('order_by', ORDER_BY, 'clans', u'неверный параметр сортировки')
+    @validate_argument('order_by', lambda o: ORDER_BY(int(o)), 'clans', u'неверный параметр сортировки')
     @handler('')
     def index(self, page=1, order_by=ORDER_BY.NAME):
 
@@ -60,9 +60,9 @@ class ClansResource(Resource):
 
         page = int(page) - 1
 
-        url_builder = UrlBuilder(url('accounts:clans:'), arguments={'order_by': order_by})
+        url_builder = UrlBuilder(url('accounts:clans:'), arguments={'order_by': order_by.value})
 
-        index_filter = IndexFilter(url_builder=url_builder, values={'order_by': order_by})
+        index_filter = IndexFilter(url_builder=url_builder, values={'order_by': order_by.value})
 
         paginator = Paginator(page, clans_number, clans_settings.CLANS_ON_PAGE, url_builder)
 
@@ -275,11 +275,13 @@ class MembershipResource(Resource):
         if not form.is_valid():
             return self.json_error('clans.membership.invite.form_errors', form.errors)
 
-        MembershipRequestPrototype.create(initiator=self.account,
-                                          account=account,
-                                          clan=self.clan_info.clan,
-                                          text=form.c.text,
-                                          type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
+        request = MembershipRequestPrototype.create(initiator=self.account,
+                                                    account=account,
+                                                    clan=self.clan_info.clan,
+                                                    text=form.c.text,
+                                                    type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
+
+        request.create_invite_message(initiator=self.account)
 
         return self.json_ok()
 
@@ -293,11 +295,13 @@ class MembershipResource(Resource):
         if not form.is_valid():
             return self.json_error('clans.membership.request.form_errors', form.errors)
 
-        MembershipRequestPrototype.create(initiator=self.account,
-                                          account=self.account,
-                                          clan=clan,
-                                          text=form.c.text,
-                                          type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
+        request = MembershipRequestPrototype.create(initiator=self.account,
+                                                    account=self.account,
+                                                    clan=clan,
+                                                    text=form.c.text,
+                                                    type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
+
+        request.create_request_message(initiator=self.account)
 
         return self.json_ok()
 
@@ -307,7 +311,9 @@ class MembershipResource(Resource):
     @validate_request_from_account()
     @handler('accept-request', method='post')
     def accept_request(self, request):
-        self.clan_info.clan.add_member(AccountPrototype.get_by_id(request.account_id))
+        accepted_account = AccountPrototype.get_by_id(request.account_id)
+        self.clan_info.clan.add_member(accepted_account)
+        request.create_accept_request_message(initiator=self.account)
         request.remove()
         return self.json_ok()
 
@@ -328,6 +334,7 @@ class MembershipResource(Resource):
     @validate_request_from_account()
     @handler('reject-request', method='post')
     def reject_request(self, request):
+        request.create_reject_request_message(initiator=self.account)
         request.remove()
         return self.json_ok()
 
@@ -353,6 +360,8 @@ class MembershipResource(Resource):
             return self.auto_error('clans.membership.remove_from_clan.wrong_role_priority', u'Вы не можете исключить игрока в этом звании')
 
         self.clan_info.clan.remove_member(account)
+
+        self.clan_info.clan.create_remove_member_message(self.account, account)
 
         return self.json_ok()
 

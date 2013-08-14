@@ -8,6 +8,7 @@ from common.utils.testcase import TestCase
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user, login_url
+from accounts.personal_messages.prototypes import MessagePrototype
 
 from game.logic import create_test_map
 
@@ -81,7 +82,7 @@ class TestIndexRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(url('accounts:clans:', page=2)),
                            texts=[(u'a-%d' % i, 1) for i in xrange(4, 6)] + [('pgf-no-clans-message', 0)])
 
-        self.check_redirect(url('accounts:clans:', page=3), url('accounts:clans:', page=2, order_by=ORDER_BY.NAME))
+        self.check_redirect(url('accounts:clans:', page=3), url('accounts:clans:', page=2, order_by=ORDER_BY.NAME.value))
 
 
 class TestNewRequests(BaseTestRequests):
@@ -662,12 +663,20 @@ class MembershipInviteRequestsTests(BaseMembershipRequestsTests):
                                           text=u'invite',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
+        self.assertEqual(MessagePrototype._db_count(), 0)
+
         self.check_ajax_ok(self.post_ajax_json(self.invite_url, self.post_data()))
         self.assertEqual(MembershipRequestPrototype._db_count(), 3)
 
         invite = MembershipRequestPrototype._db_get_object(2)
         self.assertEqual(invite.text, 'invite-text')
         self.assertTrue(invite.type._is_FROM_CLAN)
+
+        self.assertEqual(MessagePrototype._db_count(), 1)
+
+        message = MessagePrototype._db_get_object(0)
+        self.assertEqual(message.sender.id, self.account.id)
+        self.assertEqual(message.recipient.id, self.account_2.id)
 
 
 class MembershipRequestRequestsTests(BaseMembershipRequestsTests):
@@ -742,11 +751,19 @@ class MembershipRequestRequestsTests(BaseMembershipRequestsTests):
                                           text=u'request',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
+        self.assertEqual(MessagePrototype._db_count(), 0)
+
         self.check_ajax_ok(self.post_ajax_json(self.request_url, self.post_data()))
         self.assertEqual(MembershipRequestPrototype._db_count(), 3)
         request = MembershipRequestPrototype._db_get_object(2)
         self.assertEqual(request.text, 'request-text')
         self.assertTrue(request.type._is_FROM_ACCOUNT)
+
+        self.assertEqual(MessagePrototype._db_count(), 1)
+
+        message = MessagePrototype._db_get_object(0)
+        self.assertEqual(message.recipient.id, self.account.id)
+        self.assertEqual(message.sender.id, self.account_2.id)
 
 
 class MembershipAcceptRequestRequestsTests(BaseMembershipRequestsTests):
@@ -792,10 +809,18 @@ class MembershipAcceptRequestRequestsTests(BaseMembershipRequestsTests):
         self.assertEqual(MembershipPrototype._db_count(), 1)
 
     def test_success(self):
+        self.assertEqual(MessagePrototype._db_count(), 0)
+
         self.check_ajax_ok(self.post_ajax_json(self.accept_url))
         self.assertEqual(MembershipRequestPrototype._db_count(), 0)
         self.assertEqual(MembershipPrototype._db_count(), 2)
         self.assertTrue(MembershipPrototype._db_get_object(1).role._is_MEMBER)
+
+        self.assertEqual(MessagePrototype._db_count(), 1)
+
+        message = MessagePrototype._db_get_object(0)
+        self.assertEqual(message.sender.id, self.account.id)
+        self.assertEqual(message.recipient.id, self.account_2.id)
 
 
 class MembershipAcceptInviteRequestsTests(BaseMembershipRequestsTests):
@@ -890,9 +915,17 @@ class MembershipRejectRequestRequestsTests(BaseMembershipRequestsTests):
         self.assertEqual(MembershipPrototype._db_count(), 1)
 
     def test_success(self):
+        self.assertEqual(MessagePrototype._db_count(), 0)
+
         self.check_ajax_ok(self.post_ajax_json(self.reject_url))
         self.assertEqual(MembershipRequestPrototype._db_count(), 0)
         self.assertEqual(MembershipPrototype._db_count(), 1)
+
+        self.assertEqual(MessagePrototype._db_count(), 1)
+
+        message = MessagePrototype._db_get_object(0)
+        self.assertEqual(message.sender.id, self.account.id)
+        self.assertEqual(message.recipient.id, self.account_2.id)
 
 
 class MembershipRejectInviteRequestsTests(BaseMembershipRequestsTests):
@@ -988,6 +1021,8 @@ class MembershipRemoveFromClanRequestsTests(BaseMembershipRequestsTests):
         self.assertEqual(MembershipPrototype._db_count(), 2)
 
     def test_success(self):
+        self.assertEqual(MessagePrototype._db_count(), 0)
+
         self.check_ajax_ok(self.post_ajax_json(self.remove_url))
         self.assertEqual(MembershipPrototype._db_count(), 1)
         membership = MembershipPrototype._db_get_object(0)
@@ -995,6 +1030,12 @@ class MembershipRemoveFromClanRequestsTests(BaseMembershipRequestsTests):
 
         self.clan.reload()
         self.assertEqual(self.clan.members_number, 1)
+
+        self.assertEqual(MessagePrototype._db_count(), 1)
+
+        message = MessagePrototype._db_get_object(0)
+        self.assertEqual(message.sender.id, self.account.id)
+        self.assertEqual(message.recipient.id, self.account_2.id)
 
 
 

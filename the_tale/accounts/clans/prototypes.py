@@ -7,6 +7,7 @@ from dext.utils.urls import full_url
 
 from common.utils.prototypes import BasePrototype
 from common.utils import bbcode
+from common.utils.decorators import lazy_property
 
 from accounts.personal_messages.prototypes import MessagePrototype
 from accounts.prototypes import AccountPrototype
@@ -83,6 +84,7 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
 
         self.save()
 
+
     @nested_commit_on_success
     def add_member(self, account):
         try:
@@ -90,12 +92,11 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
         except IntegrityError:
             raise exceptions.AddMemberFromClanError(member_id=account.id, clan_id=self.id)
 
-        self._model_class.objects.filter(id=self.id).update(members_number=models.F('members_number')+1)
-
         MembershipRequestPrototype._db_filter(account_id=account.id).delete()
 
         account.set_clan_id(self.id)
 
+        self._model.members_number = MembershipPrototype._db_filter(clan_id=self.id).count()
         self.save()
 
     @nested_commit_on_success
@@ -114,6 +115,14 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
 
         self._model.members_number = MembershipPrototype._db_filter(clan_id=self.id).count()
         self.save()
+
+    def create_remove_member_message(self, initiator, removed_account):
+        message = u'''
+Игрок %(clan_leader_link)s исключил вас из гильдии %(clan_link)s.
+''' % {'clan_leader_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick),
+       'clan_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.id), self.name)}
+
+        MessagePrototype.create(initiator, removed_account, message)
 
     def save(self):
         self._model.save()
@@ -173,7 +182,13 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
         except cls._model_class.DoesNotExist:
             return None
 
-    def _create_invite_message(self, initiator, account, clan):
+    @lazy_property
+    def account(self): return AccountPrototype.get_by_id(self.account_id)
+
+    @lazy_property
+    def clan(self): return ClanPrototype.get_by_id(self.clan_id)
+
+    def create_invite_message(self, initiator):
         message = u'''
 Игрок %(clan_leader_link)s предлагает вам вступить в гильдию %(clan_link)s:
 
@@ -183,12 +198,12 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
 принять или отклонить предложение вы можете на этой странице: %(invites_link)s
 ''' % {'clan_leader_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick),
        'text': self.text,
-       'clan_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', clan.id), clan.name),
+       'clan_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.clan.id), self.clan.name),
        'invites_link': u'[url="%s"]Приглашения в гильдию [/url]' % full_url('http', 'accounts:clans:membership:for-account')}
 
-        MessagePrototype.create(initiator, account, message)
+        MessagePrototype.create(initiator, self.account, message)
 
-    def _create_request_message(self, initiator, account, clan):
+    def create_request_message(self, initiator):
         message = u'''
 Игрок %(account)s просит принять его в вашу гильдию:
 
@@ -196,11 +211,27 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
 
 ----------
 принять или отклонить предложение вы можете на этой странице: %(invites_link)s
-''' % {'account': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', account.id), account.nick),
+''' % {'account': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', self.account.id), self.account.nick),
        'text': self.text,
        'invites_link': u'[url="%s"]Заявки в гильдию[/url]' % full_url('http', 'accounts:clans:membership:for-clan')}
 
-        MessagePrototype.create(initiator, clan.get_leader(), message)
+        MessagePrototype.create(initiator, self.clan.get_leader(), message)
+
+    def create_accept_request_message(self, initiator):
+        message = u'''
+Игрок %(clan_leader_link)s принял вас в гильдию %(clan_link)s.
+''' % {'clan_leader_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick),
+       'clan_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.clan.id), self.clan.name)}
+
+        MessagePrototype.create(initiator, self.account, message)
+
+    def create_reject_request_message(self, initiator):
+        message = u'''
+Игрок %(clan_leader_link)s отказал вам в принятии в гильдию %(clan_link)s.
+''' % {'clan_leader_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick),
+       'clan_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.clan.id), self.clan.name)}
+
+        MessagePrototype.create(initiator, self.account, message)
 
     @classmethod
     @nested_commit_on_success
@@ -211,14 +242,7 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
                                                 initiator=initiator._model,
                                                 type=type,
                                                 text=text)
-        prototype = cls(model)
-
-        if type._is_FROM_CLAN:
-            prototype._create_invite_message(initiator, account, clan)
-        else:
-            prototype._create_request_message(initiator, account, clan)
-
-        return prototype
+        return cls(model)
 
     @classmethod
     def get_for_clan(cls, clan_id):
