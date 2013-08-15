@@ -35,6 +35,8 @@ LANGUAGE_CODE = 'ru'
 SITE_ID = 1
 SITE_URL = None # MUST be defined in settings_local
 
+SOCIAL_VK_GROUP_URL = 'http://vk.com/zpgtale'
+
 X_FRAME_OPTIONS = 'DENY'
 
 ALLOWED_HOSTS = ['the-tale.org',
