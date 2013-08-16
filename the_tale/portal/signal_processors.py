@@ -14,9 +14,8 @@ from portal.conf import portal_settings
 @receiver(game_signals.day_started, dispatch_uid='portal_day_started')
 def portal_day_started(sender, **kwargs): # pylint: disable=W0613
     from game.heroes.prototypes import HeroPrototype
-    from game.heroes.models import Hero
 
-    heroes_query = Hero.objects.filter(is_fast=False, active_state_end_at__gt=datetime.datetime.now(), ban_state_end_at__lt=datetime.datetime.now())
+    heroes_query = HeroPrototype.live_query().filter(active_state_end_at__gt=datetime.datetime.now(), ban_state_end_at__lt=datetime.datetime.now())
 
     heroes_number = heroes_query.count()
 

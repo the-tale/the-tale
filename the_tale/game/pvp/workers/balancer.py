@@ -15,6 +15,8 @@ from dext.utils.decorators import nested_commit_on_success
 from common.amqp_queues import BaseWorker
 from common import postponed_tasks
 
+from accounts.prototypes import AccountPrototype
+
 from game.heroes.prototypes import HeroPrototype
 
 from game.prototypes import SupervisorTaskPrototype
@@ -111,9 +113,7 @@ class Worker(BaseWorker):
 
     def add_to_arena_queue(self, hero_id):
 
-        from accounts.prototypes import AccountPrototype
-
-        hero = HeroPrototype.get_by_account_id(hero_id)
+        hero = HeroPrototype.get_by_id(hero_id)
 
         if hero.account_id in self.arena_queue:
             return None
@@ -153,7 +153,7 @@ class Worker(BaseWorker):
     def _get_prepaired_queue(self):
 
         records = []
-        records_to_remove = []
+        records_to_bots = []
 
         time_in_level = float(pvp_settings.BALANCING_TIMEOUT) / pvp_settings.BALANCING_MAX_LEVEL_DELTA
 
@@ -162,7 +162,7 @@ class Worker(BaseWorker):
             time_delta = (datetime.datetime.now() - record.created_at).seconds
 
             if time_delta > pvp_settings.BALANCING_TIMEOUT:
-                records_to_remove.append(record)
+                records_to_bots.append(record)
                 continue
 
             balancing_record = BalancingRecord(min_level=math.floor(record.hero_level - pvp_settings.BALANCING_MIN_LEVEL_DELTA - time_delta / time_in_level),
@@ -171,7 +171,7 @@ class Worker(BaseWorker):
 
             records.append(balancing_record)
 
-        return sorted(records, key=lambda r: r.record.created_at), records_to_remove
+        return sorted(records, key=lambda r: r.record.created_at), records_to_bots
 
     def _search_battles(self, records):
 
@@ -205,7 +205,7 @@ class Worker(BaseWorker):
             self.logger.info('remove from queue request from accounts %r' % (records_to_remove, ))
 
 
-    def _initiate_battle(self, record_1, record_2, from_balancing=False):
+    def _initiate_battle(self, record_1, record_2, calculate_ratings=False):
         from accounts.prototypes import AccountPrototype
 
         account_1 = AccountPrototype.get_by_id(record_1.account_id)
@@ -220,7 +220,7 @@ class Worker(BaseWorker):
             battle_1.set_enemy(account_2)
             battle_2.set_enemy(account_1)
 
-            if from_balancing and abs(record_1.hero_level - record_2.hero_level) < pvp_settings.BALANCING_MIN_LEVEL_DELTA:
+            if calculate_ratings and abs(record_1.hero_level - record_2.hero_level) < pvp_settings.BALANCING_MIN_LEVEL_DELTA:
                 battle_1.calculate_rating = True
                 battle_2.calculate_rating = True
 
@@ -231,14 +231,48 @@ class Worker(BaseWorker):
 
         game_environment.supervisor.cmd_add_task(task.id)
 
+    def _initiate_battle_with_bot(self, record):
+
+        # search free bot
+        # since now bots needed only for PvP, we can do simplified search
+        battled_accounts_ids = Battle1x1Prototype._model_class.objects.all().values_list('account_id', flat=True)
+
+        try:
+            bot_account = AccountPrototype(model=AccountPrototype._model_class.objects.filter(is_bot=True).exclude(id__in=battled_accounts_ids)[0])
+        except IndexError:
+            bot_account = None
+
+        if bot_account is None:
+            return [record], []
+
+        bot_hero = HeroPrototype.get_by_account_id(bot_account.id)
+
+        self.logger.info('start battle between account %d and bot %d' % (record.account_id, bot_account.id))
+
+        # create battle for bot
+        self.add_to_arena_queue(bot_hero.id)
+        bot_record = self.arena_queue[bot_account.id]
+
+        self._initiate_battle(record, bot_record, calculate_ratings=False)
+
+        return [], [record, bot_record]
+
+
     def _do_balancing(self):
 
-        records, records_to_remove = self._get_prepaired_queue()
+        records_to_remove = []
+
+        records, records_to_bots = self._get_prepaired_queue()
 
         battle_pairs, records_to_exclude = self._search_battles(records)
 
         for battle_pair in battle_pairs:
-            self._initiate_battle(*battle_pair, from_balancing=True)
+            self._initiate_battle(*battle_pair, calculate_ratings=True)
+
+        for record in records_to_bots:
+            _records_to_remove, _records_to_exclude = self._initiate_battle_with_bot(record)
+            records_to_remove.extend(_records_to_remove)
+            records_to_exclude.extend(_records_to_exclude)
 
         self._clean_queue(records_to_remove, records_to_exclude)
 

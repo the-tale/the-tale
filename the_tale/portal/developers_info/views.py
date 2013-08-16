@@ -10,7 +10,7 @@ from common.utils.resources import Resource
 from bank.prototypes import AccountPrototype as BankAccountPrototype
 from bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE
 
-from accounts.models import Account
+from accounts.prototypes import AccountPrototype
 
 
 class DevelopersInfoResource(Resource):
@@ -22,13 +22,13 @@ class DevelopersInfoResource(Resource):
     @handler('', method='get')
     def index(self):
 
-        accounts_total = Account.objects.all().count()
-        accounts_registered = Account.objects.filter(is_fast=False).count()
-        accounts_active = Account.objects.filter(is_fast=False, active_end_at__gt=datetime.datetime.now()).count()
-        accounts_premium = Account.objects.filter(is_fast=False, premium_end_at__gt=datetime.datetime.now()).count()
-        accounts_active_and_premium = Account.objects.filter(is_fast=False,
-                                                             active_end_at__gt=datetime.datetime.now(),
-                                                             premium_end_at__gt=datetime.datetime.now()).count()
+        accounts_total = AccountPrototype._model_class.objects.all().count()
+        accounts_bots = AccountPrototype._model_class.objects.filter(is_bot=True).count()
+        accounts_registered = AccountPrototype.live_query().count()
+        accounts_active = AccountPrototype.live_query().filter(active_end_at__gt=datetime.datetime.now()).count()
+        accounts_premium = AccountPrototype.live_query().filter(premium_end_at__gt=datetime.datetime.now()).count()
+        accounts_active_and_premium = AccountPrototype.live_query().filter(active_end_at__gt=datetime.datetime.now(),
+                                                                           premium_end_at__gt=datetime.datetime.now()).count()
 
         gold = {}
         gold_total_spent = 0
@@ -53,6 +53,7 @@ class DevelopersInfoResource(Resource):
 
         return self.template('developers_info/index.html',
                              {'accounts_total': accounts_total,
+                              'accounts_bots': accounts_bots,
                               'accounts_registered': accounts_registered,
                               'accounts_active': accounts_active,
                               'accounts_premium': accounts_premium,

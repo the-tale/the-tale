@@ -42,7 +42,7 @@ def get_system_user():
     return AccountPrototype.get_by_id(account_id)
 
 
-def register_user(nick, email=None, password=None, referer=None, referral_of_id=None):
+def register_user(nick, email=None, password=None, referer=None, referral_of_id=None, is_bot=False):
 
     if Account.objects.filter(nick=nick).exists():
         return REGISTER_USER_RESULT.DUPLICATE_USERNAME, None, None
@@ -58,12 +58,18 @@ def register_user(nick, email=None, password=None, referer=None, referral_of_id=
     if (email and not password) or (not email and password):
         raise AccountsException('email & password must be specified or not specified together')
 
+    is_fast = not (email and password)
+
+    if is_fast and is_bot:
+        raise AccountsException('can not cant fast account for bot')
+
     if password is None:
         password = accounts_settings.FAST_REGISTRATION_USER_PASSWORD
 
     account = AccountPrototype.create(nick=nick,
                                       email=email,
-                                      is_fast=not (email and password),
+                                      is_fast=is_fast,
+                                      is_bot=is_bot,
                                       password=password,
                                       referer=referer,
                                       referral_of=referral_of)

@@ -44,4 +44,11 @@ accounts_settings = app_settings('ACCOUNTS',
 
                                  NICK_REGEX=ur'[a-zA-Z0-9\-\ _а-яА-Я]+',
                                  NICK_MIN_LENGTH=3,
-                                 NICK_MAX_LENGTH=30)
+                                 NICK_MAX_LENGTH=30,
+
+                                 BOT_EMAIL_TEMPLATE='bot_%d@the-tale.org',
+                                 BOT_PASSWORD='password-Bots',
+                                 BOT_NICK_TEMPLATE=u'Существо №%d',
+                                 BOT_HERO_NAME_FORMS=[u'Существо', u'Существа', u'Существу', u'Существо', u'Существом', u'Существе',
+                                                      u'Существа', u'Существ', u'Существам', u'Существ', u'Существами', u'Существах'],
+                                 BOT_HERO_NAME_PROPERTIES=(u'ср', ))

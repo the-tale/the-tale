@@ -23,6 +23,7 @@ class Hero(models.Model):
     account = models.ForeignKey('accounts.Account', related_name='heroes', default=None, null=True, blank=True, on_delete=models.CASCADE)
 
     is_fast = models.BooleanField(default=True, db_index=True) # copy from account.is_fast
+    is_bot = models.BooleanField(default=False)
 
     is_alive = models.BooleanField(default=True)
 

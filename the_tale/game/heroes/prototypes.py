@@ -49,7 +49,7 @@ from game.heroes.relations import ITEMS_OF_EXPENDITURE
 
 class HeroPrototype(BasePrototype):
     _model_class = Hero
-    _readonly = ('id', 'account_id', 'created_at_turn', 'name', 'experience', 'money', 'next_spending', 'energy', 'level', 'saved_at_turn', 'saved_at')
+    _readonly = ('id', 'account_id', 'created_at_turn', 'name', 'experience', 'money', 'next_spending', 'energy', 'level', 'saved_at_turn', 'saved_at', 'is_bot')
     _bidirectional = ('is_alive',
                       'is_fast',
                       'gender',
@@ -63,6 +63,9 @@ class HeroPrototype(BasePrototype):
                       'ban_state_end_at',
                       'energy_charges')
     _get_by = ('id', 'account_id')
+
+    @classmethod
+    def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False)
 
     def __init__(self, **kwargs):
         super(HeroPrototype, self).__init__(**kwargs)
@@ -118,12 +121,15 @@ class HeroPrototype(BasePrototype):
     @property
     def race_verbose(self): return RACE._ID_TO_TEXT[self.race]
 
+    def increment_level(self):
+        self._model.level += 1
+        self.add_message('hero_common_level_up', hero=self, level=self.level)
+
     def add_experience(self, value):
         self._model.experience += value * self.experience_modifier
         while f.exp_on_lvl(self.level) <= self._model.experience:
             self._model.experience -= f.exp_on_lvl(self.level)
-            self._model.level += 1
-            self.add_message('hero_common_level_up', hero=self, level=self.level)
+            self.increment_level()
 
     @property
     def max_ability_points_number(self):
@@ -664,12 +670,38 @@ class HeroPrototype(BasePrototype):
 
         self.force_save_required = False
 
-    def _randomized_level_up(self):
-        new_ability = random.choice(self.get_abilities_for_choose())
-        if self.abilities.has(new_ability.get_id()):
-            self.abilities.increment_level(new_ability.get_id())
-        else:
-            self.abilities.add(new_ability.get_id())
+    def reset_level(self):
+        self._model.level = 1
+        self.abilities.reset()
+
+    def randomize_equip(self):
+        for slot in SLOTS._ALL:
+            self.equipment.unequip(slot)
+
+            artifacts_list = artifacts_storage.artifacts_for_type([SLOT_TO_ARTIFACT_TYPE[slot]])
+            if not artifacts_list:
+                continue
+
+            artifact = artifacts_storage.generate_artifact_from_list(artifacts_list, self.level)
+
+            self.equipment.equip(slot, artifact)
+
+
+    def randomized_level_up(self, increment_level=False):
+        if increment_level:
+            self.increment_level()
+
+        if self.can_choose_new_ability:
+            choices = self.get_abilities_for_choose()
+
+            if not choices:
+                return
+
+            new_ability = random.choice(self.get_abilities_for_choose())
+            if self.abilities.has(new_ability.get_id()):
+                self.abilities.increment_level(new_ability.get_id())
+            else:
+                self.abilities.add(new_ability.get_id())
 
     def __eq__(self, other):
 
@@ -807,6 +839,7 @@ class HeroPrototype(BasePrototype):
                                    gender=gender,
                                    race=race,
                                    is_fast=account.is_fast,
+                                   is_bot=account.is_bot,
                                    pref_energy_regeneration_type=energy_regeneration_type,
                                    abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
                                    messages=s11n.to_json(messages.serialize()),

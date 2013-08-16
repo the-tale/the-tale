@@ -51,9 +51,7 @@ class Command(BaseCommand):
             for i in xrange(f.turns_on_lvl(level)): # pylint: disable=W0612
                 self.storage.process_turn()
                 current_time.increment_turn()
-
-                if self.hero.can_choose_new_ability:
-                    self.hero._randomized_level_up()
+                self.hero.randomized_level_up()
 
 
             exp_to_next_level = float(self.hero.experience) / f.exp_on_lvl(self.hero.level) * 100

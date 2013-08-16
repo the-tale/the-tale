@@ -1,4 +1,5 @@
 # coding: utf-8
+import random
 
 from common.utils.discovering import discover_classes
 
@@ -22,6 +23,12 @@ class BasePvPAbility(object):
 
     @property
     def probability(self): return self.get_probability(self.hero.pvp.energy, self.hero.pvp.energy_speed)
+
+    def use(self):
+        if random.uniform(0, 1.0) < self.probability:
+            self.apply()
+        else:
+            self.miss()
 
     def apply(self): raise NotImplementedError
 

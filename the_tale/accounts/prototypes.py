@@ -31,6 +31,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'created_at',
                  'is_staff',
                  'is_superuser',
+                 'is_bot',
                  'has_perm',
                  'premium_end_at',
                  'active_end_at',
@@ -44,6 +45,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'might')
     _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription')
     _get_by = ('id', 'email', 'nick')
+
+    @classmethod
+    def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False)
 
     @lazy_property
     def permanent_purchases(self):
@@ -215,7 +219,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
 
     @classmethod
-    def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None):
+    def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None, is_bot=False):
         referer_domain = None
         if referer:
             referer_info = urlparse(referer)
@@ -224,6 +228,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         return AccountPrototype(model=Account.objects.create_user(nick=nick,
                                                                   email=email,
                                                                   is_fast=is_fast,
+                                                                  is_bot=is_bot,
                                                                   password=password,
                                                                   active_end_at=cls._next_active_end_at(),
                                                                   referer=referer,

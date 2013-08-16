@@ -21,6 +21,7 @@ from game.pvp.models import Battle1x1, Battle1x1Result
 from game.pvp.relations import BATTLE_1X1_STATE
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.tests.helpers import PvPTestsMixin
+from game.pvp.abilities import ABILITIES
 
 
 class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
@@ -226,3 +227,135 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         self.meta_action_battle.remove()
         self.assertEqual(MetaAction.objects.all().count(), 0)
         self.assertEqual(MetaActionMember.objects.all().count(), 0)
+
+
+    def test_get_bot_pvp_properties(self):
+        properties = self.meta_action_battle.get_bot_pvp_properties()
+
+        self.meta_action_battle.save()
+        self.meta_action_battle.reload()
+
+        self.assertEqual(set(properties.keys()), set(('ability_chance', 'priorities')))
+        self.assertTrue('bot_pvp_properties' in self.meta_action_battle.data)
+        self.assertEqual(set(properties.keys()), set(self.meta_action_battle.data['bot_pvp_properties']))
+        self.assertTrue(0 <properties['ability_chance'] <= 1)
+        self.assertEqual(set(properties['priorities']), set(ABILITIES.keys()))
+
+        self.assertEqual(properties, self.meta_action_battle.get_bot_pvp_properties())
+
+        for ability_priority in properties['priorities']:
+            self.assertTrue(ability_priority > 0)
+
+    def test_process_bot_called__hero_1(self):
+        self.hero_1._model.is_bot = True
+
+        self.meta_action_battle.reload()
+
+        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype.process_bot') as process_bot:
+            self.meta_action_battle.process()
+
+        self.assertEqual(process_bot.call_count, 1)
+        self.assertEqual(process_bot.call_args[1]['bot'].id, self.hero_1.id )
+        self.assertEqual(process_bot.call_args[1]['enemy'].id, self.hero_2.id )
+
+
+    def test_process_bot_called__hero_2(self):
+        self.hero_2._model.is_bot = True
+
+        self.meta_action_battle.reload()
+
+        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype.process_bot') as process_bot:
+            self.meta_action_battle.process()
+
+        self.assertEqual(process_bot.call_count, 1)
+        self.assertEqual(process_bot.call_args[1]['bot'].id, self.hero_2.id )
+        self.assertEqual(process_bot.call_args[1]['enemy'].id, self.hero_1.id )
+
+
+    def test_process_bot_called__use_ability(self):
+        self.hero_1._model.is_bot = True
+        self.hero_1.pvp.energy = 10
+
+        properties = self.meta_action_battle.get_bot_pvp_properties()
+        properties['ability_chance'] = 1.0
+
+        self.meta_action_battle.process()
+
+        self.assertTrue(self.hero_1.pvp.energy in (1, 2))
+
+    def test_initialize_bots__bot_is_second(self):
+        result, account_1_id, bundle_id = register_user('test_user_3')
+        result, account_2_id, bundle_id = register_user('bot', 'bot@bot.bot', '111111', is_bot=True)
+
+        account_1 = AccountPrototype.get_by_id(account_1_id)
+        account_2 = AccountPrototype.get_by_id(account_2_id)
+
+        storage = LogicStorage()
+        storage.load_account_data(account_1)
+        storage.load_account_data(account_2)
+
+        hero_1 = storage.accounts_to_heroes[account_1.id]
+        hero_2 = storage.accounts_to_heroes[account_2.id]
+
+        hero_1._model.level = 50
+        self.assertEqual(hero_2.level, 1)
+
+        MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=BundlePrototype.create())
+
+        self.assertEqual(hero_2.level, 50)
+        self.assertTrue(len(hero_2.abilities.all) > 1)
+        self.assertEqual(hero_2.health, hero_2.max_health)
+
+
+    def test_initialize_bots__bot_is_first(self):
+        result, account_1_id, bundle_id = register_user('bot', 'bot@bot.bot', '111111', is_bot=True)
+        result, account_2_id, bundle_id = register_user('test_user_3')
+
+        account_1 = AccountPrototype.get_by_id(account_1_id)
+        account_2 = AccountPrototype.get_by_id(account_2_id)
+
+        storage = LogicStorage()
+        storage.load_account_data(account_1)
+        storage.load_account_data(account_2)
+
+        hero_1 = storage.accounts_to_heroes[account_1.id]
+        hero_2 = storage.accounts_to_heroes[account_2.id]
+
+        hero_2._model.level = 50
+        self.assertEqual(hero_1.level, 1)
+
+        MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=BundlePrototype.create())
+
+        self.assertEqual(hero_1.level, 50)
+        self.assertTrue(len(hero_1.abilities.all) > 1)
+        self.assertEqual(hero_1.health, hero_1.max_health)
+
+
+    def test_initialize_bots__second_create(self):
+        result, account_1_id, bundle_id = register_user('test_user_3')
+        result, account_2_id, bundle_id = register_user('bot', 'bot@bot.bot', '111111', is_bot=True)
+
+        account_1 = AccountPrototype.get_by_id(account_1_id)
+        account_2 = AccountPrototype.get_by_id(account_2_id)
+
+        storage = LogicStorage()
+        storage.load_account_data(account_1)
+        storage.load_account_data(account_2)
+
+        hero_1 = storage.accounts_to_heroes[account_1.id]
+        hero_2 = storage.accounts_to_heroes[account_2.id]
+
+        hero_1._model.level = 50
+        self.assertEqual(hero_2.level, 1)
+
+        self.pvp_create_battle(account_1, account_2, BATTLE_1X1_STATE.PROCESSING)
+        self.pvp_create_battle(account_2, account_1, BATTLE_1X1_STATE.PROCESSING)
+
+        meta_action = MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=BundlePrototype.create())
+        meta_action.process_battle_ending()
+
+        MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=BundlePrototype.create())
+
+        self.assertEqual(hero_2.level, 50)
+        self.assertTrue(len(hero_2.abilities.all) > 1)
+        self.assertEqual(hero_2.health, hero_2.max_health)

@@ -52,6 +52,7 @@ class AccountAdmin(DjangoUserAdmin):
                                                    'referer_domain',
                                                    'referer')}),
                   (_('Permissions'), {'fields': ('is_fast',
+                                                 'is_bot',
                                                  'is_active',
                                                  'is_staff',
                                                  'is_superuser',

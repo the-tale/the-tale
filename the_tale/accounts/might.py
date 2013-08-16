@@ -61,7 +61,7 @@ def calculate_might(account): # pylint: disable=R0914
 
 def recalculate_accounts_might():
 
-    for account_model in AccountPrototype._db_filter(is_fast=False):
+    for account_model in AccountPrototype.live_query():
         account = AccountPrototype(model=account_model)
 
         new_might = calculate_might(account)

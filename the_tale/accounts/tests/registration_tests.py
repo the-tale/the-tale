@@ -9,6 +9,8 @@ from accounts.logic import register_user, REGISTER_USER_RESULT
 from accounts.prototypes import AccountPrototype
 from accounts.postponed_tasks import RegistrationTask, REGISTRATION_TASK_STATE
 from accounts.models import Account
+from accounts.exceptions import AccountsException
+
 
 from game.heroes.prototypes import HeroPrototype
 
@@ -58,6 +60,8 @@ class TestRegistration(testcase.TestCase):
         self.assertEqual(account.referer, None)
         self.assertEqual(account.referer_domain, None)
         self.assertEqual(account.referral_of_id, None)
+
+        self.assertEqual(account.is_bot, False)
 
 
     def test_successfull_result__referer(self):
@@ -111,6 +115,14 @@ class TestRegistration(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user2', 'test_user@test.com', '111111')
         self.assertEqual(result, REGISTER_USER_RESULT.DUPLICATE_EMAIL)
         self.assertTrue(bundle_id is None)
+
+    def test_successfull_result__is_bot(self):
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111', is_bot=True)
+        account = AccountPrototype.get_by_id(account_id)
+        self.assertEqual(account.is_bot, True)
+
+    def test_successfull_result__is_bot_and_fast(self):
+        self.assertRaises(AccountsException, register_user, 'test_user', is_bot=True)
 
 
 class TestRegistrationTask(testcase.TestCase):

@@ -10,7 +10,7 @@ from dext.utils import s11n
 from dext.utils.urls import url
 
 from common.utils.testcase import TestCase
-from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
+from common.postponed_tasks import PostponedTaskPrototype
 
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user, login_url
@@ -205,6 +205,7 @@ class TestCallsPage(TestRequestsBase):
         self.request_logout()
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-level-restrictions-message', 0),
                                                                               ('pgf-unlogined-message', 1),
+                                                                              ('pgf-no-current-battles-message', 1),
                                                                               ('pgf-fast-account-message', 0)])
 
     def test_fast_user(self):
@@ -215,6 +216,7 @@ class TestCallsPage(TestRequestsBase):
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('common.fast_account', 0),
                                                                               ('pgf-level-restrictions-message', 0),
                                                                               ('pgf-unlogined-message', 0),
+                                                                              ('pgf-no-current-battles-message', 1),
                                                                               ('pgf-fast-account-message', 1)])
 
     @mock.patch('game.heroes.prototypes.HeroPrototype.can_participate_in_pvp', False)
@@ -222,19 +224,23 @@ class TestCallsPage(TestRequestsBase):
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pvp.no_rights', 0),
                                                                               ('pgf-level-restrictions-message', 0),
                                                                               ('pgf-unlogined-message', 0),
+                                                                              ('pgf-no-current-battles-message', 1),
                                                                               ('pgf-fast-account-message', 1)])
 
     def test_normal_account(self):
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-level-restrictions-message', 1),
                                                                               ('pgf-unlogined-message', 0),
+                                                                              ('pgf-no-current-battles-message', 1),
                                                                               ('pgf-fast-account-message', 0)])
 
     def test_no_battles(self):
-        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 1)])
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 1),
+                                                                              ('pgf-no-current-battles-message', 1), ])
 
     def test_own_battle(self):
         self.pvp_create_battle(self.account_1, None, BATTLE_1X1_STATE.WAITING)
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 0),
+                                                                              ('pgf-no-current-battles-message', 1),
                                                                               ('pgf-own-battle-message', 1)])
 
     def test_low_level_battle(self):
@@ -242,6 +248,7 @@ class TestCallsPage(TestRequestsBase):
         self.hero_1.save()
         self.pvp_create_battle(self.account_2, None, BATTLE_1X1_STATE.WAITING)
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 0),
+                                                                              ('pgf-no-current-battles-message', 1),
                                                                               ('pgf-can-not-accept-call', 1)])
 
     def test_height_level_battle(self):
@@ -249,17 +256,27 @@ class TestCallsPage(TestRequestsBase):
         self.hero_2.save()
         self.pvp_create_battle(self.account_2, None, BATTLE_1X1_STATE.WAITING)
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 0),
+                                                                              ('pgf-no-current-battles-message', 1),
                                                                               ('pgf-can-not-accept-call', 1)])
 
     def test_battle(self):
         self.pvp_create_battle(self.account_2, None, BATTLE_1X1_STATE.WAITING)
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 0),
+                                                                              ('pgf-no-current-battles-message', 1),
                                                                               ('pgf-accept-battle', 1)])
 
-    def test_only_waiting_battles(self):
+    def test_current_battle(self):
+        self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
+        self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 1),
+                                                                              ('pgf-no-current-battles-message', 0),
+                                                                              ('pgf-accept-battle', 0),
+                                                                              self.hero_1.name,
+                                                                              self.hero_2.name])
+
+    def test_only_waiting_and_processing_battles(self):
         for state in BATTLE_1X1_STATE._records:
-            if state._is_WAITING:
+            if state._is_WAITING or state._is_PROCESSING:
                 continue
             self.pvp_create_battle(self.account_2, None, state)
-            self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 1)])
+            self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 1), ('pgf-no-current-battles-message', 1)])
             Battle1x1.objects.all().delete()

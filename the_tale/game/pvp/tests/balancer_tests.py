@@ -17,7 +17,7 @@ from game.models import SupervisorTask
 from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.workers.balancer import QueueRecord, BalancingRecord
-from game.pvp.exceptions import PvPException
+
 
 from game.pvp.conf import pvp_settings
 
@@ -129,16 +129,16 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.worker.leave_arena_queue(self.hero_1.id)
         self.worker.leave_arena_queue(self.hero_2.id)
 
-        records, records_to_remove = self.worker._get_prepaired_queue()
+        records, records_to_bots = self.worker._get_prepaired_queue()
         self.assertEqual(records, [])
-        self.assertEqual(records_to_remove, [])
+        self.assertEqual(records_to_bots, [])
 
     def test_get_prepaired_queue_one_record(self):
         self.worker.leave_arena_queue(self.hero_2.id)
 
-        records, records_to_remove = self.worker._get_prepaired_queue()
+        records, records_to_bots = self.worker._get_prepaired_queue()
         self.assertEqual(len(records), 1)
-        self.assertEqual(records_to_remove, [])
+        self.assertEqual(records_to_bots, [])
 
         record = records[0]
         self.assertEqual(record[2], self.battle_1_record())
@@ -150,9 +150,9 @@ class BalancerBalancingTests(BalancerTestsBase):
 
         self.worker.leave_arena_queue(self.hero_2.id)
 
-        records, records_to_remove = self.worker._get_prepaired_queue()
+        records, records_to_bots = self.worker._get_prepaired_queue()
         self.assertEqual(len(records), 1)
-        self.assertEqual(records_to_remove, [])
+        self.assertEqual(records_to_bots, [])
 
         record = records[0]
         self.assertEqual(record[2], battle_1_record)
@@ -166,18 +166,18 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.worker.leave_arena_queue(self.hero_2.id)
 
         with mock.patch('game.pvp.conf.pvp_settings.BALANCING_TIMEOUT', 0):
-            records, records_to_remove = self.worker._get_prepaired_queue()
+            records, records_to_bots = self.worker._get_prepaired_queue()
 
         self.assertEqual(records, [])
-        self.assertEqual(len(records_to_remove), 1)
+        self.assertEqual(len(records_to_bots), 1)
 
-        self.assertEqual(records_to_remove, [battle_1_record])
+        self.assertEqual(records_to_bots, [battle_1_record])
 
     def test_get_prepaired_queue_two_records(self):
-        records, records_to_remove = self.worker._get_prepaired_queue()
+        records, records_to_bots = self.worker._get_prepaired_queue()
 
         self.assertEqual(len(records), 2)
-        self.assertEqual(records_to_remove, [])
+        self.assertEqual(records_to_bots, [])
 
         record_1 = records[0]
         record_2 = records[1]
@@ -195,13 +195,13 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.worker.arena_queue[self.account_2.id] = battle_2_record
 
         with mock.patch('game.pvp.conf.pvp_settings.BALANCING_TIMEOUT', 1):
-            records, records_to_remove = self.worker._get_prepaired_queue()
+            records, records_to_bots = self.worker._get_prepaired_queue()
 
         self.assertEqual(len(records), 1)
-        self.assertEqual(len(records_to_remove), 1)
+        self.assertEqual(len(records_to_bots), 1)
 
         record_2 = records[0]
-        self.assertEqual(records_to_remove, [battle_1_record])
+        self.assertEqual(records_to_bots, [battle_1_record])
         self.assertEqual(record_2[2], battle_2_record)
         self.assertTrue(record_2[0] <= record_2[1])
 
@@ -252,7 +252,7 @@ class BalancerBalancingTests(BalancerTestsBase):
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
-        self.worker._initiate_battle(self.battle_1_record(), self.battle_2_record(), from_balancing=True)
+        self.worker._initiate_battle(self.battle_1_record(), self.battle_2_record(), calculate_ratings=True)
 
         battle_1 = Battle1x1Prototype.get_by_id(self.battle_1.id)
         battle_2 = Battle1x1Prototype.get_by_id(self.battle_2.id)
@@ -268,7 +268,7 @@ class BalancerBalancingTests(BalancerTestsBase):
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
-        self.worker._initiate_battle(self.battle_1_record(), self.battle_2_record(), from_balancing=False)
+        self.worker._initiate_battle(self.battle_1_record(), self.battle_2_record(), calculate_ratings=False)
 
         battle_1 = Battle1x1Prototype.get_by_id(self.battle_1.id)
         battle_2 = Battle1x1Prototype.get_by_id(self.battle_2.id)
@@ -298,6 +298,41 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.assertFalse(battle_2.calculate_rating)
 
         self.assertEqual(SupervisorTask.objects.all().count(), 1)
+
+    def test_initiate_battle_with_bot__no_bots(self):
+        records_to_remove, records_to_exclude = self.worker._initiate_battle_with_bot(self.battle_1_record())
+        self.assertEqual(records_to_remove, [self.battle_1_record()])
+        self.assertEqual(records_to_exclude, [])
+        self.assertEqual(SupervisorTask.objects.all().count(), 0)
+
+
+    def test_initiate_battle_with_bot__create_battle(self):
+        self.hero_1._model.level = 50
+        self.hero_1.save()
+
+        result, bot_account_id, bundle_id = register_user('bot_user', 'bot_user@test.com', '111111', is_bot=True)
+
+        records_to_remove, records_to_exclude = self.worker._initiate_battle_with_bot(self.battle_1_record())
+
+        bot_battle = Battle1x1Prototype.get_by_id(records_to_exclude[1].battle_id)
+
+        bot_record = QueueRecord(account_id=bot_account_id,
+                                 battle_id=bot_battle.id,
+                                 created_at=bot_battle.created_at + datetime.timedelta(seconds=0),
+                                 hero_level=1)
+
+        self.assertEqual(records_to_remove, [])
+        self.assertEqual(records_to_exclude, [self.battle_1_record(), bot_record])
+        self.assertEqual(SupervisorTask.objects.all().count(), 1)
+
+        battle_player = Battle1x1Prototype.get_by_account_id(self.account_1.id)
+        battle_bot = Battle1x1Prototype.get_by_account_id(bot_account_id)
+
+        self.assertEqual(battle_player.enemy_id, bot_account_id)
+        self.assertFalse(battle_player.calculate_rating)
+        self.assertEqual(battle_bot.enemy_id, self.account_1.id)
+        self.assertFalse(battle_bot.calculate_rating)
+
 
     def test_force_battle(self):
 

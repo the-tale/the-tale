@@ -1,10 +1,12 @@
 # coding: utf-8
+import random
 
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
 
 from common.utils.prototypes import BasePrototype
 from common.utils.decorators import lazy_property
+from common.utils.logic import random_value_by_priority
 
 from accounts.prototypes import AccountPrototype
 
@@ -150,6 +152,21 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
             self._hero_2_context.use_pvp_advantage_stike_damage(self.hero_2.basic_damage * c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER)
         return self._hero_2_context
 
+    def get_bot_pvp_properties(self):
+        from game.pvp.abilities import ABILITIES
+
+        if 'bot_pvp_properties' in self.data:
+            return self.data['bot_pvp_properties']
+
+        priorities = {ability.TYPE: random.uniform(0.1, 1.0) for ability in ABILITIES.values()}
+        priorities_sum = sum(priorities.values())
+        priorities = {ability_type: ability_priority/priorities_sum
+                      for ability_type, ability_priority in priorities.items()}
+
+        self.data['bot_pvp_properties'] = {'priorities': priorities,
+                                           'ability_chance': random.uniform(0.1, 0.33)}
+        return self.data['bot_pvp_properties']
+
     def add_message(self, *argv, **kwargs):
         self.hero_1.add_message(*argv, **kwargs)
         self.hero_2.add_message(*argv, **kwargs)
@@ -165,8 +182,22 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         hero.pvp.store_turn_data()
 
     @classmethod
+    def prepair_bot(cls, hero, enemy):
+        if not hero.is_bot:
+            return
+
+        hero.reset_level()
+        for i in xrange(enemy.level-1):
+            hero.randomized_level_up(increment_level=True)
+        hero.randomize_equip()
+
+
+    @classmethod
     @nested_commit_on_success
     def create(cls, storage, hero_1, hero_2, bundle):
+
+        cls.prepair_bot(hero_1, hero_2)
+        cls.prepair_bot(hero_2, hero_1)
 
         hero_1_old_health = hero_1.health
         hero_2_old_health = hero_2.health
@@ -246,11 +277,29 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
         self.state = self.STATE.PROCESSED
 
+    def process_bot(self, bot, enemy):
+        from game.pvp.abilities import ABILITIES
+
+        properties = self.get_bot_pvp_properties()
+
+        if random.uniform(0.0, 1.0) > properties['ability_chance']:
+            return
+
+        used_ability_type = random_value_by_priority(properties['priorities'].items())
+
+        ABILITIES[used_ability_type](hero=bot, enemy=enemy).use()
+
 
     def process_battle_running(self):
         # apply all changes made by player
         hero_1_effectivenes = self.hero_1.pvp.effectiveness
         hero_2_effectivenes = self.hero_2.pvp.effectiveness
+
+        if self.hero_1.is_bot:
+            self.process_bot(bot=self.hero_1, enemy=self.hero_2)
+
+        if self.hero_2.is_bot:
+            self.process_bot(bot=self.hero_2, enemy=self.hero_1)
 
         # modify advantage
         max_effectivenes = float(max(hero_1_effectivenes, hero_2_effectivenes))

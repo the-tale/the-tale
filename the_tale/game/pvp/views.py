@@ -151,6 +151,21 @@ class PvPResource(Resource):
 
         accounts_ids = [battle.account_id for battle in battles]
 
+        current_battles = [Battle1x1Prototype(battle_model) for battle_model in Battle1x1.objects.filter(state=BATTLE_1X1_STATE.PROCESSING)]
+        current_battle_pairs = set()
+
+        for battle in current_battles:
+
+            if battle.account_id < battle.enemy_id:
+                battle_pair = (battle.account_id, battle.enemy_id)
+            else:
+                battle_pair = (battle.enemy_id, battle.account_id)
+
+            current_battle_pairs.add(battle_pair)
+
+            accounts_ids.append(battle.account_id)
+            accounts_ids.append(battle.enemy_id)
+
         heroes = [HeroPrototype(model=hero_model) for hero_model in Hero.objects.filter(account_id__in=accounts_ids)]
         heroes = dict( (hero.account_id, hero) for hero in heroes)
 
@@ -160,6 +175,7 @@ class PvPResource(Resource):
 
         return self.template('pvp/calls.html',
                              {'battles': battles,
+                              'current_battle_pairs': current_battle_pairs,
                               'heroes': heroes,
                               'own_hero': self.own_hero,
                               'ACCEPTED_LEVEL_MAX': ACCEPTED_LEVEL_MAX,

@@ -604,3 +604,14 @@ class HeroEquipmentTests(TestCase):
         self.assertEqual(self.hero.equipment.get(slot), new_artifact)
 
         self.storage._test_save()
+
+    def test_randomize_equip__working(self):
+        self.hero.randomize_equip()
+
+        old_hero_power = self.hero.power
+
+        self.hero._model.level = 50
+
+        self.hero.randomize_equip()
+
+        self.assertTrue(old_hero_power < self.hero.power)

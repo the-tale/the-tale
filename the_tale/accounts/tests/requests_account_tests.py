@@ -38,6 +38,9 @@ class AccountRequestsTests(TestCase):
         result, account_id, bundle_id = register_user('test_user3', 'test_user3@test.com', '111111')
         self.account3 = AccountPrototype.get_by_id(account_id)
 
+        result, account_id, bundle_id = register_user('test_user_bot', 'test_user_bot@test.com', '111111', is_bot=True)
+        self.account_bot = AccountPrototype.get_by_id(account_id)
+
         result, account_id, bundle_id = register_user('test_user4')
         self.account4 = AccountPrototype.get_by_id(account_id)
 
@@ -48,6 +51,7 @@ class IndexRequestsTests(AccountRequestsTests):
         self.check_html_ok(self.request_html(reverse('accounts:')), texts=(('pgf-account-record', 3),
                                                                          ('test_user1', 1),
                                                                          ('test_user2', 1),
+                                                                         ('test_user_bot', 0),
                                                                          ('test_user3', 1),))
 
     def test_index_pagination(self):
@@ -62,6 +66,7 @@ class IndexRequestsTests(AccountRequestsTests):
     def test_accounts_not_found_message(self):
         self.check_html_ok(self.request_html(url('accounts:', prefix='ac')), texts=(('pgf-account-record', 0),
                                                                                   ('pgf-no-accounts-message', 1),
+                                                                                  ('test_user_bot', 0),
                                                                                   ('test_user1', 0),
                                                                                   ('test_user2', 0),
                                                                                   ('test_user3', 0),))

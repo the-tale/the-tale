@@ -1,14 +1,10 @@
 # coding: utf-8
-import random
-
 from dext.utils.decorators import nested_commit_on_success
 
 from textgen.words import Fake
 
 from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from common.utils.enum import create_enum
-
-from game.heroes.prototypes import HeroPrototype
 
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.abilities import ABILITIES
@@ -123,10 +119,7 @@ class UsePvPAbilityTask(PostponedLogic):
             main_task.comment = 'no resources for ability %s' % self.ability_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        if random.uniform(0, 1.0) < pvp_ability.probability:
-            pvp_ability.apply()
-        else:
-            pvp_ability.miss()
+        pvp_ability.use()
 
         with nested_commit_on_success():
             storage.save_account_data(battle.account_id, update_cache=True)

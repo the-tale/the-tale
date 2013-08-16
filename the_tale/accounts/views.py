@@ -309,7 +309,7 @@ class AccountResource(BaseAccountsResource):
     @handler('', method='get')
     def index(self, page=1, prefix=''):
 
-        accounts_query = AccountPrototype._model_class.objects.filter(is_fast=False)
+        accounts_query = AccountPrototype.live_query()
 
         if prefix:
             accounts_query = accounts_query.filter(nick__istartswith=prefix)

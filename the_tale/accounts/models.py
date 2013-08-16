@@ -17,7 +17,7 @@ class AccountManager(BaseUserManager):
         email = super(AccountManager, cls).normalize_email(email)
         return email if email else None
 
-    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None, referer=None, referer_domain=None, referral_of=None):
+    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None, referer=None, referer_domain=None, referral_of=None, is_bot=False):
 
         if not nick:
             raise ValueError('Users must have nick')
@@ -28,6 +28,7 @@ class AccountManager(BaseUserManager):
                              active_end_at=active_end_at,
                              referer=referer,
                              referer_domain=referer_domain,
+                             is_bot=is_bot,
                              referral_of=referral_of)
         account.set_password(password)
         account.save(using=self._db)
@@ -66,6 +67,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     premium_expired_notification_send_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
     is_fast = models.BooleanField(default=True, db_index=True)
+    is_bot = models.BooleanField(default=False)
 
     # duplicate django user email - add unique constraints
     email = models.EmailField(max_length=MAX_EMAIL_LENGTH, null=True, unique=True, blank=True)
