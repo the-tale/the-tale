@@ -36,14 +36,18 @@ portal_settings = app_settings('PORTAL',
                                FIRST_EDITION_DATE=datetime.datetime(2012, 10, 29),
                                NEWS_ON_INDEX=3,
 
-                               SETTINGS_PREV_CLEANING_RUN_TIME_KEY = 'prev cleaning run time',
+                               SETTINGS_PREV_CLEANING_RUN_TIME_KEY='prev cleaning run time',
                                CLEANING_RUN_TIME=2, # UTC time
 
-                               SETTINGS_PREV_RATINGS_SYNC_TIME_KEY = 'prev ratings sync run time',
+                               SETTINGS_PREV_RATINGS_SYNC_TIME_KEY='prev ratings sync run time',
                                RATINGS_SYNC_DELAY=4*60*60, # UTC time
 
-                               SETTINGS_PREV_MIGHT_SYNC_TIME_KEY = 'prev might sync run time',
+                               SETTINGS_PREV_MIGHT_SYNC_TIME_KEY='prev might sync run time',
                                MIGHT_SYNC_DELAY=24*60*60, # UTC time
 
-                               ENABLE_WORKER_LONG_COMMANDS=True
-    )
+                               PREMIUM_DAYS_FOR_HERO_OF_THE_DAY=30,
+
+                               SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY = 'prev real day started',
+                               REAL_DAY_STARTED_TIME=8, # UTC hourse
+
+                               ENABLE_WORKER_LONG_COMMANDS=True  )

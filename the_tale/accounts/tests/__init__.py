@@ -10,5 +10,7 @@ from accounts.tests.requests_profile_tests import *
 from accounts.tests.requests_registration_tests import *
 from accounts.tests.requests_account_tests import *
 from accounts.tests.change_credentials_task_tests import *
+from accounts.tests.update_account_task_tests import *
 from accounts.tests.middleware_tests import *
 from accounts.tests.might_tests import *
+from accounts.tests.accounts_manager_tests import *

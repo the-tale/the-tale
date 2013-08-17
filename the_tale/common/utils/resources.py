@@ -21,7 +21,9 @@ class Resource(BaseResource):
 
         if self.account.is_authenticated() and self.account.is_update_active_state_needed:
             from accounts.workers.environment import workers_environment
-            workers_environment.accounts_manager.cmd_update_active_state(self.account.id)
+            workers_environment.accounts_manager.cmd_run_account_method(account_id=self.account.id,
+                                                                        method_name=AccountPrototype.update_active_state.__name__,
+                                                                        data={})
 
     @property
     def time(self):

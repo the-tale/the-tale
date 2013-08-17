@@ -71,17 +71,19 @@ class Worker(BaseWorker):
         task.process(self.logger)
         task.do_postsave_actions()
 
-    def cmd_update_active_state(self, account_id):
-        return self.send_cmd('update_active_state', {'account_id': account_id})
+    def cmd_run_account_method(self, account_id, method_name, data):
+        return self.send_cmd('run_account_method', {'account_id': account_id,
+                                                    'method_name': method_name,
+                                                    'data': data})
 
-    def process_update_active_state(self, account_id):
-        AccountPrototype.get_by_id(account_id).update_active_state()
-
-    def cmd_update_referrals_number(self, account_id):
-        return self.send_cmd('update_referrals_number', {'account_id': account_id})
-
-    def process_update_referrals_number(self, account_id):
-        AccountPrototype.update_referrals_number_for(account_id)
+    def process_run_account_method(self, account_id, method_name, data):
+        if account_id is not None:
+            account = AccountPrototype.get_by_id(account_id)
+            getattr(account, method_name)(**data)
+            account.save()
+        else:
+            # here we can process classmethods, if they appear in future
+            pass
 
     def cmd_stop(self):
         return self.send_cmd('stop')

@@ -6,24 +6,40 @@ from django.dispatch import receiver
 
 from dext.settings import settings
 
-from game import signals as game_signals
-
+from portal import signals as portal_signals
 from portal.conf import portal_settings
 
+from accounts.prototypes import AccountPrototype
+from accounts.workers.environment import workers_environment as accounts_workers_environment
+from accounts.personal_messages.prototypes import MessagePrototype
+from accounts.logic import get_system_user
 
-@receiver(game_signals.day_started, dispatch_uid='portal_day_started')
+
+@receiver(portal_signals.day_started, dispatch_uid='portal_day_started')
 def portal_day_started(sender, **kwargs): # pylint: disable=W0613
-    from game.heroes.prototypes import HeroPrototype
+    accounts_query = AccountPrototype.live_query().filter(active_end_at__gt=datetime.datetime.now(),
+                                                          ban_game_end_at__lt=datetime.datetime.now(),
+                                                          ban_forum_end_at__lt=datetime.datetime.now(),
+                                                          premium_end_at__lt=datetime.datetime.now())
 
-    heroes_query = HeroPrototype.live_query().filter(active_state_end_at__gt=datetime.datetime.now(), ban_state_end_at__lt=datetime.datetime.now())
-
-    heroes_number = heroes_query.count()
-
-    if heroes_number < 1:
+    accounts_number = accounts_query.count()
+    if accounts_number < 1:
         return
 
-    hero_model = heroes_query[random.randint(0, heroes_number-1)]
+    account_model = accounts_query[random.randint(0, accounts_number-1)]
 
-    hero = HeroPrototype(model=hero_model)
+    account = AccountPrototype(model=account_model)
 
-    settings[portal_settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY] = str(hero.account_id)
+    settings[portal_settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY] = str(account.id)
+
+    accounts_workers_environment.accounts_manager.cmd_run_account_method(account_id=account.id,
+                                                                         method_name=AccountPrototype.prolong_premium.__name__,
+                                                                         data={'days': portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY})
+
+    message = u'''
+Поздравляем!
+
+Ваш герой выбран героем дня и Вы получаете %(days)d дней подписки!
+''' % {'days': portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY}
+
+    MessagePrototype.create(get_system_user(), account, message)

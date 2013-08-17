@@ -127,3 +127,45 @@ class ChangeCredentials(PostponedLogic):
             main_task.comment = 'wrong task state %r' % self.state
             self.state = CHANGE_CREDENTIALS_STATE.WRONG_STATE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+
+class UPDATE_ACCOUNT_STATE(DjangoEnum):
+    _records = ( ('UNPROCESSED', 1, u'необработана'),
+                 ('PROCESSED', 2, u'обработана'),
+                 ('WRONG_STATE', 3, u'неверное состояние задачи'))
+
+
+class UpdateAccount(PostponedLogic):
+
+    TYPE = 'update-account'
+
+    def __init__(self, account_id, method, data, state=UPDATE_ACCOUNT_STATE.UNPROCESSED):
+        super(UpdateAccount, self).__init__()
+        self.account_id = account_id
+        self.method = method.__name__ if callable(method) else method
+        self.data = data
+        self.state = state if isinstance(state, rels.Record) else UPDATE_ACCOUNT_STATE._index_value[state]
+
+    def serialize(self):
+        return { 'state': self.state.value,
+                 'method': self.method,
+                 'data': self.data,
+                 'account_id': self.account_id}
+
+    @lazy_property
+    def account(self): return AccountPrototype.get_by_id(self.account_id)
+
+    @property
+    def error_message(self): return self.state.text
+
+    def process(self, main_task):
+        if self.state._is_UNPROCESSED:
+            getattr(self.account, self.method)(**self.data)
+            self.account.save()
+            self.state = UPDATE_ACCOUNT_STATE.PROCESSED
+            return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+        else:
+            main_task.comment = 'wrong task state %r' % self.state
+            self.state = UPDATE_ACCOUNT_STATE.WRONG_STATE
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR

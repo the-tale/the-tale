@@ -2,3 +2,4 @@
 
 from portal.tests.requests_tests import *
 from portal.tests.code_tests import *
+from portal.tests.signals_tests import *

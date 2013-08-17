@@ -62,9 +62,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         self._model_class.objects.filter(id=self.id).update(last_news_remind_time=current_time)
         self._model.last_news_remind_time = current_time
 
-    @classmethod
-    def update_referrals_number_for(cls, account_id):
-        cls._model_class.objects.filter(id=account_id).update(referrals_number=cls._model_class.objects.filter(referral_of_id=account_id, is_fast=False).count())
+    def update_referrals_number(self):
+        self._model.referrals_number = self._model_class.objects.filter(referral_of_id=self.id, is_fast=False).count()
 
     def update_settings(self, form):
         self._model_class.objects.filter(id=self.id).update(personal_messages_subscription=form.c.personal_messages_subscription)
@@ -183,7 +182,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
             HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
 
             if self.referral_of_id is not None:
-                workers_environment.accounts_manager.cmd_update_referrals_number(self.referral_of_id)
+                workers_environment.accounts_manager.cmd_run_account_method(account_id=self.referral_of_id,
+                                                                            method_name=self.update_referrals_number.__name__,
+                                                                            data={})
 
 
 

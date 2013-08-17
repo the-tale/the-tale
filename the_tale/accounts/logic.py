@@ -39,7 +39,11 @@ def get_system_user():
                                                            email=project_settings.EMAIL_NOREPLY,
                                                            password=generate_password(len_=accounts_settings.RESET_PASSWORD_LENGTH))
 
-    return AccountPrototype.get_by_id(account_id)
+    account = AccountPrototype.get_by_id(account_id)
+    account._model.active_end_at = datetime.datetime.fromtimestamp(0)
+    account.save()
+
+    return account
 
 
 def register_user(nick, email=None, password=None, referer=None, referral_of_id=None, is_bot=False):
