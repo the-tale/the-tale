@@ -43,20 +43,20 @@ class TestShowRequests(TestCase):
         hero_3 = HeroPrototype.get_by_account_id(account_id)
 
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        hero_1.preferences.set_place_id(self.place_1.id)
-        hero_1.preferences.set_friend_id(self.place_1.persons[0].id)
-        hero_1.preferences.set_enemy_id(self.place_1.persons[-1].id)
+        hero_1.preferences.set_place(self.place_1)
+        hero_1.preferences.set_friend(self.place_1.persons[0])
+        hero_1.preferences.set_enemy(self.place_1.persons[-1])
         hero_1.save()
 
         hero_2.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        hero_2.preferences.set_place_id(self.place_1.id)
-        hero_2.preferences.set_friend_id(self.place_1.persons[-1].id)
-        hero_2.preferences.set_enemy_id(self.place_1.persons[0].id)
+        hero_2.preferences.set_place(self.place_1)
+        hero_2.preferences.set_friend(self.place_1.persons[-1])
+        hero_2.preferences.set_enemy(self.place_1.persons[0])
         hero_2.save()
 
-        hero_3.preferences.set_place_id(self.place_1.id)
-        hero_3.preferences.set_friend_id(self.place_1.persons[-1].id)
-        hero_3.preferences.set_enemy_id(self.place_1.persons[0].id)
+        hero_3.preferences.set_place(self.place_1)
+        hero_3.preferences.set_friend(self.place_1.persons[-1])
+        hero_3.preferences.set_enemy(self.place_1.persons[0])
         hero_3.save()
 
         texts = [(jinja2.escape(hero_1.name), 3),

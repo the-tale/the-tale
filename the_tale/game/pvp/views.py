@@ -18,6 +18,7 @@ from game.workers.environment import workers_environment
 
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.models import Hero
+from game.heroes.relations import EQUIPMENT_SLOT
 
 from game.pvp.prototypes import Battle1x1Prototype
 from game.pvp.forms import SayForm
@@ -84,6 +85,7 @@ class PvPResource(Resource):
                               'clan': clan,
                               'enemy_clan': enemy_clan,
                               'battle': battle,
+                              'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
                               'ABILITIES': (Ice, Blood, Flame)} )
 
     @login_required

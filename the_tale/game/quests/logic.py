@@ -119,7 +119,7 @@ def get_knowlege_base(hero): # pylint: disable=R0912
 
     pref_equipment_slot = hero.preferences.equipment_slot
     if pref_equipment_slot:
-        base.add_special('hero_pref_equipment_slot', pref_equipment_slot)
+        base.add_special('hero_pref_equipment_slot', pref_equipment_slot.value)
 
     base.initialize()
 

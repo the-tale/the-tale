@@ -12,7 +12,7 @@
         {% if place.modifier %}{{ place.modifier.NAME }}{% endif %}
         {{ place.name }}
 
-        {% if hero and hero.preferences.place_id == place.id %}
+        {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}
         <span class="badge badge-success">родной город</span>
         {% endif %}
 
@@ -89,9 +89,9 @@
                   </td>
 
                   <th>
-                    {% if hero and hero.preferences.friend_id == person.id %}
+                    {% if hero and hero.preferences.friend and hero.preferences.friend.id == person.id %}
                     <span class="badge badge-success" rel="tooltip" title="соратник">{{ person.name }}</span>
-                    {% elif hero and hero.preferences.enemy_id == person.id %}
+                    {% elif hero and hero.preferences.enemy and hero.preferences.enemy_id == person.id %}
                     <span class="badge badge-important" rel="tooltip" title="противник">{{ person.name }}</span>
                     {% else %}
                     {{ person.name }}

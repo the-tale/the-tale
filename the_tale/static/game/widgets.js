@@ -747,7 +747,7 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
     function RenderEquipment() {
         jQuery('.pgf-power-container', selector).toggleClass('pgf-hidden', true);
         for (var slot in data) {
-            RenderArtifact(jQuery('.pgf-'+slot, selector), data[slot]);
+            RenderArtifact(jQuery('.pgf-slot-'+slot, selector), data[slot]);
         }
     }
 

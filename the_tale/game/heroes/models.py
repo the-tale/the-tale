@@ -85,24 +85,7 @@ class Hero(models.Model):
     pos_to_x = models.IntegerField(null=True, blank=True, default=None)
     pos_to_y = models.IntegerField(null=True, blank=True, default=None)
 
-    #character
-    pref_energy_regeneration_type = models.IntegerField(null=False, default=ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=ANGEL_ENERGY_REGENERATION_TYPES._CHOICES, blank=True)
-    pref_energy_regeneration_type_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
-
-    pref_mob = models.ForeignKey('mobs.MobRecord', null=True, default=None, blank=True, on_delete=models.PROTECT)
-    pref_mob_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
-
-    pref_place = models.ForeignKey('places.Place', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
-    pref_place_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
-
-    pref_friend = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
-    pref_friend_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
-
-    pref_enemy = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
-    pref_enemy_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
-
-    pref_equipment_slot = models.CharField(max_length=16, null=True, default=None, blank=True)
-    pref_equipment_slot_changed_at = models.DateTimeField(default=datetime.datetime(2000, 1, 1))
+    preferences = models.TextField(null=False, default='{}')
 
     #statistics
     stat_pve_deaths = models.BigIntegerField(default=0, null=False)
@@ -131,3 +114,16 @@ class Hero(models.Model):
 
     def __unicode__(self):
         return u'hero[%d] - %s' % (self.id, self.name)
+
+
+# just copy for different statistics
+class HeroPreferences(models.Model):
+
+    hero = models.ForeignKey(Hero, on_delete=models.CASCADE)
+
+    energy_regeneration_type = models.IntegerField(null=False, default=ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=ANGEL_ENERGY_REGENERATION_TYPES._CHOICES, blank=True)
+    mob = models.ForeignKey('mobs.MobRecord', null=True, default=None, blank=True, on_delete=models.PROTECT)
+    place = models.ForeignKey('places.Place', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
+    friend = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
+    enemy = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
+    equipment_slot = models.IntegerField(null=True, default=None, blank=True)

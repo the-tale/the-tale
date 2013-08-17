@@ -6,14 +6,13 @@ from accounts.logic import register_user
 from game.heroes.prototypes import HeroPrototype
 from game.logic_storage import LogicStorage
 
-from game.heroes.bag import SLOTS
+from game.heroes.relations import EQUIPMENT_SLOT
 from game.logic import create_test_map
 from game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradingPrototype, ActionEquippingPrototype, ActionRegenerateEnergyPrototype
 from game.artifacts.storage import artifacts_storage
 from game.prototypes import TimePrototype
 
 from game.balance import constants as c, formulas as f, enums as e
-
 
 class InPlaceActionTest(testcase.TestCase):
 
@@ -66,7 +65,7 @@ class InPlaceActionTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_regenerate_energy_action_create(self):
-        self.hero.preferences.energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY
+        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY)
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.storage.process_turn()
@@ -75,7 +74,7 @@ class InPlaceActionTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
-        self.hero.preferences.energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
+        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE)
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.storage.process_turn()
@@ -182,7 +181,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         #unequip all arefact
         self.hero.equipment.test_remove_all()
-        self.hero.preferences.equipment_slot = SLOTS.PLATE
+        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
         #buy artifact
@@ -196,7 +195,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
 
         # hero must not buy artifact in preferences slot, he has special quest for this
-        self.assertEqual(self.hero.equipment.get(SLOTS.PLATE), None)
+        self.assertEqual(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE), None)
         self.storage._test_save()
 
 
@@ -273,19 +272,19 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending._is_SHARPENING_ARTIFACT:
             self.hero.switch_spending()
 
-        self.hero.preferences.equipment_slot = SLOTS.PLATE
+        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
         money = self._current_spending_cost()
 
         old_power = self.hero.power
-        old_plate_power = self.hero.equipment.get(SLOTS.PLATE).power
+        old_plate_power = self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).power
 
         self.hero._model.money = money
         self.storage.process_turn()
         self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
         self.assertEqual(old_power + 1, self.hero.power)
-        self.assertEqual(old_plate_power + 1, self.hero.equipment.get(SLOTS.PLATE).power)
+        self.assertEqual(old_plate_power + 1, self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).power)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)

@@ -1,10 +1,11 @@
 
 
-{% macro preference_record(item, choosen_id) %}
+{% macro preference_record(item, choosen) %}
 
 <tr>
-  <td class="hero-preference-choise {% if item.id == choosen_id %}choosen{% endif %}">
-    {% if item.id not in (resource.hero.preferences.friend_id, resource.hero.preferences.enemy_id) %}
+  <td class="hero-preference-choise {% if choosen and item.id == choosen.id %}choosen{% endif %}">
+    {% if item.id not in (resource.hero.preferences.friend.id if resource.hero.preferences.friend else -1,
+                          resource.hero.preferences.enemy.id if resource.hero.preferences.enemy else -1) %}
     <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.id }}">{{ item.name }}</a>
     <small>{{item.race_verbose}}-{{item.type.text}}</small>
     {% else %}
@@ -26,11 +27,11 @@
   {% endif %}
 </p>
 
-{% if resource.hero.preferences.friend_id is not none %}
+{% if resource.hero.preferences.friend is not none %}
 <label><strong>ваш соратник:</strong> {{ resource.hero.preferences.friend.name }}, город {{resource.hero.preferences.friend.place.name}}</label>
 {% endif %}
 
-{% if resource.hero.preferences.enemy_id is not none %}
+{% if resource.hero.preferences.enemy is not none %}
 <label><strong>ваш противник:</strong> {{ resource.hero.preferences.enemy.name }}, город {{resource.hero.preferences.enemy.place.name}}</label>
 {% endif %}
 
@@ -39,7 +40,7 @@
 <select id="pgf-places-selector">
   {% for place_id, place in all_places.items() %}
   <option value="{{place_id}}"
-          {% if person_place_id == place_id %}selected='selected'
+          {% if choosen_person_place_id == place_id %}selected='selected'
           {% endif %}>
     {{place.name}}
   </option>
@@ -54,7 +55,7 @@
   <tbody>
     {% for person in persons %}
     {% if person.place_id == place_id %}
-    {{ preference_record(person, person_id) }}
+    {{ preference_record(person, choosen_person) }}
     {% endif %}
     {% endfor %}
   </tbody>

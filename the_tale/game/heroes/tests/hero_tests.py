@@ -19,11 +19,10 @@ from game.balance import formulas as f, constants as c
 from game.logic_storage import LogicStorage
 from game.quests.quests_builders import SearchSmith
 
-from game.heroes.bag import ARTIFACT_TYPE_TO_SLOT, SLOTS
-from game.heroes.prototypes import HeroPrototype
+from game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 from game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle
 from game.heroes.conf import heroes_settings
-from game.heroes.relations import PREFERENCE_TYPE
+from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT
 
 
 class HeroTest(TestCase):
@@ -45,6 +44,9 @@ class HeroTest(TestCase):
         self.assertTrue(self.hero.is_alive)
         self.assertEqual(self.hero.created_at_turn, TimePrototype.get_current_time().turn_number)
         self.assertEqual(self.hero.abilities.get('hit').level, 1)
+        self.assertEqual(HeroPreferencesPrototype._db_count(), 1)
+        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).energy_regeneration_type, self.hero.preferences.energy_regeneration_type)
+
 
     def test_is_premium(self):
         self.assertFalse(self.hero.is_premium)
@@ -160,9 +162,9 @@ class HeroTest(TestCase):
         friend = self.place_1.persons[0]
         enemy = self.place_2.persons[0]
 
-        self.hero.preferences.place_id = self.place_1.id
-        self.hero.preferences.friend_id = friend.id
-        self.hero.preferences.enemy_id = enemy.id
+        self.hero.preferences.set_place(self.place_1)
+        self.hero.preferences.set_friend(friend)
+        self.hero.preferences.set_enemy(enemy)
 
         self.assertEqual(self.hero.modify_person_power(self.place_3.persons[0], 100), 100)
         self.assertTrue(self.hero.modify_person_power(enemy, 100) > 100)
@@ -494,16 +496,16 @@ class HeroGetSpecialQuestsTest(TestCase):
 
     def test_special_quests_searchsmith_with_preferences_without_artifact(self):
         self.hero.equipment.test_remove_all()
-        self.hero.preferences.equipment_slot = SLOTS.PLATE
+        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
         self.assertTrue(SearchSmith.type() in self.hero.get_special_quests())
 
     def test_special_quests_searchsmith_with_preferences_with_artifact(self):
-        self.hero.preferences.equipment_slot = SLOTS.PLATE
+        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
-        self.assertTrue(self.hero.equipment.get(SLOTS.PLATE) is not None)
+        self.assertTrue(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE) is not None)
         self.assertTrue(SearchSmith.type() in self.hero.get_special_quests())
 
 
@@ -543,7 +545,7 @@ class HeroEquipmentTests(TestCase):
         self.assertTrue(self.hero.equipment.updated)
 
     def test_sharp_preferences(self):
-        self.hero.preferences.equipment_slot = SLOTS.HAND_PRIMARY
+        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.HAND_PRIMARY)
 
         artifact = self.hero.sharp_artifact()
         self.assertTrue(artifact.type.is_main_hand)
@@ -552,9 +554,9 @@ class HeroEquipmentTests(TestCase):
     def test_sharp_preferences_with_max_power(self):
         min_power, max_power = f.power_to_artifact_interval(self.hero.level)
 
-        self.hero.preferences.equipment_slot = SLOTS.HAND_PRIMARY
+        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.HAND_PRIMARY)
 
-        artifact = self.hero.equipment.get(SLOTS.HAND_PRIMARY)
+        artifact = self.hero.equipment.get(EQUIPMENT_SLOT.HAND_PRIMARY)
         artifact.power = max_power
 
         artifact = self.hero.sharp_artifact()
@@ -574,7 +576,7 @@ class HeroEquipmentTests(TestCase):
         #equip artefact in empty slot
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
 
-        equip_slot = ARTIFACT_TYPE_TO_SLOT[artifact.type.value]
+        equip_slot = EQUIPMENT_SLOT._index_artifact_type[artifact.type.value]
         self.hero.equipment.unequip(equip_slot)
 
         self.hero.bag.put_artifact(artifact)

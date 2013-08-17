@@ -3,17 +3,20 @@
 from rels import Column
 from rels.django_staff import DjangoEnum
 
+from game.artifacts.models import ARTIFACT_TYPE
+
 from game.heroes.statistics import MONEY_SOURCE
 
 class PREFERENCE_TYPE(DjangoEnum):
     level_required = Column()
+    base_name = Column()
 
-    _records = ( ('MOB', 0, u'любимая добыча', 7),
-                 ('PLACE', 1, u'родной город', 3),
-                 ('FRIEND', 2, u'соратник', 11),
-                 ('ENEMY', 3, u'враг', 16),
-                 ('ENERGY_REGENERATION_TYPE', 4, u'религиозность', 1),
-                 ('EQUIPMENT_SLOT', 5, u'экипировка', 21) )
+    _records = ( ('MOB', 0, u'любимая добыча', 7, 'mob'),
+                 ('PLACE', 1, u'родной город', 3, 'place'),
+                 ('FRIEND', 2, u'соратник', 11, 'friend'),
+                 ('ENEMY', 3, u'враг', 16, 'enemy'),
+                 ('ENERGY_REGENERATION_TYPE', 4, u'религиозность', 1, 'energy_regeneration_type'),
+                 ('EQUIPMENT_SLOT', 5, u'экипировка', 21, 'equipment_slot') )
 
 
 class ITEMS_OF_EXPENDITURE(DjangoEnum):
@@ -28,3 +31,20 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
                  ('USELESS',             3, u'бесполезные траты', 'useless',    2,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS),
                  ('IMPACT',              4, u'изменение влияния', 'impact',     4,  2.5, MONEY_SOURCE.SPEND_FOR_IMPACT),
                  ('EXPERIENCE',          5, u'обучение',          'experience', 1,  5.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE))
+
+
+
+class EQUIPMENT_SLOT(DjangoEnum):
+    artifact_type = Column()
+
+    _records = ( ('HAND_PRIMARY', 0, u'основная рука', ARTIFACT_TYPE.MAIN_HAND),
+                 ('HAND_SECONDARY', 1, u'вспомогательная рука', ARTIFACT_TYPE.OFF_HAND),
+                 ('HELMET', 2, u'шлем', ARTIFACT_TYPE.HELMET),
+                 ('SHOULDERS', 3, u'наплечники', ARTIFACT_TYPE.SHOULDERS),
+                 ('PLATE', 4, u'доспех', ARTIFACT_TYPE.PLATE),
+                 ('GLOVES', 5, u'перчатки', ARTIFACT_TYPE.GLOVES),
+                 ('CLOAK', 6, u'плащ', ARTIFACT_TYPE.CLOAK),
+                 ('PANTS', 7, u'штаны', ARTIFACT_TYPE.PANTS),
+                 ('BOOTS', 8, u'сапоги', ARTIFACT_TYPE.BOOTS),
+                 ('AMULET', 9, u'амулет', ARTIFACT_TYPE.AMULET),
+                 ('RING', 10, u'кольцо', ARTIFACT_TYPE.RING) )

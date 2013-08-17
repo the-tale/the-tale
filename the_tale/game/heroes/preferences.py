@@ -1,6 +1,10 @@
 # coding: utf-8
-
+import time
 import datetime
+
+import rels
+
+from common.utils.prototypes import BasePrototype
 
 from game.balance import constants as c, enums as e
 
@@ -10,14 +14,86 @@ from game.map.places.storage import places_storage
 
 from game.persons.storage import persons_storage
 
-from game.heroes.bag import SLOTS
 from game.heroes.exceptions import WrongPreferenceTypeError
+from game.heroes.relations import EQUIPMENT_SLOT, PREFERENCE_TYPE
+from game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
+
+
+class _PreferencesMetaclass(type):
+
+    @classmethod
+    def create_preference_getter(cls, preference):
+
+        def getter(self):
+            return self._get(preference)
+        getter.__name__ = preference.base_name
+
+        return getter
+
+    @classmethod
+    def create_preference_setter(cls, preference):
+
+        def setter(self, value, change_time=None):
+            return self._set(preference, value, change_time=change_time)
+        setter.__name__ = 'set_%s' % preference.base_name
+
+        return setter
+
+    @classmethod
+    def create_preference_reseter(cls, preference):
+
+        def reseter(self):
+            return self._reset(preference)
+        reseter.__name__ = 'reset_%s' % preference.base_name
+
+        return reseter
+
+
+    @classmethod
+    def create_preference_changed_at_getter(cls, preference):
+
+        def getter(self):
+            return self._get_changed_at(preference)
+        getter.__name__ = '%s_changed_at' % preference.base_name
+
+        return getter
+
+
+    def __new__(mcs, name, bases, attributes):
+
+        for preference in PREFERENCE_TYPE._records:
+            getter = mcs.create_preference_getter(preference)
+            attributes[getter.__name__] = property(getter)
+
+            getter = mcs.create_preference_changed_at_getter(preference)
+            attributes[getter.__name__] = property(getter)
+
+            setter = mcs.create_preference_setter(preference)
+            attributes[setter.__name__] = setter
+
+            reseter = mcs.create_preference_reseter(preference)
+            attributes[reseter.__name__] = reseter
+
+        return super(_PreferencesMetaclass, mcs).__new__(mcs, name, bases, attributes)
 
 
 class HeroPreferences(object):
 
-    def __init__(self, hero_model):
-        self.hero_model = hero_model
+    __metaclass__ = _PreferencesMetaclass
+
+    def __init__(self, hero_id):
+        self.data = {}
+        self.updated = False
+        self.hero_id = hero_id
+
+    def serialize(self):
+        return self.data
+
+    @classmethod
+    def deserialize(cls, hero_id, data):
+        obj = cls(hero_id=hero_id)
+        obj.data = data
+        return obj
 
     def can_update(self, preferences_type, current_time):
         return self.time_before_update(preferences_type, current_time).total_seconds() == 0
@@ -35,125 +111,111 @@ class HeroPreferences(object):
 
         raise WrongPreferenceTypeError(preference_type=preferences_type)
 
-    # energy_regeneration_type
-    def get_energy_regeneration_type(self): return self.hero_model.pref_energy_regeneration_type
-    def set_energy_regeneration_type(self, value): self.hero_model.pref_energy_regeneration_type = value
-    energy_regeneration_type = property(get_energy_regeneration_type, set_energy_regeneration_type)
+    def _prepair_value_prototype(self, value):
+        return value.id if value is not None else None
+
+    def _prepair_value_record(self, value):
+        return value.value if value is not None else None
+
+    def value_to_set(self, value):
+        if isinstance(value, BasePrototype):
+            return self._prepair_value_prototype(value)
+        if isinstance(value, rels.Record):
+            return self._prepair_value_record(value)
+        return value
+
+    def _set(self, preferences_type, value, change_time=None):
+        self.updated = True
+
+        if change_time is None:
+            change_time = datetime.datetime.now()
+
+        value = self.value_to_set(value)
+
+        self.data[preferences_type.base_name] = {'value': value,
+                                                 'changed_at': time.mktime(change_time.timetuple())}
+        HeroPreferencesPrototype.update(self.hero_id, preferences_type.base_name, value)
+
+    def _reset(self, preferences_type):
+        self._set(preferences_type, None, change_time=datetime.datetime.fromtimestamp(0))
+
+    def _prepair_mob(self, mob_id):
+        mob = mobs_storage.get(mob_id)
+
+        if mob and not mob.state.is_enabled:
+            self.set_mob(None, change_time=datetime.datetime.fromtimestamp(0))
+            return None
+
+        return mob
+
+    def _prepair_place(self, place_id): return places_storage.get(place_id)
+
+    def _prepair_person(self, person_id): return persons_storage.get(person_id)
+
+    def _prepair_equipment_slot(self, slot_id):
+        if slot_id is None: return None
+        return EQUIPMENT_SLOT._index_value.get(int(slot_id))
+
+    def _get(self, preferences_type):
+        if preferences_type.base_name not in self.data:
+            return None
+
+        value = self.data[preferences_type.base_name]['value']
+
+        if preferences_type._is_ENERGY_REGENERATION_TYPE:
+            return value
+        if preferences_type._is_MOB:
+            return self._prepair_mob(value)
+        if preferences_type._is_PLACE:
+            return self._prepair_place(value)
+        if preferences_type._is_FRIEND:
+            return self._prepair_person(value)
+        if preferences_type._is_ENEMY:
+            return self._prepair_person(value)
+        if preferences_type._is_EQUIPMENT_SLOT:
+            return self._prepair_equipment_slot(value)
+
+    def _get_changed_at(self, preferences_type, default=datetime.datetime.fromtimestamp(0)):
+        if preferences_type.base_name not in self.data:
+            return default
+        return datetime.datetime.fromtimestamp(self.data[preferences_type.base_name]['changed_at'])
 
     @property
     def energy_regeneration_type_name(self):
         return e.ANGEL_ENERGY_REGENERATION_TYPES._ID_TO_TEXT[self.energy_regeneration_type]
 
-    def get_energy_regeneration_type_changed_at(self): return self.hero_model.pref_energy_regeneration_type_changed_at
-    def set_energy_regeneration_type_changed_at(self, value): self.hero_model.pref_energy_regeneration_type_changed_at = value
-    energy_regeneration_type_changed_at = property(get_energy_regeneration_type_changed_at, set_energy_regeneration_type_changed_at)
-
-    def get_mob(self):
-        if self.hero_model.pref_mob_id is None:
-            return None
-        mob = mobs_storage[self.hero_model.pref_mob_id]
-
-        if not mob.state.is_enabled:
-            # if mob is disabled, we reset its value, so when hero save in logic, new preferences will appear in gui
-            self.hero_model.pref_mob = None
-            self.hero_model.pref_mob_changed_at = datetime.datetime(2000, 1, 1)
-            return None
-
-        return mob
-    def set_mob(self, value):
-        self.hero_model.pref_mob = value._model if value is not None else None
-    mob = property(get_mob, set_mob)
-
-    def get_mob_changed_at(self): return self.hero_model.pref_mob_changed_at
-    def set_mob_changed_at(self, value): self.hero_model.pref_mob_changed_at = value
-    mob_changed_at = property(get_mob_changed_at, set_mob_changed_at)
-
-
-    # place
-    def get_place_id(self): return self.hero_model.pref_place_id
-    def set_place_id(self, value): self.hero_model.pref_place_id = value
-    place_id = property(get_place_id, set_place_id)
-
-    @property
-    def place(self): return places_storage.get(self.hero_model.pref_place_id)
-
-    def get_place_changed_at(self): return self.hero_model.pref_place_changed_at
-    def set_place_changed_at(self, value): self.hero_model.pref_place_changed_at = value
-    place_changed_at = property(get_place_changed_at, set_place_changed_at)
-
-
-    # friend
-    def get_friend_id(self): return self.hero_model.pref_friend_id
-    def set_friend_id(self, value): self.hero_model.pref_friend_id = value
-    friend_id = property(get_friend_id, set_friend_id)
-
-    @property
-    def friend(self): return persons_storage[self.hero_model.pref_friend_id] if self.hero_model.pref_friend_id else None
-
-    def get_friend_changed_at(self): return self.hero_model.pref_friend_changed_at
-    def set_friend_changed_at(self, value): self.hero_model.pref_friend_changed_at = value
-    friend_changed_at = property(get_friend_changed_at, set_friend_changed_at)
-
-    # enemy
-    def get_enemy_id(self): return self.hero_model.pref_enemy_id
-    def set_enemy_id(self, value): self.hero_model.pref_enemy_id = value
-    enemy_id = property(get_enemy_id, set_enemy_id)
-
-    @property
-    def enemy(self): return persons_storage[self.hero_model.pref_enemy_id] if self.hero_model.pref_enemy_id else None
-
-    def get_enemy_changed_at(self): return self.hero_model.pref_enemy_changed_at
-    def set_enemy_changed_at(self, value): self.hero_model.pref_enemy_changed_at = value
-    enemy_changed_at = property(get_enemy_changed_at, set_enemy_changed_at)
-
-    # equipment_slot
-    def get_equipment_slot(self):
-        if not self.hero_model.pref_equipment_slot:
-            return None
-        return self.hero_model.pref_equipment_slot
-    def set_equipment_slot(self, value): self.hero_model.pref_equipment_slot = value
-    equipment_slot = property(get_equipment_slot, set_equipment_slot)
-
-    def get_equipment_slot_changed_at(self): return self.hero_model.pref_equipment_slot_changed_at
-    def set_equipment_slot_changed_at(self, value): self.hero_model.pref_equipment_slot_changed_at = value
-    equipment_slot_changed_at = property(get_equipment_slot_changed_at, set_equipment_slot_changed_at)
-
-    @property
-    def equipment_slot_name(self):
-        return SLOTS._ID_TO_TEXT[self.equipment_slot]
-
-
     # helpers
 
     @classmethod
+    def _preferences_query(cls):
+        current_time = datetime.datetime.now()
+        return HeroPreferencesPrototype._model_class.objects.filter(hero__ban_state_end_at__lt=current_time, hero__premium_state_end_at__gte=current_time)
+
+    @classmethod
     def _heroes_query(cls):
-        from game.heroes.prototypes import HeroPrototype
         current_time = datetime.datetime.now()
         return HeroPrototype._model_class.objects.filter(ban_state_end_at__lt=current_time, premium_state_end_at__gte=current_time)
 
     @classmethod
     def count_friends_of(cls, person):
-        return cls._heroes_query().filter(pref_friend_id=person.id).count()
+        return cls._preferences_query().filter(friend_id=person.id).count()
 
     @classmethod
     def count_enemies_of(cls, person):
-        return cls._heroes_query().filter(pref_enemy_id=person.id).count()
+        return cls._preferences_query().filter(enemy_id=person.id).count()
 
     @classmethod
     def count_citizens_of(cls, place):
-        return cls._heroes_query().filter(pref_place_id=place.id).count()
+        return cls._preferences_query().filter(place_id=place.id).count()
 
     @classmethod
     def get_friends_of(cls, person):
-        from game.heroes.prototypes import HeroPrototype
-        return [HeroPrototype(model=record) for record in cls._heroes_query().filter(pref_friend_id=person.id)]
+        return [HeroPrototype(model=record) for record in cls._heroes_query().filter(heropreferences__friend_id=person.id)]
 
     @classmethod
     def get_enemies_of(cls, person):
-        from game.heroes.prototypes import HeroPrototype
-        return [HeroPrototype(model=record) for record in cls._heroes_query().filter(pref_enemy_id=person.id)]
+        return [HeroPrototype(model=record) for record in cls._heroes_query().filter(heropreferences__enemy_id=person.id)]
 
     @classmethod
     def get_citizens_of(cls, place):
-        from game.heroes.prototypes import HeroPrototype
-        return [HeroPrototype(model=record) for record in cls._heroes_query().filter(pref_place_id=place.id)]
+        return [HeroPrototype(model=record) for record in cls._heroes_query().filter(heropreferences__place_id=place.id)]

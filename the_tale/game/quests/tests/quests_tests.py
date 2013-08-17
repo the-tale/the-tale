@@ -3,7 +3,7 @@ import mock
 
 from common.utils import testcase
 
-from game.heroes.bag import SLOTS
+from game.heroes.relations import EQUIPMENT_SLOT
 from game.persons.relations import PERSON_TYPE
 from game.persons.storage import persons_storage
 
@@ -40,11 +40,11 @@ class QuestsTest(testcase.TestCase):
         self.action_idl = self.hero.actions.current_action
 
         self.hero._model.money += 1
-        self.hero.preferences.mob = mobs_storage.all()[0]
-        self.hero.preferences.set_place_id(p1.id)
-        self.hero.preferences.set_friend_id(p1.persons[0].id)
-        self.hero.preferences.set_enemy_id(p2.persons[0].id)
-        self.hero.preferences.set_equipment_slot(SLOTS.PLATE)
+        self.hero.preferences.set_mob(mobs_storage.all()[0])
+        self.hero.preferences.set_place(p1)
+        self.hero.preferences.set_friend(p1.persons[0])
+        self.hero.preferences.set_enemy(p2.persons[0])
+        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
         persons_storage.all()[0]._model.type = PERSON_TYPE.BLACKSMITH

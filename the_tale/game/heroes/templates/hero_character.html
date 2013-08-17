@@ -128,7 +128,7 @@ jQuery(document).ready(function(e){
     {% set pref_place = resource.hero.preferences.place and resource.hero.preferences.place.name %}
     {% set pref_friend = resource.hero.preferences.friend and resource.hero.preferences.friend.name %}
     {% set pref_enemy = resource.hero.preferences.enemy and resource.hero.preferences.enemy.name %}
-    {% set pref_equipment_slot = resource.hero.preferences.equipment_slot and resource.hero.preferences.equipment_slot_name %}
+    {% set pref_equipment_slot = resource.hero.preferences.equipment_slot and resource.hero.preferences.equipment_slot.text %}
 
     {% set current_time = now() %}
 

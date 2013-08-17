@@ -3,7 +3,6 @@ import math
 import datetime
 import time
 import random
-import copy
 
 from textgen.words import Noun
 
@@ -33,10 +32,8 @@ from game.prototypes import TimePrototype
 
 from game.actions.container import ActionsContainer
 
-from game.heroes.bag import ARTIFACT_TYPE_TO_SLOT, SLOTS, SLOT_TO_ARTIFACT_TYPE
 from game.heroes.statistics import HeroStatistics, MONEY_SOURCE
-from game.heroes.preferences import HeroPreferences
-from game.heroes.models import Hero
+from game.heroes.models import Hero, HeroPreferences
 from game.heroes.habilities import AbilitiesPrototype, ABILITY_TYPE
 from game.heroes.conf import heroes_settings
 from game.heroes.exceptions import HeroException
@@ -44,7 +41,7 @@ from game.heroes.logic import ValuesDict
 from game.heroes.pvp import PvPData
 from game.heroes.messages import MessagesContainer
 from game.heroes.places_help_statistics import PlacesHelpStatistics
-from game.heroes.relations import ITEMS_OF_EXPENDITURE
+from game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT
 
 
 class HeroPrototype(BasePrototype):
@@ -228,11 +225,11 @@ class HeroPrototype(BasePrototype):
 
         if self.preferences.mob is not None:
             allowed_quests.append(Hunt.type())
-        if self.preferences.place_id is not None:
+        if self.preferences.place is not None:
             allowed_quests.append(Hometown.type())
-        if self.preferences.friend_id is not None:
+        if self.preferences.friend is not None:
             allowed_quests.append(HelpFriend.type())
-        if self.preferences.enemy_id is not None:
+        if self.preferences.enemy is not None:
             allowed_quests.append(InterfereEnemy.type())
         if self.preferences.equipment_slot is not None:
             equipped_artifact = self.equipment.get(self.preferences.equipment_slot)
@@ -273,10 +270,10 @@ class HeroPrototype(BasePrototype):
         artifacts_list = None
         if self.preferences.equipment_slot is not None:
             if with_preferences:
-                artifact_types = [SLOT_TO_ARTIFACT_TYPE[self.preferences.equipment_slot]]
+                artifact_types = [self.preferences.equipment_slot.artifact_type]
             else:
-                artifact_types = set(SLOT_TO_ARTIFACT_TYPE.values())
-                artifact_types -= set([SLOT_TO_ARTIFACT_TYPE[self.preferences.equipment_slot]])
+                artifact_types = set(zip(*EQUIPMENT_SLOT._select('artifact_type'))[0])
+                artifact_types -= set([self.preferences.equipment_slot.artifact_type])
 
             artifacts_list = artifacts_storage.artifacts_for_type(artifact_types)
 
@@ -294,7 +291,7 @@ class HeroPrototype(BasePrototype):
         if not equip:
             return artifact, None, None
 
-        slot = ARTIFACT_TYPE_TO_SLOT[artifact.type.value]
+        slot = EQUIPMENT_SLOT._index_artifact_type[artifact.type.value]
         unequipped = self.equipment.get(slot)
 
         if better and unequipped is not None and artifact.power < unequipped.power:
@@ -347,7 +344,7 @@ class HeroPrototype(BasePrototype):
 
 
     def sharp_artifact(self):
-        choices = copy.copy(SLOTS._ALL)
+        choices = list(EQUIPMENT_SLOT._records)
         random.shuffle(choices)
 
         if self.preferences.equipment_slot is not None:
@@ -382,7 +379,7 @@ class HeroPrototype(BasePrototype):
             if not artifact.can_be_equipped:
                 continue
 
-            slot = ARTIFACT_TYPE_TO_SLOT[artifact.type.value]
+            slot = EQUIPMENT_SLOT._index_artifact_type[artifact.type.value]
 
             equipped_artifact = self.equipment.get(slot)
 
@@ -482,18 +479,17 @@ class HeroPrototype(BasePrototype):
     def might_pvp_effectiveness_bonus(self): return f.might_pvp_effectiveness_bonus(self.might)
 
     def on_highlevel_data_updated(self):
-        if self.preferences.friend_id is not None and self.preferences.friend.out_game:
-            self.preferences.friend_id = None
-            self.preferences.friend_changed_at = datetime.datetime(2000, 1, 1)
+        if self.preferences.friend is not None and self.preferences.friend.out_game:
+            self.preferences.reset_friend()
 
-        if self.preferences.enemy_id is not None and self.preferences.enemy.out_game:
-            self.preferences.enemy_id = None
-            self.preferences.enemy_changed_at = datetime.datetime(2000, 1, 1)
+        if self.preferences.enemy is not None and self.preferences.enemy.out_game:
+            self.preferences.reset_enemy()
 
     def modify_person_power(self, person, power):
-        if person.id in (self.preferences.friend_id, self.preferences.enemy_id):
+        if person.id in (self.preferences.friend.id if self.preferences.friend else None,
+                         self.preferences.enemy.id if self.preferences.enemy else None):
             power *= c.HERO_POWER_PREFERENCE_MULTIPLIER
-        if person.place_id == self.preferences.place_id:
+        if self.preferences.place and person.place_id == self.preferences.place.id:
             power *= c.HERO_POWER_PREFERENCE_MULTIPLIER
         return int(power)
 
@@ -577,7 +573,13 @@ class HeroPrototype(BasePrototype):
     def statistics(self): return HeroStatistics(hero_model=self._model)
 
     @lazy_property
-    def preferences(self): return HeroPreferences(hero_model=self._model)
+    def preferences(self):
+        from game.heroes.preferences import HeroPreferences
+
+        preferences = HeroPreferences.deserialize(hero_id=self.id, data=s11n.from_json(self._model.preferences))
+        if preferences.energy_regeneration_type is None:
+            preferences.set_energy_regeneration_type(RACE_TO_ENERGY_REGENERATION_TYPE[self.race], change_time=datetime.datetime.fromtimestamp(0))
+        return preferences
 
     @lazy_property
     def actions(self): return ActionsContainer.deserialize(self, s11n.from_json(self._model.actions))
@@ -666,6 +668,10 @@ class HeroPrototype(BasePrototype):
             self._model.pvp = s11n.to_json(self.pvp.serialize())
             self.pvp.updated = False
 
+        if self.preferences.updated:
+            self._model.preferences = s11n.to_json(self.preferences.serialize())
+            self.preferences.updated = False
+
         database.raw_save(self._model)
 
         self.force_save_required = False
@@ -675,10 +681,10 @@ class HeroPrototype(BasePrototype):
         self.abilities.reset()
 
     def randomize_equip(self):
-        for slot in SLOTS._ALL:
+        for slot in EQUIPMENT_SLOT._records:
             self.equipment.unequip(slot)
 
-            artifacts_list = artifacts_storage.artifacts_for_type([SLOT_TO_ARTIFACT_TYPE[slot]])
+            artifacts_list = artifacts_storage.artifacts_for_type([slot.artifact_type])
             if not artifacts_list:
                 continue
 
@@ -814,8 +820,6 @@ class HeroPrototype(BasePrototype):
 
         current_turn_number = TimePrototype.get_current_turn_number()
 
-        energy_regeneration_type = RACE_TO_ENERGY_REGENERATION_TYPE[race]
-
         name = names.generator.get_name(race, gender)
 
         messages = MessagesContainer()
@@ -840,7 +844,6 @@ class HeroPrototype(BasePrototype):
                                    race=race,
                                    is_fast=account.is_fast,
                                    is_bot=account.is_bot,
-                                   pref_energy_regeneration_type=energy_regeneration_type,
                                    abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
                                    messages=s11n.to_json(messages.serialize()),
                                    diary=s11n.to_json(diary.serialize()),
@@ -851,6 +854,8 @@ class HeroPrototype(BasePrototype):
                                    pos_place = start_place._model)
 
         hero = cls(model=hero)
+
+        HeroPreferencesPrototype.create(hero, hero.preferences.energy_regeneration_type)
 
         storage = LogicStorage() # tmp storage for creating Idleness action
 
@@ -1054,3 +1059,29 @@ class HeroPositionPrototype(object):
                  self.invert_direction == other.invert_direction and
                  self.coordinates_from == other.coordinates_from and
                  self.coordinates_to == other.coordinates_to)
+
+
+class HeroPreferencesPrototype(BasePrototype):
+    _model_class = HeroPreferences
+    _readonly = ('id',
+                 'hero_id',
+                 'energy_regeneration_type',
+                 'mob_id',
+                 'place_id',
+                 'friend_id',
+                 'enemy_id',
+                 'equipment_slot')
+    _bidirectional = ()
+    _get_by = ('id', 'hero_id')
+
+    def __init__(self, **kwargs):
+        super(HeroPreferencesPrototype, self).__init__(**kwargs)
+
+    @classmethod
+    def create(cls, hero, energy_regeneration_type):
+        return cls(model=cls._model_class.objects.create(hero=hero._model,
+                                                         energy_regeneration_type=energy_regeneration_type))
+
+    @classmethod
+    def update(cls, hero_id, field, value):
+        cls._model_class.objects.filter(hero_id=hero_id).update(**{field: value})

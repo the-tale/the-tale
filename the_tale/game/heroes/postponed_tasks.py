@@ -18,8 +18,7 @@ from game.mobs.storage import mobs_storage
 from game.persons.storage import persons_storage
 
 from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
-from game.heroes.bag import SLOTS
-from game.heroes.relations import PREFERENCE_TYPE
+from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT
 
 
 CHOOSE_HERO_ABILITY_STATE = create_enum('CHOOSE_HERO_ABILITY_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
@@ -229,8 +228,7 @@ class ChoosePreferencesTask(PostponedLogic):
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ENERGY_REGENERATION_TYPE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        hero.preferences.energy_regeneration_type = energy_regeneration_type
-        hero.preferences.energy_regeneration_type_changed_at = datetime.datetime.now()
+        hero.preferences.set_energy_regeneration_type(energy_regeneration_type)
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
@@ -257,8 +255,7 @@ class ChoosePreferencesTask(PostponedLogic):
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.LARGE_MOB_LEVEL
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        hero.preferences.mob = mobs_storage.get_by_uuid(mob_uuid)
-        hero.preferences.mob_changed_at = datetime.datetime.now()
+        hero.preferences.set_mob(mobs_storage.get_by_uuid(mob_uuid))
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
@@ -273,8 +270,7 @@ class ChoosePreferencesTask(PostponedLogic):
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        hero.preferences.place_id = place_id
-        hero.preferences.place_changed_at = datetime.datetime.now()
+        hero.preferences.set_place(places_storage.get(place_id))
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
@@ -283,7 +279,7 @@ class ChoosePreferencesTask(PostponedLogic):
         friend_id = int(self.preference_id) if self.preference_id is not None else None
 
         if friend_id is not None:
-            if hero.preferences.enemy_id == friend_id:
+            if hero.preferences.enemy and hero.preferences.enemy.id == friend_id:
                 main_task.comment = u'try set enemy as a friend (%d)' % (friend_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -298,8 +294,7 @@ class ChoosePreferencesTask(PostponedLogic):
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        hero.preferences.friend_id = friend_id
-        hero.preferences.friend_changed_at = datetime.datetime.now()
+        hero.preferences.set_friend(persons_storage.get(friend_id))
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
@@ -308,7 +303,7 @@ class ChoosePreferencesTask(PostponedLogic):
         enemy_id = int(self.preference_id) if self.preference_id is not None else None
 
         if enemy_id is not None:
-            if hero.preferences.friend_id == enemy_id:
+            if hero.preferences.friend and hero.preferences.friend.id == enemy_id:
                 main_task.comment = u'try set friend as an enemy (%d)' % (enemy_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -323,9 +318,7 @@ class ChoosePreferencesTask(PostponedLogic):
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-
-        hero.preferences.enemy_id = enemy_id
-        hero.preferences.enemy_changed_at = datetime.datetime.now()
+        hero.preferences.set_enemy(persons_storage.get(enemy_id))
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
@@ -336,13 +329,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if equipment_slot is not None:
 
-            if self.preference_id not in SLOTS._ALL:
+            if self.preference_id not in EQUIPMENT_SLOT._records:
                 main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        hero.preferences.equipment_slot = equipment_slot
-        hero.preferences.equipment_slot_changed_at = datetime.datetime.now()
+        hero.preferences.set_equipment_slot(equipment_slot)
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 

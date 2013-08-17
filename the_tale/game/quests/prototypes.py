@@ -15,6 +15,7 @@ from game.map.roads.storage import waymarks_storage
 from game.mobs.storage import mobs_storage
 
 from game.heroes.statistics import MONEY_SOURCE
+from game.heroes.relations import EQUIPMENT_SLOT
 
 from game.quests.models import Quest, QuestsHeroes
 from game.quests.exceptions import QuestException
@@ -245,7 +246,7 @@ class QuestPrototype(BasePrototype):
 
         choices = ['buy']
 
-        if cur_action.hero.equipment.get(cmd.equipment_slot) is not None:
+        if cur_action.hero.equipment.get(EQUIPMENT_SLOT(cmd.equipment_slot)) is not None:
             choices.append('sharp')
 
         money_spend = cur_action.hero.money

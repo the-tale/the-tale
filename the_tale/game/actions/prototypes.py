@@ -944,10 +944,10 @@ class ActionInPlacePrototype(ActionBase):
 
             choices = []
 
-            if self.hero.preferences.friend_id is not None and self.hero.preferences.friend == self.hero.position.place.id:
+            if self.hero.preferences.friend is not None and self.hero.preferences.friend.place.id == self.hero.position.place.id:
                 choices.append((True, self.hero.preferences.friend))
 
-            if self.hero.preferences.enemy_id is not None and self.hero.preferences.enemy.place.id == self.hero.position.place.id:
+            if self.hero.preferences.enemy is not None and self.hero.preferences.enemy.place.id == self.hero.position.place.id:
                 choices.append((False, self.hero.preferences.enemy))
 
             if not choices:

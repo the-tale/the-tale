@@ -13,6 +13,7 @@ from accounts.clans.prototypes import ClanPrototype
 from game.abilities.deck import ABILITIES
 
 from game.heroes.prototypes import HeroPrototype
+from game.heroes.relations import EQUIPMENT_SLOT
 
 from game.map.conf import map_settings
 from game.map.storage import map_info_storage
@@ -41,6 +42,7 @@ class GameResource(Resource):
         return self.template('game/game_page.html',
                              {'map_settings': map_settings,
                               'game_settings': game_settings,
+                              'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
                               'clan': clan} )
 
     @validate_argument_with_resource('account', Resource.validate_account_argument, 'game.info', u'неверный идентификатор аккаунта')

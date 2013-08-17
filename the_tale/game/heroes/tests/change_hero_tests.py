@@ -42,7 +42,7 @@ class ChangeHeroTest(TestCase):
     def test_create(self):
         task = ChangeHeroTask(self.hero.id, name=self.noun, race=self.race, gender=self.gender)
         self.assertEqual(task.state, CHANGE_HERO_TASK_STATE.UNPROCESSED)
-        self.assertEqual(self.hero.preferences.place_id, None)
+        self.assertEqual(self.hero.preferences.place, None)
 
         self.assertEqual(task.name, self.noun)
         self.assertEqual(task.race, self.race)

@@ -24,12 +24,10 @@ from game.balance import enums as e
 from game.persons.models import Person, PERSON_STATE
 from game.persons.storage import persons_storage
 
-from game.heroes.prototypes import HeroPrototype
-from game.heroes.relations import PREFERENCE_TYPE
-from game.heroes.bag import SLOTS
+from game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
+from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT
 from game.heroes.postponed_tasks import ChoosePreferencesTask, CHOOSE_PREFERENCES_TASK_STATE
 from game.heroes.preferences import HeroPreferences
-
 
 
 class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
@@ -44,16 +42,26 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
         self.storage.add_hero(self.hero)
 
         self.hero._model.level = PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE.level_required
-        self.hero._model.pref_energy_regeneration_type = e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE
-        self.hero._model.save()
+        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, change_time=datetime.datetime.fromtimestamp(0))
+        self.hero.save()
 
-    def tearDown(self):
-        pass
+    def test_preferences_serialization(self):
+        data = self.hero.preferences.serialize()
+        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+
+    def test_save(self):
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY)
+        self.assertTrue(self.hero.preferences.updated)
+        self.hero.save()
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.reload()
+        self.assertEqual(self.hero.preferences.energy_regeneration_type, e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY)
 
     def test_create(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
-        self.assertEqual(self.hero.preferences.place_id, None)
+        self.assertEqual(self.hero.preferences.place, None)
 
     def test_serialization(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
@@ -81,6 +89,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.energy_regeneration_type, expected_energy_regeneration_type)
+        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).energy_regeneration_type, expected_energy_regeneration_type)
 
     def test_change_energy_regeneration_type(self):
         self.check_change_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
@@ -116,12 +125,24 @@ class HeroPreferencesMobTest(TestCase):
         self.mob_uuid = mobs_storage.get_available_mobs_list(level=self.hero.level)[0].uuid
         self.mob_2_uuid = mobs_storage.get_available_mobs_list(level=self.hero.level)[1].uuid
 
-    def tearDown(self):
-        pass
+    def test_preferences_serialization(self):
+        self.hero.preferences.set_mob(mobs_storage.all()[0])
+        data = self.hero.preferences.serialize()
+        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+
+    def test_save(self):
+        mob = mobs_storage.all()[0]
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.preferences.set_mob(mob)
+        self.assertTrue(self.hero.preferences.updated)
+        self.hero.save()
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.reload()
+        self.assertEqual(self.hero.preferences.mob.id, mob.id)
 
     def test_reset_mob_when_it_disabled(self):
         mob_record = mobs_storage.all()[0]
-        self.hero.preferences.mob = mob_record
+        self.hero.preferences.set_mob(mob_record)
 
         self.assertEqual(self.hero.preferences.mob, mob_record)
 
@@ -129,7 +150,7 @@ class HeroPreferencesMobTest(TestCase):
         mob_record.save()
 
         self.assertEqual(self.hero.preferences.mob, None)
-        self.assertEqual(self.hero.preferences.mob_changed_at, datetime.datetime(2000, 1, 1))
+        self.assertEqual(self.hero.preferences.mob_changed_at, datetime.datetime.fromtimestamp(0))
 
 
     def test_create(self):
@@ -199,8 +220,10 @@ class HeroPreferencesMobTest(TestCase):
         self.assertEqual(task.state, expected_state)
         if self.hero.preferences.mob is None:
             self.assertEqual(expected_mob_uuid, None)
+            self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).mob_id, None)
         else:
             self.assertEqual(self.hero.preferences.mob.uuid, expected_mob_uuid)
+            self.assertEqual(mobs_storage[HeroPreferencesPrototype.get_by_hero_id(self.hero.id).mob_id].uuid, expected_mob_uuid)
 
 
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
@@ -235,13 +258,24 @@ class HeroPreferencesPlaceTest(TestCase):
         self.place = place_1
         self.place_2 = place_2
 
-    def tearDown(self):
-        pass
+    def test_preferences_serialization(self):
+        self.hero.preferences.set_place(self.place)
+        data = self.hero.preferences.serialize()
+        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+
+    def test_save(self):
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.preferences.set_place(self.place)
+        self.assertTrue(self.hero.preferences.updated)
+        self.hero.save()
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.reload()
+        self.assertEqual(self.hero.preferences.place.id, self.place.id)
 
     def test_create(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, 666)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
-        self.assertEqual(self.hero.preferences.place_id, None)
+        self.assertEqual(self.hero.preferences.place, None)
 
     def test_wrong_level(self):
         self.hero._model.level = 1
@@ -258,10 +292,10 @@ class HeroPreferencesPlaceTest(TestCase):
         self.assertEqual(HeroPreferences.get_citizens_of(self.place), [])
         changed_at = self.hero.preferences.place_changed_at
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, self.place.id)
-        self.assertEqual(self.hero.preferences.place_id, None)
+        self.assertEqual(self.hero.preferences.place, None)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
-        self.assertEqual(self.hero.preferences.place_id, self.place.id)
+        self.assertEqual(self.hero.preferences.place.id, self.place.id)
         self.assertTrue(changed_at < self.hero.preferences.place_changed_at)
 
         self.assertEqual([hero.id for hero in HeroPreferences.get_citizens_of(self.place)], [])
@@ -276,13 +310,18 @@ class HeroPreferencesPlaceTest(TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, new_place_id)
-        self.assertEqual(self.hero.preferences.place_id, self.place.id)
+        self.assertEqual(self.hero.preferences.place.id, self.place.id)
 
         task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(task.state, expected_state)
-        self.assertEqual(self.hero.preferences.place_id, expected_place_id)
+
+        if expected_place_id is None:
+            self.assertEqual(self.hero.preferences.place, None)
+        else:
+            self.assertEqual(self.hero.preferences.place.id, expected_place_id)
+        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).place_id, expected_place_id)
 
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_place(self):
@@ -307,25 +346,25 @@ class HeroPreferencesPlaceTest(TestCase):
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
         hero_3 = HeroPrototype.get_by_account_id(account_id)
 
-        hero_1.preferences.place_id = self.place.id
+        hero_1.preferences.set_place(self.place)
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_1.save()
 
-        hero_2.preferences.place_id = self.place.id
+        hero_2.preferences.set_place(self.place)
         hero_2.save()
 
-        hero_3.preferences.place_id = self.place.id
+        hero_3.preferences.set_place(self.place)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_3.save()
 
         result, account_id, bundle_id = register_user('test_user_4') # fast_account
         hero_4 = HeroPrototype.get_by_account_id(account_id)
-        hero_4.preferences.place_id = self.place.id
+        hero_4.preferences.set_place(self.place)
         hero_4.save()
 
         result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
         hero_5 = HeroPrototype.get_by_account_id(account_id)
-        hero_5.preferences.place_id = self.place.id
+        hero_5.preferences.set_place(self.place)
         hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_5.save()
 
@@ -353,13 +392,26 @@ class HeroPreferencesFriendTest(TestCase):
         self.friend_2_id = Person.objects.all()[1].id
         self.enemy_id = Person.objects.all()[2].id
 
-    def tearDown(self):
-        pass
+    def test_preferences_serialization(self):
+        self.hero.preferences.set_friend(persons_storage[self.friend_id])
+        data = self.hero.preferences.serialize()
+        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+
+    def test_save(self):
+        friend = persons_storage[self.friend_id]
+
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.preferences.set_friend(friend)
+        self.assertTrue(self.hero.preferences.updated)
+        self.hero.save()
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.reload()
+        self.assertEqual(self.hero.preferences.friend.id, friend.id)
 
     def test_create(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, 666)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
-        self.assertEqual(self.hero.preferences.friend_id, None)
+        self.assertEqual(self.hero.preferences.friend, None)
 
     def test_wrong_level(self):
         self.hero._model.level = 1
@@ -373,7 +425,7 @@ class HeroPreferencesFriendTest(TestCase):
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON)
 
     def test_set_enemy_as_friend(self):
-        self.hero.preferences.enemy_id = self.enemy_id
+        self.hero.preferences.set_enemy(persons_storage[self.enemy_id])
         self.hero.save()
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.enemy_id)
@@ -388,17 +440,17 @@ class HeroPreferencesFriendTest(TestCase):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON)
-        self.assertEqual(self.hero.preferences.friend_id, None)
+        self.assertEqual(self.hero.preferences.friend, None)
 
 
     def test_set_friend(self):
         self.assertEqual(HeroPreferences.get_friends_of(persons_storage[self.friend_id]), [])
         changed_at = self.hero.preferences.friend_changed_at
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, self.friend_id)
-        self.assertEqual(self.hero.preferences.friend_id, None)
+        self.assertEqual(self.hero.preferences.friend, None)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
-        self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
+        self.assertEqual(self.hero.preferences.friend.id, self.friend_id)
         self.assertTrue(changed_at < self.hero.preferences.friend_changed_at)
 
         self.assertEqual([hero.id for hero in HeroPreferences.get_friends_of(persons_storage[self.friend_id])], [])
@@ -413,11 +465,15 @@ class HeroPreferencesFriendTest(TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, new_friend_id)
-        self.assertEqual(self.hero.preferences.friend_id, self.friend_id)
+        self.assertEqual(self.hero.preferences.friend.id, self.friend_id)
         task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
-        self.assertEqual(self.hero.preferences.friend_id, expected_friend_id)
+        if expected_friend_id is None:
+            self.assertEqual(self.hero.preferences.friend, None)
+        else:
+            self.assertEqual(self.hero.preferences.friend.id, expected_friend_id)
+        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).friend_id, expected_friend_id)
 
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_friend(self):
@@ -445,25 +501,25 @@ class HeroPreferencesFriendTest(TestCase):
         person_1 = self.place_1.persons[0]
         person_2 = self.place_1.persons[-1]
 
-        hero_1.preferences.friend_id = person_1.id
+        hero_1.preferences.set_friend(person_1)
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_1.save()
 
-        hero_2.preferences.friend_id = person_1.id
+        hero_2.preferences.set_friend(person_1)
         hero_2.save()
 
-        hero_3.preferences.friend_id = person_1.id
+        hero_3.preferences.set_friend(person_1)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_3.save()
 
         result, account_id, bundle_id = register_user('test_user_4') # fast_account
         hero_4 = HeroPrototype.get_by_account_id(account_id)
-        hero_4.preferences.friend_id = person_1.id
+        hero_4.preferences.set_friend(person_1)
         hero_4.save()
 
         result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
         hero_5 = HeroPrototype.get_by_account_id(account_id)
-        hero_5.preferences.friend_id = person_1.id
+        hero_5.preferences.set_friend(person_1)
         hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_5.save()
 
@@ -475,7 +531,7 @@ class HeroPreferencesFriendTest(TestCase):
     def test_reset_friend_on_highlevel_update(self):
         friend = self.place_1.persons[0]
 
-        self.hero.preferences.friend_id = friend.id
+        self.hero.preferences.set_friend(friend)
         self.hero.save()
 
         friend.move_out_game()
@@ -483,7 +539,7 @@ class HeroPreferencesFriendTest(TestCase):
 
         self.storage.on_highlevel_data_updated()
 
-        self.assertEqual(self.hero.preferences.friend_id, None)
+        self.assertEqual(self.hero.preferences.friend, None)
 
 
 
@@ -505,13 +561,27 @@ class HeroPreferencesEnemyTest(TestCase):
         self.enemy_2_id = Person.objects.all()[1].id
         self.friend_id = Person.objects.all()[2].id
 
-    def tearDown(self):
-        pass
+    def test_preferences_serialization(self):
+        self.hero.preferences.set_enemy(persons_storage[self.enemy_id])
+        data = self.hero.preferences.serialize()
+        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+
+    def test_save(self):
+        enemy = persons_storage[self.enemy_id]
+
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.preferences.set_enemy(enemy)
+        self.assertTrue(self.hero.preferences.updated)
+        self.hero.save()
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.reload()
+        self.assertEqual(self.hero.preferences.enemy.id, enemy.id)
+
 
     def test_create(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, 666)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
-        self.assertEqual(self.hero.preferences.enemy_id, None)
+        self.assertEqual(self.hero.preferences.enemy, None)
 
     def test_wrong_level(self):
         self.hero._model.level = 1
@@ -532,16 +602,16 @@ class HeroPreferencesEnemyTest(TestCase):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.enemy_id)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON)
-        self.assertEqual(self.hero.preferences.enemy_id, None)
+        self.assertEqual(self.hero.preferences.enemy, None)
 
     def test_set_enemy(self):
         self.assertEqual(HeroPreferences.get_enemies_of(persons_storage[self.enemy_id]), [])
         changed_at = self.hero.preferences.enemy_changed_at
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        self.assertEqual(self.hero.preferences.enemy_id, None)
+        self.assertEqual(self.hero.preferences.enemy, None)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
-        self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
+        self.assertEqual(self.hero.preferences.enemy.id, self.enemy_id)
         self.assertTrue(changed_at < self.hero.preferences.enemy_changed_at)
 
         self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage[self.enemy_id])], [])
@@ -552,7 +622,7 @@ class HeroPreferencesEnemyTest(TestCase):
         self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage[self.enemy_id])], [self.hero.id])
 
     def test_set_friend_as_enemy(self):
-        self.hero.preferences.friend_id = self.friend_id
+        self.hero.preferences.set_friend(persons_storage[self.friend_id])
         self.hero.save()
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, self.friend_id)
@@ -564,11 +634,15 @@ class HeroPreferencesEnemyTest(TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, new_enemy_id)
-        self.assertEqual(self.hero.preferences.enemy_id, self.enemy_id)
+        self.assertEqual(self.hero.preferences.enemy.id, self.enemy_id)
         task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
-        self.assertEqual(self.hero.preferences.enemy_id, expected_enemy_id)
+        if expected_enemy_id is None:
+            self.assertEqual(self.hero.preferences.enemy, None)
+        else:
+            self.assertEqual(self.hero.preferences.enemy.id, expected_enemy_id)
+        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).enemy_id, expected_enemy_id)
 
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_enemy(self):
@@ -596,25 +670,25 @@ class HeroPreferencesEnemyTest(TestCase):
         person_1 = self.place_1.persons[0]
         person_2 = self.place_1.persons[-1]
 
-        hero_1.preferences.enemy_id = person_1.id
+        hero_1.preferences.set_enemy(person_1)
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_1.save()
 
-        hero_2.preferences.enemy_id = person_1.id
+        hero_2.preferences.set_enemy(person_1)
         hero_2.save()
 
-        hero_3.preferences.enemy_id = person_1.id
+        hero_3.preferences.set_enemy(person_1)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_3.save()
 
         result, account_id, bundle_id = register_user('test_user_4') # fast_account
         hero_4 = HeroPrototype.get_by_account_id(account_id)
-        hero_4.preferences.enemy_id = person_1.id
+        hero_4.preferences.set_enemy(person_1)
         hero_4.save()
 
         result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
         hero_5 = HeroPrototype.get_by_account_id(account_id)
-        hero_5.preferences.enemy_id = person_1.id
+        hero_5.preferences.set_enemy(person_1)
         hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_5.save()
 
@@ -634,7 +708,7 @@ class HeroPreferencesEnemyTest(TestCase):
 
         self.storage.on_highlevel_data_updated()
 
-        self.assertEqual(self.hero.preferences.enemy_id, None)
+        self.assertEqual(self.hero.preferences.enemy, None)
 
 
 
@@ -652,11 +726,23 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
         self.hero._model.level = PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
         self.hero._model.save()
 
-        self.slot_1 = SLOTS.HAND_PRIMARY
-        self.slot_2 = SLOTS.PLATE
+        self.slot_1 = EQUIPMENT_SLOT.HAND_PRIMARY
+        self.slot_2 = EQUIPMENT_SLOT.PLATE
 
-    def tearDown(self):
-        pass
+    def test_preferences_serialization(self):
+        self.hero.preferences.set_equipment_slot(self.slot_1)
+        data = self.hero.preferences.serialize()
+        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+
+    def test_save(self):
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.preferences.set_equipment_slot(self.slot_1)
+        self.assertTrue(self.hero.preferences.updated)
+        self.hero.save()
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.reload()
+        self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
+
 
     def test_create(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, 'wrong_equip_slot')
@@ -693,6 +779,11 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.equipment_slot, expected_slot)
+
+        if expected_slot is None:
+            self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).equipment_slot, None)
+        else:
+            self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).equipment_slot, expected_slot.value)
 
     @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_equipment_slot(self):

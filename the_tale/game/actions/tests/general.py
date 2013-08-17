@@ -88,7 +88,7 @@ class GeneralTest(testcase.TestCase):
 
     def check_stock_up_energy_in_choices(self, result):
         stock_found = False
-        for i in xrange(100):
+        for i in xrange(1000):
             stock_found = stock_found or (self.action_idl.get_help_choice() == HELP_CHOICES.STOCK_UP_ENERGY)
 
         self.assertEqual(stock_found, result)

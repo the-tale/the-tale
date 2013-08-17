@@ -1,8 +1,8 @@
 
-{% macro preference_record(item, choosen_id) %}
-<td class="hero-preference-choise {% if item.id == choosen_id %}choosen{% endif %}">
+{% macro preference_record(item, choosen) %}
+<td class="hero-preference-choise {% if choosen and item.id == choosen.id %}choosen{% endif %}">
   <span class="badge" style="vertical-align: middle;" rel="tooltip" title="размер города">{{ item.size }}</span>
-  {% if item.id != choosen_id %}
+  {% if choosen is none or item.id != choosen.id %}
   <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.id }}">{{ item.name }}</a>
   {% else %}
   <a href="#" class="current-choice pgf-close-dialog">{{ item.name }}</a>
@@ -17,9 +17,9 @@
 <table class="table table-bordered table-striped table-condensed">
   {% for place_left, place_right in places %}
   <tr>
-    {{ preference_record(place_left, resource.hero.preferences.place_id) }}
+    {{ preference_record(place_left, resource.hero.preferences.place) }}
     {% if place_right %}
-    {{ preference_record(place_right, resource.hero.preferences.place_id) }}
+    {{ preference_record(place_right, resource.hero.preferences.place) }}
     {% endif %}
   </tr>
   {% endfor %}

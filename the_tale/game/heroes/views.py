@@ -28,9 +28,8 @@ from game import names
 
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask, ResetHeroAbilitiesTask
-from game.heroes.relations import PREFERENCE_TYPE
+from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT
 from game.heroes.forms import ChoosePreferencesForm, EditNameForm
-from game.heroes.bag import SLOTS
 from game.heroes.conf import heroes_settings
 
 
@@ -96,6 +95,7 @@ class HeroResource(Resource):
                               'edit_name_form': edit_name_form,
                               'master_account': master_account,
                               'master_clan': master_clan,
+                              'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
                               'PREFERENCE_TYPE': PREFERENCE_TYPE} )
 
     @login_required
@@ -220,7 +220,7 @@ class HeroResource(Resource):
             enemies = all_enemys
 
         elif type._is_EQUIPMENT_SLOT:
-            equipment_slots = split_list(SLOTS._ALL)
+            equipment_slots = split_list(list(EQUIPMENT_SLOT._records))
 
         return self.template('heroes/choose_preferences.html',
                              {'type': type,
@@ -231,7 +231,7 @@ class HeroResource(Resource):
                               'enemies': enemies,
                               'equipment_slots': equipment_slots,
                               'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.CHARACTER_PREFERENCES_CHANGE_DELAY),
-                              'SLOTS': SLOTS} )
+                              'EQUIPMENT_SLOT': EQUIPMENT_SLOT} )
 
     @login_required
     @validate_ownership()

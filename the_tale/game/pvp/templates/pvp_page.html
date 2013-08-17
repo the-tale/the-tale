@@ -108,7 +108,7 @@ jQuery(document).ready(function(e){
 <div class="row pgf-game-data pgf-hidden">
   <div class="span3">
     <div class="block">
-      {{ hero_equipment_macros.hero_equipment("own-equipment", data_mode="pvp_account") }}
+      {{ hero_equipment_macros.hero_equipment("own-equipment", data_mode="pvp_account", EQUIPMENT_SLOT=EQUIPMENT_SLOT) }}
     </div>
 
     <div class="block">
@@ -121,7 +121,7 @@ jQuery(document).ready(function(e){
   </div>
   <div class="span3">
     <div class="block">
-      {{ hero_equipment_macros.hero_equipment("enemy-equipment", data_mode="pvp_enemy") }}
+      {{ hero_equipment_macros.hero_equipment("enemy-equipment", data_mode="pvp_enemy", EQUIPMENT_SLOT=EQUIPMENT_SLOT) }}
     </div>
 
     <div class="block">

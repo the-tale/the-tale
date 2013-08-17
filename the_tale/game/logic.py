@@ -7,7 +7,7 @@ from textgen import words
 
 from common.utils.enum import create_enum
 
-from game.heroes.bag import SLOTS
+from game.heroes.relations import EQUIPMENT_SLOT
 
 from game.persons.storage import persons_storage
 
@@ -91,11 +91,11 @@ def create_test_map():
 
 
 def dress_new_hero(hero):
-    hero.equipment.equip(SLOTS.PANTS, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.PANTS).create_artifact(level=1, power=0))
-    hero.equipment.equip(SLOTS.BOOTS, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.BOOTS).create_artifact(level=1, power=0))
-    hero.equipment.equip(SLOTS.PLATE, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.PLATE).create_artifact(level=1, power=0))
-    hero.equipment.equip(SLOTS.GLOVES, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.GLOVES).create_artifact(level=1, power=0))
-    hero.equipment.equip(SLOTS.HAND_PRIMARY, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.WEAPON).create_artifact(level=1, power=0))
+    hero.equipment.equip(EQUIPMENT_SLOT.PANTS, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.PANTS).create_artifact(level=1, power=0))
+    hero.equipment.equip(EQUIPMENT_SLOT.BOOTS, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.BOOTS).create_artifact(level=1, power=0))
+    hero.equipment.equip(EQUIPMENT_SLOT.PLATE, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.PLATE).create_artifact(level=1, power=0))
+    hero.equipment.equip(EQUIPMENT_SLOT.GLOVES, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.GLOVES).create_artifact(level=1, power=0))
+    hero.equipment.equip(EQUIPMENT_SLOT.HAND_PRIMARY, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.WEAPON).create_artifact(level=1, power=0))
 
 
 def log_sql_queries(turn_number):

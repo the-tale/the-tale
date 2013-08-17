@@ -156,7 +156,7 @@ jQuery(document).ready(function(e){
 
             <div class="tab-content">
               <div class="tab-pane" id="pgf-equipment-container">
-                {{ hero_equipment_macros.hero_equipment("hero-equipment", data_mode="pve") }}
+                {{ hero_equipment_macros.hero_equipment("hero-equipment", data_mode="pve", EQUIPMENT_SLOT=EQUIPMENT_SLOT) }}
               </div>
               <div class="tab-pane" id="pgf-bag-container">
                 {% include "heroes/hero_bag.html" %}
