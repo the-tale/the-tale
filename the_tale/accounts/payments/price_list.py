@@ -26,6 +26,15 @@ ENERGY_CHARGES_DESCRIPTION = u'''
 '''
 
 
+def permanent_purchase(uid, purchase_type, cost, transaction_description):
+    return PermanentPurchase(uid=uid,
+                             name=purchase_type.text,
+                             description=purchase_type.description,
+                             cost=cost,
+                             purchase_type=purchase_type,
+                             transaction_description=transaction_description)
+
+
 PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
                             name=u'7 дней подписки',
                             description=PREMIUM_DAYS_DESCRIPTION,
@@ -68,12 +77,35 @@ PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
                               charges_number=10,
                               transaction_description=u'Покупка 10 зарядов энергии.'),
 
-                PermanentPurchase(uid=u'clan-ownership-right',
-                                  name=PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT.text,
-                                  description=PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT.description,
-                                  cost=150,
-                                  purchase_type=PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT,
-                                  transaction_description=u'Приобретение разрешения на владение гильдией.')]
+                permanent_purchase(uid=u'prefernece-mob',
+                                   cost=30,
+                                   purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_MOB,
+                                   transaction_description=u'Приобретение разрешения на владение гильдией.'),
+
+                permanent_purchase(uid=u'prefernece-place',
+                                   cost=10,
+                                   purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_PLACE,
+                                   transaction_description=u'Приобретение разрешения на владение гильдией.'),
+
+                permanent_purchase(uid=u'prefernece-friend',
+                                   cost=50,
+                                   purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_FRIEND,
+                                   transaction_description=u'Приобретение разрешения на владение гильдией.'),
+
+                permanent_purchase(uid=u'prefernece-enemy',
+                                   cost=80,
+                                   purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_ENEMY,
+                                   transaction_description=u'Приобретение разрешения на владение гильдией.'),
+
+                permanent_purchase(uid=u'prefernece-equipment-slot',
+                                   cost=100,
+                                   purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_EQUIPMENT_SLOT,
+                                   transaction_description=u'Приобретение разрешения на владение гильдией.'),
+
+                permanent_purchase(uid=u'clan-ownership-right',
+                                   cost=150,
+                                   purchase_type=PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT,
+                                   transaction_description=u'Приобретение разрешения на владение гильдией.')]
 
 PURCHASES_BY_UID = {purchase.uid:purchase for purchase in PRICE_LIST}
 

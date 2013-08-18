@@ -22,6 +22,8 @@ from accounts.payments.forms import DengiOnlineForm, GMForm
 from accounts.payments.conf import payments_settings
 from accounts.payments.logic import real_amount_to_game, transaction_gm
 
+from game.heroes.prototypes import HeroPrototype
+
 
 class PaymentsResource(Resource):
 
@@ -70,8 +72,9 @@ class PaymentsResource(Resource):
 
     @handler('shop', method='get')
     def shop(self):
+        hero = HeroPrototype.get_by_account_id(self.account.id)
         return self.template('payments/shop.html',
-                             {'PRICE_LIST': filter(lambda item: item.is_purchasable(self.account), price_list.PRICE_LIST),
+                             {'PRICE_LIST': filter(lambda item: item.is_purchasable(self.account, hero), price_list.PRICE_LIST),
                               'payments_settings': payments_settings,
                               'account': self.account,
                               'page_type': 'shop'})

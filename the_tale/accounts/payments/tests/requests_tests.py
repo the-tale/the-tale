@@ -169,7 +169,7 @@ class PurchasesRequestesTests(RequestesTestsBase, PageRequestsMixin):
 
         for record in PERMANENT_PURCHASE_TYPE._records:
             self.account.permanent_purchases.insert(record)
-            texts.append((record.description, 1))
+            texts.append(record.description)
             texts.append((record.text, 1))
         self.account.save()
 

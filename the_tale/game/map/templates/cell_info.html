@@ -91,7 +91,7 @@
                   <th>
                     {% if hero and hero.preferences.friend and hero.preferences.friend.id == person.id %}
                     <span class="badge badge-success" rel="tooltip" title="соратник">{{ person.name }}</span>
-                    {% elif hero and hero.preferences.enemy and hero.preferences.enemy_id == person.id %}
+                    {% elif hero and hero.preferences.enemy and hero.preferences.enemy.id == person.id %}
                     <span class="badge badge-important" rel="tooltip" title="противник">{{ person.name }}</span>
                     {% else %}
                     {{ person.name }}

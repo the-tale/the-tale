@@ -77,7 +77,7 @@ class Worker(BaseWorker):
                 raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number,
                                                                                                                           TimePrototype.get_current_turn_number()))
 
-            self.storage.process_turn()
+            self.storage.process_turn(logger=self.logger)
             self.storage.save_changed_data()
 
             for hero_id in self.storage.skipped_heroes:

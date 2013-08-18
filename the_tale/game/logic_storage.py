@@ -105,7 +105,7 @@ class LogicStorage(object):
             hero.on_highlevel_data_updated()
 
 
-    def process_turn(self):
+    def process_turn(self, logger=None):
 
         for hero in self.heroes.values():
 
@@ -118,7 +118,11 @@ class LogicStorage(object):
             try:
                 leader_action.process_turn()
             except Exception:
+                if logger:
+                    logger.error('LogicStorage.process_turn catch exception, while processing hero %d, try to save all bundles except %d' % (hero.id, bundle_id))
                 self._save_on_exception(excluded_bundle_id=bundle_id)
+                if logger:
+                    logger.error('bundles saved')
                 raise
 
             if leader_action.removed and leader_action.bundle_id != hero.actions.current_action.bundle_id:

@@ -5,7 +5,6 @@ from common.postponed_tasks import PostponedTaskPrototype
 from accounts.payments.postponed_tasks import BuyPremium, BuyPermanentPurchase, BuyEnergyCharges
 from accounts.payments import exceptions
 from accounts.payments.logic import transaction_logic
-from accounts.clans.conf import clans_settings
 
 
 class PurchaseItem(object):
@@ -18,7 +17,7 @@ class PurchaseItem(object):
         self.transaction_description = transaction_description
 
 
-    def is_purchasable(self, account):
+    def is_purchasable(self, account, hero):
         return True
 
 
@@ -97,13 +96,17 @@ class PermanentPurchase(PurchaseItem):
         return postponed_task
 
 
-    def is_purchasable(self, account):
+    def is_purchasable(self, account, hero):
 
         if self.purchase_type in account.permanent_purchases:
             return False
 
-        if self.purchase_type._is_CLAN_OWNERSHIP_RIGHT:
-            if account.might >= clans_settings.OWNER_MIGHT_REQUIRED:
+        if self.purchase_type.might_required is not None:
+            if account.might >= self.purchase_type.might_required:
+                return False
+
+        if self.purchase_type.level_required is not None:
+            if hero.level >= self.purchase_type.level_required:
                 return False
 
         return True

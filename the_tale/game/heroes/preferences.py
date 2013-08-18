@@ -14,7 +14,6 @@ from game.map.places.storage import places_storage
 
 from game.persons.storage import persons_storage
 
-from game.heroes.exceptions import WrongPreferenceTypeError
 from game.heroes.relations import EQUIPMENT_SLOT, PREFERENCE_TYPE
 from game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 
@@ -102,26 +101,13 @@ class HeroPreferences(object):
         return max(datetime.timedelta(seconds=0), (changed_at + datetime.timedelta(seconds=c.CHARACTER_PREFERENCES_CHANGE_DELAY) - current_time))
 
     def time_before_update(self, preferences_type, current_time):
-        if preferences_type._is_ENERGY_REGENERATION_TYPE: return self._time_before_update(self.energy_regeneration_type_changed_at, current_time)
-        if preferences_type._is_MOB: return self._time_before_update(self.mob_changed_at, current_time)
-        if preferences_type._is_PLACE: return self._time_before_update(self.place_changed_at, current_time)
-        if preferences_type._is_FRIEND: return self._time_before_update(self.friend_changed_at, current_time)
-        if preferences_type._is_ENEMY: return self._time_before_update(self.enemy_changed_at, current_time)
-        if preferences_type._is_EQUIPMENT_SLOT: return self._time_before_update(self.equipment_slot_changed_at, current_time)
-
-        raise WrongPreferenceTypeError(preference_type=preferences_type)
-
-    def _prepair_value_prototype(self, value):
-        return value.id if value is not None else None
-
-    def _prepair_value_record(self, value):
-        return value.value if value is not None else None
+        return self._time_before_update(self._get_changed_at(preferences_type), current_time)
 
     def value_to_set(self, value):
         if isinstance(value, BasePrototype):
-            return self._prepair_value_prototype(value)
+            return value.id if value is not None else None
         if isinstance(value, rels.Record):
-            return self._prepair_value_record(value)
+            return value.value if value is not None else None
         return value
 
     def _set(self, preferences_type, value, change_time=None):
@@ -138,6 +124,9 @@ class HeroPreferences(object):
 
     def _reset(self, preferences_type):
         self._set(preferences_type, None, change_time=datetime.datetime.fromtimestamp(0))
+
+    def _prepair_value(self, value):
+        return value
 
     def _prepair_mob(self, mob_id):
         mob = mobs_storage.get(mob_id)
@@ -162,18 +151,7 @@ class HeroPreferences(object):
 
         value = self.data[preferences_type.base_name]['value']
 
-        if preferences_type._is_ENERGY_REGENERATION_TYPE:
-            return value
-        if preferences_type._is_MOB:
-            return self._prepair_mob(value)
-        if preferences_type._is_PLACE:
-            return self._prepair_place(value)
-        if preferences_type._is_FRIEND:
-            return self._prepair_person(value)
-        if preferences_type._is_ENEMY:
-            return self._prepair_person(value)
-        if preferences_type._is_EQUIPMENT_SLOT:
-            return self._prepair_equipment_slot(value)
+        return getattr(self, preferences_type.prepair_method)(value)
 
     def _get_changed_at(self, preferences_type, default=datetime.datetime.fromtimestamp(0)):
         if preferences_type.base_name not in self.data:

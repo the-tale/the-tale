@@ -11,8 +11,8 @@
     {% else %}
     <a href="#" class="current-choice pgf-close-dialog">{{ item.name }}</a>
     <small>{{item.race_verbose}}-{{item.type.text}}</small>
-    {% if item.id == resource.hero.preferences.friend_id %}<span class="label label-success">соратник</span>{% endif %}
-    {% if item.id == resource.hero.preferences.enemy_id %}<span class="label label-important">противник</span>{% endif %}
+    {% if resource.hero.preferences.friend and item.id == resource.hero.preferences.friend.id %}<span class="label label-success">соратник</span>{% endif %}
+    {% if resource.hero.preferences.enemy and item.id == resource.hero.preferences.enemy.id %}<span class="label label-important">противник</span>{% endif %}
     {% endif %}
   </td>
 </tr>

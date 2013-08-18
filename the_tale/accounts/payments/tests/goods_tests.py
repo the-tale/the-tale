@@ -21,6 +21,8 @@ from accounts.payments.goods import PremiumDays, PermanentPurchase
 from accounts.payments import exceptions
 from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 
+from game.heroes.prototypes import HeroPrototype
+
 
 class PremiumDaysTests(testcase.TestCase):
 
@@ -36,6 +38,8 @@ class PremiumDaysTests(testcase.TestCase):
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.account = AccountPrototype.get_by_id(account_id)
+
+        self.hero = HeroPrototype.get_by_account_id(account_id)
 
         self.purchase = PremiumDays(uid='premium-days-uid',
                                     name=u'premium-days-name',
@@ -94,7 +98,7 @@ class PremiumDaysTests(testcase.TestCase):
         self.assertEqual(invoice.description, u'premium-days-transaction-description')
 
     def test_is_purchasable(self):
-        self.assertTrue(self.purchase.is_purchasable(self.account))
+        self.assertTrue(self.purchase.is_purchasable(self.account, self.account))
 
 
 
@@ -116,6 +120,7 @@ class PermanentPurchaseTests(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 
         self.account = AccountPrototype.get_by_id(account_id)
+        self.hero = HeroPrototype.get_by_account_id(account_id)
 
         self.purchase = PermanentPurchase(uid=u'clan-creation-rights',
                                           name=self.PURCHASE_TYPE.text,
@@ -175,13 +180,13 @@ class PermanentPurchaseTests(testcase.TestCase):
         self.assertEqual(invoice.description, u'clan-creation-rights')
 
     def test_is_purchasable(self):
-        self.assertTrue(self.purchase.is_purchasable(self.account))
+        self.assertTrue(self.purchase.is_purchasable(self.account, self.hero))
 
     def test_is_purchasable__already_purchased(self):
         self.account.permanent_purchases.insert(self.PURCHASE_TYPE)
-        self.assertFalse(self.purchase.is_purchasable(self.account))
+        self.assertFalse(self.purchase.is_purchasable(self.account, self.hero))
 
     # TODO: other purchases must be checked in same way
     def test_is_purchasable__have_might(self):
         self.account.set_might(clans_settings.OWNER_MIGHT_REQUIRED)
-        self.assertFalse(self.purchase.is_purchasable(self.account))
+        self.assertFalse(self.purchase.is_purchasable(self.account, self.hero))

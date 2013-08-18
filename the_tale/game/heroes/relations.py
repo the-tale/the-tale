@@ -10,13 +10,14 @@ from game.heroes.statistics import MONEY_SOURCE
 class PREFERENCE_TYPE(DjangoEnum):
     level_required = Column()
     base_name = Column()
+    prepair_method = Column(unique=False)
 
-    _records = ( ('MOB', 0, u'любимая добыча', 7, 'mob'),
-                 ('PLACE', 1, u'родной город', 3, 'place'),
-                 ('FRIEND', 2, u'соратник', 11, 'friend'),
-                 ('ENEMY', 3, u'враг', 16, 'enemy'),
-                 ('ENERGY_REGENERATION_TYPE', 4, u'религиозность', 1, 'energy_regeneration_type'),
-                 ('EQUIPMENT_SLOT', 5, u'экипировка', 21, 'equipment_slot') )
+    _records = ( ('MOB', 0, u'любимая добыча', 7, 'mob', '_prepair_mob'),
+                 ('PLACE', 1, u'родной город', 3, 'place', '_prepair_place'),
+                 ('FRIEND', 2, u'соратник', 11, 'friend', '_prepair_person'),
+                 ('ENEMY', 3, u'противник', 16, 'enemy', '_prepair_person'),
+                 ('ENERGY_REGENERATION_TYPE', 4, u'религиозность', 1, 'energy_regeneration_type', '_prepair_value'),
+                 ('EQUIPMENT_SLOT', 5, u'экипировка', 21, 'equipment_slot', '_prepair_equipment_slot') )
 
 
 class ITEMS_OF_EXPENDITURE(DjangoEnum):

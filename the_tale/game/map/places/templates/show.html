@@ -60,7 +60,7 @@
             всего: {{city_heroes|length}}
           </small>
         </a>
-        {% if hero and hero.preferences.place_id == place.id %}
+        {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}
         <span class="badge badge-success">родной город</span>
         {% endif %}
       </div>
@@ -108,11 +108,11 @@
           </small>
 
         </a>
-        {% if hero and hero.preferences.friend_id == person.id %}
+        {% if hero and hero.preferences.friend and hero.preferences.friend.id == person.id %}
         <span class="badge badge-success">соратник</span>
         {% endif %}
 
-        {% if hero and hero.preferences.enemy_id == person.id %}
+        {% if hero and hero.preferences.enemy and hero.preferences.enemy.id == person.id %}
         <span class="badge badge-important">противник</span>
         {% endif %}
       </div>

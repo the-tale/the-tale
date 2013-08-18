@@ -13,7 +13,8 @@ from common.amqp_queues import connection, BaseWorker
 
 from portal.conf import portal_settings
 from portal import signals as portal_signals
-from portal import signal_processors
+
+from portal import signal_processors # DO NOT REMOVE
 
 class Worker(BaseWorker):
 
@@ -29,7 +30,7 @@ class Worker(BaseWorker):
         while not self.exception_raised and not self.stop_required:
             try:
                 self.logger.info('wait for amqp command')
-                cmd = self.command_queue.get(block=True, timeout=1)
+                cmd = self.command_queue.get(block=True, timeout=60)
                 cmd.ack()
 
                 settings.refresh()

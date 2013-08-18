@@ -55,64 +55,64 @@ jQuery(document).ready(function(e){
 
 </script>
 
-{% macro preferences_record(name, type, current_time, value) -%}
+{% macro preferences_record(type, current_time, value) -%}
 
-{% set time_before_update = resource.hero.preferences.time_before_update(type, current_time) %}
+  {% set time_before_update = resource.hero.preferences.time_before_update(type, current_time) %}
 
-<li class="hero-preferences-record">
-  <strong>{{ name }}:</strong>
-  <br/>
-  <span class="" style="margin-left: 2em;">
-    {% if resource.hero.level >= type.level_required %}
+  <li class="hero-preferences-record">
+    <strong>{{ type.text }}:</strong>
+    <br/>
+    <span class="" style="margin-left: 2em;">
+      {% if type.purchase_type in resource.account.permanent_purchases or resource.hero.level >= type.level_required %}
 
-    {% if value %}
-    {{value}}
-    {% else %}
+        {% if value %}
+          {{value}}
+        {% else %}
 
-    {% if is_owner and time_before_update.total_seconds() == 0 %}
-    <a class="pgf-choose-preference-button"
-       href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type.value}}"
-       data-preference-type="{{ type }}">
-      выбрать
-    </a>
-    {% else %}
-    нет
-    {% endif %}
-    {% endif %}
+          {% if is_owner and time_before_update.total_seconds() == 0 %}
+            <a class="pgf-choose-preference-button"
+               href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type.value}}"
+               data-preference-type="{{ type }}">
+               выбрать
+            </a>
+          {% else %}
+            нет
+          {% endif %}
+        {% endif %}
 
-    {% if is_owner %}
+        {% if is_owner %}
 
-    {% if time_before_update.total_seconds() == 0 %}
+          {% if time_before_update.total_seconds() == 0 %}
 
-    {% if value %}
+            {% if value %}
 
-    {% if not type._is_ENERGY_REGENERATION_TYPE %}
-    <a class="pgf-remove-preference-button pull-right" href="#" data-preference-type="{{ type }}" style="margin-left: 5px;" rel="tooltip" title="удалить">
-      <i class="icon-trash"></i>
-    </a>
-    {% endif %}
+              {% if not type._is_ENERGY_REGENERATION_TYPE %}
+                <a class="pgf-remove-preference-button pull-right" href="#" data-preference-type="{{ type }}" style="margin-left: 5px;" rel="tooltip" title="удалить">
+                  <i class="icon-trash"></i>
+                </a>
+              {% endif %}
 
-    <a class="pgf-choose-preference-button pull-right"
-       href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type.value}}"
-       data-preference-type="{{ type }}"
-       rel="tooltip" title="редактировать">
-      <i class="icon-pencil"></i>
-    </a>
-    {% endif %}
+              <a class="pgf-choose-preference-button pull-right"
+                 href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type.value}}"
+                 data-preference-type="{{ type }}"
+                 rel="tooltip" title="редактировать">
+                 <i class="icon-pencil"></i>
+              </a>
+            {% endif %}
 
-    {% else %}
-    <i class="icon-time pull-right" rel="tooltip" title="предпочтение можно будет изменить через {{ time_before_update|verbose_timedelta }}"></i>
-    {% endif %}
+          {% else %}
+            <i class="icon-time pull-right" rel="tooltip" title="предпочтение можно будет изменить через {{ time_before_update|verbose_timedelta }}"></i>
+          {% endif %}
 
-    {% endif %}
+        {% endif %}
 
-    {% else %}
-    необходим {{ type.level_required }} уровень
-    {% endif %}
+      {% else %}
+        необходим {{ type.level_required }} уровень
+      {% endif %}
 
-  </span>
+    </span>
 
-</li>
+  </li>
 
 {% endmacro %}
 
@@ -132,13 +132,12 @@ jQuery(document).ready(function(e){
 
     {% set current_time = now() %}
 
-    {{ preferences_record("религиозность",
-                          PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, current_time,  pref_religion) }}
-    {{ preferences_record("родной город", PREFERENCE_TYPE.PLACE, current_time, pref_place) }}
-    {{ preferences_record("любимая добыча", PREFERENCE_TYPE.MOB, current_time, pref_mob) }}
-    {{ preferences_record("соратник", PREFERENCE_TYPE.FRIEND, current_time, pref_friend) }}
-    {{ preferences_record("противник", PREFERENCE_TYPE.ENEMY, current_time, pref_enemy) }}
-    {{ preferences_record("экипировка", PREFERENCE_TYPE.EQUIPMENT_SLOT, current_time, pref_equipment_slot) }}
+    {{ preferences_record(PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, current_time,  pref_religion) }}
+    {{ preferences_record(PREFERENCE_TYPE.PLACE, current_time, pref_place) }}
+    {{ preferences_record(PREFERENCE_TYPE.MOB, current_time, pref_mob) }}
+    {{ preferences_record(PREFERENCE_TYPE.FRIEND, current_time, pref_friend) }}
+    {{ preferences_record(PREFERENCE_TYPE.ENEMY, current_time, pref_enemy) }}
+    {{ preferences_record(PREFERENCE_TYPE.EQUIPMENT_SLOT, current_time, pref_equipment_slot) }}
   </ul>
 
 </div>

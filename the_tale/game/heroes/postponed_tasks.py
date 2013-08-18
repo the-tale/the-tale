@@ -11,6 +11,8 @@ from textgen.words import Noun
 from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from common.utils.enum import create_enum
 
+from accounts.prototypes import AccountPrototype
+
 from game.balance import constants as c
 
 from game.map.places.storage import places_storage
@@ -325,14 +327,16 @@ class ChoosePreferencesTask(PostponedLogic):
 
     def process_slot(self, main_task, hero):
 
-        equipment_slot = self.preference_id
+        equipment_slot = int(self.preference_id) if self.preference_id is not None else None
 
         if equipment_slot is not None:
 
-            if self.preference_id not in EQUIPMENT_SLOT._records:
+            if equipment_slot not in EQUIPMENT_SLOT._index_value:
                 main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+            equipment_slot = EQUIPMENT_SLOT._index_value[equipment_slot]
 
         hero.preferences.set_equipment_slot(equipment_slot)
 
@@ -342,12 +346,19 @@ class ChoosePreferencesTask(PostponedLogic):
 
         hero = storage.heroes[self.hero_id]
 
+        account = AccountPrototype.get_by_id(hero.account_id)
+
         if not hero.preferences.can_update(self.preference_type, datetime.datetime.now()):
             main_task.comment = u'blocked since time delay'
             self.state = CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        if hero.level < self.preference_type.level_required:
+        purchased = False
+        if hasattr(self.preference_type, 'purchase_type'):
+            if self.preference_type.purchase_type in account.permanent_purchases:
+                purchased = True
+
+        if not purchased and hero.level < self.preference_type.level_required:
             main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, self.preference_type.level_required)
             self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
             return POSTPONED_TASK_LOGIC_RESULT.ERROR

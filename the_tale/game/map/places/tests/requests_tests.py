@@ -2,12 +2,12 @@
 import datetime
 import jinja2
 
-from django.test import client
 from django.core.urlresolvers import reverse
 
 from common.utils.testcase import TestCase
 
 from accounts.logic import register_user
+from accounts.prototypes import AccountPrototype
 
 from game.heroes.prototypes import HeroPrototype
 
@@ -20,7 +20,8 @@ class TestShowRequests(TestCase):
         super(TestShowRequests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        self.client = client.Client()
+        result, account_id, bundle_id = register_user('user', 'user@test.com', '111111')
+        self.account = AccountPrototype.get_by_id(account_id)
 
     def test_wrong_place_id(self):
         self.check_html_ok(self.request_html(reverse('game:map:places:show', args=['wrong_id'])), texts=['places.place.wrong_format'])
@@ -28,11 +29,11 @@ class TestShowRequests(TestCase):
     def test_place_does_not_exist(self):
         self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[666])), texts=['places.place.not_found'], status_code=404)
 
-    def test_no_heroes(self):
+    def check_no_heroes(self):
         texts = [('pgf-no-heroes-message', 1 + len(self.place_1.persons))]
         self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=texts)
 
-    def test_heroes(self):
+    def check_heroes(self):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         hero_1 = HeroPrototype.get_by_account_id(account_id)
 
@@ -64,3 +65,18 @@ class TestShowRequests(TestCase):
                  (jinja2.escape(hero_3.name), 0)]
 
         self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=texts)
+
+
+    def test_no_heroes__unlogined(self):
+        self.check_no_heroes()
+
+    def test_no_heroes__logined(self):
+        self.request_login(self.account.email)
+        self.check_no_heroes()
+
+    def test_heroes__unlogined(self):
+        self.check_heroes()
+
+    def test_heroes__logined(self):
+        self.request_login(self.account.email)
+        self.check_heroes()

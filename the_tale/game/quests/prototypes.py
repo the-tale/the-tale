@@ -246,8 +246,9 @@ class QuestPrototype(BasePrototype):
 
         choices = ['buy']
 
-        if cur_action.hero.equipment.get(EQUIPMENT_SLOT(cmd.equipment_slot)) is not None:
-            choices.append('sharp')
+        if cmd.equipment_slot in EQUIPMENT_SLOT._index_value: # this check is for old equipment ids, we should skip them
+            if cur_action.hero.equipment.get(EQUIPMENT_SLOT(cmd.equipment_slot)) is not None:
+                choices.append('sharp')
 
         money_spend = cur_action.hero.money
 
