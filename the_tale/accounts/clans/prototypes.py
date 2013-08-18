@@ -36,7 +36,7 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
 
     @classmethod
     def get_forum_subcategory_caption(cls, clan_name):
-        return u'Раздел клана «%s»' % clan_name
+        return u'Раздел гильдии «%s»' % clan_name
 
     @classmethod
     @nested_commit_on_success

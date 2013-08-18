@@ -3,24 +3,20 @@ import datetime
 
 import mock
 
-from django.test import client
-
 from dext.utils.urls import url
 
 from common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
+from accounts.logic import login_url
 from game.logic import create_test_map
 
 from forum.models import Category, SubCategory, Thread, Post, Subscription
 from forum.prototypes import (ThreadPrototype,
                               PostPrototype,
-                              SubCategoryPrototype,
-                              CategoryPrototype,
                               ThreadReadInfoPrototype,
                               SubCategoryReadInfoPrototype)
 from forum.conf import forum_settings
+from forum.tests.helpers import ForumFixture
 
 
 class BaseTestRequests(testcase.TestCase):
@@ -28,14 +24,13 @@ class BaseTestRequests(testcase.TestCase):
     def setUp(self):
         super(BaseTestRequests, self).setUp()
         create_test_map()
-        register_user('test_user', 'test_user@test.com', '111111')
-        register_user('test_user_2', 'test_user_2@test.com', '111111')
 
-        self.account = AccountPrototype.get_by_nick('test_user')
-        self.account_2 = AccountPrototype.get_by_nick('test_user_2')
+        self.fixture = ForumFixture()
 
-        self.client = client.Client()
-        self.request_login('test_user@test.com')
+        self.account = self.fixture.account_1
+        self.account_2 = self.fixture.account_2
+
+        self.request_login(self.account.email)
 
         # cat1
         # |-subcat1
@@ -48,19 +43,19 @@ class BaseTestRequests(testcase.TestCase):
         # | |- thread3
         # cat3
 
-        self.cat1 = CategoryPrototype.create(caption='cat1-caption', slug='cat1-slug', order=0)
+        self.cat1 = self.fixture.cat_1
         # to test, that subcat.id not correlate with order
-        self.subcat2 = SubCategoryPrototype.create(category=self.cat1, caption='subcat2-caption', order=1, closed=True)
-        self.subcat1 = SubCategoryPrototype.create(category=self.cat1, caption='subcat1-caption', order=0)
-        self.cat2 = CategoryPrototype.create(caption='cat2-caption', slug='cat2-slug', order=0)
-        self.subcat3 = SubCategoryPrototype.create(category=self.cat2, caption='subcat3-caption', order=0)
-        self.cat3 = CategoryPrototype.create(caption='cat3-caption', slug='cat3-slug', order=0)
+        self.subcat2 = self.fixture.subcat_2
+        self.subcat1 = self.fixture.subcat_1
+        self.cat2 = self.fixture.cat_2
+        self.subcat3 = self.fixture.subcat_3
+        self.cat3 = self.fixture.cat_3
 
-        self.thread1 = ThreadPrototype.create(self.subcat1, 'thread1-caption', self.account, 'thread1-text')
-        self.thread2 = ThreadPrototype.create(self.subcat1, 'thread2-caption', self.account, 'thread2-text')
-        self.thread3 = ThreadPrototype.create(self.subcat3, 'thread3-caption', self.account, 'thread3-text')
+        self.thread1 = self.fixture.thread_1
+        self.thread2 = self.fixture.thread_2
+        self.thread3 = self.fixture.thread_3
 
-        self.post1 = PostPrototype.create(self.thread1, self.account, 'post1-text')
+        self.post1 = self.fixture.post_1
 
 
 class ForumResourceReadAllTests(BaseTestRequests):
@@ -109,7 +104,7 @@ class TestSubcategoryRequests(BaseTestRequests):
 
     def test_subcategory(self):
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         texts = ['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption', 'pgf-new-thread-marker']
         self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id)), texts=texts)
 
@@ -203,6 +198,22 @@ class TestCreateThreadRequests(BaseTestRequests):
     @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
     def test_restricted(self):
         self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id)), 'forum.subcategory_access_restricted')
+
+
+class TestIndexThreadsRequests(BaseTestRequests):
+
+    def setUp(self):
+        super(TestIndexThreadsRequests, self).setUp()
+        self.index_url = url('forum:threads:')
+
+    def test_show_all(self):
+        self.check_html_ok(self.request_html(self.index_url), texts=[t.caption for t in ThreadPrototype._db_all()])
+
+    def test_no_restricted_threads(self):
+        self.subcat3._model.restricted = True
+        self.subcat3.save()
+
+        self.check_html_ok(self.request_html(self.index_url), texts=[self.thread1.caption, self.thread2.caption, (self.thread3.caption, 0)])
 
 
 class TestShowThreadRequests(BaseTestRequests):

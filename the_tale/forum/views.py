@@ -173,7 +173,7 @@ class ThreadsResource(BaseForumResource):
     @handler('', method='get')
     def index(self, author=None, page=1, participant=None):
 
-        threads_query = Thread.objects.all().order_by('-updated_at')
+        threads_query = Thread.objects.filter(subcategory__restricted=False).order_by('-updated_at')
 
         is_filtering = False
 
