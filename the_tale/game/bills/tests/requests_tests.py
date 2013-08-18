@@ -86,7 +86,7 @@ class TestIndexRequests(BaseTestRequests):
         self.account1.prolong_premium(-100)
         self.account1.save()
         self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-can-not-participate-in-politics', 1),
-                                                                           ('pgf-unlogined-message', 0),))
+                                                                             ('pgf-unlogined-message', 0),))
 
     def test_no_bills(self):
         self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-no-bills-message', 1),))
@@ -103,12 +103,11 @@ class TestIndexRequests(BaseTestRequests):
                                                                            ('pgf-create-new-bill-buttons', 1),
                                                                            ('pgf-can-not-participate-in-politics', 0)))
 
+    @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
     def test_can_not_participate_in_politics(self):
-        self.account1.prolong_premium(-100)
-        self.account1.save()
         self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 0),
-                                                                           ('pgf-create-new-bill-buttons', 0),
-                                                                           ('pgf-can-not-participate-in-politics', 1)))
+                                                                             ('pgf-create-new-bill-buttons', 0),
+                                                                             ('pgf-can-not-participate-in-politics', 1)))
 
     def test_one_page(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')

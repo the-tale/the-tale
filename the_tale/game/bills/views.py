@@ -56,6 +56,10 @@ class BillResource(Resource):
 
     @property
     def can_participate_in_politics(self):
+        return self.account.is_authenticated() and not self.account.is_fast
+
+    @property
+    def can_vote(self):
         return self.account.is_authenticated() and self.account.is_premium
 
     def can_moderate_bill(self):
@@ -70,8 +74,11 @@ class BillResource(Resource):
     @validator(code='bills.moderator_rights_required', message=u'Вы не являетесь модератором')
     def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_bill()
 
-    @validator(code='bills.can_not_participate_in_politics', message=u'Выдвигать законы и голосовать могут только подписчики')
+    @validator(code='bills.can_not_participate_in_politics', message=u'Для участия в политике вам необходимо закончить регистрацию')
     def validate_participate_in_politics(self, *args, **kwargs): return self.can_participate_in_politics
+
+    @validator(code='bills.can_not_vote', message=u'Голосовать могут только подписчики')
+    def validate_can_vote(self, *args, **kwargs): return self.can_vote
 
     @validate_argument('bill', BillPrototype.get_by_id, 'bills', u'Закон не найден')
     def initialize(self, bill=None, *args, **kwargs):
@@ -270,6 +277,7 @@ class BillResource(Resource):
     @nested_commit_on_success
     @validate_ban_game()
     @validate_participate_in_politics()
+    @validate_can_vote()
     @validate_voting_state(message=u'На данной стадии за закон нельзя голосовать')
     @validate_argument('type', lambda t: VOTE_TYPE._index_value[int(t)], 'bills.vote', u'Неверно указан тип голоса')
     @handler('#bill', 'vote', name='vote', method='post')

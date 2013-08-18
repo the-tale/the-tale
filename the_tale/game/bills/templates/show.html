@@ -36,10 +36,10 @@
   Вам необходимо <a href="{{login_url(resource.request.get_full_path())}}">войти</a> или <a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link">создать героя</a>, чтобы иметь возможность голосовать.
 </p>
 
-{% elif not resource.can_participate_in_politics %}
+{% elif not resource.can_vote %}
 
 <p class="alert alert-info pgf-can-not-participate-in-politics">
-  Предлагать законы и голосовать могут только подписчики, оформить подписку можно на странице <a href="{{url('accounts:payments:shop')}}">магазина</a>.
+  Голосовать могут только подписчики, оформить подписку можно на странице <a href="{{url('accounts:payments:shop')}}">магазина</a>.
 </p>
 
 {% elif not can_vote %}
