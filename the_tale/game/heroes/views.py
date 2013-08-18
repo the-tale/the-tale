@@ -28,7 +28,7 @@ from game import names
 
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask, ResetHeroAbilitiesTask
-from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT
+from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL
 from game.heroes.forms import ChoosePreferencesForm, EditNameForm
 from game.heroes.conf import heroes_settings
 
@@ -193,7 +193,7 @@ class HeroResource(Resource):
         friends = None
         enemies = None
         equipment_slots = None
-
+        favorite_items = None
 
         all_places = places_storage.all()
         all_places.sort(key=lambda x: x.name)
@@ -222,6 +222,14 @@ class HeroResource(Resource):
         elif type._is_EQUIPMENT_SLOT:
             equipment_slots = split_list(list(EQUIPMENT_SLOT._records))
 
+        elif type._is_RISK_LEVEL:
+            pass
+
+        elif type._is_FAVORITE_ITEM:
+            favorite_items = {slot: self.hero.equipment.get(slot)
+                              for slot in EQUIPMENT_SLOT._records
+                              if self.hero.equipment.get(slot) is not None}
+
         return self.template('heroes/choose_preferences.html',
                              {'type': type,
                               'mobs': mobs,
@@ -230,8 +238,10 @@ class HeroResource(Resource):
                               'friends': friends,
                               'enemies': enemies,
                               'equipment_slots': equipment_slots,
+                              'favorite_items': favorite_items,
                               'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.CHARACTER_PREFERENCES_CHANGE_DELAY),
-                              'EQUIPMENT_SLOT': EQUIPMENT_SLOT} )
+                              'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
+                              'RISK_LEVEL': RISK_LEVEL} )
 
     @login_required
     @validate_ownership()

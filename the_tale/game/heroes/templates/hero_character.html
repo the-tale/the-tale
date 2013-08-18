@@ -63,7 +63,7 @@ jQuery(document).ready(function(e){
     <strong>{{ type.text }}:</strong>
     <br/>
     <span class="" style="margin-left: 2em;">
-      {% if type.purchase_type in resource.account.permanent_purchases or resource.hero.level >= type.level_required %}
+      {% if (resource.account.is_authenticated() and type.purchase_type in resource.account.permanent_purchases) or resource.hero.level >= type.level_required %}
 
         {% if value %}
           {{value}}
@@ -86,7 +86,7 @@ jQuery(document).ready(function(e){
 
             {% if value %}
 
-              {% if not type._is_ENERGY_REGENERATION_TYPE %}
+              {% if type.nullable %}
                 <a class="pgf-remove-preference-button pull-right" href="#" data-preference-type="{{ type }}" style="margin-left: 5px;" rel="tooltip" title="удалить">
                   <i class="icon-trash"></i>
                 </a>
@@ -129,15 +129,25 @@ jQuery(document).ready(function(e){
     {% set pref_friend = resource.hero.preferences.friend and resource.hero.preferences.friend.name %}
     {% set pref_enemy = resource.hero.preferences.enemy and resource.hero.preferences.enemy.name %}
     {% set pref_equipment_slot = resource.hero.preferences.equipment_slot and resource.hero.preferences.equipment_slot.text %}
+    {% set pref_risk_level = resource.hero.preferences.risk_level and resource.hero.preferences.risk_level.text %}
+
+    {% if resource.hero.preferences.favorite_item %}
+      {% set pref_favorite_item = resource.hero.equipment.get(resource.hero.preferences.favorite_item) %}
+      {% set pref_favorite_item = '%s +%d' % (pref_favorite_item.name, pref_favorite_item.power) %}
+    {% else %}
+      {% set pref_favorite_item = none %}
+    {% endif %}
 
     {% set current_time = now() %}
 
     {{ preferences_record(PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, current_time,  pref_religion) }}
     {{ preferences_record(PREFERENCE_TYPE.PLACE, current_time, pref_place) }}
-    {{ preferences_record(PREFERENCE_TYPE.MOB, current_time, pref_mob) }}
+    {{ preferences_record(PREFERENCE_TYPE.RISK_LEVEL, current_time, pref_risk_level) }}
     {{ preferences_record(PREFERENCE_TYPE.FRIEND, current_time, pref_friend) }}
+    {{ preferences_record(PREFERENCE_TYPE.FAVORITE_ITEM, current_time, pref_favorite_item) }}
     {{ preferences_record(PREFERENCE_TYPE.ENEMY, current_time, pref_enemy) }}
     {{ preferences_record(PREFERENCE_TYPE.EQUIPMENT_SLOT, current_time, pref_equipment_slot) }}
+    {{ preferences_record(PREFERENCE_TYPE.MOB, current_time, pref_mob) }}
   </ul>
 
 </div>

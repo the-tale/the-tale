@@ -8,7 +8,7 @@ from rels.django_staff import TableIntegerField
 from game.game_info import GENDER
 from game.balance.enums import RACE, ANGEL_ENERGY_REGENERATION_TYPES
 
-from game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT
+from game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT, RISK_LEVEL
 
 
 class Hero(models.Model):
@@ -127,3 +127,5 @@ class HeroPreferences(models.Model):
     friend = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
     enemy = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
     equipment_slot = TableIntegerField(relation=EQUIPMENT_SLOT, null=True, default=None, blank=True)
+    risk_level = TableIntegerField(relation=RISK_LEVEL)
+    favorite_item = TableIntegerField(relation=EQUIPMENT_SLOT, null=True, default=None, blank=True)

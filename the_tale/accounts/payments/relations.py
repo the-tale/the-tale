@@ -36,4 +36,6 @@ class PERMANENT_PURCHASE_TYPE(DjangoEnum):
                   preference_record(3, PREFERENCE_TYPE.FRIEND),
                   preference_record(4, PREFERENCE_TYPE.ENEMY),
                   preference_record(5, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
-                  preference_record(6, PREFERENCE_TYPE.EQUIPMENT_SLOT)  )
+                  preference_record(6, PREFERENCE_TYPE.EQUIPMENT_SLOT),
+                  preference_record(7, PREFERENCE_TYPE.RISK_LEVEL),
+                  preference_record(8, PREFERENCE_TYPE.FAVORITE_ITEM))

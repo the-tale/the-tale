@@ -20,7 +20,7 @@ from game.mobs.storage import mobs_storage
 from game.persons.storage import persons_storage
 
 from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
-from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT
+from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL
 
 
 CHOOSE_HERO_ABILITY_STATE = create_enum('CHOOSE_HERO_ABILITY_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
@@ -194,7 +194,9 @@ CHOOSE_PREFERENCES_TASK_STATE = create_enum('CHOOSE_PREFERENCES_TASK_STATE', ( (
                                                                                ('UNKNOWN_PERSON', 12, u'неизвестный житель'),
                                                                                ('UNKNOWN_EQUIPMENT_SLOT', 13, u'неизвестный тип экипировки'),
                                                                                ('UNKNOWN_PREFERENCE', 14, u'неизвестный тип предпочтения'),
-                                                                               ('MOB_NOT_IN_GAME', 15, u'этот тип противника выведен из игры')) )
+                                                                               ('MOB_NOT_IN_GAME', 15, u'этот тип противника выведен из игры'),
+                                                                               ('UNKNOWN_RISK_LEVEL', 16, u'неизвестный уровень риска'),
+                                                                               ('EMPTY_EQUIPMENT_SLOT', 17, u'пустой слот экипировки')) )
 
 
 class ChoosePreferencesTask(PostponedLogic):
@@ -325,7 +327,7 @@ class ChoosePreferencesTask(PostponedLogic):
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
 
-    def process_slot(self, main_task, hero):
+    def process_equipment_slot(self, main_task, hero):
 
         equipment_slot = int(self.preference_id) if self.preference_id is not None else None
 
@@ -339,6 +341,46 @@ class ChoosePreferencesTask(PostponedLogic):
             equipment_slot = EQUIPMENT_SLOT._index_value[equipment_slot]
 
         hero.preferences.set_equipment_slot(equipment_slot)
+
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+    def process_favorite_item(self, main_task, hero):
+
+        equipment_slot = int(self.preference_id) if self.preference_id is not None else None
+
+        if equipment_slot is not None:
+
+            if equipment_slot not in EQUIPMENT_SLOT._index_value:
+                main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
+                self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+            equipment_slot = EQUIPMENT_SLOT._index_value[equipment_slot]
+
+            if hero.equipment.get(equipment_slot) is None:
+                main_task.comment = u'empty equipment slot for favorite item: %s' % (equipment_slot, )
+                self.state = CHOOSE_PREFERENCES_TASK_STATE.EMPTY_EQUIPMENT_SLOT
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+        hero.preferences.set_favorite_item(equipment_slot)
+
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+
+    def process_risk_level(self, main_task, hero):
+
+        risk_level = int(self.preference_id) if self.preference_id is not None else None
+
+        if risk_level is not None:
+
+            if risk_level not in RISK_LEVEL._index_value:
+                main_task.comment = u'unknown risk level: %s' % (risk_level, )
+                self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_RISK_LEVEL
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+            risk_level = RISK_LEVEL._index_value[risk_level]
+
+        hero.preferences.set_risk_level(risk_level)
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
@@ -380,7 +422,13 @@ class ChoosePreferencesTask(PostponedLogic):
             result = self.process_enemy(main_task, hero)
 
         elif self.preference_type._is_EQUIPMENT_SLOT:
-            result = self.process_slot(main_task, hero)
+            result = self.process_equipment_slot(main_task, hero)
+
+        elif self.preference_type._is_RISK_LEVEL:
+            result = self.process_risk_level(main_task, hero)
+
+        elif self.preference_type._is_FAVORITE_ITEM:
+            result = self.process_favorite_item(main_task, hero)
 
         else:
             main_task.comment = u'unknown preference type: %s' % (self.preference_type, )

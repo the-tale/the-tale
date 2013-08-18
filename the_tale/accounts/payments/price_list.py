@@ -34,6 +34,12 @@ def permanent_purchase(uid, purchase_type, cost, transaction_description):
                              purchase_type=purchase_type,
                              transaction_description=transaction_description)
 
+def permanent_permission_purchase(uid, purchase_type, cost):
+    return permanent_purchase(uid=uid,
+                              purchase_type=purchase_type,
+                              cost=cost,
+                              transaction_description=u'Снятие ограничения уровня на предпочтение героя «%s»' % purchase_type.preference_type.text)
+
 
 PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
                             name=u'7 дней подписки',
@@ -77,30 +83,33 @@ PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
                               charges_number=10,
                               transaction_description=u'Покупка 10 зарядов энергии.'),
 
-                permanent_purchase(uid=u'prefernece-mob',
-                                   cost=30,
-                                   purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_MOB,
-                                   transaction_description=u'Приобретение разрешения на владение гильдией.'),
+                permanent_permission_purchase(uid=u'preference-place',
+                                              cost=10,
+                                              purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_PLACE),
 
-                permanent_purchase(uid=u'prefernece-place',
-                                   cost=10,
-                                   purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_PLACE,
-                                   transaction_description=u'Приобретение разрешения на владение гильдией.'),
+                permanent_permission_purchase(uid=u'preference-risk-level',
+                                              cost=20,
+                                              purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_RISK_LEVEL),
 
-                permanent_purchase(uid=u'prefernece-friend',
-                                   cost=50,
-                                   purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_FRIEND,
-                                   transaction_description=u'Приобретение разрешения на владение гильдией.'),
+                permanent_permission_purchase(uid=u'preference-friend',
+                                              cost=30,
+                                              purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_FRIEND),
 
-                permanent_purchase(uid=u'prefernece-enemy',
-                                   cost=80,
-                                   purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_ENEMY,
-                                   transaction_description=u'Приобретение разрешения на владение гильдией.'),
+                permanent_permission_purchase(uid=u'preference-favorite-item',
+                                              cost=40,
+                                              purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_FAVORITE_ITEM),
 
-                permanent_purchase(uid=u'prefernece-equipment-slot',
-                                   cost=100,
-                                   purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_EQUIPMENT_SLOT,
-                                   transaction_description=u'Приобретение разрешения на владение гильдией.'),
+                permanent_permission_purchase(uid=u'preference-enemy',
+                                              cost=50,
+                                              purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_ENEMY),
+
+                permanent_permission_purchase(uid=u'preference-equipment-slot',
+                                              cost=60,
+                                              purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_EQUIPMENT_SLOT),
+
+                permanent_permission_purchase(uid=u'preference-mob',
+                                              cost=70,
+                                              purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_MOB),
 
                 permanent_purchase(uid=u'clan-ownership-right',
                                    cost=150,

@@ -7,17 +7,31 @@ from game.artifacts.models import ARTIFACT_TYPE
 
 from game.heroes.statistics import MONEY_SOURCE
 
+class RISK_LEVEL(DjangoEnum):
+    health_percent_to_rest = Column()
+
+    _records = ( ('VERY_HIGH', 0, u'очень высокий', 0.70),
+                 ('HIGH',      1, u'высокий', 0.85),
+                 ('NORMAL',    2, u'обычный', 1.00),
+                 ('LOW',       3, u'низкий', 1.15),
+                 ('VERY_LOW',  4, u'очень низкий', 1.30) )
+
+
 class PREFERENCE_TYPE(DjangoEnum):
     level_required = Column()
     base_name = Column()
     prepair_method = Column(unique=False)
+    nullable = Column(unique=False)
 
-    _records = ( ('MOB', 0, u'любимая добыча', 7, 'mob', '_prepair_mob'),
-                 ('PLACE', 1, u'родной город', 3, 'place', '_prepair_place'),
-                 ('FRIEND', 2, u'соратник', 11, 'friend', '_prepair_person'),
-                 ('ENEMY', 3, u'противник', 16, 'enemy', '_prepair_person'),
-                 ('ENERGY_REGENERATION_TYPE', 4, u'религиозность', 1, 'energy_regeneration_type', '_prepair_value'),
-                 ('EQUIPMENT_SLOT', 5, u'экипировка', 21, 'equipment_slot', '_prepair_equipment_slot') )
+    _records = ( ('MOB', 0, u'любимая добыча', 43, 'mob', '_prepair_mob', True),
+                 ('PLACE', 1, u'родной город', 4, 'place', '_prepair_place', True),
+                 ('FRIEND', 2, u'соратник', 13, 'friend', '_prepair_person', True),
+                 ('ENEMY', 3, u'противник', 26, 'enemy', '_prepair_person', True),
+                 ('ENERGY_REGENERATION_TYPE', 4, u'религиозность', 1, 'energy_regeneration_type', '_prepair_value', False),
+                 ('EQUIPMENT_SLOT', 5, u'экипировка', 34, 'equipment_slot', '_prepair_equipment_slot', True),
+                 ('RISK_LEVEL', 6, u'уровень риска', 8, 'risk_level', '_prepair_risk_level', False),
+                 ('FAVORITE_ITEM', 7, u'любимая вещь', 19, 'favorite_item', '_prepair_equipment_slot', True)
+        )
 
 
 class ITEMS_OF_EXPENDITURE(DjangoEnum):

@@ -1,0 +1,22 @@
+
+{% macro preference_record(item, choosen_id) %}
+<td class="hero-preference-choise {% if item == choosen_id %}choosen{% endif %}">
+  {% if item != choosen_id %}
+  <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.value }}">{{ item.text }}</a>
+  {% else %}
+  <a href="#" class="current-choice pgf-close-dialog">{{ item.text }}</a>
+  {% endif %}
+</td>
+{% endmacro %}
+
+<p>
+  Каждый герой волен сам распоряжаться своей жизнью (когда за ним не следит Хранитель). Одни герои предпочитают постоянно рисковать, другие, наоборот осторожничают и при любой царапине тянутся за аптечкой. Вы можете выбрать, как ваш подопечный будет относиться к своей безопасности.
+</p>
+
+<table class="table table-bordered table-striped table-condensed">
+  {% for risk_level in RISK_LEVEL._records %}
+  <tr>
+    {{ preference_record(risk_level, resource.hero.preferences.risk_level) }}
+  </tr>
+  {% endfor %}
+</table>

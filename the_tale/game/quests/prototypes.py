@@ -254,7 +254,7 @@ class QuestPrototype(BasePrototype):
 
         if random.choice(choices) == 'buy':
             cur_action.hero.change_money(MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -money_spend)
-            artifact, unequipped, sell_price = cur_action.hero.buy_artifact(better=True)
+            artifact, unequipped, sell_price = cur_action.hero.buy_artifact(better=True, with_prefered_slot=True, equip=True)
 
             if artifact is None:
                 self.push_message(writer, cur_action.hero, '%s_fail' % cmd.event,
@@ -301,7 +301,7 @@ class QuestPrototype(BasePrototype):
     def cmd_get_reward(self, cmd, cur_action, writer):
 
         if cur_action.hero.can_get_artifact_for_quest():
-            artifact, unequipped, sell_price = cur_action.hero.buy_artifact(equip=False)# pylint: disable=W0612
+            artifact, unequipped, sell_price = cur_action.hero.buy_artifact(better=False, with_prefered_slot=False, equip=False)# pylint: disable=W0612
 
             if artifact is not None:
                 self.push_message(writer, cur_action.hero, '%s_artifact' % cmd.event, hero=cur_action.hero, artifact=artifact)

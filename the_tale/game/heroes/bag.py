@@ -64,6 +64,10 @@ class Bag(object):
         return self.bag.values()
 
     @property
+    def is_empty(self):
+        return not self.bag
+
+    @property
     def occupation(self):
         quest_items_count = 0
         loot_items_count = 0
@@ -129,7 +133,7 @@ class Equipment(object):
     def get(self, slot):
         return self.equipment.get(slot.value, None)
 
-    def test_remove_all(self):
+    def _remove_all(self):
         for slot in EQUIPMENT_SLOT._records:
             self.unequip(slot)
         self.updated = True

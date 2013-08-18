@@ -41,7 +41,7 @@ from game.heroes.logic import ValuesDict
 from game.heroes.pvp import PvPData
 from game.heroes.messages import MessagesContainer
 from game.heroes.places_help_statistics import PlacesHelpStatistics
-from game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT
+from game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT, RISK_LEVEL
 
 
 class HeroPrototype(BasePrototype):
@@ -265,26 +265,36 @@ class HeroPrototype(BasePrototype):
     def pop_quest_loot(self, artifact):
         self.bag.pop_quest_artifact(artifact)
 
+    def buy_artifact_choices(self, equip, with_prefered_slot):
 
-    def buy_artifact(self, better=False, with_preferences=True, equip=True):
-        artifacts_list = None
-        if self.preferences.equipment_slot is not None:
-            if with_preferences:
-                artifact_types = [self.preferences.equipment_slot.artifact_type]
-            else:
-                artifact_types = set(zip(*EQUIPMENT_SLOT._select('artifact_type'))[0])
-                artifact_types -= set([self.preferences.equipment_slot.artifact_type])
+        allowed_slots = list(EQUIPMENT_SLOT._records)
 
-            artifacts_list = artifacts_storage.artifacts_for_type(artifact_types)
+        if self.preferences.favorite_item and equip:
+            allowed_slots.remove(self.preferences.favorite_item)
 
-        if not artifacts_list:
-            # if hero has not preferences or can not get any item for preferences slot
-            artifacts_list = artifacts_storage.artifacts
+        slot_choices = allowed_slots
 
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_list, self.level)
+        if with_prefered_slot and self.preferences.equipment_slot is not None and self.preferences.equipment_slot in allowed_slots:
+            slot_choices = [self.preferences.equipment_slot]
+
+        artifacts_choices = artifacts_storage.artifacts_for_type([slot.artifact_type for slot in slot_choices])
+
+        if not artifacts_choices:
+            artifacts_choices = artifacts_storage.artifacts_for_type([slot.artifact_type for slot in allowed_slots])
+
+        return artifacts_choices
+
+    def buy_artifact(self, better, with_prefered_slot, equip):
+
+        artifact_choices = self.buy_artifact_choices(equip=equip, with_prefered_slot=with_prefered_slot)
+
+        artifact = artifacts_storage.generate_artifact_from_list(artifact_choices, self.level)
 
         if artifact is None:
             return None, None, None
+
+        if EQUIPMENT_SLOT._index_artifact_type[artifact.type.value] == self.preferences.equipment_slot:
+            better = True
 
         self.bag.put_artifact(artifact)
 
@@ -381,6 +391,9 @@ class HeroPrototype(BasePrototype):
 
             slot = EQUIPMENT_SLOT._index_artifact_type[artifact.type.value]
 
+            if self.preferences.favorite_item == slot:
+                continue
+
             equipped_artifact = self.equipment.get(slot)
 
             if equipped_artifact is None:
@@ -396,6 +409,10 @@ class HeroPrototype(BasePrototype):
 
         return equipped_slot, unequipped, equipped
 
+    def equip_from_bag(self):
+        slot, unequipped, equipped = self.get_equip_canditates()
+        self.change_equipment(slot, unequipped, equipped)
+        return slot, unequipped, equipped
 
     def change_equipment(self, slot, unequipped, equipped):
         if unequipped:
@@ -547,10 +564,10 @@ class HeroPrototype(BasePrototype):
     ###########################################
 
     @property
-    def need_rest_in_settlement(self): return self.health < self.max_health * c.HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION
+    def need_rest_in_settlement(self): return self.health < self.max_health * c.HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION * self.preferences.risk_level.health_percent_to_rest
 
     @property
-    def need_rest_in_move(self): return self.health < self.max_health * c.HEALTH_IN_MOVE_TO_START_HEAL_FRACTION
+    def need_rest_in_move(self): return self.health < self.max_health * c.HEALTH_IN_MOVE_TO_START_HEAL_FRACTION * self.preferences.risk_level.health_percent_to_rest
 
     @property
     def need_trade_in_town(self):
@@ -579,6 +596,8 @@ class HeroPrototype(BasePrototype):
         preferences = HeroPreferences.deserialize(hero_id=self.id, data=s11n.from_json(self._model.preferences))
         if preferences.energy_regeneration_type is None:
             preferences.set_energy_regeneration_type(RACE_TO_ENERGY_REGENERATION_TYPE[self.race], change_time=datetime.datetime.fromtimestamp(0))
+        if preferences.risk_level is None:
+            preferences.set_risk_level(RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
         return preferences
 
     @lazy_property
@@ -855,7 +874,9 @@ class HeroPrototype(BasePrototype):
 
         hero = cls(model=hero)
 
-        HeroPreferencesPrototype.create(hero, hero.preferences.energy_regeneration_type)
+        HeroPreferencesPrototype.create(hero,
+                                        energy_regeneration_type=hero.preferences.energy_regeneration_type,
+                                        risk_level=RISK_LEVEL.NORMAL)
 
         storage = LogicStorage() # tmp storage for creating Idleness action
 
@@ -1070,7 +1091,9 @@ class HeroPreferencesPrototype(BasePrototype):
                  'place_id',
                  'friend_id',
                  'enemy_id',
-                 'equipment_slot')
+                 'equipment_slot',
+                 'risk_level',
+                 'favorite_item')
     _bidirectional = ()
     _get_by = ('id', 'hero_id')
 
@@ -1078,9 +1101,10 @@ class HeroPreferencesPrototype(BasePrototype):
         super(HeroPreferencesPrototype, self).__init__(**kwargs)
 
     @classmethod
-    def create(cls, hero, energy_regeneration_type):
+    def create(cls, hero, energy_regeneration_type, risk_level):
         return cls(model=cls._model_class.objects.create(hero=hero._model,
-                                                         energy_regeneration_type=energy_regeneration_type))
+                                                         energy_regeneration_type=energy_regeneration_type,
+                                                         risk_level=risk_level))
 
     @classmethod
     def update(cls, hero_id, field, value):

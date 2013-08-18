@@ -26,7 +26,7 @@ from game.persons.models import Person, PERSON_STATE
 from game.persons.storage import persons_storage
 
 from game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
-from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT
+from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL
 from game.heroes.postponed_tasks import ChoosePreferencesTask, CHOOSE_PREFERENCES_TASK_STATE
 from game.heroes.preferences import HeroPreferences
 
@@ -874,6 +874,203 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
         self.check_change_equipment_slot(None, self.slot_1, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
+class HeroPreferencesFavoriteItemTest(TestCase):
+
+    def setUp(self):
+        super(HeroPreferencesFavoriteItemTest, self).setUp()
+        create_test_map()
+
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.account = AccountPrototype.get_by_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
+        self.hero._model.level = PREFERENCE_TYPE.FAVORITE_ITEM.level_required
+        self.hero._model.save()
+
+        self.slot_1 = EQUIPMENT_SLOT.HAND_PRIMARY
+        self.slot_2 = EQUIPMENT_SLOT.PLATE
+
+    def test_preferences_serialization(self):
+        self.hero.preferences.set_favorite_item(self.slot_1)
+        data = self.hero.preferences.serialize()
+        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+
+    def test_save(self):
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.preferences.set_favorite_item(self.slot_1)
+        self.assertTrue(self.hero.preferences.updated)
+        self.hero.save()
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.reload()
+        self.assertEqual(self.hero.preferences.favorite_item, self.slot_1)
+
+
+    def test_create(self):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FAVORITE_ITEM, 'wrong_equip_slot')
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
+        self.assertEqual(self.hero.preferences.favorite_item, None)
+
+    def test_wrong_level(self):
+        self.assertTrue(PREFERENCE_TYPE.FAVORITE_ITEM.level_required > 1)
+        self.hero._model.level = 1
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FAVORITE_ITEM, self.slot_1.value)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
+
+    def test_empty_slot(self):
+        self.hero.equipment._remove_all()
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FAVORITE_ITEM, self.slot_1.value)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.EMPTY_EQUIPMENT_SLOT)
+
+    def check_set_favorite_item(self, slot_1):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FAVORITE_ITEM , slot_1.value)
+        self.assertEqual(self.hero.preferences.favorite_item, None)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.favorite_item, slot_1)
+
+    def test_purchased(self):
+        self.assertTrue(PREFERENCE_TYPE.FAVORITE_ITEM.level_required > 1)
+        self.hero._model.level = 1
+        self.account.permanent_purchases.insert(PREFERENCE_TYPE.FAVORITE_ITEM.purchase_type)
+        self.account.save()
+
+        self.check_set_favorite_item(self.slot_1)
+
+
+    def test_wrong_slot(self):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FAVORITE_ITEM, 666)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT)
+
+    def test_set_favorite_item(self):
+        changed_at = self.hero.preferences.favorite_item_changed_at
+        self.check_set_favorite_item(self.slot_1)
+        self.assertTrue(changed_at < self.hero.preferences.favorite_item_changed_at)
+
+    def check_change_favorite_item(self, new_slot, expected_slot, expected_state):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FAVORITE_ITEM, self.slot_1.value)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FAVORITE_ITEM, new_slot.value if new_slot is not None else None)
+        self.assertEqual(self.hero.preferences.favorite_item, self.slot_1)
+        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(task.state, expected_state)
+        self.assertEqual(self.hero.preferences.favorite_item, expected_slot)
+
+        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).favorite_item, expected_slot)
+
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    def test_change_favorite_item(self):
+        self.check_change_favorite_item(self.slot_2, self.slot_2, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
+
+    def test_change_favorite_item_cooldown(self):
+        self.check_change_favorite_item(self.slot_2, self.slot_1, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
+
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    def test_remove_favorite_item(self):
+        self.check_change_favorite_item(None, None, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
+
+    def test_remove_favorite_item_cooldown(self):
+        self.check_change_favorite_item(None, self.slot_1, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
+
+
+
+class HeroPreferencesRiskLevelTest(TestCase):
+
+    def setUp(self):
+        super(HeroPreferencesRiskLevelTest, self).setUp()
+        create_test_map()
+
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.account = AccountPrototype.get_by_id(account_id)
+        self.storage = LogicStorage()
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
+        self.hero._model.level = PREFERENCE_TYPE.RISK_LEVEL.level_required
+        self.hero._model.save()
+
+        self.risk_1 = RISK_LEVEL.VERY_HIGH
+        self.risk_2 = RISK_LEVEL.VERY_LOW
+
+    def test_preferences_serialization(self):
+        self.hero.preferences.set_risk_level(self.risk_1)
+        data = self.hero.preferences.serialize()
+        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+
+    def test_save(self):
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.preferences.set_risk_level(self.risk_1)
+        self.assertTrue(self.hero.preferences.updated)
+        self.hero.save()
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.reload()
+        self.assertEqual(self.hero.preferences.risk_level, self.risk_1)
+
+    def test_create(self):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.RISK_LEVEL, 'wrong_risk_level')
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
+        self.assertTrue(self.hero.preferences.risk_level._is_NORMAL )
+
+    def test_wrong_level(self):
+        self.assertTrue(PREFERENCE_TYPE.RISK_LEVEL.level_required > 1)
+        self.hero._model.level = 1
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.RISK_LEVEL, self.risk_1.value)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
+        self.assertTrue(self.hero.preferences.risk_level._is_NORMAL )
+
+    def check_set_risk_level(self, risk_1):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.RISK_LEVEL , risk_1.value)
+        self.assertTrue(self.hero.preferences.risk_level._is_NORMAL)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.risk_level, risk_1)
+
+    def test_purchased(self):
+        self.assertTrue(PREFERENCE_TYPE.RISK_LEVEL.level_required > 1)
+        self.hero._model.level = 1
+        self.account.permanent_purchases.insert(PREFERENCE_TYPE.RISK_LEVEL.purchase_type)
+        self.account.save()
+
+        self.check_set_risk_level(self.risk_1)
+
+    def test_wrong_risk_level(self):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.RISK_LEVEL, 666)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_RISK_LEVEL)
+        self.assertTrue(self.hero.preferences.risk_level._is_NORMAL )
+
+    def test_set_risk_level(self):
+        changed_at = self.hero.preferences.risk_level_changed_at
+        self.check_set_risk_level(self.risk_1)
+        self.assertTrue(changed_at < self.hero.preferences.risk_level_changed_at)
+
+    def check_change_risk_level(self, new_slot, expected_slot, expected_state):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.RISK_LEVEL, self.risk_1.value)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.RISK_LEVEL, new_slot.value if new_slot is not None else None)
+        self.assertEqual(self.hero.preferences.risk_level, self.risk_1)
+        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(task.state, expected_state)
+        self.assertEqual(self.hero.preferences.risk_level, expected_slot)
+
+        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).risk_level, expected_slot)
+
+    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    def test_change_risk_level(self):
+        self.check_change_risk_level(self.risk_2, self.risk_2, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
+
+    def test_change_risk_level_cooldown(self):
+        self.check_change_risk_level(self.risk_2, self.risk_1, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
+
 
 class HeroPreferencesRequestsTest(TestCase):
 
@@ -903,6 +1100,12 @@ class HeroPreferencesRequestsTest(TestCase):
 
     def tearDown(self):
         pass
+
+    def test_preferences_dialog_energy_regeneration(self):
+        self.request_login('test_user@test.com')
+        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE.value))
+        self.check_html_ok(response, texts=[text.capitalize() for text in e.ANGEL_ENERGY_REGENERATION_TYPES._ID_TO_TEXT.values()])
+
 
     def test_preferences_dialog_mob(self):
         self.request_login('test_user@test.com')
@@ -951,6 +1154,18 @@ class HeroPreferencesRequestsTest(TestCase):
             texts.append(('data-preference-id="%d"' % person.id, 1))
 
         self.check_html_ok(response, texts=texts)
+
+    def test_preferences_dialog_risk_level(self):
+        self.request_login('test_user@test.com')
+        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.RISK_LEVEL.value))
+        self.check_html_ok(response, texts=[r.text for r in RISK_LEVEL._records])
+
+    def test_preferences_dialog_favorite_item(self):
+        self.request_login('test_user@test.com')
+        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.FAVORITE_ITEM.value))
+        self.check_html_ok(response, texts=[self.hero.equipment.get(slot).name
+                                            for slot in EQUIPMENT_SLOT._records
+                                            if self.hero.equipment.get(slot)])
 
     def test_preferences_dialog_unlogined(self):
         request_url = reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY.value)

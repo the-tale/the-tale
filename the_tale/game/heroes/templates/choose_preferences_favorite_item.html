@@ -1,0 +1,21 @@
+{% macro preference_record(item, choosen_id, artifact) %}
+<td class="hero-preference-choise {% if item == choosen_id %}choosen{% endif %}">
+  {% if item != choosen_id %}
+  <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.value }}">{{ artifact.name }} +{{artifact.power}}</a>
+  {% else %}
+  <a href="#" class="current-choice pgf-close-dialog">{{ artifact.name }} +{{artifact.power}}</a>
+  {% endif %}
+</td>
+{% endmacro %}
+
+<p>
+  Со временем у каждого героя появляется любимая вещь. Это может быть как просто красивое кольцо, так и старый (но надёжный) меч, что не раз спасал владельцу жизнь. С такой вещью героя ни при каких обстоятельствах никогда и нигде не расстанется.
+</p>
+
+<table class="table table-bordered table-striped table-condensed">
+  {% for slot, artifact in favorite_items.items() %}
+  <tr>
+    {{ preference_record(slot, resource.hero.preferences.favorite_item, artifact) }}
+  </tr>
+  {% endfor %}
+</table>

@@ -11,7 +11,6 @@ from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
 from game.logic import create_test_map
-from game.artifacts.storage import artifacts_storage
 from game.prototypes import TimePrototype
 
 
@@ -22,7 +21,7 @@ from game.quests.quests_builders import SearchSmith
 from game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 from game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle
 from game.heroes.conf import heroes_settings
-from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT
+from game.heroes.relations import EQUIPMENT_SLOT, RISK_LEVEL
 
 
 class HeroTest(TestCase):
@@ -44,8 +43,12 @@ class HeroTest(TestCase):
         self.assertTrue(self.hero.is_alive)
         self.assertEqual(self.hero.created_at_turn, TimePrototype.get_current_time().turn_number)
         self.assertEqual(self.hero.abilities.get('hit').level, 1)
+
+        self.assertTrue(self.hero.preferences.risk_level._is_NORMAL)
+
         self.assertEqual(HeroPreferencesPrototype._db_count(), 1)
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).energy_regeneration_type, self.hero.preferences.energy_regeneration_type)
+        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).risk_level, self.hero.preferences.risk_level)
 
 
     def test_is_premium(self):
@@ -268,6 +271,30 @@ class HeroTest(TestCase):
         self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(days=1)
         maximum_with_premium = self.hero.energy_maximum
         self.assertTrue(maximum_without_premium < maximum_with_premium)
+
+
+    def check_rests_from_risk(self, method):
+        results = []
+        for risk_level in RISK_LEVEL._records:
+            values = []
+            self.hero.preferences.set_risk_level(risk_level)
+            for health_percents in xrange(1, 100, 1):
+                self.hero._model.health = self.hero.max_health * float(health_percents) / 100
+                values.append(method(self.hero))
+            results.append(values)
+
+        for i, result_1 in enumerate(results):
+            for j, result_2 in enumerate(results):
+                if i == j:
+                    continue
+                self.assertNotEqual(result_1, result_2)
+
+    def test_need_rest_in_settlement__from_risk_level(self):
+        self.check_rests_from_risk(lambda hero: hero.need_rest_in_settlement)
+
+    def test_need_rest_in_move__from_risk_level(self):
+        self.check_rests_from_risk(lambda hero: hero.need_rest_in_move)
+
 
 
 class HeroPositionTest(TestCase):
@@ -495,7 +522,7 @@ class HeroGetSpecialQuestsTest(TestCase):
         self.assertFalse(SearchSmith.type() in self.hero.get_special_quests())
 
     def test_special_quests_searchsmith_with_preferences_without_artifact(self):
-        self.hero.equipment.test_remove_all()
+        self.hero.equipment._remove_all()
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
@@ -507,113 +534,3 @@ class HeroGetSpecialQuestsTest(TestCase):
 
         self.assertTrue(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE) is not None)
         self.assertTrue(SearchSmith.type() in self.hero.get_special_quests())
-
-
-class HeroEquipmentTests(TestCase):
-
-    def setUp(self):
-        super(HeroEquipmentTests, self).setUp()
-        create_test_map()
-
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-
-        self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-
-        self.hero = self.storage.accounts_to_heroes[account_id]
-        self.hero._model.level = PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
-        self.hero.save()
-
-    def test_sharp_artifact(self):
-        old_power = self.hero.power
-        artifact = self.hero.sharp_artifact()
-        self.assertEqual(self.hero.power, old_power+1)
-        self.assertEqual(artifact.power, 1)
-        self.assertTrue(self.hero.equipment.updated)
-
-
-    def test_sharp_artifact_when_all_artifacts_has_max_power(self):
-        min_power, max_power = f.power_to_artifact_interval(self.hero.level)
-
-        for artifact in self.hero.equipment.equipment.values():
-            artifact.power = max_power
-
-        old_power = self.hero.power
-        artifact = self.hero.sharp_artifact()
-        self.assertEqual(self.hero.power, old_power+1)
-        self.assertEqual(artifact.power, max_power + 1)
-        self.assertTrue(self.hero.equipment.updated)
-
-    def test_sharp_preferences(self):
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.HAND_PRIMARY)
-
-        artifact = self.hero.sharp_artifact()
-        self.assertTrue(artifact.type.is_main_hand)
-
-
-    def test_sharp_preferences_with_max_power(self):
-        min_power, max_power = f.power_to_artifact_interval(self.hero.level)
-
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.HAND_PRIMARY)
-
-        artifact = self.hero.equipment.get(EQUIPMENT_SLOT.HAND_PRIMARY)
-        artifact.power = max_power
-
-        artifact = self.hero.sharp_artifact()
-        self.assertFalse(artifact.type.is_main_hand)
-
-    def test_buy_artifact_and_not_equip(self):
-        old_equipment = self.hero.equipment.serialize()
-        old_bag = self.hero.bag.serialize()
-        self.hero.buy_artifact(equip=False)
-        self.assertEqual(old_equipment, self.hero.equipment.serialize())
-        self.assertNotEqual(old_bag, self.hero.bag.serialize())
-
-
-    def test_equipping_process(self):
-        self.assertEqual(self.hero.get_equip_canditates(), (None, None, None))
-
-        #equip artefact in empty slot
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
-
-        equip_slot = EQUIPMENT_SLOT._index_artifact_type[artifact.type.value]
-        self.hero.equipment.unequip(equip_slot)
-
-        self.hero.bag.put_artifact(artifact)
-
-        slot, unequipped, equipped = self.hero.get_equip_canditates()
-        self.assertTrue(slot)
-        self.assertTrue(unequipped is None)
-        self.assertEqual(equipped, artifact)
-
-        self.hero.change_equipment(slot, unequipped, equipped)
-        self.assertTrue(not self.hero.bag.items())
-        self.assertEqual(self.hero.equipment.get(slot), artifact)
-
-        # change artifact
-        new_artifact = artifacts_storage.generate_artifact_from_list([artifact.record], self.hero.level)
-        new_artifact.power = artifact.power + 1
-        self.hero.bag.put_artifact(new_artifact)
-
-        slot, unequipped, equipped = self.hero.get_equip_canditates()
-        self.assertTrue(slot)
-        self.assertEqual(unequipped, artifact)
-        self.assertEqual(equipped, new_artifact)
-
-        self.hero.change_equipment(slot, unequipped, equipped)
-        self.assertEqual(self.hero.bag.items()[0][1], artifact)
-        self.assertEqual(len(self.hero.bag.items()), 1)
-        self.assertEqual(self.hero.equipment.get(slot), new_artifact)
-
-        self.storage._test_save()
-
-    def test_randomize_equip__working(self):
-        self.hero.randomize_equip()
-
-        old_hero_power = self.hero.power
-
-        self.hero._model.level = 50
-
-        self.hero.randomize_equip()
-
-        self.assertTrue(old_hero_power < self.hero.power)

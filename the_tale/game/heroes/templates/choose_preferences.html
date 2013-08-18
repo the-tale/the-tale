@@ -16,6 +16,10 @@
       Выберите противника
       {% elif type._is_EQUIPMENT_SLOT %}
       Выберите слот экипировки
+      {% elif type._is_RISK_LEVEL %}
+      Выберите уровень риска
+      {% elif type._is_FAVORITE_ITEM %}
+      Выберите любимую вещь
       {% endif %}
     </h3>
   </div>
@@ -51,6 +55,13 @@
 
     {% elif type._is_EQUIPMENT_SLOT %}
     {% include "heroes/choose_preferences_equipment_slot.html" with context %}
+
+    {% elif type._is_RISK_LEVEL %}
+    {% include "heroes/choose_preferences_risk_level.html" with context %}
+
+    {% elif type._is_FAVORITE_ITEM %}
+    {% include "heroes/choose_preferences_favorite_item.html" with context %}
+
     {% endif %}
 
   </div>

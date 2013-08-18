@@ -918,7 +918,7 @@ class ActionInPlacePrototype(ActionBase):
 
             better = self.hero.can_buy_better_artifact()
 
-            artifact, unequipped, sell_price = self.hero.buy_artifact(better=better, with_preferences=False)
+            artifact, unequipped, sell_price = self.hero.buy_artifact(better=better, with_prefered_slot=False, equip=True)
 
             if unequipped is not None:
                 self.hero.add_message('action_inplace_diary_buying_artifact_and_change', diary=True,
@@ -1100,8 +1100,8 @@ class ActionEquippingPrototype(ActionBase):
             # TODO: calculate real percents
             self.percents = min(self.percents+0.25, 1)
 
-            slot, unequipped, equipped = self.hero.get_equip_canditates()
-            self.hero.change_equipment(slot, unequipped, equipped)
+            slot, unequipped, equipped = self.hero.equip_from_bag()
+
             if equipped:
                 if unequipped:
                     if equipped.id == unequipped.id:

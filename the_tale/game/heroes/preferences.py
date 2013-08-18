@@ -14,7 +14,7 @@ from game.map.places.storage import places_storage
 
 from game.persons.storage import persons_storage
 
-from game.heroes.relations import EQUIPMENT_SLOT, PREFERENCE_TYPE
+from game.heroes.relations import EQUIPMENT_SLOT, PREFERENCE_TYPE, RISK_LEVEL
 from game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 
 
@@ -144,6 +144,10 @@ class HeroPreferences(object):
     def _prepair_equipment_slot(self, slot_id):
         if slot_id is None: return None
         return EQUIPMENT_SLOT._index_value.get(int(slot_id))
+
+    def _prepair_risk_level(self, risk_id):
+        if risk_id is None: return None
+        return RISK_LEVEL._index_value.get(int(risk_id))
 
     def _get(self, preferences_type):
         if preferences_type.base_name not in self.data:

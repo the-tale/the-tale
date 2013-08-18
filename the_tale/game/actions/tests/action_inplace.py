@@ -180,8 +180,8 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
 
         #unequip all arefact
-        self.hero.equipment.test_remove_all()
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
+        self.hero.equipment._remove_all()
+        # self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
         #buy artifact
@@ -194,9 +194,9 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
 
-        # hero must not buy artifact in preferences slot, he has special quest for this
-        self.assertEqual(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE), None)
-        self.storage._test_save()
+        # # hero must not buy artifact in preferences slot, he has special quest for this
+        # self.assertEqual(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE), None)
+        # self.storage._test_save()
 
 
     def test_bying_artifact_without_change(self):
@@ -210,7 +210,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
 
         #unequip all arefact
-        self.hero.equipment.test_remove_all()
+        self.hero.equipment._remove_all()
         self.hero.save()
 
         #buy artifact
