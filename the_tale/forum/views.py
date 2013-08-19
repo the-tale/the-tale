@@ -69,7 +69,7 @@ class BaseForumResource(Resource):
         # TODO: check consistency
 
         if self.subcategory and self.subcategory.is_restricted_for(self.account):
-            return self.auto_error('forum.subcategory_access_restricted', u'Вы не можете работать с материаллами из этого раздела')
+            return self.auto_error('forum.subcategory_access_restricted', u'Вы не можете работать с материалами из этого раздела')
 
 
 

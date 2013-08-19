@@ -822,6 +822,8 @@ class ActionResurrectPrototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id):
+        hero.add_message('action_resurrect_start', hero=hero)
+
         return cls( hero=hero,
                     bundle_id=bundle_id,
                     state=cls.STATE.RESURRECT)
