@@ -36,7 +36,7 @@ urlpatterns = patterns('',
 if project_settings.DEBUG:
     urlpatterns += static(project_settings.ADMIN_MEDIA_PREFIX, document_root=os.path.join(os.path.dirname(admin.__file__), 'static', 'admin'))
     urlpatterns += patterns('',
-                            url(r'^%s' % project_settings.LESS_CSS_URL[1:], include('dext.less.urls') )
+                            url(r'^%scss' % project_settings.STATIC_URL, include('dext.less.urls') )
                             )
     urlpatterns += static(project_settings.DCONT_URL, document_root=project_settings.DCONT_DIR)
     urlpatterns += static(project_settings.STATIC_URL, document_root=project_settings.STATIC_DIR)

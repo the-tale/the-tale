@@ -12,7 +12,7 @@
         <th>добыча из</th>
         <td>
           {% if artifact.mob %}
-          <a href="{{url('guide:mobs:show', artifact.mob.id)}}" target="_blank">{{artifact.mob.name}}</a>
+          <a href="{{url('guide:mobs:show', artifact.mob.id)}}" {% if link_in_blank %}target="_blank"{% endif %}>{{artifact.mob.name}}</a>
           {% else %}
           —
           {% endif %}

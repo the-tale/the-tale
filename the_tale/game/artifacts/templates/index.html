@@ -108,9 +108,6 @@
       <td>{{artifact.level}}</td>
       <td>
         <a href="{{url('guide:artifacts:show', artifact.id)}}">{{artifact.name}}</a>
-        {% if artifact.description %}
-        <i class="icon-book" style="vertical-align: middle;" rel="tooltip" title="у артефакта есть описание"></i>
-        {% endif %}
       </td>
       <td>
         {% if artifact.mob %}

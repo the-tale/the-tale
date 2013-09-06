@@ -16,6 +16,7 @@ from portal import signals as portal_signals
 
 from portal import signal_processors # DO NOT REMOVE
 
+
 class Worker(BaseWorker):
 
     logger = getLogger('the-tale.workers.portal_long_commands')
@@ -54,7 +55,22 @@ class Worker(BaseWorker):
 
         self.logger.info('LONG COMMANDS INITIALIZED')
 
+    def _try_run_command_with_delay(self, cmd, settings_key, delay):
+        if time.time() - float(settings.get(settings_key, 0)) > delay:
+            settings[settings_key] = str(time.time())
+            cmd()
+            return True
+
+        return False
+
     def run_commands(self):
+
+        # check if new real day started
+        if (time.time() - float(settings.get(portal_settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY, 0)) > 23.5*60*60 and
+            datetime.datetime.now().hour >= portal_settings.REAL_DAY_STARTED_TIME):
+            portal_signals.day_started.send(self.__class__)
+            settings[portal_settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY] = str(time.time())
+            return
 
         # is cleaning run needed
         if (time.time() - float(settings.get(portal_settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY, 0)) > 23.5*60*60 and
@@ -64,22 +80,23 @@ class Worker(BaseWorker):
             return
 
         # is rating sync needed
-        if time.time() - float(settings.get(portal_settings.SETTINGS_PREV_RATINGS_SYNC_TIME_KEY, 0)) > portal_settings.RATINGS_SYNC_DELAY:
-            settings[portal_settings.SETTINGS_PREV_RATINGS_SYNC_TIME_KEY] = str(time.time())
-            self.run_recalculate_ratings()
+        if self._try_run_command_with_delay(cmd=self.run_recalculate_ratings,
+                                            settings_key=portal_settings.SETTINGS_PREV_RATINGS_SYNC_TIME_KEY,
+                                            delay=portal_settings.RATINGS_SYNC_DELAY):
             return
 
         # is might sync needed
-        if time.time() - float(settings.get(portal_settings.SETTINGS_PREV_MIGHT_SYNC_TIME_KEY, 0)) > portal_settings.MIGHT_SYNC_DELAY:
-            settings[portal_settings.SETTINGS_PREV_MIGHT_SYNC_TIME_KEY] = str(time.time())
-            self.run_recalculate_might()
+        if self._try_run_command_with_delay(cmd=self.run_recalculate_might,
+                                            settings_key=portal_settings.SETTINGS_PREV_MIGHT_SYNC_TIME_KEY,
+                                            delay=portal_settings.MIGHT_SYNC_DELAY):
             return
 
-        # check if new real day started
-        if (time.time() - float(settings.get(portal_settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY, 0)) > 23.5*60*60 and
-            datetime.datetime.now().hour >= portal_settings.REAL_DAY_STARTED_TIME):
-            portal_signals.day_started.send(self.__class__)
-            settings[portal_settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY] = str(time.time())
+        # is cdns refresh needed
+        if self._try_run_command_with_delay(cmd=self.run_refresh_cdns,
+                                            settings_key=portal_settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY,
+                                            delay=portal_settings.CDN_SYNC_DELAY):
+            return
+
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -107,6 +124,11 @@ class Worker(BaseWorker):
         self.logger.info('calculate might')
         self._run_subprocess('recalculate_might', ['./manage.py', 'accounts_calculate_might'])
         self.logger.info('might calculated')
+
+    def run_refresh_cdns(self):
+        self.logger.info('refresh cdns')
+        self._run_subprocess('refresh_cdns', ['./manage.py', 'portal_refresh_cdns'])
+        self.logger.info('cdns refreshed')
 
     def run_cleaning(self):
         self.logger.info('start cleaning')

@@ -2,6 +2,7 @@
 
 from common.utils import testcase
 
+from dext.settings import settings
 from dext.settings.models import Setting
 
 from game.prototypes import TimePrototype, GameTime
@@ -10,6 +11,9 @@ from game.prototypes import TimePrototype, GameTime
 class TimeTest(testcase.TestCase):
 
     def test_creation(self):
+        Setting.objects.all().delete()
+        settings.refresh()
+
         settings_number = Setting.objects.all().count()
         time = TimePrototype.get_current_time()
         self.assertEqual(time.turn_number, 0)

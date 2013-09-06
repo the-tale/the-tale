@@ -124,10 +124,10 @@ pgf.game.map.MapManager = function(params) {
     var dynamicData = { heroes: {} };
     var instance = this;
 
-    function LoadMap() {
+    function LoadMap(version) {
         jQuery.ajax({   dataType: 'json',
                         type: 'get',
-                        url: params.regionUrl,
+                        url: params.RegionUrl(version),
                         success: function(data, request, status) {
                             mapData = data;
 
@@ -237,7 +237,7 @@ pgf.game.map.MapManager = function(params) {
         }
 
         if (mapData && game_data.map_version != mapData.map_version) {
-            LoadMap();
+            LoadMap(game_data.map_version);
         }
     });
 
@@ -248,7 +248,7 @@ pgf.game.map.MapManager = function(params) {
     this.GetPlaceData = GetPlaceData;
     this.GetCellData = GetCellData;
 
-    LoadMap();
+    LoadMap(params.currentMapVersion);
 };
 
 pgf.game.map.Map = function(selector, params) {

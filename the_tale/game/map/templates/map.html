@@ -1,5 +1,5 @@
 
-{% macro render_map(height) %}
+{% macro render_map(height, current_map_version) %}
 
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
@@ -7,10 +7,11 @@ jQuery(document).ready(function(e) {
     var tileset = pgf.tilesets.main;
 
     var spritesManager = new pgf.game.resources.ImageManager(tileset.sprites,
-                                                             { staticUrl: "{{ STATIC_URL }}",
+                                                             { staticUrl: "{{ STATIC_CONTENT }}",
                                                              });
 
-    widgets.mapManager = new pgf.game.map.MapManager({regionUrl:  '{{ settings.DCONT_URL }}map/region.js'});
+    widgets.mapManager = new pgf.game.map.MapManager({RegionUrl:  function(version){return '{{ DCONT_CONTENT }}map/region-'+version+'.js';},
+                                                      currentMapVersion: '{{current_map_version}}'});
 
     widgets.map = new pgf.game.map.Map('#pgf-game-map',
                                        {spritesManager: spritesManager,

@@ -30,6 +30,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        print u'payments reset disabled'
+        return
+
         if payments_settings.ENABLE_REAL_PAYMENTS:
             print u'can not reset payments: first disable payments_settings.ENABLE_REAL_PAYMENTS'
             return

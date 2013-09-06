@@ -43,6 +43,7 @@ class GameResource(Resource):
                              {'map_settings': map_settings,
                               'game_settings': game_settings,
                               'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
+                              'current_map_version': map_info_storage.version,
                               'clan': clan} )
 
     @validate_argument_with_resource('account', Resource.validate_account_argument, 'game.info', u'неверный идентификатор аккаунта')

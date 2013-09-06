@@ -65,3 +65,9 @@ class Command(BaseCommand):
         sync_group('mobs & artifacts create group', ['mobs.create_mobrecord', 'artifacts.create_artifactrecord'])
 
         sync_group('accounts moderators group', ['accounts.moderate_account'])
+
+        print
+        print 'REFRESH CDNS'
+        print
+
+        subprocess.call(['./manage.py', 'portal_refresh_cdns'])

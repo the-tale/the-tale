@@ -85,8 +85,11 @@ def create_storage_class(version_key, Model, Prototype, Exception_): # pylint: d
                 for record in self._data.values():
                     record.save()
 
+        def _get_next_version(self):
+            return uuid.uuid4().hex
+
         def _setup_version(self):
-            self._version = uuid.uuid4().hex
+            self._version = self._get_next_version()
             settings[self.SETTINGS_KEY] = str(self._version)
             self._update_version_requested = False
 
@@ -169,8 +172,11 @@ def create_single_storage_class(version_key, Model, Prototype, Exception_): # py
             self._item = None
             self._version = None
 
+        def _get_next_version(self):
+            return uuid.uuid4().hex
+
         def _setup_version(self):
-            self._version = uuid.uuid4().hex
+            self._version = self._get_next_version()
             settings[self.SETTINGS_KEY] = str(self._version)
 
         def update_version(self):

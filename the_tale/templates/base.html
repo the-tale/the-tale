@@ -6,7 +6,7 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <link href="{{ url('news:feed') }}" type="application/atom+xml" rel="alternate" title="Новости" />
     <link href="{{ url('forum:feed') }}" type="application/atom+xml" rel="alternate" title="Форум" />
-    <link rel="shortcut icon" href="{{ STATIC_URL }}favicon.ico" />
+    <link rel="shortcut icon" href="{{ STATIC_CONTENT }}favicon.ico" />
     <title>{% block title%}Сказка{% endblock %}</title>
 
     {% if settings.GA_CODE %}
@@ -23,37 +23,36 @@
     </script>
     {% endif %}
 
-    <link rel="stylesheet" type="text/css" href="{{ LESS_CSS_URL }}main.css" />
-    <link rel="stylesheet" type="text/css" href="{{ LESS_CSS_URL }}javascript.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_CONTENT }}css/main.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_CONTENT }}css/javascript.css" />
 
-    <script src="{{ STATIC_URL }}plugins/jquery/jquery-1.7.2.min.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}plugins/jquery/jquery-ui-1.8.9/js/jquery-ui-1.8.9.custom.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="{{ STATIC_URL }}plugins/jquery/jquery.url.js" type="text/javascript"></script>
+    <script src="{{ STATIC_JQUERY_JS }}" type="text/javascript"></script>
+    <script src="{{ STATIC_JQUERY_UI_JS }}" type="text/javascript" charset="utf-8"></script>
 
-    <script src="{{ STATIC_URL }}plugins/spin/spin.min.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}plugins/jquery/jquery.spin.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}plugins/jquery/jquery.url.js" type="text/javascript"></script>
 
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css" />
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}plugins/spin/spin.min.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}plugins/jquery/jquery.spin.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_TWITTER_BOOTSTRAP }}css/bootstrap.min.css" />
+    <script src="{{ STATIC_TWITTER_BOOTSTRAP }}js/bootstrap.min.js" type="text/javascript"></script>
 
     {% if settings.ADDTHIS %}
     <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-505d67570062215a"></script>
     {% endif %}
 
-    <script src="{{ STATIC_URL }}plugins/globalize/globalize.js"></script>
-    <script src="{{ STATIC_URL }}plugins/globalize/cultures/globalize.culture.ru.js"></script>
-    <script src="{{ STATIC_URL }}common/base.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}common/dialog.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}common/forms.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}common/urls.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}plugins/globalize/globalize.js"></script>
+    <script src="{{ STATIC_CONTENT }}plugins/globalize/cultures/globalize.culture.ru.js"></script>
+    <script src="{{ STATIC_CONTENT }}common/base.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}common/dialog.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}common/forms.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}common/urls.js" type="text/javascript"></script>
 
     {% if settings.DEBUG %}
-    <script src="{{ STATIC_URL }}common/debug.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}common/debug.js" type="text/javascript"></script>
     {% endif %}
 
     <script type="text/javascript">
-
-STATIC_URL = "{{ STATIC_URL }}"
 
 {% if resource.account.is_authenticated() %}
 pgf.base.settings.init("account_{{resource.account.id}}");
@@ -144,7 +143,7 @@ jQuery(document).ready(function() {
       <div class="navbar-inner">
         <div class="container">
 
-          <a class="brand" href="{{ url('portal:') }}"><img src="{{STATIC_URL}}images/logo.png"></img></a>
+          <a class="brand" href="{{ url('portal:') }}"><img src="{{STATIC_CONTENT}}images/logo.png"></img></a>
 
           <ul class="nav">
             {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}

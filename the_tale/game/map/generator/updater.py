@@ -66,12 +66,13 @@ def update_map(index):
             'buildings': dict( (building.id, building.map_info() ) for building in buildings_storage.all() ),
             'roads': dict( (road.id, road.map_info() ) for road in roads_storage.all() ) }
 
+    region_js_file = map_settings.GEN_REGION_OUTPUT % map_info_storage.version
 
-    output_dir_name = os.path.dirname(map_settings.GEN_REGION_OUTPUT)
+    output_dir_name = os.path.dirname(region_js_file)
     if not os.path.exists(output_dir_name):
         os.makedirs(output_dir_name, 0755)
 
-    with open(map_settings.GEN_REGION_OUTPUT, 'w') as region_json_file:
+    with open(region_js_file, 'w') as region_json_file:
         region_json_file.write(s11n.to_json(data).encode('utf-8'))
 
     if project_settings.DEBUG:

@@ -25,7 +25,8 @@ class MapResource(Resource):
 
     @handler('', method='get')
     def index(self):
-        return self.template('map/index.html')
+        return self.template('map/index.html',
+                             {'current_map_version': map_info_storage.version})
 
     @handler('cell-info', method='get')
     def cell_info(self, x, y):

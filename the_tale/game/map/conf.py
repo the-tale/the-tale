@@ -19,6 +19,6 @@ map_settings = app_settings('MAP',
 
                             # map generation settings
                             GEN_WORLD_PROGRESSION=os.path.join(project_settings.DCONT_DIR, './map/progression'),
-                            GEN_REGION_OUTPUT=os.path.join(project_settings.DCONT_DIR, './map/region.js'),
+                            GEN_REGION_OUTPUT=os.path.join(project_settings.DCONT_DIR, './map/region-%s.js'),
                             TERRAIN_PRIORITIES_FIXTURE=os.path.join(os.path.dirname(__file__), 'fixtures', 'bioms.xls')
     )

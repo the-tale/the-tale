@@ -64,20 +64,43 @@ USE_L10N = True
 # static content settings
 ##############################
 
-# MEDIA_ROOT = ''
-# MEDIA_URL = ''
-
 STATIC_URL = '/static/%s/' % META_CONFIG.static_data_version
 STATIC_DIR = os.path.join(PROJECT_DIR, 'static')
+STATIC_CDN = '//static.the-tale.org%s' % STATIC_URL
 
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
 DCONT_URL = '/dcont/'
 DCONT_DIR = os.path.join(PROJECT_DIR, 'dcont')
+DCONT_CDN = '//static.the-tale.org%s' % DCONT_URL
 
-LESS_CSS_URL = STATIC_URL + 'less/'
 LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
 LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
+
+CDNS_ENABLED = False
+
+CDNS = ( ('STATIC_JQUERY_JS',
+          '%splugins/jquery/jquery-1.7.2.min.js' % STATIC_URL, '//yandex.st/jquery/1.7.2/jquery.min.js',
+          'http://yandex.st/jquery/1.7.2/jquery.min.js'),
+         ('STATIC_JQUERY_UI_JS',
+          '%splugins/jquery/jquery-ui-1.8.9/js/jquery-ui-1.8.9.custom.min.js' % STATIC_URL, '//yandex.st/jquery-ui/1.8.9/jquery-ui.min.js',
+          'http://yandex.st/jquery-ui/1.8.9/jquery-ui.min.js'),
+         ('STATIC_TWITTER_BOOTSTRAP',
+          '%sbootstrap/' % STATIC_URL, '%sbootstrap/' % STATIC_CDN,
+          'http:%sbootstrap/css/bootstrap.min.css' % STATIC_CDN),
+
+          # bootstrapcdn returns css not equal to our (media instructions missed)
+          # '//netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/',
+          # 'http://netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/css/bootstrap-combined.min.css'),
+
+         ('STATIC_CONTENT',
+          STATIC_URL, STATIC_CDN,
+          'http:%simages/rss.png' % STATIC_CDN),
+
+         ('DCONT_CONTENT',
+          DCONT_URL, DCONT_CDN,
+          'http:%simages/rss.png' % STATIC_CDN)# DCONT & STATIC on one CDN
+    )
 
 SECRET_KEY = 'i@oi33(3f0vlezy$aj3_3q%q=#fb1ehovw0k&==w3ycs+#5f)y'
 
@@ -119,8 +142,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.media',
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
-    'dext.less.context_processors.less',
     'portal.context_processors.section',
+    'portal.context_processors.cdn_paths',
     'game.balance.context_processors.balance',
     'game.bills.context_processors.bills_context'
     )
@@ -238,9 +261,6 @@ except Exception: # pylint: disable=W0702,W0703
 
 if 'TEMPLATE_DEBUG' not in globals():
     TEMPLATE_DEBUG = DEBUG
-
-if not DEBUG:
-    LESS_CSS_URL = STATIC_URL + 'css/'
 
 
 AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,
