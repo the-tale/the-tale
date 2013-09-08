@@ -301,6 +301,16 @@ class TestRemoveRequests(BaseTestRequests):
         self.check_ajax_error(self.post_ajax_json(url('accounts:clans:remove', clan.id)), 'clans.not_owner')
         self.assertEqual(ClanPrototype._db_count(), 2)
 
+    def test_not_empty(self):
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        self.clan.add_member(AccountPrototype.get_by_id(account_id))
+
+        self.check_ajax_error(self.post_ajax_json(url('accounts:clans:remove', self.clan.id)), 'clans.remove.not_empty_clan')
+        self.assertEqual(ClanPrototype._db_count(), 1)
+
+        self.clan.reload()
+        self.assertEqual(self.clan.members_number, 2)
+
 
     def test_ok(self):
         self.check_ajax_ok(self.post_ajax_json(self.remove_url, ))

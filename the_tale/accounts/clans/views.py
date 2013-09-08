@@ -177,6 +177,9 @@ class ClansResource(Resource):
     @handler('#clan', 'remove', method='post')
     def remove(self):
 
+        if self.clan.members_number > 1:
+            return self.json_error('clans.remove.not_empty_clan', u'Можно удалить только «пустую» гильдию (сначала удалите всех членов кроме себя)')
+
         self.clan.remove()
 
         return self.json_ok()
