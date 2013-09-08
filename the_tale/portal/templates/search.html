@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Поиск |{{ super() }}{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="span12">
+    <h3 style="margin-left: 13px;">Поиск по сайту игры, форуму и остальным разделам.<h3>
+  </div>
+</div>
+
+<div class="row">
+  <div class="span12">
+
+    <script>
+  (function() {
+    var cx = '004836122893311428361:_nb8ecrsjmy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+  </div>
+</div>
+
+
+{% endblock %}

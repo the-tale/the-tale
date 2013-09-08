@@ -21,6 +21,9 @@ class TestRequests(TestCase):
         response = self.client.get(url('portal:'))
         self.assertEqual(response.status_code, 200)
 
+    def test_search(self):
+        self.check_html_ok(self.request_html(url('portal:search')))
+
     def test_preview(self):
         text = 'simple test text'
         self.check_html_ok(self.client.post(url('portal:preview'), {'text': text}), texts=[text])

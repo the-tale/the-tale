@@ -77,6 +77,10 @@ class PortalResource(Resource):
                               'chronicle_records': chronicle_records,
                               'RACE': RACE})
 
+    @handler('search')
+    def search(self):
+        return self.template('portal/search.html', {})
+
     @handler('404')
     def handler404(self):
         return self.auto_error('common.404',
