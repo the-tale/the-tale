@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from common.utils.testcase import TestCase
 
 from accounts.logic import register_user
+from accounts.conf import accounts_settings
 
 from game.logic import create_test_map
 
@@ -25,7 +26,12 @@ class AuthRequestsTests(TestCase):
         self.check_redirect(reverse('accounts:auth:login'), '/')
 
     def test_login_command(self):
-        self.request_login('test_user@test.com', '111111')
+        self.request_login('test_user@test.com', '111111', remember=False)
+        self.assertTrue(self.client.session.get_expiry_age() < accounts_settings.SESSION_REMEMBER_TIME - 10)
+
+    def test_login__remeber(self):
+        self.request_login('test_user@test.com', '111111', remember=True)
+        self.assertTrue(self.client.session.get_expiry_age() > accounts_settings.SESSION_REMEMBER_TIME - 10)
 
     def test_logout_command_post(self):
         self.request_logout()

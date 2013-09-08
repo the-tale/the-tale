@@ -112,7 +112,7 @@ class AuthResource(BaseAccountsResource):
             if not account.check_password(login_form.c.password):
                 return self.json_error('accounts.auth.login.wrong_credentials', u'Неверный логин или пароль')
 
-            login_user(self.request, nick=account.nick, password=login_form.c.password)
+            login_user(self.request, nick=account.nick, password=login_form.c.password, remember=login_form.c.remember)
 
             return self.json_ok(data={'next_url': next_url})
 

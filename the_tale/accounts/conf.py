@@ -13,6 +13,8 @@ accounts_settings = app_settings('ACCOUNTS',
                                  SESSION_REGISTRATION_REFERER_KEY='accounts_registration_referer_key',
                                  SESSION_REGISTRATION_REFERRAL_KEY='accounts_registration_referral_key',
 
+                                 SESSION_REMEMBER_TIME=365*24*60*60,
+
                                  REFERRAL_URL_ARGUMENT='referral',
 
                                  FAST_REGISTRATION_USER_PASSWORD='password-FOR_fast-USERS',

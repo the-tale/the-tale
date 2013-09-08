@@ -39,8 +39,11 @@ def setUp(self):
 
 class TestCaseMixin(object):
 
-    def request_login(self, email, password='111111'):
-        response = self.client.post(reverse('accounts:auth:login'), {'email': email, 'password': password})
+    def request_login(self, email, password='111111', remember=False):
+        data = {'email': email, 'password': password}
+        if remember:
+            data['remember'] = 'remember'
+        response = self.client.post(reverse('accounts:auth:login'), data)
         self.check_ajax_ok(response)
 
     def request_logout(self):

@@ -87,13 +87,16 @@ def register_user(nick, email=None, password=None, referer=None, referral_of_id=
     return REGISTER_USER_RESULT.OK, account.id, bundle.id
 
 
-def login_user(request, nick=None, password=None):
+def login_user(request, nick=None, password=None, remember=False):
     user = django_authenticate(nick=nick, password=password)
 
     if request.user.id != user.id:
         request.session.flush()
 
     django_login(request, user)
+
+    if remember:
+        request.session.set_expiry(accounts_settings.SESSION_REMEMBER_TIME)
 
 
 def force_login_user(request, user):

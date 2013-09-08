@@ -30,6 +30,11 @@ jQuery(document).ready( function(e) {
         {{ login_form.email.widget}}
         {{ login_form.password.widget }}
 
+        <label for="id_remember">
+          {{ login_form.remember|safe }}
+          {{ login_form.remember.label }}
+        </label>
+
         <input type="submit" value="Войти"/>
 
       </form>

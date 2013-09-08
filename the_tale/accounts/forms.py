@@ -27,6 +27,7 @@ class LoginForm(forms.Form):
 
     email = fields.EmailField(label=u'Email')
     password = fields.PasswordField(label=u'Пароль')
+    remember = fields.BooleanField(label=u'Запомнить меня', required=False)
 
 
 class ResetPasswordForm(forms.Form):
