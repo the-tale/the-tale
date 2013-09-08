@@ -92,13 +92,6 @@ def _point_arrow_height(obj, borders, length_normalizer, width_normalizer, power
                                                   width=(obj.r / 3) + 1)
         arrows.extend([arrow, arrow.rounded_arrow])
 
-    if len(distances) > 2:
-        distance, other_place = distances[2]
-        arrow = power_points.ArrowAreaPoint.Arrow(angle=math.atan2(other_place.y - obj.y, other_place.x - obj.x),
-                                                  length=obj.r,
-                                                  width=(obj.r / 3) + 1)
-        arrows.extend([arrow, arrow.rounded_arrow])
-
     return power_points.ArrowAreaPoint(layer_type=layers.LAYER_TYPE.HEIGHT,
                                        name='height_arrow_' + obj.uid,
                                        x=obj.x,
