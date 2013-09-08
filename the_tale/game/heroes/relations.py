@@ -47,6 +47,12 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
                  ('IMPACT',              4, u'изменение влияния', 'impact',     4,  2.5, MONEY_SOURCE.SPEND_FOR_IMPACT),
                  ('EXPERIENCE',          5, u'обучение',          'experience', 1,  5.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE))
 
+    @classmethod
+    def get_quest_upgrade_equipment_fraction(cls):
+        QUEST_PRICE_MODIFIER = 2
+        return max(cls.BUYING_ARTIFACT.price_fraction, cls.SHARPENING_ARTIFACT.price_fraction) * QUEST_PRICE_MODIFIER
+
+
 
 
 class EQUIPMENT_SLOT(DjangoEnum):

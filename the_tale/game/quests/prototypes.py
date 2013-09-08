@@ -15,7 +15,7 @@ from game.map.roads.storage import waymarks_storage
 from game.mobs.storage import mobs_storage
 
 from game.heroes.statistics import MONEY_SOURCE
-from game.heroes.relations import EQUIPMENT_SLOT
+from game.heroes.relations import EQUIPMENT_SLOT, ITEMS_OF_EXPENDITURE
 
 from game.quests.models import Quest, QuestsHeroes
 from game.quests.exceptions import QuestException
@@ -250,7 +250,9 @@ class QuestPrototype(BasePrototype):
             if cur_action.hero.equipment.get(EQUIPMENT_SLOT(cmd.equipment_slot)) is not None:
                 choices.append('sharp')
 
-        money_spend = cur_action.hero.money
+        # limit money spend
+        money_spend = min(cur_action.hero.money,
+                          f.normal_action_price(cur_action.hero.level) * ITEMS_OF_EXPENDITURE.get_quest_upgrade_equipment_fraction())
 
         if random.choice(choices) == 'buy':
             cur_action.hero.change_money(MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -money_spend)

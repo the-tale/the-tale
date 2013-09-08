@@ -60,7 +60,7 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertEqual(self.hero.places_history.history, [])
 
-        with mock.patch('game.workers.environment.workers_environment.highlevel.cmd_change_person_power', fake_cmd):
+        with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power', fake_cmd):
             self.complete_quest()
 
         self.assertTrue(len(self.hero.places_history.history) > 1)
@@ -75,7 +75,7 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertEqual(self.hero.places_history.history, [])
 
-        with mock.patch('game.workers.environment.workers_environment.highlevel.cmd_change_person_power') as fake_cmd:
+        with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power') as fake_cmd:
             self.complete_quest()
 
         self.assertTrue(len(self.hero.places_history.history) > 1)
@@ -89,7 +89,7 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertEqual(self.hero.places_history.history, [])
 
-        with mock.patch('game.workers.environment.workers_environment.highlevel.cmd_change_person_power') as fake_cmd:
+        with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power') as fake_cmd:
             self.complete_quest()
 
         self.assertTrue(len(self.hero.places_history.history) > 1)
@@ -105,7 +105,7 @@ class PrototypeTests(testcase.TestCase):
 
             self.assertEqual(self.hero.places_history.history, [])
 
-            with mock.patch('game.workers.environment.workers_environment.highlevel.cmd_change_person_power') as fake_cmd:
+            with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power') as fake_cmd:
                 self.complete_quest()
 
             self.assertTrue(fake_cmd.call_count > 0)
