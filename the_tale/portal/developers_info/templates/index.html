@@ -64,5 +64,82 @@
   <li>Купленных печенек в игре: <strong>{{real_gold_in_game}}</strong></li>
 </ul>
 
+<h3>Статистика рефереров</h3>
+
+<table class="table">
+  <tr>
+    <th>домент</th>
+    <th>регистраций</th>
+    <th>активных</th>
+    <th>премиум</th>
+    <th>активные и премиум</th>
+    <th>всего печенек</th>
+    <th>% печенек</th>
+  </tr>
+
+  {% for s in referers_statistics %}
+  <tr>
+    <td>{{s.domain}}</td>
+    <td>{{s.count}}</td>
+    <td>{{s.active_accounts}}</td>
+    <td>{{s.premium_accounts}}</td>
+    <td>{{s.active_and_premium}}</td>
+    <td>{{s.premium_currency}}</td>
+    <td>
+      {% if real_gold_in_game %}
+      {{(s.premium_currency / real_gold_in_game)|percents }}
+      {% else %}
+      0.00%
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+
+</table>
+
+<h3>Статистика платежей</h3>
+
+<p class="alert alert-info">
+  Учитываются все печеньки, в том числе и подаренные.
+</p>
+
+<p>
+  всего операций: {{invoice_count}}
+</p>
+
+<table class="table">
+  <tr>
+    <th>тип платежа</th>
+    <th>всего раз</th>
+    <th>% раз</th>
+    <th>всего печенек</th>
+    <th>% печенек (от полученных)</th>
+    <th>% печенек (от потраченных)</th>
+  </tr>
+
+  {% for s in invoice_statistics %}
+  <tr>
+    <td>{{s.operation}}</td>
+    <td>{{s.count}}</td>
+    <td>{{(s.count / invoice_count)|percents(2)}}</td>
+    <td>{{s.premium_currency}}</td>
+    <td>
+      {% if gold_total_received %}
+      {{(s.premium_currency / gold_total_received)|percents(2)}}
+      {% else %}
+      0.00%
+      {% endif %}
+    </td>
+    <td>
+      {% if gold_total_spent %}
+      {{(s.premium_currency / gold_total_spent)|percents(2)}}
+      {% else %}
+      0.00%
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+
+</table>
 
 {% endblock %}

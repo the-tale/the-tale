@@ -103,12 +103,14 @@ class AccountPrototype(BasePrototype):
         return [InvoicePrototype(model=model) for model in invoice_models]
 
     @classmethod
-    def _money_received(cls, from_type, currency=CURRENCY_TYPE.PREMIUM):
+    def _money_received(cls, from_type, currency=CURRENCY_TYPE.PREMIUM, accounts_ids=None):
         incoming_query = Invoice.objects.filter(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
                                                 sender_type=from_type,
                                                 currency=currency,
                                                 state=INVOICE_STATE.CONFIRMED,
                                                 amount__gt=0)
+        if accounts_ids:
+            incoming_query = incoming_query.filter(recipient_id__in=accounts_ids)
         incoming_amount = incoming_query.aggregate(total_amount=models.Sum('amount')).get('total_amount')
 
         outcoming_query = Invoice.objects.filter(sender_type=ENTITY_TYPE.GAME_ACCOUNT,
@@ -116,7 +118,8 @@ class AccountPrototype(BasePrototype):
                                                  currency=currency,
                                                  state=INVOICE_STATE.CONFIRMED,
                                                  amount__lt=0)
-
+        if accounts_ids:
+            outcoming_query = outcoming_query.filter(sender_id__in=accounts_ids)
         outcoming_amount = outcoming_query.aggregate(total_amount=models.Sum('amount')).get('total_amount')
 
         amount = (incoming_amount if incoming_amount else 0) - (outcoming_amount if outcoming_amount else 0)

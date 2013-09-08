@@ -1,16 +1,68 @@
 # coding: utf-8
 import itertools
 import datetime
+import collections
+
+from django.db import models
 
 from dext.views import handler
 
 from common.utils.decorators import staff_required
 from common.utils.resources import Resource
 
-from bank.prototypes import AccountPrototype as BankAccountPrototype
+from bank.prototypes import AccountPrototype as BankAccountPrototype, InvoicePrototype
 from bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE
 
 from accounts.prototypes import AccountPrototype
+
+
+class RefererStatistics(collections.namedtuple('RefererStatisticsBase', ('domain', 'count', 'active_accounts', 'premium_accounts', 'active_and_premium', 'premium_currency'))):
+    pass
+
+class InvoiceStatistics(collections.namedtuple('InvoiceStatisticsBase', ('operation', 'count', 'premium_currency'))):
+    pass
+
+
+def get_referers_statistics():
+
+    raw_statistics = AccountPrototype.live_query().values('referer_domain').order_by().annotate(models.Count('referer_domain'))
+
+    statistics = []
+
+    for s in raw_statistics:
+        domain=s['referer_domain']
+        count=s['referer_domain__count']
+
+        query = AccountPrototype.live_query().filter(referer_domain=domain)
+
+        if domain is None:
+            count = query.count()
+
+        statistics.append(RefererStatistics(domain=domain,
+                                            count=count,
+                                            active_accounts=query.filter(active_end_at__gt=datetime.datetime.now()).count(),
+                                            premium_accounts=query.filter(premium_end_at__gt=datetime.datetime.now()).count(),
+                                            active_and_premium=query.filter(active_end_at__gt=datetime.datetime.now(),
+                                                                            premium_end_at__gt=datetime.datetime.now()).count(),
+                                            premium_currency=BankAccountPrototype._money_received(from_type=BANK_ENTITY_TYPE.XSOLLA,
+                                                                                                  accounts_ids=query.values_list('id', flat=True))))
+
+    statistics = sorted(statistics, key=lambda s: -s.count)
+
+    return statistics
+
+def get_invoice_statistics():
+
+    raw_statistics = InvoicePrototype._model_class.objects.values('operation_uid').order_by().annotate(models.Count('operation_uid'), models.Sum('amount'))
+
+    statistics = []
+
+    for s in raw_statistics:
+        statistics.append(InvoiceStatistics(operation=s['operation_uid'],
+                                            count=s['operation_uid__count'],
+                                            premium_currency=-s['amount__sum']))
+
+    return statistics
 
 
 class DevelopersInfoResource(Resource):
@@ -63,6 +115,9 @@ class DevelopersInfoResource(Resource):
                               'gold_total_received': gold_total_received,
                               'gold_in_game': gold_in_game,
                               'real_gold_in_game': real_gold_in_game,
+                              'referers_statistics': get_referers_statistics(),
+                              'invoice_statistics': get_invoice_statistics(),
+                              'invoice_count': InvoicePrototype._model_class.objects.all().count(),
                               'page_type': 'index'})
 
     @handler('mobs-and-artifacts', method='get')
