@@ -12,4 +12,3 @@ class Environment(BaseEnvironment):
 
 
 workers_environment = Environment()
-workers_environment.initialize()

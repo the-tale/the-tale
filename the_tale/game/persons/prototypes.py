@@ -125,7 +125,9 @@ class PersonPrototype(BasePrototype):
         if self.created_at_turn > TimePrototype.get_current_turn_number() - persons_settings.POWER_STABILITY_WEEKS*7*24*c.TURNS_IN_HOUR:
             return True
 
-        power_percent = float(self.power) / self.place.power if self.place.power > 0.0001 else 0.0
+        total_persons_power = self.place.total_persons_power
+
+        power_percent = float(self.power) / total_persons_power if total_persons_power > 0.0001 else 0.0
 
         if power_percent  > persons_settings.POWER_STABILITY_PERCENT:
             return True
