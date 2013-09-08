@@ -48,7 +48,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.RARE_LOOT_COST, 25.0)
         self.assertEqual(c.EPIC_LOOT_COST, 250.0)
         self.assertEqual(c.NORMAL_ACTION_PRICE_MULTIPLYER, 1.2)
-        self.assertEqual(c.BASE_EXPERIENCE_FOR_MONEY_SPEND, 24)
+        self.assertEqual(c.BASE_EXPERIENCE_FOR_MONEY_SPEND, 96)
         self.assertEqual(c.EXPERIENCE_DELTA_FOR_MONEY_SPEND, 0.5)
 
         self.assertEqual(c.SELL_ARTIFACT_PRICE_FRACTION, 0.15)

@@ -71,7 +71,7 @@ BAG_SIZE_TO_SELL_LOOT_FRACTION = float(0.33) # процент заполненн
 # не учтённые в формулах (доходы по заданиям и прочему)
 NORMAL_ACTION_PRICE_MULTIPLYER = float(1.2)
 
-BASE_EXPERIENCE_FOR_MONEY_SPEND = int(24 * EXP_PER_HOUR * 0.1)
+BASE_EXPERIENCE_FOR_MONEY_SPEND = int(24 * EXP_PER_HOUR * 0.4)
 EXPERIENCE_DELTA_FOR_MONEY_SPEND = float(0.5)
 
 SELL_ARTIFACT_PRICE_FRACTION = float(0.15) # часть дневного дохода, за которую артефакты продаются
