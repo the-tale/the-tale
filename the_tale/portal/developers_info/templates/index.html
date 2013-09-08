@@ -11,8 +11,20 @@
     <th>значени</th>
     <th>примечания</th>
   </tr>
-  <tr><th>всего аккаунтов</th><td>{{accounts_total}}</td><td></td></tr>
-  <tr><th>зарегистрированных</th><td>{{accounts_registered}}</td><td>если образовалось много незарегистрированных аккаунтов, их надо почистить</td></tr>
+  <tr><th>всего попыток регистрации</th><td>{{registration_attemps_number}}</td><td></td></tr>
+  <tr>
+    <th>всего аккаунтов</th>
+    <td>{{accounts_total}}</td>
+    <td>{{accounts_total-accounts_registered}} незавершённых регистрации</td>
+  </tr>
+  <tr>
+    <th>зарегистрированных</th>
+    <td>{{accounts_registered}}</td>
+    <td>
+      {{(accounts_registered/registration_attemps_number)|percents}} от всех регистраций
+      (если образовалось много незарегистрированных аккаунтов, их надо почистить)
+    </td>
+  </tr>
   <tr><th>боты</th><td>{{accounts_bots}}</td><td>боты для pvp и прочих вещей</td></tr>
   <tr><th>активных</th><td>{{accounts_active}}</td><td>{{(accounts_active|float/accounts_registered)|percents}} от зарегистрированых</td></tr>
   <tr>
@@ -35,7 +47,7 @@
   </tr>
 </table>
 
-<h3>Золото</h3>
+<h3>Печеньки</h3>
 
 <table class="table">
   <tr>

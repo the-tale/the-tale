@@ -74,6 +74,7 @@ class DevelopersInfoResource(Resource):
     @handler('', method='get')
     def index(self):
 
+        registration_attemps_number = AccountPrototype._model_class.objects.all().aggregate(models.Max('id'))['id__max']
         accounts_total = AccountPrototype._model_class.objects.all().count()
         accounts_bots = AccountPrototype._model_class.objects.filter(is_bot=True).count()
         accounts_registered = AccountPrototype.live_query().count()
@@ -104,7 +105,8 @@ class DevelopersInfoResource(Resource):
         real_gold_in_game = real_gold_total_received - real_gold_total_spent
 
         return self.template('developers_info/index.html',
-                             {'accounts_total': accounts_total,
+                             {'registration_attemps_number': registration_attemps_number,
+                              'accounts_total': accounts_total,
                               'accounts_bots': accounts_bots,
                               'accounts_registered': accounts_registered,
                               'accounts_active': accounts_active,
