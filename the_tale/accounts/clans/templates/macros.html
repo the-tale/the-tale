@@ -34,6 +34,9 @@
     {% endif %}
 
     {% if own_clan_info.membership.role._is_LEADER %}
+
+      <li class="divider"></li>
+
       <li class="nav-element {%if page_id._is_EDIT%}active{%endif%}"><a href="{{ url('accounts:clans:edit', own_clan_info.clan_id) }}">Редактировать</a></li>
 
       {% if page_id._is_EDIT %}
@@ -47,6 +50,8 @@
       {% endif %}
 
     {% else %}
+
+     <li class="divider"></li>
 
       <li class="nav-element">
         <a class="pgf-forms-post-simple"
