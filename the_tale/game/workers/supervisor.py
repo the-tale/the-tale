@@ -203,7 +203,7 @@ class Worker(BaseWorker):
     def stop_logic(self):
         from game.workers.environment import workers_environment as game_environment
         game_environment.logic.cmd_stop()
-        self.wait_answers_from('stop', workers=['logic'])
+        self.wait_answers_from('stop', workers=['logic'], timeout=5*60.0)
 
     def cmd_stop(self):
         return self.send_cmd('stop')
