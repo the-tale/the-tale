@@ -98,8 +98,8 @@ CDNS = ( ('STATIC_JQUERY_JS',
           'http:%simages/rss.png' % STATIC_CDN),
 
          ('DCONT_CONTENT',
-          DCONT_URL, DCONT_CDN,
-          'http:%simages/rss.png' % STATIC_CDN)# DCONT & STATIC on one CDN
+          DCONT_URL, None,
+          None)
     )
 
 SECRET_KEY = 'i@oi33(3f0vlezy$aj3_3q%q=#fb1ehovw0k&==w3ycs+#5f)y'
