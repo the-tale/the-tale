@@ -33,7 +33,7 @@ class Command(BaseCommand):
 
         percent = options['percent']
 
-        if percent > 1: percent = percent / 100.0
+        if percent > 1 or percent < -1: percent = percent / 100.0
 
         person = persons_storage[options['id']]
 

@@ -63,6 +63,8 @@ class Hero(models.Model):
 
     actions = models.TextField(null=False, default='{}')
 
+    quests = models.TextField(null=False, default='{}')
+
     name_forms = models.TextField(null=False, default='', blank=True)
 
     pvp = models.TextField(null=False, default='{}')

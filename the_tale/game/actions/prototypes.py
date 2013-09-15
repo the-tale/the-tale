@@ -6,7 +6,7 @@ import copy
 from dext.utils.urls import url
 
 from common.utils.discovering import discover_classes
-from common.utils.decorators import lazy_property
+
 from common.utils.logic import random_value_by_priority
 
 from game.heroes.logic import create_mob_for_hero
@@ -46,7 +46,6 @@ class ActionBase(object):
                   'storage',
                   'created_at_turn',
                   'context',
-                  'quest_id',
                   'place_id',
                   'mob',
                   'data',
@@ -82,7 +81,6 @@ class ActionBase(object):
                  created_at_turn=None,
                  context=None,
                  description=None,
-                 quest_id=None,
                  place_id=None,
                  mob=None,
                  data=None,
@@ -121,7 +119,6 @@ class ActionBase(object):
             self.context = context if context is None or isinstance(context, self.CONTEXT_MANAGER) else self.CONTEXT_MANAGER.deserialize(context)
             self.mob_context = mob_context if mob_context is None or isinstance(mob_context, self.CONTEXT_MANAGER) else self.CONTEXT_MANAGER.deserialize(mob_context)
 
-        self.quest_id = quest_id
         self.place_id = place_id
 
         self.mob = None
@@ -152,8 +149,6 @@ class ActionBase(object):
                 'created_at_turn': self.created_at_turn}
         if self.context:
             data['context'] = self.context.serialize()
-        if self.quest_id is not None:
-            data['quest_id'] = self.quest_id
         if self.place_id is not None:
             data['place_id'] = self.place_id
         if self.mob:
@@ -208,13 +203,6 @@ class ActionBase(object):
 
     def remove_mob(self):
         self.mob = None
-
-    @lazy_property
-    def quest(self):
-        from game.quests.prototypes import QuestPrototype
-        if self.quest_id:
-            return QuestPrototype.get_by_id(self.quest_id)
-        return None
 
     def get_destination(self): return self.destination_x, self.destination_y
     def set_destination(self, x, y):
@@ -326,9 +314,6 @@ class ActionBase(object):
 
         self.hero.actions.pop_action()
 
-        if self.quest:
-            self.quest.remove()
-
         self.removed = True
 
     def on_save(self):
@@ -359,7 +344,6 @@ class ActionBase(object):
                 self.mob_context == other.mob_context and
                 self.place_id == other.place_id and
                 self.mob == other.mob and
-                self.quest_id == other.quest_id and
                 self.data == other.data and
                 self.break_at == other.break_at and
                 self.length == other.length and
@@ -475,18 +459,18 @@ class ActionQuestPrototype(ActionBase):
     def on_remove(self):
         super(ActionQuestPrototype, self).on_remove()
         self.hero.force_save_required = True
+        self.hero.quests.pop_quest()
 
     @classmethod
     def _create(cls, hero, bundle_id, quest):
+        hero.quests.push_quest(quest)
         return cls(hero=hero,
                    bundle_id=bundle_id,
-                   quest_id=quest.id,
                    state=cls.STATE.PROCESSING)
 
     def process(self):
         if self.state == self.STATE.PROCESSING:
-            percents = self.quest.process(self)
-            self.quest.save()
+            percents = self.hero.quests.current_quest.process(self)
 
             self.percents = percents
 

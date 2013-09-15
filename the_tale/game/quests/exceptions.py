@@ -1,3 +1,10 @@
 # coding: utf-8
 
-class QuestException(Exception): pass
+from common.utils.exceptions import TheTaleError
+
+class QuestError(TheTaleError):
+    MSG = u'hero error'
+
+
+class UnknownRequirement(QuestError):
+    MSG = u'unknown state requirement: %(requirement)r'

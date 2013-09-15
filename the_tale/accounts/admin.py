@@ -67,7 +67,7 @@ class AccountAdmin(DjangoUserAdmin):
 
 
 class ChangeCredentialsTaskAdmin(admin.ModelAdmin):
-    list_display = ('id', 'state', 'account', )
+    list_display = ('id', 'state', 'account', 'old_email', 'new_email')
     list_filter = ('state',)
 
 

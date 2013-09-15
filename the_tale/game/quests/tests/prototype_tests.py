@@ -2,6 +2,8 @@
 import mock
 import datetime
 
+from questgen import facts
+
 from common.utils import testcase
 
 from common.utils.fake import FakeWorkerCommand
@@ -43,12 +45,29 @@ class PrototypeTests(testcase.TestCase):
     def tearDown(self):
         pass
 
+    def get_hero_position_id(self, quest):
+        kb = quest.knowledge_base
+
+        hero_position_uid = list(location.place
+                                 for location in kb.filter(facts.LocatedIn)
+                                 if location.object == 'hero_%d' % self.hero.id)[0]
+        return kb[hero_position_uid].externals['id']
+
     def complete_quest(self):
         current_time = TimePrototype.get_current_time()
+
+        # save link to quest, since it will be removed from hero when quest finished
+        quest = self.hero.quests.current_quest
+
+        self.assertEqual(self.hero.position.place.id, self.get_hero_position_id(quest))
 
         while not self.action_idl.leader:
             self.storage.process_turn()
             current_time.increment_turn()
+
+        self.assertEqual(self.hero.position.place.id, self.get_hero_position_id(quest))
+        self.assertTrue(isinstance(quest.knowledge_base[quest.machine.pointer.state], facts.Finish))
+        self.assertTrue(all(requirement.check(quest.knowledge_base) for requirement in quest.knowledge_base[quest.machine.pointer.state].require))
 
     def test_initialization(self):
         self.assertEqual(TimePrototype.get_current_turn_number(), self.hero.quests_history[self.quest.env.root_quest.type()])

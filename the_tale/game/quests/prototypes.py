@@ -2,131 +2,73 @@
 import datetime
 import random
 
-from dext.utils import s11n
-
-from common.utils.prototypes import BasePrototype
+from questgen.machine import Machine
+from questgen import facts
+from questgen.knowledge_base import KnowledgeBase
 
 from game.prototypes import TimePrototype
 
 from game.balance import constants as c, formulas as f
 
-from game.map.roads.storage import waymarks_storage
-
 from game.mobs.storage import mobs_storage
+
+from game.map.places.storage import places_storage
+from game.map.roads.storage import waymarks_storage
 
 from game.heroes.statistics import MONEY_SOURCE
 from game.heroes.relations import EQUIPMENT_SLOT, ITEMS_OF_EXPENDITURE
 
-from game.quests.models import Quest, QuestsHeroes
-from game.quests.exceptions import QuestException
+from game.quests import exceptions
 
 
-class QuestPrototype(BasePrototype):
-    _model_class = Quest
-    _readonly = ('id',)
-    _bidirectional = ()
-    _get_by = ('id',)
+class QuestPrototype(object):
+
+    def __init__(self, knowledge_base, rewards=None, quests_start_turn=None):
+        self.rewards = {} if rewards is None else rewards
+        self.quests_start_turn = {} if quests_start_turn is None else quests_start_turn
+
+        # TODO:
+        # quest.quests_start_turn[quest.env.root_quest.id] = model.created_at_turn
+        # hero.quests_history[env.root_quest.type()] = TimePrototype.get_current_turn_number()
+
+        self.knowledge_base = knowledge_base
+        self.machine = Machine(knowledge_base=knowledge_base)
+
+    def serialize(self):
+        return {'rewards': self.rewards,
+                'quests_start_turn': self.quests_start_turn,
+                'knowledge_base': self.knowledge_base.serialize()}
 
     @classmethod
-    def get_for_hero(cls, hero_id):
-        # use select_related to get quest_hero & quest model in one request
-        # since can be situation, when we get QuestsHeroes model just before quest removing
-        quests_models = list(QuestsHeroes.objects.select_related().filter(hero_id=hero_id))
-        if len(quests_models) > 1:
-            raise QuestException(u'more then one quest found fo hero: %d (quests: %r)' % (hero_id, [quest.id for quest in quests_models]))
-        if quests_models:
-            return cls(model=quests_models[0].quest)
-        return None
+    def deserialize(cls, data):
+        from game.quests.logic import RESTRICTIONS
+        return cls(rewards=data['rewards'],
+                   quests_start_turn=data['quests_start_turn'],
+                   knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], restrictions=RESTRICTIONS, fact_classes=facts.FACTS))
+
 
     @property
-    def percents(self):
-        return self.env.percents(self.pointer)
+    def percents(self): return 0.5 # TODO: implement
 
     @property
-    def data(self):
-        if not hasattr(self, '_data'):
-            self._data = s11n.from_json(self._model.data)
-        return self._data
-
-    @property
-    def env(self):
-        from .environment import Environment
-        from .logic import QuestsSource
-        from .writer import Writer
-
-        if not hasattr(self, '_env'):
-
-            self._env = Environment(writers_constructor=Writer,
-                                    quests_source=QuestsSource() )
-            self._env.deserialize(s11n.from_json(self._model.env))
-        return self._env
-
-    def get_pointer(self): return self.data['pointer']
-    def set_pointer(self, value):  self.data['pointer'] = value
-    pointer = property(get_pointer, set_pointer)
-
-    def get_last_pointer(self): return self.data.get('last_pointer', self.pointer)
-    def set_last_pointer(self, value):  self.data['last_pointer'] = value
-    last_pointer = property(get_last_pointer, set_last_pointer)
-
-    @property
-    def rewards(self): return self.data.get('rewards', {})
-
-    def get_quests_start_turn(self):
-        if 'quests_start_turn'not in self.data:
-            self.data['quests_start_turn'] = {}
-        return self.data['quests_start_turn']
-    def set_quests_start_turn(self, value):  self.data['quests_start_turn'] = value
-    quests_start_turn = property(get_quests_start_turn, set_quests_start_turn)
-
-    @property
-    def line(self): return self.data['line']
-
-    @property
-    def is_processed(self):
-        return len(self.pos) == 0
+    def is_processed(self): return self.machine.is_processed
 
     def get_choices(self):
+        # made choices
         # MUST be always actual
-        choices = {}
-        choices_list = list(self._model.choices.all())
-        for choice in choices_list:
-            choices[choice.choice_point] = choice.choice
-        return choices
+        return {} # TODO: implement
 
-    def is_choice_available(self, choice):
-        return self.env.lines[choice].available
+    def is_choice_available(self, choice): return False # TODO: implement
 
-    def make_choice(self, choice_point, choice):
-        from game.quests.models import QuestChoice
 
-        if QuestChoice.objects.filter(quest=self._model, choice_point=choice_point).exists():
-            return False
-
-        QuestChoice.objects.create(quest=self._model,
-                                   choice_point=choice_point,
-                                   choice=choice)
-
-        return True
+    def make_choice(self, choice_point, choice): return False # TODO: implement
 
     @classmethod
-    def get_minimum_created_time_of_active_quests(cls):
-        from django.db.models import Min
-        created_at = Quest.objects.all().aggregate(Min('created_at'))['created_at__min']
-
-        return created_at if created_at is not None else datetime.datetime.now()
+    def get_minimum_created_time_of_active_quests(cls): return datetime.datetime.fromtimestamp(0) # TODO: implement
 
     ###########################################
     # Object operations
     ###########################################
-
-    def remove(self):
-        self._model.delete()
-
-    def save(self):
-        self._model.data = s11n.to_json(self.data)
-        self._model.env = s11n.to_json(self.env.serialize())
-        self._model.save(force_update=True)
 
     @classmethod
     def get_expirience_for_quest(cls, hero):
@@ -142,61 +84,64 @@ class QuestPrototype(BasePrototype):
     def get_person_power_for_quest(cls, hero):# pylint: disable=W0613
         return f.person_power_for_quest(waymarks_storage.average_path_length)
 
-    @classmethod
-    def create(cls, hero, env):
-
-        data = { 'pointer': env.get_start_pointer(),
-                 'last_pointer': env.get_start_pointer(),
-                 'rewards': {quest_id:{'experience': cls.get_expirience_for_quest(hero),
-                                       'power': cls.get_person_power_for_quest(hero)} for quest_id in env.quests}}
-
-        if QuestsHeroes.objects.filter(hero=hero._model).exists():
-            raise Exception('Hero %s has already had quest' % hero.id)
-
-        model = Quest.objects.create(env=s11n.to_json(env.serialize()),
-                                     created_at_turn=TimePrototype.get_current_turn_number(),
-                                     data=s11n.to_json(data))
-
-        QuestsHeroes.objects.create(quest=model, hero=hero._model)
-
-        quest = QuestPrototype(model=model)
-
-        quest.quests_start_turn[quest.env.root_quest.id] = model.created_at_turn
-
-        quest.save()
-
-        hero.quests_history[env.root_quest.type()] = TimePrototype.get_current_turn_number()
-
-        return quest
-
-
     def process(self, cur_action):
-
         if self.do_step(cur_action):
-            percents = self.percents
-            if percents >= 1:
-                raise QuestException('completed percents > 1 for not ended quest')
-            return percents
+            return self.percents
 
         return 1
 
     def do_step(self, cur_action):
 
-        self.process_current_command(cur_action)
+        self.sync_knowledge_base(cur_action)
 
-        self.last_pointer = self.pointer
-        self.pointer = self.env.increment_pointer(self.pointer, self.get_choices())
-
-        if self.pointer is not None:
+        if self.machine.can_do_step():
+            self.do_state_actions(cur_action)
+            self.machine.step()
             return True
 
-        self.end_quest(cur_action)
-        cur_action.hero.statistics.change_quests_done(1)
+        if self.is_processed:
+            cur_action.hero.statistics.change_quests_done(1)
+            return False
 
-        return False
+        self.satisfy_requirements(cur_action, self.machine.next_state)
 
-    def end_quest(self, cur_action):
-        pass
+        return True
+
+    def sync_knowledge_base(self, cur_action):
+
+        hero_uid = 'hero_%d' % cur_action.hero.id
+
+        self.knowledge_base -= [location
+                                for location in self.knowledge_base.filter(facts.LocatedIn)
+                                if location.object == hero_uid]
+
+        if cur_action.hero.position.place:
+            self.knowledge_base += facts.LocatedIn(object=hero_uid, place='place_%d' % cur_action.hero.position.place.id)
+
+
+    def satisfy_requirements(self, cur_action, state):
+        for requirement in state.require:
+            if not requirement.check(self.knowledge_base):
+                self.satisfy_requirement(cur_action, requirement)
+
+    def _move_hero_to(self, cur_action, destination):
+        from game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
+
+        if cur_action.hero.position.place or cur_action.hero.position.road:
+            ActionMoveToPrototype.create(hero=cur_action.hero, destination=destination)
+        else:
+            ActionMoveNearPlacePrototype.create(hero=cur_action.hero, place=cur_action.hero.get_dominant_place(), back=True)
+
+    def satisfy_requirement(self, cur_action, requirement):
+        if isinstance(requirement, facts.LocatedIn):
+            # self.push_message(writer, cur_action.hero, cmd.event) # TODO: writer
+            destination = places_storage[self.knowledge_base[requirement.place].externals['id']]
+            self._move_hero_to(cur_action, destination)
+        else:
+            raise exceptions.UnknownRequirement(requirement=requirement)
+
+    def do_state_actions(self, cur_action):
+        pass # TODO: implement
 
     def push_message(self, writer, messanger, event, **kwargs):
         from game.heroes.messages import MessagesContainer

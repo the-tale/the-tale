@@ -31,6 +31,7 @@ from game.text_generation import get_dictionary, get_text
 from game.prototypes import TimePrototype
 
 from game.actions.container import ActionsContainer
+from game.quests.container import QuestsContainer
 
 from game.heroes.statistics import HeroStatistics, MONEY_SOURCE
 from game.heroes.models import Hero, HeroPreferences
@@ -604,6 +605,9 @@ class HeroPrototype(BasePrototype):
     def actions(self): return ActionsContainer.deserialize(self, s11n.from_json(self._model.actions))
 
     @lazy_property
+    def quests(self): return QuestsContainer.deserialize(self, s11n.from_json(self._model.quests))
+
+    @lazy_property
     def pvp(self): return PvPData.deserialize(s11n.from_json(self._model.pvp))
 
     @lazy_property
@@ -683,6 +687,10 @@ class HeroPrototype(BasePrototype):
             self._model.actions = s11n.to_json(self.actions.serialize())
             self.actions.updated = False
 
+        if self.quests.updated:
+            self._model.quests = s11n.to_json(self.quests.serialize())
+            self.quests.updated = False
+
         if self.pvp.updated:
             self._model.pvp = s11n.to_json(self.pvp.serialize())
             self.pvp.updated = False
@@ -755,11 +763,6 @@ class HeroPrototype(BasePrototype):
 
         quest_items_count, loot_items_count = self.bag.occupation
 
-        quests = None
-        if quests_info:
-            quest = QuestPrototype.get_for_hero(self.id)
-            quests = quest.ui_info(self) if quest else {}
-
         return {'id': self.id,
                 'saved_at_turn': self.saved_at_turn,
                 'saved_at': time.mktime(self.saved_at.timetuple()),
@@ -797,7 +800,7 @@ class HeroPrototype(BasePrototype):
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': loot_items_count,
                                'quest_items_count': quest_items_count},
-                'quests': quests
+                'quests': self.quests.ui_info()
                 }
 
     def ui_info_for_cache(self):
