@@ -21,6 +21,7 @@ from game.heroes.prototypes import HeroPrototype
 
 from game.quests.logic import create_random_quest_for_hero
 from game.quests.prototypes import QuestPrototype
+from game.quests import uids
 
 
 class PrototypeTests(testcase.TestCase):
@@ -50,7 +51,7 @@ class PrototypeTests(testcase.TestCase):
 
         hero_position_uid = list(location.place
                                  for location in kb.filter(facts.LocatedIn)
-                                 if location.object == 'hero_%d' % self.hero.id)[0]
+                                 if location.object == uids.hero(self.hero))[0]
         return kb[hero_position_uid].externals['id']
 
     def complete_quest(self):

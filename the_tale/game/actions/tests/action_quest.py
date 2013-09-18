@@ -37,6 +37,7 @@ class QuestActionTest(testcase.TestCase):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_quest.leader, True)
         self.assertEqual(self.action_quest.bundle_id, self.action_idl.bundle_id)
+        self.assertTrue(self.hero.quests.has_quests)
         self.storage._test_save()
 
     def test_one_step(self):
@@ -57,22 +58,4 @@ class QuestActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
-    def test_save_quest(self):
-
-        current_time = TimePrototype.get_current_time()
-
-        with mock.patch('game.quests.prototypes.QuestPrototype.save') as quest_save:
-            while not self.action_idl.leader:
-                self.storage.process_turn()
-                current_time.increment_turn()
-
-        self.assertTrue(quest_save.call_count > 3)
-
-    def test_remove(self):
-        self.assertEqual(Quest.objects.all().count(), 1)
-        self.assertEqual(QuestsHeroes.objects.all().count(), 1)
-
-        self.action_quest.remove()
-
-        self.assertEqual(Quest.objects.all().count(), 0)
-        self.assertEqual(QuestsHeroes.objects.all().count(), 0)
+        self.assertFalse(self.hero.quests.has_quests)

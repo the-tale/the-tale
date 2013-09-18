@@ -27,15 +27,16 @@ from game.prototypes import TimePrototype
 
 from game.quests.conf import quests_settings
 from game.quests.prototypes import QuestPrototype
+from game.quests import uids
 
 _quests_logger = getLogger('the-tale.quests')
 
-RESTRICTIONS = [restrictions.SingleStartState(),
-                restrictions.NoJumpsFromFinish(),
-                restrictions.SingleLocationForObject(),
-                restrictions.ReferencesIntegrity(),
-                restrictions.ConnectedStateJumpGraph(),
-                restrictions.NoCirclesInStateJumpGraph()]
+WORLD_RESTRICTIONS = [restrictions.SingleLocationForObject(),
+                      restrictions.ReferencesIntegrity()]
+QUEST_RESTRICTIONS =  [restrictions.SingleStartState(),
+                       restrictions.NoJumpsFromFinish(),
+                       restrictions.ConnectedStateJumpGraph(),
+                       restrictions.NoCirclesInStateJumpGraph()]
 
 def fill_places_for_first_quest(kb, hero):
 
@@ -51,8 +52,8 @@ def fill_places_for_first_quest(kb, hero):
             best_distance = path_length
             best_destination = place
 
-    kb += facts.Place(uid='place_%d' % best_destination.id, terrains=best_destination.terrains, externals={'id': best_destination.id})
-    kb += facts.Place(uid='place_%d' % hero.position.place.id, terrains=hero.position.place.terrains, externals={'id': hero.position.place.id})
+    kb += facts.Place(uid=uids.place(best_destination), terrains=list(best_destination.terrains), externals={'id': best_destination.id})
+    kb += facts.Place(uid=uids.place(hero.position.place), terrains=list(hero.position.place.terrains), externals={'id': hero.position.place.id})
 
 
 def fill_places_for_short_paths(kb, hero):
@@ -63,16 +64,14 @@ def fill_places_for_short_paths(kb, hero):
             if path_length > waymarks_storage.average_path_length:
                 continue
 
-        kb += facts.Place(uid='place_%d' % place.id, terrains=place.terrains, externals={'id': place.id})
+        kb += facts.Place(uid=uids.place(place), terrains=list(place.terrains), externals={'id': place.id})
 
 
 def get_knowledge_base(hero): # pylint: disable=R0912
 
     kb = KnowledgeBase()
 
-    kb += RESTRICTIONS
-
-    hero_uid = 'hero_%d' % hero.id
+    hero_uid = uids.hero(hero)
 
     kb += facts.Hero(uid=hero_uid)
 
@@ -84,23 +83,23 @@ def get_knowledge_base(hero): # pylint: disable=R0912
     else:
         pass
 
-    hero_position_uid = 'place_%d' % hero.position.place.id
+    hero_position_uid = uids.place(hero.position.place)
     if hero_position_uid not in kb:
-        kb += facts.Place(uid=hero_position_uid, terrains=hero.position.place.terrains, externals={'id': hero.position.place.id})
+        kb += facts.Place(uid=hero_position_uid, terrains=list(hero.position.place.terrains), externals={'id': hero.position.place.id})
 
     kb += facts.LocatedIn(object=hero_uid, place=hero_position_uid)
 
     if len(list(kb.filter(facts.Place))) < 2:
         for place in places_storage.all():
-            place_uid = 'place_%d' % place.id
+            place_uid = uids.place(place)
             if place_uid not in kb:
-                kb += facts.Place(uid=place_uid, terrains=place.terrains, externals={'id': place.id})
+                kb += facts.Place(uid=place_uid, terrains=list(place.terrains), externals={'id': place.id})
 
 
     # fill persons
     for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
-        person_uid = 'person_%d' % person.id
-        place_uid = 'place_%d' % person.place_id
+        person_uid = uids.person(person)
+        place_uid = uids.place(person.place)
 
         if place_uid not in kb:
             continue
@@ -110,28 +109,30 @@ def get_knowledge_base(hero): # pylint: disable=R0912
 
     pref_mob = hero.preferences.mob
     if pref_mob:
-        mob_uid = 'mob_%d' % pref_mob.id
-        kb += facts.Mob(uid=mob_uid, terrains=pref_mob.terrains)
+        mob_uid = uids.mob(pref_mob)
+        kb += facts.Mob(uid=mob_uid, terrains=list(pref_mob.terrains))
         kb += facts.PreferenceMob(hero_uid, mob_uid)
 
     pref_place = hero.preferences.place
-    place_uid = 'place_%d' % pref_place.id if pref_place is not None else None
+    place_uid = uids.place(pref_place) if pref_place is not None else None
     if place_uid in kb:
         kb += facts.PreferenceHometown(hero_uid, place_uid)
 
     pref_friend = hero.preferences.friend
-    friend_uid = 'person_%d' % pref_friend.id if pref_friend is not None else None
+    friend_uid = uids.person(pref_friend) if pref_friend is not None else None
     if friend_uid in kb:
         kb += facts.PreferenceFriend(hero_uid, friend_uid)
 
     pref_enemy = hero.preferences.enemy
-    enemy_uid = 'person_%d' % pref_enemy.id if pref_enemy is not None else None
+    enemy_uid = uids.person(pref_enemy) if pref_enemy is not None else None
     if enemy_uid in kb:
         kb += facts.PreferenceEnemy(hero_uid, enemy_uid)
 
     pref_equipment_slot = hero.preferences.equipment_slot
     if pref_equipment_slot:
         kb += facts.PreferenceEquipmentSlot(hero_uid, pref_equipment_slot.value)
+
+    kb.validate_consistency(WORLD_RESTRICTIONS)
 
     return kb
 
@@ -160,7 +161,7 @@ def _create_random_quest_for_hero(hero, knowledge_base, special):
 
     qb += [Spying]
 
-    hero_uid = 'hero_%d' % hero.id
+    hero_uid = uids.hero(hero)
 
     start_place = selector.place_for(objects=(hero_uid,))
 
@@ -172,19 +173,22 @@ def _create_random_quest_for_hero(hero, knowledge_base, special):
             excluded_quests.append(quest_type)
 
     if special:
-        facts = qb.create_start_quest(selector,
+        facts = qb.create_start_quest(knowledge_base,
+                                      selector,
                                       start_place=start_place,
                                       allowed=hero.get_special_quests(),
                                       excluded=excluded_quests,
                                       tags=('can_start', 'special'))
     else:
-        facts = qb.create_start_quest(selector,
+        facts = qb.create_start_quest(knowledge_base,
+                                      selector,
                                       start_place=start_place,
                                       excluded=excluded_quests,
                                       tags=('can_start', 'normal'))
 
     knowledge_base += facts
 
-    knowledge_base.validate_consistency()
+    knowledge_base.validate_consistency(WORLD_RESTRICTIONS)
+    knowledge_base.validate_consistency(QUEST_RESTRICTIONS)
 
     return QuestPrototype(knowledge_base=knowledge_base)

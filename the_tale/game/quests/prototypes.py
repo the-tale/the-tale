@@ -19,6 +19,7 @@ from game.heroes.statistics import MONEY_SOURCE
 from game.heroes.relations import EQUIPMENT_SLOT, ITEMS_OF_EXPENDITURE
 
 from game.quests import exceptions
+from game.quests import uids
 
 
 class QuestPrototype(object):
@@ -41,10 +42,9 @@ class QuestPrototype(object):
 
     @classmethod
     def deserialize(cls, data):
-        from game.quests.logic import RESTRICTIONS
         return cls(rewards=data['rewards'],
                    quests_start_turn=data['quests_start_turn'],
-                   knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], restrictions=RESTRICTIONS, fact_classes=facts.FACTS))
+                   knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], fact_classes=facts.FACTS))
 
 
     @property
@@ -91,7 +91,6 @@ class QuestPrototype(object):
         return 1
 
     def do_step(self, cur_action):
-
         self.sync_knowledge_base(cur_action)
 
         if self.machine.can_do_step():
@@ -109,14 +108,14 @@ class QuestPrototype(object):
 
     def sync_knowledge_base(self, cur_action):
 
-        hero_uid = 'hero_%d' % cur_action.hero.id
+        hero_uid = uids.hero(cur_action.hero)
 
         self.knowledge_base -= [location
                                 for location in self.knowledge_base.filter(facts.LocatedIn)
                                 if location.object == hero_uid]
 
         if cur_action.hero.position.place:
-            self.knowledge_base += facts.LocatedIn(object=hero_uid, place='place_%d' % cur_action.hero.position.place.id)
+            self.knowledge_base += facts.LocatedIn(object=hero_uid, place=uids.place(cur_action.hero.position.place))
 
 
     def satisfy_requirements(self, cur_action, state):
