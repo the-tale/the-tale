@@ -24,28 +24,22 @@ from game.quests import uids
 
 class QuestPrototype(object):
 
-    def __init__(self, knowledge_base, rewards=None, quests_start_turn=None):
+    def __init__(self, knowledge_base, rewards=None, quests_stack=None):
         self.rewards = {} if rewards is None else rewards
-        self.quests_start_turn = {} if quests_start_turn is None else quests_start_turn
-
-        # TODO:
-        # quest.quests_start_turn[quest.env.root_quest.id] = model.created_at_turn
-        # hero.quests_history[env.root_quest.type()] = TimePrototype.get_current_turn_number()
-
+        self.quests_stack = [] if quests_stack is None else quests_stack
         self.knowledge_base = knowledge_base
         self.machine = Machine(knowledge_base=knowledge_base)
 
     def serialize(self):
         return {'rewards': self.rewards,
-                'quests_start_turn': self.quests_start_turn,
+                'quests_stack': self.quests_stack,
                 'knowledge_base': self.knowledge_base.serialize()}
 
     @classmethod
     def deserialize(cls, data):
         return cls(rewards=data['rewards'],
-                   quests_start_turn=data['quests_start_turn'],
-                   knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], fact_classes=facts.FACTS))
-
+                   knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], fact_classes=facts.FACTS),
+                   quests_stack=data['quests_stack'])
 
     @property
     def percents(self): return 0.5 # TODO: implement
@@ -53,15 +47,28 @@ class QuestPrototype(object):
     @property
     def is_processed(self): return self.machine.is_processed
 
-    def get_choices(self):
-        # made choices
-        # MUST be always actual
-        return {} # TODO: implement
+    def get_choices(self): return self.machine.get_nearest_choice()
 
-    def is_choice_available(self, choice): return False # TODO: implement
+    def is_choice_available(self, option_uid):
+        # TODO: check if line is available
+        return True
 
+    def make_choice(self, choice_uid, option_uid):
+        choice, options, defaults = self.get_choices()
 
-    def make_choice(self, choice_point, choice): return False # TODO: implement
+        if choice_uid != choice.uid:
+            return False
+
+        if not any(option.uid == option_uid for option in options):
+            return False
+
+        if not defaults[0].default:
+            return False
+
+        self.knowledge_base -= defaults
+        self.knowledge_base += facts.ChoicePath(choice=choice_uid, option=option_uid, default=False)
+
+        return True
 
     @classmethod
     def get_minimum_created_time_of_active_quests(cls): return datetime.datetime.fromtimestamp(0) # TODO: implement
@@ -94,8 +101,8 @@ class QuestPrototype(object):
         self.sync_knowledge_base(cur_action)
 
         if self.machine.can_do_step():
-            self.do_state_actions(cur_action)
             self.machine.step()
+            self.do_state_actions(cur_action)
             return True
 
         if self.is_processed:
@@ -131,6 +138,29 @@ class QuestPrototype(object):
         else:
             ActionMoveNearPlacePrototype.create(hero=cur_action.hero, place=cur_action.hero.get_dominant_place(), back=True)
 
+    def _give_power(self, hero, person_id, power):
+        from game.persons.storage import persons_storage
+
+        # self.push_message(writer, cur_action.hero, cmd.event)
+        current_quest_uid = self.quests_stack[-1]
+
+        base_power = self.rewards[current_quest_uid]['power']
+
+        person = persons_storage[person_id]
+
+        power = self.modify_person_power(person, power, hero.person_power_modifier, base_power)
+
+        if power > 0:
+            hero.places_history.add_place(person.place_id)
+
+        if not hero.can_change_persons_power:
+            return
+
+        power = hero.modify_person_power(person, power)
+
+        person.cmd_change_power(power)
+
+
     def satisfy_requirement(self, cur_action, requirement):
         if isinstance(requirement, facts.LocatedIn):
             # self.push_message(writer, cur_action.hero, cmd.event) # TODO: writer
@@ -140,7 +170,19 @@ class QuestPrototype(object):
             raise exceptions.UnknownRequirement(requirement=requirement)
 
     def do_state_actions(self, cur_action):
-        pass # TODO: implement
+        current_state = self.machine.current_state
+
+        for action in current_state.actions:
+            if isinstance(action, facts.Message):
+                pass # TODO
+            elif isinstance(action, facts.GivePower):
+                self._give_power(cur_action.hero, self.knowledge_base[action.person].externals['id'], action.power)
+
+        if isinstance(current_state, facts.Start):
+            cur_action.hero.quests_history[self.machine.current_state.quest_uid] = TimePrototype.get_current_turn_number()
+            self.quests_stack.append(current_state.uid)
+        elif isinstance(current_state, facts.Finish):
+            self.quests_stack.pop()
 
     def push_message(self, writer, messanger, event, **kwargs):
         from game.heroes.messages import MessagesContainer
@@ -261,7 +303,6 @@ class QuestPrototype(object):
 
     def cmd_quest(self, cmd, cur_action, writer):
         self.push_message(writer, cur_action.hero, cmd.event)
-        self.quests_start_turn[cmd.quest] = TimePrototype.get_current_turn_number()
 
     def modify_experience(self, experience):
         from game.persons.storage import persons_storage
@@ -302,33 +343,6 @@ class QuestPrototype(object):
     @classmethod
     def modify_person_power(cls, person, quest_power, hero_modifier, base_power):
         return quest_power * hero_modifier * base_power * person.place.freedom
-
-    def cmd_give_power(self, cmd, cur_action, writer):
-        from game.persons.storage import persons_storage
-
-        self.push_message(writer, cur_action.hero, cmd.event)
-
-        current_quest = self.env.get_quest(self.pointer)
-        if current_quest.id not in self.rewards:
-            return # temporary code for old quests (without rewards dict)
-
-        base_power = self.rewards[current_quest.id]['power']
-
-        person_data = self.env.persons[cmd.person]
-        person = persons_storage.get(person_data['external_data']['id'])
-
-        power = self.modify_person_power(person, cmd.power, cur_action.hero.person_power_modifier, base_power)
-
-        if power > 0:
-            cur_action.hero.places_history.add_place(person.place_id)
-
-        if not cur_action.hero.can_change_persons_power:
-            return
-
-        power = cur_action.hero.modify_person_power(person, power)
-
-        person.cmd_change_power(power)
-
 
     def cmd_battle(self, cmd, cur_action, writer):
         from game.actions.prototypes import ActionBattlePvE1x1Prototype

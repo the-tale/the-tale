@@ -70,9 +70,7 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(isinstance(quest.knowledge_base[quest.machine.pointer.state], facts.Finish))
         self.assertTrue(all(requirement.check(quest.knowledge_base) for requirement in quest.knowledge_base[quest.machine.pointer.state].require))
 
-    def test_initialization(self):
-        self.assertEqual(TimePrototype.get_current_turn_number(), self.hero.quests_history[self.quest.env.root_quest.type()])
-
+        self.assertTrue(self.hero.quests_history[quest.knowledge_base.filter(facts.Start).next().quest_uid] > 0)
 
     @mock.patch('game.quests.prototypes.QuestPrototype.modify_person_power', lambda *args, **kwargs: 1)
     def test_power_on_end_quest_for_fast_account_hero(self):

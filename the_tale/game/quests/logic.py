@@ -8,6 +8,7 @@ from dext.utils.decorators import retry_on_exception
 from questgen import facts
 from questgen import restrictions
 from questgen import exceptions
+from questgen import transformators
 from questgen.knowledge_base import KnowledgeBase
 from questgen.selectors import Selector
 from questgen.quests.quests_base import QuestsBase
@@ -36,7 +37,8 @@ WORLD_RESTRICTIONS = [restrictions.SingleLocationForObject(),
 QUEST_RESTRICTIONS =  [restrictions.SingleStartState(),
                        restrictions.NoJumpsFromFinish(),
                        restrictions.ConnectedStateJumpGraph(),
-                       restrictions.NoCirclesInStateJumpGraph()]
+                       restrictions.NoCirclesInStateJumpGraph(),
+                       restrictions.MultipleJumpsFromNormalState()]
 
 def fill_places_for_first_quest(kb, hero):
 
@@ -173,22 +175,31 @@ def _create_random_quest_for_hero(hero, knowledge_base, special):
             excluded_quests.append(quest_type)
 
     if special:
-        facts = qb.create_start_quest(knowledge_base,
-                                      selector,
-                                      start_place=start_place,
-                                      allowed=hero.get_special_quests(),
-                                      excluded=excluded_quests,
-                                      tags=('can_start', 'special'))
+        quests_facts = qb.create_start_quest(knowledge_base,
+                                             selector,
+                                             start_place=start_place,
+                                             allowed=hero.get_special_quests(),
+                                             excluded=excluded_quests,
+                                             tags=('can_start', 'special'))
     else:
-        facts = qb.create_start_quest(knowledge_base,
-                                      selector,
-                                      start_place=start_place,
-                                      excluded=excluded_quests,
-                                      tags=('can_start', 'normal'))
+        quests_facts = qb.create_start_quest(knowledge_base,
+                                             selector,
+                                             start_place=start_place,
+                                             excluded=excluded_quests,
+                                             tags=('can_start', 'normal'))
 
-    knowledge_base += facts
+    knowledge_base += quests_facts
+
+    transformators.activate_events(knowledge_base)
+    transformators.determine_default_choices(knowledge_base)
+    transformators.remove_broken_states(knowledge_base)
 
     knowledge_base.validate_consistency(WORLD_RESTRICTIONS)
     knowledge_base.validate_consistency(QUEST_RESTRICTIONS)
 
-    return QuestPrototype(knowledge_base=knowledge_base)
+    quests_uids = [start.uid for start in knowledge_base.filter(facts.Start)]
+
+    rewards = {quest_uid: {'experience': QuestPrototype.get_expirience_for_quest(hero),
+                           'power': QuestPrototype.get_person_power_for_quest(hero)} for quest_uid in quests_uids}
+
+    return QuestPrototype(knowledge_base=knowledge_base, rewards=rewards)
