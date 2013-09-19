@@ -41,9 +41,6 @@ if project_settings.DEBUG:
     urlpatterns += static(project_settings.DCONT_URL, document_root=project_settings.DCONT_DIR)
     urlpatterns += static(project_settings.STATIC_URL, document_root=project_settings.STATIC_DIR)
 
-    import pprint
-    pprint.pprint(urlpatterns)
-
 
 handler404 = create_handler_view(PortalResource, 'handler404')
 handler500 = create_handler_view(PortalResource, 'handler500')

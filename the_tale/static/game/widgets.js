@@ -23,6 +23,7 @@ pgf.game.Updater = function(params) {
     var instance = this;
     var refreshInterval = undefined;
     var refreshTimer = undefined;
+    var refreshDelay = 1000;
 
     this.data = {};
 
@@ -54,11 +55,14 @@ pgf.game.Updater = function(params) {
                     jQuery('.pgf-wait-data').toggleClass('pgf-hidden', false);
                     jQuery('.pgf-game-data').toggleClass('pgf-hidden', true);
                     setTimeout(function(e){
+                        refreshDelay *= 1.618; //the golden ratio
                         instance.ResetRefreshInterval(requireNewData);
                         instance.Refresh(requireNewData);
-                    }, 1000);
-                    return;
+                    }, refreshDelay);
+                    return;yes
                 }
+
+                refreshDelay = 1000;
 
                 instance.data = data.data;
 
