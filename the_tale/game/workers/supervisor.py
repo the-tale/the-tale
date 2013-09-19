@@ -114,12 +114,14 @@ class Worker(BaseWorker):
 
     def register_task(self, task, release_accounts=True):
         if task.id in self.tasks:
+            self._force_stop()
             raise SupervisorException('task %d has been registered already' % task.id)
 
         self.tasks[task.id] = task
 
         for account_id in task.members:
             if account_id in self.accounts_for_tasks:
+                self._force_stop()
                 raise SupervisorException('account %d already register for task %d (second task: %d)' % (account_id, self.accounts_for_tasks[account_id], task.id))
             self.accounts_for_tasks[account_id] = task.id
 
@@ -186,6 +188,7 @@ class Worker(BaseWorker):
             self.wait_answers_from('next_turn', workers=['logic'], timeout=game_settings.PROCESS_TURN_WAIT_LOGIC_TIMEOUT)
         except amqp_exceptions.WaitAnswerTimeoutError:
             self.logger.error('next turn timeout while getting answer from logic')
+            self._force_stop()
             raise
 
         try:
@@ -193,11 +196,7 @@ class Worker(BaseWorker):
                 game_environment.highlevel.cmd_next_turn(turn_number=self.time.turn_number)
                 self.wait_answers_from('next_turn', workers=['highlevel'], timeout=game_settings.PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT)
         except amqp_exceptions.WaitAnswerTimeoutError:
-            self.logger.error('next turn timeout while getting answer from highlevel.')
-            self.logger.error('SEND STOP COMMAND TO LOGIC.')
-            self.stop_logic() # logic MUST being stopped to save all changed data
-            self.logger.error('LOGIC STOPPED.')
-            self.logger.error('raise exception')
+            self._force_stop()
             raise
 
     def stop_logic(self):
@@ -207,6 +206,21 @@ class Worker(BaseWorker):
 
     def cmd_stop(self):
         return self.send_cmd('stop')
+
+    def _force_stop(self):
+        from game.workers.environment import workers_environment as game_environment
+
+        self.logger.error('force stop all workers, send signals.')
+
+        game_environment.logic.cmd_stop()
+        if game_settings.ENABLE_WORKER_HIGHLEVEL:
+            game_environment.highlevel.cmd_stop()
+        if game_settings.ENABLE_WORKER_TURNS_LOOP:
+            game_environment.turns_loop.cmd_stop()
+        if game_settings.ENABLE_PVP:
+            game_environment.pvp_balancer.cmd_stop()
+
+        self.logger.error('signals sent')
 
     def process_stop(self):
         from game.workers.environment import workers_environment as game_environment

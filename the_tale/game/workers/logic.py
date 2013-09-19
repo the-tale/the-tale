@@ -78,7 +78,7 @@ class Worker(BaseWorker):
                                                                                                                           TimePrototype.get_current_turn_number()))
 
             self.storage.process_turn(logger=self.logger)
-            self.storage.save_changed_data()
+            self.storage.save_changed_data(logger=self.logger)
 
             for hero_id in self.storage.skipped_heroes:
                 game_environment.supervisor.cmd_account_release_required(self.storage.heroes[hero_id].account_id)
@@ -95,7 +95,7 @@ class Worker(BaseWorker):
     def process_stop(self):
         # no need to save data, since they automaticaly saved on every turn
         self.initialized = False
-        self.storage.save_all()
+        self.storage.save_all(logger=self.logger)
         game_environment.supervisor.cmd_answer('stop', self.worker_id)
         self.stop_required = True
         self.logger.info('LOGIC STOPPED')
