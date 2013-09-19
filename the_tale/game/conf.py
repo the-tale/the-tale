@@ -20,8 +20,8 @@ game_settings = app_settings('GAME',
 
                              ENABLE_DATA_REFRECH=True,
 
-                             PROCESS_TURN_WAIT_LOGIC_TIMEOUT = 1*60,
-                             PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT = 5*60,
+                             PROCESS_TURN_WAIT_LOGIC_TIMEOUT = 5*60,
+                             PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT = 10*60,
 
                              SAVED_UNCACHED_HEROES_FRACTION=0.01,
 

@@ -134,8 +134,10 @@ class LogicStorage(object):
                 continue
             self.save_hero_data(hero_id, update_cache=False)
 
-    def save_all(self):
+    def save_all(self, logger=None):
         for hero_id, hero in self.heroes.iteritems():
+            if logger:
+                logger.info('save hero %d' % hero_id)
             self.save_hero_data(hero_id, update_cache=False)
 
     def _get_bundles_to_save(self):
@@ -151,10 +153,13 @@ class LogicStorage(object):
 
         return bundles
 
-    def save_changed_data(self):
+    def save_changed_data(self, logger=None):
         cached_ui_info = {}
 
         bundles = self._get_bundles_to_save()
+
+        if logger:
+            logger.info('[save_changed_data] saved bundles number: %d' % len(bundles))
 
         for hero_id, hero in self.heroes.iteritems():
 
