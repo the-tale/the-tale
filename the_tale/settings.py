@@ -281,7 +281,7 @@ def get_worker_log_file_handler(name):
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': os.path.join(HOME_DIR, 'logs', '%s.log' % name),
             'when': 'D',
-            'interval': 7,
+            'interval': 2,
             'backupCount': 2,
             'encoding': 'utf-8',
             'formatter': 'verbose',

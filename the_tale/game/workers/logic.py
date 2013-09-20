@@ -135,7 +135,7 @@ class Worker(BaseWorker):
 
     def process_start_hero_caching(self, account_id, hero_id):
         self.storage.heroes[hero_id].ui_caching_started_at = datetime.datetime.now()
-        self.storage.save_account_data(account_id, update_cache=True)
+        self.storage.recache_account_data(account_id)
 
     def cmd_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at, ban_end_at, might):
         self.send_cmd('update_hero_with_account_data', {'hero_id': hero_id,
