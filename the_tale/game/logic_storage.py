@@ -7,6 +7,7 @@ from game.heroes.conf import heroes_settings
 
 from game import exceptions
 from game.conf import game_settings
+from game.prototypes import TimePrototype
 
 
 class LogicStorage(object):
@@ -41,6 +42,12 @@ class LogicStorage(object):
 
     def save_account_data(self, account_id, update_cache):
         return self.save_hero_data(self.accounts_to_heroes[account_id].id, update_cache=update_cache)
+
+    def recache_account_data(self, account_id):
+        hero = self.accounts_to_heroes[account_id]
+        if hero.saved_at_turn != TimePrototype.get_current_turn_number():
+            hero.save()
+        cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(), heroes_settings.UI_CACHING_TIMEOUT)
 
     def save_hero_data(self, hero_id, update_cache):
         hero = self.heroes[hero_id]
