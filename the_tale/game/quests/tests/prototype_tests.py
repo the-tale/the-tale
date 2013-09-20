@@ -139,14 +139,6 @@ class PrototypeTests(testcase.TestCase):
             self.assertEqual(QuestPrototype.modify_person_power(person, 2, 3, 5), 2*3*5*7)
 
 
-    def test_get_minimum_created_time_of_active_quests(self):
-        self.assertEqual(self.quest._model.created_at, QuestPrototype.get_minimum_created_time_of_active_quests())
-
-        self.quest.remove()
-
-        # not there are no another quests an get_minimum_created_time_of_active_quests return now()
-        self.assertTrue(self.quest._model.created_at < QuestPrototype.get_minimum_created_time_of_active_quests())
-
     def test_get_experience_for_quest(self):
         self.assertEqual(self.hero.experience, 0)
         self.complete_quest()
@@ -160,3 +152,21 @@ class PrototypeTests(testcase.TestCase):
             self.assertTrue(self.quest.modify_experience(100) > 100)
 
         self.assertTrue(get_experience_modifier.call_count > 0)
+
+    @mock.patch('game.balance.formulas.artifacts_per_battle', lambda *argv: 0)
+    @mock.patch('game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda *argv: False)
+    def test_get_money_for_quest(self):
+        self.assertEqual(self.hero.statistics.money_earned_from_quests, 0)
+        self.assertEqual(self.hero.statistics.artifacts_had, 0)
+        self.complete_quest()
+        self.assertTrue(self.hero.statistics.money_earned_from_quests > 0)
+        self.assertEqual(self.hero.statistics.artifacts_had, 0)
+
+    @mock.patch('game.balance.formulas.artifacts_per_battle', lambda *argv: 0)
+    @mock.patch('game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda *argv: True)
+    def test_get_artifacts_for_quest(self):
+        self.assertEqual(self.hero.statistics.money_earned_from_quests, 0)
+        self.assertEqual(self.hero.statistics.artifacts_had, 0)
+        self.complete_quest()
+        self.assertEqual(self.hero.statistics.money_earned_from_quests, 0)
+        self.assertEqual(self.hero.statistics.artifacts_had, 1)

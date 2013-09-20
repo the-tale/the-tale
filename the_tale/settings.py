@@ -319,7 +319,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
             },
-        'file_quests': get_worker_log_file_handler('quests'),
         'file_game_supervisor': get_worker_log_file_handler('game_supervisor'),
         'file_game_logic': get_worker_log_file_handler('game_logic'),
         'file_game_highlevel': get_worker_log_file_handler('game_highlevel'),
@@ -347,7 +346,6 @@ LOGGING = {
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False
         },
-        'the-tale.quests': get_worker_logger('quests'),
         'the-tale.workers.game_supervisor': get_worker_logger('game_supervisor'),
         'the-tale.workers.game_logic': get_worker_logger('game_logic'),
         'the-tale.workers.game_highlevel': get_worker_logger('game_highlevel'),

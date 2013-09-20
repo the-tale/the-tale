@@ -241,6 +241,12 @@ class HeroPrototype(BasePrototype):
 
         return allowed_quests
 
+    @classmethod
+    def get_minimum_created_time_of_active_quests(cls):
+        from django.db.models import Min
+        created_at = cls._model_class.objects.all().aggregate(Min('quest_created_time'))['quest_created_time__min']
+        return created_at if created_at is not None else datetime.datetime.now()
+
     @property
     def bag(self):
         if not hasattr(self, '_bag'):
@@ -298,6 +304,7 @@ class HeroPrototype(BasePrototype):
             better = True
 
         self.bag.put_artifact(artifact)
+        self.statistics.change_artifacts_had(1)
 
         if not equip:
             return artifact, None, None
@@ -312,8 +319,6 @@ class HeroPrototype(BasePrototype):
         artifact.power = min(artifact.power, max_power)
 
         self.change_equipment(slot, unequipped, artifact)
-
-        self.statistics.change_artifacts_had(1)
 
         sell_price = None
 
@@ -688,6 +693,7 @@ class HeroPrototype(BasePrototype):
             self.actions.updated = False
 
         if self.quests.updated:
+            self._model.quest_created_time = self.quests.min_quest_created_time
             self._model.quests = s11n.to_json(self.quests.serialize())
             self.quests.updated = False
 
@@ -759,8 +765,6 @@ class HeroPrototype(BasePrototype):
                 self.diary == other.diary)
 
     def ui_info(self, for_last_turn=False, quests_info=False):
-        from game.quests.prototypes import QuestPrototype
-
         quest_items_count, loot_items_count = self.bag.occupation
 
         return {'id': self.id,
@@ -800,7 +804,7 @@ class HeroPrototype(BasePrototype):
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': loot_items_count,
                                'quest_items_count': quest_items_count},
-                'quests': self.quests.ui_info()
+                'quests': self.quests.ui_info(self)
                 }
 
     def ui_info_for_cache(self):

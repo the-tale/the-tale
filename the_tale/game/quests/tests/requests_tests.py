@@ -1,7 +1,10 @@
 # coding: utf-8
+import mock
 
 from django.test import client
-from django.core.urlresolvers import reverse
+
+from dext.utils.urls import url
+
 
 from common.utils import testcase
 from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
@@ -12,18 +15,16 @@ from accounts.prototypes import AccountPrototype
 from game.logic_storage import LogicStorage
 
 from game.logic import create_test_map
-from game.quests.quests_generator.tests.helpers import QuestWith2ChoicePoints, patch_quests_list
 
-from game.quests.tests.helpers import QuestTestsMixin
+from game.quests.tests.helpers import QuestTestsMixin, QuestWith2ChoicePoints
 
 
-class RequestsTests(testcase.TestCase, QuestTestsMixin):
+class ChooseRequestsTests(testcase.TestCase, QuestTestsMixin):
 
     def setUp(self):
-        super(RequestsTests, self).setUp()
+        super(ChooseRequestsTests, self).setUp()
         create_test_map()
         register_user('test_user', 'test_user@test.com', '111111')
-        register_user('test_user_2', 'test_user_2@test.com', '111111')
 
         account = AccountPrototype.get_by_email('test_user@test.com')
 
@@ -33,19 +34,22 @@ class RequestsTests(testcase.TestCase, QuestTestsMixin):
 
         self.client = client.Client()
 
-    @patch_quests_list('game.quests.logic.QuestsSource', [QuestWith2ChoicePoints])
+        self.choice_uid = '[ns-0]choice_1'
+        self.option_uid = '#option<[ns-0]choice_1, [ns-0]choice_2>'
+
+    @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_choose_no_account(self):
-        quest_id = self.turn_to_quest(self.storage, self.hero.id).id
-        response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=some_point&choice=some_choice')
+        self.turn_to_quest(self.storage, self.hero.id)
+        response = self.client.post(url('game:quests:choose', choice_uid=self.choice_uid, option_uid=self.option_uid))
         self.check_ajax_error(response, 'common.login_required')
 
 
-    @patch_quests_list('game.quests.logic.QuestsSource', [QuestWith2ChoicePoints])
+    @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_choose_processing(self):
-        quest_id = self.turn_to_quest(self.storage, self.hero.id).id
+        self.turn_to_quest(self.storage, self.hero.id)
 
         self.request_login('test_user@test.com')
-        response = self.client.post(reverse('game:quests:choose', args=[quest_id]) + '?choice_point=choose_1&choice=choice_1_1')
+        response = self.client.post(url('game:quests:choose', choice_uid=self.choice_uid, option_uid=self.option_uid))
 
         task = PostponedTaskPrototype._db_get_object(0)
         self.check_ajax_processing(response, task.status_url)

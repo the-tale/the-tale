@@ -7,7 +7,7 @@ from dext.utils.decorators import retry_on_exception
 
 from questgen import facts
 from questgen import restrictions
-from questgen import exceptions
+from questgen import exceptions as questgen_exceptions
 from questgen import transformators
 from questgen.knowledge_base import KnowledgeBase
 from questgen.selectors import Selector
@@ -123,12 +123,14 @@ def get_knowledge_base(hero): # pylint: disable=R0912
     pref_friend = hero.preferences.friend
     friend_uid = uids.person(pref_friend) if pref_friend is not None else None
     if friend_uid in kb:
-        kb += facts.PreferenceFriend(hero_uid, friend_uid)
+        kb += ( facts.PreferenceFriend(hero_uid, friend_uid),
+                facts.OnlyGoodBranches(friend_uid) )
 
     pref_enemy = hero.preferences.enemy
     enemy_uid = uids.person(pref_enemy) if pref_enemy is not None else None
     if enemy_uid in kb:
-        kb += facts.PreferenceEnemy(hero_uid, enemy_uid)
+        kb += ( facts.PreferenceEnemy(hero_uid, enemy_uid),
+                facts.OnlyBadBranches(friend_uid) )
 
     pref_equipment_slot = hero.preferences.equipment_slot
     if pref_equipment_slot:
@@ -148,13 +150,13 @@ def create_random_quest_for_hero(hero):
     if special:
         try:
             return _create_random_quest_for_hero(hero, knowledge_base, special=True)
-        except exceptions.RollBackError:
+        except questgen_exceptions.RollBackError:
             pass
 
     return _create_random_quest_for_hero(hero, knowledge_base, special=False)
 
 
-@retry_on_exception(max_retries=quests_settings.MAX_QUEST_GENERATION_RETRIES, exceptions=[exceptions.RollBackError])
+@retry_on_exception(max_retries=quests_settings.MAX_QUEST_GENERATION_RETRIES, exceptions=[questgen_exceptions.RollBackError])
 def _create_random_quest_for_hero(hero, knowledge_base, special):
 
     qb = QuestsBase()
@@ -191,6 +193,7 @@ def _create_random_quest_for_hero(hero, knowledge_base, special):
     knowledge_base += quests_facts
 
     transformators.activate_events(knowledge_base)
+    transformators.remove_restricted_states(knowledge_base)
     transformators.determine_default_choices(knowledge_base)
     transformators.remove_broken_states(knowledge_base)
 

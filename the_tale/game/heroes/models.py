@@ -64,6 +64,7 @@ class Hero(models.Model):
     actions = models.TextField(null=False, default='{}')
 
     quests = models.TextField(null=False, default='{}')
+    quest_created_time = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
     name_forms = models.TextField(null=False, default='', blank=True)
 

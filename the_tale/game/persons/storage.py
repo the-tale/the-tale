@@ -19,10 +19,10 @@ class PersonsStorage(create_storage_class('persons change time', Person, PersonP
 
     def remove_out_game_persons(self):
         from game.bills.prototypes import BillPrototype
-        from game.quests.prototypes import QuestPrototype
+        from game.heroes.prototypes import HeroPrototype
 
         remove_time_border = min(BillPrototype.get_minimum_created_time_of_active_bills(),
-                                 QuestPrototype.get_minimum_created_time_of_active_quests())
+                                 HeroPrototype.get_minimum_created_time_of_active_quests())
 
         changed = False
 

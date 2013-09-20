@@ -8,21 +8,19 @@ from common.postponed_tasks import PostponedTaskPrototype
 
 from game.workers.environment import workers_environment
 
-from game.quests.postponed_tasks import ChooseQuestLineTask
+from game.quests.postponed_tasks import MakeChoiceTask
 
 
 class QuestsResource(Resource):
 
     @login_required
-    def initialize(self, quest_id=None, *argv, **kwargs):
+    def initialize(self, *argv, **kwargs):
         super(QuestsResource, self).initialize(*argv, **kwargs)
-        self.quest_id = int(quest_id)
 
+    @handler('choose', method='post')
+    def choose(self, choice_uid, option_uid):
 
-    @handler('#quest_id', 'choose', method='post')
-    def choose(self, choice_point, choice):
-
-        choose_task = ChooseQuestLineTask(account_id=self.account.id, quest_id=self.quest_id, choice_point=choice_point, choice=choice)
+        choose_task = MakeChoiceTask(account_id=self.account.id, choice_uid=choice_uid, option_uid=option_uid)
 
         task = PostponedTaskPrototype.create(choose_task)
 

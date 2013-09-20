@@ -507,10 +507,10 @@ class HeroLevelUpTests(TestCase):
             self.assertEqual(len(abilities), c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM)
 
 
-class HeroGetSpecialQuestsTest(TestCase):
+class HeroQuestsTest(TestCase):
 
     def setUp(self):
-        super(HeroGetSpecialQuestsTest, self).setUp()
+        super(HeroQuestsTest, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
@@ -534,3 +534,11 @@ class HeroGetSpecialQuestsTest(TestCase):
 
         self.assertTrue(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE) is not None)
         self.assertTrue(SearchSmith.type() in self.hero.get_special_quests())
+
+    def test_get_minimum_created_time_of_active_quests(self):
+        self.assertEqual(self.quest._model.created_at, QuestPrototype.get_minimum_created_time_of_active_quests())
+
+        self.quest.remove()
+
+        # not there are no another quests an get_minimum_created_time_of_active_quests return now()
+        self.assertTrue(self.quest._model.created_at < QuestPrototype.get_minimum_created_time_of_active_quests())

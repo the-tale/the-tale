@@ -1,4 +1,5 @@
 # coding: utf-8
+import time
 import datetime
 import random
 
@@ -24,22 +25,25 @@ from game.quests import uids
 
 class QuestPrototype(object):
 
-    def __init__(self, knowledge_base, rewards=None, quests_stack=None):
+    def __init__(self, knowledge_base, rewards=None, quests_stack=None, created_at=None):
         self.rewards = {} if rewards is None else rewards
         self.quests_stack = [] if quests_stack is None else quests_stack
         self.knowledge_base = knowledge_base
         self.machine = Machine(knowledge_base=knowledge_base)
+        self.created_at =datetime.datetime.now() if created_at is None else created_at
 
     def serialize(self):
         return {'rewards': self.rewards,
                 'quests_stack': self.quests_stack,
-                'knowledge_base': self.knowledge_base.serialize()}
+                'knowledge_base': self.knowledge_base.serialize(),
+                'created_at': time.mktime(self.created_at.timetuple())}
 
     @classmethod
     def deserialize(cls, data):
         return cls(rewards=data['rewards'],
                    knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], fact_classes=facts.FACTS),
-                   quests_stack=data['quests_stack'])
+                   quests_stack=data['quests_stack'],
+                   created_at=datetime.fromtimestamp(data['created_at']))
 
     @property
     def percents(self): return 0.5 # TODO: implement
@@ -47,14 +51,14 @@ class QuestPrototype(object):
     @property
     def is_processed(self): return self.machine.is_processed
 
-    def get_choices(self): return self.machine.get_nearest_choice()
+    def get_nearest_choice(self): return self.machine.get_nearest_choice()
 
     def is_choice_available(self, option_uid):
         # TODO: check if line is available
         return True
 
     def make_choice(self, choice_uid, option_uid):
-        choice, options, defaults = self.get_choices()
+        choice, options, defaults = self.get_nearest_choice()
 
         if choice_uid != choice.uid:
             return False
@@ -69,9 +73,6 @@ class QuestPrototype(object):
         self.knowledge_base += facts.ChoicePath(choice=choice_uid, option=option_uid, default=False)
 
         return True
-
-    @classmethod
-    def get_minimum_created_time_of_active_quests(cls): return datetime.datetime.fromtimestamp(0) # TODO: implement
 
     ###########################################
     # Object operations
@@ -160,6 +161,38 @@ class QuestPrototype(object):
 
         person.cmd_change_power(power)
 
+    def _finish_quest(self, hero):
+        # self.push_message(writer, cur_action.hero, cmd.event)
+
+        current_quest_uid = self.quests_stack[-1]
+
+        experience = self.rewards[current_quest_uid]['experience']
+        experience = self.modify_experience(experience)
+        hero.add_experience(experience)
+
+        self._give_reward(hero)
+
+        self.quests_stack.pop()
+
+    def _give_reward(self, hero): # TODO: test
+
+        if hero.can_get_artifact_for_quest():
+            artifact, unequipped, sell_price = hero.buy_artifact(better=False, with_prefered_slot=False, equip=False)# pylint: disable=W0612
+
+            if artifact is not None:
+                # self.push_message(writer, cur_action.hero, '%s_artifact' % cmd.event, hero=cur_action.hero, artifact=artifact)
+                return
+
+        multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
+        money = 1 + int(f.sell_artifact_price(hero.level) * multiplier)
+        money = hero.abilities.update_quest_reward(hero, money)
+        hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
+        # self.push_message(writer, cur_action.hero, '%s_money' % cmd.event, hero=cur_action.hero, coins=money)
+
+
+    def _start_quest(self, quest_uid, hero):
+        hero.quests_history[self.machine.current_state.quest_uid] = TimePrototype.get_current_turn_number()
+        self.quests_stack.append(quest_uid)
 
     def satisfy_requirement(self, cur_action, requirement):
         if isinstance(requirement, facts.LocatedIn):
@@ -179,10 +212,9 @@ class QuestPrototype(object):
                 self._give_power(cur_action.hero, self.knowledge_base[action.person].externals['id'], action.power)
 
         if isinstance(current_state, facts.Start):
-            cur_action.hero.quests_history[self.machine.current_state.quest_uid] = TimePrototype.get_current_turn_number()
-            self.quests_stack.append(current_state.uid)
+            self._start_quest(quest_uid=current_state.uid, hero=cur_action.hero)
         elif isinstance(current_state, facts.Finish):
-            self.quests_stack.pop()
+            self._finish_quest(hero=cur_action.hero)
 
     def push_message(self, writer, messanger, event, **kwargs):
         from game.heroes.messages import MessagesContainer
@@ -199,33 +231,6 @@ class QuestPrototype(object):
         journal_msg = writer.get_journal_msg(event, **kwargs)
         if journal_msg:
             messanger.messages.push_message(MessagesContainer._prepair_message(journal_msg))
-
-
-    def process_current_command(self, cur_action):
-
-        cmd = self.env.get_command(self.pointer)
-
-        writer = self.env.get_writer(cur_action.hero, self.pointer)
-
-        {'message': self.cmd_message,
-         'upgradeequipment': self.cmd_upgrade_equipment,
-         'move': self.cmd_move,
-         'movenear': self.cmd_move_near,
-         'getitem': self.cmd_get_item,
-         'giveitem': self.cmd_give_item,
-         'getreward': self.cmd_get_reward,
-         'quest': self.cmd_quest,
-         'choose': self.cmd_choose,
-         'switch': self.cmd_switch,
-         'givepower': self.cmd_give_power,
-         'battle': self.cmd_battle,
-         'donothing': self.cmd_donothing,
-         'questresult': self.cmd_questresult,
-         }[cmd.type()](cmd, cur_action, writer)
-
-
-    def cmd_message(self, cmd, cur_action, writer):
-        self.push_message(writer, cur_action.hero, cmd.event)
 
 
     def cmd_upgrade_equipment(self, cmd, cur_action, writer):
@@ -259,51 +264,6 @@ class QuestPrototype(object):
             self.push_message(writer, cur_action.hero, '%s_sharp' % cmd.event,
                               coins=money_spend, artifact=artifact)
 
-
-    def cmd_move(self, cmd, cur_action, writer):
-        from game.actions.prototypes import ActionMoveToPrototype
-
-        self.push_message(writer, cur_action.hero, cmd.event)
-
-        destination = self.env.get_game_place(cmd.place)
-        ActionMoveToPrototype.create(hero=cur_action.hero, destination=destination, break_at=cmd.break_at)
-
-    def cmd_move_near(self, cmd, cur_action, writer):
-        from game.actions.prototypes import ActionMoveNearPlacePrototype
-
-        self.push_message(writer, cur_action.hero, cmd.event)
-
-        destination = self.env.get_game_place(cmd.place)
-        ActionMoveNearPlacePrototype.create(hero=cur_action.hero, place=destination, back=cmd.back)
-
-    def cmd_get_item(self, cmd, cur_action, writer):
-        self.push_message(writer, cur_action.hero, cmd.event)
-        item = self.env.get_game_item(cmd.item)
-        cur_action.hero.put_loot(item)
-
-    def cmd_give_item(self, cmd, cur_action, writer):
-        self.push_message(writer, cur_action.hero, cmd.event)
-        item = self.env.get_game_item(cmd.item)
-        cur_action.hero.pop_quest_loot(item)
-
-    def cmd_get_reward(self, cmd, cur_action, writer):
-
-        if cur_action.hero.can_get_artifact_for_quest():
-            artifact, unequipped, sell_price = cur_action.hero.buy_artifact(better=False, with_prefered_slot=False, equip=False)# pylint: disable=W0612
-
-            if artifact is not None:
-                self.push_message(writer, cur_action.hero, '%s_artifact' % cmd.event, hero=cur_action.hero, artifact=artifact)
-                return
-
-        multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
-        money = 1 + int(f.sell_artifact_price(cur_action.hero.level) * multiplier)
-        money = cur_action.hero.abilities.update_quest_reward(cur_action.hero, money)
-        cur_action.hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
-        self.push_message(writer, cur_action.hero, '%s_money' % cmd.event, hero=cur_action.hero, coins=money)
-
-    def cmd_quest(self, cmd, cur_action, writer):
-        self.push_message(writer, cur_action.hero, cmd.event)
-
     def modify_experience(self, experience):
         from game.persons.storage import persons_storage
 
@@ -311,31 +271,12 @@ class QuestPrototype(object):
         # TODO:
         # here we go by all persons in quest chain
         # but MUST go only by persons in current_quest
-        for person_data in self.env.persons.values():
-            person = persons_storage.get(person_data['external_data']['id'])
+        for person in self.knowledge_base.filter(facts.Person):
+            person = persons_storage.get(person.externals['id'])
             experience_modifiers[person.place.id] = person.place.get_experience_modifier()
 
         experience += experience * sum(experience_modifiers.values())
         return experience
-
-    def cmd_questresult(self, cmd, cur_action, writer):
-
-        self.push_message(writer, cur_action.hero, cmd.event)
-        current_quest = self.env.get_quest(self.pointer)
-
-        if current_quest.id not in self.env.quests_results:
-            self.env.quests_results[current_quest.id] = {}
-
-        self.env.quests_results[current_quest.id][cmd.result] = True
-
-        if current_quest.id in self.rewards:
-            experience = self.rewards[current_quest.id]['experience']
-            experience = self.modify_experience(experience)
-            cur_action.hero.add_experience(experience)
-
-
-    def cmd_choose(self, cmd, cur_action, writer):
-        self.push_message(writer, cur_action.hero, cmd.event)
 
     def cmd_switch(self, cmd, cur_action, writer):
         self.push_message(writer, cur_action.hero, cmd.event)
@@ -366,27 +307,18 @@ class QuestPrototype(object):
                                         messages_probability=cmd.messages_probability)
 
     def ui_info(self, hero):
-        choices = self.get_choices()
+        choice_state, options, defaults = self.get_nearest_choice()
 
-        cmd = self.env.get_nearest_quest_choice(self.last_pointer)
-        writer = self.env.get_writer(hero, self.last_pointer)
+        # writer = self.env.get_writer(hero, self.last_pointer)
 
         cmd_id = None
         choice_variants = []
         future_choice = None
 
-        if cmd:
-            cmd_id = cmd.id
-            if cmd.id not in choices:
-                for variant, line_id in cmd.choices.items():
-                    line = self.env.lines[line_id]
-                    choice_variants.append((variant if line.available else None,
-                                            writer.get_choice_variant_msg(cmd.choice, variant)))
-            else:
-                future_choice = writer.get_choice_result_msg(cmd.choice, choices[cmd.id])
+        for option in options:
+            choice_variants.append((option.uid, u'some text')) # writer.get_choice_variant_msg(cmd.choice, variant)
 
-        return {'line': self.env.get_writers_text_chain(hero, self.last_pointer, self.rewards),
+        return {'line': [], #self.env.get_writers_text_chain(hero, self.last_pointer, self.rewards),
                 'choice_id': cmd_id,
                 'choice_variants': choice_variants,
-                'future_choice': future_choice,
-                'id': self._model.id}
+                'future_choice': future_choice}

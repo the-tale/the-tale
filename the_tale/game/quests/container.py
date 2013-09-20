@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import datetime
 from game.quests.prototypes import QuestPrototype
 
 
@@ -20,8 +20,8 @@ class QuestsContainer(object):
         obj.quests_list = [QuestPrototype.deserialize(hero=hero, data=quest_data) for quest_data in data.get('quests', [])]
         return obj
 
-    def ui_info(self):
-        return {'quests': [quest.ui_info() for quest in self.quests_list]}
+    def ui_info(self, hero):
+        return {'quests': [quest.ui_info(hero) for quest in self.quests_list]}
 
     def push_quest(self, quest):
         self.updated = True
@@ -33,6 +33,12 @@ class QuestsContainer(object):
 
     @property
     def current_quest(self): return self.quests_list[-1]
+
+    @property
+    def min_quest_created_time(self):
+        if self.has_quests:
+            return min(quest.created_at for quest in self.quests_list)
+        return datetime.datetime.now()
 
     @property
     def has_quests(self): return len(self.quests_list)
