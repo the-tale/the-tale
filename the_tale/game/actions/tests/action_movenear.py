@@ -15,6 +15,7 @@ from game.actions.prototypes import ActionMoveNearPlacePrototype, ActionRestProt
 from game.actions.prototypes import ActionIdlenessPrototype, ActionBattlePvE1x1Prototype, ActionInPlacePrototype, ActionRegenerateEnergyPrototype
 from game.prototypes import TimePrototype
 
+
 class MoveNearActionTest(testcase.TestCase):
 
     def setUp(self):
@@ -197,3 +198,20 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionResurrectPrototype.TYPE)
         self.storage._test_save()
+
+
+    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    def test_stop_when_quest_required_replane(self):
+        while self.action_move.state != ActionMoveNearPlacePrototype.STATE.MOVING:
+            self.storage.process_turn()
+
+        with mock.patch('game.quests.container.QuestsContainer.has_quests', True):
+            with mock.patch('game.quests.container.QuestsContainer.current_quest', mock.Mock(replane_required=False)):
+                self.storage.process_turn()
+
+            self.assertEqual(self.action_move.state, ActionMoveNearPlacePrototype.STATE.MOVING)
+
+            with mock.patch('game.quests.container.QuestsContainer.current_quest', mock.Mock(replane_required=True)):
+                self.storage.process_turn()
+
+        self.assertEqual(self.action_move.state, ActionMoveNearPlacePrototype.STATE.PROCESSED)

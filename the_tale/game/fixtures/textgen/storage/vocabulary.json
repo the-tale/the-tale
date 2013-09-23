@@ -8961,11 +8961,11 @@
       ], 
       "externals": [
         [
-          "person_end", 
+          "receiver", 
           [], 
           "e_0", 
           [], 
-          "person_end"
+          "receiver"
         ]
       ], 
       "template": "%(i_0)s довести разведку до конца — не пристало герою отказываться от заданий, да и %(e_0)s действительно ведёт себя подозрительно."
@@ -11024,7 +11024,7 @@
         [
           "попросил", 
           [
-            "person_start"
+            "initiator"
           ], 
           "i_0", 
           [
@@ -11035,29 +11035,29 @@
       ], 
       "externals": [
         [
-          "person_start", 
+          "initiator", 
           [], 
           "e_0", 
           [
             "загл"
           ], 
-          "person_start"
+          "initiator"
         ], 
         [
-          "person_end", 
+          "receiver", 
           [], 
           "e_1", 
           [], 
-          "person_end"
+          "receiver"
         ], 
         [
-          "place_end", 
+          "receiver_position", 
           [], 
           "e_2", 
           [
             "пр"
           ], 
-          "place_end"
+          "receiver_position"
         ]
       ], 
       "template": "%(e_0)s %(i_0)s прошпионить за одной подозрительной личностью. Эта личность — %(e_1)s, живёт в %(e_2)s."
@@ -11067,7 +11067,7 @@
         [
           "обратился", 
           [
-            "person_start"
+            "initiator"
           ], 
           "i_0", 
           [
@@ -11078,7 +11078,7 @@
         [
           "он", 
           [
-            "person_end"
+            "receiver"
           ], 
           "i_1", 
           [], 
@@ -11087,31 +11087,31 @@
       ], 
       "externals": [
         [
-          "person_start", 
+          "initiator", 
           [], 
           "e_0", 
           [
             "загл"
           ], 
-          "person_start"
+          "initiator"
         ], 
         [
-          "person_end", 
+          "receiver", 
           [], 
           "e_1", 
           [
             "тв"
           ], 
-          "person_end"
+          "receiver"
         ], 
         [
-          "place_end", 
+          "receiver_position", 
           [], 
           "e_2", 
           [
             "пр"
           ], 
-          "place_end"
+          "receiver_position"
         ]
       ], 
       "template": "%(e_0)s %(i_0)s ко мне с просьбой проследить за %(e_1)s. Есть подозрения, что %(i_1)s проворачивает нечистые дела в %(e_2)s."

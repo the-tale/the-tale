@@ -38,7 +38,8 @@ QUEST_RESTRICTIONS =  [restrictions.SingleStartState(),
                        restrictions.NoJumpsFromFinish(),
                        restrictions.ConnectedStateJumpGraph(),
                        restrictions.NoCirclesInStateJumpGraph(),
-                       restrictions.MultipleJumpsFromNormalState()]
+                       restrictions.MultipleJumpsFromNormalState(),
+                       restrictions.ChoicesConsistency()]
 
 def fill_places_for_first_quest(kb, hero):
 
@@ -194,8 +195,8 @@ def _create_random_quest_for_hero(hero, knowledge_base, special):
 
     transformators.activate_events(knowledge_base)
     transformators.remove_restricted_states(knowledge_base)
-    transformators.determine_default_choices(knowledge_base)
-    transformators.remove_broken_states(knowledge_base)
+    transformators.remove_broken_states(knowledge_base) # MUST be called after all graph changes
+    transformators.determine_default_choices(knowledge_base) # MUST be called after all graph changes and on valid graph
 
     knowledge_base.validate_consistency(WORLD_RESTRICTIONS)
     knowledge_base.validate_consistency(QUEST_RESTRICTIONS)

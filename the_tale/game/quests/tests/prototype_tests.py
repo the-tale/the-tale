@@ -43,8 +43,9 @@ class PrototypeTests(testcase.TestCase):
         self.quest = create_random_quest_for_hero(self.hero)
         self.action_quest = ActionQuestPrototype.create(hero=self.hero, quest=self.quest)
 
-    def tearDown(self):
-        pass
+
+    def test_serialization(self):
+        self.assertEqual(self.quest.serialize(), QuestPrototype.deserialize(self.quest.serialize()).serialize())
 
     def get_hero_position_id(self, quest):
         kb = quest.knowledge_base
@@ -53,6 +54,11 @@ class PrototypeTests(testcase.TestCase):
                                  for location in kb.filter(facts.LocatedIn)
                                  if location.object == uids.hero(self.hero))[0]
         return kb[hero_position_uid].externals['id']
+
+    def test_replane_required__reset_on_do_step(self):
+        self.quest.replane_required = True
+        self.quest.do_step(self.action_quest)
+        self.assertFalse(self.quest.replane_required)
 
     def complete_quest(self):
         current_time = TimePrototype.get_current_time()
@@ -70,7 +76,7 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(isinstance(quest.knowledge_base[quest.machine.pointer.state], facts.Finish))
         self.assertTrue(all(requirement.check(quest.knowledge_base) for requirement in quest.knowledge_base[quest.machine.pointer.state].require))
 
-        self.assertTrue(self.hero.quests_history[quest.knowledge_base.filter(facts.Start).next().quest_uid] > 0)
+        self.assertTrue(self.hero.quests_history[quest.knowledge_base.filter(facts.Start).next().type] > 0)
 
     @mock.patch('game.quests.prototypes.QuestPrototype.modify_person_power', lambda *args, **kwargs: 1)
     def test_power_on_end_quest_for_fast_account_hero(self):

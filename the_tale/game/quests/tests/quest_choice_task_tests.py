@@ -93,15 +93,6 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertTrue(task.state._is_WRONG_POINT)
 
-    # TODO: unkomment if unavailable branches will be in knowlege base
-    # @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
-    # # TODO: patch not QuestPrototype, but Line
-    # @mock.patch('game.quests.prototypes.QuestPrototype.is_choice_available', lambda self, choice: False)
-    # def test_line_not_available(self):
-    #     task = self.create_task(choice_uid=self.choice_1_uid, option_uid=self.option_1_1_uid)
-    #     self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-    #     self.assertTrue(task.state._is_LINE_NOT_AVAILABLE)
-
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_already_chosen(self):
         task = self.create_task(choice_uid=self.choice_1_uid, option_uid=self.option_1_1_uid)
@@ -155,7 +146,7 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
 
         knowledge_base = self.hero.quests.current_quest.knowledge_base
         finish_state = knowledge_base.filter(facts.Finish).next()
-        self.hero.quests.current_quest.machine.pointer.change_in_knowlege_base(knowledge_base, state=finish_state, jump=None)
+        self.hero.quests.current_quest.machine.pointer.change_in_knowlege_base(knowledge_base, state=finish_state.uid, jump=None)
 
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertTrue(task.state._is_NO_CHOICES_IN_QUEST)

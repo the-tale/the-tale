@@ -198,6 +198,23 @@ class MoveToActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
+    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    def test_stop_when_quest_required_replane(self):
+        while self.action_move.state != ActionMoveToPrototype.STATE.MOVING:
+            self.storage.process_turn()
+
+        with mock.patch('game.quests.container.QuestsContainer.has_quests', True):
+            with mock.patch('game.quests.container.QuestsContainer.current_quest', mock.Mock(replane_required=False)):
+                self.storage.process_turn()
+
+            self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.MOVING)
+
+            with mock.patch('game.quests.container.QuestsContainer.current_quest', mock.Mock(replane_required=True)):
+                self.storage.process_turn()
+
+        self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.PROCESSED)
+
+
 class MoveToActionWithBreaksTest(testcase.TestCase):
 
     def setUp(self):

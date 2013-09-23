@@ -33,7 +33,7 @@ class QuestWith2ChoicePoints(BaseQuest):
 
         ns = knowledge_base.get_next_ns()
 
-        start = facts.Start(uid=ns+'start', quest_type=cls.TYPE)
+        start = facts.Start(uid=ns+'start', type=cls.TYPE)
 
         choice_1 = facts.Choice(uid=ns+'choice_1')
 
@@ -52,8 +52,8 @@ class QuestWith2ChoicePoints(BaseQuest):
 
                  facts.Jump(state_from=start.uid, state_to=choice_1.uid),
 
-                 facts.Option(state_from=choice_1.uid, state_to=finish_2.uid),
-                 facts.Option(state_from=choice_1.uid, state_to=choice_2.uid),
-                 facts.Option(state_from=choice_2.uid, state_to=finish_1_1.uid),
-                 facts.Option(state_from=choice_2.uid, state_to=finish_1_2.uid)
+                 facts.Option(state_from=choice_1.uid, state_to=finish_2.uid, type='opt_1'),
+                 facts.Option(state_from=choice_1.uid, state_to=choice_2.uid, type='opt_2'),
+                 facts.Option(state_from=choice_2.uid, state_to=finish_1_1.uid, type='opt_2_1'),
+                 facts.Option(state_from=choice_2.uid, state_to=finish_1_2.uid, type='opt_2_2')
                 ]

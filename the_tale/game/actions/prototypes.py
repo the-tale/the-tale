@@ -614,6 +614,11 @@ class ActionMoveToPrototype(ActionBase):
             self.length = length
 
     def process_moving(self):
+        if self.hero.quests.has_quests:
+            if self.hero.quests.current_quest.replane_required:
+                self.state = self.STATE.PROCESSED
+                return
+
         current_destination = self.current_destination
 
         if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
@@ -1204,6 +1209,11 @@ class ActionMoveNearPlacePrototype(ActionBase):
                 self.state = self.STATE.MOVING
 
     def process_moving(self):
+
+        if self.hero.quests.has_quests:
+            if self.hero.quests.current_quest.replane_required:
+                self.state = self.STATE.PROCESSED
+                return
 
         if self.hero.need_rest_in_move:
             ActionRestPrototype.create(hero=self.hero)

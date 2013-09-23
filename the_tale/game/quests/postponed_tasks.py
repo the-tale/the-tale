@@ -74,12 +74,6 @@ class MakeChoiceTask(PostponedLogic):
             main_task.comment = u'already choosen "%s"' % defaults
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        # TODO: is all options can be available?
-        # if not quest.is_choice_available(cmd.choices[self.choice]):
-        #     self.state = MAKE_CHOICE_TASK_STATE.LINE_NOT_AVAILABLE
-        #     main_task.comment = u'line not available choice "%s"' % self.choice
-        #     return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
         if not quest.make_choice(self.choice_uid, self.option_uid):
             self.state = MAKE_CHOICE_TASK_STATE.CAN_NOT_MAKE_CHOICE
             main_task.comment = u'can not make choice "%s" with option "%s"' % (self.choice_uid, self.option_uid)

@@ -1,5 +1,4 @@
 # coding: utf-8
-import mock
 from common.utils import testcase
 
 from accounts.logic import register_user
@@ -10,7 +9,6 @@ from game.logic_storage import LogicStorage
 from game.logic import create_test_map
 from game.actions.prototypes import ActionQuestPrototype
 from game.quests.logic import create_random_quest_for_hero
-from game.quests.models import Quest, QuestsHeroes
 from game.prototypes import TimePrototype
 
 class QuestActionTest(testcase.TestCase):

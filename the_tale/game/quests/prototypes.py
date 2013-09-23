@@ -6,6 +6,7 @@ import random
 from questgen.machine import Machine
 from questgen import facts
 from questgen.knowledge_base import KnowledgeBase
+from questgen import transformators
 
 from game.prototypes import TimePrototype
 
@@ -15,35 +16,131 @@ from game.mobs.storage import mobs_storage
 
 from game.map.places.storage import places_storage
 from game.map.roads.storage import waymarks_storage
+from game.persons.storage import persons_storage
 
 from game.heroes.statistics import MONEY_SOURCE
 from game.heroes.relations import EQUIPMENT_SLOT, ITEMS_OF_EXPENDITURE
 
 from game.quests import exceptions
 from game.quests import uids
+from game.quests.writer import Writer
+
+
+class QuestInfo(object):
+
+    def __init__(self, type, uid, name, action, choice, choice_alternatives):
+        self.type = type
+        self.uid = uid
+        self.name = name
+        self.action = action
+        self.choice = choice
+        self.choice_alternatives = choice_alternatives
+
+    def serialize(self):
+        return {'type': self.type,
+                'uid': self.uid,
+                'name': self.name,
+                'action': self.action,
+                'choice': self.choices,
+                'choice_alternatives': self.choice_alternatives}
+
+    def ui_info(self):
+        return {'type': self.type,
+                'uid': self.uid,
+                'name': self.name,
+                'action': self.action,
+                'choice': self.choice,
+                'choice_alternatives': self.choice_alternatives}
+
+    @classmethod
+    def deserialize(cls, data):
+        return cls(**data)
+
+    @classmethod
+    def construct(cls, type, uid, knowledge_base, hero):
+
+        writer = Writer(type=type, message=None, substitution=cls.substitution(uid, knowledge_base, hero))
+
+        return cls(type=type,
+                   uid=uid,
+                   name=writer.name(),
+                   action=u'',
+                   choice=None,
+                   choice_alternatives=[])
+
+    @classmethod
+    def prepair_participant(cls, actor):
+        if isinstance(actor, facts.Person):
+            return persons_storage[actor.externals['id']]
+        elif isinstance(actor, facts.Place):
+            return places_storage[actor.externals['id']]
+
+    @classmethod
+    def substitution(cls, uid, knowledge_base, hero):
+        data = { participant.role: cls.prepair_participant(knowledge_base[participant.participant])
+                 for participant in knowledge_base.filter(facts.QuestParticipant)
+                 if participant.start == uid }
+        data['hero'] = hero
+        return data
+
+    def process_message(self, knowledge_base, hero, message):
+        from game.heroes.messages import MessagesContainer
+
+        substitution = self.substitution(self.uid, knowledge_base, hero)
+        writer = Writer(type=self.type, message=message, substitution=substitution)
+
+        diary_msg = writer.diary()
+        if diary_msg:
+            hero.messages.push_message(MessagesContainer._prepair_message(diary_msg))
+            hero.diary.push_message(MessagesContainer._prepair_message(diary_msg))
+            return
+
+        journal_msg = writer.journal()
+        if journal_msg:
+            hero.messages.push_message(MessagesContainer._prepair_message(journal_msg))
+
+    def sync_choices(self, knowledge_base, hero, choice, options, defaults):
+        if choice is None:
+            self.choice = None
+            self.choice_alternatives = ()
+            return
+
+        substitution = self.substitution(self.uid, knowledge_base, hero)
+        writer = Writer(type=self.type, message=choice.type, substitution=substitution)
+
+        choosen_option = knowledge_base[defaults[0].option]
+
+        self.choice = writer.current_choice(choosen_option.type)
+        self.choice_alternatives = [(option.type, writer.choice_variant(option.type))
+                                    for option in options
+                                    if option.type != choosen_option.type]
+
 
 
 class QuestPrototype(object):
 
-    def __init__(self, knowledge_base, rewards=None, quests_stack=None, created_at=None):
+    def __init__(self, knowledge_base, rewards=None, quests_stack=None, created_at=None, replane_required=False):
         self.rewards = {} if rewards is None else rewards
         self.quests_stack = [] if quests_stack is None else quests_stack
         self.knowledge_base = knowledge_base
         self.machine = Machine(knowledge_base=knowledge_base)
         self.created_at =datetime.datetime.now() if created_at is None else created_at
+        self.replane_required = replane_required
 
     def serialize(self):
         return {'rewards': self.rewards,
-                'quests_stack': self.quests_stack,
+                'quests_stack': [info.serialize() for info in self.quests_stack],
                 'knowledge_base': self.knowledge_base.serialize(),
-                'created_at': time.mktime(self.created_at.timetuple())}
+                'created_at': time.mktime(self.created_at.timetuple()),
+                'replane_required': self.replane_required}
 
     @classmethod
     def deserialize(cls, data):
         return cls(rewards=data['rewards'],
                    knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], fact_classes=facts.FACTS),
-                   quests_stack=data['quests_stack'],
-                   created_at=datetime.fromtimestamp(data['created_at']))
+                   quests_stack=[QuestInfo.deserialize(info_data) for info_data in data['quests_stack']],
+                   created_at=datetime.datetime.fromtimestamp(data['created_at']),
+                   replane_required=data['replane_required'])
 
     @property
     def percents(self): return 0.5 # TODO: implement
@@ -52,10 +149,6 @@ class QuestPrototype(object):
     def is_processed(self): return self.machine.is_processed
 
     def get_nearest_choice(self): return self.machine.get_nearest_choice()
-
-    def is_choice_available(self, option_uid):
-        # TODO: check if line is available
-        return True
 
     def make_choice(self, choice_uid, option_uid):
         choice, options, defaults = self.get_nearest_choice()
@@ -69,9 +162,12 @@ class QuestPrototype(object):
         if not defaults[0].default:
             return False
 
-        self.knowledge_base -= defaults
-        self.knowledge_base += facts.ChoicePath(choice=choice_uid, option=option_uid, default=False)
+        if not transformators.change_choice(knowledge_base=self.knowledge_base, choice_uid=choice_uid, new_option_uid=option_uid, default=False):
+            return False
 
+        self.machine.sync_pointer()
+
+        self.replane_required = True
         return True
 
     ###########################################
@@ -99,6 +195,11 @@ class QuestPrototype(object):
         return 1
 
     def do_step(self, cur_action):
+        self.replane_required = False
+
+        if self.quests_stack:
+            self.quests_stack[-1].sync_choices(self.knowledge_base, cur_action.hero, *self.get_nearest_choice())
+
         self.sync_knowledge_base(cur_action)
 
         if self.machine.can_do_step():
@@ -143,7 +244,7 @@ class QuestPrototype(object):
         from game.persons.storage import persons_storage
 
         # self.push_message(writer, cur_action.hero, cmd.event)
-        current_quest_uid = self.quests_stack[-1]
+        current_quest_uid = self.quests_stack[-1].uid
 
         base_power = self.rewards[current_quest_uid]['power']
 
@@ -164,7 +265,7 @@ class QuestPrototype(object):
     def _finish_quest(self, hero):
         # self.push_message(writer, cur_action.hero, cmd.event)
 
-        current_quest_uid = self.quests_stack[-1]
+        current_quest_uid = self.quests_stack[-1].uid
 
         experience = self.rewards[current_quest_uid]['experience']
         experience = self.modify_experience(experience)
@@ -190,13 +291,16 @@ class QuestPrototype(object):
         # self.push_message(writer, cur_action.hero, '%s_money' % cmd.event, hero=cur_action.hero, coins=money)
 
 
-    def _start_quest(self, quest_uid, hero):
-        hero.quests_history[self.machine.current_state.quest_uid] = TimePrototype.get_current_turn_number()
-        self.quests_stack.append(quest_uid)
+    def _start_quest(self, hero):
+        start = self.machine.current_state
+        hero.quests_history[start.type] = TimePrototype.get_current_turn_number()
+        self.quests_stack.append(QuestInfo.construct(type=start.type,
+                                                     uid=start.uid,
+                                                     knowledge_base=self.machine.knowledge_base,
+                                                     hero=hero))
 
     def satisfy_requirement(self, cur_action, requirement):
         if isinstance(requirement, facts.LocatedIn):
-            # self.push_message(writer, cur_action.hero, cmd.event) # TODO: writer
             destination = places_storage[self.knowledge_base[requirement.place].externals['id']]
             self._move_hero_to(cur_action, destination)
         else:
@@ -205,33 +309,17 @@ class QuestPrototype(object):
     def do_state_actions(self, cur_action):
         current_state = self.machine.current_state
 
+        if isinstance(current_state, facts.Start):
+            self._start_quest(hero=cur_action.hero)
+
         for action in current_state.actions:
             if isinstance(action, facts.Message):
-                pass # TODO
+                self.quests_stack[-1].process_message(self.knowledge_base, cur_action.hero, action.id)
             elif isinstance(action, facts.GivePower):
                 self._give_power(cur_action.hero, self.knowledge_base[action.person].externals['id'], action.power)
 
-        if isinstance(current_state, facts.Start):
-            self._start_quest(quest_uid=current_state.uid, hero=cur_action.hero)
-        elif isinstance(current_state, facts.Finish):
+        if isinstance(current_state, facts.Finish):
             self._finish_quest(hero=cur_action.hero)
-
-    def push_message(self, writer, messanger, event, **kwargs):
-        from game.heroes.messages import MessagesContainer
-
-        if event is None:
-            return
-
-        diary_msg = writer.get_diary_msg(event, **kwargs)
-        if diary_msg:
-            messanger.messages.push_message(MessagesContainer._prepair_message(diary_msg))
-            messanger.diary.push_message(MessagesContainer._prepair_message(diary_msg))
-            return
-
-        journal_msg = writer.get_journal_msg(event, **kwargs)
-        if journal_msg:
-            messanger.messages.push_message(MessagesContainer._prepair_message(journal_msg))
-
 
     def cmd_upgrade_equipment(self, cmd, cur_action, writer):
 
@@ -307,18 +395,4 @@ class QuestPrototype(object):
                                         messages_probability=cmd.messages_probability)
 
     def ui_info(self, hero):
-        choice_state, options, defaults = self.get_nearest_choice()
-
-        # writer = self.env.get_writer(hero, self.last_pointer)
-
-        cmd_id = None
-        choice_variants = []
-        future_choice = None
-
-        for option in options:
-            choice_variants.append((option.uid, u'some text')) # writer.get_choice_variant_msg(cmd.choice, variant)
-
-        return {'line': [], #self.env.get_writers_text_chain(hero, self.last_pointer, self.rewards),
-                'choice_id': cmd_id,
-                'choice_variants': choice_variants,
-                'future_choice': future_choice}
+        return {'line': [info.ui_info() for info in self.quests_stack]}
