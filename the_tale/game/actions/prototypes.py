@@ -474,7 +474,7 @@ class ActionQuestPrototype(ActionBase):
 
             self.percents = percents
 
-            if self.percents >= 1:
+            if self.hero.quests.current_quest.is_processed:
                 self.percents = 1
                 self.state = self.STATE.PROCESSED
 

@@ -60,6 +60,11 @@ class PrototypeTests(testcase.TestCase):
         self.quest.do_step(self.action_quest)
         self.assertFalse(self.quest.replane_required)
 
+    def test_do_step(self):
+        self.hero.quests.updated = False
+        self.quest.process(self.action_quest)
+        self.assertTrue(self.hero.quests.updated)
+
     def complete_quest(self):
         current_time = TimePrototype.get_current_time()
 

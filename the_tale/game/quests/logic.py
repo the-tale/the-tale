@@ -9,6 +9,7 @@ from questgen import facts
 from questgen import restrictions
 from questgen import exceptions as questgen_exceptions
 from questgen import transformators
+from questgen import analysers
 from questgen.knowledge_base import KnowledgeBase
 from questgen.selectors import Selector
 from questgen.quests.quests_base import QuestsBase
@@ -114,28 +115,28 @@ def get_knowledge_base(hero): # pylint: disable=R0912
     if pref_mob:
         mob_uid = uids.mob(pref_mob)
         kb += facts.Mob(uid=mob_uid, terrains=list(pref_mob.terrains))
-        kb += facts.PreferenceMob(hero_uid, mob_uid)
+        kb += facts.PreferenceMob(object=hero_uid, mob=mob_uid)
 
     pref_place = hero.preferences.place
     place_uid = uids.place(pref_place) if pref_place is not None else None
     if place_uid in kb:
-        kb += facts.PreferenceHometown(hero_uid, place_uid)
+        kb += facts.PreferenceHometown(object=hero_uid, place=place_uid)
 
     pref_friend = hero.preferences.friend
     friend_uid = uids.person(pref_friend) if pref_friend is not None else None
     if friend_uid in kb:
-        kb += ( facts.PreferenceFriend(hero_uid, friend_uid),
-                facts.OnlyGoodBranches(friend_uid) )
+        kb += ( facts.PreferenceFriend(object=hero_uid, person=friend_uid),
+                facts.OnlyGoodBranches(person=friend_uid) )
 
     pref_enemy = hero.preferences.enemy
     enemy_uid = uids.person(pref_enemy) if pref_enemy is not None else None
     if enemy_uid in kb:
-        kb += ( facts.PreferenceEnemy(hero_uid, enemy_uid),
-                facts.OnlyBadBranches(friend_uid) )
+        kb += ( facts.PreferenceEnemy(object=hero_uid, person=enemy_uid),
+                facts.OnlyBadBranches(person=friend_uid) )
 
     pref_equipment_slot = hero.preferences.equipment_slot
     if pref_equipment_slot:
-        kb += facts.PreferenceEquipmentSlot(hero_uid, pref_equipment_slot.value)
+        kb += facts.PreferenceEquipmentSlot(object=hero_uid, equipment_slot=pref_equipment_slot.value)
 
     kb.validate_consistency(WORLD_RESTRICTIONS)
 
@@ -177,15 +178,21 @@ def _create_random_quest_for_hero(hero, knowledge_base, special):
         if turn_number + c.QUESTS_LOCK_TIME.get(quest_type, 0) >= current_time:
             excluded_quests.append(quest_type)
 
-    if special:
-        quests_facts = qb.create_start_quest(knowledge_base,
-                                             selector,
-                                             start_place=start_place,
-                                             allowed=hero.get_special_quests(),
-                                             excluded=excluded_quests,
-                                             tags=('can_start', 'special'))
-    else:
-        quests_facts = qb.create_start_quest(knowledge_base,
+    # if special:
+    #     quests_facts = qb.create_start_quest(knowledge_base,
+    #                                          selector,
+    #                                          start_place=start_place,
+    #                                          allowed=hero.get_special_quests(),
+    #                                          excluded=excluded_quests,
+    #                                          tags=('can_start', 'special'))
+    # else:
+    #     quests_facts = qb.create_start_quest(knowledge_base,
+    #                                          selector,
+    #                                          start_place=start_place,
+    #                                          excluded=excluded_quests,
+    #                                          tags=('can_start', 'normal'))
+
+    quests_facts = qb.create_start_quest(knowledge_base,
                                              selector,
                                              start_place=start_place,
                                              excluded=excluded_quests,
@@ -206,4 +213,7 @@ def _create_random_quest_for_hero(hero, knowledge_base, special):
     rewards = {quest_uid: {'experience': QuestPrototype.get_expirience_for_quest(hero),
                            'power': QuestPrototype.get_person_power_for_quest(hero)} for quest_uid in quests_uids}
 
-    return QuestPrototype(knowledge_base=knowledge_base, rewards=rewards)
+
+    states_to_percents = analysers.percents_collector(knowledge_base)
+
+    return QuestPrototype(knowledge_base=knowledge_base, rewards=rewards, states_to_percents=states_to_percents)

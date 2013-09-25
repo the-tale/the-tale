@@ -17,7 +17,7 @@ class QuestsContainer(object):
     @classmethod
     def deserialize(cls, hero, data):
         obj = cls()
-        obj.quests_list = [QuestPrototype.deserialize(hero=hero, data=quest_data) for quest_data in data.get('quests', [])]
+        obj.quests_list = [QuestPrototype.deserialize(data=quest_data) for quest_data in data.get('quests', [])]
         return obj
 
     def ui_info(self, hero):

@@ -6,7 +6,6 @@ from common.utils import testcase
 from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
 from game.heroes.models import Hero
-from game.quests.models import Quest
 from game.models import Bundle
 from game.logic import create_test_map
 
@@ -31,7 +30,6 @@ class TestLogic(testcase.TestCase):
         block_expired_accounts()
 
         self.assertEqual(Hero.objects.all().count(), 0)
-        self.assertEqual(Quest.objects.all().count(), 0)
 
         self.assertEqual(Bundle.objects.all().count(), 0)
 

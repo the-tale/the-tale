@@ -41,7 +41,7 @@ class QuestInfo(object):
                 'uid': self.uid,
                 'name': self.name,
                 'action': self.action,
-                'choice': self.choices,
+                'choice': self.choice,
                 'choice_alternatives': self.choice_alternatives}
 
     def ui_info(self):
@@ -106,7 +106,7 @@ class QuestInfo(object):
             return
 
         substitution = self.substitution(self.uid, knowledge_base, hero)
-        writer = Writer(type=self.type, message=choice.type, substitution=substitution)
+        writer = Writer(type=self.type, message='choice', substitution=substitution)
 
         choosen_option = knowledge_base[defaults[0].option]
 
@@ -119,20 +119,22 @@ class QuestInfo(object):
 
 class QuestPrototype(object):
 
-    def __init__(self, knowledge_base, rewards=None, quests_stack=None, created_at=None, replane_required=False):
+    def __init__(self, knowledge_base, rewards=None, quests_stack=None, created_at=None, replane_required=False, states_to_percents=None):
         self.rewards = {} if rewards is None else rewards
         self.quests_stack = [] if quests_stack is None else quests_stack
         self.knowledge_base = knowledge_base
         self.machine = Machine(knowledge_base=knowledge_base)
         self.created_at =datetime.datetime.now() if created_at is None else created_at
         self.replane_required = replane_required
+        self.states_to_percents = states_to_percents if states_to_percents is not None else {}
 
     def serialize(self):
         return {'rewards': self.rewards,
                 'quests_stack': [info.serialize() for info in self.quests_stack],
                 'knowledge_base': self.knowledge_base.serialize(),
                 'created_at': time.mktime(self.created_at.timetuple()),
-                'replane_required': self.replane_required}
+                'replane_required': self.replane_required,
+                'states_to_percents': self.states_to_percents}
 
     @classmethod
     def deserialize(cls, data):
@@ -140,10 +142,11 @@ class QuestPrototype(object):
                    knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], fact_classes=facts.FACTS),
                    quests_stack=[QuestInfo.deserialize(info_data) for info_data in data['quests_stack']],
                    created_at=datetime.datetime.fromtimestamp(data['created_at']),
-                   replane_required=data['replane_required'])
+                   replane_required=data['replane_required'],
+                   states_to_percents=data['states_to_percents'])
 
     @property
-    def percents(self): return 0.5 # TODO: implement
+    def percents(self): return self.states_to_percents.get(self.machine.pointer.state, 0.0)
 
     @property
     def is_processed(self): return self.machine.is_processed
@@ -196,6 +199,8 @@ class QuestPrototype(object):
 
     def do_step(self, cur_action):
         self.replane_required = False
+
+        cur_action.hero.quests.updated = True
 
         if self.quests_stack:
             self.quests_stack[-1].sync_choices(self.knowledge_base, cur_action.hero, *self.get_nearest_choice())

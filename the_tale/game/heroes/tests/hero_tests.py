@@ -536,9 +536,13 @@ class HeroQuestsTest(TestCase):
         self.assertTrue(SearchSmith.type() in self.hero.get_special_quests())
 
     def test_get_minimum_created_time_of_active_quests(self):
-        self.assertEqual(self.quest._model.created_at, QuestPrototype.get_minimum_created_time_of_active_quests())
+        self.hero._model.quest_created_time = datetime.datetime.now() - datetime.timedelta(days=1)
+        self.hero.save()
 
-        self.quest.remove()
+        result, account_id, bundle_id = register_user('test_user_2')
+        hero = HeroPrototype.get_by_account_id(account_id)
+        hero._model.quest_created_time = datetime.datetime.now() - datetime.timedelta(days=2)
+        hero.save()
 
         # not there are no another quests an get_minimum_created_time_of_active_quests return now()
-        self.assertTrue(self.quest._model.created_at < QuestPrototype.get_minimum_created_time_of_active_quests())
+        self.assertEqual(hero._model.quest_created_time, HeroPrototype.get_minimum_created_time_of_active_quests())

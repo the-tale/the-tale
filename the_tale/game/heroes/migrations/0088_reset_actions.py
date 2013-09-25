@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
+import json
+
 from south.db import db
 from south.v2 import DataMigration
 from django.db import models
@@ -9,8 +11,7 @@ class Migration(DataMigration):
     def forwards(self, orm):
         Hero = orm['heroes.Hero']
         Place = orm['places.Place']
-        Hero.objects.all().update(actions='{}',
-                                  pos_road=None,
+        Hero.objects.all().update(pos_road=None,
                                   pos_percents=None,
                                   pos_from_x=None,
                                   pos_from_y=None,
@@ -26,6 +27,13 @@ class Migration(DataMigration):
 
         for i, place in enumerate(Place.objects.all()):
             Hero.objects.filter(id__gte=i*step, id__lte=(i+1)*step).update(pos_place=place)
+
+        for hero in Hero.objects.all():
+            actions = json.loads(hero.actions)
+            actions['actions'] = [actions['actions'][0]]
+
+            hero.actions = json.dumps(actions)
+            hero.save()
 
 
 
