@@ -103,6 +103,10 @@ class HeroPrototype(BasePrototype):
     def is_short_quest_path_required(self):
         return self.level < c.QUESTS_SHORT_PATH_LEVEL_CAP
 
+    @property
+    def is_first_quest_path_required(self):
+        return self.statistics.quests_done == 0
+
     ###########################################
     # Base attributes
     ###########################################

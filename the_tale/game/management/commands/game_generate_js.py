@@ -9,7 +9,7 @@ from game.conf import game_settings
 
 from game.balance.enums import RACE
 
-from game.quests.quests_generator.quest_line import ACTOR_TYPE
+from game.quests.relations import ACTOR_TYPE
 from game.game_info import GENDER
 from game.map.relations import TERRAIN
 from game.map.places.relations import BUILDING_TYPE
@@ -28,7 +28,7 @@ class Command(BaseCommand):
 
         with open(game_settings.JS_CONSTNATS_FILE_LOCATION, 'w') as f:
             f.write(render('game/js_constants.js',
-                           {'actor_type': s11n.to_json(ACTOR_TYPE._STR_TO_ID),
+                           {'actor_type': s11n.to_json({a.name: a.value for a in ACTOR_TYPE._records}),
                             'gender_to_text': s11n.to_json(GENDER._ID_TO_TEXT),
                             'gender_to_str': s11n.to_json(GENDER._ID_TO_STR),
                             'person_type_to_text': s11n.to_json(dict(PERSON_TYPE._select('value', 'text'))),

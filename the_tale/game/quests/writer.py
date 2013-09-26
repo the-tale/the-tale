@@ -15,6 +15,8 @@ class Writer(object):
         self.message = message
         self.substitution = prepair_substitution(substitution)
 
+    def actor_id(self, actor): return 'quest_%s_actor_%s' % (self.type, actor)
+
     def name_id(self): return 'quest_%s_name' % (self.type, )
 
     def action_id(self): return 'quest_%s_action_%s' % (self.type, self.message)
@@ -23,9 +25,12 @@ class Writer(object):
 
     def diary_id(self): return 'quest_%s_diary_%s' % (self.type, self.message)
 
-    def choice_variant_id(self, variant): return 'quest_%s_choice_%s_variant_%s' % (self.type, self.message, variant)
+    def choice_variant_id(self, variant): return 'quest_%s_choice_variant_%s' % (self.type, variant)
 
-    def current_choice_id(self, answer): return 'quest_%s_choice_%s_current_%s' % (self.type, self.message, answer)
+    def current_choice_id(self, answer): return 'quest_%s_choice_current_%s' % (self.type, answer)
+
+    def actor(self, actor):
+        return self.get_message(self.actor_id(actor))
 
     def name(self):
         return self.get_message(self.name_id())

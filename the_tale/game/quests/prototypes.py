@@ -24,17 +24,21 @@ from game.heroes.relations import EQUIPMENT_SLOT, ITEMS_OF_EXPENDITURE
 from game.quests import exceptions
 from game.quests import uids
 from game.quests.writer import Writer
+from game.quests.relations import ACTOR_TYPE
 
 
 class QuestInfo(object):
 
-    def __init__(self, type, uid, name, action, choice, choice_alternatives):
+    def __init__(self, type, uid, name, action, choice, choice_alternatives, experience, power, actors):
         self.type = type
         self.uid = uid
         self.name = name
         self.action = action
         self.choice = choice
         self.choice_alternatives = choice_alternatives
+        self.experience = experience
+        self.power = power
+        self.actors = actors
 
     def serialize(self):
         return {'type': self.type,
@@ -42,7 +46,10 @@ class QuestInfo(object):
                 'name': self.name,
                 'action': self.action,
                 'choice': self.choice,
-                'choice_alternatives': self.choice_alternatives}
+                'choice_alternatives': self.choice_alternatives,
+                'experience': self.experience,
+                'power': self.power,
+                'actors': self.actors}
 
     def ui_info(self):
         return {'type': self.type,
@@ -50,7 +57,23 @@ class QuestInfo(object):
                 'name': self.name,
                 'action': self.action,
                 'choice': self.choice,
-                'choice_alternatives': self.choice_alternatives}
+                'choice_alternatives': self.choice_alternatives,
+                'experience': self.experience,
+                'power': self.power,
+                'actors': self.actors_ui_info()}
+
+
+    def prepair_actor_ui_info(self, role, actor_type):
+        actor_id, actor_name = self.actors[role]
+        if actor_type._is_PLACE:
+            return (actor_name, actor_type.value, {'id': actor_id})
+        if actor_type._is_PERSON:
+            return (actor_name, actor_type.value, persons_storage[actor_id].ui_info())
+
+    def actors_ui_info(self):
+        from questgen.quests.base_quest import ROLES
+        return [ self.prepair_actor_ui_info(ROLES.INITIATOR, ACTOR_TYPE.PERSON),
+                 self.prepair_actor_ui_info(ROLES.RECEIVER, ACTOR_TYPE.PERSON) ]
 
     @classmethod
     def deserialize(cls, data):
@@ -61,26 +84,36 @@ class QuestInfo(object):
 
         writer = Writer(type=type, message=None, substitution=cls.substitution(uid, knowledge_base, hero))
 
+        actors = { participant.role: (knowledge_base[participant.participant].externals['id'], writer.actor(participant.role))
+                   for participant in knowledge_base.filter(facts.QuestParticipant)
+                   if participant.start == uid }
+
         return cls(type=type,
                    uid=uid,
                    name=writer.name(),
                    action=u'',
                    choice=None,
-                   choice_alternatives=[])
-
-    @classmethod
-    def prepair_participant(cls, actor):
-        if isinstance(actor, facts.Person):
-            return persons_storage[actor.externals['id']]
-        elif isinstance(actor, facts.Place):
-            return places_storage[actor.externals['id']]
+                   choice_alternatives=[],
+                   experience=cls.get_expirience_for_quest(hero),
+                   power=cls.get_person_power_for_quest(hero),
+                   actors=actors)
 
     @classmethod
     def substitution(cls, uid, knowledge_base, hero):
-        data = { participant.role: cls.prepair_participant(knowledge_base[participant.participant])
-                 for participant in knowledge_base.filter(facts.QuestParticipant)
-                 if participant.start == uid }
-        data['hero'] = hero
+        data = {'hero': hero}
+        for participant in knowledge_base.filter(facts.QuestParticipant):
+            if participant.start != uid:
+                continue
+
+            actor = knowledge_base[participant.participant]
+
+            if isinstance(actor, facts.Person):
+                person = persons_storage[actor.externals['id']]
+                data[participant.role] = person
+                data[participant.role + '_position'] = person.place
+            elif isinstance(actor, facts.Place):
+                data[participant.role] = places_storage[actor.externals['id']]
+
         return data
 
     def process_message(self, knowledge_base, hero, message):
@@ -88,6 +121,10 @@ class QuestInfo(object):
 
         substitution = self.substitution(self.uid, knowledge_base, hero)
         writer = Writer(type=self.type, message=message, substitution=substitution)
+
+        action_msg = writer.action()
+        if action_msg:
+            self.action = action_msg
 
         diary_msg = writer.diary()
         if diary_msg:
@@ -115,12 +152,25 @@ class QuestInfo(object):
                                     for option in options
                                     if option.type != choosen_option.type]
 
+    @classmethod
+    def get_expirience_for_quest(cls, hero):
+        experience = f.experience_for_quest(waymarks_storage.average_path_length)
+        if hero.statistics.quests_done == 0:
+            # since we get shortest path for first quest
+            # and want to give exp as fast as can
+            # and do not want to give more exp than level up required
+            experience = int(experience/2)
+        return experience
+
+    @classmethod
+    def get_person_power_for_quest(cls, hero):# pylint: disable=W0613
+        return f.person_power_for_quest(waymarks_storage.average_path_length)
+
 
 
 class QuestPrototype(object):
 
-    def __init__(self, knowledge_base, rewards=None, quests_stack=None, created_at=None, replane_required=False, states_to_percents=None):
-        self.rewards = {} if rewards is None else rewards
+    def __init__(self, knowledge_base, quests_stack=None, created_at=None, replane_required=False, states_to_percents=None):
         self.quests_stack = [] if quests_stack is None else quests_stack
         self.knowledge_base = knowledge_base
         self.machine = Machine(knowledge_base=knowledge_base)
@@ -129,17 +179,15 @@ class QuestPrototype(object):
         self.states_to_percents = states_to_percents if states_to_percents is not None else {}
 
     def serialize(self):
-        return {'rewards': self.rewards,
-                'quests_stack': [info.serialize() for info in self.quests_stack],
+        return {'quests_stack': [info.serialize() for info in self.quests_stack],
                 'knowledge_base': self.knowledge_base.serialize(),
                 'created_at': time.mktime(self.created_at.timetuple()),
                 'replane_required': self.replane_required,
-                'states_to_percents': self.states_to_percents}
+                'states_to_percents': self.states_to_percents,}
 
     @classmethod
     def deserialize(cls, data):
-        return cls(rewards=data['rewards'],
-                   knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], fact_classes=facts.FACTS),
+        return cls(knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], fact_classes=facts.FACTS),
                    quests_stack=[QuestInfo.deserialize(info_data) for info_data in data['quests_stack']],
                    created_at=datetime.datetime.fromtimestamp(data['created_at']),
                    replane_required=data['replane_required'],
@@ -176,20 +224,6 @@ class QuestPrototype(object):
     ###########################################
     # Object operations
     ###########################################
-
-    @classmethod
-    def get_expirience_for_quest(cls, hero):
-        experience = f.experience_for_quest(waymarks_storage.average_path_length)
-        if hero.statistics.quests_done == 0:
-            # since we get shortest path for first quest
-            # and want to give exp as fast as can
-            # and do not want to give more exp than level up required
-            experience = int(experience/2)
-        return experience
-
-    @classmethod
-    def get_person_power_for_quest(cls, hero):# pylint: disable=W0613
-        return f.person_power_for_quest(waymarks_storage.average_path_length)
 
     def process(self, cur_action):
         if self.do_step(cur_action):
@@ -249,9 +283,7 @@ class QuestPrototype(object):
         from game.persons.storage import persons_storage
 
         # self.push_message(writer, cur_action.hero, cmd.event)
-        current_quest_uid = self.quests_stack[-1].uid
-
-        base_power = self.rewards[current_quest_uid]['power']
+        base_power = self.quests_stack[-1].power
 
         person = persons_storage[person_id]
 
@@ -270,9 +302,7 @@ class QuestPrototype(object):
     def _finish_quest(self, hero):
         # self.push_message(writer, cur_action.hero, cmd.event)
 
-        current_quest_uid = self.quests_stack[-1].uid
-
-        experience = self.rewards[current_quest_uid]['experience']
+        experience = self.quests_stack[-1].experience
         experience = self.modify_experience(experience)
         hero.add_experience(experience)
 
@@ -281,7 +311,6 @@ class QuestPrototype(object):
         self.quests_stack.pop()
 
     def _give_reward(self, hero): # TODO: test
-
         if hero.can_get_artifact_for_quest():
             artifact, unequipped, sell_price = hero.buy_artifact(better=False, with_prefered_slot=False, equip=False)# pylint: disable=W0612
 

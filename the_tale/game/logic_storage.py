@@ -124,6 +124,11 @@ class LogicStorage(object):
 
             try:
                 leader_action.process_turn()
+
+                # process new actions if it has been created
+                if leader_action != hero.actions.current_action:
+                    leader_action = hero.actions.current_action
+                    leader_action.process_turn()
             except Exception:
                 if logger:
                     logger.error('LogicStorage.process_turn catch exception, while processing hero %d, try to save all bundles except %d' % (hero.id, bundle_id))

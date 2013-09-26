@@ -209,3 +209,12 @@ class PersonPrototype(BasePrototype):
             choices.append( ( place.name, persons ) )
 
         return sorted(choices, key=lambda choice: choice[0])
+
+    def ui_info(self):
+        return {'id': self.id,
+                'name': self.name,
+                'race': self.race,
+                'gender': self.gender,
+                'profession': self.type.value,
+                'mastery_verbose': self.mastery_verbose,
+                'place': self.place.id}

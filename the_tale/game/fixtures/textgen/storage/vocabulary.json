@@ -148,6 +148,13 @@
       "template": "Выдвинут закон «%(e_0)s» об отмене закона «%(e_1)s»."
     }
   ], 
+  "quest_spying_choice_variant_open_up": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "поддаться укорам совести и раскрыться"
+    }
+  ], 
   "quest_caravan_diary_choice_attack": [
     {
       "internals": [], 
@@ -8971,6 +8978,18 @@
       "template": "%(i_0)s довести разведку до конца — не пристало герою отказываться от заданий, да и %(e_0)s действительно ведёт себя подозрительно."
     }
   ], 
+  "quest_spying_name": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Прошпионить"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "собрать компромат"
+    }
+  ], 
   "quest_spying_action_open_up_choice": [], 
   "quest_spying_diary_spying": [], 
   "chronicle_building_renaming_bill_started": [
@@ -10755,7 +10774,7 @@
       "template": "Жители %(e_0)s и %(e_1)s выдвинули закон «%(e_2)s» об обмене ресурсами. Со стороны %(e_0)s — «%(e_4)s», со стороны %(e_1)s — «%(e_6)s»."
     }
   ], 
-  "quest_spying_choice_openup_result_open_up": [
+  "quest_spying_choice_current_open_up": [
     {
       "internals": [
         [
@@ -11709,11 +11728,206 @@
       "template": "разыскивает старых боевых товарищей"
     }
   ], 
-  "quest_spying_choice_openup_variant_open_up": [
+  "action_inplace_description": [
     {
       "internals": [], 
       "externals": [], 
-      "template": "поддаться укорам совести и раскрыться"
+      "template": "изучает окрестности"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "блуждает по узким переулкам %(e_0)s"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "гуляет по городской ярмарке"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "ищет городскую площадь"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "дт"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "гуляет по %(e_0)s"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "исследует улочки %(e_0)s"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "слоняется по закоулкам %(e_0)s"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "любуется красотами %(e_0)s"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "изучает архитектуру %(e_0)s"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "читает вывески %(e_0)s"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "глазеет на население %(e_0)s"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "дт"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "совершает променад по %(e_0)s"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "бродит по улочкам %(e_0)s"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "знакомится с культурой %(e_0)s"
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "обходит достопримечательности %(e_0)s"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "изучает местные трактиры"
     }
   ], 
   "quest_caravan_journal_move_to_point": [
@@ -15456,35 +15670,6 @@
       "template": "С одними обязательствами покончено, теперь кое-кто должен МНЕ кое-что, и я пойду это получать…"
     }
   ], 
-  "quest_spying_choice_openup_result_spy": [
-    {
-      "internals": [
-        [
-          "решил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "решил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s продолжить шпионаж."
-    }
-  ], 
   "quest_interfereenemy_action_move_to_quest": [
     {
       "internals": [], 
@@ -15792,6 +15977,13 @@
         ]
       ], 
       "template": "Закон «%(e_0)s» не получил необходимую поддержку и здание, владельцем которого является %(e_1)s, остаётся в целости."
+    }
+  ], 
+  "quest_spying_actor_receiver": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "цель"
     }
   ], 
   "quest_delivery_diary_steal_item": [], 
@@ -22900,206 +23092,23 @@
       "template": "%(e_0)s гуляет по городу"
     }
   ], 
-  "action_inplace_description": [
+  "angel_ability_arena_pvp_1x1_leave_queue": [
     {
-      "internals": [], 
+      "internals": [
+        [
+          "вышел", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "вышел"
+        ]
+      ], 
       "externals": [], 
-      "template": "изучает окрестности"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "блуждает по узким переулкам %(e_0)s"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "гуляет по городской ярмарке"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "ищет городскую площадь"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "дт"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "гуляет по %(e_0)s"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "исследует улочки %(e_0)s"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "слоняется по закоулкам %(e_0)s"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "любуется красотами %(e_0)s"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "изучает архитектуру %(e_0)s"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "читает вывески %(e_0)s"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "глазеет на население %(e_0)s"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "дт"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "совершает променад по %(e_0)s"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "бродит по улочкам %(e_0)s"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "знакомится с культурой %(e_0)s"
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "place", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "place"
-        ]
-      ], 
-      "template": "обходит достопримечательности %(e_0)s"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "изучает местные трактиры"
+      "template": "Голос в голове сообщил, что я %(i_0)s из очереди на гладиаторскую арену."
     }
   ], 
   "action_regenerate_energy_no_energy_received_meditation": [
@@ -23511,25 +23520,6 @@
       "internals": [], 
       "externals": [], 
       "template": "Нахватал полные карманы добра, теперь надо бежать."
-    }
-  ], 
-  "angel_ability_arena_pvp_1x1_leave_queue": [
-    {
-      "internals": [
-        [
-          "вышел", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "вышел"
-        ]
-      ], 
-      "externals": [], 
-      "template": "Голос в голове сообщил, что я %(i_0)s из очереди на гладиаторскую арену."
     }
   ], 
   "quest_hometown_journal_remember_names_description": [
@@ -26347,6 +26337,13 @@
       "template": "%(e_0)s направляется к мастеру"
     }
   ], 
+  "quest_spying_actor_initiator": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "заказчик"
+    }
+  ], 
   "quest_helpfriend_journal_move_to_quest": [], 
   "quest_spying_action_get_reward_open_up": [], 
   "quest_hometown_action_intro": [
@@ -26401,6 +26398,35 @@
         ]
       ], 
       "template": "%(i_0)s %(e_0)s %(i_1)s в награду за выполнение задания."
+    }
+  ], 
+  "quest_spying_choice_current_spy": [
+    {
+      "internals": [
+        [
+          "решил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "решил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s продолжить шпионаж."
     }
   ], 
   "quest_delivery_journal_steal_item": [
@@ -28995,6 +29021,13 @@
     }
   ], 
   "quest_hometown_journal_chatting": [], 
+  "quest_spying_choice_variant_spy": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "довести дело до конца"
+    }
+  ], 
   "chronicle_building_create_bill_started": [
     {
       "internals": [], 
@@ -32504,18 +32537,6 @@
       "template": "путешествует вокруг %(e_0)s"
     }
   ], 
-  "quest_spying_description": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "Прошпионить"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "собрать компромат"
-    }
-  ], 
   "action_battlepve1x1_periodical_fire_damage": [
     {
       "internals": [
@@ -32994,13 +33015,6 @@
         ]
       ], 
       "template": "Караванщик оказался не таким богатым — за добычу удалось выручить всего %(e_0)s %(i_0)s."
-    }
-  ], 
-  "quest_spying_choice_openup_variant_spy": [
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "довести дело до конца"
     }
   ], 
   "action_inplace_diary_experience": [

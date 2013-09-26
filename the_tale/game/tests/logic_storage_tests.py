@@ -190,6 +190,21 @@ class LogicStorageTests(testcase.TestCase):
 
         self.assertEqual(save_hero_data.call_count, 2)
 
+
+    def test_process_turn__process_created_action(self):
+        from game.actions.prototypes import ActionMoveToPrototype
+
+        place = self.p1
+
+        def process_action(self):
+            ActionMoveToPrototype.create(hero=self.hero, destination=place)
+
+        with mock.patch('game.actions.prototypes.ActionIdlenessPrototype.process', process_action):
+            with mock.patch('game.actions.prototypes.ActionMoveToPrototype.process') as move_to_process:
+                self.storage.process_turn()
+
+        self.assertEqual(move_to_process.call_count, 2)
+
     def test_process_turn_with_skipped_hero(self):
         # skipped heroes saved, but not processed
         self.storage.skipped_heroes.add(self.hero_1.id)

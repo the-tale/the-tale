@@ -40,6 +40,8 @@ class PrototypeTests(testcase.TestCase):
         self.storage.add_hero(self.hero)
         self.action_idl = self.hero.actions.current_action
 
+        self.action_idl.state = self.action_idl.STATE.QUEST
+
         self.quest = create_random_quest_for_hero(self.hero)
         self.action_quest = ActionQuestPrototype.create(hero=self.hero, quest=self.quest)
 

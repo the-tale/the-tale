@@ -36,11 +36,16 @@ _quests_logger = getLogger('the-tale.quests')
 WORLD_RESTRICTIONS = [restrictions.SingleLocationForObject(),
                       restrictions.ReferencesIntegrity()]
 QUEST_RESTRICTIONS =  [restrictions.SingleStartState(),
+                       restrictions.FinishStateExists(),
                        restrictions.NoJumpsFromFinish(),
                        restrictions.ConnectedStateJumpGraph(),
                        restrictions.NoCirclesInStateJumpGraph(),
                        restrictions.MultipleJumpsFromNormalState(),
                        restrictions.ChoicesConsistency()]
+
+QUESTS_BASE = QuestsBase()
+QUESTS_BASE += [Spying]
+
 
 def fill_places_for_first_quest(kb, hero):
 
@@ -80,7 +85,7 @@ def get_knowledge_base(hero): # pylint: disable=R0912
     kb += facts.Hero(uid=hero_uid)
 
     # fill places
-    if hero.statistics.quests_done == 0:
+    if hero.is_first_quest_path_required:
         fill_places_for_first_quest(kb, hero)
     elif hero.is_short_quest_path_required:
         fill_places_for_short_paths(kb, hero)
@@ -147,25 +152,21 @@ def create_random_quest_for_hero(hero):
 
     special = (c.QUESTS_SPECIAL_FRACTION > random.uniform(0, 1))
 
-    knowledge_base = get_knowledge_base(hero)
-
     if special:
         try:
-            return _create_random_quest_for_hero(hero, knowledge_base, special=True)
+            return _create_random_quest_for_hero(hero, special=True)
         except questgen_exceptions.RollBackError:
             pass
 
-    return _create_random_quest_for_hero(hero, knowledge_base, special=False)
+    return _create_random_quest_for_hero(hero, special=False)
 
 
 @retry_on_exception(max_retries=quests_settings.MAX_QUEST_GENERATION_RETRIES, exceptions=[questgen_exceptions.RollBackError])
-def _create_random_quest_for_hero(hero, knowledge_base, special):
+def _create_random_quest_for_hero(hero, special):
 
-    qb = QuestsBase()
+    knowledge_base = get_knowledge_base(hero)
 
     selector = Selector(knowledge_base)
-
-    qb += [Spying]
 
     hero_uid = uids.hero(hero)
 
@@ -192,12 +193,11 @@ def _create_random_quest_for_hero(hero, knowledge_base, special):
     #                                          excluded=excluded_quests,
     #                                          tags=('can_start', 'normal'))
 
-    quests_facts = qb.create_start_quest(knowledge_base,
-                                             selector,
-                                             start_place=start_place,
-                                             excluded=excluded_quests,
-                                             tags=('can_start', 'normal'))
-
+    quests_facts = QUESTS_BASE.create_start_quest(knowledge_base,
+                                                  selector,
+                                                  start_place=start_place,
+                                                  excluded=excluded_quests,
+                                                  tags=('can_start', 'normal'))
     knowledge_base += quests_facts
 
     transformators.activate_events(knowledge_base)
@@ -208,12 +208,6 @@ def _create_random_quest_for_hero(hero, knowledge_base, special):
     knowledge_base.validate_consistency(WORLD_RESTRICTIONS)
     knowledge_base.validate_consistency(QUEST_RESTRICTIONS)
 
-    quests_uids = [start.uid for start in knowledge_base.filter(facts.Start)]
-
-    rewards = {quest_uid: {'experience': QuestPrototype.get_expirience_for_quest(hero),
-                           'power': QuestPrototype.get_person_power_for_quest(hero)} for quest_uid in quests_uids}
-
-
     states_to_percents = analysers.percents_collector(knowledge_base)
 
-    return QuestPrototype(knowledge_base=knowledge_base, rewards=rewards, states_to_percents=states_to_percents)
+    return QuestPrototype(knowledge_base=knowledge_base, states_to_percents=states_to_percents)

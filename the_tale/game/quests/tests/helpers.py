@@ -30,6 +30,13 @@ class QuestWith2ChoicePoints(BaseQuest):
 
     @classmethod
     def construct_from_place(cls, knowledge_base, selector, start_place):
+        from questgen.quests.base_quest import ROLES
+
+        initiator = selector.person_from(places=(start_place, ))
+        receiver = selector.new_person()
+
+        initiator_position = selector.place_for(objects=(initiator,))
+        receiver_position = selector.place_for(objects=(receiver,))
 
         ns = knowledge_base.get_next_ns()
 
@@ -43,17 +50,24 @@ class QuestWith2ChoicePoints(BaseQuest):
         finish_1_2 = facts.Finish(uid=ns+'finish_1_2')
         finish_2 = facts.Finish(uid=ns+'finish_2')
 
-        return [ start,
-                 choice_1,
-                 choice_2,
-                 finish_1_1,
-                 finish_1_2,
-                 finish_2,
+        participants = [facts.QuestParticipant(start=start.uid, participant=initiator, role=ROLES.INITIATOR),
+                        facts.QuestParticipant(start=start.uid, participant=initiator_position, role=ROLES.INITIATOR_POSITION),
+                        facts.QuestParticipant(start=start.uid, participant=receiver, role=ROLES.RECEIVER),
+                        facts.QuestParticipant(start=start.uid, participant=receiver_position, role=ROLES.RECEIVER_POSITION) ]
 
-                 facts.Jump(state_from=start.uid, state_to=choice_1.uid),
+        quest_facts =  [ start,
+                         choice_1,
+                         choice_2,
+                         finish_1_1,
+                         finish_1_2,
+                         finish_2,
 
-                 facts.Option(state_from=choice_1.uid, state_to=finish_2.uid, type='opt_1'),
-                 facts.Option(state_from=choice_1.uid, state_to=choice_2.uid, type='opt_2'),
-                 facts.Option(state_from=choice_2.uid, state_to=finish_1_1.uid, type='opt_2_1'),
-                 facts.Option(state_from=choice_2.uid, state_to=finish_1_2.uid, type='opt_2_2')
-                ]
+                         facts.Jump(state_from=start.uid, state_to=choice_1.uid),
+
+                         facts.Option(state_from=choice_1.uid, state_to=finish_2.uid, type='opt_1'),
+                         facts.Option(state_from=choice_1.uid, state_to=choice_2.uid, type='opt_2'),
+                         facts.Option(state_from=choice_2.uid, state_to=finish_1_1.uid, type='opt_2_1'),
+                         facts.Option(state_from=choice_2.uid, state_to=finish_1_2.uid, type='opt_2_2')
+                        ]
+
+        return participants + quest_facts
