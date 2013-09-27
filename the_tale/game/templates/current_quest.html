@@ -5,7 +5,7 @@ jQuery(document).ready(function(e) {
 
     widgets.quest = new pgf.game.widgets.Quest('#current-quest-block',
                                                updater, widgets,
-                                               { } );
+                                               {chooseUrl: "{{url('game:quests:choose')}}" } );
 
 
 });

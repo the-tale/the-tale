@@ -46,9 +46,9 @@ class QuestWith2ChoicePoints(BaseQuest):
 
         choice_2 = facts.Choice(uid=ns+'choice_2')
 
-        finish_1_1 = facts.Finish(uid=ns+'finish_1_1')
-        finish_1_2 = facts.Finish(uid=ns+'finish_1_2')
-        finish_2 = facts.Finish(uid=ns+'finish_2')
+        finish_1_1 = facts.Finish(uid=ns+'finish_1_1', type='finish_1_1')
+        finish_1_2 = facts.Finish(uid=ns+'finish_1_2', type='finish_1_2')
+        finish_2 = facts.Finish(uid=ns+'finish_2', type='finish_2')
 
         participants = [facts.QuestParticipant(start=start.uid, participant=initiator, role=ROLES.INITIATOR),
                         facts.QuestParticipant(start=start.uid, participant=initiator_position, role=ROLES.INITIATOR_POSITION),

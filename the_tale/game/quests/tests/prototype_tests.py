@@ -47,7 +47,7 @@ class PrototypeTests(testcase.TestCase):
 
 
     def test_serialization(self):
-        self.assertEqual(self.quest.serialize(), QuestPrototype.deserialize(self.quest.serialize()).serialize())
+        self.assertEqual(self.quest.serialize(), QuestPrototype.deserialize(self.hero, self.quest.serialize()).serialize())
 
     def get_hero_position_id(self, quest):
         kb = quest.knowledge_base
@@ -59,12 +59,12 @@ class PrototypeTests(testcase.TestCase):
 
     def test_replane_required__reset_on_do_step(self):
         self.quest.replane_required = True
-        self.quest.do_step(self.action_quest)
+        self.quest.do_step()
         self.assertFalse(self.quest.replane_required)
 
     def test_do_step(self):
         self.hero.quests.updated = False
-        self.quest.process(self.action_quest)
+        self.quest.process()
         self.assertTrue(self.hero.quests.updated)
 
     def complete_quest(self):
@@ -84,6 +84,9 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(all(requirement.check(quest.knowledge_base) for requirement in quest.knowledge_base[quest.machine.pointer.state].require))
 
         self.assertTrue(self.hero.quests_history[quest.knowledge_base.filter(facts.Start).next().type] > 0)
+
+    def test_complete_quest(self):
+        self.complete_quest()
 
     @mock.patch('game.quests.prototypes.QuestPrototype.modify_person_power', lambda *args, **kwargs: 1)
     def test_power_on_end_quest_for_fast_account_hero(self):

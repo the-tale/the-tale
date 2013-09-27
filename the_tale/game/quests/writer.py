@@ -56,8 +56,6 @@ class Writer(object):
         vocabulary = get_vocabulary()
 
         if type_ not in vocabulary:
-            if not project_settings.TESTS_RUNNING:
-                logger.error('writer:get_message: unknown template type: %s', type_)
             return None
 
         template = vocabulary.get_random_phrase(type_, None)

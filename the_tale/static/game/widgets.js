@@ -270,7 +270,7 @@ pgf.game.widgets._RenderQuest = function(index, quest, element) {
 
     var actorsElement = jQuery('.pgf-actors', element);
 
-    if (quest.actors.length) {
+    if (quest.actors && quest.actors.length) {
         actorsElement.toggleClass('pgf-hidden', false);
         pgf.base.RenderTemplateList(actorsElement, quest.actors, pgf.game.widgets._RenderActor, {});
     }
@@ -278,10 +278,13 @@ pgf.game.widgets._RenderQuest = function(index, quest, element) {
         actorsElement.toggleClass('pgf-hidden', true);
     }
 
-    // if (quest.choices.length) {
-    //     jQuery('.pgf-choices', element).removeClass('pgf-hidden');
-    //     pgf.base.RenderTemplateList(jQuery('.pgf-choices-container', element), quest.choices, pgf.game.widgets._RenderChoice, {});
-    // }
+    if (quest.choice) {
+        jQuery('.pgf-choices', element).removeClass('pgf-hidden');
+        pgf.base.RenderTemplateList(jQuery('.pgf-choices-container', element), [quest.choice], pgf.game.widgets._RenderChoice, {});
+    }
+    else {
+        jQuery('.pgf-no-choices', element).removeClass('pgf-hidden');
+    }
 };
 
 
@@ -303,16 +306,8 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
 
     function RenderQuests() {
         pgf.base.HideTooltips(widget, 'pgf-actor-tooltip');
-        if (data.quests.quests && data.quests.quests.length > 0) {
-            pgf.game.widgets._RenderQuest(0, data.quests.quests[0].line[data.quests.quests[0].line.length-1], currentQuest);
-        }
-        else {
-            pgf.game.widgets._RenderQuest(0, {quest_type: 'no-quest',
-                                              quest_text: 'бездельничает',
-                                              action_text: 'имитирует бурную деятельность',
-                                              actors: [],
-                                              choices: []}, currentQuest);
-        }
+        var quest = data.quests.quests[data.quests.quests.length - 1];
+        pgf.game.widgets._RenderQuest(0, quest.line[quest.line.length-1], currentQuest);
     }
 
     function RenderChoiceVariant(index, variant, element) {
@@ -328,43 +323,41 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
             return;
         }
 
-        var url = pgf.urls['game:quests:choose'](data.quests.id, data.quests.choice_id, variant[0]);
-
         variantLink.click( function(e){
                                pgf.base.ToggleWait(variantLink, true);
                                variantLink.toggleClass('disabled', true);
 
                                e.preventDefault();
 
-                               pgf.forms.Post({action: url,
+                               pgf.forms.Post({action: params.chooseUrl + '?option_uid=' + encodeURIComponent(variant[0]),
                                                data: {},
                                                wait: false,
                                                OnSuccess: function(data) {
                                                    updater.Refresh();
                                                    // no need to enable choices or disable spinner
                                                    // after refresh they will be redrawed
-                                               }
+
+                                               },
+                                               OnError: function(data) {RenderChoices();}
                                               });
                            });
     }
 
     function RenderChoices() {
-        var choiceId = data.quests.choice_id;
-        var futureChoice = data.quests.future_choice;
+        if (data.quests.quests.length == 0) {
+            return;
+        }
 
-        noChoicesMsg.toggleClass('pgf-hidden', !!choiceId);
-        choicesMsg.toggleClass('pgf-hidden', true);
+        var quest = data.quests.quests[data.quests.quests.length - 1];
+        var info = quest.line[quest.line.length-1];
+        var futureChoice = info.choice;
+
+        noChoicesMsg.toggleClass('pgf-hidden', !!futureChoice);
+        choicesMsg.toggleClass('pgf-hidden', info.choice_alternatives.length == 0);
         futureChoiceMsg.toggleClass('pgf-hidden', !futureChoice);
 
-        if (choiceId) {
-            if (futureChoice) {
-                futureChoiceMsg.text(futureChoice);
-            }
-            else {
-                pgf.base.RenderTemplateList(choicesMsg, data.quests.choice_variants, RenderChoiceVariant, {});
-                choicesMsg.toggleClass('pgf-hidden', false);
-            }
-        }
+        futureChoiceMsg.text(futureChoice);
+        pgf.base.RenderTemplateList(choicesMsg, info.choice_alternatives, RenderChoiceVariant, {});
     }
 
     this.Refresh = function(game_data) {
@@ -412,50 +405,19 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
 
     var widget = jQuery(selector);
 
-    var questsContainer = jQuery('.pgf-quests-line-container', widget);
+    var questsContainer = jQuery('.pgf-quests-container', widget);
     var noQuestsMsg = jQuery('.pgf-no-quests-message', widget);
     var moneySpentInfo = jQuery('.pgf-money-spent-info', widget);
 
     var data = {};
 
-    function RenderQuests() {
-        pgf.base.HideTooltips(widget, 'pgf-actor-tooltip');
-
-        noQuestsMsg.toggleClass('pgf-hidden', !!(data.quests.line && data.quests.line.length > 0) );
-        questsContainer.toggleClass('pgf-hidden', !(data.quests.line && data.quests.line.length > 0) );
-
-        if (data.quests.line && data.quests.line.length > 0) {
-            pgf.base.RenderTemplateList(questsContainer, data.quests.line, pgf.game.widgets._RenderQuest, {});
-        }
-        else {
-        }
+    function RenderQuestsLine(index, quest, element) {
+        pgf.base.RenderTemplateList(element, quest.line, pgf.game.widgets._RenderQuest, {});
     }
 
-    function RenderMoneySpentInfo() {
-
-        moneySpentInfo.removeClass('pgf-hidden');
-
-        var goalText = {'heal': 'лечение',
-                        'useless': 'на себя',
-                        'artifact': 'новая экипировка',
-                        'sharpening': 'улучшение экипировки',
-                        'impact': 'изменение влияния',
-                        'experience': 'обучение'}[data.nextSpending];
-
-        descriptionText = {'heal': 'Собирает деньги, чтобы поправить здоровье, когда понадобится.',
-                           'useless': 'Копит золото для не очень полезных но безусловно необходимых трат.',
-                           'artifact': 'Планирует приобретение новой экипировки.',
-                           'sharpening': 'Собирает на улучшение экипировки.',
-                           'impact': 'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.',
-                           'experience': 'Копит деньги на учёбу'}[data.nextSpending];
-
-        var moneySpendData = {quest_type: 'next-spending',
-                              quest_text:  'Накопить золото',
-                              actors: [['цель', pgf.game.constants.ACTOR_TYPE.MONEY_SPENDING , {goal: goalText, description: descriptionText}]],
-                              choices: []
-                             };
-
-        pgf.game.widgets._RenderQuest(0, moneySpendData, moneySpentInfo);
+    function RenderQuests() {
+        pgf.base.HideTooltips(widget, 'pgf-actor-tooltip');
+        pgf.base.RenderTemplateList(questsContainer, data.quests.quests, RenderQuestsLine, {});
     }
 
     this.Refresh = function(game_data) {
@@ -482,7 +444,6 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
 
     this.Render = function() {
         RenderQuests();
-        RenderMoneySpentInfo();
     };
 
     var MAP_LOADED = false;

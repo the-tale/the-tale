@@ -210,4 +210,4 @@ def _create_random_quest_for_hero(hero, special):
 
     states_to_percents = analysers.percents_collector(knowledge_base)
 
-    return QuestPrototype(knowledge_base=knowledge_base, states_to_percents=states_to_percents)
+    return QuestPrototype(hero=hero, knowledge_base=knowledge_base, states_to_percents=states_to_percents)

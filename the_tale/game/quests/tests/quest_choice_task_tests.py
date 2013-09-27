@@ -40,7 +40,7 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
         self.option_2_1_uid = '#option([ns-0]choice_2, [ns-0]finish_1_1)'
         self.option_2_2_uid = '#option([ns-0]choice_2, [ns-0]finish_1_2)'
 
-    def create_task(self, choice_uid, option_uid, account_id=None):
+    def create_task(self, option_uid, account_id=None):
 
         if account_id is None:
             account_id = self.account_id
@@ -55,25 +55,24 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
         self.assertTrue(self.option_2_2_uid in quest.knowledge_base)
 
         task = MakeChoiceTask(account_id=account_id,
-                              choice_uid=choice_uid,
                               option_uid=option_uid)
         return task
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_create(self):
-        task = self.create_task(choice_uid=self.choice_1_uid, option_uid=self.option_1_1_uid)
+        task = self.create_task(option_uid=self.option_1_1_uid)
         self.assertTrue(task.state._is_UNPROCESSED)
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_serialization(self):
-        task = self.create_task(choice_uid=self.choice_1_uid, option_uid=self.option_1_1_uid)
+        task = self.create_task(option_uid=self.option_1_1_uid)
         self.assertEqual(task.serialize(), MakeChoiceTask.deserialize(task.serialize()).serialize())
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_unknown_choice(self):
-        task = self.create_task(choice_uid=self.choice_1_uid, option_uid='unknown_choice')
+        task = self.create_task(option_uid='unknown_choice')
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-        self.assertTrue(task.state._is_UNKNOWN_CHOICE)
+        self.assertTrue(task.state._is_WRONG_POINT)
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_no_quests(self):
@@ -82,47 +81,47 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
 
-        task = self.create_task(choice_uid=self.choice_1_uid, option_uid=self.option_1_1_uid, account_id=account_id)
+        task = self.create_task(option_uid=self.option_1_1_uid, account_id=account_id)
 
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertTrue(task.state._is_QUEST_NOT_FOUND)
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_wrong_point(self):
-        task = self.create_task(choice_uid='unknown_point', option_uid=self.option_1_1_uid)
+        task = self.create_task(option_uid=self.option_2_1_uid)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertTrue(task.state._is_WRONG_POINT)
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_already_chosen(self):
-        task = self.create_task(choice_uid=self.choice_1_uid, option_uid=self.option_1_1_uid)
+        task = self.create_task(option_uid=self.option_1_1_uid)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertTrue(task.state._is_PROCESSED)
 
-        task = self.create_task(choice_uid=self.choice_1_uid, option_uid=self.option_1_2_uid)
+        task = self.create_task(option_uid=self.option_1_2_uid)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertTrue(task.state._is_ALREADY_CHOSEN)
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_success(self):
-        task = self.create_task(choice_uid=self.choice_1_uid, option_uid=self.option_1_1_uid)
+        task = self.create_task(option_uid=self.option_1_1_uid)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertTrue(task.state._is_PROCESSED)
 
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_choose_second_choice_before_first_completed(self):
-        task = self.create_task(choice_uid=self.choice_1_uid, option_uid=self.option_1_2_uid)
+        task = self.create_task(option_uid=self.option_1_2_uid)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertTrue(task.state._is_PROCESSED)
 
-        task = self.create_task(choice_uid=self.choice_2_uid, option_uid=self.option_2_1_uid)
+        task = self.create_task(option_uid=self.option_2_1_uid)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertTrue(task.state._is_WRONG_POINT)
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_choose_second_choice_after_first_completed(self):
-        task = self.create_task(choice_uid=self.choice_1_uid, option_uid=self.option_1_2_uid)
+        task = self.create_task(option_uid=self.option_1_2_uid)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertTrue(task.state._is_PROCESSED)
 
@@ -131,7 +130,7 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
         while True:
             self.assertNotEqual(self.hero.actions.current_action, ActionIdlenessPrototype.TYPE)
 
-            task = self.create_task(choice_uid=self.choice_2_uid, option_uid=self.option_2_1_uid)
+            task = self.create_task(option_uid=self.option_2_1_uid)
 
             if task.process(FakePostpondTaskPrototype(), self.storage) == POSTPONED_TASK_LOGIC_RESULT.ERROR:
                 break
@@ -142,7 +141,7 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_no_choices(self):
-        task = self.create_task(choice_uid=self.choice_1_uid, option_uid=self.option_1_1_uid)
+        task = self.create_task(option_uid=self.option_1_1_uid)
 
         knowledge_base = self.hero.quests.current_quest.knowledge_base
         finish_state = knowledge_base.filter(facts.Finish).next()

@@ -18,9 +18,9 @@ class QuestsResource(Resource):
         super(QuestsResource, self).initialize(*argv, **kwargs)
 
     @handler('choose', method='post')
-    def choose(self, choice_uid, option_uid):
+    def choose(self, option_uid):
 
-        choose_task = MakeChoiceTask(account_id=self.account.id, choice_uid=choice_uid, option_uid=option_uid)
+        choose_task = MakeChoiceTask(account_id=self.account.id, option_uid=option_uid)
 
         task = PostponedTaskPrototype.create(choose_task)
 

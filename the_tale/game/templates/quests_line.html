@@ -13,18 +13,16 @@ jQuery(document).ready(function(e) {
 
 <div id="quests-line-block">
 
-  <div class="pgf-hidden pgf-money-spent-info quest-record" style="min-height: 100px;">
-    {{ macros.quest_record_body(choices_list=true) }}
-  </div>
+  <ul class="unstyled pgf-quests-container">
+    <li class="pgf-template quests-line">
 
-  <ul class="unstyled pgf-quests-line-container">
-    <li class="pgf-template quest-record" style="min-height: 100px;">
-      {{ macros.quest_record_body(choices_list=true) }}
+      <ul class="unstyled pgf-quests-line-container">
+        <li class="pgf-template quest-record" style="min-height: 100px;">
+          {{ macros.quest_record_body(choices_list=true) }}
+        </li>
+      </ul>
+
     </li>
   </ul>
-
-  <div class="pgf-no-quests-message pgf-hidden">
-    герой бездельничает
-  </div>
 
 </div>

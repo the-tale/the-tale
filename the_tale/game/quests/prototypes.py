@@ -69,9 +69,18 @@ class QuestInfo(object):
             return (actor_name, actor_type.value, {'id': actor_id})
         if actor_type._is_PERSON:
             return (actor_name, actor_type.value, persons_storage[actor_id].ui_info())
+        if actor_type._is_MONEY_SPENDING:
+            return (actor_name, actor_type.value, {'goal': actor_id.text})
 
     def actors_ui_info(self):
         from questgen.quests.base_quest import ROLES
+
+        if self.type == 'no-quest':
+            return []
+
+        if self.type == 'next-spending':
+            return [ self.prepair_actor_ui_info('goal', ACTOR_TYPE.MONEY_SPENDING)  ]
+
         return [ self.prepair_actor_ui_info(ROLES.INITIATOR, ACTOR_TYPE.PERSON),
                  self.prepair_actor_ui_info(ROLES.RECEIVER, ACTOR_TYPE.PERSON) ]
 
@@ -116,10 +125,12 @@ class QuestInfo(object):
 
         return data
 
-    def process_message(self, knowledge_base, hero, message):
+    def process_message(self, knowledge_base, hero, message, ext_substitution={}):
         from game.heroes.messages import MessagesContainer
 
         substitution = self.substitution(self.uid, knowledge_base, hero)
+        substitution.update(ext_substitution)
+
         writer = Writer(type=self.type, message=message, substitution=substitution)
 
         action_msg = writer.action()
@@ -137,6 +148,7 @@ class QuestInfo(object):
             hero.messages.push_message(MessagesContainer._prepair_message(journal_msg))
 
     def sync_choices(self, knowledge_base, hero, choice, options, defaults):
+
         if choice is None:
             self.choice = None
             self.choice_alternatives = ()
@@ -148,9 +160,13 @@ class QuestInfo(object):
         choosen_option = knowledge_base[defaults[0].option]
 
         self.choice = writer.current_choice(choosen_option.type)
-        self.choice_alternatives = [(option.type, writer.choice_variant(option.type))
-                                    for option in options
-                                    if option.type != choosen_option.type]
+
+        if defaults[0].default:
+            self.choice_alternatives = [(option.uid, writer.choice_variant(option.type))
+                                        for option in options
+                                        if option.uid != choosen_option.uid]
+        else:
+            self.choice_alternatives = ()
 
     @classmethod
     def get_expirience_for_quest(cls, hero):
@@ -167,13 +183,27 @@ class QuestInfo(object):
         return f.person_power_for_quest(waymarks_storage.average_path_length)
 
 
+NO_QUEST_INFO = QuestInfo(type='no-quest',
+                          uid='no-quest',
+                          name=u'безделие',
+                          action=u'имитирует бурную деятельность',
+                          choice=None,
+                          choice_alternatives=(),
+                          experience=None,
+                          power=None,
+                          actors={})
+
 
 class QuestPrototype(object):
 
-    def __init__(self, knowledge_base, quests_stack=None, created_at=None, replane_required=False, states_to_percents=None):
+    def __init__(self, hero, knowledge_base, quests_stack=None, created_at=None, replane_required=False, states_to_percents=None):
+        self.hero = hero
         self.quests_stack = [] if quests_stack is None else quests_stack
         self.knowledge_base = knowledge_base
-        self.machine = Machine(knowledge_base=knowledge_base)
+        self.machine = Machine(knowledge_base=knowledge_base,
+                               on_state=self.on_state,
+                               on_jump_start=self.on_jump_start,
+                               on_jump_end=self.on_jump_end)
         self.created_at =datetime.datetime.now() if created_at is None else created_at
         self.replane_required = replane_required
         self.states_to_percents = states_to_percents if states_to_percents is not None else {}
@@ -186,12 +216,13 @@ class QuestPrototype(object):
                 'states_to_percents': self.states_to_percents,}
 
     @classmethod
-    def deserialize(cls, data):
+    def deserialize(cls, hero, data):
         return cls(knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], fact_classes=facts.FACTS),
                    quests_stack=[QuestInfo.deserialize(info_data) for info_data in data['quests_stack']],
                    created_at=datetime.datetime.fromtimestamp(data['created_at']),
                    replane_required=data['replane_required'],
-                   states_to_percents=data['states_to_percents'])
+                   states_to_percents=data['states_to_percents'],
+                   hero=hero)
 
     @property
     def percents(self): return self.states_to_percents.get(self.machine.pointer.state, 0.0)
@@ -201,10 +232,10 @@ class QuestPrototype(object):
 
     def get_nearest_choice(self): return self.machine.get_nearest_choice()
 
-    def make_choice(self, choice_uid, option_uid):
+    def make_choice(self, option_uid):
         choice, options, defaults = self.get_nearest_choice()
 
-        if choice_uid != choice.uid:
+        if self.knowledge_base[option_uid].state_from != choice.uid:
             return False
 
         if not any(option.uid == option_uid for option in options):
@@ -213,10 +244,13 @@ class QuestPrototype(object):
         if not defaults[0].default:
             return False
 
-        if not transformators.change_choice(knowledge_base=self.knowledge_base, choice_uid=choice_uid, new_option_uid=option_uid, default=False):
+        if not transformators.change_choice(knowledge_base=self.knowledge_base, new_option_uid=option_uid, default=False):
             return False
 
         self.machine.sync_pointer()
+
+        if self.quests_stack:
+            self.quests_stack[-1].sync_choices(self.knowledge_base, self.hero, *self.get_nearest_choice())
 
         self.replane_required = True
         return True
@@ -225,64 +259,77 @@ class QuestPrototype(object):
     # Object operations
     ###########################################
 
-    def process(self, cur_action):
-        if self.do_step(cur_action):
+    def process(self):
+        step_result = self.do_step()
+
+        if self.quests_stack:
+            self.quests_stack[-1].sync_choices(self.knowledge_base, self.hero, *self.get_nearest_choice())
+
+        if step_result:
             return self.percents
 
         return 1
 
-    def do_step(self, cur_action):
+    def do_step(self):
         self.replane_required = False
 
-        cur_action.hero.quests.updated = True
+        self.hero.quests.updated = True
 
-        if self.quests_stack:
-            self.quests_stack[-1].sync_choices(self.knowledge_base, cur_action.hero, *self.get_nearest_choice())
-
-        self.sync_knowledge_base(cur_action)
+        self.sync_knowledge_base()
 
         if self.machine.can_do_step():
             self.machine.step()
-            self.do_state_actions(cur_action)
             return True
 
         if self.is_processed:
-            cur_action.hero.statistics.change_quests_done(1)
+            self.hero.statistics.change_quests_done(1)
             return False
 
-        self.satisfy_requirements(cur_action, self.machine.next_state)
-
+        self.satisfy_requirements(self.machine.next_state)
         return True
 
-    def sync_knowledge_base(self, cur_action):
+    def sync_knowledge_base(self):
 
-        hero_uid = uids.hero(cur_action.hero)
+        hero_uid = uids.hero(self.hero)
 
         self.knowledge_base -= [location
                                 for location in self.knowledge_base.filter(facts.LocatedIn)
                                 if location.object == hero_uid]
 
-        if cur_action.hero.position.place:
-            self.knowledge_base += facts.LocatedIn(object=hero_uid, place=uids.place(cur_action.hero.position.place))
+        self.knowledge_base -= [location
+                                for location in self.knowledge_base.filter(facts.LocatedNear)
+                                if location.object == hero_uid]
+
+        if self.hero.position.place:
+            self.knowledge_base += facts.LocatedIn(object=hero_uid, place=uids.place(self.hero.position.place))
+        else:
+            self.knowledge_base += facts.LocatedNear(object=hero_uid, place=uids.place(self.hero.position.get_dominant_place()))
 
 
-    def satisfy_requirements(self, cur_action, state):
+    def satisfy_requirements(self, state):
         for requirement in state.require:
             if not requirement.check(self.knowledge_base):
-                self.satisfy_requirement(cur_action, requirement)
+                self.satisfy_requirement(requirement)
 
-    def _move_hero_to(self, cur_action, destination):
+
+    def _move_hero_to(self, destination):
         from game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
 
-        if cur_action.hero.position.place or cur_action.hero.position.road:
-            ActionMoveToPrototype.create(hero=cur_action.hero, destination=destination)
+        if self.hero.position.place or self.hero.position.road:
+            ActionMoveToPrototype.create(hero=self.hero, destination=destination)
         else:
-            ActionMoveNearPlacePrototype.create(hero=cur_action.hero, place=cur_action.hero.get_dominant_place(), back=True)
+            ActionMoveNearPlacePrototype.create(hero=self.hero, place=self.hero.position.get_dominant_place(), back=True)
+
+
+    def _move_hero_near(self, destination):
+        from game.actions.prototypes import ActionMoveNearPlacePrototype
+        ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=False)
+
 
     def _give_power(self, hero, person_id, power):
         from game.persons.storage import persons_storage
 
-        # self.push_message(writer, cur_action.hero, cmd.event)
+        # self.push_message(writer, self.hero, cmd.event)
         base_power = self.quests_stack[-1].power
 
         person = persons_storage[person_id]
@@ -299,9 +346,8 @@ class QuestPrototype(object):
 
         person.cmd_change_power(power)
 
-    def _finish_quest(self, hero):
-        # self.push_message(writer, cur_action.hero, cmd.event)
 
+    def _finish_quest(self, hero):
         experience = self.quests_stack[-1].experience
         experience = self.modify_experience(experience)
         hero.add_experience(experience)
@@ -310,19 +356,31 @@ class QuestPrototype(object):
 
         self.quests_stack.pop()
 
-    def _give_reward(self, hero): # TODO: test
+
+    def _give_reward(self, hero):
+
+        quest_info = self.quests_stack[-1]
+        finish_state = self.machine.current_state
+
         if hero.can_get_artifact_for_quest():
             artifact, unequipped, sell_price = hero.buy_artifact(better=False, with_prefered_slot=False, equip=False)# pylint: disable=W0612
 
             if artifact is not None:
-                # self.push_message(writer, cur_action.hero, '%s_artifact' % cmd.event, hero=cur_action.hero, artifact=artifact)
+                quest_info.process_message(knowledge_base=self.knowledge_base,
+                                           hero=self.hero,
+                                           message='%s_artifact' % finish_state.type,
+                                           ext_substitution={'artifact': artifact})
                 return
 
         multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
         money = 1 + int(f.sell_artifact_price(hero.level) * multiplier)
         money = hero.abilities.update_quest_reward(hero, money)
         hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
-        # self.push_message(writer, cur_action.hero, '%s_money' % cmd.event, hero=cur_action.hero, coins=money)
+
+        quest_info.process_message(knowledge_base=self.knowledge_base,
+                                   hero=self.hero,
+                                   message='%s_money' % finish_state.type,
+                                   ext_substitution={'coins': money})
 
 
     def _start_quest(self, hero):
@@ -333,57 +391,69 @@ class QuestPrototype(object):
                                                      knowledge_base=self.machine.knowledge_base,
                                                      hero=hero))
 
-    def satisfy_requirement(self, cur_action, requirement):
+    def satisfy_requirement(self, requirement):
         if isinstance(requirement, facts.LocatedIn):
             destination = places_storage[self.knowledge_base[requirement.place].externals['id']]
-            self._move_hero_to(cur_action, destination)
+            self._move_hero_to(destination)
+        elif isinstance(requirement, facts.LocatedNear):
+            destination = places_storage[self.knowledge_base[requirement.place].externals['id']]
+            self._move_hero_near(destination)
         else:
             raise exceptions.UnknownRequirement(requirement=requirement)
 
-    def do_state_actions(self, cur_action):
-        current_state = self.machine.current_state
+    def on_state(self, state):
 
-        if isinstance(current_state, facts.Start):
-            self._start_quest(hero=cur_action.hero)
+        if isinstance(state, facts.Start):
+            self._start_quest(hero=self.hero)
 
-        for action in current_state.actions:
+        self._do_actions(state.actions)
+
+        if isinstance(state, facts.Finish):
+            self._finish_quest(hero=self.hero)
+
+    def on_jump_start(self, jump):
+        self._do_actions(jump.start_actions)
+
+    def on_jump_end(self, jump):
+        self._do_actions(jump.end_actions)
+
+    def _do_actions(self, actions):
+        for action in actions:
             if isinstance(action, facts.Message):
-                self.quests_stack[-1].process_message(self.knowledge_base, cur_action.hero, action.id)
+                self.quests_stack[-1].process_message(self.knowledge_base, self.hero, action.id)
             elif isinstance(action, facts.GivePower):
-                self._give_power(cur_action.hero, self.knowledge_base[action.person].externals['id'], action.power)
+                self._give_power(self.hero, self.knowledge_base[action.person].externals['id'], action.power)
 
-        if isinstance(current_state, facts.Finish):
-            self._finish_quest(hero=cur_action.hero)
 
-    def cmd_upgrade_equipment(self, cmd, cur_action, writer):
+    def cmd_upgrade_equipment(self, cmd, writer):
 
         choices = ['buy']
 
         if cmd.equipment_slot in EQUIPMENT_SLOT._index_value: # this check is for old equipment ids, we should skip them
-            if cur_action.hero.equipment.get(EQUIPMENT_SLOT(cmd.equipment_slot)) is not None:
+            if self.hero.equipment.get(EQUIPMENT_SLOT(cmd.equipment_slot)) is not None:
                 choices.append('sharp')
 
         # limit money spend
-        money_spend = min(cur_action.hero.money,
-                          f.normal_action_price(cur_action.hero.level) * ITEMS_OF_EXPENDITURE.get_quest_upgrade_equipment_fraction())
+        money_spend = min(self.hero.money,
+                          f.normal_action_price(self.hero.level) * ITEMS_OF_EXPENDITURE.get_quest_upgrade_equipment_fraction())
 
         if random.choice(choices) == 'buy':
-            cur_action.hero.change_money(MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -money_spend)
-            artifact, unequipped, sell_price = cur_action.hero.buy_artifact(better=True, with_prefered_slot=True, equip=True)
+            self.hero.change_money(MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -money_spend)
+            artifact, unequipped, sell_price = self.hero.buy_artifact(better=True, with_prefered_slot=True, equip=True)
 
             if artifact is None:
-                self.push_message(writer, cur_action.hero, '%s_fail' % cmd.event,
+                self.push_message(writer, self.hero, '%s_fail' % cmd.event,
                                   coins=money_spend)
             elif unequipped:
-                self.push_message(writer, cur_action.hero, '%s_buy_and_change' % cmd.event,
+                self.push_message(writer, self.hero, '%s_buy_and_change' % cmd.event,
                                   coins=money_spend, artifact=artifact, unequipped=unequipped, sell_price=sell_price)
             else:
-                self.push_message(writer, cur_action.hero, '%s_buy' % cmd.event,
+                self.push_message(writer, self.hero, '%s_buy' % cmd.event,
                                   coins=money_spend, artifact=artifact)
         else:
-            cur_action.hero.change_money(MONEY_SOURCE.SPEND_FOR_SHARPENING, -money_spend)
-            artifact = cur_action.hero.sharp_artifact()
-            self.push_message(writer, cur_action.hero, '%s_sharp' % cmd.event,
+            self.hero.change_money(MONEY_SOURCE.SPEND_FOR_SHARPENING, -money_spend)
+            artifact = self.hero.sharp_artifact()
+            self.push_message(writer, self.hero, '%s_sharp' % cmd.event,
                               coins=money_spend, artifact=artifact)
 
     def modify_experience(self, experience):
@@ -400,33 +470,50 @@ class QuestPrototype(object):
         experience += experience * sum(experience_modifiers.values())
         return experience
 
-    def cmd_switch(self, cmd, cur_action, writer):
-        self.push_message(writer, cur_action.hero, cmd.event)
+    def cmd_switch(self, cmd, writer):
+        self.push_message(writer, self.hero, cmd.event)
 
     @classmethod
     def modify_person_power(cls, person, quest_power, hero_modifier, base_power):
         return quest_power * hero_modifier * base_power * person.place.freedom
 
-    def cmd_battle(self, cmd, cur_action, writer):
+    def cmd_battle(self, cmd, writer):
         from game.actions.prototypes import ActionBattlePvE1x1Prototype
 
-        self.push_message(writer, cur_action.hero, cmd.event)
+        self.push_message(writer, self.hero, cmd.event)
 
         mob = None
         if cmd.mob_id:
-            mob = mobs_storage.get_by_uuid(cmd.mob_id).create_mob(cur_action.hero)
+            mob = mobs_storage.get_by_uuid(cmd.mob_id).create_mob(self.hero)
         if mob is None:
-            mob = mobs_storage.get_random_mob(cur_action.hero)
+            mob = mobs_storage.get_random_mob(self.hero)
 
-        ActionBattlePvE1x1Prototype.create(hero=cur_action.hero, mob=mob)
+        ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 
-    def cmd_donothing(self, cmd, cur_action, writer):
+    def cmd_donothing(self, cmd, writer):
         from ..actions.prototypes import ActionDoNothingPrototype
-        self.push_message(writer, cur_action.hero, cmd.event)
-        ActionDoNothingPrototype.create(hero=cur_action.hero,
+        self.push_message(writer, self.hero, cmd.event)
+        ActionDoNothingPrototype.create(hero=self.hero,
                                         duration=cmd.duration,
                                         messages_prefix=writer.get_msg_journal_id(cmd.event),
                                         messages_probability=cmd.messages_probability)
 
-    def ui_info(self, hero):
+    def ui_info(self):
         return {'line': [info.ui_info() for info in self.quests_stack]}
+
+    @classmethod
+    def no_quests_ui_info(self):
+        return {'line': [NO_QUEST_INFO.ui_info()]}
+
+    @classmethod
+    def next_spending_ui_info(self, spending):
+        NEXT_SPENDING_INFO = QuestInfo(type='next-spending',
+                                       uid='next-spending',
+                                       name=u'Накопить золото',
+                                       action=u'копит',
+                                       choice=None,
+                                       choice_alternatives=(),
+                                       experience=None,
+                                       power=None,
+                                       actors={'goal': (spending, u'цель')})
+        return {'line': [NEXT_SPENDING_INFO.ui_info()]}

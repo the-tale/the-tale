@@ -17,11 +17,16 @@ class QuestsContainer(object):
     @classmethod
     def deserialize(cls, hero, data):
         obj = cls()
-        obj.quests_list = [QuestPrototype.deserialize(data=quest_data) for quest_data in data.get('quests', [])]
+        obj.quests_list = [QuestPrototype.deserialize(hero=hero, data=quest_data) for quest_data in data.get('quests', [])]
         return obj
 
     def ui_info(self, hero):
-        return {'quests': [quest.ui_info(hero) for quest in self.quests_list]}
+        spending_ui_info = QuestPrototype.next_spending_ui_info(hero.next_spending)
+
+        if self.has_quests:
+            return {'quests': [spending_ui_info] + [quest.ui_info() for quest in self.quests_list]}
+
+        return  {'quests': [spending_ui_info, QuestPrototype.no_quests_ui_info()]}
 
     def push_quest(self, quest):
         self.updated = True

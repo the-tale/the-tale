@@ -470,7 +470,7 @@ class ActionQuestPrototype(ActionBase):
 
     def process(self):
         if self.state == self.STATE.PROCESSING:
-            percents = self.hero.quests.current_quest.process(self)
+            percents = self.hero.quests.current_quest.process()
 
             self.percents = percents
 
@@ -1337,7 +1337,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
             self.percents += self.step_percents()
 
             if self.percents >= 1:
-                energy_delta = self.storage.heroes[self.hero.id].change_energy(f.angel_energy_regeneration_amount(self.regeneration_type))
+                energy_delta = self.hero.change_energy(f.angel_energy_regeneration_amount(self.regeneration_type))
                 self.hero.last_energy_regeneration_at_turn = TimePrototype.get_current_turn_number()
 
                 if energy_delta:

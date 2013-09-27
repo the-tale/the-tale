@@ -142,10 +142,16 @@ class RawQuestsTest(QuestsTestBase):
             self.assertTrue(writer.actor_id('receiver') in self.vocabruary)
             # self.assertTrue(writer.actor_id('receiver_position') in self.vocabruary)
 
+        # print current_state.uid
         for action in current_state.actions:
-            if not isinstance(current_state, facts.Message):
+            if not isinstance(action, facts.Message):
                 continue
             writer = Writer(type=starts[-1], message=action.id, substitution={})
+
+            # print '--------'
+            # print writer.journal_id()
+            # print writer.diary_id()
+            # print writer.action_id()
 
             self.assertTrue(writer.journal_id() in self.vocabruary or
                             writer.diary_id() in self.vocabruary or
