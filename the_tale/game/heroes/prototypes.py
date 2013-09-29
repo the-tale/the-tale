@@ -38,7 +38,6 @@ from game.heroes.models import Hero, HeroPreferences
 from game.heroes.habilities import AbilitiesPrototype, ABILITY_TYPE
 from game.heroes.conf import heroes_settings
 from game.heroes.exceptions import HeroException
-from game.heroes.logic import ValuesDict
 from game.heroes.pvp import PvPData
 from game.heroes.messages import MessagesContainer
 from game.heroes.places_help_statistics import PlacesHelpStatistics
@@ -216,32 +215,30 @@ class HeroPrototype(BasePrototype):
     @lazy_property
     def places_history(self): return PlacesHelpStatistics.deserialize(s11n.from_json(self._model.places_history))
 
-    @lazy_property
-    def quests_history(self): return ValuesDict.deserialize(s11n.from_json(self._model.quests_history))
-
     def get_special_quests(self):
-        from game.quests.quests_builders import Hunt
-        from game.quests.quests_builders import Hometown
-        from game.quests.quests_builders import HelpFriend
-        from game.quests.quests_builders import InterfereEnemy
-        from game.quests.quests_builders import SearchSmith
+        from questgen.quests.hunt import Hunt
+
+        # from game.quests.quests_builders import Hometown
+        # from game.quests.quests_builders import HelpFriend
+        # from game.quests.quests_builders import InterfereEnemy
+        # from game.quests.quests_builders import SearchSmith
 
         allowed_quests = []
 
         if self.preferences.mob is not None:
-            allowed_quests.append(Hunt.type())
-        if self.preferences.place is not None:
-            allowed_quests.append(Hometown.type())
-        if self.preferences.friend is not None:
-            allowed_quests.append(HelpFriend.type())
-        if self.preferences.enemy is not None:
-            allowed_quests.append(InterfereEnemy.type())
-        if self.preferences.equipment_slot is not None:
-            equipped_artifact = self.equipment.get(self.preferences.equipment_slot)
-            equipped_power = equipped_artifact.power if equipped_artifact else -1
-            min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
-            if equipped_power <= max_power:
-                allowed_quests.append(SearchSmith.type())
+            allowed_quests.append(Hunt.TYPE)
+        # if self.preferences.place is not None:
+        #     allowed_quests.append(Hometown.type())
+        # if self.preferences.friend is not None:
+        #     allowed_quests.append(HelpFriend.type())
+        # if self.preferences.enemy is not None:
+        #     allowed_quests.append(InterfereEnemy.type())
+        # if self.preferences.equipment_slot is not None:
+        #     equipped_artifact = self.equipment.get(self.preferences.equipment_slot)
+        #     equipped_power = equipped_artifact.power if equipped_artifact else -1
+        #     min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
+        #     if equipped_power <= max_power:
+        #         allowed_quests.append(SearchSmith.type())
 
         return allowed_quests
 
@@ -512,13 +509,19 @@ class HeroPrototype(BasePrototype):
         if self.preferences.enemy is not None and self.preferences.enemy.out_game:
             self.preferences.reset_enemy()
 
-    def modify_person_power(self, person, power):
-        if person.id in (self.preferences.friend.id if self.preferences.friend else None,
-                         self.preferences.enemy.id if self.preferences.enemy else None):
+    def modify_power(self, power, person=None, place=None):
+
+        if person is not None and place is None:
+            place = person.place
+
+        if person and person.id in (self.preferences.friend.id if self.preferences.friend else None,
+                                    self.preferences.enemy.id if self.preferences.enemy else None):
             power *= c.HERO_POWER_PREFERENCE_MULTIPLIER
-        if self.preferences.place and person.place_id == self.preferences.place.id:
+
+        if self.preferences.place and place.id == self.preferences.place.id:
             power *= c.HERO_POWER_PREFERENCE_MULTIPLIER
-        return int(power)
+
+        return int(power * self.person_power_modifier)
 
     ###########################################
     # Secondary attributes
@@ -678,10 +681,6 @@ class HeroPrototype(BasePrototype):
         if self.places_history.updated:
             self._model.places_history = s11n.to_json(self.places_history.serialize())
             self.places_history.updated = False
-
-        if self.quests_history.updated:
-            self._model.quests_history = s11n.to_json(self.quests_history.serialize())
-            self.quests_history.updated = False
 
         if self.messages.updated:
             self._model.messages = s11n.to_json(self.messages.serialize())

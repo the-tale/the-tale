@@ -95,14 +95,14 @@ class PrototypeTests(testcase.TestCase):
 
     def test_power_from_building(self):
 
-        with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power') as change_person_power_call:
+        with mock.patch('game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
             self.person.cmd_change_power(100)
 
-        self.assertEqual(change_person_power_call.call_args, mock.call(self.person.id, 100))
+        self.assertEqual(change_person_power_call.call_args, mock.call(person_id=self.person.id, power_delta=100, place_id=None))
 
         BuildingPrototype.create(self.person, name_forms=Noun.fast_construct('building-name'))
 
-        with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power') as change_person_power_call:
+        with mock.patch('game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
             self.person.cmd_change_power(100)
 
-        self.assertTrue(change_person_power_call.call_args[0][1] > 100)
+        self.assertEqual(change_person_power_call.call_args[1]['power_delta'], 100)

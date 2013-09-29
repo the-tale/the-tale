@@ -41,7 +41,7 @@ class RestActionTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_processed(self):
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.storage._test_save()
@@ -74,7 +74,7 @@ class RestActionTest(testcase.TestCase):
         current_time = TimePrototype.get_current_time()
 
         while len(self.hero.actions.actions_list) != 1:
-            self.storage.process_turn()
+            self.storage.process_turn(second_step_if_needed=False)
             current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)

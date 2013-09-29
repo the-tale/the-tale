@@ -1,23 +1,27 @@
 # coding: utf-8
 import datetime
+
 from game.quests.prototypes import QuestPrototype
 
 
 class QuestsContainer(object):
 
-    __slots__ = ('updated', 'quests_list')
+    __slots__ = ('updated', 'quests_list', 'history')
 
     def __init__(self):
         self.updated = False
         self.quests_list = []
+        self.history = {}
 
     def serialize(self):
-        return {'quests': [quest.serialize() for quest in self.quests_list]}
+        return {'quests': [quest.serialize() for quest in self.quests_list],
+                'history': self.history}
 
     @classmethod
     def deserialize(cls, hero, data):
         obj = cls()
         obj.quests_list = [QuestPrototype.deserialize(hero=hero, data=quest_data) for quest_data in data.get('quests', [])]
+        obj.history = data.get('history', {})
         return obj
 
     def ui_info(self, hero):
@@ -50,3 +54,7 @@ class QuestsContainer(object):
 
     @property
     def number(self): return len(self.quests_list)
+
+    def update_history(self, quest_type, turn_number):
+        self.history[quest_type] = turn_number
+        self.updated = True

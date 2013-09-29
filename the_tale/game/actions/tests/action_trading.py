@@ -38,7 +38,7 @@ class TradingActionTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_processed(self):
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.storage._test_save()
@@ -53,7 +53,7 @@ class TradingActionTest(testcase.TestCase):
 
         self.action_trade.percents_barier = 1
 
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
@@ -84,7 +84,7 @@ class TradingActionTest(testcase.TestCase):
 
         current_time.increment_turn()
 
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 

@@ -874,7 +874,6 @@ pgf.game.widgets.Abilities = function() {
     var hasEnergyCharges = false;
     var canRestoreEnergy = false;
 
-    var deck = {};
     var turn = {};
 
     var allowAbilityUnlock = {};
@@ -1002,8 +1001,8 @@ pgf.game.widgets.Abilities = function() {
     }
 
     function RenderDeck() {
-        for (var i in deck) {
-            RenderAbility(deck[i]);
+        for (var i in abilities) {
+            RenderAbility(abilities[i]);
         }
         UpdateButtons();
     };
@@ -1011,7 +1010,6 @@ pgf.game.widgets.Abilities = function() {
     function Refresh(game_data) {
         turn = game_data.turn;
 
-        deck = game_data.abilities;
         angelEnergy = game_data.hero.energy.value;
         pvpWaiting = game_data.pvp.waiting;
         canParticipateInPvp = game_data.hero.can_participate_in_pvp;

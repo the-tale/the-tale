@@ -308,6 +308,10 @@ class PlacePrototype(BasePrototype):
 
         places_storage.update_version()
 
+    def cmd_change_power(self, power):
+        from game.workers.environment import workers_environment
+        workers_environment.highlevel.cmd_change_power(power_delta=power, person_id=None, place_id=self.id)
+
 
     def map_info(self):
         return {'id': self.id,

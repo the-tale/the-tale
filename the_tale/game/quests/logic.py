@@ -13,7 +13,9 @@ from questgen import analysers
 from questgen.knowledge_base import KnowledgeBase
 from questgen.selectors import Selector
 from questgen.quests.quests_base import QuestsBase
+
 from questgen.quests.spying import Spying
+from questgen.quests.hunt import Hunt
 
 
 
@@ -44,7 +46,9 @@ QUEST_RESTRICTIONS =  [restrictions.SingleStartState(),
                        restrictions.ChoicesConsistency()]
 
 QUESTS_BASE = QuestsBase()
-QUESTS_BASE += [Spying]
+QUESTS_BASE += [Spying, Hunt]
+
+NORMAL_QUESTS = [Spying.TYPE]
 
 
 def fill_places_for_first_quest(kb, hero):
@@ -119,25 +123,26 @@ def get_knowledge_base(hero): # pylint: disable=R0912
     pref_mob = hero.preferences.mob
     if pref_mob:
         mob_uid = uids.mob(pref_mob)
-        kb += facts.Mob(uid=mob_uid, terrains=list(pref_mob.terrains))
-        kb += facts.PreferenceMob(object=hero_uid, mob=mob_uid)
+        kb += ( facts.Mob(uid=mob_uid, terrains=list(pref_mob.terrains), externals={'id': pref_mob.id}),
+                facts.PreferenceMob(object=hero_uid, mob=mob_uid) )
 
     pref_place = hero.preferences.place
     place_uid = uids.place(pref_place) if pref_place is not None else None
     if place_uid in kb:
-        kb += facts.PreferenceHometown(object=hero_uid, place=place_uid)
+        kb += ( facts.PreferenceHometown(object=hero_uid, place=place_uid),
+                facts.OnlyGoodBranches(object=place_uid))
 
     pref_friend = hero.preferences.friend
     friend_uid = uids.person(pref_friend) if pref_friend is not None else None
     if friend_uid in kb:
         kb += ( facts.PreferenceFriend(object=hero_uid, person=friend_uid),
-                facts.OnlyGoodBranches(person=friend_uid) )
+                facts.OnlyGoodBranches(object=friend_uid) )
 
     pref_enemy = hero.preferences.enemy
     enemy_uid = uids.person(pref_enemy) if pref_enemy is not None else None
     if enemy_uid in kb:
         kb += ( facts.PreferenceEnemy(object=hero_uid, person=enemy_uid),
-                facts.OnlyBadBranches(person=friend_uid) )
+                facts.OnlyBadBranches(object=friend_uid) )
 
     pref_equipment_slot = hero.preferences.equipment_slot
     if pref_equipment_slot:
@@ -175,35 +180,32 @@ def _create_random_quest_for_hero(hero, special):
     current_time = TimePrototype.get_current_turn_number()
 
     excluded_quests = []
-    for quest_type, turn_number in hero.quests_history.items():
+    for quest_type, turn_number in hero.quests.history.items():
         if turn_number + c.QUESTS_LOCK_TIME.get(quest_type, 0) >= current_time:
             excluded_quests.append(quest_type)
 
-    # if special:
-    #     quests_facts = qb.create_start_quest(knowledge_base,
-    #                                          selector,
-    #                                          start_place=start_place,
-    #                                          allowed=hero.get_special_quests(),
-    #                                          excluded=excluded_quests,
-    #                                          tags=('can_start', 'special'))
-    # else:
-    #     quests_facts = qb.create_start_quest(knowledge_base,
-    #                                          selector,
-    #                                          start_place=start_place,
-    #                                          excluded=excluded_quests,
-    #                                          tags=('can_start', 'normal'))
+    if special:
+        quests_facts = QUESTS_BASE.create_start_quest(knowledge_base,
+                                                      selector,
+                                                      start_place=start_place,
+                                                      allowed=hero.get_special_quests(),
+                                                      excluded=excluded_quests,
+                                                      tags=('can_start',))
+    else:
+        quests_facts = QUESTS_BASE.create_start_quest(knowledge_base,
+                                                      selector,
+                                                      start_place=start_place,
+                                                      allowed=NORMAL_QUESTS,
+                                                      excluded=excluded_quests,
+                                                      tags=('can_start',))
 
-    quests_facts = QUESTS_BASE.create_start_quest(knowledge_base,
-                                                  selector,
-                                                  start_place=start_place,
-                                                  excluded=excluded_quests,
-                                                  tags=('can_start', 'normal'))
     knowledge_base += quests_facts
 
     transformators.activate_events(knowledge_base)
     transformators.remove_restricted_states(knowledge_base)
     transformators.remove_broken_states(knowledge_base) # MUST be called after all graph changes
     transformators.determine_default_choices(knowledge_base) # MUST be called after all graph changes and on valid graph
+    transformators.remove_unused_actors(knowledge_base)
 
     knowledge_base.validate_consistency(WORLD_RESTRICTIONS)
     knowledge_base.validate_consistency(QUEST_RESTRICTIONS)

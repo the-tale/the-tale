@@ -158,7 +158,7 @@ class HelpAbilityTest(testcase.TestCase):
         with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
             current_time.increment_turn()
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
-            self.storage.process_turn()
+            self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.assertEqual(self.hero.is_alive, True)

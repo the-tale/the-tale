@@ -47,7 +47,7 @@ class MoveToActionTest(testcase.TestCase):
 
     def test_processed(self):
         self.hero.position.set_place(self.p3)
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.storage._test_save()
@@ -55,7 +55,7 @@ class MoveToActionTest(testcase.TestCase):
 
     @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_not_ready(self):
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 2)
         self.assertEqual(self.hero.actions.current_action, self.action_move)
         self.assertTrue(self.hero.position.road)
@@ -67,7 +67,7 @@ class MoveToActionTest(testcase.TestCase):
         current_time = TimePrototype.get_current_time()
 
         while self.hero.position.place is None or self.hero.position.place.id != self.p3.id:
-            self.storage.process_turn()
+            self.storage.process_turn(second_step_if_needed=False)
             current_time.increment_turn()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionInPlacePrototype.TYPE)
@@ -78,7 +78,7 @@ class MoveToActionTest(testcase.TestCase):
         current_time = TimePrototype.get_current_time()
 
         while not self.action_idl.leader:
-            self.storage.process_turn()
+            self.storage.process_turn(second_step_if_needed=False)
             current_time.increment_turn()
 
         self.storage._test_save()
@@ -88,7 +88,7 @@ class MoveToActionTest(testcase.TestCase):
 
         with mock.patch('game.heroes.prototypes.HeroPositionPrototype.modify_move_speed',
                         mock.Mock(return_value=self.hero.move_speed)) as speed_modifier_call_counter:
-            self.storage.process_turn()
+            self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(speed_modifier_call_counter.call_count, 1)
 
@@ -97,7 +97,7 @@ class MoveToActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
 
         old_road_percents = self.hero.position.percents
         self.action_move.short_teleport(1)
@@ -108,7 +108,7 @@ class MoveToActionTest(testcase.TestCase):
         self.assertTrue(self.action_move.updated)
 
         current_time.increment_turn()
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.hero.position.place.id, self.p2.id)
 
@@ -117,7 +117,7 @@ class MoveToActionTest(testcase.TestCase):
 
     @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: True)
     def test_battle(self):
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionBattlePvE1x1Prototype.TYPE)
         self.storage._test_save()
 
@@ -125,7 +125,7 @@ class MoveToActionTest(testcase.TestCase):
     def test_rest(self):
         self.hero.health = 1
         self.action_move.state = self.action_move.STATE.BATTLE
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionRestPrototype.TYPE)
 
@@ -137,10 +137,10 @@ class MoveToActionTest(testcase.TestCase):
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
 
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionRegenerateEnergyPrototype.TYPE)
 
@@ -152,10 +152,10 @@ class MoveToActionTest(testcase.TestCase):
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
 
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
 
 
         self.assertNotEqual(self.hero.actions.current_action.TYPE, ActionRegenerateEnergyPrototype.TYPE)
@@ -168,7 +168,7 @@ class MoveToActionTest(testcase.TestCase):
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.action_move.state = self.action_move.STATE.BATTLE
 
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionRegenerateEnergyPrototype.TYPE)
 
@@ -177,7 +177,7 @@ class MoveToActionTest(testcase.TestCase):
     def test_resurrect(self):
         self.hero.kill()
         self.action_move.state = self.action_move.STATE.BATTLE
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionResurrectPrototype.TYPE)
         self.storage._test_save()
@@ -188,11 +188,11 @@ class MoveToActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.hero.position.percents = 1
 
         current_time.increment_turn()
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionInPlacePrototype.TYPE)
         self.storage._test_save()
@@ -201,16 +201,16 @@ class MoveToActionTest(testcase.TestCase):
     @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_stop_when_quest_required_replane(self):
         while self.action_move.state != ActionMoveToPrototype.STATE.MOVING:
-            self.storage.process_turn()
+            self.storage.process_turn(second_step_if_needed=False)
 
         with mock.patch('game.quests.container.QuestsContainer.has_quests', True):
             with mock.patch('game.quests.container.QuestsContainer.current_quest', mock.Mock(replane_required=False)):
-                self.storage.process_turn()
+                self.storage.process_turn(second_step_if_needed=False)
 
             self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.MOVING)
 
             with mock.patch('game.quests.container.QuestsContainer.current_quest', mock.Mock(replane_required=True)):
-                self.storage.process_turn()
+                self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.PROCESSED)
 
@@ -238,7 +238,7 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
         current_time = TimePrototype.get_current_time()
 
         while self.hero.actions.current_action != self.action_idl:
-            self.storage.process_turn()
+            self.storage.process_turn(second_step_if_needed=False)
             current_time.increment_turn()
 
         self.assertEqual(self.hero.position.road.point_1_id, self.p2.id)
@@ -246,7 +246,7 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
 
         ActionMoveToPrototype.create(hero=self.hero, destination=self.p1, break_at=0.9)
         while self.hero.actions.current_action != self.action_idl:
-            self.storage.process_turn()
+            self.storage.process_turn(second_step_if_needed=False)
             current_time.increment_turn()
 
         self.assertEqual(self.hero.position.road.point_1_id, self.p1.id)
@@ -254,7 +254,7 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
 
         ActionMoveToPrototype.create(hero=self.hero, destination=self.p2)
         while self.hero.position.place is None or self.hero.position.place.id != self.p2.id:
-            self.storage.process_turn()
+            self.storage.process_turn(second_step_if_needed=False)
             current_time.increment_turn()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionInPlacePrototype.TYPE)

@@ -47,7 +47,7 @@ class RegenerateEnergyActionTest(testcase.TestCase):
         current_time = TimePrototype.get_current_time()
 
         while len(self.hero.actions.actions_list) != 1:
-            self.storage.process_turn()
+            self.storage.process_turn(second_step_if_needed=False)
             current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)

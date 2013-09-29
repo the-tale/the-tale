@@ -10,8 +10,6 @@ from common.utils.resources import Resource
 
 from accounts.clans.prototypes import ClanPrototype
 
-from game.abilities.deck import ABILITIES
-
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.relations import EQUIPMENT_SLOT
 
@@ -64,7 +62,6 @@ class GameResource(Resource):
 
             if is_own_hero:
                 data['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
-                data['abilities'] = [ability().ui_info() for ability in ABILITIES.values()]
 
                 data['pvp'] = {'waiting': False}
 

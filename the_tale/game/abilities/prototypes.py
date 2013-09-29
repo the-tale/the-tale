@@ -14,7 +14,7 @@ class AbilityPrototype(object):
     def get_type(cls): return cls.__name__.lower()
 
     def ui_info(self):
-        return {'type': self.__class__.__name__.lower()}
+        return {'type': self.get_type()}
 
     def activate(self, hero, data):
         from game.workers.environment import workers_environment

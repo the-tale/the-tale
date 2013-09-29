@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from django.conf import settings as project_settings
 from django.utils.log import getLogger
 
 from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
@@ -71,3 +70,7 @@ class Writer(object):
             args = self.substitution
 
         return template.substitute(get_dictionary(), args)
+
+
+def get_writer(**kwargs):
+    return Writer(**kwargs)

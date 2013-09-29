@@ -20,7 +20,7 @@ from game.text_generation import get_vocabulary
 
 from game.prototypes import TimePrototype
 from game.quests.logic import QUESTS_BASE
-from game.quests.writer import Writer
+from game.quests.writers import Writer
 
 from game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
 # from game.quests.quests_builders.delivery import Delivery
@@ -64,6 +64,8 @@ class QuestsTest(QuestsTestBase):
         while not self.action_idl.leader:
             self.storage.process_turn()
             current_time.increment_turn()
+
+            self.hero.ui_info() # test if ui info formed correctly
 
 
 def create_test_method(quest, quests):
@@ -137,10 +139,12 @@ class RawQuestsTest(QuestsTestBase):
 
             writer = Writer(type=starts[-1], message=None, substitution={})
             self.assertTrue(writer.name_id() in self.vocabruary)
-            self.assertTrue(writer.actor_id('initiator') in self.vocabruary)
-            # self.assertTrue(writer.actor_id('initiator_position') in self.vocabruary)
-            self.assertTrue(writer.actor_id('receiver') in self.vocabruary)
-            # self.assertTrue(writer.actor_id('receiver_position') in self.vocabruary)
+
+            for participant in knowledge_base.filter(facts.QuestParticipant):
+                if participant.start != starts[-1]:
+                    continue
+
+                self.assertTrue(writer.actor_id(participant.role) in self.vocabruary)
 
         # print current_state.uid
         for action in current_state.actions:
@@ -194,8 +198,9 @@ def create_test_messages_method(quest, quests):
         quests_facts = QUESTS_BASE.create_start_quest(knowledge_base,
                                                       selector,
                                                       start_place=start_place,
+                                                      allowed=[quest.TYPE],
                                                       excluded=[],
-                                                      tags=('can_start', 'normal'))
+                                                      tags=('can_start',))
 
         knowledge_base += quests_facts
 

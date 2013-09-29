@@ -169,9 +169,15 @@ class HeroTest(TestCase):
         self.hero.preferences.set_friend(friend)
         self.hero.preferences.set_enemy(enemy)
 
-        self.assertEqual(self.hero.modify_person_power(self.place_3.persons[0], 100), 100)
-        self.assertTrue(self.hero.modify_person_power(enemy, 100) > 100)
-        self.assertTrue(self.hero.modify_person_power(friend, 100) > self.hero.modify_person_power(enemy, 100))
+        self.assertEqual(self.hero.modify_power(person=self.place_3.persons[0], power=100), 100 * self.hero.person_power_modifier)
+        self.assertTrue(self.hero.modify_power(person=enemy, power=100) > 100 * self.hero.person_power_modifier)
+        self.assertTrue(self.hero.modify_power(person=friend, power=100) > self.hero.modify_power(person=enemy, power=100)) # friend live in hometowm
+
+    def test_modify_place_power(self):
+        self.hero.preferences.set_place(self.place_1)
+
+        self.assertEqual(self.hero.modify_power(place=self.place_2, power=100), 100 * self.hero.person_power_modifier)
+        self.assertTrue(self.hero.modify_power(place=self.place_1, power=100) > 100 * self.hero.person_power_modifier)
 
     def test_is_ui_caching_required(self):
         self.assertTrue(self.hero.is_ui_caching_required) # new hero must be cached, since player, who created him, is in game

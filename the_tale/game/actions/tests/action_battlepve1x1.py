@@ -42,7 +42,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     def test_mob_killed(self):
         self.assertEqual(self.hero.statistics.pve_kills, 0)
         self.action_battle.mob.health = 0
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.assertEqual(self.hero.statistics.pve_kills, 1)
@@ -76,7 +76,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     def test_hero_killed(self):
         self.assertEqual(self.hero.statistics.pve_deaths, 0)
         self.hero.health = 0
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.assertTrue(not self.hero.is_alive)

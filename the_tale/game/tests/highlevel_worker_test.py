@@ -60,14 +60,22 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(self.worker.turn_number, 0)
         self.assertEqual(self.worker.persons_power, {})
 
-    def test_process_change_person_power(self):
+    def test_process_change_power(self):
         self.assertEqual(self.worker.persons_power, {})
-        self.worker.process_change_person_power(person_id=0, power_delta=1)
+        self.worker.process_change_power(person_id=0, power_delta=1, place_id=None)
         self.assertEqual(self.worker.persons_power, {0: 1})
-        self.worker.process_change_person_power(person_id=1, power_delta=10)
+        self.worker.process_change_power(person_id=1, power_delta=10, place_id=None)
         self.assertEqual(self.worker.persons_power, {0: 1, 1: 10})
-        self.worker.process_change_person_power(person_id=0, power_delta=-100)
+        self.worker.process_change_power(person_id=0, power_delta=-100, place_id=None)
         self.assertEqual(self.worker.persons_power, {0: -99, 1: 10})
+
+        self.assertEqual(self.worker.places_power, {})
+        self.worker.process_change_power(person_id=None, power_delta=1, place_id=2)
+        self.assertEqual(self.worker.places_power, {2: 1})
+        self.worker.process_change_power(person_id=None, power_delta=10, place_id=1)
+        self.assertEqual(self.worker.places_power, {2: 1, 1: 10})
+        self.worker.process_change_power(person_id=None, power_delta=-100, place_id=2)
+        self.assertEqual(self.worker.places_power, {2: -99, 1: 10})
 
     @mock.patch('game.workers.highlevel.Worker.sync_data', fake_sync_data)
     @mock.patch('game.workers.highlevel.Worker.apply_bills', fake_apply_bills)
@@ -134,16 +142,12 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(update_heroes_number.call_count, places_number)
         self.assertEqual(mark_as_updated.call_count, places_number)
 
+    @mock.patch('game.map.places.prototypes.PlacePrototype.freedom', 1)
+    @mock.patch('game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data(self):
-        from game.map.places.modifiers.prototypes import TradeCenter
-
         self.assertEqual(self.p1.power, 0)
         self.assertEqual(self.p2.power, 0)
         self.assertEqual(self.p3.power, 0)
-
-        self.assertEqual(self.p1.modifier, None)
-        self.p1.modifier = TradeCenter(self.p1)
-        self.assertEqual(self.p1.modifier, TradeCenter(self.p1))
 
         persons_version_0 = persons_storage._version
         places_version_0 = places_storage._version
@@ -153,11 +157,11 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(Person.objects.filter(place_id=self.p3.id).count(), 3)
         self.assertEqual(len(persons_storage.all()), 8)
 
-        self.worker.process_change_person_power(person_id=self.p1.persons[0].id, power_delta=1)
-        self.worker.process_change_person_power(person_id=self.p2.persons[0].id, power_delta=100)
-        self.worker.process_change_person_power(person_id=self.p2.persons[1].id, power_delta=1000)
-        self.worker.process_change_person_power(person_id=self.p3.persons[0].id, power_delta=10000)
-        self.worker.process_change_person_power(person_id=self.p3.persons[1].id, power_delta=100000)
+        self.worker.process_change_power(person_id=self.p1.persons[0].id, power_delta=1, place_id=None)
+        self.worker.process_change_power(person_id=self.p2.persons[0].id, power_delta=100, place_id=None)
+        self.worker.process_change_power(person_id=self.p2.persons[1].id, power_delta=1000, place_id=None)
+        self.worker.process_change_power(person_id=self.p3.persons[0].id, power_delta=10000, place_id=None)
+        self.worker.process_change_power(person_id=self.p3.persons[1].id, power_delta=100000, place_id=None)
 
         self.assertEqual(self.p1.power, 0)
         self.assertEqual(self.p2.power, 0)
@@ -175,11 +179,11 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(self.p2.power, 1100)
         self.assertEqual(self.p3.power, 110000)
 
-        self.worker.process_change_person_power(person_id=self.p1.persons[0].id, power_delta=-10)
-        self.worker.process_change_person_power(person_id=self.p2.persons[0].id, power_delta=-1)
-        self.worker.process_change_person_power(person_id=self.p2.persons[0].id, power_delta=+10000000)
-        self.worker.process_change_person_power(person_id=self.p3.persons[0].id, power_delta=-2)
-        self.worker.process_change_person_power(person_id=self.p3.persons[1].id, power_delta=+20)
+        self.worker.process_change_power(place_id=self.p1.id, power_delta=-10, person_id=None)
+        self.worker.process_change_power(place_id=self.p2.id, power_delta=-1, person_id=None)
+        self.worker.process_change_power(place_id=self.p2.id, power_delta=+10000000, person_id=None)
+        self.worker.process_change_power(place_id=self.p3.id, power_delta=-2, person_id=None)
+        self.worker.process_change_power(place_id=self.p3.id, power_delta=+20, person_id=None)
 
         self.worker.sync_data()
         self.assertEqual(self.worker.persons_power, {})
@@ -200,3 +204,56 @@ class HighlevelTest(testcase.TestCase):
 
         self.assertEqual(settings[persons_storage.SETTINGS_KEY], persons_version_2)
         self.assertEqual(settings[places_storage.SETTINGS_KEY], places_version_2)
+
+
+    @mock.patch('game.map.places.prototypes.PlacePrototype.freedom', 1)
+    @mock.patch('game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    def test_sync_data__power_from_building(self):
+        from textgen import words
+        from game.map.places.prototypes import BuildingPrototype
+
+        person_1 = self.p1.persons[0]
+
+        BuildingPrototype.create(person_1, name_forms=words.Noun.fast_construct(u'noun'))
+
+        self.assertEqual(self.p1.power, 0)
+        self.assertEqual(person_1.power, 0)
+
+        self.worker.process_change_power(person_id=person_1.id, power_delta=1000, place_id=None)
+
+        self.worker.sync_data()
+
+        place_power = self.p1.power
+        person_power = person_1.power
+
+        self.assertTrue(place_power > 1000)
+        self.assertTrue(person_power > 1000)
+
+        self.worker.process_change_power(place_id=self.p1.id, power_delta=-10, person_id=None)
+
+        self.worker.sync_data()
+
+        self.assertEqual(self.p1.power, place_power - 10)
+        self.assertEqual(person_1.power, person_power)
+
+    @mock.patch('game.map.places.prototypes.PlacePrototype.freedom', 1.25)
+    @mock.patch('game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    def test_sync_data__power_from_freedom(self):
+        person_1 = self.p1.persons[0]
+
+        self.assertEqual(self.p1.power, 0)
+        self.assertEqual(person_1.power, 0)
+
+        self.worker.process_change_power(person_id=person_1.id, power_delta=1000, place_id=None)
+
+        self.worker.sync_data()
+
+        self.assertEqual(self.p1.power, 1250)
+        self.assertEqual(person_1.power, 1250)
+
+        self.worker.process_change_power(place_id=self.p1.id, power_delta=-100, person_id=None)
+
+        self.worker.sync_data()
+
+        self.assertEqual(self.p1.power, 1125)
+        self.assertEqual(person_1.power, 1250)

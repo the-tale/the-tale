@@ -9,7 +9,7 @@ from game.actions.models import MetaAction
 
 from game.logic import create_test_map
 from game.prototypes import SupervisorTaskPrototype
-from game.exceptions import GameException
+from game import exceptions
 
 from game.heroes.prototypes import HeroPrototype
 
@@ -33,7 +33,7 @@ class SupervisorTaskTests(TestCase):
 
     def test_process_when_not_all_members_captured(self):
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
-        self.assertRaises(GameException, task.process)
+        self.assertRaises(exceptions.GameError, task.process)
 
     def test_process_arena_pvp_1x1(self):
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)

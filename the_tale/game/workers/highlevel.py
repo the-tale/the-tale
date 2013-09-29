@@ -21,8 +21,8 @@ from game.map.places.conf import places_settings
 from game.bills.conf import bills_settings
 from game.workers.environment import workers_environment as game_environment
 
+from game import exceptions
 
-class HighlevelException(Exception): pass
 
 class Worker(BaseWorker):
 
@@ -54,6 +54,7 @@ class Worker(BaseWorker):
         self.worker_id = worker_id
         self.turn_number = turn_number
         self.persons_power = {}
+        self.places_power = {}
 
         self.logger.info('HIGHLEVEL INITIALIZED')
 
@@ -72,7 +73,7 @@ class Worker(BaseWorker):
             self.turn_number += 1
 
             if turn_number != self.turn_number:
-                raise HighlevelException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
+                raise exceptions.WrongHighlevelTurnNumber(expected_turn_number=self.turn_number, new_turn_number=turn_number)
 
             if self.turn_number % c.MAP_SYNC_TIME == 0:
                 self.sync_data()
@@ -122,17 +123,34 @@ class Worker(BaseWorker):
         for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
 
             if person.id in self.persons_power:
-                person.push_power(self.turn_number, self.persons_power[person.id])
+
+                power_multiplier = 1
+                if person.has_building:
+                    power_multiplier *= c.BUILDING_PERSON_POWER_MULTIPLIER
+
+                power = self.persons_power[person.id] * power_multiplier * person.place.freedom
+
+                person.push_power(self.turn_number, power)
 
                 if person.place_id not in places_power_delta:
                     places_power_delta[person.place_id] = 0
 
-                places_power_delta[person.place_id] += self.persons_power[person.id]
+                places_power_delta[person.place_id] += power
 
             person.update_friends_number()
             person.update_enemies_number()
 
         self.persons_power = {}
+
+        for place_id, power in self.places_power.iteritems():
+            place = places_storage[place_id]
+
+            if place_id not in places_power_delta:
+                places_power_delta[place_id] = 0
+
+            places_power_delta[place_id] += power * place.freedom
+
+        self.places_power = {}
 
         max_place_power = 0
 
@@ -188,12 +206,18 @@ class Worker(BaseWorker):
         return applied
 
 
-    def cmd_change_person_power(self, person_id, power_delta):
-        self.send_cmd('change_person_power', {'person_id': person_id, 'power_delta': power_delta})
+    def cmd_change_power(self, person_id, place_id, power_delta):
+        self.send_cmd('change_power', {'person_id': person_id, 'place_id': place_id, 'power_delta': power_delta})
 
-    def process_change_person_power(self, person_id, power_delta):
-        person_power = self.persons_power.get(person_id, 0)
-        self.persons_power[person_id] = person_power + power_delta
+    def process_change_power(self, person_id, place_id, power_delta):
+        if person_id is not None and place_id is None:
+            person_power = self.persons_power.get(person_id, 0)
+            self.persons_power[person_id] = person_power + power_delta
+        elif place_id is not None and person_id is None:
+            place_power = self.places_power.get(place_id, 0)
+            self.places_power[place_id] = place_power + power_delta
+        else:
+            raise exceptions.ChangePowerError(place_id=place_id, person_id=person_id)
 
     def cmd_logic_task(self, account_id, task_id):
         return self.send_cmd('logic_task', {'task_id': task_id,

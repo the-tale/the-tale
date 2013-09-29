@@ -9,6 +9,7 @@ from common.utils import testcase
 from common.utils.fake import FakeWorkerCommand
 
 from accounts.logic import register_user
+from accounts.prototypes import AccountPrototype
 
 from game.logic_storage import LogicStorage
 from game.logic import create_test_map
@@ -17,11 +18,10 @@ from game.prototypes import TimePrototype
 
 from game.actions.prototypes import ActionQuestPrototype
 
-from game.heroes.prototypes import HeroPrototype
-
 from game.quests.logic import create_random_quest_for_hero
 from game.quests.prototypes import QuestPrototype
 from game.quests import uids
+from game.quests import exceptions
 
 
 class PrototypeTests(testcase.TestCase):
@@ -35,9 +35,9 @@ class PrototypeTests(testcase.TestCase):
 
         result, account_id, bundle_id = register_user('test_user')
 
-        self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
         self.action_idl = self.hero.actions.current_action
 
         self.action_idl.state = self.action_idl.STATE.QUEST
@@ -83,25 +83,25 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(isinstance(quest.knowledge_base[quest.machine.pointer.state], facts.Finish))
         self.assertTrue(all(requirement.check(quest.knowledge_base) for requirement in quest.knowledge_base[quest.machine.pointer.state].require))
 
-        self.assertTrue(self.hero.quests_history[quest.knowledge_base.filter(facts.Start).next().type] > 0)
+        self.assertTrue(self.hero.quests.history[quest.knowledge_base.filter(facts.Start).next().type] > 0)
 
     def test_complete_quest(self):
         self.complete_quest()
 
-    @mock.patch('game.quests.prototypes.QuestPrototype.modify_person_power', lambda *args, **kwargs: 1)
+    @mock.patch('game.quests.prototypes.QuestInfo.get_person_power_for_quest', classmethod(lambda cls, hero: 1))
     def test_power_on_end_quest_for_fast_account_hero(self):
         fake_cmd = FakeWorkerCommand()
 
         self.assertEqual(self.hero.places_history.history, [])
 
-        with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power', fake_cmd):
+        with mock.patch('game.workers.highlevel.Worker.cmd_change_power', fake_cmd):
             self.complete_quest()
 
-        self.assertTrue(len(self.hero.places_history.history) > 1)
+        self.assertTrue(len(self.hero.places_history.history) > 0)
 
         self.assertFalse(fake_cmd.commands)
 
-    @mock.patch('game.quests.prototypes.QuestPrototype.modify_person_power', lambda *args, **kwargs: 1)
+    @mock.patch('game.quests.prototypes.QuestInfo.get_person_power_for_quest', classmethod(lambda cls, hero: 1))
     def test_power_on_end_quest_for_premium_account_hero(self):
 
         self.hero.is_fast = False
@@ -109,51 +109,41 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertEqual(self.hero.places_history.history, [])
 
-        with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power') as fake_cmd:
+        with mock.patch('game.workers.highlevel.Worker.cmd_change_power') as fake_cmd:
             self.complete_quest()
 
-        self.assertTrue(len(self.hero.places_history.history) > 1)
+        self.assertTrue(len(self.hero.places_history.history) > 0)
 
         self.assertTrue(fake_cmd.call_count > 0)
 
-    @mock.patch('game.quests.prototypes.QuestPrototype.modify_person_power', lambda *args, **kwargs: 1)
+    @mock.patch('game.quests.prototypes.QuestInfo.get_person_power_for_quest', classmethod(lambda cls, hero: 1))
     def test_power_on_end_quest_for_normal_account_hero(self):
 
         self.hero.is_fast = False
 
         self.assertEqual(self.hero.places_history.history, [])
 
-        with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power') as fake_cmd:
+        with mock.patch('game.workers.highlevel.Worker.cmd_change_power') as fake_cmd:
             self.complete_quest()
 
-        self.assertTrue(len(self.hero.places_history.history) > 1)
+        self.assertTrue(len(self.hero.places_history.history) > 0)
 
         self.assertEqual(fake_cmd.call_count, 0)
 
-    def test_power_on_end_quest__modify_person_power_called(self):
+    def test_power_on_end_quest__give_power_called(self):
 
-        modify_person_power = mock.Mock(return_value=1)
-        with mock.patch('game.quests.prototypes.QuestPrototype.modify_person_power', modify_person_power):
+        with mock.patch('game.quests.prototypes.QuestPrototype._give_power') as give_power:
             self.hero.is_fast = False
             self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
             self.assertEqual(self.hero.places_history.history, [])
 
-            with mock.patch('game.workers.highlevel.Worker.cmd_change_person_power') as fake_cmd:
+            with mock.patch('game.workers.highlevel.Worker.cmd_change_power') as fake_cmd:
                 self.complete_quest()
 
             self.assertTrue(fake_cmd.call_count > 0)
-            self.assertTrue(modify_person_power.call_count > 0)
 
-    def test_modify_person_power(self):
-        person = self.place_1.persons[0]
-
-        with mock.patch('game.map.places.prototypes.PlacePrototype.freedom', 0.0):
-            self.assertEqual(QuestPrototype.modify_person_power(person, 2, 3, 5), 0)
-
-        with mock.patch('game.map.places.prototypes.PlacePrototype.freedom', 7):
-            self.assertEqual(QuestPrototype.modify_person_power(person, 2, 3, 5), 2*3*5*7)
-
+        self.assertTrue(give_power.call_count > 0)
 
     def test_get_experience_for_quest(self):
         self.assertEqual(self.hero.experience, 0)
@@ -186,3 +176,9 @@ class PrototypeTests(testcase.TestCase):
         self.complete_quest()
         self.assertEqual(self.hero.statistics.money_earned_from_quests, 0)
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
+
+    def test_satisfy_requirement__unknown(self):
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_requirement, facts.Start(uid='start', type='test'))
+
+    def test_do_actions__unknown(self):
+        self.assertRaises(exceptions.UnknownAction, self.quest._do_actions, [facts.Start(uid='start', type='test')])

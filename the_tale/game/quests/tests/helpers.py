@@ -7,6 +7,10 @@ from game.prototypes import TimePrototype
 
 from game.actions.prototypes import ActionQuestPrototype
 
+from game.quests.writers import Writer
+
+
+
 class QuestTestsMixin(object):
 
     def turn_to_quest(self, storage, hero_id):
@@ -71,3 +75,15 @@ class QuestWith2ChoicePoints(BaseQuest):
                         ]
 
         return participants + quest_facts
+
+
+class FakeWriter(Writer):
+
+    def __init__(self, fake_uid, **kwargs):
+        super(FakeWriter, self).__init__(**kwargs)
+        self._counter = 0
+        self._fake_uid = fake_uid
+
+    def get_message(self, type_, **kwargs):
+        self._counter += 1
+        return u'%s_%s_%d' % (self._fake_uid, type_, self._counter)

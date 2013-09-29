@@ -49,7 +49,7 @@ class IdlenessActionTest(testcase.TestCase):
 
     def test_inplace(self):
         self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionInPlacePrototype.TYPE)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.IN_PLACE)

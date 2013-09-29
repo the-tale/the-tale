@@ -56,7 +56,7 @@ class DoNothingActionTest(testcase.TestCase):
         for i in xrange(7):
             self.assertEqual(len(self.hero.actions.actions_list), 2)
             self.assertTrue(self.action_donothing.leader)
-            self.storage.process_turn()
+            self.storage.process_turn(second_step_if_needed=False)
             current_time.increment_turn()
 
         self.assertEqual(len(self.hero.actions.actions_list), 1)

@@ -41,6 +41,8 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.worker = workers_environment.supervisor
 
+        self.worker.logger = mock.Mock()
+
     def test_initialization(self):
         from common.postponed_tasks import PostponedTask, PostponedTaskPrototype, POSTPONED_TASK_STATE, FakePostponedInternalTask
 
@@ -130,6 +132,8 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.worker.register_task(task)
 
         self.assertRaises(SupervisorException, self.worker.register_task, task_2)
+
+        self.assertTrue(self.worker.logger.calls_count > 0)
 
     def test_register_account_not_in_task(self):
         self.worker.process_initialize()

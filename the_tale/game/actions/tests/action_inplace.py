@@ -59,7 +59,7 @@ class InPlaceActionTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_processed(self):
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.storage._test_save()
@@ -77,7 +77,7 @@ class InPlaceActionTest(testcase.TestCase):
         self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE)
         self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.storage._test_save()

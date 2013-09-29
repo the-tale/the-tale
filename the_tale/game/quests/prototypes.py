@@ -7,6 +7,7 @@ from questgen.machine import Machine
 from questgen import facts
 from questgen.knowledge_base import KnowledgeBase
 from questgen import transformators
+from questgen.quests.base_quest import ROLES
 
 from game.prototypes import TimePrototype
 
@@ -23,11 +24,12 @@ from game.heroes.relations import EQUIPMENT_SLOT, ITEMS_OF_EXPENDITURE
 
 from game.quests import exceptions
 from game.quests import uids
-from game.quests.writer import Writer
+from game.quests import writers
 from game.quests.relations import ACTOR_TYPE
 
 
 class QuestInfo(object):
+    __slots__ = ('type', 'uid', 'name', 'action', 'choice', 'choice_alternatives', 'experience', 'power', 'actors')
 
     def __init__(self, type, uid, name, action, choice, choice_alternatives, experience, power, actors):
         self.type = type
@@ -64,6 +66,9 @@ class QuestInfo(object):
 
 
     def prepair_actor_ui_info(self, role, actor_type):
+        if role not in self.actors:
+            return None
+
         actor_id, actor_name = self.actors[role]
         if actor_type._is_PLACE:
             return (actor_name, actor_type.value, {'id': actor_id})
@@ -73,16 +78,16 @@ class QuestInfo(object):
             return (actor_name, actor_type.value, {'goal': actor_id.text})
 
     def actors_ui_info(self):
-        from questgen.quests.base_quest import ROLES
-
         if self.type == 'no-quest':
             return []
 
         if self.type == 'next-spending':
             return [ self.prepair_actor_ui_info('goal', ACTOR_TYPE.MONEY_SPENDING)  ]
 
-        return [ self.prepair_actor_ui_info(ROLES.INITIATOR, ACTOR_TYPE.PERSON),
-                 self.prepair_actor_ui_info(ROLES.RECEIVER, ACTOR_TYPE.PERSON) ]
+        return filter(None, [ self.prepair_actor_ui_info(ROLES.INITIATOR, ACTOR_TYPE.PERSON),
+                              self.prepair_actor_ui_info(ROLES.INITIATOR_POSITION, ACTOR_TYPE.PLACE),
+                              self.prepair_actor_ui_info(ROLES.RECEIVER, ACTOR_TYPE.PERSON),
+                              self.prepair_actor_ui_info(ROLES.RECEIVER_POSITION, ACTOR_TYPE.PLACE)])
 
     @classmethod
     def deserialize(cls, data):
@@ -91,7 +96,7 @@ class QuestInfo(object):
     @classmethod
     def construct(cls, type, uid, knowledge_base, hero):
 
-        writer = Writer(type=type, message=None, substitution=cls.substitution(uid, knowledge_base, hero))
+        writer = writers.get_writer(type=type, message=None, substitution=cls.substitution(uid, knowledge_base, hero))
 
         actors = { participant.role: (knowledge_base[participant.participant].externals['id'], writer.actor(participant.role))
                    for participant in knowledge_base.filter(facts.QuestParticipant)
@@ -131,7 +136,7 @@ class QuestInfo(object):
         substitution = self.substitution(self.uid, knowledge_base, hero)
         substitution.update(ext_substitution)
 
-        writer = Writer(type=self.type, message=message, substitution=substitution)
+        writer = writers.get_writer(type=self.type, message=message, substitution=substitution)
 
         action_msg = writer.action()
         if action_msg:
@@ -155,7 +160,7 @@ class QuestInfo(object):
             return
 
         substitution = self.substitution(self.uid, knowledge_base, hero)
-        writer = Writer(type=self.type, message='choice', substitution=substitution)
+        writer = writers.get_writer(type=self.type, message='choice', substitution=substitution)
 
         choosen_option = knowledge_base[defaults[0].option]
 
@@ -210,7 +215,7 @@ class QuestPrototype(object):
 
     def serialize(self):
         return {'quests_stack': [info.serialize() for info in self.quests_stack],
-                'knowledge_base': self.knowledge_base.serialize(),
+                'knowledge_base': self.knowledge_base.serialize(short=True),
                 'created_at': time.mktime(self.created_at.timetuple()),
                 'replane_required': self.replane_required,
                 'states_to_percents': self.states_to_percents,}
@@ -326,25 +331,51 @@ class QuestPrototype(object):
         ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=False)
 
 
-    def _give_power(self, hero, person_id, power):
-        from game.persons.storage import persons_storage
-
-        # self.push_message(writer, self.hero, cmd.event)
-        base_power = self.quests_stack[-1].power
-
-        person = persons_storage[person_id]
-
-        power = self.modify_person_power(person, power, hero.person_power_modifier, base_power)
+    def _give_power(self, hero, place, power):
+        power = power * self.quests_stack[-1].power
 
         if power > 0:
-            hero.places_history.add_place(person.place_id)
+            hero.places_history.add_place(place.id)
 
         if not hero.can_change_persons_power:
+            return 0
+
+        return power
+
+
+    def _give_person_power(self, hero, person, power):
+
+        power = self._give_power(hero, person.place, power)
+
+        if power == 0:
             return
 
-        power = hero.modify_person_power(person, power)
+        power = hero.modify_power(power, person=person)
 
         person.cmd_change_power(power)
+
+
+    def _give_place_power(self, hero, place, power):
+
+        power = self._give_power(hero, place, power)
+
+        if power == 0:
+            return
+
+        power = hero.modify_power(power, place=place)
+
+        place.cmd_change_power(power)
+
+
+    def _fight(self, mob_uid):
+        from game.actions.prototypes import ActionBattlePvE1x1Prototype
+
+        mob = mobs_storage[self.knowledge_base[mob_uid].externals['id']].create_mob(self.hero)
+
+        # if mob is None:
+        #     mob = mobs_storage.get_random_mob(self.hero)
+
+        ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 
 
     def _finish_quest(self, hero):
@@ -385,7 +416,7 @@ class QuestPrototype(object):
 
     def _start_quest(self, hero):
         start = self.machine.current_state
-        hero.quests_history[start.type] = TimePrototype.get_current_turn_number()
+        hero.quests.update_history(start.type, TimePrototype.get_current_turn_number())
         self.quests_stack.append(QuestInfo.construct(type=start.type,
                                                      uid=start.uid,
                                                      knowledge_base=self.machine.knowledge_base,
@@ -422,7 +453,20 @@ class QuestPrototype(object):
             if isinstance(action, facts.Message):
                 self.quests_stack[-1].process_message(self.knowledge_base, self.hero, action.id)
             elif isinstance(action, facts.GivePower):
-                self._give_power(self.hero, self.knowledge_base[action.person].externals['id'], action.power)
+                recipient = self.knowledge_base[action.object]
+                if isinstance(recipient, facts.Person):
+                    self._give_person_power(self.hero, persons_storage[recipient.externals['id']], action.power)
+                elif isinstance(recipient, facts.Place):
+                    self._give_place_power(self.hero, places_storage[recipient.externals['id']], action.power)
+                else:
+                    raise exceptions.UnknownPowerRecipient(recipient=recipient)
+            elif isinstance(action, facts.Fight):
+                self._fight(action.mob)
+            elif isinstance(action, facts.LocatedNear):
+                destination = places_storage[self.knowledge_base[action.place].externals['id']]
+                self._move_hero_near(destination)
+            else:
+                raise exceptions.UnknownAction(action=action)
 
 
     def cmd_upgrade_equipment(self, cmd, writer):
@@ -472,23 +516,6 @@ class QuestPrototype(object):
 
     def cmd_switch(self, cmd, writer):
         self.push_message(writer, self.hero, cmd.event)
-
-    @classmethod
-    def modify_person_power(cls, person, quest_power, hero_modifier, base_power):
-        return quest_power * hero_modifier * base_power * person.place.freedom
-
-    def cmd_battle(self, cmd, writer):
-        from game.actions.prototypes import ActionBattlePvE1x1Prototype
-
-        self.push_message(writer, self.hero, cmd.event)
-
-        mob = None
-        if cmd.mob_id:
-            mob = mobs_storage.get_by_uuid(cmd.mob_id).create_mob(self.hero)
-        if mob is None:
-            mob = mobs_storage.get_random_mob(self.hero)
-
-        ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 
     def cmd_donothing(self, cmd, writer):
         from ..actions.prototypes import ActionDoNothingPrototype

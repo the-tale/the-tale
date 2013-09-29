@@ -3,7 +3,8 @@
 from common.utils import testcase
 
 from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
+from accounts.prototypes import AccountPrototype
+
 from game.logic_storage import LogicStorage
 
 from game.logic import create_test_map
@@ -20,9 +21,11 @@ class ResurrectActionTest(testcase.TestCase):
 
         result, account_id, bundle_id = register_user('test_user')
 
-        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.account = AccountPrototype.get_by_id(account_id)
+
         self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[account_id]
         self.action_idl = self.hero.actions.current_action
 
         self.hero.kill()
@@ -51,7 +54,7 @@ class ResurrectActionTest(testcase.TestCase):
             self.assertEqual(len(self.hero.actions.actions_list), 2)
             self.assertEqual(self.hero.actions.current_action, self.action_resurrect)
 
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
@@ -65,11 +68,12 @@ class ResurrectActionTest(testcase.TestCase):
         current_time = TimePrototype.get_current_time()
 
         while len(self.hero.actions.actions_list) != 1:
-            self.storage.process_turn()
+            self.storage.process_turn(second_step_if_needed=False)
             current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)
         self.assertEqual(self.hero.health, self.hero.max_health)
+
         self.assertEqual(self.hero.is_alive, True)
 
         self.storage._test_save()
@@ -78,7 +82,7 @@ class ResurrectActionTest(testcase.TestCase):
 
         self.action_resurrect.fast_resurrect()
 
-        self.storage.process_turn()
+        self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 

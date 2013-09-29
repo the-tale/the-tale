@@ -106,13 +106,7 @@ class PersonPrototype(BasePrototype):
 
     def cmd_change_power(self, power):
         from game.workers.environment import workers_environment
-
-        building = buildings_storage.get_by_person_id(self.id)
-
-        if building and power > 0:
-            power *= c.BUILDING_PERSON_POWER_MULTIPLIER
-
-        workers_environment.highlevel.cmd_change_person_power(self.id, power)
+        workers_environment.highlevel.cmd_change_power(power_delta=power, person_id=self.id, place_id=None)
 
     @property
     def time_before_unfreeze(self):

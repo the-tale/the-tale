@@ -85,7 +85,7 @@ class LogicStorage(object):
 
     def add_meta_action(self, meta_action):
         if meta_action.id in self.meta_actions:
-            raise exceptions.GameException('Meta action with id "%d" has already registerd in storage' % meta_action.id)
+            raise exceptions.GameError('Meta action with id "%d" has already registerd in storage' % meta_action.id)
         meta_action.set_storage(self)
         self.meta_actions[meta_action.id] = meta_action
 
@@ -112,7 +112,7 @@ class LogicStorage(object):
             hero.on_highlevel_data_updated()
 
 
-    def process_turn(self, logger=None):
+    def process_turn(self, logger=None, second_step_if_needed=True):
 
         for hero in self.heroes.values():
 
@@ -126,7 +126,7 @@ class LogicStorage(object):
                 leader_action.process_turn()
 
                 # process new actions if it has been created
-                if leader_action != hero.actions.current_action:
+                if second_step_if_needed and leader_action != hero.actions.current_action:
                     leader_action = hero.actions.current_action
                     leader_action.process_turn()
             except Exception:
