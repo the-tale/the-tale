@@ -217,28 +217,28 @@ class HeroPrototype(BasePrototype):
 
     def get_special_quests(self):
         from questgen.quests.hunt import Hunt
+        from questgen.quests.hometown import Hometown
+        from questgen.quests.search_smith import SearchSmith
 
-        # from game.quests.quests_builders import Hometown
         # from game.quests.quests_builders import HelpFriend
         # from game.quests.quests_builders import InterfereEnemy
-        # from game.quests.quests_builders import SearchSmith
 
         allowed_quests = []
 
         if self.preferences.mob is not None:
             allowed_quests.append(Hunt.TYPE)
-        # if self.preferences.place is not None:
-        #     allowed_quests.append(Hometown.type())
+        if self.preferences.place is not None:
+            allowed_quests.append(Hometown.TYPE)
         # if self.preferences.friend is not None:
         #     allowed_quests.append(HelpFriend.type())
         # if self.preferences.enemy is not None:
         #     allowed_quests.append(InterfereEnemy.type())
-        # if self.preferences.equipment_slot is not None:
-        #     equipped_artifact = self.equipment.get(self.preferences.equipment_slot)
-        #     equipped_power = equipped_artifact.power if equipped_artifact else -1
-        #     min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
-        #     if equipped_power <= max_power:
-        #         allowed_quests.append(SearchSmith.type())
+        if self.preferences.equipment_slot is not None:
+            equipped_artifact = self.equipment.get(self.preferences.equipment_slot)
+            equipped_power = equipped_artifact.power if equipped_artifact else -1
+            min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
+            if equipped_power <= max_power:
+                allowed_quests.append(SearchSmith.TYPE)
 
         return allowed_quests
 

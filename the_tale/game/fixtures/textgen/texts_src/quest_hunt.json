@@ -4,7 +4,6 @@
     "prefix": "quest_hunt",
     "variables": {"hero": "привидение", "receiver_position": "город"},
     "variables_verbose": {"hero": "герой",
-                          "initiator_position": "место начала задания",
                           "receiver_position": "место окончания задания",
                           "coins": "количество монет",
                           "artifact": "артефакт"},

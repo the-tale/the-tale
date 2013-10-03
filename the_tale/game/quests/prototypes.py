@@ -20,12 +20,12 @@ from game.map.roads.storage import waymarks_storage
 from game.persons.storage import persons_storage
 
 from game.heroes.statistics import MONEY_SOURCE
-from game.heroes.relations import EQUIPMENT_SLOT, ITEMS_OF_EXPENDITURE
+from game.heroes.relations import ITEMS_OF_EXPENDITURE
 
 from game.quests import exceptions
 from game.quests import uids
 from game.quests import writers
-from game.quests.relations import ACTOR_TYPE
+from game.quests.relations import ACTOR_TYPE, DONOTHING_TYPE
 
 
 class QuestInfo(object):
@@ -290,7 +290,9 @@ class QuestPrototype(object):
             self.hero.statistics.change_quests_done(1)
             return False
 
-        self.satisfy_requirements(self.machine.next_state)
+        if self.machine.next_state:
+            self.satisfy_requirements(self.machine.next_state)
+
         return True
 
     def sync_knowledge_base(self):
@@ -326,10 +328,9 @@ class QuestPrototype(object):
             ActionMoveNearPlacePrototype.create(hero=self.hero, place=self.hero.position.get_dominant_place(), back=True)
 
 
-    def _move_hero_near(self, destination):
+    def _move_hero_near(self, destination, terrains=None):
         from game.actions.prototypes import ActionMoveNearPlacePrototype
-        ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=False)
-
+        ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=False, terrains=terrains)
 
     def _give_power(self, hero, place, power):
         power = power * self.quests_stack[-1].power
@@ -378,20 +379,21 @@ class QuestPrototype(object):
         ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 
 
-    def _finish_quest(self, hero):
+    def _finish_quest(self, finish, hero):
+
         experience = self.quests_stack[-1].experience
         experience = self.modify_experience(experience)
+
         hero.add_experience(experience)
 
-        self._give_reward(hero)
+        self._give_reward(finish.type, hero)
 
         self.quests_stack.pop()
 
 
-    def _give_reward(self, hero):
+    def _give_reward(self, quest_type, hero):
 
         quest_info = self.quests_stack[-1]
-        finish_state = self.machine.current_state
 
         if hero.can_get_artifact_for_quest():
             artifact, unequipped, sell_price = hero.buy_artifact(better=False, with_prefered_slot=False, equip=False)# pylint: disable=W0612
@@ -399,7 +401,7 @@ class QuestPrototype(object):
             if artifact is not None:
                 quest_info.process_message(knowledge_base=self.knowledge_base,
                                            hero=self.hero,
-                                           message='%s_artifact' % finish_state.type,
+                                           message='%s_artifact' % quest_type,
                                            ext_substitution={'artifact': artifact})
                 return
 
@@ -410,12 +412,60 @@ class QuestPrototype(object):
 
         quest_info.process_message(knowledge_base=self.knowledge_base,
                                    hero=self.hero,
-                                   message='%s_money' % finish_state.type,
+                                   message='%s_money' % quest_type,
                                    ext_substitution={'coins': money})
 
+    def _donothing(self, donothing_type):
+        from game.actions.prototypes import ActionDoNothingPrototype
 
-    def _start_quest(self, hero):
-        start = self.machine.current_state
+        donothing = DONOTHING_TYPE._index_value[donothing_type]
+
+        writer = writers.get_writer(type=self.quests_stack[-1].type, message=donothing_type, substitution={})
+
+        ActionDoNothingPrototype.create(hero=self.hero,
+                                        duration=donothing.duration,
+                                        messages_prefix=writer.journal_id(),
+                                        messages_probability=donothing.messages_probability)
+
+
+    @classmethod
+    def _get_upgrdade_choice(cls, hero):
+        choices = ['buy']
+
+        if hero.preferences.equipment_slot and hero.equipment.get(hero.preferences.equipment_slot) is not None:
+            choices.append('sharp')
+
+        return random.choice(choices)
+
+    @classmethod
+    def _upgrade_equipment(cls, process_message, hero, knowledge_base):
+
+        # limit money spend
+        money_spend = min(hero.money,
+                          f.normal_action_price(hero.level) * ITEMS_OF_EXPENDITURE.get_quest_upgrade_equipment_fraction())
+
+        if cls._get_upgrdade_choice(hero) == 'buy':
+            hero.change_money(MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -money_spend)
+            artifact, unequipped, sell_price = hero.buy_artifact(better=True, with_prefered_slot=True, equip=True)
+
+            if artifact is None:
+                process_message(knowledge_base, hero, message='upgrade__fail', ext_substitution={'coins': money_spend})
+            elif unequipped:
+                process_message(knowledge_base, hero, message='upgrade__buy_and_change', ext_substitution={'coins': money_spend,
+                                                                                                           'artifact': artifact,
+                                                                                                           'unequipped': unequipped,
+                                                                                                           'sell_price': sell_price})
+            else:
+                process_message(knowledge_base, hero, message='upgrade__buy', ext_substitution={'coins': money_spend,
+                                                                                                'artifact': artifact})
+
+        else:
+            hero.change_money(MONEY_SOURCE.SPEND_FOR_SHARPENING, -money_spend)
+            artifact = hero.sharp_artifact()
+            process_message(knowledge_base, hero, message='upgrade__sharp', ext_substitution={'coins': money_spend,
+                                                                                              'artifact': artifact})
+
+    def _start_quest(self, start, hero):
         hero.quests.update_history(start.type, TimePrototype.get_current_turn_number())
         self.quests_stack.append(QuestInfo.construct(type=start.type,
                                                      uid=start.uid,
@@ -428,19 +478,19 @@ class QuestPrototype(object):
             self._move_hero_to(destination)
         elif isinstance(requirement, facts.LocatedNear):
             destination = places_storage[self.knowledge_base[requirement.place].externals['id']]
-            self._move_hero_near(destination)
+            self._move_hero_near(destination, terrains=requirement.terrains)
         else:
             raise exceptions.UnknownRequirement(requirement=requirement)
 
     def on_state(self, state):
 
         if isinstance(state, facts.Start):
-            self._start_quest(hero=self.hero)
+            self._start_quest(state, hero=self.hero)
 
         self._do_actions(state.actions)
 
         if isinstance(state, facts.Finish):
-            self._finish_quest(hero=self.hero)
+            self._finish_quest(state, hero=self.hero)
 
     def on_jump_start(self, jump):
         self._do_actions(jump.start_actions)
@@ -464,41 +514,13 @@ class QuestPrototype(object):
                 self._fight(action.mob)
             elif isinstance(action, facts.LocatedNear):
                 destination = places_storage[self.knowledge_base[action.place].externals['id']]
-                self._move_hero_near(destination)
+                self._move_hero_near(destination, terrains=action.terrains)
+            elif isinstance(action, facts.DoNothing):
+                self._donothing(action.type)
+            elif isinstance(action, facts.UpgradeEquipment):
+                self._upgrade_equipment(self.quests_stack[-1].process_message, self.hero, self.knowledge_base)
             else:
                 raise exceptions.UnknownAction(action=action)
-
-
-    def cmd_upgrade_equipment(self, cmd, writer):
-
-        choices = ['buy']
-
-        if cmd.equipment_slot in EQUIPMENT_SLOT._index_value: # this check is for old equipment ids, we should skip them
-            if self.hero.equipment.get(EQUIPMENT_SLOT(cmd.equipment_slot)) is not None:
-                choices.append('sharp')
-
-        # limit money spend
-        money_spend = min(self.hero.money,
-                          f.normal_action_price(self.hero.level) * ITEMS_OF_EXPENDITURE.get_quest_upgrade_equipment_fraction())
-
-        if random.choice(choices) == 'buy':
-            self.hero.change_money(MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -money_spend)
-            artifact, unequipped, sell_price = self.hero.buy_artifact(better=True, with_prefered_slot=True, equip=True)
-
-            if artifact is None:
-                self.push_message(writer, self.hero, '%s_fail' % cmd.event,
-                                  coins=money_spend)
-            elif unequipped:
-                self.push_message(writer, self.hero, '%s_buy_and_change' % cmd.event,
-                                  coins=money_spend, artifact=artifact, unequipped=unequipped, sell_price=sell_price)
-            else:
-                self.push_message(writer, self.hero, '%s_buy' % cmd.event,
-                                  coins=money_spend, artifact=artifact)
-        else:
-            self.hero.change_money(MONEY_SOURCE.SPEND_FOR_SHARPENING, -money_spend)
-            artifact = self.hero.sharp_artifact()
-            self.push_message(writer, self.hero, '%s_sharp' % cmd.event,
-                              coins=money_spend, artifact=artifact)
 
     def modify_experience(self, experience):
         from game.persons.storage import persons_storage
@@ -516,14 +538,6 @@ class QuestPrototype(object):
 
     def cmd_switch(self, cmd, writer):
         self.push_message(writer, self.hero, cmd.event)
-
-    def cmd_donothing(self, cmd, writer):
-        from ..actions.prototypes import ActionDoNothingPrototype
-        self.push_message(writer, self.hero, cmd.event)
-        ActionDoNothingPrototype.create(hero=self.hero,
-                                        duration=cmd.duration,
-                                        messages_prefix=writer.get_msg_journal_id(cmd.event),
-                                        messages_probability=cmd.messages_probability)
 
     def ui_info(self):
         return {'line': [info.ui_info() for info in self.quests_stack]}

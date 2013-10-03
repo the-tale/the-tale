@@ -31,6 +31,8 @@ from game.text_generation import get_vocabulary, get_dictionary, prepair_substit
 
 from game.abilities.relations import HELP_CHOICES
 
+from game.map.storage import map_info_storage
+
 
 E = 0.0001
 
@@ -71,6 +73,7 @@ class ActionBase(object):
     TEXTGEN_TYPE = None
     CONTEXT_MANAGER = None
     HELP_CHOICES = set()
+    APPROVED_FOR_SECOND_STEP = True
 
     def __init__(self,
                  hero,
@@ -444,6 +447,7 @@ class ActionQuestPrototype(ActionBase):
     TYPE = 'QUEST'
     TEXTGEN_TYPE = 'action_quest'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
+    APPROVED_FOR_SECOND_STEP = False # all quest actions MUST be done on separated turns
 
     class STATE(ActionBase.STATE):
         PROCESSING = 'processing'
@@ -1166,12 +1170,25 @@ class ActionMoveNearPlacePrototype(ActionBase):
     ###########################################
 
     @classmethod
-    def _create(cls, hero, bundle_id, place, back):
-
+    def _get_destination_coordinates(cls, back, place, terrains):
         if back:
-            x, y = place.x, place.y
+            return place.x, place.y
         else:
-            x, y = random.choice(place.nearest_cells)
+            choices = ()
+
+            if terrains is not None:
+                map_info = map_info_storage.item
+                choices = [ (x, y) for x, y in place.nearest_cells if map_info.terrain[y][x] in terrains]
+
+            if not choices:
+                choices = place.nearest_cells
+
+            return random.choice(choices)
+
+    @classmethod
+    def _create(cls, hero, bundle_id, place, back, terrains=None):
+
+        x, y = cls._get_destination_coordinates(back=back, place=place, terrains=terrains)
 
         prototype = cls( hero=hero,
                          bundle_id=bundle_id,

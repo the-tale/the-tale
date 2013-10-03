@@ -15,6 +15,9 @@ from game.actions.prototypes import ActionMoveNearPlacePrototype, ActionRestProt
 from game.actions.prototypes import ActionIdlenessPrototype, ActionBattlePvE1x1Prototype, ActionInPlacePrototype, ActionRegenerateEnergyPrototype
 from game.prototypes import TimePrototype
 
+from game.map.relations import TERRAIN
+from game.map.storage import map_info_storage
+
 
 class MoveNearActionTest(testcase.TestCase):
 
@@ -42,6 +45,52 @@ class MoveNearActionTest(testcase.TestCase):
         self.assertEqual(self.action_move.leader, True)
         self.assertEqual(self.action_move.bundle_id, self.action_idl.bundle_id)
         self.storage._test_save()
+
+    def test_get_destination_coordinates(self):
+
+        self.assertTrue(len(self.p1.nearest_cells) > 3) # two coordinates will be in coordinates set, other will not
+
+        x_1, y_1 = self.p1.nearest_cells[0]
+        map_info_storage.item.terrain[y_1][x_1] = TERRAIN.WATER_DEEP
+
+        x_2, y_2 = self.p1.nearest_cells[1]
+        map_info_storage.item.terrain[y_2][x_2] = TERRAIN.WATER_DEEP
+
+        coordinates = set()
+
+        for i in xrange(100):
+            coordinates.add(ActionMoveNearPlacePrototype._get_destination_coordinates(back=False, place=self.p1, terrains=(TERRAIN.WATER_DEEP,)))
+
+        self.assertEqual(coordinates, set([(x_1, y_1), (x_2, y_2)]))
+
+
+    def test_get_destination_coordinates__no_terrains(self):
+
+        self.assertTrue(len(self.p1.nearest_cells) > 3) # two coordinates will be in coordinates set, other will not
+
+        coordinates = set()
+
+        for i in xrange(100):
+            coordinates.add(ActionMoveNearPlacePrototype._get_destination_coordinates(back=False, place=self.p1, terrains=(TERRAIN.WATER_DEEP,)))
+
+        self.assertEqual(coordinates, set(self.p1.nearest_cells))
+
+    def test_get_destination_coordinates__back(self):
+
+        self.assertTrue(len(self.p1.nearest_cells) > 3) # two coordinates will be in coordinates set, other will not
+
+        x_1, y_1 = self.p1.nearest_cells[0]
+        map_info_storage.item.terrain[y_1][x_1] = TERRAIN.WATER_DEEP
+
+        x_2, y_2 = self.p1.nearest_cells[1]
+        map_info_storage.item.terrain[y_2][x_2] = TERRAIN.WATER_DEEP
+
+        coordinates = set()
+
+        for i in xrange(100):
+            coordinates.add(ActionMoveNearPlacePrototype._get_destination_coordinates(back=True, place=self.p1, terrains=(TERRAIN.WATER_DEEP,)))
+
+        self.assertEqual(coordinates, set([(self.p1.x, self.p1.y)]))
 
 
     @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)

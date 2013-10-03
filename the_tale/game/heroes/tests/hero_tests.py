@@ -5,6 +5,8 @@ import random
 
 import mock
 
+from questgen.quests.search_smith import SearchSmith
+
 from common.utils.testcase import TestCase
 
 from accounts.prototypes import AccountPrototype
@@ -16,7 +18,7 @@ from game.prototypes import TimePrototype
 
 from game.balance import formulas as f, constants as c
 from game.logic_storage import LogicStorage
-from game.quests.quests_builders import SearchSmith
+
 
 from game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 from game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle
@@ -525,21 +527,21 @@ class HeroQuestsTest(TestCase):
 
 
     def test_special_quests_searchsmith_without_preferences(self):
-        self.assertFalse(SearchSmith.type() in self.hero.get_special_quests())
+        self.assertFalse(SearchSmith.TYPE in self.hero.get_special_quests())
 
     def test_special_quests_searchsmith_with_preferences_without_artifact(self):
         self.hero.equipment._remove_all()
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
-        self.assertTrue(SearchSmith.type() in self.hero.get_special_quests())
+        self.assertTrue(SearchSmith.TYPE in self.hero.get_special_quests())
 
     def test_special_quests_searchsmith_with_preferences_with_artifact(self):
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
         self.assertTrue(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE) is not None)
-        self.assertTrue(SearchSmith.type() in self.hero.get_special_quests())
+        self.assertTrue(SearchSmith.TYPE in self.hero.get_special_quests())
 
     def test_get_minimum_created_time_of_active_quests(self):
         self.hero._model.quest_created_time = datetime.datetime.now() - datetime.timedelta(days=1)

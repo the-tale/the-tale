@@ -182,3 +182,58 @@ class PrototypeTests(testcase.TestCase):
 
     def test_do_actions__unknown(self):
         self.assertRaises(exceptions.UnknownAction, self.quest._do_actions, [facts.Start(uid='start', type='test')])
+
+    def test_get_upgrdade_choice__no_preference(self):
+        for i in xrange(100):
+            self.assertEqual(self.quest._get_upgrdade_choice(self.hero), 'buy')
+
+    def test_get_upgrdade_choice(self):
+        from game.heroes.relations import EQUIPMENT_SLOT
+
+        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
+
+        choices = set()
+
+        for i in xrange(100):
+            choices.add(self.quest._get_upgrdade_choice(self.hero))
+
+        self.assertEqual(choices, set(('buy', 'sharp')))
+
+
+    def test_get_upgrdade_choice__no_item_equipped(self):
+        from game.heroes.relations import EQUIPMENT_SLOT
+
+        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.RING)
+
+        for i in xrange(100):
+            self.assertEqual(self.quest._get_upgrdade_choice(self.hero), 'buy')
+
+
+    @mock.patch('game.quests.prototypes.QuestPrototype._get_upgrdade_choice', classmethod(lambda *argv, **kwargs: 'buy'))
+    def test_upgrade_equipment__buy(self):
+        self.assertEqual(self.hero.statistics.artifacts_had, 0)
+        self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
+                                      hero=self.hero,
+                                      knowledge_base=self.quest.knowledge_base)
+        self.assertEqual(self.hero.statistics.artifacts_had, 1)
+
+    @mock.patch('game.quests.prototypes.QuestPrototype._get_upgrdade_choice', classmethod(lambda *argv, **kwargs: 'sharp'))
+    def test_upgrade_equipment__sharp(self):
+        old_power = self.hero.power
+        self.assertEqual(self.hero.statistics.artifacts_had, 0)
+
+        self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
+                                      hero=self.hero,
+                                      knowledge_base=self.quest.knowledge_base)
+
+        self.assertEqual(self.hero.statistics.artifacts_had, 0)
+        self.assertEqual(old_power + 1, self.hero.power)
+
+    def test_upgrade_equipment__money_limit(self):
+        self.hero._model.money = 99999999
+
+        self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
+                                      hero=self.hero,
+                                      knowledge_base=self.quest.knowledge_base)
+
+        self.assertTrue(self.hero.money > 0)

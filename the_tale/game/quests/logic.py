@@ -16,6 +16,8 @@ from questgen.quests.quests_base import QuestsBase
 
 from questgen.quests.spying import Spying
 from questgen.quests.hunt import Hunt
+from questgen.quests.hometown import Hometown
+from questgen.quests.search_smith import SearchSmith
 
 
 
@@ -46,7 +48,7 @@ QUEST_RESTRICTIONS =  [restrictions.SingleStartState(),
                        restrictions.ChoicesConsistency()]
 
 QUESTS_BASE = QuestsBase()
-QUESTS_BASE += [Spying, Hunt]
+QUESTS_BASE += [Spying, Hunt, Hometown, SearchSmith]
 
 NORMAL_QUESTS = [Spying.TYPE]
 
@@ -117,7 +119,7 @@ def get_knowledge_base(hero): # pylint: disable=R0912
         if place_uid not in kb:
             continue
 
-        kb += facts.Person(uid=person_uid, profession=person.type.value, externals={'id': person.id})
+        kb += facts.Person(uid=person_uid, profession=person.type.quest_profession, externals={'id': person.id})
         kb += facts.LocatedIn(object=person_uid, place=place_uid)
 
     pref_mob = hero.preferences.mob
@@ -212,4 +214,9 @@ def _create_random_quest_for_hero(hero, special):
 
     states_to_percents = analysers.percents_collector(knowledge_base)
 
-    return QuestPrototype(hero=hero, knowledge_base=knowledge_base, states_to_percents=states_to_percents)
+    quest = QuestPrototype(hero=hero, knowledge_base=knowledge_base, states_to_percents=states_to_percents)
+
+    if quest.machine.can_do_step():
+        quest.machine.step() # do first step to setup pointer
+
+    return quest

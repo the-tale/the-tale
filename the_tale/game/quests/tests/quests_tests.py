@@ -2,6 +2,7 @@
 import mock
 
 from questgen import facts
+from questgen.quests.search_smith import SearchSmith
 
 from common.utils import testcase
 
@@ -35,7 +36,7 @@ class QuestsTestBase(testcase.TestCase):
 
     def setUp(self):
         super(QuestsTestBase, self).setUp()
-        p1, p2, p3 = create_test_map()
+        self.p1, self.p2, self.p3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
 
@@ -46,14 +47,15 @@ class QuestsTestBase(testcase.TestCase):
 
         self.hero._model.money += 1
         self.hero.preferences.set_mob(mobs_storage.all()[0])
-        self.hero.preferences.set_place(p1)
-        self.hero.preferences.set_friend(p1.persons[0])
-        self.hero.preferences.set_enemy(p2.persons[0])
+        self.hero.preferences.set_place(self.p1)
+        self.hero.preferences.set_friend(self.p1.persons[0])
+        self.hero.preferences.set_enemy(self.p2.persons[0])
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
+        self.hero.position.set_place(self.p2)
         self.hero.save()
 
-        persons_storage.all()[0]._model.type = PERSON_TYPE.BLACKSMITH
-        persons_storage.save_all()
+        self.p1.persons[0]._model.type = PERSON_TYPE.BLACKSMITH
+        self.p1.persons[0].save()
 
 
 class QuestsTest(QuestsTestBase):
@@ -89,9 +91,9 @@ def create_test_method(quest, quests):
 
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionIdlenessPrototype.TYPE)
 
-        # if quest == SearchSmith:
-        #     self.assertTrue(self.hero.statistics.money_spend_for_artifacts > 0 or
-        #                     self.hero.statistics.money_spend_for_sharpening > 0)
+        if quest == SearchSmith:
+            self.assertTrue(self.hero.statistics.money_spend_for_artifacts > 0 or
+                            self.hero.statistics.money_spend_for_sharpening > 0)
 
     return quest_test_method
 
@@ -125,6 +127,18 @@ class RawQuestsTest(QuestsTestBase):
 
         self._bruteforce(knowledge_base, [start_uid], table, [start_uid], processed=set())
 
+    def _check_messages(self, start, message):
+        writer = Writer(type=start, message=message, substitution={})
+
+        # print '--------'
+        # print writer.journal_id()
+        # print writer.diary_id()
+        # print writer.action_id()
+
+        self.assertTrue(writer.journal_id() in self.vocabruary or
+                        writer.diary_id() in self.vocabruary or
+                        writer.action_id() in self.vocabruary)
+
     def _bruteforce(self, knowledge_base, path, table, starts, processed):
         current_state = knowledge_base[path[-1]]
 
@@ -148,18 +162,20 @@ class RawQuestsTest(QuestsTestBase):
 
         # print current_state.uid
         for action in current_state.actions:
-            if not isinstance(action, facts.Message):
-                continue
-            writer = Writer(type=starts[-1], message=action.id, substitution={})
 
-            # print '--------'
-            # print writer.journal_id()
-            # print writer.diary_id()
-            # print writer.action_id()
+            if isinstance(action, facts.DoNothing):
+                self._check_messages(starts[-1], '%s_start' % action.type)
+                self._check_messages(starts[-1], '%s_donothing' % action.type)
 
-            self.assertTrue(writer.journal_id() in self.vocabruary or
-                            writer.diary_id() in self.vocabruary or
-                            writer.action_id() in self.vocabruary)
+            elif isinstance(action, facts.UpgradeEquipment):
+                self._check_messages(starts[-1], 'upgrade__fail')
+                self._check_messages(starts[-1], 'upgrade__buy_and_change')
+                self._check_messages(starts[-1], 'upgrade__buy')
+                self._check_messages(starts[-1], 'upgrade__sharp')
+
+            elif isinstance(action, facts.Message):
+                self._check_messages(starts[-1], action.id)
+
 
         for next_jump in table[current_state.uid]:
             if isinstance(next_jump, facts.Option):

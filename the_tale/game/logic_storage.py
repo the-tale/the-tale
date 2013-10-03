@@ -126,7 +126,7 @@ class LogicStorage(object):
                 leader_action.process_turn()
 
                 # process new actions if it has been created
-                if second_step_if_needed and leader_action != hero.actions.current_action:
+                if second_step_if_needed and leader_action != hero.actions.current_action and hero.actions.current_action.APPROVED_FOR_SECOND_STEP:
                     leader_action = hero.actions.current_action
                     leader_action.process_turn()
             except Exception:
